@@ -79,13 +79,19 @@ method algebra
   block       none
   checks      ring and field identities, starting from the equations in L, in the
               variables and in named subterms treated as opaque.
+  decides     equality of rational expressions over a field, with every subterm
+              that is not built from numerals, + − · / and a numeral power
+              treated as an atom it knows nothing about
+  hypotheses  every atom is a real number, and every denominator is nonzero;
+              both are dull facts discharged by a cited line or a requires line
+  specified-in METHODS.md
   metamath    a normaliser over the ℂ field lemmas
   first-used  sqrt2-irrational
   note        Turns (1 − a^(k + 1))/(1 − a) + a^(k + 1) into
               (1 − a^(k + 1)·a)/(1 − a), but will not turn a^(k + 1)·a into
-              a^(k + 2). Anything about what a named subterm means is a cited
-              theorem in a step of its own. Its hypotheses are not settled; see
-              DATABASE.md.
+              a^(k + 2), because the exponent is not a numeral and so the power
+              is an atom. Anything about what an atom means is a cited theorem
+              in a step of its own.
 
 method arithmetic
   form        arithmetic

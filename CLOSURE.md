@@ -136,21 +136,25 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 ## What to do
 
-1. **Bring the corpus into line with the `inequalities` specification.** It
-   makes every atom's membership of ℝ a dull fact, and about forty are
-   currently unwritten. The two items that fourteen of those steps were
-   blocked on, `thm:abs-real` and `thm:int-real`, now exist and are cited by
-   nothing.
-2. **Specify `algebra`**, which the `inequalities` specification leaves next in
-   size, including whether it may prove a disequality as one step assumes.
+1. **Decide whether membership in a number system is a written dull fact.**
+   Both specifications say it is, and `METHODS.md` measures the bill: about 87
+   memberships across the 42 steps, and about ten numbered steps in the Bezout
+   proof alone, since a variable in ℕ reaches ℝ through two citations and a
+   requires line carries one. This gates the corpus sweep and is a decision
+   about `READERS.md`, not about either method.
+2. **Then one sweep** for both methods, once that is settled.
 3. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping
-   forced by the shape of contradiction and case blocks, not reasoning.
+   forced by the shape of contradiction and case blocks, not reasoning. It has
+   no atoms and so is untouched by item 1.
 
-Two earlier items are done. `inequalities` is specified in `METHODS.md` as
-linear arithmetic over an ordered field with non-arithmetic subterms as atoms,
-which also settles its boundary against `substitute`: `substitute` needs a
-line to rewrite and is syntactic, while `inequalities` uses an equation as one
-linear fact among others and needs no such line.
+Three earlier items are done. `inequalities` and `algebra` are specified in
+`METHODS.md`, the first as linear arithmetic over an ordered field and the
+second as equality of rational expressions over a field. Specifying the first
+settled its boundary against `substitute`, which needs a line to rewrite and is
+syntactic, while `inequalities` uses an equation as one linear fact among
+others. Specifying the second settled whether `algebra` may prove a
+disequality: it may, but only when the claim is a nonzero multiple of a cited
+one, which is the single use in the corpus.
 
 Three earlier items are done. The subsets step now cites the exponent law that
 `algebra` was being asked to know; the sum formula now states the nonzero
