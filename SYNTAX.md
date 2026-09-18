@@ -277,6 +277,18 @@ are not hidden steps:
 
 - Where a cited item's conclusion is several sentences, a step may claim
   any one of them.
+- Where a cited **line** claims several sentences, it supplies each of them
+  separately and the step may use any. Thirty lines in the corpus claim more
+  than one sentence, and 67 steps cite one; Bezout's line 1 claims five and is
+  cited seven times, each time for a different part. The alternative, that a
+  line names one formula and so supplies only the conjunction, was rejected:
+  every method would need to take a conjunction apart before doing its own
+  work, which is propositional reasoning inside methods that have no business
+  doing any. At kernel level the line is a conjunction either way, and the
+  projection out of it lives in the method's expansion. The cost is that a
+  citation of a long line does not say which sentence is meant; the cure is to
+  keep a line short when a later step will want only part of it, not to change
+  this rule.
 - Where a sentence of a cited item is "A ↔ B" and a line stating A is
   given in `from`, the step may claim B, and likewise from B to A. This is
   how a definition is unfolded and folded: the defined phrase is one side
@@ -310,7 +322,9 @@ theorem or definition in a step of its own.
   `inequalities`. "p is a real number" is a requires line, as `READERS.md` now
   says explicitly, and the corpus complies throughout: 97 membership lines
   across the 42 steps that cite one of the two methods.
-- Whether "line 2.1" names one formula or each of its sentences.
+- Settled, and no longer on this list: whether "line 2.1" names one formula or
+  each of its sentences. It supplies each of them, as the citation conventions
+  above now say.
 - Whether a proof consisting of a single block may omit the step that
   repeats the theorem's `then` line as its claim.
 - Whether the statements of cited items, which `READERS.md` requires at the

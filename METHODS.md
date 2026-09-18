@@ -19,6 +19,28 @@ The expansion language of open question 4 in `GOALS.md` is not designed, so
 part 6 names the set.mm lemma families rather than giving the expansion.
 Everything else is fixed here.
 
+## Two rules every expansion obeys
+
+Decision 6 of `GOALS.md` wants independent elaborators to agree, ideally byte
+for byte. Two things would otherwise let two correct elaborators produce
+different kernel proofs, so they are fixed here rather than left to each.
+
+**An expansion supplies every sentence of every cited line, in order.** Not the
+subset the method turns out to use. A method handed a five-sentence line could
+be given all five or only the one it needs, and both are correct, so the choice
+has to be made once. All three specified closure methods are monotone in their
+premises: `inequalities` negates the claim and shows the system unsatisfiable,
+and further true facts cannot make an unsatisfiable system satisfiable;
+`algebra` tests ideal membership, and further generators only enlarge the
+ideal; propositional entailment behaves the same way. So supplying everything
+is always safe and never changes whether a step elaborates.
+
+**A claim of several sentences associates to the left.** Five sentences become
+`((((A ∧ B) ∧ C) ∧ D) ∧ E)`. The reason is compatibility rather than
+principle: set.mm defines its ternary conjunction as the left-nested binary
+one, so the common three-sentence case maps onto it directly and the
+projection lemmas are the ones the library already has.
+
 ---
 
 ## inequalities
