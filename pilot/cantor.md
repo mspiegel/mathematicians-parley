@@ -16,81 +16,21 @@ every subset, written as the existence of a subset it misses.
 
 ## Theorem cantor
 
-```
-theorem cantor
-  let A be a set                                                      (H1)
-  let f : A → 𝒫A                                                      (H2)
-  then there is B ∈ 𝒫A with for every x ∈ A, not f(x) = B
-
-define B := {x ∈ A : not x ∈ f(x)}                                    (D1)
-
-1.  B ⊆ A
-    thm:set-builder-subset, from D1
-
-2.  B ∈ 𝒫A
-    def:powerset S := B, from H1, 1
-
-3.  For every x ∈ A, not f(x) = B.
-    fix
-    let x ∈ A                                                         (K)
-
-    3.1.  not f(x) = B
-          contradiction
-          suppose not not f(x) = B                                    (S)
-
-          3.1.1.  f(x) = B
-                  lines S
-
-          3.1.2.  x ∈ B or not x ∈ B
-                  thm:excluded-middle P := x ∈ B
-
-          3.1.3.  x ∈ B. not x ∈ B.
-                  cases, from 3.1.2
-
-                  case
-                  assume x ∈ B                                        (C1)
-
-                  3.1.3.1.  not x ∈ f(x)
-                            def:set-builder, from C1
-
-                  3.1.3.2.  not x ∈ B
-                            substitute f(x) = B (line 3.1.1) into line 3.1.3.1
-
-                  3.1.3.3.  x ∈ B. not x ∈ B.
-                            lines C1, 3.1.3.2
-
-                  case
-                  assume not x ∈ B                                    (C2)
-
-                  3.1.3.4.  not x ∈ f(x)
-                            substitute f(x) = B (line 3.1.1) into C2
-
-                  3.1.3.5.  x ∈ B
-                            def:set-builder, from K, 3.1.3.4
-
-                  3.1.3.6.  x ∈ B. not x ∈ B.
-                            lines 3.1.3.5, C2
-
-4.  There is B ∈ 𝒫A with for every x ∈ A, not f(x) = B.
-    exhibit, from 2, 3
-```
+The skeleton is `proof/cantor.proof`. The items it cites are in `db/`.
 
 ---
 
 ## Database items
 
-| symbols | what they are | set.mm |
-|---|---|---|
-| 𝒫A | power set | cpw |
-| f : A → B, f(x) | function from A to B, application | wf, cfv |
+This pilot introduced `def:powerset`, `def:function`, `thm:excluded-middle`
+and `thm:cantor` in `db/items.db`, and the power set and function rows in
+`db/notation.db`. The table that used to stand here was merged into those
+files; `DATABASE.md` records what the merge decided.
 
-| pointer | statement | set.mm |
-|---|---|---|
-| def:powerset | Let A be a set. S ∈ 𝒫A ↔ S ⊆ A. | elpw, elpwg |
-| def:function | f : A → B ↔ for every x ∈ A, f(x) ∈ B, and ... | df-f |
-| def:set-builder, thm:set-builder-subset | as in the Bezout pilot | elrab, ssrab2 |
-| thm:excluded-middle | P or not P. | exmid |
-| thm:cantor | proved above | canth |
+Two things the merge changed. `def:function` as written here was truncated
+and is now an open item, and the intermediate value pilot's item of the same
+name, which was a different statement, became `thm:function-value`. The rows
+reading "as in the Bezout pilot" are written out once in `db/items.db`.
 
 The hypothesis `let A be a set` is set.mm's `A e. _V`. The hypothesis
 `let f : A → 𝒫A` is `F : A --> ~P A`. def:function is not cited in the

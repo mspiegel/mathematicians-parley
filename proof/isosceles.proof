@@ -1,0 +1,48 @@
+theorem isosceles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |CA| = |CB|                                                  (H5)
+  then ∠CAB = ∠CBA
+
+1.  |AC| = |CA|
+    thm:distance-symmetric P := A, Q := C, from H1, H3
+
+2.  |AC| = |BC|
+    calculation
+      |AC| = |CA|       1
+           = |CB|       H5
+           = |BC|       thm:distance-symmetric P := C, Q := B, from H3, H2
+
+3.  ∠ACB = ∠BCA
+    thm:angle-symmetric P := A, Q := C, R := B, from H1, H3, H2
+
+4.  |CB| = |CA|
+    calculation
+      |CB| = |CA|       H5, right to left
+
+5.  A, C, B form a triangle
+    thm:triangle-permute, from H4
+
+6.  B, C, A form a triangle
+    thm:triangle-permute, from H4
+
+7.  triangle ACB ≅ triangle BCA
+    thm:side-angle-side A := A, B := C, C := B, A′ := B, B′ := C, C′ := A,
+      from 5, 6, 2, 3, 4
+
+8.  ∠BAC = ∠ABC
+    def:congruent, from 7
+
+9.  ∠CAB = ∠BAC
+    thm:angle-symmetric P := C, Q := A, R := B, from H3, H1, H2
+
+10. ∠ABC = ∠CBA
+    thm:angle-symmetric P := A, Q := B, R := C, from H1, H2, H3
+
+11. ∠CAB = ∠CBA
+    calculation
+      ∠CAB = ∠BAC       9
+           = ∠ABC       8
+           = ∠CBA       10

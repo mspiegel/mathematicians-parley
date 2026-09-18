@@ -16,81 +16,17 @@ rather than absorbed into `algebra`.
 
 ## Theorem geometric-sum
 
-```
-theorem geometric-sum
-  let a ∈ ℝ                                                           (H1)
-  assume a ≠ 1                                                        (H2)
-  let n ∈ ℕ₀                                                          (H3)
-  then G(n) = (1 − a^(n + 1))/(1 − a)
-
-1.  1 − a ≠ 0
-    algebra, from H2
-
-2.  G(n) = (1 − a^(n + 1))/(1 − a)
-    induction on n starting at 0, from H3
-
-    base
-    2.1.  G(0) = 1
-          def:G
-
-    2.2.  a^(0 + 1) = a
-          arithmetic
-
-    2.3.  1 = (1 − a)/(1 − a)
-          algebra
-          requires 1 − a ≠ 0: from 1
-
-    2.4.  (1 − a)/(1 − a) = (1 − a^(0 + 1))/(1 − a)
-          substitute a^(0 + 1) = a (line 2.2)
-
-    2.5.  G(0) = (1 − a^(0 + 1))/(1 − a)
-          calculation
-            G(0) = 1                              2.1
-                 = (1 − a)/(1 − a)                2.3
-                 = (1 − a^(0 + 1))/(1 − a)        2.4
-
-    step
-    2.6.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
-          then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).
-          fix
-          let k ∈ ℕ₀                                                  (K)
-          assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
-
-          2.6.1.  G(k + 1) = G(k) + a^(k + 1)
-                  def:G n := k, from K
-
-          2.6.2.  G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
-                  substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
-
-          2.6.3.  a^((k + 1) + 1) = a^(k + 1)·a
-                  thm:exponent-step m := k + 1, from H1
-                  requires k + 1 ∈ ℕ₀: thm:nat0-closure, from K
-
-          2.6.4.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
-                  algebra
-                  requires 1 − a ≠ 0: from 1
-
-          2.6.5.  (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.6.3), right to left
-
-          2.6.6.  G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
-                  calculation
-                    G(k + 1) = G(k) + a^(k + 1)                         2.6.1
-                             = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.6.2
-                             = (1 − a^(k + 1)·a)/(1 − a)               2.6.4
-                             = (1 − a^((k + 1) + 1))/(1 − a)           2.6.5
-```
+The skeleton is `proof/geometric-series.proof`. The items it cites are in
+`db/`.
 
 ---
 
 ## Database items
 
-| pointer | statement | set.mm |
-|---|---|---|
-| def:G | Let a ∈ ℝ. G(0) = 1. Let n ∈ ℕ₀. G(n + 1) = G(n) + a^(n + 1). | (Σ over 0...n with fsum1 and fsump1) |
-| thm:exponent-step | Let a ∈ ℝ, m ∈ ℕ₀. Then a^(m + 1) = a^m·a. | expp1 |
-| thm:nat0-closure | Let k ∈ ℕ₀. Then k + 1 ∈ ℕ₀. | peano2nn0 |
-| thm:geometric-sum | proved above | geoser |
+This pilot introduced `def:G`, `thm:exponent-step`, `thm:nat0-closure` and
+`thm:geometric-sum` in `db/items.db`, and the G row in `db/notation.db`. The
+table that used to stand here was merged into those files; `DATABASE.md`
+records what the merge decided.
 
 ---
 

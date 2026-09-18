@@ -265,8 +265,13 @@ direction will have to hide: deduction form, class variables, set-existence
 hypotheses, disjointness conditions, and its essential step count. The
 Metamath 100 page lists which of the hundred set.mm proves and under which
 labels. The chosen ten, with the measurements and the alternatives
-considered, are in `SELECTION.md`. The pilots written so far are in
-`pilot/`.
+considered, are in `SELECTION.md`.
+
+All ten are written. The proof skeletons are in `proof/`, the definitions,
+theorems, notation and methods they cite are in `db/`, and `DATABASE.md`
+describes both formats and records what merging the ten pilots' item tables
+decided. `pilot/` keeps the design commentary for each, which is the record
+of why each syntax decision was taken.
 
 ## Open questions
 

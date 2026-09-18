@@ -21,48 +21,7 @@ stated about S.
 
 ## Theorem sum-formula
 
-```
-theorem sum-formula
-  let n ∈ ℕ                                                           (H1)
-  then S(n) = n(n + 1)/2
-
-1.  S(n) = n(n + 1)/2
-    induction on n starting at 1, from H1
-
-    base
-    1.1.  S(1) = 1
-          def:S
-
-    1.2.  1 = 1(1 + 1)/2
-          arithmetic
-
-    1.3.  S(1) = 1(1 + 1)/2
-          calculation
-            S(1) = 1                 1.1
-                 = 1(1 + 1)/2        1.2
-
-    step
-    1.4.  For every k ∈ ℕ, if S(k) = k(k + 1)/2
-          then S(k + 1) = (k + 1)((k + 1) + 1)/2.
-          fix
-          let k ∈ ℕ                                                   (K)
-          assume S(k) = k(k + 1)/2                                    (IH)
-
-          1.4.1.  S(k + 1) = S(k) + (k + 1)
-                  def:S n := k, from K
-
-          1.4.2.  S(k) + (k + 1) = k(k + 1)/2 + (k + 1)
-                  substitute S(k) = k(k + 1)/2 (IH)
-
-          1.4.3.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2
-                  algebra
-
-          1.4.4.  S(k + 1) = (k + 1)((k + 1) + 1)/2
-                  calculation
-                    S(k + 1) = S(k) + (k + 1)               1.4.1
-                             = k(k + 1)/2 + (k + 1)         1.4.2
-                             = (k + 1)((k + 1) + 1)/2       1.4.3
-```
+The skeleton is `proof/sum-formula.proof`. The items it cites are in `db/`.
 
 ---
 
@@ -118,25 +77,10 @@ theorem sum-formula
 
 ## Database items
 
-Every item below must exist in the database, written in this language,
-before this file can be accepted. Items already listed in the √2 pilot
-(`arithmetic`, `algebra`, `substitute`, `calculation`, the symbols) are not
-repeated.
-
-| pointer | statement | set.mm |
-|---|---|---|
-| ℕ | the natural numbers 1, 2, 3, ... | cn |
-| S | the sum of the first n natural numbers, as a function of n | Σ k ∈ (1...n) k |
-| def:S | S(1) = 1. Let n ∈ ℕ. S(n + 1) = S(n) + (n + 1). | fsum1, fsump1 |
-| thm:sum-formula | proved above | arisum |
-
-Methods. The middle column is what a reader checks when a step cites the
-method.
-
-| pointer | what the reader checks | set.mm |
-|---|---|---|
-| induction | the claim is P(n) for the n of the cited hypothesis n ∈ ℕ; the block has a `base` part whose step claims P(1) and a `step` part whose step claims "for every k ∈ ℕ, if P(k) then P(k + 1)", with P read off the claim | nnind |
-| fix | the claim is "for every x ∈ S, if A then B"; the block under it opens with `let x ∈ S` and `assume A`, each labelled, and its last step is B | ralrimiva, ex, alrimiv |
+This pilot introduced `def:S` and `thm:sum-formula` in `db/items.db`, the ℕ
+and S rows in `db/notation.db`, and the `induction` and `fix` methods in
+`db/methods.db`. The table that used to stand here was merged into those
+files; `DATABASE.md` records what the merge decided.
 
 ---
 

@@ -1,0 +1,657 @@
+# Definitions and theorems
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:<name> or thm:<name>, and the prefix must match the
+# kind. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line. An item proved in this corpus
+# carries no statement here, only `proved-in`, so that the statement has one
+# home and cannot drift.
+#
+# Every item carries exactly one of:
+#   proved-in   a proof file in this corpus proves it
+#   metamath    a set.mm label or labels supply it
+#   open        neither; it is cited but unproved and unbridged
+#
+# Other fields: first-used, note.
+
+
+# ---------------------------------------------------------------- logic
+
+theorem excluded-middle
+  then        P or not P
+  metamath    exmid
+  first-used  cantor
+  note        The first citation to substitute a formula for a variable rather
+              than a term. A school reader has never been told that "P or not P"
+              is a law, which is why it is cited and not folded into `lines`.
+
+theorem from-contradiction
+  assume P                                                            (H1)
+  assume not P                                                        (H2)
+  then        Q
+  metamath    pm2.21
+  first-used  intermediate-value
+  note        Closes an impossible case of a `cases` block so that every case
+              ends in the block's common claim.
+
+
+# ----------------------------------------------------------------- sets
+
+definition subset
+  then        X ⊆ Y ↔ for every t ∈ X, t ∈ Y
+  metamath    df-ss, ssel
+  first-used  bezout
+
+definition set-builder
+  let X be a set                                                      (H1)
+  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)
+  metamath    rabid, elrab
+  first-used  bezout
+
+definition set-image
+  let Y be a set                                                      (H1)
+  then        u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)
+  metamath    cmpt with elrnmpt, or crab with a witness
+  first-used  subsets
+  note        Named in SYNTAX.md beside def:set-builder. No pilot table carried
+              a row for it; the statement here is SYNTAX.md's sentence. Added by
+              the merge.
+
+theorem set-builder-subset
+  then        {t ∈ X : P(t)} ⊆ X
+  metamath    ssrab2
+  first-used  bezout
+
+theorem subset-transitive
+  assume X ⊆ Y                                                        (H1)
+  assume Y ⊆ Z                                                        (H2)
+  then        X ⊆ Z
+  metamath    sstr
+  first-used  intermediate-value
+
+definition powerset
+  let A be a set                                                      (H1)
+  then        S ∈ 𝒫A ↔ S ⊆ A
+  metamath    elpw, elpwg
+  first-used  cantor
+
+theorem powerset-empty
+  then        𝒫∅ = {∅}
+  metamath    pw0
+  first-used  subsets
+
+theorem difference-set
+  let X be a set                                                      (H1)
+  then        X ∖ {a} is a set
+  metamath    difexg
+  first-used  subsets
+
+
+# ------------------------------------------------ numbers and arithmetic
+
+definition rational
+  then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℤ with q ≠ 0 and x = p/q
+  metamath    elq
+  first-used  sqrt2-irrational
+
+definition irrational
+  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
+  metamath    ℝ ∖ ℚ, as in sqrt2irr0
+  first-used  sqrt2-irrational
+  note        Names a word for an existing set.mm construct rather than
+              introducing a symbol. See DATABASE.md on what def: means.
+
+definition sqrt
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 0                                                        (H2)
+  then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
+  metamath    df-sqrt, sqrtth, sqrtge0, resqrtcl
+  first-used  sqrt2-irrational
+
+definition even
+  let n ∈ ℤ                                                           (H1)
+  then        n is even ↔ there is k ∈ ℤ with n = 2k
+  metamath    dvds
+  first-used  sqrt2-irrational
+  note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
+              word. See DATABASE.md on what def: means.
+
+definition odd
+  let n ∈ ℤ                                                           (H1)
+  then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
+  metamath    not 2 ∥ n
+  first-used  sqrt2-irrational
+
+theorem int-closure
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        a + b ∈ ℤ. a·b ∈ ℤ.
+  metamath    zaddcl, zmulcl
+  first-used  sqrt2-irrational
+
+theorem nat-closure
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then        a + b ∈ ℕ. a·b ∈ ℕ.
+  metamath    nnaddcl, nnmulcl
+  first-used  infinitely-many-primes
+
+theorem real-closure
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x + y ∈ ℝ. x − y ∈ ℝ.
+  metamath    readdcl, resubcl
+  first-used  triangle-inequality
+  note        The triangle inequality pilot stated addition only; the
+              intermediate value pilot stated both. Merged to both, which is the
+              shape of int-closure and nat-closure. Neither proof changes.
+
+theorem nat0-closure
+  let k ∈ ℕ₀                                                          (H1)
+  then        k + 1 ∈ ℕ₀
+  metamath    peano2nn0
+  first-used  geometric-series
+
+theorem nat-int
+  let m ∈ ℕ                                                           (H1)
+  then        m ∈ ℤ
+  metamath    nnz
+  first-used  infinitely-many-primes
+
+theorem nat-ge-1
+  let m ∈ ℕ                                                           (H1)
+  then        m ≥ 1
+  metamath    nnge1
+  first-used  infinitely-many-primes
+
+theorem pos-int-nat
+  let m ∈ ℤ                                                           (H1)
+  assume 0 < m                                                        (H2)
+  then        m ∈ ℕ
+  metamath    elnnz
+  first-used  bezout
+
+theorem even-or-odd
+  let n ∈ ℤ                                                           (H1)
+  then        n is even or n is odd
+  metamath    zeo
+  first-used  sqrt2-irrational
+
+theorem not-both
+  let n ∈ ℤ                                                           (H1)
+  assume n is even                                                    (H2)
+  then        n is not odd
+  metamath    zeo2, oddm1even
+  first-used  sqrt2-irrational
+
+theorem exponent-step
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^(m + 1) = a^m·a
+  metamath    expp1
+  first-used  geometric-series
+
+theorem trichotomy
+  let x ∈ ℝ                                                           (H1)
+  then        x < 0 or x = 0 or 0 < x
+  metamath    lttri4, 0re
+  first-used  intermediate-value
+
+theorem nonneg-or-neg
+  let x ∈ ℝ                                                           (H1)
+  then        x ≥ 0 or x < 0
+  metamath    0re, lelttric
+  first-used  triangle-inequality
+
+theorem lowest-terms
+  let x ∈ ℚ                                                           (H1)
+  then        there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q, and no d ∈ ℤ with
+              d > 1, d divides p, and d divides q
+  metamath    qredeu or similar
+  first-used  sqrt2-irrational
+
+theorem division-algorithm
+  let n ∈ ℕ                                                           (H1)
+  let d ∈ ℕ                                                           (H2)
+  then        there are q ∈ ℤ and r ∈ ℤ with n = q·d + r, 0 ≤ r, and r < d
+  metamath    divalg
+  first-used  bezout
+
+theorem well-ordering
+  assume S ⊆ ℕ                                                        (H1)
+  assume there is s ∈ S                                               (H2)
+  then        there is d ∈ S with for every s ∈ S, d ≤ s
+  metamath    nnwo
+  first-used  bezout
+  note        Whether S also needs "let S be a set" is open; see DATABASE.md.
+
+definition S
+  then        S(1) = 1
+  let n ∈ ℕ                                                           (H1)
+  then        S(n + 1) = S(n) + (n + 1)
+  metamath    fsum1, fsump1
+  first-used  sum-formula
+  note        Local to the sum-formula pilot. Two `then` groups: the base
+              sentence has no hypothesis and the step sentence has H1. See
+              DATABASE.md on recursive definitions.
+
+definition G
+  let a ∈ ℝ                                                           (H1)
+  then        G(0) = 1
+  let n ∈ ℕ₀                                                          (H2)
+  then        G(n + 1) = G(n) + a^(n + 1)
+  metamath    Σ over 0...n with fsum1 and fsump1
+  first-used  geometric-series
+  note        Local to the geometric-series pilot. Two `then` groups, as def:S.
+
+
+# ------------------------------------------------ divisibility and primes
+
+definition divides
+  let d ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  then        d divides n ↔ there is k ∈ ℤ with n = d·k
+  metamath    df-dvds
+  first-used  sqrt2-irrational
+  note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
+              dull fact. This is the principle recorded by the primes pilot: a
+              relation is defined once, on the widest set where it makes sense.
+
+definition prime
+  let p ∈ ℕ                                                           (H1)
+  then        p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then
+              d = 1 or d = p
+  metamath    isprm2
+  first-used  infinitely-many-primes
+
+definition factorial
+  then        1! = 1
+  let n ∈ ℕ                                                           (H1)
+  then        (n + 1)! = n!·(n + 1)
+  metamath    fac1, facp1
+  first-used  infinitely-many-primes
+  note        Two `then` groups, as def:S.
+
+definition gcd
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+              For every e ∈ ℕ, if e divides a and e divides b then
+              e ≤ gcd(a, b).
+  metamath    gcdcl, gcddvds, dvdslegcd
+  first-used  bezout
+
+theorem prime-factor
+  let m ∈ ℕ                                                           (H1)
+  assume m > 1                                                        (H2)
+  then        there is p ∈ ℕ with p prime and p divides m
+  metamath    exprmfct
+  first-used  infinitely-many-primes
+
+theorem factorial-nat
+  let n ∈ ℕ                                                           (H1)
+  then        n! ∈ ℕ
+  metamath    facnn
+  first-used  infinitely-many-primes
+
+theorem factorial-divisible
+  let n ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  assume m ≤ n                                                        (H3)
+  then        m divides n!
+  metamath    dvdsfac
+  first-used  infinitely-many-primes
+
+theorem divides-difference
+  let d ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume d divides a                                                  (H4)
+  assume d divides b                                                  (H5)
+  then        d divides a − b
+  metamath    dvds2sub
+  first-used  infinitely-many-primes
+
+theorem divides-one
+  let d ∈ ℕ                                                           (H1)
+  assume d divides 1                                                  (H2)
+  then        d = 1
+  metamath    dvds1
+  first-used  infinitely-many-primes
+
+theorem divides-combination
+  let e ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  let x ∈ ℤ                                                           (H4)
+  let y ∈ ℤ                                                           (H5)
+  assume e divides a                                                  (H6)
+  assume e divides b                                                  (H7)
+  then        e divides a·x + b·y
+  metamath    dvds2ln
+  first-used  bezout
+
+theorem divides-le
+  let e ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  assume e divides m                                                  (H3)
+  then        e ≤ m
+  metamath    dvdsle
+  first-used  bezout
+
+
+# ------------------------------------------- order and absolute value
+
+definition abs
+  let x ∈ ℝ                                                           (H1)
+  then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
+  metamath    absid, absnid
+  first-used  triangle-inequality
+  note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
+              the real case. So this elaborates to a pair of theorems, not to a
+              definition. It is still called def:abs because that is what it is
+              to Reader A.
+
+theorem abs-difference-lt
+  let x ∈ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let δ ∈ ℝ                                                           (H3)
+  then        |x − c| < δ ↔ c − δ < x and x < c + δ
+  metamath    absdiflt, abslt
+  first-used  intermediate-value
+
+
+# ----------------------------------------------- functions and counting
+
+definition function
+  open        The Cantor pilot's row reads "f : A → B ↔ for every x ∈ A,
+              f(x) ∈ B, and ..." and is truncated. No pilot cites it. The
+              statement has to be written before the item exists.
+  first-used  cantor
+  note        set.mm's df-f is the target. The Cantor proof needs f only for the
+              elaborator, since no step cites it; see that pilot's findings.
+
+theorem function-value
+  let f : D → ℝ                                                       (H1)
+  let x ∈ D                                                           (H2)
+  then        f(x) ∈ ℝ
+  metamath    ffvelcdm
+  first-used  intermediate-value
+  note        The intermediate value pilot called this def:function, colliding
+              with the Cantor pilot's definition of the same name. Renamed by the
+              merge; that proof's three citations are renamed with it.
+
+definition card
+  let A be a set                                                      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  then        |A| = n ↔ there is a bijection from {i ∈ ℕ : i ≤ n} to A
+  metamath    hashen, hashfz1
+  first-used  subsets
+
+theorem card-zero
+  let X be a set                                                      (H1)
+  assume |X| = 0                                                      (H2)
+  then        X = ∅
+  metamath    hasheq0
+  first-used  subsets
+
+theorem card-singleton
+  then        |{x}| = 1
+  metamath    hashsng
+  first-used  subsets
+
+theorem card-nonempty
+  let X be a set                                                      (H1)
+  assume |X| = k + 1                                                  (H2)
+  then        there is a ∈ X
+  metamath    hashnncl, n0
+  first-used  subsets
+
+theorem card-remove
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  assume |X| = k + 1                                                  (H3)
+  then        |X ∖ {a}| = k
+  metamath    hashdifsn
+  first-used  subsets
+
+theorem card-bijection
+  assume |X| = m                                                      (H1)
+  assume g is a bijection from X to Y                                 (H2)
+  then        |Y| = m
+  metamath    hashen
+  first-used  subsets
+
+theorem card-disjoint-union
+  assume |X| = m                                                      (H1)
+  assume |Y| = n                                                      (H2)
+  assume X ∩ Y = ∅                                                    (H3)
+  then        |X ∪ Y| = m + n
+  metamath    hashun
+  first-used  subsets
+
+theorem add-element-bijection
+  let X be a set                                                      (H1)
+  assume not a ∈ X                                                    (H2)
+  then        there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
+  open        no set.mm label found
+  first-used  subsets
+  note        The pilot's row was itself incomplete, reading "Let X be a set, a
+              with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The
+              statement above is the merge's reading of it and should be checked.
+
+theorem powerset-split
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  then        𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+  open        no set.mm label found; pwdif and pwsn are nearby
+  first-used  subsets
+
+theorem powerset-split-disjoint
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  then        𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
+  open        to be proved
+  first-used  subsets
+  note        The pilot's row read only "the two parts above are disjoint". The
+              statement above is the merge's reading of it.
+
+
+# -------------------------------------------------------------- analysis
+
+definition interval
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        x ∈ [a, b] ↔ x ∈ ℝ and a ≤ x and x ≤ b
+  metamath    elicc2
+  first-used  intermediate-value
+
+theorem interval-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        [a, b] ⊆ ℝ
+  metamath    iccssre
+  first-used  intermediate-value
+
+definition continuous-on
+  then        f is continuous on D ↔ for every c ∈ D, for every ε ∈ ℝ with
+              ε > 0, there is δ ∈ ℝ with δ > 0 and for every x ∈ D, if
+              |x − c| < δ then |f(x) − f(c)| < ε
+  metamath    cncfi, elcncf2
+  first-used  intermediate-value
+  note        set.mm's continuity is topological; its unfolding to ε and δ is
+              elsewhere.
+
+definition upper-bound
+  then        u is an upper bound of S ↔ for every s ∈ S, s ≤ u
+  metamath    ub as in df-sup
+  first-used  intermediate-value
+
+definition least-upper-bound
+  then        c is a least upper bound of S ↔ c is an upper bound of S, and for
+              every u ∈ ℝ, if u is an upper bound of S then c ≤ u
+  metamath    df-sup, suprub, suprleub
+  first-used  intermediate-value
+
+theorem completeness
+  assume S ⊆ ℝ                                                        (H1)
+  assume there is s ∈ S                                               (H2)
+  assume there is an upper bound of S                                 (H3)
+  then        there is c ∈ ℝ with c a least upper bound of S
+  metamath    sup2, ax-pre-sup
+  first-used  intermediate-value
+  note        In set.mm this is an axiom of the real numbers. Whether its proof
+              is ever in the corpus is a question about the foundation.
+
+theorem point-right
+  let c ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let δ ∈ ℝ                                                           (H3)
+  assume c < b                                                        (H4)
+  assume δ > 0                                                        (H5)
+  then        there is x ∈ ℝ with c < x, x ≤ b, and x − c < δ
+  open        no set.mm label; take the smaller of b and c + δ/2, then the
+              midpoint
+  first-used  intermediate-value
+  note        Exists only because the language has no min notation and its case
+              split. Textbooks write "take x = min(b, c + δ/2)".
+
+
+# -------------------------------------------------------------- geometry
+
+definition point
+  open        The pilot's row reads "Let A be a point. (The plane is a set of
+              points with distance and angle defined on it.)", which is a gloss
+              and not a statement.
+  metamath    A ∈ ℂ
+  first-used  isosceles
+
+definition angle
+  open        Needs an orientation convention before it can be stated. set.mm's
+              angle function is signed, so ∠PQR = −∠RQP up to a multiple of 2π,
+              while the school reader's angle is unsigned. Without the absolute
+              value, thm:angle-symmetric is false in set.mm's terms.
+  first-used  isosceles
+  note        Named in the isosceles findings, not in its table. Added by the
+              merge because the ∠ notation needs it.
+
+definition triangle
+  then        P, Q, R form a triangle ↔ P, Q, R are points, no two equal, and
+              not on one line
+  open        set.mm has no single notion; P ≠ Q and Q ≠ R and P ≠ R, plus
+              non-collinearity
+  first-used  isosceles
+
+definition congruent
+  then        triangle PQR ≅ triangle P′Q′R′ ↔ |PQ| = |P′Q′|, |QR| = |Q′R′|,
+              |RP| = |R′P′|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, and
+              ∠RPQ = ∠R′P′Q′
+  open        six equations; no set.mm item
+  first-used  isosceles
+
+theorem distance-symmetric
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| = |QP|
+  metamath    abssub
+  first-used  isosceles
+
+theorem angle-symmetric
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        ∠PQR = ∠RQP
+  open        the signed angle function is antisymmetric; the unsigned angle is
+              symmetric; needs a lemma and def:angle
+  first-used  isosceles
+
+theorem triangle-permute
+  assume P, Q, R form a triangle                                      (H1)
+  then        any ordering of P, Q, R forms a triangle
+  open        follows from def:triangle once that is stated
+  first-used  isosceles
+  note        The conclusion is not a formula. It has to be restated, either as
+              one theorem per ordering or with a form the language does not yet
+              have.
+
+theorem side-angle-side
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume |PQ| = |P′Q′|                                                (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  assume |QR| = |Q′R′|                                                (H11)
+  then        triangle PQR ≅ triangle P′Q′R′
+  open        a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert
+  first-used  isosceles
+  note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
+              this statement's variable names. One of the two must change; the
+              merge changed neither. See DATABASE.md.
+
+
+# --------------------------------------------------- proved in this corpus
+
+theorem sqrt2-irrational
+  proved-in   proof/sqrt2-irrational.proof
+  metamath    sqrt2irr
+  note        No pilot table carried a row for it. Added by the merge. set.mm
+              proves it by descent with strong induction, so the elaborated
+              kernel proof will differ.
+
+theorem odd-square
+  proved-in   proof/sqrt2-irrational.proof
+  metamath    zesq covers it
+
+theorem even-square
+  proved-in   proof/sqrt2-irrational.proof
+  metamath    zesq
+
+theorem sum-formula
+  proved-in   proof/sum-formula.proof
+  metamath    arisum
+
+theorem abs-bounds
+  proved-in   proof/triangle-inequality.proof
+  metamath    leabs, absneg
+
+theorem triangle-inequality
+  proved-in   proof/triangle-inequality.proof
+  metamath    abstri, over ℂ
+
+theorem prime-above
+  proved-in   proof/infinitely-many-primes.proof
+  metamath    infpn
+
+theorem least-combination-divides
+  proved-in   proof/bezout.proof
+
+theorem bezout
+  proved-in   proof/bezout.proof
+  metamath    bezout
+
+theorem cantor
+  proved-in   proof/cantor.proof
+  metamath    canth
+
+theorem subsets-count
+  proved-in   proof/subsets.proof
+  metamath    hashpw
+
+theorem intermediate-value
+  proved-in   proof/intermediate-value.proof
+  metamath    ivth, the general form
+
+theorem isosceles
+  proved-in   proof/isosceles.proof
+  metamath    isosctr
+
+theorem geometric-sum
+  proved-in   proof/geometric-series.proof
+  metamath    geoser

@@ -1,0 +1,240 @@
+theorem intermediate-value
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume f is continuous on [a, b]                                    (H5)
+  assume f(a) < 0                                                     (H6)
+  assume 0 < f(b)                                                     (H7)
+  then there is c ∈ [a, b] with f(c) = 0
+
+define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
+
+1.  a ∈ [a, b]
+    def:interval x := a, from H1
+    requires a ≤ a: inequalities
+    requires a ≤ b: inequalities, from H3
+
+2.  a ∈ S
+    def:set-builder x := a, from 1, H6
+
+3.  S ⊆ [a, b]
+    thm:set-builder-subset, from D1
+
+4.  [a, b] ⊆ ℝ
+    thm:interval-real, from H1, H2
+
+5.  S ⊆ ℝ
+    thm:subset-transitive, from 3, 4
+
+6.  For every s ∈ S, s ≤ b.
+    fix
+    let s ∈ S                                                         (K1)
+
+    6.1.  s ∈ [a, b]
+          def:set-builder, from K1
+
+    6.2.  s ≤ b
+          def:interval, from 6.1
+
+7.  b is an upper bound of S
+    def:upper-bound, from 6
+
+8.  c ∈ ℝ. c is a least upper bound of S.
+    obtain c: thm:completeness S := S, from 5, 2, 7
+
+9.  c is an upper bound of S
+    def:least-upper-bound, from 8
+
+10. For every s ∈ S, s ≤ c.
+    def:upper-bound, from 9
+
+11. a ≤ c
+    instantiate s := a in line 10, from 2
+
+12. c ≤ b
+    instantiate u := b in def:least-upper-bound, from 8, 7
+
+13. c ∈ [a, b]
+    def:interval x := c, from 8, 11, 12
+
+14. f(c) ∈ ℝ
+    thm:function-value, from H4, 13
+
+15. f(c) < 0 or f(c) = 0 or 0 < f(c)
+    thm:trichotomy x := f(c), from 14
+
+16. For every c′ ∈ [a, b], for every ε ∈ ℝ with ε > 0,
+    there is δ ∈ ℝ with δ > 0 and
+    for every x ∈ [a, b], if |x − c′| < δ then |f(x) − f(c′)| < ε.
+    def:continuous-on, from H5
+
+17. f(c) = 0
+    cases, from 15
+
+    case
+    assume f(c) < 0                                                   (C1)
+
+    17.1.  not c = b
+           contradiction
+           suppose not not c = b                                      (S1)
+
+           17.1.1.  c = b
+                    lines S1
+
+           17.1.2.  f(b) < 0
+                    substitute c = b (line 17.1.1) into C1
+
+           17.1.3.  not f(b) < 0
+                    inequalities, from H7
+
+           17.1.4.  f(b) < 0. not f(b) < 0.
+                    lines 17.1.2, 17.1.3
+
+    17.2.  c < b
+           inequalities, from 12, 17.1
+
+    17.3.  −f(c) > 0
+           inequalities, from C1
+
+    17.4.  There is δ ∈ ℝ with δ > 0 and
+           for every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
+           instantiate c′ := c, ε := −f(c) in line 16, from 13, 14, 17.3
+
+    17.5.  δ ∈ ℝ. δ > 0.
+           For every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
+           obtain δ from line 17.4
+
+    17.6.  x₁ ∈ ℝ. c < x₁. x₁ ≤ b. x₁ − c < δ.
+           obtain x₁: thm:point-right c := c, b := b, δ := δ, from 8, H2, 17.5, 17.2
+
+    17.7.  a ≤ x₁
+           inequalities, from 11, 17.6
+
+    17.8.  x₁ ∈ [a, b]
+           def:interval x := x₁, from 17.6, 17.7
+
+    17.9.  c − δ < x₁
+           inequalities, from 17.6, 17.5
+
+    17.10. x₁ < c + δ
+           inequalities, from 17.6
+
+    17.11. |x₁ − c| < δ
+           thm:abs-difference-lt x := x₁, c := c, δ := δ, from 17.6, 8, 17.5, 17.9, 17.10
+
+    17.12. |f(x₁) − f(c)| < −f(c)
+           instantiate x := x₁ in line 17.5, from 17.8, 17.11
+
+    17.13. f(x₁) ∈ ℝ
+           thm:function-value, from H4, 17.8
+
+    17.14. f(x₁) − f(c) ∈ ℝ
+           thm:real-closure, from 17.13, 14
+
+    17.15. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
+           thm:abs-bounds x := f(x₁) − f(c), from 17.14
+
+    17.16. f(x₁) < 0
+           inequalities, from 17.15, 17.12
+
+    17.17. x₁ ∈ S
+           def:set-builder x := x₁, from 17.8, 17.16
+
+    17.18. x₁ ≤ c
+           instantiate s := x₁ in line 10, from 17.17
+
+    17.19. not x₁ ≤ c
+           inequalities, from 17.6
+
+    17.20. x₁ ≤ c. not x₁ ≤ c.
+           lines 17.18, 17.19
+
+    17.21. f(c) = 0
+           thm:from-contradiction P := x₁ ≤ c, Q := f(c) = 0, from 17.20
+
+    case
+    assume f(c) = 0                                                   (C2)
+
+    17.22. f(c) = 0
+           lines C2
+
+    case
+    assume 0 < f(c)                                                   (C3)
+
+    17.23. There is δ ∈ ℝ with δ > 0 and
+           for every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
+           instantiate c′ := c, ε := f(c) in line 16, from 13, 14, C3
+
+    17.24. δ ∈ ℝ. δ > 0.
+           For every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
+           obtain δ from line 17.23
+
+    17.25. For every s ∈ S, s ≤ c − δ.
+           fix
+           let s ∈ S                                                  (K2)
+
+           17.25.1.  s ∈ [a, b]
+                     def:set-builder, from K2
+
+           17.25.2.  f(s) < 0
+                     def:set-builder, from K2
+
+           17.25.3.  s ∈ ℝ
+                     def:interval, from 17.25.1
+
+           17.25.4.  s ≤ c
+                     instantiate s := s in line 10, from K2
+
+           17.25.5.  s ≤ c − δ
+                     contradiction
+                     suppose not s ≤ c − δ                            (S2)
+
+                     17.25.5.1.  c − δ < s
+                                 inequalities, from S2
+
+                     17.25.5.2.  s < c + δ
+                                 inequalities, from 17.25.4, 17.24
+
+                     17.25.5.3.  |s − c| < δ
+                                 thm:abs-difference-lt x := s, c := c, δ := δ,
+                                   from 17.25.3, 8, 17.24, 17.25.5.1, 17.25.5.2
+
+                     17.25.5.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 17.24, from 17.25.1, 17.25.5.3
+
+                     17.25.5.5.  f(s) ∈ ℝ
+                                 thm:function-value, from H4, 17.25.1
+
+                     17.25.5.6.  f(s) − f(c) ∈ ℝ
+                                 thm:real-closure, from 17.25.5.5, 14
+
+                     17.25.5.7.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                                 thm:abs-bounds x := f(s) − f(c), from 17.25.5.6
+
+                     17.25.5.8.  0 < f(s)
+                                 inequalities, from 17.25.5.7, 17.25.5.4
+
+                     17.25.5.9.  not f(s) < 0
+                                 inequalities, from 17.25.5.8
+
+                     17.25.5.10. f(s) < 0. not f(s) < 0.
+                                 lines 17.25.2, 17.25.5.9
+
+    17.26. c − δ is an upper bound of S
+           def:upper-bound, from 17.25
+
+    17.27. c ≤ c − δ
+           instantiate u := c − δ in def:least-upper-bound, from 8, 17.26
+
+    17.28. not c ≤ c − δ
+           inequalities, from 17.24
+
+    17.29. c ≤ c − δ. not c ≤ c − δ.
+           lines 17.27, 17.28
+
+    17.30. f(c) = 0
+           thm:from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.29
+
+18. There is c ∈ [a, b] with f(c) = 0.
+    exhibit, from 13, 17

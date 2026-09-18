@@ -19,83 +19,31 @@ Provisional forms, listed in the batch report: `let A be a point`;
 
 ## Theorem isosceles
 
-```
-theorem isosceles
-  let A be a point                                                    (H1)
-  let B be a point                                                    (H2)
-  let C be a point                                                    (H3)
-  assume A, B, C form a triangle                                      (H4)
-  assume |CA| = |CB|                                                  (H5)
-  then ∠CAB = ∠CBA
-
-1.  |AC| = |CA|
-    thm:distance-symmetric P := A, Q := C, from H1, H3
-
-2.  |AC| = |BC|
-    calculation
-      |AC| = |CA|       1
-           = |CB|       H5
-           = |BC|       thm:distance-symmetric P := C, Q := B, from H3, H2
-
-3.  ∠ACB = ∠BCA
-    thm:angle-symmetric P := A, Q := C, R := B, from H1, H3, H2
-
-4.  |CB| = |CA|
-    calculation
-      |CB| = |CA|       H5, right to left
-
-5.  A, C, B form a triangle
-    thm:triangle-permute, from H4
-
-6.  B, C, A form a triangle
-    thm:triangle-permute, from H4
-
-7.  triangle ACB ≅ triangle BCA
-    thm:side-angle-side A := A, B := C, C := B, A′ := B, B′ := C, C′ := A,
-      from 5, 6, 2, 3, 4
-
-8.  ∠BAC = ∠ABC
-    def:congruent, from 7
-
-9.  ∠CAB = ∠BAC
-    thm:angle-symmetric P := C, Q := A, R := B, from H3, H1, H2
-
-10. ∠ABC = ∠CBA
-    thm:angle-symmetric P := A, Q := B, R := C, from H1, H2, H3
-
-11. ∠CAB = ∠CBA
-    calculation
-      ∠CAB = ∠BAC       9
-           = ∠ABC       8
-           = ∠CBA       10
-```
+The skeleton is `proof/isosceles.proof`. The items it cites are in `db/`.
 
 Step 2's chain cites a theorem on its last line instead of a step, which
 the calculation rule forbids; it is left so in the draft as a reminder
 that a two-line chain with a cited theorem is tempting. The conforming
-form is a step "|CB| = |BC|" before the chain.
+form is a step "|CB| = |BC|" before the chain. `DATABASE.md` keeps it on the
+list of things for the checker to catch rather than repairing it.
 
 ---
 
 ## Database items
 
-| symbols | what they are | set.mm |
-|---|---|---|
-| point | a point of the plane | an element of ℂ |
-| \|PQ\| | distance between P and Q | ( abs ` ( P − Q ) ) |
-| ∠PQR | the angle at Q from P to R | ( ( P − Q ) F ( R − Q ) ), with F the angle function |
-| triangle PQR ≅ triangle P′Q′R′ | congruence | (no single set.mm notion) |
+This pilot introduced `def:point`, `def:triangle`, `def:congruent`,
+`thm:distance-symmetric`, `thm:angle-symmetric`, `thm:triangle-permute`,
+`thm:side-angle-side` and `thm:isosceles` in `db/items.db`, and the point,
+distance, angle and congruence rows in `db/notation.db`. The table that used
+to stand here was merged into those files.
 
-| pointer | statement | set.mm |
-|---|---|---|
-| def:point | Let A be a point. (The plane is a set of points with distance and angle defined on it.) | A ∈ ℂ |
-| thm:distance-symmetric | Let P, Q be points. Then \|PQ\| = \|QP\|. | abssub |
-| thm:angle-symmetric | Let P, Q, R be points. Then ∠PQR = ∠RQP. | (angle function is antisymmetric up to sign; the unsigned angle is symmetric; needs a lemma) |
-| def:triangle | P, Q, R form a triangle ↔ P, Q, R are points, no two equal, not on one line. | (P ≠ Q ∧ Q ≠ R ∧ P ≠ R, plus non-collinearity) |
-| thm:triangle-permute | If P, Q, R form a triangle then so does any ordering of them. | (from the definition) |
-| def:congruent | triangle PQR ≅ triangle P′Q′R′ ↔ \|PQ\| = \|P′Q′\|, \|QR\| = \|Q′R′\|, \|RP\| = \|R′P′\|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, ∠RPQ = ∠R′P′Q′. | (six equations; no set.mm item) |
-| thm:side-angle-side | Let P, Q, R form a triangle and P′, Q′, R′ form a triangle. Assume \|PQ\| = \|P′Q′\|. Assume ∠PQR = ∠P′Q′R′. Assume \|QR\| = \|Q′R′\|. Then triangle PQR ≅ triangle P′Q′R′. | (a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert) |
-| thm:isosceles | proved above | isosctr |
+Seven of the eight are open items, which is what finding 1 below says. Three
+further things the merge found. `def:angle` is needed by the ∠ notation and
+appeared only in the findings, so it was added as an open item.
+`thm:triangle-permute`'s conclusion is not a formula and has to be restated.
+And `thm:side-angle-side` names its variables P, Q, R while step 7 of the
+proof instantiates A, B, C; one of the two must change, and the merge changed
+neither.
 
 ---
 

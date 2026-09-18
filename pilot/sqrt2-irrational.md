@@ -18,158 +18,24 @@ the viewer pulls in at each point of use.
 
 ## Theorem sqrt2-irrational
 
-```
-theorem sqrt2-irrational
-  then √2 is irrational
-
-1.  (√2)² = 2
-    def:sqrt x := 2
-    requires 2 ∈ ℝ: arithmetic
-    requires 2 ≥ 0: arithmetic
-
-2.  √2 ∈ ℝ
-    def:sqrt x := 2
-    requires 2 ∈ ℝ: arithmetic
-    requires 2 ≥ 0: arithmetic
-
-3.  √2 ∉ ℚ
-    contradiction
-    suppose √2 ∈ ℚ                                                    (S)
-
-    3.1.  p ∈ ℤ. q ∈ ℤ. q > 0. √2 = p/q.
-          There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          obtain p, q: thm:lowest-terms x := √2, from S
-
-    3.2.  (p/q)² = 2
-          substitute √2 = p/q (line 3.1) into line 1
-
-    3.3.  p² = 2q²
-          algebra, from 3.2
-          requires q ≠ 0: inequalities, from 3.1
-
-    3.4.  p² is even
-          def:even n := p², from 3.3
-          requires p² ∈ ℤ: thm:int-closure, from 3.1
-          requires q² ∈ ℤ: thm:int-closure, from 3.1
-
-    3.5.  p is even
-          thm:even-square n := p, from 3.1, 3.4
-
-    3.6.  r ∈ ℤ. p = 2r.
-          obtain r: def:even n := p, from 3.1, 3.5
-
-    3.7.  p² = (2r)²
-          substitute p = 2r (line 3.6)
-
-    3.8.  (2r)² = 4r²
-          algebra
-
-    3.9.  2q² = 4r²
-          calculation
-            2q² = p²        3.3, right to left
-                = (2r)²     3.7
-                = 4r²       3.8
-
-    3.10. q² = 2r²
-          algebra, from 3.9
-          requires 2 ≠ 0: arithmetic
-
-    3.11. q² is even
-          def:even n := q², from 3.10
-          requires q² ∈ ℤ: thm:int-closure, from 3.1
-          requires r² ∈ ℤ: thm:int-closure, from 3.6
-
-    3.12. q is even
-          thm:even-square n := q, from 3.1, 3.11
-
-    3.13. s ∈ ℤ. q = 2s.
-          obtain s: def:even n := q, from 3.1, 3.12
-
-    3.14. 2 divides p
-          def:divides d := 2, n := p, from 3.1, 3.6
-          requires 2 ∈ ℤ: arithmetic
-
-    3.15. 2 divides q
-          def:divides d := 2, n := q, from 3.1, 3.13
-          requires 2 ∈ ℤ: arithmetic
-
-    3.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
-          exhibit, from 3.14, 3.15
-          requires 2 ∈ ℤ: arithmetic
-          requires 2 > 1: arithmetic
-
-    3.17. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
-          There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          lines 3.16, 3.1
-
-4.  √2 is irrational
-    def:irrational x := √2, from 3, 2
-```
+The skeleton is in `proof/sqrt2-irrational.proof`, which holds all three
+theorems of this pilot. They are stored in dependency order, odd-square then
+even-square then sqrt2-irrational, so that every pointer resolves to
+something earlier; this file presents them the other way round, main theorem
+first.
 
 ---
 
 ## Theorem odd-square
 
-```
-theorem odd-square
-  let n ∈ ℤ                                                           (H1)
-  assume n is odd                                                     (H2)
-  then n² is odd
-
-1.  k ∈ ℤ. n = 2k + 1.
-    obtain k: def:odd n := n, from H1, H2
-
-2.  n² = (2k + 1)²
-    substitute n = 2k + 1 (line 1)
-
-3.  (2k + 1)² = 4k² + 4k + 1
-    algebra
-
-4.  4k² + 4k + 1 = 2(2k² + 2k) + 1
-    algebra
-
-5.  n² = 2(2k² + 2k) + 1
-    calculation
-      n² = (2k + 1)²           2
-         = 4k² + 4k + 1        3
-         = 2(2k² + 2k) + 1     4
-
-6.  n² is odd
-    def:odd n := n², from 5
-    requires n² ∈ ℤ: thm:int-closure, from H1
-    requires 2k² + 2k ∈ ℤ: thm:int-closure, from 1
-```
+In `proof/sqrt2-irrational.proof`, first of the three.
 
 ---
 
 ## Theorem even-square
 
-```
-theorem even-square
-  let n ∈ ℤ                                                           (H1)
-  assume n² is even                                                   (H2)
-  then n is even
-
-1.  n is not odd
-    contradiction
-    suppose n is odd                                                  (S)
-
-    1.1.  n² is odd
-          thm:odd-square n := n, from H1, S
-
-    1.2.  n² is not odd
-          thm:not-both n := n², from H2
-          requires n² ∈ ℤ: thm:int-closure, from H1
-
-    1.3.  n² is odd. n² is not odd.
-          lines 1.1, 1.2
-
-2.  n is even or n is odd
-    thm:even-or-odd n := n, from H1
-
-3.  n is even
-    lines 1, 2
-```
+In `proof/sqrt2-irrational.proof`, second of the three. The rendered view
+below is of this theorem.
 
 ---
 
@@ -225,52 +91,19 @@ question and not a property of the text.
 
 ## Database items
 
-Every item below must exist in the database, written in this language,
-before this file can be accepted. The middle column is the statement the
-viewer shows at each point of use. The right-hand column is the set.mm item
-the elaborator would most plausibly target, where one exists.
+This pilot introduced most of the database. In `db/items.db`: `def:sqrt`,
+`def:rational`, `def:irrational`, `def:even`, `def:odd`, `def:divides`,
+`thm:lowest-terms`, `thm:int-closure`, `thm:even-or-odd`, `thm:not-both`,
+`thm:odd-square`, `thm:even-square` and `thm:sqrt2-irrational`. In
+`db/notation.db`: the number systems, the relations, the arithmetic
+operations and the logical symbols. In `db/methods.db`: `arithmetic`,
+`algebra`, `inequalities`, `substitute`, `lines`, `obtain`, `exhibit`,
+`contradiction` and `calculation`, nine of the fourteen. The tables that used
+to stand here were merged into those files; `DATABASE.md` records what the
+merge decided.
 
-Notation. Every symbol has a pointer in the database; in the skeleton the
-pointers for symbols are not written at each occurrence.
-
-| symbols | what they are | set.mm |
-|---|---|---|
-| ℝ ℤ ℚ | the number systems | cr, cz, cq |
-| ∈ ∉ = ≠ < > ≥ | membership, equality, order | wcel, wnel, wceq, wne, clt, ... |
-| + · / ² √ | arithmetic operations | caddc, cmul, cdiv, cexp, csqrt |
-| ∀ ∃ ¬ ∧ ∨ → ↔ | logical symbols | wal, wex, wn, wa, wo, wi, wb |
-
-Definitions and theorems.
-
-| pointer | statement | set.mm |
-|---|---|---|
-| def:sqrt | Let x ∈ ℝ. Assume x ≥ 0. Then √x ∈ ℝ. √x ≥ 0. (√x)² = x. | df-sqrt, sqrtth, sqrtge0, resqrtcl |
-| def:rational | x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℤ with q ≠ 0 and x = p/q | elq |
-| def:irrational | x is irrational ↔ x ∈ ℝ and x ∉ ℚ | (ℝ ∖ ℚ, as in sqrt2irr0) |
-| def:even | Let n ∈ ℤ. n is even ↔ there is k ∈ ℤ with n = 2k | (set.mm: 2 ∥ n, dvds) |
-| def:odd | Let n ∈ ℤ. n is odd ↔ there is k ∈ ℤ with n = 2k + 1 | (set.mm: ¬ 2 ∥ n) |
-| def:divides | Let d ∈ ℤ, n ∈ ℤ. d divides n ↔ there is k ∈ ℤ with n = d·k | df-dvds |
-| thm:lowest-terms | Let x ∈ ℚ. Then there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q, and no d ∈ ℤ with d > 1, d divides p, and d divides q. | qredeu or similar |
-| thm:int-closure | Let a ∈ ℤ, b ∈ ℤ. Then a + b ∈ ℤ. a·b ∈ ℤ. | zaddcl, zmulcl |
-| thm:even-or-odd | Let n ∈ ℤ. Then n is even or n is odd. | zeo |
-| thm:not-both | Let n ∈ ℤ. Assume n is even. Then n is not odd. | (from zeo2 / oddm1even) |
-| thm:odd-square | proved above | (zesq covers it) |
-| thm:even-square | proved above | zesq |
-
-Methods. The middle column is what a reader checks when a step cites the
-method.
-
-| pointer | what the reader checks | set.mm |
-|---|---|---|
-| arithmetic | a closed numeral expression has the stated value, order, or membership in ℕ ℤ ℚ ℝ | decimal arithmetic lemmas, 2re, 2z |
-| algebra | the claim follows from the cited equations by ring and field identities | (a normaliser over ℂ lemmas) |
-| inequalities | the claim follows from the cited order facts by the rules for inequalities | ltne, ... |
-| substitute | the claim is the cited line with one side of the cited equation replaced by the other | oveq1d, eqtrd, ... |
-| lines | the claim follows from the cited lines by propositional logic | syl, mpd, jca, ... |
-| obtain | the cited item concludes an existence claim; the new names stand for its objects and the claim is its body | exlimiv, eximd, ... |
-| exhibit | the claim is a bare "there is" sentence; the cited lines are its body with some value in place of the variable, which the reader finds by comparison | rspcev, spcev, ... |
-| contradiction | the block under the step assumes the negation of the claim and ends by stating some P and also not P | pm2.65, condan, ... |
-| calculation | each line of the chain is justified and the claim is first term = last term | eqtrd, 3eqtrd, ... |
+`thm:sqrt2-irrational` was not in the table. It was the only pilot's main
+theorem missing a row of its own, and the merge added it.
 
 ---
 

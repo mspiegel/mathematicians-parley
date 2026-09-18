@@ -23,64 +23,8 @@ pointers, and the pilot does not prove them.
 
 ## Theorem prime-above
 
-```
-theorem prime-above
-  let n ∈ ℕ                                                           (H1)
-  then there is p ∈ ℕ with p prime and p > n
-
-1.  n! ∈ ℕ
-    thm:factorial-nat n := n, from H1
-
-2.  n! + 1 ∈ ℕ
-    thm:nat-closure a := n!, b := 1, from 1
-    requires 1 ∈ ℕ: arithmetic
-
-3.  n! ≥ 1
-    thm:nat-ge-1 m := n!, from 1
-
-4.  n! + 1 > 1
-    inequalities, from 3
-
-5.  p ∈ ℕ. p is prime. p divides n! + 1.
-    obtain p: thm:prime-factor m := n! + 1, from 2, 4
-
-6.  p > 1
-    def:prime p := p, from 5
-
-7.  p > n
-    contradiction
-    suppose not p > n                                                 (S)
-
-    7.1.  p ≤ n
-          inequalities, from S
-
-    7.2.  p divides n!
-          thm:factorial-divisible n := n, m := p, from H1, 5, 7.1
-
-    7.3.  p divides (n! + 1) − n!
-          thm:divides-difference d := p, a := n! + 1, b := n!, from 5, 7.2
-          requires p ∈ ℤ: thm:nat-int, from 5
-          requires n! + 1 ∈ ℤ: thm:nat-int, from 2
-          requires n! ∈ ℤ: thm:nat-int, from 1
-
-    7.4.  (n! + 1) − n! = 1
-          algebra
-
-    7.5.  p divides 1
-          substitute (n! + 1) − n! = 1 (line 7.4) into line 7.3
-
-    7.6.  p = 1
-          thm:divides-one d := p, from 5, 7.5
-
-    7.7.  not p = 1
-          inequalities, from 6
-
-    7.8.  p = 1. not p = 1.
-          lines 7.6, 7.7
-
-8.  There is p ∈ ℕ with p prime and p > n.
-    exhibit, from 5, 7
-```
+The skeleton is `proof/infinitely-many-primes.proof`. The items it cites are
+in `db/`.
 
 ---
 
@@ -165,29 +109,20 @@ natural number p with p prime and p > n.
 
 ## Database items
 
-Items already listed in earlier pilots are not repeated. The symbol n! is
-new.
-
-| symbols | what they are | set.mm |
-|---|---|---|
-| n! | factorial | cfa |
-
-| pointer | statement | set.mm |
-|---|---|---|
-| def:factorial | 1! = 1. Let n ∈ ℕ. (n + 1)! = n!·(n + 1). | fac1, facp1 |
-| def:prime | Let p ∈ ℕ. p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then d = 1 or d = p. | isprm2 |
-| thm:factorial-nat | Let n ∈ ℕ. Then n! ∈ ℕ. | facnn |
-| thm:nat-closure | Let a ∈ ℕ, b ∈ ℕ. Then a + b ∈ ℕ. a·b ∈ ℕ. | nnaddcl, nnmulcl |
-| thm:nat-ge-1 | Let m ∈ ℕ. Then m ≥ 1. | nnge1 |
-| thm:nat-int | Let m ∈ ℕ. Then m ∈ ℤ. | nnz |
-| thm:prime-factor | Let m ∈ ℕ. Assume m > 1. Then there is p ∈ ℕ with p prime and p divides m. | exprmfct |
-| thm:factorial-divisible | Let n ∈ ℕ, m ∈ ℕ. Assume m ≤ n. Then m divides n!. | dvdsfac |
-| thm:divides-difference | Let d ∈ ℤ, a ∈ ℤ, b ∈ ℤ. Assume d divides a. Assume d divides b. Then d divides a − b. | dvds2sub |
-| thm:divides-one | Let d ∈ ℕ. Assume d divides 1. Then d = 1. | dvds1 |
-| thm:prime-above | proved above | infpn |
+This pilot introduced `def:factorial`, `def:prime`, `thm:factorial-nat`,
+`thm:nat-closure`, `thm:nat-ge-1`, `thm:nat-int`, `thm:prime-factor`,
+`thm:factorial-divisible`, `thm:divides-difference`, `thm:divides-one` and
+`thm:prime-above` in `db/items.db`, and the factorial row in
+`db/notation.db`. The table that used to stand here was merged into those
+files; `DATABASE.md` records what the merge decided.
 
 No new methods. `substitute ... into`, `inequalities`, `lines`,
 `obtain`, `exhibit` and `contradiction` are as in `SYNTAX.md`.
+
+`def:factorial` is one of the three recursive definitions, with `def:S` and
+`def:G`, whose base sentence carries no hypothesis and whose step sentence
+carries one. The theorem form puts all hypotheses before all conclusions, so
+these three are the only records written with two `then` groups.
 
 ---
 

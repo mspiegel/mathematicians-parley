@@ -1,0 +1,172 @@
+# Notation
+#
+# One record per symbol or symbol family. Every symbol a claim may use is
+# declared here. Format is described in DATABASE.md.
+#
+#   writes      the symbol as it appears in a claim
+#   reads       how a viewer says it in words
+#   metamath    the set.mm syntax constructors the elaborator targets
+#   first-used  the pilot that introduced it
+#   note        anything a reader or an implementer needs
+#
+# A line beginning with # is a comment. A record begins at column 0 and its
+# fields are indented.
+
+notation number-systems
+  writes      ℕ  ℕ₀  ℤ  ℚ  ℝ
+  reads       the natural numbers, the natural numbers with zero, the integers,
+              the rationals, the reals
+  metamath    cn, cn0, cz, cq, cr
+  first-used  sqrt2-irrational
+  note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader
+              taught that the natural numbers begin at 0 needs this pointer to
+              say so. Nothing in any text assumes either convention beyond it.
+
+notation relations
+  writes      ∈  ∉  =  ≠  <  >  ≤  ≥
+  reads       is in, is not in, equals, is not equal to, is less than,
+              is greater than, is at most, is at least
+  metamath    wcel, wnel, wceq, wne, clt, cle
+  first-used  sqrt2-irrational
+
+notation arithmetic-operations
+  writes      +  −  ·  /  ²  ^  √
+  reads       plus, minus, times, divided by, squared, to the power,
+              the square root of
+  metamath    caddc, cmin, cmul, cdiv, cexp, csqrt
+  first-used  sqrt2-irrational
+  note        Binary − and the general power ^ are used by the primes, Bezout,
+              subsets, geometric series and intermediate value pilots and were
+              declared in no pilot table. Added by the merge.
+
+notation negation
+  writes      −x
+  reads       minus x
+  metamath    cneg
+  first-used  triangle-inequality
+  note        Unary. Distinct from binary − in arithmetic-operations, which the
+              parser will have to tell apart by position.
+
+notation logical-symbols
+  writes      ∀  ∃  ¬  ∧  ∨  →  ↔
+  reads       for every, there is, not, and, or, implies, if and only if
+  metamath    wal, wex, wn, wa, wo, wi, wb
+  first-used  sqrt2-irrational
+  note        SYNTAX.md writes ∀ ∃ ¬ ∧ ∨ as words in claims. Only → and ↔ are
+              written as symbols, and the rest appear in database statements
+              where words would be worse.
+
+notation absolute-value
+  writes      |x|
+  reads       the absolute value of x
+  metamath    cabs
+  first-used  triangle-inequality
+  note        Collides with cardinality and with distance. See DATABASE.md.
+
+notation cardinality
+  writes      |A|
+  reads       the number of elements of A
+  metamath    chash
+  first-used  subsets
+  note        Collides with absolute-value and with distance. See DATABASE.md.
+
+notation distance
+  writes      |PQ|
+  reads       the distance from P to Q
+  metamath    ( abs ` ( P − Q ) )
+  first-used  isosceles
+  note        Collides with absolute-value and with cardinality. See DATABASE.md.
+
+notation factorial
+  writes      n!
+  reads       n factorial
+  metamath    cfa
+  first-used  infinitely-many-primes
+
+notation gcd
+  writes      gcd(a, b)
+  reads       the greatest common divisor of a and b
+  metamath    cgcd
+  first-used  bezout
+
+notation subset
+  writes      ⊆
+  reads       is a subset of
+  metamath    wss
+  first-used  bezout
+
+notation set-operations
+  writes      ∅  {a}  ∪  ∖  ∩
+  reads       the empty set, the set whose only element is a, union, difference,
+              intersection
+  metamath    c0, csn, cun, cdif, cin
+  first-used  subsets
+
+notation powerset
+  writes      𝒫A
+  reads       the power set of A
+  metamath    cpw
+  first-used  cantor
+
+notation set-builder
+  writes      {t ∈ X : P(t)}
+  reads       the set of t in X with P(t)
+  metamath    crab
+  first-used  bezout
+  note        Told apart from set-image by what precedes the colon. See
+              def:set-builder.
+
+notation set-image
+  writes      {E(s) : s ∈ Y}
+  reads       the set of E(s) for s in Y
+  metamath    cmpt, or crab with a witness
+  first-used  subsets
+  note        Told apart from set-builder by what precedes the colon. See
+              def:set-image.
+
+notation function
+  writes      f : A → B,  f(x)
+  reads       f is a function from A to B, f applied to x
+  metamath    wf, cfv
+  first-used  cantor
+  note        The Cantor and intermediate value pilots wrote this row
+              separately, the second as "f : D → ℝ". One row.
+
+notation closed-interval
+  writes      [a, b]
+  reads       the closed interval from a to b
+  metamath    cicc
+  first-used  intermediate-value
+
+notation point
+  writes      point
+  reads       a point of the plane
+  metamath    an element of ℂ
+  first-used  isosceles
+
+notation angle
+  writes      ∠PQR
+  reads       the angle at Q from P to R
+  metamath    ( ( P − Q ) F ( R − Q ) ), with F the angle function
+  first-used  isosceles
+  note        set.mm's angle function is signed. See def:angle.
+
+notation congruent
+  writes      triangle PQR ≅ triangle P′Q′R′
+  reads       triangle PQR is congruent to triangle P′Q′R′
+  metamath    none
+  first-used  isosceles
+
+notation sum-function
+  writes      S(n)
+  reads       the sum of the first n natural numbers
+  metamath    Σ k ∈ (1...n) k
+  first-used  sum-formula
+  note        Introduced by def:S, which is local to the sum-formula pilot.
+
+notation geometric-function
+  writes      G(n)
+  reads       the sum of the first n + 1 powers of a
+  metamath    Σ k ∈ (0...n) a^k
+  first-used  geometric-series
+  note        Introduced by def:G, which is local to the geometric-series pilot.

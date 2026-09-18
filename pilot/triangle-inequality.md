@@ -16,107 +16,10 @@ first and is itself by cases.
 
 ---
 
-## Theorem abs-bounds
+## Theorems abs-bounds and triangle-inequality
 
-```
-theorem abs-bounds
-  let x ∈ ℝ                                                           (H1)
-  then x ≤ |x|. −x ≤ |x|.
-
-1.  x ≥ 0 or x < 0
-    thm:nonneg-or-neg x := x, from H1
-
-2.  x ≤ |x|. −x ≤ |x|.
-    cases, from 1
-
-    case
-    assume x ≥ 0                                                      (C1)
-
-    2.1.  |x| = x
-          def:abs x := x, from H1, C1
-
-    2.2.  x ≤ |x|
-          inequalities, from 2.1
-
-    2.3.  −x ≤ |x|
-          inequalities, from 2.1, C1
-
-    2.4.  x ≤ |x|. −x ≤ |x|.
-          lines 2.2, 2.3
-
-    case
-    assume x < 0                                                      (C2)
-
-    2.5.  |x| = −x
-          def:abs x := x, from H1, C2
-
-    2.6.  −x ≤ |x|
-          inequalities, from 2.5
-
-    2.7.  x ≤ |x|
-          inequalities, from 2.5, C2
-
-    2.8.  x ≤ |x|. −x ≤ |x|.
-          lines 2.6, 2.7
-```
-
----
-
-## Theorem triangle-inequality
-
-```
-theorem triangle-inequality
-  let a ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  then |a + b| ≤ |a| + |b|
-
-1.  a + b ∈ ℝ
-    thm:real-closure, from H1, H2
-
-2.  a + b ≥ 0 or a + b < 0
-    thm:nonneg-or-neg x := a + b, from 1
-
-3.  a ≤ |a|. −a ≤ |a|.
-    thm:abs-bounds x := a, from H1
-
-4.  b ≤ |b|. −b ≤ |b|.
-    thm:abs-bounds x := b, from H2
-
-5.  |a + b| ≤ |a| + |b|
-    cases, from 2
-
-    case
-    assume a + b ≥ 0                                                  (C1)
-
-    5.1.  |a + b| = a + b
-          def:abs x := a + b, from 1, C1
-
-    5.2.  a + b ≤ |a| + |b|
-          inequalities, from 3, 4
-
-    5.3.  |a + b| ≤ |a| + |b|
-          calculation
-            |a + b| = a + b                 5.1
-                    ≤ |a| + |b|             5.2
-
-    case
-    assume a + b < 0                                                  (C2)
-
-    5.4.  |a + b| = −(a + b)
-          def:abs x := a + b, from 1, C2
-
-    5.5.  −(a + b) = −a + −b
-          algebra
-
-    5.6.  −a + −b ≤ |a| + |b|
-          inequalities, from 3, 4
-
-    5.7.  |a + b| ≤ |a| + |b|
-          calculation
-            |a + b| = −(a + b)              5.4
-                    = −a + −b               5.5
-                    ≤ |a| + |b|             5.6
-```
+Both skeletons are in `proof/triangle-inequality.proof`, abs-bounds first.
+The items they cite are in `db/`.
 
 ---
 
@@ -184,29 +87,20 @@ theorem triangle-inequality
 
 ## Database items
 
-Items already listed in the earlier pilots (`arithmetic`, `algebra`,
-`inequalities`, `lines`, `calculation`, the symbols) are not repeated. The
-symbol |x| is new.
+This pilot introduced `def:abs`, `thm:nonneg-or-neg`, `thm:real-closure`,
+`thm:abs-bounds` and `thm:triangle-inequality` in `db/items.db`, the absolute
+value and negation rows in `db/notation.db`, and the `cases` method in
+`db/methods.db`. It also settled the mixed = and ≤ chain, which is part of
+the `calculation` record rather than a method of its own. The table that used
+to stand here was merged into those files.
 
-| symbols | what they are | set.mm |
-|---|---|---|
-| \|x\| | absolute value | cabs |
-| −x | negation | cneg |
-
-| pointer | statement | set.mm |
-|---|---|---|
-| def:abs | Let x ∈ ℝ. If x ≥ 0 then \|x\| = x. If x < 0 then \|x\| = −x. | absid, absnid (set.mm defines abs on ℂ by df-abs; these two theorems are the real case) |
-| thm:nonneg-or-neg | Let x ∈ ℝ. Then x ≥ 0 or x < 0. | 0re, lelttric |
-| thm:real-closure | Let x ∈ ℝ, y ∈ ℝ. Then x + y ∈ ℝ. | readdcl |
-| thm:abs-bounds | proved above | leabs, absneg |
-| thm:triangle-inequality | proved above | abstri (over ℂ) |
-
-Methods.
-
-| pointer | what the reader checks | set.mm |
-|---|---|---|
-| cases, from L | L claims "P or Q"; the block has one `case` part per disjunct, in order; each part opens with `assume` of its disjunct, labelled, and its last step claims the same formula as the step above the block | jaodan, jaoi |
-| calculation, with ≤ | every line cites a numbered step stating that line's relation; where the chain mixes = with ≤ or <, the claim's relation is ≤ if every line is = or ≤, and < if any line is < | eqbrtrd, lelttrd, ... |
+Two things the merge changed. `thm:real-closure` was stated here for addition
+only and in the intermediate value pilot for addition and subtraction; it now
+carries both sentences, which is the shape `thm:int-closure` already had, and
+neither proof changes. And the absolute value bars collide with cardinality
+in the subsets pilot and with distance in the isosceles pilot; telling the
+three apart needs the kind of the argument, which the readable layer does not
+track. `DATABASE.md` leaves that for the formula parser.
 
 ---
 
