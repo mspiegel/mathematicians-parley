@@ -306,14 +306,10 @@ theorem or definition in a step of its own.
 
 ## Not settled
 
-- The hypotheses of `algebra` and `inequalities`: whether "p is a number" is a
-  requires line of every such step on an integer, or is discharged inside the
-  method. `METHODS.md` specifies both methods as requiring it, like any other
-  dull fact, and then measures what that costs: about 87 memberships across 42
-  steps, and roughly ten numbered steps in the Bezout proof alone, because a
-  variable in ℕ reaches ℝ through two citations and a requires line carries
-  only one. The corpus complies nowhere. Deciding whether to pay that is a
-  decision about the dull-fact rule in `READERS.md`, not about either method.
+- Settled, and no longer on this list: the hypotheses of `algebra` and
+  `inequalities`. "p is a real number" is a requires line, as `READERS.md` now
+  says explicitly, and the corpus complies throughout: 97 membership lines
+  across the 42 steps that cite one of the two methods.
 - Whether "line 2.1" names one formula or each of its sentences.
 - Whether a proof consisting of a single block may omit the step that
   repeats the theorem's `then` line as its claim.

@@ -189,6 +189,6 @@ these three are the only records written with two `then` groups.
    sentence, with the definition it needs, is a question for the
    set-theoretic pilot.
 
-Numbers, for the record: 16 numbered steps, 4 requires lines. set.mm's
+Numbers, for the record: 16 numbered steps, 9 requires lines. set.mm's
 infpn has 2 essential steps, resting on infpnlem1 with 58 and infpnlem2
 with 38.

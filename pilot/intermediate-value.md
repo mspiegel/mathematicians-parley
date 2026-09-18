@@ -115,6 +115,6 @@ exists purely because the language has no `min` notation.
    this one applied to f − u, which needs a theorem that f − u is
    continuous, another database item.
 
-Numbers, for the record: 69 numbered steps, 2 requires lines. set.mm's
+Numbers, for the record: 71 numbered steps, 41 requires lines. set.mm's
 ivth has 16 essential steps on top of ivthle's 69, but the continuity in
 set.mm is topological and its unfolding to ε and δ is elsewhere.

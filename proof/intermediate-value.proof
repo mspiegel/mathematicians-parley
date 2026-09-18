@@ -86,17 +86,29 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            17.1.2.  f(b) < 0
                     substitute c = b (line 17.1.1) into C1
 
-           17.1.3.  not f(b) < 0
-                    inequalities, from H7
+           17.1.3.  b ∈ [a, b]
+                    def:interval x := b, from H2
+                    requires a ≤ b: inequalities, from H3
+                    requires b ≤ b: inequalities
 
-           17.1.4.  f(b) < 0. not f(b) < 0.
-                    lines 17.1.2, 17.1.3
+           17.1.4.  f(b) ∈ ℝ
+                    thm:function-value, from H4, 17.1.3
+
+           17.1.5.  not f(b) < 0
+                    inequalities, from H7
+                    requires f(b) ∈ ℝ: from 17.1.4
+
+           17.1.6.  f(b) < 0. not f(b) < 0.
+                    lines 17.1.2, 17.1.5
 
     17.2.  c < b
            inequalities, from 12, 17.1
+           requires c ∈ ℝ: from 8
+           requires b ∈ ℝ: from H2
 
     17.3.  −f(c) > 0
            inequalities, from C1
+           requires f(c) ∈ ℝ: from 14
 
     17.4.  There is δ ∈ ℝ with δ > 0 and
            for every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
@@ -111,15 +123,28 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.7.  a ≤ x₁
            inequalities, from 11, 17.6
+           requires a ∈ ℝ: from H1
+           requires b ∈ ℝ: from H2
+           requires c ∈ ℝ: from 8
+           requires x₁ ∈ ℝ: from 17.6
+           requires δ ∈ ℝ: from 17.5
 
     17.8.  x₁ ∈ [a, b]
            def:interval x := x₁, from 17.6, 17.7
 
     17.9.  c − δ < x₁
            inequalities, from 17.6, 17.5
+           requires b ∈ ℝ: from H2
+           requires c ∈ ℝ: from 8
+           requires x₁ ∈ ℝ: from 17.6
+           requires δ ∈ ℝ: from 17.5
 
     17.10. x₁ < c + δ
            inequalities, from 17.6
+           requires b ∈ ℝ: from H2
+           requires c ∈ ℝ: from 8
+           requires x₁ ∈ ℝ: from 17.6
+           requires δ ∈ ℝ: from 17.5
 
     17.11. |x₁ − c| < δ
            thm:abs-difference-lt x := x₁, c := c, δ := δ, from 17.6, 8, 17.5, 17.9, 17.10
@@ -138,6 +163,9 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.16. f(x₁) < 0
            inequalities, from 17.15, 17.12
+           requires f(x₁) ∈ ℝ: from 17.13
+           requires f(c) ∈ ℝ: from 14
+           requires |f(x₁) − f(c)| ∈ ℝ: thm:abs-real x := f(x₁) − f(c), from 17.14
 
     17.17. x₁ ∈ S
            def:set-builder x := x₁, from 17.8, 17.16
@@ -147,6 +175,10 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.19. not x₁ ≤ c
            inequalities, from 17.6
+           requires b ∈ ℝ: from H2
+           requires c ∈ ℝ: from 8
+           requires x₁ ∈ ℝ: from 17.6
+           requires δ ∈ ℝ: from 17.5
 
     17.20. x₁ ≤ c. not x₁ ≤ c.
            lines 17.18, 17.19
@@ -193,9 +225,15 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
                      17.25.5.1.  c − δ < s
                                  inequalities, from S2
+                                 requires c ∈ ℝ: from 8
+                                 requires s ∈ ℝ: from 17.25.3
+                                 requires δ ∈ ℝ: from 17.24
 
                      17.25.5.2.  s < c + δ
                                  inequalities, from 17.25.4, 17.24
+                                 requires c ∈ ℝ: from 8
+                                 requires s ∈ ℝ: from 17.25.3
+                                 requires δ ∈ ℝ: from 17.24
 
                      17.25.5.3.  |s − c| < δ
                                  thm:abs-difference-lt x := s, c := c, δ := δ,
@@ -215,9 +253,14 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
                      17.25.5.8.  0 < f(s)
                                  inequalities, from 17.25.5.7, 17.25.5.4
+                                 requires f(s) ∈ ℝ: from 17.25.5.5
+                                 requires f(c) ∈ ℝ: from 14
+                                 requires |f(s) − f(c)| ∈ ℝ: thm:abs-real x := f(s) − f(c),
+                                   from 17.25.5.6
 
                      17.25.5.9.  not f(s) < 0
                                  inequalities, from 17.25.5.8
+                                 requires f(s) ∈ ℝ: from 17.25.5.5
 
                      17.25.5.10. f(s) < 0. not f(s) < 0.
                                  lines 17.25.2, 17.25.5.9
@@ -231,6 +274,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.28. not c ≤ c − δ
            inequalities, from 17.24
+           requires c ∈ ℝ: from 8
+           requires δ ∈ ℝ: from 17.24
 
     17.29. c ≤ c − δ. not c ≤ c − δ.
            lines 17.27, 17.28

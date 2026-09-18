@@ -180,6 +180,6 @@ track. `DATABASE.md` leaves that for the formula parser.
     will hold two proofs of statements that differ, since set.mm's is
     the ℂ version and this is its restriction to ℝ.
 
-Numbers, for the record: abs-bounds has 10 numbered steps and 0 requires
-lines; triangle-inequality has 12 numbered steps and 0 requires lines.
+Numbers, for the record: abs-bounds has 10 numbered steps and 8 requires
+lines; triangle-inequality has 12 numbered steps and 10 requires lines.
 set.mm's abstri has 78 essential steps.

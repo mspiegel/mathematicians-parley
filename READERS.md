@@ -76,6 +76,18 @@ that each line has one role.
 The viewer may collapse dull facts by default, since it can tell them apart
 mechanically. That is a viewer setting and changes nothing in the text.
 
+**Membership in a number system is a dull fact and merits no exception.**
+That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
+or method requires it. Exempting it was tempting: such a fact never fails, the
+`let` line that states it is always in view, and writing it is expensive,
+since the closure methods of `METHODS.md` work over a field and so need it for
+every atom of every algebra and inequalities step. That is 97 lines across 42
+steps in the current corpus, and one step carries ten. The exemption was
+rejected. Whether a fact can fail is not the test. Whether the cited item
+demands it is, and that is the test every other dull fact is held to. An
+exemption here would be the first place the text asked a reader to supply
+something the page does not say.
+
 **Justification vocabulary.** The initial list of methods a step may cite.
 Each is defined in the database with a specified expansion, and each use
 points to that definition.

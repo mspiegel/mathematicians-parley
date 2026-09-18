@@ -97,22 +97,22 @@ it is discharged by a cited line or written as a requires line. `READERS.md`
 already names this kind of fact, "that a product of integers is an integer",
 among its examples of dull facts.
 
-**The corpus does not comply.** The 25 steps have about fifty atoms between
-them, and while some memberships ride along in a cited line of several
-sentences, as `x₁ ∈ ℝ` does in step 17.6 of the intermediate value proof, most
-are not stated. Bringing the corpus into line means roughly forty new requires
-lines, every one of them mechanically collapsible in a viewer, which is what
-the collapse rule was designed for.
+The corpus complies. Writing the specification showed that many steps could not
+have stated their hypotheses at all, because the facts had no item behind them:
+nothing said the absolute value of a real number is real, nothing carried an
+integer, a natural or a natural-with-zero into the reals, and nothing said a
+power is real. `thm:abs-real`, `thm:int-real`, `thm:nat-real`,
+`thm:nat0-real` and `thm:power-real` were added for that, and the sweep then
+wrote 97 membership lines across the 42 steps citing this method or `algebra`.
 
-Writing this specification also showed that fourteen of the twenty-five steps
-could not have stated their hypotheses at all, because two facts had no item
-behind them. Nothing said the absolute value of a real number is real, which
-eight steps need, and nothing carried an integer into the reals, which the six
-steps of the Bezout and prime proofs need since they reason over ℤ while the
-method works over an ordered field. `thm:abs-real` and `thm:int-real` are now
-in `db/items.db` and no proof cites either yet. The largest single case is step
-5.2 of the triangle inequality, which has four atoms and today has two lines;
-under this rule it has six, two of them citing `thm:abs-real`.
+Two shapes are worth knowing. Most are a bare citation of a fact already on the
+page, as step 17.9 of the intermediate value proof is with `requires c ∈ ℝ:
+from 8`. The heaviest is step 2 of the Bezout lemma, which has ten atoms and so
+carries ten.
+
+Every natural bridge is direct rather than through ℤ, for a reason the rule
+forces: a requires line carries one citation, so a two-step chain would make
+every natural atom need a numbered step of its own.
 
 This is the answer to the "Not settled" item in `SYNTAX.md` about whether
 `algebra` and `inequalities` carry their membership hypotheses. They do. If
@@ -240,30 +240,26 @@ with coefficients of degree at most one.
 
 ---
 
-## What specifying both methods costs the corpus
+## What specifying both methods cost the corpus
 
-The membership rule is the same for both, and applying it is a larger job than
-it looked when only `inequalities` was specified.
+`READERS.md` settles that membership in a number system is a written dull fact
+and merits no exception. Applying that to both methods is the largest single
+change the corpus has taken.
 
-| | atoms needing a membership |
+| | |
 |---|---|
-| the 25 inequalities steps | about 54 |
-| the 17 algebra steps | about 33 |
+| steps citing `algebra` or `inequalities` | 42 |
+| membership requires lines written | 97 |
+| requires lines in the corpus, before and after | 38 → 139 |
+| database items added to make them writable | 5 |
 
-Some are already supplied by a cited line and cost nothing. The rest are
-requires lines, except where the fact is two citations deep, and there the rule
-that a requires line carries exactly one citation bites. A variable introduced
-by `let a ∈ ℕ` reaches ℝ through `thm:nat-int` and then `thm:int-real`, which
-is two steps, so it cannot be a requires line at all. It has to be a numbered
-step. The Bezout proof alone would gain about ten of those, and its step 2,
-which has ten atoms, would carry ten requires lines on top.
+Five items were missing: `thm:abs-real`, `thm:int-real`, `thm:nat-real`,
+`thm:nat0-real` and `thm:power-real`. None of them is deep, and none had been
+noticed in three passes over the corpus, because nothing had yet had to say
+what a method required of its terms.
 
-That is a different order of cost from the forty lines estimated when
-`inequalities` stood alone, and it is worth deciding before the sweep rather
-than during it. The alternative is to treat membership in a number system as
-discharged by the method rather than written: unlike `q ≠ 0`, which is a real
-side condition that can fail, membership here never fails, carries no
-information a reader does not already have from the `let` line, and would be
-the only dull fact in the corpus that routinely needs a numbered step of its
-own. Changing that is a change to the dull-fact rule in `READERS.md`, and it
-should be made there or not at all.
+Three steps could not be reached by a requires line at all and needed numbered
+steps instead. The geometric series now states `k + 1 ∈ ℕ₀` as a step, since
+`thm:power-real` needs it and it had only ever been a requires line. The
+intermediate value proof now states `b ∈ [a, b]` and then `f(b) ∈ ℝ`, neither
+of which the proof had ever established, although it used `f(b)` freely.

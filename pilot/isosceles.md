@@ -75,5 +75,5 @@ neither.
    construction the database would have to define. Pappus's proof was
    chosen because it needs nothing but the triangle itself.
 
-Numbers, for the record: 11 numbered steps, 0 requires lines. set.mm's
+Numbers, for the record: 12 numbered steps, 0 requires lines. set.mm's
 isosctr has 40 essential steps.

@@ -136,16 +136,17 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 ## What to do
 
-1. **Decide whether membership in a number system is a written dull fact.**
-   Both specifications say it is, and `METHODS.md` measures the bill: about 87
-   memberships across the 42 steps, and about ten numbered steps in the Bezout
-   proof alone, since a variable in ℕ reaches ℝ through two citations and a
-   requires line carries one. This gates the corpus sweep and is a decision
-   about `READERS.md`, not about either method.
-2. **Then one sweep** for both methods, once that is settled.
-3. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping
-   forced by the shape of contradiction and case blocks, not reasoning. It has
-   no atoms and so is untouched by item 1.
+1. **Specify the remaining two closure methods**, `arithmetic` and `lines`.
+   `arithmetic` is three steps. Specifying `lines` settles whether to split it:
+   twelve of its sixteen uses are bookkeeping forced by the shape of
+   contradiction and case blocks, not reasoning. Neither has atoms, so neither
+   is affected by the membership rule.
+
+The membership sweep is done. `READERS.md` settles that membership in a number
+system is a written dull fact and merits no exception, and the corpus now
+carries 97 such lines across the 42 steps that cite `algebra` or
+`inequalities`. Five database items had to be added before any of them could be
+written, and three facts needed numbered steps rather than requires lines.
 
 Three earlier items are done. `inequalities` and `algebra` are specified in
 `METHODS.md`, the first as linear arithmetic over an ordered field and the

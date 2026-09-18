@@ -269,7 +269,7 @@ Findings about set.mm:
     database for this project needs a definition of "even" in this language
     that elaborates to that.
 
-Numbers, for the record: the main theorem has 21 numbered steps and 14
-requires lines; the two lemmas together have 12 numbered steps and 3
+Numbers, for the record: the main theorem has 21 numbered steps and 19
+requires lines; the two lemmas together have 12 numbered steps and 5
 requires lines. set.mm's proof has 99 essential steps in sqrt2irr and 69 in
 sqrt2irrlem, and the parity lemma zesq has 74.

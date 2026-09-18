@@ -6,6 +6,7 @@ theorem geometric-sum
 
 1.  1 − a ≠ 0
     algebra, from H2
+    requires a ∈ ℝ: from H1
 
 2.  G(n) = (1 − a^(n + 1))/(1 − a)
     induction on n starting at 0, from H3
@@ -31,6 +32,7 @@ theorem geometric-sum
     2.6.  1 = (1 − a)/(1 − a)
           algebra
           requires 1 − a ≠ 0: from 1
+          requires a ∈ ℝ: from H1
 
     2.7.  (1 − a)/(1 − a) = (1 − a^(0 + 1))/(1 − a)
           substitute a^(0 + 1) = a (line 2.5)
@@ -54,20 +56,24 @@ theorem geometric-sum
           2.9.2.  G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
                   substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
 
-          2.9.3.  a^((k + 1) + 1) = a^(k + 1)·a
-                  thm:exponent-step m := k + 1, from H1
-                  requires k + 1 ∈ ℕ₀: thm:nat0-closure, from K
+          2.9.3.  k + 1 ∈ ℕ₀
+                  thm:nat0-closure, from K
 
-          2.9.4.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
+          2.9.4.  a^((k + 1) + 1) = a^(k + 1)·a
+                  thm:exponent-step m := k + 1, from H1, 2.9.3
+
+          2.9.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
                   algebra
                   requires 1 − a ≠ 0: from 1
+                  requires a ∈ ℝ: from H1
+                  requires a^(k + 1) ∈ ℝ: thm:power-real m := k + 1, from H1, 2.9.3
 
-          2.9.5.  (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.9.3), right to left
+          2.9.6.  (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
+                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.9.4), right to left
 
-          2.9.6.  G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
+          2.9.7.  G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
                   calculation
                     G(k + 1) = G(k) + a^(k + 1)                         2.9.1
                              = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.9.2
-                             = (1 − a^(k + 1)·a)/(1 − a)               2.9.4
-                             = (1 − a^((k + 1) + 1))/(1 − a)           2.9.5
+                             = (1 − a^(k + 1)·a)/(1 − a)               2.9.5
+                             = (1 − a^((k + 1) + 1))/(1 − a)           2.9.6

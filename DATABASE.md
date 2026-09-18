@@ -47,8 +47,8 @@ An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
-The corpus holds 86 items, 26 definitions and 60 theorems, 24 notation records
-and 14 methods. The ten proofs make 128 citations to 68 distinct items. Every
+The corpus holds 92 items, 26 definitions and 66 theorems, 22 notation records
+and 14 methods. The ten proofs make 181 citations to 73 distinct items. Every
 pointer resolves, and every `def:` or `thm:` prefix matches the kind of the item
 it names.
 

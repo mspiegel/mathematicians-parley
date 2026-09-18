@@ -16,9 +16,13 @@ theorem abs-bounds
 
     2.2.  x ≤ |x|
           inequalities, from 2.1
+          requires x ∈ ℝ: from H1
+          requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.3.  −x ≤ |x|
           inequalities, from 2.1, C1
+          requires x ∈ ℝ: from H1
+          requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.4.  x ≤ |x|. −x ≤ |x|.
           lines 2.2, 2.3
@@ -31,9 +35,13 @@ theorem abs-bounds
 
     2.6.  −x ≤ |x|
           inequalities, from 2.5
+          requires x ∈ ℝ: from H1
+          requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.7.  x ≤ |x|
           inequalities, from 2.5, C2
+          requires x ∈ ℝ: from H1
+          requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.8.  x ≤ |x|. −x ≤ |x|.
           lines 2.6, 2.7
@@ -67,6 +75,10 @@ theorem triangle-inequality
 
     5.2.  a + b ≤ |a| + |b|
           inequalities, from 3, 4
+          requires a ∈ ℝ: from H1
+          requires b ∈ ℝ: from H2
+          requires |a| ∈ ℝ: thm:abs-real x := a, from H1
+          requires |b| ∈ ℝ: thm:abs-real x := b, from H2
 
     5.3.  |a + b| ≤ |a| + |b|
           calculation
@@ -81,9 +93,15 @@ theorem triangle-inequality
 
     5.5.  −(a + b) = −a + −b
           algebra
+          requires a ∈ ℝ: from H1
+          requires b ∈ ℝ: from H2
 
     5.6.  −a + −b ≤ |a| + |b|
           inequalities, from 3, 4
+          requires a ∈ ℝ: from H1
+          requires b ∈ ℝ: from H2
+          requires |a| ∈ ℝ: thm:abs-real x := a, from H1
+          requires |b| ∈ ℝ: thm:abs-real x := b, from H2
 
     5.7.  |a + b| ≤ |a| + |b|
           calculation

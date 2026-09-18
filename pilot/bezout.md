@@ -93,6 +93,8 @@ lemmas in the subsets pilot.
    nat-int appear repeatedly. This is the divides-on-ℤ decision paying
    as expected, and it shows why the viewer's collapse-by-role matters.
 
-Numbers, for the record: the lemma has 13 numbered steps and 4 requires
-lines; the theorem has 21 numbered steps and 7 requires lines. set.mm's
-bezout has 47 essential steps.
+Numbers, for the record: the lemma has 13 numbered steps and 21 requires
+lines; the theorem has 21 numbered steps and 15 requires lines. set.mm's
+bezout has 47 essential steps. The requires counts are dominated by
+membership of ℝ, which `READERS.md` settles as a written dull fact: the
+lemma's step 2 has ten atoms and so carries ten such lines by itself.

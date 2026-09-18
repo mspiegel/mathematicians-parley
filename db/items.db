@@ -165,11 +165,25 @@ theorem int-real
   then        m ∈ ℝ
   metamath    zre
   first-used  bezout
-  note        No proof cites it yet. `inequalities` decides linear arithmetic
-              over an ordered field, so a step reasoning about integers has to
-              carry its atoms into ℝ first. Six steps of the Bezout and prime
-              proofs will need it. Together with nat-int it gives the chain
-              ℕ to ℤ to ℝ, of which only the first leg existed. See METHODS.md.
+  note        `algebra` and `inequalities` work over a field, so a step
+              reasoning about integers carries its atoms into ℝ first.
+
+theorem nat-real
+  let m ∈ ℕ                                                           (H1)
+  then        m ∈ ℝ
+  metamath    nnre
+  first-used  infinitely-many-primes
+  note        Direct rather than through nat-int and int-real. The chain would
+              be two citations, and a requires line carries one, so every
+              natural atom would need a numbered step of its own. set.mm has
+              the direct lemma, so the expansion is direct too.
+
+theorem nat0-real
+  let m ∈ ℕ₀                                                          (H1)
+  then        m ∈ ℝ
+  metamath    nn0re
+  first-used  subsets
+  note        Direct, for the same reason as nat-real.
 
 theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
@@ -203,6 +217,16 @@ theorem exponent-step
   then        a^(m + 1) = a^m·a
   metamath    expp1
   first-used  geometric-series
+
+theorem power-real
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℝ
+  metamath    reexpcl
+  first-used  geometric-series
+  note        A power whose exponent is not a numeral is an atom to `algebra`,
+              so it has to be known real in its own right rather than through
+              its base.
 
 theorem exponent-one
   let a ∈ ℝ                                                           (H1)

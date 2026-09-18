@@ -66,5 +66,5 @@ records what the merge decided.
    need no new form; SYNTAX.md's entry says so. Reading the base off the
    cited set was the rejected alternative.
 
-Numbers, for the record: 17 numbered steps, 3 requires lines. set.mm's
+Numbers, for the record: 18 numbered steps, 6 requires lines. set.mm's
 geoser has 18 essential steps.

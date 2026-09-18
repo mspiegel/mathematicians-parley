@@ -14,6 +14,7 @@ theorem prime-above
 
 4.  n! + 1 > 1
     inequalities, from 3
+    requires n! ∈ ℝ: thm:nat-real, from 1
 
 5.  p ∈ ℕ. p is prime. p divides n! + 1.
     obtain p: thm:prime-factor m := n! + 1, from 2, 4
@@ -27,6 +28,8 @@ theorem prime-above
 
     7.1.  p ≤ n
           inequalities, from S
+          requires p ∈ ℝ: thm:nat-real, from 5
+          requires n ∈ ℝ: thm:nat-real, from H1
 
     7.2.  p divides n!
           thm:factorial-divisible n := n, m := p, from H1, 5, 7.1
@@ -39,6 +42,7 @@ theorem prime-above
 
     7.4.  (n! + 1) − n! = 1
           algebra
+          requires n! ∈ ℝ: thm:nat-real, from 1
 
     7.5.  p divides 1
           substitute (n! + 1) − n! = 1 (line 7.4) into line 7.3
@@ -48,6 +52,7 @@ theorem prime-above
 
     7.7.  not p = 1
           inequalities, from 6
+          requires p ∈ ℝ: thm:nat-real, from 5
 
     7.8.  p = 1. not p = 1.
           lines 7.6, 7.7
