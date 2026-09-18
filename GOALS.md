@@ -334,8 +334,13 @@ answer later would invalidate work already done.
    the target proofs in question 2, and finalised with question 4.
 
 6. **Strength of the initial methods.** How much "by algebra" must do, and how
-   large its expansions may be before verification time matters. Data-driven
-   once the renderer exists.
+   large its expansions may be before verification time matters. Answered for
+   the first half in `CLOSURE.md`, from the 61 steps of the corpus that rest on
+   a closure method: `inequalities` carries 41% of them and needs linear
+   arithmetic over ordered fields, `algebra` needs a ring and field normaliser
+   that consumes nonzero hypotheses, `lines` is three quarters bookkeeping, and
+   `arithmetic` is three steps. It did not need the renderer. How large the
+   expansions may be is still open and needs one of them written.
 
 7. **Stability under library change.** A method's expansion refers to library
    lemmas. What happens when a lemma is renamed, generalised or removed. Must be
