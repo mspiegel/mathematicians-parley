@@ -138,7 +138,9 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 1. **Bring the corpus into line with the `inequalities` specification.** It
    makes every atom's membership of ℝ a dull fact, and about forty are
-   currently unwritten.
+   currently unwritten. The two items that fourteen of those steps were
+   blocked on, `thm:abs-real` and `thm:int-real`, now exist and are cited by
+   nothing.
 2. **Specify `algebra`**, which the `inequalities` specification leaves next in
    size, including whether it may prove a disequality as one step assumes.
 3. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping

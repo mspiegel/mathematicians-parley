@@ -104,6 +104,16 @@ are not stated. Bringing the corpus into line means roughly forty new requires
 lines, every one of them mechanically collapsible in a viewer, which is what
 the collapse rule was designed for.
 
+Writing this specification also showed that fourteen of the twenty-five steps
+could not have stated their hypotheses at all, because two facts had no item
+behind them. Nothing said the absolute value of a real number is real, which
+eight steps need, and nothing carried an integer into the reals, which the six
+steps of the Bezout and prime proofs need since they reason over ℤ while the
+method works over an ordered field. `thm:abs-real` and `thm:int-real` are now
+in `db/items.db` and no proof cites either yet. The largest single case is step
+5.2 of the triangle inequality, which has four atoms and today has two lines;
+under this rule it has six, two of them citing `thm:abs-real`.
+
 This is the answer to the "Not settled" item in `SYNTAX.md` about whether
 `algebra` and `inequalities` carry their membership hypotheses. They do. If
 forty lines is judged too high a price, the thing to change is the dull-fact

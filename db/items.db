@@ -160,6 +160,17 @@ theorem nat-int
   metamath    nnz
   first-used  infinitely-many-primes
 
+theorem int-real
+  let m ∈ ℤ                                                           (H1)
+  then        m ∈ ℝ
+  metamath    zre
+  first-used  bezout
+  note        No proof cites it yet. `inequalities` decides linear arithmetic
+              over an ordered field, so a step reasoning about integers has to
+              carry its atoms into ℝ first. Six steps of the Bezout and prime
+              proofs will need it. Together with nat-int it gives the chain
+              ℕ to ℤ to ℝ, of which only the first leg existed. See METHODS.md.
+
 theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then        m ≥ 1
@@ -362,6 +373,17 @@ definition abs
               the real case. So this elaborates to a pair of theorems, not to a
               definition. It is still called def:abs because that is what it is
               to Reader A.
+
+theorem abs-real
+  let x ∈ ℝ                                                           (H1)
+  then        |x| ∈ ℝ
+  metamath    recn, abscl
+  first-used  triangle-inequality
+  note        No proof cites it yet. `inequalities` treats |x| as an atom it
+              knows nothing about, so an absolute value has to be known real
+              like any other term. Eight steps of the triangle inequality and
+              intermediate value proofs will need it. set.mm defines abs on ℂ
+              by df-abs, so the real case goes through recn. See METHODS.md.
 
 theorem abs-difference-lt
   let x ∈ ℝ                                                           (H1)
