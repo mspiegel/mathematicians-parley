@@ -20,7 +20,7 @@ define B := {x ∈ A : not x ∈ f(x)}                                    (D1)
           suppose not not f(x) = B                                    (S)
 
           3.1.1.  f(x) = B
-                  lines S
+                  thm:double-negation P := f(x) = B, from S
 
           3.1.2.  x ∈ B or not x ∈ B
                   thm:excluded-middle P := x ∈ B
@@ -38,7 +38,7 @@ define B := {x ∈ A : not x ∈ f(x)}                                    (D1)
                             substitute f(x) = B (line 3.1.1) into line 3.1.3.1
 
                   3.1.3.3.  x ∈ B. not x ∈ B.
-                            lines C1, 3.1.3.2
+                            join C1, 3.1.3.2
 
                   case
                   assume not x ∈ B                                    (C2)
@@ -50,7 +50,7 @@ define B := {x ∈ A : not x ∈ f(x)}                                    (D1)
                             def:set-builder, from K, 3.1.3.4
 
                   3.1.3.6.  x ∈ B. not x ∈ B.
-                            lines 3.1.3.5, C2
+                            join 3.1.3.5, C2
 
 4.  There is B ∈ 𝒫A with for every x ∈ A, not f(x) = B.
     exhibit, from 2, 3

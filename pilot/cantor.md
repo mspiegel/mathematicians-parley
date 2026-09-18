@@ -50,12 +50,14 @@ or may not belong to.
    form beside `let n ∈ ℕ`, `let A be a point` and `let f : A → B`.
 2. **Double negation is literal and costs a step.** The claim at 3.1 is
    "not f(x) = B", so by the literal-negation rule the supposition is
-   "not not f(x) = B", and step 3.1.1 removes the double negation by
-   `lines`. Ugly on the page, and correct; it is where the classical
-   step sits.
+   "not not f(x) = B", and step 3.1.1 removes the double negation. Ugly on
+   the page, and correct; it is where the classical step sits. It cites
+   `thm:double-negation`, by the same argument finding 3 makes about
+   excluded middle: the step intuitionistic logic refuses is a choice among
+   logics, and a choice among logics gets a pointer.
 3. **Excluded middle is a cited theorem.** 3.1.2 claims "x ∈ B or not
    x ∈ B" from thm:excluded-middle with P := x ∈ B. The first draft wrote
-   it as `lines` with nothing cited, a tautology; that was rejected
+   it as a bare propositional step with nothing cited, a tautology; that was rejected
    because nothing is assumed, and a school reader has never been told
    that "P or not P" is a law. The citation is also the first to
    substitute a formula for a variable rather than a term, which set.mm

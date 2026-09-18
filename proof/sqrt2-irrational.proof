@@ -46,13 +46,13 @@ theorem even-square
           requires n² ∈ ℤ: thm:int-closure, from H1
 
     1.3.  n² is odd. n² is not odd.
-          lines 1.1, 1.2
+          join 1.1, 1.2
 
 2.  n is even or n is odd
     thm:even-or-odd n := n, from H1
 
 3.  n is even
-    lines 1, 2
+    thm:disjunctive-syllogism P := n is even, Q := n is odd, from 2, 1
 
 
 theorem sqrt2-irrational
@@ -141,7 +141,7 @@ theorem sqrt2-irrational
 
     3.17. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
           There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          lines 3.16, 3.1
+          join 3.16, 3.1
 
 4.  √2 is irrational
     def:irrational x := √2, from 3, 2

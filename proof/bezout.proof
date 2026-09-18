@@ -58,7 +58,7 @@ theorem least-combination-divides
           requires d ∈ ℝ: thm:nat-real, from H4
 
     3.7.  d ≤ r. not d ≤ r.
-          lines 3.5, 3.6
+          join 3.5, 3.6
 
 4.  c = q·d + 0
     substitute r = 0 (line 3) into line 1

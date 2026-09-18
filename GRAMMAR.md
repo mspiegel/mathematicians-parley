@@ -112,7 +112,7 @@ The fifteen heads and the slots each admits:
   | `algebra` [ `,` <from> ]
   | `arithmetic`
   | `inequalities` [ `,` <from> ]
-  | `lines` <ref> { `,` <ref> }
+  | `join` <ref> { `,` <ref> }
   | `contradiction`
   | `fix`
   | `induction` `on` <name> <start> `,` <from>
@@ -120,7 +120,7 @@ The fifteen heads and the slots each admits:
   | `calculation`
 ```
 
-`lines` takes its references directly and never the word `from`.
+`join` takes its references directly and never the word `from`.
 
 The target of `instantiate` is a line or a label, never an item. Both slots that
 name where a fact comes from, the target and `from`, admit only what is written

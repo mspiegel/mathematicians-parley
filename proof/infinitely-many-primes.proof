@@ -55,7 +55,7 @@ theorem prime-above
           requires p ∈ ℝ: thm:nat-real, from 5
 
     7.8.  p = 1. not p = 1.
-          lines 7.6, 7.7
+          join 7.6, 7.7
 
 8.  There is p ∈ ℕ with p prime and p > n.
     exhibit, from 5, 7

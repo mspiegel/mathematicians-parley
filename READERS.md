@@ -96,7 +96,13 @@ points to that definition.
 - by algebra
 - by the rules for inequalities
 - by definition of ⟨word⟩
-- by ⟨earlier line⟩ and ⟨earlier line⟩
+- by joining ⟨earlier line⟩ and ⟨earlier line⟩, which puts together what those
+  lines already say and infers nothing. A propositional law that does infer
+  something is a cited theorem instead: a move needs a pointer when it is a
+  choice among logics, and not when it is the meaning of a connective. Joining
+  two facts with "and" is what "and" means. Eliminating a double negation is
+  the step intuitionistic logic refuses, so the text says which logic it is in
+  by citing it.
 - by ⟨theorem⟩, with its statement shown
 - by cases on ⟨condition⟩
 - by induction on ⟨variable⟩

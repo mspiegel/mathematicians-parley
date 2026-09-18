@@ -122,14 +122,26 @@ method inequalities
   metamath    ltne, lelttr, ltnle
   first-used  sqrt2-irrational
 
-method lines
-  form        lines L
+method join
+  form        join L
   block       none
-  checks      propositional combination of L.
-  metamath    syl, mpd, jca, jao
+  checks      the claim is the sentences of the cited lines put together; with
+              one cited line it is that line.
+  decides     nothing. It combines what the cited lines already say and infers
+              no new fact, which is why it is the one method named for what it
+              does with its arguments rather than for a body of knowledge or a
+              shape of argument
+  hypotheses  none
+  specified-in METHODS.md
+  metamath    jca, and the projection lemmas where a cited line contributes one
+              of several sentences
   first-used  sqrt2-irrational
-  note        Whether a school reader can check a disjunctive syllogism on paper
-              is exactly the acceptance test, and should be tried on a reader.
+  note        Named `lines` until it was specified. That name said what it
+              cited and nothing about what it did, and four unrelated jobs
+              collected under it unnoticed: joining, double negation,
+              disjunctive syllogism and restating a case assumption. The two
+              laws are now thm:double-negation and thm:disjunctive-syllogism.
+              Restating one cited line is joining a list of one.
 
 method contradiction
   form        contradiction

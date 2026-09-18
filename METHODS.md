@@ -329,6 +329,69 @@ in the claim.
 
 ---
 
+## join
+
+`join` decides nothing. It puts together what the cited lines already say.
+
+### Facts in, fact out, procedure
+
+Each cited line supplies its sentences. The claim must be exactly those
+sentences, in any order. With one cited line the claim is that line, which is
+the case where a `cases` part has to end in the block's common formula and the
+part's assumption already is it.
+
+There is no procedure beyond matching. A reader checks that every sentence of
+the claim appears among the cited lines and that nothing else does.
+
+### Refusals
+
+Any inference. If the claim says something the cited lines do not already say,
+it is not a `join`, and the step needs a theorem or another method.
+
+### Hypotheses
+
+None.
+
+### Expansion
+
+`jca` for the joining, together with the projection lemmas wherever a cited
+line contributes one of several sentences. Matching terminates.
+
+### Why this is not called `lines`
+
+It was, until it was specified, and the name is the reason the specification
+was needed. Of the fourteen methods, five are named for what you do, three for
+a body of knowledge, four for the shape of the argument, and one for its
+arguments. The last was this one, because the entry in `READERS.md` that it
+grew from is "by ⟨earlier line⟩ and ⟨earlier line⟩", a form rather than a name,
+so there was nothing in it to take a name from.
+
+A method named for its inputs makes no claim about what it does, so nothing
+resisted when four unrelated jobs collected under it: joining, eliminating a
+double negation, a disjunctive syllogism, and restating a case assumption. The
+other thirteen names would each have refused something, as `algebra` refused
+the exponent law once its boundary was written down.
+
+### Which propositional moves get a pointer
+
+A move needs a cited theorem when it is a choice among logics. It does not when
+it is the meaning of a connective.
+
+Joining two facts with "and" is what "and" means, and Reader A can check it
+having been told nothing. Eliminating a double negation is the step
+intuitionistic logic refuses, so a text that takes it is committing to
+something and should say so. Disjunctive syllogism goes with it, and the √2
+pilot had already asked for it to be tested on a real reader rather than
+assumed.
+
+That criterion also accounts for the two logical items the database already
+had, `thm:excluded-middle` and `thm:from-contradiction`, which is the sign that
+it was the rule operating implicitly all along. The three moves that left
+`join` are now `thm:double-negation`, cited twice, and
+`thm:disjunctive-syllogism`, cited once.
+
+---
+
 ## What specifying both larger methods cost the corpus
 
 `READERS.md` settles that membership in a number system is a written dull fact

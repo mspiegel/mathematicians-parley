@@ -25,7 +25,7 @@ theorem abs-bounds
           requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.4.  x ≤ |x|. −x ≤ |x|.
-          lines 2.2, 2.3
+          join 2.2, 2.3
 
     case
     assume x < 0                                                      (C2)
@@ -44,7 +44,7 @@ theorem abs-bounds
           requires |x| ∈ ℝ: thm:abs-real, from H1
 
     2.8.  x ≤ |x|. −x ≤ |x|.
-          lines 2.6, 2.7
+          join 2.6, 2.7
 
 
 theorem triangle-inequality

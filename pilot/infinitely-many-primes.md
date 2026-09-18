@@ -116,7 +116,7 @@ This pilot introduced `def:factorial`, `def:prime`, `thm:factorial-nat`,
 `db/notation.db`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
-No new methods. `substitute ... into`, `inequalities`, `lines`,
+No new methods. `substitute ... into`, `inequalities`, `join`,
 `obtain`, `exhibit` and `contradiction` are as in `SYNTAX.md`.
 
 `def:factorial` is one of the three recursive definitions, with `def:S` and

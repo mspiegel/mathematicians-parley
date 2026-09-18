@@ -96,7 +96,7 @@ with.
 
     1.1.  ...
     1.3.  n² is odd. n² is not odd.
-          lines 1.1, 1.2
+          join 1.1, 1.2
 ```
 
 A supposition carries a label, like a hypothesis, and is cited by it.
@@ -219,7 +219,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the rules for inequalities, starting from L |
-| `lines L` | propositional combination of L |
+| `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose not C (S)` | C is the step's claim; the block assumes "not C", written literally, labelled S, and its last step states some P and also not P. Any rewriting of "not C", such as p ≤ n for "not p > n", is a step inside the block |
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for every x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
 | `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for every k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
@@ -232,7 +232,7 @@ written as a step citing the item, and then cited by number. Citing an
 item inside `from`, and leaving the reader to instantiate it, was tried
 and rejected. Where a line number is written on its own after a verb, as
 in `into line 2.3` and `in line 4`, it carries the word "line"; in a
-`from` list, after `lines`, and on a calculation line it is bare. Labels
+`from` list, after `join`, and on a calculation line it is bare. Labels
 never carry the word.
 
 A `define` line names an object: `define S := E (D1)` is an unnumbered,

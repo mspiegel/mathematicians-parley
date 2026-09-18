@@ -12,7 +12,7 @@ NUMBER = r'\d+(?:\.\d+)*'
 REF = rf'(?:{NUMBER}|{LABEL})'
 
 HEADS = ('def:', 'thm:', 'obtain', 'exhibit', 'substitute', 'instantiate',
-         'algebra', 'arithmetic', 'inequalities', 'lines', 'contradiction',
+         'algebra', 'arithmetic', 'inequalities', 'join', 'contradiction',
          'fix', 'induction', 'cases', 'calculation')
 PART_MARKERS = ('base', 'step', 'case')
 BLOCK_HEADS = ('contradiction', 'fix', 'induction', 'cases', 'calculation')
@@ -189,8 +189,8 @@ def parse_justification(path, line):
         j.target = m.group(1) or m.group(2) or m.group(3)
         if j.target and not j.target.startswith('def:'):
             j.refs.append(j.target)
-    if head == 'lines':
-        for tok in text[len('lines'):].split(','):
+    if head == 'join':
+        for tok in text[len('join'):].split(','):
             tok = tok.strip()
             if re.fullmatch(REF, tok):
                 j.refs.append(tok)

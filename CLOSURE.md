@@ -15,7 +15,7 @@ four methods without examining them, and lists the steps that rest on each. Of
 Each step below was read together with the claims of the lines it cites, since
 what a method must do is get from those claims to that claim.
 
-## lines is nearly free, and hides one real inference
+## join, which was called lines, is nearly free and hid three real inferences
 
 Sixteen steps, and they ask for four things:
 
@@ -44,11 +44,18 @@ That leaves one genuine inference in sixteen: step 3 of even-square concludes
 already flagged it, and it is the one step here where a reader has to do
 something.
 
-**What this says.** The expansion of `lines` needs conjunction introduction,
-double negation elimination, and disjunctive syllogism. It does not need a
-propositional decision procedure. A reasonable alternative is to split it:
-name the bookkeeping something that says so, and let the one real inference
-cite a theorem the way excluded middle already does.
+**What this says, and what was done.** No propositional decision procedure is
+needed. The method was split: the three real inferences became cited theorems,
+`thm:double-negation` twice and `thm:disjunctive-syllogism` once, joining the
+two logical items the database already had. The thirteen remaining uses do one
+thing and the method is now called `join`, which says so. `METHODS.md`
+specifies it and records the criterion for where the line falls: a move needs a
+pointer when it is a choice among logics, not when it is the meaning of a
+connective.
+
+The old name is the reason this went unnoticed for ten pilots. `lines` named
+its arguments, and a method named for its inputs makes no claim about what it
+does, so four unrelated jobs collected under it without anything objecting.
 
 ## inequalities carries the most, and needs linear arithmetic
 
@@ -143,10 +150,13 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 ## What to do
 
-1. **Specify `lines`**, the last of the four. It settles whether to split it:
-   twelve of its sixteen uses are bookkeeping forced by the shape of
-   contradiction and case blocks, not reasoning. It has no atoms, so the
-   membership rule does not touch it.
+All four closure methods are now specified in `METHODS.md`, which was what
+open question 6 in `GOALS.md` asked for. What is left on this list is not about
+them:
+
+1. **Specify the ten remaining methods.** The citation form, the four block
+   methods, and `substitute`, `instantiate`, `obtain` and `exhibit`. None is a
+   decision procedure, so each should be shorter than these four were.
 
 The membership sweep is done. `READERS.md` settles that membership in a number
 system is a written dull fact and merits no exception, and the corpus now

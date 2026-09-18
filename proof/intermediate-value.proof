@@ -81,7 +81,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            suppose not not c = b                                      (S1)
 
            17.1.1.  c = b
-                    lines S1
+                    thm:double-negation P := c = b, from S1
 
            17.1.2.  f(b) < 0
                     substitute c = b (line 17.1.1) into C1
@@ -99,7 +99,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                     requires f(b) ∈ ℝ: from 17.1.4
 
            17.1.6.  f(b) < 0. not f(b) < 0.
-                    lines 17.1.2, 17.1.5
+                    join 17.1.2, 17.1.5
 
     17.2.  c < b
            inequalities, from 12, 17.1
@@ -181,7 +181,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires δ ∈ ℝ: from 17.5
 
     17.20. x₁ ≤ c. not x₁ ≤ c.
-           lines 17.18, 17.19
+           join 17.18, 17.19
 
     17.21. f(c) = 0
            thm:from-contradiction P := x₁ ≤ c, Q := f(c) = 0, from 17.20
@@ -190,7 +190,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     assume f(c) = 0                                                   (C2)
 
     17.22. f(c) = 0
-           lines C2
+           join C2
 
     case
     assume 0 < f(c)                                                   (C3)
@@ -263,7 +263,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                                  requires f(s) ∈ ℝ: from 17.25.5.5
 
                      17.25.5.10. f(s) < 0. not f(s) < 0.
-                                 lines 17.25.2, 17.25.5.9
+                                 join 17.25.2, 17.25.5.9
 
     17.26. c − δ is an upper bound of S
            def:upper-bound, from 17.25
@@ -278,7 +278,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires δ ∈ ℝ: from 17.24
 
     17.29. c ≤ c − δ. not c ≤ c − δ.
-           lines 17.27, 17.28
+           join 17.27, 17.28
 
     17.30. f(c) = 0
            thm:from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.29

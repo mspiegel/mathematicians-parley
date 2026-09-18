@@ -97,7 +97,7 @@ This pilot introduced most of the database. In `db/items.db`: `def:sqrt`,
 `thm:odd-square`, `thm:even-square` and `thm:sqrt2-irrational`. In
 `db/notation.db`: the number systems, the relations, the arithmetic
 operations and the logical symbols. In `db/methods.db`: `arithmetic`,
-`algebra`, `inequalities`, `substitute`, `lines`, `obtain`, `exhibit`,
+`algebra`, `inequalities`, `substitute`, `join`, `obtain`, `exhibit`,
 `contradiction` and `calculation`, nine of the fourteen. The tables that used
 to stand here were merged into those files; `DATABASE.md` records what the
 merge decided.

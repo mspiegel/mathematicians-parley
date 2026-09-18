@@ -37,7 +37,7 @@ PRODUCTIONS = {
     'algebra':       rf'^algebra(?:,\s*{FROM})?$',
     'arithmetic':    r'^arithmetic$',
     'inequalities':  rf'^inequalities(?:,\s*{FROM})?$',
-    'lines':         rf'^lines\s+{REF}(?:\s*,\s*{REF})*$',
+    'join':          rf'^join\s+{REF}(?:\s*,\s*{REF})*$',
     'contradiction': r'^contradiction$',
     'fix':           r'^fix$',
     'induction':     rf'^induction\s+on\s+\S+\s+starting\s+at\s+\S+,\s*{FROM}$',
@@ -46,7 +46,7 @@ PRODUCTIONS = {
 }
 
 # Methods whose steps this checker accepts without examining them.
-CLOSURE = ('algebra', 'arithmetic', 'inequalities', 'lines')
+CLOSURE = ('algebra', 'arithmetic', 'inequalities', 'join')
 
 # A variable may be a Greek letter and may carry a subscript or a prime. These
 # are not notation and have no record of their own; see GRAMMAR.md.
