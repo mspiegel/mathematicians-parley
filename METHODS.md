@@ -240,7 +240,74 @@ with coefficients of degree at most one.
 
 ---
 
-## What specifying both methods cost the corpus
+## arithmetic
+
+`arithmetic` decides **closed numeral facts**. Counted by step justifications
+it is the smallest of the four, at three. Counted by use it is not: eighteen
+more uses justify a requires line, which makes it the most common terminator
+of a dull fact in the corpus.
+
+| what the claim is | uses |
+|---|---|
+| membership of a numeral in a number system | 13 |
+| a value, as 1 = 1(1 + 1)/2 | 3 |
+| an order relation, as 2 ≥ 0 | 3 |
+| a disequality, as 2 ≠ 0 | 2 |
+
+### Facts in
+
+None. `arithmetic` takes no `from` list and never has. It is the only method
+that cites nothing.
+
+### Fact out
+
+A relation between **closed numeral expressions**, where a closed numeral
+expression is built from decimal numerals by `+`, `−`, `·`, `/` and powers,
+with every operand closed. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
+membership of ℕ, ℕ₀, ℤ, ℚ or ℝ.
+
+### The procedure
+
+Evaluate each side to a rational in lowest terms and decide the relation. For a
+membership, evaluate and test the value: a rational is in ℤ when its
+denominator is 1, in ℕ when it is also positive, in ℕ₀ when it is also
+non-negative, and in ℚ and ℝ always.
+
+### Refusals
+
+- **Anything containing a variable.** This is the line against `algebra`, and
+  it is not a formality: `a^(0 + 1) = a` was once justified this way, and
+  refusing it exposed that the claim smuggled in an exponent law. The geometric
+  series now pays four steps for that one fact.
+- **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
+  arithmetic, and the corpus does not treat it as such; it cites `def:sqrt`.
+
+### Hypotheses
+
+None, and that is the point of it. Requires lines do not nest, so whatever
+justifies one must need nothing further. `arithmetic` is where that recursion
+stops, which is why thirteen of its twenty-one uses are memberships discharging
+somebody else's hypothesis.
+
+### Boundary with algebra
+
+On a claim with no variables both would succeed, since `algebra` normalising
+`1 − 1(1 + 1)/2` to zero decides the same fact. The text uses `arithmetic`
+there, and the rule is that a claim with no atom cites `arithmetic`. A checker
+can enforce that once it can tell an atom from a numeral, which needs the
+formula grammar.
+
+### Expansion
+
+set.mm's numeral lemmas: `2re`, `2z`, `0z`, `1z`, `1nn`, `2pos`, `2ne0`,
+`1lt2` for the small cases in this corpus, and the `deccl` and `decadd`
+families for numerals of more than one digit. Evaluating a closed expression
+terminates, so the expansion is total and its size is bounded by the numerals
+in the claim.
+
+---
+
+## What specifying both larger methods cost the corpus
 
 `READERS.md` settles that membership in a number system is a written dull fact
 and merits no exception. Applying that to both methods is the largest single

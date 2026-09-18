@@ -121,10 +121,17 @@ nonzero hypotheses and can substitute among several cited equations. Its
 stated boundary, that a named subterm stays opaque, is right: every claim above
 respects it once the exponent law is cited rather than assumed.
 
-## arithmetic is three steps
+## arithmetic is three steps and eighteen requires lines
 
 1 = 2^0, 1 = 1(1 + 1)/2, and 0 + 1 = 1. All three are facts about closed
 numerals, which is what the rule says and all it says.
+
+Counting only step justifications undersells it. Eighteen further uses justify
+a requires line, which makes it the commonest terminator of a dull fact in the
+corpus, and thirteen of those are a numeral's membership of a number system.
+That is no accident: requires lines do not nest, so whatever justifies one must
+need nothing further, and `arithmetic` is the only method that cites nothing
+and requires nothing. `METHODS.md` specifies it.
 
 The third used to be a^(0 + 1) = a, which contains a free variable and is not
 a fact about closed numerals. Unpacking it showed why the rule should stay
@@ -136,11 +143,10 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 ## What to do
 
-1. **Specify the remaining two closure methods**, `arithmetic` and `lines`.
-   `arithmetic` is three steps. Specifying `lines` settles whether to split it:
+1. **Specify `lines`**, the last of the four. It settles whether to split it:
    twelve of its sixteen uses are bookkeeping forced by the shape of
-   contradiction and case blocks, not reasoning. Neither has atoms, so neither
-   is affected by the membership rule.
+   contradiction and case blocks, not reasoning. It has no atoms, so the
+   membership rule does not touch it.
 
 The membership sweep is done. `READERS.md` settles that membership in a number
 system is a written dull fact and merits no exception, and the corpus now

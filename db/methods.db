@@ -96,12 +96,18 @@ method algebra
 method arithmetic
   form        arithmetic
   block       none
-  checks      a fact about closed numerals: value, order, or membership in
-              ℕ ℤ ℚ ℝ.
-  metamath    decimal arithmetic lemmas, 2re, 2z
+  checks      a fact about closed numerals: value, order, disequality, or
+              membership in ℕ ℕ₀ ℤ ℚ ℝ.
+  decides     relations between closed numeral expressions, by evaluating each
+              side to a rational in lowest terms
+  hypotheses  none, and it cites nothing; requires lines do not nest, so this
+              is where that recursion stops
+  specified-in METHODS.md
+  metamath    2re, 2z, 0z, 1z, 1nn, 2pos, 2ne0, 1lt2, and the deccl and decadd
+              families for longer numerals
   first-used  sqrt2-irrational
   note        The line between arithmetic and algebra is closed numerals against
-              symbols. a^(0 + 1) = a is arithmetic.
+              symbols: a claim containing a variable is never arithmetic.
 
 method inequalities
   form        inequalities, from L
