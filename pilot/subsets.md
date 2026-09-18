@@ -80,5 +80,5 @@ this pilot uses, and no table carried a row for it. The merge added one.
    fact is set-existence, which set.mm proves with difexg and READERS.md
    wants hidden. As a requires line it is exactly a dull fact.
 
-Numbers, for the record: 24 numbered steps, 1 requires line. set.mm's
+Numbers, for the record: 25 numbered steps, 2 requires lines. set.mm's
 hashpw has 25 essential steps.

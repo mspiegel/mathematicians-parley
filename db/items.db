@@ -193,6 +193,15 @@ theorem exponent-step
   metamath    expp1
   first-used  geometric-series
 
+theorem exponent-one
+  let a ∈ ℝ                                                           (H1)
+  then        a^1 = a
+  metamath    exp1
+  first-used  geometric-series
+  note        The base case of the geometric series needs a^(0 + 1) = a. The
+              arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
+              exponent laws are theorems rather than closure methods.
+
 theorem trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x

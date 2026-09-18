@@ -148,7 +148,7 @@ files; `DATABASE.md` records what the merge decided.
    to say so. Nothing in the text assumes either convention beyond that
    pointer.
 
-Numbers, for the record: 9 numbered steps, 0 requires lines. The essential
+Numbers, for the record: 9 numbered steps, 1 requires line. The essential
 step count of set.mm's arisum has not been measured; set.mm is not on disk
 at the moment, and the count belongs in the selection table planned in
 `GOALS.md`.

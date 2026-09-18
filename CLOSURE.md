@@ -90,74 +90,65 @@ Seventeen steps:
 
 | what the step does | uses |
 |---|---|
-| ring normalisation, expanding or factoring | 6 |
+| ring normalisation, expanding or factoring | 7 |
 | field operations with a nonzero side condition | 5 |
 | identity and zero laws, as a = a·1 + b·0 | 3 |
 | solve among several cited equations | 1 |
 | prove a disequality | 1 |
-| an exponent law | 1 |
 
 Twelve of the seventeen cite no line at all. They are closed identities the
 reader checks on their own, which is why `algebra` is the method most often
 written bare.
 
-Four steps carry a nonzero condition as a requires line, which the method's
-expansion has to consume: clearing q from (p/q)² = 2, dividing 2q² = 4r² by 2,
-and two divisions by 1 − a. So `algebra` takes hypotheses, and the "Not
-settled" item in `SYNTAX.md` about whether it does is answered here: it
-already does, visibly, in four places.
+Five steps carry a nonzero condition as a requires line, which the method's
+expansion has to consume: clearing q from (p/q)² = 2, two divisions by 2, and
+two by 1 − a. So `algebra` takes hypotheses, and the "Not settled" item in
+`SYNTAX.md` about whether it does is answered here: it already does, visibly,
+in five places.
 
-A fifth division is not paid for. Step 1.4.3 of the sum formula divides by 2
-and states no condition, while step 3.10 of the √2 proof divides by 2 and
-writes `requires 2 ≠ 0: arithmetic`. The same division is a dull fact in one
-proof and invisible in the other. Whichever rule is chosen, these two must
-agree.
+One step still sits outside the stated boundary. Step 1 of the geometric series
+concludes 1 − a ≠ 0 from a ≠ 1. That is not a ring identity, and `algebra` is
+described as applying identities. Either the description widens to cover
+disequalities, or the step cites a theorem.
 
 The heaviest single step is Bezout's step 2, which produces
 r = a·(u − q·x₀) + b·(v − q·y₀) from three cited equations at once. That is
 substitution among equations followed by normalisation, not normalisation
 alone.
 
-Two steps sit outside the stated boundary.
-
-- **Step 1 of the geometric series proves a disequality.** From a ≠ 1 it
-  concludes 1 − a ≠ 0. That is not a ring identity, and `algebra` is described
-  as applying identities.
-- **Step 1.2.1.10 of the subsets proof is an exponent law.** It turns
-  2^k + 2^k into 2^(k + 1). `SYNTAX.md` says `algebra` treats a named subterm
-  as opaque and "will not turn a^(k + 1)·a into a^(k + 2)", which is the same
-  law. The geometric series pilot cites `thm:exponent-step` for exactly this
-  and its findings say plainly that exponent laws are theorems, not algebra.
-  The two pilots disagree, and the subsets step is the one that is wrong. It
-  should cite `thm:exponent-step` and leave `algebra` the step from 2·2^k.
-
 **What this says.** `algebra` is a ring and field normaliser that consumes
 nonzero hypotheses and can substitute among several cited equations. Its
-stated boundary is right and the corpus breaks it once.
+stated boundary, that a named subterm stays opaque, is right: every claim above
+respects it once the exponent law is cited rather than assumed.
 
-## arithmetic is three steps and one of them is not arithmetic
+## arithmetic is three steps
 
-Three steps: 1 = 2^0, and 1 = 1(1 + 1)/2, both facts about closed numerals as
-the rule says. The third is a^(0 + 1) = a, which contains a free variable. The
-geometric series pilot justified it as treating the closed exponent as a
-numeral computation, but the rule reads "a fact about closed numerals" and this
-claim is not one.
+1 = 2^0, 1 = 1(1 + 1)/2, and 0 + 1 = 1. All three are facts about closed
+numerals, which is what the rule says and all it says.
 
-Either the rule widens to cover a closed computation inside an otherwise
-symbolic claim, or the step cites `thm:exponent-step` at m := 0 and lets
-`arithmetic` handle 0 + 1 = 1. The second keeps the rule as written.
+The third used to be a^(0 + 1) = a, which contains a free variable and is not
+a fact about closed numerals. Unpacking it showed why the rule should stay
+narrow: the claim needs 0 + 1 = 1, which is arithmetic, and then that a^1 is a,
+which is an exponent law. Letting `arithmetic` swallow the whole claim let an
+exponent law in by the back door, in the very pilot whose findings say that
+exponent laws are theorems. The proof now spends four steps and cites
+`thm:exponent-one`.
 
 ## What to do
 
-1. **Fix the subsets exponent step**, which two pilots already disagree about.
-   Then settle the two divisions by 2, one of which states a nonzero condition
-   and one of which does not.
-2. **Specify `inequalities` first.** It is 41% of the burden and the only one
+1. **Specify `inequalities` first.** It is 41% of the burden and the only one
    needing a decision procedure. Its negation laws are separable and dull and
    could be split off.
-3. **Draw the boundary between `inequalities` and `substitute`**, which four
+2. **Draw the boundary between `inequalities` and `substitute`**, which four
    steps currently straddle.
-4. **Decide whether `arithmetic` may act inside a symbolic claim**, or narrow
-   the one step that assumes it may.
-5. **Consider splitting `lines`.** Eleven of its sixteen uses are bookkeeping
+3. **Decide whether `algebra` may prove a disequality**, which one step
+   assumes it may.
+4. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping
    forced by the shape of contradiction and case blocks, not reasoning.
+
+Three earlier items are done. The subsets step now cites the exponent law that
+`algebra` was being asked to know; the sum formula now states the nonzero
+condition for its division by 2, as the √2 proof already did; and the
+geometric series base case no longer hides an exponent law inside
+`arithmetic`. The corpus costs five steps and one database item more than it
+did, and no longer contradicts its own documents.

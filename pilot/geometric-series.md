@@ -47,9 +47,14 @@ records what the merge decided.
    identities in the variables and named subterms, with no knowledge of
    what a^(k + 1) means. GOALS.md open question 6 asked how much algebra
    must do; this is the pilot's answer.
-3. **a^(0 + 1) = a is arithmetic, not algebra.** Step 2.2 treats the
-   closed exponent as a numeral computation. The line between
-   `arithmetic` and `algebra` is: closed numerals against symbols.
+3. **a^(0 + 1) = a is two facts, not one.** The base case needs the literal
+   instance a^(0 + 1), and reaching a from it takes 0 + 1 = 1, which is
+   arithmetic, and then a^1 = a, which is an exponent law. Writing the whole
+   claim as one `arithmetic` step let an exponent law in by the back door,
+   contradicting finding 2 above within this same file. The base case now
+   spends four steps and cites `thm:exponent-one`. The line between
+   `arithmetic` and `algebra` is closed numerals against symbols, and neither
+   of them knows what an exponent means.
 4. **Deduction form is invisible.** set.mm's geoser has every hypothesis
    under `ph ->`. The readable statement has `let` and `assume` lines,
    and the elaborator supplies the context. Nothing in the text shows
@@ -61,5 +66,5 @@ records what the merge decided.
    need no new form; SYNTAX.md's entry says so. Reading the base off the
    cited set was the rejected alternative.
 
-Numbers, for the record: 14 numbered steps, 3 requires lines. set.mm's
+Numbers, for the record: 17 numbered steps, 3 requires lines. set.mm's
 geoser has 18 essential steps.
