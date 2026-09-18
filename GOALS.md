@@ -146,7 +146,9 @@ The mathematical content lives in the long tail. That is what a reader should se
     here. Decision 6 wants several elaborators compared against a
     specification, so the one that ships is one others read and reimplement,
     and it is written against a grammar document that does not yet exist. That
-    choice waits until it does.
+    choice waits until it does, with one constraint already fixed: the
+    implementation works in Unicode scalar values and UTF-16 is not used, for
+    the reason given in `DATABASE.md`.
 
 ## First version
 

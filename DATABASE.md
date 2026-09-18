@@ -54,14 +54,19 @@ it names.
 
 ## The character set
 
-The files are UTF-8 in Normalisation Form C. Three facts about what the corpus
-actually contains constrain any implementation that reads it, and the checker
-should enforce all three rather than trust them.
+The files are UTF-8 in Normalisation Form C. **An implementation works in
+Unicode scalar values. UTF-16 is not used anywhere in this project**, neither
+as a file encoding nor as the internal string representation of a tool that
+reads these files. Three facts about what the corpus actually contains explain
+the rule and constrain what else a reader must do, and the checker enforces all
+three rather than trusting them.
 
 - **One character lies outside the Basic Multilingual Plane.** The script
-  capital P of the power set notation, 44 uses. A language whose strings are
-  UTF-16 counts it as two units, so lengths and column positions go wrong
-  silently. Python, Go and Rust count it as one.
+  capital P of the power set notation, 44 uses. In UTF-16 it is two code units,
+  so lengths, column positions and any character-by-character scan go wrong
+  silently on exactly the notation the set-theoretic proofs are written in.
+  That is the reason for the rule above, and it rules out the languages whose
+  strings are UTF-16, Java, JavaScript and C# among them.
 - **Two characters have decomposed forms.** Not-an-element and not-equal can
   each be written as a base character plus a combining slash. An editor that
   normalises differently would change the archive without anyone editing it.
