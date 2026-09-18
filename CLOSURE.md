@@ -136,15 +136,19 @@ exponent laws are theorems. The proof now spends four steps and cites
 
 ## What to do
 
-1. **Specify `inequalities` first.** It is 41% of the burden and the only one
-   needing a decision procedure. Its negation laws are separable and dull and
-   could be split off.
-2. **Draw the boundary between `inequalities` and `substitute`**, which four
-   steps currently straddle.
-3. **Decide whether `algebra` may prove a disequality**, which one step
-   assumes it may.
-4. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping
+1. **Bring the corpus into line with the `inequalities` specification.** It
+   makes every atom's membership of ℝ a dull fact, and about forty are
+   currently unwritten.
+2. **Specify `algebra`**, which the `inequalities` specification leaves next in
+   size, including whether it may prove a disequality as one step assumes.
+3. **Consider splitting `lines`.** Twelve of its sixteen uses are bookkeeping
    forced by the shape of contradiction and case blocks, not reasoning.
+
+Two earlier items are done. `inequalities` is specified in `METHODS.md` as
+linear arithmetic over an ordered field with non-arithmetic subterms as atoms,
+which also settles its boundary against `substitute`: `substitute` needs a
+line to rewrite and is syntactic, while `inequalities` uses an equation as one
+linear fact among others and needs no such line.
 
 Three earlier items are done. The subsets step now cites the exponent law that
 `algebra` was being asked to know; the sum formula now states the nonzero

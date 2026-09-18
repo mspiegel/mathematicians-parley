@@ -306,9 +306,11 @@ theorem or definition in a step of its own.
 
 ## Not settled
 
-- The hypotheses of `algebra` and `inequalities`: whether "p is a number"
-  is a requires line of every such step on an integer, or is discharged
-  inside the method.
+- The hypotheses of `algebra`: whether "p is a number" is a requires line of
+  every such step on an integer, or is discharged inside the method. Settled
+  for `inequalities` in `METHODS.md`, which makes it a requires line like any
+  other dull fact, and the same argument should carry to `algebra`. The corpus
+  does not yet comply for either.
 - Whether "line 2.1" names one formula or each of its sentences.
 - Whether a proof consisting of a single block may omit the step that
   repeats the theorem's `then` line as its claim.

@@ -101,9 +101,14 @@ method inequalities
   form        inequalities, from L
   block       none
   checks      the rules for inequalities, starting from L.
+  decides     linear arithmetic over an ordered field, with every subterm that
+              is not built from numerals and + − · / treated as an atom it
+              knows nothing about
+  hypotheses  every atom is a real number, discharged by a cited line or a
+              requires line like any other dull fact
+  specified-in METHODS.md
   metamath    ltne, lelttr, ltnle
   first-used  sqrt2-irrational
-  note        Its hypotheses are not settled, as algebra's are not.
 
 method lines
   form        lines L
