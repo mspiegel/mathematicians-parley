@@ -27,81 +27,83 @@ theorem sqrt2-irrational
     requires 2 ∈ ℝ: arithmetic
     requires 2 ≥ 0: arithmetic
 
-2.  √2 ∉ ℚ
+2.  √2 ∈ ℝ
+    def:sqrt x := 2
+    requires 2 ∈ ℝ: arithmetic
+    requires 2 ≥ 0: arithmetic
+
+3.  √2 ∉ ℚ
     contradiction
     suppose √2 ∈ ℚ                                                    (S)
 
-    2.1.  p ∈ ℤ. q ∈ ℤ. q > 0. √2 = p/q.
+    3.1.  p ∈ ℤ. q ∈ ℤ. q > 0. √2 = p/q.
           There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
           obtain p, q: thm:lowest-terms x := √2, from S
 
-    2.2.  (p/q)² = 2
-          substitute √2 = p/q (2.1) into 1
+    3.2.  (p/q)² = 2
+          substitute √2 = p/q (line 3.1) into line 1
 
-    2.3.  p² = 2q²
-          algebra, from 2.2
-          requires q ≠ 0: inequalities, from 2.1
+    3.3.  p² = 2q²
+          algebra, from 3.2
+          requires q ≠ 0: inequalities, from 3.1
 
-    2.4.  p² is even
-          exhibit q²: def:even n := p², from 2.3
-          requires p² ∈ ℤ: thm:int-closure, from 2.1
-          requires q² ∈ ℤ: thm:int-closure, from 2.1
+    3.4.  p² is even
+          def:even n := p², from 3.3
+          requires p² ∈ ℤ: thm:int-closure, from 3.1
+          requires q² ∈ ℤ: thm:int-closure, from 3.1
 
-    2.5.  p is even
-          thm:even-square n := p, from 2.1, 2.4
+    3.5.  p is even
+          thm:even-square n := p, from 3.1, 3.4
 
-    2.6.  r ∈ ℤ. p = 2r.
-          obtain r: def:even n := p, from 2.1, 2.5
+    3.6.  r ∈ ℤ. p = 2r.
+          obtain r: def:even n := p, from 3.1, 3.5
 
-    2.7.  p² = (2r)²
-          substitute p = 2r (2.6)
+    3.7.  p² = (2r)²
+          substitute p = 2r (line 3.6)
 
-    2.8.  (2r)² = 4r²
+    3.8.  (2r)² = 4r²
           algebra
 
-    2.9.  2q² = 4r²
+    3.9.  2q² = 4r²
           calculation
-            2q² = p²        2.3, right to left
-                = (2r)²     2.7
-                = 4r²       2.8
+            2q² = p²        3.3, right to left
+                = (2r)²     3.7
+                = 4r²       3.8
 
-    2.10. q² = 2r²
-          algebra, from 2.9
+    3.10. q² = 2r²
+          algebra, from 3.9
           requires 2 ≠ 0: arithmetic
 
-    2.11. q² is even
-          exhibit r²: def:even n := q², from 2.10
-          requires q² ∈ ℤ: thm:int-closure, from 2.1
-          requires r² ∈ ℤ: thm:int-closure, from 2.6
+    3.11. q² is even
+          def:even n := q², from 3.10
+          requires q² ∈ ℤ: thm:int-closure, from 3.1
+          requires r² ∈ ℤ: thm:int-closure, from 3.6
 
-    2.12. q is even
-          thm:even-square n := q, from 2.1, 2.11
+    3.12. q is even
+          thm:even-square n := q, from 3.1, 3.11
 
-    2.13. s ∈ ℤ. q = 2s.
-          obtain s: def:even n := q, from 2.1, 2.12
+    3.13. s ∈ ℤ. q = 2s.
+          obtain s: def:even n := q, from 3.1, 3.12
 
-    2.14. 2 divides p
-          exhibit r: def:divides d := 2, n := p, from 2.1, 2.6
+    3.14. 2 divides p
+          def:divides d := 2, n := p, from 3.1, 3.6
           requires 2 ∈ ℤ: arithmetic
 
-    2.15. 2 divides q
-          exhibit s: def:divides d := 2, n := q, from 2.1, 2.13
+    3.15. 2 divides q
+          def:divides d := 2, n := q, from 3.1, 3.13
           requires 2 ∈ ℤ: arithmetic
 
-    2.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
-          exhibit 2, from 2.14, 2.15
+    3.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+          exhibit, from 3.14, 3.15
           requires 2 ∈ ℤ: arithmetic
           requires 2 > 1: arithmetic
 
-    2.17. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+    3.17. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
           There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          lines 2.16, 2.1
+          lines 3.16, 3.1
 
-3.  √2 is irrational
-    def:irrational x := √2, from 2
-    requires √2 ∈ ℝ: def:sqrt x := 2
-      requires 2 ∈ ℝ: arithmetic
-      requires 2 ≥ 0: arithmetic
+4.  √2 is irrational
+    def:irrational x := √2, from 3, 2
 ```
 
 ---
@@ -118,7 +120,7 @@ theorem odd-square
     obtain k: def:odd n := n, from H1, H2
 
 2.  n² = (2k + 1)²
-    substitute n = 2k + 1 (1)
+    substitute n = 2k + 1 (line 1)
 
 3.  (2k + 1)² = 4k² + 4k + 1
     algebra
@@ -133,7 +135,7 @@ theorem odd-square
          = 2(2k² + 2k) + 1     4
 
 6.  n² is odd
-    exhibit 2k² + 2k: def:odd n := n², from 5
+    def:odd n := n², from 5
     requires n² ∈ ℤ: thm:int-closure, from H1
     requires 2k² + 2k ∈ ℤ: thm:int-closure, from 1
 ```
@@ -266,7 +268,7 @@ method.
 | substitute | the claim is the cited line with one side of the cited equation replaced by the other | oveq1d, eqtrd, ... |
 | lines | the claim follows from the cited lines by propositional logic | syl, mpd, jca, ... |
 | obtain | the cited item concludes an existence claim; the new names stand for its objects and the claim is its body | exlimiv, eximd, ... |
-| exhibit | the claim is an existence claim; the witness substituted for its variable is the cited line | rspcev, spcev, ... |
+| exhibit | the claim is a bare "there is" sentence; the cited lines are its body with some value in place of the variable, which the reader finds by comparison | rspcev, spcev, ... |
 | contradiction | the block under the step assumes the negation of the claim and ends by stating some P and also not P | pm2.65, condan, ... |
 | calculation | each line of the chain is justified and the claim is first term = last term | eqtrd, 3eqtrd, ... |
 
@@ -276,7 +278,7 @@ method.
 
 Findings about the vocabulary in `READERS.md`:
 
-1. **Substitution of equals is missing.** Steps 2.2 and 2.7, and step 2 of
+1. **Substitution of equals is missing.** Steps 3.2 and 3.7, and step 2 of
    odd-square, replace one side of an equation inside an earlier line. This
    is not "algebra" and not "by lines". It needs its own method.
 2. **Calculation blocks are needed.** Three chained equalities read far
@@ -284,7 +286,7 @@ Findings about the vocabulary in `READERS.md`:
    a clean elaboration into transitivity lemmas. The rule settled by the
    third pilot keeps the block and the steps: each equality is a numbered
    step with its own justification, and the block that follows only joins
-   them, its lines citing those steps. Steps 2.7 to 2.9 and steps 2 to 5
+   them, its lines citing those steps. Steps 3.7 to 3.9 and steps 2 to 5
    of odd-square are in that form. A viewer may fold the cited steps into
    the chain to show the textbook calculation.
 3. **A block belongs to the claim it proves, and a theorem's Let/Assume
@@ -312,13 +314,20 @@ Findings about the vocabulary in `READERS.md`:
    the first draft bundled "(√2)² = 2", which is an argument step, with
    "√2 ∈ ℝ" and "√2 ≥ 0", which are dull facts, in one line, and that
    bundle was what made the line look suspicious; and the first draft had
-   silently omitted the dull fact "2 ∈ ℤ" at step 2.16, which the
+   silently omitted the dull fact "2 ∈ ℤ" at step 3.16, which the
    role-based classification surfaced.
-6. **Dull facts nest.** "√2 ∈ ℝ" at step 3 itself requires "2 ≥ 0".
-   The requires lines therefore form a small tree under a step, written by
-   indentation.
+6. **Dull facts do not nest.** The first draft wrote "√2 ∈ ℝ" as a
+   requires line of the final step, and it needed "2 ∈ ℝ" and "2 ≥ 0"
+   under it, a small tree. Later decided, after the intermediate value
+   pilot grew a tree three deep and lost its numbering: a requires line
+   has one citation and no more, and a fact that needs more is a numbered
+   step before the step that needs it. So "√2 ∈ ℝ" is step 2, beside step
+   1 which unfolds the same definition, and the final step cites it. The
+   cost is a step whose purpose the reader meets only at the end; it is
+   placed beside its twin so that the proof reads as two facts about √2,
+   the argument, then the conclusion.
 7. **A contradiction step does have a formula.** An earlier draft wrote
-   line 2.17, and line 1.3 of even-square, as "lines X and Y contradict
+   line 3.17, and line 1.3 of even-square, as "lines X and Y contradict
    each other", with no claim and no pointer, and proposed an exception to
    the rule that every step states a claim. No exception is needed: the
    step claims "P and not P", by lines, and it is the last step of the
@@ -326,10 +335,15 @@ Findings about the vocabulary in `READERS.md`:
    `READERS.md` stands as written.
 8. **Quantifier moves need names.** "Call it r" takes an object from an
    existence claim, and "with witness q²" proves one. The first draft wrote
-   both without a pointer, and wrote the existence claim at step 2.16 as
+   both without a pointer, and wrote the existence claim at step 3.16 as
    "by lines", which is the propositional method. `READERS.md` says each
    quantifier move is a database item; the pilot now names two, `obtain`
-   and `exhibit`, and they belong in the vocabulary.
+   and `exhibit`, and they belong in the vocabulary. Later decided: the
+   witness is never written, because the literal-instance rule makes the
+   cited line determine it, so `exhibit q²: def:even n := p², from 3.3`
+   became `def:even n := p², from 3.3`, and a bare "there is" claim is
+   justified by `exhibit, from L`. `obtain` keeps its names, since a new
+   name is a choice the reader cannot infer.
 9. **Hypotheses of cited items are easy to miss by hand.** A second review
    listed, for every cited definition and theorem, each hypothesis of the
    item and checked that the step discharged it. That found seven missing
@@ -343,8 +357,8 @@ Findings about the vocabulary in `READERS.md`:
    left that hypothesis uncited. This is exactly the check the elaborator
    performs mechanically, and it is the strongest argument yet that the
    text must be checked and not only read.
-10. **The hypotheses of "by algebra" are not stated.** Steps 2.3, 2.8 and
-    2.10 apply algebra to p, q and r, which are integers. The set.mm lemmas
+10. **The hypotheses of "by algebra" are not stated.** Steps 3.3, 3.8 and
+    3.10 apply algebra to p, q and r, which are integers. The set.mm lemmas
     the method would expand to need p ∈ ℂ, so, by the role-based rule, "p is
     a number" is a dull fact of every algebra step. The pilot does not write
     it, because the method's definition does not yet say what it requires.
@@ -352,8 +366,8 @@ Findings about the vocabulary in `READERS.md`:
     itself, or whether the text carries "requires p ∈ ℝ" on every algebra
     step, is decided when the method is defined.
 11. **Two conventions hide a step each.** A calculation reads a cited
-    equation right to left: line 2.9 opens with "2q² = p², by 2.3", and
-    line 2.3 states p² = 2q². And a step claims one conjunct of a cited
+    equation right to left: line 3.9 opens with "2q² = p², by 3.3", and
+    line 3.3 states p² = 2q². And a step claims one conjunct of a cited
     item's conclusion: step 1 takes "(√2)² = 2" out of the three conjuncts
     of def:sqrt, and the requires line at step 3 takes "√2 ∈ ℝ" out of the
     same three. Symmetry of equality and conjunction elimination are steps
@@ -396,17 +410,17 @@ Findings about the vocabulary in `READERS.md`:
     (S) and cites the label wherever a line number would be cited. Isar and
     Lean do the same.
 15. **Connectives as words, conjunctions as sentences.** A draft of the
-    skeleton wrote claims with ∧ ∨ ¬ and ∃, and step 2.1 was a five-part
+    skeleton wrote claims with ∧ ∨ ¬ and ∃, and step 3.1 was a five-part
     conjunction on two lines. Both were hard to read. The skeleton now
     writes "and", "or", "not" as words, writes ∃ as "there is ... with"
     and ¬∃ as "there is no ... with", and lets a claim be several
-    sentences meaning their conjunction, so that step 2.1 is five short
-    sentences and step 2.17 is "There is d ... . There is no d ... ." The
+    sentences meaning their conjunction, so that step 3.1 is five short
+    sentences and step 3.17 is "There is d ... . There is no d ... ." The
     symbols ∀ ∃ ¬ ∧ ∨ → ↔ stay in the notation table of `READERS.md`;
     what changes is that the text prefers the words where they exist. The
     symbols still appear where words would be worse, → and ↔ in the
     database items among them. Whether a claim of several sentences is one
-    formula or several, for the purpose of citing "line 2.1", is a question
+    formula or several, for the purpose of citing "line 3.1", is a question
     the elaborator will have to answer; the pilot treats the whole step as
     one line.
 
@@ -422,7 +436,7 @@ Findings about set.mm:
     database for this project needs a definition of "even" in this language
     that elaborates to that.
 
-Numbers, for the record: the main theorem has 20 numbered steps and 15
+Numbers, for the record: the main theorem has 21 numbered steps and 14
 requires lines; the two lemmas together have 12 numbered steps and 3
 requires lines. set.mm's proof has 99 essential steps in sqrt2irr and 69 in
 sqrt2irrlem, and the parity lemma zesq has 74.

@@ -27,7 +27,7 @@ theorem sum-formula
   then S(n) = n(n + 1)/2
 
 1.  S(n) = n(n + 1)/2
-    induction on n, from H1
+    induction on n starting at 1, from H1
 
     base
     1.1.  S(1) = 1
@@ -73,7 +73,7 @@ theorem sum-formula
 *Proof.*
 
 1. S(n) = n(n + 1)/2.
-   By induction on n, from the hypothesis n ∈ ℕ. The principle states: let
+   By induction on n starting at 1, from the hypothesis n ∈ ℕ. The principle states: let
    n be a natural number; assume P(1), and assume that for every natural
    number k, if P(k) then P(k + 1); then P(n).
 

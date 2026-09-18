@@ -100,8 +100,9 @@ quantifiers are written in the text, as words where words exist, is fixed
 in `SYNTAX.md`.
 
 **Hidden entirely.** Metamath labels, class variables, deduction-form
-contexts, set-existence hypotheses, disjoint-variable conditions, the
-distinction between wff, class and set variables, and every syntax step.
+contexts, disjoint-variable conditions, the distinction between wff, class
+and set variables, and every syntax step. A set-existence hypothesis is
+not hidden but written as "Let A be a set", which is what it says.
 
 ## Reader B: graduate degree in mathematics
 
@@ -156,5 +157,7 @@ fails the test.
 - How the viewer decides which steps to collapse by default, if any. That is
   a viewer setting and never a property of the text. Whatever the setting,
   its criterion is mechanical: by the method a step names, such as every
-  `algebra` step, or by a step's role, such as every requires line. It is
-  never a judgment about whether a step is obvious.
+  `algebra` step; by a step's role, such as every requires line; or by
+  repetition, such as the second application of a theorem the proof has
+  already applied, which a textbook writes as "similarly". It is never a
+  judgment about whether a step is obvious.

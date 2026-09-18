@@ -40,10 +40,16 @@ theorem even-square
   then n is even
 ```
 
-- A `let` line introduces a variable and the set it ranges over. An
-  `assume` line states a formula. These are the theorem's hypotheses, and
-  they map onto Metamath's floating and essential hypotheses. They are part
-  of the statement, not of the proof.
+- A `let` line introduces a variable and says what it is: `let n ∈ ℕ` for
+  an element of a named set, `let A be a set` for an arbitrary set, `let
+  A be a point` for a point of the plane, and `let f : A → B` for a
+  function with its domain and codomain. An `assume` line states a
+  formula. These are the theorem's hypotheses, and they map onto
+  Metamath's floating and essential hypotheses; `let A be a set` is
+  set.mm's `A e. _V`. They are part of the statement, not of the proof.
+  The uniform alternative, `let A ∈ Set` with a named universe for
+  everything, was rejected: it attaches a type to the thing, and names
+  collections a school reader has never met.
 - The `then` line is the conclusion.
 - Each hypothesis carries a label in parentheses. The proof cites it by
   label wherever it would cite a line number.
@@ -62,9 +68,15 @@ step: 2.1, 2.2, and 2.1.1 beneath 2.1. A step is:
    instantiation, and the lines, hypotheses and suppositions it uses. The
    forms are listed below.
 3. Zero or more **requires** lines, one per hypothesis of the cited item
-   that is not the conclusion of a cited line, each with its own
-   justification in the same forms. A requires line may have requires lines
-   of its own, indented under it.
+   that is not the conclusion of a cited line, each with a justification
+   of exactly one citation: a method such as `arithmetic`, an item applied
+   to lines already present, or a line that states the fact. Requires
+   lines do not nest. A fact that needs more than one citation is a
+   numbered step before the step that needs it, cited in `from` like any
+   line. The alternative, a tree of requires lines under a step, was
+   allowed at first and rejected after one proof grew a tree three deep;
+   the rule makes no difference to the kernel proof and only keeps the
+   text flat.
 
 The last step of a proof is the theorem's conclusion.
 
@@ -99,7 +111,7 @@ fixed by the method's definition. Induction has `base` and `step`:
 
 ```
 1.  S(n) = n(n + 1)/2
-    induction on n, from H1
+    induction on n starting at 1, from H1
 
     base
     1.1.  S(1) = 1(1 + 1)/2
@@ -135,13 +147,28 @@ that the part handles:
 ```
 
 The disjunction being split is a cited line, here line 2, and the reader
-checks that the case assumptions are its disjuncts in order. The marker
+checks that the case assumptions are its disjuncts in order. A case that
+is impossible still ends by claiming the common formula: it reaches some
+P and not P, and then claims the formula by the theorem "if P and not P
+then Q", thm:from-contradiction. Two alternatives were rejected for the
+impossible-case problem: refuting each case in its own contradiction
+block outside any cases block, which loses the case-split narrative, and
+letting a cases step have no claim when each case ends in its own
+contradiction, which breaks collapsing and citation for that step. The marker
 stays a bare word, and the assumption is a line of the same kind as
 `assume` and `suppose`. Alternatives considered and rejected: the
 disjunction repeated on the method line; the marker carrying the formula
 and label, as `case a + b ≥ 0 (C1)`; and a `cases` step with no claim of
 its own. Each case ends by claiming the formula of the step above the
 block, as each part of an induction ends in a stated instance.
+
+There is no "similarly". An argument that a textbook makes once and
+repeats by analogy is a theorem, stated with every hypothesis the argument
+uses, and applied once for each case. The statement is often long, as in
+the Bezout pilot's lemma with eleven hypotheses; that is the intended
+form. A viewer may fold the second application to its claim, or render it
+as "similarly", since "the same theorem applied again" is a mechanical
+criterion.
 
 A step whose claim is "for every x ∈ S, if A then B" is proved by a block
 that opens with the claim's own `let` and `assume` lines, labelled, and ends
@@ -171,6 +198,12 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or
   "divides", the word is used.
+- Set-builder notation has two shapes, told apart by what precedes the
+  colon. With a variable and its domain, {t ∈ X : P(t)}, membership is
+  t ∈ X and P(t). With an expression, {E(s) : s ∈ Y}, membership of u is
+  "there is s ∈ Y with u = E(s)". Each is a definition with a pointer,
+  def:set-builder and def:set-image, used in both directions by the ↔
+  convention. Both are kept because a school reader has met both.
 
 ## Justification forms
 
@@ -178,21 +211,34 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 |---|---|
 | `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses |
 | `thm:X v := t, from L` | the same for a theorem |
-| `obtain a, b: item, from L` | the cited item concludes an existence claim; name its objects a and b; the claim is the body |
-| `exhibit t: item, from L` | the claim is an existence claim of the cited item, or a bare existence claim when no item is given; t is the witness |
-| `substitute e (L1) into L2` | replace by the equation e, which is part of line L1, inside line L2 |
-| `substitute e (L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
+| `obtain a, b: item, from L` or `obtain a, from L` | the cited item, or with no item the line in L, concludes an existence claim; name its objects a and b; the claim is the body |
+| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
+| `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
+| `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
+| `instantiate v := t in line L, from L2` | line L claims "for every v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label, or a definition whose sentence is a "for every" |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the rules for inequalities, starting from L |
 | `lines L` | propositional combination of L |
-| `contradiction`, then `suppose F (S)` | the block assumes F, labelled S, and its last step states some P and also not P |
+| `contradiction`, then `suppose not C (S)` | C is the step's claim; the block assumes "not C", written literally, labelled S, and its last step states some P and also not P. Any rewriting of "not C", such as p ≤ n for "not p > n", is a step inside the block |
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for every x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
-| `induction on n, from H`, with parts `base` and `step` | the claim is P(n), where H is n ∈ ℕ; the `base` part's last step claims P(1); the `step` part's last step claims "for every k ∈ ℕ, if P(k) then P(k + 1)", with P read off the claim |
+| `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for every k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
 
-`L` is a list of line numbers, hypothesis labels and supposition labels.
+`L` is a list of line numbers, hypothesis labels and supposition labels,
+and nothing else: an item's sentence that a step needs as a fact is first
+written as a step citing the item, and then cited by number. Citing an
+item inside `from`, and leaving the reader to instantiate it, was tried
+and rejected. Where a line number is written on its own after a verb, as
+in `into line 2.3` and `in line 4`, it carries the word "line"; in a
+`from` list, after `lines`, and on a calculation line it is bare. Labels
+never carry the word.
+
+A `define` line names an object: `define S := E (D1)` is an unnumbered,
+labelled line placed where S is first needed, claiming nothing, and cited
+by its label wherever a step needs to know what S stands for. It is the
+third kind of unnumbered line beside `let` and `assume`.
 
 A calculation only joins. Every line of a chain cites a numbered step or
 label that states that line's relation, and all reasoning is in those
@@ -231,6 +277,10 @@ are not hidden steps:
 
 - Where a cited item's conclusion is several sentences, a step may claim
   any one of them.
+- Where a sentence of a cited item is "A ↔ B" and a line stating A is
+  given in `from`, the step may claim B, and likewise from B to A. This is
+  how a definition is unfolded and folded: the defined phrase is one side
+  and its meaning is the other.
 - Where a sentence of a cited item is conditional, "if A then B", and a
   line stating A is given in `from`, the step may claim B. This is how a
   definition by cases, such as |x|, is unfolded: the case assumption in
@@ -243,6 +293,16 @@ are not hidden steps:
 Each method is a database item with a specified expansion, as `READERS.md`
 requires. The expansions are not yet written; the table above says what a
 reader checks, which is what the acceptance test needs.
+
+The working boundary between the closure methods, as the pilots practise
+it and pending the methods' definitions: `arithmetic` settles facts about
+closed numerals, such as 2 ≥ 0, 1 = 1(1 + 1)/2 or a^(0 + 1) = a;
+`algebra` applies ring and field identities in the variables and in named
+subterms treated as opaque, so it will turn (1 − a^(k + 1))/(1 − a) +
+a^(k + 1) into (1 − a^(k + 1)·a)/(1 − a) but will not turn a^(k + 1)·a into
+a^(k + 2); and anything about what a named subterm means, such as an
+exponent law, a recursive definition or a function value, is a cited
+theorem or definition in a step of its own.
 
 ## Not settled
 

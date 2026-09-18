@@ -67,7 +67,7 @@ theorem prime-above
           algebra
 
     7.5.  p divides 1
-          substitute (n! + 1) − n! = 1 (7.4) into 7.3
+          substitute (n! + 1) − n! = 1 (line 7.4) into line 7.3
 
     7.6.  p = 1
           thm:divides-one d := p, from 5, 7.5
@@ -79,7 +79,7 @@ theorem prime-above
           lines 7.6, 7.7
 
 8.  There is p ∈ ℕ with p prime and p > n.
-    exhibit p, from 5, 7
+    exhibit, from 5, 7
 ```
 
 ---
@@ -234,8 +234,17 @@ No new methods. `substitute ... into`, `inequalities`, `lines`,
    natural numbers needs p, n! and n! + 1 moved from ℕ to ℤ, three
    requires lines at 7.3. Stating divides on ℕ for Reader A, with the ℤ
    version as a separate item, would remove them here and add them
-   wherever negative numbers appear. The pilot keeps the ℤ definition and
-   pays.
+   wherever negative numbers appear. Decided: the ℤ definition stays and
+   the requires lines are paid. The reason is the foundation. The kernel
+   is set-theoretic, ℕ ⊆ ℤ is an inclusion and not a change of type, so
+   "p ∈ ℤ" is a fact about the same p, discharged by one pointer. Two
+   definitions per number system is what typed provers such as Lean and
+   Isabelle are forced into by their type discipline, together with cast
+   lemmas and automation to move between them; set.mm, Mizar and the
+   textbooks define divides once on ℤ. The principle, to be recorded in
+   `GOALS.md`: a relation or operation is defined once, on the widest set
+   where it makes sense, and a proof about a narrower set discharges
+   membership as a dull fact.
 7. **"Infinitely many" is avoided, not defined.** The theorem says that
    above every n there is a prime, which is what set.mm's infpn says and
    what Hammack's proof shows. The sentence "there are infinitely many
