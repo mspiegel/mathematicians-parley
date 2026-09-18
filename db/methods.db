@@ -154,7 +154,8 @@ method induction
 method cases
   form        cases, from L
   block       required
-  parts       case, one per disjunct of L, in the order of L
+  parts       case
+  parts-repeat one per disjunct of L, in the order of L
   part-opens  assume, labelled
   checks      L claims "P or Q". Each part opens with assume of its disjunct,
               labelled, in the order of L, and its last step claims the same

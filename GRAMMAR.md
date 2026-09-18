@@ -23,7 +23,10 @@ Notation used below: `<x>` a named part, `[x]` optional, `{x}` zero or more,
 Files are UTF-8 in Normalisation Form C. An implementation works in Unicode
 scalar values; UTF-16 is used nowhere, for the reason in `DATABASE.md`. Every
 non-ASCII character in a claim must appear in `db/notation.db`, which doubles
-as a whitelist.
+as a whitelist, with one addition: a variable may be a Greek letter and may
+carry a subscript or a prime, as δ, ε, x₀ and P′ do. Those are how a name is
+spelled rather than notation, so they have no record of their own and are
+listed in the checker instead.
 
 - `<label>` is `[A-Z]+[0-9]*`, written in parentheses at the end of the
   declaration and cited bare. Observed: H1, S, K2, IH, C1, D1. When the
