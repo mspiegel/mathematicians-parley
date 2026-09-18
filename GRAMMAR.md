@@ -89,7 +89,7 @@ A justification is a head and a set of optional slots. The slots are:
 |---|---|
 | instantiation | `<name> := <term>` , comma-separated |
 | names | `<name> { , <name> } :` , only after `obtain` |
-| target | `in line <number>` \| `in <label>` \| `in def:`<name> |
+| target | `in line <number>` \| `in <label>` |
 | destination | `into line <number>` \| `into <label>` |
 | source | `(line <number>)` \| `(<label>)` |
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
@@ -118,6 +118,11 @@ The fifteen heads and the slots each admits:
 ```
 
 `lines` takes its references directly and never the word `from`.
+
+The target of `instantiate` is a line or a label, never an item. Both slots that
+name where a fact comes from, the target and `from`, admit only what is written
+on the page. An item's sentences reach a proof by being claimed in a numbered
+step that cites the item, and later steps cite that number.
 
 `obtain` has two forms. With an item it names its objects with a colon, as in
 `obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4`. Without one
@@ -206,14 +211,6 @@ takes one. They are `def:S`, `def:G` and `def:factorial`.
 
 ## Not decided here
 
-- **What `instantiate` may target.** Its target slot takes a line, a label,
-  and twice an item, as in `instantiate u := b in def:least-upper-bound`. This
-  sits badly beside the rule in `SYNTAX.md` that `from` lists lines and nothing
-  else. Either the grammar says plainly that the target slot and the `from`
-  slot admit different things, which is the reading written above, or those two
-  citations change to a step that cites the definition first. The grammar
-  above permits the item form so that the corpus parses; the language decision
-  is open.
 - **Whether a claim of several formulas can be cited one formula at a time.**
   `SYNTAX.md` lists this among its unsettled items. The grammar treats a step
   as one citable unit.

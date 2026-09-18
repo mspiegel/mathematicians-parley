@@ -43,7 +43,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 8.  c ∈ ℝ. c is a least upper bound of S.
     obtain c: thm:completeness S := S, from 5, 2, 7
 
-9.  c is an upper bound of S
+9.  c is an upper bound of S.
+    For every u ∈ ℝ, if u is an upper bound of S then c ≤ u.
     def:least-upper-bound, from 8
 
 10. For every s ∈ S, s ≤ c.
@@ -53,7 +54,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     instantiate s := a in line 10, from 2
 
 12. c ≤ b
-    instantiate u := b in def:least-upper-bound, from 8, 7
+    instantiate u := b in line 9, from H2, 7
 
 13. c ∈ [a, b]
     def:interval x := c, from 8, 11, 12
@@ -225,7 +226,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            def:upper-bound, from 17.25
 
     17.27. c ≤ c − δ
-           instantiate u := c − δ in def:least-upper-bound, from 8, 17.26
+           instantiate u := c − δ in line 9, from 17.26
+           requires c − δ ∈ ℝ: thm:real-closure, from 8, 17.24
 
     17.28. not c ≤ c − δ
            inequalities, from 17.24
