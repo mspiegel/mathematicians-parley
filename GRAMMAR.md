@@ -10,12 +10,10 @@ It covers the **skeleton only**. A claim is an opaque run of text here. Giving
 that text structure is a second grammar, for notation and precedence, which is
 not written and not needed to check anything in this document.
 
-Every production below was run against the corpus while this was written. All
-246 justifications match a declared production, all 22 labels match their
-pattern, the only part markers are the three declared, and no step is numbered
-under a parent that does not exist. Two rules were wrong on the first pass and
-are corrected here: item names are not all lowercase, and `obtain` has two
-forms rather than one.
+Every production below is checked against the corpus. All 246 justifications
+match a declared production, all 22 labels match their pattern, the only part
+markers are the three declared, and no step is numbered under a parent that
+does not exist.
 
 Notation used below: `<x>` a named part, `[x]` optional, `{x}` zero or more,
 `a | b` alternatives. Literal text is in `code`.
@@ -35,12 +33,10 @@ as a whitelist.
 - `<number>` is a step number: one or more integers joined by dots, `1`,
   `1.1`, `17.25.5.10`.
 - `<ref>` is a `<number>` or a `<label>`.
-- `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and `nat0-closure`.
-  Almost every name is lowercase words joined by hyphens. Two are a single
-  capital, `def:S` and `def:G`, which take the letter of the function they
-  define. Validating this grammar against the corpus found that case and
-  nothing else, so the rule is written to admit it rather than to rename the
-  two items.
+- `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and
+  `nat0-closure`. The capital is in the pattern for `def:S` and `def:G`, the
+  two items that take the letter of the function they define. Every other name
+  is lowercase words joined by hyphens.
 - `<term>` and `<formula>` are opaque runs of text, delimited only by the rules
   below. The parser does not look inside them.
 
@@ -125,10 +121,9 @@ The fifteen heads and the slots each admits:
 
 `obtain` has two forms. With an item it names its objects with a colon, as in
 `obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4`. Without one
-it takes a single name and a line, as in `obtain δ from line 17.4`. The second
-form is written in `SYNTAX.md` as `obtain a, from L`, with a comma and a bare
-reference; the corpus writes no comma and `from line`. The corpus form is the
-one recorded here, and `SYNTAX.md` should be corrected to match it.
+it takes a single name and a line, as in `obtain δ from line 17.4`, carrying
+neither a colon nor a comma: there is no item to separate the names from, and
+no hypothesis list to introduce.
 
 A justification continues onto the next line when it ends with a comma. That is
 the only continuation rule, and it covers hypotheses too: the eleventh
