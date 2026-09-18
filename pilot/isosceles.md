@@ -21,11 +21,11 @@ Provisional forms, listed in the batch report: `let A be a point`;
 
 The skeleton is `proof/isosceles.proof`. The items it cites are in `db/`.
 
-Step 2's chain cites a theorem on its last line instead of a step, which
-the calculation rule forbids; it is left so in the draft as a reminder
-that a two-line chain with a cited theorem is tempting. The conforming
-form is a step "|CB| = |BC|" before the chain. `DATABASE.md` keeps it on the
-list of things for the checker to catch rather than repairing it.
+The draft's chain cited a theorem on its last line instead of a step, which
+the calculation rule forbids. A three-line chain with one cited theorem is
+tempting to write and reads perfectly well, which is why the rule has to be
+mechanical rather than a matter of taste. The conforming form is a step
+"|CB| = |BC|" before the chain, which the proof now has as step 2.
 
 ---
 

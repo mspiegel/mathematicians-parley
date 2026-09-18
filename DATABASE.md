@@ -141,10 +141,11 @@ repaired.
   stated with `assume S ⊆ ℕ` and no `let S be a set`, because that is what the
   pilot tables said and what the proofs discharge. Whether the set-existence
   hypothesis belongs there is open.
-- **The isosceles proof has one step that breaks the calculation rule.** Step 2
-  cites a theorem on a chain line where the rule allows only a cited line. The
-  pilot left it deliberately as a reminder, and so does the proof file. It should
-  be the checker's first true positive.
+- **The isosceles proof had one step that broke the calculation rule.** A chain
+  line cited a theorem where the rule allows only a cited line. It was the
+  checker's first true positive and is repaired: the theorem is now step 2 and
+  the chain cites that number. The corpus is clean, so `tools/check.py` reports
+  nothing and can be used as a gate.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
 

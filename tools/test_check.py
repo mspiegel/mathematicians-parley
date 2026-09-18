@@ -19,9 +19,9 @@ import check                                            # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# The corpus has one defect on purpose: the isosceles chain line that carries a
-# justification. Every case below is measured against that baseline.
-BASELINE = 1
+# The corpus is clean. A planted defect must therefore be reported, and the
+# baseline run must report nothing.
+BASELINE = 0
 
 CASES = [
     ('cite a line inside a block that has closed',

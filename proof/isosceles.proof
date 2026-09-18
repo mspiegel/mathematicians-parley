@@ -9,40 +9,43 @@ theorem isosceles
 1.  |AC| = |CA|
     thm:distance-symmetric P := A, Q := C, from H1, H3
 
-2.  |AC| = |BC|
+2.  |CB| = |BC|
+    thm:distance-symmetric P := C, Q := B, from H3, H2
+
+3.  |AC| = |BC|
     calculation
       |AC| = |CA|       1
            = |CB|       H5
-           = |BC|       thm:distance-symmetric P := C, Q := B, from H3, H2
+           = |BC|       2
 
-3.  ∠ACB = ∠BCA
+4.  ∠ACB = ∠BCA
     thm:angle-symmetric P := A, Q := C, R := B, from H1, H3, H2
 
-4.  |CB| = |CA|
+5.  |CB| = |CA|
     calculation
       |CB| = |CA|       H5, right to left
 
-5.  A, C, B form a triangle
+6.  A, C, B form a triangle
     thm:triangle-permute, from H4
 
-6.  B, C, A form a triangle
+7.  B, C, A form a triangle
     thm:triangle-permute, from H4
 
-7.  triangle ACB ≅ triangle BCA
+8.  triangle ACB ≅ triangle BCA
     thm:side-angle-side A := A, B := C, C := B, A′ := B, B′ := C, C′ := A,
-      from 5, 6, 2, 3, 4
+      from 6, 7, 3, 4, 5
 
-8.  ∠BAC = ∠ABC
-    def:congruent, from 7
+9.  ∠BAC = ∠ABC
+    def:congruent, from 8
 
-9.  ∠CAB = ∠BAC
+10. ∠CAB = ∠BAC
     thm:angle-symmetric P := C, Q := A, R := B, from H3, H1, H2
 
-10. ∠ABC = ∠CBA
+11. ∠ABC = ∠CBA
     thm:angle-symmetric P := A, Q := B, R := C, from H1, H2, H3
 
-11. ∠CAB = ∠CBA
+12. ∠CAB = ∠CBA
     calculation
-      ∠CAB = ∠BAC       9
-           = ∠ABC       8
-           = ∠CBA       10
+      ∠CAB = ∠BAC       10
+           = ∠ABC       9
+           = ∠CBA       11
