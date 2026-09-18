@@ -52,6 +52,26 @@ and 14 methods. The ten proofs make 128 citations to 68 distinct items. Every
 pointer resolves, and every `def:` or `thm:` prefix matches the kind of the item
 it names.
 
+## The character set
+
+The files are UTF-8 in Normalisation Form C. Three facts about what the corpus
+actually contains constrain any implementation that reads it, and the checker
+should enforce all three rather than trust them.
+
+- **One character lies outside the Basic Multilingual Plane.** The script
+  capital P of the power set notation, 44 uses. A language whose strings are
+  UTF-16 counts it as two units, so lengths and column positions go wrong
+  silently. Python, Go and Rust count it as one.
+- **Two characters have decomposed forms.** Not-an-element and not-equal can
+  each be written as a base character plus a combining slash. An editor that
+  normalises differently would change the archive without anyone editing it.
+  Input is normalised on read and anything not already in Form C is rejected.
+- **Four look-alike pairs are in use.** The minus sign appears 141 times, the
+  prime 53, the middle dot 88 and the set-minus 18. Each has an ASCII twin that
+  renders almost identically. The notation database lists every symbol a claim
+  may use, so it doubles as a whitelist, and a character outside it is an error
+  wherever it appears.
+
 ## What the merge decided
 
 **`def:function` was two items under one name.** The Cantor pilot stated it as a

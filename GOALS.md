@@ -137,6 +137,17 @@ The mathematical content lives in the long tail. That is what a reader should se
     that "by definition of" is safe and the kernel's "no axioms" property is not
     on the honour system.
 
+13. **The first checker is disposable, and its product is evidence.** It exists
+    to say what is wrong with the corpus, which steps rest on the unchecked
+    closure methods, and where `SYNTAX.md` is underspecified. Those answers
+    outlive the program. It is written in Python for the shortest path from the
+    written grammar to something running, and it is expected to be thrown away.
+    The language of the implementation that lasts is deliberately not decided
+    here. Decision 6 wants several elaborators compared against a
+    specification, so the one that ships is one others read and reimplement,
+    and it is written against a grammar document that does not yet exist. That
+    choice waits until it does.
+
 ## First version
 
 Three pieces, with the LLM outside all of them:
