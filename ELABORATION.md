@@ -150,6 +150,37 @@ integer.
 takes the implication built from steps 2 to 6 and the existential and gives the
 conclusion free of `k`.
 
+## It verifies
+
+The proof above is written out in `elaboration/odd-square.mm` and checked by a
+verifier. The two `algebra` steps are axioms in that file, stating exactly what
+those steps claim; everything else uses set.mm's own theorems. A deliberately
+altered conclusion is rejected, so the check is real.
+
+It is 1084 tokens of proof for six readable steps. `elaboration/build-odd-
+square.py` generates it, and that script is the first fragment of an
+elaborator: it builds each expansion from the readable step it came from, and
+the correspondence is visible in the names.
+
+Three things the exercise corrected in what is written above.
+
+`odd2np1` says `( N e. ZZ -> ( -. 2 || N <-> E. n e. ZZ ( ( 2 x. n ) + 1 ) = N
+) )`, one lemma rather than the two this document first guessed, and it is used
+in both directions: left to right to open the scope, right to left to close it.
+
+It writes the equation as `( 2 x. n ) + 1 = N` where the corpus writes
+`n = 2k + 1`. The sides are the other way round. Nothing in the readable layer
+says which way an equation faces, so an elaborator has to be ready to flip one,
+and here the flip is free because the congruence step wanted that orientation
+anyway.
+
+The scope is not opened by a lemma about existentials at all. It is opened by
+proving the whole of the rest of the proof as an implication out of
+`( n e. ZZ /\ ( 2 x. n ) + 1 = A )`, and only then discharged with `rexlimiv`.
+Every one of the twenty-odd inner steps is a `d`-suffixed deduction-form
+lemma. The claim that an obtain changes the shape of everything below it is not
+a figure of speech: it changes which lemma each later step uses.
+
 ## What the expansion language has to have
 
 1. **Scopes, not just steps.** An `obtain` opens a scope that runs to the end of
