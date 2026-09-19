@@ -1,14 +1,20 @@
-# Elaborating one proof by hand
+# Elaborating two proofs by hand
 
 Everything in this repository rests on one claim: that a readable proof becomes
 a Metamath proof that verifies. Nothing had tested it. The checker had grown to
 where it reads every formula, matches every citation against what it cites, and
 reports nothing, and none of that touches the kernel.
 
-So this is one proof worked out by hand, end to end, to find what the expansion
-language has to be able to say. `GOALS.md` open question 4 says that language
-can wait until the work has shown which methods are needed and must be settled
-before any enriched proof is written. Both conditions are now met.
+So this is two proofs worked out by hand, end to end, to find what the
+expansion language has to be able to say. `GOALS.md` open question 4 says that
+language can wait until the work has shown which methods are needed and must be
+settled before any enriched proof is written. Both conditions are now met.
+
+The second proof is here because it cites the first. A proof that only uses
+set.mm tests the expansion of methods; a proof that uses a theorem this project
+elaborated tests whether an elaborated theorem can be cited at all, which is
+the claim the whole corpus rests on. It cannot, in the form the first proof was
+first written, and that is the finding the closed form below comes from.
 
 **The labels are checked.** They were written from memory first and then read
 against set.mm, which has 119,378 labels. Every one used below exists and says
@@ -20,7 +26,7 @@ said `dvds`, which is not a label, where it meant `df-dvds`. Fixed. Nothing
 else in three pilots' worth of remembered labels was wrong, which is a better
 result than the exercise expected.
 
-## The proof
+## The first proof
 
 `thm:odd-square`, six steps, the smallest theorem in the corpus.
 
@@ -64,34 +70,49 @@ second way, as `there is k ∈ ℤ with n = 2k + 1`.
 ## What each step becomes
 
 **The statement.** `n` is an integer, so it is a class, and the two hypotheses
-are essential:
+become the antecedent of an implication:
 
 ```
-$e |- A e. ZZ
-$e |- -. 2 || A
-$p |- -. 2 || ( A ^ 2 )
+$p |- ( ( A e. ZZ /\ -. 2 || A ) -> -. 2 || ( A ^ 2 ) )
 ```
+
+The obvious reading is the other one, with each hypothesis a `$e` statement of
+its own and the conclusion standing alone. It is what this proof was written as
+first, and it verifies. What it cannot do is be cited by the second proof: a
+Metamath essential hypothesis has to be discharged by a proved statement, and
+the step that cites odd-square sits inside a contradiction block, where nothing
+is proved and every line is an implication out of a supposition.
+
+So the hypotheses go in the antecedent, for every theorem, because any theorem
+may someday be cited under a supposition. This is not a fact about odd-square;
+it is how the readable layer's `let` and `assume` map onto the kernel at all,
+and it took a second proof to find.
 
 **Step 1, the obtain.** This is the finding that matters most, and it is not a
-step at all. Getting to the existential is itself two steps, because `def:odd`
-is a bridge rather than a definition:
+step at all. `def:odd` is a bridge rather than a definition, and the bridge is
+one lemma:
 
 ```
-oddm1even  |- ( N e. ZZ -> ( -. 2 || N <-> 2 || ( N - 1 ) ) )
-df-dvds    |- || = { <. x , y >. | ( ( x e. ZZ /\ y e. ZZ ) /\
-                                     E. n e. ZZ ( n x. x ) = y ) }
+odd2np1  |- ( N e. ZZ -> ( -. 2 || N <-> E. n e. ZZ ( ( 2 x. n ) + 1 ) = N ) )
 ```
 
-so the hypotheses yield `E. k e. ZZ A = ( ( 2 x. k ) + 1 )`. There is no kernel move that
-then hands you a `k`. What happens instead is that everything below is proved
-under the assumption `k e. ZZ` and `A = ( ( 2 x. k ) + 1 )`, and the existential
-is discharged at the very end with `rexlimdv`.
+so the hypotheses yield `E. k e. ZZ ( ( 2 x. k ) + 1 ) = A`. There is no kernel
+move that then hands you a `k`. What happens instead is that everything below
+is proved out of `k e. ZZ /\ ( ( 2 x. k ) + 1 ) = A`, and the existential is
+discharged at the very end with `rexlimdva`, whose result is then applied to
+the existential itself with `mpd`.
 
 So one readable step changes the shape of every step after it. Steps 2 to 6
 become the body of an implication, and the proof from step 2 onward is written
 in deduction form, each line an implication whose antecedent carries the
-supposition. An elaborator cannot expand a step in isolation and concatenate
-the results.
+hypotheses and the obtained facts together. An elaborator cannot expand a step
+in isolation and concatenate the results.
+
+The lemma writes the equation as `( 2 x. n ) + 1 = N` where the corpus writes
+`n = 2k + 1`. The sides are the other way round. Nothing in the readable layer
+says which way an equation faces, so an elaborator has to be ready to flip one,
+and here the flip is free because the congruence step wanted that orientation
+anyway.
 
 **Step 2, the substitute.** From `A = ( ( 2 x. k ) + 1 )` conclude
 `( A ^ 2 ) = ( ( ( 2 x. k ) + 1 ) ^ 2 )`. That is a congruence lemma, and which
@@ -146,40 +167,95 @@ The two `requires` lines are what `rspcev` needs: that the witness is in the
 set it is being quantified over, and that the thing being claimed odd is an
 integer.
 
-**Closing.** The existential from step 1 is discharged with `rexlimdv`, which
-takes the implication built from steps 2 to 6 and the existential and gives the
-conclusion free of `k`.
+**Closing.** The existential from step 1 is discharged with `rexlimdva`, which
+takes the implication built from steps 2 to 6 and gives an implication from the
+existential to the conclusion, free of `k`. `odd2np1` is thus used in both
+directions: left to right to open the scope, right to left to close it.
 
-## It verifies
-
-The proof above is written out in `elaboration/odd-square.mm` and checked by a
-verifier. The two `algebra` steps are axioms in that file, stating exactly what
-those steps claim; everything else uses set.mm's own theorems. A deliberately
-altered conclusion is rejected, so the check is real.
-
-It is 1084 tokens of proof for six readable steps. `elaboration/build-odd-
-square.py` generates it, and that script is the first fragment of an
-elaborator: it builds each expansion from the readable step it came from, and
-the correspondence is visible in the names.
-
-Three things the exercise corrected in what is written above.
-
-`odd2np1` says `( N e. ZZ -> ( -. 2 || N <-> E. n e. ZZ ( ( 2 x. n ) + 1 ) = N
-) )`, one lemma rather than the two this document first guessed, and it is used
-in both directions: left to right to open the scope, right to left to close it.
-
-It writes the equation as `( 2 x. n ) + 1 = N` where the corpus writes
-`n = 2k + 1`. The sides are the other way round. Nothing in the readable layer
-says which way an equation faces, so an elaborator has to be ready to flip one,
-and here the flip is free because the congruence step wanted that orientation
-anyway.
-
-The scope is not opened by a lemma about existentials at all. It is opened by
-proving the whole of the rest of the proof as an implication out of
-`( n e. ZZ /\ ( 2 x. n ) + 1 = A )`, and only then discharged with `rexlimiv`.
 Every one of the twenty-odd inner steps is a `d`-suffixed deduction-form
 lemma. The claim that an obtain changes the shape of everything below it is not
 a figure of speech: it changes which lemma each later step uses.
+
+## The second proof
+
+`thm:even-square`, three steps, one of them a contradiction block.
+
+```
+theorem even-square
+  let n ∈ ℤ                                                           (H1)
+  assume n² is even                                                   (H2)
+  then n is even
+
+1.  n is not odd
+    contradiction
+    suppose n is odd                                                  (S)
+
+    1.1.  n² is odd
+          thm:odd-square n := n, from H1, S
+
+    1.2.  n² is not odd
+          thm:not-both n := n², from H2
+          requires n² ∈ ℤ: thm:int-closure, from H1
+
+    1.3.  n² is odd. n² is not odd.
+          join 1.1, 1.2
+
+2.  n is even or n is odd
+    thm:even-or-odd n := n, from H1
+
+3.  n is even
+    thm:disjunctive-syllogism P := n is even, Q := n is odd, from 2, 1
+```
+
+**Step 1.1, the citation.** This is the step the proof was chosen for, and it
+is one label: `oddsq`, applied with `syl` to the two hypotheses conjoined by
+`jca`. The supposition is a conjunct of the antecedent, not a proved statement,
+which is what forces the closed form above. With it, citing an elaborated
+theorem costs exactly what citing a set.mm theorem costs.
+
+**Step 1.3, the join, has no expansion of its own.** There is no kernel move
+that takes two lines and pairs them into a contradiction. The block closes with
+`pm2.65d`, which takes the supposition implying a claim and the supposition
+implying its negation, and gives the negated supposition. The join and the
+block's close are one lemma, so `join` inside a `contradiction` is absorbed
+rather than expanded. Whether `join` has an expansion of its own anywhere else
+is open; nothing in this proof needed one.
+
+**Steps 2 and 3 are propositional.** `def:odd` says that `n is odd` is
+`-. 2 || n`, so `n is even or n is odd` is `( 2 || A \/ -. 2 || A )`, which is
+`exmid`, and needs no integer hypothesis at all. The disjunctive syllogism is
+`orel2`, applied in deduction form with `syl` and `mpd`. Step 1.2 is the same
+story: from `2 || ( A ^ 2 )` conclude `-. -. 2 || ( A ^ 2 )`, which is
+`notnotd`.
+
+So two of the four cited theorems here reduce to propositional logic once the
+parity encoding is fixed, and their `metamath` fields say otherwise.
+`thm:even-or-odd` names `zeo` and `thm:not-both` names `zeo2, oddm1even`, which
+are theorems about `2 || ( N - 1 )` — the right labels for an encoding where
+"odd" means `n - 1` is even, and the wrong ones for the encoding `def:odd`
+chose. The proposal is to change those two fields to `exmid` and `notnot`; it
+is a change to the database and is not made here.
+
+The readable proof never cites double negation, and its expansion is classical
+anyway. That is not smuggled in by a method: the classical content is `exmid`,
+which the proof cites by name in step 2.
+
+## They verify
+
+Both proofs are written out in `elaboration/parity.mm` and checked by a
+verifier, against set.mm and against a copy truncated after the last statement
+they use. The two `algebra` steps of odd-square are axioms in that file,
+stating exactly what those steps claim; everything else uses set.mm's own
+theorems. A deliberately altered conclusion is rejected, so the check is real.
+
+Odd-square is 1617 tokens of proof for six readable steps. Even-square is 342
+for three, of which the citation of odd-square is one label. That ratio is the
+encouraging number in this exercise: a theorem costs its own expansion once,
+and every later use of it costs a citation.
+
+`elaboration/build-parity.py` generates the file, and that script is the first
+fragment of an elaborator: it builds each expansion from the readable step it
+came from, and the correspondence is visible in the names.
 
 ## What the expansion language has to have
 
@@ -211,14 +287,33 @@ a figure of speech: it changes which lemma each later step uses.
    elaborator is that unfolding costs a step and can fail, where a definitional
    replacement could not.
 
+7. **One statement form for every theorem.** Hypotheses are conjoined into an
+   antecedent, never made essential hypotheses, because a theorem cited inside
+   a `contradiction`, `cases` or `obtain` block has nothing proved to discharge
+   an essential hypothesis with. The form is decided by where the theorem may
+   be used, which the theorem itself cannot know.
+
+8. **Some methods are absorbed by their block.** `join` inside a
+   `contradiction` emits nothing; `pm2.65d` closes the block and consumes both
+   joined lines. So the expansion of a block is not the concatenation of the
+   expansions of its steps, and a method's specification has to say what it
+   does in each block that can contain it.
+
 ## What this says about the corpus
 
-Nothing in the proof had to change, which is the encouraging half. The steps
+Nothing in either proof had to change, which is the encouraging half. The steps
 the text writes are the steps the kernel needs, in the order it needs them, and
 the `requires` lines carry the side conditions rather than leaving them to be
-found. That is the design being tested and, on one proof, holding.
+found. That is the design being tested and, on two proofs, holding.
 
-The discouraging half is that `algebra` carries two of the six steps here and
+One thing outside the proofs had to change: two `metamath` fields in the
+database name the wrong set.mm theorems, because they were written for a
+different encoding of oddness than `def:odd` settled on. Nothing detected that
+until a proof was expanded, and no check the project has could: the fields are
+existing labels, correctly spelled, saying something true about integers. What
+they are not is what the expansion uses.
+
+The discouraging half is that `algebra` carries two of the nine steps here and
 eighteen across the corpus, and it is the one method whose expansion is still a
 question rather than a shape. Any estimate of the elaborator's size is really
 an estimate of that.
