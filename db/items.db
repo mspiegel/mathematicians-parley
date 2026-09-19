@@ -493,16 +493,20 @@ theorem card-remove
   first-used  subsets
 
 theorem card-bijection
-  assume |X| = m                                                      (H1)
-  assume g is a bijection from X to Y                                 (H2)
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume |X| = m                                                      (H3)
+  assume g is a bijection from X to Y                                 (H4)
   then        |Y| = m
   metamath    hashen
   first-used  subsets
 
 theorem card-disjoint-union
-  assume |X| = m                                                      (H1)
-  assume |Y| = n                                                      (H2)
-  assume X ∩ Y = ∅                                                    (H3)
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume |X| = m                                                      (H3)
+  assume |Y| = n                                                      (H4)
+  assume X ∩ Y = ∅                                                    (H5)
   then        |X ∪ Y| = m + n
   metamath    hashun
   first-used  subsets
@@ -551,6 +555,7 @@ theorem interval-real
   first-used  intermediate-value
 
 definition continuous-on
+  let f : D → ℝ                                                       (H1)
   then        f is continuous on D ↔ for every c ∈ D, for every ε ∈ ℝ with
               ε > 0, there is δ ∈ ℝ with δ > 0 and for every x ∈ D, if
               |x − c| < δ then |f(x) − f(c)| < ε
@@ -620,6 +625,12 @@ definition triangle
   first-used  isosceles
 
 definition congruent
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
   then        triangle PQR ≅ triangle P′Q′R′ ↔ |PQ| = |P′Q′|, |QR| = |Q′R′|,
               |RP| = |R′P′|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, and
               ∠RPQ = ∠R′P′Q′
