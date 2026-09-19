@@ -149,11 +149,31 @@ There is one test, and it does not depend on who is reading. For every step:
 2. Given those pointed-to items and the earlier lines the step cites, a reader
    with Reader A's background can check with pen and paper, and without
    running any tool, that the step follows.
+3. A reader can say what each name the proof introduces stands for, from the
+   line that introduces it and the lines above it.
 
 The reader may follow pointers as far as they like. A step that fails the
 test is either split into smaller steps or given a method from the
 vocabulary that it does satisfy. A step that uses anything without a pointer
 fails the test.
+
+The first two are about a step. They are answered by reading that step and
+what it points to, in any order, and a proof passes them one step at a time.
+The third is about the proof, and is answered only by reading it from the top.
+That is why it is the clause a correct and fully pointed proof can still fail:
+a definition asserts nothing, so nothing in the first two rules has anything
+to check about it, and a construction can arrive with no indication of what it
+is for.
+
+A step that fails the third test is repaired by naming, not by splitting. The
+devices are the `reads` line under a define, which says what the name means;
+the `note` line under a block opener, which says what the block is doing; and
+naming both halves of a construction rather than one, so that two halves look
+like two halves. `SYNTAX.md` describes all three.
+
+No tool decides this. A checker can insist that a define carries a reading, and
+does; it cannot tell whether the reading helps. The test is applied by a reader
+in the same way as the first two.
 
 ## What every proof shares
 
