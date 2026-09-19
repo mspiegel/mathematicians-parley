@@ -164,6 +164,24 @@ argument needs a decimal *expansion*, a function from an index to a digit, and
 no literal notation would help write it. set.mm's divisibility-by-three rule is
 the same shape, stated for digit sequences as sums.
 
+It also keeps step numbers readable, which is the other thing the period does
+here. A step number is digits separated by periods, `1.2.3.4`, so it is not a
+numeral but a distinct token, and the two could compete: `1.2` is either one
+step number or the numeral 1, a sentence boundary, and the numeral 2.
+
+Forbidding the decimal point is what separates them, and it separates them
+completely. Inside a claim a period is always a sentence boundary, because it is
+always followed by whitespace: no claim in the corpus contains digit-period-
+digit, and with no decimals none can. Outside a claim, in a `from` list or a
+chain line, digits separated by periods are always a step number. So the two
+readings never meet.
+
+A step number's own terminating period needs no rule of its own either. In
+`1.2.3.4.  n is even` the number stops at the last digit, since the period after
+it is followed by a space rather than a digit, and the step production takes the
+period. All 254 steps are written that way, 199 with two spaces after and 55
+with one, and the count does not matter because the spacing carries nothing.
+
 Keeping the point free also keeps it available to end a sentence. Were decimals
 ever genuinely needed, the order to try things in is: keep the period for both
 and accept that whitespace then matters at a sentence boundary, which would be
