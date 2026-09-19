@@ -761,6 +761,26 @@ INTRODUCTIONS = (
 )
 
 
+def check_readings(report, thm):
+    """A define carries a reading, and a note belongs to a block.
+
+    A define names an object and asserts nothing, so the acceptance test has
+    nothing to check about it and a reader can meet a construction with no
+    idea why it is there. The reading is the one line saying what the name
+    means in words. Nothing can judge the words, but their absence is the
+    commonest way for the device to be forgotten, so that much is required."""
+    for kind, text, label, no in thm.defines:
+        if label not in thm.readings:
+            report.say(thm.path, no,
+                       f'define {label} carries no `reads` line saying what '
+                       f'the name means')
+    for step in thm.steps:
+        if step.note and (not step.just or step.just.head not in BLOCK_HEADS):
+            report.say(thm.path, step.note[1],
+                       f'step {fmt(step.number)} carries a note and opens no '
+                       f'block; a note says what a block is doing')
+
+
 def check_introductions(report, thm):
     """A `let` line carries an introduction, not a formula. It names something
     and says what it is, asserting nothing, and there are exactly four forms.
@@ -850,6 +870,7 @@ def main(root):
         check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_last_step(report, thm)
+        check_readings(report, thm)
         check_introductions(report, thm)
         check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))

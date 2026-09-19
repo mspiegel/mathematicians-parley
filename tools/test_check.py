@@ -174,6 +174,18 @@ CASES = [
      '  level       predicate',
      'does not supply them'),
 
+    ('define a name and never say what it means',
+     'proof/cantor.proof',
+     '       reads the members of A that their own image leaves out\n',
+     '',
+     'carries no `reads` line'),
+
+    ('note a step that opens no block',
+     'proof/cantor.proof',
+     '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1',
+     '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1\n    note this is where B becomes a member',
+     'opens no block'),
+
     ('suppose something unrelated to the claim',
      'proof/bezout.proof',
      '3.  r = 0\n    contradiction\n    suppose not r = 0',

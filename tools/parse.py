@@ -159,6 +159,7 @@ class Step:
     openers: list = field(default_factory=list)   # (kind, text, label, line, part)
     line: int = 0
     part: int = None          # which part of its parent's block this step sits in
+    note: tuple = None        # (text, line) saying what the block it opens does
 
 
 @dataclass
@@ -167,6 +168,7 @@ class Theorem:
     hypotheses: list = field(default_factory=list)   # (kind, text, label, line)
     conclusion: str = ''
     defines: list = field(default_factory=list)
+    readings: dict = field(default_factory=dict)   # define label -> (text, line)
     steps: list = field(default_factory=list)
     line: int = 0
     path: str = ''
@@ -227,7 +229,7 @@ STEP_RE = re.compile(rf'^({NUMBER})\.\s+(.*)$')
 def parse_proof(path, text):
     """Theorems of a .proof file. Structure comes from the step number;
     indentation is presentation and is not consulted."""
-    theorems, thm, step, claim = [], None, None, None
+    theorems, thm, step, claim, defined = [], None, None, None, None
     # A part marker or a block opener appears before the sub-steps it governs,
     # so it is held until the next step arrives and is then attached to that
     # step's parent, which is the step that owns the block.
@@ -261,6 +263,9 @@ def parse_proof(path, text):
 
     for line in read_lines(path, text):
         t = line.text
+        # A `reads` line belongs to the define immediately above it, so what a
+        # define leaves behind survives exactly one line.
+        defined, just_defined = None, defined
         if t.startswith('theorem ') and line.indent == 0:
             close_step()
             name = t[len('theorem '):].strip()
@@ -302,6 +307,18 @@ def parse_proof(path, text):
                 raise Problem(path, line.no, 'define line carries no label')
             # A define names an object and is in scope from where it stands on.
             thm.defines.append(('define', t, lab.group(1), line.no))
+            defined = thm.defines[-1]
+            continue
+        if head == 'reads':
+            if just_defined is None:
+                raise Problem(path, line.no,
+                              'reads line that does not follow a define')
+            thm.readings[just_defined[2]] = (t[len('reads'):].strip(), line.no)
+            continue
+        if head == 'note':
+            if step is None or not step.just:
+                raise Problem(path, line.no, 'note line outside a block')
+            step.note = (t[len('note'):].strip(), line.no)
             continue
         if t in PART_MARKERS:
             pending_markers.append((t, line.no))

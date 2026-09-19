@@ -9,6 +9,7 @@ theorem intermediate-value
   then there is c ∈ [a, b] with f(c) = 0
 
 define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
+       reads the points of the interval where f is still below zero
 
 1.  a ∈ [a, b]
     def:interval x := a, from H1, H2

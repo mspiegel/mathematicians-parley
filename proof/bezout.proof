@@ -81,6 +81,7 @@ theorem bezout
   then there are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b)
 
 define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}   (D1)
+       reads the positive whole numbers that a and b can be combined into
 
 1.  a = a·1 + b·0
     algebra

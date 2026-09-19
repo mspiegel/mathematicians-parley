@@ -270,6 +270,26 @@ labelled line placed where S is first needed, claiming nothing, and cited
 by its label wherever a step needs to know what S stands for. It is the
 third kind of unnumbered line beside `let` and `assume`.
 
+**A define is followed by a `reads` line** giving, in words, what the name
+means: one line, directly under the define, required on every one. Because a
+define asserts nothing, the acceptance test has nothing to check about it, and
+a reader can meet a construction with no idea why it is there. The subsets
+proof is where this was noticed: it named one half of a split and wrote the
+other half out in full, so the two halves did not look like two halves.
+
+**A block opener may carry a `note` line** saying in one line what the block
+is doing. That is the only prose in a proof that is not about a single named
+thing, and it is allowed because some of what a reader needs is not a formula:
+that a proof is splitting a set into two families is not something any step
+claims. It is one line, it sits under the method, and it is optional, because
+most blocks do not need one.
+
+Neither line is read by the elaborator, and nothing can judge the words. What
+is checked is that a define has a reading, and that a note belongs to a block.
+Prose anywhere a step can go is deliberately not allowed: the pressure to name
+things well and to split blocks legibly is what makes the formal text the
+readable one, and a free comment takes that pressure off.
+
 A calculation only joins. Every line of a chain cites a numbered step or
 label that states that line's relation, and all reasoning is in those
 steps. A chain therefore never carries a method on a line. The

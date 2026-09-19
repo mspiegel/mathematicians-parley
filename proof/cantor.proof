@@ -4,6 +4,7 @@ theorem cantor
   then there is B ∈ 𝒫A with for every x ∈ A, not f(x) = B
 
 define B := {x ∈ A : not x ∈ f(x)}                                    (D1)
+       reads the members of A that their own image leaves out
 
 1.  B ⊆ A
     thm:set-builder-subset, from D1

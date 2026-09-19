@@ -405,10 +405,16 @@ substitution in the corpus comes close.
                 | <name> `:` <term> `→` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> `:=` <term> `(` <label> `)`
+                  `reads` <words>
 ```
 
 Theorems appear in dependency order, so every pointer resolves to something
-earlier. A `define` line claims nothing and is cited by its label.
+earlier. A `define` line claims nothing and is cited by its label, and the
+`reads` line under it says in words what the name means. Both `reads` and the
+`note` a block opener may carry are one line each, are the only prose a proof
+holds, and are read by no tool: what is checked is that a define has a reading
+and that a note belongs to a block. `SYNTAX.md` says why they exist and why
+prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
 says what it is; it asserts nothing, and the four forms above are all of them.
@@ -424,9 +430,13 @@ declared none of them matched anything.
 ## Steps
 
 ```
-<step>  ::= <number> `.` <claim> <justification> { <requires> } [ <block> ]
+<step>  ::= <number> `.` <claim> <justification> [ <note> ] { <requires> } [ <block> ]
 <claim> ::= <formula> { <formula> }
+<note>  ::= `note` <words>
 ```
+
+The note is one line, allowed only where the justification opens a block, and
+it says what the block is doing.
 
 Several formulas mean their conjunction, and **a period followed by whitespace,
 or ending the claim, separates them**. Twenty-nine of the corpus's 280 claims
