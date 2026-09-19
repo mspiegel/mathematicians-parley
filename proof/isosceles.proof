@@ -26,10 +26,10 @@ theorem isosceles
       |CB| = |CA|       H5, right to left
 
 6.  A, C, B form a triangle
-    thm:triangle-permute, from H4
+    thm:triangle-swap P := A, Q := B, R := C, from H1, H2, H3, H4
 
 7.  B, C, A form a triangle
-    thm:triangle-permute, from H4
+    thm:triangle-rotate P := A, Q := B, R := C, from H1, H2, H3, H4
 
 8.  triangle ACB ≅ triangle BCA
     thm:side-angle-side A := A, B := C, C := B, A′ := B, B′ := C, C′ := A,

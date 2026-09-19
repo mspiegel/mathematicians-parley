@@ -653,14 +653,29 @@ theorem angle-symmetric
               symmetric; needs a lemma and def:angle
   first-used  isosceles
 
-theorem triangle-permute
-  assume P, Q, R form a triangle                                      (H1)
-  then        any ordering of P, Q, R forms a triangle
+theorem triangle-swap
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        P, R, Q form a triangle
   open        follows from def:triangle once that is stated
   first-used  isosceles
-  note        The conclusion is not a formula. It has to be restated, either as
-              one theorem per ordering or with a form the language does not yet
-              have.
+
+theorem triangle-rotate
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        Q, R, P form a triangle
+  open        follows from def:triangle once that is stated
+  first-used  isosceles
+  note        These two replace a thm:triangle-permute whose conclusion, "any
+              ordering of P, Q, R forms a triangle", was not a formula. A swap
+              and a rotation generate all six orderings, and they are the two
+              the isosceles proof cites: one for A, C, B and one for B, C, A.
+              Stating one theorem per ordering was the alternative and is five
+              items for two uses.
 
 theorem side-angle-side
   let P be a point                                                    (H1)

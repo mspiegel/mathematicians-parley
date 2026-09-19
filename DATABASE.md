@@ -41,13 +41,13 @@ comes from:
 |---|---|---|
 | `proved-in` | a proof file in this corpus proves it | 14 |
 | `metamath` | a set.mm label or labels supply it | 60 |
-| `open` | neither; it is cited but unproved and unbridged | 12 |
+| `open` | neither; it is cited but unproved and unbridged | 13 |
 
 An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
-The corpus holds 92 items, 26 definitions and 66 theorems, 53 notation records
+The corpus holds 95 items, 26 definitions and 69 theorems, 53 notation records
 declaring 71 patterns, and 14 methods. The ten proofs make 181 citations to 73
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
@@ -148,14 +148,17 @@ repaired.
 - **`thm:side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,
   C, A′, B′, C′. One of the two must change.
-- **`thm:triangle-permute`'s conclusion is not a formula.** "Any ordering of P,
-  Q, R forms a triangle" needs either one theorem per ordering or a form the
-  language does not have.
-- **Set-existence hypotheses are inconsistent.** `thm:well-ordering`,
-  `thm:completeness`, `thm:card-bijection` and `thm:card-disjoint-union` are
-  stated with `assume S ⊆ ℕ` and no `let S be a set`, because that is what the
-  pilot tables said and what the proofs discharge. Whether the set-existence
-  hypothesis belongs there is open.
+- **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
+  Q, R forms a triangle" is replaced by `thm:triangle-swap` and
+  `thm:triangle-rotate`, which generate all six orderings and are the two the
+  isosceles proof cites.
+- **Set-existence hypotheses are inconsistent.** `thm:well-ordering` and
+  `thm:completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
+  because that is what the pilot tables said and what the proofs discharge.
+  Whether the set-existence hypothesis belongs there is open.
+  `thm:card-bijection` and `thm:card-disjoint-union` were the same and now
+  carry the `let` lines, because without them their statements could not be
+  read: `|Y| = m` fits both cardinality and absolute value.
 - **The isosceles proof had one step that broke the calculation rule.** A chain
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
@@ -164,14 +167,14 @@ repaired.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
 
-## Twelve open items
+## Thirteen open items
 
 `def:angle`, `def:congruent`, `def:function`, `def:point`, `def:triangle`,
 `thm:add-element-bijection`, `thm:angle-symmetric`, `thm:point-right`,
 `thm:powerset-split`, `thm:powerset-split-disjoint`, `thm:side-angle-side`,
-`thm:triangle-permute`.
+`thm:triangle-swap`, `thm:triangle-rotate`.
 
-Seven of the twelve are geometry, which is what the isosceles pilot predicted:
+Eight of the thirteen are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
 subsets pilot leaned on. One is the lemma the intermediate value pilot needs
 only because the language has no `min`.
