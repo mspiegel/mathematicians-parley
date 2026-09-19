@@ -311,9 +311,9 @@ A pattern is a candidate at a position when its leading token matches, a hole
 being a token that matches anything. Three things then narrow the candidates, in
 this order:
 
-1. **The literal tokens.** Most patterns are settled here alone. Of the 71
-   declared patterns exactly one shape is shared outright, `|_|`; 21 open the
-   same way as some other pattern and are separated by a token further along,
+1. **The literal tokens.** Most patterns are settled here alone. Of the 73
+   declared patterns two shapes are shared outright, `|_|` and `_(_)`; 21 open
+   the same way as some other pattern and are separated by a token further on,
    as `_, _` and `_, and _` are, and as the two universals are by the `with`
    that one of them carries.
 2. **The sorts of the holes.** This decides the two overloaded patterns. `|_|`

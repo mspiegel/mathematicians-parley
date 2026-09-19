@@ -92,10 +92,14 @@ class Notation:
     level: str
     assoc: str = None
     binds: str = None
-    folds: str = None      # the notation this pattern is the negation under
+    folds: str = None          # the notation this pattern is the negation under
+    literal: str = ''          # the tokens the node it builds stands for
+    stands_under: str = ''     # the record's name, or another it spells
+    fold_literal: str = ''     # the literal of the notation that wraps it
 
 
 NEGATES = re.compile(r'pattern\s+(\d+)\s+is\s+(\S+)\s+of\s+pattern\s+(\d+)')
+SPELLS = re.compile(r'^\s*(\S+)\s+(\S+)')
 
 
 HOLE = object()
@@ -119,7 +123,9 @@ def compile_notations(records):
         # another. Both then build the same tree, so "n is not odd" and
         # "not (n is odd)" are one formula wherever two are compared.
         folded = NEGATES.search(r.fields.get('negates', ''))
-        for n, pat in enumerate(re.split(r'\s{2,}', raw)):
+        spells = SPELLS.search(r.fields.get('spells', ''))
+        shapes = []
+        for pat in re.split(r'\s{2,}', raw):
             parts = []
             for piece in re.findall(r'_|[^_\s]+', pat):
                 if piece == '_':
@@ -134,7 +140,25 @@ def compile_notations(records):
                         words.add(bit)
                     elif bit not in '()':
                         symbols.add(bit)
+            shapes.append(parts)
+        # What a node is called and what stands in it: a record's name and the
+        # literal of the pattern that matched. Both are needed, or `a < b` and
+        # `a ≥ b` are one tree, since they are patterns of one record.
+        #
+        # A pattern that spells another builds the other's node, which is how
+        # `2r` and `2·r` come out the same, and a pattern declared as the
+        # negation of another carries that one's literal, so that the wrapping
+        # in `not` is the only difference between the two spellings.
+        for n, parts in enumerate(shapes):
+            stands = ''.join(p for p in parts if p is not HOLE)
+            under = r.name
+            if folded and int(folded.group(1)) == n + 1:
+                base = shapes[int(folded.group(3)) - 1]
+                stands = ''.join(p for p in base if p is not HOLE)
+            elif spells:
+                under, stands = spells.group(1), spells.group(2)
             out.append(Notation(
+                literal=stands, stands_under=under,
                 name=r.name, parts=parts, holes=holes,
                 yields=r.fields.get('yields', '').strip(),
                 level=(levels[n] if n < len(levels) else levels[0]).strip(),
@@ -142,6 +166,15 @@ def compile_notations(records):
                 binds=r.fields.get('binds'),
                 folds=(folded.group(2) if folded
                        and int(folded.group(1)) == n + 1 else None)))
+    # A folded pattern builds the notation that wraps it, so it needs that
+    # notation's literal too: `n is not odd` has to come out the same as
+    # `not (n is odd)`, down to what stands in the outer node.
+    literals = {}
+    for n in out:
+        literals.setdefault(n.stands_under or n.name, n.literal)
+    for n in out:
+        if n.folds:
+            n.fold_literal = literals.get(n.folds, '')
     # A symbol may be a prefix of another, so try the longest first.
     return out, words, sorted(symbols, key=len, reverse=True)
 
@@ -195,11 +228,16 @@ class Node:
 
     def shape(self):
         """A parenthesis-free rendering, which is what two instances are
-        compared by. Layout plays no part once the tree is built."""
+        compared by. Layout plays no part once the tree is built.
+
+        The literal is part of it wherever there is one, because a record may
+        declare several patterns and they are different formulas: `a < b` and
+        `a ≥ b` are both `order`, and only the sign tells them apart."""
+        head = f'{self.notation}:{self.text}' if self.text else self.notation
         if not self.children:
-            return f'{self.notation}:{self.text}'
+            return head
         inner = ', '.join(c.shape() for c in self.children)
-        return f'{self.notation}({inner})'
+        return f'{head}({inner})'
 
     def names(self):
         if not self.children:
@@ -423,16 +461,17 @@ class _Parser:
             if not fits(want, kid.sort):
                 raise Problem(self.path, self.line,
                               f'{n.name} wants {want} and got {kid.sort}')
-        # A record may declare several patterns with no hole at all, as the
-        # five number systems do, and they are one notation with one name. The
-        # literal goes in the node, or ℝ and ℕ₀ would build the same tree and
-        # nothing comparing two formulas could tell them apart.
-        literal = '' if kids else ''.join(p for p in n.parts if p is not HOLE)
-        node = Node(n.name, n.yields, kids, literal)
+        # The node is named by the record and carries the literal of the
+        # pattern it stands for. Both are needed: ℝ and ℕ₀ are one record, and
+        # so are `a < b` and `a ≥ b`, and nothing comparing two formulas could
+        # otherwise tell either pair apart.
+        node = Node(n.stands_under or n.name, n.yields, kids, n.literal)
         # A pattern declared as the negation of another builds the other and
         # wraps it, so the folded spelling and the `not` spelling are one tree.
         # The wrapper is named by the record, not known here.
-        return node if n.folds is None else Node(n.folds, 'formula', [node])
+        if n.folds is None:
+            return node
+        return Node(n.folds, 'formula', [node], n.fold_literal)
 
     def hole(self, want, barrier, stop):
         """A `variable` hole takes a bare name; any other takes an expression,

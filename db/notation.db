@@ -32,6 +32,11 @@
 #               two formulas sees no difference. Four records fold a negation
 #               this way, and without the line each would be a second spelling
 #               nothing could match against a `not`.
+#   spells      that this record's patterns are another notation written a
+#               different way, as "multiplicative ·" says that juxtaposition
+#               is the product written without its dot. Both build the same
+#               tree, so the two spellings are one formula wherever two are
+#               compared, and the page writes whichever reads better.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets.
 #   first-used  the pilot that introduced it.
@@ -454,10 +459,16 @@ notation juxtaposition
   yields      number
   level       multiplicative
   assoc       left
+  spells      multiplicative ·
   reads       times
   metamath    cmul
   first-used  sqrt2-irrational
-  note        The one shape with no token, covering 2k and k(k + 1). It never
+  note        `spells` says 2r and 2·r are one formula, which they are: both
+              are cmul, and the corpus writes whichever reads better. Without
+              it the √2 proof could not cite def:divides, whose statement says
+              n = d·k while the proof offers p = 2r.
+
+              The one shape with no token, covering 2k and k(k + 1). It never
               joins two bare names: a·b is written with the dot, as the corpus
               writes every product of named variables. That restriction is what
               lets a run of letters be lexed without context, since `and` could
