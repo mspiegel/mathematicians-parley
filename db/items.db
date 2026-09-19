@@ -159,10 +159,15 @@ definition sqrt
 definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
-  metamath    dvds
+  metamath    df-dvds, whose right side is the same existential
   first-used  sqrt2-irrational
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.
+
+              The field said `dvds`, which is not a label. df-dvds defines ∥ as
+              the pairs with an n ∈ ℤ making n·x = y, so the unfolding is the
+              same existential this statement writes. Found by checking every
+              label the database names against set.mm.
 
 definition odd
   let n ∈ ℤ                                                           (H1)

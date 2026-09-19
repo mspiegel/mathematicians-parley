@@ -10,11 +10,15 @@ language has to be able to say. `GOALS.md` open question 4 says that language
 can wait until the work has shown which methods are needed and must be settled
 before any enriched proof is written. Both conditions are now met.
 
-**What is not here.** There is no set.mm on the machine this was written on, so
-every label below is named from memory and none is verified. That is survivable
-because the finding is the shape of each expansion and not the label: if
-`oveq1` turns out to be called something else, the shape of the step does not
-change. Treat every label as a placeholder with a strong hint attached.
+**The labels are checked.** They were written from memory first and then read
+against set.mm, which has 119,378 labels. Every one used below exists and says
+what is claimed of it. The statements are quoted where they matter.
+
+That check was extended to the whole database while set.mm was to hand. It
+names 193 set.mm labels across 152 records, and all but one exist: `def:even`
+said `dvds`, which is not a label, where it meant `df-dvds`. Fixed. Nothing
+else in three pilots' worth of remembered labels was wrong, which is a better
+result than the exercise expected.
 
 ## The proof
 
@@ -69,8 +73,16 @@ $p |- -. 2 || ( A ^ 2 )
 ```
 
 **Step 1, the obtain.** This is the finding that matters most, and it is not a
-step at all. `def:odd` at `A` gives `-. 2 || A <-> E. k e. ZZ A = ( ( 2 x. k )
-+ 1 )`, so the hypotheses yield the existential. There is no kernel move that
+step at all. Getting to the existential is itself two steps, because `def:odd`
+is a bridge rather than a definition:
+
+```
+oddm1even  |- ( N e. ZZ -> ( -. 2 || N <-> 2 || ( N - 1 ) ) )
+df-dvds    |- || = { <. x , y >. | ( ( x e. ZZ /\ y e. ZZ ) /\
+                                     E. n e. ZZ ( n x. x ) = y ) }
+```
+
+so the hypotheses yield `E. k e. ZZ A = ( ( 2 x. k ) + 1 )`. There is no kernel move that
 then hands you a `k`. What happens instead is that everything below is proved
 under the assumption `k e. ZZ` and `A = ( ( 2 x. k ) + 1 )`, and the existential
 is discharged at the very end with `rexlimdv`.
@@ -94,10 +106,24 @@ mechanical and the choice is forced by the tree.
 **Steps 3 and 4, the algebra.** `( ( ( 2 x. k ) + 1 ) ^ 2 ) = ( ( ( 4 x. ( k ^
 2 ) ) + ( 4 x. k ) ) + 1 )` and then the regrouping into `( ( 2 x. ( ( 2 x. ( k
 ^ 2 ) ) + ( 2 x. k ) ) ) + 1 )`. These are ring identities over the reals, and
-they are the one part of this proof with no shape yet. set.mm proves such things
-from `binom2` or by expanding with `adddi`, `mulcom`, `mulass` and their
-friends, each of which needs its arguments to be complex numbers, which is
-exactly what the `requires k ∈ ℝ` line is for.
+they are the one part of this proof with no shape yet. The first is close to a
+lemma set.mm already has:
+
+```
+binom2  |- ( ( A e. CC /\ B e. CC ) ->
+             ( ( A + B ) ^ 2 ) = ( ( ( A ^ 2 ) + ( 2 x. ( A x. B ) ) ) + ( B ^ 2 ) ) )
+```
+
+but close is the problem: at `A = 2k` and `B = 1` it gives
+`( ( ( 2 x. k ) ^ 2 ) + ( 2 x. ( ( 2 x. k ) x. 1 ) ) ) + ( 1 ^ 2 )`, and
+getting from there to `4k² + 4k + 1` is the normalisation that does not exist
+yet: `sqmul` for the first term, `mulrid` for the second, `sq1` for the third,
+then the arithmetic on the numerals. Each of those needs its arguments in ℂ,
+which is exactly what the `requires k ∈ ℝ` line is for.
+
+Naming those four took four lookups, and one of them I first wrote as `mulid1`,
+which does not exist. That is the smallest concrete argument for keeping set.mm
+where the tools can see it.
 
 This is where the work is. Everything else in this proof has a forced
 expansion; `algebra` needs a normalising procedure and a fixed order of lemmas,
@@ -165,3 +191,19 @@ The discouraging half is that `algebra` carries two of the six steps here and
 eighteen across the corpus, and it is the one method whose expansion is still a
 question rather than a shape. Any estimate of the elaborator's size is really
 an estimate of that.
+
+## Keeping set.mm where the tools can see it
+
+The label check above was run once, from a copy fetched into a scratch
+directory that will not outlive the session. It found one wrong field in 193,
+which sounds like an argument for not bothering again.
+
+It is the opposite. The database is 97 items and will grow, every new item
+names a label from memory, and the check is a set membership against a file
+that already exists. What it cannot do while the file is temporary is run in
+the gate, so the next wrong label will sit there as long as this one did.
+
+Making it permanent means a large file somewhere stable and a gate that
+degrades when it is missing, the way the gate already does for ruff. That is
+the whole cost, and the check it buys is the only one in this project that
+compares the corpus against something outside it.
