@@ -478,6 +478,22 @@ notation there-is
   metamath    wrex, and wrex under wn
   first-used  sqrt2-irrational
 
+notation there-are
+  pattern     there are _ ∈ _ and _ ∈ _ with _
+  holes       variable, set, variable, set, formula
+  yields      formula
+  level       binder
+  binds       holes 1 and 3 over hole 5
+  reads       there are, and, with
+  metamath    two nested wrex
+  first-used  bezout
+  note        The two-variable form. Six uses: Bezout's statement and its
+              step 19, the set-builder body of its define line, and the
+              statements of def:rational, thm:lowest-terms and
+              thm:division-algorithm. Writing it as two nested `there is`
+              phrases was the alternative and reads far worse, which is why
+              every one of the six is written this way.
+
 notation for-every-set
   pattern     for every set _, _
   holes       variable, formula
