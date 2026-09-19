@@ -315,11 +315,12 @@ class _Parser:
                 continue
             if not fits(n.holes[0], left.sort):
                 continue
-            # A pattern that ends in a token closes itself, so nothing looser
-            # can swallow it and no precedence barrier applies. Only a pattern
-            # ending in a hole competes for what follows, which is why those
-            # are the ones that declare a level at all.
-            if outer is not None and n.parts[-1] is HOLE:
+            # A pattern that ends in a token and declares no level is closed:
+            # it competes for nothing that follows and nests anywhere, as
+            # `f(x)` and `|x|` do. A pattern that declares a level takes part
+            # in precedence wherever it stands, even when a token closes it,
+            # or `√2 is irrational` reads as the root of `2 is irrational`.
+            if outer is not None and (n.parts[-1] is HOLE or n.level):
                 tight = binds_tighter(self.g.tighter, n.level, outer)
                 if tight is not True:
                     continue
