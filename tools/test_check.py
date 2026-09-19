@@ -115,6 +115,12 @@ CASES = [
      'theorem cantor',
      'theorem cantor-two',
      'is in no record'),
+
+    ('obtain a name without stating its kind',
+     'proof/sqrt2-irrational.proof',
+     '1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
+     '1.  n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
+     'without stating its kind'),
 ]
 
 

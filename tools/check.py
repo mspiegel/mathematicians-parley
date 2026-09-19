@@ -379,6 +379,38 @@ def check_citations(report, thm, items, methods, notation):
             report.trust(thm.path, just.line, just.head, fmt(step.number))
 
 
+OBTAIN_NAMES = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
+
+
+def check_kinds(report, thm):
+    """Every variable's kind is on the page, so the parser never infers one.
+
+    A `let` line gives it, and so does the claim of the `obtain` step that
+    introduces a name. Without that rule a parser would have to chase the
+    cited item's conclusion to learn a kind, and kinds are what disambiguate
+    a notation, so two implementations chasing differently would parse the
+    same formula differently."""
+    for s in thm.steps:
+        if not s.just or s.just.head != 'obtain':
+            continue
+        m = OBTAIN_NAMES.match(s.just.text)
+        if not m:
+            continue
+        claim = ' '.join(s.claim)
+        for v in (x.strip() for x in m.group(1).split(',')):
+            if not v:
+                continue
+            n = re.escape(v)
+            stated = (re.search(rf'(?<![A-Za-z]){n}\s*∈', claim)
+                      or re.search(rf'(?<![A-Za-z]){n}\s+is a (set|point)', claim)
+                      or re.search(rf'(?<![A-Za-z]){n}\s*:', claim))
+            if not stated:
+                report.say(thm.path, s.line,
+                           f'step {fmt(s.number)} obtains {v} without stating its '
+                           f'kind; the claim of an obtain states the membership '
+                           f'of each name it introduces, so no kind is inferred')
+
+
 def check_last_step(report, thm):
     if not thm.steps:
         report.say(thm.path, thm.line, f'theorem {thm.name} has no steps')
@@ -441,6 +473,7 @@ def main(root):
     proved = {}
     for thm in theorems:
         check_last_step(report, thm)
+        check_kinds(report, thm)
         check_numbering(report, thm)
         check_blocks(report, thm, methods)
         for step in thm.steps:

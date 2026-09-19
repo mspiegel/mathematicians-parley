@@ -48,6 +48,30 @@ is presentation: steps at the same depth begin at column 10 in one file and 11
 in another. Structure comes from the step number. The single exception is the
 chain line, noted below.
 
+## Kinds
+
+`db/notation.db` declares the kind of each hole of each notation, and kinds are
+what tell two notations sharing a pattern apart. So a parser has to know the
+kind of every name before it can read a formula: `|x|` is an absolute value or
+a cardinality according to what `x` is.
+
+**Every kind is written on the page, and a parser infers none.** A name's kind
+comes from one of three places, all of them visible where the name appears:
+
+- a `let` line, in the statement or opening a block;
+- the claim of the `obtain` step that introduces the name, which states its
+  membership as one of its own sentences;
+- the right-hand side of a `define`, whose notation says what it yields.
+
+The second is the rule that keeps this bounded. Without it a parser would chase
+the cited item's conclusion to learn what an obtained name is, and two
+implementations chasing to different depths would parse the same formula
+differently. All sixteen `obtain` steps in the corpus already state the
+membership, so the rule costs nothing and the checker enforces it.
+
+The kinds are `number`, `set`, `point`, `formula`, `function`, `variable`, and
+`any`, which means any term kind and never a formula.
+
 ## Files
 
 ```
