@@ -2,9 +2,9 @@
 """Check the corpus against GRAMMAR.md.
 
 Reports the grammar, the numbering, block structure, pointer resolution, the
-scope of every citation, calculation chains, and that every formula on the page
-parses one way. It does not check that a claim follows from what it cites; that
-needs the elaborator.
+scope of every citation, calculation chains, that every formula on the page
+parses one way, and that a citation supplies the hypotheses of what it cites.
+It does not check that the claim follows from them; that needs the elaborator.
 
 Usage:  tools/check.py [root]
 Exits non-zero when anything is reported.
@@ -21,8 +21,9 @@ from parse import (                                       # noqa: E402
 )
 from formula import Grammar, parse                        # noqa: E402
 from sorts import (                                       # noqa: E402
-    LABEL as LABEL_AT_END, sorts_in_scope, sorts_of_record,
+    FUNCTION, KIND, LABEL as LABEL_AT_END, sorts_in_scope, sorts_of_record,
 )
+from match import instantiation, match_all, names         # noqa: E402
 
 # The productions of GRAMMAR.md, one per justification form.
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
@@ -476,6 +477,133 @@ def check_capture(report, thm, claims):
 SENTENCES = re.compile(r'(?<=[.])\s+')
 
 
+class Library:
+    """What each item asks a citation to supply.
+
+    Only the hypotheses that are facts. `let X be a set`, `let P be a point`
+    and a function type declare a variable and are filled by the instantiation,
+    which is what Metamath calls a floating hypothesis; a membership and an
+    `assume` are essential and a step citing the item has to supply them.
+
+    A record with two `then` groups, as def:S has, states each conclusion under
+    the hypotheses written above it, so the groups are kept apart and a
+    citation satisfies any one of them."""
+
+    def __init__(self, records, theorems, g):
+        self.g = g
+        self.items = {r.name: r for r in records
+                      if r.kind in ('definition', 'theorem')}
+        self.proved = {t.name: t for t in theorems}
+        self.cache = {}
+
+    def groups(self, name):
+        if name not in self.cache:
+            self.cache[name] = self._read(name)
+        return self.cache[name]
+
+    def _read(self, name):
+        thm = self.proved.get(name)
+        if thm is not None:
+            lines = [(k, LABEL_AT_END.sub('', t[len(k):]).strip())
+                     for k, t, _, _ in thm.hypotheses]
+            return [self._facts(lines, sorts_in_scope(thm, self.g))]
+        item = self.items.get(name)
+        if item is None:
+            return None
+        sorts = sorts_of_record(item)
+        out = []
+        for _, at in item.conclusions:
+            lines = [(h[0], LABEL_AT_END.sub('', h[1]).strip())
+                     for h in item.hypotheses
+                     if h[0] in ('let', 'assume') and h[3] < at]
+            out.append(self._facts(lines, sorts))
+        return out or [[]]
+
+    def _facts(self, lines, sorts):
+        out = []
+        for kind, text in lines:
+            if kind == 'let' and (KIND.match(text) or FUNCTION.match(text)):
+                continue
+            self.g.sorts = sorts
+            try:
+                out.append((text, parse(text, self.g)))
+            except Problem:
+                continue
+        return out
+
+
+def check_hypotheses(report, thm, library):
+    """A citation supplies the hypotheses of what it cites.
+
+    They come from the lines named in `from` and from the `requires` lines,
+    each of which states one fact. A cited line supplies every sentence of its
+    claim, because a claim of several sentences is their conjunction.
+
+    The item is read as a pattern and the facts are ground, so a citation that
+    writes no instantiation is checked the same way as one that does: 37 of the
+    corpus's 106 write none and a reader still sees the match. Where an
+    instantiation is written it seeds the binding, which makes it checked
+    rather than taken on trust."""
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    scope = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
+    lines = [(k, t, lab) for k, t, lab, _ in thm.hypotheses]
+    lines += [(k, t, lab) for s in thm.steps for k, t, lab, _, _ in s.openers]
+    for kind, text, label in lines:
+        if label:
+            scope[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+
+    for step in thm.steps:
+        just = step.just
+        if not just or not just.head.startswith(('def:', 'thm:')):
+            continue
+        groups = library.groups(just.head.split(':', 1)[1])
+        if groups is None:
+            continue                      # a pointer that resolves to nothing
+        supplied = []
+        for ref in just.refs:
+            if ref in scope:
+                supplied += sentences(scope[ref])
+        supplied += [fact for fact, _, _ in step.requires]
+
+        facts = []
+        for text in supplied:
+            g.sorts = sorts
+            try:
+                facts.append(parse(text, g))
+            except Problem:
+                continue
+        seed = {}
+        for name, value in instantiation(just.text):
+            g.sorts = sorts
+            try:
+                seed[name] = parse(value, g)
+            except Problem:
+                continue
+
+        missing = None
+        for want in groups:
+            if not want:
+                missing = None
+                break
+            variables = set().union(*(names(t) for _, t in want))
+            if match_all([t for _, t in want], facts,
+                         dict(seed), variables) is not None:
+                missing = None
+                break
+            missing = [t for t, _ in want]
+        if missing is not None:
+            report.say(thm.path, just.line,
+                       f'step {fmt(step.number)} cites {just.head}, which asks '
+                       f'for {"; ".join(missing)}, and what it cites does not '
+                       f'supply them')
+
+
+def sentences(text):
+    return [s.strip().rstrip('.').strip()
+            for s in SENTENCES.split(text.strip()) if s.strip()]
+
+
 def check_statements(report, records, g):
     """Every statement in the database parses, and parses one way.
 
@@ -649,9 +777,12 @@ def main(root):
     grammar = Grammar.load(records)
     check_statements(report, records, grammar)
 
+    library = Library(records, theorems, grammar)
+
     proved = {}
     for thm in theorems:
         check_formulas(report, thm, grammar)
+        check_hypotheses(report, thm, library)
         check_last_step(report, thm)
         check_introductions(report, thm)
         check_sorts(report, thm)

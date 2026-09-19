@@ -34,18 +34,18 @@ theorem even-square
   assume n² is even                                                   (H2)
   then n is even
 
-1.  n is not odd
+1.  not n is odd
     contradiction
     suppose n is odd                                                  (S)
 
     1.1.  n² is odd
           thm:odd-square n := n, from H1, S
 
-    1.2.  n² is not odd
+    1.2.  not n² is odd
           thm:not-both n := n², from H2
           requires n² ∈ ℤ: thm:int-closure, from H1
 
-    1.3.  n² is odd. n² is not odd.
+    1.3.  n² is odd. not n² is odd.
           join 1.1, 1.2
 
 2.  n is even or n is odd

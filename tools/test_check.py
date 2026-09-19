@@ -156,6 +156,18 @@ CASES = [
      '1.2.1.5.  |W| = 2^k',
      'the sorts do not separate them'),
 
+    ('drop a line a citation needs for a hypothesis',
+     'proof/intermediate-value.proof',
+     '    def:interval x := a, from H1, H2',
+     '    def:interval x := a, from H1',
+     'does not supply them'),
+
+    ('supply a hypothesis with the wrong number system',
+     'proof/geometric-series.proof',
+     '    2.1.  G(0) = 1\n          def:G, from H1',
+     '    2.1.  G(0) = 1\n          def:G, from H3',
+     'does not supply them'),
+
     ('state an item in a notation nobody declared',
      'db/items.db',
      'theorem subset-transitive\n  assume X ⊆ Y',

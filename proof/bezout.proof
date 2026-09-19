@@ -147,8 +147,10 @@ define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}
     instantiate e := d in line 12, from 5, 9, 11
 
 14. gcd(a, b) divides a·x₀ + b·y₀
-    thm:divides-combination e := gcd(a, b), from 12, 6
+    thm:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 12, 6
     requires gcd(a, b) ∈ ℤ: thm:nat-int, from 12
+    requires a ∈ ℤ: thm:nat-int, from H1
+    requires b ∈ ℤ: thm:nat-int, from H2
 
 15. gcd(a, b) divides d
     substitute d = a·x₀ + b·y₀ (line 6) into line 14

@@ -591,16 +591,20 @@ notation divides
   note        Seventeen uses, the commonest word predicate. See def:divides.
 
 notation parity
-  pattern     _ is even        _ is odd        _ is not odd
+  pattern     _ is even        _ is odd
   holes       number
   yields      formula
   level       relational
-  reads       is even, is odd, is not odd
+  reads       is even, is odd
   metamath    2 ∥ n and its negation
   first-used  sqrt2-irrational
-  note        "is not odd" is listed as its own pattern rather than built from
-              `not`, because the corpus writes the word inside the phrase. That
-              is a notational choice SYNTAX.md does not yet state.
+  note        A negation is written with `not` in front, as "not n is odd", and
+              not as a pattern of its own. The corpus wrote "n is not odd" in
+              four places, which is better English and a second spelling of one
+              formula: thm:disjunctive-syllogism assumes "not Q" and no
+              instantiation of Q reaches the word inside the phrase. It is the
+              same reason a word predicate is written in full everywhere, and
+              `not p = 1` is the shape it follows.
 
 notation prime
   pattern     _ is prime

@@ -13,7 +13,7 @@ theorem geometric-sum
 
     base
     2.1.  G(0) = 1
-          def:G
+          def:G, from H1
 
     2.2.  0 + 1 = 1
           arithmetic
@@ -51,7 +51,7 @@ theorem geometric-sum
           assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
 
           2.9.1.  G(k + 1) = G(k) + a^(k + 1)
-                  def:G n := k, from K
+                  def:G n := k, from H1, K
 
           2.9.2.  G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
                   substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)

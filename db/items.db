@@ -118,6 +118,15 @@ theorem difference-set
   metamath    difexg
   first-used  subsets
 
+theorem not-in-difference
+  let X be a set                                                      (H1)
+  then        not a ∈ X ∖ {a}
+  metamath    eldifsn, whose right side needs a ≠ a
+  first-used  subsets
+  note        Added because thm:add-element-bijection assumes the element it
+              adds is not already there, and the subsets proof adds it back to
+              X ∖ {a} without ever saying so.
+
 
 # ------------------------------------------------ numbers and arithmetic
 
@@ -237,7 +246,7 @@ theorem even-or-odd
 theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
-  then        n is not odd
+  then        not n is odd
   metamath    zeo2, oddm1even
   first-used  sqrt2-irrational
 

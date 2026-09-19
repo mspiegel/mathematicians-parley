@@ -198,7 +198,11 @@ state above a "Suppose ..." is noticed.
 
 Formulas use the notation of `READERS.md`, with these rules for reading:
 
-- "and", "or" and "not" are written as words, never as ∧ ∨ ¬.
+- "and", "or" and "not" are written as words, never as ∧ ∨ ¬. A negation is
+  written with "not" in front, as "not n is odd" and "not p = 1", and never
+  folded into a predicate's own words. "n is not odd" is better English and is
+  a second spelling of one formula, which nothing instantiating a "not Q" can
+  reach.
 - "there is x ∈ S with ..." is written for ∃, and "there is no x ∈ S with
   ..." for ¬∃, both in full: a phrase after "and" repeats the "there is"
   rather than eliding it. Inside such a phrase, clauses are joined with commas

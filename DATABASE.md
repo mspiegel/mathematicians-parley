@@ -47,8 +47,8 @@ An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
-The corpus holds 96 items, 27 definitions and 69 theorems, 54 notation records
-declaring 72 patterns, and 14 methods. The ten proofs make 181 citations to 73
+The corpus holds 97 items, 27 definitions and 70 theorems, 54 notation records
+declaring 71 patterns, and 14 methods. The ten proofs make 181 citations to 73
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
@@ -171,6 +171,15 @@ repaired.
   checker parses all of them on every run. Getting there took six notations
   nobody had declared, eight records that never said what their names were, and
   three defects in the parser itself.
+- **Every citation supplies the hypotheses of what it cites.** All 106 of them,
+  checked by matching the item as a pattern against the facts the step names,
+  so the 37 citations that write no instantiation are read like the 69 that do.
+  Eleven citations were short of a hypothesis when the check first ran: six
+  interval citations missing a bound, two recursive definitions missing the
+  line that types their parameter, Bezout's step 14 missing two integer
+  memberships, a disjunctive syllogism whose two spellings of one negation did
+  not match, and a bijection that adds an element without saying it was absent.
+  The last needed a new item, `thm:not-in-difference`.
 
 ## Fourteen open items
 
