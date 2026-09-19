@@ -239,7 +239,8 @@ def parse_proof(path, text):
     def close_step():
         nonlocal step
         if step is not None and step.just is None:
-            raise Problem(path, step.line, f'step {fmt(step.number)} has no justification')
+            raise Problem(path, step.line,
+                          f'step {fmt(step.number)} has no justification')
         step = None
 
     def attach(number):
@@ -349,7 +350,8 @@ def parse_proof(path, text):
                 step.just.refs.extend(chain_citation(path, line))
                 step.just.chain.append((line.text, line.no))
                 continue
-            raise Problem(path, line.no, f'unexpected line after a justification: {t[:48]!r}')
+            raise Problem(path, line.no,
+                          f'unexpected line after a justification: {t[:48]!r}')
         raise Problem(path, line.no, f'unexpected line {t[:48]!r}')
     close_step()
     return theorems
@@ -378,7 +380,7 @@ def check_encoding(path, raw):
     try:
         text = raw.decode('utf-8')
     except UnicodeDecodeError as e:
-        raise Problem(path, 1, f'not valid UTF-8: {e}')
+        raise Problem(path, 1, f'not valid UTF-8: {e}') from e
     if unicodedata.normalize('NFC', text) != text:
         for no, ln in enumerate(text.split('\n'), 1):
             if unicodedata.normalize('NFC', ln) != ln:

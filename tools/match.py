@@ -64,7 +64,7 @@ def match(pattern, ground, binding, variables):
         return None
     if len(pattern.children) != len(ground.children):
         return None
-    for a, b in zip(pattern.children, ground.children):
+    for a, b in zip(pattern.children, ground.children, strict=True):
         binding = match(a, b, binding, variables)
         if binding is None:
             return None

@@ -15,16 +15,32 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from parse import (                                       # noqa: E402
-    HEADS, LABEL, NAME, NUMBER, REF, PART_MARKERS, BLOCK_HEADS,
-    Problem, check_encoding, fmt, parse_database, parse_proof, read_lines,
+from formula import Grammar, parse
+from match import expand, instantiation, match_all, names
+from parse import (
+    BLOCK_HEADS,
+    HEADS,
+    LABEL,
+    NAME,
+    NUMBER,
+    PART_MARKERS,
+    REF,
+    Problem,
+    check_encoding,
+    fmt,
+    parse_database,
+    parse_proof,
 )
-from formula import Grammar, parse                        # noqa: E402
-from sorts import (                                       # noqa: E402
-    FUNCTION, KIND, LABEL as LABEL_AT_END, definitions_in_scope,
-    sorts_in_scope, sorts_of_record,
+from sorts import (
+    FUNCTION,
+    KIND,
+    definitions_in_scope,
+    sorts_in_scope,
+    sorts_of_record,
 )
-from match import expand, instantiation, match_all, names  # noqa: E402
+from sorts import (
+    LABEL as LABEL_AT_END,
+)
 
 # The productions of GRAMMAR.md, one per justification form.
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
@@ -118,7 +134,7 @@ def labels_in_scope(thm, step):
         if other.number != step.number[:k] or other.number == step.number:
             continue
         child = by_number.get(step.number[:k + 1])
-        for kind, text, lab, no, part in other.openers:
+        for _, _, lab, no, part in other.openers:
             if lab is None:
                 continue
             if part is None or (child is not None and child.part == part):
@@ -158,7 +174,8 @@ def check_database(report, records):
                 report.say(r.path, r.line,
                            f'{r.name} is proved in a proof file but also carries a '
                            f'statement here; the statement must have one home')
-            if 'proved-in' not in r.fields and not r.conclusions and 'open' not in r.fields:
+            if ('proved-in' not in r.fields and not r.conclusions
+                    and 'open' not in r.fields):
                 report.say(r.path, r.line, f'{r.name} has no `then` line')
         if r.kind == 'method' and 'parts' in r.fields:
             for part in re.split(r',\s*', r.fields['parts']):
@@ -234,7 +251,6 @@ def check_numbering(report, thm):
 
 
 def check_blocks(report, thm, methods):
-    owners = {s.number: s for s in thm.steps}
     for step in thm.steps:
         has_children = any(s.number[:-1] == step.number for s in thm.steps)
         head = step.just.head if step.just else None
@@ -359,7 +375,7 @@ def check_citations(report, thm, items, methods, notation):
         elif just.head not in methods:
             report.say(thm.path, just.line,
                        f'{just.head} is in no record of db/methods.db')
-        for fact, text, no in step.requires:
+        for _, text, no in step.requires:
             heads = [h for h in HEADS if text.startswith(h)]
             if not heads and not re.match(rf'^from\s+{REF}$', text):
                 report.say(thm.path, no,
@@ -774,7 +790,7 @@ def check_readings(report, thm):
     idea why it is there. The reading is the one line saying what the name
     means in words. Nothing can judge the words, but their absence is the
     commonest way for the device to be forgotten, so that much is required."""
-    for kind, text, label, no in thm.defines:
+    for _, _, label, no in thm.defines:
         if label not in thm.readings:
             report.say(thm.path, no,
                        f'define {label} carries no `reads` line saying what '
@@ -920,4 +936,5 @@ def main(root):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent))
+    here = Path(__file__).resolve().parent.parent
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else here))

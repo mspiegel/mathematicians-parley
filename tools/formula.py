@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 
 from parse import Problem
 
-
 # ------------------------------------------------------------------ tokens
 
 NAME = re.compile(r'[A-Za-zα-ωΑ-Ω][₀-₉′]*')
@@ -36,18 +35,23 @@ def tokenise(text, words, symbols):
     `There is`. The allowance is deliberately that narrow: matching case
     anywhere would let the name `s` match the declared word `S`."""
     out, i = [], 0
+
+    def take(kind, spelling, at):
+        out.append(Token(kind, spelling, at))
+        return at + len(spelling)
+
     while i < len(text):
         m = SPACE.match(text, i)
         if m:
             i = m.end()
             continue
-        if text[i] == '(':
-            out.append(Token('open', '(', i)); i += 1; continue
-        if text[i] == ')':
-            out.append(Token('close', ')', i)); i += 1; continue
+        if text[i] in '()':
+            i = take('open' if text[i] == '(' else 'close', text[i], i)
+            continue
         m = DIGITS.match(text, i)
         if m:
-            out.append(Token('numeral', m.group(), i)); i = m.end(); continue
+            i = take('numeral', m.group(), i)
+            continue
         m = LETTERS.match(text, i)
         if m:
             run = m.group()
@@ -65,12 +69,14 @@ def tokenise(text, words, symbols):
                         for n in range(len(c), 1, -1)
                         for w in [c[:n]] if w in words), None)
             if hit:
-                out.append(Token('word', hit, i)); i += len(hit); continue
-            m = NAME.match(text, i)
-            out.append(Token('name', m.group(), i)); i = m.end(); continue
+                i = take('word', hit, i)
+                continue
+            i = take('name', NAME.match(text, i).group(), i)
+            continue
         sym = next((s for s in symbols if text.startswith(s, i)), None)
         if sym:
-            out.append(Token('symbol', sym, i)); i += len(sym); continue
+            i = take('symbol', sym, i)
+            continue
         raise Problem('', 0, f'no token at {text[i:i+12]!r} in {text!r}')
     return out
 
@@ -411,7 +417,9 @@ class _Parser:
             if tok is None or tok.text != part:
                 raise Problem(self.path, self.line, 'pattern does not match')
             self.i += 1
-        for kid, want in zip(kids, n.holes):
+        # A pattern may name fewer hole sorts than it has holes, which the
+        # record check reports; here the extra holes simply go unchecked.
+        for kid, want in zip(kids, n.holes, strict=False):
             if not fits(want, kid.sort):
                 raise Problem(self.path, self.line,
                               f'{n.name} wants {want} and got {kid.sort}')

@@ -15,7 +15,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import check                                            # noqa: E402
+import check
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -101,12 +101,14 @@ CASES = [
     ('a block whose method takes none',
      'proof/sum-formula.proof',
      '    1.2.  1 = 1(1 + 1)/2\n          arithmetic',
-     '    1.2.  1 = 1(1 + 1)/2\n          arithmetic\n\n    1.2.1.  1 = 1\n            arithmetic',
+     ('    1.2.  1 = 1(1 + 1)/2\n          arithmetic\n\n'
+      '    1.2.1.  1 = 1\n            arithmetic'),
      'takes no block'),
 
     ('a contradiction whose block does not suppose anything',
      'proof/sqrt2-irrational.proof',
-     '    contradiction\n    suppose √2 ∈ ℚ                                                    (S)',
+     ('    contradiction\n    suppose √2 ∈ ℚ'
+      '                                                    (S)'),
      '    contradiction',
      'does not open with `suppose`'),
 
@@ -183,7 +185,8 @@ CASES = [
     ('note a step that opens no block',
      'proof/cantor.proof',
      '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1',
-     '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1\n    note this is where B becomes a member',
+     ('2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1\n'
+      '    note this is where B becomes a member'),
      'opens no block'),
 
     ('suppose something unrelated to the claim',
@@ -259,8 +262,8 @@ def main():
             else:
                 print(f'  NOT CAUGHT    {name}')
                 print(f'      expected a report containing {expect!r}')
-                print('      got:', ' | '.join(
-                    l for l in out.splitlines() if l and not l[0].isdigit())[:200])
+                said = [x for x in out.splitlines() if x and not x[0].isdigit()]
+                print('      got:', ' | '.join(said)[:200])
                 failed += 1
 
     print(f'\n{passed} caught, {failed} missed, of {len(CASES)} planted defects')

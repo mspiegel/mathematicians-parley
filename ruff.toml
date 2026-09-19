@@ -1,0 +1,21 @@
+# Lint settings for `tools/`. The corpus is not Python and nothing else here is
+# either, so this file covers the checker and the parser it is built on.
+#
+# The tools were written to about this width before there was a linter, so the
+# length is measured rather than chosen: nine lines in the repository exceeded
+# it and were rewrapped.
+line-length = 88
+
+[lint]
+# pycodestyle errors and warnings, pyflakes, import order, the bugbear rules
+# that catch real mistakes, and ruff's own checks, which include telling us
+# when a `noqa` stops applying. Deliberately not the style rules that rewrite
+# working code into a house dialect: this is a gate, not a formatter.
+select = ["E", "W", "F", "I", "B", "RUF"]
+
+# The ambiguous-character rules ask whether ℝ was meant to be R, and whether
+# the minus sign was meant to be a hyphen. In this repository they always were
+# not: the corpus is written in mathematical notation, the tools quote it in
+# their tests and their messages, and GRAMMAR.md fixes the character set. The
+# rule would fire on every symbol the project exists to handle.
+ignore = ["RUF001", "RUF002", "RUF003"]

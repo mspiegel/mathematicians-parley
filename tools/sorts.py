@@ -54,7 +54,7 @@ def definitions_in_scope(thm, g):
     which term each name stands for. A define may name something in terms of an
     earlier one, so the terms are read in the order they are written."""
     out = {}
-    for kind, text, _, _ in thm.defines:
+    for _, text, _, _ in thm.defines:
         m = DEFINE.match(LABEL.sub('', text).strip())
         if not m:
             continue

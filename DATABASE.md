@@ -163,8 +163,13 @@ repaired.
 - **The isosceles proof had one step that broke the calculation rule.** A chain
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
-  the chain cites that number. The corpus is clean, so `tools/check.py` reports
-  nothing and can be used as a gate.
+  the chain cites that number.
+- **`tools/gate.py` is what must be green before a commit.** It runs ruff over
+  the tools, the checker over the corpus, and the planted defects that prove
+  the checker still catches things. The lint settings are in `ruff.toml`, which
+  turns off the ambiguous-character rules because this corpus is written in the
+  characters they object to. ruff is not vendored: the gate looks for it on
+  PATH and says how to install it.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
 - **Every formula in the corpus parses, and none is ambiguous.** That is 313
