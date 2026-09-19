@@ -404,6 +404,42 @@ VARNAME = re.compile(r'(?<![A-Za-zα-ω])([A-Za-zα-ω][₀-₉′]*)(?![A-Za-z�
 PAIR = re.compile(r'([^\s,]+)\s*:=\s*([^,]+?)(?=,\s*[^\s,]+\s*:=|,\s*from|\s+in |$)')
 
 
+# Patterns whose holes sit next to each other with no token between them, so
+# that the names filling them run together in the text.
+ADJACENT_HOLES = (re.compile(r'\|([A-Za-z]{2,})\|'), re.compile(r'∠([A-Za-z]{2,})'))
+
+
+def declared_words(records):
+    """Every literal word appearing in a declared pattern."""
+    out = set()
+    for r in records:
+        if r.kind == 'notation':
+            out.update(re.findall(r'[A-Za-z]{2,}', r.fields.get('pattern', '')))
+    return out
+
+
+def check_run_together(report, thm, words):
+    """Where a pattern puts two holes side by side, as distance does in |CA|,
+    the names filling them run together in the text. If they spell a declared
+    word, a reader reads the word and so does anything lexing the text.
+
+    Points are capitals throughout this corpus, which keeps |AN| clear of the
+    word `an`, but that is a convention of school geometry and not a rule:
+    topology and differential geometry both name points with lowercase letters,
+    and set.mm's plane is ℂ, where a point would naturally be z or w. So the
+    collision is checked rather than assumed away."""
+    for s in thm.steps:
+        for text in s.claim:
+            for pattern in ADJACENT_HOLES:
+                for run in pattern.findall(text):
+                    if run in words:
+                        report.say(thm.path, s.line,
+                                   f'step {fmt(s.number)} writes {run!r} in a '
+                                   f'notation whose holes are adjacent, and '
+                                   f'{run!r} is a declared word; rename one of '
+                                   f'the names so the two do not run together')
+
+
 def check_capture(report, thm, claims):
     """A substitution may not capture. If the term being substituted names a
     variable bound where it lands, the step is rejected rather than the
@@ -507,6 +543,7 @@ def main(root):
 
     check_database(report, records)
     check_notation(report, records)
+    words = declared_words(records)
 
     theorems = []
     for path in proof_files:
@@ -526,6 +563,7 @@ def main(root):
         check_last_step(report, thm)
         check_kinds(report, thm)
         check_capture(report, thm, claims_of(thm))
+        check_run_together(report, thm, words)
         check_numbering(report, thm)
         check_blocks(report, thm, methods)
         for step in thm.steps:

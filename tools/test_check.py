@@ -116,6 +116,15 @@ CASES = [
      'theorem cantor-two',
      'is in no record'),
 
+    # Renaming the isosceles points to a and n makes the distance |an| spell
+    # the declared word `an`, which is what the capital-letter convention has
+    # been quietly preventing.
+    ('two names run together into a declared word',
+     'proof/isosceles.proof',
+     '1.  |AC| = |CA|',
+     '1.  |an| = |CA|',
+     'run together'),
+
     # Line 4 of bezout binds s, so substituting a term naming s would capture.
     ('substitute a term that captures a bound variable',
      'proof/bezout.proof',

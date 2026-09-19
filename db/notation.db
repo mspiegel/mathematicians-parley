@@ -391,10 +391,13 @@ notation juxtaposition
   reads       times
   metamath    cmul
   first-used  sqrt2-irrational
-  note        The one shape with no token, covering 2k and k(k + 1). Its holes
-              are numbers, which is what keeps |CA| out of it, since C and A
-              are points. Nineteen numeral-then-name uses and three
-              name-then-parenthesis uses in the corpus.
+  note        The one shape with no token, covering 2k and k(k + 1). It never
+              joins two bare names: a·b is written with the dot, as the corpus
+              writes every product of named variables. That restriction is what
+              lets a run of letters be lexed without context, since `and` could
+              otherwise be a·n·d and the corpus uses a, n and d as variables.
+              Nineteen numeral-then-name uses and three name-then-parenthesis
+              uses in the corpus, and no name-then-name use.
 
 notation point
   pattern     point

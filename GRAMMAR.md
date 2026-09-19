@@ -72,6 +72,30 @@ membership, so the rule costs nothing and the checker enforces it.
 The kinds are `number`, `set`, `point`, `formula`, `function`, `variable`, and
 `any`, which means any term kind and never a formula.
 
+## Reading a run of letters
+
+A run of letters is a declared word if one matches by longest match, and
+otherwise it is a single variable name. Every variable in the corpus is one
+letter with an optional subscript or prime, 26 of them; the declared patterns
+contribute 33 literal words.
+
+That rule is only decidable because **juxtaposition never joins two bare
+names**. `a·b` is written with the dot, as the corpus writes every product of
+named variables, and juxtaposition is left with a numeral before a name, as in
+`2k`, and a name before a bracket, as in `k(k + 1)`. Without the restriction
+the letters `and` could be a product of `a`, `n` and `d`, all three of which
+are variables here, and nothing reading left to right could tell that from the
+connective.
+
+Two notations put holes side by side with no token between them: distance
+writes `|CA|` and the angle writes `∠PQR`. The names filling them run together
+in the text, so they could spell a declared word. Points are capitals
+throughout this corpus, which keeps `|AN|` clear of the word `an`, but that is
+a convention of school geometry rather than a rule. Topology and differential
+geometry both name points with lowercase letters, and set.mm's plane is ℂ,
+where a point would naturally be `z` or `w`. The checker therefore rejects a
+run-together that spells a declared word instead of relying on the convention.
+
 ## Substitution
 
 `SYNTAX.md` requires a claim that is an instance of a formula to be a literal
