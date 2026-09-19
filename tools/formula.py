@@ -405,7 +405,12 @@ class _Parser:
             if not fits(want, kid.sort):
                 raise Problem(self.path, self.line,
                               f'{n.name} wants {want} and got {kid.sort}')
-        return Node(n.name, n.yields, kids)
+        # A record may declare several patterns with no hole at all, as the
+        # five number systems do, and they are one notation with one name. The
+        # literal goes in the node, or ℝ and ℕ₀ would build the same tree and
+        # nothing comparing two formulas could tell them apart.
+        literal = '' if kids else ''.join(p for p in n.parts if p is not HOLE)
+        return Node(n.name, n.yields, kids, literal)
 
     def hole(self, want, barrier, stop):
         """A `variable` hole takes a bare name; any other takes an expression,
