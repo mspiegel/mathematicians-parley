@@ -71,7 +71,7 @@ theorem subsets-count
 
                   1.2.1.4.  There is a bijection from U to T.
                             thm:add-element-bijection, from D2
-                            requires not a ∈ X ∖ {a}: thm:not-in-difference,
+                            requires a ∉ X ∖ {a}: thm:not-in-difference,
                               from K3
 
                   1.2.1.5.  |T| = 2^k

@@ -120,7 +120,7 @@ theorem difference-set
 
 theorem not-in-difference
   let X be a set                                                      (H1)
-  then        not a ∈ X ∖ {a}
+  then        a ∉ X ∖ {a}
   metamath    eldifsn, whose right side needs a ≠ a
   first-used  subsets
   note        Added because thm:add-element-bijection assumes the element it
@@ -532,7 +532,7 @@ theorem card-disjoint-union
 
 theorem add-element-bijection
   let X be a set                                                      (H1)
-  assume not a ∈ X                                                    (H2)
+  assume a ∉ X                                                        (H2)
   then        there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
   open        no set.mm label found
   first-used  subsets
