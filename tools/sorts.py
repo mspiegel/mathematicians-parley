@@ -46,6 +46,21 @@ def _from_introduction(body):
     return None
 
 
+def sorts_of_record(record):
+    """The sort of every name an item's own lines state one for.
+
+    A record keeps the keyword of a hypothesis in the field name where a proof
+    line keeps it in the text, and a record has no steps and no `define`. That
+    is the whole difference from `sorts_in_scope`."""
+    out = {}
+    for kind, value, _, _ in record.hypotheses:
+        if kind in ('let', 'assume'):
+            found = _from_introduction(LABEL.sub('', value).strip())
+            if found:
+                out.setdefault(*found)
+    return out
+
+
 def sorts_in_scope(thm, g):
     """The sort of every name the theorem states one for.
 

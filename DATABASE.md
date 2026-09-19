@@ -166,6 +166,11 @@ repaired.
   nothing and can be used as a gate.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
+- **Every formula in the corpus parses, and none is ambiguous.** That is 313
+  sentences in the ten proofs and 131 statements and assumptions here, and the
+  checker parses all of them on every run. Getting there took six notations
+  nobody had declared, eight records that never said what their names were, and
+  three defects in the parser itself.
 
 ## Fourteen open items
 

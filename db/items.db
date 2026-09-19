@@ -66,12 +66,20 @@ definition subset
 
 definition set-builder
   let X be a set                                                      (H1)
+  let P : X → formula                                                 (H2)
   then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)
   metamath    rabid, elrab
   first-used  bezout
+  note        P is the predicate the braces select by, and its line is what
+              makes P(t) an application rather than a product: the two are
+              written alike and the sort of the first hole separates them.
+              A predicate is a function into a formula, which is how Coq and
+              Lean write the same thing.
 
 definition set-image
   let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let E : Y → Z                                                       (H3)
   then        u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)
   metamath    cmpt with elrnmpt, or crab with a witness
   first-used  subsets
@@ -80,6 +88,8 @@ definition set-image
               the merge.
 
 theorem set-builder-subset
+  let X be a set                                                      (H1)
+  let P : X → formula                                                 (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
   first-used  bezout

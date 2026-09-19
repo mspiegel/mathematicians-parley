@@ -155,6 +155,21 @@ CASES = [
      '1.2.1.5.  |T| = 2^k',
      '1.2.1.5.  |W| = 2^k',
      'the sorts do not separate them'),
+
+    ('state an item in a notation nobody declared',
+     'db/items.db',
+     'theorem subset-transitive\n  assume X ⊆ Y',
+     'theorem subset-transitive\n  assume X is within Y',
+     'theorem subset-transitive'),
+
+    ('leave the name in an item statement with no sort',
+     'db/items.db',
+     'theorem set-builder-subset\n  let X be a set'
+     '                                                      (H1)\n'
+     '  let P : X → formula                                                 (H2)',
+     'theorem set-builder-subset\n  let X be a set'
+     '                                                      (H1)',
+     'theorem set-builder-subset'),
 ]
 
 

@@ -103,9 +103,10 @@ given at the end of this section.
 
 What this leaves open is a bare variable of no known sort sitting directly
 inside bars. That is ambiguous, so a parser rejects it rather than choosing, and
-the failure is a refused proof rather than a misread one. Today's checker cannot
-see it, since it treats a claim as opaque text, and it belongs on the formula
-parser's list.
+the failure is a refused proof rather than a misread one. The checker reports it:
+it parses every formula in the corpus, and two of the places it found were a
+step whose name came from a `define` and an item that never said its Y was a
+set.
 
 **A value of no known sort fits any hole.** Five places in the corpus need
 this, all of them `s` in the intermediate value proof, declared `let s ∈ S`

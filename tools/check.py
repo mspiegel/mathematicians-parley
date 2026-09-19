@@ -20,7 +20,9 @@ from parse import (                                       # noqa: E402
     Problem, check_encoding, fmt, parse_database, parse_proof, read_lines,
 )
 from formula import Grammar, parse                        # noqa: E402
-from sorts import LABEL as LABEL_AT_END, sorts_in_scope   # noqa: E402
+from sorts import (                                       # noqa: E402
+    LABEL as LABEL_AT_END, sorts_in_scope, sorts_of_record,
+)
 
 # The productions of GRAMMAR.md, one per justification form.
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
@@ -474,6 +476,31 @@ def check_capture(report, thm, claims):
 SENTENCES = re.compile(r'(?<=[.])\s+')
 
 
+def check_statements(report, records, g):
+    """Every statement in the database parses, and parses one way.
+
+    An item's statement is a formula in the same language as a claim, and the
+    elaborator matches one against the other, so a statement that does not read
+    is a defect wherever it is written. An item proved in this corpus keeps its
+    statement at the head of its proof file and has none here."""
+    for r in records:
+        if r.kind not in ('definition', 'theorem'):
+            continue
+        g.sorts = sorts_of_record(r)
+        places = [(text, no) for kind, text, _, no in r.hypotheses
+                  if kind == 'assume']
+        places += list(r.conclusions)
+        for text, no in places:
+            for sentence in SENTENCES.split(LABEL_AT_END.sub('', text).strip()):
+                sentence = sentence.strip().rstrip('.').strip()
+                if not sentence:
+                    continue
+                try:
+                    parse(sentence, g)
+                except Problem as p:
+                    report.say(r.path, no, f'{r.kind} {r.name}: {p.message}')
+
+
 def check_formulas(report, thm, g):
     """Every formula on the page parses, and parses one way.
 
@@ -620,6 +647,7 @@ def main(root):
         theorems.extend(found)
 
     grammar = Grammar.load(records)
+    check_statements(report, records, grammar)
 
     proved = {}
     for thm in theorems:
