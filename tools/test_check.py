@@ -122,7 +122,7 @@ CASES = [
      'proof/cantor.proof',
      '  let A be a set                                                      (H1)',
      '  let A ⊆ B                                                           (H1)',
-     'none of the four introductions'),
+     'none of the five introductions'),
 
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has
@@ -176,6 +176,16 @@ CASES = [
      '  level       predicate',
      'does not supply them'),
 
+    ('say a property is a function into a formula',
+     'db/items.db',
+     'theorem set-builder-subset\n  let X be a set'
+     '                                                      (H1)\n'
+     '  let P be a property of the elements of X                            (H2)',
+     'theorem set-builder-subset\n  let X be a set'
+     '                                                      (H1)\n'
+     '  let P : X → formula                                                 (H2)',
+     'which is a sort and not a set'),
+
     ('define a name and never say what it means',
      'proof/cantor.proof',
      '       reads the members of A that their own image leaves out\n',
@@ -217,7 +227,7 @@ CASES = [
      'db/items.db',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)\n'
-     '  let P : X → formula                                                 (H2)',
+     '  let P be a property of the elements of X                            (H2)',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)',
      'theorem set-builder-subset'),

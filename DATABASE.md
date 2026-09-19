@@ -47,8 +47,8 @@ An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
-The corpus holds 97 items, 27 definitions and 70 theorems, 54 notation records
-declaring 71 patterns, and 14 methods. The ten proofs make 181 citations to 73
+The corpus holds 97 items, 27 definitions and 70 theorems, 55 notation records
+declaring 73 patterns, and 14 methods. The ten proofs make 181 citations to 73
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
@@ -65,7 +65,7 @@ than guessed at.
 Two things about a notation are then mechanical and the checker enforces both:
 that the holes a record declares match the holes its patterns have, and that a
 pattern declares an associativity exactly when it can nest in itself, meaning
-both edges are holes and what it yields fits those holes. Ten of the 53 records
+both edges are holes and what it yields fits those holes. Ten of the 55 records
 meet that condition.
 
 ## The character set

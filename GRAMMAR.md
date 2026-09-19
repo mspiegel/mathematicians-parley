@@ -59,7 +59,7 @@ sort of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
 
 They are **sorts** in the sense of many-sorted logic, and not types. There are
-seven fixed labels; nothing composes, since sets are deliberately flat; nothing
+eight fixed labels; nothing composes, since sets are deliberately flat; nothing
 is inferred, since every sort is written down; and `any` is a label rather than
 the top of a lattice. Above all a sort never affects meaning. It picks which
 notation applies, and after that the meaning is the notation's. Metamath has the
@@ -316,8 +316,10 @@ this order:
    same way as some other pattern and are separated by a token further along,
    as `_, _` and `_, and _` are, and as the two universals are by the `with`
    that one of them carries.
-2. **The sorts of the holes.** This decides the one overloaded pattern, `|_|`,
-   between absolute value, cardinality and distance.
+2. **The sorts of the holes.** This decides the two overloaded patterns. `|_|`
+   is absolute value, cardinality or distance according to what is inside, and
+   `_(_)` is a function applied to an argument, a number times a bracketed one,
+   or a property holding of something, according to what is on the left.
 3. **Nothing else.** Where two candidates survive, the formula is ambiguous and
    the parser reports it rather than choosing. It reads correctly or it stops.
 
@@ -343,7 +345,7 @@ not parse, because it reads as easily as "(not n) is odd", and the brackets in
 `not (n is odd)` say which was meant.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
-says which way. Fifteen of the 71 patterns are in that position, across ten
+says which way. Fifteen of the 73 patterns are in that position, across ten
 records, and the checker enforces that exactly those ten declare one.
 
 ### A folded negation
@@ -403,6 +405,7 @@ substitution in the corpus comes close.
                 | <name> `be a set`
                 | <name> `be a point`
                 | <name> `:` <term> `→` <term>
+                | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> `:=` <term> `(` <label> `)`
                   `reads` <words>
@@ -417,7 +420,10 @@ and that a note belongs to a block. `SYNTAX.md` says why they exist and why
 prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
-says what it is; it asserts nothing, and the four forms above are all of them.
+says what it is; it asserts nothing, and the five forms above are all of them.
+The last says what a property is a property of, and never names the thing it
+holds of, because that name comes from the notation that binds it: in
+`{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
 Two of those, `be a set` and `be a point`, are not notations and never appear
 inside a formula. `assume` does take a formula, because it does assert.
 

@@ -15,8 +15,8 @@
 #               patterns when they differ only in symbol and set.mm target;
 #               the metamath list then matches the pattern list in order.
 #   holes       the sort each hole takes, in order. The sorts are number, set,
-#               point, formula, function, variable, and any. `none` if the
-#               pattern has no hole.
+#               point, formula, function, property, variable, and any. `none`
+#               if the pattern has no hole.
 #   yields      the sort the pattern produces.
 #   level       its precedence level, from the order declared below.
 #   assoc       left or right. Required exactly when both edges are holes and
@@ -48,7 +48,7 @@
 # syntactic categories deciding which productions apply. Nothing composes, none
 # is inferred, and the label never affects meaning. Metamath has the same idea
 # and calls them typecodes, of which set.mm has three; these are the readable
-# layer's, one level up and seven of them.
+# layer's, one level up and eight of them.
 
 precedence order
   # Each line names a level and the levels it binds more tightly than. Levels
@@ -419,6 +419,26 @@ notation application
   note        Written identically to juxtaposition-multiplication: f(x) applies
               and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
+              `holds-of` is the third reading of this pattern.
+
+notation holds-of
+  pattern     _(_)
+  holes       property, any
+  yields      formula
+  reads       holds of
+  metamath    substitution into a wff, which set.mm writes by naming the
+              variable rather than with a constructor
+  first-used  bezout
+  note        P(t) says the property P holds of t. It is not a function applied
+              to an argument: nothing is called, and P(t) is the property with
+              t written into it, which is why its target is substitution rather
+              than cfv. The two readings of `_(_)` are told apart by the sort
+              of the first hole, as f(x) and k(k + 1) already are.
+
+              The braces introduce the name: in {t ∈ X : P(t)} the notation
+              binds t over the condition, so a `let` line above the statement
+              says what P is a property of and never mentions t, which does not
+              exist until the braces open.
 
 notation closed-interval
   pattern     [_, _]

@@ -23,6 +23,7 @@ LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
 KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
+PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+\S+$')
 DEFINE = re.compile(r'^define\s+(\S+)\s*:=\s*(.+)$')
 SENTENCE = re.compile(r'(?<=[.])\s+')
 
@@ -37,6 +38,9 @@ def _from_introduction(body):
     m = KIND.match(body)
     if m:
         return m.group(1), m.group(2)
+    m = PROPERTY.match(body)
+    if m:
+        return m.group(1), 'property'
     m = FUNCTION.match(body)
     if m:
         return m.group(1), 'function'

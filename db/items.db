@@ -66,15 +66,15 @@ definition subset
 
 definition set-builder
   let X be a set                                                      (H1)
-  let P : X → formula                                                 (H2)
+  let P be a property of the elements of X                            (H2)
   then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)
   metamath    rabid, elrab
   first-used  bezout
-  note        P is the predicate the braces select by, and its line is what
-              makes P(t) an application rather than a product: the two are
-              written alike and the sort of the first hole separates them.
-              A predicate is a function into a formula, which is how Coq and
-              Lean write the same thing.
+  note        P(t) says the property holds of t. The line above says what P is
+              a property of and never mentions t, because the braces are what
+              introduce t: it does not exist until they open. See the
+              `holds-of` notation for why this is not a function applied to an
+              argument.
 
 definition set-image
   let Y be a set                                                      (H1)
@@ -89,7 +89,7 @@ definition set-image
 
 theorem set-builder-subset
   let X be a set                                                      (H1)
-  let P : X → formula                                                 (H2)
+  let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
   first-used  bezout

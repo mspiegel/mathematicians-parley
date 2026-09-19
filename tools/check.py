@@ -187,6 +187,8 @@ def check_database(report, records):
 
 
 TERM_SORTS = {'number', 'set', 'point', 'any'}
+SORT_NAMES = {'number', 'set', 'point', 'formula', 'function', 'property',
+              'variable', 'any'}
 
 
 def check_notation(report, records):
@@ -701,6 +703,12 @@ def check_statements(report, records, g):
         if r.kind not in ('definition', 'theorem'):
             continue
         g.sorts = sorts_of_record(r)
+        for kind, text, _, no in r.hypotheses:
+            if kind != 'let':
+                continue
+            said = introduction_problem(LABEL_AT_END.sub('', text).strip())
+            if said:
+                report.say(r.path, no, f'{r.kind} {r.name}: {said}')
         places = [(text, no) for kind, text, _, no in r.hypotheses
                   if kind == 'assume']
         places += list(r.conclusions)
@@ -779,6 +787,8 @@ INTRODUCTIONS = (
     ('an arbitrary set',        re.compile(r'^\S+\s+be a set$')),
     ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
     ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
+    ('a property',              re.compile(r'^\S+\s+be a property of the '
+                                           r'elements of\s+\S+$')),
 )
 
 
@@ -802,6 +812,23 @@ def check_readings(report, thm):
                        f'block; a note says what a block is doing')
 
 
+def introduction_problem(body):
+    """What is wrong with a `let` body, or None. Used for a proof's lines and
+    for an item's alike, since an item states its hypotheses the same way."""
+    if not any(p.match(body) for _, p in INTRODUCTIONS):
+        return (f'`let {body[:40]}` is none of the five introductions: '
+                f'{", ".join(n for n, _ in INTRODUCTIONS)}')
+    # A function's codomain is a set. A sort is a label for what kind of thing
+    # a name is, and there is no set of formulas to map into: writing one there
+    # says a property is a function, which it is not.
+    arrow = re.match(r'^\S+\s*:\s*.+→\s*(\S+)$', body)
+    if arrow and arrow.group(1) in SORT_NAMES:
+        return (f'`let {body[:40]}` sends a function into {arrow.group(1)!r}, '
+                f'which is a sort and not a set; a property is introduced '
+                f'with `be a property of the elements of`')
+    return None
+
+
 def check_introductions(report, thm):
     """A `let` line carries an introduction, not a formula. It names something
     and says what it is, asserting nothing, and there are exactly four forms.
@@ -814,10 +841,9 @@ def check_introductions(report, thm):
             continue
         body = re.sub(r'^\s*let\s+', '', text)
         body = re.sub(r'\s*\([A-Z]+[0-9]*\)\s*$', '', body).strip()
-        if not any(p.match(body) for _, p in INTRODUCTIONS):
-            report.say(thm.path, no,
-                       f'`let {body[:40]}` is none of the four introductions: '
-                       f'{", ".join(n for n, _ in INTRODUCTIONS)}')
+        said = introduction_problem(body)
+        if said:
+            report.say(thm.path, no, said)
 
 
 def check_last_step(report, thm):
