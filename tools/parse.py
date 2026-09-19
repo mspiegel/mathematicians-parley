@@ -79,7 +79,7 @@ class Record:
     path: str = ''
 
 
-RECORD_KINDS = ('notation', 'method', 'definition', 'theorem')
+RECORD_KINDS = ('notation', 'method', 'definition', 'theorem', 'precedence')
 
 
 def parse_database(path, text):

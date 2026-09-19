@@ -1,19 +1,68 @@
 # Notation
 #
-# One record per symbol or symbol family. Every symbol a claim may use is
-# declared here. Format is described in DATABASE.md.
+# Every symbol and word-phrase a claim may use is declared here. `GRAMMAR.md`
+# describes the skeleton, the text around a formula; this file describes what a
+# formula may contain.
 #
-#   writes      the symbol as it appears in a claim
-#   reads       how a viewer says it in words
-#   metamath    the set.mm syntax constructors the elaborator targets
-#   first-used  the pilot that introduced it
-#   note        anything a reader or an implementer needs
+# There are two shapes and no others. A **mixfix pattern** is a sequence of
+# literal tokens and holes, written with `_` for each hole; prefix, infix,
+# postfix, enclosing, application and the word predicates are all this one
+# shape with the tokens in different places. **Juxtaposition** is the shape
+# with no token at all, as in 2k and |CA|. A binder is a mixfix pattern with a
+# hole marked as binding, which is what Agda, Coq, Isabelle and Lean all do.
+#
+#   pattern     the pattern, with _ for each hole. A record may carry several
+#               patterns when they differ only in symbol and set.mm target;
+#               the metamath list then matches the pattern list in order.
+#   holes       the kind each hole takes, in order. The kinds are number, set,
+#               point, formula, function, variable, and any. `none` if the
+#               pattern has no hole.
+#   yields      the kind the pattern produces.
+#   level       its precedence level, from the order declared below.
+#   assoc       left or right. Required exactly when both edges are holes and
+#               `yields` fits those holes, so the pattern can nest in itself;
+#               absent otherwise, since a token at an edge or a kind mismatch
+#               already settles the reading.
+#   binds       for a binder, which hole introduces the variable and which
+#               hole it scopes over.
+#   reads       how a viewer says it in words.
+#   metamath    the set.mm syntax constructors the elaborator targets.
+#   first-used  the pilot that introduced it.
+#   note        anything a reader or an implementer needs.
 #
 # A line beginning with # is a comment. A record begins at column 0 and its
 # fields are indented.
+#
+# Kinds are what disambiguate. Three notations share the pattern |_|, and they
+# are told apart by the kind of what is inside, which is how a reader tells
+# them apart too. No rule about vertical bars appears anywhere in the grammar.
+
+precedence order
+  # Each line names a level and the levels it binds more tightly than. Levels
+  # not related here are incomparable, and a formula mixing them is rejected
+  # rather than guessed at, so the text carries a parenthesis instead. This is
+  # Fortress's rule. Where convention settles a pair, precedence settles it;
+  # where convention does not, a reader would have to know a table, and this
+  # corpus assumes no table.
+  power           tighter than multiplicative
+  multiplicative  tighter than unary-minus
+  unary-minus     tighter than additive
+  additive        tighter than relational
+  relational      tighter than negation
+  negation        tighter than conjunction, disjunction
+  conjunction     tighter than implication, biconditional
+  disjunction     tighter than implication, biconditional
+  implication     tighter than binder
+  biconditional   tighter than binder
+  note        conjunction and disjunction are deliberately unrelated, and so
+              are implication and biconditional. Nobody agrees how "and" and
+              "or" bind against each other, and no formula in the corpus mixes
+              them. If one ever does, it writes a parenthesis.
 
 notation number-systems
-  writes      ℕ  ℕ₀  ℤ  ℚ  ℝ
+  pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ
+  holes       none
+  yields      set
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals
   metamath    cn, cn0, cz, cq, cr
@@ -22,151 +71,484 @@ notation number-systems
               taught that the natural numbers begin at 0 needs this pointer to
               say so. Nothing in any text assumes either convention beyond it.
 
-notation relations
-  writes      ∈  ∉  =  ≠  <  >  ≤  ≥
-  reads       is in, is not in, equals, is not equal to, is less than,
-              is greater than, is at most, is at least
-  metamath    wcel, wnel, wceq, wne, clt, cle
+notation membership
+  pattern     _ ∈ _        _ ∉ _
+  holes       any, set
+  yields      formula
+  level       relational
+  reads       is in, is not in
+  metamath    wcel, wnel
+  first-used  sqrt2-irrational
+  note        No assoc: it yields a formula and its left hole takes a term, so
+              a ∈ b ∈ c cannot parse at all rather than parsing two ways.
+
+notation equality
+  pattern     _ = _        _ ≠ _
+  holes       any, any
+  yields      formula
+  level       relational
+  reads       equals, is not equal to
+  metamath    wceq, wne
   first-used  sqrt2-irrational
 
-notation arithmetic-operations
-  writes      +  −  ·  /  ²  ^  √
-  reads       plus, minus, times, divided by, squared, to the power,
-              the square root of
-  metamath    caddc, cmin, cmul, cdiv, cexp, csqrt
+notation order
+  pattern     _ < _        _ > _        _ ≤ _        _ ≥ _
+  holes       number, number
+  yields      formula
+  level       relational
+  reads       is less than, is greater than, is at most, is at least
+  metamath    clt, cle
   first-used  sqrt2-irrational
-  note        Binary − and the general power ^ are used by the primes, Bezout,
-              subsets, geometric series and intermediate value pilots and were
-              declared in no pilot table. Added by the merge.
 
-notation negation
-  writes      −x
-  reads       minus x
+notation additive
+  pattern     _ + _        _ − _
+  holes       number, number
+  yields      number
+  level       additive
+  assoc       left
+  reads       plus, minus
+  metamath    caddc, cmin
+  first-used  sqrt2-irrational
+  note        Left is the only defensible reading of a − b − c. No chain of
+              either operator occurs in the corpus, but the parse tree is
+              load-bearing for the literal-instance rule and for the expansion,
+              so it is declared rather than left to each elaborator.
+
+notation multiplicative
+  pattern     _ · _        _ / _
+  holes       number, number
+  yields      number
+  level       multiplicative
+  assoc       left
+  reads       times, divided by
+  metamath    cmul, cdiv
+  first-used  sqrt2-irrational
+
+notation unary-minus
+  pattern     −_
+  holes       number
+  yields      number
+  level       unary-minus
+  reads       minus
   metamath    cneg
   first-used  triangle-inequality
-  note        Unary. Distinct from binary − in arithmetic-operations, which the
-              parser will have to tell apart by position.
+  note        No assoc, because only the right edge is a hole: −−x can be read
+              one way. Written with the same character as binary minus and told
+              apart by position, not by spacing.
 
-notation logical-symbols
-  writes      ∀  ∃  ¬  ∧  ∨  →  ↔
-  reads       for every, there is, not, and, or, implies, if and only if
-  metamath    wal, wex, wn, wa, wo, wi, wb
+notation power
+  pattern     _^_
+  holes       number, number
+  yields      number
+  level       power
+  assoc       right
+  reads       to the power
+  metamath    cexp
+  first-used  subsets
+  note        Right by universal convention. No tower occurs in the corpus.
+              An exponent that is not a numeral makes the whole power an atom
+              to `algebra`; see METHODS.md.
+
+notation square
+  pattern     _²
+  holes       number
+  yields      number
+  level       power
+  reads       squared
+  metamath    cexp with the numeral 2
   first-used  sqrt2-irrational
-  note        SYNTAX.md writes ∀ ∃ ¬ ∧ ∨ as words in claims. Only → and ↔ are
-              written as symbols, and the rest appear in database statements
-              where words would be worse.
+  note        A numeral exponent, so `algebra` expands it rather than treating
+              the power as an atom.
+
+notation square-root
+  pattern     √_
+  holes       number
+  yields      number
+  level       power
+  reads       the square root of
+  metamath    csqrt
+  first-used  sqrt2-irrational
+
+notation logical-not
+  pattern     not _
+  holes       formula
+  yields      formula
+  level       negation
+  reads       not
+  metamath    wn
+  first-used  sqrt2-irrational
+  note        No assoc: only the right edge is a hole.
+
+notation conjunction
+  pattern     _ and _
+  holes       formula, formula
+  yields      formula
+  level       conjunction
+  assoc       left
+  reads       and
+  metamath    wa
+  first-used  sqrt2-irrational
+  note        Left matches set.mm's ternary conjunction, so a claim of three
+              sentences maps onto the library's own lemma. See METHODS.md.
+
+notation disjunction
+  pattern     _ or _
+  holes       formula, formula
+  yields      formula
+  level       disjunction
+  assoc       left
+  reads       or
+  metamath    wo
+  first-used  sqrt2-irrational
+
+notation implication
+  pattern     _ → _
+  holes       formula, formula
+  yields      formula
+  level       implication
+  assoc       right
+  reads       implies
+  metamath    wi
+  first-used  sqrt2-irrational
+
+notation biconditional
+  pattern     _ ↔ _
+  holes       formula, formula
+  yields      formula
+  level       biconditional
+  assoc       right
+  reads       if and only if
+  metamath    wb
+  first-used  sqrt2-irrational
+  note        ∀ and ∃ are not declared as symbols anywhere: SYNTAX.md writes
+              them as the binders below, and ¬ ∧ ∨ as words.
+
+notation conditional
+  pattern     if _ then _
+  holes       formula, formula
+  yields      formula
+  level       implication
+  reads       if, then
+  metamath    wi
+  first-used  triangle-inequality
+  note        The same connective as →, written the way a definition by cases
+              is read. Both spellings are in the corpus. Unlike → it needs no
+              assoc, because it opens with a token: `if A then if B then C`
+              has one reading where `A → B → C` has two.
 
 notation absolute-value
-  writes      |x|
-  reads       the absolute value of x
+  pattern     |_|
+  holes       number
+  yields      number
+  reads       the absolute value of
   metamath    cabs
   first-used  triangle-inequality
-  note        Collides with cardinality and with distance. See DATABASE.md.
+  note        Shares its pattern with cardinality and distance and is told
+              apart by the kind of its hole. Needs no assoc and no level: a
+              token sits at each edge.
 
 notation cardinality
-  writes      |A|
-  reads       the number of elements of A
+  pattern     |_|
+  holes       set
+  yields      number
+  reads       the number of elements of
   metamath    chash
   first-used  subsets
-  note        Collides with absolute-value and with distance. See DATABASE.md.
 
 notation distance
-  writes      |PQ|
-  reads       the distance from P to Q
+  pattern     |__|
+  holes       point, point
+  yields      number
+  reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
   first-used  isosceles
-  note        Collides with absolute-value and with cardinality. See DATABASE.md.
+  note        Its two holes are juxtaposed, with no token between them, so it
+              is the one bar notation that is also the juxtaposition shape.
+              |CA| would otherwise read as a product; the point kind is what
+              rules that out, since multiplication takes numbers.
 
 notation factorial
-  writes      n!
-  reads       n factorial
+  pattern     _!
+  holes       number
+  yields      number
+  level       power
+  reads       factorial
   metamath    cfa
   first-used  infinitely-many-primes
+  note        No assoc: only the left edge is a hole, so n!! reads one way.
 
 notation gcd
-  writes      gcd(a, b)
-  reads       the greatest common divisor of a and b
+  pattern     gcd(_, _)
+  holes       number, number
+  yields      number
+  reads       the greatest common divisor of
   metamath    cgcd
   first-used  bezout
 
 notation subset
-  writes      ⊆
+  pattern     _ ⊆ _
+  holes       set, set
+  yields      formula
+  level       relational
   reads       is a subset of
   metamath    wss
   first-used  bezout
 
-notation set-operations
-  writes      ∅  {a}  ∪  ∖  ∩
-  reads       the empty set, the set whose only element is a, union, difference,
-              intersection
-  metamath    c0, csn, cun, cdif, cin
+notation empty-set
+  pattern     ∅
+  holes       none
+  yields      set
+  reads       the empty set
+  metamath    c0
   first-used  subsets
+
+notation singleton
+  pattern     {_}
+  holes       any
+  yields      set
+  reads       the set whose only element is
+  metamath    csn
+  first-used  subsets
+
+notation set-operations
+  pattern     _ ∪ _        _ ∖ _        _ ∩ _
+  holes       set, set
+  yields      set
+  level       additive
+  assoc       left
+  reads       union, difference, intersection
+  metamath    cun, cdif, cin
+  first-used  subsets
+  note        Difference needs the assoc for the same reason subtraction does.
+              No chain of any of the three occurs in the corpus.
 
 notation powerset
-  writes      𝒫A
-  reads       the power set of A
+  pattern     𝒫_
+  holes       set
+  yields      set
+  level       power
+  reads       the power set of
   metamath    cpw
   first-used  cantor
+  note        No assoc: only the right edge is a hole.
 
 notation set-builder
-  writes      {t ∈ X : P(t)}
-  reads       the set of t in X with P(t)
+  pattern     {_ ∈ _ : _}
+  holes       variable, set, formula
+  yields      set
+  binds       hole 1 over hole 3
+  reads       the set of those in the second with the third
   metamath    crab
   first-used  bezout
-  note        Told apart from set-image by what precedes the colon. See
-              def:set-builder.
+  note        Told apart from set-image by what precedes the colon: a variable
+              and its domain here, an expression there. See def:set-builder.
 
 notation set-image
-  writes      {E(s) : s ∈ Y}
-  reads       the set of E(s) for s in Y
+  pattern     {_ : _ ∈ _}
+  holes       any, variable, set
+  yields      set
+  binds       hole 2 over hole 1
+  reads       the set of the first as the second runs over the third
   metamath    cmpt, or crab with a witness
   first-used  subsets
-  note        Told apart from set-builder by what precedes the colon. See
-              def:set-image.
+  note        The binding hole is not the first one, which is why `binds` names
+              the holes rather than assuming an order. See def:set-image.
 
-notation function
-  writes      f : A → B,  f(x)
-  reads       f is a function from A to B, f applied to x
-  metamath    wf, cfv
+notation function-type
+  pattern     _ : _ → _
+  holes       function, set, set
+  yields      formula
+  level       relational
+  reads       is a function from, to
+  metamath    wf
   first-used  cantor
-  note        The Cantor and intermediate value pilots wrote this row
-              separately, the second as "f : D → ℝ". One row.
+
+notation application
+  pattern     _(_)
+  holes       function, any
+  yields      any
+  reads       applied to
+  metamath    cfv
+  first-used  cantor
+  note        Written identically to juxtaposition-multiplication: f(x) applies
+              and k(k + 1) multiplies. The function kind of the first hole is
+              what separates them, not spacing, which the corpus does not use.
 
 notation closed-interval
-  writes      [a, b]
-  reads       the closed interval from a to b
+  pattern     [_, _]
+  holes       number, number
+  yields      set
+  reads       the closed interval from, to
   metamath    cicc
   first-used  intermediate-value
 
+notation juxtaposition
+  pattern     __
+  holes       number, number
+  yields      number
+  level       multiplicative
+  assoc       left
+  reads       times
+  metamath    cmul
+  first-used  sqrt2-irrational
+  note        The one shape with no token, covering 2k and k(k + 1). Its holes
+              are numbers, which is what keeps |CA| out of it, since C and A
+              are points. Nineteen numeral-then-name uses and three
+              name-then-parenthesis uses in the corpus.
+
 notation point
-  writes      point
+  pattern     point
+  holes       none
+  yields      kind
   reads       a point of the plane
   metamath    an element of ℂ
   first-used  isosceles
+  note        A kind name rather than a notation: it appears in `let A be a
+              point`, which is a hypothesis line, not inside a formula.
 
 notation angle
-  writes      ∠PQR
-  reads       the angle at Q from P to R
+  pattern     ∠___
+  holes       point, point, point
+  yields      number
+  reads       the angle at the second from the first to the third
   metamath    ( ( P − Q ) F ( R − Q ) ), with F the angle function
   first-used  isosceles
-  note        set.mm's angle function is signed. See def:angle.
+  note        Three juxtaposed holes after a token. set.mm's angle function is
+              signed. See def:angle.
 
 notation congruent
-  writes      triangle PQR ≅ triangle P′Q′R′
-  reads       triangle PQR is congruent to triangle P′Q′R′
+  pattern     triangle ___ ≅ triangle ___
+  holes       point, point, point, point, point, point
+  yields      formula
+  level       relational
+  reads       is congruent to
   metamath    none
   first-used  isosceles
 
 notation sum-function
-  writes      S(n)
-  reads       the sum of the first n natural numbers
+  pattern     S(_)
+  holes       number
+  yields      number
+  reads       the sum of the first natural numbers up to
   metamath    Σ k ∈ (1...n) k
   first-used  sum-formula
   note        Introduced by def:S, which is local to the sum-formula pilot.
 
 notation geometric-function
-  writes      G(n)
-  reads       the sum of the first n + 1 powers of a
+  pattern     G(_)
+  holes       number
+  yields      number
+  reads       the sum of the powers of a up to
   metamath    Σ k ∈ (0...n) a^k
   first-used  geometric-series
   note        Introduced by def:G, which is local to the geometric-series pilot.
+
+
+# Binders. A hole marked by `binds` introduces a variable that scopes over
+# another hole. SYNTAX.md writes these as words rather than as ∀ and ∃.
+
+notation for-every
+  pattern     for every _ ∈ _, _
+  holes       variable, set, formula
+  yields      formula
+  level       binder
+  binds       hole 1 over hole 3
+  reads       for every
+  metamath    wral
+  first-used  sum-formula
+  note        No assoc: the pattern opens with a token, so a nested binder
+              announces itself and there is one reading.
+
+notation there-is
+  pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
+  holes       variable, set, formula
+  yields      formula
+  level       binder
+  binds       hole 1 over hole 3
+  reads       there is, there is no
+  metamath    wrex, and wrex under wn
+  first-used  sqrt2-irrational
+
+
+# Word predicates. Each is introduced by a definition, which is what makes the
+# closed set of shapes matter: adding one is a record here and a definition
+# there, never a change to the parser.
+
+notation divides
+  pattern     _ divides _
+  holes       number, number
+  yields      formula
+  level       relational
+  reads       divides
+  metamath    wbr with cdvds
+  first-used  sqrt2-irrational
+  note        Seventeen uses, the commonest word predicate. See def:divides.
+
+notation parity
+  pattern     _ is even        _ is odd        _ is not odd
+  holes       number
+  yields      formula
+  level       relational
+  reads       is even, is odd, is not odd
+  metamath    2 ∥ n and its negation
+  first-used  sqrt2-irrational
+  note        "is not odd" is listed as its own pattern rather than built from
+              `not`, because the corpus writes the word inside the phrase. That
+              is a notational choice SYNTAX.md does not yet state.
+
+notation prime
+  pattern     _ is prime
+  holes       number
+  yields      formula
+  level       relational
+  reads       is prime
+  metamath    wcel with cprime
+  first-used  infinitely-many-primes
+
+notation irrational
+  pattern     _ is irrational
+  holes       number
+  yields      formula
+  level       relational
+  reads       is irrational
+  metamath    wcel with ℝ ∖ ℚ
+  first-used  sqrt2-irrational
+
+notation bound
+  pattern     _ is an upper bound of _        _ is a least upper bound of _
+  holes       number, set
+  yields      formula
+  level       relational
+  reads       is an upper bound of, is a least upper bound of
+  metamath    see def:upper-bound and def:least-upper-bound
+  first-used  intermediate-value
+
+notation continuous
+  pattern     _ is continuous on _
+  holes       function, set
+  yields      formula
+  level       relational
+  reads       is continuous on
+  metamath    ccncf
+  first-used  intermediate-value
+
+notation forms-a-triangle
+  pattern     _, _, _ form a triangle
+  holes       point, point, point
+  yields      formula
+  level       relational
+  reads       form a triangle
+  metamath    none; see def:triangle
+  first-used  isosceles
+
+notation bijection
+  pattern     there is a bijection from _ to _
+  holes       set, set
+  yields      formula
+  level       relational
+  reads       there is a bijection from, to
+  metamath    wbr with cen
+  first-used  subsets
+  note        Not a binder despite the "there is": it names no variable, and
+              the subsets pilot records that the language has no way to name a
+              function built on the spot.

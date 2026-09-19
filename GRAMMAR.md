@@ -199,7 +199,7 @@ a parsed justification, never by pattern.
 
 ```
 <record> ::= <kind> <name> { <field> }
-<kind>   ::= `notation` | `method` | `definition` | `theorem`
+<kind>   ::= `notation` | `method` | `definition` | `theorem` | `precedence`
 <field>  ::= <field name> <value>
 ```
 

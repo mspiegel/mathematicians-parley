@@ -163,6 +163,48 @@ def check_database(report, records):
                                f'not a part marker')
 
 
+TERM_KINDS = {'number', 'set', 'point', 'any'}
+
+
+def check_notation(report, records):
+    """A notation record declares a pattern, the kind of each hole, and what it
+    yields. Two things follow mechanically and are checked here."""
+    for r in records:
+        if r.kind != 'notation':
+            continue
+        raw = r.fields.get('pattern')
+        if not raw:
+            report.say(r.path, r.line, f'notation {r.name} declares no pattern')
+            continue
+        patterns = re.split(r'\s{2,}', raw.strip())
+        holes = [h.strip() for h in r.fields.get('holes', '').split(',') if h.strip()]
+        yields = r.fields.get('yields', '').strip()
+
+        # Every pattern of one record takes the same holes, so they must agree
+        # on how many there are.
+        counts = {p.count('_') for p in patterns}
+        want = 0 if holes == ['none'] else len(holes)
+        if counts != {want}:
+            report.say(r.path, r.line,
+                       f'notation {r.name} declares {want} hole(s) but its '
+                       f'pattern(s) have {sorted(counts)}')
+
+        # Associativity is needed exactly when the pattern can nest in itself:
+        # both edges are holes, and what it yields fits those holes.
+        for p in patterns:
+            edges = p.startswith('_') and p.endswith('_')
+            nests = yields in holes or (yields in TERM_KINDS and 'any' in holes)
+            if edges and nests and 'assoc' not in r.fields:
+                report.say(r.path, r.line,
+                           f'notation {r.name} has a hole at each edge and '
+                           f'yields {yields}, so {p!r} can nest in itself and '
+                           f'is ambiguous without an assoc')
+            if not (edges and nests) and 'assoc' in r.fields:
+                report.say(r.path, r.line,
+                           f'notation {r.name} declares an assoc it does not '
+                           f'need: {p!r} cannot nest in itself')
+
+
 def check_justification_form(report, path, just):
     if not any(re.match(p, just.text) for p in PRODUCTIONS.values()):
         report.say(path, just.line,
@@ -381,6 +423,7 @@ def main(root):
     allowed.update(IDENTIFIER_CHARACTERS)
 
     check_database(report, records)
+    check_notation(report, records)
 
     theorems = []
     for path in proof_files:
