@@ -31,11 +31,29 @@ language and whatever formal representation we choose.
 Three counts are easy to confuse:
 
 1. steps a human writes or reads
-2. steps stored in the database
-3. steps the kernel checks after expansion to the axioms
+2. steps stored in the database, which are also the steps a verifier checks
+3. steps a proof would have if every cited theorem were inlined down to the
+   axioms
 
-Only the first is the target. The kernel-checked steps can stay as large and
-unreadable as they like.
+Only the first is the target. The stored steps can stay as large and unreadable
+as they like.
+
+The second and third are not two measurements of one thing. A verifier checks
+the stored steps and nothing more. Its inner loop looks up a label's mandatory
+hypotheses, pops that many results off a stack, unifies them to find a
+substitution, checks the disjointness conditions, and pushes the conclusion
+with the substitution applied. It does not care whether the label names an
+axiom or a theorem proved earlier in the file, and both cost one unification.
+To the kernel a proven theorem is indistinguishable from an axiom; the only
+difference is that the theorem was itself checked, once, further up the file.
+Soundness is an induction over the file rather than a property of an expanded
+proof.
+
+So the third count measures an object nothing constructs. It is worth knowing
+only because it says what the readable layer must not do: a method's expansion
+has to emit citations of library theorems, exactly as a stored proof does. An
+expansion that inlined its way to the axioms would be unusable, and the figures
+below are how unusable.
 
 Measurements on the current set.mm (September 2026, 47,812 theorems analysed):
 
@@ -48,7 +66,9 @@ Measurements on the current set.mm (September 2026, 47,812 theorems analysed):
 About 80% of stored steps are syntax steps. The median theorem has fifteen
 logical steps, so step count in the stored form is not the readability problem.
 
-Fully expanded to axioms, with every repeated subproof shared:
+The third count, for three small theorems. Every cited theorem is inlined down
+to the axioms, with repeated subproofs shared so that the figure is a count of
+distinct subproofs rather than of tree nodes. No verifier does this:
 
 | theorem | stored | essential stored | distinct subproofs after expansion |
 |---|---|---|---|
