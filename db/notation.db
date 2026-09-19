@@ -197,6 +197,29 @@ notation conjunction
   note        Left matches set.mm's ternary conjunction, so a claim of three
               sentences maps onto the library's own lemma. See METHODS.md.
 
+notation comma-conjunction
+  pattern     _, _        _, and _
+  holes       formula, formula
+  yields      formula
+  level       conjunction
+  assoc       left
+  reads       and
+  metamath    wa, and nested wa for a longer list
+  first-used  sqrt2-irrational
+  note        The comma list SYNTAX.md describes, used where a run of "and"s
+              reads badly, as it does inside a "there is ... with ..." phrase.
+              Two patterns reach every length: the comma form builds the list
+              and the comma-and form closes it, so the six clauses of
+              def:congruent need no six-hole pattern. Both are left, matching
+              the plain "and" and set.mm's ternary conjunction.
+
+              The two patterns are one notation, so the final "and" is layout:
+              it builds the same tree the commas alone would, and a list
+              written without it is the same formula rather than a second
+              spelling of it. The comma stays available as a delimiter inside a
+              pattern, as gcd(_, _) and the triangle use it, because an
+              interior hole stops at the literal that follows it.
+
 notation disjunction
   pattern     _ or _
   holes       formula, formula

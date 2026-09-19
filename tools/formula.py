@@ -326,7 +326,21 @@ class _Parser:
             cands.append(n)
         if not cands:
             return None
-        return self.apply(cands, left)
+        # An extension is optional, so a candidate that cannot match ends the
+        # expression rather than failing it. The sorts only narrow the
+        # candidates and a value of unknown sort fits every hole, so a pattern
+        # is regularly reached here that the tokens then rule out: `p` in
+        # `d divides p, and ...` is a candidate first point of a triangle, and
+        # without this the comma would fail the sentence it merely ends a
+        # clause of.
+        start = self.i
+        try:
+            return self.apply(cands, left)
+        except Ambiguous:
+            raise
+        except Problem:
+            self.i = start
+            return None
 
     def apply(self, cands, left):
         """Try each candidate. Exactly one must parse, or the text is either

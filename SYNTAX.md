@@ -200,8 +200,11 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 
 - "and", "or" and "not" are written as words, never as ∧ ∨ ¬.
 - "there is x ∈ S with ..." is written for ∃, and "there is no x ∈ S with
-  ..." for ¬∃. Inside such a phrase, clauses are joined with commas and a
-  final "and".
+  ..." for ¬∃, both in full: a phrase after "and" repeats the "there is"
+  rather than eliding it. Inside such a phrase, clauses are joined with commas
+  and a final "and". The comma list is the declared notation
+  `comma-conjunction`, which is the same connective as "and" and builds the
+  same tree, so the final "and" is layout and carries no meaning of its own.
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or

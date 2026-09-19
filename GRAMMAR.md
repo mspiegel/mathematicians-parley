@@ -243,7 +243,7 @@ and accept that whitespace then matters at a sentence boundary, which would be
 its second load-bearing use after the chain line; and only if that hurts, change
 the sentence separator, which is ours to choose where the decimal point is not.
 The comma is the continental convention but is already a separator here in five
-places, and the middle dot is multiplication.
+places and a connective in a sixth, and the middle dot is multiplication.
 
 ## Where two names run together
 
@@ -310,8 +310,10 @@ A pattern is a candidate at a position when its leading token matches, a hole
 being a token that matches anything. Three things then narrow the candidates, in
 this order:
 
-1. **The literal tokens.** Most patterns are settled here alone. 63 of the 64
-   declared patterns have no competitor.
+1. **The literal tokens.** Most patterns are settled here alone. Of the 68
+   declared patterns exactly one shape is shared outright, `|_|`; 17 open the
+   same way as some other pattern and are separated by a token further along,
+   as `_, _` and `_, and _` are.
 2. **The sorts of the holes.** This decides the one overloaded pattern, `|_|`,
    between absolute value, cardinality and distance.
 3. **Nothing else.** Where two candidates survive, the formula is ambiguous and
@@ -319,6 +321,12 @@ this order:
 
 Once a pattern is chosen its holes are checked against their declared sorts, a
 value of no known sort fitting any hole.
+
+Continuing an expression is optional, so a pattern that the sorts admit and the
+tokens then rule out ends the expression instead of failing the sentence. This
+matters because a value of no known sort fits every hole: in `d divides p, and
+d divides q` the name `p` is an admissible first point of a triangle, and the
+comma after it must be free to end the clause it belongs to.
 
 ### Precedence and nesting
 
@@ -330,8 +338,8 @@ conjunction against disjunction is the case that exists, and no formula in the
 corpus writes it.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
-says which way. Nine of the 64 patterns are in that position and the checker
-enforces that exactly those nine declare one.
+says which way. Fifteen of the 68 patterns are in that position, across ten
+records, and the checker enforces that exactly those ten declare one.
 
 ### What a parser needs besides this
 

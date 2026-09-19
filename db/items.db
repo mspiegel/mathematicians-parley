@@ -271,8 +271,8 @@ theorem nonneg-or-neg
 
 theorem lowest-terms
   let x ∈ ℚ                                                           (H1)
-  then        there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q, and no d ∈ ℤ with
-              d > 1, d divides p, and d divides q
+  then        there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q, and there is no
+              d ∈ ℤ with d > 1, d divides p, and d divides q
   metamath    qredeu or similar
   first-used  sqrt2-irrational
 
