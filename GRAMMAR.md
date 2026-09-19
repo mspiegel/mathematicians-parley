@@ -145,6 +145,35 @@ the letters `and` could be a product of `a`, `n` and `d`, all three of which
 are variables here, and nothing reading left to right could tell that from the
 connective.
 
+## Reading a run of digits
+
+A numeral is a maximal run of digits, so `10` is one token and never a `1`
+juxtaposed with a `0`. That matters because a numeral juxtaposed with a name is
+how `2k` works, and the two shapes would otherwise compete.
+
+**A decimal point is not written.** A fraction is written as a fraction, `1/2`
+rather than `0.5`. The corpus uses four numerals in total, `0`, `1`, `2` and
+`4`, none of them multi-digit and none with a point, so this costs nothing
+today. set.mm is the precedent: its decimal constructor builds decimal
+*integers* and the library has no decimal-point notation at all, writing
+fractions with division. Pure mathematics does the same.
+
+The case that looks like a counterexample is not one. Your selection table
+notes that Hammack proves ℝ uncountable using decimals, but the diagonal
+argument needs a decimal *expansion*, a function from an index to a digit, and
+no literal notation would help write it. set.mm's divisibility-by-three rule is
+the same shape, stated for digit sequences as sums.
+
+Keeping the point free also keeps it available to end a sentence. Were decimals
+ever genuinely needed, the order to try things in is: keep the period for both
+and accept that whitespace then matters at a sentence boundary, which would be
+its second load-bearing use after the chain line; and only if that hurts, change
+the sentence separator, which is ours to choose where the decimal point is not.
+The comma is the continental convention but is already a separator here in five
+places, and the middle dot is multiplication.
+
+## Where two names run together
+
 Two notations put holes side by side with no token between them: distance
 writes `|CA|` and the angle writes `∠PQR`. The names filling them run together
 in the text, so they could spell a declared word. Points are capitals
@@ -210,10 +239,13 @@ declared none of them matched anything.
 <claim> ::= <formula> { <formula> }
 ```
 
-Several formulas mean their conjunction. The claim runs from the step number
-until the first line whose first token is a justification head, which is why a
-claim may not begin with one of those fifteen tokens. No claim in the corpus
-does, and a parser rejects one that would.
+Several formulas mean their conjunction, and **a period followed by whitespace,
+or ending the claim, separates them**. Twenty-nine of the corpus's 280 claims
+are more than one formula, and all 96 periods inside a claim are separators.
+
+The claim runs from the step number until the first line whose first token is a
+justification head, which is why a claim may not begin with one of those fifteen
+tokens. No claim in the corpus does, and a parser rejects one that would.
 
 A step numbered `p.n` belongs to the block of the step numbered `p`.
 
