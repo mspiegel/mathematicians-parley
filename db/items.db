@@ -617,12 +617,27 @@ definition angle
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.
 
-definition triangle
-  then        P, Q, R form a triangle ↔ P, Q, R are points, no two equal, and
-              not on one line
-  open        set.mm has no single notion; P ≠ Q and Q ≠ R and P ≠ R, plus
-              non-collinearity
+definition collinear
+  open        Incidence is a primitive of the geometry and set.mm has no single
+              notion for it. In the complex plane it says (R − P)/(Q − P) ∈ ℝ,
+              which is a statement about ℂ and not about points, so it waits on
+              def:point.
   first-used  isosceles
+  note        Named by the merge because def:triangle needs a word for what a
+              triangle's vertices are not.
+
+definition triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
+              not P, Q, R are collinear
+  open        set.mm has no single notion. The three inequalities are stated
+              here and the rest is def:collinear, which is open.
+  first-used  isosceles
+  note        That the three are points is the three let lines, not a clause of
+              the statement; the pilot's row wrote it as prose and the sorts
+              carry it.
 
 definition congruent
   let P be a point                                                    (H1)

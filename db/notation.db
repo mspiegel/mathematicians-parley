@@ -652,6 +652,20 @@ notation continuous
   metamath    ccncf
   first-used  intermediate-value
 
+notation collinear
+  pattern     _, _, _ are collinear
+  holes       point, point, point
+  yields      formula
+  level       relational
+  reads       are collinear
+  metamath    none; see def:collinear
+  note        Three points on one line, which def:triangle needs to say that a
+              triangle's are not. Its definition is open, as def:angle is while
+              the ∠ notation stands declared: incidence is a primitive of the
+              geometry, and what it means in set.mm's plane is the same
+              question def:point leaves open.
+  first-used  isosceles
+
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
   holes       point, point, point

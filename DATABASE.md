@@ -41,14 +41,14 @@ comes from:
 |---|---|---|
 | `proved-in` | a proof file in this corpus proves it | 14 |
 | `metamath` | a set.mm label or labels supply it | 60 |
-| `open` | neither; it is cited but unproved and unbridged | 13 |
+| `open` | neither; it is cited but unproved and unbridged | 14 |
 
 An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
-The corpus holds 95 items, 26 definitions and 69 theorems, 53 notation records
-declaring 71 patterns, and 14 methods. The ten proofs make 181 citations to 73
+The corpus holds 96 items, 27 definitions and 69 theorems, 54 notation records
+declaring 72 patterns, and 14 methods. The ten proofs make 181 citations to 73
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
@@ -167,14 +167,14 @@ repaired.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
 
-## Thirteen open items
+## Fourteen open items
 
-`def:angle`, `def:congruent`, `def:function`, `def:point`, `def:triangle`,
-`thm:add-element-bijection`, `thm:angle-symmetric`, `thm:point-right`,
-`thm:powerset-split`, `thm:powerset-split-disjoint`, `thm:side-angle-side`,
-`thm:triangle-swap`, `thm:triangle-rotate`.
+`def:angle`, `def:collinear`, `def:congruent`, `def:function`, `def:point`,
+`def:triangle`, `thm:add-element-bijection`, `thm:angle-symmetric`,
+`thm:point-right`, `thm:powerset-split`, `thm:powerset-split-disjoint`,
+`thm:side-angle-side`, `thm:triangle-swap`, `thm:triangle-rotate`.
 
-Eight of the thirteen are geometry, which is what the isosceles pilot predicted:
+Nine of the fourteen are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
 subsets pilot leaned on. One is the lemma the intermediate value pilot needs
 only because the language has no `min`.
