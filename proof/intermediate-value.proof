@@ -17,7 +17,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     requires a ≤ b: inequalities, from H3
 
 2.  a ∈ S
-    def:set-builder x := a, from 1, H6
+    def:set-builder u := a, from 1, H6
 
 3.  S ⊆ [a, b]
     thm:set-builder-subset, from D1
@@ -169,7 +169,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires |f(x₁) − f(c)| ∈ ℝ: thm:abs-real x := f(x₁) − f(c), from 17.14
 
     17.17. x₁ ∈ S
-           def:set-builder x := x₁, from 17.8, 17.16
+           def:set-builder u := x₁, from 17.8, 17.16
 
     17.18. x₁ ≤ c
            instantiate s := x₁ in line 10, from 17.17

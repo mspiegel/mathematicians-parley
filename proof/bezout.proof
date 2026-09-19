@@ -83,7 +83,7 @@ theorem bezout
   let b ∈ ℕ                                                           (H2)
   then there are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b)
 
-define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}   (D1)
+define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}   (D1)
        reads the positive whole numbers that a and b can be combined into
 
 1.  a = a·1 + b·0
@@ -92,7 +92,7 @@ define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}
     requires b ∈ ℝ: thm:nat-real, from H2
 
 2.  a ∈ S
-    def:set-builder t := a, from H1, 1
+    def:set-builder u := a, from H1, 1
     requires 1 ∈ ℤ: arithmetic
     requires 0 ∈ ℤ: arithmetic
 
@@ -111,8 +111,8 @@ define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}
 7.  d ∈ ℕ
     instantiate t := d in line 6, from 5
 
-8.  There are x ∈ ℤ and y ∈ ℤ with d = a·x + b·y.
-    def:set-builder t := d, from 5
+8.  There are m ∈ ℤ and n ∈ ℤ with d = a·m + b·n.
+    def:set-builder u := d, from 5
 
 9.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
     obtain x₀, y₀ from line 8
@@ -125,7 +125,7 @@ define S := {t ∈ ℕ : there are x ∈ ℤ and y ∈ ℤ with t = a·x + b·y}
     assume a·x + b·y ∈ ℕ                                              (K3)
 
     10.1. a·x + b·y ∈ S
-          def:set-builder t := a·x + b·y, from K3
+          def:set-builder u := a·x + b·y, from K3
 
     10.2. d ≤ a·x + b·y
           instantiate s := a·x + b·y in line 5, from 10.1

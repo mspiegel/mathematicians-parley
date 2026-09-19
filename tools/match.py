@@ -49,7 +49,58 @@ def split_commas(text):
     return [p for p in out if p.strip()]
 
 
-def match(pattern, ground, binding, variables):
+# What a property stands for: a formula with one name marked as its hole. This
+# notation is never parsed from anything; it exists only inside a binding.
+PROPERTY = 'property-of'
+
+
+def binding_context(notations):
+    """Which notations bind a variable, and which apply a property.
+
+    Both are read from the declarations: a binder is a notation with a `binds`
+    line, and a property application is one whose first hole takes a property.
+    Nothing here is known by name."""
+    binders, props = {}, set()
+    for n in notations:
+        if n.holes and n.holes[0] == 'property':
+            props.add(n.stands_under or n.name)
+        if not n.binds:
+            continue
+        holes = [int(x) - 1 for x in re.findall(r'hole[s]?\s+(\d+)', n.binds)]
+        over = re.search(r'over\s+holes?\s+(\d+)(?:\s+and\s+(\d+))?', n.binds)
+        if holes and over:
+            body = [int(g) - 1 for g in over.groups() if g]
+            binders[n.stands_under or n.name] = (holes[0], body)
+    return binders, props
+
+
+def binding_sites(pattern, binders, props, bound=(), out=None):
+    """The occurrences of a property that may decide what it stands for.
+
+    Only one may: the occurrence inside the braces, applied to the very
+    variable the braces bind. There the answer is forced, because a property is
+    introduced before the braces open and so cannot mention what they bind, and
+    every occurrence of that variable in the condition must therefore be the
+    hole. An occurrence outside is applied to an ordinary name the property is
+    allowed to mention, where several readings would fit, so it is checked
+    against what the inside one decided and never allowed to decide."""
+    out = set() if out is None else out
+    if (pattern.notation in props and len(pattern.children) == 2
+            and pattern.children[1].notation == 'name'
+            and pattern.children[1].text in bound):
+        out.add(id(pattern))
+    shape = binders.get(pattern.notation)
+    for i, child in enumerate(pattern.children):
+        inner = bound
+        if shape and i in shape[1]:
+            var = pattern.children[shape[0]]
+            if var.notation == 'name':
+                inner = (*bound, var.text)
+        binding_sites(child, binders, props, inner, out)
+    return out
+
+
+def match(pattern, ground, binding, variables, props=(), sites=frozenset()):
     """Bind the pattern's variables so that it becomes the ground tree.
 
     Returns the binding, or None. The binding is not modified on failure."""
@@ -60,15 +111,37 @@ def match(pattern, ground, binding, variables):
         out = dict(binding)
         out[pattern.text] = ground
         return out
+    if (pattern.notation in props and len(pattern.children) == 2
+            and pattern.children[0].notation == 'name'
+            and pattern.children[0].text in variables):
+        return _property(pattern, ground, binding, sites)
     if pattern.notation != ground.notation or pattern.text != ground.text:
         return None
     if len(pattern.children) != len(ground.children):
         return None
     for a, b in zip(pattern.children, ground.children, strict=True):
-        binding = match(a, b, binding, variables)
+        binding = match(a, b, binding, variables, props, sites)
         if binding is None:
             return None
     return binding
+
+
+def _property(pattern, ground, binding, sites):
+    """P applied to something, where P is one of the pattern's variables."""
+    name, arg = pattern.children[0].text, pattern.children[1]
+    if arg.notation == 'name' and arg.text in binding:
+        arg = binding[arg.text]
+    if name not in binding:
+        if id(pattern) not in sites or arg.notation != 'name':
+            return None                 # only the inside occurrence decides
+        out = dict(binding)
+        out[name] = Node(PROPERTY, 'property', [ground], arg.text)
+        return out
+    stands = binding[name]
+    if stands.notation != PROPERTY:
+        return None
+    filled = substitute(stands.children[0], {stands.text: arg})
+    return binding if filled.shape() == ground.shape() else None
 
 
 def names(node):

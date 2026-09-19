@@ -67,7 +67,7 @@ definition subset
 definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
-  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)
+  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
   metamath    rabid, elrab
   first-used  bezout
   note        P(t) says the property holds of t. The line above says what P is
@@ -75,6 +75,13 @@ definition set-builder
               introduce t: it does not exist until they open. See the
               `holds-of` notation for why this is not a function applied to an
               argument.
+
+              The element is u and the braces bind t, as def:set-image writes
+              them. Both were t until the conclusion check went in, and a
+              statement that uses one letter for a free name and for the name
+              the braces bind cannot be matched against a use of it: the free
+              one binds to the element and the bound one then has to be the
+              element too.
 
 definition set-image
   let Y be a set                                                      (H1)
