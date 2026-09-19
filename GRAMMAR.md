@@ -88,6 +88,39 @@ the failure is a refused proof rather than a misread one. Today's checker cannot
 see it, since it treats a claim as opaque text, and it belongs on the formula
 parser's list.
 
+### What flat kinds cost in set theory
+
+set.mm is ZF, so a number *is* a set: 0 is the empty set, 2 is {∅, {∅}}, and ℕ
+is the set of finite von Neumann ordinals. The rule above gives a name the kind
+`number` as soon as it sees `n ∈ ℕ`, and a number is not a set here. So these
+cannot be written:
+
+| statement | why |
+|---|---|
+| `\|n\| = n` for a natural n | the bars read as absolute value, not cardinality |
+| `n ⊆ m` | subset takes two sets and n is a number |
+| `x ∈ n` | membership's right hole takes a set |
+| `2 = {∅, {∅}}` | the two sides have different kinds |
+
+Most set theory is unaffected, because it does not use the encoding. Cantor's
+theorem already works, saying `let A be a set` and never asking what is inside.
+Schröder–Bernstein is injections between sets. The countability of ℚ is a
+bijection between two things declared as sets, with arithmetic happening where
+their elements are numbers. The uncountability of ℝ is numbers throughout. What
+is lost is theorems whose content *is* the encoding: cardinal arithmetic,
+ordinal arithmetic, and anything unfolding what a number is made of.
+
+That loss is the policy of `READERS.md` enforced one level down. It hides class
+variables, set-existence hypotheses and the set-theoretic apparatus from the
+reader, and the primes pilot settled that ℕ ⊆ ℤ is an inclusion rather than a
+change of type. A reader with school mathematics is not meant to learn that 2 is
+a pair of nested empty sets.
+
+If such a theorem is ever wanted the fix is a database addition, not a redesign:
+declare ordinals as their own kind, or declare a coercion notation so the text
+says where the encoding is being used. That is the honest form regardless, since
+a step resting on `2 = {∅, {∅}}` should be visible as one.
+
 The second is the rule that keeps this bounded. Without it a parser would chase
 the cited item's conclusion to learn what an obtained name is, and two
 implementations chasing to different depths would parse the same formula
