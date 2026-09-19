@@ -278,6 +278,25 @@ is decidable because juxtaposition never joins two bare names. Round brackets
 are the one piece of notation the grammar owns rather than the database: they
 group, they take no sort of their own, and `(e)` parses exactly as `e` does.
 
+**A word is at least two letters, and a single letter is always a name.** Three
+declared literals are one letter: `a`, from `_, _, _ form a triangle` and
+`there is a bijection from _ to _`, and `S` and `G` naming the two sum
+functions. All three are also variables in the corpus and `a` is among the
+commonest, so longest match without this rule turns every variable `a` into the
+article, which it did to 99 sentences before the rule existed.
+
+It costs nothing, because a pattern matches a token by its text and not by the
+category the tokeniser filed it under. In `A, B, C form a triangle` the pattern
+asks for the text `a` and finds a name spelled `a`; in `S(n)` it asks for `S`
+then `(`. What the rule forbids is a notation whose only distinguishing mark is
+a lone letter with no bracket or neighbouring word to anchor it, such as a
+declared `_ x _`, which is a notation worth forbidding anyway.
+
+At the start of a sentence a declared word also matches with its first letter
+capitalised, which is how the corpus writes `For every` and `There is`, 28 times
+between them. That allowance is deliberately narrow: matching case anywhere
+would let the name `s` match the declared word `S`.
+
 ### Applying a notation
 
 ```
