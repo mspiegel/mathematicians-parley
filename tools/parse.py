@@ -86,6 +86,11 @@ def parse_database(path, text):
     """Records of db/*.db. A record begins at column 0; its fields are
     indented. `let`, `assume` and `then` lines carry an item's statement."""
     records, cur = [], None
+    # A field sits at the record's field indent. Anything indented further
+    # continues the field above it, which is how a long `note` is wrapped.
+    # Without this every wrapped line became a field named after its first
+    # word, and a record ended up with fields called `are` and `them.`.
+    field_indent, last = None, None
     for line in read_lines(path, text):
         head = line.text.split(None, 1)
         if line.indent == 0:
@@ -95,20 +100,38 @@ def parse_database(path, text):
                 raise Problem(path, line.no, 'record has no well-formed name')
             cur = Record(head[0], head[1].strip(), line=line.no, path=path)
             records.append(cur)
+            field_indent, last = None, None
             continue
         if cur is None:
             raise Problem(path, line.no, 'field outside any record')
+        if field_indent is None:
+            field_indent = line.indent
+        elif line.indent > field_indent:
+            if last is None:
+                raise Problem(path, line.no, 'continuation before any field')
+            what, key = last
+            if what == 'field':
+                cur.fields[key] = (cur.fields.get(key, '') + ' ' + line.text).strip()
+            elif what == 'hypothesis':
+                k, v, lab, no = cur.hypotheses[-1]
+                cur.hypotheses[-1] = (k, (v + ' ' + line.text).strip(), lab, no)
+            else:
+                v, no = cur.conclusions[-1]
+                cur.conclusions[-1] = ((v + ' ' + line.text).strip(), no)
+            continue
         key = head[0]
         value = head[1].strip() if len(head) > 1 else ''
         if key in ('let', 'assume'):
+            last = ('hypothesis', key)
             m = re.search(rf'\(({LABEL})\)$', line.text)
             cur.hypotheses.append((key, value, m.group(1) if m else None, line.no))
         elif key == 'then':
+            last = ('conclusion', key)
             cur.conclusions.append((value, line.no))
-        elif key in cur.fields:
-            cur.fields[key] += ' ' + value
         else:
-            cur.fields[key] = value
+            last = ('field', key)
+            cur.fields[key] = (cur.fields[key] + ' ' + value
+                               if key in cur.fields else value)
     return records
 
 

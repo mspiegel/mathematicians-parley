@@ -1,14 +1,16 @@
-# Grammar of the skeleton
+# Grammar
 
 `SYNTAX.md` says what a step must contain and why each form was chosen.
 `DATABASE.md` says where things are stored. This document says how the stored
-text is read: the line kinds, the justification forms, and the rules a parser
-applies. It is written from the ten proofs in `proof/` and the three database
-files in `db/`, and every rule below holds on all of them.
+text is read: the line kinds, the justification forms, what a formula is, and
+the rules a parser applies. It is written from the ten proofs in `proof/` and
+the three database files in `db/`, and every rule below holds on all of them.
 
-It covers the **skeleton only**. A claim is an opaque run of text here. Giving
-that text structure is a second grammar, for notation and precedence, which is
-not written and not needed to check anything in this document.
+It has two halves. The **skeleton** is the text around a formula, and its
+productions are written out here. A **formula** is not: it is parsed from the
+notations declared in `db/notation.db`, and the section on formulas says how
+those declarations become a parse rather than listing them again. Adding a
+notation is a database entry and never a change to this document.
 
 Every production below is checked against the corpus. All 246 justifications
 match a declared production, all 22 labels match their pattern, the only part
@@ -40,8 +42,9 @@ listed in the checker instead.
   `nat0-closure`. The capital is in the pattern for `def:S` and `def:G`, the
   two items that take the letter of the function they define. Every other name
   is lowercase words joined by hyphens.
-- `<term>` and `<formula>` are opaque runs of text, delimited only by the rules
-  below. The parser does not look inside them.
+- `<term>` and `<formula>` are given by the notations declared in
+  `db/notation.db`, under "Formulas" below. The skeleton rules here delimit
+  them; they do not describe what is inside.
 
 Horizontal whitespace is not significant and carries no structure. Indentation
 is presentation: steps at the same depth begin at column 10 in one file and 11
@@ -252,6 +255,71 @@ a convention of school geometry rather than a rule. Topology and differential
 geometry both name points with lowercase letters, and set.mm's plane is ℂ,
 where a point would naturally be `z` or `w`. The checker therefore rejects a
 run-together that spells a declared word instead of relying on the convention.
+
+## Formulas
+
+A formula is not parsed from productions written here. It is parsed from the
+notations declared in `db/notation.db`, so adding a notation is a database entry
+and never a change to this document. What follows is how those declarations
+become a parse.
+
+### Tokens
+
+```
+<token>   ::= <word> | <name> | <numeral> | <symbol> | `(` | `)`
+<word>    ::= a maximal run of letters that is a declared literal, longest match
+<name>    ::= a letter, then any subscripts and primes
+<numeral> ::= a maximal run of digits
+<symbol>  ::= a declared token that is neither letters nor digits
+```
+
+A run of letters is a `<word>` if one is declared and a `<name>` otherwise, which
+is decidable because juxtaposition never joins two bare names. Round brackets
+are the one piece of notation the grammar owns rather than the database: they
+group, they take no sort of their own, and `(e)` parses exactly as `e` does.
+
+### Applying a notation
+
+```
+<term>    ::= <name> | <numeral> | `(` <term> `)` | <applied>
+<formula> ::= `(` <formula> `)` | <applied>
+<applied> ::= the tokens of some declared pattern, in order, each hole filled by
+              a <term> or <formula> whose sort is the hole's declared sort
+```
+
+A pattern is a candidate at a position when its leading token matches, a hole
+being a token that matches anything. Three things then narrow the candidates, in
+this order:
+
+1. **The literal tokens.** Most patterns are settled here alone. 63 of the 64
+   declared patterns have no competitor.
+2. **The sorts of the holes.** This decides the one overloaded pattern, `|_|`,
+   between absolute value, cardinality and distance.
+3. **Nothing else.** Where two candidates survive, the formula is ambiguous and
+   the parser reports it rather than choosing. It reads correctly or it stops.
+
+Once a pattern is chosen its holes are checked against their declared sorts, a
+value of no known sort fitting any hole.
+
+### Precedence and nesting
+
+A hole is filled by the longest parse that its notation's level permits. Where
+two notations meet, the tighter level nests inside the looser, and the order
+between levels is the one `precedence order` record. Where two levels are not
+related by that record, the expression is ambiguous and needs round brackets;
+conjunction against disjunction is the case that exists, and no formula in the
+corpus writes it.
+
+A pattern with holes at both edges can nest in itself, and its declared `assoc`
+says which way. Nine of the 64 patterns are in that position and the checker
+enforces that exactly those nine declare one.
+
+### What a parser needs besides this
+
+The sort of every name, which comes from the lines described above and is never
+inferred. The declared notations, which it reads from the database. And nothing
+else: there is no table of operators in this document, and none should be added
+here, because a notation is data.
 
 ## Substitution
 
