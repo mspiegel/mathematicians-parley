@@ -496,7 +496,7 @@ theorem card-bijection
   let X be a set                                                      (H1)
   let Y be a set                                                      (H2)
   assume |X| = m                                                      (H3)
-  assume g is a bijection from X to Y                                 (H4)
+  assume there is a bijection from X to Y                             (H4)
   then        |Y| = m
   metamath    hashen
   first-used  subsets
@@ -578,8 +578,8 @@ definition least-upper-bound
 theorem completeness
   assume S ⊆ ℝ                                                        (H1)
   assume there is s ∈ S                                               (H2)
-  assume there is an upper bound of S                                 (H3)
-  then        there is c ∈ ℝ with c a least upper bound of S
+  assume there is u ∈ ℝ with u is an upper bound of S                 (H3)
+  then        there is c ∈ ℝ with c is a least upper bound of S
   metamath    sup2, ax-pre-sup
   first-used  intermediate-value
   note        In set.mm this is an axiom of the real numbers. Whether its proof

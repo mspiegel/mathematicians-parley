@@ -522,6 +522,26 @@ notation there-is
   metamath    wrex, and wrex under wn
   first-used  sqrt2-irrational
 
+notation there-is-some
+  pattern     there is _ ∈ _
+  holes       variable, set
+  yields      formula
+  level       binder
+  binds       hole 1 over nothing
+  reads       there is
+  metamath    wrex over a true body; set.mm states it as ≠ ∅
+  first-used  subsets
+  note        Nonemptiness, with a name for the element and nothing said about
+              it. Three uses: the statement of thm:card-nonempty and a
+              hypothesis each of thm:well-ordering and thm:completeness.
+
+              The name binds over nothing, which no other binder does. Writing
+              X ≠ ∅ instead would need no record and is what set.mm states, but
+              the subsets proof reads "obtain a: thm:card-nonempty", and an
+              obtain takes its name from an existence claim that names one. So
+              the conclusion has to name an element, and the two hypotheses are
+              written the same way rather than two ways.
+
 notation there-are
   pattern     there are _ ∈ _ and _ ∈ _ with _
   holes       variable, set, variable, set, formula
