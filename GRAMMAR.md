@@ -72,6 +72,24 @@ membership, so the rule costs nothing and the checker enforces it.
 The kinds are `number`, `set`, `point`, `formula`, `function`, `variable`, and
 `any`, which means any term kind and never a formula.
 
+## Substitution
+
+`SYNTAX.md` requires a claim that is an instance of a formula to be a literal
+one. Once a formula is a tree that has a precise reading: substitute the parsed
+term at every occurrence of the variable, and compare trees.
+
+Parentheses are therefore not compared. They determine the tree and then play
+no further part, so two texts that parse the same are the same instance. This
+is what lets the sum formula write `(k + 1)((k + 1) + 1)/2`, since substituting
+the characters of `k + 1` into `n(n + 1)/2` would give something that parses
+quite differently.
+
+A substitution may not capture. If the term names a variable bound where it
+lands, the step is rejected and the text carries a variable condition in words
+rather than the variable being renamed in silence. The checker enforces this
+without a formula parser, by reading the binders of the target line, and no
+substitution in the corpus comes close.
+
 ## Files
 
 ```

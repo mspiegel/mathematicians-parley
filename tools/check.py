@@ -298,6 +298,19 @@ def check_chain(report, thm, step):
             report.say(thm.path, no, 'chain line carries no relation')
 
 
+def claims_of(thm):
+    """Every line's claim, by the reference that names it."""
+    out = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
+    for _, text, lab, _ in thm.hypotheses:
+        if lab:
+            out[lab] = text
+    for s in thm.steps:
+        for _, text, lab, _, _ in s.openers:
+            if lab:
+                out[lab] = text
+    return out
+
+
 def check_citations(report, thm, items, methods, notation):
     numbers = {s.number for s in thm.steps}
     for step in thm.steps:
@@ -380,6 +393,44 @@ def check_citations(report, thm, items, methods, notation):
 
 
 OBTAIN_NAMES = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
+# `for every` and `there is` open a scope. The corpus capitalises either at the
+# start of a sentence, so this is deliberately case-insensitive.
+BINDER = re.compile(r'(?:for every|there is(?: no)?)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈',
+                    re.IGNORECASE)
+# Named VARNAME rather than NAME: `NAME` is imported from parse and is the
+# pattern for an item name, and shadowing it silently breaks every check that
+# builds a regex from it.
+VARNAME = re.compile(r'(?<![A-Za-zα-ω])([A-Za-zα-ω][₀-₉′]*)(?![A-Za-zα-ω])')
+PAIR = re.compile(r'([^\s,]+)\s*:=\s*([^,]+?)(?=,\s*[^\s,]+\s*:=|,\s*from|\s+in |$)')
+
+
+def check_capture(report, thm, claims):
+    """A substitution may not capture. If the term being substituted names a
+    variable bound where it lands, the step is rejected rather than the
+    variable quietly renamed, because renaming would make the machine do
+    something the page does not show."""
+    for s in thm.steps:
+        if not s.just or s.just.head != 'instantiate':
+            continue
+        m = re.search(r'\bin\s+(?:line\s+)?([\w.]+)', s.just.text)
+        if not m:
+            continue
+        bound = set(BINDER.findall(claims.get(m.group(1), '')))
+        if not bound:
+            continue
+        for v, value in PAIR.findall(s.just.text):
+            v, value = v.strip(), value.strip()
+            # Substituting a variable for itself changes nothing and cannot
+            # capture. A term that merely mentions the bound name does: that
+            # mention refers to an outer binding and would be swallowed.
+            if value == v:
+                continue
+            clash = set(VARNAME.findall(value)) & bound
+            if clash:
+                report.say(thm.path, s.just.line,
+                           f'step {fmt(s.number)} substitutes a term naming '
+                           f'{", ".join(sorted(clash))}, which is bound where it '
+                           f'lands; a substitution may not capture')
 
 
 def check_kinds(report, thm):
@@ -474,6 +525,7 @@ def main(root):
     for thm in theorems:
         check_last_step(report, thm)
         check_kinds(report, thm)
+        check_capture(report, thm, claims_of(thm))
         check_numbering(report, thm)
         check_blocks(report, thm, methods)
         for step in thm.steps:

@@ -272,6 +272,27 @@ substitution made and nothing else changed. A tidier form is a separate
 `algebra` step, before or after the literal instance, and is never written
 in its place.
 
+"The substitution made" is made on the parsed formula, not on the characters.
+Replacing the characters of n with those of k + 1 in n(n + 1)/2 would give
+k + 1(k + 1 + 1)/2, and the sum formula writes (k + 1)((k + 1) + 1)/2. The
+parentheses are whatever the text needs in order to parse to the right shape.
+Three consequences:
+
+- **Parentheses are not compared.** Two texts that parse the same are the same
+  instance, so a redundant parenthesis changes nothing. "Nothing else changed"
+  is therefore a statement about the parsed formula and not about the
+  characters a reader sees.
+- **A substitution may not capture.** If the term being substituted names a
+  variable that is bound where it lands, the step is rejected rather than the
+  variable quietly renamed, and the text carries the condition in words, as
+  `READERS.md` allows: "x does not appear in the expression". Renaming in
+  silence would make the machine do something the page does not show. No
+  substitution in the corpus is near this.
+- **An unwritten pattern abstracts every occurrence.** Where P is read off a
+  claim rather than written, as in an induction, it is the claim with every
+  occurrence of the variable abstracted. That is what turns n(n + 1)/2 into
+  (k + 1)((k + 1) + 1)/2 and it needs no further choice.
+
 Two conventions apply at every citation and are stated here so that they
 are not hidden steps:
 

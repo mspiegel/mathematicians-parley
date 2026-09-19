@@ -116,6 +116,13 @@ CASES = [
      'theorem cantor-two',
      'is in no record'),
 
+    # Line 4 of bezout binds s, so substituting a term naming s would capture.
+    ('substitute a term that captures a bound variable',
+     'proof/bezout.proof',
+     '          instantiate s := a·x + b·y in line 4, from 7.1',
+     '          instantiate s := a·x + b·s in line 4, from 7.1',
+     'may not capture'),
+
     ('obtain a name without stating its kind',
      'proof/sqrt2-irrational.proof',
      '1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
