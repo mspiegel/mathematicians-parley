@@ -25,6 +25,13 @@
 #               already settles the reading.
 #   binds       for a binder, which hole introduces the variable and which
 #               hole it scopes over.
+#   negates     that one of the record's patterns is the negation of another,
+#               written "pattern 2 is logical-not of pattern 1". The two are
+#               one formula: a parser builds the same tree for both, so the
+#               page may write whichever reads better and anything comparing
+#               two formulas sees no difference. Four records fold a negation
+#               this way, and without the line each would be a second spelling
+#               nothing could match against a `not`.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets.
 #   first-used  the pilot that introduced it.
@@ -54,13 +61,21 @@ precedence order
   multiplicative  tighter than unary-minus
   unary-minus     tighter than additive
   additive        tighter than relational
-  relational      tighter than negation
+  relational      tighter than negation, predicate
+  predicate       tighter than conjunction, disjunction
   negation        tighter than conjunction, disjunction
   conjunction     tighter than implication, biconditional
   disjunction     tighter than implication, biconditional
   implication     tighter than binder
   biconditional   tighter than binder
-  note        conjunction and disjunction are deliberately unrelated, and so
+  note        `predicate` is where a relation written as words sits, and it is
+              deliberately unrelated to negation: `not n is odd` does not parse,
+              because a reader cannot tell it from "(not n) is odd", and
+              `not (n is odd)` is written instead. A relation written as a
+              symbol stays at `relational`, where `not p = 1` needs no bracket
+              because nobody reads it as negating the p.
+
+              conjunction and disjunction are deliberately unrelated, and so
               are implication and biconditional. Nobody agrees how "and" and
               "or" bind against each other, and no formula in the corpus mixes
               them. If one ever does, it writes a parenthesis.
@@ -82,6 +97,7 @@ notation membership
   holes       any, set
   yields      formula
   level       relational
+  negates     pattern 2 is logical-not of pattern 1
   reads       is in, is not in
   metamath    wcel, wnel
   first-used  sqrt2-irrational
@@ -93,6 +109,7 @@ notation equality
   holes       any, any
   yields      formula
   level       relational
+  negates     pattern 2 is logical-not of pattern 1
   reads       equals, is not equal to
   metamath    wceq, wne
   first-used  sqrt2-irrational
@@ -452,7 +469,7 @@ notation congruent
   pattern     triangle ___ ≅ triangle ___
   holes       point, point, point, point, point, point
   yields      formula
-  level       relational
+  level       predicate
   reads       is congruent to
   metamath    none
   first-used  isosceles
@@ -518,6 +535,7 @@ notation there-is
   yields      formula
   level       binder
   binds       hole 1 over hole 3
+  negates     pattern 2 is logical-not of pattern 1
   reads       there is, there is no
   metamath    wrex, and wrex under wn
   first-used  sqrt2-irrational
@@ -584,33 +602,31 @@ notation divides
   pattern     _ divides _
   holes       number, number
   yields      formula
-  level       relational
+  level       predicate
   reads       divides
   metamath    wbr with cdvds
   first-used  sqrt2-irrational
   note        Seventeen uses, the commonest word predicate. See def:divides.
 
 notation parity
-  pattern     _ is even        _ is odd
+  pattern     _ is even        _ is odd        _ is not odd
   holes       number
   yields      formula
-  level       relational
-  reads       is even, is odd
+  level       predicate
+  negates     pattern 3 is logical-not of pattern 2
+  reads       is even, is odd, is not odd
   metamath    2 ∥ n and its negation
   first-used  sqrt2-irrational
-  note        A negation is written with `not` in front, as "not n is odd", and
-              not as a pattern of its own. The corpus wrote "n is not odd" in
-              four places, which is better English and a second spelling of one
-              formula: thm:disjunctive-syllogism assumes "not Q" and no
-              instantiation of Q reaches the word inside the phrase. It is the
-              same reason a word predicate is written in full everywhere, and
-              `not p = 1` is the shape it follows.
+  note        "is not odd" keeps the word inside the phrase, which is how the
+              corpus reads best, and the `negates` line is what makes it the
+              same formula as "not (n is odd)". Without it the √2 proof could
+              not cite thm:disjunctive-syllogism, which assumes "not Q".
 
 notation prime
   pattern     _ is prime
   holes       number
   yields      formula
-  level       relational
+  level       predicate
   reads       is prime
   metamath    wcel with cprime
   first-used  infinitely-many-primes
@@ -619,7 +635,7 @@ notation irrational
   pattern     _ is irrational
   holes       number
   yields      formula
-  level       relational
+  level       predicate
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
   first-used  sqrt2-irrational
@@ -628,7 +644,7 @@ notation is-a-set
   pattern     _ is a set
   holes       any
   yields      formula
-  level       relational
+  level       predicate
   reads       is a set
   metamath    wcel with _V, as difexg states it
   first-used  subsets
@@ -642,7 +658,7 @@ notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _
   holes       number, set
   yields      formula
-  level       relational
+  level       predicate
   reads       is an upper bound of, is a least upper bound of
   metamath    see def:upper-bound and def:least-upper-bound
   first-used  intermediate-value
@@ -651,7 +667,7 @@ notation continuous
   pattern     _ is continuous on _
   holes       function, set
   yields      formula
-  level       relational
+  level       predicate
   reads       is continuous on
   metamath    ccncf
   first-used  intermediate-value
@@ -660,7 +676,7 @@ notation collinear
   pattern     _, _, _ are collinear
   holes       point, point, point
   yields      formula
-  level       relational
+  level       predicate
   reads       are collinear
   metamath    none; see def:collinear
   note        Three points on one line, which def:triangle needs to say that a
@@ -674,7 +690,7 @@ notation forms-a-triangle
   pattern     _, _, _ form a triangle
   holes       point, point, point
   yields      formula
-  level       relational
+  level       predicate
   reads       form a triangle
   metamath    none; see def:triangle
   first-used  isosceles
@@ -683,7 +699,7 @@ notation bijection
   pattern     there is a bijection from _ to _
   holes       set, set
   yields      formula
-  level       relational
+  level       predicate
   reads       there is a bijection from, to
   metamath    wbr with cen
   first-used  subsets

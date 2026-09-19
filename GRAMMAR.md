@@ -335,13 +335,35 @@ comma after it must be free to end the clause it belongs to.
 A hole is filled by the longest parse that its notation's level permits. Where
 two notations meet, the tighter level nests inside the looser, and the order
 between levels is the one `precedence order` record. Where two levels are not
-related by that record, the expression is ambiguous and needs round brackets;
-conjunction against disjunction is the case that exists, and no formula in the
-corpus writes it.
+related by that record, the expression is ambiguous and needs round brackets.
+Two pairs are unrelated on purpose. Conjunction against disjunction is the pair
+nobody agrees about, and no formula in the corpus writes it. Negation against a
+relation written as words is the pair a reader cannot see: `not n is odd` does
+not parse, because it reads as easily as "(not n) is odd", and the brackets in
+`not (n is odd)` say which was meant.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
 says which way. Fifteen of the 71 patterns are in that position, across ten
 records, and the checker enforces that exactly those ten declare one.
+
+### A folded negation
+
+Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
+"there is no … with …". Each record says so, in a `negates` line naming which of
+its patterns is the negation of which, and a parser builds the same tree for the
+folded spelling as for the `not`. So `n is not odd` and `not (n is odd)` are one
+formula, and the page writes whichever reads better.
+
+Without that line each would be a second spelling of the same thing, which is
+the defect the "p is prime" rule was written to prevent. The √2 proof is where
+it shows: it offers "n is not odd" to a theorem that assumes "not Q", and no
+instantiation of Q reaches a word buried inside a phrase.
+
+The reader still has to be able to see where the negation stops, which is why
+the word-phrase relations sit at their own precedence level, unrelated to
+negation. `not n is odd` does not parse, because a reader cannot tell it from
+"(not n) is odd"; the brackets in `not (n is odd)` are required. A symbolic
+relation needs none, since nobody reads `not p = 1` as negating the p.
 
 ### What a parser needs besides this
 

@@ -246,7 +246,7 @@ theorem even-or-odd
 theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
-  then        not n is odd
+  then        n is not odd
   metamath    zeo2, oddm1even
   first-used  sqrt2-irrational
 
@@ -650,7 +650,7 @@ definition triangle
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
-              not P, Q, R are collinear
+              not (P, Q, R are collinear)
   open        set.mm has no single notion. The three inequalities are stated
               here and the rest is def:collinear, which is open.
   first-used  isosceles

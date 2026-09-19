@@ -54,7 +54,8 @@ matches the kind of the item it names.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
 for each hole, the sort each hole takes, what the pattern yields, its
-precedence level, and its associativity where one is needed. There are two
+precedence level, its associativity where one is needed, and whether one of its
+patterns is the negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
 a hole marked as binding. `db/notation.db` describes the fields, and one
 `precedence` record declares the order between levels as a partial order, so a

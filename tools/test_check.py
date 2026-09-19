@@ -168,6 +168,18 @@ CASES = [
      '    2.1.  G(0) = 1\n          def:G, from H3',
      'does not supply them'),
 
+    ('stop declaring which pattern is a negation of which',
+     'db/notation.db',
+     '  level       predicate\n  negates     pattern 3 is logical-not of pattern 2',
+     '  level       predicate',
+     'does not supply them'),
+
+    ('write a word predicate under a bare not',
+     'db/items.db',
+     '              not (P, Q, R are collinear)',
+     '              not P, Q, R are collinear',
+     'token(s) left over'),
+
     ('state an item in a notation nobody declared',
      'db/items.db',
      'theorem subset-transitive\n  assume X ⊆ Y',

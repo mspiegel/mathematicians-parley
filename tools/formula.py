@@ -86,6 +86,10 @@ class Notation:
     level: str
     assoc: str = None
     binds: str = None
+    folds: str = None      # the notation this pattern is the negation under
+
+
+NEGATES = re.compile(r'pattern\s+(\d+)\s+is\s+(\S+)\s+of\s+pattern\s+(\d+)')
 
 
 HOLE = object()
@@ -105,6 +109,10 @@ def compile_notations(records):
             holes = []
         levels = [x.strip() for x in r.fields.get('level', '').split(',')]
         assocs = [x.strip() for x in r.fields.get('assoc', '').split(',')]
+        # A record may declare that one of its patterns is the negation of
+        # another. Both then build the same tree, so "n is not odd" and
+        # "not (n is odd)" are one formula wherever two are compared.
+        folded = NEGATES.search(r.fields.get('negates', ''))
         for n, pat in enumerate(re.split(r'\s{2,}', raw)):
             parts = []
             for piece in re.findall(r'_|[^_\s]+', pat):
@@ -125,7 +133,9 @@ def compile_notations(records):
                 yields=r.fields.get('yields', '').strip(),
                 level=(levels[n] if n < len(levels) else levels[0]).strip(),
                 assoc=(assocs[n] if n < len(assocs) else assocs[0]).strip() or None,
-                binds=r.fields.get('binds')))
+                binds=r.fields.get('binds'),
+                folds=(folded.group(2) if folded
+                       and int(folded.group(1)) == n + 1 else None)))
     # A symbol may be a prefix of another, so try the longest first.
     return out, words, sorted(symbols, key=len, reverse=True)
 
@@ -410,7 +420,11 @@ class _Parser:
         # literal goes in the node, or ℝ and ℕ₀ would build the same tree and
         # nothing comparing two formulas could tell them apart.
         literal = '' if kids else ''.join(p for p in n.parts if p is not HOLE)
-        return Node(n.name, n.yields, kids, literal)
+        node = Node(n.name, n.yields, kids, literal)
+        # A pattern declared as the negation of another builds the other and
+        # wraps it, so the folded spelling and the `not` spelling are one tree.
+        # The wrapper is named by the record, not known here.
+        return node if n.folds is None else Node(n.folds, 'formula', [node])
 
     def hole(self, want, barrier, stop):
         """A `variable` hole takes a bare name; any other takes an expression,
