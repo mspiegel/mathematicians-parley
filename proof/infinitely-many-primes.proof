@@ -1,6 +1,6 @@
 theorem prime-above
   let n ∈ ℕ                                                           (H1)
-  then there is p ∈ ℕ with p prime and p > n
+  then there is p ∈ ℕ with p is prime and p > n
 
 1.  n! ∈ ℕ
     thm:factorial-nat n := n, from H1
@@ -57,5 +57,5 @@ theorem prime-above
     7.8.  p = 1. not p = 1.
           join 7.6, 7.7
 
-8.  There is p ∈ ℕ with p prime and p > n.
+8.  There is p ∈ ℕ with p is prime and p > n.
     exhibit, from 5, 7

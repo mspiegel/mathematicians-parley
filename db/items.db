@@ -350,7 +350,7 @@ definition gcd
 theorem prime-factor
   let m ∈ ℕ                                                           (H1)
   assume m > 1                                                        (H2)
-  then        there is p ∈ ℕ with p prime and p divides m
+  then        there is p ∈ ℕ with p is prime and p divides m
   metamath    exprmfct
   first-used  infinitely-many-primes
 

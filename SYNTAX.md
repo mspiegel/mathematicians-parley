@@ -205,7 +205,15 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or
-  "divides", the word is used.
+  "divides", the word is used, **and it is written in full everywhere**. English
+  drops the copula inside a "there is ... with ..." phrase, and the corpus did
+  so three times, writing "there is p ∈ ℕ with p prime". It now writes "with p
+  is prime", which reads worse and is the same formula in every position. The
+  alternative was a second pattern for each word predicate, or a rule letting a
+  binder body drop the "is", and both make one notation depend on where it
+  stands. It also removed a real defect: step 8 of the prime proof exhibits from
+  step 5, whose claim says "p is prime", so under the literal-instance rule the
+  two did not match.
 - Set-builder notation has two shapes, told apart by what precedes the
   colon. With a variable and its domain, {t ∈ X : P(t)}, membership is
   t ∈ X and P(t). With an expression, {E(s) : s ∈ Y}, membership of u is
