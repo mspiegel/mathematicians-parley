@@ -95,6 +95,8 @@ verbose also made it parseable.
 notations compete. The sorts are declared, and an unchecked declaration rots;
 with checking, `S ⊆ 2` is a defect a parser reports where nothing in the system
 could previously have noticed it. The price is the set-theory restriction below.
+A value of no known sort is the exception and fits anywhere, for the reasons
+given at the end of this section.
 
 What this leaves open is a bare variable of no known sort sitting directly
 inside bars. That is ambiguous, so a parser rejects it rather than choosing, and
@@ -102,11 +104,41 @@ the failure is a refused proof rather than a misread one. Today's checker cannot
 see it, since it treats a claim as opaque text, and it belongs on the formula
 parser's list.
 
-Not settled, and it bites now that holes are checked: whether a value of no
-known sort fits a hole declaring a specific one. Step 6.2 of the intermediate
-value proof claims `s ≤ b`, whose holes are numbers, and in that block `s` has
-only `s ∈ S` and `s ∈ [a, b]`, neither a number system. If an unknown sort does
-not fit, that step fails; if it does, checking is weaker than it sounds.
+**A value of no known sort fits any hole.** Five places in the corpus need
+this, all of them `s` in the intermediate value proof, declared `let s ∈ S`
+where `S` is a set-builder so the declaration gives no number sort. Four are
+order comparisons and one is `f(s) < 0`. Three of the five are the quantified
+sentences at steps 6, 10 and 17.25, where `s` is bound by the binder and the
+sort would have to come from the element sort of `S`, which flat sorts do not
+have.
+
+Refusing them would be the sort system rejecting proofs for failing a test it
+was never introduced to run: `≤` and `<` are not overloaded, so nothing is
+ambiguous in any of the five. So checking is real but partial, and it is worth
+being precise about what that costs, because it is less than it sounds.
+
+The failure worth fearing is the parser reading one formula while the reader
+reads another, since then the kernel proves something the page does not say.
+That cannot happen at any setting of this rule. It needs the parser to choose
+wrongly between two notations, and where two compete and the sort is unknown
+the formula is ambiguous and the parser refuses. It reads correctly or stops.
+
+What gets past parsing is unambiguous but wrongly sorted text, and elaboration
+catches most of it. A step writing `s ≤ b` with `s` not a number still needs
+`requires s ∈ ℝ`, because the membership rule makes every atom of an
+`inequalities` step a written dull fact, and that requires line cannot be
+discharged. The verbosity that rule costs is doing double duty here.
+
+The residue is not unsound and mostly not wrong. If `s ⊆ X` slips through with
+`s` a number, that is a meaningful statement in ZF and may be true, since 2
+really is a set. What the sorts encode is `READERS.md`'s policy that a number is
+presented as a number, which the kernel does not share and has no reason to.
+
+So the stages catch different things: parsing catches ambiguity and any sort
+that is known and wrong, elaboration catches the rest through the membership
+dull facts, and the kernel guarantees soundness regardless because it works with
+classes. Nothing unsound reaches the archive. What is lost is that a proof can
+break our own presentation convention and be found out late rather than early.
 
 ### What flat sorts cost in set theory
 
