@@ -154,9 +154,13 @@ All four closure methods are now specified in `METHODS.md`, which was what
 open question 6 in `GOALS.md` asked for. What is left on this list is not about
 them:
 
-1. **Specify the ten remaining methods.** The citation form, the four block
-   methods, and `substitute`, `instantiate`, `obtain` and `exhibit`. None is a
-   decision procedure, so each should be shorter than these four were.
+1. **Specify the nine remaining methods.** The citation form, three of the four
+   block methods, and `substitute`, `instantiate`, `obtain` and `exhibit`. None
+   is a decision procedure, so each should be shorter than these four were.
+   `contradiction` is written, and it is the first with two accepted shapes:
+   the supposition is the claim negated, or the claim is the supposition
+   negated, and which one it is decides whether the expansion needs the
+   classical step.
 
 The membership sweep is done. `READERS.md` settles that membership in a number
 system is a written dull fact and merits no exception, and the corpus now

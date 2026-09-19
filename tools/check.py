@@ -532,6 +532,71 @@ class Library:
         return out
 
 
+def negates(a, b, wrappers):
+    """True when a is b with a negation in front.
+
+    A folded negation counts, because a record declaring `negates` makes
+    "n is not odd" the same tree as "not (n is odd)". `wrappers` is the set of
+    notations those records name, so no notation is known here by its text."""
+    return (a is not None and b is not None and a.children
+            and a.notation in wrappers and a.children[0].shape() == b.shape())
+
+
+def check_contradiction(report, thm, g):
+    """A contradiction block relates its supposition to its claim, and closes
+    with a formula and that formula's negation.
+
+    METHODS.md specifies the two shapes: the supposition is the claim negated,
+    which is reductio, or the claim is the supposition negated, which proves a
+    negation directly. No formula is its own double negation, so at most one
+    holds and the expansion each needs is never in doubt. Anything else the
+    method refuses, which is why this is reported rather than left to fail
+    later with nothing to point at."""
+    sorts_in_scope(thm, g)
+    wrappers = {n.folds for n in g.notations if n.folds}
+
+    def read(text):
+        g.sorts = thm_sorts
+        try:
+            return parse(text, g)
+        except Problem:
+            return None
+
+    thm_sorts = g.sorts
+    for step in thm.steps:
+        if not step.just or step.just.head != 'contradiction':
+            continue
+        opener = next(((t, k) for k, t, _, _, _ in step.openers
+                       if k == 'suppose'), None)
+        if opener is None:
+            continue                  # already reported as a missing suppose
+        supposed = read(LABEL_AT_END.sub('', opener[0][len(opener[1]):]).strip())
+        claimed = read(' '.join(step.claim))
+        if supposed is None or claimed is None:
+            continue                  # already reported as unreadable
+        if not (negates(supposed, claimed, wrappers)
+                or negates(claimed, supposed, wrappers)):
+            report.say(thm.path, step.line,
+                       f'step {fmt(step.number)} supposes something that is '
+                       f'neither its claim negated nor the thing its claim '
+                       f'negates, so neither expansion of `contradiction` '
+                       f'applies')
+
+        inside = [s for s in thm.steps
+                  if len(s.number) > len(step.number)
+                  and s.number[:len(step.number)] == step.number]
+        if not inside:
+            continue
+        last = sentences(' '.join(inside[-1].claim))
+        pair = [read(s) for s in last] if len(last) == 2 else []
+        if len(pair) != 2 or not (negates(pair[0], pair[1], wrappers)
+                                  or negates(pair[1], pair[0], wrappers)):
+            report.say(thm.path, inside[-1].line,
+                       f'step {fmt(inside[-1].number)} ends a contradiction '
+                       f'block and does not state a formula and that formula '
+                       f'negated')
+
+
 def check_hypotheses(report, thm, library):
     """A citation supplies the hypotheses of what it cites.
 
@@ -782,6 +847,7 @@ def main(root):
     proved = {}
     for thm in theorems:
         check_formulas(report, thm, grammar)
+        check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_last_step(report, thm)
         check_introductions(report, thm)

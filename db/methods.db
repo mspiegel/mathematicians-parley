@@ -146,11 +146,14 @@ method join
 method contradiction
   form        contradiction
   block       required
-  part-opens  suppose not C (S)
-  checks      C is the step's claim. The block assumes "not C", written
-              literally, labelled S, and its last step states some P and also
-              not P. Any rewriting of "not C" is a step inside the block.
-  metamath    pm2.65, condan
+  part-opens  suppose B (S)
+  checks      C is the step's claim, and the block opens by supposing B,
+              labelled S. One of two things holds and neither is in doubt,
+              since no formula is its own double negation: B is "not C", which
+              is reductio, or C is "not B", which proves a negation directly.
+              The block's last step states some P and also not P. Any
+              rewriting of B is a step inside the block. See METHODS.md.
+  metamath    pm2.65, and notnotr as well where the claim is not a negation
   first-used  sqrt2-irrational
 
 method fix

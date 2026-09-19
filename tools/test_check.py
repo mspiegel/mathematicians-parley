@@ -174,6 +174,18 @@ CASES = [
      '  level       predicate',
      'does not supply them'),
 
+    ('suppose something unrelated to the claim',
+     'proof/bezout.proof',
+     '3.  r = 0\n    contradiction\n    suppose not r = 0',
+     '3.  r = 0\n    contradiction\n    suppose not r ≤ 0',
+     'neither expansion of `contradiction` applies'),
+
+    ('end a contradiction block without a contradiction',
+     'proof/infinitely-many-primes.proof',
+     '    7.8.  p = 1. not p = 1.',
+     '    7.8.  p = 1. p = 1.',
+     'does not state a formula and that formula negated'),
+
     ('write a word predicate under a bare not',
      'db/items.db',
      '              not (P, Q, R are collinear)',

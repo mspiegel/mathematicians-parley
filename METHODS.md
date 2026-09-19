@@ -392,6 +392,87 @@ it was the rule operating implicitly all along. The three moves that left
 
 ---
 
+## contradiction
+
+`contradiction` is the first block method specified here. Its inputs are not
+cited lines but the block itself: the supposition it opens with, and the last
+step inside it.
+
+### Facts in
+
+The block's supposition, which asserts nothing outside the block, and the
+block's last step, whose claim is two sentences, one the negation of the other.
+
+### Fact out
+
+The step's claim.
+
+### The procedure
+
+Compare the supposition with the claim, as trees. Exactly one of two things
+holds, and which one decides the expansion:
+
+- the supposition is the claim with a negation in front, which is reductio;
+- the claim is the supposition with a negation in front, which is how a
+  negation is proved directly.
+
+They cannot both hold, because no formula is its own double negation, so the
+reading is never in doubt. A folded negation counts as a negation: the
+`negates` line of a notation record makes "n is not odd" the same tree as
+"not (n is odd)", so a block may claim either spelling and suppose the other.
+
+Then check that the last step closes: two sentences, one the negation of the
+other by the same comparison.
+
+### Refusals
+
+A supposition that is neither the claim negated nor the thing the claim
+negates. The two shapes above are the whole of what the method accepts, and a
+step whose supposition is merely the opposite in spirit fails to elaborate
+rather than being waved through.
+
+A last step that is not a formula and its negation. Two sentences that
+contradict each other in meaning but not in form are not a closing pair, and
+the step that reconciles them belongs inside the block.
+
+Rewriting the supposition. Where a proof needs the supposition in another form,
+as `p ≤ n` for "not p > n", that is a step inside the block citing whatever
+justifies it, not something the method does on the way in.
+
+### Hypotheses
+
+None. The method is propositional and asks nothing of the terms.
+
+### Expansion
+
+Both shapes target set.mm's `pm2.65`, which is negation introduction: from
+`φ → ψ` and `φ → ¬ψ` conclude `¬φ`. The block's supposition is the antecedent
+and its last two sentences are the two consequents.
+
+That is the whole expansion when the claim is a negation. When the claim is
+positive the expansion needs `notnotr` on top of it, and that is the classical
+step. So the logic each block depends on falls out of which shape it is, rather
+than being something the text has to announce. Of the corpus's seven blocks,
+five are reductio and two prove a negation directly.
+
+### Why the method accepts two shapes
+
+`db/methods.db` used to say the block assumes "not C" written literally, and
+five of the seven blocks do exactly that, two of them writing a doubled
+negation and stripping it with `thm:double-negation` in the next line. The
+other two suppose the thing the claim negates.
+
+Both are correct, and forcing either one on the other costs something real.
+Requiring the literal negation everywhere would put a doubled negation and a
+cited classical step into two proofs that need neither, and the note on
+`thm:double-negation` says citing it is the text saying which logic it is in,
+which is worth nothing if it appears where the logic is not classical.
+Requiring the direct form everywhere would rewrite the other two and remove a
+step from each. Accepting both changes no proof in the corpus, and the
+expansion still says exactly where the classical step is.
+
+---
+
 ## What specifying both larger methods cost the corpus
 
 `READERS.md` settles that membership in a number system is a written dull fact
