@@ -1,7 +1,15 @@
 # Lint rules
 
 A lint rule is one that can be broken by text that parses, passes the checker,
-and is still wrong. That is the whole of what belongs here.
+and is correct. Nothing here is about a proof being wrong. Every rule below
+says that one of two correct ways of writing the same thing is harder to
+understand than the other, and asks for the easier one.
+
+That is the division of labour. The checker decides whether a proof is right,
+and has nothing to say about how it reads. A linter decides how it reads, and
+has nothing to say about whether it is right. Neither can do the other's job,
+and a finding from one should never be reported as though it came from the
+other.
 
 Most of this project's rules are not of that kind. `p prime` cannot be written,
 because no notation has that pattern. `not n is odd` cannot be written, because
@@ -10,6 +18,8 @@ with no `reads` line is reported by the checker. None of those are lint: they
 are eliminated by construction or checked as defects, and nothing can produce
 them to be warned about. Eliminating beats preferring, and this file is the
 fallback for the cases where eliminating would cost a reading somebody wants.
+Where both readings are wanted, neither can be removed, and all that is left is
+to say which one a reader gets more easily.
 
 **A linter reads the text; the checker reads the trees.** They cannot be the
 same tool, because the checker is deliberately blind to the thing a linter is
@@ -40,16 +50,18 @@ used and making the rest agree.
 
 ### The negated equality is not settled
 
-`x ≠ y` and `not x = y` are both written, 12 places against 10, and neither
-reading is wrong. A plain negated equality reads better as `x ≠ y`. Two places
-write a doubled negation, `not not f(x) = B`, where the sign would give
-`not f(x) ≠ B`, a double negative in English and worse. Two more write the
-closing pair of a contradiction block, `p = 1. not p = 1.`, where the word form
-mirrors the claim above it and the sign would not.
+`x ≠ y` and `not x = y` are both written, 12 places against 10, and which one a
+reader gets more easily depends on where it stands. A plain negated equality is
+easier as `x ≠ y`. Two places write a doubled negation, `not not f(x) = B`,
+where the sign would give `not f(x) ≠ B`, a double negative that takes longer
+to read rather than less. Two more write the closing pair of a contradiction
+block, `p = 1. not p = 1.`, where the word form mirrors the claim above it and
+the sign breaks the mirror.
 
 So the rule is either "the sign, except where the negation is doubled or
 mirrors a claim", which is three clauses and hard to apply, or nothing. It is
-left open rather than settled badly.
+left open, because a rule that has to be argued about at each use makes the
+text harder to read rather than easier, which is the opposite of the point.
 
 ## The shape of a step
 
@@ -79,5 +91,7 @@ still. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 
 If a linter is written it belongs in the gate beside ruff and the checker, and
-its findings are warnings rather than problems, because every one of them is a
-correct proof written in a way we would rather it were not.
+its findings are warnings rather than problems. A problem means the corpus says
+something it should not. A warning here means the corpus says the right thing
+in the harder of two ways, and the proof would be just as true if nobody ever
+acted on it.
