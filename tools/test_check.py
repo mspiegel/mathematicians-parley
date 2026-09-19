@@ -136,8 +136,8 @@ CASES = [
     # Line 4 of bezout binds s, so substituting a term naming s would capture.
     ('substitute a term that captures a bound variable',
      'proof/bezout.proof',
-     '          instantiate s := a·x + b·y in line 4, from 7.1',
-     '          instantiate s := a·x + b·s in line 4, from 7.1',
+     '          instantiate s := a·x + b·y in line 5, from 10.1',
+     '          instantiate s := a·x + b·s in line 5, from 10.1',
      'may not capture'),
 
     ('obtain a name without stating its sort',
@@ -201,8 +201,8 @@ CASES = [
 
     ('suppose something unrelated to the claim',
      'proof/bezout.proof',
-     '3.  r = 0\n    contradiction\n    suppose not r = 0',
-     '3.  r = 0\n    contradiction\n    suppose not r ≤ 0',
+     '4.  r = 0\n    contradiction\n    suppose not r = 0',
+     '4.  r = 0\n    contradiction\n    suppose not r ≤ 0',
      'neither expansion of `contradiction` applies'),
 
     ('end a contradiction block without a contradiction',

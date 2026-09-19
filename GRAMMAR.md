@@ -505,9 +505,15 @@ step that cites the item, and later steps cite that number.
 
 `obtain` has two forms. With an item it names its objects with a colon, as in
 `obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4`. Without one
-it takes a single name and a line, as in `obtain δ from line 17.4`, carrying
-neither a colon nor a comma: there is no item to separate the names from, and
-no hypothesis list to introduce.
+it takes a line, as in `obtain q, r from line 1`, carrying no colon: there is
+no item to separate the names from, and no hypothesis list to introduce.
+
+The second form is preferred, because in the first the name appears in the
+claim, which is written above the justification that introduces it. Everywhere
+else in this language a name is introduced on its own line before anything
+mentions it, by `let` or by `define`. Splitting the step in two restores that:
+the first claims that something exists, where the variable is bound by "there
+is" and nothing is named, and the second names it and cites that line.
 
 A justification continues onto the next line when it ends with a comma. That is
 the only continuation rule, and it covers hypotheses too: the eleventh

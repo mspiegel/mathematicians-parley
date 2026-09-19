@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from formula import Grammar, parse
-from match import expand, instantiation, match_all, names
+from match import expand, instantiation, match, names
 from parse import (
     BLOCK_HEADS,
     HEADS,
@@ -49,7 +49,7 @@ PRODUCTIONS = {
     'citation':      rf'^(?:def|thm):{NAME}(?:\s+{INST})?(?:,\s*{FROM})?$',
     'obtain-item':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{NAME}'
                      rf'(?:\s+{INST})?,\s*{FROM}$',
-    'obtain-line':   rf'^obtain\s+\S+\s+from\s+line\s+{NUMBER}$',
+    'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+line\s+{NUMBER}$',
     'exhibit':       rf'^exhibit,\s*{FROM}$',
     'substitute':    rf'^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL})\)'
                      rf'(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?'
@@ -514,6 +514,21 @@ class Library:
                       if r.kind in ('definition', 'theorem')}
         self.proved = {t.name: t for t in theorems}
         self.cache = {}
+        # Which notations are an existential and which a membership, taken
+        # from what they target in the kernel rather than named here. A
+        # metamath field may say more after the target, as "wrex, and wrex
+        # under wn" does, so the target is its first word.
+        self.exists, self.members = set(), set()
+        for r in records:
+            if r.kind != 'notation':
+                continue
+            first = re.match(r'[a-z0-9-]+', r.fields.get('metamath', '').strip())
+            if not first:
+                continue
+            if first.group(0) == 'wrex':
+                self.exists.add(r.name)
+            elif first.group(0) == 'wcel':
+                self.members.add(r.name)
 
     def groups(self, name):
         if name not in self.cache:
@@ -616,6 +631,44 @@ def check_contradiction(report, thm, g):
                        f'negated')
 
 
+def supply(patterns, facts, binding, variables, library):
+    """Every hypothesis is stated by one of the facts.
+
+    A hypothesis that is a "there is" may instead be stated by a fact giving
+    its body with some value in place of the bound variable, which is the move
+    SYNTAX.md describes for exhibit: the cited line determines the value and
+    the text never writes it. `there is s ∈ S`, which says only that S has a
+    member, is stated by any fact putting something in S."""
+    if not patterns:
+        return binding
+    first, rest = patterns[0], patterns[1:]
+    forms = [(first, variables)]
+    if first.notation in library.exists and len(first.children) == 3:
+        v, body = first.children[0], first.children[2]
+        forms.append((body, variables | {v.text}))
+    for i, fact in enumerate(facts):
+        for form, seen in forms:
+            found = match(form, fact, binding, seen)
+            if (found is None and form is first
+                    and first.notation in library.exists
+                    and len(first.children) == 2
+                    and fact.notation in library.members
+                    and len(fact.children) == 2):
+                found = match(first.children[1], fact.children[1],
+                              binding, variables)
+            if found is None:
+                continue
+            # Each fact is used once, because two hypotheses asking the same
+            # thing want two lines saying it, and because a variable free in
+            # two hypotheses would otherwise bind to whatever made the first
+            # one match.
+            done = supply(rest, facts[:i] + facts[i + 1:], found,
+                          variables, library)
+            if done is not None:
+                return done
+    return None
+
+
 def check_hypotheses(report, thm, library):
     """A citation supplies the hypotheses of what it cites.
 
@@ -675,8 +728,8 @@ def check_hypotheses(report, thm, library):
                 missing = None
                 break
             variables = set().union(*(names(t) for _, t in want))
-            if match_all([t for _, t in want], facts,
-                         dict(seed), variables) is not None:
+            if supply([t for _, t in want], facts,
+                      dict(seed), variables, library) is not None:
                 missing = None
                 break
             missing = [t for t, _ in want]
