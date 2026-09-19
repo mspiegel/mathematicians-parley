@@ -143,6 +143,18 @@ CASES = [
      '1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
      '1.  n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
      'without stating its sort'),
+
+    ('write a claim in a notation nobody declared',
+     'proof/infinitely-many-primes.proof',
+     '6.  p > 1\n    def:prime p := p, from 5',
+     '6.  p exceeds 1\n    def:prime p := p, from 5',
+     'token(s) left over'),
+
+    ('write a formula the sorts cannot read one way',
+     'proof/subsets.proof',
+     '1.2.1.5.  |T| = 2^k',
+     '1.2.1.5.  |W| = 2^k',
+     'the sorts do not separate them'),
 ]
 
 

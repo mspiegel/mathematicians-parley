@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Check the corpus against GRAMMAR.md.
 
-Reports what it can verify without looking inside a formula: the grammar, the
-numbering, block structure, pointer resolution, the scope of every citation,
-and calculation chains. It does not check that a claim follows from what it
-cites; that needs the formula grammar, which is not written.
+Reports the grammar, the numbering, block structure, pointer resolution, the
+scope of every citation, calculation chains, and that every formula on the page
+parses one way. It does not check that a claim follows from what it cites; that
+needs the elaborator.
 
 Usage:  tools/check.py [root]
 Exits non-zero when anything is reported.
@@ -19,6 +19,8 @@ from parse import (                                       # noqa: E402
     HEADS, LABEL, NAME, NUMBER, REF, PART_MARKERS, BLOCK_HEADS,
     Problem, check_encoding, fmt, parse_database, parse_proof, read_lines,
 )
+from formula import Grammar, parse                        # noqa: E402
+from sorts import LABEL as LABEL_AT_END, sorts_in_scope   # noqa: E402
 
 # The productions of GRAMMAR.md, one per justification form.
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
@@ -469,6 +471,39 @@ def check_capture(report, thm, claims):
                            f'lands; a substitution may not capture')
 
 
+SENTENCES = re.compile(r'(?<=[.])\s+')
+
+
+def check_formulas(report, thm, g):
+    """Every formula on the page parses, and parses one way.
+
+    A claim, an `assume` or `suppose` line, the fact of a `requires` line and
+    the theorem's statement are all formulas, read from the declared notations.
+    One that does not parse is a defect in the text or a notation nobody
+    declared. One that parses two ways is worse, because the reader and the
+    kernel could take it differently and nothing downstream would notice, so
+    the parser refuses it rather than choosing."""
+    sorts_in_scope(thm, g)
+    places = [(s.line, f'step {fmt(s.number)}', ' '.join(s.claim))
+              for s in thm.steps]
+    places += [(no, f'the requires line of step {fmt(s.number)}', fact)
+               for s in thm.steps for fact, _, no in s.requires]
+    lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
+    lines += [(k, t, n) for s in thm.steps for k, t, _, n, _ in s.openers]
+    places += [(n, f'the `{k}` line', LABEL_AT_END.sub('', t[len(k):]).strip())
+               for k, t, n in lines if k in ('assume', 'suppose')]
+    places.append((thm.line, f'the statement of {thm.name}', thm.conclusion))
+    for line, what, text in places:
+        for sentence in SENTENCES.split(text.strip()):
+            sentence = sentence.strip().rstrip('.').strip()
+            if not sentence:
+                continue
+            try:
+                parse(sentence, g)
+            except Problem as p:
+                report.say(thm.path, line, f'{what}: {p.message}')
+
+
 def check_sorts(report, thm):
     """Every variable's sort is on the page, so the parser never infers one.
 
@@ -584,8 +619,11 @@ def main(root):
             continue
         theorems.extend(found)
 
+    grammar = Grammar.load(records)
+
     proved = {}
     for thm in theorems:
+        check_formulas(report, thm, grammar)
         check_last_step(report, thm)
         check_introductions(report, thm)
         check_sorts(report, thm)

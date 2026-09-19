@@ -310,8 +310,8 @@ A pattern is a candidate at a position when its leading token matches, a hole
 being a token that matches anything. Three things then narrow the candidates, in
 this order:
 
-1. **The literal tokens.** Most patterns are settled here alone. Of the 69
-   declared patterns exactly one shape is shared outright, `|_|`; 18 open the
+1. **The literal tokens.** Most patterns are settled here alone. Of the 70
+   declared patterns exactly one shape is shared outright, `|_|`; 19 open the
    same way as some other pattern and are separated by a token further along,
    as `_, _` and `_, and _` are, and as the two universals are by the `with`
    that one of them carries.
@@ -339,7 +339,7 @@ conjunction against disjunction is the case that exists, and no formula in the
 corpus writes it.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
-says which way. Fifteen of the 69 patterns are in that position, across ten
+says which way. Fifteen of the 70 patterns are in that position, across ten
 records, and the checker enforces that exactly those ten declare one.
 
 ### What a parser needs besides this

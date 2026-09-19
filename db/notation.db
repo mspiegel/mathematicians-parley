@@ -600,6 +600,20 @@ notation irrational
   metamath    wcel with ℝ ∖ ℚ
   first-used  sqrt2-irrational
 
+notation is-a-set
+  pattern     _ is a set
+  holes       any
+  yields      formula
+  level       relational
+  reads       is a set
+  metamath    wcel with _V, as difexg states it
+  first-used  subsets
+  note        Sethood, which ZF distinguishes from being a proper class and
+              set.mm writes as membership of _V. Two uses, thm:difference-set
+              and the requires line of the subsets proof that cites it. It is
+              the formula-position counterpart of the `let X be a set`
+              introduction, as for-every-set is of the same line in a binder.
+
 notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _
   holes       number, set

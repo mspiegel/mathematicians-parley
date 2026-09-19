@@ -311,6 +311,13 @@ class _Parser:
             if n.parts[1] is HOLE:
                 if tok.kind not in ('name', 'numeral', 'open'):
                     continue
+                # Juxtaposition never joins two bare names. That restriction is
+                # what makes a run of letters decidable at all, since `and`
+                # would otherwise read as a product of three variables the
+                # corpus uses. It leaves `2k` and `k(k + 1)`, which are the
+                # only shapes the corpus writes.
+                if tok.kind == 'name' and left.notation == 'name':
+                    continue
             elif n.parts[1] != tok.text:
                 continue
             if not fits(n.holes[0], left.sort):
