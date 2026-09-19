@@ -472,6 +472,23 @@ notation there-is
   metamath    wrex, and wrex under wn
   first-used  sqrt2-irrational
 
+notation for-every-set
+  pattern     for every set _, _
+  holes       variable, formula
+  yields      formula
+  level       binder
+  binds       hole 1 over hole 2
+  reads       for every set
+  metamath    wal, with no restricting domain
+  first-used  subsets
+  note        The domain-free binder, quantifying over an arbitrary set rather
+              than over the elements of a named one. It is the formula-position
+              counterpart of the hypothesis line `let X be a set`, exactly as
+              for-every is of `let n ∈ ℕ`. Three uses, all in the subsets proof,
+              whose induction is over a statement universally quantified across
+              sets. A sibling for points or functions would be a new record here
+              and nothing else; the corpus wants neither yet.
+
 
 # Word predicates. Each is introduced by a definition, which is what makes the
 # closed set of shapes matter: adding one is a record here and a definition

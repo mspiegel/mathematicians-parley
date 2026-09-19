@@ -180,13 +180,28 @@ substitution in the corpus comes close.
                   { <hypothesis> }
                   <conclusion>
                   { <define> | <step> }
-<hypothesis>  ::= ( `let` <formula> | `assume` <formula> ) `(` <label> `)`
+<hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
+<introduction>::= <name> `∈` <term>
+                | <name> `be a set`
+                | <name> `be a point`
+                | <name> `:` <term> `→` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> `:=` <term> `(` <label> `)`
 ```
 
 Theorems appear in dependency order, so every pointer resolves to something
 earlier. A `define` line claims nothing and is cited by its label.
+
+A `let` line carries an **introduction**, not a formula. It names something and
+says what it is; it asserts nothing, and the four forms above are all of them.
+Two of those, `be a set` and `be a point`, are not notations and never appear
+inside a formula. `assume` does take a formula, because it does assert.
+
+Quantifying over an arbitrary set is the formula-position counterpart, and it is
+a notation: `for every set X, ...`, declared in `db/notation.db` as a binder
+with no domain. Ten lines in the corpus use one of these arbitrary forms, four
+`be a set`, three `be a point` and three `for every set`, and until they were
+declared none of them matched anything.
 
 ## Steps
 

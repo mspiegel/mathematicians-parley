@@ -498,6 +498,32 @@ def check_kinds(report, thm):
                            f'of each name it introduces, so no kind is inferred')
 
 
+INTRODUCTIONS = (
+    ('a membership',            re.compile(r'^\S+\s*∈\s*\S')),
+    ('an arbitrary set',        re.compile(r'^\S+\s+be a set$')),
+    ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
+    ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
+)
+
+
+def check_introductions(report, thm):
+    """A `let` line carries an introduction, not a formula. It names something
+    and says what it is, asserting nothing, and there are exactly four forms.
+    `assume` takes a formula, because it does assert."""
+    lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
+    for s in thm.steps:
+        lines += [(k, t, n) for k, t, _, n, _ in s.openers]
+    for kind, text, no in lines:
+        if kind != 'let':
+            continue
+        body = re.sub(r'^\s*let\s+', '', text)
+        body = re.sub(r'\s*\([A-Z]+[0-9]*\)\s*$', '', body).strip()
+        if not any(p.match(body) for _, p in INTRODUCTIONS):
+            report.say(thm.path, no,
+                       f'`let {body[:40]}` is none of the four introductions: '
+                       f'{", ".join(n for n, _ in INTRODUCTIONS)}')
+
+
 def check_last_step(report, thm):
     if not thm.steps:
         report.say(thm.path, thm.line, f'theorem {thm.name} has no steps')
@@ -561,6 +587,7 @@ def main(root):
     proved = {}
     for thm in theorems:
         check_last_step(report, thm)
+        check_introductions(report, thm)
         check_kinds(report, thm)
         check_capture(report, thm, claims_of(thm))
         check_run_together(report, thm, words)

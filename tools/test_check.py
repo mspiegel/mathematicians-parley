@@ -116,6 +116,12 @@ CASES = [
      'theorem cantor-two',
      'is in no record'),
 
+    ('a let line that asserts instead of introducing',
+     'proof/cantor.proof',
+     '  let A be a set                                                      (H1)',
+     '  let A ⊆ B                                                           (H1)',
+     'none of the four introductions'),
+
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has
     # been quietly preventing.

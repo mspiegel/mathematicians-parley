@@ -47,6 +47,14 @@ theorem even-square
   formula. These are the theorem's hypotheses, and they map onto
   Metamath's floating and essential hypotheses; `let A be a set` is
   set.mm's `A e. _V`. They are part of the statement, not of the proof.
+  Those four are all the forms a `let` line has. It carries an
+  introduction, which names something and says what it is, and never a
+  formula, because it asserts nothing; `assume` is the line that asserts.
+  Two of the four, `be a set` and `be a point`, are therefore not notations
+  and never appear inside a formula. Quantifying over an arbitrary set
+  inside a formula is the separate `for every set X, ...`, a binder with no
+  domain, which is to `let X be a set` what `for every n ∈ ℕ, ...` is to
+  `let n ∈ ℕ`.
   The uniform alternative, `let A ∈ Set` with a named universe for
   everything, was rejected: it attaches a type to the thing, and names
   collections a school reader has never met.
