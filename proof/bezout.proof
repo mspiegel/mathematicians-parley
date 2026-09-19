@@ -124,11 +124,18 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
     let y ∈ ℤ                                                         (K2)
     assume a·x + b·y ∈ ℕ                                              (K3)
 
-    10.1. a·x + b·y ∈ S
-          def:set-builder u := a·x + b·y, from K3
+    10.1. a·x + b·y = a·x + b·y
+          algebra
+          requires a ∈ ℝ: thm:nat-real, from H1
+          requires b ∈ ℝ: thm:nat-real, from H2
+          requires x ∈ ℝ: thm:int-real, from K1
+          requires y ∈ ℝ: thm:int-real, from K2
 
-    10.2. d ≤ a·x + b·y
-          instantiate s := a·x + b·y in line 5, from 10.1
+    10.2. a·x + b·y ∈ S
+          def:set-builder u := a·x + b·y, from K3, 10.1
+
+    10.3. d ≤ a·x + b·y
+          instantiate s := a·x + b·y in line 5, from 10.2
 
 11. a = a·1 + b·0
     algebra

@@ -3,8 +3,9 @@
 
 Reports the grammar, the numbering, block structure, pointer resolution, the
 scope of every citation, calculation chains, that every formula on the page
-parses one way, and that a citation supplies the hypotheses of what it cites.
-It does not check that the claim follows from them; that needs the elaborator.
+parses one way, that a citation supplies the hypotheses of what it cites, and
+that its claim is what that item concludes. It does not build the kernel proof;
+that needs the elaborator.
 
 Usage:  tools/check.py [root]
 Exits non-zero when anything is reported.
@@ -16,7 +17,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from formula import Grammar, parse
-from match import expand, instantiation, match, names
+from match import (
+    PROPERTY,
+    binding_context,
+    binding_sites,
+    expand,
+    instantiation,
+    match,
+    names,
+    substitute,
+)
 from parse import (
     BLOCK_HEADS,
     HEADS,
@@ -519,16 +529,16 @@ class Library:
         # metamath field may say more after the target, as "wrex, and wrex
         # under wn" does, so the target is its first word.
         self.exists, self.members = set(), set()
+        self.conj, self.bicond, self.impl = set(), set(), set()
+        targets = {'wrex': self.exists, 'wcel': self.members, 'wa': self.conj,
+                   'wb': self.bicond, 'wi': self.impl}
         for r in records:
             if r.kind != 'notation':
                 continue
             first = re.match(r'[a-z0-9-]+', r.fields.get('metamath', '').strip())
-            if not first:
-                continue
-            if first.group(0) == 'wrex':
-                self.exists.add(r.name)
-            elif first.group(0) == 'wcel':
-                self.members.add(r.name)
+            if first and first.group(0) in targets:
+                targets[first.group(0)].add(r.name)
+        self.binders, self.props = binding_context(g.notations)
 
     def groups(self, name):
         if name not in self.cache:
@@ -536,22 +546,36 @@ class Library:
         return self.cache[name]
 
     def _read(self, name):
+        """One (hypotheses, conclusion sentences) pair per `then` group."""
         thm = self.proved.get(name)
         if thm is not None:
+            sorts = sorts_in_scope(thm, self.g)
             lines = [(k, LABEL_AT_END.sub('', t[len(k):]).strip())
                      for k, t, _, _ in thm.hypotheses]
-            return [self._facts(lines, sorts_in_scope(thm, self.g))]
+            return [(self._facts(lines, sorts),
+                     self._trees(sentences(thm.conclusion), sorts))]
         item = self.items.get(name)
         if item is None:
             return None
         sorts = sorts_of_record(item)
         out = []
-        for _, at in item.conclusions:
+        for text, at in item.conclusions:
             lines = [(h[0], LABEL_AT_END.sub('', h[1]).strip())
                      for h in item.hypotheses
                      if h[0] in ('let', 'assume') and h[3] < at]
-            out.append(self._facts(lines, sorts))
-        return out or [[]]
+            out.append((self._facts(lines, sorts),
+                        self._trees(sentences(text), sorts)))
+        return out or [([], [])]
+
+    def _trees(self, texts, sorts):
+        out = []
+        for text in texts:
+            self.g.sorts = sorts
+            try:
+                out.append(parse(text, self.g))
+            except Problem:
+                continue
+        return out
 
     def _facts(self, lines, sorts):
         out = []
@@ -631,7 +655,8 @@ def check_contradiction(report, thm, g):
                        f'negated')
 
 
-def supply(patterns, facts, binding, variables, library):
+def supply(patterns, facts, binding, variables, library,
+           sites=frozenset(), reuse=False):
     """Every hypothesis is stated by one of the facts.
 
     A hypothesis that is a "there is" may instead be stated by a fact giving
@@ -642,13 +667,29 @@ def supply(patterns, facts, binding, variables, library):
     if not patterns:
         return binding
     first, rest = patterns[0], patterns[1:]
+    # A property already bound stands for a formula, so what it asks of the
+    # facts is that formula rather than the application. Filling it in first is
+    # what lets the rules below see it: `P(a)` may turn out to be a "there is",
+    # and then a fact giving an instance of it supplies it.
+    if (first.notation in library.props and len(first.children) == 2
+            and first.children[0].notation == 'name'):
+        stands = binding.get(first.children[0].text)
+        if stands is not None and stands.notation == PROPERTY:
+            arg = first.children[1]
+            if arg.notation == 'name' and arg.text in binding:
+                arg = binding[arg.text]
+            first = substitute(stands.children[0], {stands.text: arg})
     forms = [(first, variables)]
-    if first.notation in library.exists and len(first.children) == 3:
-        v, body = first.children[0], first.children[2]
-        forms.append((body, variables | {v.text}))
+    if first.notation in library.exists and len(first.children) > 2:
+        # A "there is" pattern holds its body last and names its variables
+        # before it, one name and one domain at a time, so the two-variable
+        # form is read the same way as the one-variable form.
+        body = first.children[-1]
+        named = {c.text for c in first.children[:-1] if c.notation == 'name'}
+        forms.append((body, variables | named))
     for i, fact in enumerate(facts):
         for form, seen in forms:
-            found = match(form, fact, binding, seen)
+            found = match(form, fact, binding, seen, library.props, sites)
             if (found is None and form is first
                     and first.notation in library.exists
                     and len(first.children) == 2
@@ -658,15 +699,165 @@ def supply(patterns, facts, binding, variables, library):
                               binding, variables)
             if found is None:
                 continue
-            # Each fact is used once, because two hypotheses asking the same
-            # thing want two lines saying it, and because a variable free in
-            # two hypotheses would otherwise bind to whatever made the first
-            # one match.
-            done = supply(rest, facts[:i] + facts[i + 1:], found,
-                          variables, library)
+            # A fact is used once when nothing has pinned the binding yet, or
+            # a variable free in two hypotheses binds to whatever made the
+            # first of them match and the second is then satisfied by the same
+            # line. Where the claim has already pinned it, as in the conclusion
+            # check, one line may legitimately answer two requirements: a
+            # hypothesis and what an unfolding asks for are often the same
+            # fact.
+            rest_facts = facts if reuse else facts[:i] + facts[i + 1:]
+            done = supply(rest, rest_facts, found, variables, library, sites,
+                          reuse)
             if done is not None:
                 return done
     return None
+
+
+def statements_in_scope(thm):
+    """Every line a citation may name, by the reference that names it."""
+    out = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
+    lines = [(k, t, lab) for k, t, lab, _ in thm.hypotheses]
+    lines += [(k, t, lab) for s in thm.steps for k, t, lab, _, _ in s.openers]
+    for kind, text, label in lines:
+        if label:
+            out[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+    return out
+
+
+def citation_parts(step, just, scope, library, sorts, defined):
+    """What a citation supplies, what it claims, and what it says its
+    variables stand for.
+
+    A defined name and the term it names are one formula, so all three are
+    expanded: the facts, the claim, and the written instantiation alike."""
+    g = library.g
+    supplied = []
+    for ref in just.refs:
+        if ref in scope:
+            supplied += sentences(scope[ref])
+    supplied += [fact for fact, _, _ in step.requires]
+
+    def read(text):
+        g.sorts = sorts
+        try:
+            return expand(parse(text, g), defined)
+        except Problem:
+            return None
+
+    facts = [x for x in map(read, supplied) if x is not None]
+    claims = [x for x in map(read, sentences(' '.join(step.claim)))
+              if x is not None]
+    seed = {}
+    for name, value in instantiation(just.text):
+        got = read(value)
+        if got is not None:
+            seed[name] = got
+    return facts, claims, seed
+
+
+def conjuncts(node, library):
+    """A conjunction taken apart. A claim may take one part of what it gets,
+    and a fact may supply one part of what is asked, because a line is a
+    conjunction at kernel level either way and the projection lives in the
+    method's expansion."""
+    if node.notation in library.conj and len(node.children) == 2:
+        return (conjuncts(node.children[0], library)
+                + conjuncts(node.children[1], library))
+    return [node]
+
+
+def readings(node, library):
+    """(what a step may claim, what a fact must state first), for one sentence
+    of an item's conclusion.
+
+    SYNTAX.md gives the moves: a sentence may be claimed as it stands; where it
+    is "A ↔ B" and a fact states A the step may claim B, and the other way
+    round; where it is "if A then B" and a fact states A the step may claim B.
+    """
+    out = [(node, [])]
+    if len(node.children) == 2:
+        left, right = node.children
+        if node.notation in library.bicond:
+            out += [(right, [left]), (left, [right])]
+        elif node.notation in library.impl:
+            out.append((right, [left]))
+    return out
+
+
+def take(claims, candidates, binding, used, need, given, variables, library,
+         sites):
+    """Every sentence of the claim takes a reading of the conclusion, and what
+    those readings ask for is then supplied by the facts.
+
+    It backtracks, because a sentence can fit a reading whose requirement the
+    step does not meet while another reading's it does."""
+    if not claims:
+        return supply(need + used, given, binding, variables, library,
+                      sites, reuse=True) is not None
+    for cand, first in candidates:
+        # What a property stands for is decided inside the braces, so a
+        # requirement holding them is matched before the claim that uses it.
+        start = binding
+        if any(id(x) in sites for x in walk(first)):
+            start = supply(first, given, binding, variables, library, sites)
+            if start is None:
+                continue
+        found = match(cand, claims[0], start, variables, library.props, sites)
+        if found is None:
+            continue
+        seen = {u.shape() for u in used}
+        more = [f for f in first if f.shape() not in seen]
+        if take(claims[1:], candidates, found, used + more, need, given,
+                variables, library, sites):
+            return True
+    return False
+
+
+def walk(nodes):
+    for node in nodes:
+        yield node
+        yield from walk(node.children)
+
+
+def check_conclusion(report, thm, library):
+    """A citation's claim is what the item concludes, under the binding its
+    hypotheses fixed."""
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
+    scope = statements_in_scope(thm)
+
+    for step in thm.steps:
+        just = step.just
+        if not just or not just.head.startswith(('def:', 'thm:')):
+            continue
+        groups = library.groups(just.head.split(':', 1)[1])
+        if groups is None:
+            continue
+        facts, claims, seed = citation_parts(step, just, scope, library,
+                                             sorts, defined)
+        if not claims:
+            continue
+        for want, gives in groups:
+            candidates, sites = [], set()
+            for concl in gives:
+                binding_sites(concl, library.binders, library.props, (), sites)
+                for target, extra in readings(concl, library):
+                    first = [x for e in extra for x in conjuncts(e, library)]
+                    candidates += [(c, first) for c in conjuncts(target, library)]
+            need = [x for _, t in want for x in conjuncts(t, library)]
+            for w in want:
+                binding_sites(w[1], library.binders, library.props, (), sites)
+            trees = gives + [t for _, t in want]
+            variables = set().union(*(names(t) for t in trees)) if trees else set()
+            if take(claims, candidates, dict(seed), [], need, facts,
+                    variables, library, sites):
+                break
+        else:
+            report.say(thm.path, just.line,
+                       f'step {fmt(step.number)} claims something that '
+                       f'{just.head} does not conclude')
 
 
 def check_hypotheses(report, thm, library):
@@ -684,12 +875,7 @@ def check_hypotheses(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
-    lines = [(k, t, lab) for k, t, lab, _ in thm.hypotheses]
-    lines += [(k, t, lab) for s in thm.steps for k, t, lab, _, _ in s.openers]
-    for kind, text, label in lines:
-        if label:
-            scope[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+    scope = statements_in_scope(thm)
 
     for step in thm.steps:
         just = step.just
@@ -698,38 +884,17 @@ def check_hypotheses(report, thm, library):
         groups = library.groups(just.head.split(':', 1)[1])
         if groups is None:
             continue                      # a pointer that resolves to nothing
-        supplied = []
-        for ref in just.refs:
-            if ref in scope:
-                supplied += sentences(scope[ref])
-        supplied += [fact for fact, _, _ in step.requires]
-
-        # A defined name and the term it names are one formula, so both sides
-        # of every comparison are expanded, the facts and what the citation
-        # says its variables stand for alike.
-        facts = []
-        for text in supplied:
-            g.sorts = sorts
-            try:
-                facts.append(expand(parse(text, g), defined))
-            except Problem:
-                continue
-        seed = {}
-        for name, value in instantiation(just.text):
-            g.sorts = sorts
-            try:
-                seed[name] = expand(parse(value, g), defined)
-            except Problem:
-                continue
+        facts, _, seed = citation_parts(step, just, scope, library, sorts,
+                                        defined)
 
         missing = None
-        for want in groups:
+        for want, _ in groups:
             if not want:
                 missing = None
                 break
             variables = set().union(*(names(t) for _, t in want))
             if supply([t for _, t in want], facts,
-                      dict(seed), variables, library) is not None:
+                      dict(seed), variables, library, frozenset()) is not None:
                 missing = None
                 break
             missing = [t for t, _ in want]
@@ -969,6 +1134,7 @@ def main(root):
         check_formulas(report, thm, grammar)
         check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
+        check_conclusion(report, thm, library)
         check_last_step(report, thm)
         check_readings(report, thm)
         check_introductions(report, thm)

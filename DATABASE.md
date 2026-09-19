@@ -177,6 +177,13 @@ repaired.
   checker parses all of them on every run. Getting there took six notations
   nobody had declared, eight records that never said what their names were, and
   three defects in the parser itself.
+- **Every citation's claim is what the item it cites concludes.** All 109 of
+  them, under the moves `SYNTAX.md` states: a sentence claimed as it stands, a
+  biconditional read in either direction when a fact gives the other side, a
+  conditional giving its consequent, a claim taking one conjunct, and a "there
+  is" supplied by a fact giving an instance. The set-builder needed one more
+  rule, which is that a property is worked out from the occurrence inside the
+  braces, where the answer is forced, and only checked outside.
 - **Every citation supplies the hypotheses of what it cites.** All 106 of them,
   checked by matching the item as a pattern against the facts the step names,
   so the 37 citations that write no instantiation are read like the 69 that do.

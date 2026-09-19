@@ -136,8 +136,8 @@ CASES = [
     # Line 4 of bezout binds s, so substituting a term naming s would capture.
     ('substitute a term that captures a bound variable',
      'proof/bezout.proof',
-     '          instantiate s := a·x + b·y in line 5, from 10.1',
-     '          instantiate s := a·x + b·s in line 5, from 10.1',
+     '          instantiate s := a·x + b·y in line 5, from 10.2',
+     '          instantiate s := a·x + b·s in line 5, from 10.2',
      'may not capture'),
 
     ('obtain a name without stating its sort',
@@ -175,6 +175,24 @@ CASES = [
      '  level       predicate\n  negates     pattern 3 is logical-not of pattern 2',
      '  level       predicate',
      'does not supply them'),
+
+    ('claim something the cited item does not conclude',
+     'proof/infinitely-many-primes.proof',
+     '6.  p > 1\n    def:prime p := p, from 5',
+     '6.  p > 2\n    def:prime p := p, from 5',
+     'does not conclude'),
+
+    ('stop declaring that juxtaposition is the product',
+     'db/notation.db',
+     '  assoc       left\n  spells      multiplicative ·',
+     '  assoc       left',
+     'does not conclude'),
+
+    ('stop saying which variable the braces bind',
+     'db/items.db',
+     '  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)',
+     '  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)',
+     'does not conclude'),
 
     ('say a property is a function into a formula',
      'db/items.db',

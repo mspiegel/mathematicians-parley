@@ -598,7 +598,7 @@ notation there-are
   level       binder
   binds       holes 1 and 3 over hole 5
   reads       there are, and, with
-  metamath    two nested wrex
+  metamath    wrex nested twice, one for each variable
   first-used  bezout
   note        The two-variable form. Six uses: Bezout's statement and its
               step 19, the set-builder body of its define line, and the
