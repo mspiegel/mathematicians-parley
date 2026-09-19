@@ -491,6 +491,27 @@ notation for-every
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
 
+notation for-every-with
+  pattern     for every _ ∈ _ with _, _
+  holes       variable, set, formula, formula
+  yields      formula
+  level       binder
+  binds       hole 1 over holes 3 and 4
+  reads       for every, with
+  metamath    wral, with wi inside it
+  first-used  intermediate-value
+  note        The restricted universal, "for every ε ∈ ℝ with ε > 0". Two uses,
+              the definition of continuity and step 16 of the pilot that needs
+              it. Writing it as "for every ε ∈ ℝ, if ε > 0 then ..." was the
+              alternative and reads worse in the definition, which is the place
+              a reader meets it first.
+
+              "with" means a conjunction after "there is" and an implication
+              here, which is ordinary mathematical English and is why the two
+              are separate records with different targets. The side condition
+              is delimited by the comma, so a condition that is itself a comma
+              list would need brackets; none is written and none reads well.
+
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
   holes       variable, set, formula

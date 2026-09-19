@@ -205,6 +205,10 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   and a final "and". The comma list is the declared notation
   `comma-conjunction`, which is the same connective as "and" and builds the
   same tree, so the final "and" is layout and carries no meaning of its own.
+- "for every x ∈ S, ..." is written for ∀, and a side condition on the
+  variable goes in a "with" clause: "for every ε ∈ ℝ with ε > 0, ...". The
+  "with" means a conjunction after "there is" and an implication here, which
+  is what the two phrases mean in English and what their two records target.
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or
