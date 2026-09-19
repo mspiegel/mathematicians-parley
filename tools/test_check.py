@@ -138,11 +138,11 @@ CASES = [
      '          instantiate s := a·x + b·s in line 4, from 7.1',
      'may not capture'),
 
-    ('obtain a name without stating its kind',
+    ('obtain a name without stating its sort',
      'proof/sqrt2-irrational.proof',
      '1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
      '1.  n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
-     'without stating its kind'),
+     'without stating its sort'),
 ]
 
 

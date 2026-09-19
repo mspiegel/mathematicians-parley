@@ -53,7 +53,7 @@ distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
-for each hole, the kind each hole takes, what the pattern yields, its
+for each hole, the sort each hole takes, what the pattern yields, its
 precedence level, and its associativity where one is needed. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
 a hole marked as binding. `db/notation.db` describes the fields, and one
@@ -138,9 +138,9 @@ These are for the checker to flag or for a later decision. None was silently
 repaired.
 
 - **Three notations collide on the vertical bar.** `|x|` is absolute value,
-  `|A|` is cardinality and `|PQ|` is distance. Telling them apart needs the kind
-  of the argument, which the readable layer does not track. The formula parser
-  will have to face this.
+  `|A|` is cardinality and `|PQ|` is distance. Settled since: each is its own
+  notation record and they are told apart by the sort of the hole, which
+  `GRAMMAR.md` describes. It is the only overloaded pattern of the 63 declared.
 - **Recursive definitions do not fit the theorem form.** `def:S`, `def:G` and
   `def:factorial` have a base sentence with no hypothesis and a step sentence
   with one, and the form puts all hypotheses before all conclusions. They are

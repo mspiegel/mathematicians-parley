@@ -14,14 +14,14 @@
 #   pattern     the pattern, with _ for each hole. A record may carry several
 #               patterns when they differ only in symbol and set.mm target;
 #               the metamath list then matches the pattern list in order.
-#   holes       the kind each hole takes, in order. The kinds are number, set,
+#   holes       the sort each hole takes, in order. The sorts are number, set,
 #               point, formula, function, variable, and any. `none` if the
 #               pattern has no hole.
-#   yields      the kind the pattern produces.
+#   yields      the sort the pattern produces.
 #   level       its precedence level, from the order declared below.
 #   assoc       left or right. Required exactly when both edges are holes and
 #               `yields` fits those holes, so the pattern can nest in itself;
-#               absent otherwise, since a token at an edge or a kind mismatch
+#               absent otherwise, since a token at an edge or a sort mismatch
 #               already settles the reading.
 #   binds       for a binder, which hole introduces the variable and which
 #               hole it scopes over.
@@ -33,9 +33,15 @@
 # A line beginning with # is a comment. A record begins at column 0 and its
 # fields are indented.
 #
-# Kinds are what disambiguate. Three notations share the pattern |_|, and they
-# are told apart by the kind of what is inside, which is how a reader tells
+# Sorts are what disambiguate. Three notations share the pattern |_|, and they
+# are told apart by the sort of what is inside, which is how a reader tells
 # them apart too. No rule about vertical bars appears anywhere in the grammar.
+#
+# They are sorts in the sense of many-sorted logic, not types: a finite set of
+# syntactic categories deciding which productions apply. Nothing composes, none
+# is inferred, and the label never affects meaning. Metamath has the same idea
+# and calls them typecodes, of which set.mm has three; these are the readable
+# layer's, one level up and seven of them.
 
 precedence order
   # Each line names a level and the levels it binds more tightly than. Levels
@@ -244,7 +250,7 @@ notation absolute-value
   metamath    cabs
   first-used  triangle-inequality
   note        Shares its pattern with cardinality and distance and is told
-              apart by the kind of its hole. Needs no assoc and no level: a
+              apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
 
 notation cardinality
@@ -264,7 +270,7 @@ notation distance
   first-used  isosceles
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
-              |CA| would otherwise read as a product; the point kind is what
+              |CA| would otherwise read as a product; the point sort is what
               rules that out, since multiplication takes numbers.
 
 notation factorial
@@ -371,7 +377,7 @@ notation application
   metamath    cfv
   first-used  cantor
   note        Written identically to juxtaposition-multiplication: f(x) applies
-              and k(k + 1) multiplies. The function kind of the first hole is
+              and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
 
 notation closed-interval
@@ -402,11 +408,11 @@ notation juxtaposition
 notation point
   pattern     point
   holes       none
-  yields      kind
+  yields      sort
   reads       a point of the plane
   metamath    an element of ℂ
   first-used  isosceles
-  note        A kind name rather than a notation: it appears in `let A be a
+  note        A sort name rather than a notation: it appears in `let A be a
               point`, which is a hypothesis line, not inside a formula.
 
 notation angle

@@ -48,14 +48,23 @@ is presentation: steps at the same depth begin at column 10 in one file and 11
 in another. Structure comes from the step number. The single exception is the
 chain line, noted below.
 
-## Kinds
+## Sorts
 
-`db/notation.db` declares the kind of each hole of each notation, and kinds are
+`db/notation.db` declares the sort of each hole of each notation, and sorts are
 what tell two notations sharing a pattern apart. So a parser has to know the
-kind of every name before it can read a formula: `|x|` is an absolute value or
+sort of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
 
-**Every kind is written on the page, and a parser infers none.** A name's kind
+They are **sorts** in the sense of many-sorted logic, and not types. There are
+seven fixed labels; nothing composes, since sets are deliberately flat; nothing
+is inferred, since every sort is written down; and `any` is a label rather than
+the top of a lattice. Above all a sort never affects meaning. It picks which
+notation applies, and after that the meaning is the notation's. Metamath has the
+same idea one layer down and calls them typecodes, of which set.mm has three;
+your goals document's "no types beyond typecodes" is the kernel drawing this
+same line.
+
+**Every sort is written on the page, and a parser infers none.** A name's sort
 comes from any line in scope that states its membership of a number system, or
 from a `define`. In practice that is:
 
@@ -66,41 +75,52 @@ from a `define`. In practice that is:
 - any numbered step claiming the membership, which need not be the line that
   introduced the name.
 
-The last is what keeps the kinds flat. A `let` line naming a number system
-gives a kind directly, but 21 of the corpus's 72 memberships name a set instead:
-`s ∈ [a, b]`, `a ∈ S`, `x ∈ A`. The kinds have `set` and no way to say *a set of
+The last is what keeps the sorts flat. A `let` line naming a number system
+gives a sort directly, but 21 of the corpus's 72 memberships name a set instead:
+`s ∈ [a, b]`, `a ∈ S`, `x ∈ A`. The sorts have `set` and no way to say *a set of
 numbers*, so those declarations give nothing. The alternative was to let a set
-carry the kind of its elements, which turns a flat list of seven words into a
+carry the sort of its elements, which turns a flat list of seven words into a
 system with parts inside it, and the corpus does not need it.
 
 It does not need it because a bar is settled either by the operator inside it,
 as `|s − c|` is by subtraction and `|X ∖ {a}|` by difference, or by a bare
-variable whose kind is stated somewhere in scope. Exactly one variable is
+variable whose sort is stated somewhere in scope. Exactly one variable is
 declared loosely and later firmed: `s` in the intermediate value proof, declared
-`s ∈ S` and given a number kind by step 17.25.3, which precedes the step writing
+`s ∈ S` and given a number sort by step 17.25.3, which precedes the step writing
 `|s − c|`. That step exists because the membership rule requires every atom of an
 `inequalities` step to be shown real, so the rule that made the corpus more
 verbose also made it parseable.
 
-What this leaves open is a bare variable of no known kind sitting directly
+**The parser checks every hole against its declared sort**, not only where two
+notations compete. The sorts are declared, and an unchecked declaration rots;
+with checking, `S ⊆ 2` is a defect a parser reports where nothing in the system
+could previously have noticed it. The price is the set-theory restriction below.
+
+What this leaves open is a bare variable of no known sort sitting directly
 inside bars. That is ambiguous, so a parser rejects it rather than choosing, and
 the failure is a refused proof rather than a misread one. Today's checker cannot
 see it, since it treats a claim as opaque text, and it belongs on the formula
 parser's list.
 
-### What flat kinds cost in set theory
+Not settled, and it bites now that holes are checked: whether a value of no
+known sort fits a hole declaring a specific one. Step 6.2 of the intermediate
+value proof claims `s ≤ b`, whose holes are numbers, and in that block `s` has
+only `s ∈ S` and `s ∈ [a, b]`, neither a number system. If an unknown sort does
+not fit, that step fails; if it does, checking is weaker than it sounds.
+
+### What flat sorts cost in set theory
 
 set.mm is ZF, so a number *is* a set: 0 is the empty set, 2 is {∅, {∅}}, and ℕ
-is the set of finite von Neumann ordinals. The rule above gives a name the kind
-`number` as soon as it sees `n ∈ ℕ`, and a number is not a set here. So these
-cannot be written:
+is the set of finite von Neumann ordinals. The rule above gives a name the sort
+`number` as soon as it sees `n ∈ ℕ`, and a number is not a set here. Because
+holes are checked rather than merely disambiguated, these cannot be written:
 
 | statement | why |
 |---|---|
 | `\|n\| = n` for a natural n | the bars read as absolute value, not cardinality |
 | `n ⊆ m` | subset takes two sets and n is a number |
 | `x ∈ n` | membership's right hole takes a set |
-| `2 = {∅, {∅}}` | the two sides have different kinds |
+| `2 = {∅, {∅}}` | the two sides have different sorts |
 
 Most set theory is unaffected, because it does not use the encoding. Cantor's
 theorem already works, saying `let A be a set` and never asking what is inside.
@@ -117,7 +137,7 @@ change of type. A reader with school mathematics is not meant to learn that 2 is
 a pair of nested empty sets.
 
 If such a theorem is ever wanted the fix is a database addition, not a redesign:
-declare ordinals as their own kind, or declare a coercion notation so the text
+declare ordinals as their own sort, or declare a coercion notation so the text
 says where the encoding is being used. That is the honest form regardless, since
 a step resting on `2 = {∅, {∅}}` should be visible as one.
 
@@ -127,8 +147,8 @@ implementations chasing to different depths would parse the same formula
 differently. All sixteen `obtain` steps in the corpus already state the
 membership, so the rule costs nothing and the checker enforces it.
 
-The kinds are `number`, `set`, `point`, `formula`, `function`, `variable`, and
-`any`, which means any term kind and never a formula.
+The sorts are `number`, `set`, `point`, `formula`, `function`, `variable`, and
+`any`, which means any term sort and never a formula.
 
 ## Reading a run of letters
 

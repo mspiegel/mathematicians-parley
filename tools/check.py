@@ -163,11 +163,11 @@ def check_database(report, records):
                                f'not a part marker')
 
 
-TERM_KINDS = {'number', 'set', 'point', 'any'}
+TERM_SORTS = {'number', 'set', 'point', 'any'}
 
 
 def check_notation(report, records):
-    """A notation record declares a pattern, the kind of each hole, and what it
+    """A notation record declares a pattern, the sort of each hole, and what it
     yields. Two things follow mechanically and are checked here."""
     for r in records:
         if r.kind != 'notation':
@@ -193,7 +193,7 @@ def check_notation(report, records):
         # both edges are holes, and what it yields fits those holes.
         for p in patterns:
             edges = p.startswith('_') and p.endswith('_')
-            nests = yields in holes or (yields in TERM_KINDS and 'any' in holes)
+            nests = yields in holes or (yields in TERM_SORTS and 'any' in holes)
             if edges and nests and 'assoc' not in r.fields:
                 report.say(r.path, r.line,
                            f'notation {r.name} has a hole at each edge and '
@@ -469,12 +469,12 @@ def check_capture(report, thm, claims):
                            f'lands; a substitution may not capture')
 
 
-def check_kinds(report, thm):
-    """Every variable's kind is on the page, so the parser never infers one.
+def check_sorts(report, thm):
+    """Every variable's sort is on the page, so the parser never infers one.
 
     A `let` line gives it, and so does the claim of the `obtain` step that
     introduces a name. Without that rule a parser would have to chase the
-    cited item's conclusion to learn a kind, and kinds are what disambiguate
+    cited item's conclusion to learn a sort, and sorts are what disambiguate
     a notation, so two implementations chasing differently would parse the
     same formula differently."""
     for s in thm.steps:
@@ -494,8 +494,8 @@ def check_kinds(report, thm):
             if not stated:
                 report.say(thm.path, s.line,
                            f'step {fmt(s.number)} obtains {v} without stating its '
-                           f'kind; the claim of an obtain states the membership '
-                           f'of each name it introduces, so no kind is inferred')
+                           f'sort; the claim of an obtain states the membership '
+                           f'of each name it introduces, so no sort is inferred')
 
 
 INTRODUCTIONS = (
@@ -588,7 +588,7 @@ def main(root):
     for thm in theorems:
         check_last_step(report, thm)
         check_introductions(report, thm)
-        check_kinds(report, thm)
+        check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))
         check_run_together(report, thm, words)
         check_numbering(report, thm)
