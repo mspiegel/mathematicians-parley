@@ -56,12 +56,37 @@ kind of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
 
 **Every kind is written on the page, and a parser infers none.** A name's kind
-comes from one of three places, all of them visible where the name appears:
+comes from any line in scope that states its membership of a number system, or
+from a `define`. In practice that is:
 
 - a `let` line, in the statement or opening a block;
 - the claim of the `obtain` step that introduces the name, which states its
   membership as one of its own sentences;
-- the right-hand side of a `define`, whose notation says what it yields.
+- the right-hand side of a `define`, whose notation says what it yields;
+- any numbered step claiming the membership, which need not be the line that
+  introduced the name.
+
+The last is what keeps the kinds flat. A `let` line naming a number system
+gives a kind directly, but 21 of the corpus's 72 memberships name a set instead:
+`s ∈ [a, b]`, `a ∈ S`, `x ∈ A`. The kinds have `set` and no way to say *a set of
+numbers*, so those declarations give nothing. The alternative was to let a set
+carry the kind of its elements, which turns a flat list of seven words into a
+system with parts inside it, and the corpus does not need it.
+
+It does not need it because a bar is settled either by the operator inside it,
+as `|s − c|` is by subtraction and `|X ∖ {a}|` by difference, or by a bare
+variable whose kind is stated somewhere in scope. Exactly one variable is
+declared loosely and later firmed: `s` in the intermediate value proof, declared
+`s ∈ S` and given a number kind by step 17.25.3, which precedes the step writing
+`|s − c|`. That step exists because the membership rule requires every atom of an
+`inequalities` step to be shown real, so the rule that made the corpus more
+verbose also made it parseable.
+
+What this leaves open is a bare variable of no known kind sitting directly
+inside bars. That is ambiguous, so a parser rejects it rather than choosing, and
+the failure is a refused proof rather than a misread one. Today's checker cannot
+see it, since it treats a claim as opaque text, and it belongs on the formula
+parser's list.
 
 The second is the rule that keeps this bounded. Without it a parser would chase
 the cited item's conclusion to learn what an obtained name is, and two
