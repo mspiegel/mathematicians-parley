@@ -270,6 +270,19 @@ labelled line placed where S is first needed, claiming nothing, and cited
 by its label wherever a step needs to know what S stands for. It is the
 third kind of unnumbered line beside `let` and `assume`.
 
+**A defined name and the term it names are one formula.** A define abbreviates
+and asserts nothing, so wherever two formulas are compared the name is expanded
+first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing with
+both sets written out say the same thing, and the citation is checked as such.
+Expansion repeats, since a define may be written in terms of an earlier one.
+
+The alternative was to make the name opaque and require a `substitute` step at
+every crossing, which is what this document's rule about unfolding a definition
+would ask for if a define were one. It is not: unfolding `even` or `divides`
+tells a reader something, and unfolding a local name tells them nothing, while
+costing fifteen bridging steps that each put back the long expression the name
+was introduced to avoid.
+
 **A define is followed by a `reads` line** giving, in words, what the name
 means: one line, directly under the define, required on every one. Because a
 define asserts nothing, the acceptance test has nothing to check about it, and

@@ -21,9 +21,10 @@ from parse import (                                       # noqa: E402
 )
 from formula import Grammar, parse                        # noqa: E402
 from sorts import (                                       # noqa: E402
-    FUNCTION, KIND, LABEL as LABEL_AT_END, sorts_in_scope, sorts_of_record,
+    FUNCTION, KIND, LABEL as LABEL_AT_END, definitions_in_scope,
+    sorts_in_scope, sorts_of_record,
 )
-from match import instantiation, match_all, names         # noqa: E402
+from match import expand, instantiation, match_all, names  # noqa: E402
 
 # The productions of GRAMMAR.md, one per justification form.
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
@@ -554,15 +555,15 @@ def check_contradiction(report, thm, g):
     later with nothing to point at."""
     sorts_in_scope(thm, g)
     wrappers = {n.folds for n in g.notations if n.folds}
+    defined = definitions_in_scope(thm, g)
+    thm_sorts = sorts_in_scope(thm, g)
 
     def read(text):
         g.sorts = thm_sorts
         try:
-            return parse(text, g)
+            return expand(parse(text, g), defined)
         except Problem:
             return None
-
-    thm_sorts = g.sorts
     for step in thm.steps:
         if not step.just or step.just.head != 'contradiction':
             continue
@@ -611,6 +612,7 @@ def check_hypotheses(report, thm, library):
     rather than taken on trust."""
     g = library.g
     sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
     scope = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
     lines = [(k, t, lab) for k, t, lab, _ in thm.hypotheses]
     lines += [(k, t, lab) for s in thm.steps for k, t, lab, _, _ in s.openers]
@@ -631,18 +633,21 @@ def check_hypotheses(report, thm, library):
                 supplied += sentences(scope[ref])
         supplied += [fact for fact, _, _ in step.requires]
 
+        # A defined name and the term it names are one formula, so both sides
+        # of every comparison are expanded, the facts and what the citation
+        # says its variables stand for alike.
         facts = []
         for text in supplied:
             g.sorts = sorts
             try:
-                facts.append(parse(text, g))
+                facts.append(expand(parse(text, g), defined))
             except Problem:
                 continue
         seed = {}
         for name, value in instantiation(just.text):
             g.sorts = sorts
             try:
-                seed[name] = parse(value, g)
+                seed[name] = expand(parse(value, g), defined)
             except Problem:
                 continue
 

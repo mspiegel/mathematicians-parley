@@ -97,6 +97,26 @@ def match_all(patterns, facts, binding, variables):
     return None
 
 
+def expand(node, definitions, depth=8):
+    """The tree with every defined name replaced by the term it names.
+
+    A define abbreviates and asserts nothing, so the two are one formula when
+    two formulas are compared: a step claiming `𝒫X = U ∪ T` and a theorem
+    concluding the same thing with the sets written out say the same thing. A
+    define may be written in terms of an earlier one, so this repeats, and the
+    depth is bounded because nothing stops a file naming something after
+    itself."""
+    if not definitions or depth <= 0:
+        return node
+    if node.notation == 'name' and node.text in definitions:
+        return expand(definitions[node.text], definitions, depth - 1)
+    if not node.children:
+        return node
+    return Node(node.notation, node.sort,
+                [expand(c, definitions, depth) for c in node.children],
+                node.text)
+
+
 def substitute(node, binding):
     """The tree with each bound name replaced by what it stands for."""
     if node.notation in ('name', 'numeral'):

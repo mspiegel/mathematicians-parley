@@ -46,6 +46,26 @@ def _from_introduction(body):
     return None
 
 
+def definitions_in_scope(thm, g):
+    """What each `define` line names, as a tree.
+
+    A define asserts nothing; it abbreviates. So the name and the term are one
+    formula wherever two formulas are compared, and this is the table that says
+    which term each name stands for. A define may name something in terms of an
+    earlier one, so the terms are read in the order they are written."""
+    out = {}
+    for kind, text, _, _ in thm.defines:
+        m = DEFINE.match(LABEL.sub('', text).strip())
+        if not m:
+            continue
+        g.sorts = sorts_in_scope(thm, g)
+        try:
+            out[m.group(1)] = parse(m.group(2), g)
+        except Problem:
+            continue
+    return out
+
+
 def sorts_of_record(record):
     """The sort of every name an item's own lines state one for.
 
