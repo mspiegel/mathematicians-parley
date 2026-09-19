@@ -2,14 +2,17 @@
 
 A lint rule is one that can be broken by text that parses, passes the checker,
 and is correct. Nothing here is about a proof being wrong. Every rule below
-says that one of two correct ways of writing the same thing is harder to
-understand than the other, and asks for the easier one.
+records a judgement that one of two correct ways of writing the same thing is
+harder to understand than the other, and suggests the easier one.
 
-That is the division of labour. The checker decides whether a proof is right,
-and has nothing to say about how it reads. A linter decides how it reads, and
-has nothing to say about whether it is right. Neither can do the other's job,
-and a finding from one should never be reported as though it came from the
-other.
+That is the division of labour, and it is uneven. The checker decides: a proof
+either has the defect or it does not, and nothing is left to anyone's taste.
+
+A linter decides nothing. It cannot tell whether a line is hard to read; it
+matches the rules written here, which came from judgements people made about
+particular lines, and every finding is a suggestion that a writer may take or
+leave. Whether a text can be understood is settled by a reader against the
+acceptance test in `READERS.md`, and no tool is party to that.
 
 Most of this project's rules are not of that kind. `p prime` cannot be written,
 because no notation has that pattern. `not n is odd` cannot be written, because
@@ -91,7 +94,9 @@ still. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 
 If a linter is written it belongs in the gate beside ruff and the checker, and
-its findings are warnings rather than problems. A problem means the corpus says
-something it should not. A warning here means the corpus says the right thing
-in the harder of two ways, and the proof would be just as true if nobody ever
-acted on it.
+its findings are suggestions rather than problems. A problem means the corpus
+says something it should not, and the gate is red until it is fixed. A
+suggestion here means the corpus says the right thing in what we took to be the
+harder of two ways, and the proof would be just as true if nobody ever acted on
+it. So a suggestion never fails the gate, and a writer who disagrees with one
+is disagreeing with a judgement written in this file rather than with a tool.
