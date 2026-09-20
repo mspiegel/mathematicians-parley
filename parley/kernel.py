@@ -94,6 +94,11 @@ class Syntax:
     def __init__(self, signatures):
         self.rules, self.by_yield = [], {t: [] for t in TYPECODES}
         self.typecode, self.label = {}, {}
+        # A statement spells one term and an elaborator reads the same few
+        # statements over and over: settling a side condition tries every
+        # lemma it is allowed to try, and each is a chart parse. So what a
+        # run of tokens spells is worked out once.
+        self.spelt = {}
         for sig in signatures.values():
             if sig.kind == '$f':
                 self.typecode[sig.statement[1]] = sig.statement[0]
@@ -119,6 +124,16 @@ class Syntax:
     def parse(self, tokens, start='wff'):
         """The term these tokens spell, or a Problem if they spell none."""
         tokens = list(tokens)
+        key = (tuple(tokens), start)
+        held = self.spelt.get(key)
+        if held is not None:
+            return held
+        found = self.spell(tokens, start)
+        self.spelt[key] = found
+        return found
+
+    def spell(self, tokens, start):
+        """What these tokens spell, worked out rather than remembered."""
         # A statement may be one variable and nothing else, which no rule
         # produces: `vtocl3` concludes `ps`.
         if len(tokens) == 1 and self.typecode.get(tokens[0]) == start:

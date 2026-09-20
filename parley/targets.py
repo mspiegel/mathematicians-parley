@@ -140,6 +140,7 @@ COMMUTING = {('co', 'cmul'): 'mulcom', ('co', 'caddc'): 'addcom'}
 # Moving a name from the set it was introduced in to the one a step needs.
 WIDEN = {('cz', 'cr'): 'zre', ('cz', 'cc'): 'zcn', ('cr', 'cc'): 'recn',
          ('cn', 'cz'): 'nnz', ('cn', 'cr'): 'nnre', ('cn', 'cc'): 'nncn',
+         ('cn', 'cn0'): 'nnnn0',
          ('cn0', 'cz'): 'nn0z', ('cn0', 'cr'): 'nn0re',
          ('cn0', 'cc'): 'nn0cn', ('cq', 'cr'): 'qre', ('cq', 'cc'): 'qcn'}
 
@@ -160,11 +161,14 @@ NUMERAL_IN = {'cz': 'z', 'cc': 'cn', 'cr': 're', 'cn': 'nn', 'cq': 'q'}
 MEMBERSHIP = [
     'ax-1cn', '1re', '1z', '1nn', '2cn', '2re', '2z', '2nn', '0cn', '0re',
     '3cn', '3re', '3z', '4cn', '4re', '4z',
-    'nnz', 'nnre', 'nncn', 'nn0z', 'nn0re', 'nn0cn', 'zre', 'zcn', 'recn',
-    'qre', 'qcn', 'elnnuz',
+    'nnz', 'nnre', 'nncn', 'nnnn0', 'nn0z', 'nn0re', 'nn0cn',
+    'zre', 'zcn', 'recn',
+    'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1',
     'elfzelz', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
     'renegcl', 'negcl',
+    # and sethood, which set theory asks where arithmetic asks closure
+    'rabexg', 'ssexg',
     # and what an order relation asks, which is the same kind of thing
     'ltle', 'ltnri', 'leid',
 ]

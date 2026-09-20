@@ -36,6 +36,10 @@ from parse import Problem, check_encoding, fmt, parse_database, parse_proof
 from sorts import sorts_in_scope
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
+# `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
+# what `A is a set` states. The hypothesis line reads better as it is
+# written; the claim is the notation the database declares.
+BE_A_SET = re.compile(r'\s+be\s+a\s+set\b')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
@@ -124,7 +128,9 @@ class Elaborator:
         ('wa', (0,)): 'anbi1d', ('wa', (1,)): 'anbi2d',
         ('wa', (0, 1)): 'anbi12d',
         ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
-        ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d'}
+        ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d',
+        ('wn', (0,)): 'notbid',
+        ('wral', (0,)): 'ralbidv', ('wrex', (0,)): 'rexbidv'}
 
     # Which transitivity folds one link of a calculation into the run above
     # it, by what each of the two claims is. Two relations in a row would
@@ -139,9 +145,9 @@ class Elaborator:
         # A name the proof introduces becomes a variable of the kernel, and it
         # must not be one a notation's own target binds: `S(_)` sums over `k`,
         # so a proof that fixes `k` cannot be given `k`.
-        taken = {t for entries in self.terms.values() for e in entries if e
-                 for t in e.split()}
-        self.spare = [v for v in SPARE_VARS if v not in taken]
+        self.taken = {t for entries in self.terms.values()
+                      for e in entries if e for t in e.split()}
+        self.spare = [v for v in SPARE_VARS if v not in self.taken]
         self.commutes = targets.commuting(records)
         self.syntax = kernel.Syntax(sigs)
         self.proofs = {t.name: t for t in theorems}
@@ -152,6 +158,8 @@ class Elaborator:
         self.names = {}          # readable name -> kernel term
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
+        self.reserved = set()    # setvars the conclusion quantifies over
+        self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.last = None
         # A variable is pushed by the label of its floating hypothesis and
@@ -199,9 +207,8 @@ class Elaborator:
             # The body speaks of what the binder introduces, so the name
             # stands for its own variable while the body is read.
             said = node.children[i].text
-            self.names[said] = f'{self.flabel.get(said, "v" + said)} cv'
-        holes = [self.flabel.get(c.text, 'v' + c.text) if i in bound
-                 else self.term(c)
+            self.names[said] = f'{self.binder_var(said)} cv'
+        holes = [self.binder_var(c.text) if i in bound else self.term(c)
                  for i, c in enumerate(node.children)]
         if bound:
             self.names = saved
@@ -291,27 +298,50 @@ class Elaborator:
                            *(self.settle(c, scope, facts, depth - 1)
                              for c in wanted.children),
                            'jca' if wanted.label == 'wa' else '3jca')
-            for label in targets.MEMBERSHIP:
-                sig = self.sigs.get(label)
-                if sig is None or sig.essentials:
-                    continue
-                found = self.fits(label, sig, wanted, scope, facts, depth)
-                if found is not None:
-                    return found
+            # Every lemma is tried as it is written before any is read
+            # backwards, so that a biconditional turned round never stands
+            # in for one that says what is wanted outright.
+            for backwards in (False, True):
+                for label in targets.MEMBERSHIP:
+                    sig = self.sigs.get(label)
+                    if sig is None or sig.essentials:
+                        continue
+                    found = self.fits(label, sig, wanted, scope, facts,
+                                      depth, backwards)
+                    if found is not None:
+                        return found
         raise Problem('', 0, f'cannot settle {self.render(rpn)}')
 
-    def fits(self, label, sig, wanted, scope, facts, depth):
+    def fits(self, label, sig, wanted, scope, facts, depth, backwards):
         """Whether one lemma settles what is wanted, and how.
+
+        A biconditional says two things, so it can be read either way:
+        `elnnuz` puts a natural number in the upper integers from its left
+        side, and `eluz2` puts something there from an inequality, which is
+        its right. Which way is the caller's, since reading one backwards
+        is a last resort."""
+        whole = self.syntax.statement(sig)
+        if whole.label != 'wb':
+            readings = [] if backwards else [((), whole, 'syl')]
+        elif backwards:
+            readings = [((whole.children[1],), whole.children[0], 'sylibr')]
+        else:
+            readings = [((whole.children[0],), whole.children[1], 'sylib')]
+        for antecedents, reads, closing in readings:
+            found = self.fitting(label, sig, whole, list(antecedents), reads,
+                                 closing, wanted, scope, facts, depth)
+            if found is not None:
+                return found
+        return None
+
+    def fitting(self, label, sig, whole, antecedents, reads, closing,
+                wanted, scope, facts, depth):
+        """One reading of a lemma, applied to what is wanted.
 
         A lemma may ask more than one thing before it says anything —
         `ltle` wants both sides real and then the strict relation — so its
         antecedents are peeled until what is left is what is wanted."""
-        whole = self.syntax.statement(sig)
         variables = whole.names()
-        antecedents, reads, closing = [], whole, 'syl'
-        if whole.label == 'wb':
-            antecedents, reads, closing = [whole.children[0]], \
-                whole.children[1], 'sylib'
         binding = None
         while True:
             binding = kernel.match(reads, wanted, {}, variables)
@@ -408,10 +438,15 @@ class Elaborator:
         decides which lemma. Nothing is searched for."""
         if self.term(node) == old:
             return new, eqproof
-        holes = [self.term(c) for c in node.children]
+        # A binder's variable fills its slot as itself, and nothing rewrites
+        # it: the claim is about what the binder ranges over, not about the
+        # name it ranges under.
+        bound = self.binders.get(node.notation, ())
+        holes = [self.binder_var(c.text) if i in bound else self.term(c)
+                 for i, c in enumerate(node.children)]
         after, proofs = list(holes), {}
         for i, child in enumerate(node.children):
-            if old not in self.term(child):
+            if i in bound or old not in self.term(child):
                 continue
             after[i], proofs[i] = self.rewrite(child, old, new, scope,
                                                eqproof)
@@ -474,7 +509,8 @@ class Elaborator:
         return (lemma, var, self.flip(body) if flipped else body, body,
                 self.term(right.children[1]), self.term(left))
 
-    def unfolding(self, step, lemma, left, ex, var, over, scope, facts):
+    def unfolding(self, step, lemma, left, ex, var, over, scope, facts,
+                  hint=None):
         """The biconditional a definition's lemma gives, in scope.
 
         A target need not take only the thing being defined, and need not ask
@@ -498,15 +534,39 @@ class Elaborator:
         if binding is None:
             raise Problem('', step.line,
                           f'{lemma} does not unfold {self.render(left)}')
+        # A lemma's left side need not fix everything it mentions: `elrab`
+        # names the body twice, once in the set-builder's variable and once
+        # in the element's, and only the second is on the right. So what the
+        # caller can say of the right side fixes the rest, and is taken only
+        # where it fits.
+        offered = hint if hint is not None else ex
+        if offered is not None:
+            filled = kernel.match(reads.children[1], self.to_term(offered),
+                                  dict(binding), whole.names())
+            if filled is not None:
+                binding = filled
+        # A slot neither side fixes is set.mm asking where to look for the
+        # thing rather than asking anything of it: `elpwg` wants a class
+        # holding what is about to be in the power class, and _V holds
+        # everything that is a set.
+        for slot in asks:
+            for open_slot in slot.names() - set(binding):
+                binding[open_slot] = kernel.Term('cvv')
         pushed = [var if v == sig.bound()
                   else binding[v].rpn(self.flabel) if v in binding
                   else self.flabel[v]
                   for v in sig.push]
+        # A lemma may state a condition in full rather than ask for it:
+        # `elpw` wants what it is about to be a set before it will say what
+        # belongs to its power class.
+        pushed += [self.prove_essential(
+            self.syntax.parse(e[1:], 'wff').substitute(binding), scope, facts)
+            for e in sig.essentials]
         # The lemma unfolds to its own wording, which need not be the text's:
         # `divides` writes the product the other way round. What it gives is
         # built first, and the text's wording is reached from it.
         held = sig.bound()
-        if held is not None:
+        if held is not None and var is not None:
             binding[held] = kernel.Term(variable=self.sigs[var].statement[1])
         given = reads.children[1].substitute(binding).rpn(self.flabel)
         says = seq(left, given, 'wb')
@@ -554,25 +614,38 @@ class Elaborator:
         """A proof that two terms differing by an exchange agree.
 
         set.mm writes `( k x. 2 )` where the corpus writes 2k, and those are
-        the same number but not the same formula. The exchange is carried
-        from wherever it sits up to the whole term, one congruence lemma a
-        level, the walk `descend` makes over a readable claim made here over
-        a term the kernel holds."""
-        swap = self.exchanged(given, want)
-        if swap is not None:
+        the same number but not the same formula."""
+        def swapped(one, other, where, held):
+            swap = self.exchanged(one, other)
+            if swap is None:
+                return None
             found = self.apply_lemma(
-                swap, self.to_term(seq(given.rpn(self.flabel),
-                                       want.rpn(self.flabel), 'wceq')),
-                scope, facts, step)
+                swap, self.to_term(seq(one.rpn(self.flabel),
+                                       other.rpn(self.flabel), 'wceq')),
+                where, held, step)
             if found is None:
                 raise Problem('', step.line, f'{swap} does not exchange them')
             return found
+        return self.congruence(given, want, scope, facts, step, swapped)
+
+    def congruence(self, given, want, scope, facts, step, leaf):
+        """Carry one change up to the whole term it sits in.
+
+        Two terms that differ in one place are walked in step, and the
+        lemma that lifts each level is the one the tree names: the walk
+        `descend` makes over a readable claim, made here over a term the
+        kernel holds. What counts as the change, and what proves it there,
+        is the caller's."""
+        line = step.line if step else 0
+        found = leaf(given, want, scope, facts)
+        if found is not None:
+            return found
         if (given.label != want.label
                 or len(given.children) != len(want.children)):
-            raise Problem('', step.line,
+            raise Problem('', line,
                           f'{self.render(given.rpn(self.flabel))} and '
                           f'{self.render(want.rpn(self.flabel))} differ by '
-                          'more than an exchange')
+                          'more than the change being carried')
         if given.label == 'wrex':
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
@@ -580,8 +653,8 @@ class Elaborator:
             inner, lifted = self.widen(scope, facts, member)
             return seq(scope, body.rpn(self.flabel),
                        want.children[0].rpn(self.flabel), name, runs,
-                       self.bridging(body, want.children[0], inner, lifted,
-                                     step),
+                       self.congruence(body, want.children[0], inner, lifted,
+                                       step, leaf),
                        'rexbidva')
         wrapped = given.label in WRAPS
         kids = given.children[:-1] if wrapped else given.children
@@ -590,12 +663,13 @@ class Elaborator:
         other = [c.rpn(self.flabel) for c in wants]
         slots = [i for i in range(len(kids)) if spelt[i] != other[i]]
         if not slots:
-            raise Problem('', step.line, 'nothing to exchange under this term')
+            raise Problem('', line, 'nothing changed under this term')
         moved = [x for i in slots for x in (spelt[i], other[i])]
         rest = [s for i, s in enumerate(spelt) if i not in slots]
         head = given.children[-1].rpn(self.flabel) if wrapped else ''
         return seq(scope, *moved, *rest, head,
-                   *(self.bridging(kids[i], wants[i], scope, facts, step)
+                   *(self.congruence(kids[i], wants[i], scope, facts, step,
+                                     leaf)
                      for i in slots),
                    self.CONGRUENCE[(given.label, tuple(slots))])
 
@@ -628,20 +702,50 @@ class Elaborator:
         return whole
 
     def hypotheses(self):
-        """Name every `let` variable, and read the hypotheses."""
+        """Name every `let` variable, and read the hypotheses.
+
+        A `let` introduces a name and says what it ranges over. `let n ∈ ℕ`
+        says it with a membership, `let A be a set` with no set at all, and
+        `let f : A → 𝒫A` by saying what the name maps between. All three
+        name the thing they introduce first, so all three are read the same
+        way: name the leftmost leaf, then read the line as a claim about
+        it."""
         nodes, spare = [], list(CLASS_NAMES)
         for kind, text, _label, _line in self.thm.hypotheses:
-            node = self.read(text[len(kind):] if text.startswith(kind)
-                             else text)
-            if kind == 'let' and node.notation == 'membership':
-                name = node.children[0].text
-                self.names[name] = spare.pop(0)
-                self.sets[name] = self.term(node.children[1])
+            body = text[len(kind):] if text.startswith(kind) else text
+            if kind == 'let' and BE_A_SET.search(body):
+                body = BE_A_SET.sub(' is a set', body)
+            node = self.read(body)
+            if kind == 'let':
+                introduced = self.subject_of(node)
+                if introduced.text and introduced.text not in self.names:
+                    self.names[introduced.text] = spare.pop(0)
+                if node.notation == 'membership':
+                    self.sets[introduced.text] = self.term(node.children[1])
             nodes.append(node)
         return nodes
 
+    def defined(self):
+        """Bind every name a `define` line introduces to what it stands for.
+
+        A define is an abbreviation and nothing more: Cantor names a set B
+        and every line about B is a line about the set-builder it names. So
+        the name is bound to that term and the proof never carries it, which
+        is also what keeps it apart from the B the conclusion quantifies
+        over — those are two different things spelt the same way."""
+        for _kind, text, label, line in self.thm.defines:
+            said = LABEL.sub('', text[len('define'):]).strip()
+            name, _, body = said.partition(':=')
+            name = name.strip()
+            if not body.strip():
+                raise Problem('', line, f'define {label} says nothing')
+            if name in self.names:
+                raise Problem('', line, f'{name} is already named')
+            self.names[name] = self.term(self.read(body.strip()))
+
     def run(self):
         nodes = self.hypotheses()
+        self.defined()
         terms = [self.term(n) for n in nodes]
         # A theorem may assume nothing, and every step here is still an
         # implication out of the scope it sits in. So the scope is truth,
@@ -658,6 +762,14 @@ class Elaborator:
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
+        # What the conclusion quantifies over is spoken for before anything
+        # else takes a variable. The primes proof concludes that there is a
+        # prime p above n and obtains a p along the way, and those are two
+        # different numbers however the text spells them.
+        goal = self.claim_of(self.thm.conclusion)
+        self.reserved = {t for t in goal.split()
+                         if t in self.sigs
+                         and self.sigs[t].statement[0] == 'setvar'}
         self.frames = [(scope, None, facts)]
         closers, blocks = [], []
         for step in self.thm.steps:
@@ -688,7 +800,6 @@ class Elaborator:
                                                      closers, scope)
             self.hand_up(done, blocks)
 
-        goal = self.claim_of(self.thm.conclusion)
         proof = lines[self.last].proof
         for close in reversed(closers):
             proof = close(proof, goal)
@@ -759,7 +870,7 @@ class Elaborator:
                     # binds `k`, so a proof that fixes `k` cannot use it.
                     node = self.read(body)
                     name = node.children[0].text
-                    block.variable = self.spare_var()
+                    block.variable = self.fixed_var(name)
                     self.names[name] = f'{block.variable} cv'
                     self.sets[name] = self.term(node.children[1])
                 node = self.read(body)
@@ -822,13 +933,19 @@ class Elaborator:
         inside = closers[block.opened_at:]
         del self.frames[block.frame + 1:]
         if head == 'contradiction':
-            block.claim, block.proof = self.close_contradiction(block, facts,
-                                                                inside, deep)
+            block.claim, block.proof = self.close_contradiction(
+                block, facts, inside, deep, lines)
             closers = closers[:block.opened_at]
         elif head == 'fix':
             held = lines[self.last]
             block.claim, block.proof = held.term, held.proof
-            return block.outer, block.outside, closers
+            if step.part is not None:
+                return block.outer, block.outside, closers   # the induction
+            # A fix standing on its own is a generalisation: it fixed a name,
+            # said something about it, and the block claims that of every
+            # such name. Inside an induction the same block is one part of
+            # it, and the induction takes it as it stands.
+            block.claim, block.proof = self.close_fix(block, held)
         elif head == 'cases':
             block.claim, block.proof = self.close_cases(block, lines)
         elif head == 'induction':
@@ -840,16 +957,22 @@ class Elaborator:
         self.last = number
         return block.outer, outer, closers
 
-    def close_contradiction(self, block, facts, inside, deep):
+    def close_contradiction(self, block, facts, inside, deep, lines):
         """A contradiction closes on the pair its `join` named.
 
         The contradiction is struck where the two lines are, and only then
         is anything discharged: the pair 3.16 and 3.1 names p and q, and an
         existential over p and q cannot be discharged around a claim that
         still mentions them. So pm2.21dd takes the pair to the block's claim
-        first, the obtains raised inside the block discharge that, and
-        pm2.01d drops the supposition last. The join itself emits nothing:
-        this consumes both lines.
+        first, the obtains raised inside the block discharge that, and the
+        supposition is dropped last. The join itself emits nothing: this
+        consumes both lines.
+
+        Which lemma drops the supposition depends on which of the two is
+        the negation. Supposing √2 rational to show it is not is pm2.01d;
+        supposing p is not above n to show that it is, as the primes proof
+        does, is pm2.18d and reaches the claim itself rather than a double
+        negation of it.
 
         A joined line may say several things at once — 3.1 names p and q and
         says in the same breath that nothing above 1 divides both — so the
@@ -858,31 +981,43 @@ class Elaborator:
         step, scope, supposed = block.owner, block.outer, block.supposed
         if not self.joined:
             raise Problem('', step.line, 'the block closes on no join')
-        pair = self.opposing(facts)
-        if pair is None:
+        held = lines.get(self.last)
+        found = self.opposing([*self.joined,
+                               *([held.term] if held else [])], facts, deep)
+        if found is None:
             raise Problem('', step.line,
                           'the joined lines are not a contradiction')
-        first, second = pair
+        first, second, known = found
         claim = self.claim_of(' '.join(step.claim))
-        proof = seq(deep, first, claim, facts[first], facts[second],
+        proof = seq(deep, first, claim, known[first], known[second],
                     'pm2.21dd')
         for close in reversed(inside):
             proof = close(proof, claim)
-        return claim, seq(scope, supposed,
-                          seq(scope, supposed, claim, proof, 'ex'),
-                          'pm2.01d')
+        lifted = seq(scope, supposed, claim, proof, 'ex')
+        if claim == seq(supposed, 'wn'):
+            return claim, seq(scope, supposed, lifted, 'pm2.01d')
+        if supposed == seq(claim, 'wn'):
+            return claim, seq(scope, claim, lifted, 'pm2.18d')
+        raise Problem('', step.line,
+                      'the block claims neither its supposition negated nor '
+                      'what its supposition denies')
 
-    def opposing(self, facts):
-        """A claim and its negation, among the parts of the joined lines."""
-        first_line, second_line = self.joined
-        left = [t for t in self.parts(first_line) if t in facts]
-        right = [t for t in self.parts(second_line) if t in facts]
-        for one in left:
-            for other in right:
+    def opposing(self, lines, facts, scope):
+        """A claim and its negation, among the parts of what the block holds.
+
+        What holds the pair differs by proof: the √2 proof joins two lines
+        that each say one thing, and Cantor's cases give back a single line
+        saying both. So every part of every line offered is a candidate, and
+        a line saying several things is taken apart first."""
+        known = dict(facts)
+        for line in lines:
+            if line in known:
+                self.unpack(line, known[line], scope, known)
+        seen = [t for line in lines for t in self.parts(line) if t in known]
+        for one in seen:
+            for other in seen:
                 if other == seq(one, 'wn'):
-                    return one, other
-                if one == seq(other, 'wn'):
-                    return other, one
+                    return one, other, known
         return None
 
     def parts(self, term):
@@ -893,6 +1028,27 @@ class Elaborator:
         if picks and len(picks) == len(node.children):
             for child in node.children:
                 yield from self.parts(child.rpn(self.flabel))
+
+    def close_fix(self, block, held):
+        """A fix closed by generalising over the name it fixed.
+
+        ralrimiva wants what was proved under the name, said out of the
+        scope the block opened over. Which name and which set are read off
+        the claim the block states, since that is what the text wrote."""
+        step = block.owner
+        claim = self.claim_of(' '.join(step.claim))
+        whole = self.to_term(claim)
+        if whole.label != 'wral':
+            raise Problem('', step.line,
+                          'a fix that claims nothing of every such name')
+        body, variable, over = whole.children
+        if body.rpn(self.flabel) != held.term:
+            raise Problem('', step.line,
+                          'the block does not reach what it claims of the '
+                          'name it fixed')
+        return claim, seq(block.outer, held.term,
+                          variable.rpn(self.flabel), over.rpn(self.flabel),
+                          held.proof, 'ralrimiva')
 
     def close_cases(self, block, lines):
         """Two cases and the disjunction that says one of them holds.
@@ -986,8 +1142,7 @@ class Elaborator:
             if 'target' not in item.fields:
                 how = self.take_definition
             elif any('↔' in text for text, _line in item.conclusions):
-                how = (self.conclude if self.unfolds_existence(item)
-                       else self.equivalent)
+                how = self.reading(item, term)
             else:
                 how = self.unfold_equation
         if how is None and head.startswith('thm:'):
@@ -1063,6 +1218,11 @@ class Elaborator:
                 self.names[name] = f'{self.flabel[name]} cv'
             ex = self.term(self.read(item.conclusions[0][0]))
             self.names = saved
+            # An item states its existential in its own names, and a binder
+            # takes the variable its name is spelled with. The primes proof
+            # obtains a p and concludes that there is a p, so the one it
+            # obtains is renamed to a variable nothing else is holding.
+            ex = self.renamed(ex, len(got))
             p_ex = self.cite_item(step, ex, scope, facts, item, cites)
 
         # The existential says which names it introduces and where they run,
@@ -1096,6 +1256,18 @@ class Elaborator:
                        'mpd')
 
         return inner, lifted, [*closers, close]
+
+    def renamed(self, ex, depth):
+        """An existential rewritten to bind variables nothing else holds."""
+        whole, term, binding = self.to_term(ex), self.to_term(ex), {}
+        for _ in range(depth):
+            if term.label != 'wrex':
+                break
+            fresh = self.spare_var()
+            binding[term.children[1].variable] = kernel.Term(
+                variable=self.sigs[fresh].statement[1])
+            term = term.children[0]
+        return whole.substitute(binding).rpn(self.flabel)
 
     def cite_item(self, step, goal, scope, facts, item, cites=None):
         """What an item states, however the database says it is supplied."""
@@ -1194,12 +1366,22 @@ class Elaborator:
         if into.node is None:
             raise Problem('', step.line,
                           f'{said.group(2)} is not a line to rewrite')
-        built, proof = self.rewrite(into.node, old, new, scope, facing)
-        if built != term:
-            raise Problem('', step.line, 'the substitution misses the claim')
-        return seq(scope, into.term, term,
-                   self.carried(said.group(2).split()[-1], facts, lines),
-                   proof, 'mpbid')
+        # Which way the equation is used is whichever reaches what the step
+        # claims. Cantor puts f(x) = B into a line saying x ∉ f(x) and into
+        # another saying x ∉ B, and writes the equation once; and B holds an
+        # f(x) of its own, under a name it binds, that neither touches.
+        turned = seq(scope, old, new, facing, 'eqcomd')
+        for was, now, faces in ((old, new, facing), (new, old, turned)):
+            try:
+                built, proof = self.rewrite(into.node, was, now, scope, faces)
+            except Problem:
+                continue
+            if built == term:
+                return seq(scope, into.term, term,
+                           self.carried(said.group(2).split()[-1], facts,
+                                        lines),
+                           proof, 'mpbid')
+        raise Problem('', step.line, 'the substitution misses the claim')
 
     def algebra(self, step, node, term, scope, facts, lines):
         """Not expanded. The claim becomes an axiom under its own requires."""
@@ -1222,11 +1404,21 @@ class Elaborator:
         gives the biconditional and the lines give its right side, so the
         definition is read the way the text reads it: right to left."""
         item = self.items[step.just.head.split(':', 1)[1]]
-        lemma, _flipped = targets.unfolding(item)
+        return self.trying(item, step, self.one_equivalent, term, scope,
+                           facts, lines)
+
+    def one_equivalent(self, lemma, step, term, scope, facts, lines):
         held = self.sigs[lemma].bound()
+        # What a lemma's right side says beyond what its left fixes can
+        # only come from the lines the step cites, offered in the order the
+        # step writes them.
+        said = [lines[ref].term for ref in step.just.refs if ref in lines]
+        hint = said[0] if said else None
+        for extra in said[1:]:
+            hint = seq(hint, extra, 'wa')
         says, right = self.unfolding(step, lemma, term, None,
                                      self.flabel[held] if held else None,
-                                     None, scope, facts)
+                                     None, scope, facts, hint=hint)
         return seq(scope, term, right,
                    self.settle(self.to_term(right), scope, facts), says,
                    'mpbird')
@@ -1239,18 +1431,88 @@ class Elaborator:
         return seq(node.children[1].rpn(self.flabel),
                    node.children[0].rpn(self.flabel), node.label)
 
-    def unfolds_existence(self, item):
-        """Whether a definition's target unfolds it to an existence claim.
+    def unfolded(self, step, node, term, scope, facts, lines):
+        """A definition unfolded to reach one part of what it says.
 
-        Which of the two ways a biconditional definition is used is settled
-        by what its lemma states, not by how the readable right side is
-        phrased: `def:even` reaches an existential and `def:irrational` a
-        conjunction, and each wants a different expansion."""
+        `def:set-builder` says that belonging to {t ∈ X : P(t)} is belonging
+        to X and having the property, and Cantor's step 3.1.3.1 wants the
+        second of those from a line that says the first. So the definition
+        is read left to right and what it gives is taken apart."""
+        item = self.items[step.just.head.split(':', 1)[1]]
+        return self.trying(item, step, self.one_unfolded, term, scope, facts,
+                           lines)
+
+    def one_unfolded(self, lemma, step, term, scope, facts, lines):
+        sig = self.sigs[lemma]
+        whole = self.syntax.statement(sig)
+        variables, reads = whole.names(), whole
+        while reads.label == 'wi':
+            reads = reads.children[1]
+        if reads.label != 'wb':
+            raise Problem('', step.line, f'{lemma} states no biconditional')
+        for ref in step.just.refs:
+            cited = lines.get(ref)
+            binding = cited and kernel.match(
+                reads.children[0], self.to_term(cited.term), {}, variables)
+            if binding:
+                break
+        else:
+            raise Problem('', step.line,
+                          f'no cited line is what {lemma} unfolds')
+        # What the left side fixes need not be everything the right side
+        # holds: `rabid` learns the property from the claim itself.
+        for spelt in self.parts(reads.children[1].rpn(self.flabel)):
+            filled = kernel.match(self.to_term(spelt), self.to_term(term),
+                                  dict(binding), variables)
+            if filled is not None:
+                binding = filled
+                break
+
+        left = reads.children[0].substitute(binding).rpn(self.flabel)
+        right = reads.children[1].substitute(binding).rpn(self.flabel)
+        says, _given = self.unfolding(step, lemma, left, right, None, None,
+                                      scope, facts)
+        proof = seq(scope, left, right, self.carried(ref, facts, lines), says,
+                    'mpbid')
+        known = {right: proof}
+        self.unpack(right, proof, scope, known)
+        if term not in known:
+            raise Problem('', step.line,
+                          f'{lemma} does not say {self.render(term)}')
+        return known[term]
+
+    def trying(self, item, step, way, term, scope, facts, lines):
+        """Use whichever lemma the target names reaches the claim.
+
+        A definition may be supplied by more than one, differing in what
+        they ask: `rabid` says what belongs to a set-builder when the
+        element is the name the builder binds, and `elrab` when it is
+        anything else, and only one of the two can be right of any step."""
+        trouble = None
+        for lemma in targets.clauses(item):
+            try:
+                return way(lemma, step, term, scope, facts, lines)
+            except Problem as said:
+                trouble = said
+        raise trouble
+
+    def reading(self, item, term):
+        """Which of three ways a biconditional definition reaches a claim.
+
+        The claim decides, and what the lemma states decides with it. A
+        definition reaching an existence claim supplies a witness; one whose
+        right side the step already holds is read right to left; one whose
+        left side the step holds is unfolded and taken apart."""
         lemma, _flipped = targets.unfolding(item)
         whole = self.syntax.statement(self.sigs[lemma])
         while whole.label == 'wi':
             whole = whole.children[1]
-        return whole.label == 'wb' and whole.children[1].label == 'wrex'
+        if whole.label != 'wb' or whole.children[1].label == 'wrex':
+            return self.conclude
+        if kernel.match(whole.children[0], self.to_term(term), {},
+                        whole.names()) is not None:
+            return self.equivalent
+        return self.unfolded
 
     def take_definition(self, step, node, term, scope, facts, lines):
         """A definition with no target is taken as it states itself."""
@@ -1273,18 +1535,25 @@ class Elaborator:
                       f'{fmt(step.number)} claims')
 
     def apply_lemma(self, label, goal, scope, facts, step):
-        """Apply one set.mm lemma to reach a claim, side conditions and all."""
+        """Apply one set.mm lemma to reach a claim, side conditions and all.
+
+        What a lemma states before the claim it reaches may be an
+        implication or a biconditional: `dvds1` says that on ℕ0, dividing
+        one and being one are the same, and a step citing it has the
+        dividing and wants the being. Both are peeled, and which one each
+        was decides how it is discharged."""
         sig = self.sigs[label]
         whole = self.syntax.statement(sig)
         variables = whole.names()
-        antecedents, reads, binding = [], whole, None
+        antecedents, joins, reads, binding = [], [], whole, None
         while True:
             binding = kernel.match(reads, goal, {}, variables)
             if binding is not None:
                 break
-            if reads.label != 'wi':
+            if reads.label not in ('wi', 'wb'):
                 return None
             antecedents.append(reads.children[0])
+            joins.append(reads.label)
             reads = reads.children[1]
 
         # The scope is where a lemma's disjointness conditions can forbid it,
@@ -1318,18 +1587,22 @@ class Elaborator:
             # to be brought into the scope the step sits in.
             return self.carry(seq(goal.rpn(self.flabel), where, proof, 'a1i'),
                               goal.rpn(self.flabel), frame)
-        for slot in antecedents:
+        for i, slot in enumerate(antecedents):
             asks = slot.substitute(binding)
             if asks.rpn(self.flabel) == where:
                 continue                      # the deduction slot
             rest = goal.rpn(self.flabel)
-            for later in reversed(antecedents[antecedents.index(slot) + 1:]):
+            for later, join in reversed(list(zip(antecedents[i + 1:],
+                                                 joins[i + 1:], strict=True))):
                 if later.substitute(binding).rpn(self.flabel) != where:
                     rest = seq(later.substitute(binding).rpn(self.flabel),
-                               rest, 'wi')
+                               rest, join)
+            first = proof.split()[-1] == label
+            fold = {('wi', True): 'syl', ('wi', False): 'mpd',
+                    ('wb', True): 'sylib', ('wb', False): 'mpbid'}
             proof = seq(where, asks.rpn(self.flabel), rest,
                         self.settle(asks, where, known), proof,
-                        'syl' if proof.split()[-1] == label else 'mpd')
+                        fold[(joins[i], first)])
         return self.carry(proof, goal.rpn(self.flabel), frame)
 
     def prove_essential(self, want, scope, facts):
@@ -1340,6 +1613,20 @@ class Elaborator:
         under = left.rpn(self.flabel)
         if under == right.rpn(self.flabel):
             return seq(under, 'id')
+        # A lemma may state its instance rather than ask for it: `elrab`
+        # says what belongs to a set-builder by way of the body read at the
+        # element, and wants the body before and after tied together.
+        if (left.label == 'wceq' and right.label == 'wb'
+                and left.children[0].label == 'cv'):
+            was = left.children[0].rpn(self.flabel)
+            now = left.children[1].rpn(self.flabel)
+
+            def stands(one, other, _where, _held):
+                return (seq(under, 'id')
+                        if one.rpn(self.flabel) == was
+                        and other.rpn(self.flabel) == now else None)
+            return self.congruence(right.children[0], right.children[1],
+                                   under, {}, None, stands)
         if under == scope:
             return self.settle(right, scope, facts)
         if (left.label == 'wa'
@@ -1441,6 +1728,36 @@ class Elaborator:
         self.assumed[text] = seq(*(self.flabel[v] for v in free), label)
         return self.assumed[text]
 
+    def binder_var(self, name):
+        """The setvar a binder's name stands for.
+
+        A name is a letter and set.mm may have declared that letter as a
+        class: Cantor quantifies over B, and B there is a class variable.
+        So the letter's own label is taken only when it names a setvar, and
+        a spare stands in otherwise — the same one every time, since the
+        name is one name wherever the proof writes it."""
+        if name in self.bound_as:
+            return self.bound_as[name]
+        label = self.flabel.get(name)
+        if not (label and self.sigs[label].statement[0] == 'setvar'):
+            label = self.spare_var()
+        self.bound_as[name] = label
+        return label
+
+    def fixed_var(self, name):
+        """The variable a fixed name takes.
+
+        Its own letter where nothing else is holding it, because the claim
+        the block states binds that letter and the two have to agree: the
+        `fix` in Cantor introduces the x that `for every x ∈ A` quantifies.
+        A spare otherwise, as when a notation already binds the letter."""
+        own = self.flabel.get(name)
+        held = {t.split()[0] for t in self.names.values()
+                if isinstance(t, str) and t.endswith(' cv')}
+        if own and own not in held and own not in self.taken:
+            return own
+        return self.spare_var()
+
     def spare_var(self):
         """A kernel variable no name in this proof is already standing for.
 
@@ -1448,7 +1765,7 @@ class Elaborator:
         `obtain` takes its variables from the existential the item states, so
         a later step asking for a spare can be handed one of them."""
         held = {t.split()[0] for t in self.names.values()
-                if isinstance(t, str) and t.endswith(' cv')}
+                if isinstance(t, str) and t.endswith(' cv')} | self.reserved
         while self.spare and self.spare[0] in held:
             self.spare.pop(0)
         if not self.spare:
@@ -1576,22 +1893,25 @@ class Elaborator:
         whole = self.to_term(term)
         if whole.label != 'wrex':
             raise Problem('', step.line, 'an exhibit that claims no existence')
-        body, variable, domain = whole.children
-        name = variable.variable
+        body, _variable, domain = whole.children
+        # The name the text quantifies under and the variable it stands for
+        # are two different things: Cantor quantifies over B, which set.mm
+        # declares as a class, so the claim binds a setvar of its own.
+        said = node.children[0].text
+        stands = f'{self.binder_var(said)} cv'
         witness = None
         for ref in step.just.refs:
             witness = self.witness_in(body, self.to_term(lines[ref].term),
-                                      f'{self.flabel[name]} cv')
+                                      stands)
             if witness:
                 break
         if witness is None:
             raise Problem('', step.line, 'no cited line names a witness')
 
         saved = dict(self.names)
-        self.names[name] = f'{self.flabel[name]} cv'
+        self.names[said] = stands
         shape = self.freeze(node.children[2])
         self.names = saved
-        stands = f'{self.flabel[name]} cv'
         at = seq(stands, witness, 'wceq')
         here, instance = self.rewrite(shape, stands, witness, at,
                                       seq(at, 'id'))
@@ -1602,8 +1922,9 @@ class Elaborator:
                    seq(scope, member, here,
                        self.settle(self.to_term(member), scope, known),
                        self.settle(self.to_term(here), scope, known), 'jca'),
-                   body.rpn(self.flabel), here, self.flabel[name], witness,
-                   domain.rpn(self.flabel), instance, 'rspcev', 'syl')
+                   body.rpn(self.flabel), here, self.binder_var(said),
+                   witness, domain.rpn(self.flabel), instance, 'rspcev',
+                   'syl')
 
     def witness_in(self, pattern, actual, mark):
         """What stands where `mark` does, in a line shaped like the pattern.
@@ -1833,11 +2154,15 @@ class Elaborator:
         and those names may be the ones the proof is using for something
         else: `def:odd` binds `k` and so does the step that obtains from it.
         Freezing the tree settles what it means before the names change
-        back."""
+        back. A binder's own variable is left alone: it stands for itself,
+        and the slot it fills wants the variable rather than a term saying
+        what the variable means."""
         if not node.children:
             return _Literal(self.term(node))
+        bound = self.binders.get(node.notation, ())
         return Node(node.notation, node.sort,
-                    [self.freeze(c) for c in node.children], node.text)
+                    [c if i in bound else self.freeze(c)
+                     for i, c in enumerate(node.children)], node.text)
 
     def substituted(self, node, old, new):
         """The node with one name replaced, for reading off the instance."""

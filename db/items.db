@@ -22,6 +22,7 @@
 theorem excluded-middle
   then        P or not P
   metamath    exmid
+  target      exmid
   first-used  cantor
   note        The first citation to substitute a formula for a variable rather
               than a term. A school reader has never been told that "P or not P"
@@ -40,6 +41,7 @@ theorem double-negation
   assume not not P                                                    (H1)
   then        P
   metamath    notnotr
+  target      notnotr
   first-used  cantor
   note        The step intuitionistic logic refuses, so citing it is the text
               saying which logic it is in. It appears because the contradiction
@@ -70,6 +72,7 @@ definition set-builder
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
   metamath    rabid, elrab
+  target      rabid, elrab
   first-used  bezout
   note        P(t) says the property holds of t. The line above says what P is
               a property of and never mentions t, because the braces are what
@@ -100,6 +103,7 @@ theorem set-builder-subset
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
+  target      ssrab2
   first-used  bezout
 
 theorem subset-transitive
@@ -113,6 +117,7 @@ definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
   metamath    elpw, elpwg
+  target      elpwg
   first-used  cantor
 
 theorem powerset-empty
@@ -198,6 +203,7 @@ theorem nat-closure
   let b ∈ ℕ                                                           (H2)
   then        a + b ∈ ℕ. a·b ∈ ℕ.
   metamath    nnaddcl, nnmulcl
+  target      nnaddcl, nnmulcl
   first-used  infinitely-many-primes
 
 theorem real-closure
@@ -221,6 +227,7 @@ theorem nat-int
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℤ
   metamath    nnz
+  target      nnz
   first-used  infinitely-many-primes
 
 theorem int-real
@@ -235,6 +242,7 @@ theorem nat-real
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℝ
   metamath    nnre
+  target      nnre
   first-used  infinitely-many-primes
   note        Direct rather than through nat-int and int-real. The chain would
               be two citations, and a requires line carries one, so every
@@ -252,6 +260,7 @@ theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then        m ≥ 1
   metamath    nnge1
+  target      nnge1
   first-used  infinitely-many-primes
 
 theorem pos-int-nat
@@ -383,8 +392,14 @@ definition prime
   let p ∈ ℕ                                                           (H1)
   then        p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then
               d = 1 or d = p
-  metamath    isprm2
+  metamath    isprm2, whose first conjunct is membership of ℤ≥2
   first-used  infinitely-many-primes
+  note        No target. isprm2 is the unfolding, but it writes p > 1 as
+              p ∈ ℤ≥2, which is not the formula this line writes. The primes
+              proof uses the definition only to reach p > 1, which set.mm
+              proves outright as prmgt1; naming that here would be naming a
+              consequence rather than an unfolding, which `target` does not
+              say.
 
 definition factorial
   then        1! = 1
@@ -407,13 +422,19 @@ theorem prime-factor
   let m ∈ ℕ                                                           (H1)
   assume m > 1                                                        (H2)
   then        there is p ∈ ℕ with p is prime and p divides m
-  metamath    exprmfct
+  metamath    exprmfct, which quantifies over Prime rather than over ℕ
   first-used  infinitely-many-primes
+  note        No target, so an elaborator states this and lists it. exprmfct
+              says E. p e. Prime p || N, putting primality in the domain; this
+              quantifies over ℕ and says it in the body, which is how a reader
+              meets the claim. The two are equivalent and the bridge is a proof
+              rather than a field of this file.
 
 theorem factorial-nat
   let n ∈ ℕ                                                           (H1)
   then        n! ∈ ℕ
-  metamath    facnn
+  metamath    faccl, which states it on ℕ0
+  target      faccl
   first-used  infinitely-many-primes
 
 theorem factorial-divisible
@@ -421,7 +442,8 @@ theorem factorial-divisible
   let m ∈ ℕ                                                           (H2)
   assume m ≤ n                                                        (H3)
   then        m divides n!
-  metamath    dvdsfac
+  metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
+  target      dvdsfac
   first-used  infinitely-many-primes
 
 theorem divides-difference
@@ -432,13 +454,15 @@ theorem divides-difference
   assume d divides b                                                  (H5)
   then        d divides a − b
   metamath    dvds2sub
+  target      dvds2sub
   first-used  infinitely-many-primes
 
 theorem divides-one
   let d ∈ ℕ                                                           (H1)
   assume d divides 1                                                  (H2)
   then        d = 1
-  metamath    dvds1
+  metamath    dvds1, read left to right
+  target      dvds1
   first-used  infinitely-many-primes
 
 theorem divides-combination

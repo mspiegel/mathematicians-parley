@@ -469,6 +469,7 @@ notation function-type
   level       relational
   reads       is a function from, to
   metamath    wf
+  target      _2 _3 _1 wf
   first-used  cantor
 
 notation application
@@ -746,6 +747,7 @@ notation is-a-set
   level       predicate
   reads       is a set
   metamath    wcel with _V, as difexg states it
+  target      _1 cvv wcel
   first-used  subsets
   note        Sethood, which ZF distinguishes from being a proper class and
               set.mm writes as membership of _V. Two uses, thm:difference-set
