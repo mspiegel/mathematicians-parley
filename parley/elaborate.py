@@ -31,6 +31,7 @@ import typing
 from pathlib import Path
 
 import kernel
+import linear
 import targets
 from formula import Grammar, Node, parse
 from library import Signature
@@ -1376,9 +1377,44 @@ class Elaborator:
         return self.assume(step, term, scope, facts, 'ari', lines)
 
     def inequalities(self, step, node, term, scope, facts, lines):
-        """Not expanded. Its steps rewrite by a cited equation as well as
-        chain relations, and nothing here does the first."""
+        """Decided by `parley/linear.py`, and then taken.
+
+        The decision is not the proof. What the method concludes is checked
+        against what the step cites — the claim is denied and the set shown
+        to have no solution over an ordered field — so a step that does not
+        follow is refused rather than assumed. What is still assumed is the
+        step it was allowed to take, which is why the head of the file
+        lists it. Emitting the proof of a decided step wants a normal form
+        for sums that `algebra` does not have yet.
+
+        A step that cites nothing decidable is taken as before: the method
+        carries steps whose facts are not linear, and `METHODS.md` refuses
+        those rather than this."""
+        self.decide(step, term, lines)
         return self.assume(step, term, scope, facts, 'ine', lines)
+
+    def decide(self, step, term, lines):
+        """Refuse an `inequalities` step that does not follow from its lines.
+
+        A cited line of several sentences supplies each sentence that is a
+        linear fact and is ignored for the rest, so citing a line that also
+        states a membership is not an error."""
+        claim = linear.fact(self.to_term(term), self.flabel)
+        if claim is None:
+            return                               # not a relation this decides
+        given = []
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                one = linear.fact(self.to_term(said), self.flabel)
+                if one is not None:
+                    given.append(one)
+        if not linear.follows(given, claim):
+            raise Problem('', step.line,
+                          f'{self.render(term)} does not follow from what '
+                          f'step {fmt(step.number)} cites')
 
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
