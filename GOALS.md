@@ -363,14 +363,15 @@ answer later would invalidate work already done.
    having shed its three real inferences to cited theorems. None of it needed
    the renderer.
 
-   The second half now has a measurement. Five `algebra` steps are written out
-   in `elaboration/` and verify: 167 to 945 proof tokens each, cheapest for a
-   normalisation with no cited equation and dearest for one that multiplies a
-   cited equation through by a coefficient. Verification time is not the
+   The second half now has a measurement. Six `algebra` steps are written out
+   in `elaboration/` and verify, including step 3 of
+   `thm:least-combination-divides`, which is the only step in the corpus whose
+   coefficients are not constants and so the one that would have forced a
+   search. It did not: all six follow one order, and `ELABORATION.md` measures
+   them at 229 to 1,564 bytes of compressed proof. Verification time is not the
    constraint at that size; set.mm's own 47,829 proofs verify in under eight
-   seconds. What is still open is whether the order those five follow holds for
-   a coefficient that is not constant, which is Bezout's step 2 and the only
-   such step in the corpus.
+   seconds. What an expansion costs is set by how many atoms it must place in
+   ℂ, not by how hard the identity is.
 
 7. **Stability under library change.** A method's expansion refers to library
    lemmas. What happens when a lemma is renamed, generalised or removed. Must be

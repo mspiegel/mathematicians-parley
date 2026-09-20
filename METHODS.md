@@ -260,15 +260,24 @@ total. A Gröbner basis is the general method; the corpus never needs it, since
 every step is either a normalisation with no cited equation or a combination
 with coefficients of degree at most one.
 
-Five steps are written out in `elaboration/`, and `ELABORATION.md` measures
-them: 167 to 945 proof tokens each, the three normalisations cheaper than the
-two that take a cited equation. Each follows one order — carry the atoms into
-ℂ, apply the structural lemma the shape calls for, then reduce the numerals —
-and none of them searched. The lemmas they actually used are `binom2`,
-`sqmul`, `sqdiv`, `mulass`, `adddi`, `mulcom`, `mulrid`, `mulcand` and
-`divmuld`, with `sqcl` and `mulcld` for closure and `sq1`, `sq2` and `2t2e4`
-for the numerals. That order is fixed for those shapes only; a coefficient
-that is not constant, as in Bezout's step 2, has not been written.
+Six steps are written out in `elaboration/`, and `ELABORATION.md` measures
+them. Five come from the three elaborated proofs; the sixth is step 3 of
+`thm:least-combination-divides`, the only step in the corpus whose
+coefficients are not constants, and it is in `elaboration/algebra.mm`.
+
+Each follows one order — carry the atoms into ℂ, apply the structural lemma
+the shape calls for, then reduce the numerals — and none of them searched,
+including the one with three cited equations and coefficients −1, 1 and −q.
+The lemmas they used are `binom2`, `sqmul`, `sqdiv`, `mulass`, `mul12`,
+`adddi`, `subdi`, `addsub4`, `subadd`, `mulcom`, `mulrid`, `mulcand` and
+`divmuld`, with `sqcl`, `mulcld`, `addcld` and `subcld` for closure and `sq1`,
+`sq2` and `2t2e4` for the numerals.
+
+What an expansion costs is set by how many atoms it must place in ℂ rather
+than by how hard the identity is. The Bezout step has ten atoms and is three
+times the size of the others once written compressed; in normal format it
+looks twenty times larger, because that ten-conjunct antecedent is rewritten
+into every line.
 
 ---
 

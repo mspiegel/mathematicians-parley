@@ -349,38 +349,49 @@ of proof, from 4 KB of readable text.
 ## What algebra costs
 
 `GOALS.md` question 6 asks how large a closure method's expansion may be, and
-says it needs one of them written. Five are now written, which is every
-`algebra` step these three proofs contain.
+says it needs one of them written. Six are now written: every `algebra` step
+these three proofs contain, and the one step in the corpus that the other five
+do not resemble.
 
-| | | proof tokens |
-| --- | --- | --- |
-| `salg2` | `( A · 2 )² = 4A²` | 167 |
-| `oalg1` | `( 2n + 1 )² = 4n² + 4n + 1` | 558 |
-| `oalg2` | `4n² + 4n + 1 = 2( 2n² + 2n ) + 1` | 613 |
-| `salg3` | from `2A² = 4B²`, that `A² = 2B²` | 855 |
-| `salg1` | from `( A / B )² = 2`, that `A² = 2B²` | 945 |
+| | | tokens | compressed |
+| --- | --- | --- | --- |
+| `salg2` | `( A · 2 )² = 4A²` | 167 | 229 B |
+| `oalg1` | `( 2n + 1 )² = 4n² + 4n + 1` | 558 | 519 B |
+| `oalg2` | `4n² + 4n + 1 = 2( 2n² + 2n ) + 1` | 613 | 454 B |
+| `salg3` | from `2A² = 4B²`, that `A² = 2B²` | 855 | 417 B |
+| `salg1` | from `( A / B )² = 2`, that `A² = 2B²` | 945 | 466 B |
+| `balg1` | Bezout's three equations, coefficients −1, 1, −q | 19670 | 1564 B |
 
-So one readable word costs a few hundred to a thousand kernel tokens, and the
-split is the one the method's specification predicts. The first three are
-normalisations with no cited equation, which is twelve of the corpus's
-seventeen steps. The last two each take a cited equation and multiply through
-by a coefficient — ideal membership with a single generator — and cost about
-half as much again, most of it in carrying the atoms into ℂ and discharging
-the nonzero conditions.
+So one readable word costs a few hundred to a couple of thousand kernel
+tokens, and the split is the one the method's specification predicts. The
+first three are normalisations with no cited equation, which is twelve of the
+corpus's seventeen steps. The next two each take a cited equation and multiply
+through by a coefficient — ideal membership with a single generator — and cost
+about half as much again, most of it in carrying the atoms into ℂ and
+discharging the nonzero conditions.
 
-Nothing here needed a Gröbner basis, and nothing here needed a search. Each
-proof is a fixed sequence: get the atoms into ℂ, apply the one structural
-lemma the shape calls for, then normalise the numerals. The reuse is the
-evidence that this is a procedure rather than five separate puzzles — one
-helper proving `2 · ( 2X ) = 4X` is called four times across three of the
-proofs, and `sqcl`, `mulcld` and `3jca` carry the ℂ conditions in every one of
-them.
-
-What is not yet tested is a coefficient that is not constant. Bezout's step 2
+**The important one is the last.** `thm:least-combination-divides` step 3
 combines three cited equations with coefficients −1, 1 and −q, and is the only
-step in the corpus whose coefficients are not constants. Until that one is
-written, the claim is that `algebra` is a fixed lemma order for the shapes met
-so far, not that it is one for the corpus.
+step in the corpus whose coefficients are not constants. It was the case that
+would have decided whether `algebra` needs a search. It does not: the order the
+five smaller steps follow carries this one unchanged, with `mul12` and
+`addsub4` doing the rearrangement and `subdi` read backwards doing the
+factoring. Nothing here needed a Gröbner basis and nothing needed a search.
+Each of the six is a fixed sequence — get the atoms into ℂ, apply the one
+structural lemma the shape calls for, then reduce the numerals — and the reuse
+is the evidence that this is a procedure rather than six separate puzzles.
+
+The token column makes `balg1` look like a different animal, and the
+compressed column says it is not. Its atoms number ten, all of which have to
+be carried into ℂ, and normal format writes that ten-conjunct antecedent into
+every line of the proof. Compressed it is 1,564 bytes: three times the other
+algebra steps rather than twenty, and smaller than the sqrt2 proof. It is the
+same effect scope depth has on sqrt2-irrational, from a wide hypothesis list
+instead of a deep one, and the same format choice disposes of it.
+
+What that leaves is a real cost and a measurable one: the price of an
+`algebra` step is set by how many atoms it has to place in ℂ, not by how hard
+the identity is.
 
 ## What the expansion language has to have
 
@@ -401,12 +412,12 @@ so far, not that it is one for the corpus.
    is `rspcev` with a witness read off a cited line, and the membership the
    `requires` lines carry is exactly its side condition.
 
-5. **A normal form for `algebra`.** Five steps are now written and none needed
-   a search: atoms into ℂ, one structural lemma chosen by the shape, then the
-   numerals. What that fixes is the order for the shapes met so far. A
-   coefficient that is not constant, as in Bezout's step 2, is untested, and
-   until it is written two elaborators agreeing byte for byte is a claim about
-   part of the corpus rather than all of it.
+5. **A normal form for `algebra`.** Six steps are now written, including the
+   only one in the corpus with coefficients that are not constants, and none
+   needed a search: atoms into ℂ, one structural lemma chosen by the shape,
+   then the numerals. That is the fixed order decision 6 asks for, and it now
+   covers every shape the corpus contains. What it costs is set by how many
+   atoms have to be placed in ℂ.
 
 6. **A def: may be a theorem.** `def:odd` targets `2 ∥ n` negated, so unfolding
    it is citing a set.mm theorem rather than replacing a definition. The
@@ -464,10 +475,11 @@ past the misspelling the label audit catches, and only elaboration finds it.
 
 `algebra` carries five of these thirty-three steps and eighteen across the
 corpus, and it was the one method whose expansion was a question rather than a
-shape. All five are now written, at a few hundred to a thousand tokens each,
-with no search and a helper reused four times. That is not the whole method —
-Bezout's step 2 has coefficients that are not constants and is untested — but
-it is no longer the open end of the project.
+shape. Those five are now written, and so is the sixth that none of them
+resembles — the only step in the corpus whose coefficients are not constants.
+All six follow one order, none of them searched, and the cost is set by how
+many atoms have to be carried into ℂ. `algebra` is no longer the open end of
+the project.
 
 What remains open is `thm:lowest-terms`: a statement the corpus cites in one
 line, for which set.mm has nothing of the right shape. It is now the only
