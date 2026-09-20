@@ -126,6 +126,13 @@ class Elaborator:
         ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
         ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d'}
 
+    # Which transitivity folds one link of a calculation into the run above
+    # it, by what each of the two claims is. Two relations in a row would
+    # want the transitivity of that relation and no chain writes one.
+    FOLDING: typing.ClassVar = {
+        ('wceq', 'wceq'): 'eqtrd', ('wceq', 'wbr'): 'eqbrtrd',
+        ('wbr', 'wceq'): 'breqtrd'}
+
     def __init__(self, thm, grammar, items, sigs, records, theorems=()):
         self.thm, self.g, self.items, self.sigs = thm, grammar, items, sigs
         self.terms = targets.terms(records)
@@ -902,8 +909,9 @@ class Elaborator:
         parts = sorted(block.assumed)
         first, second = (self.term(block.assumed[p][0]) for p in parts)
         said = [block.parts[p][1] for p in parts]
-        held = lines[step.just.refs[0]]
-        return claim, seq(scope, first, claim, second, *said, held.proof,
+        return claim, seq(scope, first, claim, second, *said,
+                          self.carried(step.just.refs[0], block.outside,
+                                       lines),
                           'mpjaodan')
 
     def close_induction(self, block, lines):
@@ -1091,9 +1099,9 @@ class Elaborator:
 
     def cite_item(self, step, goal, scope, facts, item, cites=None):
         """What an item states, however the database says it is supplied."""
-        if 'target' in item.fields:
-            found = self.apply_lemma(targets.lemma(item)[0],
-                                     self.to_term(goal), scope, facts, step)
+        for label in targets.clauses(item):
+            found = self.apply_lemma(label, self.to_term(goal), scope, facts,
+                                     step)
             if found is not None:
                 return found
         return self.assume_item(step, goal, scope, facts, item, cites)
@@ -1135,6 +1143,16 @@ class Elaborator:
                         self.settle(self.to_term(one), scope, facts), proof,
                         'syl' if i == 0 else 'mpd')
         return proof
+
+    def carried(self, cite, facts, lines):
+        """A cited line's proof, said where the citing step sits.
+
+        A line proved before a block opened holds inside it too, and the
+        scope carries a copy that says so. The line's own proof states it at
+        the scope it was made in, which is not where a step inside the block
+        can use it."""
+        held = lines[cite]
+        return facts.get(held.term, held.proof)
 
     def substitute(self, step, node, term, scope, facts, lines):
         """One equation put into one claim, at the place the tree names.
@@ -1179,20 +1197,22 @@ class Elaborator:
         built, proof = self.rewrite(into.node, old, new, scope, facing)
         if built != term:
             raise Problem('', step.line, 'the substitution misses the claim')
-        return seq(scope, into.term, term, into.proof, proof, 'mpbid')
+        return seq(scope, into.term, term,
+                   self.carried(said.group(2).split()[-1], facts, lines),
+                   proof, 'mpbid')
 
     def algebra(self, step, node, term, scope, facts, lines):
         """Not expanded. The claim becomes an axiom under its own requires."""
-        return self.assume(step, term, scope, facts, 'alg')
+        return self.assume(step, term, scope, facts, 'alg', lines)
 
     def arithmetic(self, step, node, term, scope, facts, lines):
         """Not expanded either. `METHODS.md` says it is closed numerals."""
-        return self.assume(step, term, scope, facts, 'ari')
+        return self.assume(step, term, scope, facts, 'ari', lines)
 
     def inequalities(self, step, node, term, scope, facts, lines):
         """Not expanded. Its steps rewrite by a cited equation as well as
         chain relations, and nothing here does the first."""
-        return self.assume(step, term, scope, facts, 'ine')
+        return self.assume(step, term, scope, facts, 'ine', lines)
 
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
@@ -1234,7 +1254,7 @@ class Elaborator:
 
     def take_definition(self, step, node, term, scope, facts, lines):
         """A definition with no target is taken as it states itself."""
-        return self.assume(step, term, scope, facts, 'def')
+        return self.assume(step, term, scope, facts, 'def', lines)
 
     def unfold_equation(self, step, node, term, scope, facts, lines):
         """A definition stated as an equation, one clause per `then` group.
@@ -1361,27 +1381,44 @@ class Elaborator:
             proof = seq(outer, claim, added, proof, 'adantr')
         return proof
 
-    def assume(self, step, term, scope, facts, prefix):
-        """State what a step claims, under the conditions it writes, and
-        take it. What the file assumes is listed at its head."""
-        wants = [self.read(text) for text, _how, _line in step.requires]
+    def assume(self, step, term, scope, facts, prefix, lines):
+        """State what a step claims, under everything it rests on, and take
+        it. What the file assumes is listed at its head.
+
+        Everything it rests on is the lines it cites as well as the
+        conditions it writes. A step reading `inequalities, from 3, 4` that
+        assumed only its `requires` lines would assume that the sum of two
+        numbers is at most the sum of their absolute values, which is the
+        theorem; under the lines it cites it assumes only that two
+        inequalities may be added, which is what the method is for. The
+        cited lines are also why the file needs the proofs above it: an
+        assumption that drops them leaves them unused and unchecked."""
+        asks = []
+        for ref in step.just.refs:
+            cited = lines[ref]
+            asks.append((cited.term, self.carried(ref, facts, lines)))
+        for want, (_t, how, _l) in zip(
+                [self.read(t) for t, _h, _l in step.requires], step.requires,
+                strict=True):
+            here = self.term(want)
+            if here not in [a for a, _p in asks]:
+                asks.append((here, self.side(want, how, scope, facts)))
+
         statement = term
-        for want in reversed(wants):
-            statement = seq(self.term(want), statement, 'wi')
+        for one, _given in reversed(asks):
+            statement = seq(one, statement, 'wi')
         proof = self.stated(prefix, '|- ' + self.render(statement))
-        if not wants:
+        if not asks:
             # Nothing to discharge, so the statement is simply taken at the
             # scope the step sits in.
             return seq(term, scope, proof, 'a1i')
         # The conditions nest, outermost first, so each is answered in turn
         # and what is left of the statement shrinks by one.
-        for i, (want, (_t, how, _l)) in enumerate(zip(wants, step.requires,
-                                                      strict=True)):
+        for i, (one, given) in enumerate(asks):
             rest = term
-            for later in reversed(wants[i + 1:]):
-                rest = seq(self.term(later), rest, 'wi')
-            proof = seq(scope, self.term(want), rest,
-                        self.side(want, how, scope, facts), proof,
+            for later, _p in reversed(asks[i + 1:]):
+                rest = seq(later, rest, 'wi')
+            proof = seq(scope, one, rest, given, proof,
                         'syl' if i == 0 else 'mpd')
         return proof
 
@@ -1419,15 +1456,18 @@ class Elaborator:
         return self.spare.pop(0)
 
     def fresh(self, prefix):
-        """A label for a generated statement that set.mm is not using.
+        """A label for a generated statement nothing else is using.
 
-        `ine1` reads as the first inequality this file assumes; set.mm reads
-        it as `_i =/= 1`. The library is large enough that a short name is
-        never safely free, so one is looked for."""
+        `ine1` reads as the first inequality assumed; set.mm reads it as
+        `_i =/= 1`, and a file that includes another numbers its own from one
+        as well. So the label says which file it belongs to, and is looked
+        for rather than taken: the library is large enough that a short name
+        is never safely free."""
+        stem = label_of(self.thm.name, self.sigs)
         number = len(self.axioms) + 1
-        while f'{prefix}{number}' in self.sigs:
+        while f'{stem}.{prefix}{number}' in self.sigs:
             number += 1
-        return f'{prefix}{number}'
+        return f'{stem}.{prefix}{number}'
 
     def supplied(self, step, scope, facts):
         """The facts a step's own `requires` lines put within reach.
@@ -1465,7 +1505,13 @@ class Elaborator:
         raise Problem('', 0, f'cannot supply {self.render(term)}')
 
     def calculation(self, step, node, term, scope, facts, lines):
-        """A chain of equalities folded by transitivity, one link at a time.
+        """A chain folded by transitivity, one link at a time.
+
+        A link carries a relation of its own, and they need not all be the
+        same: the triangle inequality runs two equalities into a `≤`. So each
+        link is read as the claim relating the run so far to what the link
+        adds, and the lemma that folds it is chosen by the two relations
+        either side of the join.
 
         A link may cite a line the other way round — `3.3, right to left` —
         because nothing in the readable layer says which way an equation
@@ -1479,20 +1525,43 @@ class Elaborator:
 
         def held(cite, turned):
             line = lines[cite]
+            proof = self.carried(cite, facts, lines)
             if not turned:
-                return line.proof
+                return proof
             was, now = (c.rpn(self.flabel)
                         for c in self.to_term(line.term).children)
-            return seq(scope, was, now, line.proof, 'eqcomd')
+            return seq(scope, was, now, proof, 'eqcomd')
 
-        start, run = self.read(links[0][0]).children
-        left, right = self.term(start), self.term(run)
+        first = self.read(links[0][0])
+        if not first.text:
+            raise Problem('', step.line, 'a chain starts with no relation')
+        words = links[0][0].split()
+        rest = ' '.join(words[words.index(first.text) + 1:])
+        whole = self.to_term(self.term(first))
+        left = whole.children[0].rpn(self.flabel)
+        right = whole.children[1].rpn(self.flabel)
+        said = whole.label
+        relation = whole.children[2].rpn(self.flabel) if said == 'wbr' else ''
         proof = held(links[0][1], links[0][2])
         for body, cite, turned in links[1:]:
-            nxt = self.term(self.read(body.lstrip('= ')))
-            proof = seq(scope, left, right, nxt, proof, held(cite, turned),
-                        'eqtrd')
-            right = nxt
+            mark, added = body.split(None, 1)
+            joined = self.to_term(self.term(self.read(f'{rest} {mark} {added}')))
+            fold = self.FOLDING.get((said, joined.label))
+            if fold is None:
+                raise Problem('', step.line,
+                              f'no transitivity folds {said} into '
+                              f'{joined.label}')
+            if joined.children[0].rpn(self.flabel) != right:
+                raise Problem('', step.line,
+                              'a link that reads the other way round from the '
+                              'one above it')
+            nxt = joined.children[1].rpn(self.flabel)
+            if joined.label == 'wbr':
+                relation = joined.children[2].rpn(self.flabel)
+            proof = seq(scope, left, right, nxt, relation, proof,
+                        held(cite, turned), fold)
+            right, rest = nxt, added
+            said = 'wceq' if said == joined.label == 'wceq' else 'wbr'
         return proof
 
     def exhibit(self, step, node, term, scope, facts, lines):
@@ -1652,7 +1721,8 @@ class Elaborator:
                 and self.enclosing.owner.just.head == 'contradiction':
             return None
         wanted = self.claim_of(' '.join(step.claim))
-        held = {lines[ref].term: lines[ref].proof for ref in step.just.refs}
+        held = {lines[ref].term: self.carried(ref, facts, lines)
+                for ref in step.just.refs}
         left, right = self.to_term(wanted).children
         pair = [left.rpn(self.flabel), right.rpn(self.flabel)]
         if not all(p in held for p in pair):
@@ -1675,17 +1745,18 @@ class Elaborator:
         conclusion is matched against what the step claims, and what that
         leaves open is fixed by matching an antecedent against a line the
         step already has."""
-        label = targets.lemma(item)[0]
-        if not label:
+        labels = targets.clauses(item)
+        if not labels:
             raise Problem('', step.line,
                           f'{step.just.head} has no target field')
-        found = self.apply_lemma(label, self.to_term(term), scope, facts,
-                                 step)
-        if found is None:
-            raise Problem('', step.line,
-                          f'{label} does not reach what step '
-                          f'{fmt(step.number)} claims')
-        return found
+        for label in labels:
+            found = self.apply_lemma(label, self.to_term(term), scope, facts,
+                                     step)
+            if found is not None:
+                return found
+        raise Problem('', step.line,
+                      f'no clause of {step.just.head} reaches what step '
+                      f'{fmt(step.number)} claims')
 
     def cite_corpus(self, step, term, scope, facts, lines, item):
         """Apply a theorem this corpus proves, as this elaborator states it.

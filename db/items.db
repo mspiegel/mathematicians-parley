@@ -205,6 +205,7 @@ theorem real-closure
   let y ∈ ℝ                                                           (H2)
   then        x + y ∈ ℝ. x − y ∈ ℝ.
   metamath    readdcl, resubcl
+  target      readdcl, resubcl
   first-used  triangle-inequality
   note        The triangle inequality pilot stated addition only; the
               intermediate value pilot stated both. Merged to both, which is the
@@ -478,6 +479,7 @@ theorem abs-real
   let x ∈ ℝ                                                           (H1)
   then        |x| ∈ ℝ
   metamath    recn, abscl
+  target      abscl
   first-used  triangle-inequality
   note        No proof cites it yet. `inequalities` treats |x| as an atom it
               knows nothing about, so an absolute value has to be known real

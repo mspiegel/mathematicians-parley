@@ -90,6 +90,22 @@ def commuting(records):
     return out
 
 
+def clauses(record):
+    """The lemmas an item's `target` names, one per `then` group.
+
+    An item may state several things at once — `thm:real-closure` says a sum
+    and a difference are both real — and set.mm proves each separately, so a
+    step citing the item claims one of them. A target that fills a lemma's
+    variables is one lemma and not a list, however many commas the filling
+    takes."""
+    value = record.fields.get('target')
+    if not value:
+        return []
+    if ' with ' in value:
+        return [lemma(record)[0]]
+    return split_entries(value)
+
+
 def fill(pattern, holes):
     """A target with its holes replaced by the terms that stand in them."""
     return HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
