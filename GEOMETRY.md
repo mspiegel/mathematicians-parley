@@ -86,6 +86,9 @@ the theorem statement and five of the twelve steps.
 
 ## The answer
 
+**Taken.** The complex plane, with the angle defined unsigned and the plane
+written `𝔼²` on the page. What follows is why, and what it waits on.
+
 **The complex plane, with the angle defined unsigned.**
 
 ```
@@ -220,6 +223,39 @@ Three of the items gain the disequality hypotheses they presently omit, and
 `necom` joins the membership list.
 
 Six `open` markers cleared.
+
+## What it waits on
+
+`def:angle` would be the first definition in this corpus that introduces a
+symbol. set.mm has no `cang` and no `df-ang`: what its theorems call `F` is a
+class variable pinned by an essential hypothesis, carried by every statement
+in the section. So the corpus has two ways to write an angle, and only one of
+them is free.
+
+**Inline the function.** The `target` carries the whole
+`( x e. ( CC \ { 0 } ) , y e. ( CC \ { 0 } ) |-> ( Im ` ( log ` ( y / x ) ) ) )`
+wherever a constant would sit, about twenty-five tokens, once per angle
+mention. Nothing new is needed but `eqid` in the membership list, so the
+`F = ( ... )` hypothesis discharges against itself. `GOALS.md` permits it
+outright — stored steps "can stay as large and unreadable as they like" — and
+the two bound variables it carries are already covered, since `self.taken`
+excludes what a notation's target binds.
+
+**Or emit a definition**, giving the corpus the constant set.mm lacks. That
+is decision 12 of `GOALS.md`, which wants a definitional axiom "syntactically
+checked to introduce one new symbol and be eliminable, so that 'by definition
+of' is safe and the kernel's 'no axioms' property is not on the honour
+system".
+
+`DATABASE.md` records why that has never been exercised: every `def:` in the
+corpus names a word for a construct set.mm already has, so "these items
+introduce no symbol, so that check does not apply to them as written, and
+what it should say instead is open". The angle is the first item that would
+introduce one, which makes it the first case decision 12 was written for.
+
+So the geometry waits on decision 12 rather than the other way round. Doing
+it by inlining would work and would leave the one definition this corpus
+introduces unchecked, which is the thing the decision exists to prevent.
 
 ## What would change the answer
 
