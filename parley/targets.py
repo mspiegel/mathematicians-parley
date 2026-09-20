@@ -116,6 +116,9 @@ MEMBERSHIP = [
     '3cn', '3re', '3z', '4cn', '4re', '4z',
     'nnz', 'nnre', 'nncn', 'nn0z', 'nn0re', 'nn0cn', 'zre', 'zcn', 'recn',
     'qre', 'qcn', 'elnnuz',
-    'elfzelz', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
+    'elfzelz', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
+    'renegcl', 'negcl',
+    # and what an order relation asks, which is the same kind of thing
+    'ltle', 'ltnri', 'leid',
 ]

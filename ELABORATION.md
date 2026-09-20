@@ -408,10 +408,31 @@ read off them. `parley/elaborate.py` implements that list, and
 parley/elaborate.py <theorem> <set.mm> > elaboration/auto/<theorem>.mm
 ```
 
-produces a Metamath proof that verifies against set.mm. Three theorems go
-through it — odd-square, even-square and sum-formula — and nothing in any of
-them is hand-written. `elaboration/auto/` holds what the program writes; the
-files beside it are the hand elaborations, kept for comparison.
+produces a Metamath proof that verifies against set.mm. Four theorems go
+through it — odd-square, even-square, sum-formula and abs-bounds — and nothing
+in any of them is hand-written. `elaboration/auto/` holds what the program
+writes; the files beside it are the hand elaborations, kept for comparison.
+
+**All four block forms are implemented.** `abs-bounds` brings `cases`, which
+closes with `mpjaodan` and is the first block to open a scope for each of its
+parts rather than one for all its children. So requirement 1 is executable
+throughout: every block widens the antecedent by what it assumes and closes
+with one lemma, and the four lemmas are `rexlimdva`, `pm2.65d`, `ex` and
+`mpjaodan`.
+
+It also settles `join` outside a contradiction, which requirement 8 described
+and nothing had run: it is `jca`, and the two lines are paired by what they
+claim rather than by the order the text lists them, because the text lists
+them as derived and the conclusion states them in the theorem's order.
+
+**Reading set.mm's statements made the database say less, not more.** When a
+theorem citation was described rather than matched, three items carried a
+`target` saying which of the lemma's variables each part of the readable
+statement filled — `notnot with ph := n is even`. Matching the lemma's
+conclusion against the claim recovers all of that, and what the conclusion
+does not fix is recovered by matching an antecedent against a line the step
+already cites, which is how `orel2` learns which disjunct is ruled out. The
+three fills are gone and the items name a label and nothing else.
 
 The scope an `obtain` opens, the congruence path a `substitute` walks, the
 fold of a `calculation`, the witness of a definition used to conclude an
@@ -508,13 +529,26 @@ compare. None of them match.
 | odd-square | 1617 | 2067 | |
 | even-square | 342 | 440 | |
 | sum-formula | 4024 | 1693 | the program assumes three statements |
+| abs-bounds | 1001 | 663 | the program assumes four statements |
 
 None match. The first two are about a quarter larger for the same reason:
 where the hand proof pulled a fact out of the scope once and used it twice,
 the program derives it at each use, because nothing tells it that a fact is
 worth keeping. Sum-formula's rows are still not comparable — both expand
 `def:S` now, but the program takes the two `arithmetic` steps and the one
-`algebra` step as stated where the hand proof works them out.
+`algebra` step as stated where the hand proof works them out. Abs-bounds is
+the same: all four of its `inequalities` steps are assumed.
+
+**`inequalities` did not come cheaply, and it is worth saying why.** The
+machinery that settles a side condition — match a lemma's conclusion against
+what is wanted, settle what it asks in turn — generalises from memberships to
+order relations without change, which is how `absnid` gets `x ≤ 0` from the
+case assumption `x < 0` through `ltle`. What it cannot do is rewrite by a
+cited equation, and that is what every one of abs-bounds' four
+`inequalities` steps needs: each concludes something about `|x|` from a line
+saying what `|x|` equals. Forward chaining from facts reaches neither. So the
+method needs the same equality-aware rewriting `substitute` has, pointed at a
+relation rather than at an equation, and it is assumed here.
 
 All of them verify. So verifiability is what an elaborator can be held to, and
 byte-identity is a property of one implementation rather than of the language
@@ -666,11 +700,14 @@ the identity is.
 
 1. **Scopes, not just steps.** An `obtain` opens a scope that runs to the end of
    the proof, and every step inside it is elaborated in deduction form. All
-   four block forms now work the same way: the block's assumption is conjoined
+   four block forms work the same way: the block's assumption is conjoined
    onto the antecedent, and the block closes with one lemma — `rexlimdva` for
    `obtain`, `pm2.65d` for `contradiction`, `ex` for `fix`, `mpjaodan` for
    `cases`. The expansion of a step is therefore a function of the step and of
-   the scopes it sits inside, not of the step alone.
+   the scopes it sits inside, not of the step alone. `cases` differs in one
+   way the others do not prepare for: it opens a scope for each of its parts
+   rather than one for all its children, so the scope changes between
+   siblings and not only on the way in and out.
 
 2. **A path-directed congruence.** `substitute` needs the path from the root to
    the occurrence and one congruence lemma per step along it. Nothing is

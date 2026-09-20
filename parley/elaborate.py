@@ -86,6 +86,8 @@ class Block:
         self.supposed = None        # contradiction
         self.over = self.base = None                      # induction
         self.variable = None        # the setvar a fix introduced
+        self.assumed = {}           # cases: part number -> what it assumes
+        self.entered = None         # cases: the part now open
         self.claim = self.proof = None
         self.parts = {}             # part number -> the last fact in it
 
@@ -121,6 +123,7 @@ class Elaborator:
         self.proofs = {t.name: t for t in theorems}
         self.cited = []          # corpus theorems this proof leans on
         self.joined = None
+        self.enclosing = None    # the block a step sits directly inside
         self.shapes = {}         # target pattern -> the tree it reads as
         self.names = {}          # readable name -> kernel term
         self.sets = {}           # readable name -> the set it was let into
@@ -261,41 +264,59 @@ class Elaborator:
         raise Problem('', 0, f'cannot settle {self.render(rpn)}')
 
     def fits(self, label, sig, wanted, scope, facts, depth):
-        """Whether one lemma settles what is wanted, and how."""
+        """Whether one lemma settles what is wanted, and how.
+
+        A lemma may ask more than one thing before it says anything —
+        `ltle` wants both sides real and then the strict relation — so its
+        antecedents are peeled until what is left is what is wanted."""
         whole = self.syntax.statement(sig)
         variables = whole.names()
-        antecedent, reads = None, whole
-        if whole.label in ('wi', 'wb'):
-            antecedent, reads = whole.children
-        binding = kernel.match(reads, wanted, {}, variables)
-        if binding is None:
-            return None
-        if antecedent is not None and antecedent.names() - set(binding):
-            # What the lemma asks is not settled by what it concludes:
-            # `elfzelz` gives an integer from a range it does not name. So
-            # the antecedent has to be something already known, and that is
-            # what fixes the rest.
+        antecedents, reads, closing = [], whole, 'syl'
+        if whole.label == 'wb':
+            antecedents, reads, closing = [whole.children[0]], \
+                whole.children[1], 'sylib'
+        binding = None
+        while True:
+            binding = kernel.match(reads, wanted, {}, variables)
+            if binding is not None:
+                break
+            if reads.label != 'wi':
+                return None
+            antecedents.append(reads.children[0])
+            reads = reads.children[1]
+
+        # What the lemma concludes need not fix everything it asks, so an
+        # antecedent still open is matched against something already known.
+        for slot in antecedents:
+            if not slot.names() - set(binding):
+                continue
             for held in facts:
-                filled = kernel.match(antecedent, self.to_term(held),
-                                      dict(binding), variables)
+                filled = kernel.match(slot, self.to_term(held), dict(binding),
+                                      variables)
                 if filled is not None:
                     binding = filled
                     break
             else:
                 return None
+
         pushed = [binding[v].rpn(self.flabel) if v in binding
                   else self.flabel[v] for v in sig.push]
-        instance = seq(*pushed, label)
-        if antecedent is None:
-            return seq(wanted.rpn(self.flabel), scope, instance, 'a1i')
-        asks = antecedent.substitute(binding)
+        proof = seq(*pushed, label)
+        if not antecedents:
+            return seq(wanted.rpn(self.flabel), scope, proof, 'a1i')
         try:
-            under = self.settle(asks, scope, facts, depth - 1)
+            for i, slot in enumerate(antecedents):
+                asks = slot.substitute(binding)
+                rest = wanted.rpn(self.flabel)
+                for later in reversed(antecedents[i + 1:]):
+                    rest = seq(later.substitute(binding).rpn(self.flabel),
+                               rest, 'wi')
+                proof = seq(scope, asks.rpn(self.flabel), rest,
+                            self.settle(asks, scope, facts, depth - 1), proof,
+                            closing if i == 0 else 'mpd')
         except Problem:
             return None
-        return seq(scope, asks.rpn(self.flabel), wanted.rpn(self.flabel),
-                   under, instance,
-                   'syl' if whole.label == 'wi' else 'sylib')
+        return proof
 
     # --- congruence ---------------------------------------------------------
 
@@ -432,6 +453,18 @@ class Elaborator:
                 out.append(piece)
         return out
 
+    def claim_of(self, text):
+        """A claim of several sentences is their conjunction.
+
+        `then x ≤ |x|. −x ≤ |x|.` states two things at once, and the kernel
+        has one conclusion, so the sentences are conjoined in the order the
+        text writes them."""
+        said = [self.term(self.read(s)) for s in self.sentences(text)]
+        whole = said[0]
+        for extra in said[1:]:
+            whole = seq(whole, extra, 'wa')
+        return whole
+
     def hypotheses(self):
         """Name every `let` variable, and read the hypotheses."""
         nodes, spare = [], list(CLASS_NAMES)
@@ -474,6 +507,9 @@ class Elaborator:
                 blocks.append(block)
                 scope, facts = block.scope, block.facts
                 continue
+            if blocks and blocks[-1].assumed and step.part is not None:
+                scope, facts = self.enter_case(blocks[-1], step.part, lines)
+            self.enclosing = blocks[-1] if blocks else None
             scope, facts, closers = self.step(step, scope, facts, lines,
                                               closers)
             if step.part is not None and blocks:
@@ -484,7 +520,7 @@ class Elaborator:
             scope, facts = self.close_block(done, facts, lines)
             self.hand_up(done, blocks)
 
-        goal = self.term(self.read(self.thm.conclusion))
+        goal = self.claim_of(self.thm.conclusion)
         proof = lines[self.last].proof
         for close in reversed(closers):
             proof = close(proof, goal)
@@ -542,6 +578,15 @@ class Elaborator:
                                                       block.facts, added)
                 if label:
                     lines[label] = Fact(added, block.facts[added], node)
+        elif head == 'cases':
+            # Every other block opens one scope for all its children. A
+            # `cases` opens one per part, so nothing is widened here and the
+            # part is entered when its first child arrives.
+            block.scope, block.facts = scope, facts
+            block.assumed = {}
+            for kind, text, label, _l, part in step.openers:
+                body = text[len(kind):] if text.startswith(kind) else text
+                block.assumed[part] = (self.read(body), label)
         elif head == 'induction':
             block.scope, block.facts = scope, facts
             block.over = re.search(r'induction on (\S+)',
@@ -551,6 +596,20 @@ class Elaborator:
             raise Problem('', step.line,
                           f'no expansion for a {head} block')
         return block
+
+    def enter_case(self, block, part, lines):
+        """Open the scope one case of a `cases` block runs under."""
+        if block.entered == part:
+            return block.scope, block.facts
+        del self.frames[block.frame + 1:]
+        node, label = block.assumed[part]
+        assumed = self.term(node)
+        block.scope, block.facts = self.widen(block.outer, block.outside,
+                                              assumed)
+        block.entered = part
+        if label:
+            lines[label] = Fact(assumed, block.facts[assumed], node)
+        return block.scope, block.facts
 
     @staticmethod
     def hand_up(done, blocks):
@@ -571,6 +630,8 @@ class Elaborator:
             held = lines[self.last]
             block.claim, block.proof = held.term, held.proof
             return block.outer, block.outside     # the induction takes it
+        elif head == 'cases':
+            block.claim, block.proof = self.close_cases(block, lines)
         elif head == 'induction':
             block.claim, block.proof = self.close_induction(block, lines)
         number = '.'.join(str(p) for p in step.number)
@@ -595,11 +656,30 @@ class Elaborator:
         if second != seq(first, 'wn'):
             raise Problem('', step.line,
                           'the joined lines are not a contradiction')
-        claim = self.term(self.read(self.sentences(' '.join(step.claim))[-1]))
+        claim = self.claim_of(' '.join(step.claim))
         return claim, seq(scope, supposed, first,
                           seq(scope, supposed, first, facts[first], 'ex'),
                           seq(scope, supposed, second, facts[second], 'ex'),
                           'pm2.65d')
+
+    def close_cases(self, block, lines):
+        """Two cases and the disjunction that says one of them holds.
+
+        mpjaodan wants each case as an implication out of the scope with its
+        own assumption conjoined, which is what each part was proved as, and
+        the disjunction the block cites. The fourth and last block form, and
+        the same shape as the other three: widen, prove, close with one
+        lemma."""
+        step, scope = block.owner, block.outer
+        if set(block.parts) != set(block.assumed):
+            raise Problem('', step.line, 'a case of the block proves nothing')
+        claim = self.claim_of(' '.join(step.claim))
+        parts = sorted(block.assumed)
+        first, second = (self.term(block.assumed[p][0]) for p in parts)
+        said = [block.parts[p][1] for p in parts]
+        held = lines[step.just.refs[0]]
+        return claim, seq(scope, first, claim, second, *said, held.proof,
+                          'mpjaodan')
 
     def close_induction(self, block, lines):
         """Induction closes with nnindd, which wants the claim five ways.
@@ -658,8 +738,9 @@ class Elaborator:
         if head == 'obtain':
             return self.obtain(step, number, scope, facts, lines, closers)
         node = self.read(self.sentences(' '.join(step.claim))[-1])
-        term = self.term(node)
+        term = self.claim_of(' '.join(step.claim))
         how = {'algebra': self.algebra, 'arithmetic': self.arithmetic,
+               'inequalities': self.inequalities,
                'substitute': self.substitute,
                'calculation': self.calculation, 'join': self.join}.get(head)
         if how is None and head.startswith('def:'):
@@ -782,6 +863,11 @@ class Elaborator:
         """Not expanded either. `METHODS.md` says it is closed numerals."""
         return self.assume(step, term, scope, facts, 'ari')
 
+    def inequalities(self, step, node, term, scope, facts, lines):
+        """Not expanded. Its steps rewrite by a cited equation as well as
+        chain relations, and nothing here does the first."""
+        return self.assume(step, term, scope, facts, 'ine')
+
     def take_definition(self, step, node, term, scope, facts, lines):
         """A definition with no target is taken as it states itself."""
         return self.assume(step, term, scope, facts, 'def')
@@ -822,20 +908,44 @@ class Elaborator:
         where, frame = self.allowed(sig, binding, variables)
         known = self.frames_facts(frame, facts)
         for slot in antecedents:
-            if slot.variable is not None and slot.variable not in binding:
+            if not slot.names() - set(binding):
+                continue
+            if slot.variable is not None:
                 binding[slot.variable] = self.to_term(where)
+                continue
+            # What the lemma concludes need not fix everything it asks, so
+            # an antecedent that is still open is matched against something
+            # the step already has: `orel2` learns which disjunct is ruled
+            # out from the line that rules it out.
+            for held in known:
+                filled = kernel.match(slot, self.to_term(held), dict(binding),
+                                      variables)
+                if filled is not None:
+                    binding = filled
+                    break
         pushed = [binding[v].rpn(self.flabel) if v in binding
                   else self.flabel[v] for v in sig.push]
         essentials = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)
             for e in sig.essentials]
         proof = seq(*pushed, *essentials, label)
+        if not antecedents:
+            # The lemma asks nothing, so it states the claim outright and has
+            # to be brought into the scope the step sits in.
+            return self.carry(seq(goal.rpn(self.flabel), where, proof, 'a1i'),
+                              goal.rpn(self.flabel), frame)
         for slot in antecedents:
             asks = slot.substitute(binding)
             if asks.rpn(self.flabel) == where:
                 continue                      # the deduction slot
-            proof = seq(where, asks.rpn(self.flabel), goal.rpn(self.flabel),
-                        self.settle(asks, where, known), proof, 'syl')
+            rest = goal.rpn(self.flabel)
+            for later in reversed(antecedents[antecedents.index(slot) + 1:]):
+                if later.substitute(binding).rpn(self.flabel) != where:
+                    rest = seq(later.substitute(binding).rpn(self.flabel),
+                               rest, 'wi')
+            proof = seq(where, asks.rpn(self.flabel), rest,
+                        self.settle(asks, where, known), proof,
+                        'syl' if proof.split()[-1] == label else 'mpd')
         return self.carry(proof, goal.rpn(self.flabel), frame)
 
     def prove_essential(self, want, scope, facts):
@@ -890,7 +1000,7 @@ class Elaborator:
     def assume(self, step, term, scope, facts, prefix):
         """State what a step claims, under the conditions it writes, and
         take it. What the file assumes is listed at its head."""
-        label = f'{prefix}{len(self.axioms) + 1}'
+        label = self.fresh(prefix)
         wants = [self.read(text) for text, _how, _line in step.requires]
         statement = term
         for want in reversed(wants):
@@ -922,16 +1032,31 @@ class Elaborator:
                         'syl' if i == 0 else 'mpd')
         return proof
 
+    def fresh(self, prefix):
+        """A label for a generated statement that set.mm is not using.
+
+        `ine1` reads as the first inequality this file assumes; set.mm reads
+        it as `_i =/= 1`. The library is large enough that a short name is
+        never safely free, so one is looked for."""
+        number = len(self.axioms) + 1
+        while f'{prefix}{number}' in self.sigs:
+            number += 1
+        return f'{prefix}{number}'
+
     def side(self, want, how, scope, facts):
         """A proof of what one `requires` line asks for."""
         term = self.term(want)
         if term in facts:
             return facts[term]
+        try:
+            return self.settle(self.to_term(term), scope, facts)
+        except Problem:
+            pass
         if want.notation == 'membership':
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
         if how.strip().startswith('arithmetic'):
-            label = f'ari{len(self.axioms) + 1}'
+            label = self.fresh('ari')
             self.axioms.append((label, '|- ' + self.render(term)))
             self.sigs[label] = Signature(label, '$a',
                                          ['|-', *self.render(term).split()])
@@ -1002,13 +1127,26 @@ class Elaborator:
                    'mpbird')
 
     def join(self, step, node, term, scope, facts, lines):
-        """Two lines paired. Inside a contradiction this emits nothing.
+        """Two lines paired, which is one thing inside a contradiction and
+        another outside it.
 
-        What closes the block consumes both joined lines itself, so the join
-        has no expansion of its own; it records which pair the block closes
-        on. `ELABORATION.md` requirement 8."""
+        Inside, it emits nothing: `pm2.65d` closes the block and consumes
+        both joined lines itself, so the join only records which pair. Inside
+        a case it is `jca`, and the lines are paired by what they claim, since
+        the text lists them in the order they were derived and the conclusion
+        states them in the theorem's order. `ELABORATION.md` requirement 8."""
         self.joined = [lines[ref].term for ref in step.just.refs]
-        return None
+        if self.enclosing is not None \
+                and self.enclosing.owner.just.head == 'contradiction':
+            return None
+        wanted = self.claim_of(' '.join(step.claim))
+        held = {lines[ref].term: lines[ref].proof for ref in step.just.refs}
+        left, right = self.to_term(wanted).children
+        pair = [left.rpn(self.flabel), right.rpn(self.flabel)]
+        if not all(p in held for p in pair):
+            raise Problem('', step.line,
+                          'the joined lines are not what the step claims')
+        return seq(scope, *pair, *(held[p] for p in pair), 'jca')
 
     def cite(self, step, node, term, scope, facts, lines):
         """A theorem cited. Either set.mm supplies it or this corpus does."""
@@ -1020,47 +1158,22 @@ class Elaborator:
     def cite_library(self, step, term, scope, facts, lines, item):
         """Apply the set.mm theorem the item's `target` names.
 
-        The lemma is stated in its own variables, the item in the readable
-        ones, and the `target` field says which is which. Once its variables
-        are filled the statement is instantiated and its antecedents peeled
-        off one at a time, each answered by a fact the step cites."""
-        label, fills = targets.lemma(item)
+        The lemma is stated in its own variables and the item in the readable
+        ones, and reading the lemma's statement is what relates them: its
+        conclusion is matched against what the step claims, and what that
+        leaves open is fixed by matching an antecedent against a line the
+        step already has."""
+        label = targets.lemma(item)[0]
         if not label:
             raise Problem('', step.line,
                           f'{step.just.head} has no target field')
-        saved = dict(self.names)
-        for name, value in instantiation(step.just.text):
-            self.names[name] = self.term(self.read(value))
-        filled = {v: self.term(self.read(f)) for v, f in fills.items()}
-        self.names = saved
-
-        sig = self.sigs[label]
-        text = {v: self.render(t) for v, t in filled.items()}
-        words = []
-        for token in sig.statement[1:]:
-            words += text[token].split() if token in text else [token]
-
-        # The lemma may be an implication, or two, before it reaches what the
-        # step claims. Each antecedent is a fact the step has.
-        wanted, goal = [], words
-        while ' '.join(goal) != self.render(term):
-            split = implication(goal)
-            if split is None:
-                raise Problem('', step.line,
-                              f'{label} does not reach what the step claims')
-            antecedent, goal = split
-            wanted.append(self.stating(' '.join(antecedent), facts))
-
-        proof = seq(*(filled[v] for v in sig.push), label)
-        if not wanted:
-            return seq(term, scope, proof, 'a1i')
-        for i, held in enumerate(wanted):
-            rest = term
-            for later in reversed(wanted[i + 1:]):
-                rest = seq(later, rest, 'wi')
-            proof = seq(scope, held, rest, facts[held], proof,
-                        'syl' if i == 0 else 'mpd')
-        return proof
+        found = self.apply_lemma(label, self.to_term(term), scope, facts,
+                                 step)
+        if found is None:
+            raise Problem('', step.line,
+                          f'{label} does not reach what step '
+                          f'{fmt(step.number)} claims')
+        return found
 
     def cite_corpus(self, step, term, scope, facts, lines, item):
         """Apply a theorem this corpus proves, as this elaborator states it.

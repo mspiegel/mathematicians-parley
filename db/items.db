@@ -51,7 +51,7 @@ theorem disjunctive-syllogism
   assume not Q                                                        (H2)
   then        P
   metamath    orel2
-  target      orel2 with ph := Q, ps := P
+  target      orel2
   first-used  sqrt2-irrational
   note        The √2 pilot asked whether a school reader can check this on
               paper, and called it the acceptance test. Citing it puts the
@@ -262,7 +262,7 @@ theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
   metamath    exmid
-  target      exmid with ph := n is even
+  target      exmid
   first-used  sqrt2-irrational
   note        def:odd makes "n is odd" the negation of "n is even", so this
               statement is excluded middle, ( ph or not ph ), and the
@@ -275,7 +275,7 @@ theorem not-both
   assume n is even                                                    (H2)
   then        n is not odd
   metamath    notnot
-  target      notnot with ph := n is even
+  target      notnot
   first-used  sqrt2-irrational
   note        def:odd makes "n is odd" the negation of H2, so this statement is
               double negation introduction, ( ph -> not not ph ), and the
@@ -317,6 +317,7 @@ theorem nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
   then        x ≥ 0 or x < 0
   metamath    0re, lelttric
+  target      lelttric
   first-used  triangle-inequality
 
 theorem lowest-terms
@@ -463,6 +464,7 @@ definition abs
   let x ∈ ℝ                                                           (H1)
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
   metamath    absid, absnid
+  target      absid, absnid
   first-used  triangle-inequality
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
               the real case. So this elaborates to a pair of theorems, not to a
