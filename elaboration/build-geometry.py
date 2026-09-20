@@ -699,6 +699,325 @@ def angle_symmetry(b, out):
     return out
 
 
+def angle_size(b, out):
+    """Where the unsigned angle lives, and what cosine makes of it.
+
+    Two facts the law of cosines needs. `lawcos` states itself with the
+    signed angle, and the corpus writes the unsigned one, so a step that
+    carries an angle between the two has to know that cosine cannot tell
+    them apart, and that going back is possible because cosine is one to
+    one on the range the unsigned angle occupies."""
+    # Cosine is even, so it reads an absolute value and the sign it lost.
+    real = 'A e. RR'
+    same = '( cos ` ( abs ` A ) ) = ( cos ` A )'
+    says = f'|- ( {real} -> {same} )'
+    out.append(('gcosabs', says, b.ap(
+        'lecasei', {'ph': b.wff(real), 'ps': b.wff(same), 'A': b.rpn('0'),
+                    'B': b.rpn('A')},
+        b.ap('a1i', {'ph': b.wff('0 e. RR'), 'ps': b.wff(real)}, '0re'),
+        b.ap('id', {'ph': b.wff(real)}),
+        b.ap('fveq2d', {'ph': b.wff(f'( {real} /\\ 0 <_ A )'),
+                        'A': b.rpn('( abs ` A )'), 'B': b.rpn('A'),
+                        'F': b.rpn('cos')},
+             b.ap('absid', {'A': b.rpn('A')})),
+        b.ap('eqtrd', {'ph': b.wff(f'( {real} /\\ A <_ 0 )'),
+                       'A': b.rpn('( cos ` ( abs ` A ) )'),
+                       'B': b.rpn('( cos ` -u A )'),
+                       'C': b.rpn('( cos ` A )')},
+             b.ap('fveq2d', {'ph': b.wff(f'( {real} /\\ A <_ 0 )'),
+                             'A': b.rpn('( abs ` A )'), 'B': b.rpn('-u A'),
+                             'F': b.rpn('cos')},
+                  b.ap('absnid', {'A': b.rpn('A')})),
+             b.ap('syl', {'ph': b.wff(f'( {real} /\\ A <_ 0 )'),
+                          'ps': b.wff('A e. CC'),
+                          'ch': b.wff('( cos ` -u A ) = ( cos ` A )')},
+                  b.ap('recnd', {'ph': b.wff(f'( {real} /\\ A <_ 0 )'),
+                                 'A': b.rpn('A')},
+                       b.ap('simpl', {'ph': b.wff(real),
+                                      'ps': b.wff('A <_ 0')})),
+                  b.ap('cosneg', {'A': b.rpn('A')}))))))
+    b.define('gcosabs', says)
+
+    # The signed angle sits in -pi to pi, half-open at the bottom, so the
+    # unsigned one sits in 0 to pi and `cos11` applies to it.
+    ph = '( ( A e. CC /\\ A =/= 0 ) /\\ ( B e. CC /\\ B =/= 0 ) )'
+    z = '( B / A )'
+    theta = f'( Im ` ( log ` {z} ) )'
+    size = '( abs ` ( A ang B ) )'
+    left = b.ap('simpl', {'ph': b.wff('( A e. CC /\\ A =/= 0 )'),
+                          'ps': b.wff('( B e. CC /\\ B =/= 0 )')})
+    right = b.ap('simpr', {'ph': b.wff('( A e. CC /\\ A =/= 0 )'),
+                           'ps': b.wff('( B e. CC /\\ B =/= 0 )')})
+    z_cc = b.ap('syl3anc', {'ph': b.wff(ph), 'ps': b.wff('B e. CC'),
+                            'ch': b.wff('A e. CC'), 'th': b.wff('A =/= 0'),
+                            'ta': b.wff(f'{z} e. CC')},
+                b.ap('simpld', {'ph': b.wff(ph), 'ps': b.wff('B e. CC'),
+                                'ch': b.wff('B =/= 0')}, right),
+                b.ap('simpld', {'ph': b.wff(ph), 'ps': b.wff('A e. CC'),
+                                'ch': b.wff('A =/= 0')}, left),
+                b.ap('simprd', {'ph': b.wff(ph), 'ps': b.wff('A e. CC'),
+                                'ch': b.wff('A =/= 0')}, left),
+                b.ap('divcl', {'A': b.rpn('B'), 'B': b.rpn('A')}))
+    z_nz = b.ap('syl', {'ph': b.wff(ph),
+                        'ps': b.wff('( ( B e. CC /\\ B =/= 0 ) '
+                                    '/\\ ( A e. CC /\\ A =/= 0 ) )'),
+                        'ch': b.wff(f'{z} =/= 0')},
+                b.ap('jca', {'ph': b.wff(ph),
+                             'ps': b.wff('( B e. CC /\\ B =/= 0 )'),
+                             'ch': b.wff('( A e. CC /\\ A =/= 0 )')},
+                     right, left),
+                b.ap('divne0', {'A': b.rpn('B'), 'B': b.rpn('A')}))
+    bounds = b.ap('syl2anc', {'ph': b.wff(ph), 'ps': b.wff(f'{z} e. CC'),
+                              'ch': b.wff(f'{z} =/= 0'),
+                              'th': b.wff(f'( -u _pi < {theta} '
+                                          f'/\\ {theta} <_ _pi )')},
+                  z_cc, z_nz, b.ap('logimcl', {'A': b.rpn(z)}))
+    theta_re = b.ap('imcld', {'ph': b.wff(ph), 'A': b.rpn(f'( log ` {z} )')},
+                    b.ap('logcld', {'ph': b.wff(ph), 'X': b.rpn(z)},
+                         z_cc, z_nz))
+    # -pi < theta gives -pi <_ theta, which is the half `absle` wants.
+    under = b.ap('mpbir2and',
+                 {'ph': b.wff(ph), 'ps': b.wff(f'( abs ` {theta} ) <_ _pi'),
+                  'ch': b.wff(f'-u _pi <_ {theta}'),
+                  'th': b.wff(f'{theta} <_ _pi')},
+                 b.ap('ltled', {'ph': b.wff(ph), 'A': b.rpn('-u _pi'),
+                                'B': b.rpn(theta)},
+                      b.ap('a1i', {'ph': b.wff('-u _pi e. RR'),
+                                   'ps': b.wff(ph)},
+                           b.ap('ax-mp', {'ph': b.wff('_pi e. RR'),
+                                          'ps': b.wff('-u _pi e. RR')},
+                                'pire',
+                                b.ap('renegcl', {'A': b.rpn('_pi')}))),
+                      theta_re,
+                      b.ap('simpld', {'ph': b.wff(ph),
+                                      'ps': b.wff(f'-u _pi < {theta}'),
+                                      'ch': b.wff(f'{theta} <_ _pi')},
+                           bounds)),
+                 b.ap('simprd', {'ph': b.wff(ph),
+                                 'ps': b.wff(f'-u _pi < {theta}'),
+                                 'ch': b.wff(f'{theta} <_ _pi')}, bounds),
+                 b.ap('syl2anc', {'ph': b.wff(ph), 'ps': b.wff(f'{theta} e. RR'),
+                                  'ch': b.wff('_pi e. RR'),
+                                  'th': b.wff(f'( ( abs ` {theta} ) <_ _pi '
+                                              f'<-> ( -u _pi <_ {theta} '
+                                              f'/\\ {theta} <_ _pi ) )')},
+                      theta_re,
+                      b.ap('a1i', {'ph': b.wff('_pi e. RR'),
+                                   'ps': b.wff(ph)}, 'pire'),
+                      b.ap('absle', {'A': b.rpn(theta), 'B': b.rpn('_pi')})))
+    lands = b.ap(
+        'mpbir3and',
+        {'ph': b.wff(ph), 'ps': b.wff(f'( abs ` {theta} ) e. ( 0 [,] _pi )'),
+         'ch': b.wff(f'( abs ` {theta} ) e. RR'),
+         'th': b.wff(f'0 <_ ( abs ` {theta} )'),
+         'ta': b.wff(f'( abs ` {theta} ) <_ _pi')},
+        b.ap('syl', {'ph': b.wff(ph), 'ps': b.wff(f'{theta} e. CC'),
+                     'ch': b.wff(f'( abs ` {theta} ) e. RR')},
+             b.ap('recnd', {'ph': b.wff(ph), 'A': b.rpn(theta)}, theta_re),
+             b.ap('abscl', {'A': b.rpn(theta)})),
+        b.ap('syl', {'ph': b.wff(ph), 'ps': b.wff(f'{theta} e. CC'),
+                     'ch': b.wff(f'0 <_ ( abs ` {theta} )')},
+             b.ap('recnd', {'ph': b.wff(ph), 'A': b.rpn(theta)}, theta_re),
+             b.ap('absge0', {'A': b.rpn(theta)})),
+        under,
+        b.ap('syl2anc', {'ph': b.wff(ph), 'ps': b.wff('0 e. RR'),
+                         'ch': b.wff('_pi e. RR'),
+                         'th': b.wff(f'( ( abs ` {theta} ) e. ( 0 [,] _pi ) '
+                                     f'<-> ( ( abs ` {theta} ) e. RR '
+                                     f'/\\ 0 <_ ( abs ` {theta} ) '
+                                     f'/\\ ( abs ` {theta} ) <_ _pi ) )')},
+             b.ap('a1i', {'ph': b.wff('0 e. RR'), 'ps': b.wff(ph)}, '0re'),
+             b.ap('a1i', {'ph': b.wff('_pi e. RR'), 'ps': b.wff(ph)}, 'pire'),
+             b.ap('elicc2', {'A': b.rpn('0'), 'B': b.rpn('_pi'),
+                             'C': b.rpn(f'( abs ` {theta} )')})))
+    says = f'|- ( {ph} -> {size} e. ( 0 [,] _pi ) )'
+    out.append(('gangrange', says, b.ap(
+        'eqeltrd', {'ph': b.wff(ph), 'A': b.rpn(size),
+                    'B': b.rpn(f'( abs ` {theta} )'),
+                    'C': b.rpn('( 0 [,] _pi )')},
+        b.ap('fveq2d', {'ph': b.wff(ph), 'A': b.rpn('( A ang B )'),
+                        'B': b.rpn(theta), 'F': b.rpn('abs')},
+             b.ap('gangval', {'A': b.rpn('A'), 'B': b.rpn('B')})),
+        lands)))
+    b.define('gangrange', says)
+    return out
+
+
+def law_of_cosines(b, out):
+    """set.mm's law of cosines, said the way this corpus says things.
+
+    `lawcos` takes the angle function as a hypothesis, and the function it
+    takes is `df-ang` to the token, which is why the corpus declares that
+    constant and not another. Two things still have to move: `lawcos` names
+    the third side |C − B| where the corpus names it |B − C|, and it uses
+    the signed angle where the corpus uses the unsigned one. `abssub` and
+    `gcosabs` are those two steps."""
+    points = '( A e. CC /\\ B e. CC /\\ C e. CC )'
+    apart = '( -. A = B /\\ -. C = B )'
+    ph = f'( {points} /\\ {apart} )'
+    ab, cb, bc, ca = '( A - B )', '( C - B )', '( B - C )', '( C - A )'
+    signed = f'( {ab} ang {cb} )'
+
+    def member(name, which):
+        return b.ap('adantr', {'ph': b.wff(points),
+                               'ps': b.wff(f'{name} e. CC'),
+                               'ch': b.wff(apart)},
+                    b.ap(which, {'ph': b.wff('A e. CC'),
+                                 'ps': b.wff('B e. CC'),
+                                 'ch': b.wff('C e. CC')}))
+
+    mem = {'A': member('A', 'simp1'), 'B': member('B', 'simp2'),
+           'C': member('C', 'simp3')}
+    two = {'ph': b.wff('-. A = B'), 'ps': b.wff('-. C = B')}
+    unequal = {}
+    for name, pick, claim in (('AB', 'simpl', '-. A = B'),
+                              ('CB', 'simpr', '-. C = B')):
+        unequal[name] = b.ap('adantl', {'ph': b.wff(apart),
+                                        'ps': b.wff(claim),
+                                        'ch': b.wff(points)},
+                             b.ap(pick, two))
+
+    # lawcos asks for the two disequalities the other way round, and as
+    # =/= rather than as a negated equation.
+    def ne(x, y, which):
+        return b.ap('neqned', {'ph': b.wff(ph), 'A': b.rpn(x),
+                               'B': b.rpn(y)}, unequal[which])
+
+    raw = b.ap('syl2anc',
+               {'ph': b.wff(ph),
+                'ps': b.wff('( C e. CC /\\ A e. CC /\\ B e. CC )'),
+                'ch': b.wff('( C =/= B /\\ A =/= B )'),
+                'th': b.wff(f'( ( abs ` {ca} ) ^ 2 ) = ( ( ( ( abs ` {ab} ) '
+                            f'^ 2 ) + ( ( abs ` {cb} ) ^ 2 ) ) - ( 2 x. ( ( '
+                            f'( abs ` {ab} ) x. ( abs ` {cb} ) ) x. '
+                            f'( cos ` {signed} ) ) ) )')},
+               b.ap('3jca', {'ph': b.wff(ph), 'ps': b.wff('C e. CC'),
+                             'ch': b.wff('A e. CC'), 'th': b.wff('B e. CC')},
+                    mem['C'], mem['A'], mem['B']),
+               b.ap('jca', {'ph': b.wff(ph), 'ps': b.wff('C =/= B'),
+                            'ch': b.wff('A =/= B')},
+                    ne('C', 'B', 'CB'), ne('A', 'B', 'AB')),
+               b.ap('lawcos',
+                    {'A': b.rpn('C'), 'B': b.rpn('A'), 'C': b.rpn('B'),
+                     'F': b.rpn('ang'), 'O': b.rpn(signed),
+                     'X': b.rpn(f'( abs ` {ab} )'),
+                     'Y': b.rpn(f'( abs ` {cb} )'),
+                     'Z': b.rpn(f'( abs ` {ca} )')},
+                    b.ap('df-ang'),
+                    b.ap('eqid', {'A': b.rpn(f'( abs ` {ab} )')}),
+                    b.ap('eqid', {'A': b.rpn(f'( abs ` {cb} )')}),
+                    b.ap('eqid', {'A': b.rpn(f'( abs ` {ca} )')}),
+                    b.ap('eqid', {'A': b.rpn(signed)})))
+
+    # |C - B| is |B - C|, and the cosine does not see the angle's sign.
+    flip = b.ap('syl2anc', {'ph': b.wff(ph), 'ps': b.wff('C e. CC'),
+                            'ch': b.wff('B e. CC'),
+                            'th': b.wff(f'( abs ` {cb} ) = ( abs ` {bc} )')},
+                mem['C'], mem['B'],
+                b.ap('abssub', {'A': b.rpn('C'), 'B': b.rpn('B')}))
+    ab_cc = b.ap('subcld', {'ph': b.wff(ph), 'A': b.rpn('A'), 'B': b.rpn('B')},
+                 mem['A'], mem['B'])
+    cb_cc = b.ap('subcld', {'ph': b.wff(ph), 'A': b.rpn('C'), 'B': b.rpn('B')},
+                 mem['C'], mem['B'])
+    ab_nz = differs(b, ph, 'A', 'B', mem['A'], mem['B'], unequal['AB'])
+    cb_nz = differs(b, ph, 'C', 'B', mem['C'], mem['B'], unequal['CB'])
+    quotient = b.ap('divcld', {'ph': b.wff(ph), 'A': b.rpn(cb),
+                               'B': b.rpn(ab)}, cb_cc, ab_cc, ab_nz)
+    ready = b.ap('jca',
+                 {'ph': b.wff(ph),
+                  'ps': b.wff(f'( {ab} e. CC /\\ {ab} =/= 0 )'),
+                  'ch': b.wff(f'( {cb} e. CC /\\ {cb} =/= 0 )')},
+                 b.ap('jca', {'ph': b.wff(ph), 'ps': b.wff(f'{ab} e. CC'),
+                              'ch': b.wff(f'{ab} =/= 0')}, ab_cc, ab_nz),
+                 b.ap('jca', {'ph': b.wff(ph), 'ps': b.wff(f'{cb} e. CC'),
+                              'ch': b.wff(f'{cb} =/= 0')}, cb_cc, cb_nz))
+    ang_value = b.ap('syl',
+                     {'ph': b.wff(ph),
+                      'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
+                                  f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
+                      'ch': b.wff(f'{signed} '
+                                  f'= ( Im ` ( log ` ( {cb} / {ab} ) ) )')},
+                     ready, b.ap('gangval', {'A': b.rpn(ab), 'B': b.rpn(cb)}))
+    signed_re = b.ap('eqeltrd',
+                     {'ph': b.wff(ph), 'A': b.rpn(signed),
+                      'B': b.rpn(f'( Im ` ( log ` ( {cb} / {ab} ) ) )'),
+                      'C': b.rpn('RR')},
+                     ang_value,
+                     b.ap('imcld',
+                          {'ph': b.wff(ph),
+                           'A': b.rpn(f'( log ` ( {cb} / {ab} ) )')},
+                          b.ap('logcld', {'ph': b.wff(ph),
+                                          'X': b.rpn(f'( {cb} / {ab} )')},
+                               quotient,
+                               b.ap('divne0d',
+                                    {'ph': b.wff(ph), 'A': b.rpn(cb),
+                                     'B': b.rpn(ab)},
+                                    cb_cc, ab_cc, cb_nz, ab_nz))))
+    unsign = b.ap('eqcomd',
+                  {'ph': b.wff(ph),
+                   'A': b.rpn(f'( cos ` ( abs ` {signed} ) )'),
+                   'B': b.rpn(f'( cos ` {signed} )')},
+                  b.ap('syl',
+                       {'ph': b.wff(ph), 'ps': b.wff(f'{signed} e. RR'),
+                        'ch': b.wff(f'( cos ` ( abs ` {signed} ) ) '
+                                    f'= ( cos ` {signed} )')},
+                       signed_re,
+                       b.ap('gcosabs', {'A': b.rpn(signed)})))
+    says = (f'|- ( {ph} -> ( ( abs ` {ca} ) ^ 2 ) = ( ( ( ( abs ` {ab} ) ^ 2 )'
+            f' + ( ( abs ` {bc} ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` {ab} ) x. '
+            f'( abs ` {bc} ) ) x. ( cos ` ( abs ` {signed} ) ) ) ) ) )')
+    out.append(('glawcos', says, b.ap(
+        'eqtrd', {'ph': b.wff(ph), 'A': b.rpn(f'( ( abs ` {ca} ) ^ 2 )'),
+                  'B': b.rpn(f'( ( ( ( abs ` {ab} ) ^ 2 ) + ( ( abs ` {cb} ) '
+                             f'^ 2 ) ) - ( 2 x. ( ( ( abs ` {ab} ) x. '
+                             f'( abs ` {cb} ) ) x. ( cos ` {signed} ) ) ) )'),
+                  'C': b.rpn(f'( ( ( ( abs ` {ab} ) ^ 2 ) + ( ( abs ` {bc} ) '
+                             f'^ 2 ) ) - ( 2 x. ( ( ( abs ` {ab} ) x. '
+                             f'( abs ` {bc} ) ) x. '
+                             f'( cos ` ( abs ` {signed} ) ) ) ) )')},
+        raw,
+        b.ap('oveq12d',
+             {'ph': b.wff(ph),
+              'A': b.rpn(f'( ( ( abs ` {ab} ) ^ 2 ) + ( ( abs ` {cb} ) ^ 2 ) )'),
+              'B': b.rpn(f'( ( ( abs ` {ab} ) ^ 2 ) + ( ( abs ` {bc} ) ^ 2 ) )'),
+              'C': b.rpn(f'( 2 x. ( ( ( abs ` {ab} ) x. ( abs ` {cb} ) ) x. '
+                         f'( cos ` {signed} ) ) )'),
+              'D': b.rpn(f'( 2 x. ( ( ( abs ` {ab} ) x. ( abs ` {bc} ) ) x. '
+                         f'( cos ` ( abs ` {signed} ) ) ) )'),
+              'F': b.rpn('-')},
+             b.ap('oveq2d', {'ph': b.wff(ph),
+                             'A': b.rpn(f'( ( abs ` {cb} ) ^ 2 )'),
+                             'B': b.rpn(f'( ( abs ` {bc} ) ^ 2 )'),
+                             'C': b.rpn(f'( ( abs ` {ab} ) ^ 2 )'),
+                             'F': b.rpn('+')},
+                  b.ap('oveq1d', {'ph': b.wff(ph),
+                                  'A': b.rpn(f'( abs ` {cb} )'),
+                                  'B': b.rpn(f'( abs ` {bc} )'),
+                                  'C': b.rpn('2'), 'F': b.rpn('^')}, flip)),
+             b.ap('oveq2d',
+                  {'ph': b.wff(ph),
+                   'A': b.rpn(f'( ( ( abs ` {ab} ) x. ( abs ` {cb} ) ) x. '
+                              f'( cos ` {signed} ) )'),
+                   'B': b.rpn(f'( ( ( abs ` {ab} ) x. ( abs ` {bc} ) ) x. '
+                              f'( cos ` ( abs ` {signed} ) ) )'),
+                   'C': b.rpn('2'), 'F': b.rpn('x.')},
+                  b.ap('oveq12d',
+                       {'ph': b.wff(ph),
+                        'A': b.rpn(f'( ( abs ` {ab} ) x. ( abs ` {cb} ) )'),
+                        'B': b.rpn(f'( ( abs ` {ab} ) x. ( abs ` {bc} ) )'),
+                        'C': b.rpn(f'( cos ` {signed} )'),
+                        'D': b.rpn(f'( cos ` ( abs ` {signed} ) )'),
+                        'F': b.rpn('x.')},
+                       b.ap('oveq2d', {'ph': b.wff(ph),
+                                       'A': b.rpn(f'( abs ` {cb} )'),
+                                       'B': b.rpn(f'( abs ` {bc} )'),
+                                       'C': b.rpn(f'( abs ` {ab} )'),
+                                       'F': b.rpn('x.')}, flip),
+                       unsign))))))
+    b.define('glawcos', says)
+    return out
+
+
 HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
    What this corpus needs of the plane and set.mm does not state.
@@ -716,10 +1035,15 @@ $( `angval` reads a value of the angle by substituting for the two names
    written one at a time because `$d x y A B` would also hold A and B
    apart, and the lemmas below are applied at terms that share names. $)
 $d x y $.
-$d x A $.
-$d x B $.
-$d y A $.
-$d y B $.
+$d x A $.  $d y A $.
+$d x B $.  $d y B $.
+$d x C $.  $d y C $.
+$d x P $.  $d y P $.
+$d x Q $.  $d y Q $.
+$d x R $.  $d y R $.
+$d x S $.  $d y S $.
+$d x T $.  $d y T $.
+$d x U $.  $d y U $.
 
 """
 
@@ -735,8 +1059,9 @@ def main(argv):
     sigs = read_library(argv[1], here / 'auto' / 'definitions.mm')
     b = Builder(sigs)
     print(HEAD, end='')
-    for label, statement, proof in angle_symmetry(
-            b, rotation(b, triangle_lemmas(b))):
+    for label, statement, proof in law_of_cosines(
+            b, angle_size(
+                b, angle_symmetry(b, rotation(b, triangle_lemmas(b))))):
         print(f'  {label} $p {statement} $=')
         line = '   '
         for token in proof.split():

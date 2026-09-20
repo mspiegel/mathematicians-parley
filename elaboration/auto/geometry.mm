@@ -15,10 +15,15 @@ $( `angval` reads a value of the angle by substituting for the two names
    written one at a time because `$d x y A B` would also hold A and B
    apart, and the lemmas below are applied at terms that share names. $)
 $d x y $.
-$d x A $.
-$d x B $.
-$d y A $.
-$d y B $.
+$d x A $.  $d y A $.
+$d x B $.  $d y B $.
+$d x C $.  $d y C $.
+$d x P $.  $d y P $.
+$d x Q $.  $d y Q $.
+$d x R $.  $d y R $.
+$d x S $.  $d y S $.
+$d x T $.  $d y T $.
+$d x U $.  $d y U $.
 
   gtrirec $p |- ( ( ( A e. CC /\ A =/= 0 ) /\ ( B e. CC /\ B =/= 0 ) ) -> ( ( A / B ) e. RR -> ( B / A ) e. RR ) ) $=
     cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cB cdiv co cr
@@ -763,4 +768,313 @@ $d y B $.
     cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2
     adantr subeq0ad necon3bid mpbird jca jca cA cB cmin co cC cB cmin co
     gangsym syl ex $.
+
+  gcosabs $p |- ( A e. RR -> ( cos ` ( abs ` A ) ) = ( cos ` A ) ) $=
+    cA cr wcel cA cabs cfv ccos cfv cA ccos cfv wceq cc0 cA cc0 cr wcel cA cr
+    wcel 0re a1i cA cr wcel id cA cr wcel cc0 cA cle wbr wa cA cabs cfv cA
+    ccos cA absid fveq2d cA cr wcel cA cc0 cle wbr wa cA cabs cfv ccos cfv cA
+    cneg ccos cfv cA ccos cfv cA cr wcel cA cc0 cle wbr wa cA cabs cfv cA
+    cneg ccos cA absnid fveq2d cA cr wcel cA cc0 cle wbr wa cA cc wcel cA
+    cneg ccos cfv cA ccos cfv wceq cA cr wcel cA cc0 cle wbr wa cA cA cr wcel
+    cA cc0 cle wbr simpl recnd cA cosneg syl eqtrd lecasei $.
+
+  gangrange $p |- ( ( ( A e. CC /\ A =/= 0 ) /\ ( B e. CC /\ B =/= 0 ) ) -> ( abs ` ( A ang B ) ) e. ( 0 [,] _pi ) ) $=
+    cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cB cang co cabs
+    cfv cB cA cdiv co clog cfv cim cfv cabs cfv cc0 cpi cicc co cA cc wcel cA
+    cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cB cang co cB cA cdiv co clog
+    cfv cim cfv cabs cA cB gangval fveq2d cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa wa cB cA cdiv co clog cfv cim cfv cabs cfv cc0 cpi cicc co
+    wcel cB cA cdiv co clog cfv cim cfv cabs cfv cr wcel cc0 cB cA cdiv co
+    clog cfv cim cfv cabs cfv cle wbr cB cA cdiv co clog cfv cim cfv cabs cfv
+    cpi cle wbr cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA
+    cdiv co clog cfv cim cfv cc wcel cB cA cdiv co clog cfv cim cfv cabs cfv
+    cr wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv
+    co clog cfv cim cfv cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa
+    cB cA cdiv co clog cfv cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa
+    wa cB cA cdiv co cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB
+    cc wcel cA cc wcel cA cc0 wne cB cA cdiv co cc wcel cA cc wcel cA cc0 wne
+    wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa simpr simpld cA cc wcel cA cc0 wne wa cB
+    cc wcel cB cc0 wne wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa
+    cB cc wcel cB cc0 wne wa simpl simpld cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa simpl simprd cB cA divcl syl3anc cA cc wcel cA cc0 wne
+    wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0
+    wne wa wa cB cA cdiv co cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB
+    cc0 wne wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa cA cc
+    wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpr cA cc wcel cA cc0 wne
+    wa cB cc wcel cB cc0 wne wa simpl jca cB cA divne0 syl logcld imcld recnd
+    cB cA cdiv co clog cfv cim cfv abscl syl cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cA cdiv co clog cfv cim cfv cc wcel cc0 cB cA
+    cdiv co clog cfv cim cfv cabs cfv cle wbr cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cA cdiv co clog cfv cim cfv cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv co clog cfv cA cc wcel cA
+    cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv co cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cA cc wcel cA cc0 wne cB cA
+    cdiv co cc wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB
+    cc wcel cB cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa
+    simpr simpld cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cc
+    wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl
+    simpld cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cc wcel cA
+    cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl simprd cB
+    cA divcl syl3anc cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB
+    cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa wa cB cA cdiv co cc0 wne
+    cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0
+    wne wa cA cc wcel cA cc0 wne wa cA cc wcel cA cc0 wne wa cB cc wcel cB
+    cc0 wne wa simpr cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl
+    jca cB cA divne0 syl logcld imcld recnd cB cA cdiv co clog cfv cim cfv
+    absge0 syl cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA
+    cdiv co clog cfv cim cfv cabs cfv cpi cle wbr cpi cneg cB cA cdiv co clog
+    cfv cim cfv cle wbr cB cA cdiv co clog cfv cim cfv cpi cle wbr cA cc wcel
+    cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cpi cneg cB cA cdiv co clog cfv
+    cim cfv cpi cneg cr wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa wa cpi cr wcel cpi cneg cr wcel pire cpi renegcl ax-mp a1i cA cc wcel
+    cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv co clog cfv cA cc
+    wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv co cA cc wcel
+    cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cA cc wcel cA cc0
+    wne cB cA cdiv co cc wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa wa cB cc wcel cB cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0
+    wne wa simpr simpld cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa
+    cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa
+    simpl simpld cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cc
+    wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl
+    simprd cB cA divcl syl3anc cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa wa cB cA cdiv co
+    cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel
+    cB cc0 wne wa cA cc wcel cA cc0 wne wa cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa simpr cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa simpl jca cB cA divne0 syl logcld imcld cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cpi cneg cB cA cdiv co clog cfv cim cfv clt wbr cB
+    cA cdiv co clog cfv cim cfv cpi cle wbr cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cA cdiv co cc wcel cB cA cdiv co cc0 wne cpi
+    cneg cB cA cdiv co clog cfv cim cfv clt wbr cB cA cdiv co clog cfv cim
+    cfv cpi cle wbr wa cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa
+    cB cc wcel cA cc wcel cA cc0 wne cB cA cdiv co cc wcel cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne cA cc wcel cA
+    cc0 wne wa cB cc wcel cB cc0 wne wa simpr simpld cA cc wcel cA cc0 wne wa
+    cB cc wcel cB cc0 wne wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne
+    wa cB cc wcel cB cc0 wne wa simpl simpld cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB
+    cc wcel cB cc0 wne wa simpl simprd cB cA divcl syl3anc cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA
+    cc0 wne wa wa cB cA cdiv co cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa cA cc
+    wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpr cA cc wcel cA cc0 wne
+    wa cB cc wcel cB cc0 wne wa simpl jca cB cA divne0 syl cB cA cdiv co
+    logimcl syl2anc simpld ltled cA cc wcel cA cc0 wne wa cB cc wcel cB cc0
+    wne wa wa cpi cneg cB cA cdiv co clog cfv cim cfv clt wbr cB cA cdiv co
+    clog cfv cim cfv cpi cle wbr cA cc wcel cA cc0 wne wa cB cc wcel cB cc0
+    wne wa wa cB cA cdiv co cc wcel cB cA cdiv co cc0 wne cpi cneg cB cA cdiv
+    co clog cfv cim cfv clt wbr cB cA cdiv co clog cfv cim cfv cpi cle wbr wa
+    cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cA cc
+    wcel cA cc0 wne cB cA cdiv co cc wcel cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa wa cB cc wcel cB cc0 wne cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa simpr simpld cA cc wcel cA cc0 wne wa cB cc wcel cB
+    cc0 wne wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa simpl simpld cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa wa cA cc wcel cA cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0
+    wne wa simpl simprd cB cA divcl syl3anc cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa
+    wa cB cA cdiv co cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa wa cB cc wcel cB cc0 wne wa cA cc wcel cA cc0 wne wa cA cc wcel cA cc0
+    wne wa cB cc wcel cB cc0 wne wa simpr cA cc wcel cA cc0 wne wa cB cc wcel
+    cB cc0 wne wa simpl jca cB cA divne0 syl cB cA cdiv co logimcl syl2anc
+    simprd cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cA cdiv co
+    clog cfv cim cfv cr wcel cpi cr wcel cB cA cdiv co clog cfv cim cfv cabs
+    cfv cpi cle wbr cpi cneg cB cA cdiv co clog cfv cim cfv cle wbr cB cA
+    cdiv co clog cfv cim cfv cpi cle wbr wa wb cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cA cdiv co clog cfv cA cc wcel cA cc0 wne wa cB
+    cc wcel cB cc0 wne wa wa cB cA cdiv co cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa cB cc wcel cA cc wcel cA cc0 wne cB cA cdiv co cc
+    wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB
+    cc0 wne cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpr simpld cA
+    cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cc wcel cA cc0 wne
+    cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl simpld cA cc wcel
+    cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cc wcel cA cc0 wne cA cc
+    wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl simprd cB cA divcl
+    syl3anc cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel
+    cB cc0 wne wa cA cc wcel cA cc0 wne wa wa cB cA cdiv co cc0 wne cA cc
+    wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cB cc wcel cB cc0 wne wa
+    cA cc wcel cA cc0 wne wa cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne
+    wa simpr cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa simpl jca cB
+    cA divne0 syl logcld imcld cpi cr wcel cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa pire a1i cB cA cdiv co clog cfv cim cfv cpi absle
+    syl2anc mpbir2and cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa
+    cc0 cr wcel cpi cr wcel cB cA cdiv co clog cfv cim cfv cabs cfv cc0 cpi
+    cicc co wcel cB cA cdiv co clog cfv cim cfv cabs cfv cr wcel cc0 cB cA
+    cdiv co clog cfv cim cfv cabs cfv cle wbr cB cA cdiv co clog cfv cim cfv
+    cabs cfv cpi cle wbr w3a wb cc0 cr wcel cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa 0re a1i cpi cr wcel cA cc wcel cA cc0 wne wa cB cc
+    wcel cB cc0 wne wa wa pire a1i cc0 cpi cB cA cdiv co clog cfv cim cfv
+    cabs cfv elicc2 syl2anc mpbir3and eqeltrd $.
+
+  glawcos $p |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( abs ` ( C - A ) ) ^ 2 ) = ( ( ( ( abs ` ( A - B ) ) ^ 2 ) + ( ( abs ` ( B - C ) ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` ( A - B ) ) x. ( abs ` ( B - C ) ) ) x. ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) ) ) $=
+    cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC
+    cA cmin co cabs cfv c2 cexp co cA cB cmin co cabs cfv c2 cexp co cC cB
+    cmin co cabs cfv c2 cexp co caddc co c2 cA cB cmin co cabs cfv cC cB cmin
+    co cabs cfv cmul co cA cB cmin co cC cB cmin co cang co ccos cfv cmul co
+    cmul co cmin co cA cB cmin co cabs cfv c2 cexp co cB cC cmin co cabs cfv
+    c2 cexp co caddc co c2 cA cB cmin co cabs cfv cB cC cmin co cabs cfv cmul
+    co cA cB cmin co cC cB cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn
+    wa wa cC cc wcel cA cc wcel cB cc wcel w3a cC cB wne cA cB wne wa cC cA
+    cmin co cabs cfv c2 cexp co cA cB cmin co cabs cfv c2 cexp co cC cB cmin
+    co cabs cfv c2 cexp co caddc co c2 cA cB cmin co cabs cfv cC cB cmin co
+    cabs cfv cmul co cA cB cmin co cC cB cmin co cang co ccos cfv cmul co
+    cmul co cmin co wceq cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn
+    cC cB wceq wn wa wa cC cc wcel cA cc wcel cB cc wcel cA cc wcel cB cc
+    wcel cC cc wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel
+    cB cc wcel cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a
+    cA cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc
+    wcel simp1 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel cA cB
+    wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2 adantr
+    3jca cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa
+    wa cC cB wne cA cB wne cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn
+    cC cB wceq wn wa wa cC cB cA cB wceq wn cC cB wceq wn wa cC cB wceq wn cA
+    cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn simpr
+    adantl neqned cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB
+    wceq wn wa wa cA cB cA cB wceq wn cC cB wceq wn wa cA cB wceq wn cA cc
+    wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn simpl adantl
+    neqned jca vx vy cC cA cB cang cA cB cmin co cC cB cmin co cang co cA cB
+    cmin co cabs cfv cC cB cmin co cabs cfv cC cA cmin co cabs cfv vx vy
+    df-ang cA cB cmin co cabs cfv eqid cC cB cmin co cabs cfv eqid cC cA cmin
+    co cabs cfv eqid cA cB cmin co cC cB cmin co cang co eqid lawcos syl2anc
+    cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA
+    cB cmin co cabs cfv c2 cexp co cC cB cmin co cabs cfv c2 cexp co caddc co
+    cA cB cmin co cabs cfv c2 cexp co cB cC cmin co cabs cfv c2 cexp co caddc
+    co c2 cA cB cmin co cabs cfv cC cB cmin co cabs cfv cmul co cA cB cmin co
+    cC cB cmin co cang co ccos cfv cmul co cmul co c2 cA cB cmin co cabs cfv
+    cB cC cmin co cabs cfv cmul co cA cB cmin co cC cB cmin co cang co cabs
+    cfv ccos cfv cmul co cmul co cmin cA cc wcel cB cc wcel cC cc wcel w3a cA
+    cB wceq wn cC cB wceq wn wa wa cC cB cmin co cabs cfv c2 cexp co cB cC
+    cmin co cabs cfv c2 cexp co cA cB cmin co cabs cfv c2 cexp co caddc cA cc
+    wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB
+    cmin co cabs cfv cB cC cmin co cabs cfv c2 cexp cA cc wcel cB cc wcel cC
+    cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cc wcel cB cc wcel cC cB
+    cmin co cabs cfv cB cC cmin co cabs cfv wceq cA cc wcel cB cc wcel cC cc
+    wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel
+    cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel
+    cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2
+    adantr cC cB abssub syl2anc oveq1d oveq2d cA cc wcel cB cc wcel cC cc
+    wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co cabs cfv cC cB
+    cmin co cabs cfv cmul co cA cB cmin co cC cB cmin co cang co ccos cfv
+    cmul co cA cB cmin co cabs cfv cB cC cmin co cabs cfv cmul co cA cB cmin
+    co cC cB cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cA cc wcel cB
+    cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co
+    cabs cfv cC cB cmin co cabs cfv cmul co cA cB cmin co cabs cfv cB cC cmin
+    co cabs cfv cmul co cA cB cmin co cC cB cmin co cang co ccos cfv cA cB
+    cmin co cC cB cmin co cang co cabs cfv ccos cfv cmul cA cc wcel cB cc
+    wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cmin co cabs
+    cfv cB cC cmin co cabs cfv cA cB cmin co cabs cfv cmul cA cc wcel cB cc
+    wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cc wcel cB cc
+    wcel cC cB cmin co cabs cfv cB cC cmin co cabs cfv wceq cA cc wcel cB cc
+    wcel cC cc wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel
+    cB cc wcel cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a
+    cB cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc
+    wcel simp2 adantr cC cB abssub syl2anc oveq2d cA cc wcel cB cc wcel cC cc
+    wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co cC cB cmin co
+    cang co cabs cfv ccos cfv cA cB cmin co cC cB cmin co cang co ccos cfv cA
+    cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB
+    cmin co cC cB cmin co cang co cr wcel cA cB cmin co cC cB cmin co cang co
+    cabs cfv ccos cfv cA cB cmin co cC cB cmin co cang co ccos cfv wceq cA cc
+    wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB
+    cmin co cC cB cmin co cang co cC cB cmin co cA cB cmin co cdiv co clog
+    cfv cim cfv cr cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB
+    wceq wn wa wa cA cB cmin co cc wcel cA cB cmin co cc0 wne wa cC cB cmin
+    co cc wcel cC cB cmin co cc0 wne wa wa cA cB cmin co cC cB cmin co cang
+    co cC cB cmin co cA cB cmin co cdiv co clog cfv cim cfv wceq cA cc wcel
+    cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co
+    cc wcel cA cB cmin co cc0 wne wa cC cB cmin co cc wcel cC cB cmin co cc0
+    wne wa cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn
+    wa wa cA cB cmin co cc wcel cA cB cmin co cc0 wne cA cc wcel cB cc wcel
+    cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cA cc wcel cB cc
+    wcel cC cc wcel w3a cA cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel
+    cB cc wcel cC cc wcel simp1 adantr cA cc wcel cB cc wcel cC cc wcel w3a
+    cB cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc
+    wcel simp2 adantr subcld cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq
+    wn cC cB wceq wn wa wa cA cB cmin co cc0 wne cA cB wne cA cc wcel cB cc
+    wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cA cB wceq wn
+    cC cB wceq wn wa cA cB wceq wn cA cc wcel cB cc wcel cC cc wcel w3a cA cB
+    wceq wn cC cB wceq wn simpl adantl neqned cA cc wcel cB cc wcel cC cc
+    wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co cc0 cA cB cA cc
+    wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cA
+    cc wcel cB cc wcel cC cc wcel w3a cA cc wcel cA cB wceq wn cC cB wceq wn
+    wa cA cc wcel cB cc wcel cC cc wcel simp1 adantr cA cc wcel cB cc wcel cC
+    cc wcel w3a cB cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc
+    wcel cC cc wcel simp2 adantr subeq0ad necon3bid mpbird jca cA cc wcel cB
+    cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cmin co cc
+    wcel cC cB cmin co cc0 wne cA cc wcel cB cc wcel cC cc wcel w3a cA cB
+    wceq wn cC cB wceq wn wa wa cC cB cA cc wcel cB cc wcel cC cc wcel w3a cC
+    cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel
+    simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel cA cB wceq
+    wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2 adantr subcld
+    cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC
+    cB cmin co cc0 wne cC cB wne cA cc wcel cB cc wcel cC cc wcel w3a cA cB
+    wceq wn cC cB wceq wn wa wa cC cB cA cB wceq wn cC cB wceq wn wa cC cB
+    wceq wn cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn
+    simpr adantl neqned cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC
+    cB wceq wn wa wa cC cB cmin co cc0 cC cB cA cc wcel cB cc wcel cC cc wcel
+    w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cA cc wcel cB cc wcel cC cc
+    wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel
+    cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel
+    cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2
+    adantr subeq0ad necon3bid mpbird jca jca cA cB cmin co cC cB cmin co
+    gangval syl cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq
+    wn wa wa cC cB cmin co cA cB cmin co cdiv co clog cfv cA cc wcel cB cc
+    wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cmin co cA cB
+    cmin co cdiv co cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB
+    wceq wn wa wa cC cB cmin co cA cB cmin co cA cc wcel cB cc wcel cC cc
+    wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cA cc wcel cB cc wcel cC
+    cc wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc
+    wcel cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc
+    wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel
+    simp2 adantr subcld cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC
+    cB wceq wn wa wa cA cB cA cc wcel cB cc wcel cC cc wcel w3a cA cc wcel cA
+    cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp1 adantr
+    cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel cA cB wceq wn cC cB wceq
+    wn wa cA cc wcel cB cc wcel cC cc wcel simp2 adantr subcld cA cc wcel cB
+    cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co
+    cc0 wne cA cB wne cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC
+    cB wceq wn wa wa cA cB cA cB wceq wn cC cB wceq wn wa cA cB wceq wn cA cc
+    wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn simpl adantl
+    neqned cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn
+    wa wa cA cB cmin co cc0 cA cB cA cc wcel cB cc wcel cC cc wcel w3a cA cB
+    wceq wn cC cB wceq wn wa wa cA cB cA cc wcel cB cc wcel cC cc wcel w3a cA
+    cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel
+    simp1 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel cA cB wceq
+    wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2 adantr
+    subeq0ad necon3bid mpbird divcld cA cc wcel cB cc wcel cC cc wcel w3a cA
+    cB wceq wn cC cB wceq wn wa wa cC cB cmin co cA cB cmin co cA cc wcel cB
+    cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cA cc wcel
+    cB cc wcel cC cc wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc
+    wcel cB cc wcel cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel
+    w3a cB cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc
+    wcel simp2 adantr subcld cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq
+    wn cC cB wceq wn wa wa cA cB cA cc wcel cB cc wcel cC cc wcel w3a cA cc
+    wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel
+    simp1 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel cA cB wceq
+    wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2 adantr subcld
+    cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cC
+    cB cmin co cc0 wne cC cB wne cA cc wcel cB cc wcel cC cc wcel w3a cA cB
+    wceq wn cC cB wceq wn wa wa cC cB cA cB wceq wn cC cB wceq wn wa cC cB
+    wceq wn cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn
+    simpr adantl neqned cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC
+    cB wceq wn wa wa cC cB cmin co cc0 cC cB cA cc wcel cB cc wcel cC cc wcel
+    w3a cA cB wceq wn cC cB wceq wn wa wa cC cB cA cc wcel cB cc wcel cC cc
+    wcel w3a cC cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel
+    cC cc wcel simp3 adantr cA cc wcel cB cc wcel cC cc wcel w3a cB cc wcel
+    cA cB wceq wn cC cB wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp2
+    adantr subeq0ad necon3bid mpbird cA cc wcel cB cc wcel cC cc wcel w3a cA
+    cB wceq wn cC cB wceq wn wa wa cA cB cmin co cc0 wne cA cB wne cA cc wcel
+    cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cA cB
+    wceq wn cC cB wceq wn wa cA cB wceq wn cA cc wcel cB cc wcel cC cc wcel
+    w3a cA cB wceq wn cC cB wceq wn simpl adantl neqned cA cc wcel cB cc wcel
+    cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA cB cmin co cc0 cA cB
+    cA cc wcel cB cc wcel cC cc wcel w3a cA cB wceq wn cC cB wceq wn wa wa cA
+    cB cA cc wcel cB cc wcel cC cc wcel w3a cA cc wcel cA cB wceq wn cC cB
+    wceq wn wa cA cc wcel cB cc wcel cC cc wcel simp1 adantr cA cc wcel cB cc
+    wcel cC cc wcel w3a cB cc wcel cA cB wceq wn cC cB wceq wn wa cA cc wcel
+    cB cc wcel cC cc wcel simp2 adantr subeq0ad necon3bid mpbird divne0d
+    logcld imcld eqeltrd cA cB cmin co cC cB cmin co cang co gcosabs syl
+    eqcomd oveq12d oveq2d oveq12d eqtrd $.
 
