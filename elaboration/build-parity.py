@@ -7,6 +7,10 @@ A readable theorem's hypotheses become the antecedent of an implication rather
 than Metamath essential hypotheses. Even-square cites odd-square inside a
 contradiction block, where nothing is a proved statement and only an
 implication can be applied.
+
+The two `algebra` steps are proved rather than assumed. Both are
+normalisations with no cited equation, and the second reuses the first's
+pieces, which is the fixed lemma order METHODS.md asks `algebra` for.
 """
 
 def seq(*p): return ' '.join(x for x in p if x)
@@ -20,6 +24,7 @@ def wa(a, b): return seq(a, b, 'wa')
 def wo(a, b): return seq(a, b, 'wo')
 def wi(a, b): return seq(a, b, 'wi')
 def wn(a): return seq(a, 'wn')
+def w3a(a, b, c): return seq(a, b, c, 'w3a')
 def dvds(a, b): return seq(a, b, 'cdvds wbr')
 
 A, TWO, ONE, FOUR = 'cA', 'c2', 'c1', 'c4'
@@ -35,6 +40,98 @@ ODD_A, ODD_ASQ = wn(dvds(TWO, A)), wn(dvds(TWO, ASQ))
 CH = wa(inZZ(A), ODD_A)           # odd-square's two hypotheses, conjoined
 CHN = wa(CH, inZZ(NV))
 TH = wa(CHN, EQN)                 # and the scope the obtain opens
+
+# --- the two algebra steps --------------------------------------------------
+# Both are normalisations with no cited equation, which is what twelve of the
+# corpus's seventeen algebra steps are. set.mm's ring lemmas are over CC, so
+# the expansion carries the atom there and the readable text never says so.
+
+NC = 'cN'
+ALG = inCC(NC)                    # the one hypothesis an identity needs
+NCSQ, TNC = exp(NC, TWO), mul(TWO, NC)
+
+
+def ai(claim, pf): return seq(claim, ALG, pf, 'a1i')
+
+
+a_n = seq(ALG, 'id')
+a_2 = ai(inCC(TWO), '2cn')
+a_1 = ai(inCC(ONE), 'ax-1cn')
+a_tn = seq(ALG, TWO, NC, a_2, a_n, 'mulcld')
+a_nsq = seq(ALG, inCC(NC), inCC(NCSQ), a_n, NC, 'sqcl', 'syl')
+
+
+def double(X, p_x):
+    """ALG -> ( 2 x. ( 2 x. X ) ) = ( 4 x. X ).
+
+    Twice-two is the only numeral fact these identities need, and it is
+    reached the same way each time: associate, then replace the product of
+    numerals. Three of the five uses below are this one call."""
+    assoc = seq(ALG, mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X)),
+                seq(ALG, w3a(inCC(TWO), inCC(TWO), inCC(X)),
+                    eq(mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X))),
+                    seq(ALG, inCC(TWO), inCC(TWO), inCC(X), a_2, a_2, p_x,
+                        '3jca'),
+                    TWO, TWO, X, 'mulass', 'syl'),
+                'eqcomd')
+    numeral = seq(ALG, mul(TWO, TWO), FOUR, X, 'cmul',
+                  ai(eq(mul(TWO, TWO), FOUR), '2t2e4'), 'oveq1d')
+    return seq(ALG, mul(TWO, mul(TWO, X)), mul(mul(TWO, TWO), X), mul(FOUR, X),
+               assoc, numeral, 'eqtrd')
+
+
+# oalg1, the square of a sum. binom2 gets close, and the three terms it leaves
+# are what the rest of this settles.
+B1, B2, B3 = exp(TNC, TWO), mul(TWO, mul(TNC, ONE)), exp(ONE, TWO)
+BINOM = add(add(B1, B2), B3)
+a_binom = seq(ALG, wa(inCC(TNC), inCC(ONE)),
+              eq(exp(add(TNC, ONE), TWO), BINOM),
+              seq(ALG, inCC(TNC), inCC(ONE), a_tn, a_1, 'jca'),
+              TNC, ONE, 'binom2', 'syl')
+a_first = seq(ALG, B1, mul(exp(TWO, TWO), NCSQ), mul(FOUR, NCSQ),
+              seq(ALG, wa(inCC(TWO), inCC(NC)),
+                  eq(B1, mul(exp(TWO, TWO), NCSQ)),
+                  seq(ALG, inCC(TWO), inCC(NC), a_2, a_n, 'jca'),
+                  TWO, NC, 'sqmul', 'syl'),
+              seq(ALG, exp(TWO, TWO), FOUR, NCSQ, 'cmul',
+                  ai(eq(exp(TWO, TWO), FOUR), 'sq2'), 'oveq1d'),
+              'eqtrd')
+a_second = seq(ALG, B2, mul(TWO, TNC), mul(FOUR, NC),
+               seq(ALG, mul(TNC, ONE), TNC, TWO, 'cmul',
+                   seq(ALG, inCC(TNC), eq(mul(TNC, ONE), TNC), a_tn, TNC,
+                       'mulrid', 'syl'),
+                   'oveq2d'),
+               double(NC, a_n), 'eqtrd')
+ALG1 = add(add(mul(FOUR, NCSQ), mul(FOUR, NC)), ONE)
+oalg1 = seq(ALG, exp(add(TNC, ONE), TWO), BINOM, ALG1, a_binom,
+            seq(ALG, add(B1, B2), add(mul(FOUR, NCSQ), mul(FOUR, NC)), B3, ONE,
+                'caddc',
+                seq(ALG, B1, mul(FOUR, NCSQ), B2, mul(FOUR, NC), 'caddc',
+                    a_first, a_second, 'oveq12d'),
+                ai(eq(B3, ONE), 'sq1'), 'oveq12d'),
+            'eqtrd')
+
+# oalg2, the regrouping. Distribute, then halve each term back.
+WC = add(mul(TWO, NCSQ), mul(TWO, NC))
+a_distr = seq(ALG, w3a(inCC(TWO), inCC(mul(TWO, NCSQ)), inCC(mul(TWO, NC))),
+              eq(mul(TWO, WC),
+                 add(mul(TWO, mul(TWO, NCSQ)), mul(TWO, mul(TWO, NC)))),
+              seq(ALG, inCC(TWO), inCC(mul(TWO, NCSQ)), inCC(mul(TWO, NC)),
+                  a_2, seq(ALG, TWO, NCSQ, a_2, a_nsq, 'mulcld'),
+                  seq(ALG, TWO, NC, a_2, a_n, 'mulcld'), '3jca'),
+              TWO, mul(TWO, NCSQ), mul(TWO, NC), 'adddi', 'syl')
+a_inner = seq(ALG, mul(TWO, WC),
+              add(mul(TWO, mul(TWO, NCSQ)), mul(TWO, mul(TWO, NC))),
+              add(mul(FOUR, NCSQ), mul(FOUR, NC)), a_distr,
+              seq(ALG, mul(TWO, mul(TWO, NCSQ)), mul(FOUR, NCSQ),
+                  mul(TWO, mul(TWO, NC)), mul(FOUR, NC), 'caddc',
+                  double(NCSQ, a_nsq), double(NC, a_n), 'oveq12d'),
+              'eqtrd')
+oalg2 = seq(ALG, add(mul(FOUR, NCSQ), mul(FOUR, NC)), mul(TWO, WC), ONE,
+            'caddc',
+            seq(ALG, mul(TWO, WC), add(mul(FOUR, NCSQ), mul(FOUR, NC)),
+                a_inner, 'eqcomd'),
+            'oveq1d')
 
 # --- odd-square -------------------------------------------------------------
 
@@ -136,20 +233,24 @@ HEADER = """$( thm:odd-square and thm:even-square, from
    against a copy of that file truncated after oddm1even, which is the last
    statement they use.
 
-   The two `algebra` steps of odd-square are axioms here. Their expansion is
-   the part the exercise does not settle; everything else is the real thing.
+   Nothing here is assumed. Every statement is proved from set.mm's own
+   theorems, including the two `algebra` steps.
 $)
 
 """
 
 print(HEADER + f'''$[ set.mm $]
 
-$( The two `algebra` steps of the readable proof, stubbed as axioms. Their
-   expansion is the part this exercise does not settle. $)
-oalg1 $a |- ( N e. CC -> ( ( ( 2 x. N ) + 1 ) ^ 2 ) =
-             ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) ) $.
-oalg2 $a |- ( N e. CC -> ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) =
-             ( ( 2 x. ( ( 2 x. ( N ^ 2 ) ) + ( 2 x. N ) ) ) + 1 ) ) $.
+$( The two `algebra` steps of the readable proof. Each is a normalisation
+   with no cited equation, which is what twelve of the corpus's seventeen
+   algebra steps are. $)
+oalg1 $p |- ( N e. CC -> ( ( ( 2 x. N ) + 1 ) ^ 2 ) =
+             ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) ) $=
+  {oalg1} $.
+
+oalg2 $p |- ( N e. CC -> ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) =
+             ( ( 2 x. ( ( 2 x. ( N ^ 2 ) ) + ( 2 x. N ) ) ) + 1 ) ) $=
+  {oalg2} $.
 
 ${{
   $d n m A $.

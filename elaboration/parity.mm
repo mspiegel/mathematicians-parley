@@ -9,18 +9,22 @@ $( thm:odd-square and thm:even-square, from
    against a copy of that file truncated after oddm1even, which is the last
    statement they use.
 
-   The two `algebra` steps of odd-square are axioms here. Their expansion is
-   the part the exercise does not settle; everything else is the real thing.
+   Nothing here is assumed. Every statement is proved from set.mm's own
+   theorems, including the two `algebra` steps.
 $)
 
 $[ set.mm $]
 
-$( The two `algebra` steps of the readable proof, stubbed as axioms. Their
-   expansion is the part this exercise does not settle. $)
-oalg1 $a |- ( N e. CC -> ( ( ( 2 x. N ) + 1 ) ^ 2 ) =
-             ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) ) $.
-oalg2 $a |- ( N e. CC -> ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) =
-             ( ( 2 x. ( ( 2 x. ( N ^ 2 ) ) + ( 2 x. N ) ) ) + 1 ) ) $.
+$( The two `algebra` steps of the readable proof. Each is a normalisation
+   with no cited equation, which is what twelve of the corpus's seventeen
+   algebra steps are. $)
+oalg1 $p |- ( N e. CC -> ( ( ( 2 x. N ) + 1 ) ^ 2 ) =
+             ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) ) $=
+  cN cc wcel c2 cN cmul co c1 caddc co c2 cexp co c2 cN cmul co c2 cexp co c2 c2 cN cmul co c1 cmul co cmul co caddc co c1 c2 cexp co caddc co c4 cN c2 cexp co cmul co c4 cN cmul co caddc co c1 caddc co cN cc wcel c2 cN cmul co cc wcel c1 cc wcel wa c2 cN cmul co c1 caddc co c2 cexp co c2 cN cmul co c2 cexp co c2 c2 cN cmul co c1 cmul co cmul co caddc co c1 c2 cexp co caddc co wceq cN cc wcel c2 cN cmul co cc wcel c1 cc wcel cN cc wcel c2 cN c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id mulcld c1 cc wcel cN cc wcel ax-1cn a1i jca c2 cN cmul co c1 binom2 syl cN cc wcel c2 cN cmul co c2 cexp co c2 c2 cN cmul co c1 cmul co cmul co caddc co c4 cN c2 cexp co cmul co c4 cN cmul co caddc co c1 c2 cexp co c1 caddc cN cc wcel c2 cN cmul co c2 cexp co c4 cN c2 cexp co cmul co c2 c2 cN cmul co c1 cmul co cmul co c4 cN cmul co caddc cN cc wcel c2 cN cmul co c2 cexp co c2 c2 cexp co cN c2 cexp co cmul co c4 cN c2 cexp co cmul co cN cc wcel c2 cc wcel cN cc wcel wa c2 cN cmul co c2 cexp co c2 c2 cexp co cN c2 cexp co cmul co wceq cN cc wcel c2 cc wcel cN cc wcel c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id jca c2 cN sqmul syl cN cc wcel c2 c2 cexp co c4 cN c2 cexp co cmul c2 c2 cexp co c4 wceq cN cc wcel sq2 a1i oveq1d eqtrd cN cc wcel c2 c2 cN cmul co c1 cmul co cmul co c2 c2 cN cmul co cmul co c4 cN cmul co cN cc wcel c2 cN cmul co c1 cmul co c2 cN cmul co c2 cmul cN cc wcel c2 cN cmul co cc wcel c2 cN cmul co c1 cmul co c2 cN cmul co wceq cN cc wcel c2 cN c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id mulcld c2 cN cmul co mulrid syl oveq2d cN cc wcel c2 c2 cN cmul co cmul co c2 c2 cmul co cN cmul co c4 cN cmul co cN cc wcel c2 c2 cmul co cN cmul co c2 c2 cN cmul co cmul co cN cc wcel c2 cc wcel c2 cc wcel cN cc wcel w3a c2 c2 cmul co cN cmul co c2 c2 cN cmul co cmul co wceq cN cc wcel c2 cc wcel c2 cc wcel cN cc wcel c2 cc wcel cN cc wcel 2cn a1i c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id 3jca c2 c2 cN mulass syl eqcomd cN cc wcel c2 c2 cmul co c4 cN cmul c2 c2 cmul co c4 wceq cN cc wcel 2t2e4 a1i oveq1d eqtrd eqtrd oveq12d c1 c2 cexp co c1 wceq cN cc wcel sq1 a1i oveq12d eqtrd $.
+
+oalg2 $p |- ( N e. CC -> ( ( ( 4 x. ( N ^ 2 ) ) + ( 4 x. N ) ) + 1 ) =
+             ( ( 2 x. ( ( 2 x. ( N ^ 2 ) ) + ( 2 x. N ) ) ) + 1 ) ) $=
+  cN cc wcel c4 cN c2 cexp co cmul co c4 cN cmul co caddc co c2 c2 cN c2 cexp co cmul co c2 cN cmul co caddc co cmul co c1 caddc cN cc wcel c2 c2 cN c2 cexp co cmul co c2 cN cmul co caddc co cmul co c4 cN c2 cexp co cmul co c4 cN cmul co caddc co cN cc wcel c2 c2 cN c2 cexp co cmul co c2 cN cmul co caddc co cmul co c2 c2 cN c2 cexp co cmul co cmul co c2 c2 cN cmul co cmul co caddc co c4 cN c2 cexp co cmul co c4 cN cmul co caddc co cN cc wcel c2 cc wcel c2 cN c2 cexp co cmul co cc wcel c2 cN cmul co cc wcel w3a c2 c2 cN c2 cexp co cmul co c2 cN cmul co caddc co cmul co c2 c2 cN c2 cexp co cmul co cmul co c2 c2 cN cmul co cmul co caddc co wceq cN cc wcel c2 cc wcel c2 cN c2 cexp co cmul co cc wcel c2 cN cmul co cc wcel c2 cc wcel cN cc wcel 2cn a1i cN cc wcel c2 cN c2 cexp co c2 cc wcel cN cc wcel 2cn a1i cN cc wcel cN cc wcel cN c2 cexp co cc wcel cN cc wcel id cN sqcl syl mulcld cN cc wcel c2 cN c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id mulcld 3jca c2 c2 cN c2 cexp co cmul co c2 cN cmul co adddi syl cN cc wcel c2 c2 cN c2 cexp co cmul co cmul co c4 cN c2 cexp co cmul co c2 c2 cN cmul co cmul co c4 cN cmul co caddc cN cc wcel c2 c2 cN c2 cexp co cmul co cmul co c2 c2 cmul co cN c2 cexp co cmul co c4 cN c2 cexp co cmul co cN cc wcel c2 c2 cmul co cN c2 cexp co cmul co c2 c2 cN c2 cexp co cmul co cmul co cN cc wcel c2 cc wcel c2 cc wcel cN c2 cexp co cc wcel w3a c2 c2 cmul co cN c2 cexp co cmul co c2 c2 cN c2 cexp co cmul co cmul co wceq cN cc wcel c2 cc wcel c2 cc wcel cN c2 cexp co cc wcel c2 cc wcel cN cc wcel 2cn a1i c2 cc wcel cN cc wcel 2cn a1i cN cc wcel cN cc wcel cN c2 cexp co cc wcel cN cc wcel id cN sqcl syl 3jca c2 c2 cN c2 cexp co mulass syl eqcomd cN cc wcel c2 c2 cmul co c4 cN c2 cexp co cmul c2 c2 cmul co c4 wceq cN cc wcel 2t2e4 a1i oveq1d eqtrd cN cc wcel c2 c2 cN cmul co cmul co c2 c2 cmul co cN cmul co c4 cN cmul co cN cc wcel c2 c2 cmul co cN cmul co c2 c2 cN cmul co cmul co cN cc wcel c2 cc wcel c2 cc wcel cN cc wcel w3a c2 c2 cmul co cN cmul co c2 c2 cN cmul co cmul co wceq cN cc wcel c2 cc wcel c2 cc wcel cN cc wcel c2 cc wcel cN cc wcel 2cn a1i c2 cc wcel cN cc wcel 2cn a1i cN cc wcel id 3jca c2 c2 cN mulass syl eqcomd cN cc wcel c2 c2 cmul co c4 cN cmul c2 c2 cmul co c4 wceq cN cc wcel 2t2e4 a1i oveq1d eqtrd oveq12d eqtrd eqcomd oveq1d $.
 
 ${
   $d n m A $.

@@ -75,6 +75,117 @@ def lift(claim, pf, outer, adds):
     return pf
 
 
+# --- the three algebra steps ------------------------------------------------
+# Step 3.8 is a normalisation with no cited equation, like odd-square's two.
+# Steps 3.3 and 3.10 are the other half of the method: each takes a cited
+# equation and multiplies through by a coefficient, which is ideal membership
+# with one generator. set.mm's ring lemmas are over CC, so the expansion
+# carries the atoms there and the readable text never says so.
+
+AV, BV = 'cA', 'cB'
+ASQV, BSQV = exp(AV, TWO), exp(BV, TWO)
+
+
+def two_of(th, X, p_x):
+    """th -> ( 2 x. ( 2 x. X ) ) = ( 4 x. X ), the one numeral fact needed."""
+    assoc = seq(th, mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X)),
+                seq(th, w3a(cel(TWO, 'cc'), cel(TWO, 'cc'), cel(X, 'cc')),
+                    eq(mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X))),
+                    seq(th, cel(TWO, 'cc'), cel(TWO, 'cc'), cel(X, 'cc'),
+                        seq(th, '2cnd'), seq(th, '2cnd'), p_x, '3jca'),
+                    TWO, TWO, X, 'mulass', 'syl'),
+                'eqcomd')
+    return seq(th, mul(TWO, mul(TWO, X)), mul(mul(TWO, TWO), X), mul(FOUR, X),
+               assoc,
+               seq(th, mul(TWO, TWO), FOUR, X, 'cmul',
+                   a1i(eq(mul(TWO, TWO), FOUR), th, '2t2e4'), 'oveq1d'),
+               'eqtrd')
+
+
+# salg2: ( A x. 2 ) ^ 2 = 4 x. ( A ^ 2 ), a bare normalisation.
+G2 = cel(AV, 'cc')
+g2_a = seq(G2, 'id')
+g2_asq = seq(G2, cel(AV, 'cc'), cel(ASQV, 'cc'), g2_a, AV, 'sqcl', 'syl')
+salg2 = seq(G2, exp(mul(AV, TWO), TWO), mul(ASQV, exp(TWO, TWO)),
+            mul(FOUR, ASQV),
+            seq(G2, wa(cel(AV, 'cc'), cel(TWO, 'cc')),
+                eq(exp(mul(AV, TWO), TWO), mul(ASQV, exp(TWO, TWO))),
+                seq(G2, cel(AV, 'cc'), cel(TWO, 'cc'), g2_a, seq(G2, '2cnd'),
+                    'jca'),
+                AV, TWO, 'sqmul', 'syl'),
+            seq(G2, mul(ASQV, exp(TWO, TWO)), mul(ASQV, FOUR), mul(FOUR, ASQV),
+                seq(G2, exp(TWO, TWO), FOUR, ASQV, 'cmul',
+                    a1i(eq(exp(TWO, TWO), FOUR), G2, 'sq2'), 'oveq2d'),
+                seq(G2, ASQV, FOUR, g2_asq, a1i(cel(FOUR, 'cc'), G2, '4cn'),
+                    'mulcomd'),
+                'eqtrd'),
+            'eqtrd')
+
+# salg3: from 2A^2 = 4B^2 conclude A^2 = 2B^2, by cancelling the 2.
+G3 = wa(cel(AV, 'cc'), cel(BV, 'cc'))
+H3 = eq(mul(TWO, ASQV), mul(FOUR, BSQV))
+T3 = wa(G3, H3)
+g3_a = seq(G3, cel(AV, 'cc'), H3,
+           seq(cel(AV, 'cc'), cel(BV, 'cc'), 'simpl'), 'adantr')
+g3_b = seq(G3, cel(BV, 'cc'), H3,
+           seq(cel(AV, 'cc'), cel(BV, 'cc'), 'simpr'), 'adantr')
+g3_asq = seq(T3, cel(AV, 'cc'), cel(ASQV, 'cc'), g3_a, AV, 'sqcl', 'syl')
+g3_bsq = seq(T3, cel(BV, 'cc'), cel(BSQV, 'cc'), g3_b, BV, 'sqcl', 'syl')
+g3_2bsq = seq(T3, TWO, BSQV, seq(T3, '2cnd'), g3_bsq, 'mulcld')
+salg3 = seq(T3, eq(mul(TWO, ASQV), mul(TWO, mul(TWO, BSQV))),
+            eq(ASQV, mul(TWO, BSQV)),
+            seq(T3, mul(TWO, ASQV), mul(FOUR, BSQV), mul(TWO, mul(TWO, BSQV)),
+                seq(G3, H3, 'simpr'),
+                seq(T3, mul(TWO, mul(TWO, BSQV)), mul(FOUR, BSQV),
+                    two_of(T3, BSQV, g3_bsq), 'eqcomd'),
+                'eqtrd'),
+            seq(T3, ASQV, mul(TWO, BSQV), TWO, g3_asq, g3_2bsq,
+                seq(T3, '2cnd'), a1i(ne(TWO, ZERO), T3, '2ne0'), 'mulcand'),
+            'mpbid')
+salg3 = seq(G3, H3, eq(ASQV, mul(TWO, BSQV)), salg3, 'ex')
+
+# salg1: from ( A / B ) ^ 2 = 2 conclude A^2 = 2B^2, by clearing the divisor.
+G1 = w3a(cel(AV, 'cr'), cel(BV, 'cr'), ne(BV, ZERO))
+H1 = eq(exp(dvd(AV, BV), TWO), TWO)
+T1 = wa(G1, H1)
+
+
+def g1_up(claim, pf):
+    return seq(G1, claim, H1, pf, 'adantr')
+
+
+g1_ar = g1_up(cel(AV, 'cr'),
+              seq(cel(AV, 'cr'), cel(BV, 'cr'), ne(BV, ZERO), 'simp1'))
+g1_br = g1_up(cel(BV, 'cr'),
+              seq(cel(AV, 'cr'), cel(BV, 'cr'), ne(BV, ZERO), 'simp2'))
+g1_bne = g1_up(ne(BV, ZERO),
+               seq(cel(AV, 'cr'), cel(BV, 'cr'), ne(BV, ZERO), 'simp3'))
+g1_a = seq(T1, AV, g1_ar, 'recnd')
+g1_b = seq(T1, BV, g1_br, 'recnd')
+g1_asq = seq(T1, cel(AV, 'cc'), cel(ASQV, 'cc'), g1_a, AV, 'sqcl', 'syl')
+g1_bsq = seq(T1, cel(BV, 'cc'), cel(BSQV, 'cc'), g1_b, BV, 'sqcl', 'syl')
+g1_bsqne = seq(T1, ne(BSQV, ZERO), ne(BV, ZERO), g1_bne,
+               seq(T1, cel(BV, 'cc'), wb(ne(BSQV, ZERO), ne(BV, ZERO)), g1_b,
+                   BV, 'sqne0', 'syl'),
+               'mpbird')
+g1_div = seq(T1, exp(dvd(AV, BV), TWO), dvd(ASQV, BSQV), TWO,
+             seq(T1, w3a(cel(AV, 'cc'), cel(BV, 'cc'), ne(BV, ZERO)),
+                 eq(exp(dvd(AV, BV), TWO), dvd(ASQV, BSQV)),
+                 seq(T1, cel(AV, 'cc'), cel(BV, 'cc'), ne(BV, ZERO), g1_a,
+                     g1_b, g1_bne, '3jca'),
+                 AV, BV, 'sqdiv', 'syl'),
+             seq(G1, H1, 'simpr'), 'eqtr3d')
+salg1 = seq(T1, ASQV, mul(BSQV, TWO), mul(TWO, BSQV),
+            seq(T1, mul(BSQV, TWO), ASQV,
+                seq(T1, eq(dvd(ASQV, BSQV), TWO), eq(mul(BSQV, TWO), ASQV),
+                    g1_div,
+                    seq(T1, ASQV, BSQV, TWO, g1_asq, g1_bsq, seq(T1, '2cnd'),
+                        g1_bsqne, 'divmuld'),
+                    'mpbid'),
+                'eqcomd'),
+            seq(T1, BSQV, TWO, g1_bsq, seq(T1, '2cnd'), 'mulcomd'), 'eqtrd')
+salg1 = seq(G1, H1, eq(ASQV, mul(TWO, BSQV)), salg1, 'ex')
+
 # --- steps 1 and 2, the two facts about the square root ---------------------
 PRE = wa(cel(TWO, 'cr'), le(ZERO, TWO))
 p_pre = seq(cel(TWO, 'cr'), le(ZERO, TWO), '2re 0le2 pm3.2i')
@@ -282,14 +393,20 @@ ${{
                -. E. d e. ZZ ( 1 < d /\\ d || p /\\ d || q ) ) ) $.
 $}}
 
-$( The three `algebra` steps of the readable proof, stubbed as axioms. Their
-   expansion is the part this exercise does not settle. $)
-salg1 $a |- ( ( A e. RR /\\ B e. RR /\\ B =/= 0 ) ->
-              ( ( ( A / B ) ^ 2 ) = 2 -> ( A ^ 2 ) = ( 2 x. ( B ^ 2 ) ) ) ) $.
-salg2 $a |- ( A e. CC -> ( ( A x. 2 ) ^ 2 ) = ( 4 x. ( A ^ 2 ) ) ) $.
-salg3 $a |- ( ( A e. CC /\\ B e. CC ) ->
+$( The three `algebra` steps of the readable proof. salg2 is a normalisation
+   with no cited equation; salg1 and salg3 each take one cited equation and
+   multiply through by a coefficient. $)
+salg1 $p |- ( ( A e. RR /\\ B e. RR /\\ B =/= 0 ) ->
+              ( ( ( A / B ) ^ 2 ) = 2 -> ( A ^ 2 ) = ( 2 x. ( B ^ 2 ) ) ) ) $=
+  {salg1} $.
+
+salg2 $p |- ( A e. CC -> ( ( A x. 2 ) ^ 2 ) = ( 4 x. ( A ^ 2 ) ) ) $=
+  {salg2} $.
+
+salg3 $p |- ( ( A e. CC /\\ B e. CC ) ->
               ( ( 2 x. ( A ^ 2 ) ) = ( 4 x. ( B ^ 2 ) ) ->
-                ( A ^ 2 ) = ( 2 x. ( B ^ 2 ) ) ) ) $.
+                ( A ^ 2 ) = ( 2 x. ( B ^ 2 ) ) ) ) $=
+  {salg3} $.
 
 ${{
   $d p q r s d n $.

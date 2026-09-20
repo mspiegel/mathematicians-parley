@@ -361,8 +361,16 @@ answer later would invalidate work already done.
    rational expressions over a field; `arithmetic` is closed numeral facts and
    is where the dull-fact recursion stops; and `join` infers nothing at all,
    having shed its three real inferences to cited theorems. None of it needed
-   the renderer. How large the expansions may be is still open and needs one of
-   them written.
+   the renderer.
+
+   The second half now has a measurement. Five `algebra` steps are written out
+   in `elaboration/` and verify: 167 to 945 proof tokens each, cheapest for a
+   normalisation with no cited equation and dearest for one that multiplies a
+   cited equation through by a coefficient. Verification time is not the
+   constraint at that size; set.mm's own 47,829 proofs verify in under eight
+   seconds. What is still open is whether the order those five follow holds for
+   a coefficient that is not constant, which is Bezout's step 2 and the only
+   such step in the corpus.
 
 7. **Stability under library change.** A method's expansion refers to library
    lemmas. What happens when a lemma is renamed, generalised or removed. Must be

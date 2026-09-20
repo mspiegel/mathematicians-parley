@@ -260,6 +260,16 @@ total. A Gröbner basis is the general method; the corpus never needs it, since
 every step is either a normalisation with no cited equation or a combination
 with coefficients of degree at most one.
 
+Five steps are written out in `elaboration/`, and `ELABORATION.md` measures
+them: 167 to 945 proof tokens each, the three normalisations cheaper than the
+two that take a cited equation. Each follows one order — carry the atoms into
+ℂ, apply the structural lemma the shape calls for, then reduce the numerals —
+and none of them searched. The lemmas they actually used are `binom2`,
+`sqmul`, `sqdiv`, `mulass`, `adddi`, `mulcom`, `mulrid`, `mulcand` and
+`divmuld`, with `sqcl` and `mulcld` for closure and `sq1`, `sq2` and `2t2e4`
+for the numerals. That order is fixed for those shapes only; a coefficient
+that is not constant, as in Bezout's step 2, has not been written.
+
 ---
 
 ## arithmetic

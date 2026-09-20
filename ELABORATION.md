@@ -308,15 +308,19 @@ All three proofs are checked by a verifier, against set.mm and against a copy
 truncated after the last statement they use. Odd-square and even-square are in
 `elaboration/parity.mm`; sqrt2-irrational is in `elaboration/sqrt2.mm`, which
 is built on `parity.mm` rather than on set.mm, so its citation of even-square
-is a citation of a proof rather than of an assumption. What is stubbed is
-stated above and nowhere else. A deliberately altered conclusion is rejected in
-each file, so the check is real.
+is a citation of a proof rather than of an assumption. A deliberately altered
+conclusion is rejected in each file, so the check is real.
+
+One statement in the two files is assumed: `thm:lowest-terms`, for the reason
+given above. Everything else, the five `algebra` steps included, is proved
+from set.mm's own theorems.
 
 | | readable steps | proof tokens |
 | --- | --- | --- |
 | `oddsq` | 6 | 1617 |
 | `evensq` | 6 | 342 |
 | `s2irr` | 21 | 17652 |
+| the five `algebra` steps | 5 | 3138 |
 
 Even-square is the encouraging row: six steps, three of them inside a
 contradiction block, and the citation of odd-square is one label. A theorem
@@ -339,8 +343,44 @@ is the compressed one.
 `elaboration/build-parity.py` and `elaboration/build-sqrt2.py` generate the two
 files, and those scripts are the first fragment of an elaborator: each builds
 its expansions from the readable steps they came from, and the correspondence
-is visible in the names. Between them they are 19 KB of Python producing 74 KB
+is visible in the names. Between them they are 27 KB of Python producing 86 KB
 of proof, from 4 KB of readable text.
+
+## What algebra costs
+
+`GOALS.md` question 6 asks how large a closure method's expansion may be, and
+says it needs one of them written. Five are now written, which is every
+`algebra` step these three proofs contain.
+
+| | | proof tokens |
+| --- | --- | --- |
+| `salg2` | `( A · 2 )² = 4A²` | 167 |
+| `oalg1` | `( 2n + 1 )² = 4n² + 4n + 1` | 558 |
+| `oalg2` | `4n² + 4n + 1 = 2( 2n² + 2n ) + 1` | 613 |
+| `salg3` | from `2A² = 4B²`, that `A² = 2B²` | 855 |
+| `salg1` | from `( A / B )² = 2`, that `A² = 2B²` | 945 |
+
+So one readable word costs a few hundred to a thousand kernel tokens, and the
+split is the one the method's specification predicts. The first three are
+normalisations with no cited equation, which is twelve of the corpus's
+seventeen steps. The last two each take a cited equation and multiply through
+by a coefficient — ideal membership with a single generator — and cost about
+half as much again, most of it in carrying the atoms into ℂ and discharging
+the nonzero conditions.
+
+Nothing here needed a Gröbner basis, and nothing here needed a search. Each
+proof is a fixed sequence: get the atoms into ℂ, apply the one structural
+lemma the shape calls for, then normalise the numerals. The reuse is the
+evidence that this is a procedure rather than five separate puzzles — one
+helper proving `2 · ( 2X ) = 4X` is called four times across three of the
+proofs, and `sqcl`, `mulcld` and `3jca` carry the ℂ conditions in every one of
+them.
+
+What is not yet tested is a coefficient that is not constant. Bezout's step 2
+combines three cited equations with coefficients −1, 1 and −q, and is the only
+step in the corpus whose coefficients are not constants. Until that one is
+written, the claim is that `algebra` is a fixed lemma order for the shapes met
+so far, not that it is one for the corpus.
 
 ## What the expansion language has to have
 
@@ -361,10 +401,12 @@ of proof, from 4 KB of readable text.
    is `rspcev` with a witness read off a cited line, and the membership the
    `requires` lines carry is exactly its side condition.
 
-5. **A normal form for `algebra`.** The only method here without a forced
-   expansion. Two elaborators agreeing byte for byte, which decision 6 asks
-   for, is plausible for everything above and impossible for this one until the
-   normalisation and the order of lemmas are fixed.
+5. **A normal form for `algebra`.** Five steps are now written and none needed
+   a search: atoms into ℂ, one structural lemma chosen by the shape, then the
+   numerals. What that fixes is the order for the shapes met so far. A
+   coefficient that is not constant, as in Bezout's step 2, is untested, and
+   until it is written two elaborators agreeing byte for byte is a claim about
+   part of the corpus rather than all of it.
 
 6. **A def: may be a theorem.** `def:odd` targets `2 ∥ n` negated, so unfolding
    it is citing a set.mm theorem rather than replacing a definition. The
@@ -420,12 +462,16 @@ existing labels, correctly spelled, saying something true about integers. What
 they were not is what the expansion uses. That is a second kind of wrong field,
 past the misspelling the label audit catches, and only elaboration finds it.
 
-The discouraging half is that `algebra` carries five of these thirty-three
-steps and eighteen across the corpus, and it is the one method whose expansion
-is still a question rather than a shape. Any estimate of the elaborator's size
-is really an estimate of that. `thm:lowest-terms` is the same problem in a
-different place: a statement the corpus cites in one line, for which set.mm has
-nothing of the right shape.
+`algebra` carries five of these thirty-three steps and eighteen across the
+corpus, and it was the one method whose expansion was a question rather than a
+shape. All five are now written, at a few hundred to a thousand tokens each,
+with no search and a helper reused four times. That is not the whole method —
+Bezout's step 2 has coefficients that are not constants and is untested — but
+it is no longer the open end of the project.
+
+What remains open is `thm:lowest-terms`: a statement the corpus cites in one
+line, for which set.mm has nothing of the right shape. It is now the only
+assumption in the three proofs.
 
 ## Keeping set.mm where the tools can see it
 
