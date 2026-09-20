@@ -770,11 +770,13 @@ theorem angle-symmetric
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
   then        ∠PQR = ∠RQP
-  open        no set.mm theorem states it, so a file citing it lists it. The
-              angle the corpus writes is unsigned, and arginv says the signed
-              one is antisymmetric off the branch cut while on the cut both
-              directions are π, so the absolute values agree either way. What
-              is wanted is that proof, in two cases.
+  metamath    gangsym3, which this corpus proves in elaboration/geometry.mm.
+              The angle it writes is unsigned, which is what makes this true:
+              ang itself is signed, and the two directions differ in sign. Off
+              the branch cut that is arginv; on the cut nothing is negated and
+              lognegb gives both directions as π. So the proof is in two cases
+              and the absolute values agree either way.
+  target      gangsym3
   first-used  isosceles
 
 theorem triangle-swap

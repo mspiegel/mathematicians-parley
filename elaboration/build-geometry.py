@@ -452,6 +452,253 @@ def rotation(b, out):
     return out
 
 
+def angle_symmetry(b, out):
+    """The angle from A to B and the angle from B to A have one size.
+
+    `ang` is signed and lands in −pi to pi, so the two are not equal; the
+    corpus writes the unsigned angle, which is this one's absolute value,
+    and those do agree. Off the branch cut that is `arginv`, which says the
+    signed angle of an inverse is the negative of the angle. On the cut
+    `arginv` does not apply and nothing is negated: `lognegb` says a number
+    whose negative is a positive real has angle pi exactly, and the inverse
+    of such a number is another, so both angles are pi."""
+    ph = '( ( A e. CC /\\ A =/= 0 ) /\\ ( B e. CC /\\ B =/= 0 ) )'
+    z, rz = '( B / A )', '( 1 / ( B / A ) )'
+    theta, rtheta = f'( Im ` ( log ` {z} ) )', f'( Im ` ( log ` {rz} ) )'
+    cut = f'-u {z} e. RR+'
+
+    left = b.ap('simpl', {'ph': b.wff('( A e. CC /\\ A =/= 0 )'),
+                          'ps': b.wff('( B e. CC /\\ B =/= 0 )')})
+    right = b.ap('simpr', {'ph': b.wff('( A e. CC /\\ A =/= 0 )'),
+                           'ps': b.wff('( B e. CC /\\ B =/= 0 )')})
+    part = {}
+    for name, whole, which in (('Acc', left, 'simpld'), ('Anz', left, 'simprd'),
+                               ('Bcc', right, 'simpld'),
+                               ('Bnz', right, 'simprd')):
+        one = 'A' if whole is left else 'B'
+        part[name] = b.ap(which, {'ph': b.wff(ph),
+                                  'ps': b.wff(f'{one} e. CC'),
+                                  'ch': b.wff(f'{one} =/= 0')}, whole)
+    z_cc = b.ap('syl3anc', {'ph': b.wff(ph), 'ps': b.wff('B e. CC'),
+                            'ch': b.wff('A e. CC'), 'th': b.wff('A =/= 0'),
+                            'ta': b.wff(f'{z} e. CC')},
+                part['Bcc'], part['Acc'], part['Anz'],
+                b.ap('divcl', {'A': b.rpn('B'), 'B': b.rpn('A')}))
+    z_nz = b.ap('syl', {'ph': b.wff(ph),
+                        'ps': b.wff('( ( B e. CC /\\ B =/= 0 ) '
+                                    '/\\ ( A e. CC /\\ A =/= 0 ) )'),
+                        'ch': b.wff(f'{z} =/= 0')},
+                b.ap('jca', {'ph': b.wff(ph),
+                             'ps': b.wff('( B e. CC /\\ B =/= 0 )'),
+                             'ch': b.wff('( A e. CC /\\ A =/= 0 )')},
+                     right, left),
+                b.ap('divne0', {'A': b.rpn('B'), 'B': b.rpn('A')}))
+
+    # ( A ang B ) is the angle of B / A, and ( B ang A ) that of its inverse.
+    value = b.ap('angval', {'A': b.rpn('A'), 'B': b.rpn('B'),
+                            'F': b.rpn('ang')}, b.ap('df-ang'))
+    other = '( Im ` ( log ` ( A / B ) ) )'
+    flipped_ph = ('( ( B e. CC /\\ B =/= 0 ) /\\ ( A e. CC /\\ A =/= 0 ) )')
+    other_way = b.ap('jca', {'ph': b.wff(ph),
+                             'ps': b.wff('( B e. CC /\\ B =/= 0 )'),
+                             'ch': b.wff('( A e. CC /\\ A =/= 0 )')},
+                     right, left)
+    # A / B is the inverse of B / A, so the second angle is the angle of
+    # the inverse and the two lemmas below are about one number.
+    inverts = b.ap('eqcomd', {'ph': b.wff(ph), 'A': b.rpn(rz),
+                              'B': b.rpn('( A / B )')},
+                   b.ap('syl', {'ph': b.wff(ph), 'ps': b.wff(flipped_ph),
+                                'ch': b.wff(f'{rz} = ( A / B )')},
+                        other_way,
+                        b.ap('recdiv', {'A': b.rpn('B'), 'B': b.rpn('A')})))
+    reads = b.ap('fveq2d', {'ph': b.wff(ph),
+                            'A': b.rpn('( log ` ( A / B ) )'),
+                            'B': b.rpn(f'( log ` {rz} )'), 'F': b.rpn('Im')},
+                 b.ap('fveq2d', {'ph': b.wff(ph), 'A': b.rpn('( A / B )'),
+                                 'B': b.rpn(rz), 'F': b.rpn('log')},
+                      inverts))
+    swapped = b.ap('eqtrd', {'ph': b.wff(ph), 'A': b.rpn('( B ang A )'),
+                             'B': b.rpn(other), 'C': b.rpn(rtheta)},
+                   b.ap('ancoms', {'ph': b.wff('( B e. CC /\\ B =/= 0 )'),
+                                   'ps': b.wff('( A e. CC /\\ A =/= 0 )'),
+                                   'ch': b.wff(f'( B ang A ) = {other}')},
+                        b.ap('angval', {'A': b.rpn('B'), 'B': b.rpn('A'),
+                                        'F': b.rpn('ang')}, b.ap('df-ang'))),
+                   reads)
+    for label, says, proof in (
+            ('gangval', f'|- ( {ph} -> ( A ang B ) = {theta} )', value),
+            ('gangrec', f'|- ( {ph} -> ( B ang A ) = {rtheta} )', swapped)):
+        out.append((label, says, proof))
+        b.define(label, says)
+
+    # Off the branch cut the two angles are negatives of one another, and
+    # an absolute value does not tell them apart.
+    off = f'( {ph} /\\ -. {cut} )'
+    free = b.ap(
+        'fveq2d', {'ph': b.wff(off), 'A': b.rpn(rtheta),
+                   'B': b.rpn(f'-u {theta}'), 'F': b.rpn('abs')},
+        b.ap('arginv', {'ph': b.wff(off), 'A': b.rpn(z)},
+             b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} e. CC'),
+                             'ch': b.wff(f'-. {cut}')}, z_cc),
+             b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} =/= 0'),
+                             'ch': b.wff(f'-. {cut}')}, z_nz),
+             b.ap('simpr', {'ph': b.wff(ph), 'ps': b.wff(f'-. {cut}')})))
+    angle_cc = b.ap(
+        'syl', {'ph': b.wff(off), 'ps': b.wff(f'{theta} e. RR'),
+                'ch': b.wff(f'{theta} e. CC')},
+        b.ap('syl', {'ph': b.wff(off), 'ps': b.wff(f'( log ` {z} ) e. CC'),
+                     'ch': b.wff(f'{theta} e. RR')},
+             b.ap('logcld', {'ph': b.wff(off), 'X': b.rpn(z)},
+                  b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} e. CC'),
+                                  'ch': b.wff(f'-. {cut}')}, z_cc),
+                  b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} =/= 0'),
+                                  'ch': b.wff(f'-. {cut}')}, z_nz)),
+             b.ap('imcl', {'A': b.rpn(f'( log ` {z} )')})),
+        b.ap('recn', {'A': b.rpn(theta)}))
+    outside = b.ap(
+        'eqcomd', {'ph': b.wff(off), 'A': b.rpn(f'( abs ` {rtheta} )'),
+                   'B': b.rpn(f'( abs ` {theta} )')},
+        b.ap('eqtrd', {'ph': b.wff(off), 'A': b.rpn(f'( abs ` {rtheta} )'),
+                       'B': b.rpn(f'( abs ` -u {theta} )'),
+                       'C': b.rpn(f'( abs ` {theta} )')},
+             free,
+             b.ap('syl', {'ph': b.wff(off), 'ps': b.wff(f'{theta} e. CC'),
+                          'ch': b.wff(f'( abs ` -u {theta} ) '
+                                      f'= ( abs ` {theta} )')},
+                  angle_cc, b.ap('absneg', {'A': b.rpn(theta)}))))
+
+    # On the cut neither angle is negated: both are pi exactly.
+    on = f'( {ph} /\\ {cut} )'
+
+    def is_pi(what, whole, nonzero, positive):
+        return b.ap('mpbid', {'ph': b.wff(on), 'ps': b.wff(f'-u {what} e. RR+'),
+                              'ch': b.wff(f'( Im ` ( log ` {what} ) ) = _pi')},
+                    positive,
+                    b.ap('syl2anc', {'ph': b.wff(on),
+                                     'ps': b.wff(f'{what} e. CC'),
+                                     'ch': b.wff(f'{what} =/= 0'),
+                                     'th': b.wff(f'( -u {what} e. RR+ <-> '
+                                                 f'( Im ` ( log ` {what} ) ) '
+                                                 f'= _pi )')},
+                         whole, nonzero,
+                         b.ap('lognegb', {'A': b.rpn(what)})))
+
+    z_cc_on = b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} e. CC'),
+                              'ch': b.wff(cut)}, z_cc)
+    z_nz_on = b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(f'{z} =/= 0'),
+                              'ch': b.wff(cut)}, z_nz)
+    held = b.ap('simpr', {'ph': b.wff(ph), 'ps': b.wff(cut)})
+    # -u ( 1 / z ) is ( 1 / -u z ), and the reciprocal of a positive real
+    # is one, so the inverse sits on the cut whenever z does.
+    rz_positive = b.ap(
+        'eqeltrrd', {'ph': b.wff(on), 'A': b.rpn(f'( 1 / -u {z} )'),
+                     'B': b.rpn(f'-u {rz}'), 'C': b.rpn('RR+')},
+        b.ap('eqcomd', {'ph': b.wff(on), 'A': b.rpn(f'-u {rz}'),
+                        'B': b.rpn(f'( 1 / -u {z} )')},
+             b.ap('syl3anc',
+                  {'ph': b.wff(on), 'ps': b.wff('1 e. CC'),
+                   'ch': b.wff(f'{z} e. CC'), 'th': b.wff(f'{z} =/= 0'),
+                   'ta': b.wff(f'-u {rz} = ( 1 / -u {z} )')},
+                  b.ap('a1i', {'ph': b.wff('1 e. CC'), 'ps': b.wff(on)},
+                       'ax-1cn'),
+                  z_cc_on, z_nz_on,
+                  b.ap('divneg2', {'A': b.rpn('1'), 'B': b.rpn(z)}))),
+        b.ap('syl', {'ph': b.wff(on), 'ps': b.wff(f'-u {z} e. RR+'),
+                     'ch': b.wff(f'( 1 / -u {z} ) e. RR+')},
+             held, b.ap('rpreccl', {'A': b.rpn(f'-u {z}')})))
+    inside = b.ap(
+        'eqtr4d', {'ph': b.wff(on), 'A': b.rpn(f'( abs ` {theta} )'),
+                   'B': b.rpn('( abs ` _pi )'),
+                   'C': b.rpn(f'( abs ` {rtheta} )')},
+        b.ap('fveq2d', {'ph': b.wff(on), 'A': b.rpn(theta),
+                        'B': b.rpn('_pi'), 'F': b.rpn('abs')},
+             is_pi(z, z_cc_on, z_nz_on, held)),
+        b.ap('fveq2d', {'ph': b.wff(on), 'A': b.rpn(rtheta),
+                        'B': b.rpn('_pi'), 'F': b.rpn('abs')},
+             is_pi(rz,
+                   b.ap('reccld', {'ph': b.wff(on), 'A': b.rpn(z)},
+                        z_cc_on, z_nz_on),
+                   b.ap('recne0d', {'ph': b.wff(on), 'A': b.rpn(z)},
+                        z_cc_on, z_nz_on),
+                   rz_positive)))
+
+    says = (f'|- ( {ph} -> ( abs ` ( A ang B ) ) '
+            f'= ( abs ` ( B ang A ) ) ) ')
+    joined = b.ap(
+        'pm2.61dan', {'ph': b.wff(ph), 'ps': b.wff(cut),
+                      'ch': b.wff(f'( abs ` {theta} ) = ( abs ` {rtheta} )')},
+        inside, outside)
+    whole = b.ap(
+        '3eqtr4d', {'ph': b.wff(ph), 'A': b.rpn(f'( abs ` {theta} )'),
+                    'B': b.rpn(f'( abs ` {rtheta} )'),
+                    'C': b.rpn('( abs ` ( A ang B ) )'),
+                    'D': b.rpn('( abs ` ( B ang A ) )')},
+        joined,
+        b.ap('fveq2d', {'ph': b.wff(ph), 'A': b.rpn('( A ang B )'),
+                        'B': b.rpn(theta), 'F': b.rpn('abs')}, value),
+        b.ap('fveq2d', {'ph': b.wff(ph), 'A': b.rpn('( B ang A )'),
+                        'B': b.rpn(rtheta), 'F': b.rpn('abs')}, swapped))
+    out.append(('gangsym', says.strip(), whole))
+    b.define('gangsym', says.strip())
+
+    # The same on three points, which is how the corpus states it: the
+    # angle at B is between the two differences, and each is nonzero
+    # because B is neither of the other two.
+    points = '( A e. CC /\\ B e. CC /\\ C e. CC )'
+    apart = '( -. A = B /\\ -. C = B )'
+    held = f'( {points} /\\ {apart} )'
+    ab, cb = '( A - B )', '( C - B )'
+    claim = (f'( abs ` ( {ab} ang {cb} ) ) '
+             f'= ( abs ` ( {cb} ang {ab} ) )')
+
+    def member(name, which):
+        return b.ap('adantr', {'ph': b.wff(points),
+                               'ps': b.wff(f'{name} e. CC'),
+                               'ch': b.wff(apart)},
+                    b.ap(which, {'ph': b.wff('A e. CC'),
+                                 'ps': b.wff('B e. CC'),
+                                 'ch': b.wff('C e. CC')}))
+
+    mem = {'A': member('A', 'simp1'), 'B': member('B', 'simp2'),
+           'C': member('C', 'simp3')}
+    two = {'ph': b.wff('-. A = B'), 'ps': b.wff('-. C = B')}
+    unequal = {}
+    for name, pick in (('AB', 'simpl'), ('CB', 'simpr')):
+        unequal[name] = b.ap(
+            'adantl', {'ph': b.wff(apart),
+                       'ps': b.wff('-. A = B' if name == 'AB'
+                                   else '-. C = B'),
+                       'ch': b.wff(points)},
+            b.ap(pick, two))
+    ready = b.ap(
+        'jca', {'ph': b.wff(held),
+                'ps': b.wff(f'( {ab} e. CC /\\ {ab} =/= 0 )'),
+                'ch': b.wff(f'( {cb} e. CC /\\ {cb} =/= 0 )')},
+        b.ap('jca', {'ph': b.wff(held), 'ps': b.wff(f'{ab} e. CC'),
+                     'ch': b.wff(f'{ab} =/= 0')},
+             b.ap('subcld', {'ph': b.wff(held), 'A': b.rpn('A'),
+                             'B': b.rpn('B')}, mem['A'], mem['B']),
+             differs(b, held, 'A', 'B', mem['A'], mem['B'], unequal['AB'])),
+        b.ap('jca', {'ph': b.wff(held), 'ps': b.wff(f'{cb} e. CC'),
+                     'ch': b.wff(f'{cb} =/= 0')},
+             b.ap('subcld', {'ph': b.wff(held), 'A': b.rpn('C'),
+                             'B': b.rpn('B')}, mem['C'], mem['B']),
+             differs(b, held, 'C', 'B', mem['C'], mem['B'], unequal['CB'])))
+    out.append((
+        'gangsym3',
+        f'|- ( {points} -> ( {apart} -> {claim} ) )',
+        b.ap('ex', {'ph': b.wff(points), 'ps': b.wff(apart),
+                    'ch': b.wff(claim)},
+             b.ap('syl',
+                  {'ph': b.wff(held),
+                   'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
+                               f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
+                   'ch': b.wff(claim)},
+                  ready,
+                  b.ap('gangsym', {'A': b.rpn(ab), 'B': b.rpn(cb)})))))
+    return out
+
+
 HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
    What this corpus needs of the plane and set.mm does not state.
@@ -463,6 +710,17 @@ HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
 $[ definitions.mm $]
 
+$( `angval` reads a value of the angle by substituting for the two names
+   `df-ang` binds, and asks that they be free of what is substituted. They
+   appear in no statement here, only inside the proofs. The pairs are
+   written one at a time because `$d x y A B` would also hold A and B
+   apart, and the lemmas below are applied at terms that share names. $)
+$d x y $.
+$d x A $.
+$d x B $.
+$d y A $.
+$d y B $.
+
 """
 
 
@@ -470,10 +728,15 @@ def main(argv):
     if len(argv) < 2:
         print(__doc__.strip().splitlines()[-1], file=sys.stderr)
         return 2
-    sigs = read_library(argv[1])
+    # The angle is a constant this corpus introduces, so the definitions
+    # are read alongside the library: `angval` says what a value of it is,
+    # and discharging that needs `df-ang`.
+    here = Path(__file__).resolve().parent
+    sigs = read_library(argv[1], here / 'auto' / 'definitions.mm')
     b = Builder(sigs)
     print(HEAD, end='')
-    for label, statement, proof in rotation(b, triangle_lemmas(b)):
+    for label, statement, proof in angle_symmetry(
+            b, rotation(b, triangle_lemmas(b))):
         print(f'  {label} $p {statement} $=')
         line = '   '
         for token in proof.split():
