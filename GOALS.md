@@ -349,6 +349,20 @@ answer later would invalidate work already done.
    before any enriched proof is written, since every enriched proof depends on
    it.
 
+   The second half has an answer. `tools/elaborate.py` elaborates
+   `thm:odd-square` from the readable text, and its proof verifies and is not
+   the one written by hand: 2,067 proof tokens against 1,617, differing in
+   which facts it keeps rather than only in length. So two elaborators
+   following these requirements agree on what verifies and not on what they
+   write, and byte-identity would have to be bought by specifying far more
+   than the requirements in `ELABORATION.md` specify. Verifiability is what
+   the language should require.
+
+   The first half is still open, and writing the program found what a
+   specification will have to add: `tools/targets.py` holds what the
+   databases do not say, which is which theorem unfolds a definition and
+   which constructor a notation targets in a form a program can read.
+
 5. **Notation at the input side.** Unicode or ASCII; how notation and precedence
    are declared; how a definition unfolds on demand. Needed in draft form for
    the target proofs in question 2, and finalised with question 4.

@@ -399,6 +399,58 @@ proved `−x ≤ |x|` and 2.7 proved `x ≤ |x|`, while the theorem states them 
 other way round. So the elaborator pairs the cited lines by what they claim,
 not by the order they are listed in.
 
+## Elaborated by a program
+
+The five proofs above were written by hand, and the requirements below were
+read off them. `tools/elaborate.py` implements that list for the methods
+odd-square uses, and
+
+```
+tools/elaborate.py odd-square <set.mm> > elaboration/odd-square.mm
+```
+
+produces a Metamath proof that verifies against set.mm. Nothing in it is
+hand-written. The `algebra` steps are axioms it generates, as the first hand
+elaboration's were; everything else — the scope the `obtain` opens, the
+congruence path the `substitute` walks, the fold of the `calculation`, the
+witness of the final step, and every closure fact no `requires` line spells
+out — is built from the readable text.
+
+**Byte-identical output is not what happens.** `GOALS.md` question 4 asks
+whether two elaborators must agree byte for byte or only produce something
+that verifies, and now there are two elaborations of one theorem to compare.
+They are not the same. The program's is 2,067 proof tokens against the hand's
+1,617, about a quarter larger, and it differs in more than length: where the
+hand proof pulled a fact out of the scope once and used it twice, the program
+derives it at each use, because nothing tells it that a fact is worth keeping.
+Both verify. So verifiability is what an elaborator can be held to, and
+byte-identity is a property of one implementation rather than of the language
+— unless the language is specified far more tightly than these requirements
+specify it.
+
+**What the program needed that the databases do not say.** `tools/targets.py`
+holds it, and it is the sharpest finding of the exercise. Two kinds of thing
+are missing.
+
+The `metamath` field of a notation says which constructor a pattern targets,
+and six records write it as prose — "cexp with the numeral 2", "wbr with
+cdvds", "2 ∥ n and its negation". That is the right thing to write for a
+person checking that a label exists, and it is not usable by a program.
+
+Worse, the `metamath` field of an item says what a definition *means*, not
+which theorem unfolds it. `def:odd` names `not 2 ∥ n`. An elaborator needs
+`odd2np1`, which is the bridge between that and the existential the readable
+definition states, and which appears nowhere in the database. The same gap
+runs through `requires`: `thm:int-closure` names `zaddcl, zmulcl`, and the
+step that needs `n² ∈ ℤ` wants `zsqcl`. The program derives closure from the
+shape of the term instead, which works and is arguably better, but it means
+the `requires` line's citation is decoration to it.
+
+Neither is a defect in the databases. They were written to record what the
+corpus claims and to be checked by a person, and they do that. What they do
+not yet have is a field an elaborator can read, and now there is a working
+program to say exactly which field that would be.
+
 ## They verify
 
 All five proofs are checked by a verifier, against set.mm and against a copy
