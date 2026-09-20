@@ -714,9 +714,6 @@ definition angle
               This is the only definition in the corpus that introduces a
               symbol; every other names a word for something set.mm already
               has. See GOALS.md decision 12.
-  first-used  isosceles
-  note        Named in the isosceles findings, not in its table. Added by the
-              merge because the ∠ notation needs it.
 
 definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
