@@ -1,14 +1,20 @@
-# Elaborating five proofs by hand
+# Elaborating the corpus
 
 Everything in this repository rests on one claim: that a readable proof becomes
 a Metamath proof that verifies. Nothing had tested it. The checker had grown to
 where it reads every formula, matches every citation against what it cites, and
 reports nothing, and none of that touches the kernel.
 
-So these are five proofs worked out by hand, end to end, to find what the
-expansion language has to be able to say. `GOALS.md` open question 4 says that
-language can wait until the work has shown which methods are needed and must be
-settled before any enriched proof is written. Both conditions are now met.
+So five proofs were worked out by hand, end to end, to find what the expansion
+language has to be able to say. A program now elaborates those five and three
+more, and the last two of those are proofs nothing here was written for, which
+is the only test a language read off five examples can be given. The hand work
+is below; what the program found is under *Elaborated by a program* and *Three
+proofs from outside*.
+
+`GOALS.md` open question 4 says that language can wait until the work has shown
+which methods are needed and must be settled before any enriched proof is
+written. Both conditions are now met.
 
 The second proof is here because it cites the first. A proof that only uses
 set.mm tests the expansion of methods; a proof that uses a theorem this project
@@ -786,6 +792,90 @@ the identity is.
     implemented: the scope is chosen from the lemma's disjointness conditions
     before anything is built, and each scope keeps the facts known at it.
 
+15. **A definition is read whichever of three ways the claim asks for.** A
+    biconditional definition may reach an existence claim by supplying a
+    witness, may be read right to left from lines the step already holds, or
+    may be unfolded left to right and taken apart. `def:even` does the first,
+    `def:irrational` the second, `def:set-builder` the third, and which one
+    applies is settled by what the lemma states and what the step claims, not
+    by how the readable right side is phrased. A definition's target may also
+    name more than one lemma: `rabid` and `elrab` say the same thing of a
+    set-builder and differ only in what they ask.
+
+16. **A name introduced is not the letter it is spelt with.** `prime-above`
+    obtains a p and concludes that there is a p; Cantor's B collects the x its
+    own image leaves out and the proof then fixes an x. The kernel has to see
+    two names where the text writes one, or the lemma that discharges the
+    second finds the first. Three places choose a variable and all three must
+    agree: what an `obtain` introduces, what a `fix` fixes, and what a claim
+    quantifies over. A binder's name may also be one set.mm declares as a
+    class, as Cantor's B is, and then no letter will do.
+
+17. **An abbreviation, carried by neither side.** `define` names a thing and
+    the proof is about the thing. Binding the name to its term and never
+    emitting it is what keeps it apart from a bound name spelt the same.
+
+18. **A chain may change relation partway.** `calculation` folds equalities
+    into a `≤` in the triangle inequality, so the lemma is chosen by the pair
+    of relations either side of each join rather than fixed for the chain.
+
+19. **A standalone `fix` is a generalisation.** Inside an induction the block
+    is one part of it and the induction takes it as it stands; on its own it
+    closes with `ralrimiva` over the name it fixed. Which of the two is
+    settled by whether the block is a part of something.
+
+20. **The corpus and set.mm may state one fact as two formulas.** Three kinds,
+    and only the first is a normaliser's. A *rearrangement* — `2k` against
+    `k x. 2` — is the same operators permuted, and `db/notation.db` names it
+    with `commutes`. A *named equivalence* — `p ∈ ℤ≥2` against `p > 1` — is
+    two different constructs that set.mm proves equal, and something has to
+    point at the theorem that does. A *rebuilt quantifier* — primality in the
+    domain against primality in the body — is neither, and needs a proof. The
+    first two can be declared; the third is why `thm:prime-factor` is assumed
+    and not a gap to be closed by a table.
+
+## Three proofs from outside
+
+The fourteen above were read off five proofs. A list derived from five
+examples is not a language until something it did not see goes through it, so
+three more were elaborated: `thm:triangle-inequality`, which the fifth proof
+was a lemma for, and then `prime-above` and `cantor`, which nothing here was
+written for.
+
+| proof | assumed |
+|---|---|
+| odd-square | 2 |
+| even-square | 0 |
+| sum-formula | 3 |
+| abs-bounds | 4 |
+| sqrt2-irrational | 8 |
+| triangle-inequality | 3 |
+| prime-above | 6 |
+| cantor | 0 |
+
+All eight verify. Cantor assumes nothing at all, which is the strongest thing
+this exercise has produced: a theorem of set theory, from a readable text,
+resting on set.mm and no closure method.
+
+Six more requirements came out of the three, listed above as 15 to 20. None
+contradicts the fourteen and none is a repair to them; they are shapes the
+five proofs did not contain. That is the result worth recording — the language
+grew, and did not have to be rebuilt.
+
+Two things were found in the elaborator that the five proofs never exercised.
+`freeze` and `rewrite` both read a binder's own variable as a term rather than
+as the variable, so a claim carrying a binder came out malformed; no proof had
+one until Cantor. And an assumed step stated only what its `requires` lines
+said and dropped the lines it cited, which meant `thm:abs-bounds` assumed its
+own conclusion twice and the triangle inequality assumed the heart of its own
+case one. Both verified. A file that verifies is not the same as a theorem
+that is proved, and the difference is what the file leaves out.
+
+Three more `metamath` fields were wrong, past the two the five proofs found.
+`thm:factorial-nat` named `facnn`, which states the factorial as a sequence
+product and says nothing about its closure. Nothing but elaboration finds
+these, and each one found is an argument for elaborating the rest.
+
 ## What this says about the corpus
 
 Nothing in any of the five proofs had to change, which is the encouraging
@@ -816,10 +906,12 @@ be carried into ℂ. `algebra` is no longer the open end of the project.
 
 What remains open is `thm:lowest-terms`: a statement the corpus cites in one
 line, for which set.mm has nothing of the right shape. It is the only
-assumption in the five proofs. Every block form is now expanded. What is not
-is the hard half of `inequalities` — the four steps here need no decision
-procedure, and `METHODS.md` specifies one. `intermediate-value` is where that
-half lives.
+assumption in the five proofs that is not a closure method, and
+`thm:prime-factor` is a second of its kind. Every block form is now expanded.
+What is not is the hard half of `inequalities` — the four steps here need no
+decision procedure, and `METHODS.md` specifies one. `intermediate-value` is
+where that half lives, and the eight steps of `inequalities` across the three
+later proofs are all still assumed.
 
 ## Keeping set.mm where the tools can see it
 

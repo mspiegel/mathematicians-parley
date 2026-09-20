@@ -1,23 +1,27 @@
 """Turn a readable proof into a Metamath proof.
 
-`ELABORATION.md` works five proofs out by hand and lists what the expansion
-language has to have; this implements that list for the methods three of them
-use. `obtain`, `contradiction`, `fix` and `induction` open scopes;
-`substitute`, `calculation` and `join` are steps; a definition may be unfolded
-or used to conclude an existence claim; and a theorem may be cited whether
-set.mm supplies it or this corpus proves it.
+`ELABORATION.md` lists what the expansion language has to have, read off five
+proofs worked out by hand and then off three more this program elaborated.
+`obtain`, `contradiction`, `fix` and `induction` open scopes; `substitute`,
+`calculation`, `join` and `exhibit` are steps; a definition may be unfolded,
+read the other way, or used to conclude an existence claim; a name may be
+introduced by a `define`; and a theorem may be cited whether set.mm supplies
+it or this corpus proves it.
 
 Two things shape the code. A step is elaborated in deduction form, so every
 line is an implication whose antecedent is the scope it sits in, and a step's
 expansion is a function of the step and of that scope rather than of the step
 alone. And the readable layer writes which side condition a step needs but
-never how to prove it, so closure — that a product of integers is an integer,
-that an integer is a complex number — is derived from the shape of the term.
+never how to prove it, so what the text leaves out — that a product of
+integers is an integer, that an integer is a complex number, that a
+set-builder over a set is a set — is settled from the lemmas
+`targets.MEMBERSHIP` names.
 
 What is not expanded is stated at the head of the file it writes: a closure
-method, or a definition the database gives no target for. Each becomes an
-axiom claiming exactly what the readable line claims, under the `requires`
-lines that line carries.
+method, or an item the database gives no target for. Each becomes an axiom
+claiming exactly what the readable line claims, under the `requires` lines
+that line carries and the lines it cites. Both, or the axiom says more than
+the method does and the proof above it goes unused.
 
 Usage:  parley/elaborate.py <theorem> <set.mm>
 """
@@ -65,24 +69,6 @@ def label_of(name, taken=()):
         if moved not in taken:
             return moved
     raise Problem('', 0, f'no free label near {stem!r}')
-
-
-def implication(words):
-    """Split `( A -> B )` into A and B, or None if it is not one.
-
-    set.mm writes every compound term in brackets, so the arrow that splits
-    the whole is the one at depth zero."""
-    if len(words) < 3 or words[0] != '(' or words[-1] != ')':
-        return None
-    depth = 0
-    for i, word in enumerate(words[1:-1], 1):
-        if word == '(':
-            depth += 1
-        elif word == ')':
-            depth -= 1
-        elif word == '->' and depth == 0:
-            return words[1:i], words[i + 1:-1]
-    return None
 
 
 class Fact:
@@ -2112,13 +2098,6 @@ class Elaborator:
         return seq(scope, pair, term, proof, *pushed,
                    label_of(item.name, self.sigs), 'syl')
 
-    def stating(self, wanted, facts):
-        """The term in scope that says this, found by what it reads as."""
-        for held in facts:
-            if self.render(held) == wanted:
-                return held
-        raise Problem('', 0, f'nothing in scope states {wanted}')
-
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition.
 
@@ -2136,16 +2115,6 @@ class Elaborator:
         except Problem:
             raise Problem('', step.line,
                           f'no requires line for {self.render(goal)}') from None
-
-    def find(self, pattern, actual, bound):
-        """What stands where the definition's bound name does."""
-        if self.term(pattern) == bound:
-            return self.term(actual)
-        for p, a in zip(pattern.children, actual.children, strict=False):
-            got = self.find(p, a, bound)
-            if got is not None:
-                return got
-        return None
 
     def freeze(self, node):
         """The tree with its leaves turned into the terms they stand for.
