@@ -1,4 +1,4 @@
-# Elaborating two proofs by hand
+# Elaborating three proofs by hand
 
 Everything in this repository rests on one claim: that a readable proof becomes
 a Metamath proof that verifies. Nothing had tested it. The checker had grown to
@@ -15,6 +15,11 @@ set.mm tests the expansion of methods; a proof that uses a theorem this project
 elaborated tests whether an elaborated theorem can be cited at all, which is
 the claim the whole corpus rests on. It cannot, in the form the first proof was
 first written, and that is the finding the closed form below comes from.
+
+The third is the one the other two were written for. `thm:sqrt2-irrational` is
+the largest theorem in the corpus, it cites both of the others, and it nests
+three scopes inside a supposition. It is where the shapes the first two found
+either hold at size or do not.
 
 **The labels are checked.** They were written from memory first and then read
 against set.mm, which has 119,378 labels. Every one used below exists and says
@@ -178,7 +183,7 @@ a figure of speech: it changes which lemma each later step uses.
 
 ## The second proof
 
-`thm:even-square`, three steps, one of them a contradiction block.
+`thm:even-square`, six steps, three of them inside a contradiction block.
 
 ```
 theorem even-square
@@ -240,22 +245,97 @@ The readable proof never cites double negation, and its expansion is classical
 anyway. That is not smuggled in by a method: the classical content is `exmid`,
 which the proof cites by name in step 2.
 
+## The third proof
+
+`thm:sqrt2-irrational`, twenty-one steps, three scopes deep. The whole of it is
+in `proof/sqrt2-irrational.proof`; what follows is what each new shape in it
+became.
+
+**The obtain of two names is one discharge.** Step 3.1 obtains `p` and `q`
+together from `thm:lowest-terms`. The kernel move is `rexlimdvva`, whose
+hypothesis is `( ( ph /\ ( x e. A /\ y e. B ) ) -> ( ps -> ch ) )` — one lemma,
+not two nested ones. set.mm has this family indexed by how many names are
+obtained at once, so an elaborator picks by arity rather than nesting.
+
+**The kernel's bound variable has to be renamed, and it is not optional.**
+`divides` supplies `E. n e. ZZ ( n x. M ) = N`, always with `n`. The readable
+proof obtains `r` at 3.6 and `s` at 3.13, both from `def:divides`. The second
+scope's antecedent already carries the first obtained name free, so reusing
+`n` would break `rexlimdva`'s own disjointness condition. The rename is
+`cbvrexv`, and every obtain needs one.
+
+**The orientation tax recurs and compounds.** `odd2np1` wrote the equation
+backwards from the corpus, and so does `divides`: `( n x. M ) = N` where the
+text writes `n = d·k`. Each use of `def:even` or `def:divides` therefore pays a
+flip and a commutation — `eqcomd` and `mulcomd` — which appear nowhere in the
+readable proof. There are three of them here.
+
+**Two steps expand to nothing.** Steps 3.14 and 3.15 conclude `2 divides p` and
+`2 divides q`, which 3.5 and 3.12 already established as `p is even` and
+`q is even`. Once `def:even` and `def:divides` are unfolded these are one
+formula: the readable layer has two words where the kernel has one. The steps
+are not idle in the text — 3.16 exhibits a `d` that *divides*, and the word has
+to match — but their expansion is the identity.
+
+**`substitute into line 1`.** Step 3.2 replaces a subterm of a cited line
+rather than of its own claim. The congruence machinery is the same; what
+changes is which tree the path is walked in. So `substitute` takes a target,
+and the claim is only its default.
+
+**`exhibit` is witness introduction again.** Step 3.16 is `rspcev` with the
+witness `2`, exactly as step 6 of odd-square was `rspcev` with the witness read
+off a cited line. The difference is where the witness comes from: there the
+cited line determined it, here the `requires 2 ∈ ℤ` and `requires 2 > 1` lines
+name it. One expansion, two sources for the witness.
+
+**A comma list of three has no forced shape.** "d > 1, d divides p, and d
+divides q" became `w3a` here. Nested `/\` would have been just as faithful, and
+nothing in the readable layer chooses between them. That is the second place,
+after `algebra`, where two elaborators could disagree while both being right.
+
+**`thm:lowest-terms` does not match the label the database names.** The field
+says `qredeu or similar`, and the hedge is earned: `qredeu` gives unique
+existence of a *pair* in `( ZZ X. NN )` whose `gcd` is 1, where the readable
+statement gives two integers with `q > 0` and no common divisor above 1.
+Between them sit pair projections, `NN` against `ZZ` with `0 <`, and the
+equivalence of `gcd = 1` with having no common divisor above 1. That is a proof
+of its own, so `thm:lowest-terms` is an axiom here, in the shape its readable
+statement has.
+
 ## They verify
 
-Both proofs are written out in `elaboration/parity.mm` and checked by a
-verifier, against set.mm and against a copy truncated after the last statement
-they use. The two `algebra` steps of odd-square are axioms in that file,
-stating exactly what those steps claim; everything else uses set.mm's own
-theorems. A deliberately altered conclusion is rejected, so the check is real.
+All three proofs are checked by a verifier, against set.mm and against a copy
+truncated after the last statement they use. Odd-square and even-square are in
+`elaboration/parity.mm`; sqrt2-irrational is in `elaboration/sqrt2.mm`, which
+is built on `parity.mm` rather than on set.mm, so its citation of even-square
+is a citation of a proof rather than of an assumption. What is stubbed is
+stated above and nowhere else. A deliberately altered conclusion is rejected in
+each file, so the check is real.
 
-Odd-square is 1617 tokens of proof for six readable steps. Even-square is 342
-for three, of which the citation of odd-square is one label. That ratio is the
-encouraging number in this exercise: a theorem costs its own expansion once,
-and every later use of it costs a citation.
+| | readable steps | proof tokens |
+| --- | --- | --- |
+| `oddsq` | 6 | 1617 |
+| `evensq` | 6 | 342 |
+| `s2irr` | 21 | 17652 |
 
-`elaboration/build-parity.py` generates the file, and that script is the first
-fragment of an elaborator: it builds each expansion from the readable step it
-came from, and the correspondence is visible in the names.
+Even-square is the encouraging row: six steps, three of them inside a
+contradiction block, and the citation of odd-square is one label. A theorem
+costs its own expansion once, and every later use of it costs a citation.
+
+Sqrt2-irrational is the discouraging one, and the reason is worth naming. In
+deduction form every line is an implication whose antecedent is the whole
+scope, and in RPN that antecedent is written out in full at every use. Three
+nested scopes make it about ninety tokens long, and it is written perhaps two
+hundred times. So proof size here is not driven by the steps; it is driven by
+copying the context, and it grows with steps times scope depth. Set.mm's own
+compressed proof format exists for exactly this, and an elaborator that emits
+normal format will produce files a good deal larger than set.mm's own.
+
+`elaboration/build-parity.py` and `elaboration/build-sqrt2.py` generate the two
+files, and those scripts are the first fragment of an elaborator: each builds
+its expansions from the readable steps they came from, and the correspondence
+is visible in the names. Between them they are 19 KB of Python producing 74 KB
+of proof, from 4 KB of readable text.
 
 ## What the expansion language has to have
 
@@ -299,12 +379,33 @@ came from, and the correspondence is visible in the names.
    expansions of its steps, and a method's specification has to say what it
    does in each block that can contain it.
 
+9. **An obtain is indexed by how many names it introduces, and renames every
+   one of them.** Two names at once is `rexlimdvva`, not two nested discharges.
+   And the existential the kernel supplies carries the kernel's own bound
+   variable, so each obtain alpha-converts it to the name the text uses. Two
+   obtains from one definition in nested scopes make the rename compulsory
+   rather than cosmetic.
+
+10. **An orientation policy.** The kernel's definitions write their equations
+    the opposite way from the corpus, in every case met so far. An elaborator
+    has to be willing to turn an equation round, and to commute a product,
+    without either appearing as a step in the text.
+
+11. **`substitute` takes a target.** It may replace a subterm of a cited line
+    rather than of the step's own claim, which is what `into line 1` says. The
+    claim is the default, not the only choice.
+
+12. **A fixed shape for a comma list.** Three conjuncts may be one `w3a` or two
+    nested `/\`. Nothing in the readable layer decides, and decision 6 wants
+    two elaborators to agree byte for byte, so the expansion language has to.
+
 ## What this says about the corpus
 
-Nothing in either proof had to change, which is the encouraging half. The steps
-the text writes are the steps the kernel needs, in the order it needs them, and
-the `requires` lines carry the side conditions rather than leaving them to be
-found. That is the design being tested and, on two proofs, holding.
+Nothing in any of the three proofs had to change, which is the encouraging
+half. The steps the text writes are the steps the kernel needs, in the order it
+needs them, and the `requires` lines carry the side conditions rather than
+leaving them to be found. That is the design being tested and, on thirty-three
+steps across three proofs including the largest in the corpus, holding.
 
 One thing outside the proofs had to change: two `metamath` fields in the
 database named the wrong set.mm theorems, because they were written for a
@@ -314,10 +415,12 @@ existing labels, correctly spelled, saying something true about integers. What
 they were not is what the expansion uses. That is a second kind of wrong field,
 past the misspelling the label audit catches, and only elaboration finds it.
 
-The discouraging half is that `algebra` carries two of the nine steps here and
-eighteen across the corpus, and it is the one method whose expansion is still a
-question rather than a shape. Any estimate of the elaborator's size is really
-an estimate of that.
+The discouraging half is that `algebra` carries five of these thirty-three
+steps and eighteen across the corpus, and it is the one method whose expansion
+is still a question rather than a shape. Any estimate of the elaborator's size
+is really an estimate of that. `thm:lowest-terms` is the same problem in a
+different place: a statement the corpus cites in one line, for which set.mm has
+nothing of the right shape.
 
 ## Keeping set.mm where the tools can see it
 
