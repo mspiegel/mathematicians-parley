@@ -996,6 +996,57 @@ If the corpus ever does want a geometry that is axiomatic and matches what a
 school reader was taught, SMSG is the target and the coordinate plane is the
 model it would need first.
 
+### What ℂ costs, which is one thing
+
+The question worth asking of a backend is not what it can prove. ℂ with
+`( abs ` ( P − Q ) )` for distance **is** the Euclidean plane, so every
+theorem of plane geometry is a theorem about ℂ and nothing is out of reach.
+What it costs is four things, of which one matters here.
+
+**Angle addition is the one.** Splitting an angle by a ray —
+`∠ABD + ∠DBC = ∠ABC` — is used constantly in traditional proofs, and over ℂ
+the choice of convention decides which half of the arithmetic works.
+
+| | addition | symmetry |
+| --- | --- | --- |
+| signed, as `ang` is | unconditional | `∠PQR = ∠RQP` false |
+| unsigned, as `abs` of it | needs D inside the angle | true |
+
+Both are not available. That is not a defect of ℂ: SMSG's own Angle Addition
+Postulate carries the same betweenness hypothesis, and it is how unsigned
+angles behave anywhere. But it means the corpus has to say which convention
+it is in, and a proof that both adds and reverses angles pays at each step.
+
+**Non-degeneracy multiplies.** `angval` wants both arguments non-zero,
+`ang180` wants three points pairwise distinct, `lawcos` wants two. Synthetic
+geometry says "A, B, C form a triangle" once and is done; over ℂ each angle
+carries its own disequalities, so `def:triangle` elaborates to a conjunction
+that is taken apart at nearly every step.
+
+**The proof shape turns from citing to computing.** A traditional proof says
+"by side-angle-side"; over ℂ that is a calculation through `lawcos`. Reader A
+never sees the difference, since the readable text is unchanged — but the
+elaborated proof is algebra where a reader of *it* would expect geometry, and
+the step count grows to match.
+
+**And it is the plane and nothing else.** No solid geometry and no statement
+in n dimensions, ever. Tarski and `EE^n` generalise; ℂ does not.
+
+Against that, set.mm's ℂ section is finished rather than a starting point:
+`lawcos`, `pythag`, `isosctr`, `chordthm`, `heron` and `ang180`, and — the
+part that is easy to miss — `affineequiv1` through `affineequiv4` and
+`angpieqvd`, which are betweenness. `B = ( ( D x. A ) + ( ( 1 - D ) x. C ) )`
+with `D e. ( 0 (,) 1 )` is B between A and C, and `angpieqvd` ties that to
+the angle being π. So collinearity and betweenness are already there.
+
+Two things are better than synthetic outright: similarity is multiplication,
+and orientation is free.
+
+So the summary is narrower than "a compromise". ℂ costs angle symmetry and
+buys everything else. The corpus has one geometry proof and its conclusion is
+`∠CAB = ∠CBA`, which is the single thing ℂ makes awkward. A dozen Euclidean
+proofs would find ℂ mostly congenial; this one lands on its weak spot.
+
 ### What that leaves
 
 Four readings, and the corpus has to choose one before `isosceles` can be
