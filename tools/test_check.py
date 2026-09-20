@@ -188,6 +188,18 @@ CASES = [
      '  target      _1 _2 cmul co',
      'target entr'),
 
+    ('point a requires line at an item that does not cover it',
+     'proof/sqrt2-irrational.proof',
+     '    requires n² ∈ ℤ: thm:int-closure, from H1',
+     '    requires n² ∈ ℤ: thm:int-real, from H1',
+     'does not conclude'),
+
+    ('drop the dull fact a requires line leans on',
+     'proof/sqrt2-irrational.proof',
+     '    requires 2 ∈ ℤ: arithmetic\n',
+     '',
+     'does not conclude'),
+
     ('claim something the cited item does not conclude',
      'proof/infinitely-many-primes.proof',
      '6.  p > 1\n    def:prime p := p, from 5',

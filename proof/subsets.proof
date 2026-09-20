@@ -91,6 +91,7 @@ theorem subsets-count
 
                   1.2.1.10. 2^k + 2^k = 2^k·2
                             algebra
+                            requires 2 ∈ ℝ: arithmetic
                             requires 2^k ∈ ℝ: thm:power-real a := 2, m := k, from K2
 
                   1.2.1.11. 2^(k + 1) = 2^k·2

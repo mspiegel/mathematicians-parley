@@ -26,6 +26,7 @@ theorem odd-square
 6.  n² is odd
     def:odd n := n², from 5
     requires n² ∈ ℤ: thm:int-closure, from H1
+    requires 2 ∈ ℤ: arithmetic
     requires 2k² + 2k ∈ ℤ: thm:int-closure, from 1
 
 

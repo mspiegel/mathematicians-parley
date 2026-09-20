@@ -459,10 +459,17 @@ exactly which field that was.
 What stayed in `tools/targets.py` is closure: which set.mm lemma puts a sum of
 integers in ℤ, and which moves an integer into ℂ. That is a fact about the
 library rather than about the readable corpus, and no field of a readable
-database is its home. The same holds for the `requires` lines: `thm:int-closure`
-names `zaddcl, zmulcl`, and the step needing `n² ∈ ℤ` wants `zsqcl`, so the
-program derives closure from the shape of the term and treats the citation as
-saying which fact is needed rather than how to get it.
+database is obviously its home.
+
+Writing the elaborator also found that the corpus's `requires` lines were
+checked for resolving and not for covering. `requires n² ∈ ℤ: thm:int-closure`
+pointed at an item stating `a·b ∈ ℤ`, which does not cover a square, because
+`square` is its own notation rather than sugar for a product. The checker now
+matches a requires line against what it cites, the way it has always matched a
+step's citation. Doing it reported ten lines across three proofs, and closing
+them needed two statements `thm:int-closure` did not have — `a − b ∈ ℤ` and
+`a² ∈ ℤ` — and two dull facts two steps had leaned on without writing.
+`CLOSURE.md` records it.
 
 ## They verify
 

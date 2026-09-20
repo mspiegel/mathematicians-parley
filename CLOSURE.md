@@ -168,6 +168,22 @@ carries 97 such lines across the 42 steps that cite `algebra` or
 `inequalities`. Five database items had to be added before any of them could be
 written, and three facts needed numbered steps rather than requires lines.
 
+The sweep wrote the lines; it did not check that what they cite covers them.
+Doing that found two more gaps, both now closed. `thm:int-closure` stated
+`a + b ∈ ℤ` and `a·b ∈ ℤ` but neither `a − b ∈ ℤ` nor `a² ∈ ℤ`, and seven
+requires lines across three proofs wanted one of those; the square stands in a
+`then` group of its own, since it needs one integer where the rest need two.
+And two steps leaned on a numeral's membership without writing it, which is
+the thing the sweep exists to prevent.
+
+A requires line names a principle rather than one use of it. `2k² + 2k ∈ ℤ`
+cites `thm:int-closure` once where the kernel applies it three times, and the
+line a reader wants is the one the corpus writes. So the check applies the
+cited item to what the line supplies, and to whatever that then asks for, and
+admits nothing else. Writing each application as its own line would have put
+four requires lines on one step and made the proof worse for the reader it is
+for.
+
 Three earlier items are done. `inequalities` and `algebra` are specified in
 `METHODS.md`, the first as linear arithmetic over an ordered field and the
 second as equality of rational expressions over a field. Specifying the first

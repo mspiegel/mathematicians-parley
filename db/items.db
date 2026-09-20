@@ -179,10 +179,16 @@ definition odd
 
 theorem int-closure
   let a ∈ ℤ                                                           (H1)
+  then        a² ∈ ℤ
   let b ∈ ℤ                                                           (H2)
-  then        a + b ∈ ℤ. a·b ∈ ℤ.
-  metamath    zaddcl, zmulcl
+  then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
+  metamath    zsqcl, zaddcl, zsubcl, zmulcl
   first-used  sqrt2-irrational
+  note        The square stands in a group of its own because it needs one
+              integer and the rest need two. A proof asking only that n² is an
+              integer cites this item from one line, and a `then` group with
+              one `let` above it is how the database says so. See DATABASE.md
+              on groups.
 
 theorem nat-closure
   let a ∈ ℕ                                                           (H1)

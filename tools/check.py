@@ -862,25 +862,111 @@ def check_conclusion(report, thm, library):
                                              sorts, defined)
         if not claims:
             continue
-        for want, gives in groups:
-            candidates, sites = [], set()
-            for concl in gives:
-                binding_sites(concl, library.binders, library.props, (), sites)
-                for target, extra in readings(concl, library):
-                    first = [x for e in extra for x in conjuncts(e, library)]
-                    candidates += [(c, first) for c in conjuncts(target, library)]
-            need = [x for _, t in want for x in conjuncts(t, library)]
-            for w in want:
-                binding_sites(w[1], library.binders, library.props, (), sites)
-            trees = gives + [t for _, t in want]
-            variables = set().union(*(names(t) for t in trees)) if trees else set()
-            if take(claims, candidates, dict(seed), [], need, facts,
-                    variables, library, sites):
-                break
-        else:
+        if not concludes(groups, claims, facts, seed, library):
             report.say(thm.path, just.line,
                        f'step {fmt(step.number)} claims something that '
                        f'{just.head} does not conclude')
+
+
+def concludes(groups, claims, facts, seed, library):
+    """Whether one group of an item's conclusions covers what is claimed."""
+    for want, gives in groups:
+        candidates, sites = [], set()
+        for concl in gives:
+            binding_sites(concl, library.binders, library.props, (), sites)
+            for target, extra in readings(concl, library):
+                first = [x for e in extra for x in conjuncts(e, library)]
+                candidates += [(c, first) for c in conjuncts(target, library)]
+        need = [x for _, t in want for x in conjuncts(t, library)]
+        for w in want:
+            binding_sites(w[1], library.binders, library.props, (), sites)
+        trees = gives + [t for _, t in want]
+        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        if take(claims, candidates, dict(seed), [], need, facts,
+                variables, library, sites):
+            return True
+    return False
+
+
+def check_requires(report, thm, library):
+    """A requires line needs what the item it cites concludes.
+
+    A step's citation is matched this way already. A requires line carries the
+    same kind of pointer to the same kind of item, and was checked only for
+    resolving, so an item that did not cover the fact went unnoticed."""
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
+    scope = statements_in_scope(thm)
+
+    def read(text):
+        g.sorts = sorts
+        try:
+            return expand(parse(text, g), defined)
+        except Problem:
+            return None
+
+    for step in thm.steps:
+        for fact, how, no in step.requires:
+            named = re.match(rf'^(def|thm):({NAME})', how)
+            if not named:
+                continue
+            groups = library.groups(named.group(2))
+            if groups is None:
+                continue
+            claims = [x for x in map(read, sentences(fact)) if x is not None]
+            if not claims:
+                continue
+            refs, _bad = requires_refs(how)
+            supplied = []
+            for ref in refs:
+                if ref in scope:
+                    supplied += sentences(scope[ref])
+            # A requires line may not cite another, but the facts its
+            # siblings state are established for the same step and are what
+            # a dull fact its own citation asks for is written as.
+            supplied += [other for other, _, _ in step.requires
+                         if other != fact]
+            facts = [x for x in map(read, supplied) if x is not None]
+            seed = {}
+            for name, value in instantiation(how):
+                got = read(value)
+                if got is not None:
+                    seed[name] = got
+            if concludes(groups, claims, facts, seed, library):
+                continue
+            if all(derives(c, groups, facts, library) for c in claims):
+                continue
+            report.say(thm.path, no,
+                       f'the requires line of step {fmt(step.number)} '
+                       f'needs something that {named.group(0)} does not '
+                       f'conclude')
+
+
+def derives(claim, groups, facts, library, depth=5):
+    """The fact follows from the cited item applied as often as it takes.
+
+    A closure line names a principle, not one use of it: `2k² + 2k ∈ ℤ` cites
+    `thm:int-closure` once where the kernel applies it three times, and a
+    reader wants the one line. So the item's own conclusions are matched
+    against the claim and against whatever they then ask for, and nothing
+    else is allowed in."""
+    if depth <= 0:
+        return False
+    if any(f.shape() == claim.shape() for f in facts):
+        return True
+    for want, gives in groups:
+        trees = gives + [t for _, t in want]
+        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        for concl in gives:
+            binding = match(concl, claim, {}, variables, library.props,
+                            frozenset())
+            if binding is None:
+                continue
+            if all(derives(substitute(t, binding), groups, facts, library,
+                           depth - 1) for _, t in want):
+                return True
+    return False
 
 
 def check_hypotheses(report, thm, library):
@@ -1158,6 +1244,7 @@ def main(root):
         check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
+        check_requires(report, thm, library)
         check_last_step(report, thm)
         check_readings(report, thm)
         check_introductions(report, thm)
