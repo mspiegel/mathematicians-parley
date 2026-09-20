@@ -160,6 +160,7 @@ definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   metamath    df-dvds, whose right side is the same existential
+  target      divides, equation reversed
   first-used  sqrt2-irrational
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.
@@ -173,6 +174,7 @@ definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   metamath    not 2 ∥ n
+  target      odd2np1, equation reversed
   first-used  sqrt2-irrational
 
 theorem int-closure

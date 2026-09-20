@@ -36,6 +36,8 @@ from sorts import sorts_in_scope
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi']
+# The constructors that take a function, operation or relation as an operand.
+WRAPS = ('co', 'wbr', 'cfv')
 
 
 def seq(*parts):
@@ -59,8 +61,9 @@ class Elaborator:
         ('wceq', 0): 'eqeq1d', ('wceq', 1): 'eqeq2d',
         ('wcel', 0): 'eleq1d', ('wcel', 1): 'eleq2d'}
 
-    def __init__(self, thm, grammar, items, sigs):
+    def __init__(self, thm, grammar, items, sigs, records):
         self.thm, self.g, self.items, self.sigs = thm, grammar, items, sigs
+        self.terms = targets.terms(records)
         self.names = {}          # readable name -> kernel term
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
@@ -72,12 +75,16 @@ class Elaborator:
                        if s.kind == '$f'}
         self.fname = {v: k for k, v in self.flabel.items()}
         # Which pattern of a record matched is read from the node's literal,
-        # so a record's patterns are indexed by theirs, in declared order.
-        self.literals = {}
+        # so a record's patterns are listed by theirs, in the order the
+        # `pattern` and `target` fields both use. A folded pattern carries the
+        # literal of the one it folds into, which is what makes the first
+        # match the right entry.
+        self.literals, self.binders = {}, {}
         for n in grammar.notations:
-            self.literals.setdefault(n.name, [])
-            if n.literal not in self.literals[n.name]:
-                self.literals[n.name].append(n.literal)
+            self.literals.setdefault(n.name, []).append(n.literal)
+            hole = re.search(r'hole\s+(\d+)', n.binds or '')
+            if hole:
+                self.binders[n.name] = int(hole.group(1)) - 1
 
     # --- terms --------------------------------------------------------------
 
@@ -93,45 +100,27 @@ class Elaborator:
             return self.names[node.text]
         if node.notation == 'numeral':
             return targets.NUMERALS[node.text]
-        operands, label, wrap, _slots = self.parts(node)
-        return self.build(operands, label, wrap)
+        # A binder's first hole is the variable it introduces, which stands
+        # for itself rather than for whatever a name is bound to.
+        bound = self.binders.get(node.notation)
+        holes = [self.flabel.get(c.text, 'v' + c.text) if i == bound
+                 else self.term(c)
+                 for i, c in enumerate(node.children)]
+        return targets.fill(self.pattern(node), holes)
 
-    def parts(self, node):
-        """The operands a term is built from, what encloses them, and which
-        operand each child is.
-
-        A pattern may carry an operand the text never writes: `n²` carries the
-        numeral 2 and `n is even` carries the 2 of `2 ∥ n`. So the operands are
-        not always the children, and which operand a child is decides which
-        congruence lemma rewrites inside it."""
-        if node.notation == 'square':
-            return [self.term(node.children[0]), 'c2'], 'cexp', 'co', [0]
-        if node.notation == 'parity':
-            even = ['c2', self.term(node.children[0])]
-            if node.text == 'iseven':
-                return even, 'cdvds', 'wbr', [1]
-            return [self.build(even, 'cdvds', 'wbr')], 'wn', None, [None]
-        if node.notation == 'there-is':
-            body = self.term(node.children[2])
-            return [body, 'v' + node.children[0].text,
-                    self.term(node.children[1])], 'wrex', None, [None, 0, None]
-        label, wrap = self.target(node.notation, node.text)
-        kids = [self.term(c) for c in node.children]
-        return kids, label, wrap, list(range(len(kids)))
-
-    @staticmethod
-    def build(operands, label, wrap):
-        return (seq(*operands, label) if wrap is None
-                else seq(*operands, label, wrap))
-
-    def target(self, kind, literal):
-        entries = targets.TERMS.get(kind)
-        if not entries:
-            raise Problem('', 0, f'no kernel target for notation {kind!r}')
-        if len(entries) == 1:
-            return entries[0]
-        order = self.literals.get(kind, [])
-        return entries[order.index(literal)] if literal in order else entries[0]
+    def pattern(self, node):
+        """The `target` entry of the pattern this node was built from."""
+        entries = self.terms.get(node.notation)
+        if entries is None:
+            raise Problem('', 0,
+                          f'notation {node.notation!r} has no target field')
+        order = self.literals.get(node.notation, [])
+        found = entries[order.index(node.text)] if node.text in order \
+            else entries[0]
+        if found is None:
+            raise Problem('', 0,
+                          f'notation {node.notation!r} builds no term here')
+        return found
 
     # --- closure ------------------------------------------------------------
 
@@ -179,10 +168,16 @@ class Elaborator:
         decides which lemma. Nothing is searched for."""
         if self.term(node) == old:
             return new, eqproof
-        operands, label, wrap, slots = self.parts(node)
-        for child, slot in zip(node.children, slots, strict=False):
-            if slot is None or old not in self.term(child):
+        pattern = self.pattern(node)
+        label, wrap = self.constructor(pattern)
+        places = targets.slots(pattern)
+        holes = [self.term(c) for c in node.children]
+        operands = [targets.fill(tok, holes)
+                    for tok in pattern.split()[:-2 if wrap else -1]]
+        for i, child in enumerate(node.children):
+            if i not in places or old not in self.term(child):
                 continue
+            slot = places[i]
             inner, proof = self.rewrite(child, old, new, scope, eqproof)
             after = list(operands)
             after[slot] = inner
@@ -190,11 +185,25 @@ class Elaborator:
             # An operation or a relation is itself an operand of the lemma
             # that rewrites under it; a constructor that takes its arguments
             # directly is not.
-            return self.build(after, label, wrap), \
-                seq(scope, operands[slot], inner, *rest,
-                    label if wrap else '', proof,
-                    self.CONGRUENCE[(wrap or label, slot)])
+            built = seq(*after, label, wrap) if wrap else seq(*after, label)
+            return built, seq(scope, operands[slot], inner, *rest,
+                              label if wrap else '', proof,
+                              self.CONGRUENCE[(wrap or label, slot)])
         raise Problem('', 0, f'nothing to rewrite in {self.term(node)}')
+
+    def constructor(self, pattern):
+        """The one constructor a target applies, and what encloses it.
+
+        A target may nest — `_ is not odd` is a negation of a divisibility —
+        and rewriting inside a nested one would need a lemma per level. No
+        step has wanted that, so it is refused rather than guessed at."""
+        tokens = pattern.split()
+        wrap = tokens[-1] if tokens[-1] in WRAPS else None
+        label = tokens[-2] if wrap else tokens[-1]
+        want = len(self.sigs[wrap or label].floats) - (1 if wrap else 0)
+        if len(tokens) - (2 if wrap else 1) != want:
+            raise Problem('', 0, f'{pattern!r} is not one constructor')
+        return label, wrap
 
     # --- definitions --------------------------------------------------------
 
@@ -210,9 +219,11 @@ class Elaborator:
         existential quantifies, and what it quantifies over. The body is
         returned facing the way the lemma writes it, which is not always the
         way the text writes it."""
-        lemma, flipped = targets.UNFOLD[name]
-        var = var or self.flabel[self.sigs[lemma].bound()]
         item = self.items[name.split(':', 1)[1]]
+        lemma, flipped = targets.unfolding(item)
+        if lemma is None:
+            raise Problem('', 0, f'{name} has no target field')
+        var = var or self.flabel[self.sigs[lemma].bound()]
         node = self.read(item.conclusions[0][0])
         left, right = node.children
         self.names[self.subject_of(left).text] = subject
@@ -574,7 +585,7 @@ def main(argv):
     sorts_in_scope(thm, grammar)
     sigs = read_library(setmm)
 
-    work = Elaborator(thm, grammar, items, sigs)
+    work = Elaborator(thm, grammar, items, sigs, records)
     goal, hypotheses, proof = work.run()
     antecedent = hypotheses[0]
     for extra in hypotheses[1:]:

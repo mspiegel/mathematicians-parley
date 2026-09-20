@@ -176,6 +176,18 @@ CASES = [
      '  level       predicate',
      'does not supply them'),
 
+    ('drop a hole from the term a notation builds',
+     'db/notation.db',
+     '  target      _1 _2 caddc co, _1 _2 cmin co',
+     '  target      _1 _1 caddc co, _1 _2 cmin co',
+     'leaves a hole out'),
+
+    ('give a notation fewer targets than it has patterns',
+     'db/notation.db',
+     '  target      _1 _2 cmul co, _1 _2 cdiv co',
+     '  target      _1 _2 cmul co',
+     'target entr'),
+
     ('claim something the cited item does not conclude',
      'proof/infinitely-many-primes.proof',
      '6.  p > 1\n    def:prime p := p, from 5',

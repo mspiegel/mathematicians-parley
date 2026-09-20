@@ -428,28 +428,41 @@ byte-identity is a property of one implementation rather than of the language
 — unless the language is specified far more tightly than these requirements
 specify it.
 
-**What the program needed that the databases do not say.** `tools/targets.py`
-holds it, and it is the sharpest finding of the exercise. Two kinds of thing
-are missing.
+**What the program needed that the databases did not say.** Writing it found
+two gaps, and both are now closed by a `target` field beside `metamath`.
 
 The `metamath` field of a notation says which constructor a pattern targets,
-and six records write it as prose — "cexp with the numeral 2", "wbr with
+and six records wrote it as prose — "cexp with the numeral 2", "wbr with
 cdvds", "2 ∥ n and its negation". That is the right thing to write for a
 person checking that a label exists, and it is not usable by a program.
+`target` says the same thing as a term in reverse Polish, with `_1`, `_2`
+for the holes: `_ + _` targets `_1 _2 caddc co`, and `_²` targets
+`_1 c2 cexp co`, which is a term carrying an operand the pattern has no hole
+for. It also settles something `metamath` could not say at all: `_ > _`
+targets `_2 _1 clt wbr`, sharing one constructor with `_ < _` by using its
+holes in the other order. Thirty-seven records carry it; the ones that do not
+are those whose term is not a constructor applied to their holes, and for
+those `metamath` still says in words what it is.
 
-Worse, the `metamath` field of an item says what a definition *means*, not
-which theorem unfolds it. `def:odd` names `not 2 ∥ n`. An elaborator needs
-`odd2np1`, which is the bridge between that and the existential the readable
-definition states, and which appears nowhere in the database. The same gap
-runs through `requires`: `thm:int-closure` names `zaddcl, zmulcl`, and the
-step that needs `n² ∈ ℤ` wants `zsqcl`. The program derives closure from the
-shape of the term instead, which works and is arguably better, but it means
-the `requires` line's citation is decoration to it.
+The `metamath` field of an item says what a definition *means*, not which
+theorem unfolds it. `def:odd` names `not 2 ∥ n`. An elaborator needs
+`odd2np1`, the bridge between that and the existential the readable definition
+states, and it appeared in no database. `def:odd` and `def:even` now carry a
+`target` naming it, with `equation reversed` for the orientation neither the
+readable line nor the label announces.
 
-Neither is a defect in the databases. They were written to record what the
-corpus claims and to be checked by a person, and they do that. What they do
-not yet have is a field an elaborator can read, and now there is a working
-program to say exactly which field that would be.
+Neither was a defect. Those fields were written to record what the corpus
+claims and to be checked by a person, and they do that. What they lacked was a
+field an elaborator could read, and it took a working elaborator to say
+exactly which field that was.
+
+What stayed in `tools/targets.py` is closure: which set.mm lemma puts a sum of
+integers in ℤ, and which moves an integer into ℂ. That is a fact about the
+library rather than about the readable corpus, and no field of a readable
+database is its home. The same holds for the `requires` lines: `thm:int-closure`
+names `zaddcl, zmulcl`, and the step needing `n² ∈ ℤ` wants `zsqcl`, so the
+program derives closure from the shape of the term and treats the citation as
+saying which fact is needed rather than how to get it.
 
 ## They verify
 

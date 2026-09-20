@@ -224,6 +224,29 @@ def check_notation(report, records):
                        f'notation {r.name} declares {want} hole(s) but its '
                        f'pattern(s) have {sorted(counts)}')
 
+        # A `target` says what each pattern builds, one entry per pattern, so
+        # the two lists have to line up and every hole has to be used. What
+        # the entries name is checked against set.mm, which is not read here.
+        if 'target' in r.fields:
+            entries = [e.strip() for e in r.fields['target'].split(',')
+                       if e.strip()]
+            if len(entries) != len(patterns):
+                report.say(r.path, r.line,
+                           f'notation {r.name} has {len(patterns)} pattern(s) '
+                           f'but {len(entries)} target entr(ies)')
+            for entry in entries:
+                if entry == 'folded':
+                    continue
+                used = {int(n) for n in re.findall(r'_(\d+)', entry)}
+                if any(n < 1 or n > want for n in used):
+                    report.say(r.path, r.line,
+                               f'notation {r.name} target {entry!r} names a '
+                               f'hole outside 1 to {want}')
+                elif used != set(range(1, want + 1)):
+                    report.say(r.path, r.line,
+                               f'notation {r.name} target {entry!r} leaves a '
+                               f'hole out')
+
         # Associativity is needed exactly when the pattern can nest in itself:
         # both edges are holes, and what it yields fits those holes.
         for p in patterns:

@@ -38,7 +38,26 @@
 #               tree, so the two spellings are one formula wherever two are
 #               compared, and the page writes whichever reads better.
 #   reads       how a viewer says it in words.
-#   metamath    the set.mm syntax constructors the elaborator targets.
+#   metamath    the set.mm syntax constructors the elaborator targets, said
+#               the way a person checking them wants to read it.
+#   target      the same thing said the way a program reads it: the term this
+#               pattern builds, in the reverse Polish the kernel uses, with
+#               `_1`, `_2`, `_3` standing for the pattern's holes in the order
+#               `holes` declares them. So `_ + _` targets `_1 _2 caddc co` and
+#               `_ divides _` targets `_1 _2 cdvds wbr`.
+#
+#               Three things this says that `metamath` cannot. A hole may be
+#               used out of order, which is how `_ > _` targets `_2 _1 clt wbr`
+#               and shares its constructor with `_ < _`. A term may carry an
+#               operand the pattern has no hole for, which is how `_²` targets
+#               `_1 c2 cexp co`. And the entry is `folded` for a pattern that
+#               the `negates` or `spells` line turns into another notation's
+#               tree, since such a pattern builds no node of its own.
+#
+#               One entry per pattern, in pattern order. A record with no
+#               `target` is one whose term is not a constructor applied to its
+#               holes; an elaborator cannot build it from this file alone, and
+#               `metamath` says in words what it is.
 #   first-used  the pilot that introduced it.
 #   note        anything a reader or an implementer needs.
 #
@@ -92,6 +111,7 @@ notation number-systems
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals
   metamath    cn, cn0, cz, cq, cr
+  target      cn, cn0, cz, cq, cr
   first-used  sqrt2-irrational
   note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader
               taught that the natural numbers begin at 0 needs this pointer to
@@ -105,6 +125,7 @@ notation membership
   negates     pattern 2 is logical-not of pattern 1
   reads       is in, is not in
   metamath    wcel, wnel
+  target      _1 _2 wcel, folded
   first-used  sqrt2-irrational
   note        No assoc: it yields a formula and its left hole takes a term, so
               a ∈ b ∈ c cannot parse at all rather than parsing two ways.
@@ -117,6 +138,7 @@ notation equality
   negates     pattern 2 is logical-not of pattern 1
   reads       equals, is not equal to
   metamath    wceq, wne
+  target      _1 _2 wceq, folded
   first-used  sqrt2-irrational
 
 notation order
@@ -126,6 +148,7 @@ notation order
   level       relational
   reads       is less than, is greater than, is at most, is at least
   metamath    clt, cle
+  target      _1 _2 clt wbr, _2 _1 clt wbr, _1 _2 cle wbr, _2 _1 cle wbr
   first-used  sqrt2-irrational
 
 notation additive
@@ -136,6 +159,7 @@ notation additive
   assoc       left
   reads       plus, minus
   metamath    caddc, cmin
+  target      _1 _2 caddc co, _1 _2 cmin co
   first-used  sqrt2-irrational
   note        Left is the only defensible reading of a − b − c. No chain of
               either operator occurs in the corpus, but the parse tree is
@@ -150,6 +174,7 @@ notation multiplicative
   assoc       left
   reads       times, divided by
   metamath    cmul, cdiv
+  target      _1 _2 cmul co, _1 _2 cdiv co
   first-used  sqrt2-irrational
 
 notation unary-minus
@@ -159,6 +184,7 @@ notation unary-minus
   level       unary-minus
   reads       minus
   metamath    cneg
+  target      _1 cneg
   first-used  triangle-inequality
   note        No assoc, because only the right edge is a hole: −−x can be read
               one way. Written with the same character as binary minus and told
@@ -172,6 +198,7 @@ notation power
   assoc       right
   reads       to the power
   metamath    cexp
+  target      _1 _2 cexp co
   first-used  subsets
   note        Right by universal convention. No tower occurs in the corpus.
               An exponent that is not a numeral makes the whole power an atom
@@ -184,6 +211,7 @@ notation square
   level       power
   reads       squared
   metamath    cexp with the numeral 2
+  target      _1 c2 cexp co
   first-used  sqrt2-irrational
   note        A numeral exponent, so `algebra` expands it rather than treating
               the power as an atom.
@@ -195,6 +223,7 @@ notation square-root
   level       power
   reads       the square root of
   metamath    csqrt
+  target      _1 csqrt cfv
   first-used  sqrt2-irrational
 
 notation logical-not
@@ -204,6 +233,7 @@ notation logical-not
   level       negation
   reads       not
   metamath    wn
+  target      _1 wn
   first-used  sqrt2-irrational
   note        No assoc: only the right edge is a hole.
 
@@ -215,6 +245,7 @@ notation conjunction
   assoc       left
   reads       and
   metamath    wa
+  target      _1 _2 wa
   first-used  sqrt2-irrational
   note        Left matches set.mm's ternary conjunction, so a claim of three
               sentences maps onto the library's own lemma. See METHODS.md.
@@ -227,6 +258,7 @@ notation comma-conjunction
   assoc       left
   reads       and
   metamath    wa, and nested wa for a longer list
+  target      _1 _2 wa, _1 _2 wa
   first-used  sqrt2-irrational
   note        The comma list SYNTAX.md describes, used where a run of "and"s
               reads badly, as it does inside a "there is ... with ..." phrase.
@@ -250,6 +282,7 @@ notation disjunction
   assoc       left
   reads       or
   metamath    wo
+  target      _1 _2 wo
   first-used  sqrt2-irrational
 
 notation implication
@@ -260,6 +293,7 @@ notation implication
   assoc       right
   reads       implies
   metamath    wi
+  target      _1 _2 wi
   first-used  sqrt2-irrational
 
 notation biconditional
@@ -270,6 +304,7 @@ notation biconditional
   assoc       right
   reads       if and only if
   metamath    wb
+  target      _1 _2 wb
   first-used  sqrt2-irrational
   note        ∀ and ∃ are not declared as symbols anywhere: SYNTAX.md writes
               them as the binders below, and ¬ ∧ ∨ as words.
@@ -281,6 +316,7 @@ notation conditional
   level       implication
   reads       if, then
   metamath    wi
+  target      _1 _2 wi
   first-used  triangle-inequality
   note        The same connective as →, written the way a definition by cases
               is read. Both spellings are in the corpus. Unlike → it needs no
@@ -293,6 +329,7 @@ notation absolute-value
   yields      number
   reads       the absolute value of
   metamath    cabs
+  target      _1 cabs cfv
   first-used  triangle-inequality
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
@@ -304,6 +341,7 @@ notation cardinality
   yields      number
   reads       the number of elements of
   metamath    chash
+  target      _1 chash cfv
   first-used  subsets
 
 notation distance
@@ -325,6 +363,7 @@ notation factorial
   level       power
   reads       factorial
   metamath    cfa
+  target      _1 cfa cfv
   first-used  infinitely-many-primes
   note        No assoc: only the left edge is a hole, so n!! reads one way.
 
@@ -334,6 +373,7 @@ notation gcd
   yields      number
   reads       the greatest common divisor of
   metamath    cgcd
+  target      _1 _2 cgcd co
   first-used  bezout
 
 notation subset
@@ -343,6 +383,7 @@ notation subset
   level       relational
   reads       is a subset of
   metamath    wss
+  target      _1 _2 wss
   first-used  bezout
 
 notation empty-set
@@ -351,6 +392,7 @@ notation empty-set
   yields      set
   reads       the empty set
   metamath    c0
+  target      c0
   first-used  subsets
 
 notation singleton
@@ -359,6 +401,7 @@ notation singleton
   yields      set
   reads       the set whose only element is
   metamath    csn
+  target      _1 csn
   first-used  subsets
 
 notation set-operations
@@ -369,6 +412,7 @@ notation set-operations
   assoc       left
   reads       union, difference, intersection
   metamath    cun, cdif, cin
+  target      _1 _2 cun, _1 _2 cdif, _1 _2 cin
   first-used  subsets
   note        Difference needs the assoc for the same reason subtraction does.
               No chain of any of the three occurs in the corpus.
@@ -380,6 +424,7 @@ notation powerset
   level       power
   reads       the power set of
   metamath    cpw
+  target      _1 cpw
   first-used  cantor
   note        No assoc: only the right edge is a hole.
 
@@ -390,6 +435,7 @@ notation set-builder
   binds       hole 1 over hole 3
   reads       the set of those in the second with the third
   metamath    crab
+  target      _3 _1 _2 crab
   first-used  bezout
   note        Told apart from set-image by what precedes the colon: a variable
               and its domain here, an expression there. See def:set-builder.
@@ -420,6 +466,7 @@ notation application
   yields      any
   reads       applied to
   metamath    cfv
+  target      _2 _1 cfv
   first-used  cantor
   note        Written identically to juxtaposition-multiplication: f(x) applies
               and k(k + 1) multiplies. The function sort of the first hole is
@@ -451,6 +498,7 @@ notation closed-interval
   yields      set
   reads       the closed interval from, to
   metamath    cicc
+  target      _1 _2 cicc co
   first-used  intermediate-value
 
 notation juxtaposition
@@ -462,6 +510,7 @@ notation juxtaposition
   spells      multiplicative ·
   reads       times
   metamath    cmul
+  target      folded
   first-used  sqrt2-irrational
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
@@ -535,6 +584,7 @@ notation for-every
   binds       hole 1 over hole 3
   reads       for every
   metamath    wral
+  target      _3 _1 _2 wral
   first-used  sum-formula
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
@@ -569,6 +619,7 @@ notation there-is
   negates     pattern 2 is logical-not of pattern 1
   reads       there is, there is no
   metamath    wrex, and wrex under wn
+  target      _3 _1 _2 wrex, folded
   first-used  sqrt2-irrational
 
 notation there-is-some
@@ -636,6 +687,7 @@ notation divides
   level       predicate
   reads       divides
   metamath    wbr with cdvds
+  target      _1 _2 cdvds wbr
   first-used  sqrt2-irrational
   note        Seventeen uses, the commonest word predicate. See def:divides.
 
@@ -647,6 +699,7 @@ notation parity
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
   metamath    2 ∥ n and its negation
+  target      c2 _1 cdvds wbr, c2 _1 cdvds wbr wn, folded
   first-used  sqrt2-irrational
   note        "is not odd" keeps the word inside the phrase, which is how the
               corpus reads best, and the `negates` line is what makes it the
@@ -660,6 +713,7 @@ notation prime
   level       predicate
   reads       is prime
   metamath    wcel with cprime
+  target      _1 cprime wcel
   first-used  infinitely-many-primes
 
 notation irrational
@@ -669,6 +723,7 @@ notation irrational
   level       predicate
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
+  target      _1 cr cq cdif wcel
   first-used  sqrt2-irrational
 
 notation is-a-set
@@ -733,6 +788,7 @@ notation bijection
   level       predicate
   reads       there is a bijection from, to
   metamath    wbr with cen
+  target      _1 _2 cen wbr
   first-used  subsets
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a

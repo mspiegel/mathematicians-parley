@@ -47,6 +47,15 @@ An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
+A definition may also carry a `target`, which says which set.mm theorem
+unfolds it. That is not what `metamath` says: `metamath` says what the
+definition means, and `def:odd` gives `not 2 ∥ n`, where unfolding it to the
+existential the `then` line states is `odd2np1`. An elaborator needs the
+second and cannot derive it from the first. A second entry, `equation
+reversed`, says the theorem writes its equation the other way round from the
+`then` line, which `odd2np1` and `divides` both do. `db/notation.db` documents
+the same field on the notation side.
+
 The corpus holds 97 items, 27 definitions and 70 theorems, 55 notation records
 declaring 73 patterns, and 14 methods. The ten proofs make 181 citations to 73
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix

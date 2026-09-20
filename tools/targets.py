@@ -1,67 +1,73 @@
 """Where the readable layer's words land in set.mm.
 
-`db/notation.db` and `db/items.db` both carry a `metamath` field, and neither
-is enough to elaborate with. The notation field says which constructor a
-pattern targets, but six of the records write it as prose — "cexp with the
-numeral 2", "wbr with cdvds" — because it was written for a person checking
-that a label exists. The item field says what a definition *means*, not which
-set.mm theorem performs the unfolding: `def:odd` names `not 2 ∥ n`, which is
-the statement, where an elaborator needs `odd2np1`, which is the bridge.
+`db/notation.db` and `db/items.db` carry a `target` field beside `metamath`,
+and this reads it. `metamath` says in words which set.mm construct a pattern
+or an item corresponds to, which is what a person checking the database
+wants; `target` says the same thing as a term, which is what a program needs.
+Neither is derivable from the other, so both are written.
 
-So this module holds what the databases do not yet say. It is small and it is
-the shape of a field those files are missing, not a store of expansions: every
-entry is a name, never a proof.
+What is still here rather than in the databases is closure: which set.mm
+lemma puts a sum of integers in ℤ, and which moves an integer into ℂ. That is
+a fact about set.mm's library rather than about the readable corpus, and no
+field of a readable database is the place for it.
 """
+import re
 
-# How a notation's tree becomes a term. `wrap` says what encloses the
-# children: None for a constructor that takes them directly, 'co' for an
-# operation, 'wbr' for a relation, 'cfv' for a function application.
-TERMS = {
-    'number-systems': [('cn', None), ('cn0', None), ('cz', None),
-                       ('cq', None), ('cr', None)],
-    'membership': [('wcel', None), ('wnel', None)],
-    'equality': [('wceq', None), ('wne', None)],
-    'additive': [('caddc', 'co'), ('cmin', 'co')],
-    'multiplicative': [('cmul', 'co'), ('cdiv', 'co')],
-    'juxtaposition': [('cmul', 'co')],
-    'unary-minus': [('cneg', None)],
-    'power': [('cexp', 'co')],
-    'square-root': [('csqrt', 'cfv')],
-    'logical-not': [('wn', None)],
-    'conjunction': [('wa', None)],
-    'comma-conjunction': [('wa', None)],
-    'disjunction': [('wo', None)],
-    'implication': [('wi', None)],
-    'divides': [('cdvds', 'wbr')],
-}
+HOLE = re.compile(r'_(\d+)')
+FOLDED = 'folded'
 
-# Patterns whose term is not one constructor applied to the children.
-# `_²` is a power with a numeral the text does not write, and `n is even` and
-# `n is odd` are a divisibility by a 2 the text does not write either.
-SHAPES = {
-    'square': 'square',
-    'parity': 'parity',
-}
 
-# The theorem that unfolds a definition, which is not what `metamath` names.
-# `def:odd` says `not 2 ∥ n`; odd2np1 is what turns that into the existential
-# the readable definition states, and it is used in both directions.
-# The second entry says the lemma writes the equation the other way round
-# from the readable definition.
-UNFOLD = {
-    'def:odd': ('odd2np1', True),
-    'def:even': ('divides', True),
-}
+def split_entries(value):
+    """The entries of a `target` field, one per pattern."""
+    return [piece.strip() for piece in value.split(',') if piece.strip()]
+
+
+def terms(records):
+    """For each notation, the term each of its patterns builds.
+
+    A folded pattern builds another notation's tree, so it has no entry of its
+    own and is recorded as None."""
+    out = {}
+    for r in records:
+        if r.kind != 'notation' or 'target' not in r.fields:
+            continue
+        out[r.name] = [None if e == FOLDED else e
+                       for e in split_entries(r.fields['target'])]
+    return out
+
+
+def unfolding(record):
+    """The theorem that unfolds a definition, and whether it faces the other
+    way from the `then` line."""
+    value = record.fields.get('target')
+    if not value:
+        return None, False
+    entries = split_entries(value)
+    return entries[0], any('reversed' in e for e in entries[1:])
+
+
+def fill(pattern, holes):
+    """A target with its holes replaced by the terms that stand in them."""
+    return HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
+
+
+def slots(pattern):
+    """Which operand position each hole occupies, by hole number."""
+    places = {}
+    for i, token in enumerate(pattern.split()):
+        found = HOLE.match(token)
+        if found:
+            places[int(found.group(1)) - 1] = i
+    return places
+
 
 # Closure: the lemma that puts a shape in a set, by the shape of the term.
 CLOSURE = {
     ('cz', 'additive'): 'zaddcl',
     ('cz', 'multiplicative'): 'zmulcl',
-    ('cz', 'juxtaposition'): 'zmulcl',
     ('cz', 'square'): 'zsqcl',
     ('cc', 'additive'): 'addcl',
     ('cc', 'multiplicative'): 'mulcl',
-    ('cc', 'juxtaposition'): 'mulcl',
     ('cc', 'square'): 'sqcl',
 }
 
