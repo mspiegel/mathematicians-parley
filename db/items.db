@@ -707,7 +707,8 @@ definition angle
               costs, including constructing the angle over the coordinate
               plane rather than assuming one. That last is a chapter of work
               and not a few lemmas: set.mm's three geometries do not meet,
-              and its plane theorems are all over ℂ.
+              and its plane theorems are all over ℂ. GEOMETRY.md weighs the
+              seven candidates and recommends the unsigned angle over ℂ.
   first-used  isosceles
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.

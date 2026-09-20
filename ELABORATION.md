@@ -1050,7 +1050,9 @@ proofs would find ℂ mostly congenial; this one lands on its weak spot.
 ### What that leaves
 
 Four readings, and the corpus has to choose one before `isosceles` can be
-elaborated. None is an implementation question.
+elaborated. None is an implementation question. `GEOMETRY.md` weighs all
+seven candidates against the criteria `GOALS.md` and `READERS.md` state, and
+lands on the second of these with the angle taken unsigned.
 
 1. **ℂ, citing the result.** set.mm proves this theorem. `isosctr` is
    Metamath 100 proof 65, and it is `thm:isosceles` hypothesis for
