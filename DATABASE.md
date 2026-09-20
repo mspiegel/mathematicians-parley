@@ -159,7 +159,8 @@ repaired.
   written with two `then` groups, which no other record uses.
 - **`thm:side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,
-  C, A′, B′, C′. One of the two must change.
+  C, A′, B′, C′. One of the two must change. Settled since: the proof changed,
+  because every other geometry item names its points P, Q and R.
 - **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
   Q, R forms a triangle" is replaced by `thm:triangle-swap` and
   `thm:triangle-rotate`, which generate all six orderings and are the two the

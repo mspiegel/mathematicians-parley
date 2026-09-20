@@ -719,10 +719,12 @@ definition angle
               merge because the ∠ notation needs it.
 
 definition collinear
-  open        Incidence is a primitive of the geometry and set.mm has no single
-              notion for it. In the complex plane it says (R − P)/(Q − P) ∈ ℝ,
-              which is a statement about ℂ and not about points, so it waits on
-              def:point.
+  open        Incidence is a primitive of the geometry, and the readable layer
+              cannot state what it is. In the plane it says (R − P)/(Q − P) is
+              real, and subtraction takes numbers while P, Q and R are points:
+              the sorts that stop |CA| reading as a product stop this too. The
+              notation carries a target, so a claim of collinearity elaborates;
+              what has no readable statement is the equivalence.
   first-used  isosceles
   note        Named by the merge because def:triangle needs a word for what a
               triangle's vertices are not.
@@ -758,15 +760,21 @@ theorem distance-symmetric
   let Q be a point                                                    (H2)
   then        |PQ| = |QP|
   metamath    abssub
+  target      abssub
   first-used  isosceles
 
 theorem angle-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
   then        ∠PQR = ∠RQP
-  open        the signed angle function is antisymmetric; the unsigned angle is
-              symmetric; needs a lemma and def:angle
+  open        no set.mm theorem states it, so a file citing it lists it. The
+              angle the corpus writes is unsigned, and arginv says the signed
+              one is antisymmetric off the branch cut while on the cut both
+              directions are π, so the absolute values agree either way. What
+              is wanted is that proof, in two cases.
   first-used  isosceles
 
 theorem triangle-swap

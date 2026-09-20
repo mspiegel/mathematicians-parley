@@ -1,7 +1,7 @@
 $( cantor, elaborated from proof/cantor.proof by parley/elaborate.py.
    Nothing here is assumed. $)
 
-$[ set.mm $]
+$[ definitions.mm $]
 
 ${
   $d A B j m x $.

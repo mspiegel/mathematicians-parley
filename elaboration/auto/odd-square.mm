@@ -4,7 +4,7 @@ $( odd-square, elaborated from proof/sqrt2-irrational.proof by parley/elaborate.
    the elaborator does not expand, or a definition the
    database gives no target for. $)
 
-$[ set.mm $]
+$[ definitions.mm $]
 
 oddsquar.alg1 $a |- ( m e. RR -> ( ( ( 2 x. m ) + 1 ) ^ 2 ) = ( ( ( 4 x. ( m ^ 2 ) ) + ( 4 x. m ) ) + 1 ) ) $.
 oddsquar.alg2 $a |- ( m e. RR -> ( ( ( 4 x. ( m ^ 2 ) ) + ( 4 x. m ) ) + 1 ) = ( ( 2 x. ( ( 2 x. ( m ^ 2 ) ) + ( 2 x. m ) ) ) + 1 ) ) $.

@@ -44,8 +44,9 @@ from sorts import sorts_in_scope
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
 # what `A is a set` states. The hypothesis line reads better as it is
-# written; the claim is the notation the database declares.
-BE_A_SET = re.compile(r'\s+be\s+a\s+set\b')
+# written; the claim is the notation the database declares. Points are the
+# same shape, and every sort with a notation could be.
+BE_A = re.compile(r'\s+be\s+a\s+(set|point)\b')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
@@ -54,6 +55,19 @@ WRAPS = ('co', 'wbr', 'cfv')
 
 def seq(*parts):
     return ' '.join(p for p in parts if p)
+
+
+def hypothesis_body(kind, text):
+    """What a hypothesis line claims, with its introduction read as one.
+
+    `let A be a set` and `let P be a point` introduce a name and state what
+    the sort means, and the notation that states it is what the database
+    declares. The line reads better as it is written, so the substitution
+    happens here and every reader of a hypothesis gets it."""
+    body = text[len(kind):] if text.startswith(kind) else text
+    if kind == 'let':
+        body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
+    return body
 
 
 def label_of(name, taken=()):
@@ -677,10 +691,7 @@ class Elaborator:
         it."""
         nodes, spare = [], list(CLASS_NAMES)
         for kind, text, _label, _line in self.thm.hypotheses:
-            body = text[len(kind):] if text.startswith(kind) else text
-            if kind == 'let' and BE_A_SET.search(body):
-                body = BE_A_SET.sub(' is a set', body)
-            node = self.read(body)
+            node = self.read(hypothesis_body(kind, text))
             if kind == 'let':
                 introduced = self.subject_of(node)
                 if introduced.text and introduced.text not in self.names:
@@ -742,6 +753,12 @@ class Elaborator:
                      for k, v in facts.items()}
             facts[extra] = seq(scope, extra, 'simpr')
             scope = wider
+        # A hypothesis may say several things at once — `A, B, C form a
+        # triangle` says three — and each of them is a fact the proof may
+        # lean on without a step to take it apart.
+        for extra in terms:
+            if extra in facts:
+                self.unpack(extra, facts[extra], scope, facts)
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
@@ -837,8 +854,7 @@ class Elaborator:
         block = Block(step, scope, facts, len(self.frames) - 1)
         if head == 'contradiction':
             kind, text, label, _l, _p = step.openers[0]
-            node = self.read(text[len(kind):] if text.startswith(kind)
-                             else text)
+            node = self.read(hypothesis_body(kind, text))
             block.supposed = self.term(node)
             block.scope, block.facts = self.widen(scope, facts,
                                                   block.supposed)
@@ -849,7 +865,7 @@ class Elaborator:
         elif head == 'fix':
             block.scope, block.facts = scope, facts
             for kind, text, label, _l, _p in step.openers:
-                body = text[len(kind):] if text.startswith(kind) else text
+                body = hypothesis_body(kind, text)
                 if kind == 'let':
                     # A fixed name is a variable of the kernel, not a class,
                     # and it must avoid whatever the notations bind: the sum
@@ -872,7 +888,7 @@ class Elaborator:
             block.scope, block.facts = scope, facts
             block.assumed = {}
             for kind, text, label, _l, part in step.openers:
-                body = text[len(kind):] if text.startswith(kind) else text
+                body = hypothesis_body(kind, text)
                 block.assumed[part] = (self.read(body), label)
         elif head == 'induction':
             block.scope, block.facts = scope, facts
@@ -1264,7 +1280,7 @@ class Elaborator:
             self.names[name] = self.term(self.read(value))
         asks = []
         for kind, text, _label, _line in item.hypotheses:
-            body = text[len(kind):] if text.startswith(kind) else text
+            body = hypothesis_body(kind, text)
             asks.append(self.term(self.read(body)))
         self.names = saved
 
@@ -2136,8 +2152,10 @@ class Elaborator:
         step already has."""
         labels = targets.clauses(item)
         if not labels:
-            raise Problem('', step.line,
-                          f'{step.just.head} has no target field')
+            # Nothing in the library has its shape, so the file states what
+            # it claims and lists it, the same as an item obtained from.
+            # `thm:lowest-terms` is the case, and `thm:angle-symmetric`.
+            return self.assume_item(step, term, scope, facts, item)
         for label in labels:
             found = self.apply_lemma(label, self.to_term(term), scope, facts,
                                      step)
@@ -2159,14 +2177,12 @@ class Elaborator:
         spare = list(CLASS_NAMES)
         written = dict(instantiation(step.just.text))
         for kind, htext, _label, _line in other.hypotheses:
-            node = self.read(htext[len(kind):] if htext.startswith(kind)
-                             else htext)
+            node = self.read(hypothesis_body(kind, htext))
             if kind == 'let' and node.notation == 'membership':
                 name = node.children[0].text
                 self.names[name] = (self.term(self.read(written[name]))
                                     if name in written else spare.pop(0))
-        wanted = [self.term(self.read(htext[len(kind):]
-                                      if htext.startswith(kind) else htext))
+        wanted = [self.term(self.read(hypothesis_body(kind, htext)))
                   for kind, htext, _l, _n in other.hypotheses]
         self.names, self.sets = saved, kept
 
@@ -2396,11 +2412,13 @@ def main(argv):
         print('   Nothing here is assumed. $)')
     print()
     # A theorem this corpus proves is cited as one label, so the file that
-    # elaborated it is read first and set.mm comes in through it.
+    # elaborated it is read first and the rest comes in through it. What is
+    # underneath everything is the corpus's own definitions, which include
+    # the library: one chain rather than one per proof.
     for name in work.cited:
         print(f'$[ {name}.mm $]')
     if not work.cited:
-        print('$[ set.mm $]')
+        print('$[ definitions.mm $]')
     print()
     for label, statement in work.axioms:
         print(f'{label} $a {statement} $.')

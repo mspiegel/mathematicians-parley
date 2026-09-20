@@ -4,7 +4,7 @@ $( abs-bounds, elaborated from proof/triangle-inequality.proof by parley/elabora
    the elaborator does not expand, or a definition the
    database gives no target for. $)
 
-$[ set.mm $]
+$[ definitions.mm $]
 
 absbound.ine1 $a |- ( ( abs ` A ) = A -> ( A e. RR -> ( ( abs ` A ) e. RR -> A <_ ( abs ` A ) ) ) ) $.
 absbound.ine2 $a |- ( ( abs ` A ) = A -> ( 0 <_ A -> ( A e. RR -> ( ( abs ` A ) e. RR -> -u A <_ ( abs ` A ) ) ) ) ) $.

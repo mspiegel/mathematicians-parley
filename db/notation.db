@@ -361,6 +361,7 @@ notation distance
   yields      number
   reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
+  target      _1 _2 cmin co cabs cfv
   first-used  isosceles
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
@@ -566,7 +567,15 @@ notation congruent
   yields      formula
   level       predicate
   reads       is congruent to
-  metamath    none
+  metamath    the three sides and the three angles equal, as def:congruent
+              states them
+  target      _1 _2 cmin co cabs cfv _4 _5 cmin co cabs cfv wceq _2 _3 cmin co
+              cabs cfv _5 _6 cmin co cabs cfv wceq wa _3 _1 cmin co cabs cfv _6 _4
+              cmin co cabs cfv wceq wa _1 _2 cmin co _3 _2 cmin co cang co cabs
+              cfv _4 _5 cmin co _6 _5 cmin co cang co cabs cfv wceq wa _2 _3 cmin
+              co _1 _3 cmin co cang co cabs cfv _5 _6 cmin co _4 _6 cmin co cang
+              co cabs cfv wceq wa _3 _1 cmin co _2 _1 cmin co cang co cabs cfv _6
+              _4 cmin co _5 _4 cmin co cang co cabs cfv wceq wa
   first-used  isosceles
 
 notation sum-function
@@ -743,6 +752,20 @@ notation irrational
   target      _1 cr cq cdif wcel
   first-used  sqrt2-irrational
 
+notation is-a-point
+  pattern     _ is a point
+  holes       any
+  yields      formula
+  level       predicate
+  reads       is a point
+  metamath    wcel with ℂ, the plane
+  target      _1 cc wcel
+  first-used  isosceles
+  note        The counterpart of the `let A be a point` introduction, as
+              is-a-set is of `let X be a set`. What a point is made of is the
+              encoding and the reader does not meet it: the page says a point
+              and never says ℂ. GEOMETRY.md takes that decision.
+
 notation is-a-set
   pattern     _ is a set
   holes       any
@@ -782,7 +805,8 @@ notation collinear
   yields      formula
   level       predicate
   reads       are collinear
-  metamath    none; see def:collinear
+  metamath    the ratio of the two differences is real
+  target      _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
   note        Three points on one line, which def:triangle needs to say that a
               triangle's are not. Its definition is open, as def:angle is while
               the ∠ notation stands declared: incidence is a primitive of the
@@ -796,7 +820,9 @@ notation forms-a-triangle
   yields      formula
   level       predicate
   reads       form a triangle
-  metamath    none; see def:triangle
+  metamath    the three vertices distinct and not on one line
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa
+              _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wn wa
   first-used  isosceles
 
 notation bijection

@@ -4,7 +4,7 @@ $( prime-above, elaborated from proof/infinitely-many-primes.proof by parley/ela
    the elaborator does not expand, or a definition the
    database gives no target for. $)
 
-$[ set.mm $]
+$[ definitions.mm $]
 
 primeabo.ine1 $a |- ( 1 <_ ( ! ` A ) -> ( ( ! ` A ) e. RR -> 1 < ( ( ! ` A ) + 1 ) ) ) $.
 primeabo.itm2 $a |- ( ( ( ! ` A ) + 1 ) e. NN -> ( 1 < ( ( ! ` A ) + 1 ) -> E. m e. NN ( m e. Prime /\ m || ( ( ! ` A ) + 1 ) ) ) ) $.

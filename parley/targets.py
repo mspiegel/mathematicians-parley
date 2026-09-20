@@ -158,4 +158,9 @@ MEMBERSHIP = [
     'rabexg', 'ssexg',
     # and what an order relation asks, which is the same kind of thing
     'ltle', 'ltnri', 'leid',
+    # A disequality is one fact in two orders and the corpus writes it as a
+    # negated equation, which set.mm names and then commutes. `necom` alone
+    # would not fit: it speaks of =/=, and `df-ne` is what relates that to
+    # the -. = the `negates` line folds ≠ into.
+    'df-ne', 'necom',
 ]

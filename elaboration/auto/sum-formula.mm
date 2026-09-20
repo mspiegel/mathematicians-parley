@@ -4,7 +4,7 @@ $( sum-formula, elaborated from proof/sum-formula.proof by parley/elaborate.py.
    the elaborator does not expand, or a definition the
    database gives no target for. $)
 
-$[ set.mm $]
+$[ definitions.mm $]
 
 sumformu.ari1 $a |- 1 = ( ( 1 x. ( 1 + 1 ) ) / 2 ) $.
 sumformu.ari2 $a |- -. 2 = 0 $.
