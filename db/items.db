@@ -686,7 +686,9 @@ theorem point-right
 definition point
   open        The pilot's row reads "Let A be a point. (The plane is a set of
               points with distance and angle defined on it.)", which is a gloss
-              and not a statement.
+              and not a statement. What it becomes waits on def:angle: a point
+              is a complex number if the angle is, and a member of a TarskiG
+              base set if the angle is a congruence. ELABORATION.md.
   metamath    A ∈ ℂ
   first-used  isosceles
 
@@ -695,6 +697,11 @@ definition angle
               angle function is signed, so ∠PQR = −∠RQP up to a multiple of 2π,
               while the school reader's angle is unsigned. Without the absolute
               value, thm:angle-symmetric is false in set.mm's terms.
+
+              No Metamath library has an unsigned angle. set.mm's geometry is
+              Tarski's axioms, where an angle is a congruence relation and not
+              a number, and its one numeric angle is analysis over ℂ and is
+              signed. ELABORATION.md sets out what each reading costs.
   first-used  isosceles
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.
@@ -787,7 +794,9 @@ theorem side-angle-side
   assume ∠PQR = ∠P′Q′R′                                               (H10)
   assume |QR| = |Q′R′|                                                (H11)
   then        triangle PQR ≅ triangle P′Q′R′
-  open        a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert
+  open        a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert.
+              set.mm has no Hilbert axiomatisation; under Tarski it is `tgsas`
+              and is proved. ELABORATION.md.
   first-used  isosceles
   note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
               this statement's variable names. One of the two must change; the

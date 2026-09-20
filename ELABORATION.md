@@ -876,6 +876,83 @@ Three more `metamath` fields were wrong, past the two the five proofs found.
 product and says nothing about its closure. Nothing but elaboration finds
 these, and each one found is an argument for elaborating the rest.
 
+## The proof that cannot be elaborated, and what set.mm has for it
+
+`isosceles` is the ninth proof and it stops before the elaborator is
+reached. Six of the seven items it cites are marked `open` in `db/items.db`,
+and five of the notations it uses have no `target`. That is not a gap in the
+tools. What blocks it is that the readable layer writes `∠CAB = ∠CBA`, an
+equation between numbers, and no Metamath library has a number to put there.
+
+### What set.mm has
+
+Euclidean geometry in set.mm is **Tarski's axioms**, and only those. It was
+asked for as Hilbert, Tarski or Birkhoff in set.mm issue 49, and answered
+with Tarski inside set.mm rather than a database of its own.
+
+| | |
+| --- | --- |
+| `df-trkg` | `TarskiG`, from `TarskiGC`, `TarskiGB`, `TarskiGCB`, `TarskiGE` |
+| `df-trkg2d` | `TarskiG2D`, the plane |
+| `df-trkgld` | `TarskiGDim>=`, dimension |
+| `dist`, `Itv` | distance and betweenness, slots of the structure |
+| `df-cgrg`, `df-cgra` | congruence of segments and of angles, as relations |
+| `df-lng`, `df-hlg` | lines and half-lines |
+| `df-perpg`, `df-hpg`, `df-plng` | perpendicularity, half-planes, planes |
+| `df-lmi` | line inversion |
+| `df-angmgm` | a magma structure on angles |
+| `tgsas` | side-angle-side, proved |
+| `df-ee` | `EE = ( n e. NN |-> ( RR ^m ( 1 ... n ) ) )`, the coordinate model |
+| `eengtrkg` | that `EEG ` N` is a Tarski geometry, so the model is one |
+
+There is no Hilbert axiomatisation, and no geometry in any other Metamath
+database: iset.mm, nf.mm, hol.mm and ql.mm are foundational variants with
+less mathematics than set.mm, not subject libraries.
+
+### Why that does not fit
+
+A `TarskiG` structure carries a distance, so `|AC| = |BC|` translates
+directly as `( A .- C ) = ( B .- C )`, and `axtgcgrrflx` is
+`thm:distance-symmetric` exactly. Distances are not the problem.
+
+Angles are. Tarski geometry has `cgrA`, which is angle **congruence** and a
+relation: `<" A B C "> ( cgrA ` G ) <" D E F ">`. There is nothing on either
+side of an `=`. `AngMgm` adds angles to each other; it does not measure one.
+
+set.mm's one numeric angle is in analysis rather than geometry, over ℂ:
+
+```
+angval   ( A F B ) = ( Im ` ( log ` ( B / A ) ) )
+angcld   ( X F Y ) e. ( -u _pi (,] _pi )
+```
+
+which is **signed**. `def:angle` already says what that costs: with a signed
+angle `thm:angle-symmetric` is false, since ∠PQR = −∠RQP.
+
+### What that leaves
+
+Three readings, and the corpus has to choose one before `isosceles` can be
+elaborated. None is an implementation question.
+
+1. **ℂ, citing the result.** set.mm proves this theorem. `isosctr` is
+   Metamath 100 proof 65, and it is `thm:isosceles` hypothesis for
+   hypothesis — three points in ℂ, three disequalities, `( abs ` ( A - C ) )
+   = ( abs ` ( B - C ) )`, concluding `( ( C - A ) F ( B - A ) ) = ( ( A - B
+   ) F ( C - B ) )`. One citation elaborates the theorem and none of its
+   twelve steps.
+2. **ℂ, elaborating the steps, with the signed angle.** `isosctr` states the
+   conclusion with `F` and is true, because its two angles are read in
+   consistent orientations. What is then false is the proof's own
+   `thm:angle-symmetric`, which four of its steps use. The text would have
+   to be rerouted around it.
+3. **Tarski.** `tgsas` is free and so is the rest of the apparatus. The
+   readable layer would say angles are congruent rather than equal, which
+   changes the theorem statement and five steps.
+
+What is worth recording past the choice is that `isosctr` exists. `def:angle`
+frames the signed angle as an obstacle, and the theorem set.mm proves with it
+says the obstacle is `thm:angle-symmetric` rather than the theorem.
+
 ## What this says about the corpus
 
 Nothing in any of the five proofs had to change, which is the encouraging
