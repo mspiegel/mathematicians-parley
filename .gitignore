@@ -6,3 +6,7 @@ stats.json
 # of the repository on purpose; the measurements it produced are in
 # SELECTION.md.
 parley/mmstats.py
+
+# The library is fetched, never committed. A stray copy is 51 MB and
+# arrives by `cp` following a symlink into elaboration/auto.
+set.mm
