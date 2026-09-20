@@ -45,27 +45,39 @@ class Scope:
 
 
 def _tokens(text):
-    """Every whitespace-separated token, with comments removed.
+    """Every whitespace-separated token, with comments and includes removed.
 
-    Comments nest in Metamath, so the depth is counted rather than matched."""
-    out, depth = [], 0
+    Comments nest in Metamath, so the depth is counted rather than matched.
+    An include names a file rather than saying anything, and the caller
+    supplies the files it wants read, so the directive is dropped."""
+    out, depth, including = [], 0, False
     for tok in text.split():
         if tok == '$(':
             depth += 1
         elif tok == '$)':
             depth = max(0, depth - 1)
-        elif depth == 0:
+        elif depth:
+            continue
+        elif tok == '$[':
+            including = True
+        elif tok == '$]':
+            including = False
+        elif not including:
             out.append(tok)
     return out
 
 
-def read(path):
-    """Every label in the file, as a Signature.
+def read(path, *more):
+    """Every label in the files, as a Signature.
 
-    Included files are not followed. set.mm includes nothing, and a file that
-    includes it is read by passing set.mm itself."""
-    with open(path, encoding='ascii') as f:
-        toks = _tokens(f.read())
+    Includes are not followed. A file that includes another is read by
+    passing both, in the order the includes would have reached them: the
+    tokens become one stream, which is what an include means. set.mm
+    includes nothing, so reading it alone needs no second path."""
+    toks = []
+    for one in (path, *more):
+        with open(one, encoding='ascii') as f:
+            toks.extend(_tokens(f.read()))
 
     stack, out = [Scope()], {}
     i, n = 0, len(toks)

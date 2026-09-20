@@ -2404,7 +2404,14 @@ def main(argv):
         return 2
     thm = found[0]
     sorts_in_scope(thm, grammar)
-    sigs = read_library(setmm)
+    # What this corpus proves below the readable layer is read alongside the
+    # library, so a `target` may name one of its labels exactly as it names
+    # a set.mm label. The file is generated, and a proof that cites nothing
+    # in it elaborates whether or not it has been built.
+    supplied = root / 'elaboration' / 'auto' / 'geometry.mm'
+    provided = set(read_library(supplied)) if supplied.exists() else set()
+    sigs = (read_library(setmm, supplied) if supplied.exists()
+            else read_library(setmm))
     # The constants the corpus introduces are not in the library, so a
     # notation that reaches one needs them declared before it is read. They
     # are the same statements `--definitions` writes into the file the proof
@@ -2441,7 +2448,11 @@ def main(argv):
     for name in work.cited:
         print(f'$[ {name}.mm $]')
     if not work.cited:
-        print('$[ definitions.mm $]')
+        # geometry.mm includes the definitions, so a proof that reaches one
+        # of its labels needs only the one include; a proof that reaches
+        # none does not read it at all.
+        wants = provided & set(proof.split())
+        print(f'$[ {"geometry" if wants else "definitions"}.mm $]')
     print()
     for label, statement in work.axioms:
         print(f'{label} $a {statement} $.')

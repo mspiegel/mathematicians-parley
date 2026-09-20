@@ -783,7 +783,9 @@ theorem triangle-swap
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        P, R, Q form a triangle
-  open        follows from def:triangle once that is stated
+  metamath    gtriswap, which this corpus proves in elaboration/geometry.mm:
+              set.mm states nothing about a triangle, having no notion of one
+  target      gtriswap
   first-used  isosceles
 
 theorem triangle-rotate
