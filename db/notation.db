@@ -552,10 +552,13 @@ notation angle
   holes       point, point, point
   yields      number
   reads       the angle at the second from the first to the third
-  metamath    ( ( P − Q ) F ( R − Q ) ), with F the angle function
+  metamath    the absolute value of ang applied to the two differences
+  target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
   first-used  isosceles
   note        Three juxtaposed holes after a token. set.mm's angle function is
-              signed. See def:angle.
+              signed and it never names it, so `ang` is the one constant this
+              corpus introduces; see def:angle. The absolute value is what
+              makes ∠PQR = ∠RQP true, which the signed function does not.
 
 notation congruent
   pattern     triangle ___ ≅ triangle ___

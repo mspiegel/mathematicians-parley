@@ -1145,19 +1145,8 @@ class Elaborator:
     # --- rendering ----------------------------------------------------------
 
     def render(self, rpn):
-        """A term written the way a Metamath file writes it.
-
-        Only generated axioms need this: a proof is written in the reverse
-        Polish the kernel reads, but a `$a` states its claim in full."""
-        stack = []
-        for tok in rpn.split():
-            sig = self.sigs[tok]
-            count = len(sig.floats)
-            args = stack[len(stack) - count:] if count else []
-            del stack[len(stack) - count:]
-            bound = dict(zip(sig.push, args, strict=True))
-            stack.append(' '.join(bound.get(t, t) for t in sig.statement[1:]))
-        return stack[0]
+        """A term written the way a Metamath file writes it."""
+        return render(rpn, self.sigs)
 
     # --- the methods --------------------------------------------------------
 
@@ -2259,6 +2248,105 @@ def corpus(root):
     return records, theorems
 
 
+def definitions(records, sigs):
+    """Write the constants this corpus introduces, and what they stand for.
+
+    A definition that names a word for something the library already has
+    points at its label; one that introduces a symbol has nothing to point
+    at, and the corpus has to declare the constant itself. set.mm writes the
+    angle function inline in every theorem about it and never names it,
+    which is the only such case the corpus has.
+
+    They are written once, for the corpus rather than for a proof. Two
+    proofs both using angles would otherwise each declare the constant, and
+    the declarations would collide the moment one included the other.
+
+    What `check.py` cannot check without the library is checked here: that
+    the token is not already a label, and that the term parses and closes
+    over its own variables. A definition introducing a symbol the library
+    already has would not be a definition, and one whose term had a free
+    variable would not be eliminable."""
+    labels = {s.statement[1]: s.label for s in sigs.values()
+              if s.kind == '$f'}
+    said = []
+    for r in records:
+        token = r.fields.get('symbol', '').strip()
+        if r.kind != 'definition' or not token:
+            continue
+        if f'c{token}' in sigs or token in sigs:
+            raise Problem(r.path, r.line,
+                          f'definition {r.name}: the library already has '
+                          f'{token!r}, so this defines nothing')
+        body = ' '.join(r.fields.get('defines', '').split())
+        term = term_of(body, sigs)
+        free = {v for v in term.names()
+                if sigs[labels[v]].statement[0] != 'setvar'}
+        if free:
+            raise Problem(r.path, r.line,
+                          f'definition {r.name}: {sorted(free)} are free in '
+                          f'what it defines, so it is not eliminable')
+        said.append((token, r.name, body))
+    return said
+
+
+def write_definitions(records, sigs):
+    """The corpus's definitions, as a file the proofs include."""
+    said = definitions(records, sigs)
+    print('$( definitions, from db/items.db by parley/elaborate.py.')
+    if said:
+        print('   Each introduces one constant the library does not have,')
+        print('   and stands for a term that closes over its own names. $)')
+    else:
+        print('   The corpus introduces none. $)')
+    print()
+    print('$[ set.mm $]')
+    print()
+    # A new symbol is declared before it is used, the way set.mm declares
+    # every one of its own. Without the `$c` the syntax axiom below names a
+    # token the file has never heard of.
+    for token, _name, _body in said:
+        print(f'$c {token} $.')
+    if said:
+        print()
+    for token, name, body in said:
+        print(f'$( {name} $)')
+        print(f'  c{token} $a class {token} $.')
+        print(f'  df-{token} $a |- {token} = {render(body, sigs)} $.')
+    return 0
+
+
+def render(rpn, sigs):
+    """A term written the way a Metamath file writes it.
+
+    A proof is reverse Polish because that is what the kernel reads, and a
+    `$a` states its claim in full, so anything the elaborator writes out has
+    to come back the other way."""
+    stack = []
+    for token in rpn.split():
+        sig = sigs[token]
+        count = len(sig.floats)
+        args = stack[len(stack) - count:] if count else []
+        del stack[len(stack) - count:]
+        bound = dict(zip(sig.push, args, strict=True))
+        stack.append(' '.join(bound.get(t, t) for t in sig.statement[1:]))
+    return stack[0]
+
+
+def term_of(rpn, sigs):
+    """The tree a run of reverse Polish builds."""
+    stack = []
+    for token in rpn.split():
+        sig = sigs[token]
+        if sig.kind == '$f':
+            stack.append(kernel.Term(variable=sig.statement[1]))
+            continue
+        count = len(sig.floats)
+        args = stack[len(stack) - count:] if count else []
+        del stack[len(stack) - count:]
+        stack.append(kernel.Term(token, tuple(args)))
+    return stack[0]
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__.strip().splitlines()[-1], file=sys.stderr)
@@ -2266,6 +2354,8 @@ def main(argv):
     wanted, setmm = argv[1], argv[2]
     root = Path(__file__).resolve().parent.parent
     records, theorems = corpus(root)
+    if wanted == '--definitions':
+        return write_definitions(records, read_library(setmm))
     grammar = Grammar.load(records)
     items = {r.name: r for r in records
              if r.kind in ('definition', 'theorem')}
@@ -2276,6 +2366,15 @@ def main(argv):
     thm = found[0]
     sorts_in_scope(thm, grammar)
     sigs = read_library(setmm)
+    # The constants the corpus introduces are not in the library, so a
+    # notation that reaches one needs them declared before it is read. They
+    # are the same statements `--definitions` writes into the file the proof
+    # includes, built here rather than read back from it.
+    for token, _name, body in definitions(records, sigs):
+        sigs[f'c{token}'] = Signature(f'c{token}', '$a', ('class', token))
+        sigs[f'df-{token}'] = Signature(
+            f'df-{token}', '$a',
+            ('|-', token, '=', *render(body, sigs).split()))
 
     work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()

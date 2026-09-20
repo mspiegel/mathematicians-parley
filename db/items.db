@@ -693,22 +693,27 @@ definition point
   first-used  isosceles
 
 definition angle
-  open        Needs an orientation convention before it can be stated. set.mm's
-              angle function is signed, so ∠PQR = −∠RQP up to a multiple of 2π,
-              while the school reader's angle is unsigned. Without the absolute
-              value, thm:angle-symmetric is false in set.mm's terms.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
+  symbol      ang
+  defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
+              vy cv vx cv cdiv co clog cfv cim cfv cmpo
+  metamath    set.mm writes this function inline in every theorem about it and
+              never names it, so the corpus declares the constant
+  first-used  isosceles
+  note        The angle the corpus writes is unsigned: ∠PQR is the absolute
+              value of ang applied to the two differences, which lands in
+              0 to π and makes thm:angle-symmetric true. ang itself is
+              signed, in −π to π, as set.mm has it. GEOMETRY.md weighs the
+              seven candidate geometries and takes this one.
 
-              No Metamath library has an unsigned angle. set.mm's geometry is
-              Tarski's axioms, where an angle is a congruence relation and not
-              a number, and its one numeric angle is analysis over ℂ and is
-              signed. Birkhoff's is signed too, mod 2π; SMSG's is the school
-              reader's, 0° to 180°, and is twenty-two postulates. Neither is
-              formalised anywhere. ELABORATION.md sets out what each reading
-              costs, including constructing the angle over the coordinate
-              plane rather than assuming one. That last is a chapter of work
-              and not a few lemmas: set.mm's three geometries do not meet,
-              and its plane theorems are all over ℂ. GEOMETRY.md weighs the
-              seven candidates and recommends the unsigned angle over ℂ.
+              This is the only definition in the corpus that introduces a
+              symbol; every other names a word for something set.mm already
+              has. See GOALS.md decision 12.
   first-used  isosceles
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.
