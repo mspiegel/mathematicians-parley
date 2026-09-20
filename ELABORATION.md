@@ -1,11 +1,11 @@
-# Elaborating three proofs by hand
+# Elaborating four proofs by hand
 
 Everything in this repository rests on one claim: that a readable proof becomes
 a Metamath proof that verifies. Nothing had tested it. The checker had grown to
 where it reads every formula, matches every citation against what it cites, and
 reports nothing, and none of that touches the kernel.
 
-So this is two proofs worked out by hand, end to end, to find what the
+So these are four proofs worked out by hand, end to end, to find what the
 expansion language has to be able to say. `GOALS.md` open question 4 says that
 language can wait until the work has shown which methods are needed and must be
 settled before any enriched proof is written. Both conditions are now met.
@@ -20,6 +20,10 @@ The third is the one the other two were written for. `thm:sqrt2-irrational` is
 the largest theorem in the corpus, it cites both of the others, and it nests
 three scopes inside a supposition. It is where the shapes the first two found
 either hold at size or do not.
+
+The fourth covers what the first three could not reach. None of them contains
+an `induction`, a `fix`, or a recursive definition, and `thm:sum-formula` has
+all three.
 
 **The labels are checked.** They were written from memory first and then read
 against set.mm, which has 119,378 labels. Every one used below exists and says
@@ -302,17 +306,66 @@ equivalence of `gcd = 1` with having no common divisor above 1. That is a proof
 of its own, so `thm:lowest-terms` is an axiom here, in the shape its readable
 statement has.
 
+## The fourth proof
+
+`thm:sum-formula`, eight steps, and the first here with an `induction`, a
+`fix`, or a recursive definition. It is the induction theorem from the
+candidate set `GOALS.md` question 2 names, though that question asks for the
+target proofs written at both reader levels, which is a different exercise
+from this one.
+
+**`induction` is one lemma, and its two hypotheses are the two blocks the text
+writes.** `nnind` wants `|- ps` — a closed statement — and
+`( y e. NN -> ( ch -> th ) )`. Those are exactly the readable proof's `base`
+block, which stands alone, and its `step` block, which is an implication out of
+`let k ∈ ℕ` and `assume IH`. Nothing had to be reshaped to fit.
+
+**But the claim has to be abstracted over a variable, which the text never
+does.** `nnind` also takes four biconditionals — the claim at `x = 1`, at
+`x = y`, at `x = y + 1`, and at `x = A` — and the readable line says only
+"induction on n starting at 1". So the elaborator has to read the claim as a
+function of the induction variable and build four instances of it by
+congruence. Every other method so far consumed claims whole; this is the first
+that takes one apart.
+
+**`fix` cost nothing of its own.** The `fix` block became `ex`, and its `let`
+and `assume` became the two conjuncts of an antecedent, exactly as `obtain` and
+`contradiction` do. Requirement 1 asserted this about `fix` without evidence;
+it now has some.
+
+**A recursive `def:` is a pair of theorems, one per clause.** `def:S` has two
+`then` groups and its `metamath` field names `fsum1, fsump1`. Both are right,
+and each is used where the readable proof uses the clause it states: `fsum1`
+at step 1.1, `fsump1` at step 1.4.1.
+
+**The finding that was not expected: a disjointness condition forced a step out
+of the scope the text puts it in.** `fsump1` requires that its bound variable
+not occur in the antecedent. The induction hypothesis is an equation between
+sums, so it mentions that variable. Step 1.4.1 is written inside the `fix`
+block, below `assume S(k) = k(k+1)/2`, and it cannot be proved there. It has to
+be proved under `k ∈ ℕ` alone and carried into the scope afterwards.
+
+That is new, and it is the first constraint found that is not about which
+lemma to emit but about *where in the proof a step may be emitted at all*. The
+readable order is still correct — the reader needs 1.4.1 where it stands — but
+the elaborator cannot simply walk the steps in order, accumulating the scope as
+it goes. It has to notice that a step's expansion is illegal under the current
+antecedent and hoist it. Nothing in the three earlier proofs suggested a step
+could fail for a reason that has nothing to do with what it claims.
+
 ## They verify
 
-All three proofs are checked by a verifier, against set.mm and against a copy
+All four proofs are checked by a verifier, against set.mm and against a copy
 truncated after the last statement they use. Odd-square and even-square are in
 `elaboration/parity.mm`; sqrt2-irrational is in `elaboration/sqrt2.mm`, which
 is built on `parity.mm` rather than on set.mm, so its citation of even-square
-is a citation of a proof rather than of an assumption. A deliberately altered
-conclusion is rejected in each file, so the check is real.
+is a citation of a proof rather than of an assumption; sum-formula is in
+`elaboration/sum-formula.mm` and Bezout's algebra step in
+`elaboration/algebra.mm`. A deliberately altered conclusion is rejected in
+each file, so the check is real.
 
 One statement in the two files is assumed: `thm:lowest-terms`, for the reason
-given above. Everything else, the five `algebra` steps included, is proved
+given above. Everything else, every `algebra` step included, is proved
 from set.mm's own theorems.
 
 | | readable steps | proof tokens |
@@ -320,7 +373,9 @@ from set.mm's own theorems.
 | `oddsq` | 6 | 1617 |
 | `evensq` | 6 | 342 |
 | `s2irr` | 21 | 17652 |
-| the five `algebra` steps | 5 | 3138 |
+| `sumform` | 8 | 4024 |
+| the named `algebra` steps | 5 | 3138 |
+| `balg1` | 1 | 19670 |
 
 Even-square is the encouraging row: six steps, three of them inside a
 contradiction block, and the citation of odd-square is one label. A theorem
@@ -349,9 +404,11 @@ of proof, from 4 KB of readable text.
 ## What algebra costs
 
 `GOALS.md` question 6 asks how large a closure method's expansion may be, and
-says it needs one of them written. Six are now written: every `algebra` step
-these three proofs contain, and the one step in the corpus that the other five
-do not resemble.
+says it needs one of them written. Seven are now written: every `algebra` step
+these four proofs contain, and the one step in the corpus that the others do
+not resemble. Six are named theorems and measured below; the seventh is
+sum-formula's step 1.4.3, which divides by 2 and is proved inline there, using
+`divdir`, `divcan3` and `adddir` in the same order as the rest.
 
 | | | tokens | compressed |
 | --- | --- | --- | --- |
@@ -397,9 +454,11 @@ the identity is.
 
 1. **Scopes, not just steps.** An `obtain` opens a scope that runs to the end of
    the proof, and every step inside it is elaborated in deduction form. The
-   same is true of `fix`, `cases` and `contradiction`, which already have block
-   structure in the text. The expansion of a step is therefore a function of
-   the step and of the scopes it sits inside, not of the step alone.
+   same holds for `contradiction`, and for `fix`, whose `let` and `assume`
+   become the conjuncts of an antecedent and whose block closes with `ex`.
+   `cases` is the one block form still untested. The expansion of a step is
+   therefore a function of the step and of the scopes it sits inside, not of
+   the step alone.
 
 2. **A path-directed congruence.** `substitute` needs the path from the root to
    the occurrence and one congruence lemma per step along it. Nothing is
@@ -457,13 +516,33 @@ the identity is.
     nested `/\`. Nothing in the readable layer decides, and decision 6 wants
     two elaborators to agree byte for byte, so the expansion language has to.
 
+13. **The claim read as a function of a variable.** `induction` needs the claim
+    at four instances of the variable being inducted on, and the text writes
+    none of them. Every other method consumes a claim whole; this one takes
+    one apart and rebuilds it by congruence, so the expansion language needs
+    to be able to say "this claim, with this name replaced".
+
+14. **A step may have to be hoisted out of its scope.** A kernel disjointness
+    condition can make a step's expansion illegal under the antecedent the
+    readable proof states it under, while the same step is provable one scope
+    out. Step 1.4.1 of sum-formula is the case: `fsump1` forbids its bound
+    variable in the antecedent, and the induction hypothesis contains it. So
+    an elaborator cannot walk the steps in order accumulating scope; it has to
+    be able to prove a step earlier than the text states it and carry the
+    result in. This is the only constraint found so far that is about where a
+    step may be emitted rather than about which lemma it emits.
+
 ## What this says about the corpus
 
-Nothing in any of the three proofs had to change, which is the encouraging
+Nothing in any of the four proofs had to change, which is the encouraging
 half. The steps the text writes are the steps the kernel needs, in the order it
 needs them, and the `requires` lines carry the side conditions rather than
-leaving them to be found. That is the design being tested and, on thirty-three
-steps across three proofs including the largest in the corpus, holding.
+leaving them to be found. That is the design being tested and, on forty-one
+steps across four proofs including the largest in the corpus, holding.
+
+The one qualification is step 1.4.1 of sum-formula, which the kernel will not
+accept where the text states it. The step is right and the order is right for
+a reader; what has to move is the elaborator's, not the author's.
 
 One thing outside the proofs had to change: two `metamath` fields in the
 database named the wrong set.mm theorems, because they were written for a
@@ -473,17 +552,17 @@ existing labels, correctly spelled, saying something true about integers. What
 they were not is what the expansion uses. That is a second kind of wrong field,
 past the misspelling the label audit catches, and only elaboration finds it.
 
-`algebra` carries five of these thirty-three steps and eighteen across the
-corpus, and it was the one method whose expansion was a question rather than a
-shape. Those five are now written, and so is the sixth that none of them
-resembles — the only step in the corpus whose coefficients are not constants.
-All six follow one order, none of them searched, and the cost is set by how
-many atoms have to be carried into ℂ. `algebra` is no longer the open end of
-the project.
+`algebra` carries six of these forty-one steps and eighteen across the corpus,
+and it was the one method whose expansion was a question rather than a shape.
+All six are written, and so is Bezout's, which none of them resembles — the
+only step in the corpus whose coefficients are not constants. All seven follow
+one order, none of them searched, and the cost is set by how many atoms have to
+be carried into ℂ. `algebra` is no longer the open end of the project.
 
 What remains open is `thm:lowest-terms`: a statement the corpus cites in one
-line, for which set.mm has nothing of the right shape. It is now the only
-assumption in the three proofs.
+line, for which set.mm has nothing of the right shape. It is the only
+assumption in the four proofs. `cases` is the one block form no proof here
+contains, and `inequalities` the one closure method with no expansion written.
 
 ## Keeping set.mm where the tools can see it
 
