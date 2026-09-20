@@ -252,15 +252,23 @@ theorem pos-int-nat
 theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
-  metamath    zeo
+  metamath    exmid
   first-used  sqrt2-irrational
+  note        def:odd makes "n is odd" the negation of "n is even", so this
+              statement is excluded middle, ( ph or not ph ), and the
+              expansion never uses H1. zeo says the same thing for an encoding
+              where "odd" means n - 1 is even, which is not the one def:odd
+              chose.
 
 theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
-  metamath    zeo2, oddm1even
+  metamath    notnot
   first-used  sqrt2-irrational
+  note        def:odd makes "n is odd" the negation of H2, so this statement is
+              double negation introduction, ( ph -> not not ph ), and the
+              expansion never uses H1.
 
 theorem exponent-step
   let a ∈ ℝ                                                           (H1)

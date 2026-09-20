@@ -229,12 +229,12 @@ story: from `2 || ( A ^ 2 )` conclude `-. -. 2 || ( A ^ 2 )`, which is
 `notnotd`.
 
 So two of the four cited theorems here reduce to propositional logic once the
-parity encoding is fixed, and their `metamath` fields say otherwise.
-`thm:even-or-odd` names `zeo` and `thm:not-both` names `zeo2, oddm1even`, which
+parity encoding is fixed, and their `metamath` fields said otherwise.
+`thm:even-or-odd` named `zeo` and `thm:not-both` named `zeo2, oddm1even`, which
 are theorems about `2 || ( N - 1 )` — the right labels for an encoding where
 "odd" means `n - 1` is even, and the wrong ones for the encoding `def:odd`
-chose. The proposal is to change those two fields to `exmid` and `notnot`; it
-is a change to the database and is not made here.
+chose. The fields now name `exmid` and `notnot`, and each carries a note saying
+why the arithmetic labels are not the ones.
 
 The readable proof never cites double negation, and its expansion is classical
 anyway. That is not smuggled in by a method: the classical content is `exmid`,
@@ -307,11 +307,12 @@ the `requires` lines carry the side conditions rather than leaving them to be
 found. That is the design being tested and, on two proofs, holding.
 
 One thing outside the proofs had to change: two `metamath` fields in the
-database name the wrong set.mm theorems, because they were written for a
+database named the wrong set.mm theorems, because they were written for a
 different encoding of oddness than `def:odd` settled on. Nothing detected that
-until a proof was expanded, and no check the project has could: the fields are
+until a proof was expanded, and no check the project has could: the fields were
 existing labels, correctly spelled, saying something true about integers. What
-they are not is what the expansion uses.
+they were not is what the expansion uses. That is a second kind of wrong field,
+past the misspelling the label audit catches, and only elaboration finds it.
 
 The discouraging half is that `algebra` carries two of the nine steps here and
 eighteen across the corpus, and it is the one method whose expansion is still a
