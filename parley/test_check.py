@@ -273,6 +273,44 @@ CASES = [
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)',
      'theorem set-builder-subset'),
+
+    ('introduce a symbol and say nothing it stands for',
+     'db/items.db',
+     'definition irrational\n  then        x is irrational',
+     'definition irrational\n  symbol      irr\n'
+     '  then        x is irrational',
+     'says nothing it stands for'),
+
+    ('define a term and name no symbol for it',
+     'db/items.db',
+     'definition irrational\n  then        x is irrational',
+     'definition irrational\n  defines     cr cq cdif\n'
+     '  then        x is irrational',
+     'names no symbol for it'),
+
+    ('introduce a symbol nothing writes',
+     'db/items.db',
+     'definition irrational\n  then        x is irrational',
+     'definition irrational\n  symbol      irr\n  defines     cr cq cdif\n'
+     '  then        x is irrational',
+     'cannot be reached'),
+
+    ('introduce a symbol in more than one token',
+     'db/items.db',
+     'definition irrational\n  then        x is irrational',
+     'definition irrational\n  symbol      irr ational\n'
+     '  defines     cr cq cdif\n  then        x is irrational',
+     'is not one token'),
+
+    ('introduce one symbol from two definitions',
+     'db/items.db',
+     'definition irrational\n'
+     '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ',
+     'definition irrational\n  symbol      dup\n  defines     cr\n'
+     '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ\n\n'
+     'definition twice\n  symbol      dup\n  defines     cq\n'
+     '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ',
+     'is already introduced by'),
 ]
 
 

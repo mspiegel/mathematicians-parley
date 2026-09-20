@@ -1050,6 +1050,64 @@ def check_statements(report, records, g):
                     report.say(r.path, no, f'{r.kind} {r.name}: {p.message}')
 
 
+def check_symbols(report, records):
+    """A definition that introduces a symbol says which, and is alone in it.
+
+    Most definitions name a word for something the library already has and
+    introduce nothing: `def:even` is divisibility by two, `def:irrational` is
+    membership of the reals minus the rationals. One that introduces a symbol
+    is the case decision 12 of `GOALS.md` is about, wanting a definitional
+    axiom "syntactically checked to introduce one new symbol and be
+    eliminable". It says so with a `symbol` field naming the token, and a
+    `defines` field giving the term the token stands for.
+
+    What is checked here is what the corpus knows about itself: that the two
+    fields come together, that the token is one word, that no two definitions
+    claim the same token, and that some notation actually reaches it. Whether
+    the token is already a label of the library, and whether the term parses
+    and closes over its own variables, wants the library — which this checker
+    does not read — and is checked where the library is."""
+    claimed = {}
+    for r in records:
+        if r.kind != 'definition':
+            continue
+        token = r.fields.get('symbol', '').strip()
+        body = r.fields.get('defines', '').strip()
+        if token and not body:
+            report.say(r.path, r.line,
+                       f'definition {r.name}: introduces {token!r} and says '
+                       f'nothing it stands for')
+        if body and not token:
+            report.say(r.path, r.line,
+                       f'definition {r.name}: defines a term and names no '
+                       f'symbol for it')
+        if not token:
+            continue
+        if len(token.split()) != 1:
+            report.say(r.path, r.line,
+                       f'definition {r.name}: {token!r} is not one token')
+            continue
+        if token in claimed:
+            report.say(r.path, r.line,
+                       f'definition {r.name}: {token!r} is already introduced '
+                       f'by definition {claimed[token]}')
+            continue
+        claimed[token] = r.name
+    # A symbol nothing reaches is a symbol the corpus cannot write. The
+    # constant a definition introduces is `c` and the token, by the naming
+    # set.mm uses for every other one.
+    reached = set()
+    for r in records:
+        if r.kind != 'notation':
+            continue
+        reached.update(r.fields.get('target', '').split())
+    for token, name in claimed.items():
+        if f'c{token}' not in reached:
+            report.say('db/items.db', 0,
+                       f'definition {name}: nothing writes c{token}, so the '
+                       f'symbol it introduces cannot be reached')
+
+
 def check_formulas(report, thm, g):
     """Every formula on the page parses, and parses one way.
 
@@ -1235,6 +1293,7 @@ def main(root):
 
     grammar = Grammar.load(records)
     check_statements(report, records, grammar)
+    check_symbols(report, records)
 
     library = Library(records, theorems, grammar)
 
