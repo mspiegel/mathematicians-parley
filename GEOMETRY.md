@@ -125,14 +125,64 @@ the branch cut, and on the cut both directions are π. `abs` is insensitive to
 the difference, so the lemma is true unconditionally — but proving it means
 handling the cut as a case, which is the one piece of real work.
 
+### The plane is 𝔼² on the page and ℂ in the kernel
+
+A point is a complex number in the kernel and must not be one on the page.
+`GRAMMAR.md` states the rule: the readable layer "hides class variables,
+set-existence hypotheses and the set-theoretic apparatus from the reader",
+and "a reader with school mathematics is not meant to learn that 2 is a pair
+of nested empty sets". A dull fact reading `A ∈ ℂ` is that leak, in the same
+category as `2 = {∅, {∅}}`, and the same section names the remedy: "the fix
+is a database addition, not a redesign".
+
+The addition is one notation, in the shape `number-systems` already uses:
+
+```
+notation plane
+  pattern     𝔼²
+  holes       none
+  yields      set
+  reads       the Euclidean plane
+  metamath    cc, the complex numbers read as the plane
+  target      cc
+```
+
+`𝔼²` is the established notation for the Euclidean plane as a geometric
+object, distinguished from ℝ² or ℂ as algebraic ones, which is the
+distinction being drawn. `def:point` then states `A is a point ↔ A ∈ 𝔼²`,
+every dull fact reads `requires A ∈ 𝔼²`, and ℂ appears nowhere above the
+`target` field. `def:irrational` is the precedent one level up: it names a
+word for `ℝ ∖ ℚ` rather than introducing a symbol.
+
+One thing to watch. `𝔼²` and `ℂ` are the same object in the kernel, so
+nothing in the terms stops a text writing `A · B` for two points. What stops
+it is the sort system — `point` and `number` are different sorts — and the
+`distance` record already leans on exactly that to keep `|CA|` from parsing
+as a product. The guard exists and has to cover the new notation too.
+
 ### What it costs, honestly
 
-**Non-degeneracy, and criterion 4 makes it expensive.** `angval` wants both
+**Non-degeneracy, and criterion 4 writes all of it.** `angval` wants both
 arguments non-zero, `ang180` wants three points pairwise distinct, `lawcos`
-wants two. Synthetic geometry says "A, B, C form a triangle" once; over ℂ
-each angle carries its own disequalities, and by criterion 4 every one of
-them is written on the page. `def:triangle` elaborates to a conjunction taken
-apart at nearly every step. This is the largest cost and it is structural.
+wants two. Synthetic geometry says "A, B, C form a triangle" once and passes
+it whole; over ℂ the phrase is taken apart and the pieces cited at each
+angle, which `isosceles` would do about sixteen times across twelve steps.
+
+That is an ordinary dull-fact load and not a reason against ℂ. `READERS.md`
+records the arithmetic load the corpus already pays without complaint — 97
+lines across 42 steps, one step carrying ten — which is about 2.3 a step
+against geometry's 1.3. Distinctness of an angle's points is exactly what the
+`requires` machinery is for.
+
+Two things do need doing, both one-off. The geometry items do not state the
+hypotheses they need: `thm:angle-symmetric` reads `let P be a point` three
+times and `then ∠PQR = ∠RQP`, with no disequality anywhere, and the same
+holds of `thm:side-angle-side` and `def:congruent`. Those statements are
+incomplete as written and would be whatever backend was chosen. And `A ≠ C`
+against `C ≠ A` is `necom`, which belongs in `targets.MEMBERSHIP` beside
+`nnz` and `zre` — a side condition the text never writes, settled by the
+elaborator. No reader should meet a `requires C ≠ A` under a page that says
+`A ≠ C`.
 
 **Angle addition.** `∠ABD + ∠DBC = ∠ABC` holds unconditionally for signed
 angles and needs a betweenness hypothesis for unsigned ones. Choosing
@@ -154,16 +204,20 @@ finished rather than a starting point — `lawcos`, `pythag`, `isosctr`,
 
 | entry | becomes |
 | --- | --- |
-| `notation point` | `target _1 cc wcel` |
+| `notation plane` | new: `𝔼²`, `target cc` |
+| `notation point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
 | `notation distance` | `target` the absolute value of a difference |
 | `notation angle` | `target` the absolute value of `ang` |
-| `def:point` | `A is a point ↔ A ∈ ℂ` |
+| `def:point` | `A is a point ↔ A ∈ 𝔼²` |
 | `def:angle` | the unsigned angle, and why it is unsigned |
 | `def:triangle` | the three disequalities |
 | `def:congruent` | three sides and three angles, as it already reads |
 | `thm:distance-symmetric` | `abssub` |
 | `thm:angle-symmetric` | provable from `arginv`, with the cut as a case |
 | `thm:side-angle-side` | provable, or the proof rerouted through `isosctr` |
+
+Three of the items gain the disequality hypotheses they presently omit, and
+`necom` joins the membership list.
 
 Six `open` markers cleared.
 
