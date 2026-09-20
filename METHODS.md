@@ -170,6 +170,15 @@ which decision 5 of `GOALS.md` requires. Its size grows with the number of
 atoms and cited facts, both of which are small: the largest step in the corpus
 has four atoms and two cited facts.
 
+Four steps are written out, in `elaboration/abs-bounds.mm`, and all four are
+easy. Two turn an equation into a non-strict inequality with `leid` and
+`breqtrd`; two chain through zero with `le0neg1` or `le0neg2`, then `letrd`,
+then `breqtrd`. They follow the same order `algebra` does — atoms into ℝ, the
+ordering lemma the shape calls for, then the rewrite — and none searched. What
+they establish is the lemma order for those shapes. None of them needs the
+elimination procedure above, so the method's hard half is still unwritten;
+`intermediate-value` is where its heaviest steps are.
+
 ---
 
 ## algebra

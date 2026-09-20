@@ -1,11 +1,11 @@
-# Elaborating four proofs by hand
+# Elaborating five proofs by hand
 
 Everything in this repository rests on one claim: that a readable proof becomes
 a Metamath proof that verifies. Nothing had tested it. The checker had grown to
 where it reads every formula, matches every citation against what it cites, and
 reports nothing, and none of that touches the kernel.
 
-So these are four proofs worked out by hand, end to end, to find what the
+So these are five proofs worked out by hand, end to end, to find what the
 expansion language has to be able to say. `GOALS.md` open question 4 says that
 language can wait until the work has shown which methods are needed and must be
 settled before any enriched proof is written. Both conditions are now met.
@@ -24,6 +24,10 @@ either hold at size or do not.
 The fourth covers what the first three could not reach. None of them contains
 an `induction`, a `fix`, or a recursive definition, and `thm:sum-formula` has
 all three.
+
+The fifth closes the last two gaps. `thm:abs-bounds` is the only small theorem
+with a `cases` block, which was the one block form nothing had tested, and its
+four `inequalities` steps are the first of that method to be expanded.
 
 **The labels are checked.** They were written from memory first and then read
 against set.mm, which has 119,378 labels. Every one used below exists and says
@@ -353,16 +357,58 @@ it goes. It has to notice that a step's expansion is illegal under the current
 antecedent and hoist it. Nothing in the three earlier proofs suggested a step
 could fail for a reason that has nothing to do with what it claims.
 
+## The fifth proof
+
+`thm:abs-bounds`, eight steps, the first here with a `cases` block and the
+first with an `inequalities` step expanded.
+
+**`cases` is one lemma, and it completes the four block forms.** `mpjaodan`
+takes `( ( ph /\ ps ) -> ch )`, `( ( ph /\ th ) -> ch )` and
+`( ph -> ( ps \/ th ) )`. Those are the two `case` blocks and the disjunction
+step 1 supplies. So every block the readable layer has — `obtain`,
+`contradiction`, `fix`, `cases` — opens by conjoining its assumption onto the
+antecedent and closes with one lemma, and requirement 1 is now evidence
+throughout rather than assertion in part.
+
+**`inequalities` has the same shape `algebra` does.** Its four steps here are
+two of each of two kinds. 2.2 and 2.6 turn an equation into a non-strict
+inequality: `leid` gives `x ≤ x`, and `breqtrd` rewrites one side using the
+definition. 2.3 and 2.7 chain through zero: `le0neg2` or `le0neg1` flips the
+sign, `letrd` composes, and `breqtrd` rewrites. The order is the same one
+`algebra` follows — carry the atoms into ℝ, apply the ordering lemma the shape
+calls for, then rewrite — and nothing searched.
+
+That is not the whole method. `METHODS.md` specifies `inequalities` as linear
+arithmetic over an ordered field, and none of these four needs a decision
+procedure. It establishes the order for the easy shapes, as the first five
+`algebra` steps did, and the equivalent of Bezout's step is still outstanding;
+`intermediate-value` is where it lives.
+
+**A `metamath` field may name something more general than the text.** `def:abs`
+says "if x < 0 then |x| = −x" and names `absnid`, which holds for `x ≤ 0`. The
+field is right and the extra generality is free, but case 2 has to get from
+the strict assumption to the non-strict one with `ltle` before the definition
+applies. So an unfolding can cost a step for no reason visible in either the
+readable line or the field.
+
+**`join` outside a contradiction does have an expansion, and its operands may
+need reordering.** Requirement 8 said `join` inside a `contradiction` emits
+nothing. Here it closes a `case` block instead, and it is `jca`. What the
+readable line gives is derivation order: 2.8 says "join 2.6, 2.7", where 2.6
+proved `−x ≤ |x|` and 2.7 proved `x ≤ |x|`, while the theorem states them the
+other way round. So the elaborator pairs the cited lines by what they claim,
+not by the order they are listed in.
+
 ## They verify
 
-All four proofs are checked by a verifier, against set.mm and against a copy
+All five proofs are checked by a verifier, against set.mm and against a copy
 truncated after the last statement they use. Odd-square and even-square are in
 `elaboration/parity.mm`; sqrt2-irrational is in `elaboration/sqrt2.mm`, which
 is built on `parity.mm` rather than on set.mm, so its citation of even-square
 is a citation of a proof rather than of an assumption; sum-formula is in
-`elaboration/sum-formula.mm` and Bezout's algebra step in
-`elaboration/algebra.mm`. A deliberately altered conclusion is rejected in
-each file, so the check is real.
+`elaboration/sum-formula.mm`, abs-bounds in `elaboration/abs-bounds.mm`, and
+Bezout's algebra step in `elaboration/algebra.mm`. A deliberately altered
+conclusion is rejected in each file, so the check is real.
 
 One statement in the two files is assumed: `thm:lowest-terms`, for the reason
 given above. Everything else, every `algebra` step included, is proved
@@ -374,6 +420,7 @@ from set.mm's own theorems.
 | `evensq` | 6 | 342 |
 | `s2irr` | 21 | 17652 |
 | `sumform` | 8 | 4024 |
+| `absbnd` | 8 | 1001 |
 | the named `algebra` steps | 5 | 3138 |
 | `balg1` | 1 | 19670 |
 
@@ -453,12 +500,12 @@ the identity is.
 ## What the expansion language has to have
 
 1. **Scopes, not just steps.** An `obtain` opens a scope that runs to the end of
-   the proof, and every step inside it is elaborated in deduction form. The
-   same holds for `contradiction`, and for `fix`, whose `let` and `assume`
-   become the conjuncts of an antecedent and whose block closes with `ex`.
-   `cases` is the one block form still untested. The expansion of a step is
-   therefore a function of the step and of the scopes it sits inside, not of
-   the step alone.
+   the proof, and every step inside it is elaborated in deduction form. All
+   four block forms now work the same way: the block's assumption is conjoined
+   onto the antecedent, and the block closes with one lemma — `rexlimdva` for
+   `obtain`, `pm2.65d` for `contradiction`, `ex` for `fix`, `mpjaodan` for
+   `cases`. The expansion of a step is therefore a function of the step and of
+   the scopes it sits inside, not of the step alone.
 
 2. **A path-directed congruence.** `substitute` needs the path from the root to
    the occurrence and one congruence lemma per step along it. Nothing is
@@ -492,7 +539,10 @@ the identity is.
 
 8. **Some methods are absorbed by their block.** `join` inside a
    `contradiction` emits nothing; `pm2.65d` closes the block and consumes both
-   joined lines. So the expansion of a block is not the concatenation of the
+   joined lines. Inside a `case` it emits `jca`, and pairs its cited lines by
+   what they claim rather than by the order the line lists them, since the
+   readable order is the order they were derived and the conclusion's order is
+   the theorem's. So the expansion of a block is not the concatenation of the
    expansions of its steps, and a method's specification has to say what it
    does in each block that can contain it.
 
@@ -534,11 +584,12 @@ the identity is.
 
 ## What this says about the corpus
 
-Nothing in any of the four proofs had to change, which is the encouraging
+Nothing in any of the five proofs had to change, which is the encouraging
 half. The steps the text writes are the steps the kernel needs, in the order it
 needs them, and the `requires` lines carry the side conditions rather than
-leaving them to be found. That is the design being tested and, on forty-one
-steps across four proofs including the largest in the corpus, holding.
+leaving them to be found. That is the design being tested and, on forty-nine
+steps across five proofs including the largest in the corpus and every block
+form the readable layer has, holding.
 
 The one qualification is step 1.4.1 of sum-formula, which the kernel will not
 accept where the text states it. The step is right and the order is right for
@@ -552,7 +603,7 @@ existing labels, correctly spelled, saying something true about integers. What
 they were not is what the expansion uses. That is a second kind of wrong field,
 past the misspelling the label audit catches, and only elaboration finds it.
 
-`algebra` carries six of these forty-one steps and eighteen across the corpus,
+`algebra` carries six of these forty-nine steps and eighteen across the corpus,
 and it was the one method whose expansion was a question rather than a shape.
 All six are written, and so is Bezout's, which none of them resembles — the
 only step in the corpus whose coefficients are not constants. All seven follow
@@ -561,8 +612,10 @@ be carried into ℂ. `algebra` is no longer the open end of the project.
 
 What remains open is `thm:lowest-terms`: a statement the corpus cites in one
 line, for which set.mm has nothing of the right shape. It is the only
-assumption in the four proofs. `cases` is the one block form no proof here
-contains, and `inequalities` the one closure method with no expansion written.
+assumption in the five proofs. Every block form is now expanded. What is not
+is the hard half of `inequalities` — the four steps here need no decision
+procedure, and `METHODS.md` specifies one. `intermediate-value` is where that
+half lives.
 
 ## Keeping set.mm where the tools can see it
 
