@@ -794,7 +794,11 @@ theorem triangle-rotate
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        Q, R, P form a triangle
-  open        follows from def:triangle once that is stated
+  metamath    gtrirotate, which this corpus proves in elaboration/geometry.mm.
+              A swap inverts the quotient that says the three are collinear; a
+              rotation takes it to 1 − (R − Q)/(P − Q), so this one rests on an
+              identity of the field rather than on one fact about reciprocals
+  target      gtrirotate
   first-used  isosceles
   note        These two replace a thm:triangle-permute whose conclusion, "any
               ordering of P, Q, R forms a triangle", was not a formula. A swap

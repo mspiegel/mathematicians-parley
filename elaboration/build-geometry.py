@@ -241,6 +241,217 @@ def triangle_lemmas(b):
     return out
 
 
+def rotation(b, out):
+    """Rotating the vertices, which moves the quotient rather than inverting.
+
+    Swapping two vertices takes (C − A)/(B − A) to its own inverse, but
+    rotating them takes it to 1 − (C − B)/(A − B), so the step is an
+    identity of the field rather than one fact about reciprocals. The
+    identity holds because (A − B) − (C − B) is A − C, and dividing that by
+    A − B splits into the two quotients."""
+    w3a = '( A e. CC /\\ B e. CC /\\ C e. CC )'
+    apart = '( ( A - B ) =/= 0 /\\ ( C - B ) =/= 0 )'
+    ph = f'( {w3a} /\\ {apart} )'
+    ab, cb, ac = '( A - B )', '( C - B )', '( A - C )'
+    quo, inv = f'( {ab} / {cb} )', f'( {cb} / {ab} )'
+    goal = '( ( C - A ) / ( B - A ) )'
+    psi = f'( {ph} /\\ {quo} e. RR )'
+
+    def under(claim, proof):
+        """One proof of ( ph -> claim ), lifted to ( psi -> claim )."""
+        return b.ap('adantr', {'ph': b.wff(ph), 'ps': b.wff(claim),
+                               'ch': b.wff(f'{quo} e. RR')}, proof)
+
+    def member(name, which):
+        return under(f'{name} e. CC', b.ap(
+            'adantr', {'ph': b.wff(w3a), 'ps': b.wff(f'{name} e. CC'),
+                       'ch': b.wff(apart)},
+            b.ap(which, {'ph': b.wff('A e. CC'), 'ps': b.wff('B e. CC'),
+                         'ch': b.wff('C e. CC')})))
+
+    mem = {'A': member('A', 'simp1'), 'B': member('B', 'simp2'),
+           'C': member('C', 'simp3')}
+    two = {'ph': b.wff(f'{ab} =/= 0'), 'ps': b.wff(f'{cb} =/= 0')}
+    nz = {}
+    for side, pick in ((ab, 'simpl'), (cb, 'simpr')):
+        nz[side] = under(f'{side} =/= 0', b.ap(
+            'adantl', {'ph': b.wff(apart), 'ps': b.wff(f'{side} =/= 0'),
+                       'ch': b.wff(w3a)},
+            b.ap(pick, two)))
+    cls = {}
+    for side, x, y in ((ab, 'A', 'B'), (cb, 'C', 'B'), (ac, 'A', 'C')):
+        cls[side] = b.ap('subcld', {'ph': b.wff(psi), 'A': b.rpn(x),
+                                    'B': b.rpn(y)}, mem[x], mem[y])
+
+    # 1 - ( C - B ) / ( A - B ) is real, because the quotient the step is
+    # given is, and a quotient is real exactly when its inverse is.
+    flipped_real = b.ap(
+        'mpd', {'ph': b.wff(psi), 'ps': b.wff(f'{quo} e. RR'),
+                'ch': b.wff(f'{inv} e. RR')},
+        b.ap('simpr', {'ph': b.wff(ph), 'ps': b.wff(f'{quo} e. RR')}),
+        b.ap('syl',
+             {'ph': b.wff(psi),
+              'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
+                          f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
+              'ch': b.wff(f'( {quo} e. RR -> {inv} e. RR )')},
+             b.ap('jca',
+                  {'ph': b.wff(psi),
+                   'ps': b.wff(f'( {ab} e. CC /\\ {ab} =/= 0 )'),
+                   'ch': b.wff(f'( {cb} e. CC /\\ {cb} =/= 0 )')},
+                  b.ap('jca', {'ph': b.wff(psi), 'ps': b.wff(f'{ab} e. CC'),
+                               'ch': b.wff(f'{ab} =/= 0')},
+                       cls[ab], nz[ab]),
+                  b.ap('jca', {'ph': b.wff(psi), 'ps': b.wff(f'{cb} e. CC'),
+                               'ch': b.wff(f'{cb} =/= 0')},
+                       cls[cb], nz[cb])),
+             b.ap('gtrirec', {'A': b.rpn(ab), 'B': b.rpn(cb)})))
+    whole_real = b.ap(
+        'syl2anc', {'ph': b.wff(psi), 'ps': b.wff('1 e. RR'),
+                    'ch': b.wff(f'{inv} e. RR'),
+                    'th': b.wff(f'( 1 - {inv} ) e. RR')},
+        b.ap('a1i', {'ph': b.wff('1 e. RR'), 'ps': b.wff(psi)}, '1re'),
+        flipped_real,
+        b.ap('resubcl', {'A': b.rpn('1'), 'B': b.rpn(inv)}))
+
+    # ( C - A ) / ( B - A ) = 1 - ( C - B ) / ( A - B ), in four moves.
+    split = b.ap(
+        'syl3anc',
+        {'ph': b.wff(psi), 'ps': b.wff(f'{ab} e. CC'),
+         'ch': b.wff(f'{cb} e. CC'),
+         'th': b.wff(f'( {ab} e. CC /\\ {ab} =/= 0 )'),
+         'ta': b.wff(f'( ( {ab} - {cb} ) / {ab} ) '
+                     f'= ( ( {ab} / {ab} ) - {inv} )')},
+        cls[ab], cls[cb],
+        b.ap('jca', {'ph': b.wff(psi), 'ps': b.wff(f'{ab} e. CC'),
+                     'ch': b.wff(f'{ab} =/= 0')}, cls[ab], nz[ab]),
+        b.ap('divsubdir', {'A': b.rpn(ab), 'B': b.rpn(cb), 'C': b.rpn(ab)}))
+    cancels = b.ap(
+        'oveq1d', {'ph': b.wff(psi), 'A': b.rpn(f'( {ab} / {ab} )'),
+                   'B': b.rpn('1'), 'C': b.rpn(inv), 'F': b.rpn('-')},
+        b.ap('syl2anc', {'ph': b.wff(psi), 'ps': b.wff(f'{ab} e. CC'),
+                         'ch': b.wff(f'{ab} =/= 0'),
+                         'th': b.wff(f'( {ab} / {ab} ) = 1')},
+             cls[ab], nz[ab], b.ap('divid', {'A': b.rpn(ab)})))
+    joins = b.ap(
+        'oveq1d', {'ph': b.wff(psi), 'A': b.rpn(f'( {ab} - {cb} )'),
+                   'B': b.rpn(ac), 'C': b.rpn(ab), 'F': b.rpn('/')},
+        b.ap('syl3anc', {'ph': b.wff(psi), 'ps': b.wff('A e. CC'),
+                         'ch': b.wff('C e. CC'), 'th': b.wff('B e. CC'),
+                         'ta': b.wff(f'( {ab} - {cb} ) = {ac}')},
+             mem['A'], mem['C'], mem['B'],
+             b.ap('nnncan2', {'A': b.rpn('A'), 'B': b.rpn('C'),
+                              'C': b.rpn('B')})))
+    negated = b.ap(
+        'syl3anc', {'ph': b.wff(psi), 'ps': b.wff(f'{ac} e. CC'),
+                    'ch': b.wff(f'{ab} e. CC'), 'th': b.wff(f'{ab} =/= 0'),
+                    'ta': b.wff(f'( -u {ac} / -u {ab} ) = ( {ac} / {ab} )')},
+        cls[ac], cls[ab], nz[ab],
+        b.ap('div2neg', {'A': b.rpn(ac), 'B': b.rpn(ab)}))
+    turned = b.ap(
+        'oveq12d', {'ph': b.wff(psi), 'A': b.rpn(f'-u {ac}'),
+                    'B': b.rpn('( C - A )'), 'C': b.rpn(f'-u {ab}'),
+                    'D': b.rpn('( B - A )'), 'F': b.rpn('/')},
+        b.ap('syl2anc', {'ph': b.wff(psi), 'ps': b.wff('A e. CC'),
+                         'ch': b.wff('C e. CC'),
+                         'th': b.wff(f'-u {ac} = ( C - A )')},
+             mem['A'], mem['C'],
+             b.ap('negsubdi2', {'A': b.rpn('A'), 'B': b.rpn('C')})),
+        b.ap('syl2anc', {'ph': b.wff(psi), 'ps': b.wff('A e. CC'),
+                         'ch': b.wff('B e. CC'),
+                         'th': b.wff(f'-u {ab} = ( B - A )')},
+             mem['A'], mem['B'],
+             b.ap('negsubdi2', {'A': b.rpn('A'), 'B': b.rpn('B')})))
+    same = b.ap(
+        '3eqtr3d', {'ph': b.wff(psi), 'A': b.rpn(f'( -u {ac} / -u {ab} )'),
+                    'B': b.rpn(f'( {ac} / {ab} )'), 'C': b.rpn(goal),
+                    'D': b.rpn(f'( 1 - {inv} )')},
+        negated, turned,
+        b.ap('eqtr3d', {'ph': b.wff(psi),
+                        'A': b.rpn(f'( ( {ab} - {cb} ) / {ab} )'),
+                        'B': b.rpn(f'( {ac} / {ab} )'),
+                        'C': b.rpn(f'( 1 - {inv} )')},
+             joins, b.ap('eqtrd',
+                         {'ph': b.wff(psi),
+                          'A': b.rpn(f'( ( {ab} - {cb} ) / {ab} )'),
+                          'B': b.rpn(f'( ( {ab} / {ab} ) - {inv} )'),
+                          'C': b.rpn(f'( 1 - {inv} )')}, split, cancels)))
+    reached = b.ap('eqeltrd', {'ph': b.wff(psi), 'A': b.rpn(goal),
+                               'B': b.rpn(f'( 1 - {inv} )'),
+                               'C': b.rpn('RR')}, same, whole_real)
+    says = f'|- ( {ph} -> ( {quo} e. RR -> {goal} e. RR ) )'
+    out.append(('gtricol', says,
+                b.ap('ex', {'ph': b.wff(ph), 'ps': b.wff(f'{quo} e. RR'),
+                            'ch': b.wff(f'{goal} e. RR')}, reached)))
+    b.define('gtricol', says)
+
+    # Rotating all three vertices, which the isosceles proof cites once.
+    points = '( A e. CC /\\ B e. CC /\\ C e. CC )'
+    given, want = triangle('A', 'B', 'C'), triangle('B', 'C', 'A')
+    held = f'( {points} /\\ {given} )'
+
+    def member(name, which):
+        return b.ap('adantr', {'ph': b.wff(points),
+                               'ps': b.wff(f'{name} e. CC'),
+                               'ch': b.wff(given)},
+                    b.ap(which, {'ph': b.wff('A e. CC'),
+                                 'ps': b.wff('B e. CC'),
+                                 'ch': b.wff('C e. CC')}))
+
+    mem = {'A': member('A', 'simp1'), 'B': member('B', 'simp2'),
+           'C': member('C', 'simp3')}
+    inner = '( ( -. A = B /\\ -. B = C ) /\\ -. A = C )'
+    straightness = '-. ( ( C - A ) / ( B - A ) ) e. RR'
+    whole = b.ap('simpr', {'ph': b.wff(points), 'ps': b.wff(given)})
+    apart_of = {'ph': b.wff(held), 'ps': b.wff(inner),
+                'ch': b.wff(straightness)}
+    distinct = b.ap('simpld', apart_of, whole)
+    straight = b.ap('simprd', apart_of, whole)
+    pair_of = {'ph': b.wff(held), 'ps': b.wff('( -. A = B /\\ -. B = C )'),
+               'ch': b.wff('-. A = C')}
+    pair = b.ap('simpld', pair_of, distinct)
+    not_ac = b.ap('simprd', pair_of, distinct)
+    two_of = {'ph': b.wff(held), 'ps': b.wff('-. A = B'),
+              'ch': b.wff('-. B = C')}
+    not_ab = b.ap('simpld', two_of, pair)
+    not_bc = b.ap('simprd', two_of, pair)
+
+    turned = b.ap(
+        'mpd', {'ph': b.wff(held), 'ps': b.wff(straightness),
+                'ch': b.wff(f'-. {quo} e. RR')},
+        straight,
+        b.ap('con3d', {'ph': b.wff(held), 'ps': b.wff(f'{quo} e. RR'),
+                       'ch': b.wff(f'{goal} e. RR')},
+             b.ap('syl', {'ph': b.wff(held), 'ps': b.wff(ph),
+                          'ch': b.wff(f'( {quo} e. RR -> {goal} e. RR )')},
+                  b.ap('jca', {'ph': b.wff(held), 'ps': b.wff(points),
+                               'ch': b.wff(apart)},
+                       b.ap('simpl', {'ph': b.wff(points),
+                                      'ps': b.wff(given)}),
+                       b.ap('jca', {'ph': b.wff(held),
+                                    'ps': b.wff(f'{ab} =/= 0'),
+                                    'ch': b.wff(f'{cb} =/= 0')},
+                            differs(b, held, 'A', 'B', mem['A'], mem['B'],
+                                    not_ab),
+                            differs(b, held, 'C', 'B', mem['C'], mem['B'],
+                                    flipped(b, held, 'B', 'C', not_bc)))),
+                  b.ap('gtricol'))))
+    built = b.ap(
+        'jca', {'ph': b.wff(held),
+                'ps': b.wff('( ( -. B = C /\\ -. C = A ) /\\ -. B = A )'),
+                'ch': b.wff(f'-. {quo} e. RR')},
+        b.ap('jca31', {'ph': b.wff(held), 'ps': b.wff('-. B = C'),
+                       'ch': b.wff('-. C = A'), 'th': b.wff('-. B = A')},
+             not_bc, flipped(b, held, 'A', 'C', not_ac),
+             flipped(b, held, 'A', 'B', not_ab)),
+        turned)
+    out.append((
+        'gtrirotate',
+        f'|- ( {points} -> ( {given} -> {want} ) )',
+        b.ap('ex', {'ph': b.wff(points), 'ps': b.wff(given),
+                    'ch': b.wff(want)}, built)))
+    return out
+
+
 HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
    What this corpus needs of the plane and set.mm does not state.
@@ -262,7 +473,7 @@ def main(argv):
     sigs = read_library(argv[1])
     b = Builder(sigs)
     print(HEAD, end='')
-    for label, statement, proof in triangle_lemmas(b):
+    for label, statement, proof in rotation(b, triangle_lemmas(b)):
         print(f'  {label} $p {statement} $=')
         line = '   '
         for token in proof.split():
