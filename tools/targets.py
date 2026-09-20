@@ -46,6 +46,26 @@ def unfolding(record):
     return entries[0], any('reversed' in e for e in entries[1:])
 
 
+def lemma(record):
+    """The set.mm theorem an item corresponds to, and what fills it.
+
+    A readable theorem and the lemma that supplies it are stated in different
+    variables, and nothing derives the correspondence: `thm:not-both` is
+    double negation and its `ph` is what the readable statement calls `n is
+    even`. So the item says it, as `notnot with ph := n is even`, and each
+    right-hand side is a formula in the item's own names."""
+    value = record.fields.get('target')
+    if not value or ' with ' not in value:
+        return (value.strip() if value else None), {}
+    head, _, rest = value.partition(' with ')
+    fills = {}
+    for piece in split_entries(rest):
+        name, _, formula = piece.partition(':=')
+        if formula:
+            fills[name.strip()] = formula.strip()
+    return head.strip(), fills
+
+
 def fill(pattern, holes):
     """A target with its holes replaced by the terms that stand in them."""
     return HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)

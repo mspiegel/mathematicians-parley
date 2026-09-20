@@ -402,31 +402,61 @@ not by the order they are listed in.
 ## Elaborated by a program
 
 The five proofs above were written by hand, and the requirements below were
-read off them. `tools/elaborate.py` implements that list for the methods
-odd-square uses, and
+read off them. `tools/elaborate.py` implements that list, and
 
 ```
 tools/elaborate.py odd-square <set.mm> > elaboration/odd-square.mm
+tools/elaborate.py even-square <set.mm> > elaboration/even-square.mm
 ```
 
-produces a Metamath proof that verifies against set.mm. Nothing in it is
-hand-written. The `algebra` steps are axioms it generates, as the first hand
-elaboration's were; everything else — the scope the `obtain` opens, the
-congruence path the `substitute` walks, the fold of the `calculation`, the
-witness of the final step, and every closure fact no `requires` line spells
-out — is built from the readable text.
+produce Metamath proofs that verify against set.mm. Nothing in either is
+hand-written. Odd-square's `algebra` steps are axioms the program generates,
+as the first hand elaboration's were; everything else — the scope the `obtain`
+opens, the congruence path the `substitute` walks, the fold of the
+`calculation`, the witness of the final step, and every closure fact no
+`requires` line spells out — is built from the readable text. Even-square
+assumes nothing at all.
+
+**Even-square is the one that matters, because it cites odd-square.** The
+corpus makes 66 `thm:` citations against 39 `def:` ones, so citing a theorem
+is the commonest thing a proof does, and odd-square contains none. Even-square
+makes four, one of them to a theorem this corpus proves rather than one set.mm
+supplies. The program emits that as a single label applied to the conjunction
+of the facts the step gives it — `cA oddsquar syl` — which is the claim the
+whole corpus rests on, now tested in code rather than by hand.
+
+It also needs a second block form. `contradiction` conjoins its supposition
+onto the antecedent exactly as `obtain` does and closes with `pm2.65d`, and
+the `join` inside it emits nothing: the close consumes both joined lines
+itself. So requirement 1 and requirement 8 are both executable now rather than
+observed.
+
+The two kinds of citation want different things from the database. A theorem
+this corpus proves needs nothing: the elaborator wrote its statement and knows
+its shape. A theorem set.mm supplies needs to say which lemma, and how its
+variables line up with the readable ones, because nothing derives that —
+`thm:not-both` is double negation and its `ph` is what the readable statement
+calls `n is even`. So those items carry `target notnot with ph := n is even`,
+and the elaborator instantiates the lemma, peels its antecedents one at a
+time, and answers each with a fact the step cites.
 
 **Byte-identical output is not what happens.** `GOALS.md` question 4 asks
 whether two elaborators must agree byte for byte or only produce something
-that verifies, and now there are two elaborations of one theorem to compare.
-They are not the same. The program's is 2,067 proof tokens against the hand's
-1,617, about a quarter larger, and it differs in more than length: where the
-hand proof pulled a fact out of the scope once and used it twice, the program
-derives it at each use, because nothing tells it that a fact is worth keeping.
-Both verify. So verifiability is what an elaborator can be held to, and
-byte-identity is a property of one implementation rather than of the language
-— unless the language is specified far more tightly than these requirements
-specify it.
+that verifies, and now there are two elaborations of each of two theorems to
+compare. None of them match.
+
+| | by hand | by program |
+| --- | --- | --- |
+| odd-square | 1617 | 2067 |
+| even-square | 342 | 440 |
+
+Both programs' proofs verify, and both are about a quarter larger for the same
+reason: where the hand proof pulled a fact out of the scope once and used it
+twice, the program derives it at each use, because nothing tells it that a
+fact is worth keeping. So verifiability is what an elaborator can be held to,
+and byte-identity is a property of one implementation rather than of the
+language — unless the language is specified far more tightly than these
+requirements specify it.
 
 **What the program needed that the databases did not say.** Writing it found
 two gaps, and both are now closed by a `target` field beside `metamath`.

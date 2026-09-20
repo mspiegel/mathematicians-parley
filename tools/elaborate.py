@@ -44,6 +44,29 @@ def seq(*parts):
     return ' '.join(p for p in parts if p)
 
 
+def label_of(name):
+    """What this elaborator calls a theorem it has written out."""
+    return name.replace('-', '')[:8]
+
+
+def implication(words):
+    """Split `( A -> B )` into A and B, or None if it is not one.
+
+    set.mm writes every compound term in brackets, so the arrow that splits
+    the whole is the one at depth zero."""
+    if len(words) < 3 or words[0] != '(' or words[-1] != ')':
+        return None
+    depth = 0
+    for i, word in enumerate(words[1:-1], 1):
+        if word == '(':
+            depth += 1
+        elif word == ')':
+            depth -= 1
+        elif word == '->' and depth == 0:
+            return words[1:i], words[i + 1:-1]
+    return None
+
+
 class Fact:
     """A claim, a proof of it at one scope, and the tree it was read from."""
 
@@ -61,9 +84,12 @@ class Elaborator:
         ('wceq', 0): 'eqeq1d', ('wceq', 1): 'eqeq2d',
         ('wcel', 0): 'eleq1d', ('wcel', 1): 'eleq2d'}
 
-    def __init__(self, thm, grammar, items, sigs, records):
+    def __init__(self, thm, grammar, items, sigs, records, theorems=()):
         self.thm, self.g, self.items, self.sigs = thm, grammar, items, sigs
         self.terms = targets.terms(records)
+        self.proofs = {t.name: t for t in theorems}
+        self.cited = []          # corpus theorems this proof leans on
+        self.joined = None
         self.names = {}          # readable name -> kernel term
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
@@ -276,16 +302,74 @@ class Elaborator:
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
-        closers = []
+        closers, blocks = [], []
         for step in self.thm.steps:
+            # A block's children are the steps numbered below it, so the
+            # block closes at the first step that is not one of them.
+            while blocks and len(step.number) <= len(blocks[-1][0].number):
+                scope, facts = self.close_block(blocks.pop(), facts, lines)
+            if step.openers:
+                blocks.append(self.open_block(step, scope, facts, lines))
+                scope, facts = blocks[-1][3], blocks[-1][4]
+                continue
             scope, facts, closers = self.step(step, scope, facts, lines,
                                               closers)
+        while blocks:
+            scope, facts = self.close_block(blocks.pop(), facts, lines)
 
         goal = self.term(self.read(self.thm.conclusion))
         proof = lines[self.last].proof
         for close in reversed(closers):
             proof = close(proof, goal)
         return goal, terms, proof
+
+    def open_block(self, step, scope, facts, lines):
+        """A block's assumption is conjoined onto the antecedent.
+
+        All four block forms do this; what differs is the lemma that closes
+        them. `ELABORATION.md` requirement 1."""
+        if step.just.head != 'contradiction':
+            raise Problem('', step.line,
+                          f'no expansion for a {step.just.head} block')
+        kind, text, label, _line, _part = step.openers[0]
+        node = self.read(text[len(kind):] if text.startswith(kind) else text)
+        supposed = self.term(node)
+        inner = seq(scope, supposed, 'wa')
+        lifted = {k: seq(inner, scope, k, seq(scope, supposed, 'simpl'), v,
+                         'syl')
+                  for k, v in facts.items()}
+        lifted[supposed] = seq(scope, supposed, 'simpr')
+        if label:
+            lines[label] = Fact(supposed, lifted[supposed], node)
+        self.joined = None
+        return step, scope, facts, inner, lifted, supposed
+
+    def close_block(self, block, facts, lines):
+        """A contradiction closes on the pair its `join` named.
+
+        pm2.65d takes the supposition implying a claim and the supposition
+        implying its negation, and gives the supposition negated. The join
+        itself emits nothing: this consumes both lines."""
+        step, scope, outer, _inner, _lifted, supposed = block
+        if not self.joined:
+            raise Problem('', step.line, 'the block closes on no join')
+        first, second = self.joined
+        if second != seq(first, 'wn'):
+            first, second = second, first
+        if second != seq(first, 'wn'):
+            raise Problem('', step.line,
+                          'the joined lines are not a contradiction')
+        number = '.'.join(str(p) for p in step.number)
+        claim = self.term(self.read(self.sentences(' '.join(step.claim))[-1]))
+        proof = seq(scope, supposed, first,
+                    seq(scope, supposed, first, facts[first], 'ex'),
+                    seq(scope, supposed, second, facts[second], 'ex'),
+                    'pm2.65d')
+        outer = dict(outer)
+        outer[claim] = proof
+        lines[number] = Fact(claim, proof)
+        self.last = number
+        return scope, outer
 
     def step(self, step, scope, facts, lines, closers):
         head = step.just.head
@@ -296,12 +380,16 @@ class Elaborator:
         node = self.read(self.sentences(' '.join(step.claim))[-1])
         term = self.term(node)
         how = {'algebra': self.algebra, 'substitute': self.substitute,
-               'calculation': self.calculation}.get(head)
+               'calculation': self.calculation, 'join': self.join}.get(head)
         if how is None and head.startswith('def:'):
             how = self.conclude
+        if how is None and head.startswith('thm:'):
+            how = self.cite
         if how is None:
             raise Problem('', step.line, f'no expansion for {head!r}')
         proof = how(step, node, term, scope, facts, lines)
+        if proof is None:                  # a join, which emits nothing
+            return scope, facts, closers
         lines[number] = Fact(term, proof, node)
         facts[term] = proof
         return scope, facts, closers
@@ -484,6 +572,107 @@ class Elaborator:
                        var, subject, lemma, 'syl'),
                    'mpbird')
 
+    def join(self, step, node, term, scope, facts, lines):
+        """Two lines paired. Inside a contradiction this emits nothing.
+
+        What closes the block consumes both joined lines itself, so the join
+        has no expansion of its own; it records which pair the block closes
+        on. `ELABORATION.md` requirement 8."""
+        self.joined = [lines[ref].term for ref in step.just.refs]
+        return None
+
+    def cite(self, step, node, term, scope, facts, lines):
+        """A theorem cited. Either set.mm supplies it or this corpus does."""
+        item = self.items[step.just.head.split(':', 1)[1]]
+        if 'proved-in' in item.fields:
+            return self.cite_corpus(step, term, scope, facts, lines, item)
+        return self.cite_library(step, term, scope, facts, lines, item)
+
+    def cite_library(self, step, term, scope, facts, lines, item):
+        """Apply the set.mm theorem the item's `target` names.
+
+        The lemma is stated in its own variables, the item in the readable
+        ones, and the `target` field says which is which. Once its variables
+        are filled the statement is instantiated and its antecedents peeled
+        off one at a time, each answered by a fact the step cites."""
+        label, fills = targets.lemma(item)
+        if not label:
+            raise Problem('', step.line,
+                          f'{step.just.head} has no target field')
+        saved = dict(self.names)
+        for name, value in instantiation(step.just.text):
+            self.names[name] = self.term(self.read(value))
+        filled = {v: self.term(self.read(f)) for v, f in fills.items()}
+        self.names = saved
+
+        sig = self.sigs[label]
+        text = {v: self.render(t) for v, t in filled.items()}
+        words = []
+        for token in sig.statement[1:]:
+            words += text[token].split() if token in text else [token]
+
+        # The lemma may be an implication, or two, before it reaches what the
+        # step claims. Each antecedent is a fact the step has.
+        wanted, goal = [], words
+        while ' '.join(goal) != self.render(term):
+            split = implication(goal)
+            if split is None:
+                raise Problem('', step.line,
+                              f'{label} does not reach what the step claims')
+            antecedent, goal = split
+            wanted.append(self.stating(' '.join(antecedent), facts))
+
+        proof = seq(*(filled[v] for v in sig.push), label)
+        if not wanted:
+            return seq(term, scope, proof, 'a1i')
+        for i, held in enumerate(wanted):
+            rest = term
+            for later in reversed(wanted[i + 1:]):
+                rest = seq(later, rest, 'wi')
+            proof = seq(scope, held, rest, facts[held], proof,
+                        'syl' if i == 0 else 'mpd')
+        return proof
+
+    def cite_corpus(self, step, term, scope, facts, lines, item):
+        """Apply a theorem this corpus proves, as this elaborator states it.
+
+        Its hypotheses became the antecedent of one implication, so citing it
+        is conjoining the facts the step supplies and applying one label."""
+        other = self.proofs[item.name]
+        if item.name not in self.cited:
+            self.cited.append(item.name)
+        saved, kept = dict(self.names), dict(self.sets)
+        spare = list(CLASS_NAMES)
+        written = dict(instantiation(step.just.text))
+        for kind, htext, _label, _line in other.hypotheses:
+            node = self.read(htext[len(kind):] if htext.startswith(kind)
+                             else htext)
+            if kind == 'let' and node.notation == 'membership':
+                name = node.children[0].text
+                self.names[name] = (self.term(self.read(written[name]))
+                                    if name in written else spare.pop(0))
+        wanted = [self.term(self.read(htext[len(kind):]
+                                      if htext.startswith(kind) else htext))
+                  for kind, htext, _l, _n in other.hypotheses]
+        self.names, self.sets = saved, kept
+
+        pair = wanted[0]
+        proof = facts[wanted[0]]
+        for extra in wanted[1:]:
+            proof = seq(scope, pair, extra, proof, facts[extra], 'jca')
+            pair = seq(pair, extra, 'wa')
+        pushed = [self.term(self.read(v)) for _n, v in
+                  instantiation(step.just.text)]
+        return seq(scope, pair, term, proof, *pushed, label_of(item.name),
+                   'syl')
+
+    def stating(self, wanted, facts):
+        """The term in scope that says this, found by what it reads as."""
+        for held in facts:
+            if self.render(held) == wanted:
+                return held
+        raise Problem('', 0, f'nothing in scope states {wanted}')
+
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition."""
         if goal in facts:
@@ -585,16 +774,24 @@ def main(argv):
     sorts_in_scope(thm, grammar)
     sigs = read_library(setmm)
 
-    work = Elaborator(thm, grammar, items, sigs, records)
+    work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()
     antecedent = hypotheses[0]
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')
 
     print(f'$( {thm.name}, elaborated from {thm.path} by tools/elaborate.py.')
-    print('   The algebra steps are axioms; everything else is built. $)')
+    if work.axioms:
+        print('   Its algebra steps are axioms; everything else is built. $)')
+    else:
+        print('   Nothing here is assumed. $)')
     print()
-    print('$[ set.mm $]')
+    # A theorem this corpus proves is cited as one label, so the file that
+    # elaborated it is read first and set.mm comes in through it.
+    for name in work.cited:
+        print(f'$[ {name}.mm $]')
+    if not work.cited:
+        print('$[ set.mm $]')
     print()
     for label, statement in work.axioms:
         print(f'{label} $a {statement} $.')

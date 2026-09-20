@@ -1,5 +1,5 @@
 $( odd-square, elaborated from proof/sqrt2-irrational.proof by tools/elaborate.py.
-   The algebra steps are axioms; everything else is built. $)
+   Its algebra steps are axioms; everything else is built. $)
 
 $[ set.mm $]
 
