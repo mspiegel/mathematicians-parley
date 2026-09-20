@@ -552,7 +552,9 @@ class Elaborator:
         for slot in asks:
             for open_slot in slot.names() - set(binding):
                 binding[open_slot] = kernel.Term('cvv')
-        pushed = [var if v == sig.bound()
+        # A definition that introduces a name says which variable it takes;
+        # one that does not leaves the lemma's own, which the match fixed.
+        pushed = [var if v == sig.bound() and var is not None
                   else binding[v].rpn(self.flabel) if v in binding
                   else self.flabel[v]
                   for v in sig.push]
@@ -741,7 +743,25 @@ class Elaborator:
                 raise Problem('', line, f'define {label} says nothing')
             if name in self.names:
                 raise Problem('', line, f'{name} is already named')
-            self.names[name] = self.term(self.read(body.strip()))
+            self.names[name] = self.apart(self.term(self.read(body.strip())))
+
+    def apart(self, rpn):
+        """A term whose bound names are ones nothing else is using.
+
+        A `define` names a thing by a body that binds a name of its own,
+        and the proof may go on to fix a name spelt the same way: Cantor's
+        B collects the x that its own image leaves out, and then fixes an x
+        to reason about. Those are two names, and the kernel has to see two
+        or the lemma that generalises over one will find the other."""
+        whole = self.to_term(rpn)
+        binding = {}
+        for said in sorted(whole.names()):
+            label = self.flabel.get(said)
+            if label and self.sigs[label].statement[0] == 'setvar':
+                fresh = self.spare_var()
+                binding[said] = kernel.Term(
+                    variable=self.sigs[fresh].statement[1])
+        return whole.substitute(binding).rpn(self.flabel)
 
     def run(self):
         nodes = self.hypotheses()
@@ -1408,7 +1428,6 @@ class Elaborator:
                            facts, lines)
 
     def one_equivalent(self, lemma, step, term, scope, facts, lines):
-        held = self.sigs[lemma].bound()
         # What a lemma's right side says beyond what its left fixes can
         # only come from the lines the step cites, offered in the order the
         # step writes them.
@@ -1416,9 +1435,10 @@ class Elaborator:
         hint = said[0] if said else None
         for extra in said[1:]:
             hint = seq(hint, extra, 'wa')
-        says, right = self.unfolding(step, lemma, term, None,
-                                     self.flabel[held] if held else None,
-                                     None, scope, facts, hint=hint)
+        # No name is introduced here: the claim already carries whatever the
+        # lemma binds, and the match is what says which variable that is.
+        says, right = self.unfolding(step, lemma, term, None, None, None,
+                                     scope, facts, hint=hint)
         return seq(scope, term, right,
                    self.settle(self.to_term(right), scope, facts), says,
                    'mpbird')
@@ -1502,16 +1522,21 @@ class Elaborator:
         The claim decides, and what the lemma states decides with it. A
         definition reaching an existence claim supplies a witness; one whose
         right side the step already holds is read right to left; one whose
-        left side the step holds is unfolded and taken apart."""
-        lemma, _flipped = targets.unfolding(item)
-        whole = self.syntax.statement(self.sigs[lemma])
-        while whole.label == 'wi':
-            whole = whole.children[1]
-        if whole.label != 'wb' or whole.children[1].label == 'wrex':
-            return self.conclude
-        if kernel.match(whole.children[0], self.to_term(term), {},
-                        whole.names()) is not None:
-            return self.equivalent
+        left side the step holds is unfolded and taken apart.
+
+        Every lemma the target names is asked, not just the first: `rabid`
+        and `elrab` say the same thing of a set-builder and differ only in
+        what they ask, so which of the two fits says nothing about which
+        way the definition is being read."""
+        for lemma in targets.clauses(item):
+            whole = self.syntax.statement(self.sigs[lemma])
+            while whole.label == 'wi':
+                whole = whole.children[1]
+            if whole.label != 'wb' or whole.children[1].label == 'wrex':
+                return self.conclude
+            if kernel.match(whole.children[0], self.to_term(term), {},
+                            whole.names()) is not None:
+                return self.equivalent
         return self.unfolded
 
     def take_definition(self, step, node, term, scope, facts, lines):
