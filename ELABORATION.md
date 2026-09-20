@@ -956,9 +956,49 @@ The obstacle is not which axioms. It is that the readable layer writes a
 **measured** angle, and measure is the thing synthetic geometry deliberately
 does without. A number appears only in a metric treatment.
 
+### Birkhoff and SMSG, and which of them has the reader's angle
+
+Two more axiom systems are worth writing down, because the obvious guess
+about them is wrong and someone will make it again.
+
+**Birkhoff's is metric and still does not help.** Its four postulates take
+distance and angle measure as primitives, which is the property the readable
+layer wants, and that makes it the natural thing to reach for. But Postulate
+III puts the rays through a point in correspondence with the reals **mod 2π**,
+and Postulate IV states similarity with `∠B'A'C' = ±∠BAC`. The `±` is there
+because the measure is signed. In an isosceles triangle the base angles come
+out `+θ` and `−θ`, so `∠CAB = ∠CBA` is false in Birkhoff proper, exactly as
+it is over ℂ. Metric and unsigned are different properties and only the
+second is the one this corpus needs.
+
+**SMSG has the reader's angle, and is the largest of the options.** Its
+Postulate 11 reads "to every angle there corresponds a real number between 0°
+and 180°" — unsigned by axiom, which is the school reader's angle and no
+other system's. SMSG is a modification of Birkhoff made for teaching, and it
+is twenty-two postulates chosen for teachability rather than independence:
+11, 12 and 13 are all protractor axioms. Formalising a deliberately redundant
+system buys no economy for the redundancy.
+
+Neither is formalised anywhere. GeoCoq lists a "Birkhoff-style system" among
+the approaches it surveys, but `theories/Axioms` holds Tarski, Hilbert,
+Beeson, Makarios and Gupta and no Birkhoff; its proved equivalences are to
+Tarski. Isabelle has Hilbert, Mizar has Tarski, mathlib is analytic.
+
+Two things settle it against both. An axiom system owes a consistency
+argument, and the model either would need is the coordinate plane — so
+neither replaces building that, each sits on top of it. And the foundation
+is below the `target` field: Reader A meets `thm:side-angle-side` as a cited
+item, and whether it resolves to an SMSG postulate or to a computation from
+`lawcos` leaves the readable text byte for byte the same. The argument from
+the reader, which is SMSG's whole case, does not reach the reader.
+
+If the corpus ever does want a geometry that is axiomatic and matches what a
+school reader was taught, SMSG is the target and the coordinate plane is the
+model it would need first.
+
 ### What that leaves
 
-Three readings, and the corpus has to choose one before `isosceles` can be
+Four readings, and the corpus has to choose one before `isosceles` can be
 elaborated. None is an implementation question.
 
 1. **ℂ, citing the result.** set.mm proves this theorem. `isosctr` is
@@ -975,6 +1015,29 @@ elaborated. None is an implementation question.
 3. **Tarski.** `tgsas` is free and so is the rest of the apparatus. The
    readable layer would say angles are congruent rather than equal, which
    changes the theorem statement and five steps.
+4. **The coordinate plane, with the angle constructed rather than assumed.**
+   A point is a member of `EE 2`, distance is the structure's own `dist`,
+   and
+
+   ```
+   ∠PQR := ( arccos ` ( ⟨ P − Q , R − Q ⟩ / ( |P − Q| · |R − Q| ) ) )
+   ```
+
+   Cauchy–Schwarz puts the ratio in `[ -u 1 , 1 ]` by `ipcau`, `acosrecl`
+   makes it real there and `acosbnd` lands it in `( 0 [,] _pi )`. The angle
+   is unsigned by construction rather than by a convention or an absolute
+   value applied afterwards, so `∠CAB = ∠CBA` is true as the text writes it.
+   `rrxip`, `rrxcph`, `df-ehl` and `lawcos` are the rest of what it needs,
+   and all are in set.mm.
+
+The fourth is the only one that postulates nothing. It is a definition in
+ZFC, so there is no consistency to argue and no axioms to state, and
+`eengtrkg` leaves Tarski's apparatus available above the same points. Two
+of the open items stop being open under it: `thm:angle-symmetric` reduces to
+`⟨u,v⟩ = ⟨v,u⟩`, and `thm:side-angle-side` stops being an axiom owed and
+becomes a computation, since the angle is then a function of the three
+distances and `lawcos` relates them. `def:congruent`'s six equations collapse
+to three.
 
 What is worth recording past the choice is that `isosctr` exists. `def:angle`
 frames the signed angle as an obstacle, and the theorem set.mm proves with it

@@ -701,7 +701,11 @@ definition angle
               No Metamath library has an unsigned angle. set.mm's geometry is
               Tarski's axioms, where an angle is a congruence relation and not
               a number, and its one numeric angle is analysis over ℂ and is
-              signed. ELABORATION.md sets out what each reading costs.
+              signed. Birkhoff's is signed too, mod 2π; SMSG's is the school
+              reader's, 0° to 180°, and is twenty-two postulates. Neither is
+              formalised anywhere. ELABORATION.md sets out what each reading
+              costs, including constructing the angle over the coordinate
+              plane rather than assuming one.
   first-used  isosceles
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.

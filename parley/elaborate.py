@@ -30,6 +30,7 @@ import sys
 import typing
 from pathlib import Path
 
+import field
 import kernel
 import linear
 import targets
@@ -1369,8 +1370,41 @@ class Elaborator:
         raise Problem('', step.line, 'the substitution misses the claim')
 
     def algebra(self, step, node, term, scope, facts, lines):
-        """Not expanded. The claim becomes an axiom under its own requires."""
+        """Decided by `parley/field.py`, and then taken.
+
+        The same division of labour `inequalities` has: what the step claims
+        is checked against what it cites, and a step that is not an identity
+        of the field is refused rather than assumed. Emitting the proof of a
+        decided step is what remains."""
+        self.decide_field(step, term, lines)
         return self.assume(step, term, scope, facts, 'alg', lines)
+
+    def decide_field(self, step, term, lines):
+        """Refuse an `algebra` step that is not an identity.
+
+        With nothing cited the claim must vanish outright; with equations
+        cited it must be a combination of them. That the denominators are
+        not zero is not decided here — the text writes those as `requires`
+        lines, which is what `METHODS.md` means by them being hypotheses of
+        the method."""
+        claim = field.equation(self.to_term(term), self.flabel)
+        if claim is None:
+            return                               # not an equation this decides
+        given = []
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                one = field.equation(self.to_term(said), self.flabel)
+                if one is not None:
+                    given.append(one)
+        atoms = {a for p in [*given, claim] for m in p.terms for a, _ in m}
+        if not field.follows(given, claim, atoms):
+            raise Problem('', step.line,
+                          f'{self.render(term)} is not an identity, nor does '
+                          f'it follow from what step {fmt(step.number)} '
+                          f'cites')
 
     def arithmetic(self, step, node, term, scope, facts, lines):
         """Not expanded either. `METHODS.md` says it is closed numerals."""
@@ -1390,10 +1424,10 @@ class Elaborator:
         A step that cites nothing decidable is taken as before: the method
         carries steps whose facts are not linear, and `METHODS.md` refuses
         those rather than this."""
-        self.decide(step, term, lines)
+        self.decide_order(step, term, lines)
         return self.assume(step, term, scope, facts, 'ine', lines)
 
-    def decide(self, step, term, lines):
+    def decide_order(self, step, term, lines):
         """Refuse an `inequalities` step that does not follow from its lines.
 
         A cited line of several sentences supplies each sentence that is a
