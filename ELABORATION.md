@@ -402,10 +402,10 @@ not by the order they are listed in.
 ## Elaborated by a program
 
 The five proofs above were written by hand, and the requirements below were
-read off them. `tools/elaborate.py` implements that list, and
+read off them. `parley/elaborate.py` implements that list, and
 
 ```
-tools/elaborate.py <theorem> <set.mm> > elaboration/auto/<theorem>.mm
+parley/elaborate.py <theorem> <set.mm> > elaboration/auto/<theorem>.mm
 ```
 
 produces a Metamath proof that verifies against set.mm. Three theorems go
@@ -521,7 +521,7 @@ claims and to be checked by a person, and they do that. What they lacked was a
 field an elaborator could read, and it took a working elaborator to say
 exactly which field that was.
 
-What stayed in `tools/targets.py` is closure: which set.mm lemma puts a sum of
+What stayed in `parley/targets.py` is closure: which set.mm lemma puts a sum of
 integers in ℤ, and which moves an integer into ℂ. That is a fact about the
 library rather than about the readable corpus, and no field of a readable
 database is obviously its home.

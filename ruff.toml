@@ -1,4 +1,4 @@
-# Lint settings for `tools/`. The corpus is not Python and nothing else here is
+# Lint settings for `parley/`. The corpus is not Python and nothing else here is
 # either, so this file covers the checker and the parser it is built on.
 #
 # The tools were written to about this width before there was a linter, so the

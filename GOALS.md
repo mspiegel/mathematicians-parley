@@ -349,7 +349,7 @@ answer later would invalidate work already done.
    before any enriched proof is written, since every enriched proof depends on
    it.
 
-   The second half has an answer. `tools/elaborate.py` elaborates
+   The second half has an answer. `parley/elaborate.py` elaborates
    `thm:odd-square` from the readable text, and its proof verifies and is not
    the one written by hand: 2,067 proof tokens against 1,617, differing in
    which facts it keeps rather than only in length. So two elaborators

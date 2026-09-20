@@ -11,7 +11,7 @@ ruff is not vendored and not installed by this script. If it is missing, say
 
 or run it from a virtual environment; the gate looks for it on PATH.
 
-Usage:  tools/gate.py
+Usage:  parley/gate.py
 Exits non-zero when anything is not green.
 """
 import shutil
@@ -38,10 +38,10 @@ def main():
     elif not run('ruff', [ruff, 'check', '.']):
         failed.append('ruff')
 
-    if not run('checker', [sys.executable, str(ROOT / 'tools' / 'check.py')]):
+    if not run('checker', [sys.executable, str(ROOT / 'parley' / 'check.py')]):
         failed.append('checker')
     if not run('planted defects',
-               [sys.executable, str(ROOT / 'tools' / 'test_check.py')]):
+               [sys.executable, str(ROOT / 'parley' / 'test_check.py')]):
         failed.append('planted defects')
 
     print()

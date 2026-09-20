@@ -1,7 +1,7 @@
 # What the closure methods have to do
 
 Open question 6 in `GOALS.md` asks how much "by algebra" must carry. This
-answers it from the corpus rather than from intuition. `tools/check.py` accepts
+answers it from the corpus rather than from intuition. `parley/check.py` accepts
 four methods without examining them, and lists the steps that rest on each. Of
 247 steps, 61 do:
 

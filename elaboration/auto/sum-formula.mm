@@ -1,4 +1,4 @@
-$( sum-formula, elaborated from proof/sum-formula.proof by tools/elaborate.py.
+$( sum-formula, elaborated from proof/sum-formula.proof by parley/elaborate.py.
    Everything is built except the statements below, which are
    taken as the readable lines state them: a closure method
    the elaborator does not expand, or a definition the

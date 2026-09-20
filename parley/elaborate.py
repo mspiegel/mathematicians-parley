@@ -19,7 +19,7 @@ method, or a definition the database gives no target for. Each becomes an
 axiom claiming exactly what the readable line claims, under the `requires`
 lines that line carries.
 
-Usage:  tools/elaborate.py <theorem> <set.mm>
+Usage:  parley/elaborate.py <theorem> <set.mm>
 """
 import re
 import sys
@@ -1018,7 +1018,7 @@ def main(argv):
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')
 
-    print(f'$( {thm.name}, elaborated from {thm.path} by tools/elaborate.py.')
+    print(f'$( {thm.name}, elaborated from {thm.path} by parley/elaborate.py.')
     if work.axioms:
         print('   Everything is built except the statements below, which are')
         print('   taken as the readable lines state them: a closure method')

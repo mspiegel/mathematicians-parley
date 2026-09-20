@@ -173,7 +173,7 @@ repaired.
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
   the chain cites that number.
-- **`tools/gate.py` is what must be green before a commit.** It runs ruff over
+- **`parley/gate.py` is what must be green before a commit.** It runs ruff over
   the tools, the checker over the corpus, and the planted defects that prove
   the checker still catches things. The lint settings are in `ruff.toml`, which
   turns off the ambiguous-character rules because this corpus is written in the

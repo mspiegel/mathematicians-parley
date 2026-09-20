@@ -5,7 +5,7 @@ Each case copies the corpus, makes one edit that should be a defect, and
 requires that the reported problems change. A checker that passes a clean
 corpus proves nothing on its own; this is the half that matters.
 
-Usage:  tools/test_check.py
+Usage:  parley/test_check.py
 """
 import io
 import shutil

@@ -7,7 +7,7 @@ parses one way, that a citation supplies the hypotheses of what it cites, and
 that its claim is what that item concludes. It does not build the kernel proof;
 that needs the elaborator.
 
-Usage:  tools/check.py [root]
+Usage:  parley/check.py [root]
 Exits non-zero when anything is reported.
 """
 import re

@@ -1,4 +1,4 @@
-$( even-square, elaborated from proof/sqrt2-irrational.proof by tools/elaborate.py.
+$( even-square, elaborated from proof/sqrt2-irrational.proof by parley/elaborate.py.
    Nothing here is assumed. $)
 
 $[ odd-square.mm $]
