@@ -1,13 +1,13 @@
 # Which geometry this project should stand on
 
-`proof/isosceles.proof` is the one proof in the corpus that does not
-elaborate, and six of the seven items it cites are marked `open`. That is a
-question about foundations rather than about tools, and seven answers have
-been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff, SMSG,
-and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
+`proof/isosceles.proof` is the corpus's one geometry proof. What it stands on
+is a question about foundations rather than about tools, and seven answers
+have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
+SMSG, and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
 
 This document settles it against criteria taken from `GOALS.md` and
-`READERS.md` rather than against a judgement about geometry.
+`READERS.md` rather than against a judgement about geometry. The answer is
+the complex plane, and the proof elaborates to a file that assumes nothing.
 
 ## The criteria, and where each comes from
 
@@ -224,38 +224,40 @@ Three of the items gain the disequality hypotheses they presently omit, and
 
 Six `open` markers cleared.
 
-## What it waits on
+## What it took
 
-`def:angle` would be the first definition in this corpus that introduces a
-symbol. set.mm has no `cang` and no `df-ang`: what its theorems call `F` is a
-class variable pinned by an essential hypothesis, carried by every statement
-in the section. So the corpus has two ways to write an angle, and only one of
-them is free.
+`def:angle` is the first definition in this corpus that introduces a symbol,
+and the corpus emits it: `definitions.mm` declares `ang` and `df-ang`, which
+is decision 12 of `GOALS.md` exercised for the first time. Inlining the
+function instead would have worked and would have left the one definition
+this corpus introduces unchecked, which is the thing that decision exists to
+prevent.
 
-**Inline the function.** The `target` carries the whole
-`( x e. ( CC \ { 0 } ) , y e. ( CC \ { 0 } ) |-> ( Im ` ( log ` ( y / x ) ) ) )`
-wherever a constant would sit, about twenty-five tokens, once per angle
-mention. Nothing new is needed but `eqid` in the membership list, so the
-`F = ( ... )` hypothesis discharges against itself. `GOALS.md` permits it
-outright — stored steps "can stay as large and unreadable as they like" — and
-the two bound variables it carries are already covered, since `self.taken`
-excludes what a notation's target binds.
+That choice paid for itself immediately. `lawcos` takes the angle function as
+a hypothesis, and the function it takes is `df-ang` to the token, so the law
+of cosines applies with the hypothesis discharged by the corpus's own
+definition. Had the angle been inlined at each mention, or spelt any other
+way, it would not have.
 
-**Or emit a definition**, giving the corpus the constant set.mm lacks. That
-is decision 12 of `GOALS.md`, which wants a definitional axiom "syntactically
-checked to introduce one new symbol and be eliminable, so that 'by definition
-of' is safe and the kernel's 'no axioms' property is not on the honour
-system".
+Four items needed theorems set.mm does not have and the readable layer cannot
+state, since saying what they say means dividing one point by another and
+naming the branch cut of the complex logarithm. They are proved below the
+readable layer, in `elaboration/geometry.mm`, which is a third way to supply
+an item alongside a set.mm label and a proof file:
 
-`DATABASE.md` records why that has never been exercised: every `def:` in the
-corpus names a word for a construct set.mm already has, so "these items
-introduce no symbol, so that check does not apply to them as written, and
-what it should say instead is open". The angle is the first item that would
-introduce one, which makes it the first case decision 12 was written for.
+| lemma | carries |
+| --- | --- |
+| `gtriswap` | swapping two vertices inverts the collinearity quotient |
+| `gtrirotate` | rotating them takes it to `1 − (C−B)/(A−B)` |
+| `gangsym3` | the two directions of an angle have one size |
+| `gsas` | side-angle-side |
 
-So the geometry waits on decision 12 rather than the other way round. Doing
-it by inlining would work and would leave the one definition this corpus
-introduces unchecked, which is the thing the decision exists to prevent.
+`gsas` is the law of cosines at each of three vertices in each of two
+triangles, six applications which are cyclic rotations of one lemma. It holds
+because the angle is unsigned: `cos11` is one to one on `0` to `π` and on
+nothing wider, so a signed angle could not be recovered from its cosine. The
+choice that makes `thm:angle-symmetric` true is the same one that makes
+side-angle-side provable.
 
 ## What would change the answer
 
