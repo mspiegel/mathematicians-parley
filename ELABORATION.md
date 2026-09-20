@@ -929,6 +929,33 @@ angcld   ( X F Y ) e. ( -u _pi (,] _pi )
 which is **signed**. `def:angle` already says what that costs: with a signed
 angle `thm:angle-symmetric` is false, since ∠PQR = −∠RQP.
 
+### Hilbert, and why writing it would not help
+
+`thm:side-angle-side` records that its statement is "an axiom in Euclid and
+in Hilbert", which invites the question of whether Hilbert could be written
+for Metamath. It could, by either of two routes, and the mathematics is
+charted: Braun and Narboux derived each of Tarski's and Hilbert's axiom
+systems from the other in Coq, for plane neutral geometry, by mechanising
+the first twelve chapters of Schwabhäuser, Szmielew and Tarski. Whoever
+wrote it would be following a proof rather than finding one.
+
+- **As a structure in set.mm**, the way Tarski was done: a `HilbertG`
+  carrying points, lines and planes with incidence, betweenness and the two
+  congruences. Being three-sorted costs nothing in ZFC.
+- **As a database of its own**, with typecodes for point, line and plane and
+  its own axioms, the way `hol.mm` and `ql.mm` are their own systems. Closer
+  to what Hilbert wrote, since his is a theory and not a structure.
+
+It would not help this corpus. Hilbert's congruence is a relation — `AB ≅ CD`
+for segments and `∠ABC ≅ ∠DEF` for angles — exactly as Tarski's `cgrA` is.
+Hilbert has no angle measure and no number anywhere in the system. That is
+what synthetic geometry is. A second synthetic axiomatisation would leave
+`∠CAB = ∠CBA` no more an equation than the first one does.
+
+The obstacle is not which axioms. It is that the readable layer writes a
+**measured** angle, and measure is the thing synthetic geometry deliberately
+does without. A number appears only in a metric treatment.
+
 ### What that leaves
 
 Three readings, and the corpus has to choose one before `isosceles` can be

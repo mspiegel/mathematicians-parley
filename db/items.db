@@ -796,7 +796,10 @@ theorem side-angle-side
   then        triangle PQR ≅ triangle P′Q′R′
   open        a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert.
               set.mm has no Hilbert axiomatisation; under Tarski it is `tgsas`
-              and is proved. ELABORATION.md.
+              and is proved. Writing Hilbert for Metamath is possible and the
+              equivalence with Tarski is a charted proof, but it would change
+              nothing here: Hilbert's congruence is a relation too, and his
+              system has no angle measure. ELABORATION.md.
   first-used  isosceles
   note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
               this statement's variable names. One of the two must change; the
