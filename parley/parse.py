@@ -174,6 +174,11 @@ class Theorem:
     path: str = ''
 
 
+def citations(text):
+    """The references a justification names, for a reader outside this file."""
+    return _refs(text)[0]
+
+
 def _refs(text):
     """References named by a justification, read from their syntactic position
     and never by scanning for digits."""

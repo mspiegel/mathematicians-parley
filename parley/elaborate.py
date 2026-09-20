@@ -36,7 +36,7 @@ from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
 from match import instantiation
-from parse import Problem, check_encoding, fmt, parse_database, parse_proof
+from parse import Problem, check_encoding, citations, fmt, parse_database, parse_proof
 from sorts import sorts_in_scope
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
@@ -752,6 +752,9 @@ class Elaborator:
                          if t in self.sigs
                          and self.sigs[t].statement[0] == 'setvar'}
         self.frames = [(scope, None, facts)]
+        # A `requires` line names the lines it rests on, and what supplies it
+        # is reached from places the step's own lines are not passed to.
+        self.lines = lines
         closers, blocks = [], []
         for step in self.thm.steps:
             # A block's children are the steps numbered below it, so the
@@ -1787,7 +1790,13 @@ class Elaborator:
         return known
 
     def side(self, want, how, scope, facts):
-        """A proof of what one `requires` line asks for."""
+        """A proof of what one `requires` line asks for.
+
+        A `requires` line may name the lines it rests on, and a method that
+        is not expanded has to say so. `requires q ≠ 0: inequalities, from
+        3.1` asks only that a positive number is not zero; an assumption
+        that drops the 3.1 asks that the number is not zero, which is more
+        than the line says and leaves 3.1 unused."""
         term = self.term(want)
         if term in facts:
             return facts[term]
@@ -1801,10 +1810,24 @@ class Elaborator:
         closure = how.strip().split(',')[0].strip()
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
-            # same way a step does, and is listed the same way.
-            return seq(term, scope,
-                       self.stated(closure[:3], '|- ' + self.render(term)),
-                       'a1i')
+            # same way a step does, and is listed the same way: under what
+            # the line cites, and under nothing else.
+            asks = [(self.lines[ref].term,
+                     self.carried(ref, facts, self.lines))
+                    for ref in citations(how) if ref in self.lines]
+            statement = term
+            for one, _given in reversed(asks):
+                statement = seq(one, statement, 'wi')
+            proof = self.stated(closure[:3], '|- ' + self.render(statement))
+            if not asks:
+                return seq(term, scope, proof, 'a1i')
+            for i, (one, given) in enumerate(asks):
+                rest = term
+                for later, _p in reversed(asks[i + 1:]):
+                    rest = seq(later, rest, 'wi')
+                proof = seq(scope, one, rest, given, proof,
+                            'syl' if i == 0 else 'mpd')
+            return proof
         raise Problem('', 0, f'cannot supply {self.render(term)}')
 
     def calculation(self, step, node, term, scope, facts, lines):
