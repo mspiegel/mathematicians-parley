@@ -1135,6 +1135,472 @@ def cancelling(b, out):
     return out
 
 
+def side_angle_side(b, out):
+    """Two sides and the angle between them fix the triangle.
+
+    An axiom in Euclid and in Hilbert, because a synthetic geometry has no
+    coordinates to compute with and congruence has to be stipulated. Over
+    CC it is a theorem, and this is the proof: the law of cosines at each
+    of the three vertices, six applications in all, which are three cyclic
+    rotations of `glawcos` in each triangle.
+
+    The third side comes first, from the law at the given angle's vertex,
+    since equal sides and equal cosines make equal squares and a length is
+    not negative. With all three sides equal the other two angles follow
+    the other way round: the law at each of the remaining vertices has the
+    same sides on both sides of the comparison, so `gcoscan` leaves the
+    cosines equal and `gangeq` turns that back into the angles."""
+    first = '( P e. CC /\\ Q e. CC /\\ R e. CC )'
+    second = '( S e. CC /\\ T e. CC /\\ U e. CC )'
+    pts = f'( {first} /\\ {second} )'
+    tri1, tri2 = triangle('P', 'Q', 'R'), triangle('S', 'T', 'U')
+
+    def side(x, y):
+        return f'( abs ` ( {x} - {y} ) )'
+
+    def at(x, y, z):
+        """The corpus's unsigned angle at y, between the rays to x and z."""
+        return f'( abs ` ( ( {x} - {y} ) ang ( {z} - {y} ) ) )'
+
+    same_pq = f'{side("P", "Q")} = {side("S", "T")}'
+    same_qr = f'{side("Q", "R")} = {side("T", "U")}'
+    same_rp = f'{side("R", "P")} = {side("U", "S")}'
+    ang_q = f'{at("P", "Q", "R")} = {at("S", "T", "U")}'
+    ang_r = f'{at("Q", "R", "P")} = {at("T", "U", "S")}'
+    ang_p = f'{at("R", "P", "Q")} = {at("U", "S", "T")}'
+
+    # The antecedents nest to the left, so a fact proved under a prefix is
+    # carried out to the whole by one `adantr` for each later one.
+    levels = [pts, tri1, tri2, same_pq, ang_q, same_qr]
+    ws = [levels[0]]
+    for one in levels[1:]:
+        ws.append(f'( {ws[-1]} /\\ {one} )')
+    whole = ws[-1]
+
+    def lift(claim, proof, frm):
+        for i in range(frm, len(levels) - 1):
+            proof = b.ap('adantr', {'ph': b.wff(ws[i]), 'ps': b.wff(claim),
+                                    'ch': b.wff(levels[i + 1])}, proof)
+        return proof
+
+    def given(i):
+        """The i-th antecedent, as a fact of the whole."""
+        return lift(levels[i],
+                    b.ap('simpr', {'ph': b.wff(ws[i - 1]),
+                                   'ps': b.wff(levels[i])}), i)
+
+    mem = {}
+    for name, which, half in (('P', 'simp1', 'simpl'), ('Q', 'simp2', 'simpl'),
+                              ('R', 'simp3', 'simpl'), ('S', 'simp1', 'simpr'),
+                              ('T', 'simp2', 'simpr'), ('U', 'simp3', 'simpr')):
+        side_of = first if half == 'simpl' else second
+        names = ('P', 'Q', 'R') if half == 'simpl' else ('S', 'T', 'U')
+        mem[name] = lift(f'{name} e. CC', b.ap(
+            'syl', {'ph': b.wff(pts), 'ps': b.wff(side_of),
+                    'ch': b.wff(f'{name} e. CC')},
+            b.ap(half, {'ph': b.wff(first), 'ps': b.wff(second)}),
+            b.ap(which, {'ph': b.wff(f'{names[0]} e. CC'),
+                         'ps': b.wff(f'{names[1]} e. CC'),
+                         'ch': b.wff(f'{names[2]} e. CC')})), 0)
+
+    def apart_of(which, x, y, z, level):
+        """The three disequalities a triangle states, as facts of the whole.
+
+        The predicate is ((( x!=y & y!=z ) & x!=z ) & not collinear), so
+        the three come off by taking the left conjunct twice and then the
+        halves; the reversed ones the rotations want come off `flipped`."""
+        inner = (f'( ( -. {x} = {y} /\\ -. {y} = {z} ) /\\ -. {x} = {z} )')
+        pair = f'( -. {x} = {y} /\\ -. {y} = {z} )'
+        held = given(level)
+        cut = b.ap('simpld',
+                   {'ph': b.wff(whole), 'ps': b.wff(inner),
+                    'ch': b.wff(f'-. ( ( {z} - {x} ) / ( {y} - {x} ) ) '
+                                f'e. RR')}, held)
+        two = b.ap('simpld', {'ph': b.wff(whole), 'ps': b.wff(pair),
+                              'ch': b.wff(f'-. {x} = {z}')}, cut)
+        out = {(x, z): b.ap('simprd', {'ph': b.wff(whole), 'ps': b.wff(pair),
+                                       'ch': b.wff(f'-. {x} = {z}')}, cut),
+               (x, y): b.ap('simpld', {'ph': b.wff(whole),
+                                       'ps': b.wff(f'-. {x} = {y}'),
+                                       'ch': b.wff(f'-. {y} = {z}')}, two),
+               (y, z): b.ap('simprd', {'ph': b.wff(whole),
+                                       'ps': b.wff(f'-. {x} = {y}'),
+                                       'ch': b.wff(f'-. {y} = {z}')}, two)}
+        for (a, c), proof in list(out.items()):
+            out[(c, a)] = flipped(b, whole, a, c, proof)
+        del which
+        return out
+
+    ne1 = apart_of('tri1', 'P', 'Q', 'R', 1)
+    ne2 = apart_of('tri2', 'S', 'T', 'U', 2)
+
+    def law(x, y, z, ne):
+        """`glawcos` at y: the side opposite y from the two sides at it."""
+        return b.ap(
+            'syl', {'ph': b.wff(whole),
+                    'ps': b.wff(f'( ( {x} e. CC /\\ {y} e. CC /\\ {z} e. CC ) '
+                                f'/\\ ( -. {x} = {y} /\\ -. {z} = {y} ) )'),
+                    'ch': b.wff(f'( {side(z, x)} ^ 2 ) = ( ( ( {side(x, y)} '
+                                f'^ 2 ) + ( {side(y, z)} ^ 2 ) ) - ( 2 x. ( '
+                                f'( {side(x, y)} x. {side(y, z)} ) x. ( cos ` '
+                                f'{at(x, y, z)} ) ) ) )')},
+            b.ap('jca', {'ph': b.wff(whole),
+                         'ps': b.wff(f'( {x} e. CC /\\ {y} e. CC '
+                                     f'/\\ {z} e. CC )'),
+                         'ch': b.wff(f'( -. {x} = {y} /\\ -. {z} = {y} )')},
+                 b.ap('3jca', {'ph': b.wff(whole), 'ps': b.wff(f'{x} e. CC'),
+                               'ch': b.wff(f'{y} e. CC'),
+                               'th': b.wff(f'{z} e. CC')},
+                      mem[x], mem[y], mem[z]),
+                 b.ap('jca', {'ph': b.wff(whole),
+                              'ps': b.wff(f'-. {x} = {y}'),
+                              'ch': b.wff(f'-. {z} = {y}')},
+                      ne[(x, y)], ne[(z, y)])),
+            b.ap('glawcos', {'A': b.rpn(x), 'B': b.rpn(y), 'C': b.rpn(z)}))
+
+    def right_hand(a1, a2, b1, b2, x1, x2, ea, eb, ex_):
+        """The two right-hand sides agree, component by component."""
+        squares = b.ap(
+            'oveq12d', {'ph': b.wff(whole), 'A': b.rpn(f'( {a1} ^ 2 )'),
+                        'B': b.rpn(f'( {a2} ^ 2 )'),
+                        'C': b.rpn(f'( {b1} ^ 2 )'),
+                        'D': b.rpn(f'( {b2} ^ 2 )'), 'F': b.rpn('+')},
+            b.ap('oveq1d', {'ph': b.wff(whole), 'A': b.rpn(a1), 'B': b.rpn(a2),
+                            'C': b.rpn('2'), 'F': b.rpn('^')}, ea),
+            b.ap('oveq1d', {'ph': b.wff(whole), 'A': b.rpn(b1), 'B': b.rpn(b2),
+                            'C': b.rpn('2'), 'F': b.rpn('^')}, eb))
+        product = b.ap(
+            'oveq12d', {'ph': b.wff(whole), 'A': b.rpn(f'( {a1} x. {b1} )'),
+                        'B': b.rpn(f'( {a2} x. {b2} )'), 'C': b.rpn(x1),
+                        'D': b.rpn(x2), 'F': b.rpn('x.')},
+            b.ap('oveq12d', {'ph': b.wff(whole), 'A': b.rpn(a1),
+                             'B': b.rpn(a2), 'C': b.rpn(b1), 'D': b.rpn(b2),
+                             'F': b.rpn('x.')}, ea, eb),
+            ex_)
+        return b.ap(
+            'oveq12d',
+            {'ph': b.wff(whole),
+             'A': b.rpn(f'( ( {a1} ^ 2 ) + ( {b1} ^ 2 ) )'),
+             'B': b.rpn(f'( ( {a2} ^ 2 ) + ( {b2} ^ 2 ) )'),
+             'C': b.rpn(f'( 2 x. ( ( {a1} x. {b1} ) x. {x1} ) )'),
+             'D': b.rpn(f'( 2 x. ( ( {a2} x. {b2} ) x. {x2} ) )'),
+             'F': b.rpn('-')},
+            squares,
+            b.ap('oveq2d', {'ph': b.wff(whole),
+                            'A': b.rpn(f'( ( {a1} x. {b1} ) x. {x1} )'),
+                            'B': b.rpn(f'( ( {a2} x. {b2} ) x. {x2} )'),
+                            'C': b.rpn('2'), 'F': b.rpn('x.')}, product))
+
+    def cosines(equal, one, two):
+        """An equality of angles, read through cosine."""
+        return b.ap('fveq2d', {'ph': b.wff(whole), 'A': b.rpn(one),
+                               'B': b.rpn(two), 'F': b.rpn('cos')}, equal)
+
+    # The third side. Equal sides and an equal angle make equal squares,
+    # and a length is not negative, so the sides themselves are equal.
+    squares_rp = b.ap(
+        '3eqtr4d', {'ph': b.wff(whole),
+                    'A': b.rpn(f'( ( ( {side("P", "Q")} ^ 2 ) + '
+                               f'( {side("Q", "R")} ^ 2 ) ) - ( 2 x. ( ( '
+                               f'{side("P", "Q")} x. {side("Q", "R")} ) x. '
+                               f'( cos ` {at("P", "Q", "R")} ) ) ) )'),
+                    'B': b.rpn(f'( ( ( {side("S", "T")} ^ 2 ) + '
+                               f'( {side("T", "U")} ^ 2 ) ) - ( 2 x. ( ( '
+                               f'{side("S", "T")} x. {side("T", "U")} ) x. '
+                               f'( cos ` {at("S", "T", "U")} ) ) ) )'),
+                    'C': b.rpn(f'( {side("R", "P")} ^ 2 )'),
+                    'D': b.rpn(f'( {side("U", "S")} ^ 2 )')},
+        right_hand(side('P', 'Q'), side('S', 'T'),
+                   side('Q', 'R'), side('T', 'U'),
+                   f'( cos ` {at("P", "Q", "R")} )',
+                   f'( cos ` {at("S", "T", "U")} )',
+                   given(3), given(5),
+                   cosines(given(4), at('P', 'Q', 'R'), at('S', 'T', 'U'))),
+        law('P', 'Q', 'R', ne1), law('S', 'T', 'U', ne2))
+    third = b.ap(
+        'mpbid', {'ph': b.wff(whole),
+                  'ps': b.wff(f'( {side("R", "P")} ^ 2 ) '
+                              f'= ( {side("U", "S")} ^ 2 )'),
+                  'ch': b.wff(same_rp)},
+        squares_rp,
+        b.ap('syl2anc',
+             {'ph': b.wff(whole),
+              'ps': b.wff(f'( {side("R", "P")} e. RR '
+                          f'/\\ 0 <_ {side("R", "P")} )'),
+              'ch': b.wff(f'( {side("U", "S")} e. RR '
+                          f'/\\ 0 <_ {side("U", "S")} )'),
+              'th': b.wff(f'( ( {side("R", "P")} ^ 2 ) '
+                          f'= ( {side("U", "S")} ^ 2 ) <-> {same_rp} )')},
+             *[b.ap('jca', {'ph': b.wff(whole),
+                            'ps': b.wff(f'{side(x, y)} e. RR'),
+                            'ch': b.wff(f'0 <_ {side(x, y)}')},
+                    b.ap('abscld', {'ph': b.wff(whole),
+                                    'A': b.rpn(f'( {x} - {y} )')},
+                         b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(x),
+                                         'B': b.rpn(y)}, mem[x], mem[y])),
+                    b.ap('absge0d', {'ph': b.wff(whole),
+                                     'A': b.rpn(f'( {x} - {y} )')},
+                         b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(x),
+                                         'B': b.rpn(y)}, mem[x], mem[y])))
+               for x, y in (('R', 'P'), ('U', 'S'))],
+             b.ap('sq11', {'A': b.rpn(side('R', 'P')),
+                           'B': b.rpn(side('U', 'S'))})))
+    def length_cc(x, y):
+        return b.ap('recnd', {'ph': b.wff(whole), 'A': b.rpn(side(x, y))},
+                    b.ap('abscld', {'ph': b.wff(whole),
+                                    'A': b.rpn(f'( {x} - {y} )')},
+                         b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(x),
+                                         'B': b.rpn(y)}, mem[x], mem[y])))
+
+    def length_nz(x, y, ne):
+        return b.ap('absne0d', {'ph': b.wff(whole),
+                                'A': b.rpn(f'( {x} - {y} )')},
+                    b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(x),
+                                    'B': b.rpn(y)}, mem[x], mem[y]),
+                    differs(b, whole, x, y, mem[x], mem[y], ne[(x, y)]))
+
+    def angle_cc(x, y, z, ne):
+        """The unsigned angle is a number, which `gcoscan` needs of it."""
+        holds = b.ap(
+            'jca', {'ph': b.wff(whole),
+                    'ps': b.wff(f'( ( {x} - {y} ) e. CC '
+                                f'/\\ ( {x} - {y} ) =/= 0 )'),
+                    'ch': b.wff(f'( ( {z} - {y} ) e. CC '
+                                f'/\\ ( {z} - {y} ) =/= 0 )')},
+            *[b.ap('jca', {'ph': b.wff(whole),
+                           'ps': b.wff(f'( {a} - {y} ) e. CC'),
+                           'ch': b.wff(f'( {a} - {y} ) =/= 0')},
+                   b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(a),
+                                   'B': b.rpn(y)}, mem[a], mem[y]),
+                   differs(b, whole, a, y, mem[a], mem[y], ne[(a, y)]))
+              for a in (x, z)])
+        inside = b.ap(
+            'syl', {'ph': b.wff(whole),
+                    'ps': b.wff(f'( ( ( {x} - {y} ) e. CC /\\ ( {x} - {y} ) '
+                                f'=/= 0 ) /\\ ( ( {z} - {y} ) e. CC /\\ '
+                                f'( {z} - {y} ) =/= 0 ) )'),
+                    'ch': b.wff(f'{at(x, y, z)} e. ( 0 [,] _pi )')},
+            holds, b.ap('gangrange', {'A': b.rpn(f'( {x} - {y} )'),
+                                      'B': b.rpn(f'( {z} - {y} )')}))
+        return b.ap(
+            'recnd', {'ph': b.wff(whole), 'A': b.rpn(at(x, y, z))},
+            b.ap('simp1d', {'ph': b.wff(whole),
+                            'ps': b.wff(f'{at(x, y, z)} e. RR'),
+                            'ch': b.wff(f'0 <_ {at(x, y, z)}'),
+                            'th': b.wff(f'{at(x, y, z)} <_ _pi')},
+                 b.ap('mpbid', {'ph': b.wff(whole),
+                                'ps': b.wff(f'{at(x, y, z)} e. ( 0 [,] _pi )'),
+                                'ch': b.wff(f'( {at(x, y, z)} e. RR /\\ 0 <_ '
+                                            f'{at(x, y, z)} /\\ '
+                                            f'{at(x, y, z)} <_ _pi )')},
+                      inside,
+                      b.ap('syl2anc',
+                           {'ph': b.wff(whole), 'ps': b.wff('0 e. RR'),
+                            'ch': b.wff('_pi e. RR'),
+                            'th': b.wff(f'( {at(x, y, z)} e. ( 0 [,] _pi ) '
+                                        f'<-> ( {at(x, y, z)} e. RR /\\ 0 <_ '
+                                        f'{at(x, y, z)} /\\ {at(x, y, z)} '
+                                        f'<_ _pi ) )')},
+                           b.ap('a1i', {'ph': b.wff('0 e. RR'),
+                                        'ps': b.wff(whole)}, '0re'),
+                           b.ap('a1i', {'ph': b.wff('_pi e. RR'),
+                                        'ps': b.wff(whole)}, 'pire'),
+                           b.ap('elicc2', {'A': b.rpn('0'), 'B': b.rpn('_pi'),
+                                           'C': b.rpn(at(x, y, z))})))))
+
+    def angle_equal(x, y, z, x2, y2, z2, e_opp, e_a, e_b):
+        """The angle at y is the angle at y2, all three sides agreeing.
+
+        Both laws have the same two sides at the vertex and the same side
+        opposite it, so what is left once `gcoscan` has taken the squares
+        and the factors off is the cosine, and `gangeq` is the way back."""
+        z_of = f'( ( {side(x, y)} ^ 2 ) + ( {side(y, z)} ^ 2 ) )'
+        k_of = f'( {side(x, y)} x. {side(y, z)} )'
+        cos1, cos2 = f'( cos ` {at(x, y, z)} )', f'( cos ` {at(x2, y2, z2)} )'
+        # The two right-hand sides are equal because the sides opposite
+        # the vertex are, and then the second is rewritten in the first's
+        # own lengths so that only the cosine differs.
+        agree = b.ap(
+            '3eqtr3d',
+            {'ph': b.wff(whole), 'A': b.rpn(f'( {side(z, x)} ^ 2 )'),
+             'B': b.rpn(f'( {side(z2, x2)} ^ 2 )'),
+             'C': b.rpn(f'( {z_of} - ( 2 x. ( {k_of} x. {cos1} ) ) )'),
+             'D': b.rpn(f'( ( ( {side(x2, y2)} ^ 2 ) + ( {side(y2, z2)} ^ 2 ) '
+                        f') - ( 2 x. ( ( {side(x2, y2)} x. {side(y2, z2)} ) '
+                        f'x. {cos2} ) ) )')},
+            b.ap('oveq1d', {'ph': b.wff(whole), 'A': b.rpn(side(z, x)),
+                            'B': b.rpn(side(z2, x2)), 'C': b.rpn('2'),
+                            'F': b.rpn('^')}, e_opp),
+            law(x, y, z, ne1), law(x2, y2, z2, ne2))
+        rewritten = right_hand(
+            side(x2, y2), side(x, y), side(y2, z2), side(y, z), cos2, cos2,
+            b.ap('eqcomd', {'ph': b.wff(whole), 'A': b.rpn(side(x, y)),
+                            'B': b.rpn(side(x2, y2))}, e_a),
+            b.ap('eqcomd', {'ph': b.wff(whole), 'A': b.rpn(side(y, z)),
+                            'B': b.rpn(side(y2, z2))}, e_b),
+            b.ap('a1i', {'ph': b.wff(f'{cos2} = {cos2}'), 'ps': b.wff(whole)},
+                 b.ap('eqid', {'A': b.rpn(cos2)})))
+        lined = b.ap(
+            'eqtrd', {'ph': b.wff(whole),
+                      'A': b.rpn(f'( {z_of} - ( 2 x. ( {k_of} x. {cos1} ) ) )'),
+                      'B': b.rpn(f'( ( ( {side(x2, y2)} ^ 2 ) + '
+                                 f'( {side(y2, z2)} ^ 2 ) ) - ( 2 x. ( ( '
+                                 f'{side(x2, y2)} x. {side(y2, z2)} ) x. '
+                                 f'{cos2} ) ) )'),
+                      'C': b.rpn(f'( {z_of} - ( 2 x. ( {k_of} x. {cos2} ) ) )')},
+            agree, rewritten)
+        k_cc = b.ap('mulcld', {'ph': b.wff(whole), 'A': b.rpn(side(x, y)),
+                               'B': b.rpn(side(y, z))},
+                    length_cc(x, y), length_cc(y, z))
+        k_nz = b.ap('syl', {'ph': b.wff(whole),
+                            'ps': b.wff(f'( ( {side(x, y)} e. CC /\\ '
+                                        f'{side(x, y)} =/= 0 ) /\\ ( '
+                                        f'{side(y, z)} e. CC /\\ '
+                                        f'{side(y, z)} =/= 0 ) )'),
+                            'ch': b.wff(f'{k_of} =/= 0')},
+                    b.ap('jca', {'ph': b.wff(whole),
+                                 'ps': b.wff(f'( {side(x, y)} e. CC /\\ '
+                                             f'{side(x, y)} =/= 0 )'),
+                                 'ch': b.wff(f'( {side(y, z)} e. CC /\\ '
+                                             f'{side(y, z)} =/= 0 )')},
+                         b.ap('jca', {'ph': b.wff(whole),
+                                      'ps': b.wff(f'{side(x, y)} e. CC'),
+                                      'ch': b.wff(f'{side(x, y)} =/= 0')},
+                              length_cc(x, y), length_nz(x, y, ne1)),
+                         b.ap('jca', {'ph': b.wff(whole),
+                                      'ps': b.wff(f'{side(y, z)} e. CC'),
+                                      'ch': b.wff(f'{side(y, z)} =/= 0')},
+                              length_cc(y, z), length_nz(y, z, ne1))),
+                    b.ap('mulne0', {'A': b.rpn(side(x, y)),
+                                    'B': b.rpn(side(y, z))}))
+        equal_cos = b.ap(
+            'mpd', {'ph': b.wff(whole),
+                    'ps': b.wff(f'( {z_of} - ( 2 x. ( {k_of} x. {cos1} ) ) ) '
+                                f'= ( {z_of} - ( 2 x. ( {k_of} x. {cos2} ) ) )'),
+                    'ch': b.wff(f'{cos1} = {cos2}')},
+            lined,
+            b.ap('syl', {'ph': b.wff(whole),
+                         'ps': b.wff(f'( ( {cos1} e. CC /\\ {cos2} e. CC /\\ '
+                                     f'{z_of} e. CC ) /\\ ( {k_of} e. CC /\\ '
+                                     f'{k_of} =/= 0 ) )'),
+                         'ch': b.wff(f'( ( {z_of} - ( 2 x. ( {k_of} x. {cos1} '
+                                     f') ) ) = ( {z_of} - ( 2 x. ( {k_of} x. '
+                                     f'{cos2} ) ) ) -> {cos1} = {cos2} )')},
+                 b.ap('jca', {'ph': b.wff(whole),
+                              'ps': b.wff(f'( {cos1} e. CC /\\ {cos2} e. CC '
+                                          f'/\\ {z_of} e. CC )'),
+                              'ch': b.wff(f'( {k_of} e. CC /\\ '
+                                          f'{k_of} =/= 0 )')},
+                      b.ap('3jca', {'ph': b.wff(whole),
+                                    'ps': b.wff(f'{cos1} e. CC'),
+                                    'ch': b.wff(f'{cos2} e. CC'),
+                                    'th': b.wff(f'{z_of} e. CC')},
+                           b.ap('syl', {'ph': b.wff(whole),
+                                        'ps': b.wff(f'{at(x, y, z)} e. CC'),
+                                        'ch': b.wff(f'{cos1} e. CC')},
+                                angle_cc(x, y, z, ne1),
+                                b.ap('coscl', {'A': b.rpn(at(x, y, z))})),
+                           b.ap('syl', {'ph': b.wff(whole),
+                                        'ps': b.wff(f'{at(x2, y2, z2)} e. CC'),
+                                        'ch': b.wff(f'{cos2} e. CC')},
+                                angle_cc(x2, y2, z2, ne2),
+                                b.ap('coscl', {'A': b.rpn(at(x2, y2, z2))})),
+                           b.ap('addcld', {'ph': b.wff(whole),
+                                           'A': b.rpn(f'( {side(x, y)} ^ 2 )'),
+                                           'B': b.rpn(f'( {side(y, z)} ^ 2 )')},
+                                b.ap('sqcld', {'ph': b.wff(whole),
+                                               'A': b.rpn(side(x, y))},
+                                     length_cc(x, y)),
+                                b.ap('sqcld', {'ph': b.wff(whole),
+                                               'A': b.rpn(side(y, z))},
+                                     length_cc(y, z)))),
+                      b.ap('jca', {'ph': b.wff(whole),
+                                   'ps': b.wff(f'{k_of} e. CC'),
+                                   'ch': b.wff(f'{k_of} =/= 0')},
+                           k_cc, k_nz)),
+                 b.ap('gcoscan', {'X': b.rpn(cos1), 'Y': b.rpn(cos2),
+                                  'Z': b.rpn(z_of), 'K': b.rpn(k_of)})))
+        ready = b.ap(
+            'jca', {'ph': b.wff(whole),
+                    'ps': b.wff(f'( ( ( {x} - {y} ) e. CC /\\ ( {x} - {y} ) '
+                                f'=/= 0 ) /\\ ( ( {z} - {y} ) e. CC /\\ '
+                                f'( {z} - {y} ) =/= 0 ) )'),
+                    'ch': b.wff(f'( ( ( {x2} - {y2} ) e. CC /\\ ( {x2} - {y2} )'
+                                f' =/= 0 ) /\\ ( ( {z2} - {y2} ) e. CC /\\ '
+                                f'( {z2} - {y2} ) =/= 0 ) )')},
+            *[b.ap('jca', {'ph': b.wff(whole),
+                           'ps': b.wff(f'( ( {a} - {v} ) e. CC /\\ '
+                                       f'( {a} - {v} ) =/= 0 )'),
+                           'ch': b.wff(f'( ( {c} - {v} ) e. CC /\\ '
+                                       f'( {c} - {v} ) =/= 0 )')},
+                   *[b.ap('jca', {'ph': b.wff(whole),
+                                  'ps': b.wff(f'( {e} - {v} ) e. CC'),
+                                  'ch': b.wff(f'( {e} - {v} ) =/= 0')},
+                          b.ap('subcld', {'ph': b.wff(whole), 'A': b.rpn(e),
+                                          'B': b.rpn(v)}, mem[e], mem[v]),
+                          differs(b, whole, e, v, mem[e], mem[v], nn[(e, v)]))
+                     for e in (a, c)])
+              for a, v, c, nn in ((x, y, z, ne1), (x2, y2, z2, ne2))])
+        return b.ap(
+            'mpd', {'ph': b.wff(whole), 'ps': b.wff(f'{cos1} = {cos2}'),
+                    'ch': b.wff(f'{at(x, y, z)} = {at(x2, y2, z2)}')},
+            equal_cos,
+            b.ap('syl', {'ph': b.wff(whole),
+                         'ps': b.wff(f'( ( ( ( {x} - {y} ) e. CC /\\ '
+                                     f'( {x} - {y} ) =/= 0 ) /\\ ( ( {z} - {y}'
+                                     f' ) e. CC /\\ ( {z} - {y} ) =/= 0 ) ) '
+                                     f'/\\ ( ( ( {x2} - {y2} ) e. CC /\\ '
+                                     f'( {x2} - {y2} ) =/= 0 ) /\\ ( ( {z2} - '
+                                     f'{y2} ) e. CC /\\ ( {z2} - {y2} ) '
+                                     f'=/= 0 ) ) )'),
+                         'ch': b.wff(f'( {cos1} = {cos2} -> {at(x, y, z)} '
+                                     f'= {at(x2, y2, z2)} )')},
+                 ready,
+                 b.ap('gangeq', {'A': b.rpn(f'( {x} - {y} )'),
+                                 'B': b.rpn(f'( {z} - {y} )'),
+                                 'C': b.rpn(f'( {x2} - {y2} )'),
+                                 'D': b.rpn(f'( {z2} - {y2} )')})))
+
+    at_r = angle_equal('Q', 'R', 'P', 'T', 'U', 'S',
+                       given(3), given(5), third)
+    at_p = angle_equal('R', 'P', 'Q', 'U', 'S', 'T',
+                       given(5), third, given(3))
+
+    congruent = b.ap(
+        'jca', {'ph': b.wff(whole),
+                'ps': b.wff(f'( ( ( ( {same_pq} /\\ {same_qr} ) /\\ {same_rp} )'
+                            f' /\\ {ang_q} ) /\\ {ang_r} )'),
+                'ch': b.wff(ang_p)},
+        b.ap('jca', {'ph': b.wff(whole),
+                     'ps': b.wff(f'( ( ( {same_pq} /\\ {same_qr} ) /\\ '
+                                 f'{same_rp} ) /\\ {ang_q} )'),
+                     'ch': b.wff(ang_r)},
+             b.ap('jca', {'ph': b.wff(whole),
+                          'ps': b.wff(f'( ( {same_pq} /\\ {same_qr} ) /\\ '
+                                      f'{same_rp} )'),
+                          'ch': b.wff(ang_q)},
+                  b.ap('jca31', {'ph': b.wff(whole), 'ps': b.wff(same_pq),
+                                 'ch': b.wff(same_qr),
+                                 'th': b.wff(same_rp)},
+                       given(3), given(5), third),
+                  given(4)),
+             at_r),
+        at_p)
+
+    # The six antecedents come off one at a time, outermost last.
+    proof, claim = congruent, (
+        f'( ( ( ( ( {same_pq} /\\ {same_qr} ) /\\ {same_rp} ) /\\ {ang_q} ) '
+        f'/\\ {ang_r} ) /\\ {ang_p} )')
+    for i in range(len(levels) - 1, 0, -1):
+        proof = b.ap('ex', {'ph': b.wff(ws[i - 1]), 'ps': b.wff(levels[i]),
+                            'ch': b.wff(claim)}, proof)
+        claim = f'( {levels[i]} -> {claim} )'
+    says = f'|- ( {pts} -> {claim} )'
+    out.append(('gsas', says, proof))
+    b.define('gsas', says)
+    return out
+
+
 HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
    What this corpus needs of the plane and set.mm does not state.
@@ -1176,10 +1642,12 @@ def main(argv):
     sigs = read_library(argv[1], here / 'auto' / 'definitions.mm')
     b = Builder(sigs)
     print(HEAD, end='')
-    for label, statement, proof in cancelling(
-            b, law_of_cosines(
-                b, angle_size(
-                    b, angle_symmetry(b, rotation(b, triangle_lemmas(b)))))):
+    for label, statement, proof in side_angle_side(
+            b, cancelling(
+                b, law_of_cosines(
+                    b, angle_size(
+                        b, angle_symmetry(
+                            b, rotation(b, triangle_lemmas(b))))))):
         print(f'  {label} $p {statement} $=')
         line = '   '
         for token in proof.split():

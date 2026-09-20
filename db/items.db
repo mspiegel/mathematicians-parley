@@ -822,12 +822,16 @@ theorem side-angle-side
   assume ∠PQR = ∠P′Q′R′                                               (H10)
   assume |QR| = |Q′R′|                                                (H11)
   then        triangle PQR ≅ triangle P′Q′R′
-  open        a theorem over ℂ, to be proved; an axiom in Euclid and in Hilbert.
-              set.mm has no Hilbert axiomatisation; under Tarski it is `tgsas`
-              and is proved. Writing Hilbert for Metamath is possible and the
-              equivalence with Tarski is a charted proof, but it would change
-              nothing here: Hilbert's congruence is a relation too, and his
-              system has no angle measure. ELABORATION.md.
+  metamath    gsas, which this corpus proves in elaboration/geometry.mm. An
+              axiom in Euclid and in Hilbert, because a synthetic geometry has
+              no coordinates to compute with and congruence has to be
+              stipulated; over ℂ it is a theorem. The proof is the law of
+              cosines at each of the three vertices, six applications in all,
+              which are three cyclic rotations of glawcos in each triangle.
+              The third side comes first, since equal sides and equal cosines
+              make equal squares and a length is not negative; with all three
+              sides equal the other two angles follow the other way round.
+  target      gsas
   first-used  isosceles
   note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
               this statement's variable names. One of the two must change; the

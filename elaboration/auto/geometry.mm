@@ -1164,3 +1164,11968 @@ $d x U $.  $d y U $.
     cc0 wne wa cD cc wcel cD cc0 wne wa wa simpr cC cD gangrange syl cA cB
     cang co cabs cfv cC cD cang co cabs cfv cos11 syl2anc biimprd $.
 
+  gsas $p |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( S e. CC /\ T e. CC /\ U e. CC ) ) -> ( ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( ( ( -. S = T /\ -. T = U ) /\ -. S = U ) /\ -. ( ( U - S ) / ( T - S ) ) e. RR ) -> ( ( abs ` ( P - Q ) ) = ( abs ` ( S - T ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = ( abs ` ( ( S - T ) ang ( U - T ) ) ) -> ( ( abs ` ( Q - R ) ) = ( abs ` ( T - U ) ) -> ( ( ( ( ( ( abs ` ( P - Q ) ) = ( abs ` ( S - T ) ) /\ ( abs ` ( Q - R ) ) = ( abs ` ( T - U ) ) ) /\ ( abs ` ( R - P ) ) = ( abs ` ( U - S ) ) ) /\ ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = ( abs ` ( ( S - T ) ang ( U - T ) ) ) ) /\ ( abs ` ( ( Q - R ) ang ( P - R ) ) ) = ( abs ` ( ( T - U ) ang ( S - U ) ) ) ) /\ ( abs ` ( ( R - P ) ang ( Q - P ) ) ) = ( abs ` ( ( U - S ) ang ( T - S ) ) ) ) ) ) ) ) ) ) $=
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq
+    wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co
+    cabs cfv cT cU cmin co cabs cfv wceq cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP
+    cmin co cabs cfv cU cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cP cR cmin co cang co cabs cfv cT cU cmin co cS cU cmin co
+    cang co cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU
+    cS cmin co cT cS cmin co cang co cabs cfv wceq wa wi wi wi wi cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co
+    cabs cfv cU cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cP cR cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang
+    co cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS
+    cmin co cT cS cmin co cang co cabs cfv wceq wa wi wi wi cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cU cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cP cR cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang co
+    cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS cmin
+    co cT cS cmin co cang co cabs cfv wceq wa wi wi cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin
+    co cabs cfv wceq cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang co cabs cfv
+    wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS cmin co cT cS
+    cmin co cang co cabs cfv wceq wa wi cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang co cabs cfv
+    wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS cmin co cT cS
+    cmin co cang co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang co cabs cfv
+    wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS cmin co cT cS
+    cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs
+    cfv wceq wa cR cP cmin co cabs cfv cU cS cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co cabs cfv cT
+    cU cmin co cabs cfv wceq cR cP cmin co cabs cfv cU cS cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr adantr cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq simpr cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp co cU cS cmin co
+    cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU cS cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin
+    co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv ccos cfv cmul co cmul co cmin co cS cT cmin co cabs cfv
+    c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS cT cmin co
+    cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin co cang
+    co cabs cfv ccos cfv cmul co cmul co cmin co cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cQ cR cmin co
+    cabs cfv c2 cexp co caddc co cS cT cmin co cabs cfv c2 cexp co cT cU cmin
+    co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR cmin co
+    cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv
+    cmul co cmul co c2 cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co
+    cS cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cS cT cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv
+    c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs
+    cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co
+    cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr adantr oveq1d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq simpr oveq1d oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP
+    cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cS cT cmin co
+    cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin co cang
+    co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv ccos cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq simpr oveq12d cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv ccos cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq simpr adantr
+    fveq2d oveq12d oveq2d oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq wn cR cQ
+    wceq wn wa wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2
+    cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs
+    cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq
+    wn cR cQ wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cc wcel cQ cc wcel cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cQ cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr
+    adantr adantr adantr adantr 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ wceq wn cR cQ wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa simpr adantr adantr
+    adantr adantr simpld simpld simpld cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU
+    cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simprd neqned
+    necomd neneqd jca jca cP cQ cR glawcos syl cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a cS cT wceq
+    wn cU cT wceq wn wa wa cU cS cmin co cabs cfv c2 cexp co cS cT cmin co
+    cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS cT
+    cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a
+    cS cT wceq wn cU cT wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cU cT wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cT cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned necomd neneqd jca jca cS cT cU glawcos syl 3eqtr4d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cr wcel cc0 cR cP cmin co cabs cfv cle wbr wa cU cS cmin co cabs cfv
+    cr wcel cc0 cU cS cmin co cabs cfv cle wbr wa cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wb cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cr wcel cc0 cR cP cmin co cabs
+    cfv cle wbr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld absge0d
+    jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs
+    cfv cr wcel cc0 cU cS cmin co cabs cfv cle wbr cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld absge0d jca cR cP cmin co cabs cfv cU cS cmin co
+    cabs cfv sq11 syl2anc mpbid jca31 cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs
+    cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq simpr adantr jca cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cP cR cmin co cang co cabs cfv
+    ccos cfv cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv wceq cQ cR
+    cmin co cP cR cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv c2 cexp co caddc co
+    c2 cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cQ cR cmin co cP
+    cR cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co cQ cR cmin
+    co cabs cfv c2 cexp co cR cP cmin co cabs cfv c2 cexp co caddc co c2 cQ
+    cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cT cU cmin co cS cU
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cQ cR cmin
+    co cP cR cmin co cang co cabs cfv ccos cfv cT cU cmin co cS cU cmin co
+    cang co cabs cfv ccos cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv
+    c2 cexp co caddc co c2 cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul
+    co cQ cR cmin co cP cR cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cT cU cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp
+    co caddc co c2 cT cU cmin co cabs cfv cU cS cmin co cabs cfv cmul co cT
+    cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin
+    co cQ cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv c2 cexp co
+    caddc co c2 cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cT cU
+    cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cS cT cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv
+    c2 cexp co cR cP cmin co cabs cfv c2 cexp co caddc co c2 cQ cR cmin co
+    cabs cfv cR cP cmin co cabs cfv cmul co cQ cR cmin co cP cR cmin co cang
+    co cabs cfv ccos cfv cmul co cmul co cmin co cT cU cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co caddc co c2 cT cU cmin co cabs
+    cfv cU cS cmin co cabs cfv cmul co cT cU cmin co cS cU cmin co cang co
+    cabs cfv ccos cfv cmul co cmul co cmin co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv c2
+    cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr adantr oveq1d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cc wcel cR cc
+    wcel cP cc wcel w3a cQ cR wceq wn cP cR wceq wn wa wa cP cQ cmin co cabs
+    cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv
+    c2 cexp co caddc co c2 cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul
+    co cQ cR cmin co cP cR cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cc wcel
+    cR cc wcel cP cc wcel w3a cQ cR wceq wn cP cR wceq wn wa cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cQ cc wcel cR cc wcel cP cc wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr 3jca cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR wceq wn cP cR wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simprd cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU
+    cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simprd jca jca cQ cR cP
+    glawcos syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cc wcel
+    cU cc wcel cS cc wcel w3a cT cU wceq wn cS cU wceq wn wa wa cS cT cmin co
+    cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co cU cS cmin co cabs
+    cfv c2 cexp co caddc co c2 cT cU cmin co cabs cfv cU cS cmin co cabs cfv
+    cmul co cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin co wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cc wcel cU cc wcel cS cc wcel w3a cT cU wceq wn cS cU wceq wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cT cc wcel cU cc wcel cS cc
+    wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr adantr
+    adantr 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU wceq
+    wn cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs
+    cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simprd
+    jca jca cT cU cS glawcos syl 3eqtr3d cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv
+    c2 cexp co caddc co cQ cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs
+    cfv c2 cexp co caddc co c2 cT cU cmin co cabs cfv cU cS cmin co cabs cfv
+    cmul co cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co c2 cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cT cU
+    cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cabs cfv c2
+    cexp co cQ cR cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp
+    co cR cP cmin co cabs cfv c2 cexp co caddc cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cT cU cmin co cabs cfv cQ cR cmin co cabs cfv c2
+    cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq simpr eqcomd oveq1d cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cabs cfv cR cP cmin co cabs cfv c2 cexp cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR
+    cP cmin co cabs cfv cU cS cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cQ cR cmin co
+    cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR cmin co cabs
+    cfv cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin co cS cT cmin co cabs cfv c2 cexp co cT cU cmin co cabs cfv
+    c2 cexp co caddc co c2 cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul
+    co cS cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cR cP cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co cS cT cmin co
+    cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cP cQ
+    cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co c2 cS cT cmin co cabs cfv cT
+    cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin co cang co cabs cfv
+    ccos cfv cmul co cmul co cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cS cT cmin co cabs cfv
+    c2 cexp co cQ cR cmin co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2
+    cexp co caddc cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cabs cfv cS cT cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq simpr adantr adantr oveq1d cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv c2 cexp cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq simpr oveq1d oveq12d cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR
+    cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    ccos cfv cmul co cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS
+    cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR
+    cmin co cabs cfv cmul co cS cT cmin co cabs cfv cT cU cmin co cabs cfv
+    cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv cQ
+    cR cmin co cabs cfv cT cU cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq simpr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq simpr oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv ccos cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs
+    cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq simpr adantr fveq2d oveq12d oveq2d oveq12d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cc wcel cQ cc
+    wcel cR cc wcel w3a cP cQ wceq wn cR cQ wceq wn wa wa cR cP cmin co cabs
+    cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv
+    c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul
+    co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cP cQ wceq wn cR cQ wceq wn wa cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cR cQ wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simpld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cQ cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simpld
+    simprd neqned necomd neneqd jca jca cP cQ cR glawcos syl cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a cS cT
+    wceq wn cU cT wceq wn wa wa cU cS cmin co cabs cfv c2 cexp co cS cT cmin
+    co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc
+    wcel w3a cS cT wceq wn cU cT wceq wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cU cT wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cT cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned necomd neneqd jca jca cS cT cU glawcos syl 3eqtr4d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cr wcel cc0 cR cP cmin co cabs cfv cle wbr wa cU cS cmin co cabs cfv
+    cr wcel cc0 cU cS cmin co cabs cfv cle wbr wa cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wb cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cr wcel cc0 cR cP cmin co cabs
+    cfv cle wbr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld absge0d
+    jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs
+    cfv cr wcel cc0 cU cS cmin co cabs cfv cle wbr cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld absge0d jca cR cP cmin co cabs cfv cU cS cmin co
+    cabs cfv sq11 syl2anc mpbid eqcomd oveq1d oveq12d cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cmin co cabs cfv cU cS cmin co cabs
+    cfv cmul co cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cmul co
+    cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cT cU cmin co cS cU
+    cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cmin co cabs cfv cU cS cmin co cabs
+    cfv cmul co cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cT cU
+    cmin co cS cU cmin co cang co cabs cfv ccos cfv cT cU cmin co cS cU cmin
+    co cang co cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cmin co cabs cfv cQ cR cmin co cabs cfv cU cS cmin
+    co cabs cfv cR cP cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq simpr eqcomd cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cU cS cmin co cabs
+    cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs
+    cfv cU cS cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv
+    c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul
+    co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cS cT cmin co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp
+    co caddc co c2 cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS
+    cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin
+    co cR cP cmin co cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp co cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv c2
+    cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co cS cT cmin co cabs cfv
+    c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co
+    cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv ccos cfv cmul co cmul co c2 cS cT cmin co cabs cfv cT cU cmin
+    co cabs cfv cmul co cS cT cmin co cU cT cmin co cang co cabs cfv ccos cfv
+    cmul co cmul co cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv c2 cexp co cS cT cmin co cabs cfv c2 cexp co cQ cR
+    cmin co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ
+    cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr
+    adantr oveq1d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq simpr oveq1d oveq12d cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv
+    cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs
+    cfv cmul co cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv ccos cfv cS cT cmin co cU cT cmin
+    co cang co cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq simpr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    simpr oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv ccos cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq
+    simpr adantr fveq2d oveq12d oveq2d oveq12d cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq
+    wn cR cQ wceq wn wa wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co
+    cabs cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ
+    cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cQ wceq wn cR cQ wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cR cQ wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simpld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cQ cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simpld
+    simprd neqned necomd neneqd jca jca cP cQ cR glawcos syl cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a cS cT
+    wceq wn cU cT wceq wn wa wa cU cS cmin co cabs cfv c2 cexp co cS cT cmin
+    co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc
+    wcel w3a cS cT wceq wn cU cT wceq wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cU cT wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cT cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned necomd neneqd jca jca cS cT cU glawcos syl 3eqtr4d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cr wcel cc0 cR cP cmin co cabs cfv cle wbr wa cU cS cmin co cabs cfv
+    cr wcel cc0 cU cS cmin co cabs cfv cle wbr wa cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wb cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cr wcel cc0 cR cP cmin co cabs
+    cfv cle wbr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld absge0d
+    jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs
+    cfv cr wcel cc0 cU cS cmin co cabs cfv cle wbr cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld absge0d jca cR cP cmin co cabs cfv cU cS cmin co
+    cabs cfv sq11 syl2anc mpbid eqcomd oveq12d cT cU cmin co cS cU cmin co
+    cang co cabs cfv ccos cfv cT cU cmin co cS cU cmin co cang co cabs cfv
+    ccos cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin
+    co cS cU cmin co cang co cabs cfv ccos cfv eqid a1i oveq12d oveq2d
+    oveq12d eqtrd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cP cR cmin co cang co cabs cfv ccos cfv cc wcel cT cU cmin co cS cU
+    cmin co cang co cabs cfv ccos cfv cc wcel cQ cR cmin co cabs cfv c2 cexp
+    co cR cP cmin co cabs cfv c2 cexp co caddc co cc wcel w3a cQ cR cmin co
+    cabs cfv cR cP cmin co cabs cfv cmul co cc wcel cQ cR cmin co cabs cfv cR
+    cP cmin co cabs cfv cmul co cc0 wne wa wa cQ cR cmin co cabs cfv c2 cexp
+    co cR cP cmin co cabs cfv c2 cexp co caddc co c2 cQ cR cmin co cabs cfv
+    cR cP cmin co cabs cfv cmul co cQ cR cmin co cP cR cmin co cang co cabs
+    cfv ccos cfv cmul co cmul co cmin co cQ cR cmin co cabs cfv c2 cexp co cR
+    cP cmin co cabs cfv c2 cexp co caddc co c2 cQ cR cmin co cabs cfv cR cP
+    cmin co cabs cfv cmul co cT cU cmin co cS cU cmin co cang co cabs cfv
+    ccos cfv cmul co cmul co cmin co wceq cQ cR cmin co cP cR cmin co cang co
+    cabs cfv ccos cfv cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv
+    wceq wi cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv ccos cfv cc wcel cT cU cmin co cS cU cmin co
+    cang co cabs cfv ccos cfv cc wcel cQ cR cmin co cabs cfv c2 cexp co cR cP
+    cmin co cabs cfv c2 cexp co caddc co cc wcel w3a cQ cR cmin co cabs cfv
+    cR cP cmin co cabs cfv cmul co cc wcel cQ cR cmin co cabs cfv cR cP cmin
+    co cabs cfv cmul co cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cP cR cmin co cang co cabs cfv ccos cfv cc
+    wcel cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cc wcel cQ cR
+    cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv c2 cexp co caddc co cc
+    wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cc wcel cQ cR cmin co cP cR cmin co cang co cabs
+    cfv ccos cfv cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cP cR cmin co cang co cabs cfv cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cP cR cmin co cang co cabs cfv cr
+    wcel cc0 cQ cR cmin co cP cR cmin co cang co cabs cfv cle wbr cQ cR cmin
+    co cP cR cmin co cang co cabs cfv cpi cle wbr cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cP cR cmin co cang co cabs cfv cc0
+    cpi cicc co wcel cQ cR cmin co cP cR cmin co cang co cabs cfv cr wcel cc0
+    cQ cR cmin co cP cR cmin co cang co cabs cfv cle wbr cQ cR cmin co cP cR
+    cmin co cang co cabs cfv cpi cle wbr w3a cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR cmin co cc0 wne wa cP cR
+    cmin co cc wcel cP cR cmin co cc0 wne wa wa cQ cR cmin co cP cR cmin co
+    cang co cabs cfv cc0 cpi cicc co wcel cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR cmin co cc0 wne wa cP cR
+    cmin co cc wcel cP cR cmin co cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR cmin co cc0 wne cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cc0 wne cQ cR
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU
+    cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simprd neqned cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cc0 cQ cR cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cmin co cc wcel cP cR cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cmin co cc0 wne cP cR wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simprd
+    neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cR cmin co cc0
+    cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca jca cQ cR cmin co cP cR cmin co gangrange syl cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cc0 cr wcel cpi cr wcel cQ cR
+    cmin co cP cR cmin co cang co cabs cfv cc0 cpi cicc co wcel cQ cR cmin co
+    cP cR cmin co cang co cabs cfv cr wcel cc0 cQ cR cmin co cP cR cmin co
+    cang co cabs cfv cle wbr cQ cR cmin co cP cR cmin co cang co cabs cfv cpi
+    cle wbr w3a wb cc0 cr wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa 0re a1i cpi cr wcel cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa pire a1i cc0 cpi cQ cR cmin co cP cR cmin co cang co
+    cabs cfv elicc2 syl2anc mpbid simp1d recnd cQ cR cmin co cP cR cmin co
+    cang co cabs cfv coscl syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cmin co cS cU cmin co cang co cabs cfv cc wcel cT
+    cU cmin co cS cU cmin co cang co cabs cfv ccos cfv cc wcel cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cS cU cmin co cang co
+    cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cS cU
+    cmin co cang co cabs cfv cr wcel cc0 cT cU cmin co cS cU cmin co cang co
+    cabs cfv cle wbr cT cU cmin co cS cU cmin co cang co cabs cfv cpi cle wbr
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cS cU
+    cmin co cang co cabs cfv cc0 cpi cicc co wcel cT cU cmin co cS cU cmin co
+    cang co cabs cfv cr wcel cc0 cT cU cmin co cS cU cmin co cang co cabs cfv
+    cle wbr cT cU cmin co cS cU cmin co cang co cabs cfv cpi cle wbr w3a cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cc wcel cT
+    cU cmin co cc0 wne wa cS cU cmin co cc wcel cS cU cmin co cc0 wne wa wa
+    cT cU cmin co cS cU cmin co cang co cabs cfv cc0 cpi cicc co wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cc wcel cT cU
+    cmin co cc0 wne wa cS cU cmin co cc wcel cS cU cmin co cc0 wne wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cc wcel cT cU
+    cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr adantr
+    adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin
+    co cc0 wne cT cU wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simprd
+    neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cmin co cc0
+    cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cU cmin co cc wcel cS cU cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cU cmin co cc0 wne cS cU wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simprd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cmin
+    co cc0 cS cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca jca cT cU cmin co cS cU cmin co gangrange syl cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cc0 cr wcel cpi cr wcel cT cU
+    cmin co cS cU cmin co cang co cabs cfv cc0 cpi cicc co wcel cT cU cmin co
+    cS cU cmin co cang co cabs cfv cr wcel cc0 cT cU cmin co cS cU cmin co
+    cang co cabs cfv cle wbr cT cU cmin co cS cU cmin co cang co cabs cfv cpi
+    cle wbr w3a wb cc0 cr wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa 0re a1i cpi cr wcel cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa pire a1i cc0 cpi cT cU cmin co cS cU cmin co cang co
+    cabs cfv elicc2 syl2anc mpbid simp1d recnd cT cU cmin co cS cU cmin co
+    cang co cabs cfv coscl syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv
+    c2 cexp co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd sqcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd sqcld addcld 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cc
+    wcel cQ cR cmin co cabs cfv cR cP cmin co cabs cfv cmul co cc0 wne cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs cfv cR cP
+    cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd mulcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cabs cfv cc wcel cQ cR cmin co cabs cfv cc0 wne wa cR cP cmin
+    co cabs cfv cc wcel cR cP cmin co cabs cfv cc0 wne wa wa cQ cR cmin co
+    cabs cfv cR cP cmin co cabs cfv cmul co cc0 wne cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cabs cfv cc wcel cQ cR cmin co
+    cabs cfv cc0 wne wa cR cP cmin co cabs cfv cc wcel cR cP cmin co cabs cfv
+    cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cc wcel cQ cR cmin co cabs cfv cc0 wne cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs cfv cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cQ cR cmin co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cQ cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr
+    adantr adantr adantr adantr subcld abscld recnd cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cc0 wne cQ cR wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simpld
+    simprd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cc0 cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird absne0d jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cc wcel cR cP cmin co cabs cfv
+    cc0 wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld abscld
+    recnd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc0 wne cR cP
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simprd neqned necomd
+    neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cc0 cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird absne0d jca jca cQ cR cmin co cabs cfv cR cP cmin co
+    cabs cfv mulne0 syl jca jca cQ cR cmin co cabs cfv cR cP cmin co cabs cfv
+    cmul co cQ cR cmin co cP cR cmin co cang co cabs cfv ccos cfv cT cU cmin
+    co cS cU cmin co cang co cabs cfv ccos cfv cQ cR cmin co cabs cfv c2 cexp
+    co cR cP cmin co cabs cfv c2 cexp co caddc co gcoscan syl mpd cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR
+    cmin co cc0 wne wa cP cR cmin co cc wcel cP cR cmin co cc0 wne wa wa cT
+    cU cmin co cc wcel cT cU cmin co cc0 wne wa cS cU cmin co cc wcel cS cU
+    cmin co cc0 wne wa wa wa cQ cR cmin co cP cR cmin co cang co cabs cfv
+    ccos cfv cT cU cmin co cS cU cmin co cang co cabs cfv ccos cfv wceq cQ cR
+    cmin co cP cR cmin co cang co cabs cfv cT cU cmin co cS cU cmin co cang
+    co cabs cfv wceq wi cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cmin co cc wcel cQ cR cmin co cc0 wne wa cP cR cmin co cc wcel cP cR
+    cmin co cc0 wne wa wa cT cU cmin co cc wcel cT cU cmin co cc0 wne wa cS
+    cU cmin co cc wcel cS cU cmin co cc0 wne wa wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR cmin co cc0 wne wa
+    cP cR cmin co cc wcel cP cR cmin co cc0 wne wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cc wcel cQ cR cmin co cc0 wne cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cc0 wne cQ cR
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU
+    cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simprd neqned cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cc0 cQ cR cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cmin co cc wcel cP cR cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cmin co cc0 wne cP cR wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simprd
+    neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cR cmin co cc0
+    cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cT cU cmin co cc wcel cT cU cmin co cc0 wne wa cS cU cmin co cc wcel cS
+    cU cmin co cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cmin co cc wcel cT cU cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cmin co cc0 wne cT cU wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cmin co cc0 cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr adantr
+    adantr subeq0ad necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cU cmin co cc wcel cS cU cmin co cc0 wne cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cmin co cc0 wne cS cU
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    simpr adantr adantr adantr simpld simprd neqned cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cU cmin co cc0 cS cU cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a
+    cS cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a
+    cU cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr
+    adantr adantr adantr adantr subeq0ad necon3bid mpbird jca jca jca cQ cR
+    cmin co cP cR cmin co cT cU cmin co cS cU cmin co gangeq syl mpd jca cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cQ cP cmin
+    co cang co cabs cfv ccos cfv cU cS cmin co cT cS cmin co cang co cabs cfv
+    ccos cfv wceq cR cP cmin co cQ cP cmin co cang co cabs cfv cU cS cmin co
+    cT cS cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv
+    c2 cexp co caddc co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul
+    co cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp
+    co caddc co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cU
+    cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin
+    co wceq cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cU cS cmin
+    co cT cS cmin co cang co cabs cfv ccos cfv wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co
+    cabs cfv c2 cexp co caddc co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs
+    cfv cmul co cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin co cU cS cmin co cabs cfv c2 cexp co cS cT cmin co cabs cfv
+    c2 cexp co caddc co c2 cU cS cmin co cabs cfv cS cT cmin co cabs cfv cmul
+    co cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin co cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp
+    co caddc co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cU
+    cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co cR cP cmin co cabs cfv
+    c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc co c2 cR cP cmin co
+    cabs cfv cP cQ cmin co cabs cfv cmul co cR cP cmin co cQ cP cmin co cang
+    co cabs cfv ccos cfv cmul co cmul co cmin co cU cS cmin co cabs cfv c2
+    cexp co cS cT cmin co cabs cfv c2 cexp co caddc co c2 cU cS cmin co cabs
+    cfv cS cT cmin co cabs cfv cmul co cU cS cmin co cT cS cmin co cang co
+    cabs cfv ccos cfv cmul co cmul co cmin co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv c2
+    cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq simpr oveq1d cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cc wcel cP cc wcel cQ cc
+    wcel w3a cR cP wceq wn cQ cP wceq wn wa wa cQ cR cmin co cabs cfv c2 cexp
+    co cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co
+    caddc co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cR cP
+    cmin co cQ cP cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cc wcel cP cc
+    wcel cQ cc wcel w3a cR cP wceq wn cQ cP wceq wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cc wcel cP cc wcel cQ cc wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr 3jca cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP wceq wn cQ cP wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simprd
+    neqned necomd neneqd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa simpr adantr adantr
+    adantr adantr simpld simpld simpld neqned necomd neneqd jca jca cR cP cQ
+    glawcos syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cc wcel
+    cS cc wcel cT cc wcel w3a cU cS wceq wn cT cS wceq wn wa wa cT cU cmin co
+    cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp co cS cT cmin co cabs
+    cfv c2 cexp co caddc co c2 cU cS cmin co cabs cfv cS cT cmin co cabs cfv
+    cmul co cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin co wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cc wcel cS cc wcel cT cc wcel w3a cU cS wceq wn cT cS wceq wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cU cc wcel cS cc wcel cT cc
+    wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr adantr
+    adantr 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS wceq
+    wn cT cS wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa simpr
+    adantr adantr adantr simpld simprd neqned necomd neneqd cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cS cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld
+    neqned necomd neneqd jca jca cU cS cT glawcos syl 3eqtr3d cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs cfv c2 cexp co cS
+    cT cmin co cabs cfv c2 cexp co caddc co cR cP cmin co cabs cfv c2 cexp co
+    cP cQ cmin co cabs cfv c2 cexp co caddc co c2 cU cS cmin co cabs cfv cS
+    cT cmin co cabs cfv cmul co cU cS cmin co cT cS cmin co cang co cabs cfv
+    ccos cfv cmul co cmul co c2 cR cP cmin co cabs cfv cP cQ cmin co cabs cfv
+    cmul co cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin
+    co cabs cfv c2 cexp co cR cP cmin co cabs cfv c2 cexp co cS cT cmin co
+    cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs cfv cR cP cmin co
+    cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv cU cS cmin co cabs cfv cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp co cU cS cmin co
+    cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU cS cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin
+    co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv ccos cfv cmul co cmul co cmin co cS cT cmin co cabs cfv
+    c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS cT cmin co
+    cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin co cang
+    co cabs cfv ccos cfv cmul co cmul co cmin co cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cQ cR cmin co
+    cabs cfv c2 cexp co caddc co cS cT cmin co cabs cfv c2 cexp co cT cU cmin
+    co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR cmin co
+    cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv
+    cmul co cmul co c2 cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co
+    cS cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co cmul co
+    cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv c2 cexp co cS cT cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv
+    c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs
+    cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co
+    cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr adantr oveq1d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq simpr oveq1d oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP
+    cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cS cT cmin co
+    cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin co cang
+    co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv ccos cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq simpr oveq12d cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv ccos cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq simpr adantr
+    fveq2d oveq12d oveq2d oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq wn cR cQ
+    wceq wn wa wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2
+    cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs
+    cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq
+    wn cR cQ wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cc wcel cQ cc wcel cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cQ cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr
+    adantr adantr adantr adantr 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ wceq wn cR cQ wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa simpr adantr adantr
+    adantr adantr simpld simpld simpld cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU
+    cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simprd neqned
+    necomd neneqd jca jca cP cQ cR glawcos syl cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a cS cT wceq
+    wn cU cT wceq wn wa wa cU cS cmin co cabs cfv c2 cexp co cS cT cmin co
+    cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS cT
+    cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a
+    cS cT wceq wn cU cT wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cU cT wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cT cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned necomd neneqd jca jca cS cT cU glawcos syl 3eqtr4d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cr wcel cc0 cR cP cmin co cabs cfv cle wbr wa cU cS cmin co cabs cfv
+    cr wcel cc0 cU cS cmin co cabs cfv cle wbr wa cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wb cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cr wcel cc0 cR cP cmin co cabs
+    cfv cle wbr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld absge0d
+    jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs
+    cfv cr wcel cc0 cU cS cmin co cabs cfv cle wbr cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld absge0d jca cR cP cmin co cabs cfv cU cS cmin co
+    cabs cfv sq11 syl2anc mpbid eqcomd oveq1d cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT cmin co cabs cfv cP cQ cmin co cabs cfv c2
+    cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq simpr adantr adantr eqcomd oveq1d oveq12d cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cabs cfv cS cT cmin co cabs cfv
+    cmul co cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cmul co cR
+    cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cU cS cmin co cT cS
+    cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs cfv cS cT cmin co cabs
+    cfv cmul co cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cU cS
+    cmin co cT cS cmin co cang co cabs cfv ccos cfv cU cS cmin co cT cS cmin
+    co cang co cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cabs cfv cR cP cmin co cabs cfv cS cT cmin
+    co cabs cfv cP cQ cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cU cS cmin co cabs cfv cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp
+    co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU cS
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co
+    c2 cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co cS cT cmin
+    co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co cR cP cmin co
+    cabs cfv c2 cexp co cU cS cmin co cabs cfv c2 cexp co cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv c2 cexp co cQ cR
+    cmin co cabs cfv c2 cexp co caddc co cS cT cmin co cabs cfv c2 cexp co cT
+    cU cmin co cabs cfv c2 cexp co caddc co c2 cP cQ cmin co cabs cfv cQ cR
+    cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    ccos cfv cmul co cmul co c2 cS cT cmin co cabs cfv cT cU cmin co cabs cfv
+    cmul co cS cT cmin co cU cT cmin co cang co cabs cfv ccos cfv cmul co
+    cmul co cmin cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cabs cfv c2 cexp co cS cT cmin co cabs cfv c2 cexp co cQ cR cmin co
+    cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq simpr adantr
+    adantr oveq1d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv c2 cexp cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq simpr oveq1d oveq12d cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs cfv
+    cmul co cP cQ cmin co cR cQ cmin co cang co cabs cfv ccos cfv cmul co cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co c2 cmul cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cQ cR cmin co cabs
+    cfv cmul co cS cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv ccos cfv cS cT cmin co cU cT cmin
+    co cang co cabs cfv ccos cfv cmul cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv cmul cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq simpr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    simpr oveq12d cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv ccos cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq
+    simpr adantr fveq2d oveq12d oveq2d oveq12d cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cQ wceq
+    wn cR cQ wceq wn wa wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co
+    cabs cfv c2 cexp co cQ cR cmin co cabs cfv c2 cexp co caddc co c2 cP cQ
+    cmin co cabs cfv cQ cR cmin co cabs cfv cmul co cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cQ wceq wn cR cQ wceq wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cc wcel cQ cc wcel cR cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cR cQ wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simpld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cQ cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simpld
+    simprd neqned necomd neneqd jca jca cP cQ cR glawcos syl cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel w3a cS cT
+    wceq wn cU cT wceq wn wa wa cU cS cmin co cabs cfv c2 cexp co cS cT cmin
+    co cabs cfv c2 cexp co cT cU cmin co cabs cfv c2 cexp co caddc co c2 cS
+    cT cmin co cabs cfv cT cU cmin co cabs cfv cmul co cS cT cmin co cU cT
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cc wcel cT cc wcel cU cc
+    wcel w3a cS cT wceq wn cU cT wceq wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cc wcel cT cc wcel cU cc wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr 3jca cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cU cT wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cT cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simpld simprd neqned necomd neneqd jca jca cS cT cU glawcos syl 3eqtr4d
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs
+    cfv cr wcel cc0 cR cP cmin co cabs cfv cle wbr wa cU cS cmin co cabs cfv
+    cr wcel cc0 cU cS cmin co cabs cfv cle wbr wa cR cP cmin co cabs cfv c2
+    cexp co cU cS cmin co cabs cfv c2 cexp co wceq cR cP cmin co cabs cfv cU
+    cS cmin co cabs cfv wceq wb cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cr wcel cc0 cR cP cmin co cabs
+    cfv cle wbr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld absge0d
+    jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cabs
+    cfv cr wcel cc0 cU cS cmin co cabs cfv cle wbr cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld abscld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld absge0d jca cR cP cmin co cabs cfv cU cS cmin co
+    cabs cfv sq11 syl2anc mpbid eqcomd cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ cmin
+    co cabs cfv cS cT cmin co cabs cfv wceq cQ cR cmin co cabs cfv cT cU cmin
+    co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cabs cfv cS cT cmin co cabs cfv wceq cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq simpr adantr adantr eqcomd oveq12d cU cS
+    cmin co cT cS cmin co cang co cabs cfv ccos cfv cU cS cmin co cT cS cmin
+    co cang co cabs cfv ccos cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv
+    eqid a1i oveq12d oveq2d oveq12d eqtrd cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cc
+    wcel cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cc wcel cR cP
+    cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc co cc
+    wcel w3a cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc wcel cR
+    cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc0 wne wa wa cR cP
+    cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc co c2
+    cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cR cP cmin co cQ cP
+    cmin co cang co cabs cfv ccos cfv cmul co cmul co cmin co cR cP cmin co
+    cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc co c2 cR cP
+    cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cU cS cmin co cT cS cmin
+    co cang co cabs cfv ccos cfv cmul co cmul co cmin co wceq cR cP cmin co
+    cQ cP cmin co cang co cabs cfv ccos cfv cU cS cmin co cT cS cmin co cang
+    co cabs cfv ccos cfv wceq wi cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cc
+    wcel cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cc wcel cR cP
+    cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv c2 cexp co caddc co cc
+    wcel w3a cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc wcel cR
+    cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc0 wne wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cQ cP cmin co
+    cang co cabs cfv ccos cfv cc wcel cU cS cmin co cT cS cmin co cang co
+    cabs cfv ccos cfv cc wcel cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co
+    cabs cfv c2 cexp co caddc co cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co cabs cfv cc wcel cR
+    cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cc wcel cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cQ cP cmin co cang co
+    cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cQ cP
+    cmin co cang co cabs cfv cr wcel cc0 cR cP cmin co cQ cP cmin co cang co
+    cabs cfv cle wbr cR cP cmin co cQ cP cmin co cang co cabs cfv cpi cle wbr
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cQ cP
+    cmin co cang co cabs cfv cc0 cpi cicc co wcel cR cP cmin co cQ cP cmin co
+    cang co cabs cfv cr wcel cc0 cR cP cmin co cQ cP cmin co cang co cabs cfv
+    cle wbr cR cP cmin co cQ cP cmin co cang co cabs cfv cpi cle wbr w3a cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR
+    cP cmin co cc0 wne wa cQ cP cmin co cc wcel cQ cP cmin co cc0 wne wa wa
+    cR cP cmin co cQ cP cmin co cang co cabs cfv cc0 cpi cicc co wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR cP
+    cmin co cc0 wne wa cQ cP cmin co cc wcel cQ cP cmin co cc0 wne wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR cP
+    cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP
+    cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP
+    cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr adantr
+    adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cc0 wne cR cP wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simprd
+    neqned necomd neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cc0 cR cP cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subeq0ad necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cQ cP cmin co cc wcel cQ cP cmin co cc0 wne cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cP cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cP cmin co cc0 wne cQ cP
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cQ cP cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simpld simpld neqned
+    necomd neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cmin co cc0 cQ cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP
+    cc wcel cQ cc wcel cR cc wcel simp2 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP
+    cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr adantr
+    adantr subeq0ad necon3bid mpbird jca jca cR cP cmin co cQ cP cmin co
+    gangrange syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cc0 cr wcel
+    cpi cr wcel cR cP cmin co cQ cP cmin co cang co cabs cfv cc0 cpi cicc co
+    wcel cR cP cmin co cQ cP cmin co cang co cabs cfv cr wcel cc0 cR cP cmin
+    co cQ cP cmin co cang co cabs cfv cle wbr cR cP cmin co cQ cP cmin co
+    cang co cabs cfv cpi cle wbr w3a wb cc0 cr wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa 0re a1i cpi cr wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa pire a1i cc0 cpi cR cP cmin co cQ cP cmin co
+    cang co cabs cfv elicc2 syl2anc mpbid simp1d recnd cR cP cmin co cQ cP
+    cmin co cang co cabs cfv coscl syl cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cT cS cmin co cang co cabs cfv cc wcel cU
+    cS cmin co cT cS cmin co cang co cabs cfv ccos cfv cc wcel cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cT cS cmin co cang co
+    cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cT cS
+    cmin co cang co cabs cfv cr wcel cc0 cU cS cmin co cT cS cmin co cang co
+    cabs cfv cle wbr cU cS cmin co cT cS cmin co cang co cabs cfv cpi cle wbr
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cT cS
+    cmin co cang co cabs cfv cc0 cpi cicc co wcel cU cS cmin co cT cS cmin co
+    cang co cabs cfv cr wcel cc0 cU cS cmin co cT cS cmin co cang co cabs cfv
+    cle wbr cU cS cmin co cT cS cmin co cang co cabs cfv cpi cle wbr w3a cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cc wcel cU
+    cS cmin co cc0 wne wa cT cS cmin co cc wcel cT cS cmin co cc0 wne wa wa
+    cU cS cmin co cT cS cmin co cang co cabs cfv cc0 cpi cicc co wcel cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cc wcel cU cS
+    cmin co cc0 wne wa cT cS cmin co cc wcel cT cS cmin co cc0 wne wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cc wcel cU cS
+    cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr adantr
+    adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS
+    cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr adantr
+    adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin
+    co cc0 wne cU cS wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa simpr adantr adantr adantr simpld
+    simprd neqned necomd neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cmin co cc0 cU cS cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subeq0ad necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cT cS cmin co cc wcel cT cS cmin co cc0 wne cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cS cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cT cS cmin co cc0 wne cT cS
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cS cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cT cS cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS
+    cT cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr simpld simpld simpld
+    neqned necomd neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cS cmin co cc0 cT cS cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subeq0ad necon3bid mpbird jca jca cU cS cmin co cT cS cmin
+    co gangrange syl cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cc0 cr wcel cpi cr wcel cU cS cmin co cT cS cmin co cang co cabs cfv cc0
+    cpi cicc co wcel cU cS cmin co cT cS cmin co cang co cabs cfv cr wcel cc0
+    cU cS cmin co cT cS cmin co cang co cabs cfv cle wbr cU cS cmin co cT cS
+    cmin co cang co cabs cfv cpi cle wbr w3a wb cc0 cr wcel cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa 0re a1i cpi cr wcel cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa pire a1i cc0 cpi cU cS cmin co cT cS cmin
+    co cang co cabs cfv elicc2 syl2anc mpbid simp1d recnd cU cS cmin co cT cS
+    cmin co cang co cabs cfv coscl syl cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv c2 cexp co cP cQ cmin co cabs cfv
+    c2 cexp co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd sqcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd sqcld addcld 3jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc
+    wcel cR cP cmin co cabs cfv cP cQ cmin co cabs cfv cmul co cc0 wne cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cP cQ
+    cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cabs cfv cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr subcld
+    abscld recnd mulcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cabs cfv cc wcel cR cP cmin co cabs cfv cc0 wne wa cP cQ cmin
+    co cabs cfv cc wcel cP cQ cmin co cabs cfv cc0 wne wa wa cR cP cmin co
+    cabs cfv cP cQ cmin co cabs cfv cmul co cc0 wne cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cc wcel cR cP cmin co
+    cabs cfv cc0 wne wa cP cQ cmin co cabs cfv cc wcel cP cQ cmin co cabs cfv
+    cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP
+    cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cabs cfv cc wcel cR cP cmin co cabs cfv cc0 wne cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cP cmin co cabs cfv cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cP cmin co cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr
+    adantr adantr adantr adantr subcld abscld recnd cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cc0 wne cR cP wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa simpr adantr adantr
+    adantr adantr simpld simprd neqned necomd neneqd neqned cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cP cmin co cc0 cR cP cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv
+    cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cR cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cR cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cR
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cR cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp3 syl adantr
+    adantr adantr adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a
+    cP cc wcel cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU
+    cc wcel w3a simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr
+    adantr adantr adantr adantr subeq0ad necon3bid mpbird absne0d jca cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin co cabs cfv cc wcel
+    cP cQ cmin co cabs cfv cc0 wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cabs cfv cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr adantr adantr
+    adantr adantr subcld abscld recnd cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cmin co cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ cmin co cc0 wne cP cQ wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa
+    cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cR cQ cmin co
+    cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin
+    co cQ cP cmin co cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa simpr adantr adantr adantr adantr simpld simpld
+    simpld neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cmin
+    co cc0 cP cQ cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp2 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird absne0d jca jca cR cP cmin co cabs cfv cP cQ cmin co
+    cabs cfv mulne0 syl jca jca cR cP cmin co cabs cfv cP cQ cmin co cabs cfv
+    cmul co cR cP cmin co cQ cP cmin co cang co cabs cfv ccos cfv cU cS cmin
+    co cT cS cmin co cang co cabs cfv ccos cfv cR cP cmin co cabs cfv c2 cexp
+    co cP cQ cmin co cabs cfv c2 cexp co caddc co gcoscan syl mpd cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR cP
+    cmin co cc0 wne wa cQ cP cmin co cc wcel cQ cP cmin co cc0 wne wa wa cU
+    cS cmin co cc wcel cU cS cmin co cc0 wne wa cT cS cmin co cc wcel cT cS
+    cmin co cc0 wne wa wa wa cR cP cmin co cQ cP cmin co cang co cabs cfv
+    ccos cfv cU cS cmin co cT cS cmin co cang co cabs cfv ccos cfv wceq cR cP
+    cmin co cQ cP cmin co cang co cabs cfv cU cS cmin co cT cS cmin co cang
+    co cabs cfv wceq wi cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc
+    wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR
+    cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR
+    cP cmin co cc wcel cR cP cmin co cc0 wne wa cQ cP cmin co cc wcel cQ cP
+    cmin co cc0 wne wa wa cU cS cmin co cc wcel cU cS cmin co cc0 wne wa cT
+    cS cmin co cc wcel cT cS cmin co cc0 wne wa wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR cP cmin co cc0 wne wa
+    cQ cP cmin co cc wcel cQ cP cmin co cc0 wne wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cR cP cmin co cc wcel cR cP cmin co cc0 wne cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subcld cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin co cc0 wne cR cP
+    wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP
+    cR cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co
+    cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv
+    cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU
+    cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa simpr adantr adantr adantr adantr simpld simprd neqned necomd
+    neneqd neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cmin
+    co cc0 cR cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cR cP cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cR cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cR cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cR cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cR cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cR cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cR cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc
+    wcel cR cc wcel simp1 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cmin co cc wcel cQ cP cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cQ cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cQ cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cQ cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cQ cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp2 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cP cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cP cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cQ cc wcel cR cc wcel w3a cP cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpl cP cc wcel cQ cc wcel cR cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cmin co cc0 wne cQ cP wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cQ cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cQ
+    cP cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cP cQ cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa simpr adantr adantr
+    adantr adantr simpld simpld simpld neqned necomd neneqd neqned cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cP cmin co cc0 cQ cP cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cQ cP cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cQ cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cQ cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cQ cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cQ cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cQ cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cP cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cP cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cc
+    wcel cQ cc wcel cR cc wcel w3a cP cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpl cP cc wcel cQ cc wcel
+    cR cc wcel simp1 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel
+    cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn
+    wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT
+    cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr
+    wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ
+    cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang
+    co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa
+    cU cS cmin co cc wcel cU cS cmin co cc0 wne wa cT cS cmin co cc wcel cT
+    cS cmin co cc0 wne wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cmin co cc wcel cU cS cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cU cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cU cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cU cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cU cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cU cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp3 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cmin co cc0 wne cU cS wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cU
+    cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cU cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa
+    cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cT wceq
+    wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co
+    cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa simpr
+    adantr adantr adantr simpld simprd neqned necomd neneqd neqned cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cmin co cc0 cU cS cP cc
+    wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP
+    cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq wa cU cS cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR
+    wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cU cc wcel cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cU cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cU cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cU cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cU cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cU cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp3 syl adantr adantr adantr adantr adantr cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS
+    cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel cQ cR cmin
+    co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT
+    cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc wcel cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc
+    wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc wcel
+    cU cc wcel simp1 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cS cmin co cc wcel cT cS cmin co cc0 wne cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cT cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cT cc wcel cP cQ cmin co
+    cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs
+    cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cT cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cT cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp2 syl adantr adantr adantr
+    adantr adantr cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR
+    cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq wa cS cc wcel cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ
+    cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv
+    wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc
+    wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn
+    cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cc wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    simpr cS cc wcel cT cc wcel cU cc wcel simp1 syl adantr adantr adantr
+    adantr adantr subcld cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cS cmin co cc0 wne cT cS wne cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cT cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin
+    co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co cang co
+    cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT
+    cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel
+    w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ
+    cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs
+    cfv cT cU cmin co cabs cfv wceq wa cS cT cP cc wcel cQ cc wcel cR cc wcel
+    w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa
+    cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin
+    co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co cabs cfv
+    wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT
+    cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU cmin co
+    cabs cfv wceq wa cS cT wceq wn cT cU wceq wn cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin
+    co cU cT cmin co cang co cabs cfv wceq wa cQ cR cmin co cabs cfv cT cU
+    cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin
+    co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn
+    wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang
+    co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cT
+    wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co
+    cdiv co cr wcel wn wa cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq
+    cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a
+    wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP
+    cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU
+    wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    cP cQ cmin co cR cQ cmin co cang co cabs cfv cS cT cmin co cU cT cmin co
+    cang co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT
+    cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa
+    cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU
+    wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel
+    wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT
+    cS cmin co cdiv co cr wcel wn wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel
+    cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP
+    cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq
+    wn wa cS cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa
+    simpr adantr adantr adantr simpld simpld simpld neqned necomd neneqd
+    neqned cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cS cmin co cc0
+    cT cS cP cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc
+    wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co
+    cQ cP cmin co cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS
+    cU wceq wn wa cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ
+    cmin co cabs cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin
+    co cang co cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq wa cT cS cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS
+    cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cT cc wcel cQ cR
+    cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc
+    wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq
+    wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa
+    wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT cmin co
+    cabs cfv wceq wa cT cc wcel cP cQ cmin co cR cQ cmin co cang co cabs cfv
+    cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cT cc wcel cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a cS
+    cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP cR
+    wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cT cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cT cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cT cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp2 syl adantr adantr adantr adantr adantr cP cc wcel
+    cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ
+    wceq wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co
+    cdiv co cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa
+    cU cS cmin co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs
+    cfv cS cT cmin co cabs cfv wceq wa cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq wa cS cc wcel
+    cQ cR cmin co cabs cfv cT cU cmin co cabs cfv wceq cP cc wcel cQ cc wcel
+    cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ
+    cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr
+    wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin
+    co cT cS cmin co cdiv co cr wcel wn wa wa cP cQ cmin co cabs cfv cS cT
+    cmin co cabs cfv wceq wa cS cc wcel cP cQ cmin co cR cQ cmin co cang co
+    cabs cfv cS cT cmin co cU cT cmin co cang co cabs cfv wceq cP cc wcel cQ
+    cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq
+    wn cQ cR wceq wn wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co
+    cr wcel wn wa wa cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS
+    cmin co cT cS cmin co cdiv co cr wcel wn wa wa cS cc wcel cP cQ cmin co
+    cabs cfv cS cT cmin co cabs cfv wceq cP cc wcel cQ cc wcel cR cc wcel w3a
+    cS cc wcel cT cc wcel cU cc wcel w3a wa cP cQ wceq wn cQ cR wceq wn wa cP
+    cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa wa cS cc
+    wcel cS cT wceq wn cT cU wceq wn wa cS cU wceq wn wa cU cS cmin co cT cS
+    cmin co cdiv co cr wcel wn wa cP cc wcel cQ cc wcel cR cc wcel w3a cS cc
+    wcel cT cc wcel cU cc wcel w3a wa cS cc wcel cP cQ wceq wn cQ cR wceq wn
+    wa cP cR wceq wn wa cR cP cmin co cQ cP cmin co cdiv co cr wcel wn wa cP
+    cc wcel cQ cc wcel cR cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a wa
+    cS cc wcel cT cc wcel cU cc wcel w3a cS cc wcel cP cc wcel cQ cc wcel cR
+    cc wcel w3a cS cc wcel cT cc wcel cU cc wcel w3a simpr cS cc wcel cT cc
+    wcel cU cc wcel simp1 syl adantr adantr adantr adantr adantr subeq0ad
+    necon3bid mpbird jca jca jca cR cP cmin co cQ cP cmin co cU cS cmin co cT
+    cS cmin co gangeq syl mpd jca ex ex ex ex ex $.
+
