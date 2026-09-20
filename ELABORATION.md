@@ -1027,17 +1027,38 @@ elaborated. None is an implementation question.
    makes it real there and `acosbnd` lands it in `( 0 [,] _pi )`. The angle
    is unsigned by construction rather than by a convention or an absolute
    value applied afterwards, so `∠CAB = ∠CBA` is true as the text writes it.
-   `rrxip`, `rrxcph`, `df-ehl` and `lawcos` are the rest of what it needs,
-   and all are in set.mm.
 
-The fourth is the only one that postulates nothing. It is a definition in
-ZFC, so there is no consistency to argue and no axioms to state, and
-`eengtrkg` leaves Tarski's apparatus available above the same points. Two
-of the open items stop being open under it: `thm:angle-symmetric` reduces to
-`⟨u,v⟩ = ⟨v,u⟩`, and `thm:side-angle-side` stops being an axiom owed and
-becomes a computation, since the angle is then a function of the three
-distances and `lawcos` relates them. `def:congruent`'s six equations collapse
-to three.
+The fourth is the only one that postulates nothing — a definition in ZFC,
+with no consistency to argue — and `eengtrkg` leaves Tarski's apparatus
+available above the same points. `thm:angle-symmetric` reduces to
+`⟨u,v⟩ = ⟨v,u⟩` under it.
+
+What it does not have is anything else. The three developments in set.mm do
+not meet.
+
+| development | what it has | what it lacks |
+| --- | --- | --- |
+| ℂ plane geometry | `isosctr`, `lawcos`, `ang180`, Pythagoras | a signed angle, and no tie to Tarski |
+| Tarski | `tgsas`, `cgrA`, the synthetic apparatus | any angle measure |
+| `EE^n` | `eengtrkg`, that it models Tarski | any geometry theorem of its own |
+
+A scan of all 50,919 labelled statements finds **no statement mentioning
+`EE ` 2`** and **none relating `CC` to `RR ^m`**. `EEhil` is named seven
+times and five of those are topological manifolds. The nearest thing to a
+bridge is `cnref1o`, a bijection `( RR X. RR ) -1-1-onto-> CC`, and it is
+neither an isometry nor about `RR ^m ( 1 ... 2 )`, which is what `EE 2` is.
+
+So `lawcos` is a theorem about ℂ and does not reach the coordinate plane.
+Taking the fourth reading means writing the plane geometry that would use
+it — the angle, its symmetry, a law of cosines in an inner product space,
+and side-angle-side — from `ipcau`, `acosbnd` and the `CPreHil` machinery
+upward. That is a chapter, not a few lemmas.
+
+Which turns the choice into a plain one: the second reading rewrites four
+steps of one proof, and the fourth writes a geometry development. For
+`isosceles` alone the second is proportionate and `isosctr` is its target.
+The fourth is the right foundation for a geometry corpus and the wrong one
+for a single proof.
 
 What is worth recording past the choice is that `isosctr` exists. `def:angle`
 frames the signed angle as an obstacle, and the theorem set.mm proves with it

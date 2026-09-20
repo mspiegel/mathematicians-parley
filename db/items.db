@@ -705,7 +705,9 @@ definition angle
               reader's, 0° to 180°, and is twenty-two postulates. Neither is
               formalised anywhere. ELABORATION.md sets out what each reading
               costs, including constructing the angle over the coordinate
-              plane rather than assuming one.
+              plane rather than assuming one. That last is a chapter of work
+              and not a few lemmas: set.mm's three geometries do not meet,
+              and its plane theorems are all over ℂ.
   first-used  isosceles
   note        Named in the isosceles findings, not in its table. Added by the
               merge because the ∠ notation needs it.
