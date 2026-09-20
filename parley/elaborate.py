@@ -1579,8 +1579,31 @@ class Elaborator:
         return self.unfolded
 
     def take_definition(self, step, node, term, scope, facts, lines):
-        """A definition with no target is taken as it states itself."""
+        """A definition with no target is taken as it states itself.
+
+        Unless a line the step cites already says it. A congruence
+        elaborates to the conjunction of the six equations `def:congruent`
+        lists, so a step reading one of them off names the definition but
+        asks for nothing the file does not have: the claim is a conjunct,
+        and `unpack` reaches it."""
+        found = self.projected(step, term, scope, facts, lines)
+        if found is not None:
+            return found
         return self.assume(step, term, scope, facts, 'def', lines)
+
+    def projected(self, step, term, scope, facts, lines):
+        """The claim, when a line the step cites is a conjunction stating it.
+
+        The depth is the six conjuncts of a congruence, which nest to the
+        left, so reaching the first of them costs five."""
+        for ref in step.just.refs:
+            cited = lines[ref]
+            known = dict(facts)
+            self.unpack(cited.term, self.carried(ref, facts, lines),
+                        scope, known, depth=8)
+            if term in known:
+                return known[term]
+        return None
 
     def unfold_equation(self, step, node, term, scope, facts, lines):
         """A definition stated as an equation, one clause per `then` group.
