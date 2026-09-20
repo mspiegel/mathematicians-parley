@@ -322,14 +322,19 @@ Even-square is the encouraging row: six steps, three of them inside a
 contradiction block, and the citation of odd-square is one label. A theorem
 costs its own expansion once, and every later use of it costs a citation.
 
-Sqrt2-irrational is the discouraging one, and the reason is worth naming. In
-deduction form every line is an implication whose antecedent is the whole
-scope, and in RPN that antecedent is written out in full at every use. Three
-nested scopes make it about ninety tokens long, and it is written perhaps two
-hundred times. So proof size here is not driven by the steps; it is driven by
-copying the context, and it grows with steps times scope depth. Set.mm's own
-compressed proof format exists for exactly this, and an elaborator that emits
-normal format will produce files a good deal larger than set.mm's own.
+Sqrt2-irrational looks like the discouraging one, and the reason is worth
+naming. In deduction form every line is an implication whose antecedent is the
+whole scope, and in RPN that antecedent is written out in full at every use.
+Three nested scopes make it about ninety tokens long, and it is written perhaps
+two hundred times. So proof size here is not driven by the steps; it is driven
+by copying the context, and it grows with steps times scope depth.
+
+Set.mm's compressed proof format exists for exactly this, and it disposes of
+the problem: the same proof saved compressed is 2,393 bytes against 64,561,
+twenty-seven times smaller. Nothing about the proof changes, only how the
+repetition is written down. So the size an elaborator produces is a choice of
+output format rather than a fact about the expansion, and the format to choose
+is the compressed one.
 
 `elaboration/build-parity.py` and `elaboration/build-sqrt2.py` generate the two
 files, and those scripts are the first fragment of an elaborator: each builds
