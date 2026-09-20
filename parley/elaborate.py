@@ -231,38 +231,18 @@ class Elaborator:
     # --- closure ------------------------------------------------------------
 
     def closure(self, node, want, scope, facts):
-        """A proof that this term lies in `want`, from the shape of the term.
+        """A proof that this term lies in `want`.
 
-        The readable proof writes a `requires` line saying which fact it needs
-        and which item supplies it. What it never writes is how to build that
-        fact for a compound term, because to a reader that is not a step."""
-        term = self.term(node)
-        goal = seq(term, want, 'wcel')
+        The readable proof writes a `requires` line saying which fact it
+        needs and which item supplies it. What it never writes is how to
+        build that fact for a compound term, because to a reader that is
+        not a step. It is settled the way every side condition is, from the
+        lemmas `targets.MEMBERSHIP` names: putting a sum of integers in ZZ
+        and putting a summation index in CC are one question asked twice."""
+        goal = seq(self.term(node), want, 'wcel')
         if goal in facts:
             return facts[goal]
-        if node.notation == 'numeral':
-            return seq(goal, scope,
-                       node.text + targets.NUMERAL_IN[want], 'a1i')
-        if node.notation == 'name':
-            held = self.sets.get(node.text)
-            lemma = targets.WIDEN.get((held, want))
-            if not lemma or seq(term, held, 'wcel') not in facts:
-                raise Problem('', 0, f'cannot put {node.text!r} in {want}')
-            return seq(scope, seq(term, held, 'wcel'), goal,
-                       facts[seq(term, held, 'wcel')], term, lemma, 'syl')
-        lemma = targets.CLOSURE.get((want, node.notation))
-        if not lemma:
-            raise Problem('', 0, f'no closure lemma for {node.notation}')
-        kids = [self.closure(c, want, scope, facts) for c in node.children]
-        inner = [self.term(c) for c in node.children]
-        if len(inner) == 1:                       # zsqcl, sqcl
-            return seq(scope, seq(inner[0], want, 'wcel'), goal, kids[0],
-                       inner[0], lemma, 'syl')
-        pair = seq(*(seq(t, want, 'wcel') for t in inner), 'wa')
-        return seq(scope, pair, goal,
-                   seq(scope, *(seq(t, want, 'wcel') for t in inner), *kids,
-                       'jca'),
-                   *inner, lemma, 'syl')
+        return self.settle(self.to_term(goal), scope, facts)
 
     # --- facts the text never writes ----------------------------------------
 
@@ -592,10 +572,11 @@ class Elaborator:
                    'bitrd'), ex
 
     def exchanged(self, given, want):
-        """The lemma that turns one of these into the other, if one does.
+        """Whether these are one term with a commuting pair exchanged.
 
-        `commutes` in `db/notation.db` says which operands may be exchanged;
-        `targets.COMMUTING` says which set.mm theorem proves the exchange."""
+        `commutes` in `db/notation.db` is what says which operands may be,
+        and which theorem proves it is not asked here: the exchange is an
+        equation, and an equation is settled like anything else."""
         for label, places, fixed in self.commutes:
             if given.label != label or want.label != label:
                 continue
@@ -608,9 +589,8 @@ class Elaborator:
                 continue
             one, two = places
             if spelt[one] == other[two] and spelt[two] == other[one]:
-                head = ' '.join(fixed[i] for i in sorted(fixed))
-                return targets.COMMUTING.get((label, head))
-        return None
+                return True
+        return False
 
     def bridging(self, given, want, scope, facts, step):
         """A proof that two terms differing by an exchange agree.
@@ -618,16 +598,11 @@ class Elaborator:
         set.mm writes `( k x. 2 )` where the corpus writes 2k, and those are
         the same number but not the same formula."""
         def swapped(one, other, where, held):
-            swap = self.exchanged(one, other)
-            if swap is None:
+            if not self.exchanged(one, other):
                 return None
-            found = self.apply_lemma(
-                swap, self.to_term(seq(one.rpn(self.flabel),
-                                       other.rpn(self.flabel), 'wceq')),
-                where, held, step)
-            if found is None:
-                raise Problem('', step.line, f'{swap} does not exchange them')
-            return found
+            return self.settle(self.to_term(
+                seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
+                where, held)
         return self.congruence(given, want, scope, facts, step, swapped)
 
     def congruence(self, given, want, scope, facts, step, leaf):
