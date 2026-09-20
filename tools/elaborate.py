@@ -1,10 +1,11 @@
 """Turn a readable proof into a Metamath proof.
 
-This is the first elaborator and it covers one theorem. `ELABORATION.md` works
-five proofs out by hand and lists what the expansion language has to have;
-this implements that list for the methods `thm:odd-square` uses: `obtain`,
-`substitute`, `calculation`, `algebra`, and a definition used to conclude an
-existence claim.
+`ELABORATION.md` works five proofs out by hand and lists what the expansion
+language has to have; this implements that list for the methods three of them
+use. `obtain`, `contradiction`, `fix` and `induction` open scopes;
+`substitute`, `calculation` and `join` are steps; a definition may be unfolded
+or used to conclude an existence claim; and a theorem may be cited whether
+set.mm supplies it or this corpus proves it.
 
 Two things shape the code. A step is elaborated in deduction form, so every
 line is an implication whose antecedent is the scope it sits in, and a step's
@@ -13,12 +14,12 @@ alone. And the readable layer writes which side condition a step needs but
 never how to prove it, so closure — that a product of integers is an integer,
 that an integer is a complex number — is derived from the shape of the term.
 
-`algebra` is not expanded. Each of its steps becomes an axiom stating what the
-readable line claims under the `requires` lines it carries, which is what the
-first hand elaboration did; `elaboration/build-parity.py` proves the two this
-proof needs. Everything else here is built.
+What is not expanded is stated at the head of the file it writes: a closure
+method, or a definition the database gives no target for. Each becomes an
+axiom claiming exactly what the readable line claims, under the `requires`
+lines that line carries.
 
-Usage:  tools/elaborate.py <theorem> <set.mm> [<proof file>]
+Usage:  tools/elaborate.py <theorem> <set.mm>
 """
 import re
 import sys
@@ -35,7 +36,7 @@ from sorts import sorts_in_scope
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
-SPARE_VARS = ['vm', 'vk', 'vj', 'vi']
+SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
 WRAPS = ('co', 'wbr', 'cfv')
 
@@ -74,32 +75,62 @@ class Fact:
         self.term, self.proof, self.node = term, proof, node
 
 
+class Block:
+    """A block being elaborated: what it opened over and what it opened."""
+
+    def __init__(self, owner, outer, facts, frame):
+        self.owner, self.outer, self.outside = owner, outer, facts
+        self.frame = frame          # index into the scope frames
+        self.scope, self.facts = outer, facts
+        self.supposed = None        # contradiction
+        self.over = self.base = None                      # induction
+        self.variable = None        # the setvar a fix introduced
+        self.claim = self.proof = None
+        self.parts = {}             # part number -> the last fact in it
+
+
 class Elaborator:
     # Which lemma rewrites a subterm, by what encloses it and which hole it
     # sits in. The tree decides; nothing is searched for.
+    # A claim may change in more than one place at once — the claim of an
+    # induction holds its variable several times — so the lemma is chosen by
+    # which operands change together as well as by what encloses them.
     CONGRUENCE: typing.ClassVar = {
-        ('co', 0): 'oveq1d', ('co', 1): 'oveq2d',
-        ('wbr', 0): 'breq1d', ('wbr', 1): 'breq2d',
-        ('cfv', 0): 'fveq2d',
-        ('wceq', 0): 'eqeq1d', ('wceq', 1): 'eqeq2d',
-        ('wcel', 0): 'eleq1d', ('wcel', 1): 'eleq2d'}
+        ('co', (0,)): 'oveq1d', ('co', (1,)): 'oveq2d',
+        ('co', (0, 1)): 'oveq12d',
+        ('wbr', (0,)): 'breq1d', ('wbr', (1,)): 'breq2d',
+        ('wbr', (0, 1)): 'breq12d',
+        ('cfv', (0,)): 'fveq2d',
+        ('wceq', (0,)): 'eqeq1d', ('wceq', (1,)): 'eqeq2d',
+        ('wceq', (0, 1)): 'eqeq12d',
+        ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
+        ('wcel', (0, 1)): 'eleq12d',
+        ('csu', (0,)): 'sumeq1d'}
 
     def __init__(self, thm, grammar, items, sigs, records, theorems=()):
         self.thm, self.g, self.items, self.sigs = thm, grammar, items, sigs
         self.terms = targets.terms(records)
+        # A name the proof introduces becomes a variable of the kernel, and it
+        # must not be one a notation's own target binds: `S(_)` sums over `k`,
+        # so a proof that fixes `k` cannot be given `k`.
+        taken = {t for entries in self.terms.values() for e in entries if e
+                 for t in e.split()}
+        self.spare = [v for v in SPARE_VARS if v not in taken]
         self.proofs = {t.name: t for t in theorems}
         self.cited = []          # corpus theorems this proof leans on
         self.joined = None
+        self.shapes = {}         # target pattern -> the tree it reads as
         self.names = {}          # readable name -> kernel term
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
-        self.spare = list(SPARE_VARS)
         self.last = None
         # A variable is pushed by the label of its floating hypothesis and
         # written by its own name, so both directions are wanted.
         self.flabel = {s.statement[1]: s.label for s in sigs.values()
                        if s.kind == '$f'}
         self.fname = {v: k for k, v in self.flabel.items()}
+        self.forder = {s.label: i for i, s in enumerate(sigs.values())
+                       if s.kind == '$f'}
         # Which pattern of a record matched is read from the node's literal,
         # so a record's patterns are listed by theirs, in the order the
         # `pattern` and `target` fields both use. A folded pattern carries the
@@ -186,6 +217,49 @@ class Elaborator:
 
     # --- congruence ---------------------------------------------------------
 
+    def shape(self, pattern):
+        """A target read as a tree, so a rewrite can walk down it.
+
+        A target need not be one constructor. `S(_)` is a sum over a range
+        that holds the hole, so reaching the hole passes a `csu` and then a
+        `co`, and each level wants its own congruence lemma."""
+        if pattern in self.shapes:
+            return self.shapes[pattern]
+        stack = []
+        for token in pattern.split():
+            if token.startswith('_'):
+                stack.append(('hole', int(token[1:]) - 1))
+                continue
+            count = len(self.sigs[token].floats)
+            if not count:
+                stack.append(('const', token))
+                continue
+            args = stack[len(stack) - count:]
+            del stack[len(stack) - count:]
+            if token in WRAPS:                # the operation is an operand
+                stack.append(('app', args[-1][1], token, args[:-1]))
+            else:
+                stack.append(('app', token, None, args))
+        self.shapes[pattern] = stack[0]
+        return stack[0]
+
+    @staticmethod
+    def holds(tree, wanted):
+        if tree[0] == 'hole':
+            return tree[1] == wanted
+        if tree[0] == 'const':
+            return False
+        return any(Elaborator.holds(k, wanted) for k in tree[3])
+
+    def spell(self, tree, holes):
+        if tree[0] == 'hole':
+            return holes[tree[1]]
+        if tree[0] == 'const':
+            return tree[1]
+        _k, label, wrap, kids = tree
+        parts = [self.spell(k, holes) for k in kids]
+        return seq(*parts, label, wrap) if wrap else seq(*parts, label)
+
     def rewrite(self, node, old, new, scope, eqproof):
         """A proof that `node` equals `node` with `old` replaced by `new`.
 
@@ -194,42 +268,44 @@ class Elaborator:
         decides which lemma. Nothing is searched for."""
         if self.term(node) == old:
             return new, eqproof
-        pattern = self.pattern(node)
-        label, wrap = self.constructor(pattern)
-        places = targets.slots(pattern)
         holes = [self.term(c) for c in node.children]
-        operands = [targets.fill(tok, holes)
-                    for tok in pattern.split()[:-2 if wrap else -1]]
+        after, proofs = list(holes), {}
         for i, child in enumerate(node.children):
-            if i not in places or old not in self.term(child):
+            if old not in self.term(child):
                 continue
-            slot = places[i]
-            inner, proof = self.rewrite(child, old, new, scope, eqproof)
-            after = list(operands)
-            after[slot] = inner
-            rest = [k for j, k in enumerate(operands) if j != slot]
-            # An operation or a relation is itself an operand of the lemma
-            # that rewrites under it; a constructor that takes its arguments
-            # directly is not.
-            built = seq(*after, label, wrap) if wrap else seq(*after, label)
-            return built, seq(scope, operands[slot], inner, *rest,
-                              label if wrap else '', proof,
-                              self.CONGRUENCE[(wrap or label, slot)])
-        raise Problem('', 0, f'nothing to rewrite in {self.term(node)}')
+            after[i], proofs[i] = self.rewrite(child, old, new, scope,
+                                               eqproof)
+        if not proofs:
+            raise Problem('', 0, f'nothing to rewrite in {self.term(node)}')
+        return self.descend(self.shape(self.pattern(node)), holes, after,
+                            proofs, scope)
 
-    def constructor(self, pattern):
-        """The one constructor a target applies, and what encloses it.
-
-        A target may nest — `_ is not odd` is a negation of a divisibility —
-        and rewriting inside a nested one would need a lemma per level. No
-        step has wanted that, so it is refused rather than guessed at."""
-        tokens = pattern.split()
-        wrap = tokens[-1] if tokens[-1] in WRAPS else None
-        label = tokens[-2] if wrap else tokens[-1]
-        want = len(self.sigs[wrap or label].floats) - (1 if wrap else 0)
-        if len(tokens) - (2 if wrap else 1) != want:
-            raise Problem('', 0, f'{pattern!r} is not one constructor')
-        return label, wrap
+    def descend(self, tree, before, after, proofs, scope):
+        """Walk a target down to the holes that changed, a lemma a level."""
+        if tree[0] == 'hole':
+            return after[tree[1]], proofs[tree[1]]
+        if tree[0] == 'const':
+            raise Problem('', 0, 'no hole changed under this target')
+        _k, label, wrap, kids = tree
+        was = [self.spell(k, before) for k in kids]
+        now, deeper, slots = list(was), [], []
+        for slot, kid in enumerate(kids):
+            if not any(self.holds(kid, h) for h in proofs):
+                continue
+            now[slot], under = self.descend(kid, before, after, proofs, scope)
+            deeper.append(under)
+            slots.append(slot)
+        if not slots:
+            raise Problem('', 0, 'no hole changed under this target')
+        # An operation or a relation is itself an operand of the lemma that
+        # rewrites under it; a constructor that takes its arguments directly
+        # is not. What changed comes first, old beside new, then the rest.
+        moved = [x for slot in slots for x in (was[slot], now[slot])]
+        rest = [o for j, o in enumerate(was) if j not in slots]
+        built = seq(*now, label, wrap) if wrap else seq(*now, label)
+        return built, seq(scope, *moved, *rest, label if wrap else '',
+                          *deeper, self.CONGRUENCE[(wrap or label,
+                                                    tuple(slots))])
 
     # --- definitions --------------------------------------------------------
 
@@ -302,20 +378,29 @@ class Elaborator:
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
+        self.frames = [(scope, None)]
         closers, blocks = [], []
         for step in self.thm.steps:
             # A block's children are the steps numbered below it, so the
             # block closes at the first step that is not one of them.
-            while blocks and len(step.number) <= len(blocks[-1][0].number):
-                scope, facts = self.close_block(blocks.pop(), facts, lines)
-            if step.openers:
-                blocks.append(self.open_block(step, scope, facts, lines))
-                scope, facts = blocks[-1][3], blocks[-1][4]
+            while blocks and len(step.number) <= len(blocks[-1].owner.number):
+                done = blocks.pop()
+                scope, facts = self.close_block(done, facts, lines)
+                self.hand_up(done, blocks)
+            if step.openers or step.parts:
+                block = self.open_block(step, scope, facts, lines)
+                blocks.append(block)
+                scope, facts = block.scope, block.facts
                 continue
             scope, facts, closers = self.step(step, scope, facts, lines,
                                               closers)
+            if step.part is not None and blocks:
+                held = lines[self.last]
+                blocks[-1].parts[step.part] = (held.term, held.proof)
         while blocks:
-            scope, facts = self.close_block(blocks.pop(), facts, lines)
+            done = blocks.pop()
+            scope, facts = self.close_block(done, facts, lines)
+            self.hand_up(done, blocks)
 
         goal = self.term(self.read(self.thm.conclusion))
         proof = lines[self.last].proof
@@ -323,34 +408,101 @@ class Elaborator:
             proof = close(proof, goal)
         return goal, terms, proof
 
+    def widen(self, scope, facts, added):
+        """Conjoin one more thing onto the antecedent, carrying the facts.
+
+        This is what every block form does when it opens: `ELABORATION.md`
+        requirement 1. The frame is kept so that a step whose lemma forbids
+        the innermost assumption can be proved without it."""
+        inner = seq(scope, added, 'wa')
+        lifted = {k: seq(inner, scope, k, seq(scope, added, 'simpl'), v, 'syl')
+                  for k, v in facts.items()}
+        lifted[added] = seq(scope, added, 'simpr')
+        self.frames.append((inner, added))
+        return inner, lifted
+
     def open_block(self, step, scope, facts, lines):
         """A block's assumption is conjoined onto the antecedent.
 
         All four block forms do this; what differs is the lemma that closes
         them. `ELABORATION.md` requirement 1."""
-        if step.just.head != 'contradiction':
+        head = step.just.head
+        block = Block(step, scope, facts, len(self.frames) - 1)
+        if head == 'contradiction':
+            kind, text, label, _l, _p = step.openers[0]
+            node = self.read(text[len(kind):] if text.startswith(kind)
+                             else text)
+            block.supposed = self.term(node)
+            block.scope, block.facts = self.widen(scope, facts,
+                                                  block.supposed)
+            if label:
+                lines[label] = Fact(block.supposed,
+                                    block.facts[block.supposed], node)
+            self.joined = None
+        elif head == 'fix':
+            block.scope, block.facts = scope, facts
+            for kind, text, label, _l, _p in step.openers:
+                body = text[len(kind):] if text.startswith(kind) else text
+                if kind == 'let':
+                    # A fixed name is a variable of the kernel, not a class,
+                    # and it must avoid whatever the notations bind: the sum
+                    # binds `k`, so a proof that fixes `k` cannot use it.
+                    node = self.read(body)
+                    name = node.children[0].text
+                    block.variable = self.spare.pop(0)
+                    self.names[name] = f'{block.variable} cv'
+                    self.sets[name] = self.term(node.children[1])
+                node = self.read(body)
+                added = self.term(node)
+                block.scope, block.facts = self.widen(block.scope,
+                                                      block.facts, added)
+                if label:
+                    lines[label] = Fact(added, block.facts[added], node)
+        elif head == 'induction':
+            block.scope, block.facts = scope, facts
+            block.over = re.search(r'induction on (\S+)',
+                                   step.just.text).group(1)
+            block.base = self.spare.pop(0)
+        else:
             raise Problem('', step.line,
-                          f'no expansion for a {step.just.head} block')
-        kind, text, label, _line, _part = step.openers[0]
-        node = self.read(text[len(kind):] if text.startswith(kind) else text)
-        supposed = self.term(node)
-        inner = seq(scope, supposed, 'wa')
-        lifted = {k: seq(inner, scope, k, seq(scope, supposed, 'simpl'), v,
-                         'syl')
-                  for k, v in facts.items()}
-        lifted[supposed] = seq(scope, supposed, 'simpr')
-        if label:
-            lines[label] = Fact(supposed, lifted[supposed], node)
-        self.joined = None
-        return step, scope, facts, inner, lifted, supposed
+                          f'no expansion for a {head} block')
+        return block
+
+    @staticmethod
+    def hand_up(done, blocks):
+        """A closed block is the result of the part of its parent it sits in."""
+        if done.owner.part is not None and blocks:
+            blocks[-1].parts[done.owner.part] = (done.claim, done.proof)
+            if done.variable:
+                blocks[-1].variable = done.variable
 
     def close_block(self, block, facts, lines):
+        """What a block gives back, by the lemma its kind closes with."""
+        step = block.owner
+        head = step.just.head
+        del self.frames[block.frame + 1:]
+        if head == 'contradiction':
+            block.claim, block.proof = self.close_contradiction(block, facts)
+        elif head == 'fix':
+            held = lines[self.last]
+            block.claim, block.proof = held.term, held.proof
+            return block.outer, block.outside     # the induction takes it
+        elif head == 'induction':
+            block.claim, block.proof = self.close_induction(block, lines)
+        number = '.'.join(str(p) for p in step.number)
+        outer = dict(block.outside)
+        outer[block.claim] = block.proof
+        lines[number] = Fact(block.claim, block.proof)
+        self.last = number
+        return block.outer, outer
+
+    def close_contradiction(self, block, facts):
         """A contradiction closes on the pair its `join` named.
 
         pm2.65d takes the supposition implying a claim and the supposition
         implying its negation, and gives the supposition negated. The join
         itself emits nothing: this consumes both lines."""
-        step, scope, outer, _inner, _lifted, supposed = block
+        step, scope, supposed = block.owner, block.outer, block.supposed
         if not self.joined:
             raise Problem('', step.line, 'the block closes on no join')
         first, second = self.joined
@@ -359,17 +511,61 @@ class Elaborator:
         if second != seq(first, 'wn'):
             raise Problem('', step.line,
                           'the joined lines are not a contradiction')
-        number = '.'.join(str(p) for p in step.number)
         claim = self.term(self.read(self.sentences(' '.join(step.claim))[-1]))
-        proof = seq(scope, supposed, first,
-                    seq(scope, supposed, first, facts[first], 'ex'),
-                    seq(scope, supposed, second, facts[second], 'ex'),
-                    'pm2.65d')
-        outer = dict(outer)
-        outer[claim] = proof
-        lines[number] = Fact(claim, proof)
-        self.last = number
-        return scope, outer
+        return claim, seq(scope, supposed, first,
+                          seq(scope, supposed, first, facts[first], 'ex'),
+                          seq(scope, supposed, second, facts[second], 'ex'),
+                          'pm2.65d')
+
+    def close_induction(self, block, lines):
+        """Induction closes with nnindd, which wants the claim five ways.
+
+        The text writes none of them: it says only which name to induct on
+        and where to start. So the claim is read as a function of that name
+        and instantiated, and each instance is tied to the general one by
+        congruence. `ELABORATION.md` requirement 13."""
+        step, scope = block.owner, block.outer
+        if set(block.parts) != {0, 1}:
+            raise Problem('', step.line, 'induction wants a base and a step')
+        (_base_claim, base), (step_claim, stepped) = (block.parts[0],
+                                                      block.parts[1])
+        name, general = block.over, f'{block.base} cv'
+        at = re.search(r'starting at ([^\s,]+)', step.just.text)
+        start = self.term(self.read(at.group(1))) if at else 'c1'
+        variable = block.variable or f'{self.spare.pop(0)}'
+        next_one = seq(f'{variable} cv', 'c1', 'caddc', 'co')
+
+        saved = dict(self.names)
+        self.names[name] = general
+        pattern = self.freeze(self.read(' '.join(step.claim)))
+        self.names = saved
+        shapes = [start, f'{variable} cv', next_one, self.names[name]]
+        instances, ties = [], []
+        for value in shapes:
+            here = seq(general, value, 'wceq')
+            built, proof = self.rewrite(pattern, general, value, here,
+                                        seq(here, 'id'))
+            instances.append(built)
+            ties.append(proof)
+        claimed, held, reached, whole = instances
+        member = seq(self.names[name], self.sets[name], 'wcel')
+        body = self.term(pattern)
+
+        run = seq(scope, body, claimed, held, reached, whole,
+                  block.base, variable, self.names[name], *ties, base,
+                  stepped, 'nnindd')
+        if step_claim != reached:
+            raise Problem('', step.line,
+                          'the step does not reach the next instance')
+        # nnindd states the membership apart from the rest of the antecedent,
+        # and the scope already holds it, so the two are conjoined back.
+        if member not in block.outside:
+            raise Problem('', step.line,
+                          f'nothing in scope says {member}')
+        return whole, seq(scope, seq(scope, member, 'wa'), whole,
+                          seq(scope, scope, member, seq(scope, 'id'),
+                              block.outside[member], 'jca'),
+                          run, 'syl')
 
     def step(self, step, scope, facts, lines, closers):
         head = step.just.head
@@ -379,10 +575,15 @@ class Elaborator:
             return self.obtain(step, number, scope, facts, lines, closers)
         node = self.read(self.sentences(' '.join(step.claim))[-1])
         term = self.term(node)
-        how = {'algebra': self.algebra, 'substitute': self.substitute,
+        how = {'algebra': self.algebra, 'arithmetic': self.arithmetic,
+               'substitute': self.substitute,
                'calculation': self.calculation, 'join': self.join}.get(head)
         if how is None and head.startswith('def:'):
-            how = self.conclude
+            item = self.items[head.split(':', 1)[1]]
+            # A definition the database gives no target for is taken as
+            # stated, like a closure method, and listed at the file's head.
+            how = (self.conclude if 'target' in item.fields
+                   else self.take_definition)
         if how is None and head.startswith('thm:'):
             how = self.cite
         if how is None:
@@ -463,15 +664,21 @@ class Elaborator:
 
     def substitute(self, step, node, term, scope, facts, lines):
         """One equation put into one claim, at the place the tree names."""
-        written = re.match(r'substitute\s+(.*?)\s*\(', step.just.text).group(1)
+        # The reference is the bracket at the end; the equation may hold
+        # brackets of its own, as `S(k) = k(k + 1)/2` does.
+        written = re.match(r'substitute\s+(.*)\s*\([^()]*\)\s*$',
+                           step.just.text).group(1)
         left, right = self.read(written).children
         old, new = self.term(left), self.term(right)
-        held = facts.get(seq(new, old, 'wceq'))
-        if held is None:
-            raise Problem('', step.line, f'no equation {old} = {new} in scope')
-        # The text writes `n = 2k + 1` and the kernel holds it the other way,
-        # so the equation is turned round before it is used.
-        facing = seq(scope, new, old, held, 'eqcomd')
+        # Which way the equation faces in the kernel is the lemma's choice,
+        # not the text's, so either is accepted and turned if it has to be.
+        facing = facts.get(seq(old, new, 'wceq'))
+        if facing is None:
+            held = facts.get(seq(new, old, 'wceq'))
+            if held is None:
+                raise Problem('', step.line,
+                              f'no equation {old} = {new} in scope')
+            facing = seq(scope, new, old, held, 'eqcomd')
         built, proof = self.rewrite(node.children[0], old, new, scope, facing)
         if built != self.term(node.children[1]):
             raise Problem('', step.line, 'the substitution misses the claim')
@@ -479,35 +686,66 @@ class Elaborator:
 
     def algebra(self, step, node, term, scope, facts, lines):
         """Not expanded. The claim becomes an axiom under its own requires."""
-        label = f'alg{len(self.axioms) + 1}'
+        return self.assume(step, term, scope, facts, 'alg')
+
+    def arithmetic(self, step, node, term, scope, facts, lines):
+        """Not expanded either. `METHODS.md` says it is closed numerals."""
+        return self.assume(step, term, scope, facts, 'ari')
+
+    def take_definition(self, step, node, term, scope, facts, lines):
+        """A definition with no target is taken as it states itself."""
+        return self.assume(step, term, scope, facts, 'def')
+
+    def assume(self, step, term, scope, facts, prefix):
+        """State what a step claims, under the conditions it writes, and
+        take it. What the file assumes is listed at its head."""
+        label = f'{prefix}{len(self.axioms) + 1}'
         wants = [self.read(text) for text, _how, _line in step.requires]
         statement = term
         for want in reversed(wants):
             statement = seq(self.term(want), statement, 'wi')
         text = '|- ' + self.render(statement)
         self.axioms.append((label, text))
-        free = [t for t in dict.fromkeys(text.split())
-                if t in self.free_names()]
+        # What a statement asks to be pushed is every variable it mentions,
+        # in the order the database declares them, which is not the order the
+        # statement happens to write them in.
+        free = sorted({t for t in text.split() if t in self.flabel},
+                      key=lambda v: self.forder[self.flabel[v]])
         self.sigs[label] = Signature(
             label, '$a', text.split(),
-            [('setvar' if v.islower() else 'class', v) for v in free])
-        proof = seq(*(('v' if v.islower() else 'c') + v for v in free), label)
-        for want in wants:
-            condition = self.term(want)
-            proof = seq(scope, condition, term,
-                        self.closure(want.children[0],
-                                     self.term(want.children[1]), scope,
-                                     facts),
-                        proof, 'syl')
-            term = seq(condition, term, 'wi')
+            [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
+        proof = seq(*(self.flabel[v] for v in free), label)
+        if not wants:
+            # Nothing to discharge, so the statement is simply taken at the
+            # scope the step sits in.
+            return seq(term, scope, proof, 'a1i')
+        # The conditions nest, outermost first, so each is answered in turn
+        # and what is left of the statement shrinks by one.
+        for i, (want, (_t, how, _l)) in enumerate(zip(wants, step.requires,
+                                                      strict=True)):
+            rest = term
+            for later in reversed(wants[i + 1:]):
+                rest = seq(self.term(later), rest, 'wi')
+            proof = seq(scope, self.term(want), rest,
+                        self.side(want, how, scope, facts), proof,
+                        'syl' if i == 0 else 'mpd')
         return proof
 
-    def free_names(self):
-        """Every kernel name in play, by the letter it is written with."""
-        out = set()
-        for term in list(self.names.values()):
-            out.update(t[1:] for t in term.split() if t not in ('cv',))
-        return out
+    def side(self, want, how, scope, facts):
+        """A proof of what one `requires` line asks for."""
+        term = self.term(want)
+        if term in facts:
+            return facts[term]
+        if want.notation == 'membership':
+            return self.closure(want.children[0],
+                                self.term(want.children[1]), scope, facts)
+        if how.strip().startswith('arithmetic'):
+            label = f'ari{len(self.axioms) + 1}'
+            self.axioms.append((label, '|- ' + self.render(term)))
+            self.sigs[label] = Signature(label, '$a',
+                                         ['|-', *self.render(term).split()])
+            return seq(term, scope, label, 'a1i')
+        raise Problem('', 0, f'cannot supply {self.render(term)}')
 
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain of equalities folded by transitivity, one link at a time."""
@@ -782,7 +1020,10 @@ def main(argv):
 
     print(f'$( {thm.name}, elaborated from {thm.path} by tools/elaborate.py.')
     if work.axioms:
-        print('   Its algebra steps are axioms; everything else is built. $)')
+        print('   Everything is built except the statements below, which are')
+        print('   taken as the readable lines state them: a closure method')
+        print('   the elaborator does not expand, or a definition the')
+        print('   database gives no target for. $)')
     else:
         print('   Nothing here is assumed. $)')
     print()

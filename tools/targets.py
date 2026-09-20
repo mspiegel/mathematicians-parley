@@ -92,7 +92,10 @@ CLOSURE = {
 }
 
 # Moving a name from the set it was introduced in to the one a step needs.
-WIDEN = {('cz', 'cr'): 'zre', ('cz', 'cc'): 'zcn', ('cr', 'cc'): 'recn'}
+WIDEN = {('cz', 'cr'): 'zre', ('cz', 'cc'): 'zcn', ('cr', 'cc'): 'recn',
+         ('cn', 'cz'): 'nnz', ('cn', 'cr'): 'nnre', ('cn', 'cc'): 'nncn',
+         ('cn0', 'cz'): 'nn0z', ('cn0', 'cr'): 'nn0re',
+         ('cn0', 'cc'): 'nn0cn', ('cq', 'cr'): 'qre', ('cq', 'cc'): 'qcn'}
 
 # Numerals, and how a numeral says it is in a set: `2z`, `2cn`, `2re`.
 NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',

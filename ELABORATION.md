@@ -405,17 +405,20 @@ The five proofs above were written by hand, and the requirements below were
 read off them. `tools/elaborate.py` implements that list, and
 
 ```
-tools/elaborate.py odd-square <set.mm> > elaboration/odd-square.mm
-tools/elaborate.py even-square <set.mm> > elaboration/even-square.mm
+tools/elaborate.py <theorem> <set.mm> > elaboration/auto/<theorem>.mm
 ```
 
-produce Metamath proofs that verify against set.mm. Nothing in either is
-hand-written. Odd-square's `algebra` steps are axioms the program generates,
-as the first hand elaboration's were; everything else — the scope the `obtain`
-opens, the congruence path the `substitute` walks, the fold of the
-`calculation`, the witness of the final step, and every closure fact no
-`requires` line spells out — is built from the readable text. Even-square
-assumes nothing at all.
+produces a Metamath proof that verifies against set.mm. Three theorems go
+through it — odd-square, even-square and sum-formula — and nothing in any of
+them is hand-written. `elaboration/auto/` holds what the program writes; the
+files beside it are the hand elaborations, kept for comparison.
+
+The scope an `obtain` opens, the congruence path a `substitute` walks, the
+fold of a `calculation`, the witness of a definition used to conclude an
+existence claim, and every closure fact no `requires` line spells out are all
+built from the readable text. What is not built is stated at the head of each
+file: a closure method the program does not expand, or a definition the
+database gives no target for. Even-square assumes nothing at all.
 
 **Even-square is the one that matters, because it cites odd-square.** The
 corpus makes 66 `thm:` citations against 39 `def:` ones, so citing a theorem
@@ -431,6 +434,33 @@ the `join` inside it emits nothing: the close consumes both joined lines
 itself. So requirement 1 and requirement 8 are both executable now rather than
 observed.
 
+**Sum-formula tests requirement 13, and shows what a claim being a function
+of a name costs.** `nnindd` wants the claim five ways — general, at 1, at the
+induction variable, at its successor, and at what the theorem is about — and
+the text writes none of them. The program reads the claim with the induction
+variable rebound to a variable of the kernel, and ties each instance to the
+general one by congruence. That forced the congruence machinery to handle
+more than one occurrence at a time, since the claim holds its variable in
+three places and `eqeq12d` and `oveq12d` change two operands at once where
+`eqeq1d` and `oveq1d` change one. It also needed targets that nest: `S(_)` is
+a sum over a range that holds the hole, so reaching the hole passes a `csu`
+and then a `co`, and each level wants its own lemma.
+
+Two smaller things fell out. A name a proof introduces becomes a variable of
+the kernel, and it cannot be one a notation's own target binds — `S(_)` sums
+over `k`, so a proof that fixes `k` must be given something else, or the sum
+captures it. And `fix` closes with nothing at all when it is the step of an
+induction: the block's own scope is already the shape `nnindd` asks its step
+hypothesis to have.
+
+**Requirement 14 is not tested, and it is worth saying why.** The hoisting
+constraint lives in step 1.4.1, which unfolds `def:S` through `fsump1`, and
+`fsump1` forbids its bound variable in the antecedent. The program does not
+reach that: `def:S` has no `target`, so the step is taken as stated and
+`fsump1` is never applied. Giving `def:S` a target is what would make the
+constraint bite, and the elaborator would then have to prove that step
+outside the scope the text puts it in.
+
 The two kinds of citation want different things from the database. A theorem
 this corpus proves needs nothing: the elaborator wrote its statement and knows
 its shape. A theorem set.mm supplies needs to say which lemma, and how its
@@ -445,18 +475,23 @@ whether two elaborators must agree byte for byte or only produce something
 that verifies, and now there are two elaborations of each of two theorems to
 compare. None of them match.
 
-| | by hand | by program |
-| --- | --- | --- |
-| odd-square | 1617 | 2067 |
-| even-square | 342 | 440 |
+| | by hand | by program | |
+| --- | --- | --- | --- |
+| odd-square | 1617 | 2067 | |
+| even-square | 342 | 440 | |
+| sum-formula | 4024 | 1499 | the program assumes five statements |
 
-Both programs' proofs verify, and both are about a quarter larger for the same
-reason: where the hand proof pulled a fact out of the scope once and used it
-twice, the program derives it at each use, because nothing tells it that a
-fact is worth keeping. So verifiability is what an elaborator can be held to,
-and byte-identity is a property of one implementation rather than of the
-language — unless the language is specified far more tightly than these
-requirements specify it.
+None match. The first two are about a quarter larger for the same reason:
+where the hand proof pulled a fact out of the scope once and used it twice,
+the program derives it at each use, because nothing tells it that a fact is
+worth keeping. Sum-formula's rows are not comparable — the hand proof expands
+`def:S` and the arithmetic and the program takes both as stated, so the
+smaller number is the cost of assuming more, not of expanding better.
+
+All of them verify. So verifiability is what an elaborator can be held to, and
+byte-identity is a property of one implementation rather than of the language
+— unless the language is specified far more tightly than these requirements
+specify it.
 
 **What the program needed that the databases did not say.** Writing it found
 two gaps, and both are now closed by a `target` field beside `metamath`.

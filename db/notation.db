@@ -560,6 +560,7 @@ notation sum-function
   yields      number
   reads       the sum of the first natural numbers up to
   metamath    Σ k ∈ (1...n) k
+  target      c1 _1 cfz co vk cv vk csu
   first-used  sum-formula
   note        Introduced by def:S, which is local to the sum-formula pilot.
 

@@ -1,5 +1,8 @@
 $( odd-square, elaborated from proof/sqrt2-irrational.proof by tools/elaborate.py.
-   Its algebra steps are axioms; everything else is built. $)
+   Everything is built except the statements below, which are
+   taken as the readable lines state them: a closure method
+   the elaborator does not expand, or a definition the
+   database gives no target for. $)
 
 $[ set.mm $]
 
