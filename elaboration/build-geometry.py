@@ -1018,6 +1018,123 @@ def law_of_cosines(b, out):
     return out
 
 
+def cancelling(b, out):
+    """Two laws of cosines with the same sides say the same cosine.
+
+    Both sides of the comparison have the shape Z − 2(K·X), where Z is the
+    two squares added and K the two sides multiplied. What is wanted is X,
+    so Z comes off by `subcan` and the two factors by `mulcan`. K is a
+    product of two lengths and is nonzero because neither vertex meets the
+    one the angle sits at."""
+    ph = ('( ( X e. CC /\\ Y e. CC /\\ Z e. CC ) '
+          '/\\ ( K e. CC /\\ K =/= 0 ) )')
+    left, right = '( 2 x. ( K x. X ) )', '( 2 x. ( K x. Y ) )'
+    three = b.ap('simpl', {'ph': b.wff('( X e. CC /\\ Y e. CC /\\ Z e. CC )'),
+                           'ps': b.wff('( K e. CC /\\ K =/= 0 )')})
+    mem = {}
+    for name, which in (('X', 'simp1'), ('Y', 'simp2'), ('Z', 'simp3')):
+        mem[name] = b.ap('syl', {'ph': b.wff(ph),
+                                 'ps': b.wff('( X e. CC /\\ Y e. CC '
+                                             '/\\ Z e. CC )'),
+                                 'ch': b.wff(f'{name} e. CC')},
+                         three,
+                         b.ap(which, {'ph': b.wff('X e. CC'),
+                                      'ps': b.wff('Y e. CC'),
+                                      'ch': b.wff('Z e. CC')}))
+    pair = b.ap('simpr', {'ph': b.wff('( X e. CC /\\ Y e. CC /\\ Z e. CC )'),
+                          'ps': b.wff('( K e. CC /\\ K =/= 0 )')})
+    k_cc = b.ap('simpld', {'ph': b.wff(ph), 'ps': b.wff('K e. CC'),
+                           'ch': b.wff('K =/= 0')}, pair)
+    two = b.ap('a1i', {'ph': b.wff('2 e. CC'), 'ps': b.wff(ph)}, '2cn')
+    two_nz = b.ap('a1i', {'ph': b.wff('2 =/= 0'), 'ps': b.wff(ph)}, '2ne0')
+
+    # Z comes off first, then the 2, then K.
+    drops_z = b.ap('syl3anc',
+                   {'ph': b.wff(ph), 'ps': b.wff('Z e. CC'),
+                    'ch': b.wff(f'{left} e. CC'), 'th': b.wff(f'{right} e. CC'),
+                    'ta': b.wff(f'( ( Z - {left} ) = ( Z - {right} ) '
+                                f'<-> {left} = {right} )')},
+                   mem['Z'],
+                   b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('2'),
+                                   'B': b.rpn('( K x. X )')}, two,
+                        b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('K'),
+                                        'B': b.rpn('X')}, k_cc, mem['X'])),
+                   b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('2'),
+                                   'B': b.rpn('( K x. Y )')}, two,
+                        b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('K'),
+                                        'B': b.rpn('Y')}, k_cc, mem['Y'])),
+                   b.ap('subcan', {'A': b.rpn('Z'), 'B': b.rpn(left),
+                                   'C': b.rpn(right)}))
+    drops_two = b.ap('syl3anc',
+                     {'ph': b.wff(ph), 'ps': b.wff('( K x. X ) e. CC'),
+                      'ch': b.wff('( K x. Y ) e. CC'),
+                      'th': b.wff('( 2 e. CC /\\ 2 =/= 0 )'),
+                      'ta': b.wff(f'( {left} = {right} '
+                                  '<-> ( K x. X ) = ( K x. Y ) )')},
+                     b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('K'),
+                                     'B': b.rpn('X')}, k_cc, mem['X']),
+                     b.ap('mulcld', {'ph': b.wff(ph), 'A': b.rpn('K'),
+                                     'B': b.rpn('Y')}, k_cc, mem['Y']),
+                     b.ap('jca', {'ph': b.wff(ph), 'ps': b.wff('2 e. CC'),
+                                  'ch': b.wff('2 =/= 0')}, two, two_nz),
+                     b.ap('mulcan', {'A': b.rpn('( K x. X )'),
+                                     'B': b.rpn('( K x. Y )'),
+                                     'C': b.rpn('2')}))
+    drops_k = b.ap('syl3anc',
+                   {'ph': b.wff(ph), 'ps': b.wff('X e. CC'),
+                    'ch': b.wff('Y e. CC'),
+                    'th': b.wff('( K e. CC /\\ K =/= 0 )'),
+                    'ta': b.wff('( ( K x. X ) = ( K x. Y ) <-> X = Y )')},
+                   mem['X'], mem['Y'], pair,
+                   b.ap('mulcan', {'A': b.rpn('X'), 'B': b.rpn('Y'),
+                                   'C': b.rpn('K')}))
+    says = (f'|- ( {ph} -> ( ( Z - {left} ) = ( Z - {right} ) -> X = Y ) )')
+    out.append(('gcoscan', says, b.ap(
+        'sylibd', {'ph': b.wff(ph),
+                   'ps': b.wff(f'( Z - {left} ) = ( Z - {right} )'),
+                   'ch': b.wff('( K x. X ) = ( K x. Y )'),
+                   'th': b.wff('X = Y')},
+        b.ap('sylibd', {'ph': b.wff(ph),
+                        'ps': b.wff(f'( Z - {left} ) = ( Z - {right} )'),
+                        'ch': b.wff(f'{left} = {right}'),
+                        'th': b.wff('( K x. X ) = ( K x. Y )')},
+             b.ap('biimpd', {'ph': b.wff(ph),
+                             'ps': b.wff(f'( Z - {left} ) = ( Z - {right} )'),
+                             'ch': b.wff(f'{left} = {right}')}, drops_z),
+             drops_two),
+        drops_k)))
+    b.define('gcoscan', says)
+
+    # Going back from the cosine to the angle, which is possible only
+    # because the angle the corpus writes is unsigned: cosine is one to
+    # one on 0 to pi and on nothing wider.
+    nz = '( ( A e. CC /\\ A =/= 0 ) /\\ ( B e. CC /\\ B =/= 0 ) )'
+    nz2 = '( ( C e. CC /\\ C =/= 0 ) /\\ ( D e. CC /\\ D =/= 0 ) )'
+    both = f'( {nz} /\\ {nz2} )'
+    one, two = '( abs ` ( A ang B ) )', '( abs ` ( C ang D ) )'
+    says = (f'|- ( {both} -> ( ( cos ` {one} ) = ( cos ` {two} ) '
+            f'-> {one} = {two} ) )')
+    out.append(('gangeq', says, b.ap(
+        'biimprd', {'ph': b.wff(both), 'ps': b.wff(f'{one} = {two}'),
+                    'ch': b.wff(f'( cos ` {one} ) = ( cos ` {two} )')},
+        b.ap('syl2anc',
+             {'ph': b.wff(both), 'ps': b.wff(f'{one} e. ( 0 [,] _pi )'),
+              'ch': b.wff(f'{two} e. ( 0 [,] _pi )'),
+              'th': b.wff(f'( {one} = {two} <-> ( cos ` {one} ) '
+                          f'= ( cos ` {two} ) )')},
+             b.ap('syl', {'ph': b.wff(both), 'ps': b.wff(nz),
+                          'ch': b.wff(f'{one} e. ( 0 [,] _pi )')},
+                  b.ap('simpl', {'ph': b.wff(nz), 'ps': b.wff(nz2)}),
+                  b.ap('gangrange', {'A': b.rpn('A'), 'B': b.rpn('B')})),
+             b.ap('syl', {'ph': b.wff(both), 'ps': b.wff(nz2),
+                          'ch': b.wff(f'{two} e. ( 0 [,] _pi )')},
+                  b.ap('simpr', {'ph': b.wff(nz), 'ps': b.wff(nz2)}),
+                  b.ap('gangrange', {'A': b.rpn('C'), 'B': b.rpn('D')})),
+             b.ap('cos11', {'A': b.rpn(one), 'B': b.rpn(two)})))))
+    b.define('gangeq', says)
+    return out
+
+
 HEAD = """$( geometry, built by elaboration/build-geometry.py.
 
    What this corpus needs of the plane and set.mm does not state.
@@ -1059,9 +1176,10 @@ def main(argv):
     sigs = read_library(argv[1], here / 'auto' / 'definitions.mm')
     b = Builder(sigs)
     print(HEAD, end='')
-    for label, statement, proof in law_of_cosines(
-            b, angle_size(
-                b, angle_symmetry(b, rotation(b, triangle_lemmas(b))))):
+    for label, statement, proof in cancelling(
+            b, law_of_cosines(
+                b, angle_size(
+                    b, angle_symmetry(b, rotation(b, triangle_lemmas(b)))))):
         print(f'  {label} $p {statement} $=')
         line = '   '
         for token in proof.split():

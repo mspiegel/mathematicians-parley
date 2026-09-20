@@ -1078,3 +1078,89 @@ $d x U $.  $d y U $.
     logcld imcld eqeltrd cA cB cmin co cC cB cmin co cang co gcosabs syl
     eqcomd oveq12d oveq2d oveq12d eqtrd $.
 
+  gcoscan $p |- ( ( ( X e. CC /\ Y e. CC /\ Z e. CC ) /\ ( K e. CC /\ K =/= 0 ) ) -> ( ( Z - ( 2 x. ( K x. X ) ) ) = ( Z - ( 2 x. ( K x. Y ) ) ) -> X = Y ) ) $=
+    cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa cZ c2 cK
+    cX cmul co cmul co cmin co cZ c2 cK cY cmul co cmul co cmin co wceq cK cX
+    cmul co cK cY cmul co wceq cX cY wceq cX cc wcel cY cc wcel cZ cc wcel
+    w3a cK cc wcel cK cc0 wne wa wa cZ c2 cK cX cmul co cmul co cmin co cZ c2
+    cK cY cmul co cmul co cmin co wceq c2 cK cX cmul co cmul co c2 cK cY cmul
+    co cmul co wceq cK cX cmul co cK cY cmul co wceq cX cc wcel cY cc wcel cZ
+    cc wcel w3a cK cc wcel cK cc0 wne wa wa cZ c2 cK cX cmul co cmul co cmin
+    co cZ c2 cK cY cmul co cmul co cmin co wceq c2 cK cX cmul co cmul co c2
+    cK cY cmul co cmul co wceq cX cc wcel cY cc wcel cZ cc wcel w3a cK cc
+    wcel cK cc0 wne wa wa cZ cc wcel c2 cK cX cmul co cmul co cc wcel c2 cK
+    cY cmul co cmul co cc wcel cZ c2 cK cX cmul co cmul co cmin co cZ c2 cK
+    cY cmul co cmul co cmin co wceq c2 cK cX cmul co cmul co c2 cK cY cmul co
+    cmul co wceq wb cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0
+    wne wa wa cX cc wcel cY cc wcel cZ cc wcel w3a cZ cc wcel cX cc wcel cY
+    cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa simpl cX cc wcel cY cc
+    wcel cZ cc wcel simp3 syl cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel
+    cK cc0 wne wa wa c2 cK cX cmul co c2 cc wcel cX cc wcel cY cc wcel cZ cc
+    wcel w3a cK cc wcel cK cc0 wne wa wa 2cn a1i cX cc wcel cY cc wcel cZ cc
+    wcel w3a cK cc wcel cK cc0 wne wa wa cK cX cX cc wcel cY cc wcel cZ cc
+    wcel w3a cK cc wcel cK cc0 wne wa wa cK cc wcel cK cc0 wne cX cc wcel cY
+    cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa simpr simpld cX cc wcel
+    cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa cX cc wcel cY cc
+    wcel cZ cc wcel w3a cX cc wcel cX cc wcel cY cc wcel cZ cc wcel w3a cK cc
+    wcel cK cc0 wne wa simpl cX cc wcel cY cc wcel cZ cc wcel simp1 syl
+    mulcld mulcld cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne
+    wa wa c2 cK cY cmul co c2 cc wcel cX cc wcel cY cc wcel cZ cc wcel w3a cK
+    cc wcel cK cc0 wne wa wa 2cn a1i cX cc wcel cY cc wcel cZ cc wcel w3a cK
+    cc wcel cK cc0 wne wa wa cK cY cX cc wcel cY cc wcel cZ cc wcel w3a cK cc
+    wcel cK cc0 wne wa wa cK cc wcel cK cc0 wne cX cc wcel cY cc wcel cZ cc
+    wcel w3a cK cc wcel cK cc0 wne wa simpr simpld cX cc wcel cY cc wcel cZ
+    cc wcel w3a cK cc wcel cK cc0 wne wa wa cX cc wcel cY cc wcel cZ cc wcel
+    w3a cY cc wcel cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne
+    wa simpl cX cc wcel cY cc wcel cZ cc wcel simp2 syl mulcld mulcld cZ c2
+    cK cX cmul co cmul co c2 cK cY cmul co cmul co subcan syl3anc biimpd cX
+    cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa cK cX cmul
+    co cc wcel cK cY cmul co cc wcel c2 cc wcel c2 cc0 wne wa c2 cK cX cmul
+    co cmul co c2 cK cY cmul co cmul co wceq cK cX cmul co cK cY cmul co wceq
+    wb cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa cK cX
+    cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa cK cc
+    wcel cK cc0 wne cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0
+    wne wa simpr simpld cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK
+    cc0 wne wa wa cX cc wcel cY cc wcel cZ cc wcel w3a cX cc wcel cX cc wcel
+    cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa simpl cX cc wcel cY cc
+    wcel cZ cc wcel simp1 syl mulcld cX cc wcel cY cc wcel cZ cc wcel w3a cK
+    cc wcel cK cc0 wne wa wa cK cY cX cc wcel cY cc wcel cZ cc wcel w3a cK cc
+    wcel cK cc0 wne wa wa cK cc wcel cK cc0 wne cX cc wcel cY cc wcel cZ cc
+    wcel w3a cK cc wcel cK cc0 wne wa simpr simpld cX cc wcel cY cc wcel cZ
+    cc wcel w3a cK cc wcel cK cc0 wne wa wa cX cc wcel cY cc wcel cZ cc wcel
+    w3a cY cc wcel cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne
+    wa simpl cX cc wcel cY cc wcel cZ cc wcel simp2 syl mulcld cX cc wcel cY
+    cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa c2 cc wcel c2 cc0 wne
+    c2 cc wcel cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa
+    wa 2cn a1i c2 cc0 wne cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK
+    cc0 wne wa wa 2ne0 a1i jca cK cX cmul co cK cY cmul co c2 mulcan syl3anc
+    sylibd cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa wa
+    cX cc wcel cY cc wcel cK cc wcel cK cc0 wne wa cK cX cmul co cK cY cmul
+    co wceq cX cY wceq wb cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK
+    cc0 wne wa wa cX cc wcel cY cc wcel cZ cc wcel w3a cX cc wcel cX cc wcel
+    cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa simpl cX cc wcel cY cc
+    wcel cZ cc wcel simp1 syl cX cc wcel cY cc wcel cZ cc wcel w3a cK cc wcel
+    cK cc0 wne wa wa cX cc wcel cY cc wcel cZ cc wcel w3a cY cc wcel cX cc
+    wcel cY cc wcel cZ cc wcel w3a cK cc wcel cK cc0 wne wa simpl cX cc wcel
+    cY cc wcel cZ cc wcel simp2 syl cX cc wcel cY cc wcel cZ cc wcel w3a cK
+    cc wcel cK cc0 wne wa simpr cX cY cK mulcan syl3anc sylibd $.
+
+  gangeq $p |- ( ( ( ( A e. CC /\ A =/= 0 ) /\ ( B e. CC /\ B =/= 0 ) ) /\ ( ( C e. CC /\ C =/= 0 ) /\ ( D e. CC /\ D =/= 0 ) ) ) -> ( ( cos ` ( abs ` ( A ang B ) ) ) = ( cos ` ( abs ` ( C ang D ) ) ) -> ( abs ` ( A ang B ) ) = ( abs ` ( C ang D ) ) ) ) $=
+    cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cC cc wcel cC cc0
+    wne wa cD cc wcel cD cc0 wne wa wa wa cA cB cang co cabs cfv cC cD cang
+    co cabs cfv wceq cA cB cang co cabs cfv ccos cfv cC cD cang co cabs cfv
+    ccos cfv wceq cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cC cc
+    wcel cC cc0 wne wa cD cc wcel cD cc0 wne wa wa wa cA cB cang co cabs cfv
+    cc0 cpi cicc co wcel cC cD cang co cabs cfv cc0 cpi cicc co wcel cA cB
+    cang co cabs cfv cC cD cang co cabs cfv wceq cA cB cang co cabs cfv ccos
+    cfv cC cD cang co cabs cfv ccos cfv wceq wb cA cc wcel cA cc0 wne wa cB
+    cc wcel cB cc0 wne wa wa cC cc wcel cC cc0 wne wa cD cc wcel cD cc0 wne
+    wa wa wa cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cA cB cang
+    co cabs cfv cc0 cpi cicc co wcel cA cc wcel cA cc0 wne wa cB cc wcel cB
+    cc0 wne wa wa cC cc wcel cC cc0 wne wa cD cc wcel cD cc0 wne wa wa simpl
+    cA cB gangrange syl cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa
+    cC cc wcel cC cc0 wne wa cD cc wcel cD cc0 wne wa wa wa cC cc wcel cC cc0
+    wne wa cD cc wcel cD cc0 wne wa wa cC cD cang co cabs cfv cc0 cpi cicc co
+    wcel cA cc wcel cA cc0 wne wa cB cc wcel cB cc0 wne wa wa cC cc wcel cC
+    cc0 wne wa cD cc wcel cD cc0 wne wa wa simpr cC cD gangrange syl cA cB
+    cang co cabs cfv cC cD cang co cabs cfv cos11 syl2anc biimprd $.
+
