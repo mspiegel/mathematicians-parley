@@ -346,6 +346,7 @@ definition S
   let n ∈ ℕ                                                           (H1)
   then        S(n + 1) = S(n) + (n + 1)
   metamath    fsum1, fsump1
+  target      fsum1, fsump1
   first-used  sum-formula
   note        Local to the sum-formula pilot. Two `then` groups: the base
               sentence has no hypothesis and the step sentence has H1. See

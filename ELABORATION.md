@@ -453,13 +453,41 @@ captures it. And `fix` closes with nothing at all when it is the step of an
 induction: the block's own scope is already the shape `nnindd` asks its step
 hypothesis to have.
 
-**Requirement 14 is not tested, and it is worth saying why.** The hoisting
-constraint lives in step 1.4.1, which unfolds `def:S` through `fsump1`, and
-`fsump1` forbids its bound variable in the antecedent. The program does not
-reach that: `def:S` has no `target`, so the step is taken as stated and
-`fsump1` is never applied. Giving `def:S` a target is what would make the
-constraint bite, and the elaborator would then have to prove that step
-outside the scope the text puts it in.
+**Requirement 14 fires, and it fires exactly where it was predicted to.**
+Step 1.4.1 unfolds `def:S` through `fsump1`, which forbids its summation
+variable in the antecedent. The step is written inside the `fix` block, whose
+antecedent carries the induction hypothesis, and the induction hypothesis is
+an equation between sums — so it holds that variable. The elaborator reports:
+
+```
+text puts the step at: ( ( A e. NN /\ j e. NN ) /\ sum_ k e. ( 1 ... j ) k = ( ( j x. ( j + 1 ) ) / 2 ) )
+proved instead at    : ( A e. NN /\ j e. NN )
+```
+
+It proves the step one frame out and carries the result back in with
+`adantr`. So an elaborator cannot walk the steps in order accumulating scope,
+which is what this one did until the constraint bit: the scope a step is
+proved at is chosen from the lemma's disjointness conditions before anything
+is built, and each frame has to keep what was known at it, because the
+hoisted step is proved from those facts rather than the innermost ones.
+
+**What made it reachable was reading set.mm's statements.** `fsump1` has
+three essential hypotheses — that the index is in the upper integers, that the
+summand is complex, and one substitution instance — and none is a `requires`
+line, because to a reader none is a step. Describing them in the database
+would have meant writing kernel structure into a readable file. Instead
+`parley/kernel.py` parses a set.mm statement into a term, so a lemma's own
+statement says what it concludes and what it asks; `db/items.db` names
+`fsum1, fsump1` and nothing more, and which clause applies is decided by
+which one's conclusion is what the step claims.
+
+That parser is an ordinary chart parse over set.mm's 1,472 syntax axioms, and
+it round-trips 400 statements drawn at random through parse, reverse Polish
+and back. What it buys beyond this one step is that a side condition can be
+settled by matching: `parley/targets.py` lists the lemmas the elaborator may
+use for a membership, and it tries each against what is wanted — which is how
+`k ∈ ℂ` gets proved from `k` running over a range of integers, a fact the
+readable proof never mentions because a reader never wonders about it.
 
 The two kinds of citation want different things from the database. A theorem
 this corpus proves needs nothing: the elaborator wrote its statement and knows
@@ -479,14 +507,14 @@ compare. None of them match.
 | --- | --- | --- | --- |
 | odd-square | 1617 | 2067 | |
 | even-square | 342 | 440 | |
-| sum-formula | 4024 | 1499 | the program assumes five statements |
+| sum-formula | 4024 | 1693 | the program assumes three statements |
 
 None match. The first two are about a quarter larger for the same reason:
 where the hand proof pulled a fact out of the scope once and used it twice,
 the program derives it at each use, because nothing tells it that a fact is
-worth keeping. Sum-formula's rows are not comparable — the hand proof expands
-`def:S` and the arithmetic and the program takes both as stated, so the
-smaller number is the cost of assuming more, not of expanding better.
+worth keeping. Sum-formula's rows are still not comparable — both expand
+`def:S` now, but the program takes the two `arithmetic` steps and the one
+`algebra` step as stated where the hand proof works them out.
 
 All of them verify. So verifiability is what an elaborator can be held to, and
 byte-identity is a property of one implementation rather than of the language
@@ -717,7 +745,9 @@ the identity is.
     an elaborator cannot walk the steps in order accumulating scope; it has to
     be able to prove a step earlier than the text states it and carry the
     result in. This is the only constraint found so far that is about where a
-    step may be emitted rather than about which lemma it emits.
+    step may be emitted rather than about which lemma it emits, and it is
+    implemented: the scope is chosen from the lemma's disjointness conditions
+    before anything is built, and each scope keeps the facts known at it.
 
 ## What this says about the corpus
 

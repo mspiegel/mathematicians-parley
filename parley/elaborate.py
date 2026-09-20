@@ -26,12 +26,13 @@ import sys
 import typing
 from pathlib import Path
 
+import kernel
 import targets
 from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
 from match import instantiation
-from parse import Problem, check_encoding, parse_database, parse_proof
+from parse import Problem, check_encoding, fmt, parse_database, parse_proof
 from sorts import sorts_in_scope
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
@@ -116,6 +117,7 @@ class Elaborator:
         taken = {t for entries in self.terms.values() for e in entries if e
                  for t in e.split()}
         self.spare = [v for v in SPARE_VARS if v not in taken]
+        self.syntax = kernel.Syntax(sigs)
         self.proofs = {t.name: t for t in theorems}
         self.cited = []          # corpus theorems this proof leans on
         self.joined = None
@@ -214,6 +216,86 @@ class Elaborator:
                    seq(scope, *(seq(t, want, 'wcel') for t in inner), *kids,
                        'jca'),
                    *inner, lemma, 'syl')
+
+    # --- facts the text never writes ----------------------------------------
+
+    def to_term(self, rpn):
+        """A term the proof holds, read back as a tree."""
+        stack = []
+        for token in rpn.split():
+            sig = self.sigs[token]
+            if sig.kind == '$f':
+                stack.append(kernel.Term(variable=sig.statement[1]))
+                continue
+            count = len(sig.floats)
+            args = stack[len(stack) - count:] if count else []
+            del stack[len(stack) - count:]
+            stack.append(kernel.Term(token, tuple(args)))
+        return stack[0]
+
+    def settle(self, wanted, scope, facts, depth=5):
+        """A proof of something a step needs and the text does not write.
+
+        A cited lemma asks side conditions of its own — that an index is in
+        the upper integers, that a summand is complex — and those are not
+        `requires` lines, because to a reader they are not steps. They are
+        settled from the lemmas `targets.MEMBERSHIP` names, by matching what
+        each concludes against what is wanted."""
+        rpn = wanted.rpn(self.flabel)
+        if rpn in facts:
+            return facts[rpn]
+        if depth > 0:
+            if wanted.label == 'wa':
+                left, right = wanted.children
+                return seq(scope, left.rpn(self.flabel),
+                           right.rpn(self.flabel),
+                           self.settle(left, scope, facts, depth - 1),
+                           self.settle(right, scope, facts, depth - 1), 'jca')
+            for label in targets.MEMBERSHIP:
+                sig = self.sigs.get(label)
+                if sig is None or sig.essentials:
+                    continue
+                found = self.fits(label, sig, wanted, scope, facts, depth)
+                if found is not None:
+                    return found
+        raise Problem('', 0, f'cannot settle {self.render(rpn)}')
+
+    def fits(self, label, sig, wanted, scope, facts, depth):
+        """Whether one lemma settles what is wanted, and how."""
+        whole = self.syntax.statement(sig)
+        variables = whole.names()
+        antecedent, reads = None, whole
+        if whole.label in ('wi', 'wb'):
+            antecedent, reads = whole.children
+        binding = kernel.match(reads, wanted, {}, variables)
+        if binding is None:
+            return None
+        if antecedent is not None and antecedent.names() - set(binding):
+            # What the lemma asks is not settled by what it concludes:
+            # `elfzelz` gives an integer from a range it does not name. So
+            # the antecedent has to be something already known, and that is
+            # what fixes the rest.
+            for held in facts:
+                filled = kernel.match(antecedent, self.to_term(held),
+                                      dict(binding), variables)
+                if filled is not None:
+                    binding = filled
+                    break
+            else:
+                return None
+        pushed = [binding[v].rpn(self.flabel) if v in binding
+                  else self.flabel[v] for v in sig.push]
+        instance = seq(*pushed, label)
+        if antecedent is None:
+            return seq(wanted.rpn(self.flabel), scope, instance, 'a1i')
+        asks = antecedent.substitute(binding)
+        try:
+            under = self.settle(asks, scope, facts, depth - 1)
+        except Problem:
+            return None
+        return seq(scope, asks.rpn(self.flabel), wanted.rpn(self.flabel),
+                   under, instance,
+                   'syl' if whole.label == 'wi' else 'sylib')
 
     # --- congruence ---------------------------------------------------------
 
@@ -378,7 +460,7 @@ class Elaborator:
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
-        self.frames = [(scope, None)]
+        self.frames = [(scope, None, facts)]
         closers, blocks = [], []
         for step in self.thm.steps:
             # A block's children are the steps numbered below it, so the
@@ -418,7 +500,9 @@ class Elaborator:
         lifted = {k: seq(inner, scope, k, seq(scope, added, 'simpl'), v, 'syl')
                   for k, v in facts.items()}
         lifted[added] = seq(scope, added, 'simpr')
-        self.frames.append((inner, added))
+        # Each frame keeps what is known at it, because a step whose lemma
+        # forbids an inner assumption is proved at an outer one.
+        self.frames.append((inner, added, lifted))
         return inner, lifted
 
     def open_block(self, step, scope, facts, lines):
@@ -580,10 +664,16 @@ class Elaborator:
                'calculation': self.calculation, 'join': self.join}.get(head)
         if how is None and head.startswith('def:'):
             item = self.items[head.split(':', 1)[1]]
-            # A definition the database gives no target for is taken as
-            # stated, like a closure method, and listed at the file's head.
-            how = (self.conclude if 'target' in item.fields
-                   else self.take_definition)
+            # A definition stated as a biconditional is used by unfolding it;
+            # one stated as an equation is used by citing the lemma that
+            # proves it. With no target it is taken as stated, like a closure
+            # method, and listed at the file's head.
+            if 'target' not in item.fields:
+                how = self.take_definition
+            elif any('↔' in text for text, _line in item.conclusions):
+                how = self.conclude
+            else:
+                how = self.unfold_equation
         if how is None and head.startswith('thm:'):
             how = self.cite
         if how is None:
@@ -695,6 +785,107 @@ class Elaborator:
     def take_definition(self, step, node, term, scope, facts, lines):
         """A definition with no target is taken as it states itself."""
         return self.assume(step, term, scope, facts, 'def')
+
+    def unfold_equation(self, step, node, term, scope, facts, lines):
+        """A definition stated as an equation, one clause per `then` group.
+
+        `def:S` says what S(1) is and what S(n + 1) is, and set.mm proves each
+        separately. The clause is chosen by which lemma's conclusion is what
+        the step claims, so the text never says which."""
+        item = self.items[step.just.head.split(':', 1)[1]]
+        goal = self.to_term(term)
+        for label in targets.split_entries(item.fields['target']):
+            found = self.apply_lemma(label, goal, scope, facts, step)
+            if found is not None:
+                return found
+        raise Problem('', step.line,
+                      f'no clause of {step.just.head} gives what step '
+                      f'{fmt(step.number)} claims')
+
+    def apply_lemma(self, label, goal, scope, facts, step):
+        """Apply one set.mm lemma to reach a claim, side conditions and all."""
+        sig = self.sigs[label]
+        whole = self.syntax.statement(sig)
+        variables = whole.names()
+        antecedents, reads, binding = [], whole, None
+        while True:
+            binding = kernel.match(reads, goal, {}, variables)
+            if binding is not None:
+                break
+            if reads.label != 'wi':
+                return None
+            antecedents.append(reads.children[0])
+            reads = reads.children[1]
+
+        # The scope is where a lemma's disjointness conditions can forbid it,
+        # so it is chosen before anything is built. ELABORATION.md 14.
+        where, frame = self.allowed(sig, binding, variables)
+        known = self.frames_facts(frame, facts)
+        for slot in antecedents:
+            if slot.variable is not None and slot.variable not in binding:
+                binding[slot.variable] = self.to_term(where)
+        pushed = [binding[v].rpn(self.flabel) if v in binding
+                  else self.flabel[v] for v in sig.push]
+        essentials = [self.prove_essential(
+            self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)
+            for e in sig.essentials]
+        proof = seq(*pushed, *essentials, label)
+        for slot in antecedents:
+            asks = slot.substitute(binding)
+            if asks.rpn(self.flabel) == where:
+                continue                      # the deduction slot
+            proof = seq(where, asks.rpn(self.flabel), goal.rpn(self.flabel),
+                        self.settle(asks, where, known), proof, 'syl')
+        return self.carry(proof, goal.rpn(self.flabel), frame)
+
+    def prove_essential(self, want, scope, facts):
+        """One hypothesis a lemma states in full rather than asking for."""
+        if want.label != 'wi':
+            return self.settle(want, scope, facts)
+        left, right = want.children
+        under = left.rpn(self.flabel)
+        if under == right.rpn(self.flabel):
+            return seq(under, 'id')
+        if under == scope:
+            return self.settle(right, scope, facts)
+        if (left.label == 'wa'
+                and left.children[0].rpn(self.flabel) == scope):
+            extra = left.children[1].rpn(self.flabel)
+            wider = {k: seq(under, scope, k, seq(scope, extra, 'simpl'), v,
+                            'syl') for k, v in facts.items()}
+            wider[extra] = seq(scope, extra, 'simpr')
+            return self.settle(right, under, wider)
+        return self.settle(right, under, {})
+
+    def allowed(self, sig, binding, variables):
+        """The innermost scope a lemma's disjointness conditions permit.
+
+        `fsump1` forbids its summation variable in the antecedent, and the
+        induction hypothesis is an equation between sums, so it holds that
+        variable. The step is written inside that scope and cannot be proved
+        there. It is proved one frame out and carried back in."""
+        forbidden = set()
+        for a, b in sig.disjoint:
+            for one, other in ((a, b), (b, a)):
+                if one in binding and other not in binding:
+                    forbidden |= {self.flabel.get(n, n)
+                                  for n in binding[one].names()}
+        for index in range(len(self.frames) - 1, -1, -1):
+            term = self.frames[index][0]
+            if not forbidden & set(term.split()):
+                return term, index
+        raise Problem('', 0, 'no scope satisfies the lemma')
+
+    def frames_facts(self, frame, facts):
+        """What is known at one frame, which is what was known when it opened."""
+        return facts if frame == len(self.frames) - 1 else self.frames[frame][2]
+
+    def carry(self, proof, claim, frame):
+        """Bring a proof from an outer frame back to the innermost one."""
+        for index in range(frame, len(self.frames) - 1):
+            outer, added = self.frames[index][0], self.frames[index + 1][1]
+            proof = seq(outer, claim, added, proof, 'adantr')
+        return proof
 
     def assume(self, step, term, scope, facts, prefix):
         """State what a step claims, under the conditions it writes, and

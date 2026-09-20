@@ -101,3 +101,21 @@ WIDEN = {('cz', 'cr'): 'zre', ('cz', 'cc'): 'zcn', ('cr', 'cc'): 'recn',
 NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',
             '5': 'c5', '6': 'c6', '7': 'c7', '8': 'c8', '9': 'c9'}
 NUMERAL_IN = {'cz': 'z', 'cc': 'cn', 'cr': 're', 'cn': 'nn', 'cq': 'q'}
+
+# Every lemma the elaborator may use to settle a membership, tried by matching
+# its conclusion against what is wanted. A closed one settles it outright, one
+# with an antecedent leaves that antecedent to settle in turn, and a
+# biconditional is read left to right. The two tables above say some of this
+# by shape; this list says it by statement, which is what a membership the
+# readable layer never writes needs — `k e. CC` because k runs over a range of
+# integers, say. It is declared rather than searched for: an elaborator that
+# hunted through set.mm for anything that fitted would settle side conditions
+# by means the text never names.
+MEMBERSHIP = [
+    'ax-1cn', '1re', '1z', '1nn', '2cn', '2re', '2z', '2nn', '0cn', '0re',
+    '3cn', '3re', '3z', '4cn', '4re', '4z',
+    'nnz', 'nnre', 'nncn', 'nn0z', 'nn0re', 'nn0cn', 'zre', 'zcn', 'recn',
+    'qre', 'qcn', 'elnnuz',
+    'elfzelz', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
+    'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
+]

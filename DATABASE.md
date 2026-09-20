@@ -48,7 +48,9 @@ head of its proof file, so that it has one home and cannot drift. This is the
 rule that the collisions below were caused by breaking.
 
 A definition may also carry a `target`, which says which set.mm theorem
-unfolds it. That is not what `metamath` says: `metamath` says what the
+unfolds it, or, for one stated as an equation, one theorem per `then` group:
+`def:S` names `fsum1, fsump1`, and which clause a step uses is decided by
+which one's conclusion is what the step claims. That is not what `metamath` says: `metamath` says what the
 definition means, and `def:odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
