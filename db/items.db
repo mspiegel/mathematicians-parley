@@ -146,6 +146,7 @@ definition rational
 definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
   metamath    ℝ ∖ ℚ, as in sqrt2irr0
+  target      eldif
   first-used  sqrt2-irrational
   note        Names a word for an existing set.mm construct rather than
               introducing a symbol. See DATABASE.md on what def: means.
@@ -154,7 +155,8 @@ definition sqrt
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
-  metamath    df-sqrt, sqrtth, sqrtge0, resqrtcl
+  metamath    df-sqrt, resqrtcl, sqrtge0, resqrtth
+  target      resqrtcl, sqrtge0, resqrtth
   first-used  sqrt2-irrational
 
 definition even
@@ -369,7 +371,8 @@ definition divides
   let d ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
-  metamath    df-dvds
+  metamath    df-dvds, as divides states it
+  target      divides, equation reversed
   first-used  sqrt2-irrational
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
               dull fact. This is the principle recorded by the primes pilot: a

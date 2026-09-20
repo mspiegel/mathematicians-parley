@@ -66,6 +66,30 @@ def lemma(record):
     return head.strip(), fills
 
 
+def commuting(records):
+    """The terms whose two operands may be exchanged, from `commutes`.
+
+    Each entry is the constructor, the two positions the holes occupy, and
+    what stands in every other position: the product is `co` with holes at 0
+    and 1 and `cmul` at 2. The positions are read off the target, so nothing
+    here assumes where a constructor keeps its operator."""
+    out = []
+    for r in records:
+        if r.kind != 'notation' or 'commutes' not in r.fields:
+            continue
+        says = split_entries(r.fields['commutes'])
+        patterns = split_entries(r.fields.get('target', ''))
+        for pattern, yes in zip(patterns, says, strict=False):
+            places = slots(pattern)
+            if yes != 'yes' or pattern == FOLDED or len(places) != 2:
+                continue
+            tokens = pattern.split()
+            out.append((tokens[-1], tuple(sorted(places.values())),
+                        {i: t for i, t in enumerate(tokens[:-1])
+                         if i not in places.values()}))
+    return out
+
+
 def fill(pattern, holes):
     """A target with its holes replaced by the terms that stand in them."""
     return HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
@@ -90,6 +114,12 @@ CLOSURE = {
     ('cc', 'multiplicative'): 'mulcl',
     ('cc', 'square'): 'sqcl',
 }
+
+# The lemma that exchanges a commuting pair, by the term it exchanges. Which
+# terms commute is a fact about the readable notation and is declared there;
+# which theorem proves it is a fact about set.mm's library and is declared
+# here, like closure.
+COMMUTING = {('co', 'cmul'): 'mulcom', ('co', 'caddc'): 'addcom'}
 
 # Moving a name from the set it was introduced in to the one a step needs.
 WIDEN = {('cz', 'cr'): 'zre', ('cz', 'cc'): 'zcn', ('cr', 'cc'): 'recn',

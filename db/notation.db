@@ -23,6 +23,16 @@
 #               `yields` fits those holes, so the pattern can nest in itself;
 #               absent otherwise, since a token at an edge or a sort mismatch
 #               already settles the reading.
+#   commutes    that the pattern's two holes may be exchanged without changing
+#               what it denotes, so 2k and k·2 are the same number. One entry
+#               per pattern, `yes` or `no`; absent where no pattern commutes.
+#
+#               Unlike `spells` and `negates`, the two are not the same
+#               formula. The kernel writes one of them, a proof offering the
+#               other has to be carried across, and the entry is what says
+#               the crossing is sound. Without it a corpus that writes 2k
+#               could not cite a set.mm theorem that writes k · 2, which is
+#               what `divides` writes.
 #   binds       for a binder, which hole introduces the variable and which
 #               hole it scopes over.
 #   negates     that one of the record's patterns is the negation of another,
@@ -172,6 +182,7 @@ notation multiplicative
   yields      number
   level       multiplicative
   assoc       left
+  commutes    yes, no
   reads       times, divided by
   metamath    cmul, cdiv
   target      _1 _2 cmul co, _1 _2 cdiv co
@@ -651,6 +662,7 @@ notation there-are
   binds       holes 1 and 3 over hole 5
   reads       there are, and, with
   metamath    wrex nested twice, one for each variable
+  target      _5 _3 _4 wrex _1 _2 wrex
   first-used  bezout
   note        The two-variable form. Six uses: Bezout's statement and its
               step 19, the set-builder body of its define line, and the
