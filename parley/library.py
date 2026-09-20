@@ -24,10 +24,6 @@ class Signature:
     disjoint: set = field(default_factory=set)
 
     @property
-    def arity(self):
-        return len(self.floats) + len(self.essentials)
-
-    @property
     def push(self):
         """The variables to push, in order."""
         return [v for _, v in self.floats]
