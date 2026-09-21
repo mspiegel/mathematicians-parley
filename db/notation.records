@@ -655,6 +655,7 @@ notation there-is-some
   binds       hole 1 over nothing
   reads       there is
   metamath    wrex over a true body; set.mm states it as ≠ ∅
+  target      wtru _1 _2 wrex
   first-used  subsets
   note        Nonemptiness, with a name for the element and nothing said about
               it. Three uses: the statement of thm:card-nonempty and a
