@@ -22,6 +22,7 @@ from fractions import Fraction
 ADD, SUB, MUL, DIV, EXP, NEG = 'caddc', 'cmin', 'cmul', 'cdiv', 'cexp', 'cneg'
 DIGITS = {'cc0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4,
           'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
+NUMERAL = {v: k for k, v in DIGITS.items()}
 CAP = 24                     # an exponent past anything the corpus writes
 
 
@@ -97,6 +98,62 @@ def one():
 
 def atom(said):
     return Poly({((said, 1),): Fraction(1)})
+
+
+def order(monomial):
+    """Descending degree, then by atom.
+
+    The order a polynomial is written in, so that `4m^2 + 4m + 1` comes out
+    that way round rather than the other."""
+    return (-sum(power for _, power in monomial), monomial)
+
+
+def spell_monomial(monomial):
+    """One monomial in reverse Polish, as a product of powers.
+
+    A power of one is written as the atom itself, and the product
+    associates to the left, which is how the corpus writes one."""
+    said = [atom if power == 1 else f'{atom} {NUMERAL[power]} cexp co'
+            for atom, power in monomial]
+    out = said[0]
+    for one in said[1:]:
+        out = f'{out} {one} cmul co'
+    return out
+
+
+def spell(poly):
+    """A polynomial as one term in reverse Polish: the canonical form.
+
+    Both sides of an `algebra` step are driven to this, and the step is
+    then the two of them being the same term. Sums associate to the left
+    and run down in degree; a coefficient of one is not written, nor an
+    exponent of one, and the constant term is a bare numeral. A negative
+    coefficient is a negated numeral rather than a subtraction, so that
+    every term is joined the same way.
+
+    None where a coefficient is not a whole number the kernel has a single
+    digit for, which is past anything this corpus writes."""
+    if not poly.terms:
+        return NUMERAL[0]
+    said = []
+    for monomial in sorted(poly.terms, key=order):
+        weight = poly.terms[monomial]
+        if weight.denominator != 1 or abs(weight.numerator) > 9:
+            return None
+        whole = abs(weight.numerator)
+        digit = NUMERAL[whole]
+        if weight.numerator < 0:
+            digit = f'{digit} cneg'
+        if not monomial:
+            said.append(digit)
+        elif whole == 1 and weight.numerator > 0:
+            said.append(spell_monomial(monomial))
+        else:
+            said.append(f'{digit} {spell_monomial(monomial)} cmul co')
+    out = said[0]
+    for one in said[1:]:
+        out = f'{out} {one} caddc co'
+    return out
 
 
 class Quotient:
