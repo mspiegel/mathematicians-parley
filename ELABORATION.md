@@ -39,11 +39,12 @@ four `inequalities` steps are the first of that method to be expanded.
 against set.mm, which has 119,378 labels. Every one used below exists and says
 what is claimed of it. The statements are quoted where they matter.
 
-That check was extended to the whole database while set.mm was to hand. It
-names 193 set.mm labels across 152 records, and all but one exist: `def:even`
-said `dvds`, which is not a label, where it meant `df-dvds`. Fixed. Nothing
-else in three pilots' worth of remembered labels was wrong, which is a better
-result than the exercise expected.
+That check covers the whole database and runs in the gate, where it reads 233
+labels and finds every one of them in set.mm. Its first run found exactly one
+wrong: `def:even` said `dvds`, which is not a label, where it meant `df-dvds`.
+Nothing else in three pilots' worth of remembered labels was wrong, which is a
+better result than the exercise expected. *Keeping set.mm where the tools can
+see it* below says how the check decides what is a label.
 
 ## The first proof
 
@@ -876,13 +877,20 @@ Three more `metamath` fields were wrong, past the two the five proofs found.
 product and says nothing about its closure. Nothing but elaboration finds
 these, and each one found is an argument for elaborating the rest.
 
-## The proof that cannot be elaborated, and what set.mm has for it
+## The proof that could not be elaborated, and what set.mm has for it
 
-`isosceles` is the ninth proof and it stops before the elaborator is
-reached. Six of the seven items it cites are marked `open` in `db/items.db`,
-and five of the notations it uses have no `target`. That is not a gap in the
-tools. What blocks it is that the readable layer writes `∠CAB = ∠CBA`, an
+`isosceles` was the ninth proof and it stopped before the elaborator was
+reached. Six of the seven items it cites were marked `open` in `db/items.db`,
+and five of the notations it uses had no `target`. That was not a gap in the
+tools. What blocked it was that the readable layer writes `∠CAB = ∠CBA`, an
 equation between numbers, and no Metamath library has a number to put there.
+
+It elaborates now and assumes nothing. `GEOMETRY.md` weighs the seven
+candidate geometries and takes the complex plane; the angle is a constant
+this corpus declares, and the four items set.mm does not state are proved in
+`elaboration/geometry.mm`. The section below is what that decision was made
+against, and is kept because the reasoning is what makes the decision
+checkable rather than merely recorded.
 
 ### What set.mm has
 
@@ -1166,11 +1174,23 @@ that already exists. What it could not do while the file was temporary was
 run in the gate, so the next wrong label would sit there as long as that one
 did.
 
-It is `parley/labels.py` and the gate's fourth stage. It reads every label a
-`target` or a `defines` field names — 145 of them, plus what
-`targets.MEMBERSHIP` lists — and asks set.mm whether it has them. What it
-does not read is `metamath`, which is prose meant for a person and names its
-labels in a sentence.
+It is `parley/labels.py` and the gate's fourth stage. It reads 233 labels —
+every token of a `target` or a `defines`, which are machine-read and so name
+nothing else, plus what `targets.MEMBERSHIP` lists — and asks set.mm whether
+it has them.
+
+`metamath` is prose meant for a person and names its labels in a sentence, so
+it is read only as far as it is certainly naming them: the leading entries
+that are a single label-shaped word, stopping at the first that is not. That
+gives `df-dvds` out of `df-dvds, whose right side is the same existential`
+and nothing out of `Σ over 0...n with fsum1 and fsump1`. The two it misses
+there are the price of never calling a word a label because it sat in a
+sentence — and on this database the rule has no false positives at all.
+
+Reading that field is not optional. The one error the check ever found was a
+`dvds` that meant `df-dvds`, and it was in `metamath`. A version that skipped
+it would have been a check that could not have found the thing it was built
+for.
 
 set.mm is 51 MB and belongs to metamath, so it is still not committed: say
 where it is with `SET_MM`, or leave a copy or a link at the root of the
@@ -1180,3 +1200,66 @@ either would be saying green about a thing it had not looked at.
 
 The check it buys is the only one in this project that compares the corpus
 against something outside it.
+
+## The five that do not elaborate
+
+Nine of the corpus's fourteen theorems elaborate and verify. The five that do
+not stop for five different reasons, which is worth saying plainly because it
+means there is no one thing to build:
+
+| theorem | stops at |
+|---|---|
+| `geometric-sum` | `notation geometric-function` has no `target` |
+| `intermediate-value` | `notation continuous` has no `target` |
+| `least-combination-divides` | an `obtain` that names no item is not expanded |
+| `subsets-count` | no kernel name for `X` |
+| `bezout` | a formula the kernel cannot read |
+
+Only the third is a gap in the elaborator. Two are database fields nobody has
+written, and two are failures at the reading stage that have not been
+diagnosed.
+
+### What `geometric-sum` turns out to be about
+
+It looks like a missing field and is not. `G(n)` means the sum of `a^k` for
+`k` from 0 to `n`, so the term the kernel needs mentions **two** things, `a`
+and `n`, where the notation has one hole. `sum-function` is the precedent and
+sidesteps it: `S(n)` is the sum of `k` over `1...n` and has no parameter at
+all. `G` is the first local definition that has one.
+
+The reader is not being misled by `G(n)`. `let a ∈ ℝ` fixes `a` for the whole
+theorem, so inside it `a` is a constant and `G` really is a function of one
+variable; `def:G` already declares `a` as its `H1`. The division is a sound
+one — the definition declares what is fixed, the notation shows what varies.
+What is missing is a place for the fixed parameter to live when the notation
+is expanded.
+
+Three places were considered. The `target` could name the proof's variable,
+which changes no text the reader sees. The proof could write `G(a, n)`, which
+needs nothing built but makes a constant look like an argument. Or `def:G`
+could introduce a constant the way `def:angle` introduces `ang`, which does
+not help on its own, because the pattern still has one hole and the `a` still
+has to come from somewhere.
+
+The first is the one to want, and it is not built, because of two things a
+programming language would call by name.
+
+**Dynamic scope.** A `target` naming `a` resolves it against the table of
+names the *calling proof* holds. A second proof using `G` whose parameter is
+called `r` fails loudly — `no kernel name for 'a'` — but one that happens to
+have an unrelated `a` in scope would quietly get that one. Only
+`geometric-series` uses `G`, so this cannot happen today.
+
+**Capture.** Two places rewrite that table: a notation that binds, and a
+`fix` block. Either would shadow a fixed name inside its body, so a proof
+that bound `a` while writing `G(n)` would build a term about the bound `a`
+and report nothing. `geometric-series` binds `k` in its induction step, not
+`a`, which is the only reason this is invisible.
+
+Neither is contained by design; both are unreachable by accident. A checker
+rule refusing a proof that binds a name some notation fixes would close the
+second completely and cheaply. The first is the harder one, and the honest
+statement of it is that a local definition's parameter has no home: the
+notation cannot hold it, the citation supplies it only where the definition
+is cited and not where the notation merely appears, and the calling proof's
+name table is the wrong place because it belongs to the caller.

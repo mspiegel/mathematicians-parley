@@ -21,6 +21,7 @@ Usage:  parley/labels.py [set.mm]
 Exits non-zero when a label is named that set.mm does not have.
 """
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -31,6 +32,9 @@ from library import read as read_library
 from parse import Problem, check_encoding, parse_database
 
 ROOT = Path(__file__).resolve().parent.parent
+# What a set.mm label looks like, strictly enough that no word of a sentence
+# is mistaken for one: lower case, and hyphenated only as `df-` names are.
+LABEL_SHAPED = re.compile(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)*')
 
 
 def where_set_mm(argv):
@@ -45,11 +49,22 @@ def where_set_mm(argv):
 def named(records):
     """Every label the databases name, with where each was written.
 
-    A `target` is reverse Polish or a list of labels, a `defines` is reverse
-    Polish, and `metamath` is prose meant for a person — it names labels too
-    but in a sentence, so it is not read here. An entry that is one of the
-    markers `targets.MARKERS` names says how to read the lemma beside it
-    rather than naming one of its own."""
+    A `target` is reverse Polish or a list of labels and a `defines` is
+    reverse Polish, so every token in either is a label unless it is a hole
+    or one of the markers `targets.MARKERS` names, which say how to read the
+    lemma beside them rather than naming one.
+
+    `metamath` is prose meant for a person and names its labels in a
+    sentence, so it is read only as far as it is certainly naming them: the
+    leading entries that are a single label-shaped word, stopping at the
+    first that is not. `df-dvds, whose right side is the same existential`
+    gives one label and then stops; `Σ over 0...n with fsum1 and fsump1`
+    gives none, and the two it hides are the price of never calling a word
+    a label because it sat in a sentence.
+
+    That field is where the check's first run found its one error — a
+    `dvds` that meant `df-dvds` — so leaving it out would leave out the
+    thing the check was built for."""
     out = {}
     for r in records:
         for field in ('target', 'defines'):
@@ -62,6 +77,10 @@ def named(records):
                     if targets.HOLE.fullmatch(token):
                         continue
                     out.setdefault(token, (r.path, r.line, r.name))
+        for entry in targets.split_entries(r.fields.get('metamath', '')):
+            if not LABEL_SHAPED.fullmatch(entry):
+                break
+            out.setdefault(entry, (r.path, r.line, r.name))
     for one in targets.MEMBERSHIP:
         out.setdefault(one, ('parley/targets.py', 0, 'MEMBERSHIP'))
     return out
