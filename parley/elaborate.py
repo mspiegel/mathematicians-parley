@@ -1958,8 +1958,56 @@ class Elaborator(Builder):
             denied = seq(seq(said, 'cc0', 'wceq'), 'wn')
             if denied in facts:
                 return seq(scope, said, 'cc0', facts[denied], 'neqned')
+            found = self.apart_as_written(said, scope, facts)
+            if found is not None:
+                return found
             return self.settle(self.to_term(want), scope, facts)
         return apart
+
+    def apart_as_written(self, said, scope, facts):
+        """The same fact about the same denominator, spelt as the text spells it.
+
+        A step writes `1 − a ≠ 0` and the normalizer asks about the
+        polynomial that is, which it writes as −1·a¹ + 1·1. Those are one
+        number and the two lookups above compare spellings, so the fact the
+        step wrote is there and is missed. What decides is the polynomial,
+        and the equation carrying one spelling to the other is the
+        normalizer's own: it is what `normalize` returns beside the terms."""
+        work = normal.Emitter(
+            self.sigs, scope,
+            lambda term: facts.get(seq(term, 'cc', 'wcel'))
+            or self.settle(self.to_term(seq(term, 'cc', 'wcel')),
+                           scope, facts))
+        for fact, proof in facts.items():
+            tail = fact.split()[-1]
+            if tail not in ('wne', 'wn'):
+                continue
+            node = self.to_term(fact)
+            if node.variable is not None:
+                continue
+            if node.label == 'wn':
+                inner = node.children[0]
+                if inner.variable is not None or inner.label != 'wceq':
+                    continue
+                subject, zero = inner.children
+                given = seq(scope, subject.rpn(self.flabel), 'cc0', proof,
+                            'neqned')
+            else:
+                subject, zero = node.children
+                given = proof
+            was = subject.rpn(self.flabel)
+            if zero.rpn(self.flabel) != 'cc0' or was == said:
+                continue
+            try:
+                items, same = work.normalize(subject, self.flabel)
+            except (normal.Unhandled, Problem, KeyError):
+                continue
+            if work.spell_run(items) != said:
+                continue
+            return work.ap('eqnetrrd',
+                           {'ph': scope, 'A': was, 'B': said, 'C': 'cc0'},
+                           same, given)
+        return None
 
     def same_polynomial(self, work, left, right):
         """Two terms driven to one canonical form, and so to each other.
