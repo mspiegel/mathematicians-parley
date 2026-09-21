@@ -1300,20 +1300,26 @@ maintains.
 ## The five that do not elaborate
 
 Nine of the corpus's fourteen theorems elaborate and verify. The five that do
-not stop for four reasons, and the message each stops with is not always the
-reason:
+not stop for reasons that are not always what the message says, and two of
+them have been carried some way since:
 
-| theorem | says | is |
+| theorem | stops at | which is |
 |---|---|---|
 | `geometric-sum` | `notation geometric-function` has no `target` | a name with no scope |
 | `intermediate-value` | `notation continuous` has no `target` | a field nobody has written |
 | `least-combination-divides` | an `obtain` that names no item is not expanded | that |
-| `subsets-count` | no kernel name for `X` | a name with no scope |
-| `bezout` | a formula the kernel cannot read | an instance where an existential is wanted |
+| `subsets-count` | no congruence for `cpw` | a lemma nobody has named |
+| `bezout` | an existential nothing supplies a witness for | a hypothesis of an assumed item |
 
-Two of the five were read for a long time as what they say. Both turned out to
-be something else when the elaborator was asked why rather than guessed at,
-and the sections below are what it answered.
+Neither of the last two says now what it said. `subsets-count` said `no kernel
+name for 'X'`, which sounded like a missing notation and was a `define` read
+outside its block; `bezout` said two formulas differ by more than the change
+being carried, which was a false obligation built from a citation. Each has
+since passed three walls, and each wall was its own shape rather than more of
+the last one — which is the thing to expect of the three that are left.
+
+The sections below are what the elaborator answered when it was asked why
+rather than guessed at.
 
 ### A name has no scope
 
@@ -1345,27 +1351,47 @@ that fixed it.
 
 | face | |
 |---|---|
-| a `define` is read outside the block it sits in | observed; `subsets-count` stops here |
-| a fixed name outlives its block | latent; the restore is absent, no proof has been shown wrong by it |
-| a fixed parameter resolves against the calling proof's table | latent; the section below |
+| a `define` is read outside the block it sits in | fixed |
+| a fixed name outlives its block | fixed |
+| a fixed parameter resolves against the calling proof's table | open; the section below |
 
-The repair is narrower than the count of sites suggests, and the seven
-save-and-restore pairs are not part of it. Every one of them binds a name to
-read one thing and then unbinds it — the variable a binder introduces while
-its body is read, an instantiation while a cited item's statement is read —
-and none is block scope. `hypotheses` and `definition` write theorem-level
-names and are meant to be permanent. All of that is correct as it stands.
+The seven save-and-restore pairs turned out not to be part of the repair.
+Every one binds a name to read one thing and then unbinds it — the variable a
+binder introduces while its body is read, an instantiation while a cited
+item's statement is read — and none is block scope. `hypotheses` and
+`definition` write theorem-level names and are meant to be permanent.
 
-What is left is two or three sites. `open_block` and the `obtain` path write
-a block's own names and nothing takes them back, two lines from where
-`close_block` and `close_contradiction` already truncate `self.frames`; that
-stack is where a block's names belong. And `defined` has to stop reading
-every `define` at the top and read each one where it sits.
+What the repair came to is that a block snapshots the names before it opens
+anything and gives them back where it already gives back its frames. Both
+places that truncate the frame stack do it: `close_block`, and `enter_case`,
+which resets a `cases` block between its parts and had the same hole. And
+`defined` reads a define where it stands rather than every one at the top.
 
-The last is the one with an unknown in it. `self.thm.defines` is a flat list
-of lines, and whether the parse records which block each `define` sits in
-decides whether this is a small change or one that reaches into how a proof
-is represented.
+The parse needed nothing. `thm.defines` already records each line, and the
+step loop walks the steps in source order, so where a define sits is readable
+from what is there. The subsets proof's second define names the first, and
+reading them in place orders them without anything having to know it.
+
+**"Latent" was the wrong word for the second face.** Closing the leak broke
+Cantor at once, because two bugs had been holding each other up. `freeze`
+never bound a binder's own variable while freezing its body — `term` saves the
+table, binds each bound hole and restores, and `freeze` skipped the hole
+without ever binding it — so it read the body's leaves against whatever the
+proof happened to be holding. Cantor's last step claims `There is B ∈ 𝒫A with
+for every x ∈ A, not f(x) = B`, and its `x` resolved only because a `fix`
+thirty lines earlier had leaked an unrelated `x` spelt the same way. That is
+the capture this document calls unreachable by accident, and it was not
+unreachable: it was load-bearing.
+
+The second was simpler and had never been reached. `open_block` read a fixed
+name's set without asking whether there was one, so `let X be a set` inside a
+`fix` raised an `IndexError`. `hypotheses` guards exactly that at the head of
+a proof; the block path did not, because no proof had got that far.
+
+Every generated file came out byte-identical, which is what says the repair
+moved no proof. `subsets-count` passes three walls and stops at a fourth, a
+congruence for the power set — a different shape again, as `bezout`'s walls
+were.
 
 ### What `geometric-sum` turns out to be about
 
@@ -1434,13 +1460,33 @@ about the proof, which is correct.
 
 The move it wants is one `SYNTAX.md` already states and the checker already
 accepts: a "there is" supplied by a fact giving an instance. The lemma is
-`rspcev`, and it is not in `targets.MEMBERSHIP`. What it asks for beyond the
-instance is that each witness lies in its domain, and the readable step writes
-exactly that — `requires 1 ∈ ℤ` and `requires 0 ∈ ℤ`. The text is short of
-nothing.
+`rspcev`. It cannot be declared in `targets.MEMBERSHIP`, because `settle`
+skips any lemma with an essential hypothesis and `rspcev` has one — the same
+one `elrab` asks, which is what made it reachable at all once `ps` was worked
+out rather than taken from a citation.
 
-This is the same move `thm:prime-factor` wants, which is why it is worth
-building rather than working round: `exprmfct` quantifies over `Prime` where
-the readable line quantifies over ℕ and says primality in the body, and
-crossing between a quantifier and what stands under it is the one capability
-both need.
+What it asks beyond the instance is that each witness lies in its domain, and
+the step writes exactly that: `requires 1 ∈ ℤ` and `requires 0 ∈ ℤ`. Those go
+through `required`, which reads a `requires` line before it settles anything,
+so the text is used rather than worked around.
+
+Two things had to be found before it would run. The witnesses are recovered by
+matching the body against the cited line, and that search allowed one marked
+place to differ, so with two quantifiers each mark blocked the other: where
+the pattern held `n` the line held 0, and a place that had to agree did not.
+It takes the marks together now. And the introduction is built from the
+innermost quantifier out, which is the order the witnesses go in.
+
+A witness is taken from the lines the step cites and never searched for among
+the facts in scope, so this runs only where a step is there to have cited one.
+Side conditions pass no step and stay what they are — settled from declared
+lemmas, never by finding a fact that happens to fit.
+
+Step 2 is proved. Bezout stops further on, at a hypothesis of an assumed item:
+that the set is nonempty, which wants a witness again but from a line saying
+what is in the set rather than a line shaped like its body, and in a place
+where no step is passed.
+
+`thm:prime-factor` wants the same crossing the other way — `exprmfct`
+quantifies over `Prime` where the readable line quantifies over ℕ and says
+primality in the body — and `rexlimiva` is the elimination half of it.
