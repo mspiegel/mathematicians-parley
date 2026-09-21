@@ -19,7 +19,12 @@ BLOCK_HEADS = ('contradiction', 'fix', 'induction', 'cases', 'calculation')
 
 
 class Problem(Exception):
-    """A defect found while reading. Carries where it was found."""
+    """A defect found while reading. Carries where it was found.
+
+    One of two, and the other is below. This one is a person's to fix: the
+    proof text says something wrong, or a database record does, and nothing
+    should carry on past it. Anything that catches this to try something
+    else is accepting a proof with a defect in it."""
 
     def __init__(self, path, line, message):
         super().__init__(message)
@@ -27,6 +32,22 @@ class Problem(Exception):
 
     def __str__(self):
         return f'{self.path}:{self.line}  {self.message}'
+
+
+class Unhandled(Exception):
+    """A form nothing here can build a proof for.
+
+    The other of the two, and nobody's to fix: a route that does not apply,
+    a lemma that does not fit, an emitter with no shape for what it was
+    given. What catches it tries the next way, or takes the step as stated
+    and lists it at the head of the file.
+
+    They are two exceptions because they are answered differently and the
+    difference cannot be read off the message. Telling them apart by whether
+    a line was set worked until it did not — `congruence` raised the same
+    failure with a line or without according to which caller was on the
+    stack, and a formula the elaborator read carried no line whatever was
+    wrong with it."""
 
 
 @dataclass

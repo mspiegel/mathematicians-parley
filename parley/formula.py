@@ -25,10 +25,14 @@ class Token:
     at: int
 
 
-def tokenise(text, words, symbols):
+def tokenise(text, words, symbols, path='', line=0):
     """A run of letters is a declared word if one matches by longest match, and
     otherwise a single name. A numeral is a maximal run of digits. Round
     brackets belong to the grammar rather than to any notation.
+
+    The position is carried because text that does not lex is a defect with
+    somewhere to point, and a defect with nowhere to point reads like a
+    route declining.
 
     At the start of a sentence a declared word also matches with its first
     letter capitalised, which is how the corpus writes `For every` and
@@ -77,7 +81,8 @@ def tokenise(text, words, symbols):
         if sym:
             i = take('symbol', sym, i)
             continue
-        raise Problem('', 0, f'no token at {text[i:i+12]!r} in {text!r}')
+        raise Problem(path, line,
+                      f'no token at {text[i:i+12]!r} in {text!r}')
     return out
 
 
@@ -286,7 +291,7 @@ TERM_SORTS = {'number', 'set', 'point', 'any'}
 
 def parse(text, g, path='', line=0):
     """Parse one sentence. Returns a Node, or raises Problem."""
-    tokens = tokenise(text, g.words, g.symbols)
+    tokens = tokenise(text, g.words, g.symbols, path, line)
     p = _Parser(tokens, g, path, line, text)
     node = p.expression(None)
     if p.i != len(tokens):

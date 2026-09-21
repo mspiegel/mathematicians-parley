@@ -288,6 +288,7 @@ class Elaborator(Builder):
         self.joined = None
         self.enclosing = None    # the block a step sits directly inside
         self.shapes = {}         # target pattern -> the tree it reads as
+        self.at = 0              # the line being elaborated, for `read`
         self.names = {}          # readable name -> kernel term
         self.fixed = {}          # the same, as the theorem's `let` lines left
                                  # it, for the names a notation holds fixed
@@ -319,7 +320,14 @@ class Elaborator(Builder):
     # --- terms --------------------------------------------------------------
 
     def read(self, text):
-        return parse(LABEL.sub('', text).strip(), self.g)
+        """One sentence of the readable layer, as a tree.
+
+        Where the elaborator has got to goes with it. A formula that does
+        not parse is a defect and wants somewhere to point; without a
+        position it arrived looking like a route declining, and a `requires`
+        line nobody could read was taken as stated instead of reported."""
+        return parse(LABEL.sub('', text).strip(), self.g,
+                     self.thm.path, self.at)
 
     def term(self, node):
         if node.notation == 'literal':
@@ -1500,6 +1508,7 @@ class Elaborator(Builder):
         head = step.just.head
         number = '.'.join(str(p) for p in step.number)
         self.last = number
+        self.at = step.line
         if head == 'obtain':
             return self.obtain(step, number, scope, facts, lines, closers)
         node = self.read(self.sentences(' '.join(step.claim))[-1])

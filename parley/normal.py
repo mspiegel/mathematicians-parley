@@ -24,6 +24,7 @@ from fractions import Fraction
 
 import field
 from field import NUMERAL, order, spell_monomial
+from parse import Unhandled
 from spell import Builder, seq
 
 ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
@@ -1513,8 +1514,7 @@ def terms_of(poly):
     return [(m, poly.terms[m]) for m in sorted(poly.terms, key=order)]
 
 
-class Unhandled(Exception):
-    """A form this emitter cannot build a proof for.
-
-    The step is refused rather than guessed at, and `elaborate.py` takes it
-    as stated instead, which is what it did before this module existed."""
+# The step is refused rather than guessed at, and `elaborate.py` takes it as
+# stated instead, which is what it did before this module existed. It is
+# declared in `parse.py` beside `Problem`, because the two are a pair and
+# which of them a failure is decides how it is answered.
