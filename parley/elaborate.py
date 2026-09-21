@@ -58,6 +58,18 @@ def seq(*parts):
     return ' '.join(p for p in parts if p)
 
 
+def order_sides(goal):
+    """The two sides of a claim and which relation stands between them."""
+    if goal.variable is not None:
+        return None
+    if goal.label == 'wceq' and len(goal.children) == 2:
+        return goal.children[0], goal.children[1], '='
+    if goal.label != 'wbr' or len(goal.children) != 3:
+        return None
+    how = {'cle': '<=', 'clt': '<'}.get(goal.children[2].label)
+    return None if how is None else (goal.children[0], goal.children[1], how)
+
+
 def whole_multiple(cited, claim):
     """How many times the claim the cited equation is, if a whole number.
 
@@ -1556,7 +1568,144 @@ class Elaborator:
         carries steps whose facts are not linear, and `METHODS.md` refuses
         those rather than this."""
         self.decide_order(step, term, lines)
-        return self.assume(step, term, scope, facts, 'ine', lines)
+        try:
+            return self.prove_order(step, term, scope, facts, lines)
+        except (normal.Unhandled, Problem, KeyError):
+            return self.assume(step, term, scope, facts, 'ine', lines)
+
+    def prove_order(self, step, term, scope, facts, lines):
+        """An `inequalities` step whose whole content is a cited equation.
+
+        `linear.certificate` says which cited facts the claim is built
+        from and in what multiple. Where the only one used is an equation,
+        the claim is that equation times a number: the difference it says
+        is zero, scaled, is the difference the claim says is zero, and the
+        two being the same expression is a question for the normalizer.
+
+        A combination that scales an inequality is a different proof and
+        is not written yet, so those steps stay assumed."""
+        goal = self.to_term(term)
+        sides = order_sides(goal)
+        if sides is None:
+            raise normal.Unhandled('the claim states no relation')
+        left, right, how = sides
+        left, right = left.rpn(self.flabel), right.rpn(self.flabel)
+        given, where = [], []
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                one = linear.fact(self.to_term(said), self.flabel)
+                if one is not None:
+                    given.append(one)
+                    where.append((ref, self.to_term(said)))
+        claim = linear.fact(goal, self.flabel)
+        if claim is None:
+            raise normal.Unhandled('the claim is not linear')
+        found = linear.certificate([*given, linear.opposite(claim)])
+        if not isinstance(found, dict):
+            raise normal.Unhandled('the refutation splits')
+        used = [i for i, k in found.items() if k and i < len(given)]
+        if len(used) != 1 or given[used[0]].how != '=':
+            raise normal.Unhandled('not one cited equation')
+        return self.from_equation(
+            where[used[0]], found[used[0]] / found[len(given)],
+            left, right, how, scope, facts, lines)
+
+    def from_equation(self, cited, times, left, right, how, scope, facts,
+                      lines):
+        """The claim as one cited equation, scaled."""
+        ref, said = cited
+        if said.label != 'wceq' or len(said.children) != 2:
+            raise normal.Unhandled('the cited fact is not an equation')
+        numeral = field.spell_coefficient(times)
+        if numeral is None:
+            raise normal.Unhandled(f'{times} is past one digit')
+
+        def complex_number(term):
+            want = seq(term, 'cc', 'wcel')
+            if want in facts:
+                return facts[want]
+            return self.settle(self.to_term(want), scope, facts)
+
+        work = normal.Emitter(self.sigs, scope, complex_number)
+        was = [c.rpn(self.flabel) for c in said.children]
+        gap = seq(was[0], was[1], 'cmin', 'co')
+        scaled = seq(numeral, gap, 'cmul', 'co')
+        span = seq(left, right, 'cmin', 'co')
+        # The cited equation says its difference is zero; scaled, that is
+        # the claim's difference, and the normalizer is what says so.
+        vanishes = work.chain(
+            work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
+                               'C': numeral, 'F': 'cmul'},
+                    self.difference_zero(work, was, ref, facts, lines)),
+            work.ap('syl', {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
+                            'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                                      'cc0', 'wceq')},
+                    work.coefficient(times),
+                    work.ap('mul01', {'A': numeral})),
+            scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0')
+        reached = work.chain(self.same_polynomial(work, span, scaled),
+                             vanishes, span, scaled, 'cc0')
+        if how == '=':
+            return work.ap(
+                'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'wceq'),
+                          'ch': seq(left, right, 'wceq')},
+                reached,
+                work.ap('syl2anc',
+                        {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
+                         'ch': seq(right, 'cc', 'wcel'),
+                         'th': seq(seq(span, 'cc0', 'wceq'),
+                                   seq(left, right, 'wceq'), 'wb')},
+                        complex_number(left), complex_number(right),
+                        work.ap('subeq0', {'A': left, 'B': right})))
+        if how != '<=':
+            raise normal.Unhandled(f'a {how} conclusion is not written')
+
+        def real_number(one):
+            want = seq(one, 'cr', 'wcel')
+            if want in facts:
+                return facts[want]
+            return self.settle(self.to_term(want), scope, facts)
+
+        # A difference that is zero is at most zero, and a difference at
+        # most zero is what `<_` says of the two sides.
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
+                      'ch': seq(left, right, 'cle', 'wbr')},
+            work.ap('eqled', {'ph': scope, 'A': span, 'B': 'cc0'},
+                    work.ap('syl2anc',
+                            {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
+                             'ch': seq(right, 'cr', 'wcel'),
+                             'th': seq(span, 'cr', 'wcel')},
+                            real_number(left), real_number(right),
+                            work.ap('resubcl', {'A': left, 'B': right})),
+                    reached),
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
+                     'ch': seq(right, 'cr', 'wcel'),
+                     'th': seq(seq(span, 'cc0', 'cle', 'wbr'),
+                               seq(left, right, 'cle', 'wbr'), 'wb')},
+                    real_number(left), real_number(right),
+                    work.ap('suble0', {'A': left, 'B': right})))
+
+    def difference_zero(self, work, was, ref, facts, lines):
+        """( scope -> ( A - B ) = 0 ) from a cited A = B."""
+        scope = work.under
+        return work.ap(
+            'mpbird', {'ph': scope, 'ps': seq(seq(was[0], was[1], 'cmin',
+                                                  'co'), 'cc0', 'wceq'),
+                       'ch': seq(was[0], was[1], 'wceq')},
+            self.carried(ref, facts, lines),
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(was[0], 'cc', 'wcel'),
+                     'ch': seq(was[1], 'cc', 'wcel'),
+                     'th': seq(seq(seq(was[0], was[1], 'cmin', 'co'), 'cc0',
+                                   'wceq'), seq(was[0], was[1], 'wceq'),
+                               'wb')},
+                    work.atom(was[0]), work.atom(was[1]),
+                    work.ap('subeq0', {'A': was[0], 'B': was[1]})))
 
     def decide_order(self, step, term, lines):
         """Refuse an `inequalities` step that does not follow from its lines.
