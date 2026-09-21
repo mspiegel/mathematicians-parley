@@ -533,18 +533,29 @@ compare. None of them match.
 
 | | by hand | by program | |
 | --- | --- | --- | --- |
-| odd-square | 1617 | 2067 | |
-| even-square | 342 | 440 | |
-| sum-formula | 4024 | 1693 | the program assumes three statements |
-| abs-bounds | 1001 | 663 | the program assumes four statements |
+| odd-square | 1617 | 35504 | the hand proof cites two algebra lemmas, 1171 more |
+| even-square | 342 | 436 | |
+| sum-formula | 4024 | 68352 | |
+| abs-bounds | 1001 | 58444 | |
 
-None match. The first two are about a quarter larger for the same reason:
-where the hand proof pulled a fact out of the scope once and used it twice,
-the program derives it at each use, because nothing tells it that a fact is
-worth keeping. Sum-formula's rows are still not comparable — both expand
-`def:S` now, but the program takes the two `arithmetic` steps and the one
-`algebra` step as stated where the hand proof works them out. Abs-bounds is
-the same: all four of its `inequalities` steps are assumed.
+None match, and neither side assumes anything, so the gap is the whole
+result. Even-square is the row where the two are comparable at all, and it is
+the one proof of the four with no closure method in it: the program is a
+quarter larger, because where the hand proof pulled a fact out of the scope
+once and used it twice, the program derives it at each use, since nothing
+tells it that a fact is worth keeping.
+
+The other three are twelve to sixty times larger, and the multiplier is a
+count of closure-method steps rather than anything about the proofs. A hand
+proof factors: odd-square's algebra is `oalg1` and `oalg2`, proved once beside
+it and cited as two labels, so the 1617 is what is left after the hard part is
+named. The program inlines, because it emits one `$p` per theorem and has no
+notion of a lemma worth extracting. Abs-bounds is the extreme — 58× — and four
+of its eight steps are `inequalities`, the method whose expansion carries a
+Farkas certificate and a rewriting pass per step.
+
+So the size is not a property of the elaboration. It is a property of a
+program that never factors, measured against a person who always does.
 
 **`inequalities` did not come cheaply, and it is worth saying why.** The
 machinery that settles a side condition — match a lemma's conclusion against
@@ -555,7 +566,13 @@ cited equation, and that is what every one of abs-bounds' four
 `inequalities` steps needs: each concludes something about `|x|` from a line
 saying what `|x|` equals. Forward chaining from facts reaches neither. So the
 method needs the same equality-aware rewriting `substitute` has, pointed at a
-relation rather than at an equation, and it is assumed here.
+relation rather than at an equation. That is `from_equation`, and it is
+written: all four steps are proved and abs-bounds assumes nothing.
+
+What decides which cited facts a claim is built from, and in what multiple, is
+`linear.certificate` — a Farkas certificate read off Fourier–Motzkin. The one
+case still unwritten is a combination that scales an *inequality* rather than
+an equation, which is a different proof; no step in the nine proofs needs it.
 
 All of them verify. So verifiability is what an elaborator can be held to, and
 byte-identity is a property of one implementation rather than of the language
@@ -674,9 +691,9 @@ sum-formula's step 1.4.3, which divides by 2 and is proved inline there, using
 
 So one readable word costs a few hundred to a couple of thousand kernel
 tokens, and the split is the one the method's specification predicts. The
-first three are normalisations with no cited equation, which is twelve of the
-corpus's seventeen steps. The next two each take a cited equation and multiply
-through by a coefficient — ideal membership with a single generator — and cost
+first three are normalisations with no cited equation, which is thirteen of
+the corpus's eighteen steps. The next two each take a cited equation and
+multiply through by a coefficient — ideal membership with a single generator — and cost
 about half as much again, most of it in carrying the atoms into ℂ and
 discharging the nonzero conditions.
 
@@ -843,20 +860,47 @@ three more were elaborated: `thm:triangle-inequality`, which the fifth proof
 was a lemma for, and then `prime-above` and `cantor`, which nothing here was
 written for.
 
-| proof | assumed |
-|---|---|
-| odd-square | 2 |
-| even-square | 0 |
-| sum-formula | 3 |
-| abs-bounds | 4 |
-| sqrt2-irrational | 8 |
-| triangle-inequality | 3 |
-| prime-above | 6 |
-| cantor | 0 |
+That made eight, and `isosceles` below makes nine. This is the tally for all
+of them as it now stands — what each proof still takes as stated rather than
+builds:
 
-All eight verify. Cantor assumes nothing at all, which is the strongest thing
-this exercise has produced: a theorem of set theory, from a readable text,
-resting on set.mm and no closure method.
+| proof | assumed | |
+|---|---|---|
+| odd-square | 0 | |
+| even-square | 0 | |
+| sum-formula | 0 | |
+| abs-bounds | 0 | |
+| triangle-inequality | 0 | |
+| cantor | 0 | |
+| isosceles | 0 | |
+| sqrt2-irrational | 1 | `thm:lowest-terms` |
+| prime-above | 2 | `thm:prime-factor`, `def:prime` |
+
+All nine verify, and seven of them assume nothing at all. That number was 26
+across eight proofs when this section was first written; what closed the gap
+was writing the four closure methods out rather than taking their steps as
+stated, and the assumption count is the measure that says whether a method is
+written or only named.
+
+The three that remain are not closure methods and no amount of emitter work
+reaches them. Each is an item whose `metamath` field names a set.mm theorem
+that is close and is not the same shape, so the item carries no `target` and
+an elaborator has nothing to point at:
+
+- `thm:lowest-terms` — `qredeu or similar`, which is the field admitting it
+  has not been pinned down.
+- `thm:prime-factor` — `exprmfct` says `E. p e. Prime p || N`, putting
+  primality in the domain, where the readable line quantifies over ℕ and says
+  it in the body, which is how a reader meets the claim.
+- `def:prime` — `isprm2` is the unfolding but writes `p > 1` as `p ∈ ℤ≥2`.
+  set.mm proves `p > 1` outright as `prmgt1`, which is what the proof actually
+  uses, but naming it in `target` would be naming a consequence rather than an
+  unfolding.
+
+All three are the same debt: the readable statement and set.mm's are
+equivalent, and the bridge between them is a proof rather than a field. That
+is what `elaboration/geometry.mm` already is for four geometry items, so the
+mechanism exists and these three have simply not been written.
 
 Six more requirements came out of the three, listed above as 15 to 20. None
 contradicts the fourteen and none is a repair to them; they are shapes the
@@ -1135,8 +1179,14 @@ steps across five proofs including the largest in the corpus and every block
 form the readable layer has, holding.
 
 The one qualification is step 1.4.1 of sum-formula, which the kernel will not
-accept where the text states it. The step is right and the order is right for
-a reader; what has to move is the elaborator's, not the author's.
+accept where the text states it: `fsump1` forbids its summation variable in
+the antecedent and the induction hypothesis holds that variable. The step is
+right and the order is right for a reader, so what moved was the elaborator's
+order and not the author's. `allowed` picks the innermost frame the lemma's
+disjointness conditions permit, before anything is built, and `carry` brings
+the result back in. Requirement 14 above is that rule, and it is the only
+constraint found anywhere in this exercise that is about *where* a step may be
+emitted rather than which lemma it emits.
 
 One thing outside the proofs had to change: two `metamath` fields in the
 database named the wrong set.mm theorems, because they were written for a
@@ -1153,20 +1203,25 @@ only step in the corpus whose coefficients are not constants. All seven follow
 one order, none of them searched, and the cost is set by how many atoms have to
 be carried into ℂ. `algebra` is no longer the open end of the project.
 
-What remains open is `thm:lowest-terms`: a statement the corpus cites in one
-line, for which set.mm has nothing of the right shape. It is the only
-assumption in the five proofs that is not a closure method, and
-`thm:prime-factor` is a second of its kind. Every block form is now expanded.
-What is not is the hard half of `inequalities` — the four steps here need no
-decision procedure, and `METHODS.md` specifies one. `intermediate-value` is
-where that half lives, and the eight steps of `inequalities` across the three
-later proofs are all still assumed.
+All four closure methods are now written, and every block form is expanded.
+`inequalities` got the decision procedure `METHODS.md` specifies: a Farkas
+certificate read off Fourier–Motzkin, which says which cited facts a claim is
+built from and in what multiple. Across the nine proofs it settles nine
+`inequalities` steps and one `requires` line, and none of them is assumed.
+
+What remains open is not a method. `thm:lowest-terms`, `thm:prime-factor` and
+`def:prime` are statements the corpus cites for which set.mm has nothing of
+quite the right shape, and they are the only three assumptions left anywhere.
+Sixteen more `inequalities` steps sit in `bezout` and `intermediate-value`,
+which is the largest untested weight on the method — two thirds of the
+corpus's twenty-five. They are untested because those two proofs stop before
+the elaborator, for reasons that have nothing to do with inequalities.
 
 ## Keeping set.mm where the tools can see it
 
 The label check was run once from a copy fetched into a scratch directory
-that did not outlive the session. It found one wrong field in 193, which
-sounds like an argument for not bothering again.
+that did not outlive the session. It found one wrong field and no others,
+which sounds like an argument for not bothering again.
 
 It is the opposite. The database is 97 items and will grow, every new item
 names a label from memory, and the check is a set membership against a file
