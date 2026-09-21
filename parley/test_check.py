@@ -206,6 +206,17 @@ CASES = [
      '6.  p > 2\n    def:prime p := p, from 5',
      'does not conclude'),
 
+    # `G(n)` is the sum of the powers of `a`, and `def:G` fixes `a` for the
+    # whole theorem rather than showing it in the notation. A proof that binds
+    # an `a` of its own is writing about the name it bound.
+    ('bind a name the notation it uses fixes',
+     'proof/geometric-series.proof',
+     '    2.9.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)\n'
+     '          then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).',
+     '    2.9.  For every a ∈ ℕ₀, if G(a) = (1 − a^(a + 1))/(1 − a)\n'
+     '          then G(a + 1) = (1 − a^((a + 1) + 1))/(1 − a).',
+     'a proof may not bind a name the notation it uses fixes'),
+
     ('stop declaring that juxtaposition is the product',
      'db/notation.records',
      '  assoc       left\n  spells      multiplicative ·',

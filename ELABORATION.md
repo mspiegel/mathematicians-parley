@@ -1353,7 +1353,7 @@ that fixed it.
 |---|---|
 | a `define` is read outside the block it sits in | fixed |
 | a fixed name outlives its block | fixed |
-| a fixed parameter resolves against the calling proof's table | open; the section below |
+| a fixed parameter resolves against the calling proof's table | half closed; the section below |
 
 The seven save-and-restore pairs turned out not to be part of the repair.
 Every one binds a name to read one thing and then unbinds it — the variable a
@@ -1431,10 +1431,21 @@ that bound `a` while writing `G(n)` would build a term about the bound `a`
 and report nothing. `geometric-series` binds `k` in its induction step, not
 `a`, which is the only reason this is invisible.
 
-Neither is contained by design; both are unreachable by accident. A checker
-rule refusing a proof that binds a name some notation fixes would close the
-second completely and cheaply, and is worth having whatever else is done,
-because it is a rule about the readable text rather than about the tools.
+Neither was contained by design; both were unreachable by accident. The
+second is closed now, by a checker rule refusing a proof that binds a name
+some notation fixes — a rule about the readable text rather than about the
+tools, which is why it belongs there and is worth having whatever else is
+done.
+
+Which name a notation fixes is derived rather than declared, because it is
+already on the page. `def:G` says `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its
+sentences put 0, `n + 1` and `n` in the hole of `G(_)`. So `n` is what the
+notation varies over and `a` is what it fixes, and the difference is the one
+between an argument and a parameter. Only the notation a definition
+*introduces* counts — what stands on the left of its defining sentence — or
+`_ + _` would fix a name and every proof in the corpus writes `+`.
+
+One notation in the corpus fixes anything, and it is `geometric-function`.
 
 The first is the harder one, and the honest statement of it is that a local
 definition's parameter has no home: the notation cannot hold it, the citation
