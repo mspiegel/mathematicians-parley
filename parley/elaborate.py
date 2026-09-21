@@ -290,14 +290,19 @@ class Elaborator(Builder):
             stack.append(kernel.Term(token, tuple(args)))
         return stack[0]
 
-    def settle(self, wanted, scope, facts, depth=5):
+    def settle(self, wanted, scope, facts, depth=5, step=None, lines=None):
         """A proof of something a step needs and the text does not write.
 
         A cited lemma asks side conditions of its own — that an index is in
         the upper integers, that a summand is complex — and those are not
         `requires` lines, because to a reader they are not steps. They are
         settled from the lemmas `targets.MEMBERSHIP` names, by matching what
-        each concludes against what is wanted."""
+        each concludes against what is wanted.
+
+        A step is passed only where one is there to have cited a witness,
+        which is what lets an existential be proved at all. Side conditions
+        pass none, so they stay what they are: settled from declared
+        lemmas, never by finding a fact that happens to fit."""
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
@@ -305,9 +310,13 @@ class Elaborator(Builder):
             if wanted.label in ('wa', 'w3a'):
                 kids = [c.rpn(self.flabel) for c in wanted.children]
                 return seq(scope, *kids,
-                           *(self.settle(c, scope, facts, depth - 1)
+                           *(self.settle(c, scope, facts, depth - 1,
+                                         step, lines)
                              for c in wanted.children),
                            'jca' if wanted.label == 'wa' else '3jca')
+            if wanted.label == 'wrex' and step is not None:
+                return self.witnessed(step, wanted, scope, facts,
+                                      lines or {})
             # Every lemma is tried as it is written before any is read
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
@@ -599,6 +608,69 @@ class Elaborator(Builder):
                    self.bridging(self.to_term(given), self.to_term(ex), scope,
                                  facts, step),
                    'bitrd'), ex
+
+    def witnessed(self, step, wanted, scope, facts, lines):
+        """A restricted existential, from the line a step cites for it.
+
+        The text never writes the witness as a witness: it writes a line
+        that happens to name one. Bezout's step 2 puts `a` in a set-builder
+        whose body is `there are m and n with t = a·m + b·n`, citing
+        `a = a·1 + b·0`, and 1 and 0 are the witnesses because that line is
+        the body with them in place.
+
+        Taken from the lines the step cites and never searched for among
+        the facts in scope. An existential is a step's own claim, so there
+        is always a citation to read it off, and settling one by finding
+        something that happened to fit would be proving a claim by a route
+        the text never names.
+
+        Built from the innermost quantifier out, which is the order the
+        witnesses go in: `rspcev` wants the body at one witness and gives
+        the existential over it, so the next one out is handed what the
+        last one proved."""
+        layers, rest = [], wanted
+        while rest.label == 'wrex':
+            body, var, over = rest.children
+            layers.append((body, var.rpn(self.flabel),
+                           over.rpn(self.flabel)))
+            rest = body
+        marks = {f'{v} cv' for _b, v, _o in layers}
+        for ref in step.just.refs:
+            cited = lines.get(ref)
+            found = cited and self.witnesses_in(
+                rest, self.to_term(cited.term), marks)
+            if found:
+                break
+        else:
+            raise Problem('', step.line, 'no cited line names a witness for '
+                          f'{self.render(wanted.rpn(self.flabel))}')
+
+        proof = facts.get(cited.term, cited.proof)
+        for i in reversed(range(len(layers))):
+            body, var, over = layers[i]
+            mark, held = f'{var} cv', body
+            # The quantifiers further out are still open here, and the ones
+            # already closed have their witnesses in place.
+            for _b, v, _o in layers[:i]:
+                held = self.restated(held, f'{v} cv', found[f'{v} cv'])
+            witness = found[mark]
+            here = self.restated(held, mark, witness)
+            ph = held.rpn(self.flabel)
+            ps = here.rpn(self.flabel)
+            # `rspcev` asks what `elrab` asks — the body before and after,
+            # tied by the witness standing where the variable did — so the
+            # same branch of `prove_essential` discharges it.
+            instance = self.prove_essential(
+                self.to_term(seq(seq(mark, witness, 'wceq'),
+                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            member = seq(witness, over, 'wcel')
+            proof = seq(scope, seq(member, ps, 'wa'), seq(ph, var, over,
+                                                          'wrex'),
+                        seq(scope, member, ps,
+                            self.required(step, member, over, scope, facts),
+                            proof, 'jca'),
+                        ph, ps, var, witness, over, instance, 'rspcev', 'syl')
+        return proof
 
     def restated(self, term, was, now):
         """`term` with every occurrence of the subterm `was` reading `now`.
@@ -2574,7 +2646,8 @@ class Elaborator(Builder):
         says, right = self.unfolding(step, lemma, term, None, None, None,
                                      scope, facts, hint=hint)
         return seq(scope, term, right,
-                   self.settle(self.to_term(right), scope, facts), says,
+                   self.settle(self.to_term(right), scope, facts,
+                               step=step, lines=lines), says,
                    'mpbird')
 
     def turned(self, rpn):
@@ -3148,39 +3221,49 @@ class Elaborator(Builder):
                    'syl')
 
     def witness_in(self, pattern, actual, mark):
-        """What stands where `mark` does, in a line shaped like the pattern.
+        """What stands where `mark` does, in a line shaped like the pattern."""
+        found = self.witnesses_in(pattern, actual, {mark})
+        return found[mark] if found else None
+
+    def witnesses_in(self, pattern, actual, marks):
+        """What stands where each of `marks` does, or nothing unless all do.
 
         A cited line answers part of a claim rather than all of it — 3.14
         says 2 divides p, which is one of the three things 3.16 asks of d —
         so the search runs over the claim's parts, aligning each against the
         whole of the line. Alignment starts only at a part built the same
         way the line is, or the bare `d` inside a part would align with the
-        line entire and the witness would come out as the line."""
-        found = []
+        line entire and the witness would come out as the line.
+
+        Several marks at once is what a nested existential asks for. The
+        Bezout proof cites `a = a·1 + b·0` for a body quantified over two
+        names, and looking for one of them at a time finds neither: where
+        the pattern holds the other's variable the line holds a numeral, and
+        a place that has to agree does not."""
+        found = {}
         if (pattern.label == actual.label
-                and self.aligned(pattern, actual, mark, found) and found):
-            return found[0]
+                and self.aligned(pattern, actual, marks, found)
+                and len(found) == len(marks)):
+            return found
         for child in pattern.children:
-            got = self.witness_in(child, actual, mark)
+            got = self.witnesses_in(child, actual, marks)
             if got:
                 return got
         return None
 
-    def aligned(self, pattern, actual, mark, found):
-        """Whether these agree everywhere but the marked place."""
-        if pattern.rpn(self.flabel) == mark:
-            here = actual.rpn(self.flabel)
-            if found and found[0] != here:
-                return False
-            found[:] = [here]
-            return True
+    def aligned(self, pattern, actual, marks, found):
+        """Whether these agree everywhere but the marked places."""
+        here = pattern.rpn(self.flabel)
+        if here in marks:
+            was = actual.rpn(self.flabel)
+            return found.setdefault(here, was) == was
         if pattern.variable is not None or actual.variable is not None:
             return pattern.variable == actual.variable
         if pattern.label != actual.label:
             return False
         if len(pattern.children) != len(actual.children):
             return False
-        return all(self.aligned(a, b, mark, found)
+        return all(self.aligned(a, b, marks, found)
                    for a, b in zip(pattern.children, actual.children,
                                    strict=True))
 

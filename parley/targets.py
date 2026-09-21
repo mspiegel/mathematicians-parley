@@ -149,7 +149,7 @@ NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',
 # conditions by means the text never names.
 MEMBERSHIP = [
     'ax-1cn', '1re', '1z', '1nn', '2cn', '2re', '2z', '2nn', '0cn', '0re',
-    '3cn', '3re', '3z', '4cn', '4re', '4z',
+    '0z', '3cn', '3re', '3z', '4cn', '4re', '4z',
     'nnz', 'nnre', 'nncn', 'nnnn0', 'nn0z', 'nn0re', 'nn0cn',
     'zre', 'zcn', 'recn',
     'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1',
