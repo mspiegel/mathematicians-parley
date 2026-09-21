@@ -60,14 +60,14 @@ THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
 BY_HAND = ('parity', 'sqrt2', 'algebra', 'sum-formula', 'abs-bounds')
 
 ARTIFACTS = [
-    Artifact('definitions', 'elaboration/auto/definitions.mm',
+    Artifact('definitions', 'elaboration/elaborated/definitions.mm',
              ('parley/elaborate.py', '--definitions', SETMM), True),
     # Hand-written like the five below, and generated like the eleven above:
     # `build-geometry.py` holds its proofs, so it sits outside the directory
     # of things elaborated from the readable layer, and is still built here.
     Artifact('geometry', 'elaboration/geometry.mm',
              ('elaboration/build-geometry.py', SETMM), True),
-    *(Artifact(name, f'elaboration/auto/{name}.mm',
+    *(Artifact(name, f'elaboration/elaborated/{name}.mm',
                ('parley/elaborate.py', name, SETMM), True)
       for name in THEOREMS),
     *(Artifact(f'hand-{name}', f'elaboration/{name}.mm',

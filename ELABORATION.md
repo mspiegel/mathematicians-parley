@@ -417,8 +417,10 @@ parley/elaborate.py <theorem> <set.mm>
 
 produces a Metamath proof that verifies against set.mm. Four theorems go
 through it — odd-square, even-square, sum-formula and abs-bounds — and nothing
-in any of them is hand-written. `elaboration/auto/` holds what the program
-writes; the files beside it are the hand elaborations, kept for comparison.
+in any of them is hand-written. `elaboration/elaborated/` holds what the
+program writes; the files beside it are the ones a person wrote — the hand
+elaborations kept for comparison, and `geometry.mm`, which is hand-written
+too and is not a comparison but the only statement of what it proves.
 
 It writes to standard output, and where each file goes is `parley/build.py`,
 which lists every generated file and what generates it. `parley/build.py`

@@ -14,7 +14,7 @@ the complex plane, and the proof elaborates to a file that assumes nothing.
 **1. The backend adds no mathematical axioms.** `GOALS.md`, on what is kept
 from Metamath: *"No mathematical axioms in the kernel. The foundation is a
 library."* The corresponding measure in practice is the list at the head of
-an elaborated file. Every proof in `elaboration/auto/` states what it assumed
+an elaborated file. Every proof in `elaboration/elaborated/` states what it assumed
 and why, and the work of the last eight proofs has been to shorten those
 lists; `cantor.mm` assumes nothing. A backend that enters as an axiom system
 makes the corpus's geometry permanently assumed, which is the opposite

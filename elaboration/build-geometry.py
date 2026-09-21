@@ -29,6 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
 
+from build import path_of
 from library import read as read_library
 from spell import Builder
 
@@ -1599,8 +1600,7 @@ def main(argv):
     # The angle is a constant this corpus introduces, so the definitions
     # are read alongside the library: `angval` says what a value of it is,
     # and discharging that needs `df-ang`.
-    here = Path(__file__).resolve().parent
-    sigs = read_library(argv[1], here / 'auto' / 'definitions.mm')
+    sigs = read_library(argv[1], path_of('definitions'))
     b = Builder(sigs)
     print(HEAD, end='')
     for label, statement, proof in side_angle_side(
