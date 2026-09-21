@@ -111,14 +111,26 @@ def order(monomial):
 def spell_monomial(monomial):
     """One monomial in reverse Polish, as a product of powers.
 
-    A power of one is written as the atom itself, and the product
-    associates to the left, which is how the corpus writes one."""
-    said = [atom if power == 1 else f'{atom} {NUMERAL[power]} cexp co'
-            for atom, power in monomial]
+    Every factor is written `( x ^ k )`, the exponent one included, and
+    the empty monomial is `1`. The product associates to the left."""
+    if not monomial:
+        return NUMERAL[1]
+    said = [f'{atom} {NUMERAL[power]} cexp co' for atom, power in monomial]
     out = said[0]
     for one in said[1:]:
         out = f'{out} {one} cmul co'
     return out
+
+
+def spell_coefficient(weight):
+    """A rational coefficient as a numeral, negated where it is negative.
+
+    None where it is not a whole number the kernel has one digit for,
+    which is past anything this corpus writes."""
+    if weight.denominator != 1 or abs(weight.numerator) > 9:
+        return None
+    digit = NUMERAL[abs(weight.numerator)]
+    return f'{digit} cneg' if weight.numerator < 0 else digit
 
 
 def spell(poly):
@@ -126,30 +138,23 @@ def spell(poly):
 
     Both sides of an `algebra` step are driven to this, and the step is
     then the two of them being the same term. Sums associate to the left
-    and run down in degree; a coefficient of one is not written, nor an
-    exponent of one, and the constant term is a bare numeral. A negative
-    coefficient is a negated numeral rather than a subtraction, so that
-    every term is joined the same way.
+    and run down in degree, and every term is `( c x. M )` with no case
+    left out: a coefficient of one is written, so is an exponent of one,
+    and the constant term is `( c x. 1 )`. That is not how anyone writes
+    a polynomial, and it does not have to be — the form is internal, the
+    claim stays the two terms the text wrote. What it buys is that every
+    step of the arithmetic over these forms has one shape to handle
+    rather than four.
 
-    None where a coefficient is not a whole number the kernel has a single
-    digit for, which is past anything this corpus writes."""
+    None where a coefficient is past what `spell_coefficient` writes."""
     if not poly.terms:
         return NUMERAL[0]
     said = []
     for monomial in sorted(poly.terms, key=order):
-        weight = poly.terms[monomial]
-        if weight.denominator != 1 or abs(weight.numerator) > 9:
+        digit = spell_coefficient(poly.terms[monomial])
+        if digit is None:
             return None
-        whole = abs(weight.numerator)
-        digit = NUMERAL[whole]
-        if weight.numerator < 0:
-            digit = f'{digit} cneg'
-        if not monomial:
-            said.append(digit)
-        elif whole == 1 and weight.numerator > 0:
-            said.append(spell_monomial(monomial))
-        else:
-            said.append(f'{digit} {spell_monomial(monomial)} cmul co')
+        said.append(f'{digit} {spell_monomial(monomial)} cmul co')
     out = said[0]
     for one in said[1:]:
         out = f'{out} {one} caddc co'
