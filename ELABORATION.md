@@ -852,7 +852,7 @@ the identity is.
     closes with `ralrimiva` over the name it fixed. Which of the two is
     settled by whether the block is a part of something.
 
-20. **The corpus and set.mm may state one fact as two formulas.** Three kinds,
+20. **The corpus and set.mm may state one fact as two formulas.** Four kinds,
     and only the first is a normaliser's. A *rearrangement* — `2k` against
     `k x. 2` — is the same operators permuted, and `db/notation.records` names it
     with `commutes`. A *named equivalence* — `p ∈ ℤ≥2` against `p > 1` — is
@@ -861,6 +861,14 @@ the identity is.
     domain against primality in the body — is neither, and needs a proof. The
     first two can be declared; the third is why `thm:prime-factor` is not a
     gap a table could close, and is reached instead through `rexss`.
+
+    The fourth was found later and is the normaliser's after all: a *rescaled
+    denial*. `1 − a ≠ 0` and `a ≠ 1` deny the same number, because what one
+    says does not vanish is −1 times what the other does. Nothing has to
+    declare that — the polynomials decide it — and the proof is `subeq0`
+    either side of an identity the normaliser already knows how to build.
+    That is the whole of what `algebra` may do with a disequality, and
+    `METHODS.md` says so where it says what the method decides.
 
 ## Three proofs from outside
 
@@ -1390,9 +1398,10 @@ name's set without asking whether there was one, so `let X be a set` inside a
 a proof; the block path did not, because no proof had got that far.
 
 Every generated file came out byte-identical, which is what says the repair
-moved no proof. `subsets-count` passes three walls and stops at a fourth, a
-congruence for the power set — a different shape again, as `bezout`'s walls
-were.
+moved no proof. `subsets-count` passed three walls and stopped at a fourth,
+which was a different shape again, as `bezout`'s walls were. Every wall that
+has fallen since has been its own shape too, which is the thing to expect
+rather than the thing to remark on.
 
 ### What `geometric-sum` turns out to be about
 
@@ -1448,14 +1457,34 @@ between an argument and a parameter. Only the notation a definition
 
 One notation in the corpus fixes anything, and it is `geometric-function`.
 
-The first is the harder one, and the honest statement of it is that a local
+The first was called the harder one, on the reasoning that a local
 definition's parameter has no home: the notation cannot hold it, the citation
 supplies it only where the definition is cited and not where the notation
 merely appears, and the calling proof's name table is the wrong place because
-it belongs to the caller. That last clause is the general defect. A table
-that belongs to the caller is what a flat dictionary of names is, and giving
-names a frame is what would make "the scope this notation was fixed in" a
-thing there is somewhere to look.
+it belongs to the caller.
+
+The first three clauses stand. The conclusion drawn from them does not, and
+the reason is that the three options weighed above are not all there are.
+None of them is **discharge**, which is what Coq's sections, Isabelle's
+locales and Lean's variables all do: the reader writes the short form and the
+kernel sees the long one, and the parameter is resolved once where it is
+fixed rather than looked up where it is used.
+
+That is what `@a` in a `target` now means. It is filled from the theorem's
+`let` lines, taken before the conclusion and before any step and never
+written again, so a block binding an `a` of its own cannot reach it and the
+same `G(n)` is the same term wherever it appears. A theorem that fixes no `a`
+cannot write `G(_)` at all, which is what being local to a definition means.
+
+So the defect above was not that names lack a frame. It was that the
+parameter was being resolved at the wrong moment. Resolving it once, where
+the definition fixes it, is lexical, and needs no frame at all.
+
+What the earlier reasoning got right is worth keeping: the two defects are
+real and different, the capture one is a rule about the page and belongs in
+the checker, and which name a notation fixes is derived rather than declared.
+What it got wrong was to weigh three options without the one every proof
+assistant uses.
 
 ### `bezout` wants an existential where the proof gives an instance
 
@@ -1502,3 +1531,46 @@ where no step is passed.
 `thm:prime-factor` wants the same crossing the other way — `exprmfct`
 quantifies over `Prime` where the readable line quantifies over ℕ and says
 primality in the body — and `rexlimiva` is the elimination half of it.
+
+## Five things the elaborator could decide and could not say
+
+The walls above were each a thing the elaborator could not do. These are
+different: in every one of them the elaborator had already worked out that
+the step was sound, and then had nothing to emit. They are worth separating
+because they are found a different way. A missing capability announces
+itself; a decision with no emission looks from the outside like a step the
+method does not cover, and says so in those words.
+
+- **A power by something that is not a numeral.** `field.py` decides an
+  `algebra` step and `normal.py` proves it, and the decider states the rule
+  where it applies it: a numeral exponent is expanded, any other leaves the
+  whole power an atom. The emitter raised instead, so a step over `a^(k+1)`
+  was decided to be an identity of the field and then taken as stated.
+
+- **A claim denying a relation.** `linear.fact` has always read
+  `not ( d ≤ r )` as `r < d`, and requirement 20's own section on
+  `inequalities` calls a negation a fact and not a special case. But
+  `order_sides` reads a relation and cannot read a denial, so the method
+  said "the claim states no relation" about a claim it had just decided.
+
+- **A refutation that splits.** `a ≠ b` is `a < b or b < a`, so using one
+  means solving twice, and `linear.certificate` has always returned both
+  halves rather than a combination. `prove_order` read that as a refusal. It
+  is the answer: each side is the same claim one scope wider.
+
+- **A disequality that is a cited one rescaled.** Worse than the others,
+  because `decide_field` did not refuse such a step — it abstained, since
+  `field.equation` reads only an equation. So `algebra` vouched for nothing
+  before assuming it, and said nothing about that either.
+
+- **A biconditional the lemma states the other way round.** `apply_lemma`
+  peeled one way only, so `elnnz` — a natural number is an integer above
+  zero — could not be used by a step that has the integer and the bound.
+  `fits` has read a biconditional both ways since the closure work; the
+  other half of the elaborator never grew it.
+
+The pattern is that two halves of one method disagreed about what the method
+covers, and the disagreement was invisible because the half that gave up
+last is the one that speaks. Byte-identity is what made each safe to repair:
+in all five, no other proof in the corpus moved, which is what says the
+capability was missing rather than wrong.
