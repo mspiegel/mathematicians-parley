@@ -1754,7 +1754,13 @@ class Elaborator:
             return scaled, work.ap(
                 'eqled', {'ph': scope, 'A': scaled, 'B': 'cc0'},
                 scaled_real, vanishes), scaled_real
-        if parts[2] != '<=':
+        if parts[2] == '<':
+            # A sum that lands on `at most` has no use for the strictness,
+            # so it is given up here and the one case below serves both.
+            given = work.ap('ltled', {'ph': scope, 'A': was[0],
+                                      'B': was[1]},
+                            real_number(was[0]), real_number(was[1]), given)
+        elif parts[2] != '<=':
             raise normal.Unhandled(f'a cited {parts[2]} is not written')
         bound = self.difference_le(work, was, given, None, real_number)
         if times == 1:
