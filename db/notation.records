@@ -693,6 +693,7 @@ notation for-every-set
   binds       hole 1 over hole 2
   reads       for every set
   metamath    wal, with no restricting domain
+  target      _2 _1 wal
   first-used  subsets
   note        The domain-free binder, quantifying over an arbitrary set rather
               than over the elements of a named one. It is the formula-position

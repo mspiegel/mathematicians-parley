@@ -163,6 +163,7 @@ class Elaborator(Builder):
         ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
         ('wcel', (0, 1)): 'eleq12d',
         ('csu', (0,)): 'sumeq1d',
+        ('cpw', (0,)): 'pweqd',
         ('wa', (0,)): 'anbi1d', ('wa', (1,)): 'anbi2d',
         ('wa', (0, 1)): 'anbi12d',
         ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
