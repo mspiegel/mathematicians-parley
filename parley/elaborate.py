@@ -2290,7 +2290,7 @@ class Elaborator(Builder):
                 if one is not None:
                     given.append(one)
         atoms = {a for p in [*given, claim] for m in p.terms for a, _ in m}
-        if not field.follows(given, claim, atoms):
+        if field.follows(given, claim, atoms) is None:
             raise Problem('', step.line,
                           f'{self.render(term)} is not an identity, nor does '
                           f'it follow from what step {fmt(step.number)} '

@@ -264,19 +264,24 @@ def denied(term, labels):
 
 
 def follows(given, claim, atoms):
-    """Whether the claim is an identity, or follows from the given equations.
+    """How the claim is a combination of the given equations, or None.
 
     With nothing cited the claim must vanish outright, which is twelve of
-    the corpus's seventeen steps. With equations cited it must be a
-    combination of them — ideal membership — and `ELABORATION.md` measures
-    every such step in the corpus: the multipliers are constants but for
-    one, whose multiplier is a single atom. So the multipliers looked for
-    are a rational times a monomial of degree at most one, and nothing is
-    searched for past that."""
+    the corpus's seventeen steps, and the combination is empty. With
+    equations cited it must be a combination of them — ideal membership —
+    and `ELABORATION.md` measures every such step in the corpus: the
+    multipliers are constants but for one, whose multiplier is a single
+    atom. So the multipliers looked for are a rational times a monomial of
+    degree at most one, and nothing is searched for past that.
+
+    What is returned is the combination itself, one `(which, shape, scale)`
+    for each equation taken off: the claim is their sum. A proof of the step
+    is built from it, so it is kept rather than discarded, as
+    `linear.certificate` keeps Farkas's."""
     if claim.zero():
-        return True
+        return []
     if not given:
-        return False
+        return None
     shapes = [one(), *(atom(a) for a in sorted(atoms))]
     return _reduces(claim, given, shapes)
 
@@ -284,20 +289,21 @@ def follows(given, claim, atoms):
 def _reduces(claim, given, shapes, depth=3):
     """Take one cited equation off the claim, by some allowed multiplier."""
     if claim.zero():
-        return True
+        return []
     if depth <= 0:
-        return False
-    for held in given:
+        return None
+    for which, held in enumerate(given):
         if held.zero():
             continue
         for shape in shapes:
             scale = _cancels(claim, held.times(shape))
             if scale is None:
                 continue
-            if _reduces(claim.minus(held.times(shape).scaled(scale)),
-                        given, shapes, depth - 1):
-                return True
-    return False
+            rest = _reduces(claim.minus(held.times(shape).scaled(scale)),
+                            given, shapes, depth - 1)
+            if rest is not None:
+                return [(which, shape, scale), *rest]
+    return None
 
 
 def _cancels(claim, part):
