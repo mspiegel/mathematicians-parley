@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Everything that must be green before a commit.
 
-Five things, in the order that fails fastest: the lint settings in
+Six things, in the order that fails fastest: the lint settings in
 `ruff.toml`, the checker over the whole corpus, the planted defects that prove
-the checker still catches things, every set.mm label the database names, and
+the checker still catches things, the planted defects that prove the
+elaborator still reports things, every set.mm label the database names, and
 a verifier over every proof the elaborator has written. Any one of them
 failing fails the gate.
 
@@ -11,6 +12,12 @@ The last is the only one that is evidence the elaborator is right rather than
 consistent. The four before it read the corpus against itself or against a
 list of names; a proof that assumes nothing and proves the wrong thing passes
 all four, and has.
+
+The fourth is there because none of the others watches what the elaborator
+does with a defect. It may take a step as stated where it has no method for
+it, which is right, and it did the same where the text was wrong, which is
+not: the step was listed as assumed and the error never seen. Nothing said
+so, because the file it wrote verified.
 
 Three of them need something this repository does not carry, and none of the
 three is vendored. ruff: if it is missing, say
@@ -56,6 +63,9 @@ def main():
     if not run('planted defects',
                [sys.executable, str(ROOT / 'parley' / 'test_check.py')]):
         failed.append('planted defects')
+    if not run('planted defects the elaborator must report',
+               [sys.executable, str(ROOT / 'parley' / 'test_elaborate.py')]):
+        failed.append('planted defects the elaborator must report')
     if not run('set.mm labels',
                [sys.executable, str(ROOT / 'parley' / 'labels.py')]):
         failed.append('set.mm labels')

@@ -322,7 +322,10 @@ class Elaborator(Builder):
             return node.term
         if node.notation == 'name':
             if node.text not in self.names:
-                raise Problem('', 0, f'no kernel name for {node.text!r}')
+                # A name the proof never introduced, which is the text's to
+                # fix wherever the reading of it came from.
+                raise Problem(self.thm.path, self.at,
+                              f'no kernel name for {node.text!r}')
             return self.names[node.text]
         if node.notation == 'numeral':
             return targets.NUMERALS[node.text]
@@ -4497,12 +4500,15 @@ def term_of(rpn, sigs):
     return stack[0]
 
 
-def main(argv):
+def main(argv, root=None):
+    """Elaborate one theorem of the corpus at `root`, which is this one
+    unless a caller says otherwise. `parley/test_elaborate.py` says
+    otherwise, because it plants a defect in a copy."""
     if len(argv) < 3:
         print(__doc__.strip().splitlines()[-1], file=sys.stderr)
         return 2
     wanted, setmm = argv[1], argv[2]
-    root = Path(__file__).resolve().parent.parent
+    root = root or Path(__file__).resolve().parent.parent
     records, theorems = corpus(root)
     if wanted == '--definitions':
         return write_definitions(records, read_library(setmm), setmm)
