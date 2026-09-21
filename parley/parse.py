@@ -75,6 +75,7 @@ class Record:
     fields: dict = field(default_factory=dict)
     hypotheses: list = field(default_factory=list)
     conclusions: list = field(default_factory=list)
+    repeats: list = field(default_factory=list)   # (field, line) said twice
     line: int = 0
     path: str = ''
 
@@ -130,6 +131,12 @@ def parse_database(path, text):
             cur.conclusions.append((value, line.no))
         else:
             last = ('field', key)
+            # A field said twice is joined to the first, which is what a
+            # wrapped line does and is not what a second field line means.
+            # The join is kept so the record still reads, and the repeat is
+            # recorded for the checker to refuse.
+            if key in cur.fields:
+                cur.repeats.append((key, line.no))
             cur.fields[key] = (cur.fields[key] + ' ' + value
                                if key in cur.fields else value)
     return records

@@ -311,6 +311,13 @@ CASES = [
      'definition twice\n  symbol      dup\n  defines     cq\n'
      '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ',
      'is already introduced by'),
+
+    ('state a field twice, which reads as one field joined',
+     'db/items.db',
+     'definition irrational\n  then        x is irrational',
+     'definition irrational\n  first-used  sqrt2-irrational\n'
+     '  then        x is irrational',
+     'a second time'),
 ]
 
 

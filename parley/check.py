@@ -174,6 +174,11 @@ def check_database(report, records):
             report.say(r.path, r.line,
                        f'{r.kind} {r.name} is already defined at line {seen[key]}')
         seen[key] = r.line
+        for name, no in r.repeats:
+            report.say(r.path, no,
+                       f'{r.kind} {r.name} states {name} a second time; the '
+                       f'two are joined into one field, so the second is not '
+                       f'read on its own and saying it changes nothing')
         if r.kind in ('definition', 'theorem'):
             sources = [f for f in ('proved-in', 'metamath', 'open') if f in r.fields]
             if not sources:
