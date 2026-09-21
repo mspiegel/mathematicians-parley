@@ -78,10 +78,14 @@ method algebra
   form        algebra, from L
   block       none
   checks      ring and field identities, starting from the equations in L, in the
-              variables and in named subterms treated as opaque.
+              variables and in named subterms treated as opaque; and a
+              disequality that is a rearrangement of a cited one.
   decides     equality of rational expressions over a field, with every subterm
               that is not built from numerals, + − · / and a numeral power
-              treated as an atom it knows nothing about
+              treated as an atom it knows nothing about. Also a disequality
+              e ≠ 0, when e is a nonzero rational multiple of a cited d ≠ 0;
+              not one that is anything else, which would be a fact about the
+              field rather than an identity of it.
   hypotheses  every atom is a real number, and every denominator is nonzero;
               both are dull facts discharged by a cited line or a requires line
   specified-in METHODS.md
@@ -121,6 +125,12 @@ method inequalities
   specified-in METHODS.md
   metamath    ltne, lelttr, ltnle
   first-used  sqrt2-irrational
+  note        The name misleads. This is about the ordering of numbers, not
+              about things being unequal. A ≠ reaches it only because the
+              order gives one a meaning — a ≠ b is a < b or b < a — so a
+              disequality is this method's when the order is what settles it,
+              as 0 ≤ r with r ≠ 0 giving 0 < r, and algebra's when no order
+              is involved, as 1 − a ≠ 0 from a ≠ 1.
 
 method join
   form        join L

@@ -167,6 +167,30 @@ The rule: if the claim is an earlier claim with a term replaced, it is
 `substitute`. If the claim follows numerically from facts including an
 equation, it is `inequalities`.
 
+### Boundary with algebra, over a disequality
+
+The name misleads, and the misreading costs an afternoon each time. Read
+literally an "inequality" is a thing that is not equal, so `≠` looks as
+though it must be this method's business. It is not: `inequalities` is about
+the **ordering** of numbers. A `≠` reaches it only because the order gives
+one a meaning — `a ≠ b` is `a < b or b < a`, which is exactly why using one
+splits the refutation.
+
+So a disequality belongs to `inequalities` when the order is what settles it,
+and to `algebra` when no order is involved. The corpus has one of each and
+they are not alike:
+
+- Bezout's step 4.1 turns `0 ≤ r` together with `r ≠ 0` into `0 < r`. Every
+  part of that is the order, and the claim is an order relation, which
+  `algebra` refuses.
+- The geometric series' step 1 concludes `1 − a ≠ 0` from `a ≠ 1`. That holds
+  in any field and has no order in it. Reaching it through trichotomy would
+  prove an order-free fact by the order, which is more than the fact needs.
+
+The rule: a disequality whose argument runs through `<` or `≤` is
+`inequalities`; one that is a rearrangement of a cited disequality is
+`algebra`, as narrowly as the `algebra` section states.
+
 ### Expansion
 
 The target families in set.mm are the transitivity and ordering lemmas below.
