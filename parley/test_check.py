@@ -217,6 +217,21 @@ CASES = [
      '          then G(a + 1) = (1 − a^((a + 1) + 1))/(1 − a).',
      'a proof may not bind a name the notation it uses fixes'),
 
+    # The same fixed name is said twice and neither file reads the other:
+    # `def:G`'s `let` lines and the hole of `G(_)` say it on the page, and
+    # `@a` in the target says it to the elaborator.
+    ('drop the fixed parameter from a notation target',
+     'db/notation.records',
+     '  target      cc0 _1 cfz co @a vk cv cexp co vk csu',
+     '  target      cc0 _1 cfz co c1 vk cv cexp co vk csu',
+     'which its target does not write as @a'),
+
+    ('hold a name fixed that no definition fixes',
+     'db/notation.records',
+     '  target      cc0 _1 cfz co @a vk cv cexp co vk csu',
+     '  target      cc0 _1 cfz co @a @b vk cv cexp co vk csu',
+     'which no definition introducing it fixes'),
+
     ('stop declaring that juxtaposition is the product',
      'db/notation.records',
      '  assoc       left\n  spells      multiplicative ·',

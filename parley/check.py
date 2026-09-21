@@ -15,6 +15,8 @@ import sys
 import unicodedata
 from pathlib import Path
 
+import targets
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from formula import Grammar, parse
 from match import (
@@ -589,6 +591,34 @@ def fixed_by(records, g):
             if held:
                 out.setdefault(notation, set()).update(held)
     return out
+
+
+def check_declared(report, records, fixed):
+    """What a notation's target holds fixed is what its definition fixes.
+
+    Two files say which names a notation holds fixed and neither reads the
+    other. `db/items.records` says it by what the definition's `let` lines
+    name and where the hole goes, which is the reading on the page;
+    `db/notation.records` says it with `@a` in the target, which is what an
+    elaborator builds the term from. A target fixing a name the definition
+    does not is a term about something nothing declares; a definition fixing
+    a name the target does not is a parameter dropped from the term."""
+    for r in records:
+        if r.kind != 'notation' or 'target' not in r.fields:
+            continue
+        said = set()
+        for entry in targets.split_entries(r.fields['target']):
+            if entry not in targets.MARKERS:
+                said |= set(targets.fixes(entry))
+        wanted = fixed.get(r.name, set())
+        for name in sorted(said - wanted):
+            report.say(r.path, r.line,
+                       f'{r.name} targets @{name}, which no definition '
+                       f'introducing it fixes')
+        for name in sorted(wanted - said):
+            report.say(r.path, r.line,
+                       f'{r.name} is introduced by a definition that fixes '
+                       f'{name}, which its target does not write as @{name}')
 
 
 def check_fixed(report, thm, fixed, g):
@@ -1402,6 +1432,7 @@ def main(root):
 
     library = Library(records, theorems, grammar)
     fixes = fixed_by(records, grammar)
+    check_declared(report, records, fixes)
 
     proved = {}
     for thm in theorems:
