@@ -1060,19 +1060,24 @@ class Emitter(Builder):
             if how in (field.ADD, field.SUB, field.MUL):
                 return self.binary(how, left, right, labels, said)
             if how == field.EXP:
+                # The exponent rule, as `field.py` states it where the same
+                # claim is decided: a numeral exponent is expanded, and any
+                # other leaves the whole power an atom. A power of a name
+                # by a name is a number like any other, and what the caller
+                # is asked for is the one thing an atom has to say.
                 times = field.numeral(right, labels)
-                if times is None or not 0 <= times <= 9:
-                    raise Unhandled(f'{said} has no numeral exponent')
-                inner, proof = self.normalize(left, labels)
-                out, raised = self.power(inner, times)
-                return out, self.chain(
-                    self.ap('oveq1d',
-                            {'ph': self.under, 'A': left.rpn(labels),
-                             'B': self.spell_run(inner),
-                             'C': NUMERAL[times], 'F': EXP}, proof),
-                    raised, said,
-                    op(self.spell_run(inner), NUMERAL[times], EXP),
-                    self.spell_run(out))
+                if times is not None and 0 <= times <= 9:
+                    inner, proof = self.normalize(left, labels)
+                    out, raised = self.power(inner, times)
+                    return out, self.chain(
+                        self.ap('oveq1d',
+                                {'ph': self.under, 'A': left.rpn(labels),
+                                 'B': self.spell_run(inner),
+                                 'C': NUMERAL[times], 'F': EXP}, proof),
+                        raised, said,
+                        op(self.spell_run(inner), NUMERAL[times], EXP),
+                        self.spell_run(out))
+                return self.as_atom(said)
             if how == field.DIV:
                 raise Unhandled(f'{said} divides, which is cross-multiplied')
         return self.as_atom(said)
