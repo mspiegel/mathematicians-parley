@@ -45,6 +45,7 @@ from match import instantiation
 from parse import (
     NAME,
     Problem,
+    Unhandled,
     check_encoding,
     citations,
     fmt,
@@ -109,22 +110,6 @@ def whole_multiple(cited, claim):
     if cited.terms != claim.scaled(times).terms:
         return None
     return times.numerator
-
-
-def declined(said):
-    """Whether this is a route declining, or the proof text being wrong.
-
-    `normal.Unhandled` is a route declining and says so. `Problem` is both:
-    its docstring says it "carries where it was found", and the thirteen the
-    elaborator raises where it cannot do something carry nowhere, while the
-    forty-four it raises about the text carry a line.
-
-    The difference matters where a method falls back to stating its step.
-    A route declining should fall back; a defect in the text must not, or
-    the step is listed as stated and the reader never sees the error. The
-    two would be separate exceptions in a tidier program, and until they are
-    the line is what tells them apart."""
-    return not isinstance(said, Problem) or not said.line
 
 
 def multiplier(shape, scale):
@@ -288,7 +273,10 @@ class Elaborator(Builder):
         self.joined = None
         self.enclosing = None    # the block a step sits directly inside
         self.shapes = {}         # target pattern -> the tree it reads as
-        self.at = 0              # the line being elaborated, for `read`
+        # Where the elaborator has got to, for whatever it reads there. The
+        # theorem's own line until a step sets it, so a hypothesis or a
+        # conclusion that will not parse points at the theorem.
+        self.at = thm.line
         self.names = {}          # readable name -> kernel term
         self.fixed = {}          # the same, as the theorem's `let` lines left
                                  # it, for the names a notation holds fixed
@@ -363,7 +351,7 @@ class Elaborator(Builder):
         out = {}
         for name in targets.fixes(self.pattern(node)):
             if name not in self.fixed:
-                raise Problem('', 0,
+                raise Problem(self.thm.path, self.at,
                               f'notation {node.notation!r} is about {name!r}, '
                               f'which this theorem does not fix')
             out[name] = self.fixed[name]
@@ -380,16 +368,21 @@ class Elaborator(Builder):
                 if fixed else pattern)
 
     def pattern(self, node):
-        """The `target` entry of the pattern this node was built from."""
+        """The `target` entry of the pattern this node was built from.
+
+        A notation with no target is a gap in `db/notation.records` and so
+        a person's to fix. The position is the line that wrote the notation
+        rather than the record that fails to declare it, because that is the
+        one this knows and it is where a reader would start looking."""
         entries = self.terms.get(node.notation)
         if entries is None:
-            raise Problem('', 0,
+            raise Problem(self.thm.path, self.at,
                           f'notation {node.notation!r} has no target field')
         order = self.literals.get(node.notation, [])
         found = entries[order.index(node.text)] if node.text in order \
             else entries[0]
         if found is None:
-            raise Problem('', 0,
+            raise Problem(self.thm.path, self.at,
                           f'notation {node.notation!r} builds no term here')
         return found
 
@@ -464,7 +457,7 @@ class Elaborator(Builder):
                                       depth, backwards)
                     if found is not None:
                         return found
-        raise Problem('', 0, f'cannot settle {self.render(rpn)}')
+        raise Unhandled(f'cannot settle {self.render(rpn)}')
 
     def fits(self, label, sig, wanted, scope, facts, depth, backwards):
         """Whether one lemma settles what is wanted, and how.
@@ -571,7 +564,7 @@ class Elaborator(Builder):
                 proof = seq(scope, asks.rpn(self.flabel), rest,
                             self.settle(asks, scope, facts, depth - 1), proof,
                             fold)
-        except Problem:
+        except Unhandled:
             return None
         return proof
 
@@ -641,7 +634,7 @@ class Elaborator(Builder):
             after[i], proofs[i] = self.rewrite(child, old, new, scope,
                                                eqproof)
         if not proofs:
-            raise Problem('', 0, f'nothing to rewrite in {self.term(node)}')
+            raise Unhandled(f'nothing to rewrite in {self.term(node)}')
         return self.descend(self.shape(self.spelling(node)), holes, after,
                             proofs, scope)
 
@@ -650,7 +643,7 @@ class Elaborator(Builder):
         if tree[0] == 'hole':
             return after[tree[1]], proofs[tree[1]]
         if tree[0] == 'const':
-            raise Problem('', 0, 'no hole changed under this target')
+            raise Unhandled('no hole changed under this target')
         _k, label, wrap, kids = tree
         was = [self.spell(k, before) for k in kids]
         now, deeper, slots = list(was), [], []
@@ -661,7 +654,7 @@ class Elaborator(Builder):
             deeper.append(under)
             slots.append(slot)
         if not slots:
-            raise Problem('', 0, 'no hole changed under this target')
+            raise Unhandled('no hole changed under this target')
         # An operation or a relation is itself an operand of the lemma that
         # rewrites under it; a constructor that takes its arguments directly
         # is not. What changed comes first, old beside new, then the rest.
@@ -689,7 +682,8 @@ class Elaborator(Builder):
         item = self.items[name.split(':', 1)[1]]
         lemma, flipped = targets.unfolding(item)
         if lemma is None:
-            raise Problem('', 0, f'{name} has no target field')
+            raise Problem(self.thm.path, self.at,
+                          f'{name} has no target field')
         var = var or self.flabel[self.sigs[lemma].bound()]
         node = self.read(item.conclusions[0][0])
         left, right = node.children
@@ -718,12 +712,11 @@ class Elaborator(Builder):
             asks.append(reads.children[0])
             reads = reads.children[1]
         if reads.label != 'wb':
-            raise Problem('', step.line, f'{lemma} states no biconditional')
+            raise Unhandled(f'{lemma} states no biconditional')
         binding = kernel.match(reads.children[0], self.to_term(left), {},
                                whole.names())
         if binding is None:
-            raise Problem('', step.line,
-                          f'{lemma} does not unfold {self.render(left)}')
+            raise Unhandled(f'{lemma} does not unfold {self.render(left)}')
         # A lemma's left side need not fix everything it mentions: `elrab`
         # names the body twice, once in the set-builder's variable and once
         # in the element's, and only the second is on the right. So what the
@@ -931,17 +924,21 @@ class Elaborator(Builder):
         lemma that lifts each level is the one the tree names: the walk
         `descend` makes over a readable claim, made here over a term the
         kernel holds. What counts as the change, and what proves it there,
-        is the caller's."""
-        line = step.line if step else 0
+        is the caller's.
+
+        What it refuses is a route declining and not a defect, however it
+        was reached. It used to carry the step's line where a caller had a
+        step and none where one did not, so the same failure was a defect
+        or a decline according to who was on the stack."""
         found = leaf(given, want, scope, facts)
         if found is not None:
             return found
         if (given.label != want.label
                 or len(given.children) != len(want.children)):
-            raise Problem('', line,
-                          f'{self.render(given.rpn(self.flabel))} and '
-                          f'{self.render(want.rpn(self.flabel))} differ by '
-                          'more than the change being carried')
+            raise Unhandled(
+                f'{self.render(given.rpn(self.flabel))} and '
+                f'{self.render(want.rpn(self.flabel))} differ by '
+                'more than the change being carried')
         if given.label == 'wrex':
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
@@ -959,7 +956,7 @@ class Elaborator(Builder):
         other = [c.rpn(self.flabel) for c in wants]
         slots = [i for i in range(len(kids)) if spelt[i] != other[i]]
         if not slots:
-            raise Problem('', line, 'nothing changed under this term')
+            raise Unhandled('nothing changed under this term')
         moved = [x for i in slots for x in (spelt[i], other[i])]
         rest = [s for i, s in enumerate(spelt) if i not in slots]
         head = given.children[-1].rpn(self.flabel) if wrapped else ''
@@ -1874,7 +1871,7 @@ class Elaborator(Builder):
                     try:
                         built, proof = self.rewrite(start, was, now, scope,
                                                     faces)
-                    except Problem:
+                    except Unhandled:
                         continue
                     if built != self.term(other):
                         continue
@@ -1907,7 +1904,7 @@ class Elaborator(Builder):
                     continue
                 try:
                     built, proof = self.rewrite(one, was, now, scope, faces)
-                except Problem:
+                except Unhandled:
                     continue
                 if built == term:
                     return seq(scope, start, term, known[start], proof,
@@ -1926,9 +1923,7 @@ class Elaborator(Builder):
         self.decide_field(step, term, lines)
         try:
             return self.prove_field(step, term, scope, facts, lines)
-        except (normal.Unhandled, Problem) as said:
-            if not declined(said):
-                raise
+        except Unhandled:
             return self.assume(step, term, scope, facts, 'alg', lines)
 
     def prove_field(self, step, term, scope, facts, lines):
@@ -2168,7 +2163,7 @@ class Elaborator(Builder):
                 continue
             try:
                 items, same = work.normalize(subject, self.flabel)
-            except (normal.Unhandled, Problem):
+            except Unhandled:
                 continue
             if work.spell_run(items) != said:
                 continue
@@ -2484,9 +2479,7 @@ class Elaborator(Builder):
                                              lines)):
             try:
                 return how()
-            except (normal.Unhandled, Problem) as said:
-                if not declined(said):
-                    raise
+            except Unhandled:
                 continue
         return self.assume(step, term, scope, facts, 'ari', lines)
 
@@ -2628,9 +2621,7 @@ class Elaborator(Builder):
         try:
             return self.prove_order(step.just.refs, term, scope, facts,
                                     lines)
-        except (normal.Unhandled, Problem) as said:
-            if not declined(said):
-                raise
+        except Unhandled:
             return self.assume(step, term, scope, facts, 'ine', lines)
 
     def prove_order(self, refs, term, scope, facts, lines, skip=()):
@@ -2807,7 +2798,7 @@ class Elaborator(Builder):
             return facts[term]
         try:
             return self.prove_order(refs, term, scope, facts, lines, skip)
-        except (normal.Unhandled, Problem):
+        except Unhandled:
             pass
         return self.impossible(bound, term, scope, facts)
 
@@ -3443,7 +3434,7 @@ class Elaborator(Builder):
         while reads.label == 'wi':
             reads = reads.children[1]
         if reads.label != 'wb':
-            raise Problem('', step.line, f'{lemma} states no biconditional')
+            raise Unhandled(f'{lemma} states no biconditional')
         # A line may say several things at once, and what the definition
         # unfolds is any one of them: the primes proof obtains a natural
         # number, its primality and what it divides on a single line, and it
@@ -3464,8 +3455,7 @@ class Elaborator(Builder):
                 continue
             break
         else:
-            raise Problem('', step.line,
-                          f'no cited line is what {lemma} unfolds')
+            raise Unhandled(f'no cited line is what {lemma} unfolds')
         # What the left side fixes need not be everything the right side
         # holds: `rabid` learns the property from the claim itself.
         for spelt in self.parts(reads.children[1].rpn(self.flabel)):
@@ -3488,12 +3478,16 @@ class Elaborator(Builder):
         # allowed to differ, so long as set.mm says they are the same claim:
         # `isprm2` writes p > 1 as membership of ZZ>=2, and `eluz2gt1` is
         # the declared lemma that carries one to the other.
+        # Only a route declining is turned into this lemma declining. A
+        # defect `settle` found on the way — a step citing no witness, say —
+        # is a person's to fix and goes past, where it used to be reworded
+        # as this and lost.
         try:
             return self.settle(self.to_term(term), scope,
                                {**facts, **known}, step=step, lines=lines)
-        except Problem:
-            raise Problem('', step.line,
-                          f'{lemma} does not say {self.render(term)}') from None
+        except Unhandled as said:
+            raise Unhandled(f'{lemma} does not say {self.render(term)}: '
+                            f'{said}') from None
 
     def trying(self, item, step, way, term, scope, facts, lines):
         """Use whichever lemma the target names reaches the claim.
@@ -3501,14 +3495,20 @@ class Elaborator(Builder):
         A definition may be supplied by more than one, differing in what
         they ask: `rabid` says what belongs to a set-builder when the
         element is the name the builder binds, and `elrab` when it is
-        anything else, and only one of the two can be right of any step."""
-        trouble = None
+        anything else, and only one of the two can be right of any step.
+
+        A defect the way found on its own account is not one of the lemmas
+        declining, and goes past. It used to be caught here with them and
+        kept in `trouble`, which meant a proof whose later lemma happened to
+        fit was accepted with the defect in it and nothing said so."""
+        declines = []
         for lemma in targets.clauses(item):
             try:
                 return way(lemma, step, term, scope, facts, lines)
-            except Problem as said:
-                trouble = said
-        raise trouble
+            except Unhandled as said:
+                declines.append(str(said))
+        raise Unhandled('; '.join(declines) if declines
+                        else f'{item.name} targets nothing')
 
     def reading(self, item, term):
         """Which of three ways a biconditional definition reaches a claim.
@@ -3628,7 +3628,7 @@ class Elaborator(Builder):
                 try:
                     alike = self.settle(self.to_term(seq(said, want, 'wb')),
                                         scope, facts)
-                except Problem:
+                except Unhandled:
                     continue
                 return seq(scope, said, want, found, alike, 'mpbid')
         return None
@@ -3707,10 +3707,9 @@ class Elaborator(Builder):
                                                  joins[i + 1:], strict=True))):
                 if later.substitute(binding).rpn(self.flabel) != where:
                     if join is TURNED:
-                        raise Problem('', step.line if step else 0,
-                                      f'{label} asks something past a '
-                                      f'biconditional it states the other '
-                                      f'way round')
+                        raise Unhandled(f'{label} asks something past a '
+                                        f'biconditional it states the other '
+                                        f'way round')
                     rest = seq(later.substitute(binding).rpn(self.flabel),
                                rest, join)
             first = proof.split()[-1] == label
@@ -3772,7 +3771,7 @@ class Elaborator(Builder):
             term = self.frames[index][0]
             if not forbidden & set(term.split()):
                 return term, index
-        raise Problem('', 0, 'no scope satisfies the lemma')
+        raise Unhandled('no scope satisfies the lemma')
 
     def frames_facts(self, frame, facts):
         """What is known at one frame, which is what was known when it opened."""
@@ -3886,7 +3885,7 @@ class Elaborator(Builder):
         while self.spare and self.spare[0] in held:
             self.spare.pop(0)
         if not self.spare:
-            raise Problem('', 0, 'no variable left to introduce a name with')
+            raise Unhandled('no variable left to introduce a name with')
         return self.spare.pop(0)
 
     def fresh(self, prefix):
@@ -3936,11 +3935,11 @@ class Elaborator(Builder):
         if closure == 'arithmetic':
             try:
                 return self.prove_numeral(term, scope, facts)
-            except (normal.Unhandled, Problem):
+            except Unhandled:
                 pass
         try:
             return self.settle(self.to_term(term), scope, facts)
-        except Problem:
+        except Unhandled:
             pass
         if want.notation == 'membership':
             return self.closure(want.children[0],
@@ -3952,7 +3951,7 @@ class Elaborator(Builder):
             # procedure. `METHODS.md` lists the two as one method.
             try:
                 return self.prove_field(None, term, scope, facts, self.lines)
-            except (normal.Unhandled, Problem):
+            except Unhandled:
                 pass
         if closure == 'inequalities':
             # A side condition resting on a method is proved the way a step
@@ -3960,7 +3959,7 @@ class Elaborator(Builder):
             try:
                 return self.prove_order(citations(how), term, scope, facts,
                                         self.lines)
-            except (normal.Unhandled, Problem):
+            except Unhandled:
                 pass
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
@@ -3982,7 +3981,8 @@ class Elaborator(Builder):
                 proof = seq(scope, one, rest, given, proof,
                             'syl' if i == 0 else 'mpd')
             return proof
-        raise Problem('', 0, f'cannot supply {self.render(term)}')
+        raise Problem(self.thm.path, self.at,
+                      f'cannot supply {self.render(term)}')
 
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain folded by transitivity, one link at a time.
@@ -4297,10 +4297,13 @@ class Elaborator(Builder):
             node = self.read(text)
             if self.term(node) == goal:
                 return self.closure(node.children[0], want, scope, facts)
+        # A `requires` line that is not there is the text's to fix, so this
+        # one stays a defect. What it is built from declining is not, which
+        # is why only that is caught.
         try:
             return self.settle(self.to_term(goal), scope, facts)
-        except Problem:
-            raise Problem('', step.line,
+        except Unhandled:
+            raise Problem(self.thm.path, self.at,
                           f'no requires line for {self.render(goal)}') from None
 
     def freeze(self, node):
@@ -4587,6 +4590,24 @@ def main(argv):
     return 0
 
 
+def report(argv):
+    """`main`, with a defect said the way a person reads one.
+
+    A `Problem` is somebody's to fix and knows where it is, so it is worth
+    more than the traceback that used to carry it. An `Unhandled` reaching
+    here is the elaborator's own limit and says so: nothing above it took
+    the step as stated, which means no method owned it."""
+    try:
+        return main(argv)
+    except Problem as said:
+        print(said, file=sys.stderr)
+        return 1
+    except Unhandled as said:
+        print(f'{argv[1]}: no method owns this step: {said}',
+              file=sys.stderr)
+        return 1
+
+
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(report(sys.argv))
 
