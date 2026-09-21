@@ -52,6 +52,8 @@ LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # written; the claim is the notation the database declares. Points are the
 # same shape, and every sort with a notation could be.
 BE_A = re.compile(r'\s+be\s+a\s+(set|point)\b')
+# Past the last line any proof has, for reading every define that is left.
+_ENDLESS = float('inf')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
@@ -137,6 +139,7 @@ class Block:
         self.supposed = None        # contradiction
         self.over = self.base = None                      # induction
         self.variable = None        # the setvar a fix introduced
+        self.named = None           # the names in hand before it opened
         self.assumed = {}           # cases: part number -> what it assumes
         self.entered = None         # cases: the part now open
         self.claim = self.proof = None
@@ -196,6 +199,7 @@ class Elaborator(Builder):
         self.reserved = set()    # setvars the conclusion quantifies over
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
+        self.unread = 0          # how far down the `define` lines we have read
         self.last = None
         # `Builder` gives the name-to-label direction; this is the other one.
         self.fname = {v: k for k, v in self.flabel.items()}
@@ -845,15 +849,29 @@ class Elaborator(Builder):
             nodes.append(node)
         return nodes
 
-    def defined(self):
-        """Bind every name a `define` line introduces to what it stands for.
+    def defined(self, before):
+        """Bind what every `define` above line `before` stands for.
 
         A define is an abbreviation and nothing more: Cantor names a set B
         and every line about B is a line about the set-builder it names. So
         the name is bound to that term and the proof never carries it, which
         is also what keeps it apart from the B the conclusion quantifies
-        over — those are two different things spelt the same way."""
-        for _kind, text, label, line in self.thm.defines:
+        over — those are two different things spelt the same way.
+
+        It is read where it stands, which is what the parser's own comment
+        says of it. One written above the first step names what the theorem
+        fixes and is in hand before anything else; one written inside a
+        block names what the block introduced, and the subsets proof has
+        two of those, eighteen columns in, over an X a `fix` fixed and an
+        `a` an `obtain` obtained. Read at the top they find neither.
+
+        A block gives its names back when it closes, and these go with
+        them."""
+        while self.unread < len(self.thm.defines):
+            _kind, text, label, line = self.thm.defines[self.unread]
+            if line >= before:
+                return
+            self.unread += 1
             said = LABEL.sub('', text[len('define'):]).strip()
             name, _, body = said.partition(':=')
             name = name.strip()
@@ -883,7 +901,9 @@ class Elaborator(Builder):
 
     def run(self):
         nodes = self.hypotheses()
-        self.defined()
+        # What stands above the first step is the theorem's own, and the
+        # hypotheses and the conclusion below may lean on it.
+        self.defined(self.thm.steps[0].line if self.thm.steps else _ENDLESS)
         terms = [self.term(n) for n in nodes]
         # A theorem may assume nothing, and every step here is still an
         # implication out of the scope it sits in. So the scope is truth,
@@ -927,6 +947,9 @@ class Elaborator(Builder):
                 scope, facts, closers = self.close_block(done, facts, lines,
                                                          closers, scope)
                 self.hand_up(done, blocks)
+            # Any define standing above this step, now that the block it
+            # sits in is open and the names it leans on are in hand.
+            self.defined(step.line)
             if step.openers or step.parts:
                 block = self.open_block(step, scope, facts, lines)
                 block.opened_at = len(closers)
@@ -996,6 +1019,9 @@ class Elaborator(Builder):
         them. `ELABORATION.md` requirement 1."""
         head = step.just.head
         block = Block(step, scope, facts, len(self.frames) - 1)
+        # Taken before the block names anything, so that what it names is
+        # what closing it gives back.
+        block.named = dict(self.names)
         if head == 'contradiction':
             kind, text, label, _l, _p = step.openers[0]
             node = self.read(hypothesis_body(kind, text))
@@ -1018,7 +1044,11 @@ class Elaborator(Builder):
                     name = node.children[0].text
                     block.variable = self.fixed_var(name)
                     self.names[name] = f'{block.variable} cv'
-                    self.sets[name] = self.term(node.children[1])
+                    # `let X be a set` fixes a name over nothing and says
+                    # only that it is a set, so there is no set to record,
+                    # the same way `hypotheses` reads it at the head.
+                    if node.notation == 'membership':
+                        self.sets[name] = self.term(node.children[1])
                 node = self.read(body)
                 added = self.term(node)
                 block.scope, block.facts = self.widen(block.scope,
@@ -1077,7 +1107,10 @@ class Elaborator(Builder):
         step = block.owner
         head = step.just.head
         inside = closers[block.opened_at:]
+        # A block gives back its scope and its names together: the frames it
+        # pushed, and whatever it fixed, obtained or defined inside.
         del self.frames[block.frame + 1:]
+        self.names = dict(block.named)
         if head == 'contradiction':
             block.claim, block.proof = self.close_contradiction(
                 block, facts, inside, deep, lines)
@@ -3446,10 +3479,22 @@ class Elaborator(Builder):
         what the variable means."""
         if not node.children:
             return _Literal(self.term(node))
+        # The body speaks of what the binder introduces, so the name stands
+        # for its own variable while the body is frozen, exactly as `term`
+        # does it. Without this the body's leaves are read against whatever
+        # the proof happens to be holding, which is nothing once the block
+        # that fixed a name of the same spelling has closed.
         bound = self.binders.get(node.notation, ())
-        return Node(node.notation, node.sort,
-                    [c if i in bound else self.freeze(c)
-                     for i, c in enumerate(node.children)], node.text)
+        saved = dict(self.names)
+        for i in bound:
+            said = node.children[i].text
+            self.names[said] = f'{self.binder_var(said)} cv'
+        frozen = Node(node.notation, node.sort,
+                      [c if i in bound else self.freeze(c)
+                       for i, c in enumerate(node.children)], node.text)
+        if bound:
+            self.names = saved
+        return frozen
 
     def substituted(self, node, old, new):
         """The node with one name replaced, for reading off the instance."""
