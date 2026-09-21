@@ -55,8 +55,17 @@ definition means, and `def:odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
-`then` line, which `odd2np1` and `divides` both do. `db/notation.records` documents
-the same field on the notation side.
+`then` line, which `odd2np1` and `divides` both do. `db/notation.records`
+documents the same field on the notation side.
+
+**A `target` that never fires is an error, not a shrug.** An item with no
+`target` is assumed, and the elaborated file says so at its head. An item that
+has one and whose every clause misses the claim is a different thing: the
+field says where the claim lands and it does not land there. The elaborator
+names the item, the labels it tried and the step, and stops. Without that the
+two are indistinguishable — same file, same assumption count, no message — so
+a wrong target could sit in this file for as long as nobody happened to probe
+it by hand.
 
 The corpus holds 97 items, 27 definitions and 70 theorems, 56 notation records
 declaring 74 patterns, and 14 methods. The ten proofs make 193 citations to 76

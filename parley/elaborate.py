@@ -1293,12 +1293,31 @@ class Elaborator:
         return whole.substitute(binding).rpn(self.flabel)
 
     def cite_item(self, step, goal, scope, facts, item, cites=None):
-        """What an item states, however the database says it is supplied."""
-        for label in targets.clauses(item):
+        """What an item states, however the database says it is supplied.
+
+        An item with no target is assumed: nothing in the library has its
+        shape, and the file says so at its head. An item that has one and
+        whose every clause misses is a different thing, and is an error.
+        The field says where the claim lands, and it does not land there.
+
+        Assuming it instead would give the same file, the same assumption
+        count and no message, so a target that can never fire would read
+        exactly like a target nobody wrote."""
+        labels = targets.clauses(item)
+        for label in labels:
             found = self.apply_lemma(label, self.to_term(goal), scope, facts,
                                      step)
             if found is not None:
                 return found
+        if labels:
+            # `step.just.head` is the word `obtain` here rather than the item,
+            # so the item names itself, and the labels it named say which
+            # field to go and look at.
+            kind = 'def' if item.kind == 'definition' else 'thm'
+            raise Problem('', step.line,
+                          f'{kind}:{item.name} targets {", ".join(labels)}, '
+                          f'and none of them reaches what step '
+                          f'{fmt(step.number)} obtains')
         return self.assume_item(step, goal, scope, facts, item, cites)
 
     def assume_item(self, step, goal, scope, facts, item, cites=None):
