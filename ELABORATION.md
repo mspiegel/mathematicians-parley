@@ -1349,11 +1349,23 @@ that fixed it.
 | a fixed name outlives its block | latent; the restore is absent, no proof has been shown wrong by it |
 | a fixed parameter resolves against the calling proof's table | latent; the section below |
 
-The repair is one change rather than three. Names belong on `self.frames`,
-where scope already lives, so that a name has a frame the way a fact does and
-the closers that already truncate the stack truncate names with it. Some of
-the seven save-and-restore pairs are temporary bindings for reading a single
-term rather than block scope and may not convert; the estimate is soft.
+The repair is narrower than the count of sites suggests, and the seven
+save-and-restore pairs are not part of it. Every one of them binds a name to
+read one thing and then unbinds it — the variable a binder introduces while
+its body is read, an instantiation while a cited item's statement is read —
+and none is block scope. `hypotheses` and `definition` write theorem-level
+names and are meant to be permanent. All of that is correct as it stands.
+
+What is left is two or three sites. `open_block` and the `obtain` path write
+a block's own names and nothing takes them back, two lines from where
+`close_block` and `close_contradiction` already truncate `self.frames`; that
+stack is where a block's names belong. And `defined` has to stop reading
+every `define` at the top and read each one where it sits.
+
+The last is the one with an unknown in it. `self.thm.defines` is a flat list
+of lines, and whether the parse records which block each `define` sits in
+decides whether this is a small change or one that reaches into how a proof
+is represented.
 
 ### What `geometric-sum` turns out to be about
 
