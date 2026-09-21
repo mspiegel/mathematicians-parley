@@ -56,13 +56,27 @@
 #               `holes` declares them. So `_ + _` targets `_1 _2 caddc co` and
 #               `_ divides _` targets `_1 _2 cdvds wbr`.
 #
-#               Three things this says that `metamath` cannot. A hole may be
+#               Four things this says that `metamath` cannot. A hole may be
 #               used out of order, which is how `_ > _` targets `_2 _1 clt wbr`
 #               and shares its constructor with `_ < _`. A term may carry an
 #               operand the pattern has no hole for, which is how `_²` targets
 #               `_1 c2 cexp co`. And the entry is `folded` for a pattern that
 #               the `negates` or `spells` line turns into another notation's
 #               tree, since such a pattern builds no node of its own.
+#
+#               The fourth is `@name`, for a term that carries an operand no
+#               hole fills and no constant supplies: a parameter the
+#               definition introducing the notation holds fixed. `G(_)` is
+#               the sum of the powers of `a` and shows only the limit, so it
+#               targets `cc0 _1 cfz co @a vk cv cexp co vk csu`. A hole is
+#               filled from the claim being read; `@a` is filled from the
+#               `let` lines of the theorem the claim is in, once, before its
+#               first step. So the same `G(n)` means the same term wherever
+#               it is written, a block binding an `a` of its own cannot
+#               reach it, and a theorem that fixes no `a` may not write
+#               `G(_)` at all. That last is what makes such a definition
+#               local, and `check.py` refuses a proof that binds a name a
+#               notation fixes.
 #
 #               One entry per pattern, in pattern order. A record with no
 #               `target` is one whose term is not a constructor applied to its
@@ -595,8 +609,14 @@ notation geometric-function
   yields      number
   reads       the sum of the powers of a up to
   metamath    Σ k ∈ (0...n) a^k
+  target      cc0 _1 cfz co @a vk cv cexp co vk csu
   first-used  geometric-series
   note        Introduced by def:G, which is local to the geometric-series pilot.
+              The one notation in the corpus that holds a name fixed. `a` is
+              its base, which def:G declares as H1 and the pattern has no hole
+              for, so the target writes it as @a and the theorem's `let a ∈ ℝ`
+              is what it stands for. A theorem that fixes no `a` cannot write
+              G(_), which is what makes the definition local.
 
 
 # Binders. A hole marked by `binds` introduces a variable that scopes over

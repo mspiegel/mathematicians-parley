@@ -215,6 +215,8 @@ class Elaborator(Builder):
         self.enclosing = None    # the block a step sits directly inside
         self.shapes = {}         # target pattern -> the tree it reads as
         self.names = {}          # readable name -> kernel term
+        self.fixed = {}          # the same, as the theorem's `let` lines left
+                                 # it, for the names a notation holds fixed
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
         self.reserved = set()    # setvars the conclusion quantifies over
@@ -267,7 +269,23 @@ class Elaborator(Builder):
                  for i, c in enumerate(node.children)]
         if bound:
             self.names = saved
-        return targets.fill(self.pattern(node), holes)
+        return targets.fill(self.pattern(node), holes, self.held(node))
+
+    def held(self, node):
+        """What each name this notation holds fixed stands for.
+
+        Read from what the theorem fixed rather than from the names in hand,
+        so the answer is the same wherever the notation is written. A proof
+        that never fixes the name cannot write the notation at all, which is
+        what being local to a definition means."""
+        out = {}
+        for name in targets.fixes(self.pattern(node)):
+            if name not in self.fixed:
+                raise Problem('', 0,
+                              f'notation {node.notation!r} is about {name!r}, '
+                              f'which this theorem does not fix')
+            out[name] = self.fixed[name]
+        return out
 
     def pattern(self, node):
         """The `target` entry of the pattern this node was built from."""
@@ -968,6 +986,15 @@ class Elaborator(Builder):
 
     def run(self):
         nodes = self.hypotheses()
+        # A notation may hold a name no hole of it fills, and that name is
+        # bound where the definition introducing it stands rather than where
+        # the notation is written: `def:G` says `let a ∈ ℝ`, and every `G(n)`
+        # below is about that `a`. The theorem's `let` lines are that place,
+        # and they are read before its conclusion and before any step, so
+        # what is taken here is what the text fixed. Nothing writes it again,
+        # which is what stops a block binding the same letter from reaching
+        # it.
+        self.fixed = dict(self.names)
         # What stands above the first step is the theorem's own, and the
         # hypotheses and the conclusion below may lean on it.
         self.defined(self.thm.steps[0].line if self.thm.steps else _ENDLESS)

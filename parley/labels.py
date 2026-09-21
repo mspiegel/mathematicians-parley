@@ -42,9 +42,10 @@ def named(records):
     """Every label the databases name, with where each was written.
 
     A `target` is reverse Polish or a list of labels and a `defines` is
-    reverse Polish, so every token in either is a label unless it is a hole
-    or one of the markers `targets.MARKERS` names, which say how to read the
-    lemma beside them rather than naming one.
+    reverse Polish, so every token in either is a label unless it is a hole,
+    a name the target holds fixed, or one of the markers `targets.MARKERS`
+    names, which say how to read the lemma beside them rather than naming
+    one.
 
     `metamath` is prose meant for a person and names its labels in a
     sentence, so it is read only as far as it is certainly naming them: the
@@ -66,7 +67,8 @@ def named(records):
                 if entry in targets.MARKERS:
                     continue
                 for token in entry.split():
-                    if targets.HOLE.fullmatch(token):
+                    if targets.HOLE.fullmatch(token) \
+                            or targets.FIXED.fullmatch(token):
                         continue
                     out.setdefault(token, (r.path, r.line, r.name))
         for entry in targets.split_entries(r.fields.get('metamath', '')):

@@ -20,6 +20,10 @@ set.mm already prove that says this?
 import re
 
 HOLE = re.compile(r'_(\d+)')
+# A name the pattern has no hole for, standing for what the definition that
+# introduced the notation fixed it to. `G(_)` is the sum of the powers of `a`
+# and shows only the limit, so its target writes `@a` for the base.
+FIXED = re.compile(r'@(\w+)')
 FOLDED = 'folded'
 REVERSED = 'equation reversed'
 # What a `target` may say that is not a lemma: that a pattern builds another
@@ -117,9 +121,19 @@ def clauses(record):
     return split_entries(value)
 
 
-def fill(pattern, holes):
-    """A target with its holes replaced by the terms that stand in them."""
-    return HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
+def fixes(pattern):
+    """The names a target holds fixed, in the order it writes them."""
+    return FIXED.findall(pattern) if pattern else []
+
+
+def fill(pattern, holes, fixed=()):
+    """A target with its holes and its fixed names replaced by their terms.
+
+    A hole is filled from the node being read and a fixed name from where
+    the notation's definition fixed it, which is why they are two arguments
+    and not one."""
+    said = HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
+    return FIXED.sub(lambda m: fixed[m.group(1)], said) if fixed else said
 
 
 def slots(pattern):
