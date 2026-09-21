@@ -1570,12 +1570,17 @@ class Elaborator:
         those rather than this."""
         self.decide_order(step, term, lines)
         try:
-            return self.prove_order(step, term, scope, facts, lines)
+            return self.prove_order(step.just.refs, term, scope, facts,
+                                    lines)
         except (normal.Unhandled, Problem, KeyError):
             return self.assume(step, term, scope, facts, 'ine', lines)
 
-    def prove_order(self, step, term, scope, facts, lines):
-        """An `inequalities` step whose whole content is a cited equation.
+    def prove_order(self, refs, term, scope, facts, lines):
+        """An `inequalities` claim, by whichever route reaches it.
+
+        What is passed is the lines the claim rests on, not the step, so
+        that a `requires` line asking for the method is answered the same
+        way a step is: `side` has citations where a step has `from`.
 
         `linear.certificate` says which cited facts the claim is built
         from and in what multiple. Where the only one used is an equation,
@@ -1587,7 +1592,7 @@ class Elaborator:
         is not written yet, so those steps stay assumed."""
         goal = self.to_term(term)
         given, where = [], []
-        for ref in step.just.refs:
+        for ref in refs:
             held = lines.get(ref)
             if held is None:
                 continue
@@ -2625,6 +2630,14 @@ class Elaborator:
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
         closure = how.strip().split(',')[0].strip()
+        if closure == 'inequalities':
+            # A side condition resting on a method is proved the way a step
+            # resting on it is, where the method can prove one at all.
+            try:
+                return self.prove_order(citations(how), term, scope, facts,
+                                        self.lines)
+            except (normal.Unhandled, Problem, KeyError):
+                pass
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
             # same way a step does, and is listed the same way: under what
