@@ -1300,20 +1300,60 @@ maintains.
 ## The five that do not elaborate
 
 Nine of the corpus's fourteen theorems elaborate and verify. The five that do
-not stop for five different reasons, which is worth saying plainly because it
-means there is no one thing to build:
+not stop for four reasons, and the message each stops with is not always the
+reason:
 
-| theorem | stops at |
+| theorem | says | is |
+|---|---|---|
+| `geometric-sum` | `notation geometric-function` has no `target` | a name with no scope |
+| `intermediate-value` | `notation continuous` has no `target` | a field nobody has written |
+| `least-combination-divides` | an `obtain` that names no item is not expanded | that |
+| `subsets-count` | no kernel name for `X` | a name with no scope |
+| `bezout` | a formula the kernel cannot read | an instance where an existential is wanted |
+
+Two of the five were read for a long time as what they say. Both turned out to
+be something else when the elaborator was asked why rather than guessed at,
+and the sections below are what it answered.
+
+### A name has no scope
+
+Two of the five are one defect, and it is not about either of the theorems
+that show it.
+
+The elaborator keeps two kinds of scope. The logical one is `self.frames`: a
+stack, pushed when a block opens and truncated when it closes, each entry
+holding the antecedent that frame carries and the facts known there.
+`allowed` walks it to find the innermost frame a lemma's disjointness
+conditions permit, and `carry` brings a result back in. It is a proper
+structure and the whole of requirement 14 rests on it.
+
+The naming one is `self.names`: a single flat dictionary. Scope is seven
+hand-written `saved = dict(self.names)` … `self.names = saved` pairs, one at
+each site that wanted a temporary binding and remembered to save. Two writers
+do not participate at all.
+
+`defined` writes every `define` in the proof, at the top, before any step
+runs. That is right for Cantor's `define B := {x ∈ A : x ∉ f(x)}`, which names
+only what the theorem fixes. The subsets proof writes `define U := 𝒫(X ∖ {a})`
+eighteen columns in, where `X` comes from a `fix` and `a` from an `obtain`, and
+reading it at the top fails on the first of them. The message is `no kernel
+name for 'X'`, which sounds like a missing notation and is not.
+
+A block's own names are written and never taken back: none of the five
+closers restores the table, so a name a `fix` introduces outlives the block
+that fixed it.
+
+| face | |
 |---|---|
-| `geometric-sum` | `notation geometric-function` has no `target` |
-| `intermediate-value` | `notation continuous` has no `target` |
-| `least-combination-divides` | an `obtain` that names no item is not expanded |
-| `subsets-count` | no kernel name for `X` |
-| `bezout` | a formula the kernel cannot read |
+| a `define` is read outside the block it sits in | observed; `subsets-count` stops here |
+| a fixed name outlives its block | latent; the restore is absent, no proof has been shown wrong by it |
+| a fixed parameter resolves against the calling proof's table | latent; the section below |
 
-Only the third is a gap in the elaborator. Two are database fields nobody has
-written, and two are failures at the reading stage that have not been
-diagnosed.
+The repair is one change rather than three. Names belong on `self.frames`,
+where scope already lives, so that a name has a frame the way a fact does and
+the closers that already truncate the stack truncate names with it. Some of
+the seven save-and-restore pairs are temporary bindings for reading a single
+term rather than block scope and may not convert; the estimate is soft.
 
 ### What `geometric-sum` turns out to be about
 
@@ -1338,7 +1378,8 @@ not help on its own, because the pattern still has one hole and the `a` still
 has to come from somewhere.
 
 The first is the one to want, and it is not built, because of two things a
-programming language would call by name.
+programming language would call by name. Both are the flat name table above,
+seen from where a notation stands rather than from where a `define` sits.
 
 **Dynamic scope.** A `target` naming `a` resolves it against the table of
 names the *calling proof* holds. A second proof using `G` whose parameter is
@@ -1354,8 +1395,40 @@ and report nothing. `geometric-series` binds `k` in its induction step, not
 
 Neither is contained by design; both are unreachable by accident. A checker
 rule refusing a proof that binds a name some notation fixes would close the
-second completely and cheaply. The first is the harder one, and the honest
-statement of it is that a local definition's parameter has no home: the
-notation cannot hold it, the citation supplies it only where the definition
-is cited and not where the notation merely appears, and the calling proof's
-name table is the wrong place because it belongs to the caller.
+second completely and cheaply, and is worth having whatever else is done,
+because it is a rule about the readable text rather than about the tools.
+
+The first is the harder one, and the honest statement of it is that a local
+definition's parameter has no home: the notation cannot hold it, the citation
+supplies it only where the definition is cited and not where the notation
+merely appears, and the calling proof's name table is the wrong place because
+it belongs to the caller. That last clause is the general defect. A table
+that belongs to the caller is what a flat dictionary of names is, and giving
+names a frame is what would make "the scope this notation was fixed in" a
+thing there is somewhere to look.
+
+### `bezout` wants an existential where the proof gives an instance
+
+The set-builder is `{t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}`,
+and step 2 puts `a` in it, citing step 1, which is `a = a·1 + b·0`.
+
+To place an element, `elrab` wants the body read at that element — the
+existential, `there are m and n with a = a·m + b·n`. Step 1 gives a witnessed
+instance with `m` as 1 and `n` as 0. `prove_essential` walks the two sides
+with `congruence` under a leaf rule that accepts only the substitution of the
+element, so it meets a `wrex` against a `wceq` and says they differ by more
+than the change being carried. That message is about the shape it found, not
+about the proof, which is correct.
+
+The move it wants is one `SYNTAX.md` already states and the checker already
+accepts: a "there is" supplied by a fact giving an instance. The lemma is
+`rspcev`, and it is not in `targets.MEMBERSHIP`. What it asks for beyond the
+instance is that each witness lies in its domain, and the readable step writes
+exactly that — `requires 1 ∈ ℤ` and `requires 0 ∈ ℤ`. The text is short of
+nothing.
+
+This is the same move `thm:prime-factor` wants, which is why it is worth
+building rather than working round: `exprmfct` quantifies over `Prime` where
+the readable line quantifies over ℕ and says primality in the body, and
+crossing between a quantifier and what stands under it is the one capability
+both need.
