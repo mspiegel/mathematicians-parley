@@ -1852,8 +1852,10 @@ class Elaborator(Builder):
     def prove_field(self, step, term, scope, facts, lines):
         """An `algebra` claim, by whichever of two routes reaches it."""
         goal = self.to_term(term)
-        if goal.variable is not None or goal.label != 'wceq' \
-                or len(goal.children) != 2:
+        apart = (goal.variable is None and goal.label == 'wn'
+                 and len(goal.children) == 1)
+        if not apart and (goal.variable is not None or goal.label != 'wceq'
+                          or len(goal.children) != 2):
             raise normal.Unhandled('the claim is not an equation')
 
         # A `requires` line is where a step says its denominator is not
@@ -1871,6 +1873,9 @@ class Elaborator(Builder):
 
         work = normal.Emitter(self.sigs, scope, complex_number,
                               self.not_zero(scope, facts))
+        if apart:
+            return self.apart_from_cited(step, goal, scope, facts, lines,
+                                         work, complex_number)
         left = goal.children[0].rpn(self.flabel)
         right = goal.children[1].rpn(self.flabel)
         try:
@@ -1884,6 +1889,60 @@ class Elaborator(Builder):
             except normal.Unhandled:
                 return self.crossed_from_cited(step, left, right, scope,
                                                facts, lines, work)
+
+    def apart_from_cited(self, step, goal, scope, facts, lines, work,
+                         complex_number):
+        """A disequality that is a cited one rescaled.
+
+        What the claim says does not vanish is what a cited disequality says
+        does not vanish, scaled. So the cited fact becomes a difference that
+        is not zero, the two differences are shown to be one polynomial, and
+        the claim's difference is not zero either. `subeq0` is what carries a
+        difference being zero to the two sides being equal, in both
+        directions and under both negations.
+
+        The scalar is 1 or −1. `decide_field` allows any nonzero rational and
+        a step wanting another is refused here rather than guessed at: it
+        would have to be spelt as a term and multiplied in, and the corpus
+        has no such step to check that against."""
+        if step is None:
+            raise normal.Unhandled('a disequality needs the step it cites')
+        claim = field.denied(goal, self.flabel)
+        left, right = goal.children[0].children
+        lhs, rhs = left.rpn(self.flabel), right.rpn(self.flabel)
+        whole = seq(lhs, rhs, 'cmin', 'co')
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                node = self.to_term(said)
+                cited = field.denied(node, self.flabel)
+                if cited is None or rescales(cited, claim) not in (1, -1):
+                    continue
+                p, q = (c.rpn(self.flabel)
+                        for c in node.children[0].children)
+                gap = seq(p, q, 'cmin', 'co')
+                apart = work.ap(
+                    'subne0d', {'ph': scope, 'A': p, 'B': q},
+                    complex_number(p), complex_number(q),
+                    work.ap('neqned', {'ph': scope, 'A': p, 'B': q},
+                            self.cited_fact(ref, node, scope, facts, lines)))
+                if rescales(cited, claim) == -1:
+                    apart = work.ap('negne0d', {'ph': scope, 'A': gap},
+                                    complex_number(gap), apart)
+                    gap = seq(gap, 'cneg')
+                return work.ap(
+                    'neneqd', {'ph': scope, 'A': lhs, 'B': rhs},
+                    work.ap(
+                        'subne0ad', {'ph': scope, 'A': lhs, 'B': rhs},
+                        complex_number(lhs), complex_number(rhs),
+                        work.ap('eqnetrrd',
+                                {'ph': scope, 'A': gap, 'B': whole,
+                                 'C': 'cc0'},
+                                self.same_polynomial(work, gap, whole),
+                                apart)))
+        raise normal.Unhandled('no cited disequality is the claim rescaled')
 
     def crossed_from_cited(self, step, left, right, scope, facts, lines,
                            work):
