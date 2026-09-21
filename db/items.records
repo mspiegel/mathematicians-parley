@@ -269,6 +269,7 @@ theorem pos-int-nat
   assume 0 < m                                                        (H2)
   then        m ∈ ℕ
   metamath    elnnz
+  target      elnnz
   first-used  bezout
 
 theorem even-or-odd

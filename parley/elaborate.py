@@ -66,6 +66,11 @@ CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
 WRAPS = ('co', 'wbr', 'cfv')
+# Stands where a join would name the constructor, for a biconditional a
+# lemma states the other way round from the way a step reaches it. It is no
+# label, so a statement built from it would not spell, which is what stops a
+# second antecedent being folded past one read this way.
+TURNED = 'the other way round'
 # What closes an induction, by the set the name inducted on runs over, and
 # where that lemma starts. The two have the same six hypotheses in the same
 # order and differ only in the set and the base, so choosing between them is
@@ -3493,6 +3498,19 @@ class Elaborator(Builder):
             if reads.label not in ('wi', 'wb'):
                 return (self.crossed(label, whole, reads, goal, scope,
                                      facts, step) if crossing else None)
+            # A biconditional says one thing and reaching it either way is
+            # reaching it: `elnnz` says a natural number is an integer above
+            # zero, and a step with the integer and the bound wants the
+            # natural number, which is the side a forward read peels off.
+            # Tried only where the forward read has already failed, so a
+            # lemma that fits as it stands fits as it always did.
+            if reads.label == 'wb':
+                turned = kernel.match(reads.children[0], goal, {}, variables)
+                if turned is not None:
+                    antecedents.append(reads.children[1])
+                    joins.append(TURNED)
+                    binding, reads = turned, reads.children[0]
+                    break
             antecedents.append(reads.children[0])
             joins.append(reads.label)
             reads = reads.children[1]
@@ -3534,11 +3552,17 @@ class Elaborator(Builder):
             for later, join in reversed(list(zip(antecedents[i + 1:],
                                                  joins[i + 1:], strict=True))):
                 if later.substitute(binding).rpn(self.flabel) != where:
+                    if join is TURNED:
+                        raise Problem('', step.line if step else 0,
+                                      f'{label} asks something past a '
+                                      f'biconditional it states the other '
+                                      f'way round')
                     rest = seq(later.substitute(binding).rpn(self.flabel),
                                rest, join)
             first = proof.split()[-1] == label
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
-                    ('wb', True): 'sylib', ('wb', False): 'mpbid'}
+                    ('wb', True): 'sylib', ('wb', False): 'mpbid',
+                    (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
             proof = seq(where, asks.rpn(self.flabel), rest,
                         self.settle(asks, where, known), proof,
                         fold[(joins[i], first)])
