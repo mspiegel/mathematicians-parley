@@ -2874,7 +2874,64 @@ class Elaborator(Builder):
                       f'no clause of {step.just.head} gives what step '
                       f'{fmt(step.number)} claims')
 
-    def apply_lemma(self, label, goal, scope, facts, step):
+    def crossed(self, label, whole, reads, goal, scope, facts, step):
+        """A lemma reaching a claim set.mm says is the same claim.
+
+        `exprmfct` says there is a prime dividing a number; the readable
+        line says there is a natural number, prime, dividing it. Those are
+        one statement written two ways, and `rexss` is set.mm saying so:
+        quantifying over a subset is quantifying over the set with
+        membership of the subset moved into the body.
+
+        So where what a lemma concludes is not what is wanted, a declared
+        biconditional is asked whether the two are the same thing. The goal
+        is ground, so matching one side of the bridge against it fixes the
+        bridge; the other side is then determined, and matching that against
+        the lemma's conclusion fixes what the goal could not.
+
+        The bridge comes from `targets.MEMBERSHIP` and nowhere else, which
+        is the rule that stops an elaborator reaching a claim by whatever it
+        can find that fits."""
+        variables = whole.names()
+        want = goal.rpn(self.flabel)
+        for bridge in targets.MEMBERSHIP:
+            other = self.sigs.get(bridge)
+            if other is None or other.essentials:
+                continue
+            says = self.syntax.statement(other)
+            names = says.names()
+            while says.label == 'wi':
+                says = says.children[1]
+            if says.label != 'wb':
+                continue
+            for near, far in (says.children, says.children[::-1]):
+                bound = kernel.match(far, goal, {}, names)
+                if bound is None:
+                    continue
+                # A side the goal did not fix would leave the bridge's own
+                # variable standing in what is proved. Asked of the side
+                # rather than of the result: the proof has names of its own
+                # and one of them is spelt `A`, which is also what `rexss`
+                # calls the set it quantifies over.
+                if near.names() - set(bound):
+                    continue
+                candidate = near.substitute(bound)
+                if kernel.match(reads, candidate, {}, variables) is None:
+                    continue
+                said = candidate.rpn(self.flabel)
+                found = self.apply_lemma(label, candidate, scope, facts,
+                                         step, crossing=False)
+                if found is None:
+                    continue
+                try:
+                    alike = self.settle(self.to_term(seq(said, want, 'wb')),
+                                        scope, facts)
+                except Problem:
+                    continue
+                return seq(scope, said, want, found, alike, 'mpbid')
+        return None
+
+    def apply_lemma(self, label, goal, scope, facts, step, crossing=True):
         """Apply one set.mm lemma to reach a claim, side conditions and all.
 
         What a lemma states before the claim it reaches may be an
@@ -2891,7 +2948,8 @@ class Elaborator(Builder):
             if binding is not None:
                 break
             if reads.label not in ('wi', 'wb'):
-                return None
+                return (self.crossed(label, whole, reads, goal, scope,
+                                     facts, step) if crossing else None)
             antecedents.append(reads.children[0])
             joins.append(reads.label)
             reads = reads.children[1]

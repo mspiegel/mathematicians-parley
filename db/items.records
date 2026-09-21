@@ -423,6 +423,7 @@ theorem prime-factor
   assume m > 1                                                        (H2)
   then        there is p ∈ ℕ with p is prime and p divides m
   metamath    exprmfct, which quantifies over Prime rather than over ℕ
+  target      exprmfct
   first-used  infinitely-many-primes
   note        No target, so an elaborator states this and lists it. exprmfct
               says E. p e. Prime p || N, putting primality in the domain; this
