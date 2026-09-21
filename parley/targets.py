@@ -152,7 +152,7 @@ MEMBERSHIP = [
     '0z', '3cn', '3re', '3z', '4cn', '4re', '4z',
     'nnz', 'nnre', 'nncn', 'nnnn0', 'nn0z', 'nn0re', 'nn0cn',
     'zre', 'zcn', 'recn',
-    'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1', 'eluz2b2',
+    'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1', 'eluz2b2', 'eluz2gt1',
     # Where a restriction sits is not what a claim says, and set.mm states
     # that in general: quantifying over a subset is quantifying over the set
     # with membership of the subset in the body. `exprmfct` puts primality in

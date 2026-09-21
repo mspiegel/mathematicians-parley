@@ -859,8 +859,8 @@ the identity is.
     two different constructs that set.mm proves equal, and something has to
     point at the theorem that does. A *rebuilt quantifier* — primality in the
     domain against primality in the body — is neither, and needs a proof. The
-    first two can be declared; the third is why `thm:prime-factor` is assumed
-    and not a gap to be closed by a table.
+    first two can be declared; the third is why `thm:prime-factor` is not a
+    gap a table could close, and is reached instead through `rexss`.
 
 ## Three proofs from outside
 
@@ -884,30 +884,31 @@ builds:
 | cantor | 0 | |
 | isosceles | 0 | |
 | sqrt2-irrational | 1 | `thm:lowest-terms` |
-| prime-above | 2 | `thm:prime-factor`, `def:prime` |
+| prime-above | 0 | |
 
-All nine verify, and seven of them assume nothing at all. That number was 26
+All nine verify, and eight of them assume nothing at all. That number was 26
 across eight proofs when this section was first written; what closed the gap
 was writing the four closure methods out rather than taking their steps as
 stated, and the assumption count is the measure that says whether a method is
 written or only named.
 
-The three that remain are not closure methods and no amount of emitter work
-reaches them. Each is an item whose `metamath` field names a set.mm theorem
-that is close and is not the same shape, so the item carries no `target` and
-an elaborator has nothing to point at:
+The one that remains is not a closure method and no amount of emitter work
+reaches it. It is an item whose `metamath` field names a set.mm theorem that
+is close and is not the same shape, so the item carries no `target` and an
+elaborator has nothing to point at:
 
 - `thm:lowest-terms` — `qredeu or similar`, which is the field admitting it
   has not been pinned down.
-- `thm:prime-factor` — `exprmfct` says `E. p e. Prime p || N`, putting
-  primality in the domain, where the readable line quantifies over ℕ and says
-  it in the body, which is how a reader meets the claim.
-- `def:prime` — `isprm2` is the unfolding but writes `p > 1` as `p ∈ ℤ≥2`.
-  set.mm proves `p > 1` outright as `prmgt1`, which is what the proof actually
-  uses, but naming it in `target` would be naming a consequence rather than an
-  unfolding.
 
-All three are the same debt: the readable statement and set.mm's are
+Two others were the same debt and are now paid, each by the kind of bridge
+requirement 20 distinguishes. `thm:prime-factor` was a rebuilt quantifier —
+`exprmfct` puts primality in the domain where the readable line quantifies
+over ℕ and says it in the body — and needed a proof, which `rexss` supplies.
+`def:prime` was a named equivalence: `isprm2` is the unfolding but writes
+`p > 1` as `p ∈ ℤ≥2`, and `eluz2gt1` is set.mm saying those are one claim, so
+it is declared beside the rest of what an elaborator may lean on.
+
+The debt they shared is that the readable statement and set.mm's are
 equivalent, and the bridge between them is a proof rather than a field. That
 is what `elaboration/geometry.mm` already is for four geometry items, so the
 mechanism exists and these three have simply not been written.

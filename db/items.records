@@ -393,13 +393,13 @@ definition prime
   then        p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then
               d = 1 or d = p
   metamath    isprm2, whose first conjunct is membership of ℤ≥2
+  target      isprm2
   first-used  infinitely-many-primes
-  note        No target. isprm2 is the unfolding, but it writes p > 1 as
-              p ∈ ℤ≥2, which is not the formula this line writes. The primes
-              proof uses the definition only to reach p > 1, which set.mm
-              proves outright as prmgt1; naming that here would be naming a
-              consequence rather than an unfolding, which `target` does not
-              say.
+  note        isprm2 writes p > 1 as p ∈ ℤ≥2, which is not the formula this
+              line writes, so unfolding the definition does not land on the
+              words of the right side. What carries one to the other is
+              eluz2gt1, declared with the rest of what an elaborator may
+              lean on. `target` still names the unfolding and nothing else.
 
 definition factorial
   then        1! = 1

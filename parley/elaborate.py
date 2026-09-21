@@ -2878,12 +2878,25 @@ class Elaborator(Builder):
             reads = reads.children[1]
         if reads.label != 'wb':
             raise Problem('', step.line, f'{lemma} states no biconditional')
+        # A line may say several things at once, and what the definition
+        # unfolds is any one of them: the primes proof obtains a natural
+        # number, its primality and what it divides on a single line, and it
+        # is the middle conjunct that `isprm2` unfolds.
         for ref in step.just.refs:
             cited = lines.get(ref)
-            binding = cited and kernel.match(
-                reads.children[0], self.to_term(cited.term), {}, variables)
-            if binding:
-                break
+            if cited is None:
+                continue
+            held = {cited.term: self.carried(ref, facts, lines)}
+            self.unpack(cited.term, held[cited.term], scope, held)
+            for said, shown in held.items():
+                binding = kernel.match(reads.children[0], self.to_term(said),
+                                       {}, variables)
+                if binding:
+                    given = shown
+                    break
+            else:
+                continue
+            break
         else:
             raise Problem('', step.line,
                           f'no cited line is what {lemma} unfolds')
@@ -2900,14 +2913,21 @@ class Elaborator(Builder):
         right = reads.children[1].substitute(binding).rpn(self.flabel)
         says, _given = self.unfolding(step, lemma, left, right, None, None,
                                       scope, facts)
-        proof = seq(scope, left, right, self.carried(ref, facts, lines), says,
-                    'mpbid')
+        proof = seq(scope, left, right, given, says, 'mpbid')
         known = {right: proof}
         self.unpack(right, proof, scope, known)
-        if term not in known:
+        if term in known:
+            return known[term]
+        # What the unfolding says and how the readable line spells it are
+        # allowed to differ, so long as set.mm says they are the same claim:
+        # `isprm2` writes p > 1 as membership of ZZ>=2, and `eluz2gt1` is
+        # the declared lemma that carries one to the other.
+        try:
+            return self.settle(self.to_term(term), scope,
+                               {**facts, **known}, step=step, lines=lines)
+        except Problem:
             raise Problem('', step.line,
-                          f'{lemma} does not say {self.render(term)}')
-        return known[term]
+                          f'{lemma} does not say {self.render(term)}') from None
 
     def trying(self, item, step, way, term, scope, facts, lines):
         """Use whichever lemma the target names reaches the claim.
@@ -3323,6 +3343,16 @@ class Elaborator(Builder):
         term = self.term(want)
         if term in facts:
             return facts[term]
+        closure = how.strip().split(',')[0].strip()
+        # A line naming a method is discharged by the method it names. A
+        # closed numeral inequality is what `arithmetic` decides outright,
+        # and a declared lemma reaching the same fact reaches it the long
+        # way round: 1 < 2 through membership of ℤ≥2 costs five lemmas.
+        if closure == 'arithmetic':
+            try:
+                return self.prove_numeral(term, scope, facts)
+            except (normal.Unhandled, Problem, KeyError):
+                pass
         try:
             return self.settle(self.to_term(term), scope, facts)
         except Problem:
@@ -3330,12 +3360,7 @@ class Elaborator(Builder):
         if want.notation == 'membership':
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
-        closure = how.strip().split(',')[0].strip()
         if closure == 'arithmetic':
-            try:
-                return self.prove_numeral(term, scope, facts)
-            except (normal.Unhandled, Problem, KeyError):
-                pass
             # A value is the other thing `arithmetic` decides, and a closed
             # one is an identity of the field with no atoms in it, so it
             # goes where identities go rather than wanting a second
