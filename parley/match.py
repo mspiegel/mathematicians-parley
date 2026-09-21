@@ -13,6 +13,7 @@ citation that writes none is read the same way.
 import re
 
 from formula import Node
+from parse import LABEL
 
 # An instantiation value may itself contain a comma, as `e := gcd(a, b)` does,
 # so the list is split at the commas that sit outside brackets rather than by a
@@ -22,7 +23,11 @@ ASSIGN = re.compile(r'([^\s,]+)\s*:=\s*(.+)')
 
 def instantiation(text):
     """The `v := t` pairs of a justification, in order."""
-    body = re.split(r',\s*from\b|\s+in\s+(?:line\b|def:)', text, maxsplit=1)[0]
+    # An `instantiate` says where it lands, and that is a line, an item or a
+    # bare label — the three `parse` reads for the target. A value stops at
+    # whichever of them follows it, and `IH` is a label.
+    body = re.split(rf',\s*from\b|\s+in\s+(?:line\b|def:|{LABEL}\b)',
+                    text, maxsplit=1)[0]
     head = re.match(r'(?:def|thm):[^\s]+\s*|instantiate\s+', body)
     if head:
         body = body[head.end():]

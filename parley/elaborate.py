@@ -177,6 +177,10 @@ class Elaborator(Builder):
         ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
         ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d',
         ('wn', (0,)): 'notbid',
+        # A universal over an `if ... then` changes both sides at once when
+        # the name it binds stands on each of them.
+        ('wi', (0,)): 'imbi1d', ('wi', (1,)): 'imbi2d',
+        ('wi', (0, 1)): 'imbi12d',
         ('wral', (0,)): 'ralbidv', ('wrex', (0,)): 'rexbidv'}
 
     # Which lemma discharges one thing a lemma asked, by how that thing was
@@ -943,12 +947,20 @@ class Elaborator(Builder):
         and the proof may go on to fix a name spelt the same way: Cantor's
         B collects the x that its own image leaves out, and then fixes an x
         to reason about. Those are two names, and the kernel has to see two
-        or the lemma that generalises over one will find the other."""
+        or the lemma that generalises over one will find the other.
+
+        Only the names the body binds. A body may also mention a name the
+        proof is already holding — the subsets proof defines U as the power
+        set of X without the `a` it obtained — and renaming that one would
+        make the definition speak of some other element."""
         whole = self.to_term(rpn)
         binding = {}
+        holds = {t.split()[0] for t in self.names.values()
+                 if isinstance(t, str) and t.endswith(' cv')}
         for said in sorted(whole.names()):
             label = self.flabel.get(said)
-            if label and self.sigs[label].statement[0] == 'setvar':
+            if label and label not in holds \
+                    and self.sigs[label].statement[0] == 'setvar':
                 fresh = self.spare_var()
                 binding[said] = kernel.Term(
                     variable=self.sigs[fresh].statement[1])
@@ -1370,6 +1382,7 @@ class Elaborator(Builder):
         how = {'algebra': self.algebra, 'arithmetic': self.arithmetic,
                'inequalities': self.inequalities,
                'substitute': self.substitute,
+               'instantiate': self.instantiate,
                'calculation': self.calculation, 'join': self.join,
                'exhibit': self.exhibit}.get(head)
         if how is None and head.startswith('def:'):
@@ -1575,6 +1588,87 @@ class Elaborator(Builder):
         can use it."""
         held = lines[cite]
         return facts.get(held.term, held.proof)
+
+    def instantiate(self, step, node, term, scope, facts, lines):
+        """A universal used at one term.
+
+        `instantiate s := a in line 10` takes a line claiming something of
+        every s in a set and claims it of one of them. What the lemma wants
+        beyond the line is that the term is in the set, and the step writes
+        that: in `from` where a line already says it, in `requires` where it
+        has to be built, so it is asked for through `required` and not
+        settled behind the text's back.
+
+        set.mm asks `( x = A -> ( ph <-> ps ) )` of it, which is the same
+        thing `elrab` and `rspcev` ask, so what `ps` is is worked out from
+        the body rather than taken from anywhere."""
+        where = step.just.target
+        held = lines.get(where)
+        if held is None:
+            raise Problem('', step.line,
+                          f'instantiate names no line or label {where!r}')
+        # A line may say several things at once, and the `for every` is
+        # rarely the first of them: Bezout's line 15 says four and
+        # quantifies in the fourth. Unpacking makes each a fact of its own.
+        known = dict(facts)
+        known[held.term] = self.carried(where, facts, lines)
+        self.unpack(held.term, known[held.term], scope, known)
+        said = next((p for p in self.parts(held.term)
+                     if self.to_term(p).label in ('wral', 'wal')), None)
+        if said is None:
+            raise Problem('', step.line,
+                          f'{where} claims nothing of every such name')
+
+        proof, whole = known[said], self.to_term(said)
+        for _name, value in instantiation(step.just.text):
+            # A name may run over a set or over anything that is one. The
+            # two lemmas are the same shape and ask the same thing; what
+            # differs is whether the term has to be in a set or only be one.
+            if whole.label == 'wral':
+                body, variable, over = whole.children
+                lemma, slot, domain = 'rspcv', 'B', over.rpn(self.flabel)
+            elif whole.label == 'wal':
+                body, variable = whole.children
+                lemma, slot, domain = 'spcgv', 'V', 'cvv'
+            else:
+                raise Problem('', step.line,
+                              'more names instantiated than are quantified')
+            mark, at = f'{variable.rpn(self.flabel)} cv', \
+                self.term(self.read(value))
+            instance = self.restated(body, mark, at)
+            ph, ps = body.rpn(self.flabel), instance.rpn(self.flabel)
+            member = seq(at, domain, 'wcel')
+            asked = self.prove_essential(
+                self.to_term(seq(seq(mark, at, 'wceq'),
+                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            applied = self.ap(lemma, {
+                'ph': ph, 'ps': ps, 'x': variable.rpn(self.flabel),
+                'A': at, slot: domain}, asked)
+            proof = seq(scope, whole.rpn(self.flabel), ps, proof,
+                        seq(scope, member,
+                            seq(whole.rpn(self.flabel), ps, 'wi'),
+                            self.required(step, member, domain, scope, facts),
+                            applied, 'syl'),
+                        'mpd')
+            whole = instance
+
+        # What a universal says of one name is often a conditional, and the
+        # step claims what it concludes. Each thing asked on the way is a
+        # line the step cites.
+        reached = whole.rpn(self.flabel)
+        while reached != term:
+            reads = self.to_term(reached)
+            if reads.label != 'wi':
+                raise Problem('', step.line,
+                              f'{where} at those terms says '
+                              f'{self.render(reached)}, and the step claims '
+                              f'{self.render(term)}')
+            asks, rest = (c.rpn(self.flabel) for c in reads.children)
+            proof = seq(scope, asks, rest,
+                        self.settle(self.to_term(asks), scope, facts),
+                        proof, 'mpd')
+            reached = rest
+        return proof
 
     def substitute(self, step, node, term, scope, facts, lines):
         """One equation put into one claim, at the place the tree names.

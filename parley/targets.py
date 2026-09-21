@@ -165,7 +165,7 @@ MEMBERSHIP = [
     # notation and this answers by statement
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure
-    'rabexg', 'ssexg',
+    'rabexg', 'ssexg', 'difexg',
     # and what an order relation asks, which is the same kind of thing
     'ltle', 'ltnri', 'leid',
     # A disequality is one fact in two orders and the corpus writes it as a
