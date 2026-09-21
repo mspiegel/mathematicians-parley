@@ -250,8 +250,42 @@ class Emitter:
                         self.coefficient(first), self.coefficient(second),
                         self.ap('addcom', {'A': c, 'B': d})),
                 cancels, op(c, d, ADD), op(d, c, ADD), NUMERAL[0])
+        if a < 0 and b < 0:
+            # -u i + -u j is -u ( i + j ), which `negdi` says read
+            # backwards, and the two are then both positive.
+            whole = [NUMERAL[-a], NUMERAL[-b]]
+            return self.chain(
+                self.ap('eqcomd',
+                        {'ph': self.under, 'A': op(c, d, ADD),
+                         'B': seq(op(*whole, ADD), 'cneg')},
+                        self.ap('syl2anc',
+                                {'ph': self.under,
+                                 'ps': seq(whole[0], 'cc', 'wcel'),
+                                 'ch': seq(whole[1], 'cc', 'wcel'),
+                                 'th': seq(seq(op(*whole, ADD), 'cneg'),
+                                           op(c, d, ADD), 'wceq')},
+                                self.number(-a), self.number(-b),
+                                self.ap('negdi', {'A': whole[0],
+                                                  'B': whole[1]}))),
+                self.ap('negeqd',
+                        {'ph': self.under, 'A': op(*whole, ADD),
+                         'B': NUMERAL[-a - b]},
+                        self.coefficient_sum(-first, -second)),
+                op(c, d, ADD), seq(op(*whole, ADD), 'cneg'), said)
         if a < 0 or b < 0:
-            raise Unhandled(f'{first} + {second} needs signed arithmetic')
+            if a < 0:
+                # The negative one second, so one case covers both.
+                return self.chain(
+                    self.ap('syl2anc',
+                            {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
+                             'ch': seq(d, 'cc', 'wcel'),
+                             'th': seq(op(c, d, ADD), op(d, c, ADD),
+                                       'wceq')},
+                            self.coefficient(first), self.coefficient(second),
+                            self.ap('addcom', {'A': c, 'B': d})),
+                    self.coefficient_sum(second, first),
+                    op(c, d, ADD), op(d, c, ADD), said)
+            return self.minus_numeral(a, -b, c, d, said)
         if a == 0:
             return self.a1i(claim, self.mp(seq(d, 'cc', 'wcel'), claim,
                                            self.complex_label(b),
@@ -265,6 +299,74 @@ class Emitter:
     def mp(self, given, claim, hypothesis, implication):
         return self.ap('ax-mp', {'ph': given, 'ps': claim},
                        hypothesis, implication)
+
+    def gap_numeral(self, bigger, smaller):
+        """( under -> ( i - j ) = k ) for whole numbers with i at least j.
+
+        `subadd` says a difference is a number exactly when adding that
+        number back gives the first, so the subtraction is answered out of
+        the addition table and set.mm needs no second one."""
+        left, right = NUMERAL[bigger], NUMERAL[smaller]
+        out = NUMERAL[bigger - smaller]
+        return self.ap(
+            'mpbird',
+            {'ph': self.under,
+             'ps': seq(op(left, right, 'cmin'), out, 'wceq'),
+             'ch': seq(op(right, out, ADD), left, 'wceq')},
+            self.coefficient_sum(Fraction(smaller),
+                                 Fraction(bigger - smaller)),
+            self.ap('syl3anc',
+                    {'ph': self.under, 'ps': seq(left, 'cc', 'wcel'),
+                     'ch': seq(right, 'cc', 'wcel'),
+                     'th': seq(out, 'cc', 'wcel'),
+                     'ta': seq(seq(op(left, right, 'cmin'), out, 'wceq'),
+                               seq(op(right, out, ADD), left, 'wceq'),
+                               'wb')},
+                    self.number(bigger), self.number(smaller),
+                    self.number(bigger - smaller),
+                    self.ap('subadd', {'A': left, 'B': right, 'C': out})))
+
+    def minus_numeral(self, first, second, c, d, said):
+        """( under -> ( i + -u j ) = k ), the two of opposite sign.
+
+        `negsub` turns the sum into a difference, and which way round the
+        difference goes decides whether the answer carries a minus."""
+        gap = op(NUMERAL[first], NUMERAL[second], 'cmin')
+        return self.chain(
+            self.ap('syl2anc',
+                    {'ph': self.under,
+                     'ps': seq(NUMERAL[first], 'cc', 'wcel'),
+                     'ch': seq(NUMERAL[second], 'cc', 'wcel'),
+                     'th': seq(op(c, d, ADD), gap, 'wceq')},
+                    self.number(first), self.number(second),
+                    self.ap('negsub', {'A': NUMERAL[first],
+                                       'B': NUMERAL[second]})),
+            self.same_gap(first, second), op(c, d, ADD), gap, said)
+
+    def same_gap(self, first, second):
+        """( under -> ( i - j ) = k ), whichever way round the two are."""
+        if first >= second:
+            return self.gap_numeral(first, second)
+        other = op(NUMERAL[second], NUMERAL[first], 'cmin')
+        return self.chain(
+            self.ap('eqcomd',
+                    {'ph': self.under, 'A': seq(other, 'cneg'),
+                     'B': op(NUMERAL[first], NUMERAL[second], 'cmin')},
+                    self.ap('syl2anc',
+                            {'ph': self.under,
+                             'ps': seq(NUMERAL[second], 'cc', 'wcel'),
+                             'ch': seq(NUMERAL[first], 'cc', 'wcel'),
+                             'th': seq(seq(other, 'cneg'),
+                                       op(NUMERAL[first], NUMERAL[second],
+                                          'cmin'), 'wceq')},
+                            self.number(second), self.number(first),
+                            self.ap('negsubdi2', {'A': NUMERAL[second],
+                                                  'B': NUMERAL[first]}))),
+            self.ap('negeqd', {'ph': self.under, 'A': other,
+                               'B': NUMERAL[second - first]},
+                    self.gap_numeral(second, first)),
+            op(NUMERAL[first], NUMERAL[second], 'cmin'),
+            seq(other, 'cneg'), seq(NUMERAL[second - first], 'cneg'))
 
     # --- putting one term into a run --------------------------------------
 
@@ -933,6 +1035,11 @@ class Emitter:
         said = term.rpn(labels)
         if term.variable is None and term.label in field.DIGITS:
             value = Fraction(field.DIGITS[term.label])
+            if value == 0:
+                # The empty run, not a term of weight zero: a canonical
+                # form holds no such term, and one left in it would be
+                # carried through every sum it took part in.
+                return [], self.same(NUMERAL[0])
             if value == 1:
                 return [((), value)], self.one_as_term()
             return [((), value)], self.ap(

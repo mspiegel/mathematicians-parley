@@ -1624,8 +1624,6 @@ class Elaborator:
         the addition, and what it lands on is zero plus zero."""
         if how != '<=' or len(used) != 2:
             raise normal.Unhandled('only two bounds added is written')
-        if any(fact.how != '<=' or times != 1 for _c, fact, times in used):
-            raise normal.Unhandled('a bound is scaled, or is not `at most`')
 
         def real_number(one):
             want = seq(one, 'cr', 'wcel')
@@ -1637,27 +1635,16 @@ class Elaborator:
                               lambda t: self.settle(
                                   self.to_term(seq(t, 'cc', 'wcel')),
                                   scope, facts))
-        gaps, bounds = [], []
-        for (ref, said), _fact, _times in used:
-            parts = order_sides(said)
-            if parts is None or parts[2] != '<=':
-                raise normal.Unhandled('a cited bound is not stated as one')
-            was = [c.rpn(self.flabel) for c in said.children[:2]]
-            gaps.append(seq(was[0], was[1], 'cmin', 'co'))
-            bounds.append(self.difference_le(
-                work, was,
+        gaps, bounds, real = [], [], []
+        for (ref, said), fact, times in used:
+            one, proof, held = self.at_most_zero(
+                work, said, fact, times,
                 self.cited_fact(ref, said, scope, facts, lines),
-                facts, real_number))
+                real_number)
+            gaps.append(one)
+            bounds.append(proof)
+            real.append(held)
         total = seq(gaps[0], gaps[1], 'caddc', 'co')
-        real = [work.ap('syl2anc',
-                        {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
-                         'ch': seq(b, 'cr', 'wcel'),
-                         'th': seq(one, 'cr', 'wcel')},
-                        real_number(a), real_number(b),
-                        work.ap('resubcl', {'A': a, 'B': b}))
-                for one, (a, b) in zip(gaps, [
-                    [c.rpn(self.flabel) for c in said.children[:2]]
-                    for (_r, said), _f, _t in used], strict=True)]
         zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
         added = work.ap(
             'breqtrd', {'ph': scope, 'A': total,
@@ -1722,6 +1709,104 @@ class Elaborator:
                                seq(left, right, 'cle', 'wbr'), 'wb')},
                     real_number(left), real_number(right),
                     work.ap('suble0', {'A': left, 'B': right})))
+
+    def at_most_zero(self, work, said, fact, times, given, real_number):
+        """One cited fact, scaled, as a term that is at most zero.
+
+        Everything a sum takes is brought to that one shape first, so the
+        addition has one case rather than one per relation. An equation is
+        at most zero because it is zero exactly; an inequality already is,
+        and scaling it by something positive leaves it so."""
+        scope = work.under
+        parts = order_sides(said)
+        if parts is None:
+            raise normal.Unhandled('a cited fact states no relation')
+        was = [c.rpn(self.flabel) for c in said.children[:2]]
+        gap = seq(was[0], was[1], 'cmin', 'co')
+        real = work.ap('syl2anc',
+                       {'ph': scope, 'ps': seq(was[0], 'cr', 'wcel'),
+                        'ch': seq(was[1], 'cr', 'wcel'),
+                        'th': seq(gap, 'cr', 'wcel')},
+                       real_number(was[0]), real_number(was[1]),
+                       work.ap('resubcl', {'A': was[0], 'B': was[1]}))
+        numeral = field.spell_coefficient(times)
+        if numeral is None:
+            raise normal.Unhandled(f'{times} is past one digit')
+        scaled = seq(numeral, gap, 'cmul', 'co')
+        scaled_real = work.ap(
+            'syl2anc', {'ph': scope, 'ps': seq(numeral, 'cr', 'wcel'),
+                        'ch': seq(gap, 'cr', 'wcel'),
+                        'th': seq(scaled, 'cr', 'wcel')},
+            self.real_numeral(work, times), real,
+            work.ap('remulcl', {'A': numeral, 'B': gap}))
+        if parts[2] == '=':
+            vanishes = work.chain(
+                work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
+                                   'C': numeral, 'F': 'cmul'},
+                        self.difference_zero(work, was, given)),
+                work.ap('syl', {'ph': scope,
+                                'ps': seq(numeral, 'cc', 'wcel'),
+                                'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                                          'cc0', 'wceq')},
+                        work.coefficient(times),
+                        work.ap('mul01', {'A': numeral})),
+                scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0')
+            return scaled, work.ap(
+                'eqled', {'ph': scope, 'A': scaled, 'B': 'cc0'},
+                scaled_real, vanishes), scaled_real
+        if parts[2] != '<=':
+            raise normal.Unhandled(f'a cited {parts[2]} is not written')
+        bound = self.difference_le(work, was, given, None, real_number)
+        if times == 1:
+            return gap, bound, real
+        if times <= 0:
+            raise normal.Unhandled('a bound may only be scaled upward')
+        return scaled, work.ap(
+            'breqtrd', {'ph': scope, 'A': scaled,
+                        'B': seq(numeral, 'cc0', 'cmul', 'co'), 'C': 'cc0',
+                        'R': 'cle'},
+            work.ap('mpbid',
+                    {'ph': scope, 'ps': seq(gap, 'cc0', 'cle', 'wbr'),
+                     'ch': seq(scaled, seq(numeral, 'cc0', 'cmul', 'co'),
+                               'cle', 'wbr')},
+                    bound,
+                    work.ap('syl3anc',
+                            {'ph': scope, 'ps': seq(gap, 'cr', 'wcel'),
+                             'ch': seq('cc0', 'cr', 'wcel'),
+                             'th': seq(seq(numeral, 'cr', 'wcel'),
+                                       seq('cc0', numeral, 'clt', 'wbr'),
+                                       'wa'),
+                             'ta': seq(seq(gap, 'cc0', 'cle', 'wbr'),
+                                       seq(scaled,
+                                           seq(numeral, 'cc0', 'cmul', 'co'),
+                                           'cle', 'wbr'), 'wb')},
+                            real, work.a1i(seq('cc0', 'cr', 'wcel'), '0re'),
+                            work.ap('jca',
+                                    {'ph': scope,
+                                     'ps': seq(numeral, 'cr', 'wcel'),
+                                     'ch': seq('cc0', numeral, 'clt',
+                                               'wbr')},
+                                    self.real_numeral(work, times),
+                                    work.a1i(seq('cc0', numeral, 'clt',
+                                                 'wbr'),
+                                             f'{times.numerator}pos')),
+                            work.ap('lemul2', {'A': gap, 'B': 'cc0',
+                                               'C': numeral}))),
+            work.ap('syl', {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
+                            'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                                      'cc0', 'wceq')},
+                    work.coefficient(times),
+                    work.ap('mul01', {'A': numeral}))), scaled_real
+
+    def real_numeral(self, work, times):
+        """( scope -> n e. RR ) for a whole multiplier."""
+        whole = abs(times.numerator)
+        held = work.a1i(seq(field.NUMERAL[whole], 'cr', 'wcel'),
+                        f'{whole}re')
+        if times.numerator >= 0:
+            return held
+        return work.ap('renegcld', {'ph': work.under,
+                                    'A': field.NUMERAL[whole]}, held)
 
     def cited_fact(self, ref, said, scope, facts, lines):
         """The proof of one fact a cited line states.
