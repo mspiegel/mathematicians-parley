@@ -111,6 +111,22 @@ def whole_multiple(cited, claim):
     return times.numerator
 
 
+def declined(said):
+    """Whether this is a route declining, or the proof text being wrong.
+
+    `normal.Unhandled` is a route declining and says so. `Problem` is both:
+    its docstring says it "carries where it was found", and the thirteen the
+    elaborator raises where it cannot do something carry nowhere, while the
+    forty-four it raises about the text carry a line.
+
+    The difference matters where a method falls back to stating its step.
+    A route declining should fall back; a defect in the text must not, or
+    the step is listed as stated and the reader never sees the error. The
+    two would be separate exceptions in a tidier program, and until they are
+    the line is what tells them apart."""
+    return not isinstance(said, Problem) or not said.line
+
+
 def multiplier(shape, scale):
     """The term a combination multiplies one cited equation by, or None.
 
@@ -1901,7 +1917,9 @@ class Elaborator(Builder):
         self.decide_field(step, term, lines)
         try:
             return self.prove_field(step, term, scope, facts, lines)
-        except (normal.Unhandled, Problem, KeyError):
+        except (normal.Unhandled, Problem) as said:
+            if not declined(said):
+                raise
             return self.assume(step, term, scope, facts, 'alg', lines)
 
     def prove_field(self, step, term, scope, facts, lines):
@@ -1933,21 +1951,26 @@ class Elaborator(Builder):
                                          work, complex_number)
         left = goal.children[0].rpn(self.flabel)
         right = goal.children[1].rpn(self.flabel)
-        try:
-            return self.same_polynomial(work, left, right)
-        except normal.Unhandled:
-            if step is None:
-                raise
+        # The routes, in the order they cost, and what each said when it
+        # declined. Nested `try`s kept only the last of those, so the step
+        # was refused in the words of whichever route happened to be tried
+        # last rather than of the one that came nearest.
+        routes = [lambda: self.same_polynomial(work, left, right)]
+        if step is not None:
+            routes += [
+                lambda: self.scaled_from_cited(step, left, right, scope,
+                                               facts, lines, work),
+                lambda: self.crossed_from_cited(step, left, right, scope,
+                                                facts, lines, work),
+                lambda: self.summed_from_cited(step, left, right, scope,
+                                               facts, lines, work)]
+        declines = []
+        for route in routes:
             try:
-                return self.scaled_from_cited(step, left, right, scope,
-                                              facts, lines, work)
-            except normal.Unhandled:
-                try:
-                    return self.crossed_from_cited(step, left, right, scope,
-                                                   facts, lines, work)
-                except normal.Unhandled:
-                    return self.summed_from_cited(step, left, right, scope,
-                                                  facts, lines, work)
+                return route()
+            except normal.Unhandled as said:
+                declines.append(str(said))
+        raise normal.Unhandled('; '.join(declines))
 
     def apart_from_cited(self, step, goal, scope, facts, lines, work,
                          complex_number):
@@ -2136,7 +2159,7 @@ class Elaborator(Builder):
                 continue
             try:
                 items, same = work.normalize(subject, self.flabel)
-            except (normal.Unhandled, Problem, KeyError):
+            except (normal.Unhandled, Problem):
                 continue
             if work.spell_run(items) != said:
                 continue
@@ -2452,7 +2475,9 @@ class Elaborator(Builder):
                                              lines)):
             try:
                 return how()
-            except (normal.Unhandled, Problem, KeyError):
+            except (normal.Unhandled, Problem) as said:
+                if not declined(said):
+                    raise
                 continue
         return self.assume(step, term, scope, facts, 'ari', lines)
 
@@ -2594,7 +2619,9 @@ class Elaborator(Builder):
         try:
             return self.prove_order(step.just.refs, term, scope, facts,
                                     lines)
-        except (normal.Unhandled, Problem, KeyError):
+        except (normal.Unhandled, Problem) as said:
+            if not declined(said):
+                raise
             return self.assume(step, term, scope, facts, 'ine', lines)
 
     def prove_order(self, refs, term, scope, facts, lines, skip=()):
@@ -2771,7 +2798,7 @@ class Elaborator(Builder):
             return facts[term]
         try:
             return self.prove_order(refs, term, scope, facts, lines, skip)
-        except (normal.Unhandled, Problem, KeyError):
+        except (normal.Unhandled, Problem):
             pass
         return self.impossible(bound, term, scope, facts)
 
@@ -3900,7 +3927,7 @@ class Elaborator(Builder):
         if closure == 'arithmetic':
             try:
                 return self.prove_numeral(term, scope, facts)
-            except (normal.Unhandled, Problem, KeyError):
+            except (normal.Unhandled, Problem):
                 pass
         try:
             return self.settle(self.to_term(term), scope, facts)
@@ -3916,7 +3943,7 @@ class Elaborator(Builder):
             # procedure. `METHODS.md` lists the two as one method.
             try:
                 return self.prove_field(None, term, scope, facts, self.lines)
-            except (normal.Unhandled, Problem, KeyError):
+            except (normal.Unhandled, Problem):
                 pass
         if closure == 'inequalities':
             # A side condition resting on a method is proved the way a step
@@ -3924,7 +3951,7 @@ class Elaborator(Builder):
             try:
                 return self.prove_order(citations(how), term, scope, facts,
                                         self.lines)
-            except (normal.Unhandled, Problem, KeyError):
+            except (normal.Unhandled, Problem):
                 pass
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
