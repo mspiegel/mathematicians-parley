@@ -3654,7 +3654,8 @@ class Elaborator(Builder):
         in hand and nothing is deferred."""
         if goal.label != 'wrex' or reads.label not in ('wrex', 'wreu'):
             return None
-        if seed is None or reads.names() - set(seed) - self.bound_in(reads):
+        if seed is None or (reads.names() - set(seed)
+                            - set(self.bound_in(reads))):
             return None                # nothing fixes the lemma's variables
         ground = reads.substitute(seed)
         # The lemma's binders become names in the open, so they must be
@@ -3775,12 +3776,18 @@ class Elaborator(Builder):
         return proof
 
     def bound_in(self, term):
-        """The variables an existential's own binders introduce."""
-        out, rest = set(), term
+        """The variables an existential's own binders introduce.
+
+        Outermost first, in the order the existential writes them, because a
+        caller handing each of them a spare variable hands them out in this
+        order and the proof it writes says which. A set here spelt the same
+        proof two ways from one run to the next, and the build's report that
+        nothing changed is the only evidence a change moved no proof."""
+        out, rest = [], term
         while rest.label in ('wrex', 'wreu'):
-            out.add(rest.children[1].variable)
+            out.append(rest.children[1].variable)
             rest = rest.children[0]
-        return out
+        return tuple(out)
 
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
