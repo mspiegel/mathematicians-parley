@@ -140,6 +140,12 @@ class Syntax:
             return Term(variable=tokens[0])
         n = len(tokens)
         chart = [{} for _ in range(n + 1)]
+        # What has been offered at a position, so it is offered once. set.mm
+        # has hundreds of productions yielding `class`, and every item
+        # waiting for one would otherwise offer them all again: the second
+        # offer adds nothing, because the row already holds every one of
+        # them, and the work of finding that out is most of the parse.
+        told = {(0, start)}
         for rule in self.by_yield[start]:
             _add(chart[0], rule, 0, 0, ())
         for i in range(n + 1):
@@ -154,17 +160,21 @@ class Syntax:
                         if odot == len(orule.symbols):
                             continue
                         kind, what = orule.symbols[odot]
-                        if kind == 'n' and what == rule.yields and _add(
-                                chart[i], orule, odot + 1, oorigin,
-                                (*oparts, made)):
-                            queue.append(chart[i][_key(orule, odot + 1,
-                                                       oorigin)])
+                        if kind != 'n' or what != rule.yields:
+                            continue
+                        item = _add(chart[i], orule, odot + 1, oorigin,
+                                    (*oparts, made))
+                        if item is not None:
+                            queue.append(item)
                     continue
                 kind, what = rule.symbols[dot]
                 if kind == 'n':
-                    for other in self.by_yield[what]:
-                        if _add(chart[i], other, 0, i, ()):
-                            queue.append(chart[i][_key(other, 0, i)])
+                    if (i, what) not in told:
+                        told.add((i, what))
+                        for other in self.by_yield[what]:
+                            item = _add(chart[i], other, 0, i, ())
+                            if item is not None:
+                                queue.append(item)
                     # A variable of the statement stands for itself.
                     if i < n and self.typecode.get(tokens[i]) == what:
                         _add(chart[i + 1], rule, dot + 1, origin,
@@ -183,13 +193,15 @@ class Syntax:
         return self.parse(signature.statement[1:], 'wff')
 
 
-def _key(rule, dot, origin):
-    return (id(rule), dot, origin)
-
-
 def _add(row, rule, dot, origin, parts):
-    key = _key(rule, dot, origin)
+    """Put one item in a chart row, and give it back if it is new.
+
+    A `Rule` is hashed by identity, so it keys the row as it stands. The
+    caller wants the item it just added and not a second lookup for it:
+    this runs a hundred million times in a corpus build, and the row is
+    the hottest dictionary in the program."""
+    key = (rule, dot, origin)
     if key in row:
-        return False
-    row[key] = (rule, dot, origin, parts)
-    return True
+        return None
+    item = row[key] = (rule, dot, origin, parts)
+    return item
