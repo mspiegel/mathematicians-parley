@@ -1027,12 +1027,45 @@ class Emitter:
                 spelt, said, op(bare, run, MUL), op(unit, run, MUL)),
             product, said, op(unit, run, MUL), self.spell_run(out))
 
+    def subtracted(self, la, lb, first, one, second, two, said):
+        """X - Y, turned into X + -u Y, which the sum side already does.
+
+        `negsub` states the two as equal one way round, so it is read
+        backwards; the negation is then the case already written."""
+        a_cc = self.ap('eqeltrd', {'ph': self.under, 'A': la,
+                                   'B': self.spell_run(first), 'C': 'cc'},
+                       one, self.run_cc(first))
+        b_cc = self.ap('eqeltrd', {'ph': self.under, 'A': lb,
+                                   'B': self.spell_run(second), 'C': 'cc'},
+                       two, self.run_cc(second))
+        minus = seq(lb, 'cneg')
+        plus = op(la, minus, ADD)
+        turned = self.ap(
+            'eqcomd', {'ph': self.under, 'A': plus, 'B': said},
+            self.ap('syl2anc', {'ph': self.under,
+                                'ps': seq(la, 'cc', 'wcel'),
+                                'ch': seq(lb, 'cc', 'wcel'),
+                                'th': seq(plus, said, 'wceq')},
+                    a_cc, b_cc, self.ap('negsub', {'A': la, 'B': lb})))
+        negated, backwards = self.negated(lb, second, two, minus)
+        joined = self.ap('oveq12d',
+                         {'ph': self.under, 'A': la,
+                          'B': self.spell_run(first), 'C': minus,
+                          'D': self.spell_run(negated), 'F': ADD},
+                         one, backwards)
+        out, combined = self.add(first, negated)
+        middle = op(self.spell_run(first), self.spell_run(negated), ADD)
+        return out, self.chain(
+            self.chain(turned, joined, said, plus, middle),
+            combined, said, middle, self.spell_run(out))
+
     def binary(self, how, left, right, labels, said):
         """`+`, `-` or `x.` with both sides taken to canonical form first."""
-        if how == field.SUB:
-            raise Unhandled(f'{said} subtracts, which is not yet written')
         first, one = self.normalize(left, labels)
         second, two = self.normalize(right, labels)
+        if how == field.SUB:
+            return self.subtracted(left.rpn(labels), right.rpn(labels),
+                                   first, one, second, two, said)
         what = ADD if how == field.ADD else MUL
         joined = self.ap('oveq12d',
                          {'ph': self.under, 'A': left.rpn(labels),

@@ -33,6 +33,7 @@ from pathlib import Path
 import field
 import kernel
 import linear
+import normal
 import targets
 from formula import Grammar, Node, parse
 from library import Signature
@@ -1375,14 +1376,44 @@ class Elaborator:
         raise Problem('', step.line, 'the substitution misses the claim')
 
     def algebra(self, step, node, term, scope, facts, lines):
-        """Decided by `parley/field.py`, and then taken.
+        """Decided by `parley/field.py`, then proved by `parley/normal.py`.
 
-        The same division of labour `inequalities` has: what the step claims
-        is checked against what it cites, and a step that is not an identity
-        of the field is refused rather than assumed. Emitting the proof of a
-        decided step is what remains."""
+        A step that is not an identity of the field is refused rather than
+        assumed. One that is gets a proof where `normal.py` can build one:
+        both sides are driven to the same canonical term and the step is
+        the two of them meeting. What that module does not yet write — a
+        quotient, a coefficient past one digit — is taken as stated, which
+        is what every `algebra` step was before it existed."""
         self.decide_field(step, term, lines)
-        return self.assume(step, term, scope, facts, 'alg', lines)
+        try:
+            return self.prove_field(term, scope, facts)
+        except (normal.Unhandled, Problem, KeyError):
+            return self.assume(step, term, scope, facts, 'alg', lines)
+
+    def prove_field(self, term, scope, facts):
+        """Both sides of an `algebra` claim driven to one canonical term."""
+        goal = self.to_term(term)
+        if goal.variable is not None or goal.label != 'wceq' \
+                or len(goal.children) != 2:
+            raise normal.Unhandled('the claim is not an equation')
+
+        def complex_number(said):
+            """What `normal.py` asks of a subterm it does not look inside."""
+            want = seq(said, 'cc', 'wcel')
+            if want in facts:
+                return facts[want]
+            return self.settle(self.to_term(want), scope, facts)
+
+        work = normal.Emitter(self.sigs, scope, complex_number)
+        left, first = work.normalize(goal.children[0], self.flabel)
+        right, second = work.normalize(goal.children[1], self.flabel)
+        if work.spell_run(left) != work.spell_run(right):
+            raise normal.Unhandled('the two sides are not one polynomial')
+        return work.ap('eqtr4d',
+                       {'ph': scope, 'A': goal.children[0].rpn(self.flabel),
+                        'B': work.spell_run(left),
+                        'C': goal.children[1].rpn(self.flabel)},
+                       first, second)
 
     def decide_field(self, step, term, lines):
         """Refuse an `algebra` step that is not an identity.
