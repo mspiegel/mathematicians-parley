@@ -65,16 +65,30 @@ class Linear:
 
 
 class Fact:
-    """A linear expression standing in a relation to zero."""
+    """A linear expression standing in a relation to zero.
 
-    __slots__ = ('how', 'side', 'why')
+    `weights` says which of the facts the caller supplied this one was
+    built from, and in what multiple. A fact straight from the caller is
+    one times itself; one that elimination produced is the combination
+    that produced it. Carrying it is what lets a refutation be turned
+    into a proof rather than only a verdict."""
 
-    def __init__(self, side, how, why=None):
+    __slots__ = ('how', 'side', 'weights', 'why')
+
+    def __init__(self, side, how, why=None, weights=None):
         self.side, self.how = side, how         # `side how 0`, how in = <= <
         self.why = why                          # what the caller wants back
+        self.weights = dict(weights or {})      # which given, times what
 
     def __repr__(self):
         return f'{self.side!r} {self.how} 0'
+
+    def combined(self, other, mine, theirs):
+        """This scaled by `mine` plus `other` scaled by `theirs`."""
+        out = {k: v * mine for k, v in self.weights.items()}
+        for k, v in other.weights.items():
+            out[k] = out.get(k, Fraction(0)) + v * theirs
+        return {k: v for k, v in out.items() if v}
 
 
 def numeral(term, labels):
@@ -178,26 +192,44 @@ def opposite(one):
 
 
 def refutes(facts):
-    """Whether these facts have no solution over an ordered field.
+    """Whether these facts have no solution over an ordered field."""
+    return certificate(facts) is not None
+
+
+def certificate(facts):
+    """The multipliers that make these facts contradict, or None.
 
     Fourier–Motzkin: an equation is two inequalities, then one atom at a
     time is eliminated by adding every lower bound to every upper bound.
     What is left is constants, and the set fails when one of them is a
-    constant standing in a relation no number satisfies."""
-    # A disequality is the one fact with two readings, so it is taken both
-    # ways and the set fails only when both do.
+    constant standing in a relation no number satisfies.
+
+    What is returned is Farkas's combination — each given fact and the
+    multiple of it that goes into the contradiction. An inequality may
+    only be multiplied by something positive; an equation by anything,
+    which is why its two halves carry opposite signs. A proof of the step
+    is built from that combination, so it is kept rather than discarded.
+
+    A disequality is the one fact with two readings, so it is taken both
+    ways and the set fails only when both do. There is then no single
+    combination, and `('either', i, one, other)` says so."""
     for i, one in enumerate(facts):
         if one.how == '=/=':
             rest = [*facts[:i], *facts[i + 1:]]
-            return (refutes([*rest, Fact(one.side, '<')])
-                    and refutes([*rest, Fact(one.side.scaled(-1), '<')]))
+            first = certificate([*rest, Fact(one.side, '<')])
+            if first is None:
+                return None
+            second = certificate([*rest, Fact(one.side.scaled(-1), '<')])
+            return None if second is None else ('either', i, first, second)
     open_facts = []
-    for one in facts:
+    for i, one in enumerate(facts):
         if one.how == '=':
-            open_facts.append(Fact(one.side, '<='))
-            open_facts.append(Fact(one.side.scaled(-1), '<='))
+            open_facts.append(Fact(one.side, '<=', weights={i: Fraction(1)}))
+            open_facts.append(Fact(one.side.scaled(-1), '<=',
+                                   weights={i: Fraction(-1)}))
         else:
-            open_facts.append(Fact(one.side, one.how))
+            open_facts.append(Fact(one.side, one.how,
+                                   weights={i: Fraction(1)}))
     atoms = sorted({a for f in open_facts for a in f.side.atoms()})
     for atom in atoms:
         under, over, rest = [], [], []
@@ -216,18 +248,18 @@ def refutes(facts):
                 b = -low.side.weight[atom]
                 made = high.side.scaled(b).plus(low.side.scaled(a))
                 how = '<' if '<' in (high.how, low.how) else '<='
-                joined.append(Fact(made, how))
+                joined.append(Fact(made, how,
+                                   weights=high.combined(low, b, a)))
         open_facts = rest + joined
         if len(open_facts) > 400:
-            return False                          # past anything the corpus has
+            return None                          # past anything the corpus has
     for one in open_facts:
         if not one.side.constant_only():
             continue
-        if one.how == '<' and one.side.constant >= 0:
-            return True
-        if one.how == '<=' and one.side.constant > 0:
-            return True
-    return False
+        if (one.how == '<' and one.side.constant >= 0) \
+                or (one.how == '<=' and one.side.constant > 0):
+            return one.weights
+    return None
 
 
 def follows(given, claim):
