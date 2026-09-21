@@ -18,7 +18,12 @@ labels in reverse Polish, and `ap` assembles one from a label and what it is
 applied to, so a statement is written once, in the notation set.mm writes it
 in, and never transcribed into stack order by hand.
 
-Usage:  elaboration/build-geometry.py <set.mm>  > elaboration/geometry.mm
+Usage:  elaboration/build-geometry.py <set.mm>  > elaboration/auto/geometry.mm
+
+`auto/` is where it has to go. `parley/labels.py` reads it there to know
+which labels this corpus supplies rather than set.mm, and
+`parley/elaborate.py` reads it so a `target` may name one. Written anywhere
+else it is a file nothing opens, and the build looks to have worked.
 """
 import sys
 from pathlib import Path

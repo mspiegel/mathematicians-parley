@@ -90,7 +90,7 @@ def supplied(records):
     """The labels this corpus introduces, which set.mm will not have.
 
     A definition that carries a `symbol` brings a constant and the axiom
-    defining it; `elaboration/geometry.mm` brings whatever it proves."""
+    defining it; `elaboration/auto/geometry.mm` brings whatever it proves."""
     out = set()
     for r in records:
         if 'symbol' in r.fields:
