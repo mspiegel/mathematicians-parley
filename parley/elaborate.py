@@ -2524,6 +2524,9 @@ class Elaborator(Builder):
         if claim.how == '=/=':
             return self.stays_apart(used, given, where, claim, scope, facts,
                                     lines)
+        if goal.variable is None and goal.label == 'wn':
+            return self.negated_order(goal, refs, term, scope, facts, lines,
+                                      skip)
         sides = order_sides(goal)
         if sides is None:
             raise normal.Unhandled('the claim states no relation')
@@ -2545,6 +2548,40 @@ class Elaborator(Builder):
                               for i in used],
                              left, right, how, spare.constant, scope, facts,
                              lines)
+
+    def negated_order(self, goal, refs, term, scope, facts, lines, skip):
+        """A claim denying a relation, as the relation that holds instead.
+
+        `not ( d ≤ r )` is `r < d`. `linear.fact` has always read it that
+        way — `METHODS.md` calls a negation a fact and not a special case —
+        and `order_sides` cannot read a denial at all, so such a claim was
+        decided and then had nothing to emit. What holds instead is proved
+        first, and `ltnle` or `lenlt` turns it round. Those are two of the
+        three labels `db/methods.records` names for this method."""
+        sides = order_sides(goal.children[0])
+        if sides is None or sides[2] not in ('<', '<='):
+            raise normal.Unhandled('what is denied states no relation')
+        a, b = (one.rpn(self.flabel) for one in sides[:2])
+        turns, how = (('ltnle', 'clt') if sides[2] == '<='
+                      else ('lenlt', 'cle'))
+        instead = seq(b, a, how, 'wbr')
+        held = facts.get(instead)
+        if held is None:
+            held = self.prove_order(refs, instead, scope, facts, lines, skip)
+
+        def real(one):
+            want = seq(one, 'cr', 'wcel')
+            return facts.get(want) or self.settle(self.to_term(want), scope,
+                                                  facts)
+        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
+            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': instead, 'ch': term}, held,
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(b, 'cr', 'wcel'),
+                     'ch': seq(a, 'cr', 'wcel'),
+                     'th': seq(instead, term, 'wb')},
+                    real(b), real(a), work.ap(turns, {'A': b, 'B': a})))
 
     def either_way(self, found, refs, where, given, term, scope, facts,
                    lines, skip):
