@@ -1551,8 +1551,131 @@ class Elaborator:
                           f'cites')
 
     def arithmetic(self, step, node, term, scope, facts, lines):
-        """Not expanded either. `METHODS.md` says it is closed numerals."""
-        return self.assume(step, term, scope, facts, 'ari', lines)
+        """Closed numerals, worked out and then said. `METHODS.md`."""
+        try:
+            return self.prove_numeral(term, scope, facts)
+        except (normal.Unhandled, Problem, KeyError):
+            return self.assume(step, term, scope, facts, 'ari', lines)
+
+    def prove_numeral(self, term, scope, facts):
+        """A closed numeral fact, decided by working it out and then said.
+
+        What `arithmetic` takes is closed, so deciding is arithmetic on two
+        whole numbers and needs no procedure. Saying it rests on one thing
+        set.mm names for every pair — that one number is below another —
+        and everything else is that weakened or turned: `ltle` for `at
+        most`, `ltne` for `not equal`, `leid` and `eqid` where the two are
+        the same number."""
+        goal = self.to_term(term)
+        negated = False
+        if goal.variable is None and goal.label == 'wn' \
+                and len(goal.children) == 1:
+            negated, goal = True, goal.children[0]
+        sides = order_sides(goal)
+        if sides is None:
+            raise normal.Unhandled('the claim states no relation')
+        first, second = (linear.numeral(one, self.flabel)
+                         for one in sides[:2])
+        if first is None or second is None \
+                or first.denominator != 1 or second.denominator != 1 \
+                or not all(0 <= int(n) <= 9 for n in (first, second)):
+            raise normal.Unhandled('the two sides are not single digits')
+        # Each side must *be* its digit, not merely come to it. What set.mm
+        # names is a fact about the digits, so a side that works out to one
+        # without being written as one is a computation, and this is not
+        # the method that does computations.
+        if any(one.rpn(self.flabel) != field.NUMERAL[int(value)]
+               for one, value in zip(sides[:2], (first, second),
+                                     strict=True)):
+            raise normal.Unhandled('a side works out to a digit but is one '
+                                   'only after working out')
+        a, b, how = int(first), int(second), sides[2]
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.settle(
+                                  self.to_term(seq(t, 'cc', 'wcel')),
+                                  scope, facts))
+        if negated:
+            if how != '=' or a == b:
+                raise normal.Unhandled('a denial of what holds')
+            return self.numerals_differ(work, a, b)
+        if how == '=' and a == b:
+            return work.a1i(seq(field.NUMERAL[a], field.NUMERAL[b], 'wceq'),
+                            work.ap('eqid', {'A': field.NUMERAL[a]}))
+        if how == '<' and a < b:
+            return self.numeral_below(work, a, b)
+        if how == '<=' and a <= b:
+            if a == b:
+                return work.ap(
+                    'syl', {'ph': scope,
+                            'ps': seq(field.NUMERAL[a], 'cr', 'wcel'),
+                            'ch': seq(field.NUMERAL[a], field.NUMERAL[a],
+                                      'cle', 'wbr')},
+                    self.numeral_real(work, a),
+                    work.ap('leid', {'A': field.NUMERAL[a]}))
+            return work.ap(
+                'mpd', {'ph': scope,
+                        'ps': seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
+                                  'wbr'),
+                        'ch': seq(field.NUMERAL[a], field.NUMERAL[b], 'cle',
+                                  'wbr')},
+                self.numeral_below(work, a, b),
+                work.ap('syl2anc',
+                        {'ph': scope,
+                         'ps': seq(field.NUMERAL[a], 'cr', 'wcel'),
+                         'ch': seq(field.NUMERAL[b], 'cr', 'wcel'),
+                         'th': seq(seq(field.NUMERAL[a], field.NUMERAL[b],
+                                       'clt', 'wbr'),
+                                   seq(field.NUMERAL[a], field.NUMERAL[b],
+                                       'cle', 'wbr'), 'wi')},
+                        self.numeral_real(work, a),
+                        self.numeral_real(work, b),
+                        work.ap('ltle', {'A': field.NUMERAL[a],
+                                         'B': field.NUMERAL[b]})))
+        raise normal.Unhandled(f'{a} {how} {b} is not what the numbers do')
+
+    def numeral_real(self, work, value):
+        return work.a1i(seq(field.NUMERAL[value], 'cr', 'wcel'),
+                        f'{value}re')
+
+    def numeral_below(self, work, a, b):
+        """( scope -> a < b ), the one thing set.mm names for every pair.
+
+        It names `0 < n` as `npos` rather than `0ltn`, and one is the
+        exception to that, so the three spellings are all there is."""
+        if a != 0:
+            label = f'{a}lt{b}'
+        else:
+            label = '0lt1' if b == 1 else f'{b}pos'
+        return work.a1i(seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
+                            'wbr'), label)
+
+    def numerals_differ(self, work, a, b):
+        """( scope -> -. a = b ), from whichever of the two is below."""
+        low, high = (a, b) if a < b else (b, a)
+        apart = work.ap(
+            'syl', {'ph': work.under,
+                    'ps': seq(seq(field.NUMERAL[low], 'cr', 'wcel'),
+                              seq(field.NUMERAL[low], field.NUMERAL[high],
+                                  'clt', 'wbr'), 'wa'),
+                    'ch': seq(field.NUMERAL[high], field.NUMERAL[low],
+                              'wne')},
+            work.ap('jca', {'ph': work.under,
+                            'ps': seq(field.NUMERAL[low], 'cr', 'wcel'),
+                            'ch': seq(field.NUMERAL[low],
+                                      field.NUMERAL[high], 'clt', 'wbr')},
+                    self.numeral_real(work, low),
+                    self.numeral_below(work, low, high)),
+            work.ap('ltne', {'A': field.NUMERAL[low],
+                             'B': field.NUMERAL[high]}))
+        if a != low:
+            return work.ap('neneqd', {'ph': work.under,
+                                      'A': field.NUMERAL[a],
+                                      'B': field.NUMERAL[b]}, apart)
+        return work.ap(
+            'neneqd', {'ph': work.under, 'A': field.NUMERAL[a],
+                       'B': field.NUMERAL[b]},
+            work.ap('necomd', {'ph': work.under, 'A': field.NUMERAL[high],
+                               'B': field.NUMERAL[low]}, apart))
 
     def inequalities(self, step, node, term, scope, facts, lines):
         """Decided by `parley/linear.py`, and then taken.
@@ -2630,6 +2753,11 @@ class Elaborator:
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
         closure = how.strip().split(',')[0].strip()
+        if closure == 'arithmetic':
+            try:
+                return self.prove_numeral(term, scope, facts)
+            except (normal.Unhandled, Problem, KeyError):
+                pass
         if closure == 'inequalities':
             # A side condition resting on a method is proved the way a step
             # resting on it is, where the method can prove one at all.
