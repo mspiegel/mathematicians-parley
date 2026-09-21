@@ -61,6 +61,29 @@ CASES = [
      '  metamath    cpw-without-a-target',
      "notation 'powerset' has no target field"),
 
+    # A database defect rather than a text one, and on an item rather than
+    # a notation: the target names a lemma that proves the other `then`
+    # group, so the step's own group has nothing behind it.
+    ('name the wrong clause in a definition target',
+     'geometric-sum', 'db/items.records',
+     '  target      fsum1, fsump1\n'
+     '  first-used  geometric-series',
+     '  target      fsum1, fsum1\n'
+     '  first-used  geometric-series',
+     'proof/geometric-series.proof:53  no clause of def:G gives what '
+     'step 2.9.1 claims'),
+
+    # The same report reached from the other side: the target is right and
+    # the step claims something the definition does not say. It used to be
+    # an `Unhandled` carrying nowhere, which reads as a route declining and
+    # would have been taken as stated had anything above caught it.
+    ('claim of a definition what it does not say',
+     'geometric-sum', 'proof/geometric-series.proof',
+     '    2.1.  G(0) = 1',
+     '    2.1.  G(0) = 2',
+     'proof/geometric-series.proof:15  no clause of def:G gives what '
+     'step 2.1 claims'),
+
     # `decide_field` refuses a claim that is not an identity. It is raised
     # outside the handler that falls back to stating the step, and must
     # stay that way.

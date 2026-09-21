@@ -3627,14 +3627,23 @@ class Elaborator(Builder):
 
         `def:S` says what S(1) is and what S(n + 1) is, and set.mm proves each
         separately. The clause is chosen by which lemma's conclusion is what
-        the step claims, so the text never says which."""
+        the step claims, so the text never says which.
+
+        A clause that declines is a clause that is not this `then` group,
+        and the next one is asked. What it is not is the elaborator's own
+        limit: the database named these lemmas, so a step none of them
+        reaches is a step claiming what the definition does not say, and
+        that is a defect rather than a decline."""
         item = self.items[step.just.head.split(':', 1)[1]]
         goal = self.to_term(term)
         for label in targets.split_entries(item.fields['target']):
-            found = self.apply_lemma(label, goal, scope, facts, step)
+            try:
+                found = self.apply_lemma(label, goal, scope, facts, step)
+            except Unhandled:
+                continue
             if found is not None:
                 return found
-        raise Problem('', step.line,
+        raise Problem(self.thm.path, step.line,
                       f'no clause of {step.just.head} gives what step '
                       f'{fmt(step.number)} claims')
 
