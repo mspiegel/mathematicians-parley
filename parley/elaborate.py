@@ -58,6 +58,24 @@ def seq(*parts):
     return ' '.join(p for p in parts if p)
 
 
+def whole_multiple(cited, claim):
+    """How many times the claim the cited equation is, if a whole number.
+
+    Both are the polynomial that must vanish, so one being a multiple of
+    the other is the two saying the same thing at different scales."""
+    if cited is None or claim is None or not claim.terms:
+        return None
+    lead = max(claim.terms)
+    if lead not in cited.terms:
+        return None
+    times = cited.terms[lead] / claim.terms[lead]
+    if times.denominator != 1 or not 2 <= times.numerator <= 9:
+        return None
+    if cited.terms != claim.scaled(times).terms:
+        return None
+    return times.numerator
+
+
 def hypothesis_body(kind, text):
     """What a hypothesis line claims, with its introduction read as one.
 
@@ -1386,12 +1404,12 @@ class Elaborator:
         is what every `algebra` step was before it existed."""
         self.decide_field(step, term, lines)
         try:
-            return self.prove_field(term, scope, facts)
+            return self.prove_field(step, term, scope, facts, lines)
         except (normal.Unhandled, Problem, KeyError):
             return self.assume(step, term, scope, facts, 'alg', lines)
 
-    def prove_field(self, term, scope, facts):
-        """Both sides of an `algebra` claim driven to one canonical term."""
+    def prove_field(self, step, term, scope, facts, lines):
+        """An `algebra` claim, by whichever of two routes reaches it."""
         goal = self.to_term(term)
         if goal.variable is not None or goal.label != 'wceq' \
                 or len(goal.children) != 2:
@@ -1405,15 +1423,92 @@ class Elaborator:
             return self.settle(self.to_term(want), scope, facts)
 
         work = normal.Emitter(self.sigs, scope, complex_number)
-        left, first = work.normalize(goal.children[0], self.flabel)
-        right, second = work.normalize(goal.children[1], self.flabel)
-        if work.spell_run(left) != work.spell_run(right):
-            raise normal.Unhandled('the two sides are not one polynomial')
+        left = goal.children[0].rpn(self.flabel)
+        right = goal.children[1].rpn(self.flabel)
+        try:
+            return self.same_polynomial(work, left, right)
+        except normal.Unhandled:
+            return self.scaled_from_cited(step, left, right, scope, facts,
+                                          lines, work)
+
+    def same_polynomial(self, work, left, right):
+        """Two terms driven to one canonical form, and so to each other."""
+        first_items, first = work.normalize(self.to_term(left), self.flabel)
+        second_items, second = work.normalize(self.to_term(right),
+                                              self.flabel)
+        if work.spell_run(first_items) != work.spell_run(second_items):
+            raise normal.Unhandled('the two are not one polynomial')
         return work.ap('eqtr4d',
-                       {'ph': scope, 'A': goal.children[0].rpn(self.flabel),
-                        'B': work.spell_run(left),
-                        'C': goal.children[1].rpn(self.flabel)},
+                       {'ph': work.under, 'A': left,
+                        'B': work.spell_run(first_items), 'C': right},
                        first, second)
+
+    def scaled_from_cited(self, step, left, right, scope, facts, lines, work):
+        """A claim a cited equation is a whole multiple of.
+
+        sqrt2-irrational concludes `j^2 = 2 p^2` from `2 j^2 = 4 p^2`: the
+        equation it cites is the claim with both sides doubled. Proving
+        each side is that multiple is the polynomial case again, and what
+        is left is cancelling the multiplier."""
+        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+                              self.flabel)
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            cited = self.to_term(held.term)
+            if cited.variable is not None or cited.label != 'wceq':
+                continue
+            times = whole_multiple(
+                field.equation(cited, self.flabel), want)
+            if times is None or f'{times}ne0' not in self.sigs:
+                continue
+            scaled = [seq(field.NUMERAL[times], one, 'cmul', 'co')
+                      for one in (left, right)]
+            try:
+                sides = [self.same_polynomial(work, was, now) for was, now
+                         in zip([c.rpn(self.flabel) for c in cited.children],
+                                scaled, strict=True)]
+            except normal.Unhandled:
+                continue
+            return self.cancel_multiple(work, times, left, right, scaled,
+                                        sides, self.carried(ref, facts,
+                                                            lines),
+                                        cited, scope, facts)
+        raise normal.Unhandled('no cited equation is a multiple of the claim')
+
+    def cancel_multiple(self, work, times, left, right, scaled, sides,
+                        given, cited, scope, facts):
+        """The multiplier taken off both sides, which is `mulcan`."""
+        numeral = field.NUMERAL[times]
+        matched = work.ap(
+            '3eqtr3d', {'ph': scope, 'A': cited.children[0].rpn(self.flabel),
+                        'B': cited.children[1].rpn(self.flabel),
+                        'C': scaled[0], 'D': scaled[1]},
+            given, *sides)
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': seq(scaled[0], scaled[1], 'wceq'),
+                      'ch': seq(left, right, 'wceq')},
+            matched,
+            work.ap('syl3anc',
+                    {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
+                     'ch': seq(right, 'cc', 'wcel'),
+                     'th': seq(seq(numeral, 'cc', 'wcel'),
+                               seq(numeral, 'cc0', 'wne'), 'wa'),
+                     'ta': seq(seq(scaled[0], scaled[1], 'wceq'),
+                               seq(left, right, 'wceq'), 'wb')},
+                    self.settle(self.to_term(seq(left, 'cc', 'wcel')),
+                                scope, facts),
+                    self.settle(self.to_term(seq(right, 'cc', 'wcel')),
+                                scope, facts),
+                    work.ap('jca', {'ph': scope,
+                                    'ps': seq(numeral, 'cc', 'wcel'),
+                                    'ch': seq(numeral, 'cc0', 'wne')},
+                            work.number(times),
+                            work.a1i(seq(numeral, 'cc0', 'wne'),
+                                     f'{times}ne0')),
+                    work.ap('mulcan', {'A': left, 'B': right,
+                                       'C': numeral})))
 
     def decide_field(self, step, term, lines):
         """Refuse an `algebra` step that is not an identity.
