@@ -2474,8 +2474,12 @@ class Elaborator(Builder):
         except (normal.Unhandled, Problem, KeyError):
             return self.assume(step, term, scope, facts, 'ine', lines)
 
-    def prove_order(self, refs, term, scope, facts, lines):
+    def prove_order(self, refs, term, scope, facts, lines, skip=()):
         """An `inequalities` claim, by whichever route reaches it.
+
+        `skip` names sentences of the cited lines to leave out. A case of a
+        split is proved by this same method one scope in, and the
+        disequality it split on must not be there to split on again.
 
         What is passed is the lines the claim rests on, not the step, so
         that a `requires` line asking for the method is answered the same
@@ -2496,6 +2500,8 @@ class Elaborator(Builder):
             if held is None:
                 continue
             for said in self.parts(held.term):
+                if said in skip:
+                    continue
                 one = linear.fact(self.to_term(said), self.flabel)
                 if one is not None:
                     given.append(one)
@@ -2505,7 +2511,14 @@ class Elaborator(Builder):
             raise normal.Unhandled('the claim is not linear')
         found = linear.certificate([*given, linear.opposite(claim)])
         if not isinstance(found, dict):
-            raise normal.Unhandled('the refutation splits')
+            return self.either_way(found, refs, where, given, term, scope,
+                                   facts, lines, skip)
+        if len(given) not in found:
+            # The denied claim went unused, so the cited facts refute each
+            # other and the claim holds because nothing does. That is not
+            # this method's to emit; a case of a split says so where it
+            # supposed the bound that cannot hold.
+            raise normal.Unhandled('the cited facts refute each other')
         used = [i for i, k in found.items() if k and i < len(given)]
         weight = found[len(given)]
         if claim.how == '=/=':
@@ -2532,6 +2545,108 @@ class Elaborator(Builder):
                               for i in used],
                              left, right, how, spare.constant, scope, facts,
                              lines)
+
+    def either_way(self, found, refs, where, given, term, scope, facts,
+                   lines, skip):
+        """A claim proved twice, once each side of a cited disequality.
+
+        `a ≠ b` is `a < b or b < a`, so a refutation that uses one has to
+        try both, and `linear.certificate` says so by returning no single
+        combination. Each side is the same claim at a scope one wider, with
+        the side's bound standing as a line of its own, so the method proves
+        it the way it proves anything; a side that splits again is another
+        of these. `mpjaodan` puts the two back together."""
+        _tag, which = found[0], found[1]
+        if which >= len(given):
+            raise normal.Unhandled('what splits is the claim, not a citation')
+        ref, said = where[which]
+        if said.variable is not None or said.label != 'wn' \
+                or said.children[0].label != 'wceq':
+            raise normal.Unhandled('what splits is not a denied equation')
+        a, b = (c.rpn(self.flabel) for c in said.children[0].children)
+        below, above = (seq(a, b, 'clt', 'wbr'), seq(b, a, 'clt', 'wbr'))
+
+        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
+            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+
+        def real(one):
+            want = seq(one, 'cr', 'wcel')
+            return facts.get(want) or self.settle(self.to_term(want), scope,
+                                                  facts)
+
+        whether = work.ap(
+            'mpbid', {'ph': scope, 'ps': seq(a, b, 'wne'),
+                      'ch': seq(below, above, 'wo')},
+            work.ap('neqned', {'ph': scope, 'A': a, 'B': b},
+                    self.cited_fact(ref, said, scope, facts, lines)),
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
+                     'ch': seq(b, 'cr', 'wcel'),
+                     'th': seq(seq(a, b, 'wne'),
+                               seq(below, above, 'wo'), 'wb')},
+                    real(a), real(b), work.ap('lttri2', {'A': a, 'B': b})))
+
+        frame, sides = len(self.frames), []
+        for bound in (below, above):
+            inner, lifted = self.widen(scope, facts, bound)
+            held = dict(lines)
+            held[bound] = Fact(bound, lifted[bound])
+            sides.append(self.one_way(bound, term, inner, lifted, held,
+                                      [*refs, bound],
+                                      (*skip, said.rpn(self.flabel))))
+        del self.frames[frame:]
+        return work.ap('mpjaodan',
+                       {'ph': scope, 'ps': below, 'ch': term, 'th': above},
+                       sides[0], sides[1], whether)
+
+    def one_way(self, bound, term, scope, facts, lines, refs, skip):
+        """One side of a split, at the scope that side opened.
+
+        Three ways, in the order they cost. The side's own bound may be the
+        claim. The claim may follow from the bound and what is cited, which
+        is the method again. Or the bound may contradict what is cited, and
+        then the claim holds because nothing does: the case is impossible
+        and `METHODS.md` counts it refuted rather than proved."""
+        if term in facts:
+            return facts[term]
+        try:
+            return self.prove_order(refs, term, scope, facts, lines, skip)
+        except (normal.Unhandled, Problem, KeyError):
+            pass
+        return self.impossible(bound, term, scope, facts)
+
+    def impossible(self, bound, term, scope, facts):
+        """The claim, because the bound this scope opened cannot hold.
+
+        `lenlt` is what says so: a ≤ b and b < a deny each other, and the
+        step already has the first where the case supposes the second."""
+        node = self.to_term(bound)
+        sides = order_sides(node)
+        if sides is None or sides[2] != '<':
+            raise normal.Unhandled('the bound states no strict order')
+        low, high = (one.rpn(self.flabel) for one in sides[:2])
+        denies = seq(high, low, 'cle', 'wbr')
+        if denies not in facts:
+            raise normal.Unhandled('nothing in scope denies the bound')
+
+        def real(one):
+            want = seq(one, 'cr', 'wcel')
+            return facts.get(want) or self.settle(self.to_term(want), scope,
+                                                  facts)
+        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
+            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+        return work.ap(
+            'pm2.21dd', {'ph': scope, 'ps': bound, 'ch': term},
+            facts[bound],
+            work.ap('mpbid', {'ph': scope, 'ps': denies,
+                              'ch': seq(bound, 'wn')},
+                    facts[denies],
+                    work.ap('syl2anc',
+                            {'ph': scope, 'ps': seq(high, 'cr', 'wcel'),
+                             'ch': seq(low, 'cr', 'wcel'),
+                             'th': seq(denies, seq(bound, 'wn'), 'wb')},
+                            real(high), real(low),
+                            work.ap('lenlt', {'A': high, 'B': low}))))
 
     def stays_apart(self, used, given, where, claim, scope, facts, lines):
         """Two things the step says are not equal, because one is below.
