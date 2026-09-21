@@ -20,6 +20,8 @@ form, which is the shape of slowdown this project has met before.
 
 `elaborate.py` drives this; nothing here reads the database or the corpus.
 """
+from fractions import Fraction
+
 import field
 from field import NUMERAL, order, spell_monomial
 
@@ -75,11 +77,18 @@ class Emitter:
 
     # --- membership -------------------------------------------------------
 
+    @staticmethod
+    def complex_label(value):
+        """What says a numeral is a complex number.
+
+        set.mm proves one for each digit but takes the one for 1 as an
+        axiom, so that digit is named differently from the rest."""
+        return 'ax-1cn' if value == 1 else f'{value}cn'
+
     def number(self, value):
         """( under -> n e. CC ) for a whole number the kernel spells."""
-        label = 'ax-1cn' if value == 1 else f'{value}cn'
         return self.ap('a1i', {'ph': seq(NUMERAL[value], 'cc', 'wcel'),
-                               'ps': self.under}, label)
+                               'ps': self.under}, self.complex_label(value))
 
     def index(self, value):
         """( under -> k e. NN0 ), which an exponent has to be."""
@@ -155,16 +164,18 @@ class Emitter:
 
     # --- moving a term along a sum ---------------------------------------
 
-    def lift(self, proof, left, right, tail):
-        """Carry an equality of a prefix out to the whole sum.
+    def lift(self, proof, left, right, tail, what=ADD):
+        """Carry an equality of a prefix out to the whole run.
 
         A canonical form associates to the left, so a rewrite of the first
-        k terms sits under one `oveq1d` for each term after them."""
+        k parts sits under one `oveq1d` for each part after them. Sums and
+        products are the same shape, which is why this takes the operation
+        rather than assuming one."""
         for one in tail:
             proof = self.ap('oveq1d',
                             {'ph': self.under, 'A': left, 'B': right,
-                             'C': one, 'F': ADD}, proof)
-            left, right = op(left, one, ADD), op(right, one, ADD)
+                             'C': one, 'F': what}, proof)
+            left, right = op(left, one, what), op(right, one, what)
         return proof
 
     def swap(self, items, at):
@@ -223,18 +234,31 @@ class Emitter:
             raise Unhandled(f'{first} + {second} is past one digit')
         claim = seq(op(c, d, ADD), said, 'wceq')
         a, b = first.numerator, second.numerator
-        if a == -b and a > 0:
-            return self.ap('negidd', {'ph': self.under, 'A': NUMERAL[a]},
-                           self.number(a))
+        if a == -b and a != 0:
+            whole = NUMERAL[abs(a)]
+            cancels = self.ap('negidd', {'ph': self.under, 'A': whole},
+                              self.number(abs(a)))
+            if a > 0:
+                return cancels
+            # The negative one first, so the two are commuted before they
+            # cancel: `negid` states the sum only one way round.
+            return self.chain(
+                self.ap('syl2anc',
+                        {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
+                         'ch': seq(d, 'cc', 'wcel'),
+                         'th': seq(op(c, d, ADD), op(d, c, ADD), 'wceq')},
+                        self.coefficient(first), self.coefficient(second),
+                        self.ap('addcom', {'A': c, 'B': d})),
+                cancels, op(c, d, ADD), op(d, c, ADD), NUMERAL[0])
         if a < 0 or b < 0:
             raise Unhandled(f'{first} + {second} needs signed arithmetic')
         if a == 0:
             return self.a1i(claim, self.mp(seq(d, 'cc', 'wcel'), claim,
-                                           f'{b}cn',
+                                           self.complex_label(b),
                                            self.ap('addlid', {'A': d})))
         if b == 0:
             return self.a1i(claim, self.mp(seq(c, 'cc', 'wcel'), claim,
-                                           f'{a}cn',
+                                           self.complex_label(a),
                                            self.ap('addrid', {'A': c})))
         return self.a1i(claim, f'{a}p{b}e{a + b}')
 
@@ -442,6 +466,409 @@ class Emitter:
                        op(self.spell_run(merged), term, ADD)),
             placed, start, op(self.spell_run(merged), term, ADD),
             self.spell_run(out))
+
+
+    # --- monomials --------------------------------------------------------
+    #
+    # The same shape as the sum side, over products, and shorter for one
+    # reason: a monomial holds only positive powers, so multiplying two of
+    # them adds positive numbers and nothing can cancel. There is no
+    # counterpart here to `drop`.
+
+    def factor_cc(self, name, power):
+        return self.ap('expcld', {'ph': self.under, 'A': name,
+                                  'N': NUMERAL[power]},
+                       self.atom(name), self.index(power))
+
+    def factors_cc(self, factors):
+        if not factors:
+            return self.number(1)
+        out, running = self.factor_cc(*factors[0]), spell_factor(factors[0])
+        for one in factors[1:]:
+            out = self.ap('mulcld', {'ph': self.under, 'A': running,
+                                     'B': spell_factor(one)},
+                          out, self.factor_cc(*one))
+            running = op(running, spell_factor(one), MUL)
+        return out
+
+    def swap_factors(self, factors, at):
+        """`mul32` for `add32`, and `mulcom` where the two are the whole."""
+        head = factors[:at]
+        a, b = spell_factor(factors[at]), spell_factor(factors[at + 1])
+        if head:
+            prefix = spell_monomial(tuple(head))
+            before, after = op(op(prefix, a, MUL), b, MUL), \
+                op(op(prefix, b, MUL), a, MUL)
+            step = self.ap('syl3anc',
+                           {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+                            'ch': seq(a, 'cc', 'wcel'),
+                            'th': seq(b, 'cc', 'wcel'),
+                            'ta': seq(before, after, 'wceq')},
+                           self.factors_cc(head), self.factor_cc(*factors[at]),
+                           self.factor_cc(*factors[at + 1]),
+                           self.ap('mul32', {'A': prefix, 'B': a, 'C': b}))
+        else:
+            before, after = op(a, b, MUL), op(b, a, MUL)
+            step = self.ap('syl2anc',
+                           {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
+                            'ch': seq(b, 'cc', 'wcel'),
+                            'th': seq(before, after, 'wceq')},
+                           self.factor_cc(*factors[at]),
+                           self.factor_cc(*factors[at + 1]),
+                           self.ap('mulcom', {'A': a, 'B': b}))
+        return self.lift(step, before, after,
+                         [spell_factor(f) for f in factors[at + 2:]], MUL)
+
+    def shift_factors(self, factors, frm, to):
+        start = said = spell_monomial(tuple(factors))
+        proof = None
+        for at in range(frm - 1, to - 1, -1):
+            step = self.swap_factors(factors, at)
+            factors = [*factors[:at], factors[at + 1], factors[at],
+                       *factors[at + 2:]]
+            after = spell_monomial(tuple(factors))
+            proof = (step if proof is None
+                     else self.chain(proof, step, start, said, after))
+            said = after
+        return factors, proof or self.same(start)
+
+    def gather_factors(self, name, first, second):
+        """( under -> ( ( x ^ j ) x. ( x ^ k ) ) = ( x ^ ( j + k ) ) ).
+
+        `expadd` read backwards, which is where two powers of one atom
+        meet, and the only place the exponents are added."""
+        a, b = op(name, NUMERAL[first], EXP), op(name, NUMERAL[second], EXP)
+        total = first + second
+        if total > 9:
+            raise Unhandled(f'{name} to the {total} is past one digit')
+        joined = self.ap(
+            'eqcomd',
+            {'ph': self.under,
+             'A': op(name, op(NUMERAL[first], NUMERAL[second], ADD), EXP),
+             'B': op(a, b, MUL)},
+            self.ap('syl3anc',
+                    {'ph': self.under, 'ps': seq(name, 'cc', 'wcel'),
+                     'ch': seq(NUMERAL[first], 'cn0', 'wcel'),
+                     'th': seq(NUMERAL[second], 'cn0', 'wcel'),
+                     'ta': seq(op(name, op(NUMERAL[first], NUMERAL[second],
+                                           ADD), EXP), op(a, b, MUL),
+                               'wceq')},
+                    self.atom(name), self.index(first), self.index(second),
+                    self.ap('expadd', {'A': name, 'M': NUMERAL[first],
+                                       'N': NUMERAL[second]})))
+        return self.chain(
+            joined,
+            self.ap('oveq2d',
+                    {'ph': self.under,
+                     'A': op(NUMERAL[first], NUMERAL[second], ADD),
+                     'B': NUMERAL[total], 'C': name, 'F': EXP},
+                    self.coefficient_sum(Fraction(first), Fraction(second))),
+            op(a, b, MUL),
+            op(name, op(NUMERAL[first], NUMERAL[second], ADD), EXP),
+            op(name, NUMERAL[total], EXP))
+
+    def insert_factor(self, factors, name, power):
+        """One factor put where its atom's name says it goes."""
+        one = op(name, NUMERAL[power], EXP)
+        if not factors:
+            return [(name, power)], self.ap(
+                'syl', {'ph': self.under, 'ps': seq(one, 'cc', 'wcel'),
+                        'ch': seq(op(NUMERAL[1], one, MUL), one, 'wceq')},
+                self.factor_cc(name, power),
+                self.ap('mullid', {'A': one}))
+        appended = [*factors, (name, power)]
+        start = spell_monomial(tuple(appended))
+        here = [n for n, _ in factors]
+        if name in here:
+            at = here.index(name)
+            moved, walked = self.shift_factors(appended, len(factors), at + 1)
+            total = moved[at][1] + moved[at + 1][1]
+            out = [*moved[:at], (name, total), *moved[at + 2:]]
+            return out, self.chain(
+                walked,
+                self.spread(moved, at,
+                            self.gather_factors(name, moved[at][1],
+                                                moved[at + 1][1])),
+                start, spell_monomial(tuple(moved)),
+                spell_monomial(tuple(out)))
+        goes = sum(1 for n, _ in factors if n < name)
+        return self.shift_factors(appended, len(factors), goes)
+
+    def spread(self, factors, at, collect):
+        """A rewrite of two neighbouring factors, carried to the whole."""
+        head, rest = factors[:at], factors[at + 2:]
+        a, b = spell_factor(factors[at]), spell_factor(factors[at + 1])
+        total = spell_factor((factors[at][0],
+                              factors[at][1] + factors[at + 1][1]))
+        tail = [spell_factor(f) for f in rest]
+        if not head:
+            return self.lift(collect, op(a, b, MUL), total, tail, MUL)
+        prefix = spell_monomial(tuple(head))
+        exposed = self.ap(
+            'syl3anc', {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+                        'ch': seq(a, 'cc', 'wcel'), 'th': seq(b, 'cc', 'wcel'),
+                        'ta': seq(op(op(prefix, a, MUL), b, MUL),
+                                  op(prefix, op(a, b, MUL), MUL), 'wceq')},
+            self.factors_cc(head), self.factor_cc(*factors[at]),
+            self.factor_cc(*factors[at + 1]),
+            self.ap('mulass', {'A': prefix, 'B': a, 'C': b}))
+        step = self.chain(
+            exposed,
+            self.ap('oveq2d', {'ph': self.under, 'A': op(a, b, MUL),
+                               'B': total, 'C': prefix, 'F': MUL}, collect),
+            op(op(prefix, a, MUL), b, MUL), op(prefix, op(a, b, MUL), MUL),
+            op(prefix, total, MUL))
+        return self.lift(step, op(op(prefix, a, MUL), b, MUL),
+                         op(prefix, total, MUL), tail, MUL)
+
+    def multiply_monomials(self, left, right):
+        """( under -> ( M x. N ) = P ), two monomials merged."""
+        start = op(spell_monomial(tuple(left)), spell_monomial(tuple(right)),
+                   MUL)
+        if not right:
+            keep = spell_monomial(tuple(left))
+            return left, self.ap(
+                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
+                        'ch': seq(op(keep, NUMERAL[1], MUL), keep, 'wceq')},
+                self.factors_cc(left), self.ap('mulrid', {'A': keep}))
+        if len(right) == 1:
+            return self.insert_factor(left, *right[0])
+        rest, last = right[:-1], right[-1]
+        whole = spell_monomial(tuple(right))
+        prefix = spell_monomial(tuple(rest))
+        held, one = spell_monomial(tuple(left)), spell_factor(last)
+        peeled = self.ap(
+            'eqcomd',
+            {'ph': self.under, 'A': op(op(held, prefix, MUL), one, MUL),
+             'B': op(held, whole, MUL)},
+            self.ap('syl3anc',
+                    {'ph': self.under, 'ps': seq(held, 'cc', 'wcel'),
+                     'ch': seq(prefix, 'cc', 'wcel'),
+                     'th': seq(one, 'cc', 'wcel'),
+                     'ta': seq(op(op(held, prefix, MUL), one, MUL),
+                               op(held, whole, MUL), 'wceq')},
+                    self.factors_cc(left), self.factors_cc(rest),
+                    self.factor_cc(*last),
+                    self.ap('mulass', {'A': held, 'B': prefix, 'C': one})))
+        merged, inner = self.multiply_monomials(left, rest)
+        carried = self.ap('oveq1d',
+                          {'ph': self.under, 'A': op(held, prefix, MUL),
+                           'B': spell_monomial(tuple(merged)), 'C': one,
+                           'F': MUL}, inner)
+        out, placed = self.insert_factor(merged, *last)
+        return out, self.chain(
+            self.chain(peeled, carried, start,
+                       op(op(held, prefix, MUL), one, MUL),
+                       op(spell_monomial(tuple(merged)), one, MUL)),
+            placed, start, op(spell_monomial(tuple(merged)), one, MUL),
+            spell_monomial(tuple(out)))
+
+
+    # --- multiplying ------------------------------------------------------
+
+    def positive_product(self, first, second):
+        """( under -> ( a x. b ) = c ) for two whole numbers."""
+        a, b = NUMERAL[first], NUMERAL[second]
+        claim = seq(op(a, b, MUL), NUMERAL[first * second], 'wceq')
+        if first == 0:
+            return self.a1i(claim, self.mp(seq(b, 'cc', 'wcel'), claim,
+                                           self.complex_label(second),
+                                           self.ap('mul02', {'A': b})))
+        if second == 0:
+            return self.a1i(claim, self.mp(seq(a, 'cc', 'wcel'), claim,
+                                           self.complex_label(first),
+                                           self.ap('mul01', {'A': a})))
+        if first == 1:
+            return self.a1i(claim, self.mp(seq(b, 'cc', 'wcel'), claim,
+                                           self.complex_label(second),
+                                           self.ap('mullid', {'A': b})))
+        if second == 1:
+            return self.a1i(claim, self.mp(seq(a, 'cc', 'wcel'), claim,
+                                           self.complex_label(first),
+                                           self.ap('mulrid', {'A': a})))
+        return self.a1i(claim, f'{first}t{second}e{first * second}')
+
+    def coefficient_product(self, first, second):
+        """( under -> ( c x. d ) = e ), the coefficients as `spell` has them.
+
+        Signs come off first — `mulneg1`, `mulneg2` and `mul2neg` say where
+        the minus goes — and what is left is two whole numbers, which
+        set.mm names a lemma for."""
+        total = first * second
+        said = field.spell_coefficient(total)
+        c = field.spell_coefficient(first)
+        d = field.spell_coefficient(second)
+        if said is None or c is None or d is None:
+            raise Unhandled(f'{first} x. {second} is past one digit')
+        a, b = first.numerator, second.numerator
+        if a >= 0 and b >= 0:
+            return self.positive_product(a, b)
+        size = self.positive_product(abs(a), abs(b))
+        whole = op(NUMERAL[abs(a)], NUMERAL[abs(b)], MUL)
+        if a < 0 and b < 0:
+            return self.chain(
+                self.pair('mul2neg', NUMERAL[abs(a)], NUMERAL[abs(b)],
+                          op(c, d, MUL), whole),
+                size, op(c, d, MUL), whole, said)
+        label = 'mulneg1' if a < 0 else 'mulneg2'
+        return self.chain(
+            self.pair(label, NUMERAL[abs(a)], NUMERAL[abs(b)],
+                      op(c, d, MUL), seq(whole, 'cneg')),
+            self.ap('negeqd', {'ph': self.under, 'A': whole,
+                               'B': NUMERAL[abs(a * b)]}, size),
+            op(c, d, MUL), seq(whole, 'cneg'), said)
+
+    def pair(self, label, left, right, before, after):
+        """A two-argument law of ℂ, applied to two numerals."""
+        return self.ap('syl2anc',
+                       {'ph': self.under, 'ps': seq(left, 'cc', 'wcel'),
+                        'ch': seq(right, 'cc', 'wcel'),
+                        'th': seq(before, after, 'wceq')},
+                       self.number(int(left_value(left))),
+                       self.number(int(left_value(right))),
+                       self.ap(label, {'A': left, 'B': right}))
+
+    def term_times_term(self, one, two):
+        """( under -> ( ( c x. M ) x. ( d x. N ) ) = ( e x. P ) ).
+
+        `mul4` puts the two coefficients together and the two monomials
+        together, and then each side is its own problem."""
+        (first, weight), (second, other) = one, two
+        c = field.spell_coefficient(weight)
+        d = field.spell_coefficient(other)
+        m, n = spell_monomial(first), spell_monomial(second)
+        a, b = self.spell_term(one), self.spell_term(two)
+        regrouped = self.ap(
+            'syl', {'ph': self.under,
+                    'ps': seq(seq(seq(c, 'cc', 'wcel'), seq(m, 'cc', 'wcel'),
+                                  'wa'),
+                              seq(seq(d, 'cc', 'wcel'), seq(n, 'cc', 'wcel'),
+                                  'wa'), 'wa'),
+                    'ch': seq(op(a, b, MUL),
+                              op(op(c, d, MUL), op(m, n, MUL), MUL), 'wceq')},
+            self.ap('jca', {'ph': self.under,
+                            'ps': seq(seq(c, 'cc', 'wcel'),
+                                      seq(m, 'cc', 'wcel'), 'wa'),
+                            'ch': seq(seq(d, 'cc', 'wcel'),
+                                      seq(n, 'cc', 'wcel'), 'wa')},
+                   self.ap('jca', {'ph': self.under,
+                                   'ps': seq(c, 'cc', 'wcel'),
+                                   'ch': seq(m, 'cc', 'wcel')},
+                           self.coefficient(weight),
+                           self.monomial_cc(first)),
+                   self.ap('jca', {'ph': self.under,
+                                   'ps': seq(d, 'cc', 'wcel'),
+                                   'ch': seq(n, 'cc', 'wcel')},
+                           self.coefficient(other),
+                           self.monomial_cc(second))),
+            self.ap('mul4', {'A': c, 'B': m, 'C': d, 'D': n}))
+        merged, monomial = self.multiply_monomials(list(first), list(second))
+        total = weight * other
+        out = (tuple(merged), total)
+        return out, self.chain(
+            regrouped,
+            self.ap('oveq12d',
+                    {'ph': self.under, 'A': op(c, d, MUL),
+                     'B': field.spell_coefficient(total),
+                     'C': op(m, n, MUL),
+                     'D': spell_monomial(tuple(merged)), 'F': MUL},
+                    self.coefficient_product(weight, other), monomial),
+            op(a, b, MUL), op(op(c, d, MUL), op(m, n, MUL), MUL),
+            self.spell_term(out))
+
+
+    def term_times_run(self, one, right):
+        """( under -> ( t x. spell_run(right) ) = spell_run(product) ).
+
+        `adddi` takes the right-hand run apart from its end, one term at a
+        time, and each product of two terms is `term_times_term`."""
+        term = self.spell_term(one)
+        start = op(term, self.spell_run(right), MUL)
+        if not right:
+            return [], self.ap(
+                'syl', {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
+                        'ch': seq(op(term, NUMERAL[0], MUL), NUMERAL[0],
+                                  'wceq')},
+                self.term_cc(*one), self.ap('mul01', {'A': term}))
+        if len(right) == 1:
+            out, proof = self.term_times_term(one, right[0])
+            return [out], proof
+        rest, last = right[:-1], right[-1]
+        prefix, tail = self.spell_run(rest), self.spell_term(last)
+        spread = self.ap(
+            'syl3anc',
+            {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
+             'ch': seq(prefix, 'cc', 'wcel'), 'th': seq(tail, 'cc', 'wcel'),
+             'ta': seq(start, op(op(term, prefix, MUL),
+                                 op(term, tail, MUL), ADD), 'wceq')},
+            self.term_cc(*one), self.run_cc(rest), self.term_cc(*last),
+            self.ap('adddi', {'A': term, 'B': prefix, 'C': tail}))
+        inner, first = self.term_times_run(one, rest)
+        single, second = self.term_times_term(one, last)
+        both = op(self.spell_run(inner), self.spell_term(single), ADD)
+        lined = self.chain(
+            spread,
+            self.ap('oveq12d',
+                    {'ph': self.under, 'A': op(term, prefix, MUL),
+                     'B': self.spell_run(inner), 'C': op(term, tail, MUL),
+                     'D': self.spell_term(single), 'F': ADD}, first, second),
+            start, op(op(term, prefix, MUL), op(term, tail, MUL), ADD), both)
+        out, placed = self.insert(inner, *single)
+        return out, self.chain(lined, placed, start, both,
+                               self.spell_run(out))
+
+    def multiply(self, left, right):
+        """( under -> ( spell_run(left) x. spell_run(right) ) = the product ).
+
+        `adddir` takes the left-hand run apart, and what each of its terms
+        does to the whole right-hand run is `term_times_run`. The pieces
+        are then added, which is what `add` is for."""
+        start = op(self.spell_run(left), self.spell_run(right), MUL)
+        if not left:
+            keep = self.spell_run(right)
+            return [], self.ap(
+                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
+                        'ch': seq(op(NUMERAL[0], keep, MUL), NUMERAL[0],
+                                  'wceq')},
+                self.run_cc(right), self.ap('mul02', {'A': keep}))
+        if len(left) == 1:
+            return self.term_times_run(left[0], right)
+        rest, last = left[:-1], left[-1]
+        prefix, tail = self.spell_run(rest), self.spell_term(last)
+        whole = self.spell_run(right)
+        spread = self.ap(
+            'syl3anc',
+            {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+             'ch': seq(tail, 'cc', 'wcel'), 'th': seq(whole, 'cc', 'wcel'),
+             'ta': seq(start, op(op(prefix, whole, MUL),
+                                 op(tail, whole, MUL), ADD), 'wceq')},
+            self.run_cc(rest), self.term_cc(*last), self.run_cc(right),
+            self.ap('adddir', {'A': prefix, 'B': tail, 'C': whole}))
+        inner, first = self.multiply(rest, right)
+        outer, second = self.term_times_run(last, right)
+        both = op(self.spell_run(inner), self.spell_run(outer), ADD)
+        lined = self.chain(
+            spread,
+            self.ap('oveq12d',
+                    {'ph': self.under, 'A': op(prefix, whole, MUL),
+                     'B': self.spell_run(inner), 'C': op(tail, whole, MUL),
+                     'D': self.spell_run(outer), 'F': ADD}, first, second),
+            start, op(op(prefix, whole, MUL), op(tail, whole, MUL), ADD),
+            both)
+        out, joined = self.add(inner, outer)
+        return out, self.chain(lined, joined, start, both,
+                               self.spell_run(out))
+
+
+def left_value(numeral):
+    """The number a single-digit numeral label stands for."""
+    return field.DIGITS[numeral]
+
+
+def spell_factor(factor):
+    """One factor of a monomial, always `( x ^ k )`."""
+    name, power = factor
+    return op(name, NUMERAL[power], EXP)
 
 
 def terms_of(poly):
