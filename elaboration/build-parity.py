@@ -13,19 +13,16 @@ normalisations with no cited equation, and the second reuses the first's
 pieces, which is the fixed lemma order METHODS.md asks `algebra` for.
 """
 
-def seq(*p): return ' '.join(x for x in p if x)
-def mul(a, b): return seq(a, b, 'cmul co')
-def add(a, b): return seq(a, b, 'caddc co')
-def exp(a, b): return seq(a, b, 'cexp co')
-def inZZ(a): return seq(a, 'cz wcel')
-def inCC(a): return seq(a, 'cc wcel')
-def eq(a, b): return seq(a, b, 'wceq')
-def wa(a, b): return seq(a, b, 'wa')
-def wo(a, b): return seq(a, b, 'wo')
-def wi(a, b): return seq(a, b, 'wi')
-def wn(a): return seq(a, 'wn')
-def w3a(a, b, c): return seq(a, b, c, 'w3a')
-def dvds(a, b): return seq(a, b, 'cdvds wbr')
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
+
+from spell import add, cel, dvds, eq, exp, mul, seq, w3a, wa, wi, wn, wo
+
+
+def inZZ(a): return cel(a, 'cz')
+def inCC(a): return cel(a, 'cc')
 
 A, TWO, ONE, FOUR = 'cA', 'c2', 'c1', 'c4'
 NV = 'vn cv'                      # the bound n, as a class

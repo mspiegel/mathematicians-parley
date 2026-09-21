@@ -11,16 +11,12 @@ is new is the price of the hypotheses. Ten atoms all have to be in CC, and the
 proof carries that conjunction into every line, which is most of its size.
 """
 
-def seq(*p): return ' '.join(x for x in p if x)
-def co(a, b, f): return seq(a, b, f, 'co')
-def mul(a, b): return co(a, b, 'cmul')
-def add(a, b): return co(a, b, 'caddc')
-def sub(a, b): return co(a, b, 'cmin')
-def cel(a, b): return seq(a, b, 'wcel')
-def eq(a, b): return seq(a, b, 'wceq')
-def wa(a, b): return seq(a, b, 'wa')
-def w3a(a, b, c): return seq(a, b, c, 'w3a')
-def wb(a, b): return seq(a, b, 'wb')
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
+
+from spell import add, cel, eq, mul, seq, sub, w3a, wa, wb
 
 A, B, C, D, U, V, X, Y, Q, R = ('cA', 'cB', 'cC', 'cD', 'cU', 'cV', 'cX',
                                 'cY', 'cQ', 'cR')

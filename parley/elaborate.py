@@ -43,6 +43,7 @@ from library import read as read_library
 from match import instantiation
 from parse import Problem, check_encoding, citations, fmt, parse_database, parse_proof
 from sorts import sorts_in_scope
+from spell import Builder, seq
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
@@ -56,8 +57,6 @@ SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 WRAPS = ('co', 'wbr', 'cfv')
 
 
-def seq(*parts):
-    return ' '.join(p for p in parts if p)
 
 
 def order_sides(goal):
@@ -143,7 +142,7 @@ class Block:
         self.parts = {}             # part number -> the last fact in it
 
 
-class Elaborator:
+class Elaborator(Builder):
     # Which lemma rewrites a subterm, by what encloses it and which hole it
     # sits in. The tree decides; nothing is searched for.
     # A claim may change in more than one place at once — the claim of an
@@ -175,7 +174,8 @@ class Elaborator:
         ('wbr', 'wceq'): 'breqtrd'}
 
     def __init__(self, thm, grammar, items, sigs, records, theorems=()):
-        self.thm, self.g, self.items, self.sigs = thm, grammar, items, sigs
+        super().__init__(sigs)
+        self.thm, self.g, self.items = thm, grammar, items
         self.terms = targets.terms(records)
         # A name the proof introduces becomes a variable of the kernel, and it
         # must not be one a notation's own target binds: `S(_)` sums over `k`,
@@ -184,7 +184,6 @@ class Elaborator:
                       for e in entries if e for t in e.split()}
         self.spare = [v for v in SPARE_VARS if v not in self.taken]
         self.commutes = targets.commuting(records)
-        self.syntax = kernel.Syntax(sigs)
         self.proofs = {t.name: t for t in theorems}
         self.cited = []          # corpus theorems this proof leans on
         self.joined = None
@@ -197,13 +196,8 @@ class Elaborator:
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.last = None
-        # A variable is pushed by the label of its floating hypothesis and
-        # written by its own name, so both directions are wanted.
-        self.flabel = {s.statement[1]: s.label for s in sigs.values()
-                       if s.kind == '$f'}
+        # `Builder` gives the name-to-label direction; this is the other one.
         self.fname = {v: k for k, v in self.flabel.items()}
-        self.forder = {s.label: i for i, s in enumerate(sigs.values())
-                       if s.kind == '$f'}
         # Which pattern of a record matched is read from the node's literal,
         # so a record's patterns are listed by theirs, in the order the
         # `pattern` and `target` fields both use. A folded pattern carries the
@@ -381,9 +375,7 @@ class Elaborator:
             else:
                 return None
 
-        pushed = [binding[v].rpn(self.flabel) if v in binding
-                  else self.flabel[v] for v in sig.push]
-        proof = seq(*pushed, label)
+        proof = self.ap(label, self.spelt(binding))
         if not antecedents:
             return seq(wanted.rpn(self.flabel), scope, proof, 'a1i')
         try:
@@ -569,16 +561,16 @@ class Elaborator:
                 binding[open_slot] = kernel.Term('cvv')
         # A definition that introduces a name says which variable it takes;
         # one that does not leaves the lemma's own, which the match fixed.
-        pushed = [var if v == sig.bound() and var is not None
-                  else binding[v].rpn(self.flabel) if v in binding
-                  else self.flabel[v]
-                  for v in sig.push]
+        binds = self.spelt(binding)
+        if var is not None and sig.bound() is not None:
+            binds[sig.bound()] = var
         # A lemma may state a condition in full rather than ask for it:
         # `elpw` wants what it is about to be a set before it will say what
-        # belongs to its power class.
-        pushed += [self.prove_essential(
+        # belongs to its power class. Both are settled against the binding as
+        # the match left it, before the wording below rebinds what it takes.
+        applied = self.ap(lemma, binds, *[self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), scope, facts)
-            for e in sig.essentials]
+            for e in sig.essentials])
         # The lemma unfolds to its own wording, which need not be the text's:
         # `divides` writes the product the other way round. What it gives is
         # built first, and the text's wording is reached from it.
@@ -588,7 +580,7 @@ class Elaborator:
         given = reads.children[1].substitute(binding).rpn(self.flabel)
         says = seq(left, given, 'wb')
         if not asks:
-            proof = seq(says, scope, seq(*pushed, lemma), 'a1i')
+            proof = seq(says, scope, applied, 'a1i')
         else:
             holds = asks[0].substitute(binding).rpn(self.flabel)
             proof = self.required(step, holds, over, scope, facts)
@@ -598,7 +590,7 @@ class Elaborator:
                             self.required(step, extra, over, scope, facts),
                             'jca')
                 holds = seq(holds, extra, 'wa')
-            proof = seq(scope, holds, says, proof, *pushed, lemma, 'syl')
+            proof = seq(scope, holds, says, proof, applied, 'syl')
         if ex is None or given == ex:
             return proof, given
         return seq(scope, left, given, ex, proof,
@@ -2719,12 +2711,10 @@ class Elaborator:
                 if filled is not None:
                     binding = filled
                     break
-        pushed = [binding[v].rpn(self.flabel) if v in binding
-                  else self.flabel[v] for v in sig.push]
         essentials = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)
             for e in sig.essentials]
-        proof = seq(*pushed, *essentials, label)
+        proof = self.ap(label, self.spelt(binding), *essentials)
         if not antecedents:
             # The lemma asks nothing, so it states the claim outright and has
             # to be brought into the scope the step sits in.

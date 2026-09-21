@@ -11,19 +11,13 @@ and uses `nnind` with the base and step blocks the text writes.
 Nothing here is assumed.
 """
 
-def seq(*p): return ' '.join(x for x in p if x)
-def co(a, b, f): return seq(a, b, f, 'co')
-def mul(a, b): return co(a, b, 'cmul')
-def add(a, b): return co(a, b, 'caddc')
-def dv(a, b): return co(a, b, 'cdiv')
-def fz(a, b): return co(a, b, 'cfz')
-def summ(rng, body, v): return seq(rng, body, v, 'csu')
-def cel(a, b): return seq(a, b, 'wcel')
-def ne(a, b): return seq(a, b, 'wne')
-def eq(a, b): return seq(a, b, 'wceq')
-def wa(a, b): return seq(a, b, 'wa')
-def wb(a, b): return seq(a, b, 'wb')
-def wi(a, b): return seq(a, b, 'wi')
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
+
+from spell import add, cel, eq, fz, mul, ne, seq, summ, w3a, wa
+from spell import div as dv
 
 ONE, TWO, ZERO = 'c1', 'c2', 'cc0'
 KV = 'vk cv'
@@ -54,7 +48,6 @@ base = seq(S1, ONE, RHS1, p11, p12, 'eqtri')
 
 
 # --- the step block, 1.4 ----------------------------------------------------
-def w3a(a, b, c): return seq(a, b, c, 'w3a')
 def ai(claim, th, pf): return seq(claim, th, pf, 'a1i')
 
 

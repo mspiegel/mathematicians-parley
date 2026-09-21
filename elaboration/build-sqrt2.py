@@ -8,24 +8,15 @@ on that one rather than on set.mm directly. thm:lowest-terms and the three
 `algebra` steps are axioms here; everything else is the real thing.
 """
 
-def seq(*p): return ' '.join(x for x in p if x)
-def co(a, b, f): return seq(a, b, f, 'co')
-def mul(a, b): return co(a, b, 'cmul')
-def dvd(a, b): return co(a, b, 'cdiv')
-def exp(a, b): return co(a, b, 'cexp')
-def cel(a, b): return seq(a, b, 'wcel')
-def br(a, b, r): return seq(a, b, r, 'wbr')
-def dvds(a, b): return br(a, b, 'cdvds')
-def lt(a, b): return br(a, b, 'clt')
-def le(a, b): return br(a, b, 'cle')
-def ne(a, b): return seq(a, b, 'wne')
-def eq(a, b): return seq(a, b, 'wceq')
-def wa(a, b): return seq(a, b, 'wa')
-def w3a(a, b, c): return seq(a, b, c, 'w3a')
-def wn(a): return seq(a, 'wn')
-def wi(a, b): return seq(a, b, 'wi')
-def wb(a, b): return seq(a, b, 'wb')
-def rex(body, v, A): return seq(body, v, A, 'wrex')
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
+
+# `dvd` is division and `dvds` is the divisibility relation; the names are a
+# letter apart here and this file uses both, so the quotient keeps its name.
+from spell import cel, dvds, eq, exp, le, lt, mul, ne, rex, seq, w3a, wa, wb, wi, wn
+from spell import div as dvd
 
 TWO, ONE, ZERO, FOUR = 'c2', 'c1', 'cc0', 'c4'
 PV, QV, RV, SV, DV, NV = ('vp cv', 'vq cv', 'vr cv', 'vs cv', 'vd cv',

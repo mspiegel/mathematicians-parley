@@ -30,51 +30,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
 
-import kernel
-from library import Signature
 from library import read as read_library
-
-
-class Builder:
-    """Statements in set.mm's notation, proofs in stack order."""
-
-    def __init__(self, sigs):
-        self.sigs = sigs
-        self.syntax = kernel.Syntax(sigs)
-        self.flabel = {s.statement[1]: label
-                       for label, s in sigs.items() if s.kind == '$f'}
-        # What a statement asks to be pushed is every variable it mentions,
-        # in the order set.mm declares the floats, which is the order they
-        # are read in and not the order a statement happens to write them.
-        self.forder = {label: i for i, label in enumerate(sigs)}
-
-    def define(self, label, statement):
-        """Register a lemma this file proves, so a later one may apply it."""
-        tokens = statement.split()
-        free = sorted({t for t in tokens if t in self.flabel},
-                      key=lambda v: self.forder[self.flabel[v]])
-        self.sigs[label] = Signature(
-            label, '$p', tokens,
-            [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
-
-    def rpn(self, text, start='class'):
-        """A term written in set.mm's notation, as the labels that build it."""
-        return self.syntax.parse(text.split(), start).rpn(self.flabel)
-
-    def wff(self, text):
-        return self.rpn(text, 'wff')
-
-    def ap(self, label, binds=None, *essentials):
-        """One step: what the label wants pushed, then what it is applied to.
-
-        The floating hypotheses go first, in the order set.mm declares them,
-        each as the term bound to it or as its own variable where the step
-        leaves it open; then the proofs of the essential hypotheses, in the
-        order the label lists them."""
-        sig = self.sigs[label]
-        out = [binds[var] if binds and var in binds else self.flabel[var]
-               for _typecode, var in sig.floats]
-        return ' '.join([*out, *essentials, label])
+from spell import Builder
 
 
 def triangle(p, q, r):

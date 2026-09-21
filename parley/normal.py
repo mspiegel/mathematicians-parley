@@ -24,12 +24,11 @@ from fractions import Fraction
 
 import field
 from field import NUMERAL, order, spell_monomial
+from spell import Builder, seq
 
 ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
 
 
-def seq(*parts):
-    return ' '.join(p for p in parts if p)
 
 
 def op(left, right, what):
@@ -45,27 +44,23 @@ def join(terms, what=ADD):
     return out
 
 
-class Emitter:
+class Emitter(Builder):
     """Proofs over one scope.
 
     `under` is the antecedent every statement carries, in reverse Polish.
     `atom` is asked for the membership of a term the recursion bottoms out
-    at, and is the one thing this module cannot do for itself."""
+    at, and is the one thing this module cannot do for itself.
+
+    Everything here is built by applying a label to what it is applied to,
+    and nothing is parsed, so the syntax axioms `Builder` can reach are
+    never asked for."""
 
     def __init__(self, sigs, under, atom, apart=None):
-        self.sigs = sigs
+        super().__init__(sigs)
         self.under = under
         self.atom = atom                  # rpn -> ( under -> rpn e. CC )
         self.apart = apart                # rpn -> ( under -> rpn =/= 0 )
-        self.flabel = {s.statement[1]: label
-                       for label, s in sigs.items() if s.kind == '$f'}
         self.held = {}                    # rpn -> membership, proved once
-
-    def ap(self, label, binds=None, *essentials):
-        sig = self.sigs[label]
-        out = [binds[var] if binds and var in binds else self.flabel[var]
-               for _typecode, var in sig.floats]
-        return seq(*out, *essentials, label)
 
     def same(self, what):
         """( under -> what = what )."""

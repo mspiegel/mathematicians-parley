@@ -9,16 +9,12 @@ block forms, and the first with any `inequalities` step expanded.
 Nothing here is assumed.
 """
 
-def seq(*p): return ' '.join(x for x in p if x)
-def cel(a, b): return seq(a, b, 'wcel')
-def br(a, b, r): return seq(a, b, r, 'wbr')
-def le(a, b): return br(a, b, 'cle')
-def lt(a, b): return br(a, b, 'clt')
-def neg(a): return seq(a, 'cneg')
-def eq(a, b): return seq(a, b, 'wceq')
-def wa(a, b): return seq(a, b, 'wa')
-def wo(a, b): return seq(a, b, 'wo')
-def wi(a, b): return seq(a, b, 'wi')
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
+
+from spell import cel, eq, le, lt, neg, seq, wa, wi, wo
 
 X, ZERO = 'cX', 'cc0'
 PH = cel(X, 'cr')
