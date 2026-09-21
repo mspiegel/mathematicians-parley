@@ -168,13 +168,17 @@ def hypothesis_body(kind, text):
     return body
 
 
-def label_of(name, taken=()):
+def label_of(name, taken=(), path='', line=0):
     """What this elaborator calls a theorem it has written out.
 
     set.mm proves some of what this corpus proves and has its own names for
     them, so the label is moved off any that is already in use: `sqrt2irr`
     is taken. Which name it lands on depends only on set.mm, so a theorem
-    that cites another agrees with the file that wrote it."""
+    that cites another agrees with the file that wrote it.
+
+    Where it runs out of names the theorem is the thing to rename, so its
+    own place is what the defect carries. This is the one defect outside
+    `Elaborator`, which is why it is passed rather than known."""
     stem = name.replace('-', '')[:8]
     if stem not in taken:
         return stem
@@ -182,7 +186,7 @@ def label_of(name, taken=()):
         moved = f'{stem[:7]}{digit}'
         if moved not in taken:
             return moved
-    raise Problem('', 0, f'no free label near {stem!r}')
+    raise Problem(path, line, f'no free label near {stem!r}')
 
 
 class Fact:
@@ -305,6 +309,18 @@ class Elaborator(Builder):
                                         for d in re.findall(r'\d+',
                                                             said.group(1))}
 
+    def defect(self, line, message):
+        """Something a person has to fix, and where in the proof it is.
+
+        Every defect raised below is a place in the text this elaborator is
+        reading: the line is the step's or the define's, and the file is
+        the one the theorem was read from. So no raise site says which file
+        it is in, and none of them can be wrong about it.
+
+        A defect that names a line and no file names half a place, and
+        `parley/test_elaborate.py` asserts the whole of one."""
+        return Problem(self.thm.path, line, message)
+
     # --- terms --------------------------------------------------------------
 
     def read(self, text):
@@ -324,8 +340,8 @@ class Elaborator(Builder):
             if node.text not in self.names:
                 # A name the proof never introduced, which is the text's to
                 # fix wherever the reading of it came from.
-                raise Problem(self.thm.path, self.at,
-                              f'no kernel name for {node.text!r}')
+                raise self.defect(self.at,
+                                  f'no kernel name for {node.text!r}')
             return self.names[node.text]
         if node.notation == 'numeral':
             return targets.NUMERALS[node.text]
@@ -354,9 +370,9 @@ class Elaborator(Builder):
         out = {}
         for name in targets.fixes(self.pattern(node)):
             if name not in self.fixed:
-                raise Problem(self.thm.path, self.at,
-                              f'notation {node.notation!r} is about {name!r}, '
-                              f'which this theorem does not fix')
+                raise self.defect(self.at,
+                                  f'notation {node.notation!r} is about '
+                                  f'{name!r}, which this theorem does not fix')
             out[name] = self.fixed[name]
         return out
 
@@ -379,14 +395,14 @@ class Elaborator(Builder):
         one this knows and it is where a reader would start looking."""
         entries = self.terms.get(node.notation)
         if entries is None:
-            raise Problem(self.thm.path, self.at,
-                          f'notation {node.notation!r} has no target field')
+            raise self.defect(self.at,
+                              f'notation {node.notation!r} has no target field')
         order = self.literals.get(node.notation, [])
         found = entries[order.index(node.text)] if node.text in order \
             else entries[0]
         if found is None:
-            raise Problem(self.thm.path, self.at,
-                          f'notation {node.notation!r} builds no term here')
+            raise self.defect(self.at,
+                              f'notation {node.notation!r} builds no term here')
         return found
 
     # --- closure ------------------------------------------------------------
@@ -740,8 +756,8 @@ class Elaborator(Builder):
         item = self.items[name.split(':', 1)[1]]
         lemma, flipped = targets.unfolding(item)
         if lemma is None:
-            raise Problem(self.thm.path, self.at,
-                          f'{name} has no target field')
+            raise self.defect(self.at,
+                              f'{name} has no target field')
         var = var or self.flabel[self.sigs[lemma].bound()]
         node = self.read(item.conclusions[0][0])
         left, right = node.children
@@ -866,8 +882,8 @@ class Elaborator(Builder):
             if found:
                 break
         else:
-            raise Problem('', step.line, 'no cited line names a witness for '
-                          f'{self.render(wanted.rpn(self.flabel))}')
+            raise self.defect(step.line, 'no cited line names a witness for '
+                              f'{self.render(wanted.rpn(self.flabel))}')
 
         proof = facts.get(cited.term, cited.proof)
         for i in reversed(range(len(layers))):
@@ -1104,9 +1120,9 @@ class Elaborator(Builder):
             name, _, body = said.partition(':=')
             name = name.strip()
             if not body.strip():
-                raise Problem('', line, f'define {label} says nothing')
+                raise self.defect(line, f'define {label} says nothing')
             if name in self.names:
-                raise Problem('', line, f'{name} is already named')
+                raise self.defect(line, f'{name} is already named')
             self.names[name] = self.apart(self.term(self.read(body.strip())))
 
     def apart(self, rpn):
@@ -1315,8 +1331,8 @@ class Elaborator(Builder):
                                    step.just.text).group(1)
             block.base = self.spare_var()
         else:
-            raise Problem('', step.line,
-                          f'no expansion for a {head} block')
+            raise self.defect(step.line,
+                              f'no expansion for a {head} block')
         return block
 
     def enter_case(self, block, part, lines):
@@ -1409,13 +1425,13 @@ class Elaborator(Builder):
         between the lines whole."""
         step, scope, supposed = block.owner, block.outer, block.supposed
         if not self.joined:
-            raise Problem('', step.line, 'the block closes on no join')
+            raise self.defect(step.line, 'the block closes on no join')
         held = lines.get(self.last)
         found = self.opposing([*self.joined,
                                *([held.term] if held else [])], facts, deep)
         if found is None:
-            raise Problem('', step.line,
-                          'the joined lines are not a contradiction')
+            raise self.defect(step.line,
+                              'the joined lines are not a contradiction')
         first, second, known = found
         claim = self.claim_of(' '.join(step.claim))
         proof = seq(deep, first, claim, known[first], known[second],
@@ -1427,9 +1443,9 @@ class Elaborator(Builder):
             return claim, seq(scope, supposed, lifted, 'pm2.01d')
         if supposed == seq(claim, 'wn'):
             return claim, seq(scope, claim, lifted, 'pm2.18d')
-        raise Problem('', step.line,
-                      'the block claims neither its supposition negated nor '
-                      'what its supposition denies')
+        raise self.defect(step.line,
+                          'the block claims neither its supposition negated '
+                          'nor what its supposition denies')
 
     def opposing(self, lines, facts, scope):
         """A claim and its negation, among the parts of what the block holds.
@@ -1468,13 +1484,13 @@ class Elaborator(Builder):
         claim = self.claim_of(' '.join(step.claim))
         whole = self.to_term(claim)
         if whole.label != 'wral':
-            raise Problem('', step.line,
-                          'a fix that claims nothing of every such name')
+            raise self.defect(step.line,
+                              'a fix that claims nothing of every such name')
         body, variable, over = whole.children
         if body.rpn(self.flabel) != held.term:
-            raise Problem('', step.line,
-                          'the block does not reach what it claims of the '
-                          'name it fixed')
+            raise self.defect(step.line,
+                              'the block does not reach what it claims of the '
+                              'name it fixed')
         return claim, seq(block.outer, held.term,
                           variable.rpn(self.flabel), over.rpn(self.flabel),
                           held.proof, 'ralrimiva')
@@ -1489,7 +1505,7 @@ class Elaborator(Builder):
         lemma."""
         step, scope = block.owner, block.outer
         if set(block.parts) != set(block.assumed):
-            raise Problem('', step.line, 'a case of the block proves nothing')
+            raise self.defect(step.line, 'a case of the block proves nothing')
         claim = self.claim_of(' '.join(step.claim))
         parts = sorted(block.assumed)
         first, second = (self.term(block.assumed[p][0]) for p in parts)
@@ -1509,24 +1525,24 @@ class Elaborator(Builder):
         `ELABORATION.md` requirement 13."""
         step, scope = block.owner, block.outer
         if set(block.parts) != {0, 1}:
-            raise Problem('', step.line, 'induction wants a base and a step')
+            raise self.defect(step.line, 'induction wants a base and a step')
         (_base_claim, base), (step_claim, stepped) = (block.parts[0],
                                                       block.parts[1])
         name, general = block.over, f'{block.base} cv'
         over = self.sets.get(name)
         if over not in INDUCTION:
-            raise Problem('', step.line,
-                          f'nothing here inducts over {self.render(over)}'
-                          if over else
-                          f'nothing says what {name} runs over')
+            raise self.defect(step.line,
+                              f'nothing here inducts over {self.render(over)}'
+                              if over else
+                              f'nothing says what {name} runs over')
         lemma, begins = INDUCTION[over]
         at = re.search(r'starting at ([^\s,]+)', step.just.text)
         start = self.term(self.read(at.group(1))) if at else begins
         if start != begins:
-            raise Problem('', step.line,
-                          f'an induction over {self.render(over)} starts at '
-                          f'{self.render(begins)}, and the text says '
-                          f'{self.render(start)}')
+            raise self.defect(step.line,
+                              f'an induction over {self.render(over)} starts '
+                              f'at {self.render(begins)}, and the text says '
+                              f'{self.render(start)}')
         variable = block.variable or self.spare_var()
         next_one = seq(f'{variable} cv', 'c1', 'caddc', 'co')
 
@@ -1550,14 +1566,14 @@ class Elaborator(Builder):
                   block.base, variable, self.names[name], *ties, base,
                   stepped, lemma)
         if step_claim != reached:
-            raise Problem('', step.line,
-                          'the step does not reach the next instance')
+            raise self.defect(step.line,
+                              'the step does not reach the next instance')
         # The lemma states the membership apart from the rest of the
         # antecedent, and the scope already holds it, so the two are
         # conjoined back.
         if member not in block.outside:
-            raise Problem('', step.line,
-                          f'nothing in scope says {member}')
+            raise self.defect(step.line,
+                              f'nothing in scope says {member}')
         return whole, seq(scope, seq(scope, member, 'wa'), whole,
                           seq(scope, scope, member, seq(scope, 'id'),
                               block.outside[member], 'jca'),
@@ -1593,7 +1609,7 @@ class Elaborator(Builder):
         if how is None and head.startswith('thm:'):
             how = self.cite
         if how is None:
-            raise Problem('', step.line, f'no expansion for {head!r}')
+            raise self.defect(step.line, f'no expansion for {head!r}')
         proof = how(step, node, term, scope, facts, lines)
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
@@ -1646,9 +1662,9 @@ class Elaborator(Builder):
             where = step.just.refs[0] if step.just.refs else None
             held = lines.get(where) if where else None
             if held is None:
-                raise Problem('', step.line,
-                              'an obtain that names neither an item nor a '
-                              'line claiming the existence')
+                raise self.defect(step.line,
+                                  'an obtain that names neither an item nor '
+                                  'a line claiming the existence')
             ex, p_ex = held.term, self.carried(where, facts, lines)
         elif named.group(1).startswith('def:'):
             cites = step.just.text.split(':', 1)[1].strip()
@@ -1749,10 +1765,10 @@ class Elaborator(Builder):
             # so the item names itself, and the labels it named say which
             # field to go and look at.
             kind = 'def' if item.kind == 'definition' else 'thm'
-            raise Problem('', step.line,
-                          f'{kind}:{item.name} targets {", ".join(labels)}, '
-                          f'and none of them reaches what step '
-                          f'{fmt(step.number)} obtains')
+            raise self.defect(step.line,
+                              f'{kind}:{item.name} targets '
+                              f'{", ".join(labels)}, and none of them reaches '
+                              f'what step {fmt(step.number)} obtains')
         return self.assume_item(step, goal, scope, facts, item, cites)
 
     def assume_item(self, step, goal, scope, facts, item, cites=None):
@@ -1819,8 +1835,8 @@ class Elaborator(Builder):
         where = step.just.target
         held = lines.get(where)
         if held is None:
-            raise Problem('', step.line,
-                          f'instantiate names no line or label {where!r}')
+            raise self.defect(step.line,
+                              f'instantiate names no line or label {where!r}')
         # A line may say several things at once, and the `for every` is
         # rarely the first of them: Bezout's line 15 says four and
         # quantifies in the fourth. Unpacking makes each a fact of its own.
@@ -1830,8 +1846,8 @@ class Elaborator(Builder):
         said = next((p for p in self.parts(held.term)
                      if self.to_term(p).label in ('wral', 'wal')), None)
         if said is None:
-            raise Problem('', step.line,
-                          f'{where} claims nothing of every such name')
+            raise self.defect(step.line,
+                              f'{where} claims nothing of every such name')
 
         proof, whole = known[said], self.to_term(said)
         for _name, value in instantiation(step.just.text):
@@ -1845,8 +1861,9 @@ class Elaborator(Builder):
                 body, variable = whole.children
                 lemma, slot, domain = 'spcgv', 'V', 'cvv'
             else:
-                raise Problem('', step.line,
-                              'more names instantiated than are quantified')
+                raise self.defect(step.line,
+                                  'more names instantiated than are '
+                                  'quantified')
             mark, at = f'{variable.rpn(self.flabel)} cv', \
                 self.term(self.read(value))
             instance = self.restated(body, mark, at)
@@ -1873,10 +1890,10 @@ class Elaborator(Builder):
         while reached != term:
             reads = self.to_term(reached)
             if reads.label != 'wi':
-                raise Problem('', step.line,
-                              f'{where} at those terms says '
-                              f'{self.render(reached)}, and the step claims '
-                              f'{self.render(term)}')
+                raise self.defect(step.line,
+                                  f'{where} at those terms says '
+                                  f'{self.render(reached)}, and the step '
+                                  f'claims {self.render(term)}')
             asks, rest = (c.rpn(self.flabel) for c in reads.children)
             proof = seq(scope, asks, rest,
                         self.settle(self.to_term(asks), scope, facts),
@@ -1904,7 +1921,8 @@ class Elaborator(Builder):
         said = re.match(r'substitute\s+(.*)\s*\([^()]*\)'
                         r'(?:\s+into\s+(\S.*?))?\s*$', text)
         if said is None:
-            raise Problem('', step.line, 'a substitute that names no equation')
+            raise self.defect(step.line,
+                              'a substitute that names no equation')
         left, right = self.read(said.group(1)).children
         old, new = self.term(left), self.term(right)
         # Which way the equation faces in the kernel is the lemma's choice,
@@ -1913,8 +1931,8 @@ class Elaborator(Builder):
         if facing is None:
             held = facts.get(seq(new, old, 'wceq'))
             if held is None:
-                raise Problem('', step.line,
-                              f'no equation {old} = {new} in scope')
+                raise self.defect(step.line,
+                                  f'no equation {old} = {new} in scope')
             facing = seq(scope, new, old, held, 'eqcomd')
         turned = seq(scope, old, new, facing, 'eqcomd')
 
@@ -1939,14 +1957,14 @@ class Elaborator(Builder):
                         continue
                     return seq(scope, self.term(start), self.term(other),
                                proof, 'eqcomd') if flip else proof
-            raise Problem('', step.line,
-                          'the substitution misses the claim')
+            raise self.defect(step.line,
+                              'the substitution misses the claim')
 
         where = said.group(2).split()[-1]
         into = lines[where]
         if not into.sentences:
-            raise Problem('', step.line,
-                          f'{said.group(2)} is not a line to rewrite')
+            raise self.defect(step.line,
+                              f'{said.group(2)} is not a line to rewrite')
         # A line may say several things and the substitution land in one of
         # them: bezout obtains a quotient and a remainder and three facts
         # about them on one line, and rewrites the third. So each sentence
@@ -1971,7 +1989,7 @@ class Elaborator(Builder):
                 if built == term:
                     return seq(scope, start, term, known[start], proof,
                                'mpbid')
-        raise Problem('', step.line, 'the substitution misses the claim')
+        raise self.defect(step.line, 'the substitution misses the claim')
 
     def algebra(self, step, node, term, scope, facts, lines):
         """Decided by `parley/field.py`, then proved by `parley/normal.py`.
@@ -2498,10 +2516,10 @@ class Elaborator(Builder):
                     given.append(one)
         atoms = {a for p in [*given, claim] for m in p.terms for a, _ in m}
         if field.follows(given, claim, atoms) is None:
-            raise Problem('', step.line,
-                          f'{self.render(term)} is not an identity, nor does '
-                          f'it follow from what step {fmt(step.number)} '
-                          f'cites')
+            raise self.defect(step.line,
+                              f'{self.render(term)} is not an identity, nor '
+                              f'does it follow from what step '
+                              f'{fmt(step.number)} cites')
 
     def decide_apart(self, step, term, lines):
         """Refuse a disequality `algebra` step that is not a cited one rescaled.
@@ -2526,9 +2544,9 @@ class Elaborator(Builder):
                 one = field.denied(self.to_term(said), self.flabel)
                 if one is not None and rescales(one, claim) is not None:
                     return
-        raise Problem('', step.line,
-                      f'{self.render(term)} is not a rescaling of any '
-                      f'disequality step {fmt(step.number)} cites')
+        raise self.defect(step.line,
+                          f'{self.render(term)} is not a rescaling of any '
+                          f'disequality step {fmt(step.number)} cites')
 
     def arithmetic(self, step, node, term, scope, facts, lines):
         """Closed numerals, worked out and then said. `METHODS.md`.
@@ -3438,9 +3456,9 @@ class Elaborator(Builder):
                 if one is not None:
                     given.append(one)
         if not linear.follows(given, claim):
-            raise Problem('', step.line,
-                          f'{self.render(term)} does not follow from what '
-                          f'step {fmt(step.number)} cites')
+            raise self.defect(step.line,
+                              f'{self.render(term)} does not follow from what '
+                              f'step {fmt(step.number)} cites')
 
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
@@ -3643,9 +3661,9 @@ class Elaborator(Builder):
                 continue
             if found is not None:
                 return found
-        raise Problem(self.thm.path, step.line,
-                      f'no clause of {step.just.head} gives what step '
-                      f'{fmt(step.number)} claims')
+        raise self.defect(step.line,
+                          f'no clause of {step.just.head} gives what step '
+                          f'{fmt(step.number)} claims')
 
     def through_existential(self, label, whole, reads, goal, scope, facts,
                             step, seed):
@@ -4177,7 +4195,8 @@ class Elaborator(Builder):
         as well. So the label says which file it belongs to, and is looked
         for rather than taken: the library is large enough that a short name
         is never safely free."""
-        stem = label_of(self.thm.name, self.sigs)
+        stem = label_of(self.thm.name, self.sigs, self.thm.path,
+                        self.thm.line)
         number = len(self.axioms) + 1
         while f'{stem}.{prefix}{number}' in self.sigs:
             number += 1
@@ -4265,8 +4284,8 @@ class Elaborator(Builder):
                 proof = seq(scope, one, rest, given, proof,
                             'syl' if i == 0 else 'mpd')
             return proof
-        raise Problem(self.thm.path, self.at,
-                      f'cannot supply {self.render(term)}')
+        raise self.defect(self.at,
+                          f'cannot supply {self.render(term)}')
 
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain folded by transitivity, one link at a time.
@@ -4298,7 +4317,7 @@ class Elaborator(Builder):
 
         first = self.read(links[0][0])
         if not first.text:
-            raise Problem('', step.line, 'a chain starts with no relation')
+            raise self.defect(step.line, 'a chain starts with no relation')
         words = links[0][0].split()
         rest = ' '.join(words[words.index(first.text) + 1:])
         whole = self.to_term(self.term(first))
@@ -4312,13 +4331,13 @@ class Elaborator(Builder):
             joined = self.to_term(self.term(self.read(f'{rest} {mark} {added}')))
             fold = self.FOLDING.get((said, joined.label))
             if fold is None:
-                raise Problem('', step.line,
-                              f'no transitivity folds {said} into '
-                              f'{joined.label}')
+                raise self.defect(step.line,
+                                  f'no transitivity folds {said} into '
+                                  f'{joined.label}')
             if joined.children[0].rpn(self.flabel) != right:
-                raise Problem('', step.line,
-                              'a link that reads the other way round from the '
-                              'one above it')
+                raise self.defect(step.line,
+                                  'a link that reads the other way round '
+                                  'from the one above it')
             nxt = joined.children[1].rpn(self.flabel)
             if joined.label == 'wbr':
                 relation = joined.children[2].rpn(self.flabel)
@@ -4339,7 +4358,8 @@ class Elaborator(Builder):
         coming from a different place. `ELABORATION.md` requirement 7."""
         whole = self.to_term(term)
         if whole.label != 'wrex':
-            raise Problem('', step.line, 'an exhibit that claims no existence')
+            raise self.defect(step.line,
+                              'an exhibit that claims no existence')
         body, _variable, domain = whole.children
         # The name the text quantifies under and the variable it stands for
         # are two different things: Cantor quantifies over B, which set.mm
@@ -4353,7 +4373,7 @@ class Elaborator(Builder):
             if witness:
                 break
         if witness is None:
-            raise Problem('', step.line, 'no cited line names a witness')
+            raise self.defect(step.line, 'no cited line names a witness')
 
         saved = dict(self.names)
         self.names[said] = stands
@@ -4459,7 +4479,7 @@ class Elaborator(Builder):
             if cited.term in (here, self.turned(here)):
                 break
         else:
-            raise Problem('', step.line, 'no cited line names a witness')
+            raise self.defect(step.line, 'no cited line names a witness')
         at = seq(f'{var} cv', witness, 'wceq')
         _built, instance = self.rewrite(kernel, f'{var} cv', witness, at,
                                         seq(at, 'id'))
@@ -4504,8 +4524,8 @@ class Elaborator(Builder):
         left, right = self.to_term(wanted).children
         pair = [left.rpn(self.flabel), right.rpn(self.flabel)]
         if not all(p in held for p in pair):
-            raise Problem('', step.line,
-                          'the joined lines are not what the step claims')
+            raise self.defect(step.line,
+                              'the joined lines are not what the step claims')
         return seq(scope, *pair, *(held[p] for p in pair), 'jca')
 
     def cite(self, step, node, term, scope, facts, lines):
@@ -4540,9 +4560,9 @@ class Elaborator(Builder):
                                      step, seed=seed)
             if found is not None:
                 return found
-        raise Problem('', step.line,
-                      f'no clause of {step.just.head} reaches what step '
-                      f'{fmt(step.number)} claims')
+        raise self.defect(step.line,
+                          f'no clause of {step.just.head} reaches what step '
+                          f'{fmt(step.number)} claims')
 
     def filling(self, step, item):
         """What a `with` target says the lemma's variables stand for.
@@ -4590,7 +4610,8 @@ class Elaborator(Builder):
         pushed = [self.term(self.read(v)) for _n, v in
                   instantiation(step.just.text)]
         return seq(scope, pair, term, proof, *pushed,
-                   label_of(item.name, self.sigs), 'syl')
+                   label_of(item.name, self.sigs, self.thm.path,
+                            self.thm.line), 'syl')
 
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition.
@@ -4610,8 +4631,8 @@ class Elaborator(Builder):
         try:
             return self.settle(self.to_term(goal), scope, facts)
         except Unhandled:
-            raise Problem(self.thm.path, self.at,
-                          f'no requires line for {self.render(goal)}') from None
+            raise self.defect(
+                self.at, f'no requires line for {self.render(goal)}') from None
 
     def freeze(self, node):
         """The tree with its leaves turned into the terms they stand for.
@@ -4891,7 +4912,7 @@ def main(argv, root=None):
     print('${')
     if len(bound) > 1:
         print('  $d ' + ' '.join(bound) + ' $.')
-    label = label_of(thm.name, sigs)
+    label = label_of(thm.name, sigs, thm.path, thm.line)
     says = (f'( {work.render(antecedent)} -> {work.render(goal)} )'
             if antecedent else work.render(goal))
     print(f'  {label} $p |- {says} $=')
