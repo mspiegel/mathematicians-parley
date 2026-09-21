@@ -250,6 +250,19 @@ def equation(term, labels):
     return left.over.times(right.under).minus(right.over.times(left.under))
 
 
+def denied(term, labels):
+    """The polynomial a disequality says does not vanish, or None.
+
+    The corpus writes `a ≠ 1` as a negated equation, which the `negates`
+    line of `db/notation.records` folds into one tree, so what arrives here
+    is a `wn` around the equation and the polynomial is the equation's."""
+    if term.variable is not None or term.label != 'wn':
+        return None
+    if len(term.children) != 1:
+        return None
+    return equation(term.children[0], labels)
+
+
 def follows(given, claim, atoms):
     """Whether the claim is an identity, or follows from the given equations.
 

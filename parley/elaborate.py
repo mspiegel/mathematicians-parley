@@ -106,6 +106,24 @@ def whole_multiple(cited, claim):
     return times.numerator
 
 
+def rescales(cited, claim):
+    """What the cited polynomial is multiplied by to become the claim's.
+
+    Two disequalities say one thing when one polynomial is the other
+    scaled: `1 − a` is `−1` times `a − 1`, so `1 − a ≠ 0` and `a ≠ 1` deny
+    the same number. Any nonzero rational will do, where `whole_multiple`
+    wants a digit, because nothing here has to spell the scalar."""
+    if cited is None or claim is None or not cited.terms or not claim.terms:
+        return None
+    lead = max(claim.terms)
+    if lead not in cited.terms:
+        return None
+    times = claim.terms[lead] / cited.terms[lead]
+    if times == 0 or claim.terms != cited.scaled(times).terms:
+        return None
+    return times
+
+
 def hypothesis_body(kind, text):
     """What a hypothesis line claims, with its introduction read as one.
 
@@ -2172,7 +2190,7 @@ class Elaborator(Builder):
         the method."""
         claim = field.equation(self.to_term(term), self.flabel)
         if claim is None:
-            return                               # not an equation this decides
+            return self.decide_apart(step, term, lines)
         given = []
         for ref in step.just.refs:
             held = lines.get(ref)
@@ -2188,6 +2206,33 @@ class Elaborator(Builder):
                           f'{self.render(term)} is not an identity, nor does '
                           f'it follow from what step {fmt(step.number)} '
                           f'cites')
+
+    def decide_apart(self, step, term, lines):
+        """Refuse a disequality `algebra` step that is not a cited one rescaled.
+
+        This method is allowed one disequality and no more: the claim holds
+        when what it says does not vanish is a nonzero multiple of what a
+        cited disequality says does not vanish. Anything else is a fact
+        about the field rather than an identity of it — that a² is not zero
+        when a is not needs the field to have no zero divisors, and nothing
+        here decides that.
+
+        A claim that is neither an equation nor a disequality is left alone,
+        as it was before either was decided."""
+        claim = field.denied(self.to_term(term), self.flabel)
+        if claim is None:
+            return
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                one = field.denied(self.to_term(said), self.flabel)
+                if one is not None and rescales(one, claim) is not None:
+                    return
+        raise Problem('', step.line,
+                      f'{self.render(term)} is not a rescaling of any '
+                      f'disequality step {fmt(step.number)} cites')
 
     def arithmetic(self, step, node, term, scope, facts, lines):
         """Closed numerals, worked out and then said. `METHODS.md`.
