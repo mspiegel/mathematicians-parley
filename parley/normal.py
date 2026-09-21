@@ -1213,33 +1213,65 @@ class Emitter:
         zero, since the canonical form of a constant is `( n x. 1 )` and
         the scope knows only about the `n`."""
         said = self.spell_run(under)
-        if len(under) == 1 and not under[0][0]:
-            whole = under[0][1]
-            if whole.denominator == 1 and whole.numerator != 0:
-                return self.run_cc(under), self.constant_apart(whole)
+        if len(under) == 1:
+            monomial, weight = under[0]
+            if weight.denominator == 1 and weight.numerator != 0:
+                return self.run_cc(under), self.term_apart(monomial, weight)
         if self.apart is None:
             raise Unhandled('nothing can say a denominator is not zero')
         return self.run_cc(under), self.apart(said)
 
-    def constant_apart(self, weight):
-        """( under -> ( n x. 1 ) =/= 0 ), the number carrying its own word."""
-        whole = abs(weight.numerator)
+    def term_apart(self, monomial, weight):
+        """( under -> ( c x. M ) =/= 0 ), for a denominator of one term.
+
+        The scope knows about the atoms; the canonical form it is asked
+        about is `( c x. ( x ^ k ) )`, which the scope has never heard of.
+        A product is not zero when neither side is, and a power is not
+        when what it raises is not, so the whole of it comes off the
+        atoms the scope does know."""
         digit = field.spell_coefficient(weight)
-        said = op(digit, NUMERAL[1], MUL)
+        whole = abs(weight.numerator)
         nonzero = self.a1i(seq(NUMERAL[whole], 'cc0', 'wne'),
                            self.apart_label(whole))
         if weight.numerator < 0:
             nonzero = self.ap('negne0d', {'ph': self.under,
                                           'A': NUMERAL[whole]},
                               self.number(whole), nonzero)
-        return self.ap(
-            'eqnetrd', {'ph': self.under, 'A': said, 'B': digit,
-                        'C': 'cc0'},
-            self.ap('syl', {'ph': self.under, 'ps': seq(digit, 'cc', 'wcel'),
-                            'ch': seq(said, digit, 'wceq')},
-                    self.coefficient(weight),
-                    self.ap('mulrid', {'A': digit})),
-            nonzero)
+        spelt = spell_monomial(monomial)
+        return self.ap('mulne0d', {'ph': self.under, 'A': digit,
+                                   'B': spelt},
+                       self.coefficient(weight), self.monomial_cc(monomial),
+                       nonzero, self.monomial_apart(monomial))
+
+    def monomial_apart(self, monomial):
+        """( under -> M =/= 0 ), the empty one being one."""
+        if not monomial:
+            return self.a1i(seq(NUMERAL[1], 'cc0', 'wne'),
+                            self.apart_label(1))
+        if self.apart is None:
+            raise Unhandled('nothing can say an atom is not zero')
+        out, running, held = None, None, None
+        for name, power in monomial:
+            spelt = op(name, NUMERAL[power], EXP)
+            one = self.ap('expne0d', {'ph': self.under, 'A': name,
+                                      'N': NUMERAL[power]},
+                          self.atom(name), self.apart(name),
+                          self.whole_index(power))
+            mine = self.factor_cc(name, power)
+            if out is None:
+                out, running, held = one, spelt, mine
+            else:
+                out = self.ap('mulne0d', {'ph': self.under, 'A': running,
+                                          'B': spelt},
+                              held, mine, out, one)
+                held = self.ap('mulcld', {'ph': self.under, 'A': running,
+                                          'B': spelt}, held, mine)
+                running = op(running, spelt, MUL)
+        return out
+
+    def whole_index(self, power):
+        """( under -> k e. ZZ ), which `expne0d` asks for."""
+        return self.a1i(seq(NUMERAL[power], 'cz', 'wcel'), f'{power}z')
 
     def as_quotient(self, over, under, proof, said):
         """A numerator on its own, given the denominator of one it hides.

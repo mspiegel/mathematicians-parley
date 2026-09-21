@@ -1428,6 +1428,12 @@ class Elaborator:
                 or len(goal.children) != 2:
             raise normal.Unhandled('the claim is not an equation')
 
+        # A `requires` line is where a step says its denominator is not
+        # zero, so what the normalizer is asked is asked of those as well
+        # as of the scope.
+        facts = self.supplied(step, scope, facts) if step is not None \
+            else facts
+
         def complex_number(said):
             """What `normal.py` asks of a subterm it does not look inside."""
             want = seq(said, 'cc', 'wcel')
@@ -1442,8 +1448,92 @@ class Elaborator:
         try:
             return self.same_polynomial(work, left, right)
         except normal.Unhandled:
-            return self.scaled_from_cited(step, left, right, scope, facts,
-                                          lines, work)
+            if step is None:
+                raise
+            try:
+                return self.scaled_from_cited(step, left, right, scope,
+                                              facts, lines, work)
+            except normal.Unhandled:
+                return self.crossed_from_cited(step, left, right, scope,
+                                               facts, lines, work)
+
+    def crossed_from_cited(self, step, left, right, scope, facts, lines,
+                           work):
+        """A claim the cited equation already is, once its division goes.
+
+        sqrt2-irrational concludes `m^2 = 2 j^2` from `( m / j ) ^ 2 = 2`.
+        Those are the same equation: the second divides where the first
+        has multiplied out, and `divmuleq` is the step between them."""
+        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+                              self.flabel)
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            cited = self.to_term(held.term)
+            if cited.variable is not None or cited.label != 'wceq' \
+                    or len(cited.children) != 2:
+                continue
+            mine = field.equation(cited, self.flabel)
+            if want is None or mine is None or mine.terms != want.terms:
+                continue
+            try:
+                return self.cleared(work, cited, left, right,
+                                    self.cited_fact(ref, cited, scope,
+                                                    facts, lines))
+            except normal.Unhandled:
+                continue
+        raise normal.Unhandled('no cited equation is the claim divided')
+
+    def cleared(self, work, cited, left, right, given):
+        """The cited equation with its denominators multiplied out."""
+        was = [one.rpn(self.flabel) for one in cited.children]
+        over, under, first = work.as_quotient(
+            *work.normalize_quotient(cited.children[0], self.flabel), was[0])
+        below, beneath, second = work.as_quotient(
+            *work.normalize_quotient(cited.children[1], self.flabel), was[1])
+        a, b = work.spell_run(over), work.spell_run(under)
+        c, d = work.spell_run(below), work.spell_run(beneath)
+        crossed = work.ap(
+            'mpbid', {'ph': work.under,
+                      'ps': seq(seq(a, b, 'cdiv', 'co'),
+                                seq(c, d, 'cdiv', 'co'), 'wceq'),
+                      'ch': seq(seq(a, d, 'cmul', 'co'),
+                                seq(c, b, 'cmul', 'co'), 'wceq')},
+            work.ap('3eqtr3d', {'ph': work.under, 'A': was[0], 'B': was[1],
+                                'C': seq(a, b, 'cdiv', 'co'),
+                                'D': seq(c, d, 'cdiv', 'co')},
+                    given, first, second),
+            work.ap('syl2anc',
+                    {'ph': work.under,
+                     'ps': seq(seq(a, 'cc', 'wcel'), seq(c, 'cc', 'wcel'),
+                               'wa'),
+                     'ch': seq(seq(seq(b, 'cc', 'wcel'),
+                                   seq(b, 'cc0', 'wne'), 'wa'),
+                               seq(seq(d, 'cc', 'wcel'),
+                                   seq(d, 'cc0', 'wne'), 'wa'), 'wa'),
+                     'th': seq(seq(seq(a, b, 'cdiv', 'co'),
+                                   seq(c, d, 'cdiv', 'co'), 'wceq'),
+                               seq(seq(a, d, 'cmul', 'co'),
+                                   seq(c, b, 'cmul', 'co'), 'wceq'), 'wb')},
+                    work.ap('jca', {'ph': work.under,
+                                    'ps': seq(a, 'cc', 'wcel'),
+                                    'ch': seq(c, 'cc', 'wcel')},
+                            work.run_cc(over), work.run_cc(below)),
+                    work.ap('jca', {'ph': work.under,
+                                    'ps': seq(seq(b, 'cc', 'wcel'),
+                                              seq(b, 'cc0', 'wne'), 'wa'),
+                                    'ch': seq(seq(d, 'cc', 'wcel'),
+                                              seq(d, 'cc0', 'wne'), 'wa')},
+                            work.pair_of(under), work.pair_of(beneath)),
+                    work.ap('divmuleq', {'A': a, 'B': c, 'C': b, 'D': d})))
+        return work.ap(
+            '3eqtr4d', {'ph': work.under, 'A': seq(a, d, 'cmul', 'co'),
+                        'B': seq(c, b, 'cmul', 'co'), 'C': left,
+                        'D': right},
+            crossed,
+            self.same_polynomial(work, left, seq(a, d, 'cmul', 'co')),
+            self.same_polynomial(work, right, seq(c, b, 'cmul', 'co')))
 
     def not_zero(self, scope, facts):
         """What says a denominator is not zero, asked of the scope.
@@ -1642,11 +1732,19 @@ class Elaborator:
                           f'cites')
 
     def arithmetic(self, step, node, term, scope, facts, lines):
-        """Closed numerals, worked out and then said. `METHODS.md`."""
-        try:
-            return self.prove_numeral(term, scope, facts)
-        except (normal.Unhandled, Problem, KeyError):
-            return self.assume(step, term, scope, facts, 'ari', lines)
+        """Closed numerals, worked out and then said. `METHODS.md`.
+
+        A relation between two numerals is said outright; a value is an
+        identity of the field with no atoms in it, so it goes where
+        identities go rather than wanting a second procedure."""
+        for how in (lambda: self.prove_numeral(term, scope, facts),
+                    lambda: self.prove_field(step, term, scope, facts,
+                                             lines)):
+            try:
+                return how()
+            except (normal.Unhandled, Problem, KeyError):
+                continue
+        return self.assume(step, term, scope, facts, 'ari', lines)
 
     def prove_numeral(self, term, scope, facts):
         """A closed numeral fact, decided by working it out and then said.
@@ -2847,6 +2945,14 @@ class Elaborator:
         if closure == 'arithmetic':
             try:
                 return self.prove_numeral(term, scope, facts)
+            except (normal.Unhandled, Problem, KeyError):
+                pass
+            # A value is the other thing `arithmetic` decides, and a closed
+            # one is an identity of the field with no atoms in it, so it
+            # goes where identities go rather than wanting a second
+            # procedure. `METHODS.md` lists the two as one method.
+            try:
+                return self.prove_field(None, term, scope, facts, self.lines)
             except (normal.Unhandled, Problem, KeyError):
                 pass
         if closure == 'inequalities':
