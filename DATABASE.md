@@ -176,12 +176,17 @@ repaired.
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
   the chain cites that number.
-- **`parley/gate.py` is what must be green before a commit.** It runs ruff over
-  the tools, the checker over the corpus, and the planted defects that prove
-  the checker still catches things. The lint settings are in `ruff.toml`, which
-  turns off the ambiguous-character rules because this corpus is written in the
-  characters they object to. ruff is not vendored: the gate looks for it on
-  PATH and says how to install it.
+- **`parley/gate.py` is what must be green before a commit.** Five stages: ruff
+  over the tools, the checker over the corpus, the planted defects that prove
+  the checker still catches things, every set.mm label the database names, and
+  a verifier over all 23 proofs the elaborator has written. The lint settings
+  are in `ruff.toml`, which turns off the ambiguous-character rules because
+  this corpus is written in the characters they object to. Nothing the gate
+  leans on is vendored: ruff is looked for on PATH, and set.mm and mmverify.py
+  belong to metamath and are found by `SET_MM` and `MMVERIFY` or by a copy or
+  link at the root. Each missing one fails the gate and says how to supply it,
+  because a gate that skipped a stage would be saying green about something it
+  had not looked at.
 - **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
   `SYNTAX.md` records.
 - **Every formula in the corpus parses, and none is ambiguous.** That is 313

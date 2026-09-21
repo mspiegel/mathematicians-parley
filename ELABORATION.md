@@ -1253,8 +1253,39 @@ working tree, which `.gitignore` covers. Missing, the stage says so and the
 gate is not green, the way it already goes for ruff — a gate that skipped
 either would be saying green about a thing it had not looked at.
 
-The check it buys is the only one in this project that compares the corpus
-against something outside it.
+The check it buys was the only one in this project that compared the corpus
+against something outside it. There is now a second, on the same footing.
+
+## Keeping the verifier where the gate can see it
+
+Nothing in the four stages above is evidence that an elaborated proof is a
+proof. The checker reads the readable layer; the label check reads names. The
+elaborator writes the header saying what a file assumes, so a file that
+assumes nothing and proves the wrong thing says so in its own words and passes
+everything. That has happened: an `arithmetic` step emitted `1 = 1` for a
+claim about `( 1 x. ( 1 + 1 ) ) / 2`, and the assumption count reported it as
+a win. A verifier caught it, run by hand, because it was remembered.
+
+So `parley/verify.py` is the gate's fifth stage and runs `mmverify.py` over
+all 23 proofs — the nine theorems and `geometry.mm`'s fourteen lemmas.
+
+It costs nineteen seconds, which is the surprise and the reason it can be a
+gate stage at all. Verifying one proof costs about eighteen seconds whatever
+its size: even-square is 436 proof tokens and sqrt2-irrational is 194,476, and
+they cost 17.7 and 18.0 seconds. The time is reading set.mm, not checking the
+proof. `mmverify.py` resolves an inclusion against the working directory and
+keeps the set of files it has already opened, so one file including them all
+reads set.mm once and the marginal cost of each proof is close to nothing.
+
+Which files that one includes is read off the `$[ ... $]` lines rather than
+listed: a proof nothing else includes is a root, and six roots reach all
+eleven files. A list written down would leave the gate green on the day a
+tenth proof was added and not read.
+
+`mmverify.py` is not vendored, for the reason set.mm and ruff are not: say
+where it is with `MMVERIFY` or leave a copy or a link at the root. It belongs
+to metamath, and what checks these proofs should not be a copy this project
+maintains.
 
 ## The five that do not elaborate
 

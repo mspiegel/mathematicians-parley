@@ -10,3 +10,7 @@ parley/mmstats.py
 # The library is fetched, never committed. A stray copy is 51 MB and
 # arrives by `cp` following a symlink into elaboration/auto.
 set.mm
+
+# The verifier belongs to metamath and is fetched the same way, so that what
+# checks these proofs is not a copy this project maintains.
+mmverify.py

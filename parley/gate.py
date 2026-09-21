@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 """Everything that must be green before a commit.
 
-Four things, in the order that fails fastest: the lint settings in
+Five things, in the order that fails fastest: the lint settings in
 `ruff.toml`, the checker over the whole corpus, the planted defects that prove
-the checker still catches things, and every set.mm label the database names.
-Any one of them failing fails the gate.
+the checker still catches things, every set.mm label the database names, and
+a verifier over every proof the elaborator has written. Any one of them
+failing fails the gate.
 
-Two of them need something this repository does not carry. ruff is not
-vendored and not installed by this script; if it is missing, say
+The last is the only one that is evidence the elaborator is right rather than
+consistent. The four before it read the corpus against itself or against a
+list of names; a proof that assumes nothing and proves the wrong thing passes
+all four, and has.
+
+Three of them need something this repository does not carry, and none of the
+three is vendored. ruff: if it is missing, say
 
     pip install ruff
 
 or run it from a virtual environment, and the gate looks for it on PATH.
 set.mm is 51 MB and belongs to metamath, so it is not committed either; say
 where it is with `SET_MM`, or leave a copy or a link at the root of the
-working tree. A gate that skipped either would be saying green about a thing
-it had not looked at.
+working tree. mmverify.py belongs to metamath too; say where it is with
+`MMVERIFY`, or leave a copy or a link at the root. A gate that skipped any of
+them would be saying green about a thing it had not looked at.
 
 Usage:  parley/gate.py
 Exits non-zero when anything is not green.
@@ -52,6 +59,9 @@ def main():
     if not run('set.mm labels',
                [sys.executable, str(ROOT / 'parley' / 'labels.py')]):
         failed.append('set.mm labels')
+    if not run('the proofs verify',
+               [sys.executable, str(ROOT / 'parley' / 'verify.py')]):
+        failed.append('the proofs verify')
 
     print()
     if failed:
