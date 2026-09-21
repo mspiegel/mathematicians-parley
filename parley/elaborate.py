@@ -155,10 +155,14 @@ def label_of(name, taken=()):
 
 
 class Fact:
-    """A claim, a proof of it at one scope, and the tree it was read from."""
+    """A claim, a proof of it at one scope, and the sentences it was read from.
 
-    def __init__(self, term, proof, node=None):
-        self.term, self.proof, self.node = term, proof, node
+    A line may say several things, and a substitution may land in one of
+    them, so what is kept is every sentence rather than the claim as one
+    tree. A line read from no text at all keeps none."""
+
+    def __init__(self, term, proof, sentences=()):
+        self.term, self.proof, self.sentences = term, proof, sentences
 
 
 class Block:
@@ -1158,7 +1162,7 @@ class Elaborator(Builder):
                                                   block.supposed)
             if label:
                 lines[label] = Fact(block.supposed,
-                                    block.facts[block.supposed], node)
+                                    block.facts[block.supposed], (node,))
             self.joined = None
         elif head == 'fix':
             block.scope, block.facts = scope, facts
@@ -1182,7 +1186,7 @@ class Elaborator(Builder):
                 block.scope, block.facts = self.widen(block.scope,
                                                       block.facts, added)
                 if label:
-                    lines[label] = Fact(added, block.facts[added], node)
+                    lines[label] = Fact(added, block.facts[added], (node,))
         elif head == 'cases':
             # Every other block opens one scope for all its children. A
             # `cases` opens one per part, so nothing is widened here and the
@@ -1218,7 +1222,7 @@ class Elaborator(Builder):
                                               assumed)
         block.entered = part
         if label:
-            lines[label] = Fact(assumed, block.facts[assumed], node)
+            lines[label] = Fact(assumed, block.facts[assumed], (node,))
         return block.scope, block.facts
 
     @staticmethod
@@ -1479,9 +1483,17 @@ class Elaborator(Builder):
         proof = how(step, node, term, scope, facts, lines)
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
-        lines[number] = Fact(term, proof, node)
+        lines[number] = Fact(term, proof, self.said(step))
         facts[term] = proof
         return scope, facts, closers
+
+    def said(self, step):
+        """Every sentence of a step's claim, as trees.
+
+        `node` above is the last of them, because that is what an expansion
+        is about. A line is cited whole, so what it keeps is all of them."""
+        return tuple(self.read(s)
+                     for s in self.sentences(' '.join(step.claim)))
 
     # --- rendering ----------------------------------------------------------
 
@@ -1574,7 +1586,9 @@ class Elaborator(Builder):
         for name, (variable, over_term) in zip(got, layers, strict=True):
             self.names[name] = f'{variable} cv'
             self.sets[name] = over_term
-        lines[number] = Fact(body, lifted[body])
+        # Read after the obtained names are bound, so a sentence naming one
+        # of them is about the variable the existential introduced.
+        lines[number] = Fact(body, lifted[body], self.said(step))
 
         discharge = 'rexlimdva' if len(layers) == 1 else 'rexlimdvva'
         pushed = [v for v, _s in layers] + [s for _v, s in layers]
@@ -1814,24 +1828,35 @@ class Elaborator(Builder):
             raise Problem('', step.line,
                           'the substitution misses the claim')
 
-        into = lines[said.group(2).split()[-1]]
-        if into.node is None:
+        where = said.group(2).split()[-1]
+        into = lines[where]
+        if not into.sentences:
             raise Problem('', step.line,
                           f'{said.group(2)} is not a line to rewrite')
+        # A line may say several things and the substitution land in one of
+        # them: bezout obtains a quotient and a remainder and three facts
+        # about them on one line, and rewrites the third. So each sentence
+        # is offered with a proof of itself, which `unpack` has already
+        # taken apart, and the whole line is one of them.
+        held = self.carried(where, facts, lines)
+        known = {into.term: held}
+        self.unpack(into.term, held, scope, known)
         # Which way the equation is used is whichever reaches what the step
         # claims. Cantor puts f(x) = B into a line saying x ∉ f(x) and into
         # another saying x ∉ B, and writes the equation once; and B holds an
         # f(x) of its own, under a name it binds, that neither touches.
         for was, now, faces in ((old, new, facing), (new, old, turned)):
-            try:
-                built, proof = self.rewrite(into.node, was, now, scope, faces)
-            except Problem:
-                continue
-            if built == term:
-                return seq(scope, into.term, term,
-                           self.carried(said.group(2).split()[-1], facts,
-                                        lines),
-                           proof, 'mpbid')
+            for one in into.sentences:
+                start = self.term(one)
+                if start not in known:
+                    continue
+                try:
+                    built, proof = self.rewrite(one, was, now, scope, faces)
+                except Problem:
+                    continue
+                if built == term:
+                    return seq(scope, start, term, known[start], proof,
+                               'mpbid')
         raise Problem('', step.line, 'the substitution misses the claim')
 
     def algebra(self, step, node, term, scope, facts, lines):
