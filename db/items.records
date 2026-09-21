@@ -384,8 +384,16 @@ definition G
   let n ∈ ℕ₀                                                          (H2)
   then        G(n + 1) = G(n) + a^(n + 1)
   metamath    Σ over 0...n with fsum1 and fsump1
+  target      fsum1, fsump1
   first-used  geometric-series
   note        Local to the geometric-series pilot. Two `then` groups, as def:S.
+              The same two lemmas as def:S, reached differently. fsum1 says a
+              one-term sum is its summand read at the limit, which for def:S
+              is 1 outright and here is a^0; the elaborator proves it at that
+              value and exp0 carries it to the 1 this definition writes,
+              in the theorem's scope where a is known to be real. Naming 1
+              to fsum1 instead cannot work: that hypothesis has no
+              antecedent, so nothing about a is available inside it.
 
 
 # ------------------------------------------------ divisibility and primes

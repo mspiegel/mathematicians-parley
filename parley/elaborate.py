@@ -922,14 +922,18 @@ class Elaborator(Builder):
         Bezout proof puts `a` in a set-builder whose body is an existential
         over m and n, citing `a = a·1 + b·0`, and reading that as `ps` asks
         for a biconditional between an existential and one of its instances,
-        which is false."""
+        which is false.
+
+        A hypothesis relating two terms says the same thing of them as one
+        relating two formulas says of those: `fsum1` asks `( k = M -> A =
+        B )`, and B is the summand read at M."""
         out = dict(binding)
         for text in sig.essentials:
             asked = self.syntax.parse(text[1:], 'wff')
             if asked.label != 'wi':
                 continue
             at, says = asked.children
-            if (at.label != 'wceq' or says.label != 'wb'
+            if (at.label != 'wceq' or says.label not in ('wb', 'wceq')
                     or at.children[0].label != 'cv'):
                 continue
             name = says.children[1].variable
@@ -3893,6 +3897,15 @@ class Elaborator(Builder):
             joins.append(reads.label)
             reads = reads.children[1]
 
+        # A lemma whose hypothesis says what one of its variables is has
+        # already decided it, and the match reads the claim's answer over
+        # the top. Where the two disagree the claim is not what the lemma
+        # concludes, so the lemma is proved at its own value instead.
+        settled = self.instanced(sig, binding)
+        if any(settled[name].rpn(self.flabel) != stood.rpn(self.flabel)
+               for name, stood in binding.items()):
+            return self.at_its_own_value(label, sig, goal, scope, facts,
+                                         step, settled)
         # The scope is where a lemma's disjointness conditions can forbid it,
         # so it is chosen before anything is built. ELABORATION.md 14.
         where, frame = self.allowed(sig, binding, variables)
@@ -3945,6 +3958,34 @@ class Elaborator(Builder):
                         fold[(joins[i], first)])
         return self.carry(proof, goal.rpn(self.flabel), frame)
 
+    def at_its_own_value(self, label, sig, goal, scope, facts, step, settled):
+        """A lemma proved at the value its own hypothesis gives it.
+
+        `fsum1` concludes that a one-term sum is B and asks `( k = M -> A
+        = B )`, which is not a condition on B but a statement of what B
+        is. Taking B from the claim instead makes the hypothesis say
+        something the claim's own words cannot prove: `G(0) = 1` asks that
+        `a^k` be 1 at k = 0, which is `exp0` and wants a complex a, and a
+        hypothesis with no antecedent has nothing to say about a.
+
+        So the lemma proves what it does say — `G(0) = a^0` — and the
+        claim is settled from that, here, where the theorem's `let a ∈ ℝ`
+        is in scope. That is the only place the fact is available and the
+        reason the closed hypothesis could never have carried it."""
+        reads = self.syntax.statement(sig)
+        while reads.label == 'wi':
+            reads = reads.children[1]
+        said = reads.substitute(settled)
+        # Not a way back here: the match against `said` gives `settled`
+        # back, and reading a hypothesis twice reads the same value.
+        proof = self.apply_lemma(label, said, scope, facts, step,
+                                 crossing=False)
+        if proof is None:
+            raise Unhandled(f'{label} proves nothing at its own value')
+        known = dict(facts)
+        known[said.rpn(self.flabel)] = proof
+        return self.settle(goal, scope, known)
+
     def prove_essential(self, want, scope, facts):
         """One hypothesis a lemma states in full rather than asking for."""
         if want.label != 'wi':
@@ -3956,7 +3997,9 @@ class Elaborator(Builder):
         # A lemma may state its instance rather than ask for it: `elrab`
         # says what belongs to a set-builder by way of the body read at the
         # element, and wants the body before and after tied together.
-        if (left.label == 'wceq' and right.label == 'wb'
+        # `fsum1` does it with two terms where `elrab` does it with two
+        # formulas, and the walk between them is the same walk.
+        if (left.label == 'wceq' and right.label in ('wb', 'wceq')
                 and left.children[0].label == 'cv'):
             was = left.children[0].rpn(self.flabel)
             now = left.children[1].rpn(self.flabel)

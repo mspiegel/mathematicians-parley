@@ -163,7 +163,7 @@ NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',
 # conditions by means the text never names.
 MEMBERSHIP = [
     'ax-1cn', '1re', '1z', '1nn', '2cn', '2re', '2z', '2nn', '0cn', '0re',
-    '0z', '3cn', '3re', '3z', '4cn', '4re', '4z',
+    '0z', '0nn0', '3cn', '3re', '3z', '4cn', '4re', '4z',
     'nnz', 'nnre', 'nncn', 'nnnn0', 'nn0z', 'nn0re', 'nn0cn',
     'zre', 'zcn', 'recn',
     'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1', 'eluz2b2', 'eluz2gt1',
@@ -172,7 +172,10 @@ MEMBERSHIP = [
     # with membership of the subset in the body. `exprmfct` puts primality in
     # the domain where the readable line puts it in the body.
     'rexss', 'prmssnn',
-    'elfzelz', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
+    # A summation index runs over a range of integers, and what the summand
+    # asks of it is not always integrality: a power wants its exponent in
+    # ℕ₀, which over `( 0 ... n )` the range itself gives.
+    'elfzelz', 'elfznn0', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
     'renegcl', 'negcl', 'reexpcl',
     # and what a commuting pair asks, which `db/notation.records` declares by
@@ -186,8 +189,12 @@ MEMBERSHIP = [
     # does not say in those words: `divalg` divides by anything but zero,
     # and the readable statement divides by a natural number. It bounds by
     # the absolute value for the same reason, which over ℕ₀ is no bound at
-    # all — the one equation in this list, and what `said_otherwise` uses.
-    'nnne0', 'nn0absid',
+    # all.
+    'nnne0',
+    # The two equations in this list, and what `said_otherwise` rewrites a
+    # fact by. `fsum1` says a one-term sum is its summand read at the limit,
+    # so def:G's base clause reaches `a^0` where the definition says 1.
+    'nn0absid', 'exp0',
     # A disequality is one fact in two orders and the corpus writes it as a
     # negated equation, which set.mm names and then commutes. `necom` alone
     # would not fit: it speaks of =/=, and `df-ne` is what relates that to
