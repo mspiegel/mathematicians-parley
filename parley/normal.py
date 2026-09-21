@@ -860,6 +860,192 @@ class Emitter:
                                self.spell_run(out))
 
 
+    def power(self, items, times):
+        """( under -> ( spell_run(items) ^ k ) = spell_run(the power) ).
+
+        `expp1` peels one factor off, and it states the exponent as
+        `N + 1`, so the numeral is rewritten that way round first."""
+        run = self.spell_run(items)
+        start = op(run, NUMERAL[times], EXP)
+        if times == 0:
+            return [((), Fraction(1))], self.chain(
+                self.ap('syl', {'ph': self.under,
+                                'ps': seq(run, 'cc', 'wcel'),
+                                'ch': seq(start, NUMERAL[1], 'wceq')},
+                        self.run_cc(items), self.ap('exp0', {'A': run})),
+                self.one_as_term(), start, NUMERAL[1],
+                self.spell_term(((), Fraction(1))))
+        if times == 1:
+            return items, self.ap(
+                'syl', {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
+                        'ch': seq(start, run, 'wceq')},
+                self.run_cc(items), self.ap('exp1', {'A': run}))
+        below = NUMERAL[times - 1]
+        stepped = self.chain(
+            self.ap('oveq2d', {'ph': self.under, 'A': NUMERAL[times],
+                               'B': op(below, NUMERAL[1], ADD), 'C': run,
+                               'F': EXP},
+                    self.ap('eqcomd',
+                            {'ph': self.under,
+                             'A': op(below, NUMERAL[1], ADD),
+                             'B': NUMERAL[times]},
+                            self.coefficient_sum(Fraction(times - 1),
+                                                 Fraction(1)))),
+            self.ap('syl2anc',
+                    {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
+                     'ch': seq(below, 'cn0', 'wcel'),
+                     'th': seq(op(run, op(below, NUMERAL[1], ADD), EXP),
+                               op(op(run, below, EXP), run, MUL), 'wceq')},
+                    self.run_cc(items), self.index(times - 1),
+                    self.ap('expp1', {'A': run, 'N': below})),
+            start, op(run, op(below, NUMERAL[1], ADD), EXP),
+            op(op(run, below, EXP), run, MUL))
+        inner, smaller = self.power(items, times - 1)
+        carried = self.ap('oveq1d',
+                          {'ph': self.under, 'A': op(run, below, EXP),
+                           'B': self.spell_run(inner), 'C': run, 'F': MUL},
+                          smaller)
+        out, product = self.multiply(inner, items)
+        return out, self.chain(
+            self.chain(stepped, carried, start,
+                       op(op(run, below, EXP), run, MUL),
+                       op(self.spell_run(inner), run, MUL)),
+            product, start, op(self.spell_run(inner), run, MUL),
+            self.spell_run(out))
+
+    def one_as_term(self):
+        """( under -> 1 = ( 1 x. 1 ) ), the canonical form of one."""
+        return self.ap('eqcomd',
+                       {'ph': self.under,
+                        'A': op(NUMERAL[1], NUMERAL[1], MUL),
+                        'B': NUMERAL[1]},
+                       self.positive_product(1, 1))
+
+    # --- the driver -------------------------------------------------------
+
+    def normalize(self, term, labels):
+        """(items, ( under -> term = spell_run(items) )).
+
+        Recursion on the term, not a search: at each node the children are
+        already canonical and what remains is one of the operations above.
+        A subterm this does not recognise is an atom, and the caller is
+        asked once for its membership."""
+        said = term.rpn(labels)
+        if term.variable is None and term.label in field.DIGITS:
+            value = Fraction(field.DIGITS[term.label])
+            if value == 1:
+                return [((), value)], self.one_as_term()
+            return [((), value)], self.ap(
+                'eqcomd', {'ph': self.under,
+                           'A': op(NUMERAL[int(value)], NUMERAL[1], MUL),
+                           'B': NUMERAL[int(value)]},
+                self.positive_product(int(value), 1))
+        if term.variable is None and term.label == 'cneg' \
+                and len(term.children) == 1:
+            items, proof = self.normalize(term.children[0], labels)
+            return self.negated(term.children[0].rpn(labels), items, proof,
+                                said)
+        if term.variable is None and term.label == 'co' \
+                and len(term.children) == 3:
+            how = term.children[2].rpn(labels)
+            left, right = term.children[0], term.children[1]
+            if how in (field.ADD, field.SUB, field.MUL):
+                return self.binary(how, left, right, labels, said)
+            if how == field.EXP:
+                times = field.numeral(right, labels)
+                if times is None or not 0 <= times <= 9:
+                    raise Unhandled(f'{said} has no numeral exponent')
+                inner, proof = self.normalize(left, labels)
+                out, raised = self.power(inner, times)
+                return out, self.chain(
+                    self.ap('oveq1d',
+                            {'ph': self.under, 'A': left.rpn(labels),
+                             'B': self.spell_run(inner),
+                             'C': NUMERAL[times], 'F': EXP}, proof),
+                    raised, said,
+                    op(self.spell_run(inner), NUMERAL[times], EXP),
+                    self.spell_run(out))
+            if how == field.DIV:
+                raise Unhandled(f'{said} divides, which is cross-multiplied')
+        return self.as_atom(said)
+
+    def as_atom(self, said):
+        """A subterm nothing above recognises, as `( 1 x. ( t ^ 1 ) )`."""
+        raised = op(said, NUMERAL[1], EXP)
+        return [(((said, 1),), Fraction(1))], self.chain(
+            self.ap('eqcomd', {'ph': self.under, 'A': raised, 'B': said},
+                    self.ap('syl', {'ph': self.under,
+                                    'ps': seq(said, 'cc', 'wcel'),
+                                    'ch': seq(raised, said, 'wceq')},
+                            self.atom(said), self.ap('exp1', {'A': said}))),
+            self.ap('eqcomd',
+                    {'ph': self.under, 'A': op(NUMERAL[1], raised, MUL),
+                     'B': raised},
+                    self.ap('syl', {'ph': self.under,
+                                    'ps': seq(raised, 'cc', 'wcel'),
+                                    'ch': seq(op(NUMERAL[1], raised, MUL),
+                                              raised, 'wceq')},
+                            self.factor_cc(said, 1),
+                            self.ap('mullid', {'A': raised}))),
+            said, raised, op(NUMERAL[1], raised, MUL))
+
+    def negated(self, inner, items, proof, said):
+        """-u X, taken as ( -u 1 ) x. X so that `multiply` does the work.
+
+        The minus one has to be written the way a canonical form writes a
+        constant, `( -u 1 x. 1 )`, before `multiply` will take it, which
+        `mulrid` supplies."""
+        run = self.spell_run(items)
+        minus, bare = [((), Fraction(-1))], seq(NUMERAL[1], 'cneg')
+        unit = self.spell_run(minus)
+        inner_cc = self.ap('eqeltrd', {'ph': self.under, 'A': inner,
+                                       'B': run, 'C': 'cc'},
+                           proof, self.run_cc(items))
+        becomes = self.ap(
+            'eqcomd', {'ph': self.under, 'A': op(bare, inner, MUL),
+                       'B': said},
+            self.ap('syl', {'ph': self.under,
+                            'ps': seq(inner, 'cc', 'wcel'),
+                            'ch': seq(op(bare, inner, MUL), said, 'wceq')},
+                    inner_cc, self.ap('mulm1', {'A': inner})))
+        inside = self.ap('oveq2d', {'ph': self.under, 'A': inner, 'B': run,
+                                    'C': bare, 'F': MUL}, proof)
+        spelt = self.ap(
+            'oveq1d', {'ph': self.under, 'A': bare, 'B': unit, 'C': run,
+                       'F': MUL},
+            self.ap('eqcomd', {'ph': self.under, 'A': unit, 'B': bare},
+                    self.ap('syl', {'ph': self.under,
+                                    'ps': seq(bare, 'cc', 'wcel'),
+                                    'ch': seq(unit, bare, 'wceq')},
+                            self.coefficient(Fraction(-1)),
+                            self.ap('mulrid', {'A': bare}))))
+        out, product = self.multiply(minus, items)
+        return out, self.chain(
+            self.chain(
+                self.chain(becomes, inside, said, op(bare, inner, MUL),
+                           op(bare, run, MUL)),
+                spelt, said, op(bare, run, MUL), op(unit, run, MUL)),
+            product, said, op(unit, run, MUL), self.spell_run(out))
+
+    def binary(self, how, left, right, labels, said):
+        """`+`, `-` or `x.` with both sides taken to canonical form first."""
+        if how == field.SUB:
+            raise Unhandled(f'{said} subtracts, which is not yet written')
+        first, one = self.normalize(left, labels)
+        second, two = self.normalize(right, labels)
+        what = ADD if how == field.ADD else MUL
+        joined = self.ap('oveq12d',
+                         {'ph': self.under, 'A': left.rpn(labels),
+                          'B': self.spell_run(first),
+                          'C': right.rpn(labels),
+                          'D': self.spell_run(second), 'F': what}, one, two)
+        out, combined = (self.add(first, second) if how == field.ADD
+                         else self.multiply(first, second))
+        middle = op(self.spell_run(first), self.spell_run(second), what)
+        return out, self.chain(joined, combined, said, middle,
+                               self.spell_run(out))
+
+
 def left_value(numeral):
     """The number a single-digit numeral label stands for."""
     return field.DIGITS[numeral]
