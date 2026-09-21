@@ -25,6 +25,7 @@ the method does and the proof above it goes unused.
 
 Usage:  parley/elaborate.py <theorem> <set.mm>
 """
+import hashlib
 import re
 import sys
 import typing
@@ -3404,15 +3405,45 @@ def definitions(records, sigs):
     return said
 
 
-def write_definitions(records, sigs):
+def say_library(path, count):
+    """Which set.mm the file being written was checked against.
+
+    An elaborated file is a record rather than a build product: it cannot be
+    rebuilt from this repository, because set.mm is 51 MB and belongs to
+    metamath. So it has to say which set.mm, and set.mm carries no version of
+    its own — its header gives the date the database was created in 1992 and
+    nothing about the copy in hand. It is named by what it holds instead.
+
+    The count is the half a person can use, and says at a glance whether the
+    library grew. The hash is the half that decides. Both are read off the
+    file and never off the clock, so elaborating twice from one library gives
+    one file, and byte-identical output stays the tripwire for a change
+    nobody meant to make.
+
+    SHA-256 rather than SHA-1 because everything these proofs claim rests on
+    the library being what it says it is, and chosen-prefix collisions
+    against SHA-1 are practical, so a stamp that could be forged would
+    certify a lie.
+
+    `count` is read off the library before anything is elaborated. An
+    elaborator adds to its own table as it goes — the corpus's definitions,
+    and a label for each statement a file assumes — so counting at the point
+    the header is written would count those too."""
+    digest = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    print(f'   Checked against a set.mm of {count:,} assertions, sha256')
+    print(f'   {digest}. $)')
+
+
+def write_definitions(records, sigs, setmm):
     """The corpus's definitions, as a file the proofs include."""
     said = definitions(records, sigs)
     print('$( definitions, from db/items.records by parley/elaborate.py.')
     if said:
         print('   Each introduces one constant the library does not have,')
-        print('   and stands for a term that closes over its own names. $)')
+        print('   and stands for a term that closes over its own names.')
     else:
-        print('   The corpus introduces none. $)')
+        print('   The corpus introduces none.')
+    say_library(setmm, len(sigs))
     print()
     print('$[ set.mm $]')
     print()
@@ -3470,7 +3501,7 @@ def main(argv):
     root = Path(__file__).resolve().parent.parent
     records, theorems = corpus(root)
     if wanted == '--definitions':
-        return write_definitions(records, read_library(setmm))
+        return write_definitions(records, read_library(setmm), setmm)
     grammar = Grammar.load(records)
     items = {r.name: r for r in records
              if r.kind in ('definition', 'theorem')}
@@ -3488,6 +3519,9 @@ def main(argv):
     provided = set(read_library(supplied)) if supplied.exists() else set()
     sigs = (read_library(setmm, supplied) if supplied.exists()
             else read_library(setmm))
+    # Read before anything is added to the table, so it counts the library
+    # and not this corpus. `say_library` says why it is recorded at all.
+    library_size = len(sigs) - len(provided)
     # The constants the corpus introduces are not in the library, so a
     # notation that reaches one needs them declared before it is read. They
     # are the same statements `--definitions` writes into the file the proof
@@ -3513,9 +3547,10 @@ def main(argv):
         print('   Everything is built except the statements below, which are')
         print('   taken as the readable lines state them: a closure method')
         print('   the elaborator does not expand, or a definition the')
-        print('   database gives no target for. $)')
+        print('   database gives no target for.')
     else:
-        print('   Nothing here is assumed. $)')
+        print('   Nothing here is assumed.')
+    say_library(setmm, library_size)
     print()
     # A theorem this corpus proves is cited as one label, so the file that
     # elaborated it is read first and the rest comes in through it. What is
