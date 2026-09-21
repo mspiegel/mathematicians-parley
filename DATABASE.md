@@ -58,8 +58,8 @@ reversed`, says the theorem writes its equation the other way round from the
 `then` line, which `odd2np1` and `divides` both do. `db/notation.db` documents
 the same field on the notation side.
 
-The corpus holds 97 items, 27 definitions and 70 theorems, 55 notation records
-declaring 73 patterns, and 14 methods. The ten proofs make 181 citations to 73
+The corpus holds 97 items, 27 definitions and 70 theorems, 56 notation records
+declaring 74 patterns, and 14 methods. The ten proofs make 193 citations to 76
 distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
@@ -206,14 +206,29 @@ repaired.
   not match, and a bijection that adds an element without saying it was absent.
   The last needed a new item, `thm:not-in-difference`.
 
-## Fourteen open items
+## Nine open items
 
-`def:angle`, `def:collinear`, `def:congruent`, `def:function`, `def:point`,
-`def:triangle`, `thm:add-element-bijection`, `thm:angle-symmetric`,
-`thm:point-right`, `thm:powerset-split`, `thm:powerset-split-disjoint`,
-`thm:side-angle-side`, `thm:triangle-swap`, `thm:triangle-rotate`.
+`def:collinear`, `def:congruent`, `def:function`, `def:point`, `def:triangle`,
+`thm:add-element-bijection`, `thm:point-right`, `thm:powerset-split`,
+`thm:powerset-split-disjoint`.
 
-Nine of the fourteen are geometry, which is what the isosceles pilot predicted:
+Four of the nine are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
 subsets pilot leaned on. One is the lemma the intermediate value pilot needs
-only because the language has no `min`.
+only because the language has no `min`, and one is what `def:function` would
+have to say about a map.
+
+Five more were open and are not. `thm:angle-symmetric`, `thm:side-angle-side`,
+`thm:triangle-swap` and `thm:triangle-rotate` are proved in
+`elaboration/geometry.mm`, which is a third way to supply an item: neither a
+set.mm label nor a proof file in the readable layer, but a Metamath proof
+below it, for what set.mm does not state and the readable layer cannot.
+`def:angle` closed differently — it carries a `symbol` and a `defines` now,
+and is the one definition in this corpus that introduces a constant.
+
+The four that remain open in the geometry are open for a reason rather than
+for want of work. Incidence is a primitive, and `def:collinear` says so: in
+the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes
+numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
+product stop this too. The notation carries a target, so a claim of
+collinearity elaborates; what has no readable statement is the equivalence.
