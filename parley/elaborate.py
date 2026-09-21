@@ -1720,8 +1720,13 @@ class Elaborator(Builder):
         # The reference is a bracket near the end; the equation may hold
         # brackets of its own, as `S(k) = k(k + 1)/2` does, and `into` may
         # follow, as `substitute √2 = p/q (line 3.1) into line 1` does.
+        # A direction is not part of what the line says, so a line that
+        # writes one is read the same as a line that does not. `GRAMMAR.md`
+        # allows the marker because it tells a reader which way the author
+        # had in mind.
+        text = re.sub(r',\s*right to left\s*$', '', step.just.text).strip()
         said = re.match(r'substitute\s+(.*)\s*\([^()]*\)'
-                        r'(?:\s+into\s+(\S.*?))?\s*$', step.just.text)
+                        r'(?:\s+into\s+(\S.*?))?\s*$', text)
         if said is None:
             raise Problem('', step.line, 'a substitute that names no equation')
         left, right = self.read(said.group(1)).children
@@ -1735,14 +1740,31 @@ class Elaborator(Builder):
                 raise Problem('', step.line,
                               f'no equation {old} = {new} in scope')
             facing = seq(scope, new, old, held, 'eqcomd')
+        turned = seq(scope, old, new, facing, 'eqcomd')
 
         if said.group(2) is None:
-            built, proof = self.rewrite(node.children[0], old, new, scope,
-                                        facing)
-            if built != self.term(node.children[1]):
-                raise Problem('', step.line,
-                              'the substitution misses the claim')
-            return proof
+            # An equation is one fact and a claimed equation is one fact, and
+            # neither carries a direction: if a = b then b = a. So the cited
+            # equation is read whichever way rewrites, and the step's own two
+            # sides whichever way one reaches the other. Which side is
+            # written first decides nothing, and a proof needs no marker
+            # saying so. What comes out proves the claim as the step states
+            # it, turned by `eqcomd` where it was reached the other way.
+            sides = ((node.children[0], node.children[1], False),
+                     (node.children[1], node.children[0], True))
+            for was, now, faces in ((old, new, facing), (new, old, turned)):
+                for start, other, flip in sides:
+                    try:
+                        built, proof = self.rewrite(start, was, now, scope,
+                                                    faces)
+                    except Problem:
+                        continue
+                    if built != self.term(other):
+                        continue
+                    return seq(scope, self.term(start), self.term(other),
+                               proof, 'eqcomd') if flip else proof
+            raise Problem('', step.line,
+                          'the substitution misses the claim')
 
         into = lines[said.group(2).split()[-1]]
         if into.node is None:
@@ -1752,7 +1774,6 @@ class Elaborator(Builder):
         # claims. Cantor puts f(x) = B into a line saying x ∉ f(x) and into
         # another saying x ∉ B, and writes the equation once; and B holds an
         # f(x) of its own, under a name it binds, that neither touches.
-        turned = seq(scope, old, new, facing, 'eqcomd')
         for was, now, faces in ((old, new, facing), (new, old, turned)):
             try:
                 built, proof = self.rewrite(into.node, was, now, scope, faces)
