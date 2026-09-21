@@ -47,12 +47,13 @@ class Artifact:
     verified: bool      # one of the files `parley/verify.py` checks
 
 
-# The nine readable proofs the elaborator can expand. The file each writes is
+# The ten readable proofs the elaborator can expand. The file each writes is
 # named for the theorem, which is not always the name of the proof file:
-# `prime-above` is elaborated from `proof/infinitely-many-primes.proof`.
+# `prime-above` is elaborated from `proof/infinitely-many-primes.proof` and
+# `geometric-sum` from `proof/geometric-series.proof`.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'sqrt2-irrational',
-            'prime-above')
+            'prime-above', 'geometric-sum')
 
 # The five proofs worked out by hand, which share two of their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`

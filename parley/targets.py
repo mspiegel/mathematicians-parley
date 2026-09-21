@@ -174,7 +174,7 @@ MEMBERSHIP = [
     'rexss', 'prmssnn',
     'elfzelz', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
-    'renegcl', 'negcl',
+    'renegcl', 'negcl', 'reexpcl',
     # and what a commuting pair asks, which `db/notation.records` declares by
     # notation and this answers by statement
     'mulcom', 'addcom',

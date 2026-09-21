@@ -305,6 +305,7 @@ theorem power-real
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℝ
   metamath    reexpcl
+  target      reexpcl
   first-used  geometric-series
   note        A power whose exponent is not a numeral is an atom to `algebra`,
               so it has to be known real in its own right rather than through

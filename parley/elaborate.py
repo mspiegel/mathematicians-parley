@@ -66,6 +66,12 @@ CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
 # The constructors that take a function, operation or relation as an operand.
 WRAPS = ('co', 'wbr', 'cfv')
+# What closes an induction, by the set the name inducted on runs over, and
+# where that lemma starts. The two have the same six hypotheses in the same
+# order and differ only in the set and the base, so choosing between them is
+# choosing a label. Which one a proof wants is not the text's to say twice:
+# `let n ∈ ℕ₀` already says it, and `starting at` is checked against it.
+INDUCTION = {'cn': ('nnindd', 'c1'), 'cn0': ('nn0indd', 'cc0')}
 
 
 
@@ -286,6 +292,16 @@ class Elaborator(Builder):
                               f'which this theorem does not fix')
             out[name] = self.fixed[name]
         return out
+
+    def spelling(self, node):
+        """The node's target with what it holds fixed already resolved.
+
+        A shape is read from this rather than from the target as written,
+        because a fixed name is a term of the theorem's and not a hole: a
+        rewrite walks past it the way it walks past a constant."""
+        pattern, fixed = self.pattern(node), self.held(node)
+        return (targets.FIXED.sub(lambda m: fixed[m.group(1)], pattern)
+                if fixed else pattern)
 
     def pattern(self, node):
         """The `target` entry of the pattern this node was built from."""
@@ -550,7 +566,7 @@ class Elaborator(Builder):
                                                eqproof)
         if not proofs:
             raise Problem('', 0, f'nothing to rewrite in {self.term(node)}')
-        return self.descend(self.shape(self.pattern(node)), holes, after,
+        return self.descend(self.shape(self.spelling(node)), holes, after,
                             proofs, scope)
 
     def descend(self, tree, before, after, proofs, scope):
@@ -1349,20 +1365,33 @@ class Elaborator(Builder):
                           'mpjaodan')
 
     def close_induction(self, block, lines):
-        """Induction closes with nnindd, which wants the claim five ways.
+        """Induction closes with the lemma for the set it runs over.
 
-        The text writes none of them: it says only which name to induct on
-        and where to start. So the claim is read as a function of that name
-        and instantiated, and each instance is tied to the general one by
-        congruence. `ELABORATION.md` requirement 13."""
+        Whichever it is wants the claim five ways and the text writes none
+        of them: it says only which name to induct on and where to start. So
+        the claim is read as a function of that name and instantiated, and
+        each instance is tied to the general one by congruence.
+        `ELABORATION.md` requirement 13."""
         step, scope = block.owner, block.outer
         if set(block.parts) != {0, 1}:
             raise Problem('', step.line, 'induction wants a base and a step')
         (_base_claim, base), (step_claim, stepped) = (block.parts[0],
                                                       block.parts[1])
         name, general = block.over, f'{block.base} cv'
+        over = self.sets.get(name)
+        if over not in INDUCTION:
+            raise Problem('', step.line,
+                          f'nothing here inducts over {self.render(over)}'
+                          if over else
+                          f'nothing says what {name} runs over')
+        lemma, begins = INDUCTION[over]
         at = re.search(r'starting at ([^\s,]+)', step.just.text)
-        start = self.term(self.read(at.group(1))) if at else 'c1'
+        start = self.term(self.read(at.group(1))) if at else begins
+        if start != begins:
+            raise Problem('', step.line,
+                          f'an induction over {self.render(over)} starts at '
+                          f'{self.render(begins)}, and the text says '
+                          f'{self.render(start)}')
         variable = block.variable or self.spare_var()
         next_one = seq(f'{variable} cv', 'c1', 'caddc', 'co')
 
@@ -1384,12 +1413,13 @@ class Elaborator(Builder):
 
         run = seq(scope, body, claimed, held, reached, whole,
                   block.base, variable, self.names[name], *ties, base,
-                  stepped, 'nnindd')
+                  stepped, lemma)
         if step_claim != reached:
             raise Problem('', step.line,
                           'the step does not reach the next instance')
-        # nnindd states the membership apart from the rest of the antecedent,
-        # and the scope already holds it, so the two are conjoined back.
+        # The lemma states the membership apart from the rest of the
+        # antecedent, and the scope already holds it, so the two are
+        # conjoined back.
         if member not in block.outside:
             raise Problem('', step.line,
                           f'nothing in scope says {member}')
