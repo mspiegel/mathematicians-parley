@@ -2,8 +2,8 @@
 
 `inequalities` is the one closure method that needs a decision procedure
 rather than a table of named laws. Deciding it is done here; emitting the
-Metamath proof of what was decided is done in `elaborate.py`, because the
-two are different jobs and only the second needs the kernel.
+Metamath proof of what was decided is done in `normal.py`, because the two
+are different jobs and only the second needs the kernel.
 
 Everything rests on reading a term as a linear combination of **atoms**. An
 atom is a maximal subterm not built from numerals by `+`, `−`, unary minus,
