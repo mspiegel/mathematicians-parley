@@ -1434,14 +1434,23 @@ class Elaborator(Builder):
         # that is not a space: an obtain writing no instantiation puts a
         # comma straight after the name, and it is not part of it.
         named = re.search(rf'\b((?:def|thm):{NAME})', step.just.text)
-        if named is None:
-            raise Problem('', step.line,
-                          'an obtain that names no item is not expanded')
-        cites = step.just.text.split(':', 1)[1].strip()
-        item = self.items[named.group(1).split(':', 1)[1]]
-
         saved = dict(self.names)
-        if named.group(1).startswith('def:'):
+        if named is None:
+            # The line already claims the existence, so there is no item to
+            # instantiate and nothing of its own to rename. `SYNTAX.md` says
+            # to prefer this form, because the other writes a name into a
+            # claim standing above the justification that introduces it,
+            # which is the one place in this language where a name is used
+            # before the line that names it.
+            where = step.just.refs[0] if step.just.refs else None
+            held = lines.get(where) if where else None
+            if held is None:
+                raise Problem('', step.line,
+                              'an obtain that names neither an item nor a '
+                              'line claiming the existence')
+            ex, p_ex = held.term, self.carried(where, facts, lines)
+        elif named.group(1).startswith('def:'):
+            cites = step.just.text.split(':', 1)[1].strip()
             subject = self.names[instantiation(cites)[0][1]]
             # A fresh name, not the lemma's own: `divides` binds `n`, and a
             # proof that obtains from it twice would introduce one variable
@@ -1456,6 +1465,8 @@ class Elaborator(Builder):
                                       facts)[0],
                        'mpbid')
         else:
+            cites = step.just.text.split(':', 1)[1].strip()
+            item = self.items[named.group(1).split(':', 1)[1]]
             for name, value in instantiation(cites):
                 self.names[name] = self.term(self.read(value))
             for name in got:
