@@ -1435,7 +1435,8 @@ class Elaborator:
                 return facts[want]
             return self.settle(self.to_term(want), scope, facts)
 
-        work = normal.Emitter(self.sigs, scope, complex_number)
+        work = normal.Emitter(self.sigs, scope, complex_number,
+                              self.not_zero(scope, facts))
         left = goal.children[0].rpn(self.flabel)
         right = goal.children[1].rpn(self.flabel)
         try:
@@ -1444,17 +1445,107 @@ class Elaborator:
             return self.scaled_from_cited(step, left, right, scope, facts,
                                           lines, work)
 
+    def not_zero(self, scope, facts):
+        """What says a denominator is not zero, asked of the scope.
+
+        The text writes these: `requires 2 =/= 0` and `requires q =/= 0`
+        are what a step dividing by either of them carries, so the fact is
+        there to be found rather than to be proved again here."""
+        def apart(said):
+            want = seq(said, 'cc0', 'wne')
+            if want in facts:
+                return facts[want]
+            denied = seq(seq(said, 'cc0', 'wceq'), 'wn')
+            if denied in facts:
+                return seq(scope, said, 'cc0', facts[denied], 'neqned')
+            return self.settle(self.to_term(want), scope, facts)
+        return apart
+
     def same_polynomial(self, work, left, right):
-        """Two terms driven to one canonical form, and so to each other."""
-        first_items, first = work.normalize(self.to_term(left), self.flabel)
-        second_items, second = work.normalize(self.to_term(right),
-                                              self.flabel)
-        if work.spell_run(first_items) != work.spell_run(second_items):
-            raise normal.Unhandled('the two are not one polynomial')
-        return work.ap('eqtr4d',
-                       {'ph': work.under, 'A': left,
-                        'B': work.spell_run(first_items), 'C': right},
-                       first, second)
+        """Two terms driven to one canonical form, and so to each other.
+
+        Where either divides, the canonical form is a numerator over a
+        denominator, and two of those are the same when the cross product
+        of them is — which is `divmuleq`, and leaves a polynomial identity
+        for the case above to answer."""
+        first_items, first_under, first = work.normalize_quotient(
+            self.to_term(left), self.flabel)
+        second_items, second_under, second = work.normalize_quotient(
+            self.to_term(right), self.flabel)
+        if first_under is None and second_under is None:
+            if work.spell_run(first_items) != work.spell_run(second_items):
+                raise normal.Unhandled('the two are not one polynomial')
+            return work.ap('eqtr4d',
+                           {'ph': work.under, 'A': left,
+                            'B': work.spell_run(first_items), 'C': right},
+                           first, second)
+        return self.cross_multiplied(work, left, right,
+                                     first_items, first_under, first,
+                                     second_items, second_under, second)
+
+    def cross_multiplied(self, work, left, right, over, under, first,
+                         below, beneath, second):
+        """Two quotients equal, because their cross product is."""
+        over, under, first = work.as_quotient(over, under, first, left)
+        below, beneath, second = work.as_quotient(below, beneath, second,
+                                                  right)
+        a, b = work.spell_run(over), work.spell_run(under)
+        c, d = work.spell_run(below), work.spell_run(beneath)
+        crossed = self.same_polynomial(work, seq(a, d, 'cmul', 'co'),
+                                       seq(c, b, 'cmul', 'co'))
+        return work.ap(
+            'eqtr4d', {'ph': work.under, 'A': left,
+                       'B': seq(a, b, 'cdiv', 'co'), 'C': right},
+            first,
+            work.ap('eqtrd', {'ph': work.under, 'A': right,
+                              'B': seq(c, d, 'cdiv', 'co'),
+                              'C': seq(a, b, 'cdiv', 'co')},
+                    second,
+                    work.ap('mpbird',
+                            {'ph': work.under,
+                             'ps': seq(seq(c, d, 'cdiv', 'co'),
+                                       seq(a, b, 'cdiv', 'co'), 'wceq'),
+                             'ch': seq(seq(c, b, 'cmul', 'co'),
+                                       seq(a, d, 'cmul', 'co'), 'wceq')},
+                            work.ap('eqcomd',
+                                    {'ph': work.under,
+                                     'A': seq(a, d, 'cmul', 'co'),
+                                     'B': seq(c, b, 'cmul', 'co')}, crossed),
+                            work.ap('syl2anc',
+                                    {'ph': work.under,
+                                     'ps': seq(seq(c, 'cc', 'wcel'),
+                                               seq(a, 'cc', 'wcel'), 'wa'),
+                                     'ch': seq(seq(seq(d, 'cc', 'wcel'),
+                                                   seq(d, 'cc0', 'wne'),
+                                                   'wa'),
+                                               seq(seq(b, 'cc', 'wcel'),
+                                                   seq(b, 'cc0', 'wne'),
+                                                   'wa'), 'wa'),
+                                     'th': seq(seq(seq(c, d, 'cdiv', 'co'),
+                                                   seq(a, b, 'cdiv', 'co'),
+                                                   'wceq'),
+                                               seq(seq(c, b, 'cmul', 'co'),
+                                                   seq(a, d, 'cmul', 'co'),
+                                                   'wceq'), 'wb')},
+                                    work.ap('jca',
+                                            {'ph': work.under,
+                                             'ps': seq(c, 'cc', 'wcel'),
+                                             'ch': seq(a, 'cc', 'wcel')},
+                                            work.run_cc(below),
+                                            work.run_cc(over)),
+                                    work.ap('jca',
+                                            {'ph': work.under,
+                                             'ps': seq(seq(d, 'cc', 'wcel'),
+                                                       seq(d, 'cc0', 'wne'),
+                                                       'wa'),
+                                             'ch': seq(seq(b, 'cc', 'wcel'),
+                                                       seq(b, 'cc0', 'wne'),
+                                                       'wa')},
+                                            work.pair_of(beneath),
+                                            work.pair_of(under)),
+                                    work.ap('divmuleq',
+                                            {'A': c, 'B': a, 'C': d,
+                                             'D': b})))))
 
     def scaled_from_cited(self, step, left, right, scope, facts, lines, work):
         """A claim a cited equation is a whole multiple of.

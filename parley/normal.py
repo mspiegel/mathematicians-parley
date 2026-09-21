@@ -25,7 +25,7 @@ from fractions import Fraction
 import field
 from field import NUMERAL, order, spell_monomial
 
-ADD, MUL, EXP = 'caddc', 'cmul', 'cexp'
+ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
 
 
 def seq(*parts):
@@ -52,10 +52,11 @@ class Emitter:
     `atom` is asked for the membership of a term the recursion bottoms out
     at, and is the one thing this module cannot do for itself."""
 
-    def __init__(self, sigs, under, atom):
+    def __init__(self, sigs, under, atom, apart=None):
         self.sigs = sigs
         self.under = under
         self.atom = atom                  # rpn -> ( under -> rpn e. CC )
+        self.apart = apart                # rpn -> ( under -> rpn =/= 0 )
         self.flabel = {s.statement[1]: label
                        for label, s in sigs.items() if s.kind == '$f'}
         self.held = {}                    # rpn -> membership, proved once
@@ -84,6 +85,11 @@ class Emitter:
         set.mm proves one for each digit but takes the one for 1 as an
         axiom, so that digit is named differently from the rest."""
         return 'ax-1cn' if value == 1 else f'{value}cn'
+
+    @staticmethod
+    def apart_label(value):
+        """What says a numeral is not zero, named the same way."""
+        return 'ax-1ne0' if value == 1 else f'{value}ne0'
 
     def number(self, value):
         """( under -> n e. CC ) for a whole number the kernel spells."""
@@ -1184,6 +1190,279 @@ class Emitter:
         middle = op(self.spell_run(first), self.spell_run(second), what)
         return out, self.chain(joined, combined, said, middle,
                                self.spell_run(out))
+
+
+    # --- quotients ---------------------------------------------------------
+    #
+    # A canonical form with a denominator is a pair rather than a polynomial
+    # with fractions in it. Everything above keeps working on the numerator,
+    # because its coefficients stay whole; what is added here is bookkeeping
+    # on a second polynomial, and the four laws that say how the two travel
+    # through a sum, a product, a division and a power.
+
+    def spell_quotient(self, over, under):
+        """The canonical term for a pair, or for a numerator on its own."""
+        if under is None:
+            return self.spell_run(over)
+        return op(self.spell_run(over), self.spell_run(under), DIV)
+
+    def denominator(self, under):
+        """( under -> d e. CC ) and ( under -> d =/= 0 ) for a denominator.
+
+        A denominator that is a number says for itself that it is not
+        zero, since the canonical form of a constant is `( n x. 1 )` and
+        the scope knows only about the `n`."""
+        said = self.spell_run(under)
+        if len(under) == 1 and not under[0][0]:
+            whole = under[0][1]
+            if whole.denominator == 1 and whole.numerator != 0:
+                return self.run_cc(under), self.constant_apart(whole)
+        if self.apart is None:
+            raise Unhandled('nothing can say a denominator is not zero')
+        return self.run_cc(under), self.apart(said)
+
+    def constant_apart(self, weight):
+        """( under -> ( n x. 1 ) =/= 0 ), the number carrying its own word."""
+        whole = abs(weight.numerator)
+        digit = field.spell_coefficient(weight)
+        said = op(digit, NUMERAL[1], MUL)
+        nonzero = self.a1i(seq(NUMERAL[whole], 'cc0', 'wne'),
+                           self.apart_label(whole))
+        if weight.numerator < 0:
+            nonzero = self.ap('negne0d', {'ph': self.under,
+                                          'A': NUMERAL[whole]},
+                              self.number(whole), nonzero)
+        return self.ap(
+            'eqnetrd', {'ph': self.under, 'A': said, 'B': digit,
+                        'C': 'cc0'},
+            self.ap('syl', {'ph': self.under, 'ps': seq(digit, 'cc', 'wcel'),
+                            'ch': seq(said, digit, 'wceq')},
+                    self.coefficient(weight),
+                    self.ap('mulrid', {'A': digit})),
+            nonzero)
+
+    def as_quotient(self, over, under, proof, said):
+        """A numerator on its own, given the denominator of one it hides.
+
+        `div1` says a term over one is the term, so it is what promotes a
+        polynomial into the pair the laws below want."""
+        if under is not None:
+            return over, under, proof
+        one = [((), Fraction(1))]
+        run, unit = self.spell_run(over), self.spell_run(one)
+        # `div1` says a term over one is the term, and one in canonical
+        # form is `( 1 x. 1 )`, so the denominator is tidied to that first.
+        back = self.chain(
+            self.ap('oveq2d', {'ph': self.under, 'A': unit,
+                               'B': NUMERAL[1], 'C': run, 'F': DIV},
+                    self.ap('eqcomd', {'ph': self.under, 'A': NUMERAL[1],
+                                       'B': unit}, self.one_as_term())),
+            self.ap('syl', {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
+                            'ch': seq(op(run, NUMERAL[1], DIV), run,
+                                      'wceq')},
+                    self.run_cc(over), self.ap('div1', {'A': run})),
+            op(run, unit, DIV), op(run, NUMERAL[1], DIV), run)
+        return over, one, self.chain(
+            proof,
+            self.ap('eqcomd', {'ph': self.under, 'A': op(run, unit, DIV),
+                               'B': run}, back),
+            said, run, op(run, unit, DIV))
+
+    def normalize_quotient(self, term, labels):
+        """(over, under, ( under -> term = over / under )).
+
+        `under` is None where the term divides nothing, and the proof is
+        then of the numerator alone: a term that divides nothing must not
+        be made to carry a denominator of one, or every caller's output
+        would change."""
+        said = term.rpn(labels)
+        if not divides(term, labels):
+            items, proof = self.normalize(term, labels)
+            return items, None, proof
+        if term.variable is None and term.label == 'co' \
+                and len(term.children) == 3:
+            how = term.children[2].rpn(labels)
+            left, right = term.children[0], term.children[1]
+            if how == field.DIV:
+                return self.quotient_of(left, right, labels, said)
+            if how in (field.ADD, field.MUL):
+                return self.quotient_joined(how, left, right, labels, said)
+            if how == field.EXP:
+                return self.quotient_raised(left, right, labels, said)
+        raise Unhandled(f'{said} divides somewhere this does not reach')
+
+    def quotient_of(self, left, right, labels, said):
+        """`a / b`, where what is below may divide as well.
+
+        `divdiv1` is what folds a division under a division into one."""
+        over, under, first = self.normalize_quotient(left, labels)
+        below, beneath, second = self.normalize_quotient(right, labels)
+        if beneath is not None:
+            raise Unhandled(f'{said} divides by something that divides')
+        joined = self.ap('oveq12d',
+                         {'ph': self.under, 'A': left.rpn(labels),
+                          'B': self.spell_quotient(over, under),
+                          'C': right.rpn(labels),
+                          'D': self.spell_run(below), 'F': DIV},
+                         first, second)
+        if under is None:
+            return over, below, joined
+        # ( A / B ) / C is A / ( B x. C ), and the new denominator is then
+        # the two of them multiplied out.
+        top, bottom = self.spell_run(over), self.spell_run(under)
+        outer = self.spell_run(below)
+        folded = self.ap(
+            'syl3anc',
+            {'ph': self.under, 'ps': seq(top, 'cc', 'wcel'),
+             'ch': seq(seq(bottom, 'cc', 'wcel'), seq(bottom, 'cc0', 'wne'),
+                       'wa'),
+             'th': seq(seq(outer, 'cc', 'wcel'), seq(outer, 'cc0', 'wne'),
+                       'wa'),
+             'ta': seq(op(op(top, bottom, DIV), outer, DIV),
+                       op(top, op(bottom, outer, MUL), DIV), 'wceq')},
+            self.run_cc(over), self.pair_of(under), self.pair_of(below),
+            self.ap('divdiv1', {'A': top, 'B': bottom, 'C': outer}))
+        made, product = self.multiply(under, below)
+        return over, made, self.chain(
+            self.chain(joined, folded,
+                       said, op(op(top, bottom, DIV), outer, DIV),
+                       op(top, op(bottom, outer, MUL), DIV)),
+            self.ap('oveq2d', {'ph': self.under, 'A': op(bottom, outer, MUL),
+                               'B': self.spell_run(made), 'C': top,
+                               'F': DIV}, product),
+            said, op(top, op(bottom, outer, MUL), DIV),
+            op(top, self.spell_run(made), DIV))
+
+    def pair_of(self, under):
+        """( under -> ( d e. CC /\\ d =/= 0 ) ), which every law wants."""
+        said = self.spell_run(under)
+        held, nonzero = self.denominator(under)
+        return self.ap('jca', {'ph': self.under,
+                               'ps': seq(said, 'cc', 'wcel'),
+                               'ch': seq(said, 'cc0', 'wne')},
+                       held, nonzero)
+
+    def quotient_joined(self, how, left, right, labels, said):
+        """`a + b` or `a x. b` where one of them divides.
+
+        `divadddiv` and `divmuldiv` say what the pair becomes, and the
+        numerator and denominator they land on are then multiplied out by
+        the operations above."""
+        over, under, first = self.as_quotient(
+            *self.normalize_quotient(left, labels), left.rpn(labels))
+        below, beneath, second = self.as_quotient(
+            *self.normalize_quotient(right, labels), right.rpn(labels))
+        a, b = self.spell_run(over), self.spell_run(under)
+        c, d = self.spell_run(below), self.spell_run(beneath)
+        joined = self.ap('oveq12d',
+                         {'ph': self.under, 'A': left.rpn(labels),
+                          'B': op(a, b, DIV), 'C': right.rpn(labels),
+                          'D': op(c, d, DIV),
+                          'F': ADD if how == field.ADD else MUL},
+                         first, second)
+        if how == field.ADD:
+            # The numerator a sum lands on is two products added, so each
+            # is multiplied out and then the two of them joined.
+            label, top = 'divadddiv', op(op(a, d, MUL), op(c, b, MUL), ADD)
+            first_items, one = self.multiply(over, beneath)
+            second_items, two = self.multiply(below, under)
+            made, together = self.add(first_items, second_items)
+            middle = op(self.spell_run(first_items),
+                        self.spell_run(second_items), ADD)
+            numerator = self.chain(
+                self.ap('oveq12d',
+                        {'ph': self.under, 'A': op(a, d, MUL),
+                         'B': self.spell_run(first_items),
+                         'C': op(c, b, MUL),
+                         'D': self.spell_run(second_items), 'F': ADD},
+                        one, two),
+                together, top, middle, self.spell_run(made))
+        else:
+            label, top = 'divmuldiv', op(a, c, MUL)
+            made, numerator = self.multiply(over, below)
+        bottom = op(b, d, MUL)
+        spread = self.ap(
+            'syl2anc',
+            {'ph': self.under,
+             'ps': seq(seq(a, 'cc', 'wcel'), seq(c, 'cc', 'wcel'), 'wa'),
+             'ch': seq(seq(seq(b, 'cc', 'wcel'), seq(b, 'cc0', 'wne'), 'wa'),
+                       seq(seq(d, 'cc', 'wcel'), seq(d, 'cc0', 'wne'), 'wa'),
+                       'wa'),
+             'th': seq(op(op(a, b, DIV), op(c, d, DIV),
+                          ADD if how == field.ADD else MUL),
+                       op(top, bottom, DIV), 'wceq')},
+            self.ap('jca', {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
+                            'ch': seq(c, 'cc', 'wcel')},
+                    self.run_cc(over), self.run_cc(below)),
+            self.ap('jca', {'ph': self.under,
+                            'ps': seq(seq(b, 'cc', 'wcel'),
+                                      seq(b, 'cc0', 'wne'), 'wa'),
+                            'ch': seq(seq(d, 'cc', 'wcel'),
+                                      seq(d, 'cc0', 'wne'), 'wa')},
+                    self.pair_of(under), self.pair_of(beneath)),
+            self.ap(label, {'A': a, 'B': c, 'C': b, 'D': d}))
+        low, denominator = self.multiply(under, beneath)
+        return made, low, self.chain(
+            self.chain(joined, spread, said,
+                       op(op(a, b, DIV), op(c, d, DIV),
+                          ADD if how == field.ADD else MUL),
+                       op(top, bottom, DIV)),
+            self.ap('oveq12d',
+                    {'ph': self.under, 'A': top,
+                     'B': self.spell_run(made), 'C': bottom,
+                     'D': self.spell_run(low), 'F': DIV},
+                    numerator, denominator),
+            said, op(top, bottom, DIV),
+            op(self.spell_run(made), self.spell_run(low), DIV))
+
+    def quotient_raised(self, left, right, labels, said):
+        """`( a / b ) ^ k`, which `expdiv` takes apart."""
+        times = field.numeral(right, labels)
+        if times is None or not 0 <= times <= 9:
+            raise Unhandled(f'{said} has no numeral exponent')
+        over, under, first = self.as_quotient(
+            *self.normalize_quotient(left, labels), left.rpn(labels))
+        a, b = self.spell_run(over), self.spell_run(under)
+        joined = self.ap('oveq1d',
+                         {'ph': self.under, 'A': left.rpn(labels),
+                          'B': op(a, b, DIV), 'C': NUMERAL[times],
+                          'F': EXP}, first)
+        spread = self.ap(
+            'syl3anc',
+            {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
+             'ch': seq(seq(b, 'cc', 'wcel'), seq(b, 'cc0', 'wne'), 'wa'),
+             'th': seq(NUMERAL[times], 'cn0', 'wcel'),
+             'ta': seq(op(op(a, b, DIV), NUMERAL[times], EXP),
+                       op(op(a, NUMERAL[times], EXP),
+                          op(b, NUMERAL[times], EXP), DIV), 'wceq')},
+            self.run_cc(over), self.pair_of(under), self.index(times),
+            self.ap('expdiv', {'A': a, 'B': b, 'N': NUMERAL[times]}))
+        made, numerator = self.power(over, times)
+        low, denominator = self.power(under, times)
+        return made, low, self.chain(
+            self.chain(joined, spread, said,
+                       op(op(a, b, DIV), NUMERAL[times], EXP),
+                       op(op(a, NUMERAL[times], EXP),
+                          op(b, NUMERAL[times], EXP), DIV)),
+            self.ap('oveq12d',
+                    {'ph': self.under, 'A': op(a, NUMERAL[times], EXP),
+                     'B': self.spell_run(made),
+                     'C': op(b, NUMERAL[times], EXP),
+                     'D': self.spell_run(low), 'F': DIV},
+                    numerator, denominator),
+            said,
+            op(op(a, NUMERAL[times], EXP), op(b, NUMERAL[times], EXP), DIV),
+            op(self.spell_run(made), self.spell_run(low), DIV))
+
+
+def divides(term, labels):
+    """Whether a division appears anywhere in this term."""
+    if term.variable is not None:
+        return False
+    if term.label == 'co' and len(term.children) == 3 \
+            and term.children[2].rpn(labels) == field.DIV:
+        return True
+    return any(divides(one, labels) for one in term.children)
 
 
 def left_value(numeral):
