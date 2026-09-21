@@ -171,6 +171,14 @@ class Elaborator(Builder):
         ('wn', (0,)): 'notbid',
         ('wral', (0,)): 'ralbidv', ('wrex', (0,)): 'rexbidv'}
 
+    # Which lemma discharges one thing a lemma asked, by how that thing was
+    # joined to what follows it and whether the lemma is still bare. The
+    # first is composed with the lemma itself; every later one is applied to
+    # what the last already deduced.
+    DISCHARGE: typing.ClassVar = {
+        ('wi', True): 'syl', ('wi', False): 'mpd',
+        ('wb', True): 'sylib', ('wb', False): 'mpbid'}
+
     # Which transitivity folds one link of a calculation into the run above
     # it, by what each of the two claims is. Two relations in a row would
     # want the transitivity of that relation and no chain writes one.
@@ -343,28 +351,55 @@ class Elaborator(Builder):
         `elnnuz` puts a natural number in the upper integers from its left
         side, and `eluz2` puts something there from an inequality, which is
         its right. Which way is the caller's, since reading one backwards
-        is a last resort."""
+        is a last resort.
+
+        A lemma may ask something and only then say its two things: `rexss`
+        wants one set inside another before it will say that quantifying
+        over the smaller is quantifying over the larger with the smaller in
+        the body. So the asking is peeled off first and what is left is read
+        the same way a bare biconditional is."""
         whole = self.syntax.statement(sig)
-        if whole.label != 'wb':
-            readings = [] if backwards else [((), whole, 'syl')]
-        elif backwards:
-            readings = [((whole.children[1],), whole.children[0], 'sylibr')]
+        asks, joins, reads = [], [], whole
+        while reads.label == 'wi':
+            asks.append(reads.children[0])
+            joins.append('wi')
+            reads = reads.children[1]
+        if whole.label == 'wb':
+            side = 0 if backwards else 1
+            readings = [([whole.children[1 - side]], ['wb'],
+                         whole.children[side])]
+        elif reads.label == 'wb':
+            # Asked something and then said two things. Either side may be
+            # what is wanted, and so may the whole biconditional, which is
+            # what a caller wanting the equivalence itself asks for.
+            side = 0 if backwards else 1
+            readings = [([*asks, reads.children[1 - side]], [*joins, 'wb'],
+                         reads.children[side])]
+            if not backwards:
+                readings.append(((), (), whole))
         else:
-            readings = [((whole.children[0],), whole.children[1], 'sylib')]
-        for antecedents, reads, closing in readings:
-            found = self.fitting(label, sig, whole, list(antecedents), reads,
-                                 closing, wanted, scope, facts, depth)
+            # Nothing was said two ways, so the statement is read as it
+            # stands and `fitting` peels it.
+            readings = [] if backwards else [((), (), whole)]
+        for antecedents, held, side in readings:
+            found = self.fitting(label, sig, whole, list(antecedents),
+                                 list(held), side, wanted, scope, facts,
+                                 depth, backwards)
             if found is not None:
                 return found
         return None
 
-    def fitting(self, label, sig, whole, antecedents, reads, closing,
-                wanted, scope, facts, depth):
+    def fitting(self, label, sig, whole, antecedents, joins, reads,
+                wanted, scope, facts, depth, backwards=False):
         """One reading of a lemma, applied to what is wanted.
 
         A lemma may ask more than one thing before it says anything —
         `ltle` wants both sides real and then the strict relation — so its
-        antecedents are peeled until what is left is what is wanted."""
+        antecedents are peeled until what is left is what is wanted.
+
+        `joins` says how each was joined to what followed it, which is what
+        decides the lemma that discharges it. A reading that crosses a
+        biconditional has one of each and they do not discharge alike."""
         variables = whole.names()
         binding = None
         while True:
@@ -374,6 +409,7 @@ class Elaborator(Builder):
             if reads.label != 'wi':
                 return None
             antecedents.append(reads.children[0])
+            joins.append('wi')
             reads = reads.children[1]
 
         # What the lemma concludes need not fix everything it asks, so an
@@ -397,12 +433,22 @@ class Elaborator(Builder):
             for i, slot in enumerate(antecedents):
                 asks = slot.substitute(binding)
                 rest = wanted.rpn(self.flabel)
-                for later in reversed(antecedents[i + 1:]):
-                    rest = seq(later.substitute(binding).rpn(self.flabel),
-                               rest, 'wi')
+                for later, join in reversed(list(zip(antecedents[i + 1:],
+                                                     joins[i + 1:],
+                                                     strict=True))):
+                    said = later.substitute(binding).rpn(self.flabel)
+                    # A biconditional read backwards states its sides the
+                    # other way round from the order they are taken in.
+                    rest = (seq(rest, said, 'wb')
+                            if join == 'wb' and backwards
+                            else seq(said, rest, join))
+                first = proof.split()[-1] == label
+                fold = self.DISCHARGE[(joins[i], first)]
+                if joins[i] == 'wb' and backwards:
+                    fold = 'sylibr' if first else 'mpbird'
                 proof = seq(scope, asks.rpn(self.flabel), rest,
                             self.settle(asks, scope, facts, depth - 1), proof,
-                            closing if i == 0 else 'mpd')
+                            fold)
         except Problem:
             return None
         return proof
