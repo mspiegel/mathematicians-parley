@@ -1586,11 +1586,6 @@ class Elaborator:
         A combination that scales an inequality is a different proof and
         is not written yet, so those steps stay assumed."""
         goal = self.to_term(term)
-        sides = order_sides(goal)
-        if sides is None:
-            raise normal.Unhandled('the claim states no relation')
-        left, right, how = sides
-        left, right = left.rpn(self.flabel), right.rpn(self.flabel)
         given, where = [], []
         for ref in step.just.refs:
             held = lines.get(ref)
@@ -1609,6 +1604,14 @@ class Elaborator:
             raise normal.Unhandled('the refutation splits')
         used = [i for i, k in found.items() if k and i < len(given)]
         weight = found[len(given)]
+        if claim.how == '=/=':
+            return self.stays_apart(used, given, where, claim, scope, facts,
+                                    lines)
+        sides = order_sides(goal)
+        if sides is None:
+            raise normal.Unhandled('the claim states no relation')
+        left, right, how = sides
+        left, right = left.rpn(self.flabel), right.rpn(self.flabel)
         if len(used) == 1 and given[used[0]].how == '=':
             return self.from_equation(where[used[0]],
                                       found[used[0]] / weight,
@@ -1625,6 +1628,46 @@ class Elaborator:
                               for i in used],
                              left, right, how, spare.constant, scope, facts,
                              lines)
+
+    def stays_apart(self, used, given, where, claim, scope, facts, lines):
+        """Two things the step says are not equal, because one is below.
+
+        The claim is a denial, so the combination that reaches it is the
+        denial supposed and contradicted. Where the contradiction is with
+        a single strict bound between the very two the claim names, that
+        whole argument is `ltne`: something below another is not it."""
+        if len(used) != 1 or given[used[0]].how != '<':
+            raise normal.Unhandled('not one strict bound')
+        ref, said = where[used[0]]
+        parts = order_sides(said)
+        if parts is None or parts[2] != '<':
+            raise normal.Unhandled('the cited bound is not stated as one')
+        below = [c.rpn(self.flabel) for c in said.children[:2]]
+        # The claim must be about the two the bound is about, and no more.
+        if claim.side.minus(given[used[0]].side.scaled(-1)).atoms() \
+                or claim.side.minus(
+                    given[used[0]].side.scaled(-1)).constant:
+            raise normal.Unhandled('the claim is not that bound turned')
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.settle(
+                                  self.to_term(seq(t, 'cc', 'wcel')),
+                                  scope, facts))
+
+        def real_number(one):
+            want = seq(one, 'cr', 'wcel')
+            if want in facts:
+                return facts[want]
+            return self.settle(self.to_term(want), scope, facts)
+
+        return work.ap(
+            'neneqd', {'ph': scope, 'A': below[1], 'B': below[0]},
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(below[0], 'cr', 'wcel'),
+                     'ch': seq(below[0], below[1], 'clt', 'wbr'),
+                     'th': seq(below[1], below[0], 'wne')},
+                    real_number(below[0]),
+                    self.cited_fact(ref, said, scope, facts, lines),
+                    work.ap('ltne', {'A': below[0], 'B': below[1]})))
 
     def from_sum(self, used, left, right, how, spare, scope, facts, lines):
         """The claim as the cited bounds added, and what they leave over.
