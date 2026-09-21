@@ -201,6 +201,256 @@ class Emitter:
         return self.lift(step, before, after, tail)
 
 
+    # --- coefficients -----------------------------------------------------
+
+    def a1i(self, claim, proof):
+        """( under -> claim ) from a claim that holds outright."""
+        return self.ap('a1i', {'ph': claim, 'ps': self.under}, proof)
+
+    def coefficient_sum(self, first, second):
+        """( under -> ( c + d ) = e ), the coefficients as `spell` writes them.
+
+        set.mm names a lemma for every pair of single digits, and the pairs
+        it leaves out are exactly those with a zero, which `addlid` and
+        `addrid` cover. A pair that cancels is `negidd`. Anything else is
+        refused rather than guessed at: the step stays assumed, which is
+        what it already was."""
+        total = first + second
+        said = field.spell_coefficient(total)
+        c, d = (field.spell_coefficient(first),
+                field.spell_coefficient(second))
+        if said is None or c is None or d is None:
+            raise Unhandled(f'{first} + {second} is past one digit')
+        claim = seq(op(c, d, ADD), said, 'wceq')
+        a, b = first.numerator, second.numerator
+        if a == -b and a > 0:
+            return self.ap('negidd', {'ph': self.under, 'A': NUMERAL[a]},
+                           self.number(a))
+        if a < 0 or b < 0:
+            raise Unhandled(f'{first} + {second} needs signed arithmetic')
+        if a == 0:
+            return self.a1i(claim, self.mp(seq(d, 'cc', 'wcel'), claim,
+                                           f'{b}cn',
+                                           self.ap('addlid', {'A': d})))
+        if b == 0:
+            return self.a1i(claim, self.mp(seq(c, 'cc', 'wcel'), claim,
+                                           f'{a}cn',
+                                           self.ap('addrid', {'A': c})))
+        return self.a1i(claim, f'{a}p{b}e{a + b}')
+
+    def mp(self, given, claim, hypothesis, implication):
+        return self.ap('ax-mp', {'ph': given, 'ps': claim},
+                       hypothesis, implication)
+
+    # --- putting one term into a run --------------------------------------
+
+    def combine(self, monomial, first, second):
+        """( under -> ( ( c x. M ) + ( d x. M ) ) = ( e x. M ) ).
+
+        `adddir` distributes a sum over a product; read the other way it
+        collects two terms that share a monomial, which is the only place
+        the coefficients meet."""
+        spelt = spell_monomial(monomial)
+        c, d = (field.spell_coefficient(first),
+                field.spell_coefficient(second))
+        total = field.spell_coefficient(first + second)
+        gathered = self.ap(
+            'eqcomd',
+            {'ph': self.under, 'A': op(op(c, d, ADD), spelt, MUL),
+             'B': op(op(c, spelt, MUL), op(d, spelt, MUL), ADD)},
+            self.ap('syl3anc',
+                    {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
+                     'ch': seq(d, 'cc', 'wcel'),
+                     'th': seq(spelt, 'cc', 'wcel'),
+                     'ta': seq(op(op(c, d, ADD), spelt, MUL),
+                               op(op(c, spelt, MUL), op(d, spelt, MUL), ADD),
+                               'wceq')},
+                    self.coefficient(first), self.coefficient(second),
+                    self.monomial_cc(monomial),
+                    self.ap('adddir', {'A': c, 'B': d, 'C': spelt})))
+        return self.chain(
+            gathered,
+            self.ap('oveq1d', {'ph': self.under, 'A': op(c, d, ADD),
+                               'B': total, 'C': spelt, 'F': MUL},
+                    self.coefficient_sum(first, second)),
+            op(op(c, spelt, MUL), op(d, spelt, MUL), ADD),
+            op(op(c, d, ADD), spelt, MUL),
+            op(total, spelt, MUL))
+
+    def shift(self, items, frm, to):
+        """( under -> spell_run(items) = spell_run(moved) ), one term moved.
+
+        Leftward is the direction an appended term travels to reach the
+        place its degree puts it; rightward is how a term whose
+        coefficient has cancelled reaches the end, where it comes off.
+        Each step is one `swap`."""
+        start = said = self.spell_run(items)
+        proof = None
+        for at in (range(frm, to) if to > frm else range(frm - 1, to - 1, -1)):
+            step = self.swap(items, at)
+            items = [*items[:at], items[at + 1], items[at], *items[at + 2:]]
+            after = self.spell_run(items)
+            proof = (step if proof is None
+                     else self.chain(proof, step, start, said, after))
+            said = after
+        return items, proof or self.same(start)
+
+
+    def drop(self, items, at):
+        """( under -> spell_run(items) = spell_run(rest) ), a zero term gone.
+
+        A coefficient that has cancelled leaves `( 0 x. M )`, which is
+        zero by `mul02` and comes off the end by `addrid`. The term is
+        walked to the end first, because that is where it can come off."""
+        start = self.spell_run(items)
+        items, walked = self.shift(items, at, len(items) - 1)
+        run = self.spell_run(items)
+        rest = items[:-1]
+        zero = self.spell_term(items[-1])
+        spelt = spell_monomial(items[-1][0])
+        vanishes = self.ap('syl', {'ph': self.under,
+                                   'ps': seq(spelt, 'cc', 'wcel'),
+                                   'ch': seq(zero, NUMERAL[0], 'wceq')},
+                           self.monomial_cc(items[-1][0]),
+                           self.ap('mul02', {'A': spelt}))
+        if not rest:
+            return rest, self.chain(walked, vanishes, start, run, NUMERAL[0])
+        keep = self.spell_run(rest)
+        comes_off = self.chain(
+            self.ap('oveq2d', {'ph': self.under, 'A': zero,
+                               'B': NUMERAL[0], 'C': keep, 'F': ADD},
+                    vanishes),
+            self.ap('syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
+                            'ch': seq(op(keep, NUMERAL[0], ADD), keep,
+                                      'wceq')},
+                    self.run_cc(rest), self.ap('addrid', {'A': keep})),
+            run, op(keep, NUMERAL[0], ADD), keep)
+        return rest, self.chain(walked, comes_off, start, run, keep)
+
+    def insert(self, items, monomial, weight):
+        """( under -> ( spell_run(items) + ( c x. M ) ) = spell_run(out) ).
+
+        One term put where its degree says it goes. If the monomial is
+        already there the two coefficients meet and may cancel; otherwise
+        the term simply travels left to its place."""
+        term = self.spell_term((monomial, weight))
+        if not items:
+            return [(monomial, weight)], self.ap(
+                'syl', {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
+                        'ch': seq(op(NUMERAL[0], term, ADD), term, 'wceq')},
+                self.term_cc(monomial, weight),
+                self.ap('addlid', {'A': term}))
+
+        appended = [*items, (monomial, weight)]
+        start = self.spell_run(appended)
+        here = [m for m, _ in items]
+        if monomial in here:
+            at = here.index(monomial)
+            moved, walked = self.shift(appended, len(items), at + 1)
+            total = moved[at][1] + moved[at + 1][1]
+            joined = self.gather(moved, at)
+            out = [*moved[:at], (monomial, total), *moved[at + 2:]]
+            proof = self.chain(walked, joined, start,
+                               self.spell_run(moved), self.spell_run(out))
+            if total == 0:
+                out, gone = self.drop(out, at)
+                proof = self.chain(proof, gone, start,
+                                   self.spell_run([*moved[:at],
+                                                   (monomial, total),
+                                                   *moved[at + 2:]]),
+                                   self.spell_run(out))
+            return out, proof
+        goes = sum(1 for m, _ in items if order(m) < order(monomial))
+        out, walked = self.shift(appended, len(items), goes)
+        return out, walked
+
+    def gather(self, items, at):
+        """Two neighbours that share a monomial, collected into one term.
+
+        `addass` exposes them as a pair where they sit at the end of a
+        run; where they are the whole of it they are already exposed."""
+        head, rest = items[:at], items[at + 2:]
+        monomial = items[at][0]
+        a, b = self.spell_term(items[at]), self.spell_term(items[at + 1])
+        total = self.spell_term((monomial, items[at][1] + items[at + 1][1]))
+        collect = self.combine(monomial, items[at][1], items[at + 1][1])
+        if not head:
+            return self.lift(collect, op(a, b, ADD), total,
+                             [self.spell_term(i) for i in rest])
+        prefix = self.spell_run(head)
+        exposed = self.ap(
+            'syl3anc', {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+                        'ch': seq(a, 'cc', 'wcel'), 'th': seq(b, 'cc', 'wcel'),
+                        'ta': seq(op(op(prefix, a, ADD), b, ADD),
+                                  op(prefix, op(a, b, ADD), ADD), 'wceq')},
+            self.run_cc(head), self.term_cc(*items[at]),
+            self.term_cc(*items[at + 1]),
+            self.ap('addass', {'A': prefix, 'B': a, 'C': b}))
+        step = self.chain(
+            exposed,
+            self.ap('oveq2d', {'ph': self.under, 'A': op(a, b, ADD),
+                               'B': total, 'C': prefix, 'F': ADD}, collect),
+            op(op(prefix, a, ADD), b, ADD), op(prefix, op(a, b, ADD), ADD),
+            op(prefix, total, ADD))
+        return self.lift(step, op(op(prefix, a, ADD), b, ADD),
+                         op(prefix, total, ADD),
+                         [self.spell_term(i) for i in rest])
+
+
+    def add(self, left, right):
+        """( under -> ( spell_run(left) + spell_run(right) ) = spell_run(sum) ).
+
+        The right-hand run is taken apart from its end, one term at a time,
+        and each is put into the left by `insert`. `addass` is what peels
+        a term off: the run associates to the left, so its last term is
+        already where the law can reach it."""
+        start = op(self.spell_run(left), self.spell_run(right), ADD)
+        if not right:
+            keep = self.spell_run(left)
+            return left, self.ap(
+                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
+                        'ch': seq(op(keep, NUMERAL[0], ADD), keep, 'wceq')},
+                self.run_cc(left), self.ap('addrid', {'A': keep}))
+        if len(right) == 1:
+            return self.insert(left, *right[0])
+
+        rest, last = right[:-1], right[-1]
+        whole, prefix = self.spell_run(right), self.spell_run(rest)
+        held, term = self.spell_run(left), self.spell_term(last)
+        peeled = self.ap(
+            'eqcomd',
+            {'ph': self.under, 'A': op(op(held, prefix, ADD), term, ADD),
+             'B': op(held, whole, ADD)},
+            self.ap('syl3anc',
+                    {'ph': self.under, 'ps': seq(held, 'cc', 'wcel'),
+                     'ch': seq(prefix, 'cc', 'wcel'),
+                     'th': seq(term, 'cc', 'wcel'),
+                     'ta': seq(op(op(held, prefix, ADD), term, ADD),
+                               op(held, whole, ADD), 'wceq')},
+                    self.run_cc(left), self.run_cc(rest),
+                    self.term_cc(*last),
+                    self.ap('addass', {'A': held, 'B': prefix, 'C': term})))
+        merged, inner = self.add(left, rest)
+        carried = self.ap('oveq1d',
+                          {'ph': self.under, 'A': op(held, prefix, ADD),
+                           'B': self.spell_run(merged), 'C': term,
+                           'F': ADD}, inner)
+        out, placed = self.insert(merged, *last)
+        return out, self.chain(
+            self.chain(peeled, carried, start,
+                       op(op(held, prefix, ADD), term, ADD),
+                       op(self.spell_run(merged), term, ADD)),
+            placed, start, op(self.spell_run(merged), term, ADD),
+            self.spell_run(out))
+
+
 def terms_of(poly):
     """A polynomial as its terms in canonical order."""
     return [(m, poly.terms[m]) for m in sorted(poly.terms, key=order)]
+
+
+class Unhandled(Exception):
+    """A form this emitter cannot build a proof for.
+
+    The step is refused rather than guessed at, and `elaborate.py` takes it
+    as stated instead, which is what it did before this module existed."""
