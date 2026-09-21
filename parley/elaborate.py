@@ -1622,8 +1622,8 @@ class Elaborator:
         Each says a difference is at most zero; added, the two differences
         are the claim's, which is the normalizer's question. `le2add` is
         the addition, and what it lands on is zero plus zero."""
-        if how != '<=' or len(used) != 2:
-            raise normal.Unhandled('only two bounds added is written')
+        if how != '<=' or not 1 <= len(used) <= 2:
+            raise normal.Unhandled('only one or two bounds is written')
 
         def real_number(one):
             want = seq(one, 'cr', 'wcel')
@@ -1644,6 +1644,10 @@ class Elaborator:
             gaps.append(one)
             bounds.append(proof)
             real.append(held)
+        if len(gaps) == 1:
+            # Nothing to add: the one bound is already the claim's.
+            return self.bound_reaches(work, gaps[0], bounds[0], left, right,
+                                      real_number)
         total = seq(gaps[0], gaps[1], 'caddc', 'co')
         zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
         added = work.ap(
@@ -1695,7 +1699,15 @@ class Elaborator:
                                                'C': 'cc0', 'D': 'cc0'}))),
             work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
                      '00id'))
-        span = seq(left, right, 'cmin', 'co')
+        return self.bound_reaches(work, total, added, left, right,
+                                  real_number)
+
+    def bound_reaches(self, work, total, added, left, right, real_number):
+        """A term at most zero, said of the claim's two sides.
+
+        The normalizer says the term is the claim's difference, and
+        `suble0` says a difference at most zero is `<_` between them."""
+        scope, span = work.under, seq(left, right, 'cmin', 'co')
         return work.ap(
             'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
                       'ch': seq(left, right, 'cle', 'wbr')},
@@ -1718,6 +1730,10 @@ class Elaborator:
         at most zero because it is zero exactly; an inequality already is,
         and scaling it by something positive leaves it so."""
         scope = work.under
+        if said.variable is None and said.label == 'wn' \
+                and len(said.children) == 1:
+            said, given = self.unnegated(work, said.children[0], given,
+                                         real_number)
         parts = order_sides(said)
         if parts is None:
             raise normal.Unhandled('a cited fact states no relation')
@@ -1803,6 +1819,31 @@ class Elaborator:
                                       'cc0', 'wceq')},
                     work.coefficient(times),
                     work.ap('mul01', {'A': numeral}))), scaled_real
+
+    def unnegated(self, work, inner, given, real_number):
+        """A cited fact stated as a denial, said the other way round.
+
+        `prime-above` reaches its bound by supposing the opposite and
+        finding no witness, so what it has is `-. A < m` where the method
+        wants `m <_ A`. `lenlt` is the one saying those are the same."""
+        parts = order_sides(inner)
+        if parts is None or parts[2] != '<':
+            raise normal.Unhandled('only a denied `<` is turned round')
+        was = [c.rpn(self.flabel) for c in inner.children[:2]]
+        turned = self.to_term(seq(was[1], was[0], 'cle', 'wbr'))
+        return turned, work.ap(
+            'mpbird', {'ph': work.under,
+                       'ps': seq(was[1], was[0], 'cle', 'wbr'),
+                       'ch': seq(seq(was[0], was[1], 'clt', 'wbr'), 'wn')},
+            given,
+            work.ap('syl2anc',
+                    {'ph': work.under, 'ps': seq(was[1], 'cr', 'wcel'),
+                     'ch': seq(was[0], 'cr', 'wcel'),
+                     'th': seq(seq(was[1], was[0], 'cle', 'wbr'),
+                               seq(seq(was[0], was[1], 'clt', 'wbr'), 'wn'),
+                               'wb')},
+                    real_number(was[1]), real_number(was[0]),
+                    work.ap('lenlt', {'A': was[1], 'B': was[0]})))
 
     def real_numeral(self, work, times):
         """( scope -> n e. RR ) for a whole multiplier."""
