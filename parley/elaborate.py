@@ -1615,9 +1615,15 @@ class Elaborator:
 
     def from_equation(self, cited, times, left, right, how, scope, facts,
                       lines):
-        """The claim as one cited equation, scaled."""
+        """The claim as one cited equation, scaled.
+
+        An equation may be multiplied by anything, which is what lets one
+        cited equation carry a claim on its own. A combination that uses
+        an inequality needs that inequality scaled and added, and is a
+        different proof."""
         ref, said = cited
-        if said.label != 'wceq' or len(said.children) != 2:
+        parts = order_sides(said)
+        if parts is None or parts[2] != '=':
             raise normal.Unhandled('the cited fact is not an equation')
         numeral = field.spell_coefficient(times)
         if numeral is None:
@@ -1634,54 +1640,61 @@ class Elaborator:
         gap = seq(was[0], was[1], 'cmin', 'co')
         scaled = seq(numeral, gap, 'cmul', 'co')
         span = seq(left, right, 'cmin', 'co')
-        # The cited equation says its difference is zero; scaled, that is
-        # the claim's difference, and the normalizer is what says so.
-        vanishes = work.chain(
-            work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
-                               'C': numeral, 'F': 'cmul'},
-                    self.difference_zero(work, was, ref, facts, lines)),
-            work.ap('syl', {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
-                            'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
-                                      'cc0', 'wceq')},
-                    work.coefficient(times),
-                    work.ap('mul01', {'A': numeral})),
-            scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0')
-        reached = work.chain(self.same_polynomial(work, span, scaled),
-                             vanishes, span, scaled, 'cc0')
-        if how == '=':
-            return work.ap(
-                'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'wceq'),
-                          'ch': seq(left, right, 'wceq')},
-                reached,
-                work.ap('syl2anc',
-                        {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
-                         'ch': seq(right, 'cc', 'wcel'),
-                         'th': seq(seq(span, 'cc0', 'wceq'),
-                                   seq(left, right, 'wceq'), 'wb')},
-                        complex_number(left), complex_number(right),
-                        work.ap('subeq0', {'A': left, 'B': right})))
-        if how != '<=':
-            raise normal.Unhandled(f'a {how} conclusion is not written')
-
         def real_number(one):
             want = seq(one, 'cr', 'wcel')
             if want in facts:
                 return facts[want]
             return self.settle(self.to_term(want), scope, facts)
 
-        # A difference that is zero is at most zero, and a difference at
-        # most zero is what `<_` says of the two sides.
+        if parts[2] == '=':
+            # The cited equation says its difference is zero; scaled, that
+            # is the claim's difference, and the normalizer is what says so.
+            reached = work.chain(
+                self.same_polynomial(work, span, scaled),
+                work.chain(
+                    work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
+                                       'C': numeral, 'F': 'cmul'},
+                            self.difference_zero(work, was, ref, facts,
+                                                 lines)),
+                    work.ap('syl',
+                            {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
+                             'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                                       'cc0', 'wceq')},
+                            work.coefficient(times),
+                            work.ap('mul01', {'A': numeral})),
+                    scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0'),
+                span, scaled, 'cc0')
+            if how == '=':
+                return work.ap(
+                    'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'wceq'),
+                              'ch': seq(left, right, 'wceq')},
+                    reached,
+                    work.ap('syl2anc',
+                            {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
+                             'ch': seq(right, 'cc', 'wcel'),
+                             'th': seq(seq(span, 'cc0', 'wceq'),
+                                       seq(left, right, 'wceq'), 'wb')},
+                            complex_number(left), complex_number(right),
+                            work.ap('subeq0', {'A': left, 'B': right})))
+            if how != '<=':
+                raise normal.Unhandled(f'a {how} conclusion is not written')
+            # A difference that is zero is at most zero.
+            at_most = work.ap(
+                'eqled', {'ph': scope, 'A': span, 'B': 'cc0'},
+                work.ap('syl2anc',
+                        {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
+                         'ch': seq(right, 'cr', 'wcel'),
+                         'th': seq(span, 'cr', 'wcel')},
+                        real_number(left), real_number(right),
+                        work.ap('resubcl', {'A': left, 'B': right})),
+                reached)
+        else:
+            raise normal.Unhandled(f'a {how} conclusion is not written')
+        # A difference at most zero is what `<_` says of the two sides.
         return work.ap(
             'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
                       'ch': seq(left, right, 'cle', 'wbr')},
-            work.ap('eqled', {'ph': scope, 'A': span, 'B': 'cc0'},
-                    work.ap('syl2anc',
-                            {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
-                             'ch': seq(right, 'cr', 'wcel'),
-                             'th': seq(span, 'cr', 'wcel')},
-                            real_number(left), real_number(right),
-                            work.ap('resubcl', {'A': left, 'B': right})),
-                    reached),
+            at_most,
             work.ap('syl2anc',
                     {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
                      'ch': seq(right, 'cr', 'wcel'),
