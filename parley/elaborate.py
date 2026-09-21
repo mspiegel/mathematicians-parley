@@ -560,6 +560,7 @@ class Elaborator(Builder):
         for slot in asks:
             for open_slot in slot.names() - set(binding):
                 binding[open_slot] = kernel.Term('cvv')
+        binding = self.instanced(sig, binding)
         # A definition that introduces a name says which variable it takes;
         # one that does not leaves the lemma's own, which the match fixed.
         binds = self.spelt(binding)
@@ -598,6 +599,51 @@ class Elaborator(Builder):
                    self.bridging(self.to_term(given), self.to_term(ex), scope,
                                  facts, step),
                    'bitrd'), ex
+
+    def restated(self, term, was, now):
+        """`term` with every occurrence of the subterm `was` reading `now`.
+
+        Both are given in reverse Polish, because a term is compared by what
+        it spells: the kernel's terms are trees without an equality."""
+        if term.rpn(self.flabel) == was:
+            return self.to_term(now)
+        if term.variable is not None:
+            return term
+        return kernel.Term(term.label,
+                           tuple(self.restated(c, was, now)
+                                 for c in term.children))
+
+    def instanced(self, sig, binding):
+        """What a lemma asking `( x = A -> ( ph <-> ps ) )` means by `ps`.
+
+        Such a lemma states how its own two sides are related rather than
+        asking: `ps` is `ph` with the variable reading the term. `elrab`
+        reads a set-builder's body at the element, `rspcev` reads a body at
+        a witness, and in both the relation is the lemma's own.
+
+        So it is worked out and not taken from the step. A citation offering
+        something else is offering evidence for `ps` rather than `ps`: the
+        Bezout proof puts `a` in a set-builder whose body is an existential
+        over m and n, citing `a = a·1 + b·0`, and reading that as `ps` asks
+        for a biconditional between an existential and one of its instances,
+        which is false."""
+        out = dict(binding)
+        for text in sig.essentials:
+            asked = self.syntax.parse(text[1:], 'wff')
+            if asked.label != 'wi':
+                continue
+            at, says = asked.children
+            if (at.label != 'wceq' or says.label != 'wb'
+                    or at.children[0].label != 'cv'):
+                continue
+            name = says.children[1].variable
+            if name is None:
+                continue
+            was, now = (c.substitute(out).rpn(self.flabel)
+                        for c in at.children)
+            out[name] = self.restated(says.children[0].substitute(out),
+                                      was, now)
+        return out
 
     def exchanged(self, given, want):
         """Whether these are one term with a commuting pair exchanged.
