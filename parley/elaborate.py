@@ -1079,6 +1079,11 @@ class Elaborator(Builder):
         if block.entered == part:
             return block.scope, block.facts
         del self.frames[block.frame + 1:]
+        # A case gives back what it named, the way the block does when it
+        # closes: the next one starts from where the block started, and the
+        # assumption below is read against that and not against whatever
+        # the case before it left behind.
+        self.names = dict(block.named)
         node, label = block.assumed[part]
         assumed = self.term(node)
         block.scope, block.facts = self.widen(block.outer, block.outside,
