@@ -7,12 +7,17 @@ script and which somewhere, so that knowledge lived in six usage lines that a
 person read and followed by hand. One of them named a path nothing reads, and
 the build went on looking as though it had worked.
 
-The order below is a real constraint and was not written down anywhere
-either. `definitions.mm` has to exist before `build-geometry.py` runs, because
-that script reads it for the constant it introduces; `geometry.mm` has to
-exist before any theorem elaborates, because `elaborate.py` reads it so a
-`target` may name one of its labels. The five hand-written proofs read nothing
-and can be built at any point.
+Which artifact has to exist before which is a real constraint, and `needs`
+is where it is written. `definitions.mm` has to exist before
+`build-geometry.py` runs, because that script reads it for the constant it
+introduces; `geometry.mm` has to exist before any theorem elaborates, because
+`elaborate.py` reads it so a `target` may name one of its labels. The five
+hand-written proofs read nothing.
+
+Saying it in a field rather than in the order of the list is what lets the
+fifteen that wait for nothing run at once. They are separate processes
+writing separate paths and sharing only the machine, so the only thing the
+concurrency costs is memory: each holds its own copy of the library.
 
 What this does not do is notice that an artifact is out of date. Nothing here
 compares an artifact against its sources, and an artifact cannot be compared
@@ -22,8 +27,10 @@ cheap; run it after changing the elaborator or the database.
 Usage:  parley/build.py [name] [set.mm]
 Exits non-zero when a recipe fails.
 """
+import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +42,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # Stands in the recipe where the library's path goes, which is not known
 # until the command line and the environment have been asked.
 SETMM = '<set.mm>'
+# How many recipes run at once. Each holds its own copy of set.mm's 51,256
+# signatures and peaks near 550MB, so the ceiling is there to keep a wave of
+# fifteen from asking for eight gigabytes at once.
+WORKERS = min(8, os.cpu_count() or 1)
 
 
 @dataclass(frozen=True)
@@ -45,6 +56,7 @@ class Artifact:
     path: str
     recipe: tuple
     verified: bool      # one of the files `parley/verify.py` checks
+    needs: tuple = ()   # artifacts whose files this recipe reads
 
 
 # The ten readable proofs the elaborator can expand. The file each writes is
@@ -67,9 +79,10 @@ ARTIFACTS = [
     # `build-geometry.py` holds its proofs, so it sits outside the directory
     # of things elaborated from the readable layer, and is still built here.
     Artifact('geometry', 'elaboration/geometry.mm',
-             ('elaboration/build-geometry.py', SETMM), True),
+             ('elaboration/build-geometry.py', SETMM), True,
+             ('definitions',)),
     *(Artifact(name, f'elaboration/elaborated/{name}.mm',
-               ('parley/elaborate.py', name, SETMM), True)
+               ('parley/elaborate.py', name, SETMM), True, ('geometry',))
       for name in THEOREMS),
     *(Artifact(f'hand-{name}', f'elaboration/{name}.mm',
                (f'elaboration/build-{name}.py',), False)
@@ -112,6 +125,24 @@ def produce(artifact, library):
     return done.stdout
 
 
+def waves(wanted):
+    """The artifacts in groups that may be built at the same time.
+
+    An artifact waits for the files it reads and for nothing else, so the
+    fifteen that read none of each other's go at once. A `needs` naming
+    something not being built is not waited for: asking for one theorem
+    rebuilds that theorem and not the geometry it reads, the same as asking
+    for it before this ran concurrently."""
+    here = {a.name for a in wanted}
+    left, done, out = list(wanted), set(), []
+    while left:
+        ready = [a for a in left if not (set(a.needs) & here) - done]
+        out.append(ready)
+        done |= {a.name for a in ready}
+        left = [a for a in left if a not in ready]
+    return out
+
+
 def main(argv):
     wanted = [a for a in ARTIFACTS if a.name == argv[1]] if len(argv) > 1 \
         else ARTIFACTS
@@ -125,18 +156,34 @@ def main(argv):
               'copy or a link at the root of the working tree')
         return 2
 
-    changed = 0
+    changed, said = 0, {}
+    for wave in waves(wanted):
+        # Each recipe is its own process writing its own path, so the only
+        # thing a wave shares is the machine. A file is written as soon as
+        # its wave is done, because the next wave reads it; what is said
+        # about it waits, so the report is in the manifest's order and not
+        # in the order the machine happened to finish.
+        with ThreadPoolExecutor(max_workers=min(len(wave), WORKERS)) as pool:
+            got = list(pool.map(lambda a: produce(a, library), wave))
+        for artifact, written in zip(wave, got, strict=True):
+            if written is None:
+                continue
+            where = ROOT / artifact.path
+            before = where.read_text() if where.exists() else None
+            where.parent.mkdir(parents=True, exist_ok=True)
+            where.write_text(written)
+            said[artifact.name] = (' ' if written == before else '*',
+                                   artifact.path)
+            changed += written != before
+        if any(written is None for written in got):
+            break
+
     for artifact in wanted:
-        written = produce(artifact, library)
-        if written is None:
-            return 1
-        where = ROOT / artifact.path
-        before = where.read_text() if where.exists() else None
-        where.parent.mkdir(parents=True, exist_ok=True)
-        where.write_text(written)
-        mark = ' ' if written == before else '*'
-        print(f'{mark} {artifact.path}')
-        changed += written != before
+        if artifact.name in said:
+            mark, path = said[artifact.name]
+            print(f'{mark} {path}')
+    if len(said) != len(wanted):
+        return 1
 
     print(f'\n{len(wanted)} built, {changed} changed')
     return 0
