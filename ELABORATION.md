@@ -1156,16 +1156,27 @@ later proofs are all still assumed.
 
 ## Keeping set.mm where the tools can see it
 
-The label check above was run once, from a copy fetched into a scratch
-directory that will not outlive the session. It found one wrong field in 193,
-which sounds like an argument for not bothering again.
+The label check was run once from a copy fetched into a scratch directory
+that did not outlive the session. It found one wrong field in 193, which
+sounds like an argument for not bothering again.
 
 It is the opposite. The database is 97 items and will grow, every new item
 names a label from memory, and the check is a set membership against a file
-that already exists. What it cannot do while the file is temporary is run in
-the gate, so the next wrong label will sit there as long as this one did.
+that already exists. What it could not do while the file was temporary was
+run in the gate, so the next wrong label would sit there as long as that one
+did.
 
-Making it permanent means a large file somewhere stable and a gate that
-degrades when it is missing, the way the gate already does for ruff. That is
-the whole cost, and the check it buys is the only one in this project that
-compares the corpus against something outside it.
+It is `parley/labels.py` and the gate's fourth stage. It reads every label a
+`target` or a `defines` field names — 145 of them, plus what
+`targets.MEMBERSHIP` lists — and asks set.mm whether it has them. What it
+does not read is `metamath`, which is prose meant for a person and names its
+labels in a sentence.
+
+set.mm is 51 MB and belongs to metamath, so it is still not committed: say
+where it is with `SET_MM`, or leave a copy or a link at the root of the
+working tree, which `.gitignore` covers. Missing, the stage says so and the
+gate is not green, the way it already goes for ruff — a gate that skipped
+either would be saying green about a thing it had not looked at.
+
+The check it buys is the only one in this project that compares the corpus
+against something outside it.

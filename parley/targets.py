@@ -21,6 +21,11 @@ import re
 
 HOLE = re.compile(r'_(\d+)')
 FOLDED = 'folded'
+REVERSED = 'equation reversed'
+# What a `target` may say that is not a lemma: that a pattern builds another
+# notation's tree, and that the lemma writes its equation the other way round
+# from the `then` line. `DATABASE.md` documents both.
+MARKERS = frozenset({FOLDED, REVERSED})
 
 
 def split_entries(value):

@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """Everything that must be green before a commit.
 
-Three things, in the order that fails fastest: the lint settings in
-`ruff.toml`, the checker over the whole corpus, and the planted defects that
-prove the checker still catches things. Any one of them failing fails the gate.
+Four things, in the order that fails fastest: the lint settings in
+`ruff.toml`, the checker over the whole corpus, the planted defects that prove
+the checker still catches things, and every set.mm label the database names.
+Any one of them failing fails the gate.
 
-ruff is not vendored and not installed by this script. If it is missing, say
+Two of them need something this repository does not carry. ruff is not
+vendored and not installed by this script; if it is missing, say
 
     pip install ruff
 
-or run it from a virtual environment; the gate looks for it on PATH.
+or run it from a virtual environment, and the gate looks for it on PATH.
+set.mm is 51 MB and belongs to metamath, so it is not committed either; say
+where it is with `SET_MM`, or leave a copy or a link at the root of the
+working tree. A gate that skipped either would be saying green about a thing
+it had not looked at.
 
 Usage:  parley/gate.py
 Exits non-zero when anything is not green.
@@ -43,6 +49,9 @@ def main():
     if not run('planted defects',
                [sys.executable, str(ROOT / 'parley' / 'test_check.py')]):
         failed.append('planted defects')
+    if not run('set.mm labels',
+               [sys.executable, str(ROOT / 'parley' / 'labels.py')]):
+        failed.append('set.mm labels')
 
     print()
     if failed:
