@@ -33,8 +33,8 @@ mechanical rather than a matter of taste. The conforming form is a step
 
 This pilot introduced `def:point`, `def:triangle`, `def:congruent`,
 `thm:distance-symmetric`, `thm:angle-symmetric`, `thm:triangle-permute`,
-`thm:side-angle-side` and `thm:isosceles` in `db/items.db`, and the point,
-distance, angle and congruence rows in `db/notation.db`. The table that used
+`thm:side-angle-side` and `thm:isosceles` in `db/items.records`, and the point,
+distance, angle and congruence rows in `db/notation.records`. The table that used
 to stand here was merged into those files.
 
 Seven of the eight are open items, which is what finding 1 below says. Three

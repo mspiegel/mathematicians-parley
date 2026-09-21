@@ -608,7 +608,7 @@ class Elaborator:
     def exchanged(self, given, want):
         """Whether these are one term with a commuting pair exchanged.
 
-        `commutes` in `db/notation.db` is what says which operands may be,
+        `commutes` in `db/notation.records` is what says which operands may be,
         and which theorem proves it is not asked here: the exchange is an
         equation, and an equation is settled like anything else."""
         for label, places, fixed in self.commutes:
@@ -1305,7 +1305,7 @@ class Elaborator:
         """An item the database gives no target for, taken as it states itself.
 
         `thm:lowest-terms` is the case: set.mm has nothing of its shape, as
-        `db/items.db` says, so what it claims is assumed under the hypotheses
+        `db/items.records` says, so what it claims is assumed under the hypotheses
         it asks for."""
         saved = dict(self.names)
         for name, value in instantiation(cites or step.just.text):
@@ -3332,7 +3332,7 @@ class _Literal:
 
 def corpus(root):
     records = []
-    for path in sorted((root / 'db').glob('*.db')):
+    for path in sorted((root / 'db').glob('*.records')):
         rel = str(path.relative_to(root))
         records.extend(parse_database(rel, check_encoding(rel,
                                                           path.read_bytes())))
@@ -3388,7 +3388,7 @@ def definitions(records, sigs):
 def write_definitions(records, sigs):
     """The corpus's definitions, as a file the proofs include."""
     said = definitions(records, sigs)
-    print('$( definitions, from db/items.db by parley/elaborate.py.')
+    print('$( definitions, from db/items.records by parley/elaborate.py.')
     if said:
         print('   Each introduces one constant the library does not have,')
         print('   and stands for a term that closes over its own names. $)')

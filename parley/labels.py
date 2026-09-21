@@ -109,7 +109,7 @@ def main(argv):
               'copy or a link at the root of the working tree')
         return 2
     records = []
-    for path in sorted((ROOT / 'db').glob('*.db')):
+    for path in sorted((ROOT / 'db').glob('*.records')):
         rel = str(path.relative_to(ROOT))
         try:
             records.extend(parse_database(

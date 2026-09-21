@@ -23,14 +23,14 @@ The skeleton is `proof/cantor.proof`. The items it cites are in `db/`.
 ## Database items
 
 This pilot introduced `def:powerset`, `def:function`, `thm:excluded-middle`
-and `thm:cantor` in `db/items.db`, and the power set and function rows in
-`db/notation.db`. The table that used to stand here was merged into those
+and `thm:cantor` in `db/items.records`, and the power set and function rows in
+`db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
 Two things the merge changed. `def:function` as written here was truncated
 and is now an open item, and the intermediate value pilot's item of the same
 name, which was a different statement, became `thm:function-value`. The rows
-reading "as in the Bezout pilot" are written out once in `db/items.db`.
+reading "as in the Bezout pilot" are written out once in `db/items.records`.
 
 The hypothesis `let A be a set` is set.mm's `A e. _V`. The hypothesis
 `let f : A → 𝒫A` is `F : A --> ~P A`. def:function is not cited in the

@@ -8,7 +8,7 @@ the three database files in `db/`, and every rule below holds on all of them.
 
 It has two halves. The **skeleton** is the text around a formula, and its
 productions are written out here. A **formula** is not: it is parsed from the
-notations declared in `db/notation.db`, and the section on formulas says how
+notations declared in `db/notation.records`, and the section on formulas says how
 those declarations become a parse rather than listing them again. Adding a
 notation is a database entry and never a change to this document.
 
@@ -24,7 +24,7 @@ Notation used below: `<x>` a named part, `[x]` optional, `{x}` zero or more,
 
 Files are UTF-8 in Normalisation Form C. An implementation works in Unicode
 scalar values; UTF-16 is used nowhere, for the reason in `DATABASE.md`. Every
-non-ASCII character in a claim must appear in `db/notation.db`, which doubles
+non-ASCII character in a claim must appear in `db/notation.records`, which doubles
 as a whitelist, with one addition: a variable may be a Greek letter and may
 carry a subscript or a prime, as δ, ε, x₀ and P′ do. Those are how a name is
 spelled rather than notation, so they have no record of their own and are
@@ -43,7 +43,7 @@ listed in the checker instead.
   two items that take the letter of the function they define. Every other name
   is lowercase words joined by hyphens.
 - `<term>` and `<formula>` are given by the notations declared in
-  `db/notation.db`, under "Formulas" below. The skeleton rules here delimit
+  `db/notation.records`, under "Formulas" below. The skeleton rules here delimit
   them; they do not describe what is inside.
 
 Horizontal whitespace is not significant and carries no structure. Indentation
@@ -53,7 +53,7 @@ chain line, noted below.
 
 ## Sorts
 
-`db/notation.db` declares the sort of each hole of each notation, and sorts are
+`db/notation.records` declares the sort of each hole of each notation, and sorts are
 what tell two notations sharing a pattern apart. So a parser has to know the
 sort of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
@@ -260,7 +260,7 @@ run-together that spells a declared word instead of relying on the convention.
 ## Formulas
 
 A formula is not parsed from productions written here. It is parsed from the
-notations declared in `db/notation.db`, so adding a notation is a database entry
+notations declared in `db/notation.records`, so adding a notation is a database entry
 and never a change to this document. What follows is how those declarations
 become a parse.
 
@@ -428,7 +428,7 @@ Two of those, `be a set` and `be a point`, are not notations and never appear
 inside a formula. `assume` does take a formula, because it does assert.
 
 Quantifying over an arbitrary set is the formula-position counterpart, and it is
-a notation: `for every set X, ...`, declared in `db/notation.db` as a binder
+a notation: `for every set X, ...`, declared in `db/notation.records` as a binder
 with no domain. Ten lines in the corpus use one of these arbitrary forms, four
 `be a set`, three `be a point` and three `for every set`, and until they were
 declared none of them matched anything.
@@ -539,7 +539,7 @@ opening line or part markers as the method requires.
 
 A part marker is a bare word on its own line. Which markers a block may carry,
 in which order, and whether a part opens with an assumption, are read from that
-method's record in `db/methods.db`, not hard-coded: induction declares `base,
+method's record in `db/methods.records`, not hard-coded: induction declares `base,
 step`, and cases declares a repeating `case` whose parts open with `assume`.
 
 ## Calculation chains

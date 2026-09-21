@@ -77,9 +77,9 @@ The skeleton is `proof/sum-formula.proof`. The items it cites are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:S` and `thm:sum-formula` in `db/items.db`, the ℕ
-and S rows in `db/notation.db`, and the `induction` and `fix` methods in
-`db/methods.db`. The table that used to stand here was merged into those
+This pilot introduced `def:S` and `thm:sum-formula` in `db/items.records`, the ℕ
+and S rows in `db/notation.records`, and the `induction` and `fix` methods in
+`db/methods.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
 ---

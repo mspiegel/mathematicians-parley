@@ -1,6 +1,6 @@
 # Specifications of the methods
 
-`db/methods.db` says what a reader checks when a step cites a method.
+`db/methods.records` says what a reader checks when a step cites a method.
 `SYNTAX.md` says how the step is written. This document says what the method
 decides: which claims it accepts, from which facts, and what it refuses.
 
@@ -495,7 +495,7 @@ five are reductio and two prove a negation directly.
 
 ### Why the method accepts two shapes
 
-`db/methods.db` used to say the block assumes "not C" written literally, and
+`db/methods.records` used to say the block assumes "not C" written literally, and
 five of the seven blocks do exactly that, two of them writing a doubled
 negation and stripping it with `thm:double-negation` in the next line. The
 other two suppose the thing the claim negates.

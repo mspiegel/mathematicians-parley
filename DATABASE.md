@@ -7,9 +7,9 @@ the merge of the ten pilots' item tables decided.
 ## Layout
 
 ```
-db/notation.db      symbols a claim may use
-db/methods.db       the justification vocabulary
-db/items.db         definitions and theorems
+db/notation.records      symbols a claim may use
+db/methods.records       the justification vocabulary
+db/items.records         definitions and theorems
 proof/*.proof       the proof skeletons, one file per pilot
 pilot/*.md          the design commentary for each pilot
 ```
@@ -21,7 +21,7 @@ the proof file rather than containing it.
 
 Getting out of markdown also repaired the database. Inside a markdown table a
 vertical bar has to be escaped, so absolute value, cardinality and distance were
-all stored with backslashes inside the formula. The `.db` files store them
+all stored with backslashes inside the formula. The `.records` files store them
 plainly.
 
 ## Record format
@@ -34,7 +34,7 @@ An item's statement is written in the theorem form of `SYNTAX.md`: labelled
 `let` and `assume` lines, then a `then` line. The database and the proof files
 therefore share one grammar, and one parser reads both.
 
-Every item in `db/items.db` carries exactly one of three fields saying where it
+Every item in `db/items.records` carries exactly one of three fields saying where it
 comes from:
 
 | field | meaning | count |
@@ -55,7 +55,7 @@ definition means, and `def:odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
-`then` line, which `odd2np1` and `divides` both do. `db/notation.db` documents
+`then` line, which `odd2np1` and `divides` both do. `db/notation.records` documents
 the same field on the notation side.
 
 The corpus holds 97 items, 27 definitions and 70 theorems, 56 notation records
@@ -68,7 +68,7 @@ for each hole, the sort each hole takes, what the pattern yields, its
 precedence level, its associativity where one is needed, and whether one of its
 patterns is the negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
-a hole marked as binding. `db/notation.db` describes the fields, and one
+a hole marked as binding. `db/notation.records` describes the fields, and one
 `precedence` record declares the order between levels as a partial order, so a
 formula mixing two levels that convention does not relate is rejected rather
 than guessed at.

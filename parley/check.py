@@ -162,7 +162,7 @@ def check_characters(report, path, text, allowed):
             name = unicodedata.name(ch, 'unnamed')
             report.say(path, no,
                        f'character {ch!r} (U+{ord(ch):04X}, {name}) is in no '
-                       f'record of db/notation.db')
+                       f'record of db/notation.records')
             return
 
 
@@ -414,7 +414,7 @@ def check_citations(report, thm, items, methods, notation):
                            f'{just.head} names a {item.kind}')
         elif just.head not in methods:
             report.say(thm.path, just.line,
-                       f'{just.head} is in no record of db/methods.db')
+                       f'{just.head} is in no record of db/methods.records')
         for _, text, no in step.requires:
             heads = [h for h in HEADS if text.startswith(h)]
             if not heads and not re.match(rf'^from\s+{REF}$', text):
@@ -1108,7 +1108,7 @@ def check_symbols(report, records):
         reached.update(r.fields.get('target', '').split())
     for token, name in claimed.items():
         if f'c{token}' not in reached:
-            report.say('db/items.db', 0,
+            report.say('db/items.records', 0,
                        f'definition {name}: nothing writes c{token}, so the '
                        f'symbol it introduces cannot be reached')
 
@@ -1247,7 +1247,7 @@ def main(root):
     root = Path(root)
     report = Report()
 
-    db_files = sorted((root / 'db').glob('*.db'))
+    db_files = sorted((root / 'db').glob('*.records'))
     proof_files = sorted((root / 'proof').glob('*.proof'))
     if not db_files or not proof_files:
         print(f'no corpus under {root}', file=sys.stderr)
@@ -1334,7 +1334,7 @@ def main(root):
         if thm.name not in items:
             report.say(thm.path, thm.line,
                        f'theorem {thm.name} is proved here and is in no record of '
-                       f'db/items.db')
+                       f'db/items.records')
 
     for p in sorted(report.problems, key=lambda p: (p.path, p.line)):
         print(p)

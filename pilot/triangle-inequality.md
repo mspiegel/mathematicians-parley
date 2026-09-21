@@ -88,9 +88,9 @@ The items they cite are in `db/`.
 ## Database items
 
 This pilot introduced `def:abs`, `thm:nonneg-or-neg`, `thm:real-closure`,
-`thm:abs-bounds` and `thm:triangle-inequality` in `db/items.db`, the absolute
-value and negation rows in `db/notation.db`, and the `cases` method in
-`db/methods.db`. It also settled the mixed = and ≤ chain, which is part of
+`thm:abs-bounds` and `thm:triangle-inequality` in `db/items.records`, the absolute
+value and negation rows in `db/notation.records`, and the `cases` method in
+`db/methods.records`. It also settled the mixed = and ≤ chain, which is part of
 the `calculation` record rather than a method of its own. The table that used
 to stand here was merged into those files.
 

@@ -1,4 +1,4 @@
-"""Parse a formula from the notations declared in db/notation.db.
+"""Parse a formula from the notations declared in db/notation.records.
 
 GRAMMAR.md's "Formulas" section is the specification. Nothing here knows any
 notation by name: the patterns, their hole sorts, their precedence levels and

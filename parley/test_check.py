@@ -93,7 +93,7 @@ CASES = [
      'Normalisation Form C'),
 
     ('an item that says nothing about where it comes from',
-     'db/items.db',
+     'db/items.records',
      'theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath    pw0',
      'theorem powerset-empty\n  then        𝒫∅ = {∅}',
      'neither where it is proved'),
@@ -171,19 +171,19 @@ CASES = [
      'does not supply them'),
 
     ('stop declaring which pattern is a negation of which',
-     'db/notation.db',
+     'db/notation.records',
      '  level       predicate\n  negates     pattern 3 is logical-not of pattern 2',
      '  level       predicate',
      'does not supply them'),
 
     ('drop a hole from the term a notation builds',
-     'db/notation.db',
+     'db/notation.records',
      '  target      _1 _2 caddc co, _1 _2 cmin co',
      '  target      _1 _1 caddc co, _1 _2 cmin co',
      'leaves a hole out'),
 
     ('give a notation fewer targets than it has patterns',
-     'db/notation.db',
+     'db/notation.records',
      '  target      _1 _2 cmul co, _1 _2 cdiv co',
      '  target      _1 _2 cmul co',
      'target entr'),
@@ -207,19 +207,19 @@ CASES = [
      'does not conclude'),
 
     ('stop declaring that juxtaposition is the product',
-     'db/notation.db',
+     'db/notation.records',
      '  assoc       left\n  spells      multiplicative ·',
      '  assoc       left',
      'does not conclude'),
 
     ('stop saying which variable the braces bind',
-     'db/items.db',
+     'db/items.records',
      '  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)',
      '  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)',
      'does not conclude'),
 
     ('say a property is a function into a formula',
-     'db/items.db',
+     'db/items.records',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)\n'
      '  let P be a property of the elements of X                            (H2)',
@@ -254,19 +254,19 @@ CASES = [
      'does not state a formula and that formula negated'),
 
     ('write a word predicate under a bare not',
-     'db/items.db',
+     'db/items.records',
      '              not (P, Q, R are collinear)',
      '              not P, Q, R are collinear',
      'token(s) left over'),
 
     ('state an item in a notation nobody declared',
-     'db/items.db',
+     'db/items.records',
      'theorem subset-transitive\n  assume X ⊆ Y',
      'theorem subset-transitive\n  assume X is within Y',
      'theorem subset-transitive'),
 
     ('leave the name in an item statement with no sort',
-     'db/items.db',
+     'db/items.records',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)\n'
      '  let P be a property of the elements of X                            (H2)',
@@ -275,35 +275,35 @@ CASES = [
      'theorem set-builder-subset'),
 
     ('introduce a symbol and say nothing it stands for',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr\n'
      '  then        x is irrational',
      'says nothing it stands for'),
 
     ('define a term and name no symbol for it',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  defines     cr cq cdif\n'
      '  then        x is irrational',
      'names no symbol for it'),
 
     ('introduce a symbol nothing writes',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr\n  defines     cr cq cdif\n'
      '  then        x is irrational',
      'cannot be reached'),
 
     ('introduce a symbol in more than one token',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr ational\n'
      '  defines     cr cq cdif\n  then        x is irrational',
      'is not one token'),
 
     ('introduce one symbol from two definitions',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n'
      '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ',
      'definition irrational\n  symbol      dup\n  defines     cr\n'
@@ -313,7 +313,7 @@ CASES = [
      'is already introduced by'),
 
     ('state a field twice, which reads as one field joined',
-     'db/items.db',
+     'db/items.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  first-used  sqrt2-irrational\n'
      '  then        x is irrational',

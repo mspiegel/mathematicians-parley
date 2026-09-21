@@ -112,8 +112,8 @@ natural number p with p prime and p > n.
 This pilot introduced `def:factorial`, `def:prime`, `thm:factorial-nat`,
 `thm:nat-closure`, `thm:nat-ge-1`, `thm:nat-int`, `thm:prime-factor`,
 `thm:factorial-divisible`, `thm:divides-difference`, `thm:divides-one` and
-`thm:prime-above` in `db/items.db`, and the factorial row in
-`db/notation.db`. The table that used to stand here was merged into those
+`thm:prime-above` in `db/items.records`, and the factorial row in
+`db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
 No new methods. `substitute ... into`, `inequalities`, `join`,

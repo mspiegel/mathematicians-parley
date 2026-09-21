@@ -91,12 +91,12 @@ question and not a property of the text.
 
 ## Database items
 
-This pilot introduced most of the database. In `db/items.db`: `def:sqrt`,
+This pilot introduced most of the database. In `db/items.records`: `def:sqrt`,
 `def:rational`, `def:irrational`, `def:even`, `def:odd`, `def:divides`,
 `thm:lowest-terms`, `thm:int-closure`, `thm:even-or-odd`, `thm:not-both`,
 `thm:odd-square`, `thm:even-square` and `thm:sqrt2-irrational`. In
-`db/notation.db`: the number systems, the relations, the arithmetic
-operations and the logical symbols. In `db/methods.db`: `arithmetic`,
+`db/notation.records`: the number systems, the relations, the arithmetic
+operations and the logical symbols. In `db/methods.records`: `arithmetic`,
 `algebra`, `inequalities`, `substitute`, `join`, `obtain`, `exhibit`,
 `contradiction` and `calculation`, nine of the fourteen. The tables that used
 to stand here were merged into those files; `DATABASE.md` records what the

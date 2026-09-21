@@ -24,7 +24,7 @@ The skeleton is `proof/geometric-series.proof`. The items it cites are in
 ## Database items
 
 This pilot introduced `def:G`, `thm:exponent-step`, `thm:nat0-closure` and
-`thm:geometric-sum` in `db/items.db`, and the G row in `db/notation.db`. The
+`thm:geometric-sum` in `db/items.records`, and the G row in `db/notation.records`. The
 table that used to stand here was merged into those files; `DATABASE.md`
 records what the merge decided.
 

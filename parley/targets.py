@@ -1,6 +1,6 @@
 """Where the readable layer's words land in set.mm.
 
-`db/notation.db` and `db/items.db` carry a `target` field beside `metamath`,
+`db/notation.records` and `db/items.records` carry a `target` field beside `metamath`,
 and this reads it. `metamath` says in words which set.mm construct a pattern
 or an item corresponds to, which is what a person checking the database
 wants; `target` says the same thing as a term, which is what a program needs.
@@ -156,7 +156,7 @@ MEMBERSHIP = [
     'elfzelz', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
     'renegcl', 'negcl',
-    # and what a commuting pair asks, which `db/notation.db` declares by
+    # and what a commuting pair asks, which `db/notation.records` declares by
     # notation and this answers by statement
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure

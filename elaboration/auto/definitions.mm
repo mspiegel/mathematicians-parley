@@ -1,4 +1,4 @@
-$( definitions, from db/items.db by parley/elaborate.py.
+$( definitions, from db/items.records by parley/elaborate.py.
    Each introduces one constant the library does not have,
    and stands for a term that closes over its own names. $)
 

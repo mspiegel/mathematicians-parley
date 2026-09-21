@@ -36,8 +36,8 @@ This pilot introduced `def:interval`, `thm:interval-real`,
 `thm:subset-transitive`, `thm:function-value`, `def:continuous-on`,
 `def:upper-bound`, `def:least-upper-bound`, `thm:completeness`,
 `thm:trichotomy`, `thm:from-contradiction`, `thm:point-right`,
-`thm:abs-difference-lt` and `thm:intermediate-value` in `db/items.db`, and
-the closed interval row in `db/notation.db`. The table that used to stand
+`thm:abs-difference-lt` and `thm:intermediate-value` in `db/items.records`, and
+the closed interval row in `db/notation.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
 

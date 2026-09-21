@@ -28,15 +28,15 @@ This pilot introduced `def:card`, `thm:card-zero`, `thm:powerset-empty`,
 `thm:card-singleton`, `thm:card-nonempty`, `thm:card-remove`,
 `thm:difference-set`, `thm:add-element-bijection`, `thm:card-bijection`,
 `thm:powerset-split`, `thm:powerset-split-disjoint`,
-`thm:card-disjoint-union` and `thm:subsets-count` in `db/items.db`, and the
-cardinality, set-operation and set-image rows in `db/notation.db`. The table
+`thm:card-disjoint-union` and `thm:subsets-count` in `db/items.records`, and the
+cardinality, set-operation and set-image rows in `db/notation.records`. The table
 that used to stand here was merged into those files; `DATABASE.md` records
 what the merge decided.
 
 Three of these are open items, as finding 4 below says. Two of the three had
 rows that were not statements: `thm:add-element-bijection`'s row trailed off
 mid-sentence and `thm:powerset-split-disjoint`'s read only "the two parts
-above are disjoint". `db/items.db` carries the merge's reading of each, which
+above are disjoint". `db/items.records` carries the merge's reading of each, which
 should be checked before either is proved.
 
 `def:set-image` was named in `SYNTAX.md` for the `{E(s) : s ∈ Y}` notation

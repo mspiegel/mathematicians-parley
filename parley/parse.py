@@ -84,7 +84,7 @@ RECORD_KINDS = ('notation', 'method', 'definition', 'theorem', 'precedence')
 
 
 def parse_database(path, text):
-    """Records of db/*.db. A record begins at column 0; its fields are
+    """Records of db/*.records. A record begins at column 0; its fields are
     indented. `let`, `assume` and `then` lines carry an item's statement."""
     records, cur = [], None
     # A field sits at the record's field indent. Anything indented further

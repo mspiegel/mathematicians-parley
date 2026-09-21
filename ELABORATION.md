@@ -505,7 +505,7 @@ summand is complex, and one substitution instance — and none is a `requires`
 line, because to a reader none is a step. Describing them in the database
 would have meant writing kernel structure into a readable file. Instead
 `parley/kernel.py` parses a set.mm statement into a term, so a lemma's own
-statement says what it concludes and what it asks; `db/items.db` names
+statement says what it concludes and what it asks; `db/items.records` names
 `fsum1, fsump1` and nothing more, and which clause applies is decided by
 which one's conclusion is what the step claims.
 
@@ -844,7 +844,7 @@ the identity is.
 
 20. **The corpus and set.mm may state one fact as two formulas.** Three kinds,
     and only the first is a normaliser's. A *rearrangement* — `2k` against
-    `k x. 2` — is the same operators permuted, and `db/notation.db` names it
+    `k x. 2` — is the same operators permuted, and `db/notation.records` names it
     with `commutes`. A *named equivalence* — `p ∈ ℤ≥2` against `p > 1` — is
     two different constructs that set.mm proves equal, and something has to
     point at the theorem that does. A *rebuilt quantifier* — primality in the
@@ -924,7 +924,7 @@ these, and each one found is an argument for elaborating the rest.
 ## The proof that could not be elaborated, and what set.mm has for it
 
 `isosceles` was the ninth proof and it stopped before the elaborator was
-reached. Six of the seven items it cites were marked `open` in `db/items.db`,
+reached. Six of the seven items it cites were marked `open` in `db/items.records`,
 and five of the notations it uses had no `target`. That was not a gap in the
 tools. What blocked it was that the readable layer writes `∠CAB = ∠CBA`, an
 equation between numbers, and no Metamath library has a number to put there.

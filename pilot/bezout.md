@@ -41,15 +41,15 @@ This pilot introduced `def:set-builder`, `def:subset`,
 `thm:set-builder-subset`, `def:gcd`, `thm:well-ordering`,
 `thm:division-algorithm`, `thm:pos-int-nat`, `thm:divides-combination`,
 `thm:divides-le`, `thm:least-combination-divides` and `thm:bezout` in
-`db/items.db`, the set-builder, subset and gcd rows in `db/notation.db`, and
-the `instantiate` method in `db/methods.db`. The table that used to stand
+`db/items.records`, the set-builder, subset and gcd rows in `db/notation.records`, and
+the `instantiate` method in `db/methods.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
 
 `define` was listed here as a provisional method. It is not one: `SYNTAX.md`
 makes it the third kind of unnumbered line beside `let` and `assume`, so it
 belongs to the grammar and not to the justification vocabulary. It is
-described in `DATABASE.md` rather than in `db/methods.db`.
+described in `DATABASE.md` rather than in `db/methods.records`.
 
 `thm:well-ordering` is stated with `assume S ⊆ ℕ` and no `let S be a set`,
 because that is what this table said and what step 4 discharges. Whether a
