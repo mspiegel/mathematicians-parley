@@ -1607,11 +1607,152 @@ class Elaborator:
         if not isinstance(found, dict):
             raise normal.Unhandled('the refutation splits')
         used = [i for i, k in found.items() if k and i < len(given)]
-        if len(used) != 1 or given[used[0]].how != '=':
-            raise normal.Unhandled('not one cited equation')
-        return self.from_equation(
-            where[used[0]], found[used[0]] / found[len(given)],
-            left, right, how, scope, facts, lines)
+        weight = found[len(given)]
+        if len(used) == 1 and given[used[0]].how == '=':
+            return self.from_equation(where[used[0]],
+                                      found[used[0]] / weight,
+                                      left, right, how, scope, facts, lines)
+        return self.from_sum([(where[i], given[i], found[i] / weight)
+                              for i in used],
+                             left, right, how, scope, facts, lines)
+
+    def from_sum(self, used, left, right, how, scope, facts, lines):
+        """The claim as two cited bounds added.
+
+        Each says a difference is at most zero; added, the two differences
+        are the claim's, which is the normalizer's question. `le2add` is
+        the addition, and what it lands on is zero plus zero."""
+        if how != '<=' or len(used) != 2:
+            raise normal.Unhandled('only two bounds added is written')
+        if any(fact.how != '<=' or times != 1 for _c, fact, times in used):
+            raise normal.Unhandled('a bound is scaled, or is not `at most`')
+
+        def real_number(one):
+            want = seq(one, 'cr', 'wcel')
+            if want in facts:
+                return facts[want]
+            return self.settle(self.to_term(want), scope, facts)
+
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.settle(
+                                  self.to_term(seq(t, 'cc', 'wcel')),
+                                  scope, facts))
+        gaps, bounds = [], []
+        for (ref, said), _fact, _times in used:
+            parts = order_sides(said)
+            if parts is None or parts[2] != '<=':
+                raise normal.Unhandled('a cited bound is not stated as one')
+            was = [c.rpn(self.flabel) for c in said.children[:2]]
+            gaps.append(seq(was[0], was[1], 'cmin', 'co'))
+            bounds.append(self.difference_le(
+                work, was,
+                self.cited_fact(ref, said, scope, facts, lines),
+                facts, real_number))
+        total = seq(gaps[0], gaps[1], 'caddc', 'co')
+        real = [work.ap('syl2anc',
+                        {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
+                         'ch': seq(b, 'cr', 'wcel'),
+                         'th': seq(one, 'cr', 'wcel')},
+                        real_number(a), real_number(b),
+                        work.ap('resubcl', {'A': a, 'B': b}))
+                for one, (a, b) in zip(gaps, [
+                    [c.rpn(self.flabel) for c in said.children[:2]]
+                    for (_r, said), _f, _t in used], strict=True)]
+        zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
+        added = work.ap(
+            'breqtrd', {'ph': scope, 'A': total,
+                        'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
+                        'R': 'cle'},
+            work.ap('mpd',
+                    {'ph': scope,
+                     'ps': seq(seq(gaps[0], 'cc0', 'cle', 'wbr'),
+                               seq(gaps[1], 'cc0', 'cle', 'wbr'), 'wa'),
+                     'ch': seq(total, seq('cc0', 'cc0', 'caddc', 'co'),
+                               'cle', 'wbr')},
+                    work.ap('jca', {'ph': scope,
+                                    'ps': seq(gaps[0], 'cc0', 'cle', 'wbr'),
+                                    'ch': seq(gaps[1], 'cc0', 'cle', 'wbr')},
+                            *bounds),
+                    work.ap('syl',
+                            {'ph': scope,
+                             'ps': seq(seq(seq(gaps[0], 'cr', 'wcel'),
+                                           seq(gaps[1], 'cr', 'wcel'), 'wa'),
+                                       seq(seq('cc0', 'cr', 'wcel'),
+                                           seq('cc0', 'cr', 'wcel'), 'wa'),
+                                       'wa'),
+                             'ch': seq(seq(seq(gaps[0], 'cc0', 'cle', 'wbr'),
+                                           seq(gaps[1], 'cc0', 'cle', 'wbr'),
+                                           'wa'),
+                                       seq(total,
+                                           seq('cc0', 'cc0', 'caddc', 'co'),
+                                           'cle', 'wbr'), 'wi')},
+                            work.ap('jca',
+                                    {'ph': scope,
+                                     'ps': seq(seq(gaps[0], 'cr', 'wcel'),
+                                               seq(gaps[1], 'cr', 'wcel'),
+                                               'wa'),
+                                     'ch': seq(seq('cc0', 'cr', 'wcel'),
+                                               seq('cc0', 'cr', 'wcel'),
+                                               'wa')},
+                                    work.ap('jca',
+                                            {'ph': scope,
+                                             'ps': seq(gaps[0], 'cr', 'wcel'),
+                                             'ch': seq(gaps[1], 'cr',
+                                                       'wcel')}, *real),
+                                    work.ap('jca',
+                                            {'ph': scope,
+                                             'ps': seq('cc0', 'cr', 'wcel'),
+                                             'ch': seq('cc0', 'cr', 'wcel')},
+                                            zero, zero)),
+                            work.ap('le2add', {'A': gaps[0], 'B': gaps[1],
+                                               'C': 'cc0', 'D': 'cc0'}))),
+            work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
+                     '00id'))
+        span = seq(left, right, 'cmin', 'co')
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
+                      'ch': seq(left, right, 'cle', 'wbr')},
+            work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
+                                'C': 'cc0', 'R': 'cle'},
+                    self.same_polynomial(work, span, total), added),
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
+                     'ch': seq(right, 'cr', 'wcel'),
+                     'th': seq(seq(span, 'cc0', 'cle', 'wbr'),
+                               seq(left, right, 'cle', 'wbr'), 'wb')},
+                    real_number(left), real_number(right),
+                    work.ap('suble0', {'A': left, 'B': right})))
+
+    def cited_fact(self, ref, said, scope, facts, lines):
+        """The proof of one fact a cited line states.
+
+        A line may say several things at once — `abs-bounds` concludes a
+        pair of bounds — and what the step uses is one of them, so the
+        line is taken apart the way `opposing` takes one apart."""
+        want = said.rpn(self.flabel)
+        held = self.carried(ref, facts, lines)
+        if lines[ref].term == want:
+            return held
+        known = dict(facts)
+        self.unpack(lines[ref].term, held, scope, known)
+        if want not in known:
+            raise normal.Unhandled('that line does not reach the fact')
+        return known[want]
+
+    def difference_le(self, work, was, given, facts, real_number):
+        """( scope -> ( A - B ) <_ 0 ) from a cited A <_ B."""
+        gap = seq(was[0], was[1], 'cmin', 'co')
+        return work.ap(
+            'mpbird', {'ph': work.under, 'ps': seq(gap, 'cc0', 'cle', 'wbr'),
+                       'ch': seq(was[0], was[1], 'cle', 'wbr')},
+            given,
+            work.ap('syl2anc',
+                    {'ph': work.under, 'ps': seq(was[0], 'cr', 'wcel'),
+                     'ch': seq(was[1], 'cr', 'wcel'),
+                     'th': seq(seq(gap, 'cc0', 'cle', 'wbr'),
+                               seq(was[0], was[1], 'cle', 'wbr'), 'wb')},
+                    real_number(was[0]), real_number(was[1]),
+                    work.ap('suble0', {'A': was[0], 'B': was[1]})))
 
     def from_equation(self, cited, times, left, right, how, scope, facts,
                       lines):
@@ -1654,8 +1795,10 @@ class Elaborator:
                 work.chain(
                     work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
                                        'C': numeral, 'F': 'cmul'},
-                            self.difference_zero(work, was, ref, facts,
-                                                 lines)),
+                            self.difference_zero(
+                                work, was,
+                                self.cited_fact(ref, said, scope, facts,
+                                                lines))),
                     work.ap('syl',
                             {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
                              'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
@@ -1703,14 +1846,14 @@ class Elaborator:
                     real_number(left), real_number(right),
                     work.ap('suble0', {'A': left, 'B': right})))
 
-    def difference_zero(self, work, was, ref, facts, lines):
+    def difference_zero(self, work, was, given):
         """( scope -> ( A - B ) = 0 ) from a cited A = B."""
         scope = work.under
         return work.ap(
             'mpbird', {'ph': scope, 'ps': seq(seq(was[0], was[1], 'cmin',
                                                   'co'), 'cc0', 'wceq'),
                        'ch': seq(was[0], was[1], 'wceq')},
-            self.carried(ref, facts, lines),
+            given,
             work.ap('syl2anc',
                     {'ph': scope, 'ps': seq(was[0], 'cc', 'wcel'),
                      'ch': seq(was[1], 'cc', 'wcel'),
