@@ -221,6 +221,7 @@ theorem nat0-closure
   let k ∈ ℕ₀                                                          (H1)
   then        k + 1 ∈ ℕ₀
   metamath    peano2nn0
+  target      peano2nn0
   first-used  geometric-series
 
 theorem nat-int
@@ -298,6 +299,7 @@ theorem exponent-step
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
   metamath    expp1
+  target      expp1
   first-used  geometric-series
 
 theorem power-real
@@ -315,6 +317,7 @@ theorem exponent-one
   let a ∈ ℝ                                                           (H1)
   then        a^1 = a
   metamath    exp1
+  target      exp1
   first-used  geometric-series
   note        The base case of the geometric series needs a^(0 + 1) = a. The
               arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
