@@ -76,6 +76,16 @@ with rational coefficients. A cited line of several sentences supplies each
 sentence that has this shape and is ignored for the rest, so citing a line that
 also states a membership or a quantified sentence is not an error.
 
+A **closed numeral fact is available without being cited**. The combination
+that reaches a claim may need one — `n! ≥ 1` gives `n! + 1 > 1`, and the
+strictness comes from `1 > 0`, which the step names nowhere. Those facts are
+`arithmetic`'s, and the reader writing that step uses this one without writing
+it down, as anyone would. Making the text say `requires 1 > 0` to justify
+`n! + 1 > 1` would be the readable layer serving the prover rather than the
+reader, which `GOALS.md` is against; so the method takes them, and this
+sentence is what stops that being a quiet borrowing across the boundary
+`arithmetic` otherwise keeps.
+
 ### Fact out
 
 The claim must be a single fact of the same five shapes. Both an equation and

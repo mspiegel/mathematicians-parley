@@ -28,6 +28,7 @@ Usage:  parley/elaborate.py <theorem> <set.mm>
 import re
 import sys
 import typing
+from fractions import Fraction
 from pathlib import Path
 
 import field
@@ -1612,17 +1613,36 @@ class Elaborator:
             return self.from_equation(where[used[0]],
                                       found[used[0]] / weight,
                                       left, right, how, scope, facts, lines)
+        # What the scaled facts leave over is a constant, and `METHODS.md`
+        # says the method may use a closed numeral fact the step does not
+        # cite. It is what makes `n! >_ 1` give `n! + 1 > 1`.
+        spare = claim.side
+        for i in used:
+            spare = spare.minus(given[i].side.scaled(found[i] / weight))
+        if not spare.constant_only():
+            raise normal.Unhandled('what is left over is not a constant')
         return self.from_sum([(where[i], given[i], found[i] / weight)
                               for i in used],
-                             left, right, how, scope, facts, lines)
+                             left, right, how, spare.constant, scope, facts,
+                             lines)
 
-    def from_sum(self, used, left, right, how, scope, facts, lines):
-        """The claim as two cited bounds added.
+    def from_sum(self, used, left, right, how, spare, scope, facts, lines):
+        """The claim as the cited bounds added, and what they leave over.
 
         Each says a difference is at most zero; added, the two differences
         are the claim's, which is the normalizer's question. `le2add` is
-        the addition, and what it lands on is zero plus zero."""
-        if how != '<=' or not 1 <= len(used) <= 2:
+        the addition, and what it lands on is zero plus zero.
+
+        A claim that is strict gets its strictness from the constant the
+        bounds leave over, which is a closed numeral fact the step does
+        not cite. `METHODS.md` says the method may use one."""
+        if how == '<':
+            if spare != -1 or len(used) != 1:
+                raise normal.Unhandled('only one bound short of one is '
+                                       'written')
+        elif how != '<=' or spare != 0:
+            raise normal.Unhandled('only one or two bounds is written')
+        if not 1 <= len(used) <= 2:
             raise normal.Unhandled('only one or two bounds is written')
 
         def real_number(one):
@@ -1644,6 +1664,9 @@ class Elaborator:
             gaps.append(one)
             bounds.append(proof)
             real.append(held)
+        if how == '<':
+            return self.short_of_one(work, gaps[0], bounds[0], real[0],
+                                     left, right, real_number)
         if len(gaps) == 1:
             # Nothing to add: the one bound is already the claim's.
             return self.bound_reaches(work, gaps[0], bounds[0], left, right,
@@ -1701,6 +1724,96 @@ class Elaborator:
                      '00id'))
         return self.bound_reaches(work, total, added, left, right,
                                   real_number)
+
+    def short_of_one(self, work, gap, bound, gap_real, left, right,
+                     real_number):
+        """A bound and a minus one, added, to reach a strict claim.
+
+        `leltadd` is the addition that keeps the strictness, and `suble0`
+        has no strict twin, so the claim comes back through `ltsubadd`
+        with nothing on the right and `addlid` to tidy it."""
+        scope = work.under
+        minus, span = seq('c1', 'cneg'), seq(left, right, 'cmin', 'co')
+        total = seq(gap, minus, 'caddc', 'co')
+        zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
+        pair = seq(seq(gap, 'cr', 'wcel'), seq(minus, 'cr', 'wcel'), 'wa')
+        added = work.ap(
+            'breqtrd', {'ph': scope, 'A': total,
+                        'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
+                        'R': 'clt'},
+            work.ap('mpd',
+                    {'ph': scope,
+                     'ps': seq(seq(gap, 'cc0', 'cle', 'wbr'),
+                               seq(minus, 'cc0', 'clt', 'wbr'), 'wa'),
+                     'ch': seq(total, seq('cc0', 'cc0', 'caddc', 'co'),
+                               'clt', 'wbr')},
+                    work.ap('jca', {'ph': scope,
+                                    'ps': seq(gap, 'cc0', 'cle', 'wbr'),
+                                    'ch': seq(minus, 'cc0', 'clt', 'wbr')},
+                            bound,
+                            work.a1i(seq(minus, 'cc0', 'clt', 'wbr'),
+                                     'neg1lt0')),
+                    work.ap('syl',
+                            {'ph': scope,
+                             'ps': seq(pair,
+                                       seq(seq('cc0', 'cr', 'wcel'),
+                                           seq('cc0', 'cr', 'wcel'), 'wa'),
+                                       'wa'),
+                             'ch': seq(seq(seq(gap, 'cc0', 'cle', 'wbr'),
+                                           seq(minus, 'cc0', 'clt', 'wbr'),
+                                           'wa'),
+                                       seq(total,
+                                           seq('cc0', 'cc0', 'caddc', 'co'),
+                                           'clt', 'wbr'), 'wi')},
+                            work.ap('jca',
+                                    {'ph': scope, 'ps': pair,
+                                     'ch': seq(seq('cc0', 'cr', 'wcel'),
+                                               seq('cc0', 'cr', 'wcel'),
+                                               'wa')},
+                                    work.ap('jca',
+                                            {'ph': scope,
+                                             'ps': seq(gap, 'cr', 'wcel'),
+                                             'ch': seq(minus, 'cr', 'wcel')},
+                                            gap_real,
+                                            self.real_numeral(
+                                                work, Fraction(-1))),
+                                    work.ap('jca',
+                                            {'ph': scope,
+                                             'ps': seq('cc0', 'cr', 'wcel'),
+                                             'ch': seq('cc0', 'cr', 'wcel')},
+                                            zero, zero)),
+                            work.ap('leltadd', {'A': gap, 'B': minus,
+                                                'C': 'cc0', 'D': 'cc0'}))),
+            work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
+                     '00id'))
+        return work.ap(
+            'breqtrd', {'ph': scope, 'A': left,
+                        'B': seq('cc0', right, 'caddc', 'co'), 'C': right,
+                        'R': 'clt'},
+            work.ap('mpbid',
+                    {'ph': scope, 'ps': seq(span, 'cc0', 'clt', 'wbr'),
+                     'ch': seq(left, seq('cc0', right, 'caddc', 'co'),
+                               'clt', 'wbr')},
+                    work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
+                                        'C': 'cc0', 'R': 'clt'},
+                            self.same_polynomial(work, span, total), added),
+                    work.ap('syl3anc',
+                            {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
+                             'ch': seq(right, 'cr', 'wcel'),
+                             'th': seq('cc0', 'cr', 'wcel'),
+                             'ta': seq(seq(span, 'cc0', 'clt', 'wbr'),
+                                       seq(left,
+                                           seq('cc0', right, 'caddc', 'co'),
+                                           'clt', 'wbr'), 'wb')},
+                            real_number(left), real_number(right), zero,
+                            work.ap('ltsubadd', {'A': left, 'B': right,
+                                                 'C': 'cc0'}))),
+            work.ap('syl', {'ph': scope, 'ps': seq(right, 'cc', 'wcel'),
+                            'ch': seq(seq('cc0', right, 'caddc', 'co'),
+                                      right, 'wceq')},
+                    work.ap('recnd', {'ph': scope, 'A': right},
+                            real_number(right)),
+                    work.ap('addlid', {'A': right})))
 
     def bound_reaches(self, work, total, added, left, right, real_number):
         """A term at most zero, said of the claim's two sides.
