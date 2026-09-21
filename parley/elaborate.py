@@ -111,6 +111,31 @@ def whole_multiple(cited, claim):
     return times.numerator
 
 
+def multiplier(shape, scale):
+    """The term a combination multiplies one cited equation by, or None.
+
+    `field.spell` writes the canonical polynomial, which raises an atom to
+    the first power and multiplies it by one. That is what two polynomials
+    being compared want and not what a factor wants: `( -u 1 x. ( q ^ 1 ) )`
+    asks for two memberships nothing declares where `-u q` asks for one that
+    is. So a multiplier is written the short way."""
+    monomials = list(shape.terms)
+    if len(monomials) != 1 or shape.terms[monomials[0]] != 1:
+        return None
+    parts = monomials[0]
+    if not parts:
+        return field.spell_coefficient(scale)
+    if len(parts) != 1 or parts[0][1] != 1:
+        return None
+    name = parts[0][0]
+    if scale == 1:
+        return name
+    if scale == -1:
+        return seq(name, 'cneg')
+    digit = field.spell_coefficient(scale)
+    return None if digit is None else seq(digit, name, 'cmul', 'co')
+
+
 def rescales(cited, claim):
     """What the cited polynomial is multiplied by to become the claim's.
 
@@ -1917,8 +1942,12 @@ class Elaborator(Builder):
                 return self.scaled_from_cited(step, left, right, scope,
                                               facts, lines, work)
             except normal.Unhandled:
-                return self.crossed_from_cited(step, left, right, scope,
-                                               facts, lines, work)
+                try:
+                    return self.crossed_from_cited(step, left, right, scope,
+                                                   facts, lines, work)
+                except normal.Unhandled:
+                    return self.summed_from_cited(step, left, right, scope,
+                                                  facts, lines, work)
 
     def apart_from_cited(self, step, goal, scope, facts, lines, work,
                          complex_number):
@@ -2201,6 +2230,95 @@ class Elaborator(Builder):
                                     work.ap('divmuleq',
                                             {'A': c, 'B': a, 'C': d,
                                              'D': b})))))
+
+    def summed_from_cited(self, step, left, right, scope, facts, lines, work):
+        """A claim the cited equations add up to.
+
+        Bezout's step 3 takes three at once — `c = q·d + r`, `c = a·u + b·v`
+        and `d = a·x₀ + b·y₀` — at −1, 1 and −q, and is the only step in the
+        corpus whose multipliers are not all constants. `decide_field` works
+        those out to decide the step at all and hands them over; what is
+        left is saying it. Each cited equation is a difference that is zero;
+        each is multiplied by what the combination says, and stays zero; the
+        sum of them is zero because every one is; and that sum is the
+        claim's own difference, which is the normalizer's question."""
+        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+                              self.flabel)
+        given, where = [], []
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            for said in self.parts(held.term):
+                node = self.to_term(said)
+                one = field.equation(node, self.flabel)
+                if one is not None:
+                    given.append(one)
+                    where.append((ref, node))
+        if want is None or not given:
+            raise normal.Unhandled('the step cites no equation')
+
+        def in_cc(said):
+            """( scope -> said e. CC ), for a term of the step's own depth.
+
+            The claim's sides are as deep as the step wrote them — Bezout's
+            is a sum of two products of a difference of a product — and each
+            level is a closure lemma with the atoms at the bottom reached
+            through `recn`. Five is not enough for that and is the depth a
+            side condition wants, so this asks for its own."""
+            want_cc = seq(said, 'cc', 'wcel')
+            if want_cc in facts:
+                return facts[want_cc]
+            return self.settle(self.to_term(want_cc), scope, facts, depth=12)
+
+        atoms = {a for p in [*given, want] for m in p.terms for a, _ in m}
+        how = field.follows(given, want, atoms)
+        if not how:
+            raise normal.Unhandled('no sum of the cited equations is the '
+                                   'claim')
+        pieces = []
+        for which, shape, scale in how:
+            ref, node = where[which]
+            a, b = (c.rpn(self.flabel) for c in node.children)
+            gap = seq(a, b, 'cmin', 'co')
+            times = multiplier(shape, scale)
+            if times is None:
+                raise normal.Unhandled('a multiplier with no spelling')
+            vanishes = work.ap(
+                'mpbird', {'ph': scope, 'ps': seq(gap, 'cc0', 'wceq'),
+                           'ch': seq(a, b, 'wceq')},
+                self.cited_fact(ref, node, scope, facts, lines),
+                work.ap('subeq0ad', {'ph': scope, 'A': a, 'B': b},
+                        in_cc(a), in_cc(b)))
+            piece = seq(times, gap, 'cmul', 'co')
+            pieces.append((piece, work.ap(
+                'eqtrd', {'ph': scope, 'A': piece,
+                          'B': seq(times, 'cc0', 'cmul', 'co'), 'C': 'cc0'},
+                work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
+                                   'C': times, 'F': 'cmul'}, vanishes),
+                work.ap('mul01d', {'ph': scope, 'A': times},
+                        work.atom(times)))))
+        total, sums = pieces[0]
+        for piece, proof in pieces[1:]:
+            joined = seq(total, piece, 'caddc', 'co')
+            sums = work.ap(
+                'eqtrd', {'ph': scope, 'A': joined,
+                          'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0'},
+                work.ap('oveq12d',
+                        {'ph': scope, 'A': total, 'B': 'cc0', 'C': piece,
+                         'D': 'cc0', 'F': 'caddc'}, sums, proof),
+                work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0',
+                             'wceq'), '00id'))
+            total = joined
+        whole = seq(left, right, 'cmin', 'co')
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': seq(whole, 'cc0', 'wceq'),
+                      'ch': seq(left, right, 'wceq')},
+            work.ap('eqtr3d',
+                    {'ph': scope, 'A': total, 'B': whole, 'C': 'cc0'},
+                    self.same_polynomial(work, total, whole), sums),
+            work.ap('subeq0ad', {'ph': scope, 'A': left, 'B': right},
+                    in_cc(left), in_cc(right)))
 
     def scaled_from_cited(self, step, left, right, scope, facts, lines, work):
         """A claim a cited equation is a whole multiple of.
