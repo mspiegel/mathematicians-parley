@@ -42,7 +42,15 @@ from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
 from match import instantiation
-from parse import Problem, check_encoding, citations, fmt, parse_database, parse_proof
+from parse import (
+    NAME,
+    Problem,
+    check_encoding,
+    citations,
+    fmt,
+    parse_database,
+    parse_proof,
+)
 from sorts import sorts_in_scope
 from spell import Builder, seq
 
@@ -1409,7 +1417,10 @@ class Elaborator(Builder):
         got = [n.strip() for n in re.match(
             r'obtain\s+(.+?)(?::|\s+from\b)', step.just.text).group(1)
             .split(',')]
-        named = re.search(r'\b((?:def|thm):\S+)', step.just.text)
+        # Spelt as `parse.NAME` spells an item and not as a run of anything
+        # that is not a space: an obtain writing no instantiation puts a
+        # comma straight after the name, and it is not part of it.
+        named = re.search(rf'\b((?:def|thm):{NAME})', step.just.text)
         if named is None:
             raise Problem('', step.line,
                           'an obtain that names no item is not expanded')

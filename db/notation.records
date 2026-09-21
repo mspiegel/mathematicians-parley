@@ -458,7 +458,8 @@ notation set-image
   yields      set
   binds       hole 2 over hole 1
   reads       the set of the first as the second runs over the third
-  metamath    cmpt, or crab with a witness
+  metamath    the range of a cmpt, which is what elrnmpt speaks of
+  target      _2 _3 _1 cmpt crn
   first-used  subsets
   note        The binding hole is not the first one, which is why `binds` names
               the holes rather than assuming an order. See def:set-image.
