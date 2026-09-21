@@ -3636,20 +3636,26 @@ class Elaborator(Builder):
                 return seq(scope, said, want, found, alike, 'mpbid')
         return None
 
-    def apply_lemma(self, label, goal, scope, facts, step, crossing=True):
+    def apply_lemma(self, label, goal, scope, facts, step, crossing=True,
+                    seed=None):
         """Apply one set.mm lemma to reach a claim, side conditions and all.
 
         What a lemma states before the claim it reaches may be an
         implication or a biconditional: `dvds1` says that on ℕ0, dividing
         one and being one are the same, and a step citing it has the
         dividing and wants the being. Both are peeled, and which one each
-        was decides how it is discharged."""
+        was decides how it is discharged.
+
+        `seed` is what a `with` target said the lemma's variables stand
+        for. The match confirms it where the conclusion is the claim, and
+        supplies it where the conclusion is the claim said differently and
+        so fixes nothing."""
         sig = self.sigs[label]
         whole = self.syntax.statement(sig)
         variables = whole.names()
         antecedents, joins, reads, binding = [], [], whole, None
         while True:
-            binding = kernel.match(reads, goal, {}, variables)
+            binding = kernel.match(reads, goal, dict(seed or {}), variables)
             if binding is not None:
                 break
             if reads.label not in ('wi', 'wb'):
@@ -4241,21 +4247,44 @@ class Elaborator(Builder):
         ones, and reading the lemma's statement is what relates them: its
         conclusion is matched against what the step claims, and what that
         leaves open is fixed by matching an antecedent against a line the
-        step already has."""
+        step already has.
+
+        That works while the conclusion is the claim. Where it is the claim
+        said differently, nothing fixes the lemma's variables at all, and
+        the item says which is which: `target <label> with N := n` is the
+        `with` form `targets.lemma` has always read."""
         labels = targets.clauses(item)
         if not labels:
             # Nothing in the library has its shape, so the file states what
             # it claims and lists it, the same as an item obtained from.
             # `thm:lowest-terms` is the case, and `thm:angle-symmetric`.
             return self.assume_item(step, term, scope, facts, item)
+        seed = self.filling(step, item)
         for label in labels:
             found = self.apply_lemma(label, self.to_term(term), scope, facts,
-                                     step)
+                                     step, seed=seed)
             if found is not None:
                 return found
         raise Problem('', step.line,
                       f'no clause of {step.just.head} reaches what step '
                       f'{fmt(step.number)} claims')
+
+    def filling(self, step, item):
+        """What a `with` target says the lemma's variables stand for.
+
+        The right sides are formulas in the item's own names, and the step
+        wrote what those stand for, so they are read under the citation's
+        instantiation — the reading `assume_item` makes of the same text."""
+        _label, fills = targets.lemma(item)
+        if not fills:
+            return {}
+        saved = dict(self.names)
+        for name, value in instantiation(step.just.text):
+            self.names[name] = self.term(self.read(value))
+        out = {name: self.to_term(self.term(self.read(formula)))
+               for name, formula in fills.items()}
+        self.names = saved
+        return out
 
     def cite_corpus(self, step, term, scope, facts, lines, item):
         """Apply a theorem this corpus proves, as this elaborator states it.
