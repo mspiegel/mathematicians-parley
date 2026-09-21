@@ -29,7 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from labels import where_set_mm
+from library import where_set_mm
 
 ROOT = Path(__file__).resolve().parent.parent
 # Stands in the recipe where the library's path goes, which is not known
@@ -62,7 +62,10 @@ BY_HAND = ('parity', 'sqrt2', 'algebra', 'sum-formula', 'abs-bounds')
 ARTIFACTS = [
     Artifact('definitions', 'elaboration/auto/definitions.mm',
              ('parley/elaborate.py', '--definitions', SETMM), True),
-    Artifact('geometry', 'elaboration/auto/geometry.mm',
+    # Hand-written like the five below, and generated like the eleven above:
+    # `build-geometry.py` holds its proofs, so it sits outside the directory
+    # of things elaborated from the readable layer, and is still built here.
+    Artifact('geometry', 'elaboration/geometry.mm',
              ('elaboration/build-geometry.py', SETMM), True),
     *(Artifact(name, f'elaboration/auto/{name}.mm',
                ('parley/elaborate.py', name, SETMM), True)
@@ -80,6 +83,16 @@ def verified():
     they do not all live in one and two of them share a basename with a file
     that is not among them."""
     return [ROOT / a.path for a in ARTIFACTS if a.verified]
+
+
+def path_of(name):
+    """Where one artifact goes, for a tool that reads it rather than builds
+    it. `parley/labels.py` and `parley/elaborate.py` both want geometry.mm,
+    and three copies of a path are three chances for two of them to agree."""
+    for artifact in ARTIFACTS:
+        if artifact.name == name:
+            return ROOT / artifact.path
+    raise KeyError(name)
 
 
 def wants_library(artifact):

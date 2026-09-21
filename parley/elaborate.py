@@ -37,6 +37,7 @@ import kernel
 import linear
 import normal
 import targets
+from build import path_of
 from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
@@ -3505,7 +3506,7 @@ def main(argv):
     # library, so a `target` may name one of its labels exactly as it names
     # a set.mm label. The file is generated, and a proof that cites nothing
     # in it elaborates whether or not it has been built.
-    supplied = root / 'elaboration' / 'auto' / 'geometry.mm'
+    supplied = path_of('geometry')
     provided = set(read_library(supplied)) if supplied.exists() else set()
     sigs = (read_library(setmm, supplied) if supplied.exists()
             else read_library(setmm))

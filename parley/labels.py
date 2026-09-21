@@ -20,7 +20,6 @@ working tree.
 Usage:  parley/labels.py [set.mm]
 Exits non-zero when a label is named that set.mm does not have.
 """
-import os
 import re
 import sys
 from pathlib import Path
@@ -28,22 +27,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import targets
+from build import path_of
 from library import read as read_library
+from library import where_set_mm
 from parse import Problem, check_encoding, parse_database
 
 ROOT = Path(__file__).resolve().parent.parent
 # What a set.mm label looks like, strictly enough that no word of a sentence
 # is mistaken for one: lower case, and hyphenated only as `df-` names are.
 LABEL_SHAPED = re.compile(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)*')
-
-
-def where_set_mm(argv):
-    """The library, said on the command line, in the environment, or here."""
-    for said in (argv[1] if len(argv) > 1 else None, os.environ.get('SET_MM'),
-                 ROOT / 'set.mm'):
-        if said and Path(said).exists():
-            return Path(said)
-    return None
 
 
 def named(records):
@@ -90,13 +82,14 @@ def supplied(records):
     """The labels this corpus introduces, which set.mm will not have.
 
     A definition that carries a `symbol` brings a constant and the axiom
-    defining it; `elaboration/auto/geometry.mm` brings whatever it proves."""
+    defining it; `geometry.mm` brings whatever it proves, and
+    `parley/build.py` is what says where that file is."""
     out = set()
     for r in records:
         if 'symbol' in r.fields:
             token = r.fields['symbol'].strip()
             out.update({f'c{token}', f'df-{token}'})
-    built = ROOT / 'elaboration' / 'auto' / 'geometry.mm'
+    built = path_of('geometry')
     if built.exists():
         out.update(read_library(built))
     return out

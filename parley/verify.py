@@ -44,7 +44,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build import verified
-from labels import where_set_mm
+from library import where_set_mm
 
 ROOT = Path(__file__).resolve().parent.parent
 INCLUDE = re.compile(r'\$\[\s*(\S+)\s*\$\]')

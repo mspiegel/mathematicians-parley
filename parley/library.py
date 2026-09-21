@@ -9,8 +9,24 @@ database knows it, so this module reads it.
 Only the shape is read, never the proofs, so a pass over set.mm costs a few
 seconds and no verification. `mmverify.py` does the same thing as part of
 checking a proof; this is the part of it the elaborator needs.
+
+Finding the file is here too, because four tools need it and none of them is
+the natural owner of the other three.
 """
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def where_set_mm(argv):
+    """The library, said on the command line, in the environment, or here."""
+    for said in (argv[1] if len(argv) > 1 else None, os.environ.get('SET_MM'),
+                 ROOT / 'set.mm'):
+        if said and Path(said).exists():
+            return Path(said)
+    return None
 
 
 @dataclass
