@@ -181,7 +181,13 @@ MEMBERSHIP = [
     # and sethood, which set theory asks where arithmetic asks closure
     'rabexg', 'ssexg', 'difexg',
     # and what an order relation asks, which is the same kind of thing
-    'ltle', 'ltnri', 'leid',
+    'ltle', 'ltnri', 'leid', 'nn0ge0',
+    # A lemma stated over the integers asks what a natural number being one
+    # does not say in those words: `divalg` divides by anything but zero,
+    # and the readable statement divides by a natural number. It bounds by
+    # the absolute value for the same reason, which over ℕ₀ is no bound at
+    # all — the one equation in this list, and what `said_otherwise` uses.
+    'nnne0', 'nn0absid',
     # A disequality is one fact in two orders and the corpus writes it as a
     # negated equation, which set.mm names and then commutes. `necom` alone
     # would not fit: it speaks of =/=, and `df-ne` is what relates that to

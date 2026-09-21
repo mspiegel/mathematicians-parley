@@ -460,7 +460,62 @@ class Elaborator(Builder):
                                       depth, backwards)
                     if found is not None:
                         return found
+            found = self.said_otherwise(wanted, scope, facts, depth)
+            if found is not None:
+                return found
         raise Unhandled(f'cannot settle {self.render(rpn)}')
+
+    def said_otherwise(self, wanted, scope, facts, depth):
+        """What is wanted, held by the scope under another name for a term.
+
+        `divalg` bounds the remainder by the absolute value of the divisor
+        and the readable line bounds it by the divisor, which are the same
+        bound because the divisor is a natural number. So a declared
+        equation is asked whether the fact in hand is the fact wanted said
+        differently, and the congruence carries it across.
+
+        The equation is declared, like everything else this may lean on,
+        and it is asked only of terms the wanted actually contains — a
+        lemma that rewrote anywhere would reach claims by means the text
+        never names."""
+        want = wanted.rpn(self.flabel)
+        for label in targets.MEMBERSHIP:
+            sig = self.sigs.get(label)
+            if sig is None or sig.essentials:
+                continue
+            says = self.syntax.statement(sig)
+            names, reads = says.names(), says
+            while reads.label == 'wi':
+                reads = reads.children[1]
+            if reads.label != 'wceq' or len(reads.children) != 2:
+                continue
+
+            def stands(one, other, where, _held, reads=reads, names=names,
+                       label=label):
+                """The one place the fact and the wanted differ, if the
+                equation is what stands between them."""
+                bound = kernel.match(reads.children[0], one, {}, names)
+                if bound is None or reads.children[0].names() - set(bound):
+                    return None
+                if reads.children[1].substitute(bound).rpn(self.flabel) \
+                        != other.rpn(self.flabel):
+                    return None
+                return self.apply_lemma(
+                    label, self.to_term(seq(one.rpn(self.flabel),
+                                            other.rpn(self.flabel), 'wceq')),
+                    where, facts, None, crossing=False)
+
+            for said, proof in list(facts.items()):
+                if said == want:
+                    continue
+                try:
+                    alike = self.congruence(self.to_term(said), wanted,
+                                            scope, facts, None, stands)
+                except (Unhandled, Problem, RecursionError):
+                    continue
+                if alike is not None:
+                    return seq(scope, said, want, proof, alike, 'mpbid')
+        return None
 
     def fits(self, label, sig, wanted, scope, facts, depth, backwards):
         """Whether one lemma settles what is wanted, and how.
@@ -3579,6 +3634,154 @@ class Elaborator(Builder):
                       f'no clause of {step.just.head} gives what step '
                       f'{fmt(step.number)} claims')
 
+    def through_existential(self, label, whole, reads, goal, scope, facts,
+                            step, seed):
+        """A lemma's existential taken apart, and the claim's put back.
+
+        `divalg` says there is exactly one remainder, quantified the other
+        way round, bounding by the absolute value, and saying its three
+        things in a different order. The division algorithm as a reader
+        writes it says the same. Two of those four differences stop being
+        differences once the quantifier is off: in the open `unpack` makes
+        the body's parts facts and `settle` puts them back in whatever
+        order the claim asks, and there is no order to quantifiers that are
+        not there.
+
+        So the lemma's existential is proved, weakened where it says
+        exactly one, eliminated, and the claim introduced at the variables
+        it gave up. `obtain` does the eliminating for a step, deferring the
+        discharge because only the main loop knows a goal; here the goal is
+        in hand and nothing is deferred."""
+        if goal.label != 'wrex' or reads.label not in ('wrex', 'wreu'):
+            return None
+        if seed is None or reads.names() - set(seed) - self.bound_in(reads):
+            return None                # nothing fixes the lemma's variables
+        ground = reads.substitute(seed)
+        # The lemma's binders become names in the open, so they must be
+        # variables nothing else holds — and the claim's own binders are
+        # among what is held, because `rspcev` will not take a witness that
+        # mentions the binder it is introducing. `divalg` binds q and r and
+        # so does the division algorithm as a reader writes it, which is
+        # what makes this not the corner case it looks like.
+        taken, swap = self.bound_in(goal), {}
+        for name in self.bound_in(ground):
+            fresh = self.spare_var()
+            while self.sigs[fresh].statement[1] in taken:
+                fresh = self.spare_var()
+            swap[name] = kernel.Term(variable=self.sigs[fresh].statement[1])
+        ground = ground.substitute(swap)
+        strong = self.apply_lemma(label, ground, scope, facts, step,
+                                  crossing=False, seed=seed)
+        if strong is None:
+            return None
+        if ground.label == 'wreu':
+            weaker = kernel.Term('wrex', tuple(ground.children))
+            body, var, over = ground.children
+            strong = seq(scope, ground.rpn(self.flabel),
+                         weaker.rpn(self.flabel), strong,
+                         self.ap('reurex', {'ph': body.rpn(self.flabel),
+                                            'x': var.rpn(self.flabel),
+                                            'A': over.rpn(self.flabel)}),
+                         'syl')
+            ground = weaker
+
+        layers, rest = [], ground
+        while rest.label == 'wrex':
+            _body, var, over = rest.children
+            layers.append((var.rpn(self.flabel), over.rpn(self.flabel)))
+            rest = _body
+        body = rest.rpn(self.flabel)
+        member = seq(*(seq(f'{v} cv', s, 'wcel') for v, s in layers))
+        if len(layers) > 1:
+            member = seq(member, 'wa')
+
+        frame = len(self.frames)
+        outer, held = self.widen(scope, facts, member)
+        inner, lifted = self.widen(outer, held, body)
+        made = self.introduced(goal, inner, lifted)
+        del self.frames[frame:]
+        if made is None:
+            return None
+        want = goal.rpn(self.flabel)
+        discharge = 'rexlimdva' if len(layers) == 1 else 'rexlimdvva'
+        pushed = [v for v, _s in layers] + [s for _v, s in layers]
+        return seq(scope, ground.rpn(self.flabel), want, strong,
+                   seq(scope, body, want, *pushed,
+                       seq(outer, body, want, made, 'ex'), discharge),
+                   'mpd')
+
+    def introduced(self, goal, scope, facts):
+        """An existential claim at witnesses the scope already names.
+
+        `witnessed` does this shape from the lines a step cites. Here the
+        witnesses are whatever the elimination just gave up, and which of
+        them stands for which binder is read off the body: one part of the
+        claim matched against one fact in scope fixes them all, because
+        every binder occurs in the part that mentions them."""
+        marks, rest = [], goal
+        while rest.label == 'wrex':
+            marks.append(rest.children[1].variable)
+            rest = rest.children[0]
+        found = None
+        for piece in self.parts(rest.rpn(self.flabel)):
+            for said in facts:
+                fits = kernel.match(self.to_term(piece), self.to_term(said),
+                                    {}, set(marks))
+                if fits is not None and len(fits) == len(marks):
+                    found = fits
+                    break
+            if found is not None:
+                break
+        if found is None:
+            return None
+
+        layers, rest = [], goal
+        while rest.label == 'wrex':
+            body, var, over = rest.children
+            layers.append((body, var.variable, over.rpn(self.flabel)))
+            rest = body
+
+        proof = None
+        for i in reversed(range(len(layers))):
+            body, name, over = layers[i]
+            # The body with every binder outside this one already standing
+            # at its witness, and then with this one too.
+            held = body.substitute({n: found[n] for _b, n, _o in layers[:i]})
+            here = held.substitute({name: found[name]})
+            ph, ps = held.rpn(self.flabel), here.rpn(self.flabel)
+            if proof is None:
+                try:
+                    proof = self.settle(here, scope, facts)
+                except Unhandled:
+                    return None
+            # A binder is matched where it stands, under `cv`, so a witness
+            # comes back as the setvar the elimination introduced. `rspcev`
+            # takes a class, and `cv` is what stands between the two.
+            var = self.flabel[name]
+            witness = seq(found[name].rpn(self.flabel), 'cv')
+            instance = self.prove_essential(
+                self.to_term(seq(seq(f'{var} cv', witness, 'wceq'),
+                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            member = seq(witness, over, 'wcel')
+            try:
+                stands = self.settle(self.to_term(member), scope, facts)
+            except Unhandled:
+                return None
+            proof = seq(scope, seq(member, ps, 'wa'),
+                        seq(ph, var, over, 'wrex'),
+                        seq(scope, member, ps, stands, proof, 'jca'),
+                        ph, ps, var, witness, over, instance, 'rspcev',
+                        'syl')
+        return proof
+
+    def bound_in(self, term):
+        """The variables an existential's own binders introduce."""
+        out, rest = set(), term
+        while rest.label in ('wrex', 'wreu'):
+            out.add(rest.children[1].variable)
+            rest = rest.children[0]
+        return out
+
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
 
@@ -3659,6 +3862,11 @@ class Elaborator(Builder):
             if binding is not None:
                 break
             if reads.label not in ('wi', 'wb'):
+                if crossing:
+                    through = self.through_existential(
+                        label, whole, reads, goal, scope, facts, step, seed)
+                    if through is not None:
+                        return through
                 return (self.crossed(label, whole, reads, goal, scope,
                                      facts, step) if crossing else None)
             # A biconditional says one thing and reaching it either way is
@@ -3746,12 +3954,17 @@ class Elaborator(Builder):
             was = left.children[0].rpn(self.flabel)
             now = left.children[1].rpn(self.flabel)
 
-            def stands(one, other, _where, _held):
-                return (seq(under, 'id')
+            # The equation is what is assumed, so it is handed over as a
+            # fact rather than reproved at the leaf: the walk widens the
+            # scope where it passes a binder, and a proof under the scope
+            # it started at would not be a proof under that one.
+            def stands(one, other, _where, held):
+                return (held.get(under)
                         if one.rpn(self.flabel) == was
                         and other.rpn(self.flabel) == now else None)
             return self.congruence(right.children[0], right.children[1],
-                                   under, {}, None, stands)
+                                   under, {under: seq(under, 'id')}, None,
+                                   stands)
         if under == scope:
             return self.settle(right, scope, facts)
         if (left.label == 'wa'
@@ -3916,9 +4129,12 @@ class Elaborator(Builder):
 
         A lemma asks for what it asks for, and the text writes what a reader
         would want written: `resqrtth` wants 0 ≤ 2 and the step says so. The
-        lines are proved once and offered alongside what the scope holds."""
+        lines are proved once and offered alongside what the scope holds.
+
+        A lemma applied where no step is passed has none of these to read,
+        and what the scope holds is all there is."""
         known = dict(facts)
-        for text, how, _line in step.requires:
+        for text, how, _line in (step.requires if step is not None else ()):
             want = self.read(text)
             term = self.term(want)
             if term not in known:

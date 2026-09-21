@@ -63,7 +63,13 @@ def named(records):
         for field in ('target', 'defines'):
             if field not in r.fields:
                 continue
-            for entry in targets.split_entries(r.fields[field]):
+            value = r.fields[field]
+            # What a target writes after `with` is the lemma's variables and
+            # the item's own formulas for them, which are not labels and are
+            # not set.mm's words. Only the head before it names a lemma.
+            if field == 'target' and ' with ' in value:
+                value = value.partition(' with ')[0]
+            for entry in targets.split_entries(value):
                 if entry in targets.MARKERS:
                     continue
                 for token in entry.split():

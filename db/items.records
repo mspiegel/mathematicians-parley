@@ -349,7 +349,15 @@ theorem division-algorithm
   let d ∈ ℕ                                                           (H2)
   then        there are q ∈ ℤ and r ∈ ℤ with n = q·d + r, 0 ≤ r, and r < d
   metamath    divalg
+  target      divalg with N := n, D := d
   first-used  bezout
+  note        divalg says exactly one remainder, quantified the other way
+              round, bounded by the absolute value, and saying its three
+              things in a different order. The elaborator takes its
+              existential apart and puts this one back, which is what makes
+              the last two of those stop being differences. Nothing fixes
+              divalg's own variables, because its conclusion is never
+              matched against this claim, so `with` says which is which.
 
 theorem well-ordering
   assume S ⊆ ℕ                                                        (H1)
