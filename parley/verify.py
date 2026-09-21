@@ -14,10 +14,16 @@ against the working directory and keeps the set of files it has opened, so
 including them all from one file reads set.mm once and the nine cost
 eighteen seconds together.
 
-Which files to include is read off the inclusions rather than listed: a proof
-that nothing else includes is a root, and including every root reaches
-everything. A tenth proof is covered the day it is written, where a list in a
-file would leave the gate green and the new proof unread.
+Which files there are comes from `parley/build.py`, which is where every
+generated file is listed. Reading a directory instead would be simpler and
+wrong: they do not all sit in one, and two of them share a basename with a
+hand-written proof that is not among them, which the flat directory below
+could not hold at once.
+
+Which of them to include is read off the inclusions rather than listed: a
+proof that nothing else includes is a root, and including every root reaches
+everything. A tenth proof is covered the day it is written, where a list of
+roots in a file would leave the gate green and the new proof unread.
 
 mmverify.py belongs to metamath and is not vendored, for the reason ruff and
 set.mm are not: say where it is with `MMVERIFY`, or leave a copy or a link at
@@ -37,10 +43,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from build import verified
 from labels import where_set_mm
 
 ROOT = Path(__file__).resolve().parent.parent
-BUILT = ROOT / 'elaboration' / 'auto'
 INCLUDE = re.compile(r'\$\[\s*(\S+)\s*\$\]')
 # A labelled `$p`, which is what there is one of per theorem proved.
 PROVES = re.compile(r'(?m)^\s*(\S+)\s+\$p\s')
@@ -81,9 +87,12 @@ def main(argv):
         print('set.mm not found; say where it is with SET_MM, or leave a '
               'copy or a link at the root of the working tree')
         return 2
-    built = sorted(BUILT.glob('*.mm'))
-    if not built:
-        print(f'nothing built in {BUILT.relative_to(ROOT)}')
+    built = verified()
+    missing = [p for p in built if not p.exists()]
+    if missing:
+        for path in missing:
+            print(f'not built: {path.relative_to(ROOT)}')
+        print('\nrun parley/build.py')
         return 2
 
     top = roots(built)

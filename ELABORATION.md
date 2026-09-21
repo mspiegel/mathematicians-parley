@@ -412,13 +412,21 @@ The five proofs above were written by hand, and the requirements below were
 read off them. `parley/elaborate.py` implements that list, and
 
 ```
-parley/elaborate.py <theorem> <set.mm> > elaboration/auto/<theorem>.mm
+parley/elaborate.py <theorem> <set.mm>
 ```
 
 produces a Metamath proof that verifies against set.mm. Four theorems go
 through it — odd-square, even-square, sum-formula and abs-bounds — and nothing
 in any of them is hand-written. `elaboration/auto/` holds what the program
 writes; the files beside it are the hand elaborations, kept for comparison.
+
+It writes to standard output, and where each file goes is `parley/build.py`,
+which lists every generated file and what generates it. `parley/build.py`
+rebuilds them all, in an order that matters: `definitions.mm` before
+`build-geometry.py`, which reads it, and `geometry.mm` before any theorem,
+because a `target` may name one of its labels. Regenerating is worth doing
+after changing the elaborator or the database, and nothing detects that it is
+needed.
 
 **All four block forms are implemented.** `abs-bounds` brings `cases`, which
 closes with `mpjaodan` and is the first block to open a scope for each of its
