@@ -2219,8 +2219,14 @@ class Elaborator(Builder):
             # A fresh name, not the lemma's own: `divides` binds `n`, and a
             # proof that obtains from it twice would introduce one variable
             # for two different numbers.
+            # `spare_var` runs out only when a proof has introduced more
+            # names than the kernel has letters, which is the tool at its
+            # limit rather than a route declining or the text at fault.
+            fresh = self.spare_var()
+            if declined(fresh):
+                raise self.defect(step.line, f'{fresh}')
             lemma, var, kernel, _t, over, left = self.definition(
-                named.group(1), subject, var=self.spare_var())
+                named.group(1), subject, var=fresh)
             body = self.term(kernel)
             self.names = saved
             ex = seq(body, var, over, 'wrex')
@@ -2490,9 +2496,19 @@ class Elaborator(Builder):
                                   f'{self.render(reached)}, and the step '
                                   f'claims {self.render(term)}')
             asks, rest = (c.rpn(self.flabel) for c in reads.children)
-            proof = seq(scope, asks, rest,
-                        self.settle(self.to_term(asks), scope, facts),
-                        proof, 'mpd')
+            # An `instantiate` is the head of a step and not a route among
+            # several, so what the universal asks at this term is the
+            # text's to supply: `SYNTAX.md` says the step writes it, in
+            # `from` where a line already says it and in `requires` where
+            # none does.
+            supplied = self.settle(self.to_term(asks), scope, facts)
+            if declined(supplied):
+                raise self.defect(
+                    step.line,
+                    f'instantiating at that term wants {self.render(asks)}, '
+                    f'which step {fmt(step.number)} does not supply: '
+                    f'{supplied}')
+            proof = seq(scope, asks, rest, supplied, proof, 'mpd')
             reached = rest
         return proof
 
@@ -2619,10 +2635,7 @@ class Elaborator(Builder):
 
         def complex_number(said):
             """What `normal.py` asks of a subterm it does not look inside."""
-            want = seq(said, 'cc', 'wcel')
-            if want in facts:
-                return facts[want]
-            return self.settle(self.to_term(want), scope, facts)
+            return self.membership(said, 'cc', scope, facts)
 
         work = normal.Emitter(self.sigs, scope, complex_number,
                               self.not_zero(scope, facts))
@@ -2686,15 +2699,20 @@ class Elaborator(Builder):
                 p, q = (c.rpn(self.flabel)
                         for c in node.children[0].children)
                 gap = seq(p, q, 'cmin', 'co')
+                given = self.cited_fact(ref, node, scope, facts, lines)
+                if declined(given):
+                    return given
                 apart = work.ap(
                     'subne0d', {'ph': scope, 'A': p, 'B': q},
                     complex_number(p), complex_number(q),
-                    work.ap('neqned', {'ph': scope, 'A': p, 'B': q},
-                            self.cited_fact(ref, node, scope, facts, lines)))
+                    work.ap('neqned', {'ph': scope, 'A': p, 'B': q}, given))
                 if rescales(cited, claim) == -1:
                     apart = work.ap('negne0d', {'ph': scope, 'A': gap},
                                     complex_number(gap), apart)
                     gap = seq(gap, 'cneg')
+                alike = self.same_polynomial(work, gap, whole)
+                if declined(alike):
+                    return alike
                 return work.ap(
                     'neneqd', {'ph': scope, 'A': lhs, 'B': rhs},
                     work.ap(
@@ -2703,8 +2721,7 @@ class Elaborator(Builder):
                         work.ap('eqnetrrd',
                                 {'ph': scope, 'A': gap, 'B': whole,
                                  'C': 'cc0'},
-                                self.same_polynomial(work, gap, whole),
-                                apart)))
+                                alike, apart)))
         return Declined('no cited disequality is the claim rescaled')
 
     def crossed_from_cited(self, step, left, right, scope, facts, lines,
@@ -2728,9 +2745,10 @@ class Elaborator(Builder):
             mine = field.equation(cited, self.flabel)
             if want is None or mine is None or mine.terms != want.terms:
                 continue
-            found = self.cleared(work, cited, left, right,
-                                 self.cited_fact(ref, cited, scope,
-                                                 facts, lines))
+            given = self.cited_fact(ref, cited, scope, facts, lines)
+            if declined(given):
+                continue
+            found = self.cleared(work, cited, left, right, given)
             if not declined(found):
                 return found
         return Declined('no cited equation is the claim divided')
@@ -2777,13 +2795,16 @@ class Elaborator(Builder):
                                               seq(d, 'cc0', 'wne'), 'wa')},
                             work.pair_of(under), work.pair_of(beneath)),
                     work.ap('divmuleq', {'A': a, 'B': c, 'C': b, 'D': d})))
+        sides = [self.same_polynomial(work, left, seq(a, d, 'cmul', 'co')),
+                 self.same_polynomial(work, right, seq(c, b, 'cmul', 'co'))]
+        for one in sides:
+            if declined(one):
+                return one
         return work.ap(
             '3eqtr4d', {'ph': work.under, 'A': seq(a, d, 'cmul', 'co'),
                         'B': seq(c, b, 'cmul', 'co'), 'C': left,
                         'D': right},
-            crossed,
-            self.same_polynomial(work, left, seq(a, d, 'cmul', 'co')),
-            self.same_polynomial(work, right, seq(c, b, 'cmul', 'co')))
+            crossed, *sides)
 
     def not_zero(self, scope, facts):
         """What says a denominator is not zero, asked of the scope.
@@ -2802,7 +2823,16 @@ class Elaborator(Builder):
             found = self.apart_as_written(said, scope, facts)
             if found is not None:
                 return found
-            return self.settle(self.to_term(want), scope, facts)
+            # `normal.py` asks this while writing a proof it has already
+            # decided, and takes what it is given. A decline handed back
+            # there reaches the step as the method not covering it, which
+            # is not what a missing `requires` line means.
+            settled = self.settle(self.to_term(want), scope, facts)
+            if declined(settled):
+                raise self.defect(
+                    self.at, f'nothing says {self.render(want)}, which this '
+                             f'step needs to divide by it')
+            return settled
         return apart
 
     def apart_as_written(self, said, scope, facts):
@@ -2817,9 +2847,7 @@ class Elaborator(Builder):
         """
         work = normal.Emitter(
             self.sigs, scope,
-            lambda term: facts.get(seq(term, 'cc', 'wcel'))
-            or self.settle(self.to_term(seq(term, 'cc', 'wcel')),
-                           scope, facts))
+            lambda term: self.membership(term, 'cc', scope, facts))
         for fact, proof in facts.items():
             tail = fact.split()[-1]
             if tail not in ('wne', 'wn'):
@@ -2993,12 +3021,18 @@ class Elaborator(Builder):
             times = multiplier(shape, scale)
             if times is None:
                 return Declined('a multiplier with no spelling')
+            parts = [self.cited_fact(ref, node, scope, facts, lines),
+                     in_cc(a), in_cc(b)]
+            for one in parts:
+                if declined(one):
+                    return one
+            given, a_cc, b_cc = parts
             vanishes = work.ap(
                 'mpbird', {'ph': scope, 'ps': seq(gap, 'cc0', 'wceq'),
                            'ch': seq(a, b, 'wceq')},
-                self.cited_fact(ref, node, scope, facts, lines),
+                given,
                 work.ap('subeq0ad', {'ph': scope, 'A': a, 'B': b},
-                        in_cc(a), in_cc(b)))
+                        a_cc, b_cc))
             piece = seq(times, gap, 'cmul', 'co')
             pieces.append((piece, work.ap(
                 'eqtrd', {'ph': scope, 'A': piece,
@@ -3020,14 +3054,20 @@ class Elaborator(Builder):
                              'wceq'), '00id'))
             total = joined
         whole = seq(left, right, 'cmin', 'co')
+        ends = [self.same_polynomial(work, total, whole),
+                in_cc(left), in_cc(right)]
+        for one in ends:
+            if declined(one):
+                return one
+        alike, left_cc, right_cc = ends
         return work.ap(
             'mpbid', {'ph': scope, 'ps': seq(whole, 'cc0', 'wceq'),
                       'ch': seq(left, right, 'wceq')},
             work.ap('eqtr3d',
                     {'ph': scope, 'A': total, 'B': whole, 'C': 'cc0'},
-                    self.same_polynomial(work, total, whole), sums),
+                    alike, sums),
             work.ap('subeq0ad', {'ph': scope, 'A': left, 'B': right},
-                    in_cc(left), in_cc(right)))
+                    left_cc, right_cc))
 
     def scaled_from_cited(self, step, left, right, scope, facts, lines, work):
         """A claim a cited equation is a whole multiple of.
@@ -3083,10 +3123,8 @@ class Elaborator(Builder):
                                seq(numeral, 'cc0', 'wne'), 'wa'),
                      'ta': seq(seq(scaled[0], scaled[1], 'wceq'),
                                seq(left, right, 'wceq'), 'wb')},
-                    self.settle(self.to_term(seq(left, 'cc', 'wcel')),
-                                scope, facts),
-                    self.settle(self.to_term(seq(right, 'cc', 'wcel')),
-                                scope, facts),
+                    self.membership(left, 'cc', scope, facts),
+                    self.membership(right, 'cc', scope, facts),
                     work.ap('jca', {'ph': scope,
                                     'ps': seq(numeral, 'cc', 'wcel'),
                                     'ch': seq(numeral, 'cc0', 'wne')},
@@ -3202,9 +3240,7 @@ class Elaborator(Builder):
                                    'only after working out')
         a, b, how = int(first), int(second), sides[2]
         work = normal.Emitter(self.sigs, scope,
-                              lambda t: self.settle(
-                                  self.to_term(seq(t, 'cc', 'wcel')),
-                                  scope, facts))
+                              lambda t: self.membership(t, 'cc', scope, facts))
         if negated:
             if how != '=' or a == b:
                 return Declined('a denial of what holds')
@@ -3406,13 +3442,11 @@ class Elaborator(Builder):
         up, down = seq(a, b, 'cle', 'wbr'), seq(b, a, 'cle', 'wbr')
         if up not in facts or down not in facts:
             return None
-        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
-            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
 
         def real(one):
-            want = seq(one, 'cr', 'wcel')
-            return facts.get(want) or self.settle(self.to_term(want), scope,
-                                                  facts)
+            return self.membership(one, 'cr', scope, facts)
         both = seq(up, down, 'wa')
         return work.ap(
             'mpbird', {'ph': scope, 'ps': goal.rpn(self.flabel), 'ch': both},
@@ -3446,11 +3480,9 @@ class Elaborator(Builder):
             held = self.prove_order(refs, instead, scope, facts, lines, skip)
 
         def real(one):
-            want = seq(one, 'cr', 'wcel')
-            return facts.get(want) or self.settle(self.to_term(want), scope,
-                                                  facts)
-        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
-            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+            return self.membership(one, 'cr', scope, facts)
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
         return work.ap(
             'mpbid', {'ph': scope, 'ps': instead, 'ch': term}, held,
             work.ap('syl2anc',
@@ -3480,19 +3512,19 @@ class Elaborator(Builder):
         a, b = (c.rpn(self.flabel) for c in said.children[0].children)
         below, above = (seq(a, b, 'clt', 'wbr'), seq(b, a, 'clt', 'wbr'))
 
-        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
-            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
 
         def real(one):
-            want = seq(one, 'cr', 'wcel')
-            return facts.get(want) or self.settle(self.to_term(want), scope,
-                                                  facts)
+            return self.membership(one, 'cr', scope, facts)
 
+        given = self.cited_fact(ref, said, scope, facts, lines)
+        if declined(given):
+            return given
         whether = work.ap(
             'mpbid', {'ph': scope, 'ps': seq(a, b, 'wne'),
                       'ch': seq(below, above, 'wo')},
-            work.ap('neqned', {'ph': scope, 'A': a, 'B': b},
-                    self.cited_fact(ref, said, scope, facts, lines)),
+            work.ap('neqned', {'ph': scope, 'A': a, 'B': b}, given),
             work.ap('syl2anc',
                     {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
                      'ch': seq(b, 'cr', 'wcel'),
@@ -3505,9 +3537,13 @@ class Elaborator(Builder):
             inner, lifted = self.widen(scope, facts, bound)
             held = dict(lines)
             held[bound] = Fact(bound, lifted[bound])
-            sides.append(self.one_way(bound, term, inner, lifted, held,
-                                      [*refs, bound],
-                                      (*skip, said.rpn(self.flabel))))
+            side = self.one_way(bound, term, inner, lifted, held,
+                                [*refs, bound],
+                                (*skip, said.rpn(self.flabel)))
+            if declined(side):
+                del self.frames[frame:]
+                return side
+            sides.append(side)
         del self.frames[frame:]
         return work.ap('mpjaodan',
                        {'ph': scope, 'ps': below, 'ch': term, 'th': above},
@@ -3545,11 +3581,9 @@ class Elaborator(Builder):
             return Declined('nothing in scope denies the bound')
 
         def real(one):
-            want = seq(one, 'cr', 'wcel')
-            return facts.get(want) or self.settle(self.to_term(want), scope,
-                                                  facts)
-        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
-            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+            return self.membership(one, 'cr', scope, facts)
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
         return work.ap(
             'pm2.21dd', {'ph': scope, 'ps': bound, 'ch': term},
             facts[bound],
@@ -3584,24 +3618,21 @@ class Elaborator(Builder):
                     given[used[0]].side.scaled(-1)).constant:
             return Declined('the claim is not that bound turned')
         work = normal.Emitter(self.sigs, scope,
-                              lambda t: self.settle(
-                                  self.to_term(seq(t, 'cc', 'wcel')),
-                                  scope, facts))
+                              lambda t: self.membership(t, 'cc', scope, facts))
 
         def real_number(one):
-            want = seq(one, 'cr', 'wcel')
-            if want in facts:
-                return facts[want]
-            return self.settle(self.to_term(want), scope, facts)
+            return self.membership(one, 'cr', scope, facts)
 
+        bound = self.cited_fact(ref, said, scope, facts, lines)
+        if declined(bound):
+            return bound
         return work.ap(
             'neneqd', {'ph': scope, 'A': below[1], 'B': below[0]},
             work.ap('syl2anc',
                     {'ph': scope, 'ps': seq(below[0], 'cr', 'wcel'),
                      'ch': seq(below[0], below[1], 'clt', 'wbr'),
                      'th': seq(below[1], below[0], 'wne')},
-                    real_number(below[0]),
-                    self.cited_fact(ref, said, scope, facts, lines),
+                    real_number(below[0]), bound,
                     work.ap('ltne', {'A': below[0], 'B': below[1]})))
 
     def from_sum(self, used, left, right, how, spare, scope, facts, lines):
@@ -3625,21 +3656,17 @@ class Elaborator(Builder):
             return Declined('only one or two bounds is written')
 
         def real_number(one):
-            want = seq(one, 'cr', 'wcel')
-            if want in facts:
-                return facts[want]
-            return self.settle(self.to_term(want), scope, facts)
+            return self.membership(one, 'cr', scope, facts)
 
         work = normal.Emitter(self.sigs, scope,
-                              lambda t: self.settle(
-                                  self.to_term(seq(t, 'cc', 'wcel')),
-                                  scope, facts))
+                              lambda t: self.membership(t, 'cc', scope, facts))
         gaps, bounds, real = [], [], []
         for (ref, said), fact, times in used:
+            stated = self.cited_fact(ref, said, scope, facts, lines)
+            if declined(stated):
+                return stated
             one, proof, held = self.at_most_zero(
-                work, said, fact, times,
-                self.cited_fact(ref, said, scope, facts, lines),
-                real_number)
+                work, said, fact, times, stated, real_number)
             gaps.append(one)
             bounds.append(proof)
             real.append(held)
@@ -3715,6 +3742,9 @@ class Elaborator(Builder):
         scope = work.under
         minus, span = seq('c1', 'cneg'), seq(left, right, 'cmin', 'co')
         total = seq(gap, minus, 'caddc', 'co')
+        alike = self.same_polynomial(work, span, total)
+        if declined(alike):
+            return alike
         zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
         pair = seq(seq(gap, 'cr', 'wcel'), seq(minus, 'cr', 'wcel'), 'wa')
         added = work.ap(
@@ -3776,7 +3806,7 @@ class Elaborator(Builder):
                                'clt', 'wbr')},
                     work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
                                         'C': 'cc0', 'R': 'clt'},
-                            self.same_polynomial(work, span, total), added),
+                            alike, added),
                     work.ap('syl3anc',
                             {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
                              'ch': seq(right, 'cr', 'wcel'),
@@ -3802,12 +3832,15 @@ class Elaborator(Builder):
         `suble0` says a difference at most zero is `<_` between them.
         """
         scope, span = work.under, seq(left, right, 'cmin', 'co')
+        alike = self.same_polynomial(work, span, total)
+        if declined(alike):
+            return alike
         return work.ap(
             'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
                       'ch': seq(left, right, 'cle', 'wbr')},
             work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
                                 'C': 'cc0', 'R': 'cle'},
-                    self.same_polynomial(work, span, total), added),
+                    alike, added),
             work.ap('syl2anc',
                     {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
                      'ch': seq(right, 'cr', 'wcel'),
@@ -4001,10 +4034,7 @@ class Elaborator(Builder):
             return Declined(f'{times} is past one digit')
 
         def complex_number(term):
-            want = seq(term, 'cc', 'wcel')
-            if want in facts:
-                return facts[want]
-            return self.settle(self.to_term(want), scope, facts)
+            return self.membership(term, 'cc', scope, facts)
 
         work = normal.Emitter(self.sigs, scope, complex_number)
         was = [c.rpn(self.flabel) for c in said.children]
@@ -4012,23 +4042,22 @@ class Elaborator(Builder):
         scaled = seq(numeral, gap, 'cmul', 'co')
         span = seq(left, right, 'cmin', 'co')
         def real_number(one):
-            want = seq(one, 'cr', 'wcel')
-            if want in facts:
-                return facts[want]
-            return self.settle(self.to_term(want), scope, facts)
+            return self.membership(one, 'cr', scope, facts)
 
         if parts[2] == '=':
             # The cited equation says its difference is zero; scaled, that
             # is the claim's difference, and the normalizer is what says so.
+            alike = self.same_polynomial(work, span, scaled)
+            stated = self.cited_fact(ref, said, scope, facts, lines)
+            for one in (alike, stated):
+                if declined(one):
+                    return one
             reached = work.chain(
-                self.same_polynomial(work, span, scaled),
+                alike,
                 work.chain(
                     work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
                                        'C': numeral, 'F': 'cmul'},
-                            self.difference_zero(
-                                work, was,
-                                self.cited_fact(ref, said, scope, facts,
-                                                lines))),
+                            self.difference_zero(work, was, stated)),
                     work.ap('syl',
                             {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
                              'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
@@ -5454,11 +5483,25 @@ class Elaborator(Builder):
 
         known = self.supplied(step, scope, facts)
         member = seq(witness, domain.rpn(self.flabel), 'wcel')
+        # An `exhibit` is the head of a step. The witness is read off the
+        # lines it cites, so what is left is that the witness lies in the
+        # domain and that the body holds of it, and both are the text's to
+        # supply rather than another route's to try.
+        shown = []
+        for want in (member, here):
+            one = self.settle(self.to_term(want), scope, known)
+            if declined(one):
+                raise self.defect(
+                    step.line,
+                    f'exhibiting that witness wants {self.render(want)}, '
+                    f'which step {fmt(step.number)} does not supply: {one}')
+            shown.append(one)
+        spare = self.binder_var(said)
+        if declined(spare):
+            raise self.defect(step.line, f'{spare}')
         return seq(scope, seq(member, here, 'wa'), term,
-                   seq(scope, member, here,
-                       self.settle(self.to_term(member), scope, known),
-                       self.settle(self.to_term(here), scope, known), 'jca'),
-                   body.rpn(self.flabel), here, self.binder_var(said),
+                   seq(scope, member, here, *shown, 'jca'),
+                   body.rpn(self.flabel), here, spare,
                    witness, domain.rpn(self.flabel), instance, 'rspcev',
                    'syl')
 
@@ -5845,10 +5888,20 @@ class Elaborator(Builder):
         """
         if goal in facts:
             return facts[goal]
-        for text, _how, _line in step.requires:
+        for text, how, _line in step.requires:
             node = self.read(text)
             if self.term(node) == goal:
-                return self.closure(node.children[0], want, scope, facts)
+                made = self.closure(node.children[0], want, scope, facts)
+                # A line that is there and whose justification does not
+                # reach it is the text's to fix in the same way one that is
+                # missing is. Handing the decline to the caller would put it
+                # in a proof join, and say nothing about the line at fault.
+                if declined(made):
+                    raise self.defect(
+                        self.at,
+                        f'the requires line for {self.render(goal)} is '
+                        f'justified by {how}, which does not reach it: {made}')
+                return made
         # A `requires` line that is not there is the text's to fix, so this
         # one is a defect. What it is built from declining is not, which is
         # why only a decline is turned into one here.
@@ -5856,6 +5909,31 @@ class Elaborator(Builder):
         if declined(found):
             raise self.defect(
                 self.at, f'no requires line for {self.render(goal)}')
+        return found
+
+    def membership(self, said, system, scope, facts):
+        """That a term belongs to a number system, which the text writes.
+
+        `READERS.md` settles that membership is a dull fact the page states
+        rather than a step's to discover, and records the price: ninety-seven
+        such lines across the forty-two steps citing `algebra` or
+        `inequalities`, the exemption having been rejected. So a term whose
+        membership nothing supplies is a line the proof owes, and saying so
+        is what this is for.
+
+        The methods reach here for every atom they do not look inside, and
+        they reach it while writing rather than while deciding. A decline
+        given back from here would reach the caller as the method not
+        covering the step, which is the one thing it does not mean.
+        """
+        want = seq(said, system, 'wcel')
+        if want in facts:
+            return facts[want]
+        found = self.settle(self.to_term(want), scope, facts)
+        if declined(found):
+            raise self.defect(
+                self.at, f'nothing says {self.render(want)}, which this step '
+                         f'needs')
         return found
 
     def freeze(self, node):

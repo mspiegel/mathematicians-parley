@@ -24,7 +24,7 @@ from fractions import Fraction
 
 import field
 from field import NUMERAL, order, spell_monomial
-from parse import Declined
+from parse import Declined, declined
 from spell import Builder, seq
 
 ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
@@ -304,6 +304,9 @@ class Emitter(Builder):
             # -u i + -u j is -u ( i + j ), which `negdi` says read
             # backwards, and the two are then both positive.
             whole = [NUMERAL[-a], NUMERAL[-b]]
+            both = self.coefficient_sum(-first, -second)
+            if declined(both):
+                return both
             return self.chain(
                 self.ap('eqcomd',
                         {'ph': self.under, 'A': op(c, d, ADD),
@@ -319,12 +322,14 @@ class Emitter(Builder):
                                                   'B': whole[1]}))),
                 self.ap('negeqd',
                         {'ph': self.under, 'A': op(*whole, ADD),
-                         'B': NUMERAL[-a - b]},
-                        self.coefficient_sum(-first, -second)),
+                         'B': NUMERAL[-a - b]}, both),
                 op(c, d, ADD), seq(op(*whole, ADD), 'cneg'), said)
         if a < 0 or b < 0:
             if a < 0:
                 # The negative one second, so one case covers both.
+                swapped = self.coefficient_sum(second, first)
+                if declined(swapped):
+                    return swapped
                 return self.chain(
                     self.ap('syl2anc',
                             {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
@@ -333,8 +338,7 @@ class Emitter(Builder):
                                        'wceq')},
                             self.coefficient(first), self.coefficient(second),
                             self.ap('addcom', {'A': c, 'B': d})),
-                    self.coefficient_sum(second, first),
-                    op(c, d, ADD), op(d, c, ADD), said)
+                    swapped, op(c, d, ADD), op(d, c, ADD), said)
             return self.minus_numeral(a, -b, c, d, said)
         if a == 0:
             return self.a1i(claim, self.mp(seq(d, 'cc', 'wcel'), claim,
@@ -359,13 +363,16 @@ class Emitter(Builder):
         """
         left, right = NUMERAL[bigger], NUMERAL[smaller]
         out = NUMERAL[bigger - smaller]
+        back = self.coefficient_sum(Fraction(smaller),
+                                    Fraction(bigger - smaller))
+        if declined(back):
+            return back
         return self.ap(
             'mpbird',
             {'ph': self.under,
              'ps': seq(op(left, right, 'cmin'), out, 'wceq'),
              'ch': seq(op(right, out, ADD), left, 'wceq')},
-            self.coefficient_sum(Fraction(smaller),
-                                 Fraction(bigger - smaller)),
+            back,
             self.ap('syl3anc',
                     {'ph': self.under, 'ps': seq(left, 'cc', 'wcel'),
                      'ch': seq(right, 'cc', 'wcel'),
@@ -447,11 +454,13 @@ class Emitter(Builder):
                     self.coefficient(first), self.coefficient(second),
                     self.monomial_cc(monomial),
                     self.ap('adddir', {'A': c, 'B': d, 'C': spelt})))
+        added = self.coefficient_sum(first, second)
+        if declined(added):
+            return added
         return self.chain(
             gathered,
             self.ap('oveq1d', {'ph': self.under, 'A': op(c, d, ADD),
-                               'B': total, 'C': spelt, 'F': MUL},
-                    self.coefficient_sum(first, second)),
+                               'B': total, 'C': spelt, 'F': MUL}, added),
             op(op(c, spelt, MUL), op(d, spelt, MUL), ADD),
             op(op(c, d, ADD), spelt, MUL),
             op(total, spelt, MUL))
@@ -718,13 +727,15 @@ class Emitter(Builder):
                     self.atom(name), self.index(first), self.index(second),
                     self.ap('expadd', {'A': name, 'M': NUMERAL[first],
                                        'N': NUMERAL[second]})))
+        exponents = self.coefficient_sum(Fraction(first), Fraction(second))
+        if declined(exponents):
+            return exponents
         return self.chain(
             joined,
             self.ap('oveq2d',
                     {'ph': self.under,
                      'A': op(NUMERAL[first], NUMERAL[second], ADD),
-                     'B': NUMERAL[total], 'C': name, 'F': EXP},
-                    self.coefficient_sum(Fraction(first), Fraction(second))),
+                     'B': NUMERAL[total], 'C': name, 'F': EXP}, exponents),
             op(a, b, MUL),
             op(name, op(NUMERAL[first], NUMERAL[second], ADD), EXP),
             op(name, NUMERAL[total], EXP))
@@ -746,11 +757,13 @@ class Emitter(Builder):
             moved, walked = self.shift_factors(appended, len(factors), at + 1)
             total = moved[at][1] + moved[at + 1][1]
             out = [*moved[:at], (name, total), *moved[at + 2:]]
+            gathered = self.gather_factors(name, moved[at][1],
+                                           moved[at + 1][1])
+            if declined(gathered):
+                return out, gathered
             return out, self.chain(
                 walked,
-                self.spread(moved, at,
-                            self.gather_factors(name, moved[at][1],
-                                                moved[at + 1][1])),
+                self.spread(moved, at, gathered),
                 start, spell_monomial(tuple(moved)),
                 spell_monomial(tuple(out)))
         goes = sum(1 for n, _ in factors if n < name)
@@ -929,6 +942,9 @@ class Emitter(Builder):
         merged, monomial = self.multiply_monomials(list(first), list(second))
         total = weight * other
         out = (tuple(merged), total)
+        times = self.coefficient_product(weight, other)
+        if declined(times):
+            return out, times
         return out, self.chain(
             regrouped,
             self.ap('oveq12d',
@@ -936,7 +952,7 @@ class Emitter(Builder):
                      'B': field.spell_coefficient(total),
                      'C': op(m, n, MUL),
                      'D': spell_monomial(tuple(merged)), 'F': MUL},
-                    self.coefficient_product(weight, other), monomial),
+                    times, monomial),
             op(a, b, MUL), op(op(c, d, MUL), op(m, n, MUL), MUL),
             self.spell_term(out))
 
@@ -1048,6 +1064,9 @@ class Emitter(Builder):
                         'ch': seq(start, run, 'wceq')},
                 self.run_cc(items), self.ap('exp1', {'A': run}))
         below = NUMERAL[times - 1]
+        stepped_from = self.coefficient_sum(Fraction(times - 1), Fraction(1))
+        if declined(stepped_from):
+            return stepped_from
         stepped = self.chain(
             self.ap('oveq2d', {'ph': self.under, 'A': NUMERAL[times],
                                'B': op(below, NUMERAL[1], ADD), 'C': run,
@@ -1055,9 +1074,7 @@ class Emitter(Builder):
                     self.ap('eqcomd',
                             {'ph': self.under,
                              'A': op(below, NUMERAL[1], ADD),
-                             'B': NUMERAL[times]},
-                            self.coefficient_sum(Fraction(times - 1),
-                                                 Fraction(1)))),
+                             'B': NUMERAL[times]}, stepped_from)),
             self.ap('syl2anc',
                     {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
                      'ch': seq(below, 'cn0', 'wcel'),
@@ -1307,10 +1324,13 @@ class Emitter(Builder):
                                           'A': NUMERAL[whole]},
                               self.number(whole), nonzero)
         spelt = spell_monomial(monomial)
+        apart = self.monomial_apart(monomial)
+        if declined(apart):
+            return apart
         return self.ap('mulne0d', {'ph': self.under, 'A': digit,
                                    'B': spelt},
                        self.coefficient(weight), self.monomial_cc(monomial),
-                       nonzero, self.monomial_apart(monomial))
+                       nonzero, apart)
 
     def monomial_apart(self, monomial):
         """( under -> M =/= 0 ), the empty one being one."""

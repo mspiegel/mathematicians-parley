@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Everything that must be green before a commit.
 
-Seven things: the lint settings in `ruff.toml`, the checker over the whole
-corpus, the planted defects that prove the checker still catches things, the
-planted defects that prove the elaborator still reports things, every set.mm
-label the database names, that a compressed proof is the proof it was made
-from, and a verifier over every proof the elaborator has written. Any one of
-them failing fails the gate.
+Eight things: the lint settings in `ruff.toml`, that no caller hands on a
+decline without asking whether it has one, the checker over the whole corpus,
+the planted defects that prove the checker still catches things, the planted
+defects that prove the elaborator still reports things, every set.mm label
+the database names, that a compressed proof is the proof it was made from,
+and a verifier over every proof the elaborator has written. Any one of them
+failing fails the gate.
 
-The last is the only one that is evidence the elaborator is right rather than
+The first two read the tools; the rest read the corpus. The last is the only
+one that is evidence the elaborator is right rather than
 consistent. The five before it read the corpus against itself or against a
 list of names; a proof that assumes nothing and proves the wrong thing passes
 all of them, and has.
@@ -69,6 +71,7 @@ def stage(name):
 # What is run, in the order the report is printed in.
 STAGES = [
     ('ruff', None),
+    ('declines nobody asked about', stage('declines')),
     ('checker', stage('check')),
     ('planted defects', stage('test_check')),
     ('planted defects the elaborator must report', stage('test_elaborate')),
