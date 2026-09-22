@@ -1,3 +1,41 @@
+theorem powerset-split-disjoint
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  then 𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
+
+1.  a ∉ X ∖ {a}
+    thm:not-in-difference, from H1
+
+2.  For every S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∉ 𝒫(X ∖ {a}).
+    fix
+    let S ∈ 𝒫(X ∖ {a})                                                (K1)
+
+    2.1.  a ∈ S ∪ {a}
+          thm:in-union-singleton
+
+    2.2.  S ∪ {a} ∉ 𝒫(X ∖ {a})
+          contradiction
+          suppose not S ∪ {a} ∉ 𝒫(X ∖ {a})                            (S1)
+
+          2.2.1.  S ∪ {a} ∈ 𝒫(X ∖ {a})
+                  thm:double-negation P := S ∪ {a} ∈ 𝒫(X ∖ {a}), from S1
+
+          2.2.2.  S ∪ {a} ⊆ X ∖ {a}
+                  def:powerset S := S ∪ {a}, from 2.2.1
+
+          2.2.3.  a ∉ S ∪ {a}
+                  thm:subset-of-difference, from 2.2.2
+
+          2.2.4.  a ∈ S ∪ {a}. a ∉ S ∪ {a}.
+                  join 2.1, 2.2.3
+
+3.  For every V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}, V ∉ 𝒫(X ∖ {a}).
+    thm:added-elements-are-new Y := 𝒫(X ∖ {a}), from 2
+
+4.  𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
+    thm:disjoint-empty, from 3
+
+
 theorem subsets-count
   let n ∈ ℕ₀                                                          (H1)
   let A be a set                                                      (H2)

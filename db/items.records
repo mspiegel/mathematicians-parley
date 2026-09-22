@@ -133,6 +133,46 @@ theorem difference-set
   metamath    difexg
   first-used  subsets
 
+theorem subset-of-difference
+  assume Y ⊆ X ∖ {a}                                                  (H1)
+  then        a ∉ Y
+  metamath    ssdifsn
+  target      ssdifsn
+  first-used  subsets
+  note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
+              says two things at once, and this is the second of them.
+
+theorem in-union-singleton
+  then        a ∈ Y ∪ {a}
+  metamath    elun2, over the singleton snidg puts a in
+  target      elun2
+  first-used  subsets
+
+theorem disjoint-empty
+  assume for every s ∈ Z, s ∉ Y                                       (H1)
+  then        Y ∩ Z = ∅
+  metamath    disjr
+  target      disjr
+  first-used  subsets
+  note        Two sets are disjoint when nothing in one is in the other, which
+              is what a reader proves. set.mm says it twice, over the first set
+              in `disj` and over the second in `disjr`, and the second is the
+              one the subsets proof has: what it can run over is the part it
+              built, not the part it split off.
+
+theorem added-elements-are-new
+  let Y be a set                                                      (H1)
+  assume for every s ∈ Y, s ∪ {a} ∉ Y                                 (H2)
+  then        for every u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
+  metamath    ralrnmpt
+  target      ralrnmpt
+  note        Running over the sets with a added is running over the sets and
+              adding a, which `ralrnmpt` says of the range of any map written
+              on the spot and of any property of its members. Both are
+              narrowed here to the one map the corpus writes and the one
+              property it asks, because the language can name neither — the
+              same gap `notation bijection` records.
+
 theorem not-in-difference
   let X be a set                                                      (H1)
   then        a ∉ X ∖ {a}
@@ -674,21 +714,18 @@ theorem add-element-bijection
               with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The
               statement above is the merge's reading of it and should be checked.
 
+theorem powerset-split-disjoint
+  proved-in   proof/subsets.proof
+  first-used  subsets
+  note        The pilot's row read only "the two parts above are disjoint". The
+              statement in the proof is the merge's reading of it.
+
 theorem powerset-split
   let X be a set                                                      (H1)
   let a ∈ X                                                           (H2)
   then        𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
   open        no set.mm label found; pwdif and pwsn are nearby
   first-used  subsets
-
-theorem powerset-split-disjoint
-  let X be a set                                                      (H1)
-  let a ∈ X                                                           (H2)
-  then        𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
-  open        to be proved
-  first-used  subsets
-  note        The pilot's row read only "the two parts above are disjoint". The
-              statement above is the merge's reading of it.
 
 
 # -------------------------------------------------------------- analysis

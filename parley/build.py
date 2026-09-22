@@ -27,7 +27,9 @@ cheap; run it after changing the elaborator or the database.
 Usage:  parley/build.py [name] [set.mm]
 Exits non-zero when a recipe fails.
 """
+import functools
 import os
+import re
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -37,8 +39,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from library import where_set_mm
+from parse import corpus
 
 ROOT = Path(__file__).resolve().parent.parent
+# How a proof names a theorem, wherever it names one: in the justification
+# that cites it and in the justification of a `requires` line.
+CITES = re.compile(r'\bthm:([A-Za-z0-9-]+)')
 # Stands in the recipe where the library's path goes, which is not known
 # until the command line and the environment have been asked.
 SETMM = '<set.mm>'
@@ -59,17 +65,19 @@ class Artifact:
     needs: tuple = ()   # artifacts whose files this recipe reads
 
 
-# The fourteen readable proofs the elaborator can expand. The file each
+# The fifteen readable proofs the elaborator can expand. The file each
 # writes is named for the theorem, which is not always the name of the proof
 # file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
-# `geometric-sum` from `proof/geometric-series.proof`, `subsets-count` from
-# `proof/subsets.proof`, both `least-combination-divides` and `bezout` from
-# `proof/bezout.proof`, and four from `proof/sqrt2-irrational.proof`, which
-# holds the theorem it is named for and the three it leans on.
+# `geometric-sum` from `proof/geometric-series.proof`, both `subsets-count`
+# and `powerset-split-disjoint` from `proof/subsets.proof`, both
+# `least-combination-divides` and `bezout` from `proof/bezout.proof`, and
+# four from `proof/sqrt2-irrational.proof`, which holds the theorem it is
+# named for and the three it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
-            'least-combination-divides', 'bezout', 'subsets-count')
+            'least-combination-divides', 'bezout', 'powerset-split-disjoint',
+            'subsets-count')
 
 # The five proofs worked out by hand, which share two of their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`
@@ -129,6 +137,38 @@ def produce(artifact, library):
     return done.stdout
 
 
+@functools.cache
+def citing():
+    """For each theorem, the theorems of this corpus its proof cites.
+
+    A proof citing another proof's theorem reads the file that theorem was
+    written to, because it has to push a term for each variable of that
+    statement in the order that file declares them, and two proofs need not
+    spell a statement's bound names alike. So the file has to be there
+    first, which is what `needs` is for.
+
+    Which those are is already written down twice over — `proved-in` in
+    `db/items.records` says a theorem is this corpus's, and the proof text
+    says which it cites — so it is read and not listed. A list here would
+    be the same knowledge in a third place, and the one that could quietly
+    disagree with the proofs."""
+    records, theorems = corpus(ROOT)
+    ours = {r.name for r in records
+            if r.kind == 'theorem' and 'proved-in' in r.fields}
+    out = {}
+    for theorem in theorems:
+        named = []
+        for step in theorem.steps:
+            said = [step.just.text, *(just for _fact, just, _no
+                                      in step.requires)]
+            for name in {n for text in said for n in CITES.findall(text)}:
+                if name in ours and name != theorem.name \
+                        and name not in named:
+                    named.append(name)
+        out[theorem.name] = tuple(sorted(named))
+    return out
+
+
 def waves(wanted):
     """The artifacts in groups that may be built at the same time.
 
@@ -138,9 +178,12 @@ def waves(wanted):
     rebuilds that theorem and not the geometry it reads, the same as asking
     for it before this ran concurrently."""
     here = {a.name for a in wanted}
+    cited = citing()
     left, done, out = list(wanted), set(), []
     while left:
-        ready = [a for a in left if not (set(a.needs) & here) - done]
+        ready = [a for a in left
+                 if not ((set(a.needs) | set(cited.get(a.name, ()))) & here)
+                 - done]
         out.append(ready)
         done |= {a.name for a in ready}
         left = [a for a in left if a not in ready]

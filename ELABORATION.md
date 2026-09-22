@@ -885,8 +885,9 @@ was a lemma for, and then `prime-above` and `cantor`, which nothing here was
 written for.
 
 That made eight, and `isosceles` below makes nine; `geometric-sum`,
-`least-combination-divides`, `bezout`, `lowest-terms` and `subsets-count`
-bring it to fourteen. This is the tally for all of them as it now stands —
+`least-combination-divides`, `bezout`, `lowest-terms`, `subsets-count` and
+`powerset-split-disjoint` bring it to fifteen. This is the tally for all of
+them as it now stands —
 what each proof still takes as stated rather than builds:
 
 | proof | assumed | |
@@ -904,9 +905,10 @@ what each proof still takes as stated rather than builds:
 | geometric-sum | 0 | |
 | least-combination-divides | 0 | |
 | bezout | 0 | |
-| subsets-count | 5 | three items set.mm has no label for, two a `target` cannot reach |
+| powerset-split-disjoint | 0 | |
+| subsets-count | 4 | two items set.mm has no label for, two a `target` cannot reach |
 
-All fourteen verify. That 5 was 11 when `subsets-count` first elaborated, and
+All fifteen verify. That 4 was 11 when `subsets-count` first elaborated, and
 26 across eight proofs when this section was first written; what closed the
 gap for the thirteen above it was writing the four closure methods out rather
 than taking their steps as stated, and the assumption count is the measure
@@ -920,7 +922,7 @@ it counts one, and every set.mm lemma about cardinality asks for `e. Fin`.
 says a set in bijection with a finite one is finite, and between them every
 `Fin` in the proof is reached from what the text does write.
 
-The five that remain are two different debts.
+The four that remain are two different debts.
 
 `thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn`
 and `hashnncl` — and no `target`, because what stands between each lemma and
@@ -930,9 +932,15 @@ through the hypothesis saying what the size was. Nothing here rewrites by a
 line's equation while settling a side condition, and whether anything should
 is a question about `settle`'s rule, not a missing field.
 
-`thm:add-element-bijection`, `thm:powerset-split` and
-`thm:powerset-split-disjoint` are `open`: no set.mm label states them, and
-each wants a proof in the readable layer the way `thm:lowest-terms` did.
+`thm:add-element-bijection` and `thm:powerset-split` are `open`: no set.mm
+label states them, and each wants a proof in the readable layer the way
+`thm:lowest-terms` did. `thm:powerset-split-disjoint` was the third of
+those and now has one, in `proof/subsets.proof` beside the theorem that
+cites it. What it needed from the elaborator was mostly the range of a map
+written on the spot: `ralrnmpt` names that map in a hypothesis and speaks
+of its range in the conclusion, so the claim fixes the map and `read_off`
+takes back out of it what the map binds, where that runs, and what it
+builds.
 
 Among the closure methods none remains. The last was `thm:lowest-terms`,
 whose `metamath` field read
@@ -1324,7 +1332,7 @@ claim about `( 1 x. ( 1 + 1 ) ) / 2`, and the assumption count reported it as
 a win. A verifier caught it, run by hand, because it was remembered.
 
 So `parley/verify.py` is the gate's fifth stage and runs `mmverify.py` over
-all 28 proofs — the fourteen theorems and `geometry.mm`'s fourteen lemmas.
+all 29 proofs — the fifteen theorems and `geometry.mm`'s fourteen lemmas.
 
 It costs nineteen seconds, which is the surprise and the reason it can be a
 gate stage at all. Verifying one proof costs about eighteen seconds whatever
@@ -1336,7 +1344,7 @@ reads set.mm once and the marginal cost of each proof is close to nothing.
 
 Which files that one includes is read off the `$[ ... $]` lines rather than
 listed: a proof nothing else includes is a root, and nine roots reach all
-sixteen files. A list written down would leave the gate green on the day a
+seventeen files. A list written down would leave the gate green on the day a
 proof was added and not read.
 
 `mmverify.py` is not vendored, for the reason set.mm and ruff are not: say
@@ -1346,7 +1354,7 @@ maintains.
 
 ## The one that does not elaborate
 
-Fourteen of the corpus's fifteen theorems elaborate and verify. The five that
+Fifteen of the corpus's sixteen theorems elaborate and verify. The five that
 once did not stopped for reasons that were not always what the message said,
 and four have since been carried the whole way:
 

@@ -185,6 +185,11 @@ MEMBERSHIP = [
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure
     'rabexg', 'ssexg', 'difexg', 'pwexg', 'unexg', 'rnexg', 'mptexg', '0ex',
+    # A name a `fix` or an `obtain` introduces is a setvar, and a setvar is
+    # a set by the kernel's own reckoning. `elpwg` asks it of whatever it
+    # puts in a power set, and a proof that fixed the thing has nothing to
+    # say about it that `vex` does not.
+    'vex', 'snidg', 'snex',
     # and finiteness, which the readable layer never says at all. It counts
     # a set and the count is a natural number, and every lemma about
     # cardinality asks for `e. Fin` instead. `hashvnfin` is set.mm saying

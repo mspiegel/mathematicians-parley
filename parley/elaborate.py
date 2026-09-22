@@ -47,11 +47,9 @@ from parse import (
     NAME,
     Problem,
     Unhandled,
-    check_encoding,
     citations,
+    corpus,
     fmt,
-    parse_database,
-    parse_proof,
 )
 from sorts import sorts_in_scope, sorts_of_record
 from spell import Builder, seq
@@ -243,7 +241,15 @@ class Elaborator(Builder):
         ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
         ('wcel', (0, 1)): 'eleq12d',
         ('csu', (0,)): 'sumeq1d',
-        ('cpw', (0,)): 'pweqd',
+        ('cpw', (0,)): 'pweqd', ('csn', (0,)): 'sneqd',
+        ('cun', (0,)): 'uneq1d', ('cun', (1,)): 'uneq2d',
+        ('cun', (0, 1)): 'uneq12d',
+        ('cdif', (0,)): 'difeq1d', ('cdif', (1,)): 'difeq2d',
+        ('cdif', (0, 1)): 'difeq12d',
+        ('cin', (0,)): 'ineq1d', ('cin', (1,)): 'ineq2d',
+        ('cin', (0, 1)): 'ineq12d',
+        ('wss', (0,)): 'sseq1d', ('wss', (1,)): 'sseq2d',
+        ('wss', (0, 1)): 'sseq12d',
         ('wa', (0,)): 'anbi1d', ('wa', (1,)): 'anbi2d',
         ('wa', (0, 1)): 'anbi12d',
         ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
@@ -490,6 +496,16 @@ class Elaborator(Builder):
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        if wanted.label in self.BOUND:
+            # A `define` and a `fix` may write the same letter, and one of
+            # them is renamed so that they do not collide. The line is then
+            # the line wanted spelt with another binder, which is the same
+            # line: `ralrnmpt` asks over the name its map binds where the
+            # proof wrote its own.
+            for said, proof in facts.items():
+                spelt = self.respelt(proof, said, rpn, scope)
+                if spelt is not None:
+                    return spelt
         if depth > 0:
             if wanted.label in ('wa', 'w3a'):
                 kids = [c.rpn(self.flabel) for c in wanted.children]
@@ -501,6 +517,24 @@ class Elaborator(Builder):
             if wanted.label == 'wrex' and step is not None:
                 return self.witnessed(step, wanted, scope, facts,
                                       lines or {})
+            if wanted.label == 'wral':
+                # A side condition may be asked of every member at once:
+                # `ralrnmpt` wants each of its map's values to be a set. The
+                # name is fixed, the condition settled of it, and
+                # `ralrimiva` gives it back, which is `as_generalised` over
+                # a declared lemma rather than over a cited one.
+                body, variable, over = wanted.children
+                member = seq(f'{variable.rpn(self.flabel)} cv',
+                             over.rpn(self.flabel), 'wcel')
+                frame = len(self.frames)
+                inner, lifted = self.widen(scope, facts, member)
+                try:
+                    made = self.settle(body, inner, lifted, depth - 1)
+                finally:
+                    del self.frames[frame:]
+                return seq(scope, body.rpn(self.flabel),
+                           variable.rpn(self.flabel),
+                           over.rpn(self.flabel), made, 'ralrimiva')
             # Every lemma is tried as it is written before any is read
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
@@ -978,6 +1012,28 @@ class Elaborator(Builder):
         return kernel.Term(term.label,
                            tuple(self.restated(c, was, now)
                                  for c in term.children))
+
+    def read_off(self, sig, binding, variables):
+        """What a lemma's naming hypothesis says its own variables are.
+
+        `ralrnmpt` names a map in a hypothesis and speaks of its range in
+        the conclusion, so the claim fixes the map and nothing else. What
+        the map binds, where that runs and what it builds are read back out
+        of it, which is the same move `instanced` makes for a hypothesis
+        relating two formulas: the lemma is saying what it means, not
+        asking for something."""
+        for text in sig.essentials:
+            asked = self.syntax.parse(text[1:], 'wff')
+            if asked.label != 'wceq' or len(asked.children) != 2:
+                continue
+            name = asked.children[0].variable
+            if name is None or name not in binding:
+                continue
+            said = kernel.match(asked.children[1], binding[name],
+                                dict(binding), variables)
+            if said is not None:
+                binding = said
+        return binding
 
     def instanced(self, sig, binding):
         """What a lemma asking `( x = A -> ( ph <-> ps ) )` means by `ps`.
@@ -4332,9 +4388,27 @@ class Elaborator(Builder):
         and `simpld` or `simprd` takes it."""
         if reads.label != 'wa' or len(reads.children) != 2:
             return None
+        asks, walk = [], whole
+        while walk.label in ('wi', 'wb') and walk is not reads:
+            asks.append(walk.children[0])
+            walk = walk.children[1]
         for i, part in enumerate(reads.children):
             bound = kernel.match(part, goal, dict(seed or {}), whole.names())
-            if bound is None or reads.names() - set(bound):
+            if bound is None:
+                continue
+            # A half need not name everything the lemma does: `ssdifsn` says
+            # what is not in the subset without saying what it is a subset
+            # of, and what is left open is what the step cited a line for.
+            for slot in asks:
+                if not reads.names() - set(bound):
+                    break
+                for held in facts:
+                    filled = kernel.match(slot, self.to_term(held),
+                                          dict(bound), whole.names())
+                    if filled is not None:
+                        bound = filled
+                        break
+            if reads.names() - set(bound):
                 continue
             said = reads.substitute(bound)
             proof = self.apply_lemma(label, said, scope, facts, step,
@@ -4498,6 +4572,9 @@ class Elaborator(Builder):
             if node.label == 'wa':
                 rest.extend(node.children)
                 continue
+            if node.label in ('wral', 'wal'):
+                rest.append(node.children[0])
+                continue
             if node.label != 'wcel':
                 continue
             name = node.children[1].variable
@@ -4576,15 +4653,40 @@ class Elaborator(Builder):
         # A lemma whose hypothesis says what one of its variables is has
         # already decided it, and the match reads the claim's answer over
         # the top. Where the two disagree the claim is not what the lemma
-        # concludes, so the lemma is proved at its own value instead.
+        # concludes, so the lemma is proved at its own value instead. What
+        # a naming hypothesis decides comes first, because what a relating
+        # one says is said of it.
+        binding = self.read_off(sig, binding, variables)
         settled = self.instanced(sig, binding)
         if any(settled[name].rpn(self.flabel) != stood.rpn(self.flabel)
                for name, stood in binding.items()):
             return self.at_its_own_value(label, sig, goal, scope, facts,
                                          step, settled)
+        # Agreeing, it is also what the lemma says of the side the claim did
+        # not fix, and a biconditional crossed the other way leaves that
+        # side for the hypothesis to decide.
+        binding = settled
         # The scope is where a lemma's disjointness conditions can forbid it,
         # so it is chosen before anything is built. ELABORATION.md 14.
-        where, frame = self.allowed(sig, binding, variables)
+        try:
+            where, frame = self.allowed(sig, binding, variables)
+        except Unhandled:
+            # Which scope is allowed depends on what the variables stand
+            # for. `ralrnmpt` forbids its own binder in the property it
+            # carries, and until a cited line fixes that binder every scope
+            # holding the property looks forbidden. So what the facts decide
+            # is read and the question asked again — only here, because
+            # binding early changes which fact answers an antecedent.
+            for slot in antecedents:
+                if not slot.names() - set(binding):
+                    continue
+                for held in facts:
+                    filled = kernel.match(slot, self.to_term(held),
+                                          dict(binding), variables)
+                    if filled is not None:
+                        binding = filled
+                        break
+            where, frame = self.allowed(sig, binding, variables)
         known = self.supplied(step, where, self.frames_facts(frame, facts))
         for slot in antecedents:
             if not slot.names() - set(binding):
@@ -4673,6 +4775,15 @@ class Elaborator(Builder):
 
     def prove_essential(self, want, scope, facts):
         """One hypothesis a lemma states in full rather than asking for."""
+        if (want.label == 'wceq' and len(want.children) == 2
+                and want.children[0].rpn(self.flabel)
+                == want.children[1].rpn(self.flabel)):
+            # A lemma that names a thing so that its conclusion may speak of
+            # it asks for the naming, and asks for it as it stands rather
+            # than under the scope: `ralrnmpt` wants `F = ( x e. A |-> B )`
+            # of the very map F is. `settle` would carry it into the scope,
+            # which is a deduction where the hypothesis is a statement.
+            return seq(want.children[0].rpn(self.flabel), 'eqid')
         if want.label != 'wi':
             return self.settle(want, scope, facts)
         left, right = want.children
@@ -5338,9 +5449,62 @@ class Elaborator(Builder):
             node = rest.pop()
             if node.label in ('wral', 'wrex', 'wreu'):
                 bound.add(node.children[1].rpn(self.flabel))
+            # A map written on the spot binds a name too, and it is the one
+            # a set-image is the range of. `powerset-split-disjoint` states
+            # its claim about such a range, so the name is in what a
+            # citation has to push.
+            if node.label in ('cmpt', 'wal'):
+                at = 0 if node.label == 'cmpt' else 1
+                bound.add(node.children[at].rpn(self.flabel))
             rest.extend(node.children)
         return sorted(bound | set(classes),
                       key=lambda label: self.forder[label])
+
+    def cited_pushes(self, name, binds, mine):
+        """What a citation pushes, in the order the cited file declares.
+
+        Metamath asks for a term per variable of the statement applied, in
+        that file's declaration order, and two proofs need not spell a
+        statement's bound names alike: the letter a set-image binds is a
+        class letter, so neither proof can take it and each falls back on
+        whichever spare was free. So the cited statement is read, and what
+        it binds decides both the order and how many.
+
+        The classes need no reading. Both files name a theorem's class
+        hypotheses from one list in the order the theorem writes them, so
+        a class stands for the same hypothesis on both sides.
+
+        None where the file is not there, which is every proof cited before
+        it has been built. Those are the ones whose names happen to agree,
+        and they are pushed as they were before this."""
+        path = path_of(name)
+        if not path.exists():
+            return None
+        said = None
+        with path.open() as handle:
+            for line in handle:
+                if ' $p ' in line:
+                    said = line.split(' $p ')[1].split('$=')[0].split()
+                    break
+        if said is None:
+            return None
+        theirs = []
+        for token in said:
+            label = self.flabel.get(token)
+            if label is not None and label not in theirs:
+                theirs.append(label)
+        theirs.sort(key=lambda label: self.forder[label])
+        spare = [v for v in mine
+                 if v not in binds and self.sigs[v].statement[0] == 'setvar']
+        out = []
+        for label in theirs:
+            if label in binds:
+                out.append(binds[label])
+            elif self.sigs[label].statement[0] == 'setvar' and spare:
+                out.append(spare.pop(0))
+            else:
+                return None
+        return out
 
     def cite_corpus(self, step, term, scope, facts, lines, item, cites=None):
         """Apply a theorem this corpus proves, as this elaborator states it.
@@ -5356,7 +5520,10 @@ class Elaborator(Builder):
         binds = {}
         for kind, htext, _label, _line in other.hypotheses:
             node = self.read(hypothesis_body(kind, htext))
-            if kind == 'let' and node.notation == 'membership':
+            # `let X be a set` names a class as surely as `let n ∈ ℕ` does;
+            # `hypothesis_body` has already turned it into the formula that
+            # says so, and the name is in the same place.
+            if kind == 'let' and node.notation in ('membership', 'is-a-set'):
                 name = node.children[0].text
                 theirs = spare.pop(0)
                 # A hypothesis the citation does not name stands for what
@@ -5389,8 +5556,9 @@ class Elaborator(Builder):
             pair = seq(pair, extra, 'wa')
         # A variable the file declares and this proof says nothing about is
         # one the statement binds, and it stands for itself.
-        pushed = [binds.get(label, label)
-                  for label in self.cited_floats([*wanted, term], binds)]
+        mine = self.cited_floats([*wanted, term], binds)
+        pushed = (self.cited_pushes(item.name, binds, mine)
+                  or [binds.get(label, label) for label in mine])
         return seq(scope, pair, term, proof, *pushed,
                    label_of(item.name, self.sigs, self.thm.path,
                             self.thm.line), 'syl')
@@ -5462,20 +5630,6 @@ class _Literal:
 
     def __init__(self, term):
         self.term = term
-
-
-def corpus(root):
-    records = []
-    for path in sorted((root / 'db').glob('*.records')):
-        rel = str(path.relative_to(root))
-        records.extend(parse_database(rel, check_encoding(rel,
-                                                          path.read_bytes())))
-    theorems = []
-    for path in sorted((root / 'proof').glob('*.proof')):
-        rel = str(path.relative_to(root))
-        theorems.extend(parse_proof(rel, check_encoding(rel,
-                                                        path.read_bytes())))
-    return records, theorems
 
 
 def definitions(records, sigs):

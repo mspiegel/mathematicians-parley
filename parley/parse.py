@@ -419,3 +419,18 @@ def check_encoding(path, raw):
             if unicodedata.normalize('NFC', ln) != ln:
                 raise Problem(path, no, 'not in Unicode Normalisation Form C')
     return text
+
+
+def corpus(root):
+    """Every record and every readable proof, read from the working tree."""
+    records = []
+    for path in sorted((root / 'db').glob('*.records')):
+        rel = str(path.relative_to(root))
+        records.extend(parse_database(rel, check_encoding(rel,
+                                                          path.read_bytes())))
+    theorems = []
+    for path in sorted((root / 'proof').glob('*.proof')):
+        rel = str(path.relative_to(root))
+        theorems.extend(parse_proof(rel, check_encoding(rel,
+                                                        path.read_bytes())))
+    return records, theorems
