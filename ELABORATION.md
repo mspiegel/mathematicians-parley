@@ -1264,6 +1264,11 @@ leaving them to be found. That is the design being tested and, on forty-nine
 steps across five proofs including the largest in the corpus and every block
 form the readable layer has, holding.
 
+The second half of that does not hold for `inequalities`, which was measured
+later and is under *Two things nothing checks* below. `abs-bounds` is one of
+these five and reaches none of its `requires` lines: that method settles its
+side conditions instead of reading them.
+
 The one qualification is step 1.4.1 of sum-formula, which the kernel will not
 accept where the text states it: `fsump1` forbids its summation variable in
 the antecedent and the induction hypothesis holds that variable. The step is
@@ -1674,18 +1679,52 @@ more than the step takes. `DATABASE.md` lists *a claim taking one conjunct*
 among the moves, and step 5.2 uses it — lines 3 and 4 each say two things and
 it takes one from each.
 
-**A `requires` line may go missing and nothing says so.** Deleting any one of
-the eighteen in the triangle inequality leaves a proof that still elaborates;
-all eighteen were tried, one at a time. The elaborator does not need them,
-because `targets.MEMBERSHIP` reaches the same facts: with the `|a| ∈ ℝ` line
-gone *and* `abscl` taken out of that table, it stops with *nothing says
-( abs ` B ) e. RR, which this step needs*.
+**An `inequalities` step's `requires` lines are not what supplies its side
+conditions.** *What this says about the corpus* above states the design: the
+steps the text writes are the steps the kernel needs, and the `requires` lines
+carry the side conditions *rather than leaving them to be found*. For this one
+method they are found.
 
-That is not an argument for dropping the lines. `READERS.md` considered
-exactly this — such a fact never fails, the `let` line is in view, the price
-is 97 lines — and rejected the exemption, because whether a fact can fail is
-not the test and whether the cited item demands it is. The finding is narrower:
-the line is unprotected, and its loss would show up nowhere. It is also why
-the defects raised for a missing membership have no planted case in
-`test_elaborate.py` — the corpus route does not reach them, and the harness
+Counting the lines the elaborator reaches, by either of the two that read them
+— `supplied`, which proves each into the facts before a step is built, and
+`required`, which answers a lemma asking for one:
+
+| theorem | `requires` lines reached |
+|---|---|
+| `abs-bounds` | 0 |
+| `triangle-inequality` | 2, both already facts and skipped |
+| `prime-above` | 5 |
+| `sqrt2-irrational` | 15 |
+| `bezout` | 19 |
+
+The two at the top are the two whose steps are mostly `inequalities`, and that
+path is why: `inequalities` goes from `decide_order` to `prove_order` to the
+emitter straight from `facts`, and calls neither reader. So when the emitter
+wants `|a| ∈ ℝ` it does not find it among the facts and settles it, reaching
+`abscl` through `targets.MEMBERSHIP` — a table whose own docstring says it
+holds what an elaborator may lean on *for what the readable layer never
+writes*. Here the readable layer writes it.
+
+Nothing about the proof is wrong. `thm:abs-real` targets `abscl` too, so both
+routes emit the same lemma and deleting the line leaves the file byte for byte
+the same — which is also why byte-identity cannot tell the two apart, and why
+the checker is what protects the line: point it at `thm:nat-real` and the
+checker says *the requires line of step 5.2 needs something that thm:nat-real
+does not conclude*, while the elaborator builds regardless.
+
+What is wrong is narrower than "the elaborator derives things". Deriving is
+its job where the page is silent — *Elaborated by a program* above says it
+builds every closure fact **no `requires` line spells out**. This is the other
+case: a line spells the fact out, with a justification the checker has
+verified, and the elaborator works it out again from a table meant for facts
+nobody wrote. The page's reasoning and the kernel proof are two artifacts that
+agree rather than one built from the other.
+
+It is also why the defects raised for a missing membership have no planted case
+in `test_elaborate.py`: the corpus route does not reach them, and the harness
 elaborates in one process, so it cannot plant the table instead.
+
+None of this argues for dropping the lines. `READERS.md` weighed exactly that
+— the fact never fails, the `let` line is in view, the price is 97 lines — and
+rejected the exemption, because whether a fact can fail is not the test and
+whether the cited item demands it is.
