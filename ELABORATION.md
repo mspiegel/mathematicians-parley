@@ -1745,22 +1745,29 @@ one it asked for. Reverting the call gets *the requires lines at 19, 20, 24,
 guards against the reader not being called at all, which is what happened; a
 call whose result is then discarded would still pass.
 
-**The seven that remain are this, and are open.** All are `def:` citations —
-`def:divides`, `def:even`, `def:odd`. The lemma does ask for what those lines
-say: `divides` is stated `( ( M e. ZZ /\ N e. ZZ ) -> ( M || N <-> … ) )`, so
-`d ∈ ℤ` and `c ∈ ℤ` are needed. The lines are read by nothing all the same —
-no reader is asked for either — and `thm:nat-int` targets `nnz`, which is in
-`targets.MEMBERSHIP` too, so deleting one leaves `bezout` byte for byte the
-same. That is the signature of the case above, not a different one.
+**The seven on `def:` citations were the same defect, and one thing closed
+them.** A lemma may ask its side conditions as one conjunction where the text
+writes a line each: `divides` is stated
+`( ( M e. ZZ /\ N e. ZZ ) -> ( M || N <-> … ) )`, and the step writes
+`requires d ∈ ℤ` and `requires c ∈ ℤ`. `required` asked whether the whole goal
+was what some line said, so neither matched and both were settled instead. A
+conjunction the lines name between them is answered a part at a time now.
 
-They are counted apart from a method's because they cannot be closed the same
-way, and a defect raised on them would only be a red gate. The membership
-lookup is the single place a method's side conditions meet the page, and it is
-asked only of ℝ and of ℂ — the two the closure methods take their atoms into.
-An integer membership passes through no such place. Putting the lines into the
-facts instead is the widening that costs ten million `fits` calls. Closing
-these wants a place for a side condition of any shape to meet the page, which
-is a larger change than this one.
+`settle` already knew how to do that — it split a conjunctive goal and joined
+the halves with `jca`, and `3jca` for a ternary one. So the taking apart and
+the putting together are one place each: `SPLIT` says how a fact one holds
+comes apart, `JOIN` how a goal one wants goes together, and `conjoined` is the
+three moves both callers share, with what counts as answering a part left to
+the caller. `settle` proves a part from the scope; `required` reads the line
+the step wrote for it.
+
+**116 of the corpus's 117 lines are read. The one that is not is the other
+defect.** Step 6 of `odd-square` writes `requires 2 ∈ ℤ` under
+`def:odd n := n²`. `odd2np1` asks only `N e. ZZ` and `def:odd` asks only
+`let n ∈ ℤ`, so nothing demands it; the step's other two lines are both asked
+for and both match. It is the first instance of *a step may name what it does
+not use* found in the corpus rather than planted, and `READERS.md`'s test —
+whether the cited item demands it — is what says it should not be there.
 
 It is also why the defects raised for a missing membership have no planted case
 in `test_elaborate.py`: the corpus route does not reach them, and the harness

@@ -539,15 +539,12 @@ class Elaborator(Builder):
                 if spelt is not None:
                     return spelt
         if depth > 0:
-            if wanted.label in ('wa', 'w3a'):
-                kids = [c.rpn(self.flabel) for c in wanted.children]
-                under = [self.settle(c, scope, facts, depth - 1, step, lines)
-                         for c in wanted.children]
-                for one in under:
-                    if declined(one):
-                        return one
-                return seq(scope, *kids, *under,
-                           'jca' if wanted.label == 'wa' else '3jca')
+            joined = self.conjoined(
+                wanted, scope,
+                lambda one: self.settle(one, scope, facts, depth - 1, step,
+                                        lines))
+            if joined is not None:
+                return joined
             if wanted.label == 'wrex' and step is not None:
                 return self.witnessed(step, wanted, scope, facts,
                                       lines or {})
@@ -1630,20 +1627,13 @@ class Elaborator(Builder):
         `supplied` skips because the scope already holds what it says was
         still looked at, and that is not the case this is for.
 
-        A method step's unread line is a defect. An item step's is the same
-        defect and is not raised, which is a baseline and not a principle:
-        seven of them are open. The lemma behind `def:divides` does ask for
-        what its `requires` lines say — `( M e. ZZ /\\ N e. ZZ )` is its
-        antecedent — and the lines still go unread, so those steps are in
-        exactly the position `inequalities` was in.
-
-        They are counted apart because they cannot be closed the same way.
-        The membership lookup is where a method's side conditions meet the
-        page, and it is asked only of ℝ and of ℂ, which is what the closure
-        methods take their atoms into. An integer membership passes through
-        no such place, and putting the lines into the facts instead is the
-        widening that `inequalities` above says costs ten million `fits`
-        calls.
+        A method step's unread line is a defect and an item step's is not,
+        which is a baseline rather than a principle: one line in the corpus
+        is unread, and it is unread because nothing asks for it. Step 6 of
+        `odd-square` writes `requires 2 ∈ ℤ` where neither `odd2np1` nor
+        `def:odd` wants it. That is the other defect this file records — a
+        step naming what it does not use — and raising here would report it
+        in the words of this one. The split goes when that line does.
         """
         out = {'method': [], 'item': []}
         for step in self.thm.steps:
@@ -1676,6 +1666,32 @@ class Elaborator(Builder):
     # that q is positive, that x is p over q, and that nothing divides both.
     SPLIT: typing.ClassVar = {'wa': ('simpl', 'simpr'),
                               'w3a': ('simp1', 'simp2', 'simp3')}
+    # And the other direction: what conjoins a proof of each part into a
+    # proof of the whole. `SPLIT` is read where a fact is taken apart and
+    # this where a goal is put together, and both are asked by label so
+    # that a shape neither names is left alone.
+    JOIN: typing.ClassVar = {'wa': 'jca', 'w3a': '3jca'}
+
+    def conjoined(self, wanted, scope, answer):
+        """A conjunctive goal, from whatever answers each of its parts.
+
+        Both places that reach a conjunction want the same three moves —
+        take the parts, answer each, join what comes back — and differ only
+        in what answering is: `settle` proves a part from the scope, and
+        `required` reads the line the step wrote for it. So the moves are
+        here and the answering is the caller's.
+
+        None where the goal is not one of these shapes, which is not a
+        decline: the caller has its own way on and this had no opinion.
+        """
+        if wanted.label not in self.JOIN:
+            return None
+        under = [answer(one) for one in wanted.children]
+        for one in under:
+            if declined(one):
+                return one
+        return seq(scope, *(one.rpn(self.flabel) for one in wanted.children),
+                   *under, self.JOIN[wanted.label])
 
     def unpack(self, term, proof, scope, facts, depth=4):
         """Record each conjunct of a fact as a fact of its own."""
@@ -5961,6 +5977,22 @@ class Elaborator(Builder):
         """
         if goal in facts:
             return facts[goal]
+        # A lemma may ask its side conditions as one conjunction where the
+        # text writes a line each: `divides` wants ( M e. ZZ /\ N e. ZZ )
+        # and the step says `requires d ∈ ℤ` and `requires c ∈ ℤ`. Asking
+        # whether the whole goal is what a line says misses both, so a
+        # conjunction the lines do name between them is answered a part at
+        # a time. Only then: a conjunction no line touches is left to the
+        # route below, which is what proved it before.
+        whole = self.to_term(goal)
+        written = {self.term(self.read(t)) for t, _h, _l in step.requires}
+        if any(one.rpn(self.flabel) in written for one in whole.children):
+            joined = self.conjoined(
+                whole, scope,
+                lambda one: self.required(step, one.rpn(self.flabel), want,
+                                          scope, facts))
+            if joined is not None:
+                return joined
         for text, how, line in step.requires:
             node = self.read(text)
             if self.term(node) == goal:
