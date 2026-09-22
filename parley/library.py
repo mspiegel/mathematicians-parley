@@ -18,6 +18,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# What `read` has already read, by the files it was given. One run of one
+# tool, and no longer: a process that outlives an edit to set.mm is not a
+# thing here, and the stamp would catch it anyway.
+_READ = {}
 
 
 def where_set_mm(argv):
@@ -83,13 +87,38 @@ def _tokens(text):
     return out
 
 
+def stamp(paths):
+    """What says a set of files is the same set of files it was.
+
+    Their names, and what the filesystem says of each. None where one is
+    not there to be asked, which leaves the reading to say so."""
+    try:
+        said = [os.stat(one) for one in paths]
+    except OSError:
+        return None
+    return tuple((str(one), how.st_mtime_ns, how.st_size)
+                 for one, how in zip(paths, said, strict=True))
+
+
 def read(path, *more):
     """Every label in the files, as a Signature.
 
     Includes are not followed. A file that includes another is read by
     passing both, in the order the includes would have reached them: the
     tokens become one stream, which is what an include means. set.mm
-    includes nothing, so reading it alone needs no second path."""
+    includes nothing, so reading it alone needs no second path.
+
+    Kept, because one run asks for the same files more than once and set.mm
+    is a second and a half of reading: `parley/test_elaborate.py` elaborates
+    eight times in one process and wanted the same 51,256 signatures sixteen
+    times over, which was half of what that stage cost. What is handed back
+    is a copy of the table, because a reader adds to the one it is given —
+    the elaborator writes the constants this corpus introduces into it — and
+    the signatures inside are shared, because nothing changes one once it is
+    made."""
+    held = stamp((path, *more))
+    if held is not None and held in _READ:
+        return dict(_READ[held])
     toks = []
     for one in (path, *more):
         with open(one, encoding='ascii') as f:
@@ -115,7 +144,9 @@ def read(path, *more):
         else:
             label = tok
             i += 1
-    return out
+    if held is not None:
+        _READ[held] = out
+    return dict(out)
 
 
 def _statement(stack, out, kind, label, body):
