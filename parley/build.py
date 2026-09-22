@@ -59,16 +59,17 @@ class Artifact:
     needs: tuple = ()   # artifacts whose files this recipe reads
 
 
-# The twelve readable proofs the elaborator can expand. The file each writes
-# is named for the theorem, which is not always the name of the proof file:
-# `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
-# `geometric-sum` from `proof/geometric-series.proof`, and both
-# `least-combination-divides` and `bezout` from `proof/bezout.proof`, which
-# holds the two of them.
+# The thirteen readable proofs the elaborator can expand. The file each
+# writes is named for the theorem, which is not always the name of the proof
+# file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
+# `geometric-sum` from `proof/geometric-series.proof`, both
+# `least-combination-divides` and `bezout` from `proof/bezout.proof`, and
+# four from `proof/sqrt2-irrational.proof`, which holds the theorem it is
+# named for and the three it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
-            'triangle-inequality', 'cantor', 'isosceles', 'sqrt2-irrational',
-            'prime-above', 'geometric-sum', 'least-combination-divides',
-            'bezout')
+            'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
+            'sqrt2-irrational', 'prime-above', 'geometric-sum',
+            'least-combination-divides', 'bezout')
 
 # The five proofs worked out by hand, which share two of their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`

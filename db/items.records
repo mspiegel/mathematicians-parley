@@ -338,12 +338,32 @@ theorem nonneg-or-neg
   target      lelttric
   first-used  triangle-inequality
 
-theorem lowest-terms
+theorem rational-coprime
   let x ∈ ℚ                                                           (H1)
-  then        there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q, and there is no
-              d ∈ ℤ with d > 1, d divides p, and d divides q
-  metamath    qredeu or similar
+  then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
+  metamath    elq2
+  target      elq2 with Q := x
   first-used  sqrt2-irrational
+  note        set.mm's second reading of being rational, beside elq, which is
+              def:rational. An implication and not a biconditional: it says a
+              rational can be written one way, not what one is.
+
+theorem divides-gcd
+  let d ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume d divides a                                                  (H4)
+  assume d divides b                                                  (H5)
+  then        d divides gcd(a, b)
+  metamath    dvdsgcd
+  target      dvdsgcd
+  first-used  sqrt2-irrational
+
+theorem lowest-terms
+  proved-in   proof/sqrt2-irrational.proof
+  note        Hammack chapter 6 takes a fraction in lowest terms as given.
+              set.mm has it as elq2, which says lowest terms with a gcd where
+              a reader says it with divisors, and that step is the proof.
 
 theorem division-algorithm
   let n ∈ ℕ                                                           (H1)

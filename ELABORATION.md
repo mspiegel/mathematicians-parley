@@ -309,13 +309,17 @@ nothing in the readable layer chooses between them. That is the second place,
 after `algebra`, where two elaborators could disagree while both being right.
 
 **`thm:lowest-terms` does not match the label the database names.** The field
-says `qredeu or similar`, and the hedge is earned: `qredeu` gives unique
+said `qredeu or similar`, and the hedge was earned: `qredeu` gives unique
 existence of a *pair* in `( ZZ X. NN )` whose `gcd` is 1, where the readable
 statement gives two integers with `q > 0` and no common divisor above 1.
 Between them sit pair projections, `NN` against `ZZ` with `0 <`, and the
-equivalence of `gcd = 1` with having no common divisor above 1. That is a proof
-of its own, so `thm:lowest-terms` is an axiom here, in the shape its readable
-statement has.
+equivalence of `gcd = 1` with having no common divisor above 1.
+
+`elq2` removes the first two: it gives two integers directly, which is the
+shape the readable statement has. The third is a proof of its own, and it is
+written as one — `thm:lowest-terms` is proved in `proof/sqrt2-irrational.proof`
+beside the theorem that cites it, and the proof is a `contradiction` block
+four steps long.
 
 ## The fourth proof
 
@@ -643,9 +647,10 @@ is a citation of a proof rather than of an assumption; sum-formula is in
 Bezout's algebra step in `elaboration/algebra.mm`. A deliberately altered
 conclusion is rejected in each file, so the check is real.
 
-One statement in the two files is assumed: `thm:lowest-terms`, for the reason
-given above. Everything else, every `algebra` step included, is proved
-from set.mm's own theorems.
+The elaborated file assumes nothing. The hand-written one still states
+`thm:lowest-terms` as `ltrm`, because it is written by hand and nothing
+regenerates it; the elaborated corpus proves that theorem. Everything else,
+every `algebra` step included, is proved from set.mm's own theorems.
 
 | | readable steps | proof tokens |
 | --- | --- | --- |
@@ -880,9 +885,9 @@ was a lemma for, and then `prime-above` and `cantor`, which nothing here was
 written for.
 
 That made eight, and `isosceles` below makes nine; `geometric-sum`,
-`least-combination-divides` and `bezout` bring it to twelve. This is the
-tally for all of them as it now stands — what each proof still takes as
-stated rather than builds:
+`least-combination-divides`, `bezout` and `lowest-terms` bring it to
+thirteen. This is the tally for all of them as it now stands — what each
+proof still takes as stated rather than builds:
 
 | proof | assumed | |
 |---|---|---|
@@ -893,28 +898,31 @@ stated rather than builds:
 | triangle-inequality | 0 | |
 | cantor | 0 | |
 | isosceles | 0 | |
-| sqrt2-irrational | 1 | `thm:lowest-terms` |
+| lowest-terms | 0 | |
+| sqrt2-irrational | 0 | |
 | prime-above | 0 | |
 | geometric-sum | 0 | |
 | least-combination-divides | 0 | |
 | bezout | 0 | |
 
-All twelve verify, and eleven of them assume nothing at all. That number was 26
+All thirteen verify, and none of them assumes anything. That number was 26
 across eight proofs when this section was first written; what closed the gap
 was writing the four closure methods out rather than taking their steps as
 stated, and the assumption count is the measure that says whether a method is
 written or only named.
 
-The one that remains is not a closure method and no amount of emitter work
-reaches it. It is an item whose `metamath` field names a set.mm theorem that
-is close and is not the same shape, so the item carries no `target` and an
-elaborator has nothing to point at:
+None remains. The last was `thm:lowest-terms`, whose `metamath` field read
+`qredeu or similar` from the first commit — the hedge being the pilot
+recording that the match had not been checked. It had not: `qredeu`
+quantifies over a pair in `( ZZ X. NN )`. `elq2` is the same fact in the
+corpus's own shape, two integers rather than a pair, and it is now
+`thm:rational-coprime`. What it leaves is that set.mm says lowest terms
+with a gcd where a reader says it with divisors, and that step is a proof
+in the readable layer rather than a field in the database.
 
-- `thm:lowest-terms` — `qredeu or similar`, which is the field admitting it
-  has not been pinned down.
-
-Two others were the same debt and are now paid, each by the kind of bridge
-requirement 20 distinguishes. `thm:prime-factor` was a rebuilt quantifier —
+Two others were the same debt and were paid earlier, each by the kind of
+bridge requirement 20 distinguishes. `thm:prime-factor` was a rebuilt
+quantifier —
 `exprmfct` puts primality in the domain where the readable line quantifies
 over ℕ and says it in the body — and needed a proof, which `rexss` supplies.
 `def:prime` was a named equivalence: `isprm2` is the unfolding but writes
@@ -1234,8 +1242,9 @@ built from and in what multiple. Across the nine proofs it settles nine
 `inequalities` steps and one `requires` line, and none of them is assumed.
 
 What remains open is not a method. `thm:lowest-terms`, `thm:prime-factor` and
-`def:prime` are statements the corpus cites for which set.mm has nothing of
-quite the right shape, and they are the only three assumptions left anywhere.
+`def:prime` were statements the corpus cited for which set.mm had nothing of
+quite the right shape; all three are now supplied, the last by a readable
+proof rather than a field.
 Sixteen more `inequalities` steps sit in `bezout` and `intermediate-value`,
 which is the largest untested weight on the method — two thirds of the
 corpus's twenty-five. They are untested because those two proofs stop before

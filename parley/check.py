@@ -61,7 +61,8 @@ PRODUCTIONS = {
     'citation':      rf'^(?:def|thm):{NAME}(?:\s+{INST})?(?:,\s*{FROM})?$',
     'obtain-item':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{NAME}'
                      rf'(?:\s+{INST})?,\s*{FROM}$',
-    'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+line\s+{NUMBER}$',
+    'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+'
+                     rf'(?:line\s+{NUMBER}|{LABEL})$',
     'exhibit':       rf'^exhibit,\s*{FROM}$',
     'substitute':    rf'^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL})\)'
                      rf'(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?'

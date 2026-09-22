@@ -56,6 +56,59 @@ theorem even-square
     thm:disjunctive-syllogism P := n is even, Q := n is odd, from 2, 1
 
 
+theorem lowest-terms
+  let x ∈ ℚ                                                           (H1)
+  then there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q,
+       and there is no d ∈ ℤ with d > 1, d divides p, and d divides q
+
+1.  p ∈ ℤ. q ∈ ℕ. x = p/q. gcd(p, q) = 1.
+    obtain p, q: thm:rational-coprime x := x, from H1
+
+2.  q ∈ ℤ
+    thm:nat-int m := q, from 1
+
+3.  q ≥ 1
+    thm:nat-ge-1 m := q, from 1
+
+4.  q > 0
+    inequalities, from 3
+    requires q ∈ ℝ: thm:nat-real, from 1
+
+5.  There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
+    contradiction
+    suppose there is d ∈ ℤ with d > 1, d divides p, and d divides q   (S)
+
+    5.1.  d ∈ ℤ. d > 1. d divides p. d divides q.
+          obtain d from S
+
+    5.2.  d divides gcd(p, q)
+          thm:divides-gcd d := d, a := p, b := q, from 5.1, 1, 2, 5.1, 5.1
+
+    5.3.  d divides 1
+          substitute gcd(p, q) = 1 (line 1) into line 5.2
+
+    5.4.  0 < d
+          inequalities, from 5.1
+          requires d ∈ ℝ: thm:int-real, from 5.1
+
+    5.5.  d ∈ ℕ
+          thm:pos-int-nat m := d, from 5.1, 5.4
+
+    5.6.  d = 1
+          thm:divides-one d := d, from 5.5, 5.3
+
+    5.7.  d ≠ 1
+          inequalities, from 5.1
+          requires d ∈ ℝ: thm:int-real, from 5.1
+
+    5.8.  d = 1. d ≠ 1.
+          join 5.6, 5.7
+
+6.  There are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q,
+    and there is no d ∈ ℤ with d > 1, d divides p, and d divides q.
+    exhibit, from 2, 4, 1, 5
+
+
 theorem sqrt2-irrational
   then √2 is irrational
 

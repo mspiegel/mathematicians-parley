@@ -891,7 +891,18 @@ class Elaborator(Builder):
             raise self.defect(step.line, 'no cited line names a witness for '
                               f'{self.render(wanted.rpn(self.flabel))}')
 
+        # The line that names the witnesses need not be all the claim says
+        # of them: `thm:lowest-terms` exhibits a p and a q that one line
+        # says are a fraction in lowest terms, another says is positive,
+        # and a third says nothing divides. Where it is all of it, its own
+        # proof is taken, because that is fewer steps than settling it.
         proof = facts.get(cited.term, cited.proof)
+        innermost = layers[-1][0]
+        for _b, v, _o in layers:
+            innermost = self.restated(innermost, f'{v} cv', found[f'{v} cv'])
+        if innermost.rpn(self.flabel) != cited.term:
+            proof = self.settle(innermost, scope, facts, step=step,
+                                lines=lines)
         for i in reversed(range(len(layers))):
             body, var, over = layers[i]
             mark, held = f'{var} cv', body
@@ -1809,6 +1820,26 @@ class Elaborator(Builder):
                                   'an obtain that names neither an item nor '
                                   'a line claiming the existence')
             ex, p_ex = held.term, self.carried(where, facts, lines)
+            # Eliminating an existential puts the name it binds into the
+            # scope, and the lemma that does it forbids that name in what
+            # the scope already says. A `contradiction` supposing an
+            # existence is such a scope: the supposition is the scope, and
+            # it binds the very name being introduced. So the claim is
+            # respelt first, over names nothing else holds.
+            standing = {t for t in scope.split()
+                        if t in self.sigs and self.sigs[t].kind == '$f'}
+            if {self.flabel[v]
+                    for v in self.bound_in(self.to_term(ex))} & standing:
+                fresh = self.renamed(ex, len(got))
+                apart = self.renaming(self.to_term(ex), self.to_term(fresh))
+                if apart is None:
+                    raise self.defect(step.line,
+                                      'the existence this obtains from binds '
+                                      'a name the scope already holds')
+                p_ex = seq(scope, ex, fresh, p_ex,
+                           seq(seq(ex, fresh, 'wb'), scope, apart, 'a1i'),
+                           'mpbid')
+                ex = fresh
         elif named.group(1).startswith('def:'):
             cites = step.just.text.split(':', 1)[1].strip()
             subject = self.names[instantiation(cites)[0][1]]
@@ -1831,7 +1862,7 @@ class Elaborator(Builder):
                 self.names[name] = self.term(self.read(value))
             for name in got:
                 self.names[name] = f'{self.flabel[name]} cv'
-            ex = self.term(self.read(item.conclusions[0][0]))
+            ex = self.term(self.read(self.claimed_by(item)))
             self.names = saved
             # An item states its existential in its own names, and a binder
             # takes the variable its name is spelled with. The primes proof
@@ -1886,6 +1917,17 @@ class Elaborator(Builder):
             term = term.children[0]
         return whole.substitute(binding).rpn(self.flabel)
 
+    def claimed_by(self, item):
+        """What an item claims, from wherever its statement lives.
+
+        An item the corpus proves carries no statement in the database, so
+        that the statement has one home and cannot drift; the home is the
+        `theorem` line of the proof that proves it. One the database states
+        outright has it there."""
+        if item.conclusions:
+            return item.conclusions[0][0]
+        return self.proofs[item.name].conclusion
+
     def cite_item(self, step, goal, scope, facts, item, cites=None):
         """What an item states, however the database says it is supplied.
 
@@ -1897,12 +1939,22 @@ class Elaborator(Builder):
         Assuming it instead would give the same file, the same assumption
         count and no message, so a target that can never fire would read
         exactly like a target nobody wrote."""
+        # An item this corpus proves is applied the way a cited one is,
+        # however the step reaches it: `obtain` asks for the existence its
+        # statement claims, and `thm:lowest-terms` is proved here.
+        if 'proved-in' in item.fields:
+            return self.cite_corpus(step, goal, scope, facts, None, item,
+                                    cites)
         labels = targets.clauses(item)
+        seed = self.filling(step, item, cites)
         for label in labels:
             found = self.apply_lemma(label, self.to_term(goal), scope, facts,
-                                     step)
+                                     step, seed=seed)
             if found is not None:
                 return found
+        assembled = self.from_lemmas(labels, goal, scope, facts, step, seed)
+        if assembled is not None:
+            return assembled
         if labels:
             # `step.just.head` is the word `obtain` here rather than the item,
             # so the item names itself, and the labels it named say which
@@ -3927,6 +3979,58 @@ class Elaborator(Builder):
                        seq(outer, body, want, made, 'ex'), discharge),
                    'mpd')
 
+    def from_lemmas(self, labels, goal, scope, facts, step, seed):
+        """An existence claim its item's lemmas together give.
+
+        `thm:lowest-terms` says a rational is some p over some q with
+        nothing above 1 dividing both. set.mm says that of the numerator
+        and denominator it names for a rational, in three theorems and no
+        existential at all: what they are is `qnumdencl`, that the rational
+        is their quotient is `qeqnumdivden`, and that they are coprime is
+        `qnumdencoprm`.
+
+        So each is proved at what the `with` target says it is about, and
+        the claim introduced at the terms they turn out to be about. The
+        lemmas are the ones the database names and the witnesses are read
+        off them, which is what keeps this from being a search."""
+        if not labels or not seed:
+            return None
+        want = self.to_term(goal)
+        if want.label != 'wrex':
+            return None
+        known = dict(facts)
+        for label in labels:
+            sig = self.sigs.get(label)
+            if sig is None:
+                return None
+            reads = self.syntax.statement(sig)
+            while reads.label == 'wi':
+                reads = reads.children[1]
+            if reads.names() - set(seed):
+                return None      # the target does not say what it is about
+            said = reads.substitute(seed).rpn(self.flabel)
+            proof = self.apply_lemma(label, self.to_term(said), scope, facts,
+                                     step, crossing=False, seed=seed)
+            if proof is None:
+                return None
+            known[said] = proof
+            self.unpack(said, proof, scope, known)
+        return self.introduced(want, scope, known)
+
+    def as_class(self, node, marks):
+        """A pattern whose binders stand for whatever class fills them.
+
+        A binder is written `cv` over a setvar, which matches a setvar and
+        nothing else. What a claim quantifies over may be answered by a
+        term — a rational's numerator is one — and the name is the claim's
+        way of writing it, not a constraint on what it is."""
+        if node.variable is not None:
+            return node
+        if node.label == 'cv' and node.children[0].variable in marks:
+            return node.children[0]
+        return kernel.Term(node.label, tuple(self.as_class(one, marks)
+                                             for one in node.children))
+
     def introduced(self, goal, scope, facts):
         """An existential claim at witnesses the scope already names.
 
@@ -3934,16 +4038,22 @@ class Elaborator(Builder):
         witnesses are whatever the elimination just gave up, and which of
         them stands for which binder is read off the body: one part of the
         claim matched against one fact in scope fixes them all, because
-        every binder occurs in the part that mentions them."""
+        every binder occurs in the part that mentions them.
+
+        A witness may be a term and not a name. `qeqnumdivden` says a
+        rational is its numerator over its denominator, and matching a
+        claim's `x = p / q` against it is what says that p and q stand for
+        those two — so the binder is matched as the class it stands for
+        rather than as the name it is written with."""
         marks, rest = [], goal
         while rest.label == 'wrex':
             marks.append(rest.children[1].variable)
             rest = rest.children[0]
         found = None
         for piece in self.parts(rest.rpn(self.flabel)):
+            shape = self.as_class(self.to_term(piece), set(marks))
             for said in facts:
-                fits = kernel.match(self.to_term(piece), self.to_term(said),
-                                    {}, set(marks))
+                fits = kernel.match(shape, self.to_term(said), {}, set(marks))
                 if fits is not None and len(fits) == len(marks):
                     found = fits
                     break
@@ -3951,6 +4061,13 @@ class Elaborator(Builder):
                 break
         if found is None:
             return None
+        # What each binder stands for, as `rspcev` wants it: a class. One
+        # matched where it was written keeps the `cv` that made it one.
+        stood = {}
+        for name, term in found.items():
+            said = term.rpn(self.flabel)
+            stood[name] = (seq(said, 'cv')
+                           if term.variable is not None else said)
 
         layers, rest = [], goal
         while rest.label == 'wrex':
@@ -3962,20 +4079,22 @@ class Elaborator(Builder):
         for i in reversed(range(len(layers))):
             body, name, over = layers[i]
             # The body with every binder outside this one already standing
-            # at its witness, and then with this one too.
-            held = body.substitute({n: found[n] for _b, n, _o in layers[:i]})
-            here = held.substitute({name: found[name]})
+            # at its witness, and then with this one too. Put in place of
+            # the name where it stands rather than substituted for it: a
+            # witness that is a term is not a setvar, and substituting one
+            # for the other would leave the `cv` standing over a class.
+            var = self.flabel[name]
+            held = body
+            for _b, n, _o in layers[:i]:
+                held = self.restated(held, f'{self.flabel[n]} cv', stood[n])
+            here = self.restated(held, f'{var} cv', stood[name])
             ph, ps = held.rpn(self.flabel), here.rpn(self.flabel)
             if proof is None:
                 try:
                     proof = self.settle(here, scope, facts)
                 except Unhandled:
                     return None
-            # A binder is matched where it stands, under `cv`, so a witness
-            # comes back as the setvar the elimination introduced. `rspcev`
-            # takes a class, and `cv` is what stands between the two.
-            var = self.flabel[name]
-            witness = seq(found[name].rpn(self.flabel), 'cv')
+            witness = stood[name]
             instance = self.prove_essential(
                 self.to_term(seq(seq(f'{var} cv', witness, 'wceq'),
                                  seq(ph, ps, 'wb'), 'wi')), scope, facts)
@@ -4074,8 +4193,15 @@ class Elaborator(Builder):
                                  crossing=False, seed=seed)
         if proof is None:
             return None
+        try:
+            # No bridge means the lemma is not this claim said otherwise.
+            # A target may name several lemmas, each giving a part of what
+            # the item says, and then none of them is.
+            across = self.bridging(said, goal, scope, facts, step)
+        except Unhandled:
+            return None
         return seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
-                   self.bridging(said, goal, scope, facts, step), 'mpbid')
+                   across, 'mpbid')
 
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
@@ -4872,17 +4998,19 @@ class Elaborator(Builder):
         return seq(scope, *(one.rpn(self.flabel) for one in node.children),
                    *halves, 'jca')
 
-    def filling(self, step, item):
+    def filling(self, step, item, cites=None):
         """What a `with` target says the lemma's variables stand for.
 
         The right sides are formulas in the item's own names, and the step
         wrote what those stand for, so they are read under the citation's
-        instantiation — the reading `assume_item` makes of the same text."""
+        instantiation — the reading `assume_item` makes of the same text,
+        and from the same place, since an `obtain` writes it apart from the
+        justification the step carries."""
         _label, fills = targets.lemma(item)
         if not fills:
             return {}
         saved = dict(self.names)
-        for name, value in instantiation(step.just.text):
+        for name, value in instantiation(cites or step.just.text):
             self.names[name] = self.term(self.read(value))
         out = {name: self.to_term(self.term(self.read(formula)))
                for name, formula in fills.items()}
@@ -4914,7 +5042,7 @@ class Elaborator(Builder):
         return sorted(bound | set(classes),
                       key=lambda label: self.forder[label])
 
-    def cite_corpus(self, step, term, scope, facts, lines, item):
+    def cite_corpus(self, step, term, scope, facts, lines, item, cites=None):
         """Apply a theorem this corpus proves, as this elaborator states it.
 
         Its hypotheses became the antecedent of one implication, so citing it
@@ -4924,7 +5052,7 @@ class Elaborator(Builder):
             self.cited.append(item.name)
         saved, kept = dict(self.names), dict(self.sets)
         spare = list(CLASS_NAMES)
-        written = dict(instantiation(step.just.text))
+        written = dict(instantiation(cites or step.just.text))
         binds = {}
         for kind, htext, _label, _line in other.hypotheses:
             node = self.read(hypothesis_body(kind, htext))

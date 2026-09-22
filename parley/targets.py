@@ -110,15 +110,17 @@ def clauses(record):
 
     An item may state several things at once — `thm:real-closure` says a sum
     and a difference are both real — and set.mm proves each separately, so a
-    step citing the item claims one of them. A target that fills a lemma's
-    variables is one lemma and not a list, however many commas the filling
-    takes."""
+    step citing the item claims one of them.
+
+    What stands before `with` is still a list, and the filling serves every
+    lemma in it: `thm:lowest-terms` is assembled from three theorems about
+    a rational's numerator and denominator, and all three are about the
+    same rational. What stands after it is the filling and not a list,
+    however many commas it takes."""
     value = record.fields.get('target')
     if not value:
         return []
-    if ' with ' in value:
-        return [lemma(record)[0]]
-    return split_entries(value)
+    return split_entries(lemma(record)[0] if ' with ' in value else value)
 
 
 def fixes(pattern):
@@ -190,7 +192,7 @@ MEMBERSHIP = [
     # putting something in the set reaches it.
     'ne0i', 'n0', 'rextru',
     # and what an order relation asks, which is the same kind of thing
-    'ltle', 'ltnri', 'leid', 'nn0ge0',
+    'ltle', 'ltnri', 'leid', 'nn0ge0', 'nngt0',
     # A lemma stated over the integers asks what a natural number being one
     # does not say in those words: `divalg` divides by anything but zero,
     # and the readable statement divides by a natural number. It bounds by
