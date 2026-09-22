@@ -1264,10 +1264,10 @@ leaving them to be found. That is the design being tested and, on forty-nine
 steps across five proofs including the largest in the corpus and every block
 form the readable layer has, holding.
 
-The second half of that does not hold for `inequalities`, which was measured
+The second half of that did not hold for `inequalities`, which was measured
 later and is under *Two things nothing checks* below. `abs-bounds` is one of
-these five and reaches none of its `requires` lines: that method settles its
-side conditions instead of reading them.
+these five and reached none of its `requires` lines; it reads all eight now,
+and a method step whose lines go unread is a defect.
 
 The one qualification is step 1.4.1 of sum-formula, which the kernel will not
 accept where the text states it: `fsump1` forbids its summation variable in
@@ -1679,28 +1679,28 @@ more than the step takes. `DATABASE.md` lists *a claim taking one conjunct*
 among the moves, and step 5.2 uses it — lines 3 and 4 each say two things and
 it takes one from each.
 
-**An `inequalities` step's `requires` lines are not what supplies its side
-conditions.** *What this says about the corpus* above states the design: the
-steps the text writes are the steps the kernel needs, and the `requires` lines
-carry the side conditions *rather than leaving them to be found*. For this one
-method they are found.
+**An `inequalities` step did not read the `requires` lines it carries.** *What
+this says about the corpus* above states the design: the steps the text writes
+are the steps the kernel needs, and the `requires` lines carry the side
+conditions *rather than leaving them to be found*. For this one method they
+were found.
 
-Counting the lines the elaborator reaches, by either of the two that read them
+Counting the lines the elaborator reached, by either of the two that read them
 — `supplied`, which proves each into the facts before a step is built, and
 `required`, which answers a lemma asking for one:
 
-| theorem | `requires` lines reached |
-|---|---|
-| `abs-bounds` | 0 |
-| `triangle-inequality` | 2, both already facts and skipped |
-| `prime-above` | 5 |
-| `sqrt2-irrational` | 15 |
-| `bezout` | 19 |
+| theorem | reached, before | it has |
+|---|---|---|
+| `abs-bounds` | 0 | 8 |
+| `triangle-inequality` | 2, both already facts and skipped | 10 |
+| `prime-above` | 5 | 9 |
+| `sqrt2-irrational` | 15 | 19 |
+| `bezout` | 19 | 21 |
 
 The two at the top are the two whose steps are mostly `inequalities`, and that
-path is why: `inequalities` goes from `decide_order` to `prove_order` to the
-emitter straight from `facts`, and calls neither reader. So when the emitter
-wants `|a| ∈ ℝ` it does not find it among the facts and settles it, reaching
+path was why: `inequalities` went from `decide_order` to `prove_order` to the
+emitter straight from `facts`, and called neither reader. So when the emitter
+wanted `|a| ∈ ℝ` it did not find it among the facts and settled it, reaching
 `abscl` through `targets.MEMBERSHIP` — a table whose own docstring says it
 holds what an elaborator may lean on *for what the readable layer never
 writes*. Here the readable layer writes it.
@@ -1712,13 +1712,43 @@ the checker is what protects the line: point it at `thm:nat-real` and the
 checker says *the requires line of step 5.2 needs something that thm:nat-real
 does not conclude*, while the elaborator builds regardless.
 
-What is wrong is narrower than "the elaborator derives things". Deriving is
+What was wrong is narrower than "the elaborator derives things". Deriving is
 its job where the page is silent — *Elaborated by a program* above says it
-builds every closure fact **no `requires` line spells out**. This is the other
+builds every closure fact **no `requires` line spells out**. This was the other
 case: a line spells the fact out, with a justification the checker has
-verified, and the elaborator works it out again from a table meant for facts
-nobody wrote. The page's reasoning and the kernel proof are two artifacts that
-agree rather than one built from the other.
+verified, and the elaborator worked it out again from a table meant for facts
+nobody wrote.
+
+**It reads them now, and the corpus does not move.** `inequalities` asks
+`supplied` for the step's lines the way `prove_field` already did, and
+`membership` looks there before settling. Of the 117 `requires` lines in the
+sixteen elaborated theorems, 36 went unread and 7 do now. The 29 that closed
+are every one on a method step; `thm:abs-real` targets `abscl` as well, so the
+proof each of them now carries is the proof the table gave before and every
+file is byte for byte what it was.
+
+What it is **not** is a widening of the facts. Handing `prove_order` the whole
+of `supplied` put `thm:abs-bounds` past ten million `fits` calls where the
+same proof takes five seconds, because `settle` searches what it is given.
+So the lines are offered to the membership lookup and to nothing else, and
+stamped with the scope they were proved under: a split opens a scope inside
+the step and carries its own facts across, and `least-combination-divides`
+stops verifying if the unstamped proof is used one scope in.
+
+**The guard.** `run` ends by asking which of the theorem's `requires` lines no
+reader reached, and a method step's going unread is a defect — a method's
+hypotheses are a rule over the claim's own atoms, so every line it carries is
+one it asked for. Reverting the call gets *the requires lines at 19, 20, 24,
+25, 38, 39, 43, 44 are a method's own hypotheses and nothing read them*. It
+guards against the reader not being called at all, which is what happened; a
+call whose result is then discarded would still pass.
+
+**The seven that remain are not this.** All are `def:` citations —
+`def:divides`, `def:even`, `def:odd` — where the readable definition states
+that both sides are integers and the set.mm lemma behind it does not ask for
+it. `required` is never even asked for `d ∈ ℤ`. So an item's unread lines are
+counted apart from a method's and are not a defect: what an item demands is
+whatever its lemma takes, which need not be what its readable statement says.
 
 It is also why the defects raised for a missing membership have no planted case
 in `test_elaborate.py`: the corpus route does not reach them, and the harness

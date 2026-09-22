@@ -315,6 +315,9 @@ class Elaborator(Builder):
         self.arities = {}        # cited corpus label -> how much it takes
         self.reserved = set()    # setvars the conclusion quantifies over
         self.supplying = set()   # `requires` terms being discharged now
+        self.consulted = set()   # lines of the `requires` lines read so far
+        self.unread = []         # and the lines of those nothing read
+        self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
@@ -1599,7 +1602,50 @@ class Elaborator(Builder):
         proof = lines[self.last].proof
         for close in reversed(closers):
             proof = close(proof, goal)
+        self.unread = self.unread_requires()
+        # A method step's `requires` lines are the method's own hypotheses
+        # written down, so one going unread means the method found the side
+        # condition rather than reading it, which is what `inequalities` did
+        # until it was given `supplied`.
+        if 'method' in self.unread:
+            raise self.defect(
+                self.unread['method'][0],
+                f'the requires lines at '
+                f'{", ".join(str(n) for n in self.unread["method"])} are a '
+                f'method\'s own hypotheses and nothing read them, so it '
+                f'settled them instead of taking what the page justified')
         return goal, terms, proof
+
+    def unread_requires(self):
+        """The `requires` lines of this theorem that nothing read.
+
+        A `requires` line is where a step writes a side condition the item or
+        method it cites asks for, and `ELABORATION.md` says the lines carry
+        those rather than leaving them to be found. A line nothing read is a
+        side condition that was found instead, so the proof rests on whatever
+        the elaborator reached for rather than on what the page justified.
+
+        Read means a reader iterated over it, which `supplied` and `required`
+        are, and not that its justification is what proved the fact: a line
+        `supplied` skips because the scope already holds what it says was
+        still looked at, and that is not the case this is for.
+
+        A method's hypotheses are a rule over the claim's own atoms, so every
+        line a method step writes is one the method asks for and a line left
+        unread is the method finding it instead. An item's are whatever the
+        set.mm lemma behind it takes, which need not be what the readable
+        statement says: `def:divides` states that both sides are integers and
+        the lemma does not ask for it, so seven such lines go unread and
+        nothing is wrong. The two are separated rather than counted together.
+        """
+        out = {'method': [], 'item': []}
+        for step in self.thm.steps:
+            head = step.just.head if step.just else ''
+            kind = 'item' if head.startswith(('def:', 'thm:')) else 'method'
+            for _text, _how, line in step.requires:
+                if line not in self.consulted:
+                    out[kind].append(line)
+        return {k: sorted(v) for k, v in out.items() if v}
 
     def widen(self, scope, facts, added):
         """Conjoin one more thing onto the antecedent, carrying the facts.
@@ -3341,7 +3387,26 @@ class Elaborator(Builder):
         those rather than this.
         """
         self.decide_order(step, term, lines)
-        found = self.prove_order(step.just.refs, term, scope, facts, lines)
+        # The method wants every atom in ℝ, and a `requires` line is where
+        # the step writes that. Reading them here is what puts the page's
+        # justification in the proof: settled instead, the membership comes
+        # from whatever `targets.MEMBERSHIP` reaches, which is the table for
+        # what the readable layer does not write.
+        known = self.supplied(step, scope, facts) if step is not None \
+            else facts
+        # Offered to the membership lookup and to nothing else. `settle`
+        # searches what it is given, and widening the facts it sees widens
+        # that search: handing `prove_order` the whole of `known` put the
+        # four steps of `thm:abs-bounds` past ten million `fits` calls,
+        # where the same proof takes five seconds.
+        kept = self.written
+        self.written = {k: (scope, v) for k, v in known.items()
+                        if k not in facts}
+        try:
+            found = self.prove_order(step.just.refs, term, scope, facts,
+                                     lines)
+        finally:
+            self.written = kept
         if declined(found):
             return self.assume(step, term, scope, facts, 'ine', lines)
         return found
@@ -5292,7 +5357,8 @@ class Elaborator(Builder):
         not among what can prove it, so it is held out while it is.
         """
         known = dict(facts)
-        for text, how, _line in (step.requires if step is not None else ()):
+        for text, how, line in (step.requires if step is not None else ()):
+            self.consulted.add(line)
             want = self.read(text)
             term = self.term(want)
             if term in known or term in self.supplying:
@@ -5888,9 +5954,10 @@ class Elaborator(Builder):
         """
         if goal in facts:
             return facts[goal]
-        for text, how, _line in step.requires:
+        for text, how, line in step.requires:
             node = self.read(text)
             if self.term(node) == goal:
+                self.consulted.add(line)
                 made = self.closure(node.children[0], want, scope, facts)
                 # A line that is there and whose justification does not
                 # reach it is the text's to fix in the same way one that is
@@ -5929,6 +5996,19 @@ class Elaborator(Builder):
         want = seq(said, system, 'wcel')
         if want in facts:
             return facts[want]
+        # What the step wrote a `requires` line for, which is the page
+        # saying why this holds. Asked before settling, so the proof rests
+        # on the justification the text gave rather than on whatever
+        # `targets.MEMBERSHIP` happens to reach.
+        #
+        # Only at the scope it was proved under. A split opens a scope
+        # inside the step and carries its facts across; this is not
+        # carried, so deeper in it is the wrong proof and `least-
+        # combination-divides` stops verifying, which is how that was
+        # found.
+        held = self.written.get(want)
+        if held is not None and held[0] == scope:
+            return held[1]
         found = self.settle(self.to_term(want), scope, facts)
         if declined(found):
             raise self.defect(
