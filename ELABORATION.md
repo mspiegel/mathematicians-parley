@@ -1792,24 +1792,25 @@ against 46s. Both routes reach the same lemma — `thm:int-real` names `zre` and
 `zre` is in `MEMBERSHIP` — so what changed is where the proof was derived from,
 not what it says.
 
-Thirteen side conditions still settle, and the elaborator says so per theorem:
-ten name `arithmetic` and it could not reach them, three name `def:triangle`.
-That number is what remains between the corpus and decision 9.
+`required` goes through `side` as well, since `closure` never saw a
+justification at all, so a line reaching the elaborator either way is
+discharged by what it names.
 
-**116 of the corpus's 117 lines are read, and the one that is not is this
-defect too.** Step 6 of `odd-square` writes `requires 2 ∈ ℤ` under
-`def:odd n := n²`. Neither `odd2np1` nor `def:odd` asks for it, which reads
-like a step naming what it does not use — and deleting it makes the checker
-say *the requires line of step 6 needs something that thm:int-closure does not
-conclude*. What wants it is the line beside it: `check.py` discharges a
-`requires` line from the step's others, so `2k² + 2k ∈ ℤ` leans on `2 ∈ ℤ` to
-reach `thm:int-closure`. The elaborator takes another route to that sibling
-and so never asks for the line at all.
+Twenty-two side conditions still settle. Eighteen name `arithmetic` and one
+`inequalities`, which is a method tried and unable to reach the fact rather
+than a citation missed; three name `def:triangle`, which has no lemma to cite
+and is one of the nine open items. That is what remains between the corpus and
+decision 9, measured by recording each fall-through and running the sixteen
+theorems.
 
-So the guard holds a method step to a stricter rule than an item step, and
-that is where the corpus stands rather than a rule about the two. Raising on
-this one would be right and would leave the gate red until the route changes,
-which is why it does not yet.
+**All 117 lines are read, and an unread one is a defect on any step.** The
+last to close was `requires 2 ∈ ℤ` on step 6 of `odd-square`, where neither
+`odd2np1` nor `def:odd` asks for it. What wants it is the line beside it:
+`check.py` discharges a `requires` line from the step's others, so
+`2k² + 2k ∈ ℤ` reaches `thm:int-closure` through `2 ∈ ℤ`, and deleting it
+makes the checker say so. What closed it was `required` going through `side`:
+citing the item reaches `apply_lemma`, which asks `supplied` for the step's
+own lines, so the elaborator now reads the same step the checker reads.
 
 It is also why the defects raised for a missing membership have no planted case
 in `test_elaborate.py`: the corpus route does not reach them, and the harness

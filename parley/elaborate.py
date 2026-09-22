@@ -317,8 +317,6 @@ class Elaborator(Builder):
         self.supplying = set()   # `requires` terms being discharged now
         self.consulted = set()   # lines of the `requires` lines read so far
         self.unread = []         # and the lines of those nothing read
-        self.settled_anyway = []  # (line, how) settled where the page said
-                                  # which item supplies it
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.bound_as = {}       # binder name -> the setvar it stands for
@@ -1602,13 +1600,13 @@ class Elaborator(Builder):
         for close in reversed(closers):
             proof = close(proof, goal)
         self.unread = self.unread_requires()
-        if 'method' in self.unread:
+        if self.unread:
             raise self.defect(
-                self.unread['method'][0],
+                self.unread[0],
                 f'the requires lines at '
-                f'{", ".join(str(n) for n in self.unread["method"])} were '
-                f'read by nothing, so what they say was settled instead of '
-                f'taken from what the page justified')
+                f'{", ".join(str(n) for n in self.unread)} were read by '
+                f'nothing, so what they say was settled instead of taken '
+                f'from what the page justified')
         return goal, terms, proof
 
     def unread_requires(self):
@@ -1625,25 +1623,11 @@ class Elaborator(Builder):
         `supplied` skips because the scope already holds what it says was
         still looked at, and that is not the case this is for.
 
-        A method step's unread line is a defect and an item step's is not,
-        which is where the corpus stands rather than a rule about the two.
-        One line is unread: step 6 of `odd-square` writes `requires 2 ∈ ℤ`
-        under `def:odd`, and what wants it is the sibling line beside it —
-        `check.py` discharges a `requires` line from the step's others, so
-        `2k² + 2k ∈ ℤ` leans on `2 ∈ ℤ` to reach `thm:int-closure`. Deleting
-        it makes the checker say so. The elaborator takes another route to
-        the same sibling and never asks, which is this defect and not a
-        surplus line, so raising would be right and the gate would be red
-        until the route changes.
+        Every line of every step, whatever it cites.
         """
-        out = {'method': [], 'item': []}
-        for step in self.thm.steps:
-            head = step.just.head if step.just else ''
-            kind = 'item' if head.startswith(('def:', 'thm:')) else 'method'
-            for _text, _how, line in step.requires:
-                if line not in self.consulted:
-                    out[kind].append(line)
-        return {k: sorted(v) for k, v in out.items() if v}
+        return sorted(line for step in self.thm.steps
+                      for _text, _how, line in step.requires
+                      if line not in self.consulted)
 
     def widen(self, scope, facts, added):
         """Conjoin one more thing onto the antecedent, carrying the facts.
@@ -5440,10 +5424,8 @@ class Elaborator(Builder):
                 return self.cite_item(step, term, scope, facts, item, how)
         found = self.settle(self.to_term(term), scope, facts)
         if not declined(found):
-            self.settled_anyway.append((self.at, how.strip()))
             return found
         if want.notation == 'membership':
-            self.settled_anyway.append((self.at, how.strip()))
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
         if closure == 'arithmetic':
@@ -6015,7 +5997,11 @@ class Elaborator(Builder):
             node = self.read(text)
             if self.term(node) == goal:
                 self.consulted.add(line)
-                made = self.closure(node.children[0], want, scope, facts)
+                # `side` is where a line is discharged by what it names, and
+                # `closure` settles from the term without ever seeing `how`.
+                # Going through `side` is what gives this path the half of
+                # the line that says why the fact holds.
+                made = self.side(node, how, scope, facts, step)
                 # A line that is there and whose justification does not
                 # reach it is the text's to fix in the same way one that is
                 # missing is. Handing the decline to the caller would put it
@@ -6299,14 +6285,6 @@ def main(argv, root=None):
 
     work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()
-    if work.settled_anyway:
-        # Said here rather than at the head of the file: the file lists what
-        # it assumed, and none of these is assumed. They are proved, by a
-        # route the page did not name.
-        print(f'{thm.name}: {len(work.settled_anyway)} side condition(s) '
-              f'settled rather than taken from what the line names — '
-              f'{", ".join(sorted({h for _l, h in work.settled_anyway}))}',
-              file=sys.stderr)
     antecedent = hypotheses[0] if hypotheses else None
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')

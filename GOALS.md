@@ -170,6 +170,25 @@ The mathematical content lives in the long tail. That is what a reader should se
     implementation works in Unicode scalar values and UTF-16 is not used, for
     the reason given in `DATABASE.md`.
 
+14. **A tool says correct, or a defect, or a style difference, and nothing
+    else.** The checker and the elaborator report something wrong and stop, or
+    they report nothing. A style difference is a judgement about two correct
+    ways of writing the same thing; it is written down in `LINTER.md` before
+    any tool reports it, and it never fails the gate, which is the division
+    that file already draws.
+
+    There is no fourth thing. A count printed on a green run is a warning, and
+    a warning is a measurement that has escaped into the tools: it is read
+    once, then never again, and the run stays green whatever it says. A
+    measurement belongs in a document, where it carries the date it was taken
+    and the argument it was taken for, and where a reader can check it. What a
+    tool may not do is carry a number nobody has to act on.
+
+    The cost is that a thing known to be wrong and not yet fixable cannot be
+    half-reported. It is a defect and the gate is red, or it is written up and
+    the tools are silent about it. The second is usually the honest answer
+    while the fix is out of reach, and `ELABORATION.md` is where those live.
+
 ## First version
 
 Three pieces, with the LLM outside all of them:
