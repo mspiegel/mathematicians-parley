@@ -24,7 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import elaborate
 from library import where_set_mm
-from parse import Problem, Unhandled
+from parse import Problem
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -75,8 +75,8 @@ CASES = [
 
     # The same report reached from the other side: the target is right and
     # the step claims something the definition does not say. It used to be
-    # an `Unhandled` carrying nowhere, which reads as a route declining and
-    # would have been taken as stated had anything above caught it.
+    # given back as a route declining, which anything above was free to
+    # take as stated.
     ('claim of a definition what it does not say',
      'geometric-sum', 'proof/geometric-series.proof',
      '    2.1.  G(0) = 1',
@@ -105,8 +105,6 @@ def run(root, wanted, setmm):
             elaborate.main(['elaborate.py', wanted, setmm], root)
     except Problem as said:
         return str(said)
-    except Unhandled as said:
-        return f'no method owns this step: {said}'
     return None
 
 

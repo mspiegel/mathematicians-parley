@@ -24,7 +24,7 @@ from fractions import Fraction
 
 import field
 from field import NUMERAL, order, spell_monomial
-from parse import Unhandled
+from parse import Declined
 from spell import Builder, seq
 
 ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
@@ -274,7 +274,7 @@ class Emitter(Builder):
         c, d = (field.spell_coefficient(first),
                 field.spell_coefficient(second))
         if said is None or c is None or d is None:
-            raise Unhandled(f'{first} + {second} is past one digit')
+            return Declined(f'{first} + {second} is past one digit')
         claim = seq(op(c, d, ADD), said, 'wceq')
         a, b = first.numerator, second.numerator
         if a == -b and a != 0:
@@ -686,7 +686,7 @@ class Emitter(Builder):
         a, b = op(name, NUMERAL[first], EXP), op(name, NUMERAL[second], EXP)
         total = first + second
         if total > 9:
-            raise Unhandled(f'{name} to the {total} is past one digit')
+            return Declined(f'{name} to the {total} is past one digit')
         joined = self.ap(
             'eqcomd',
             {'ph': self.under,
@@ -845,7 +845,7 @@ class Emitter(Builder):
         c = field.spell_coefficient(first)
         d = field.spell_coefficient(second)
         if said is None or c is None or d is None:
-            raise Unhandled(f'{first} x. {second} is past one digit')
+            return Declined(f'{first} x. {second} is past one digit')
         a, b = first.numerator, second.numerator
         if a >= 0 and b >= 0:
             return self.positive_product(a, b)
@@ -1122,7 +1122,7 @@ class Emitter(Builder):
                         self.spell_run(out))
                 return self.as_atom(said)
             if how == field.DIV:
-                raise Unhandled(f'{said} divides, which is cross-multiplied')
+                return Declined(f'{said} divides, which is cross-multiplied')
         return self.as_atom(said)
 
     def as_atom(self, said):
@@ -1261,7 +1261,7 @@ class Emitter(Builder):
             if weight.denominator == 1 and weight.numerator != 0:
                 return self.run_cc(under), self.term_apart(monomial, weight)
         if self.apart is None:
-            raise Unhandled('nothing can say a denominator is not zero')
+            return Declined('nothing can say a denominator is not zero')
         return self.run_cc(under), self.apart(said)
 
     def term_apart(self, monomial, weight):
@@ -1292,7 +1292,7 @@ class Emitter(Builder):
             return self.a1i(seq(NUMERAL[1], 'cc0', 'wne'),
                             self.apart_label(1))
         if self.apart is None:
-            raise Unhandled('nothing can say an atom is not zero')
+            return Declined('nothing can say an atom is not zero')
         out, running, held = None, None, None
         for name, power in monomial:
             spelt = op(name, NUMERAL[power], EXP)
@@ -1364,7 +1364,7 @@ class Emitter(Builder):
                 return self.quotient_joined(how, left, right, labels, said)
             if how == field.EXP:
                 return self.quotient_raised(left, right, labels, said)
-        raise Unhandled(f'{said} divides somewhere this does not reach')
+        return Declined(f'{said} divides somewhere this does not reach')
 
     def quotient_of(self, left, right, labels, said):
         """`a / b`, where what is below may divide as well.
@@ -1373,7 +1373,7 @@ class Emitter(Builder):
         over, under, first = self.normalize_quotient(left, labels)
         below, beneath, second = self.normalize_quotient(right, labels)
         if beneath is not None:
-            raise Unhandled(f'{said} divides by something that divides')
+            return Declined(f'{said} divides by something that divides')
         joined = self.ap('oveq12d',
                          {'ph': self.under, 'A': left.rpn(labels),
                           'B': self.spell_quotient(over, under),
@@ -1494,7 +1494,7 @@ class Emitter(Builder):
         """`( a / b ) ^ k`, which `expdiv` takes apart."""
         times = field.numeral(right, labels)
         if times is None or not 0 <= times <= 9:
-            raise Unhandled(f'{said} has no numeral exponent')
+            return Declined(f'{said} has no numeral exponent')
         over, under, first = self.as_quotient(
             *self.normalize_quotient(left, labels), left.rpn(labels))
         a, b = self.spell_run(over), self.spell_run(under)

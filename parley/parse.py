@@ -34,20 +34,55 @@ class Problem(Exception):
         return f'{self.path}:{self.line}  {self.message}'
 
 
-class Unhandled(Exception):
-    """A form nothing here can build a proof for.
+class Declined:
+    """What a route gives back when it does not apply.
 
-    The other of the two, and nobody's to fix: a route that does not apply,
-    a lemma that does not fit, an emitter with no shape for what it was
-    given. What catches it tries the next way, or takes the step as stated
-    and lists it at the head of the file.
+    Nobody's to fix, unlike the `Problem` above: a route that does not
+    apply, a lemma that does not fit, an emitter with no shape for what it
+    was given. What receives one tries the next way, or takes the step as
+    stated and lists it at the head of the file. It is a value and not an
+    exception, because nothing has gone wrong — a route asked whether it
+    applies and saying no is the ordinary course of the day, and there is
+    no other kind of failure here that an exception is then left to mean.
 
-    They are two exceptions because they are answered differently and the
-    difference cannot be read off the message. Telling them apart by whether
-    a line was set worked until it did not — `congruence` raised the same
-    failure with a line or without according to which caller was on the
-    stack, and a formula the elaborator read carried no line whatever was
-    wrong with it."""
+    Not None, which would be the obvious value, because `elaborate.py`
+    already returns None at sixty-eight sites and already means several
+    things by it: `renaming` returns it both for *nothing is spelt
+    differently* and for *this cannot be done*, told apart only because
+    callers test equality first. One more meaning there would move the
+    double duty rather than end it.
+
+    Truthy, and not a string. A proof is a string and `spell.seq` joins
+    what it is given, dropping whatever is falsy, so a decline reaching it
+    as None or as '' would shorten a proof and say nothing whatever. As
+    this, the join raises at the call that forgot to look.
+
+    The message is built only if something reads it, and most are read by
+    nobody: a route declines, the caller tries the next, and writing a term
+    out the way a Metamath file writes it is not cheap. Elaborating the
+    geometric series declines over a million times, and rendering those was
+    a third of what it cost."""
+
+    __slots__ = ('shape', 'spell', 'terms')
+
+    def __init__(self, shape, terms=(), spell=None):
+        self.shape, self.terms, self.spell = shape, terms, spell
+
+    def __bool__(self):
+        return True
+
+    def __str__(self):
+        if self.spell is None:
+            return self.shape
+        return self.shape.format(*(self.spell(one) for one in self.terms))
+
+    def __repr__(self):
+        return f'Declined({str(self)!r})'
+
+
+def declined(what):
+    """Whether what came back is a route saying it does not apply."""
+    return isinstance(what, Declined)
 
 
 @dataclass
