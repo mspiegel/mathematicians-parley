@@ -39,6 +39,7 @@ import linear
 import normal
 import targets
 from build import path_of
+from compress import compress
 from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
@@ -320,6 +321,7 @@ class Elaborator(Builder):
                                  # it, for the names a notation holds fixed
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
+        self.arities = {}        # cited corpus label -> how much it takes
         self.reserved = set()    # setvars the conclusion quantifies over
         self.supplying = set()   # `requires` terms being discharged now
         self.bound_as = {}       # binder name -> the setvar it stands for
@@ -5627,9 +5629,18 @@ class Elaborator(Builder):
         mine = self.cited_floats([*wanted, term], binds)
         pushed = (self.cited_pushes(item.name, binds, mine)
                   or [binds.get(label, label) for label in mine])
-        return seq(scope, pair, term, proof, *pushed,
-                   label_of(item.name, self.sigs, self.thm.path,
-                            self.thm.line), 'syl')
+        cited = label_of(item.name, self.sigs, self.thm.path, self.thm.line)
+        # The cited theorem is proved in another file and this one includes
+        # it, so the library does not hold it and anything reading the proof
+        # back cannot tell how much it takes. What it takes is what is being
+        # pushed, and that is known right here. Kept apart from `self.sigs`,
+        # which `label_of` reads to move off a name already in use: putting
+        # it there would make the second citation of a theorem disagree
+        # with the first about what the theorem is called.
+        self.arities.setdefault(cited, Signature(
+            cited, '$p', ['|-'],
+            [('class', f'{cited}.{n}') for n in range(len(pushed))]))
+        return seq(scope, pair, term, proof, *pushed, cited, 'syl')
 
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition.
@@ -5930,8 +5941,17 @@ def main(argv, root=None):
     label = label_of(thm.name, sigs, thm.path, thm.line)
     says = (f'( {work.render(antecedent)} -> {work.render(goal)} )'
             if antecedent else work.render(goal))
+    # Compressed, which is what set.mm is stored in and what `ELABORATION.md`
+    # argued for: the corpus writes a scope into every line and a membership
+    # wherever it is wanted, and normal format writes each of those out
+    # again every time. The same proofs are 176 times smaller said this way.
+    # The indices below the parentheses are the theorem's own hypotheses, in
+    # the order the library declares them.
+    mandatory = sorted({work.flabel[t] for t in says.split()
+                        if t in work.flabel},
+                       key=lambda one: work.forder[one])
     print(f'  {label} $p |- {says} $=')
-    print(f'    {proof} $.')
+    print(f'    {compress(proof, mandatory, {**sigs, **work.arities})} $.')
     print('$}')
     return 0
 

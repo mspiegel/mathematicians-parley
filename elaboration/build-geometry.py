@@ -30,6 +30,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'parley'))
 
 from build import path_of
+from compress import compress
+from library import Signature
 from library import read as read_library
 from spell import Builder
 
@@ -1602,6 +1604,7 @@ def main(argv):
     # and discharging that needs `df-ang`.
     sigs = read_library(argv[1], path_of('definitions'))
     b = Builder(sigs)
+    made = {}
     print(HEAD, end='')
     for label, statement, proof in side_angle_side(
             b, cancelling(
@@ -1610,8 +1613,19 @@ def main(argv):
                         b, angle_symmetry(
                             b, rotation(b, triangle_lemmas(b))))))):
         print(f'  {label} $p {statement} $=')
+        # Compressed, as `parley/elaborate.py` writes its proofs. These
+        # lemmas lean on each other, so a label written above is one a
+        # proof below may take, and the library does not hold it; what it
+        # takes is the variables of its own statement, which is what the
+        # signature below records.
+        mandatory = sorted({b.flabel[t] for t in statement.split()
+                            if t in b.flabel},
+                           key=lambda one: b.forder[one])
+        said = compress(proof, mandatory, {**sigs, **made})
+        made[label] = Signature(label, '$p', statement.split(),
+                                [('class', v) for v in mandatory])
         line = '   '
-        for token in proof.split():
+        for token in said.split():
             if len(line) + len(token) > 76:
                 print(line)
                 line = '   '

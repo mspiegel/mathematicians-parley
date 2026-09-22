@@ -680,6 +680,20 @@ repetition is written down. So the size an elaborator produces is a choice of
 output format rather than a fact about the expansion, and the format to choose
 is the compressed one.
 
+That is now the format `parley/compress.py` writes, and the effect is larger
+than the twenty-seven times above: the corpus is 612 KB where it was 22 MB,
+and `thm:least-combination-divides` is 27 KB where it was 16.7 MB, six
+hundred and seventeen times smaller. It also verifies faster, eighteen
+seconds against twenty-five, because a step that was kept is not checked
+again. What makes the change safe to have made is that the proof written is
+the proof that was given: `compress.expand` reads one back, and
+`parley/test_compress.py` asks that of every proof in the corpus.
+
+What it does not do is make the expansions smaller. There are still six
+hundred and nineteen proofs of `1 e. NN0` in that step; the file now names
+the first and points at it. The tables below count tokens, which is what the
+expansion costs, and they are unchanged by the format.
+
 `elaboration/build-parity.py` and `elaboration/build-sqrt2.py` generate the two
 files, and those scripts are the first fragment of an elaborator: each builds
 its expansions from the readable steps they came from, and the correspondence
@@ -1339,16 +1353,18 @@ everything. That has happened: an `arithmetic` step emitted `1 = 1` for a
 claim about `( 1 x. ( 1 + 1 ) ) / 2`, and the assumption count reported it as
 a win. A verifier caught it, run by hand, because it was remembered.
 
-So `parley/verify.py` is the gate's fifth stage and runs `mmverify.py` over
-all 30 proofs — the sixteen theorems and `geometry.mm`'s fourteen lemmas.
+So `parley/verify.py` is a gate stage and runs `mmverify.py` over all 30
+proofs — the sixteen theorems and `geometry.mm`'s fourteen lemmas.
 
-It costs nineteen seconds, which is the surprise and the reason it can be a
-gate stage at all. Verifying one proof costs about eighteen seconds whatever
-its size: even-square is 436 proof tokens and sqrt2-irrational is 194,476, and
-they cost 17.7 and 18.0 seconds. The time is reading set.mm, not checking the
-proof. `mmverify.py` resolves an inclusion against the working directory and
-keeps the set of files it has already opened, so one file including them all
-reads set.mm once and the marginal cost of each proof is close to nothing.
+It costs eighteen seconds, which is the surprise and the reason it can be a
+gate stage at all. Nearly all of that is reading set.mm and none of it is
+the corpus: `mmverify.py` given a file whose whole contents are
+`$[ set.mm $]` takes 17.8 seconds, and the thirty proofs add a tenth of a
+second to it. `mmverify.py` resolves an inclusion against the working
+directory and keeps the set of files it has already opened, so one file
+including them all reads set.mm once and the marginal cost of each proof is
+close to nothing. Compressing the proofs made that margin smaller again — a
+step that was kept is not checked twice — where before it was 25 seconds.
 
 Which files that one includes is read off the `$[ ... $]` lines rather than
 listed: a proof nothing else includes is a root, and nine roots reach all

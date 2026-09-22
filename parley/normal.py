@@ -32,6 +32,34 @@ ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
 
 
 
+def remembered(method):
+    """Keep what a builder made, because it will be asked for it again.
+
+    These build a proof from their arguments and from `under`, which does
+    not change while one emitter is alive, so the same question has the
+    same answer every time. Normalising `thm:least-combination-divides`
+    step 3 asks `index` for `1 e. NN0` six hundred and nineteen times and
+    gets the same eleven tokens back, and asks for one of twenty monomials
+    three hundred and fifteen times.
+
+    This changes how often a proof is built and not what is written: every
+    call site still writes out what it is handed, so the file is the same
+    file. `Emitter.held` is the same idea for the membership of an atom."""
+    def asked(self, *args):
+        try:
+            key = (method.__name__,
+                   *(tuple(a) if isinstance(a, list) else a for a in args))
+            hash(key)
+        except TypeError:
+            return method(self, *args)     # nothing to key it on
+        if key not in self.made:
+            self.made[key] = method(self, *args)
+        return self.made[key]
+    asked.__doc__ = method.__doc__
+    asked.__name__ = method.__name__
+    return asked
+
+
 def op(left, right, what):
     """`( left what right )`, which reverse Polish writes the other way."""
     return seq(left, right, what, 'co')
@@ -62,6 +90,7 @@ class Emitter(Builder):
         self.atom = atom                  # rpn -> ( under -> rpn e. CC )
         self.apart = apart                # rpn -> ( under -> rpn =/= 0 )
         self.held = {}                    # rpn -> membership, proved once
+        self.made = {}                    # what `remembered` has built
 
     def same(self, what):
         """( under -> what = what )."""
@@ -87,16 +116,19 @@ class Emitter(Builder):
         """What says a numeral is not zero, named the same way."""
         return 'ax-1ne0' if value == 1 else f'{value}ne0'
 
+    @remembered
     def number(self, value):
         """( under -> n e. CC ) for a whole number the kernel spells."""
         return self.ap('a1i', {'ph': seq(NUMERAL[value], 'cc', 'wcel'),
                                'ps': self.under}, self.complex_label(value))
 
+    @remembered
     def index(self, value):
         """( under -> k e. NN0 ), which an exponent has to be."""
         return self.ap('a1i', {'ph': seq(NUMERAL[value], 'cn0', 'wcel'),
                                'ps': self.under}, f'{value}nn0')
 
+    @remembered
     def coefficient(self, weight):
         """( under -> c e. CC ) for a coefficient, negated where negative."""
         whole = abs(weight.numerator)
@@ -106,6 +138,7 @@ class Emitter(Builder):
                                       'A': NUMERAL[whole]}, held)
         return held
 
+    @remembered
     def monomial_cc(self, monomial):
         """( under -> M e. CC ) for a monomial's canonical form."""
         if not monomial:
@@ -124,6 +157,7 @@ class Emitter(Builder):
                 said = op(said, spelt, MUL)
         return out
 
+    @remembered
     def term_cc(self, monomial, weight):
         """( under -> ( c x. M ) e. CC )."""
         return self.ap('mulcld',
@@ -579,6 +613,7 @@ class Emitter(Builder):
     # them adds positive numbers and nothing can cancel. There is no
     # counterpart here to `drop`.
 
+    @remembered
     def factor_cc(self, name, power):
         return self.ap('expcld', {'ph': self.under, 'A': name,
                                   'N': NUMERAL[power]},
