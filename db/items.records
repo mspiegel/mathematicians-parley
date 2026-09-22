@@ -142,6 +142,27 @@ theorem subset-of-difference
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
 
+theorem difference-of-union
+  then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
+  metamath    difun2
+  target      difun2
+  first-used  subsets
+
+theorem difference-absent
+  assume a ∉ Y                                                        (H1)
+  then        Y ∖ {a} = Y
+  metamath    difsn
+  target      difsn
+  first-used  subsets
+
+theorem not-in-subset
+  assume Y ⊆ Z                                                        (H1)
+  assume a ∉ Z                                                        (H2)
+  then        a ∉ Y
+  metamath    ssneld
+  target      ssneld
+  first-used  subsets
+
 theorem in-union-singleton
   then        a ∈ Y ∪ {a}
   metamath    elun2, over the singleton snidg puts a in
@@ -704,15 +725,27 @@ theorem card-disjoint-union
   target      hashun with A := X, B := Y
   first-used  subsets
 
+theorem image-of-injection
+  let Y be a set                                                      (H1)
+  assume for every S ∈ Y, for every T ∈ Y, if S ∪ {a} = T ∪ {a}
+         then S = T                                                   (H2)
+  then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
+  metamath    f1oeng, over the map f1mpt and f1f1orn show is one-to-one
+  target      f1oeng with F := the map sending S ∈ Y to S ∪ {a}
+  first-used  subsets
+  note        A map that sends no two things to the same place pairs its
+              domain off against what comes out of it. Narrowed to the one
+              map the corpus builds, as `thm:added-elements-are-new` is: the
+              readable layer states the property and the `target` names the
+              map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
+              and does not name a function to say it.
+
 theorem add-element-bijection
-  let X be a set                                                      (H1)
-  assume a ∉ X                                                        (H2)
-  then        there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
-  open        no set.mm label found
+  proved-in   proof/subsets.proof
   first-used  subsets
   note        The pilot's row was itself incomplete, reading "Let X be a set, a
               with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The
-              statement above is the merge's reading of it and should be checked.
+              statement in the proof is the merge's reading of it.
 
 theorem powerset-split-disjoint
   proved-in   proof/subsets.proof

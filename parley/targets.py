@@ -190,6 +190,11 @@ MEMBERSHIP = [
     # puts in a power set, and a proof that fixed the thing has nothing to
     # say about it that `vex` does not.
     'vex', 'snidg', 'snex',
+    # A map sends no two things to the same place, which is what the readable
+    # layer says, and set.mm reaches equinumerosity from it through the map
+    # itself — one-to-one, then onto its own range. Neither of those is
+    # anything a proof writes, which is what puts them here.
+    'f1f1orn', 'f1mpt',
     # and finiteness, which the readable layer never says at all. It counts
     # a set and the count is a natural number, and every lemma about
     # cardinality asks for `e. Fin` instead. `hashvnfin` is set.mm saying

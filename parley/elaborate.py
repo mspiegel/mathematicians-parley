@@ -224,6 +224,22 @@ class Block:
         self.parts = {}             # part number -> the last fact in it
 
 
+class Declined(Unhandled):
+    """A decline whose message names terms, written out only when read.
+
+    An `Unhandled` says a route cannot do something, and the route that
+    asked catches it and tries the next. So the message is nearly always
+    dropped unheard, and the terms in it are held as they stand until
+    something asks for the words."""
+
+    def __init__(self, work, shape, terms):
+        super().__init__()
+        self.work, self.shape, self.terms = work, shape, terms
+
+    def __str__(self):
+        return self.shape.format(*(self.work.render(t) for t in self.terms))
+
+
 class Elaborator(Builder):
     # Which lemma rewrites a subterm, by what encloses it and which hole it
     # sits in. The tree decides; nothing is searched for.
@@ -339,6 +355,17 @@ class Elaborator(Builder):
         A defect that names a line and no file names half a place, and
         `parley/test_elaborate.py` asserts the whole of one."""
         return Problem(self.thm.path, line, message)
+
+    def declined(self, shape, *terms):
+        """A route saying it cannot, with the terms written out only if
+        somebody reads the message.
+
+        Almost every one of these is caught and dropped by the route that
+        asked — that is what a decline is for — and writing a term out the
+        way a Metamath file writes it is not cheap. Elaborating the
+        geometric series raised this 1.2 million times and spent 28 of its
+        72 seconds rendering messages nothing printed."""
+        return Declined(self, shape, terms)
 
     # --- terms --------------------------------------------------------------
 
@@ -523,13 +550,20 @@ class Elaborator(Builder):
                 # name is fixed, the condition settled of it, and
                 # `ralrimiva` gives it back, which is `as_generalised` over
                 # a declared lemma rather than over a cited one.
+                #
+                # Going under the binder spends no depth. It is one claim
+                # said of one member, not a step of the chain the bound is
+                # there to cut off, and spending it stopped `f1mpt` halfway.
+                # Conjunction still spends: doing both cost
+                # `least-combination-divides` sixty seconds and bought
+                # nothing.
                 body, variable, over = wanted.children
                 member = seq(f'{variable.rpn(self.flabel)} cv',
                              over.rpn(self.flabel), 'wcel')
                 frame = len(self.frames)
                 inner, lifted = self.widen(scope, facts, member)
                 try:
-                    made = self.settle(body, inner, lifted, depth - 1)
+                    made = self.settle(body, inner, lifted, depth)
                 finally:
                     del self.frames[frame:]
                 return seq(scope, body.rpn(self.flabel),
@@ -541,7 +575,7 @@ class Elaborator(Builder):
             for backwards in (False, True):
                 for label in targets.MEMBERSHIP:
                     sig = self.sigs.get(label)
-                    if sig is None or sig.essentials:
+                    if sig is None:
                         continue
                     found = self.fits(label, sig, wanted, scope, facts,
                                       depth, backwards)
@@ -550,7 +584,7 @@ class Elaborator(Builder):
             found = self.said_otherwise(wanted, scope, facts, depth)
             if found is not None:
                 return found
-        raise Unhandled(f'cannot settle {self.render(rpn)}')
+        raise self.declined('cannot settle {}', rpn)
 
     def said_otherwise(self, wanted, scope, facts, depth):
         """What is wanted, held by the scope under another name for a term.
@@ -692,7 +726,19 @@ class Elaborator(Builder):
                 for open_slot in self.sethood(slot, binding):
                     binding[open_slot] = kernel.Term('cvv')
 
-        proof = self.ap(label, self.spelt(binding))
+        # A declared lemma may state a hypothesis in full rather than ask for
+        # it, which is a spelling and not a difference in what it leans on:
+        # `f1mpt` names its map that way. The two kinds it states are the two
+        # `prove_essential` already knows — a naming and a relating — and
+        # they are also what says which variables the claim did not fix.
+        binding = self.instanced(sig, self.read_off(sig, binding, variables))
+        try:
+            essentials = [self.prove_essential(
+                self.syntax.parse(e[1:], 'wff').substitute(binding),
+                scope, facts) for e in sig.essentials]
+        except (Unhandled, Problem):
+            return None
+        proof = self.ap(label, self.spelt(binding), *essentials)
         if not antecedents:
             return seq(wanted.rpn(self.flabel), scope, proof, 'a1i')
         try:
@@ -1239,10 +1285,9 @@ class Elaborator(Builder):
             return found
         if (given.label != want.label
                 or len(given.children) != len(want.children)):
-            raise Unhandled(
-                f'{self.render(given.rpn(self.flabel))} and '
-                f'{self.render(want.rpn(self.flabel))} differ by '
-                'more than the change being carried')
+            raise self.declined(
+                '{} and {} differ by more than the change being carried',
+                given.rpn(self.flabel), want.rpn(self.flabel))
         if given.label == 'wrex':
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
@@ -4575,9 +4620,16 @@ class Elaborator(Builder):
             if node.label in ('wral', 'wal'):
                 rest.append(node.children[0])
                 continue
-            if node.label != 'wcel':
+            # Where a map's values land is the same kind of question as where
+            # a set lives, and set.mm asks it the same way: `f1f1orn` wants a
+            # codomain and says nothing about it, because being one-to-one
+            # into one class is being one-to-one into any that holds the
+            # values. `_V` holds them all.
+            at = {'wcel': 1, 'wf': 1, 'wf1': 1, 'wfo': 1, 'wf1o': 1}.get(
+                node.label)
+            if at is None:
                 continue
-            name = node.children[1].variable
+            name = node.children[at].variable
             if name is not None and name not in binding:
                 out.append(name)
         return out
@@ -4715,9 +4767,11 @@ class Elaborator(Builder):
             # to be brought into the scope the step sits in.
             return self.carry(seq(goal.rpn(self.flabel), where, proof, 'a1i'),
                               goal.rpn(self.flabel), frame)
+        carried = False
         for i, slot in enumerate(antecedents):
             asks = slot.substitute(binding)
             if asks.rpn(self.flabel) == where:
+                carried = True
                 continue                      # the deduction slot
             rest = goal.rpn(self.flabel)
             for later, join in reversed(list(zip(antecedents[i + 1:],
@@ -4731,7 +4785,13 @@ class Elaborator(Builder):
                     # sizes from the bijection reads it right to left.
                     rest = (seq(rest, said, 'wb') if join is TURNED
                             else seq(said, rest, join))
-            first = proof.split()[-1] == label
+            # What decides the fold is whether what has been built so far
+            # states its claim outright or states it under the scope. The
+            # bare lemma states it outright — unless one of its own
+            # antecedents was the scope, which `ssneld` does: it asks for
+            # the inclusion under the scope and then says, still under it,
+            # that what is outside the larger set is outside the smaller.
+            first = proof.split()[-1] == label and not carried
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
                     ('wb', True): 'sylib', ('wb', False): 'mpbid',
                     (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
@@ -5546,10 +5606,18 @@ class Elaborator(Builder):
         # `requires 1 ∈ ℤ` rather than proving it as a step.
         known = self.supplied(step, scope, facts)
         for one in wanted:
-            if one not in known:
+            if one in known:
+                continue
+            # A hypothesis a reader would not think to write as a line and
+            # would not think to write as a `requires` either: that a name
+            # the proof obtained is a set. It is a side condition like any
+            # other, so it is settled like one before this gives up.
+            try:
+                known[one] = self.settle(self.to_term(one), scope, known)
+            except Unhandled:
                 raise self.defect(step.line,
                                   f'nothing supplies {self.render(one)}, '
-                                  f'which {step.just.head} assumes')
+                                  f'which {step.just.head} assumes') from None
         pair, proof = wanted[0], known[wanted[0]]
         for extra in wanted[1:]:
             proof = seq(scope, pair, extra, proof, known[extra], 'jca')

@@ -77,7 +77,7 @@ THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
             'least-combination-divides', 'bezout', 'powerset-split-disjoint',
-            'subsets-count')
+            'add-element-bijection', 'subsets-count')
 
 # The five proofs worked out by hand, which share two of their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`

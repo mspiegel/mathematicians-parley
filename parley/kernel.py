@@ -35,21 +35,35 @@ class Rule:
 class Term:
     """A parsed statement: a constructor applied to terms, or a variable."""
 
-    __slots__ = ('children', 'label', 'variable')
+    # A term is built and then only read, so both of the walks below are
+    # kept once they have been made. Elaborating the geometric series asks
+    # for them sixteen and fourteen million times over one and a half
+    # million terms, and doing the walk each time was a third of its run.
+    # `names` is frozen because the answer is shared now, and a caller that
+    # added to it would be adding to every holder of the same term.
+    __slots__ = ('_names', '_rpn', 'children', 'label', 'variable')
 
     def __init__(self, label=None, children=(), variable=None):
         self.label, self.children, self.variable = label, children, variable
+        self._names = self._rpn = None
 
     def rpn(self, labels):
         """The term as a proof writes it, pushing what each label wants."""
-        if self.variable is not None:
-            return labels[self.variable]
-        return ' '.join([*(c.rpn(labels) for c in self.children), self.label])
+        if self._rpn is not None and self._rpn[0] is labels:
+            return self._rpn[1]
+        said = (labels[self.variable] if self.variable is not None
+                else ' '.join([*(c.rpn(labels) for c in self.children),
+                               self.label]))
+        self._rpn = (labels, said)
+        return said
 
     def names(self):
-        if self.variable is not None:
-            return {self.variable}
-        return set().union(set(), *(c.names() for c in self.children))
+        if self._names is None:
+            self._names = frozenset(
+                {self.variable} if self.variable is not None
+                else set().union(set(), *(c.names()
+                                          for c in self.children)))
+        return self._names
 
     def substitute(self, binding):
         if self.variable is not None:

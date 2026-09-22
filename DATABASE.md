@@ -240,6 +240,19 @@ below it, for what set.mm does not state and the readable layer cannot.
 `def:angle` closed differently — it carries a `symbol` and a `defines` now,
 and is the one definition in this corpus that introduces a constant.
 
+**That third way is a last resort, and a new one needs a reason of the same
+kind.** An item proved there is an item a reader cannot read: the proof is
+cited from the readable layer and answered in Metamath, which is the split
+this corpus exists to close. The four that take it earn it on their content —
+saying what they say means dividing one point by another and naming the branch
+cut of the complex logarithm, and `GEOMETRY.md` chose the ℂ encoding on the
+understanding that those would reach the reader as dull facts rather than as
+case splits inside an argument. An item whose content a reader would follow
+does not earn it, however awkward the elaborator finds it. Where the obstacle
+is that the readable layer cannot yet *say* something, the thing to weigh is
+teaching it to say that, or teaching the elaborator to work it out, and a
+hand proof is what is left when neither is worth its price.
+
 The four that remain open in the geometry are open for a reason rather than
 for want of work. Incidence is a primitive, and `def:collinear` says so: in
 the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes

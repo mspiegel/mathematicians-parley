@@ -478,6 +478,27 @@ notation set-image
   note        The binding hole is not the first one, which is why `binds` names
               the holes rather than assuming an order. See def:set-image.
 
+notation map
+  pattern     the map sending _ ∈ _ to _
+  holes       variable, set, any
+  yields      function
+  level       binder
+  binds       hole 1 over hole 3
+  reads       the map sending each of the first in the second to the third
+  metamath    cmpt
+  target      _1 _2 _3 cmpt
+  first-used  subsets
+  note        What set-image is the range of, which is why the two agree on
+              everything but the `crn`. The corpus can say what a function
+              does to a thing and what comes out of it, and until this could
+              not say the function: every proof before the subsets one takes
+              its function as a hypothesis rather than building one.
+
+              Written in words rather than as `( x ∈ A ↦ B )`, which is the
+              kernel's own bracketing and which the parser could not read
+              anyway: an opening parenthesis is grouping and is taken before
+              any pattern is tried.
+
 notation function-type
   pattern     _ : _ → _
   holes       function, set, set
