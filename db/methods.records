@@ -169,15 +169,20 @@ method contradiction
 method fix
   form        fix
   block       required
-  part-opens  let x ∈ S (K) and assume A (H)
-  checks      the claim is "for every x ∈ S, if A then B". The block opens with
-              the claim's let and assume lines, each labelled, and its last step
-              is B.
+  part-opens  let x ∈ S (K), one or more of them, and assume A (H)
+  checks      the claim is "for every x ∈ S, ..., if A then B", one "for every"
+              per let line and in that order. The block opens with the claim's
+              let and assume lines, each labelled, and its last step is B.
   metamath    ralrimiva, ex, alrimiv
   first-used  sum-formula
   note        The same rule by which a theorem's block proves its statement. At
               theorem level no method is named because the let and assume lines
               are the statement.
+
+              More than one let is Bezout's step 10, which fixes an x and a y
+              and supposes their combination is a natural number. Each let is
+              given back by its own ralrimiva, innermost first, and the
+              supposition by ex before any of them.
 
 method induction
   form        induction on n starting at m, from H

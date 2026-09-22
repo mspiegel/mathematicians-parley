@@ -849,7 +849,8 @@ the identity is.
 
 19. **A standalone `fix` is a generalisation.** Inside an induction the block
     is one part of it and the induction takes it as it stands; on its own it
-    closes with `ralrimiva` over the name it fixed. Which of the two is
+    gives back everything it took — `ex` for what it supposed, then one
+    `ralrimiva` per name it fixed, innermost first. Which of the two is
     settled by whether the block is a part of something.
 
 20. **The corpus and set.mm may state one fact as two formulas.** Four kinds,
@@ -878,9 +879,10 @@ three more were elaborated: `thm:triangle-inequality`, which the fifth proof
 was a lemma for, and then `prime-above` and `cantor`, which nothing here was
 written for.
 
-That made eight, and `isosceles` below makes nine. This is the tally for all
-of them as it now stands — what each proof still takes as stated rather than
-builds:
+That made eight, and `isosceles` below makes nine; `geometric-sum`,
+`least-combination-divides` and `bezout` bring it to twelve. This is the
+tally for all of them as it now stands — what each proof still takes as
+stated rather than builds:
 
 | proof | assumed | |
 |---|---|---|
@@ -893,8 +895,11 @@ builds:
 | isosceles | 0 | |
 | sqrt2-irrational | 1 | `thm:lowest-terms` |
 | prime-above | 0 | |
+| geometric-sum | 0 | |
+| least-combination-divides | 0 | |
+| bezout | 6 | five items with no `target`, and one `inequalities` step |
 
-All nine verify, and eight of them assume nothing at all. That number was 26
+All twelve verify, and ten of them assume nothing at all. That number was 26
 across eight proofs when this section was first written; what closed the gap
 was writing the four closure methods out rather than taking their steps as
 stated, and the assumption count is the measure that says whether a method is

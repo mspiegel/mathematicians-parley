@@ -64,7 +64,13 @@ BE_A = re.compile(r'\s+be\s+a\s+(set|point)\b')
 # Past the last line any proof has, for reading every define that is left.
 _ENDLESS = float('inf')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
-SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu']
+# Variables for a name the proof does not spell: what a `define` renames
+# its body's binders to, and what an `obtain` introduces. A name the text
+# does spell keeps its own letter, so this holds what a reader is least
+# likely to write, and holds enough of them that a proof binding several
+# names of its own does not run the list out.
+SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
+              'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv']
 # The constructors that take a function, operation or relation as an operand.
 WRAPS = ('co', 'wbr', 'cfv')
 # Stands where a join would name the constructor, for a biconditional a
@@ -993,7 +999,88 @@ class Elaborator(Builder):
             return self.settle(self.to_term(
                 seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
                 where, held)
+        renamed = self.renaming(given, want)
+        if renamed is not None:
+            return seq(seq(given.rpn(self.flabel), want.rpn(self.flabel),
+                           'wb'), scope, renamed, 'a1i')
         return self.congruence(given, want, scope, facts, step, swapped)
+
+    # Lifting a closed biconditional through one level of a term. The
+    # deduction forms `congruence` uses take the scope as an antecedent;
+    # these take nothing, which is what a renaming needs.
+    RENAMED: typing.ClassVar = {('wa', (0,)): 'anbi1i', ('wa', (1,)): 'anbi2i'}
+
+    def renaming(self, given, want):
+        """The two as one claim, spelt with different bound variables.
+
+        A `define` renames what its body binds, because the proof may go on
+        to fix a name spelt the same way: Bezout's S binds a j where the
+        step that reads it writes an n. `cbvrexvw` is set.mm saying those
+        are one claim, and `cbvrexv` says it too by way of ax-13, which
+        set.mm discourages.
+
+        Closed, and lifted by closed lemmas. `rexbidva` would carry the
+        scope under the binder and forbids the binder in what it carries,
+        and the scope here names the very set-builder whose body binds it.
+        None of this wants a scope: the two are one claim wherever they
+        stand."""
+        if given.rpn(self.flabel) == want.rpn(self.flabel):
+            return None                        # nothing is spelt differently
+        if (given.label != want.label
+                or len(given.children) != len(want.children)):
+            return None
+        if given.label == 'wrex':
+            body, variable, over = given.children
+            other, renamed, runs = want.children
+            if over.rpn(self.flabel) != runs.rpn(self.flabel):
+                return None
+            binds = {'ph': body.rpn(self.flabel),
+                     'ps': other.rpn(self.flabel),
+                     'x': variable.rpn(self.flabel),
+                     'A': over.rpn(self.flabel)}
+            if variable.variable == renamed.variable:
+                inner = self.renaming(body, other)
+                return None if inner is None else self.ap('rexbii', binds,
+                                                          inner)
+            # `cbvrexvw` changes one binder and wants a hypothesis relating
+            # the two bodies at x = y, which a body still spelt two ways
+            # inside is not. So the bodies are made to agree first, over
+            # this binder as it stands, and only then is it changed.
+            here = self.restated(other, f'{renamed.rpn(self.flabel)} cv',
+                                 f'{variable.rpn(self.flabel)} cv')
+            middle = dict(binds, ph=here.rpn(self.flabel))
+            at = seq(seq(f'{variable.rpn(self.flabel)} cv',
+                         f'{renamed.rpn(self.flabel)} cv', 'wceq'),
+                     seq(middle['ph'], binds['ps'], 'wb'), 'wi')
+            try:
+                said = self.prove_essential(self.to_term(at), '', {})
+            except (Unhandled, Problem):
+                return None
+            changed = self.ap('cbvrexvw', dict(
+                middle, y=renamed.rpn(self.flabel)), said)
+            if middle['ph'] == binds['ph']:
+                return changed
+            inner = self.renaming(body, here)
+            if inner is None:
+                return None
+            agreed = self.ap('rexbii', dict(binds, ps=middle['ph']), inner)
+            return self.ap('bitri', {
+                'ph': seq(binds['ph'], binds['x'], binds['A'], 'wrex'),
+                'ps': seq(middle['ph'], binds['x'], binds['A'], 'wrex'),
+                'ch': want.rpn(self.flabel)}, agreed, changed)
+        spelt = [c.rpn(self.flabel) for c in given.children]
+        other = [c.rpn(self.flabel) for c in want.children]
+        slots = tuple(i for i in range(len(spelt)) if spelt[i] != other[i])
+        label = self.RENAMED.get((given.label, slots))
+        if label is None:
+            return None
+        inner = self.renaming(given.children[slots[0]],
+                              want.children[slots[0]])
+        if inner is None:
+            return None
+        rest = spelt[1] if slots[0] == 0 else spelt[0]
+        return self.ap(label, {'ph': spelt[slots[0]], 'ps': other[slots[0]],
+                               'ch': rest}, inner)
 
     def congruence(self, given, want, scope, facts, step, leaf):
         """Carry one change up to the whole term it sits in.
@@ -1021,11 +1108,19 @@ class Elaborator(Builder):
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
             member = seq(f'{name} cv', runs, 'wcel')
+            # The scope under a binder belongs to the walk and to nothing
+            # else. `widen` keeps a frame so that a step whose lemma forbids
+            # an assumption can be proved without it, and a frame left
+            # standing here is offered to whatever is proved next: a lemma
+            # chose one and stated its hypothesis under a binder's
+            # membership, which mmverify is what caught.
+            frame = len(self.frames)
             inner, lifted = self.widen(scope, facts, member)
+            made = self.congruence(body, want.children[0], inner, lifted,
+                                   step, leaf)
+            del self.frames[frame:]
             return seq(scope, body.rpn(self.flabel),
-                       want.children[0].rpn(self.flabel), name, runs,
-                       self.congruence(body, want.children[0], inner, lifted,
-                                       step, leaf),
+                       want.children[0].rpn(self.flabel), name, runs, made,
                        'rexbidva')
         wrapped = given.label in WRAPS
         kids = given.children[:-1] if wrapped else given.children
@@ -1475,25 +1570,65 @@ class Elaborator(Builder):
                 yield from self.parts(child.rpn(self.flabel))
 
     def close_fix(self, block, held):
-        """A fix closed by generalising over the name it fixed.
+        """A fix closed by giving back everything it took.
 
-        ralrimiva wants what was proved under the name, said out of the
-        scope the block opened over. Which name and which set are read off
-        the claim the block states, since that is what the text wrote."""
+        `ralrimiva` wants what was proved under a fixed name, said out of
+        the scope the block opened over, and `ex` does the same for what
+        the block assumed. `db/methods.records` names both, and a fix may
+        take several names before it assumes: Bezout's step 10 fixes an x
+        and a y and supposes their combination is a natural number.
+
+        Which names, which sets and which supposition are read off the
+        claim the block states, since that is what the text wrote, and they
+        are peeled in the order the openers widened the scope. Putting them
+        back runs the other way, innermost first, because that is the order
+        each lemma can be applied in.
+
+        A fix that is one part of an induction never arrives here:
+        `close_block` hands that one over whole, for `nnind` to take."""
         step = block.owner
         claim = self.claim_of(' '.join(step.claim))
-        whole = self.to_term(claim)
-        if whole.label != 'wral':
-            raise self.defect(step.line,
-                              'a fix that claims nothing of every such name')
-        body, variable, over = whole.children
-        if body.rpn(self.flabel) != held.term:
+        layers, rest = [], self.to_term(claim)
+        for kind, _text, _label, _line, _part in step.openers:
+            if kind == 'let' and rest.label == 'wral':
+                body, variable, over = rest.children
+                layers.append(('ralrimiva', variable.rpn(self.flabel),
+                               over.rpn(self.flabel)))
+                rest = body
+            elif kind == 'assume' and rest.label == 'wi':
+                layers.append(('ex', rest.children[0].rpn(self.flabel), None))
+                rest = rest.children[1]
+            elif kind == 'let':
+                raise self.defect(
+                    step.line, 'a fix that claims nothing of every such name')
+            else:
+                raise self.defect(
+                    step.line, 'a fix whose claim supposes nothing where the '
+                    'block assumes')
+        if rest.rpn(self.flabel) != held.term:
             raise self.defect(step.line,
                               'the block does not reach what it claims of the '
                               'name it fixed')
-        return claim, seq(block.outer, held.term,
-                          variable.rpn(self.flabel), over.rpn(self.flabel),
-                          held.proof, 'ralrimiva')
+
+        # The scope each layer was taken at, which is what it is given back
+        # to. `widen` conjoined them on the way in and these are the same
+        # terms read off the claim.
+        scopes, scope = [], block.outer
+        for how, what, over in layers:
+            scopes.append(scope)
+            scope = seq(scope, seq(f'{what} cv', over, 'wcel')
+                        if how == 'ralrimiva' else what, 'wa')
+
+        proof, said = held.proof, held.term
+        for (how, what, over), outer in zip(reversed(layers),
+                                            reversed(scopes), strict=True):
+            if how == 'ex':
+                proof = seq(outer, what, said, proof, 'ex')
+                said = seq(what, said, 'wi')
+            else:
+                proof = seq(outer, said, what, over, proof, 'ralrimiva')
+                said = seq(said, what, over, 'wral')
+        return claim, proof
 
     def close_cases(self, block, lines):
         """Two cases and the disjunction that says one of them holds.
@@ -1613,8 +1748,16 @@ class Elaborator(Builder):
         proof = how(step, node, term, scope, facts, lines)
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
-        lines[number] = Fact(term, proof, self.said(step))
+        said = self.said(step)
+        lines[number] = Fact(term, proof, said)
         facts[term] = proof
+        # A line saying several things says each of them: Bezout's step 15
+        # states what a gcd is in four sentences and its step 17 wants the
+        # first of them. Only as deep as the sentences the text wrote —
+        # `claim_of` conjoined those, and splitting further would take
+        # apart what one sentence says and offer the pieces as lines.
+        if len(said) > 1:
+            self.unpack(term, proof, scope, facts, depth=len(said) - 1)
         return scope, facts, closers
 
     def said(self, step):
@@ -3524,6 +3667,14 @@ class Elaborator(Builder):
             if cited is None:
                 continue
             held = {cited.term: self.carried(ref, facts, lines)}
+            # The term kept for a line is its last sentence, and a line
+            # saying several things says the others just as much: Bezout's
+            # line 5 hands over a d in S and what is least about it, and it
+            # is the first of the two that `elrab` unfolds.
+            for one in cited.sentences:
+                said = self.term(one)
+                if said in facts:
+                    held.setdefault(said, facts[said])
             self.unpack(cited.term, held[cited.term], scope, held)
             for said, shown in held.items():
                 binding = kernel.match(reads.children[0], self.to_term(said),
@@ -4178,9 +4329,17 @@ class Elaborator(Builder):
 
         The names a proof introduces do not all come from here: the first
         `obtain` takes its variables from the existential the item states, so
-        a later step asking for a spare can be handed one of them."""
-        held = {t.split()[0] for t in self.names.values()
-                if isinstance(t, str) and t.endswith(' cv')} | self.reserved
+        a later step asking for a spare can be handed one of them.
+
+        What a name stands for now is not all of it. A binder's name stands
+        for its variable only while its body is read, and `bound_as` is
+        what says so for the rest of the proof. Bezout defines S over an m
+        before any step writes one; handing that m out again would make one
+        variable of two binders, and a lemma eliminating either of them
+        forbids the other in what it carries."""
+        held = ({t.split()[0] for t in self.names.values()
+                 if isinstance(t, str) and t.endswith(' cv')}
+                | self.reserved | set(self.bound_as.values()))
         while self.spare and self.spare[0] in held:
             self.spare.pop(0)
         if not self.spare:
@@ -4360,6 +4519,12 @@ class Elaborator(Builder):
         if whole.label != 'wrex':
             raise self.defect(step.line,
                               'an exhibit that claims no existence')
+        # A claim may quantify over more than one name — Bezout exhibits an
+        # x and a y together — and reading several witnesses off the lines a
+        # step cites is what `witnessed` does, innermost first.
+        if whole.children[0].label == 'wrex':
+            return self.witnessed(step, whole, scope,
+                                  self.supplied(step, scope, facts), lines)
         body, _variable, domain = whole.children
         # The name the text quantifies under and the variable it stands for
         # are two different things: Cantor quantifies over B, which set.mm
@@ -4581,6 +4746,31 @@ class Elaborator(Builder):
         self.names = saved
         return out
 
+    def cited_floats(self, said, classes):
+        """The variables the file this corpus wrote for a theorem declares.
+
+        Metamath asks a citation to push a term for every variable of the
+        statement it applies, in the order set.mm declares those variables.
+        The file gave each `let` line a class of its own and each name a
+        hypothesis binds whatever setvar that name takes —
+        `least-combination-divides` has eight lets and an H11 binding an x
+        and a y, so its label takes ten. A citation names only what the
+        citing proof calls something else, so it is no list to push.
+
+        The binders are read off the statement as this proof has it: a name
+        a hypothesis binds takes the same variable in either proof, since
+        that is what `binder_var` is for. What a class variable stands for
+        does not, which is why a setvar standing in for one — Bezout puts
+        an obtained d where this theorem writes D — is not one of these."""
+        bound, rest = set(), [self.to_term(one) for one in said]
+        while rest:
+            node = rest.pop()
+            if node.label in ('wral', 'wrex', 'wreu'):
+                bound.add(node.children[1].rpn(self.flabel))
+            rest.extend(node.children)
+        return sorted(bound | set(classes),
+                      key=lambda label: self.forder[label])
+
     def cite_corpus(self, step, term, scope, facts, lines, item):
         """Apply a theorem this corpus proves, as this elaborator states it.
 
@@ -4592,23 +4782,44 @@ class Elaborator(Builder):
         saved, kept = dict(self.names), dict(self.sets)
         spare = list(CLASS_NAMES)
         written = dict(instantiation(step.just.text))
+        binds = {}
         for kind, htext, _label, _line in other.hypotheses:
             node = self.read(hypothesis_body(kind, htext))
             if kind == 'let' and node.notation == 'membership':
                 name = node.children[0].text
-                self.names[name] = (self.term(self.read(written[name]))
-                                    if name in written else spare.pop(0))
+                theirs = spare.pop(0)
+                # A hypothesis the citation does not name stands for what
+                # the citing proof calls by the same word. Bezout cites this
+                # theorem as `c := a` and says nothing of a, b, d, x₀ or y₀,
+                # because it holds names spelt that way and those are the
+                # ones it means. A word it does not hold takes a spare.
+                if name in written:
+                    self.names[name] = self.term(self.read(written[name]))
+                elif name not in saved:
+                    self.names[name] = theirs
+                binds[theirs] = self.names[name]
         wanted = [self.term(self.read(hypothesis_body(kind, htext)))
                   for kind, htext, _l, _n in other.hypotheses]
         self.names, self.sets = saved, kept
 
-        pair = wanted[0]
-        proof = facts[wanted[0]]
+        # A cited theorem asks for what it asks for, and a hypothesis a
+        # reader would not think to write as a line is written as a
+        # `requires` instead: Bezout cites this one at u := 1 and says
+        # `requires 1 ∈ ℤ` rather than proving it as a step.
+        known = self.supplied(step, scope, facts)
+        for one in wanted:
+            if one not in known:
+                raise self.defect(step.line,
+                                  f'nothing supplies {self.render(one)}, '
+                                  f'which {step.just.head} assumes')
+        pair, proof = wanted[0], known[wanted[0]]
         for extra in wanted[1:]:
-            proof = seq(scope, pair, extra, proof, facts[extra], 'jca')
+            proof = seq(scope, pair, extra, proof, known[extra], 'jca')
             pair = seq(pair, extra, 'wa')
-        pushed = [self.term(self.read(v)) for _n, v in
-                  instantiation(step.just.text)]
+        # A variable the file declares and this proof says nothing about is
+        # one the statement binds, and it stands for itself.
+        pushed = [binds.get(label, label)
+                  for label in self.cited_floats([*wanted, term], binds)]
         return seq(scope, pair, term, proof, *pushed,
                    label_of(item.name, self.sigs, self.thm.path,
                             self.thm.line), 'syl')
@@ -4907,11 +5118,22 @@ def main(argv, root=None):
     # Every variable the proof touches has to be disjoint from every other:
     # the lemmas that discharge a scope want the bound name apart from what
     # the theorem is about, and there is nothing here for them to collide in.
-    bound = sorted({sigs[t].statement[1] for t in set(proof.split())
-                    if t in sigs and sigs[t].kind == '$f'})
+    held = {t for t in set(proof.split()) if t in sigs and sigs[t].kind == '$f'}
+    bound = sorted(sigs[t].statement[1] for t in held
+                   if sigs[t].statement[0] == 'setvar')
+    free = sorted(sigs[t].statement[1] for t in held
+                  if sigs[t].statement[0] != 'setvar')
     print('${')
+    # What a proof needs kept apart is a name it binds from everything
+    # else. Two class variables are never one of those pairs, and saying
+    # they are makes the theorem harder to cite than it is to prove: the
+    # Bezout proof cites `least-combination-divides` at c := a, which a
+    # blanket `$d` over every variable forbids.
     if len(bound) > 1:
         print('  $d ' + ' '.join(bound) + ' $.')
+    for one in free:
+        if bound:
+            print(f'  $d {one} ' + ' '.join(bound) + ' $.')
     label = label_of(thm.name, sigs, thm.path, thm.line)
     says = (f'( {work.render(antecedent)} -> {work.render(goal)} )'
             if antecedent else work.render(goal))

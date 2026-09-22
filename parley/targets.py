@@ -183,6 +183,12 @@ MEMBERSHIP = [
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure
     'rabexg', 'ssexg', 'difexg',
+    # A claim that there is one of a thing and says nothing about it is
+    # nonemptiness, and the corpus writes it with a name for the element:
+    # `there is s ∈ S` builds a restricted existential whose body is T..
+    # set.mm says the same thing three ways and relates them, so a line
+    # putting something in the set reaches it.
+    'ne0i', 'n0', 'rextru',
     # and what an order relation asks, which is the same kind of thing
     'ltle', 'ltnri', 'leid', 'nn0ge0',
     # A lemma stated over the integers asks what a natural number being one
