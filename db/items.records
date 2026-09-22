@@ -65,6 +65,7 @@ theorem disjunctive-syllogism
 definition subset
   then        X ⊆ Y ↔ for every t ∈ X, t ∈ Y
   metamath    df-ss, ssel
+  target      dfss3
   first-used  bezout
 
 definition set-builder
@@ -364,6 +365,7 @@ theorem well-ordering
   assume there is s ∈ S                                               (H2)
   then        there is d ∈ S with for every s ∈ S, d ≤ s
   metamath    nnwo
+  target      nnwo
   first-used  bezout
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.
 
@@ -505,6 +507,7 @@ theorem divides-le
   assume e divides m                                                  (H3)
   then        e ≤ m
   metamath    dvdsle
+  target      dvdsle
   first-used  bezout
 
 
