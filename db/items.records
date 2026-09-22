@@ -438,7 +438,14 @@ definition gcd
   then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
               For every e ∈ ℕ, if e divides a and e divides b then
               e ≤ gcd(a, b).
-  metamath    gcdcl, gcddvds, dvdslegcd
+  metamath    gcdnncl, gcddvds, dvdslegcd
+  target      gcdnncl, gcddvds, dvdslegcd
+  note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
+              this statement puts it in ℕ, which gcdnncl gives because both
+              arguments are natural numbers; gcddvds says in one conjunction
+              what the second and third sentences say separately; and
+              dvdslegcd is the fourth said of one divisor where this says it
+              of every e ∈ ℕ.
   first-used  bezout
 
 theorem prime-factor

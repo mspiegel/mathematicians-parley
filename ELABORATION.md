@@ -897,9 +897,9 @@ stated rather than builds:
 | prime-above | 0 | |
 | geometric-sum | 0 | |
 | least-combination-divides | 0 | |
-| bezout | 6 | five items with no `target`, and one `inequalities` step |
+| bezout | 0 | |
 
-All twelve verify, and ten of them assume nothing at all. That number was 26
+All twelve verify, and eleven of them assume nothing at all. That number was 26
 across eight proofs when this section was first written; what closed the gap
 was writing the four closure methods out rather than taking their steps as
 stated, and the assumption count is the measure that says whether a method is

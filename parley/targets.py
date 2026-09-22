@@ -206,4 +206,8 @@ MEMBERSHIP = [
     # would not fit: it speaks of =/=, and `df-ne` is what relates that to
     # the -. = the `negates` line folds ≠ into.
     'df-ne', 'necom',
+    # And a pair that cannot both hold because one of them does not:
+    # `dvdslegcd` divides by anything but two zeros, and a natural number
+    # is one of the two, so the pair is denied by denying its first half.
+    'intnanrt',
 ]

@@ -3841,17 +3841,14 @@ class Elaborator(Builder):
         reaches is a step claiming what the definition does not say, and
         that is a defect rather than a decline."""
         item = self.items[step.just.head.split(':', 1)[1]]
-        goal = self.to_term(term)
-        for label in targets.split_entries(item.fields['target']):
-            try:
-                found = self.apply_lemma(label, goal, scope, facts, step)
-            except Unhandled:
-                continue
-            if found is not None:
-                return found
-        raise self.defect(step.line,
-                          f'no clause of {step.just.head} gives what step '
-                          f'{fmt(step.number)} claims')
+        found = self.by_clause(targets.split_entries(item.fields['target']),
+                               term, scope, facts, step,
+                               self.filling(step, item))
+        if found is None:
+            raise self.defect(step.line,
+                              f'no clause of {step.just.head} gives what step '
+                              f'{fmt(step.number)} claims')
+        return found
 
     def through_existential(self, label, whole, reads, goal, scope, facts,
                             step, seed):
@@ -4008,6 +4005,53 @@ class Elaborator(Builder):
             rest = rest.children[0]
         return tuple(out)
 
+    def as_generalised(self, label, goal, scope, facts, step, seed):
+        """A lemma said of every such name.
+
+        `dvdslegcd` says a common divisor is no greater than the gcd, of
+        whatever divisor it is given, and `def:gcd` says it of every e in
+        ℕ. The name is fixed, the lemma applied to it, and `ralrimiva`
+        gives it back — the same move a `fix` block closes with, over a
+        lemma rather than over a block."""
+        if goal.label != 'wral':
+            return None
+        body, variable, over = goal.children
+        member = seq(f'{variable.rpn(self.flabel)} cv',
+                     over.rpn(self.flabel), 'wcel')
+        frame = len(self.frames)
+        inner, lifted = self.widen(scope, facts, member)
+        try:
+            proof = self.apply_lemma(label, body, inner, lifted, step,
+                                     crossing=False, seed=seed)
+        finally:
+            del self.frames[frame:]
+        if proof is None:
+            return None
+        return seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),
+                   over.rpn(self.flabel), proof, 'ralrimiva')
+
+    def as_conjunct(self, label, whole, reads, goal, scope, facts, step, seed):
+        """One half of what a lemma concludes.
+
+        `gcddvds` says in one conjunction that a gcd divides both its
+        arguments, and `def:gcd` states those as two sentences because a
+        reader reads them as two. The half the claim is fixes the lemma,
+        and `simpld` or `simprd` takes it."""
+        if reads.label != 'wa' or len(reads.children) != 2:
+            return None
+        for i, part in enumerate(reads.children):
+            bound = kernel.match(part, goal, dict(seed or {}), whole.names())
+            if bound is None or reads.names() - set(bound):
+                continue
+            said = reads.substitute(bound)
+            proof = self.apply_lemma(label, said, scope, facts, step,
+                                     crossing=False, seed=bound)
+            if proof is None:
+                continue
+            a, b = (one.rpn(self.flabel) for one in said.children)
+            return seq(scope, a, b, proof, 'simpld' if i == 0 else 'simprd')
+        return None
+
     def as_seeded(self, label, reads, goal, scope, facts, step, seed):
         """A lemma whose `with` target already says what it concludes.
 
@@ -4122,6 +4166,14 @@ class Elaborator(Builder):
                                             step, seed)
                     if seeded is not None:
                         return seeded
+                    part = self.as_conjunct(label, whole, reads, goal, scope,
+                                            facts, step, seed)
+                    if part is not None:
+                        return part
+                    every = self.as_generalised(label, goal, scope, facts,
+                                                step, seed)
+                    if every is not None:
+                        return every
                 return (self.crossed(label, whole, reads, goal, scope,
                                      facts, step) if crossing else None)
             # A biconditional says one thing and reaching it either way is
@@ -4786,14 +4838,39 @@ class Elaborator(Builder):
             # `thm:lowest-terms` is the case, and `thm:angle-symmetric`.
             return self.assume_item(step, term, scope, facts, item)
         seed = self.filling(step, item)
+        found = self.by_clause(labels, term, scope, facts, step, seed)
+        if found is None:
+            raise self.defect(step.line,
+                              f'no clause of {step.just.head} reaches what '
+                              f'step {fmt(step.number)} claims')
+        return found
+
+    def by_clause(self, labels, term, scope, facts, step, seed):
+        """What one clause of an item gives, or what several give together.
+
+        An item may state several things and set.mm prove each separately,
+        which is why a target names one lemma per `then` group. A step
+        usually claims one of them — `def:sqrt` is cited three times over —
+        but it may claim what the item says entire, as Bezout's step 15
+        says what a gcd is in four sentences, and then the clauses are
+        taken one to a sentence and joined."""
         for label in labels:
-            found = self.apply_lemma(label, self.to_term(term), scope, facts,
-                                     step, seed=seed)
+            try:
+                found = self.apply_lemma(label, self.to_term(term), scope,
+                                         facts, step, seed=seed)
+            except Unhandled:
+                continue          # not this `then` group; ask the next
             if found is not None:
                 return found
-        raise self.defect(step.line,
-                          f'no clause of {step.just.head} reaches what step '
-                          f'{fmt(step.number)} claims')
+        node = self.to_term(term)
+        if node.label != 'wa':
+            return None
+        halves = [self.by_clause(labels, one.rpn(self.flabel), scope, facts,
+                                 step, seed) for one in node.children]
+        if any(one is None for one in halves):
+            return None
+        return seq(scope, *(one.rpn(self.flabel) for one in node.children),
+                   *halves, 'jca')
 
     def filling(self, step, item):
         """What a `with` target says the lemma's variables stand for.
