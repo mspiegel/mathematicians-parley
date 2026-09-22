@@ -184,7 +184,7 @@ MEMBERSHIP = [
     # notation and this answers by statement
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure
-    'rabexg', 'ssexg', 'difexg',
+    'rabexg', 'ssexg', 'difexg', 'pwexg', 'unexg', 'rnexg', 'mptexg',
     # A claim that there is one of a thing and says nothing about it is
     # nonemptiness, and the corpus writes it with a name for the element:
     # `there is s ∈ S` builds a restricted existential whose body is T..

@@ -885,9 +885,9 @@ was a lemma for, and then `prime-above` and `cantor`, which nothing here was
 written for.
 
 That made eight, and `isosceles` below makes nine; `geometric-sum`,
-`least-combination-divides`, `bezout` and `lowest-terms` bring it to
-thirteen. This is the tally for all of them as it now stands — what each
-proof still takes as stated rather than builds:
+`least-combination-divides`, `bezout`, `lowest-terms` and `subsets-count`
+bring it to fourteen. This is the tally for all of them as it now stands —
+what each proof still takes as stated rather than builds:
 
 | proof | assumed | |
 |---|---|---|
@@ -904,14 +904,22 @@ proof still takes as stated rather than builds:
 | geometric-sum | 0 | |
 | least-combination-divides | 0 | |
 | bezout | 0 | |
+| subsets-count | 11 | eleven set-theoretic items with no `target` |
 
-All thirteen verify, and none of them assumes anything. That number was 26
-across eight proofs when this section was first written; what closed the gap
-was writing the four closure methods out rather than taking their steps as
-stated, and the assumption count is the measure that says whether a method is
-written or only named.
+All fourteen verify. That 11 was 26 across eight proofs when this section was
+first written; what closed the gap for the thirteen above it was writing the
+four closure methods out rather than taking their steps as stated, and the
+assumption count is the measure that says whether a method is written or only
+named.
 
-None remains. The last was `thm:lowest-terms`, whose `metamath` field read
+`subsets-count` is the newest and its eleven are all one kind of debt: items
+about cardinality, power sets and disjoint unions whose `target` field is
+empty, so the elaborator has nothing to cite and states them. That is a
+database question and not an elaborator one — the same debt `thm:divides-gcd`
+and `thm:rational-coprime` carried until a field was written for each.
+
+Among the closure methods none remains. The last was `thm:lowest-terms`,
+whose `metamath` field read
 `qredeu or similar` from the first commit — the hedge being the pilot
 recording that the match had not been checked. It had not: `qredeu`
 quantifies over a pair in `( ZZ X. NN )`. `elq2` is the same fact in the
@@ -1300,7 +1308,7 @@ claim about `( 1 x. ( 1 + 1 ) ) / 2`, and the assumption count reported it as
 a win. A verifier caught it, run by hand, because it was remembered.
 
 So `parley/verify.py` is the gate's fifth stage and runs `mmverify.py` over
-all 23 proofs — the nine theorems and `geometry.mm`'s fourteen lemmas.
+all 28 proofs — the fourteen theorems and `geometry.mm`'s fourteen lemmas.
 
 It costs nineteen seconds, which is the surprise and the reason it can be a
 gate stage at all. Verifying one proof costs about eighteen seconds whatever
@@ -1311,35 +1319,36 @@ keeps the set of files it has already opened, so one file including them all
 reads set.mm once and the marginal cost of each proof is close to nothing.
 
 Which files that one includes is read off the `$[ ... $]` lines rather than
-listed: a proof nothing else includes is a root, and six roots reach all
-eleven files. A list written down would leave the gate green on the day a
-tenth proof was added and not read.
+listed: a proof nothing else includes is a root, and nine roots reach all
+sixteen files. A list written down would leave the gate green on the day a
+proof was added and not read.
 
 `mmverify.py` is not vendored, for the reason set.mm and ruff are not: say
 where it is with `MMVERIFY` or leave a copy or a link at the root. It belongs
 to metamath, and what checks these proofs should not be a copy this project
 maintains.
 
-## The five that do not elaborate
+## The one that does not elaborate
 
-Nine of the corpus's fourteen theorems elaborate and verify. The five that do
-not stop for reasons that are not always what the message says, and two of
-them have been carried some way since:
+Fourteen of the corpus's fifteen theorems elaborate and verify. The five that
+once did not stopped for reasons that were not always what the message said,
+and four have since been carried the whole way:
 
-| theorem | stops at | which is |
+| theorem | stopped at | which was |
 |---|---|---|
 | `geometric-sum` | `notation geometric-function` has no `target` | a name with no scope |
-| `intermediate-value` | `notation continuous` has no `target` | a field nobody has written |
 | `least-combination-divides` | an `obtain` that names no item is not expanded | that |
-| `subsets-count` | no congruence for `cpw` | a lemma nobody has named |
+| `subsets-count` | no congruence for `cpw` | a lemma nobody had named |
 | `bezout` | an existential nothing supplies a witness for | a hypothesis of an assumed item |
+| `intermediate-value` | `notation continuous` has no `target` | a field nobody has written |
 
-Neither of the last two says now what it said. `subsets-count` said `no kernel
-name for 'X'`, which sounded like a missing notation and was a `define` read
-outside its block; `bezout` said two formulas differ by more than the change
-being carried, which was a false obligation built from a citation. Each has
-since passed three walls, and each wall was its own shape rather than more of
-the last one — which is the thing to expect of the three that are left.
+None of the four said at the end what it said at the start. `subsets-count`
+opened with `no kernel name for 'X'`, which sounded like a missing notation
+and was a `define` read outside its block; `bezout` said two formulas differ
+by more than the change being carried, which was a false obligation built
+from a citation. Each passed four walls, and each wall was its own shape
+rather than more of the last one — which is the thing to expect of the one
+that is left.
 
 The sections below are what the elaborator answered when it was asked why
 rather than guessed at.
