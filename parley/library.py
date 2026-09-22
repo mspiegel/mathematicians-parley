@@ -91,7 +91,12 @@ def stamp(paths):
     """What says a set of files is the same set of files it was.
 
     Their names, and what the filesystem says of each. None where one is
-    not there to be asked, which leaves the reading to say so."""
+    not there to be asked, which leaves the reading to say so.
+
+    Asked by trying, which is the one place here that is right to: a file
+    can go between being asked about and being opened, so there is nothing
+    to be gained by asking first. What is caught is a file that is not
+    there, and not a route that does not apply."""
     try:
         said = [os.stat(one) for one in paths]
     except OSError:

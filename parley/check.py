@@ -1252,7 +1252,15 @@ def check_formulas(report, thm, g):
     One that does not parse is a defect in the text or a notation nobody
     declared. One that parses two ways is worse, because the reader and the
     kernel could take it differently and nothing downstream would notice, so
-    the parser refuses it rather than choosing."""
+    the parser refuses it rather than choosing.
+
+    This is the pass that says so, and it reaches every one of them. That is
+    what lets the passes which merely gather — sorts, the names a `fix`
+    binds, the trees an item states — skip a formula they cannot read and
+    carry on: it has been reported here, once, with the line it is on. A
+    pass that gathered and also complained would say it twice; one that
+    stopped would hide the rest of what it was looking for behind the first
+    defect."""
     sorts_in_scope(thm, g)
     places = [(s.line, f'step {fmt(s.number)}', ' '.join(s.claim))
               for s in thm.steps]

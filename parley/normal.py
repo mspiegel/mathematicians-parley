@@ -32,6 +32,18 @@ ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
 
 
 
+def keyed(one):
+    """One argument of a builder, as part of what remembers its answer.
+
+    What they take is a whole number, a fraction, a term as the kernel
+    spells it, or a run of pairs — a monomial is a name and a power, one
+    pair per factor. Only the runs are not already something a dictionary
+    will hold, and only because some of them arrive as lists."""
+    if isinstance(one, (list, tuple)):
+        return tuple(keyed(each) for each in one)
+    return one
+
+
 def remembered(method):
     """Keep what a builder made, because it will be asked for it again.
 
@@ -46,12 +58,7 @@ def remembered(method):
     call site still writes out what it is handed, so the file is the same
     file. `Emitter.held` is the same idea for the membership of an atom."""
     def asked(self, *args):
-        try:
-            key = (method.__name__,
-                   *(tuple(a) if isinstance(a, list) else a for a in args))
-            hash(key)
-        except TypeError:
-            return method(self, *args)     # nothing to key it on
+        key = (method.__name__, *(keyed(one) for one in args))
         if key not in self.made:
             self.made[key] = method(self, *args)
         return self.made[key]

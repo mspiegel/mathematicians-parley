@@ -290,10 +290,17 @@ TERM_SORTS = {'number', 'set', 'point', 'any'}
 
 
 def parse(text, g, path='', line=0):
-    """Parse one sentence. Returns a Node, or raises Problem."""
+    """Parse one sentence. Returns a Node, or raises Problem.
+
+    Nothing below raises for a reading that did not work out: it gives back
+    None and says where it stopped. This is the one place that turns having
+    no reading into a defect, because it is the one place that knows there
+    is no other reading left to try."""
     tokens = tokenise(text, g.words, g.symbols, path, line)
     p = _Parser(tokens, g, path, line, text)
     node = p.expression(None)
+    if node is None:
+        raise Problem(path, line, p.why())
     if p.i != len(tokens):
         raise Problem(path, line,
                       f'{text!r} has {len(tokens) - p.i} token(s) left over, '
@@ -302,12 +309,39 @@ def parse(text, g, path='', line=0):
 
 
 class _Parser:
+    """One sentence being read.
+
+    A notation is recognised by trying it, so most of what is tried does not
+    fit and saying so is not a complaint: `p` in `d divides p, and ...` is a
+    candidate first point of a triangle until the comma rules it out, and a
+    sentence of ordinary words rules out dozens. So not fitting is a value
+    here and never an exception. `Ambiguous` is the exception, because two
+    notations fitting is a defect however it was reached.
+
+    What is lost by returning rather than raising is the message, since only
+    the last reading to fail used to leave one. `stopped` keeps the furthest
+    any reading reached and what stood in its way there, which is the
+    reading that got closest to working and the one worth telling a reader
+    about."""
+
     def __init__(self, tokens, g, path, line, text):
         self.t, self.g, self.path, self.line, self.src = tokens, g, path, line, text
         self.i = 0
+        self.stopped = (-1, '')
 
     def peek(self):
         return self.t[self.i] if self.i < len(self.t) else None
+
+    def no(self, message):
+        """No reading here, and why. Always None, so a caller may `return
+        self.no(...)` and be read as giving up rather than as reporting."""
+        if self.i > self.stopped[0]:
+            self.stopped = (self.i, message)
+        return None
+
+    def why(self):
+        """What to say about a sentence no reading fitted."""
+        return self.stopped[1] or f'nothing reads {self.src!r}'
 
     def expression(self, outer, stop=None):
         """Parse a primary, then extend it with any notation whose first hole
@@ -317,6 +351,8 @@ class _Parser:
         runs past its own delimiter: the set in `for every s ∈ S, d ≤ s` would
         swallow the comma and try to be the first point of a triangle."""
         left = self.primary()
+        if left is None:
+            return None
         while True:
             nxt = self.peek()
             if stop is not None and nxt is not None and nxt.text == stop:
@@ -329,12 +365,14 @@ class _Parser:
     def primary(self):
         tok = self.peek()
         if tok is None:
-            raise Problem(self.path, self.line, f'{self.src!r} ends early')
+            return self.no(f'{self.src!r} ends early')
         if tok.kind == 'open':
             self.i += 1
             inner = self.expression(None)
+            if inner is None:
+                return None
             if not self.peek() or self.peek().kind != 'close':
-                raise Problem(self.path, self.line, f'unclosed bracket in {self.src!r}')
+                return self.no(f'unclosed bracket in {self.src!r}')
             self.i += 1
             return inner
         # A notation may open with a literal that is also a name, as the two
@@ -348,11 +386,11 @@ class _Parser:
             if not cands:
                 self.i += 1
                 return leaf
-            try:
-                return self.apply(cands, None)
-            except Problem:
-                self.i += 1
-                return leaf
+            found = self.apply(cands, None)
+            if found is not None:
+                return found
+            self.i += 1
+            return leaf
         return self.apply(cands, None)
 
     def extend(self, left, outer):
@@ -400,34 +438,27 @@ class _Parser:
         # `d divides p, and ...` is a candidate first point of a triangle, and
         # without this the comma would fail the sentence it merely ends a
         # clause of.
-        start = self.i
-        try:
-            return self.apply(cands, left)
-        except Ambiguous:
-            raise
-        except Problem:
-            self.i = start
-            return None
+        return self.apply(cands, left)
 
     def apply(self, cands, left):
-        """Try each candidate. Exactly one must parse, or the text is either
-        unreadable or ambiguous."""
+        """Try each candidate. Exactly one must fit, or none does and this
+        is no reading; two do and the text is ambiguous, which is a defect
+        and the one thing here that is raised."""
         if not cands:
             tok = self.peek()
-            raise Problem(self.path, self.line,
-                          f'no notation starts at {tok.text!r} in {self.src!r}')
+            return self.no(f'no notation starts at {tok.text!r} '
+                           f'in {self.src!r}')
         start, results = self.i, []
         for n in cands:
             self.i = start
-            try:
-                results.append((self.match(n, left), self.i))
-            except Problem:
-                continue
+            found = self.match(n, left)
+            if found is not None:
+                results.append((found, self.i))
         if not results:
             self.i = start
             tok = self.peek()
-            raise Problem(self.path, self.line,
-                          f'no notation fits at {tok.text!r} in {self.src!r}')
+            return self.no(f'no notation fits at {tok.text!r} '
+                           f'in {self.src!r}')
         best = max(r[1] for r in results)
         winners = [r for r in results if r[1] == best]
         if len(winners) > 1:
@@ -453,19 +484,24 @@ class _Parser:
                 else:
                     at_edge = k == len(n.parts) - 1
                     after = n.parts[k + 1] if not at_edge else None
-                    kids.append(self.hole(want, n.level if at_edge else None,
-                                          after if after is not HOLE else None))
+                    kid = self.hole(want, n.level if at_edge else None,
+                                    after if after is not HOLE else None)
+                    if kid is None:
+                        return None
+                    kids.append(kid)
                 continue
             tok = self.peek()
             if tok is None or tok.text != part:
-                raise Problem(self.path, self.line, 'pattern does not match')
+                return self.no(f'{n.name} does not fit at '
+                               f'{tok.text!r} in {self.src!r}'
+                               if tok is not None else
+                               f'{self.src!r} ends early')
             self.i += 1
         # A pattern may name fewer hole sorts than it has holes, which the
         # record check reports; here the extra holes simply go unchecked.
         for kid, want in zip(kids, n.holes, strict=False):
             if not fits(want, kid.sort):
-                raise Problem(self.path, self.line,
-                              f'{n.name} wants {want} and got {kid.sort}')
+                return self.no(f'{n.name} wants {want} and got {kid.sort}')
         # The node is named by the record and carries the literal of the
         # pattern it stands for. Both are needed: ℝ and ℕ₀ are one record, and
         # so are `a < b` and `a ≥ b`, and nothing comparing two formulas could
@@ -485,7 +521,7 @@ class _Parser:
         if want == 'variable':
             tok = self.peek()
             if tok is None or tok.kind != 'name':
-                raise Problem(self.path, self.line, 'a binder wants a name')
+                return self.no('a binder wants a name')
             self.i += 1
             return Node('name', 'variable', text=tok.text)
         return self.expression(barrier, stop)

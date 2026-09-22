@@ -634,7 +634,7 @@ class Elaborator(Builder):
                 try:
                     alike = self.congruence(self.to_term(said), wanted,
                                             scope, facts, None, stands)
-                except (Unhandled, Problem, RecursionError):
+                except Unhandled:
                     continue
                 if alike is not None:
                     return seq(scope, said, want, proof, alike, 'mpbid')
@@ -738,7 +738,7 @@ class Elaborator(Builder):
             essentials = [self.prove_essential(
                 self.syntax.parse(e[1:], 'wff').substitute(binding),
                 scope, facts) for e in sig.essentials]
-        except (Unhandled, Problem):
+        except Unhandled:
             return None
         proof = self.ap(label, self.spelt(binding), *essentials)
         if not antecedents:
@@ -1227,7 +1227,7 @@ class Elaborator(Builder):
                      seq(middle['ph'], binds['ps'], 'wb'), 'wi')
             try:
                 said = self.prove_essential(self.to_term(at), '', {})
-            except (Unhandled, Problem):
+            except Unhandled:
                 return None
             changed = self.ap(cross, dict(
                 middle, y=renamed.rpn(self.flabel)), said)
@@ -4524,7 +4524,7 @@ class Elaborator(Builder):
 
         try:
             return self.congruence(said, goal, scope, facts, step, proved)
-        except (Unhandled, Problem):
+        except Unhandled:
             pass
         if goal.label != 'wceq' or len(goal.children) != 2:
             return None
@@ -4536,7 +4536,7 @@ class Elaborator(Builder):
         turned = kernel.Term('wceq', goal.children[::-1])
         try:
             across = self.congruence(said, turned, scope, facts, step, proved)
-        except (Unhandled, Problem):
+        except Unhandled:
             return None
         both = [c.rpn(self.flabel) for c in turned.children]
         return seq(scope, said.rpn(self.flabel), turned.rpn(self.flabel),
