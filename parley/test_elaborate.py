@@ -124,10 +124,16 @@ def main(argv):
             shutil.copytree(ROOT / part, clean / part,
                             ignore=shutil.ignore_patterns('__pycache__'))
 
+        # The corpus is clean, so the theorem must elaborate before the
+        # edit. A case that fails here is testing nothing. Asked once per
+        # theorem rather than once per case: the corpus is the same corpus
+        # each time, and five of these cases are about one theorem that
+        # takes ten seconds to elaborate.
+        healthy = {}
         for name, wanted, rel, old, new, expect in CASES:
-            # The corpus is clean, so the theorem must elaborate before the
-            # edit. A case that fails here is testing nothing.
-            if run(clean, wanted, setmm) is not None:
+            if wanted not in healthy:
+                healthy[wanted] = run(clean, wanted, setmm)
+            if healthy[wanted] is not None:
                 print(f'  SETUP FAILED  {name}\n      {wanted} does not '
                       f'elaborate before the edit')
                 failed += 1
