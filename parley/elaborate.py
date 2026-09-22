@@ -999,10 +999,49 @@ class Elaborator(Builder):
             proof = seq(scope, holds, says, proof, applied, 'syl')
         if ex is None or given == ex:
             return proof, given
-        return seq(scope, left, given, ex, proof,
-                   self.bridging(self.to_term(given), self.to_term(ex), scope,
-                                 facts, step),
-                   'bitrd'), ex
+        # No bridge means the lemma unfolds to a wording this step cannot be
+        # reached from, which is this route not applying rather than a defect:
+        # a target may name several lemmas and the caller has others to try.
+        across = self.bridging(self.to_term(given), self.to_term(ex), scope,
+                               facts, step)
+        if declined(across):
+            return across
+        return seq(scope, left, given, ex, proof, across, 'bitrd'), ex
+
+    def substituted_slot(self, asked, binding):
+        """A wff slot an essential fixes by saying it is a substitution.
+
+        `elrab` holds a set-builder's body in `ph` and the same body about
+        the element in `ps`, and asks `( x = A -> ( ph <-> ps ) )`. Nothing
+        on its left side mentions `ps`, so where the claim has not filled it
+        this hypothesis is the only thing that says what it is.
+
+        Given only where every other part is settled: the body closed, the
+        side being renamed a binder's `cv` over a setvar, and the slot
+        still open. A slot standing for itself is open — the match binds a
+        lemma's variable to its own name where nothing fixed it, and that
+        is what a claim of one half of the right side leaves behind. A
+        lemma asking anything else is left alone.
+        """
+        if asked.label != 'wi' or len(asked.children) != 2:
+            return None
+        same, iff = asked.children
+        if same.label != 'wceq' or iff.label != 'wb':
+            return None
+        over, element = (one.substitute(binding) for one in same.children)
+        body, slot = iff.children
+        held = binding.get(slot.variable)
+        if (slot.variable is None or over.label != 'cv'
+                or over.children[0].variable is None
+                or (held is not None and held.variable != slot.variable)
+                or body.names() - set(binding)):
+            return None
+        # The body holds the variable as a binder writes it, `cv` over a
+        # setvar; the element is a class. Stripping the `cv` is what lets
+        # the one stand in for the other.
+        name = over.children[0].variable
+        said = self.as_class(body.substitute(binding), {name})
+        return {slot.variable: said.substitute({name: element})}
 
     def witnessed(self, step, wanted, scope, facts, lines):
         """A restricted existential, from the line a step cites for it.
@@ -2344,8 +2383,22 @@ class Elaborator(Builder):
             rest = goal
             for later in reversed(asks[i + 1:]):
                 rest = seq(later, rest, 'wi')
-            proof = seq(scope, one, rest,
-                        self.settle(self.to_term(one), scope, known), proof,
+            supplied = self.settle(self.to_term(one), scope, known)
+            # The item is assumed because the database points at nothing for
+            # it, and the head of the file says so. Its hypotheses are a
+            # different matter: they are stated, and a step citing the item
+            # owes them. One that cannot be settled is the step asking for
+            # the claim and paying nothing for it, which would widen what
+            # the file assumes without adding a line to the list that says
+            # what it assumed.
+            if declined(supplied):
+                kind = 'def' if item.kind == 'definition' else 'thm'
+                raise self.defect(
+                    step.line,
+                    f'{kind}:{item.name} is taken as stated and asks for '
+                    f'{self.render(one)}, which step {fmt(step.number)} does '
+                    f'not supply: {supplied}')
+            proof = seq(scope, one, rest, supplied, proof,
                         'syl' if i == 0 else 'mpd')
         return proof
 
@@ -4162,6 +4215,15 @@ class Elaborator(Builder):
             if filled is not None:
                 binding = filled
                 break
+        # The claim is one of those parts, so a claim of the membership
+        # half leaves the property half standing as the lemma's own name.
+        # `elrab`'s hypothesis is then what says what that half is, and it
+        # is the only thing that does: nothing on the left mentions it.
+        for essential in sig.essentials:
+            more = self.substituted_slot(
+                self.syntax.parse(essential[1:], 'wff'), binding)
+            if more is not None:
+                binding = {**binding, **more}
 
         left = reads.children[0].substitute(binding).rpn(self.flabel)
         right = reads.children[1].substitute(binding).rpn(self.flabel)

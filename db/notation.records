@@ -832,7 +832,18 @@ notation bound
   level       predicate
   reads       is an upper bound of, is a least upper bound of
   metamath    see def:upper-bound and def:least-upper-bound
+  target      vs cv _1 cle wbr vs _2 wral,
+              vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
+              _1 vt cv cle wbr wi vt cr wral wa
   first-used  intermediate-value
+  note        set.mm has no upper bound of its own: `df-sup` builds the idea
+              inside a class abstraction and nothing names it. So each entry
+              is the quantified formula `def:upper-bound` and
+              `def:least-upper-bound` state, which is what those two say the
+              notation means. `s` ranges over the set and `t` over the reals
+              the second pattern compares against; neither is a hole, and
+              reserving them is what stops a proof that fixes an `s` of its
+              own from being handed the same variable.
 
 notation continuous
   pattern     _ is continuous on _
@@ -841,7 +852,15 @@ notation continuous
   level       predicate
   reads       is continuous on
   metamath    ccncf
+  target      _1 _2 cr ccncf co wcel
   first-used  intermediate-value
+  note        set.mm has no predicate for continuity at all: `-cn->` takes a
+              domain and a codomain and gives the set of continuous functions
+              between them, so continuity is membership of that set. The
+              codomain is the operand no hole fills. The readable pattern
+              names only the domain because `def:continuous-on` takes
+              `f : D → ℝ` as its hypothesis, so the codomain is ℝ wherever
+              this pattern may be written.
 
 notation collinear
   pattern     _, _, _ are collinear

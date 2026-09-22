@@ -26,7 +26,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     thm:interval-real, from H1, H2
 
 5.  S ⊆ ℝ
-    thm:subset-transitive, from 3, 4
+    thm:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4
 
 6.  For every s ∈ S, s ≤ b.
     fix
