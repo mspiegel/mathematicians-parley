@@ -1630,13 +1630,20 @@ class Elaborator(Builder):
         `supplied` skips because the scope already holds what it says was
         still looked at, and that is not the case this is for.
 
-        A method's hypotheses are a rule over the claim's own atoms, so every
-        line a method step writes is one the method asks for and a line left
-        unread is the method finding it instead. An item's are whatever the
-        set.mm lemma behind it takes, which need not be what the readable
-        statement says: `def:divides` states that both sides are integers and
-        the lemma does not ask for it, so seven such lines go unread and
-        nothing is wrong. The two are separated rather than counted together.
+        A method step's unread line is a defect. An item step's is the same
+        defect and is not raised, which is a baseline and not a principle:
+        seven of them are open. The lemma behind `def:divides` does ask for
+        what its `requires` lines say — `( M e. ZZ /\\ N e. ZZ )` is its
+        antecedent — and the lines still go unread, so those steps are in
+        exactly the position `inequalities` was in.
+
+        They are counted apart because they cannot be closed the same way.
+        The membership lookup is where a method's side conditions meet the
+        page, and it is asked only of ℝ and of ℂ, which is what the closure
+        methods take their atoms into. An integer membership passes through
+        no such place, and putting the lines into the facts instead is the
+        widening that `inequalities` above says costs ten million `fits`
+        calls.
         """
         out = {'method': [], 'item': []}
         for step in self.thm.steps:

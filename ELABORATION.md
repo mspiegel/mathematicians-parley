@@ -1654,9 +1654,11 @@ capability was missing rather than wrong.
 ## Two things nothing checks
 
 Both tools ask whether what a step names is enough to reach its claim. Neither
-asks whether any of it is spare, and neither notices when a line that is owed
-goes missing. What follows was measured by planting each case and running the
-checker and the elaborator over it.
+asks whether any of it is spare, and neither noticed that a side condition the
+page justifies was being worked out again rather than read. What follows was
+measured by planting each case and running the checker and the elaborator over
+it. The second is now a defect where a method step carries it and is open on
+the seven where an item does.
 
 **A step may name what it does not use.** Three shapes, none reported:
 
@@ -1743,12 +1745,22 @@ one it asked for. Reverting the call gets *the requires lines at 19, 20, 24,
 guards against the reader not being called at all, which is what happened; a
 call whose result is then discarded would still pass.
 
-**The seven that remain are not this.** All are `def:` citations —
-`def:divides`, `def:even`, `def:odd` — where the readable definition states
-that both sides are integers and the set.mm lemma behind it does not ask for
-it. `required` is never even asked for `d ∈ ℤ`. So an item's unread lines are
-counted apart from a method's and are not a defect: what an item demands is
-whatever its lemma takes, which need not be what its readable statement says.
+**The seven that remain are this, and are open.** All are `def:` citations —
+`def:divides`, `def:even`, `def:odd`. The lemma does ask for what those lines
+say: `divides` is stated `( ( M e. ZZ /\ N e. ZZ ) -> ( M || N <-> … ) )`, so
+`d ∈ ℤ` and `c ∈ ℤ` are needed. The lines are read by nothing all the same —
+no reader is asked for either — and `thm:nat-int` targets `nnz`, which is in
+`targets.MEMBERSHIP` too, so deleting one leaves `bezout` byte for byte the
+same. That is the signature of the case above, not a different one.
+
+They are counted apart from a method's because they cannot be closed the same
+way, and a defect raised on them would only be a red gate. The membership
+lookup is the single place a method's side conditions meet the page, and it is
+asked only of ℝ and of ℂ — the two the closure methods take their atoms into.
+An integer membership passes through no such place. Putting the lines into the
+facts instead is the widening that costs ten million `fits` calls. Closing
+these wants a place for a side condition of any shape to meet the page, which
+is a larger change than this one.
 
 It is also why the defects raised for a missing membership have no planted case
 in `test_elaborate.py`: the corpus route does not reach them, and the harness
