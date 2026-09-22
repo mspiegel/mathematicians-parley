@@ -143,7 +143,8 @@ class Builder:
 
         Building them walks every signature in the library twice, and a
         caller that only applies labels never parses a statement, so the
-        cost waits until `rpn` asks for it."""
+        cost waits until `rpn` asks for it.
+        """
         if self._syntax is None:
             self._syntax = kernel.Syntax(self.sigs)
         return self._syntax
@@ -168,7 +169,8 @@ class Builder:
         """A binding of kernel terms, as the strings `ap` wants pushed.
 
         A matcher answers in terms and `ap` pushes tokens, and this is the
-        one step between them."""
+        one step between them.
+        """
         return {v: term.rpn(self.flabel) for v, term in binding.items()}
 
     def ap(self, label, binds=None, *essentials):
@@ -177,7 +179,8 @@ class Builder:
         The floating hypotheses go first, in the order set.mm declares them,
         each as the term bound to it or as its own variable where the step
         leaves it open; then the proofs of the essential hypotheses, in the
-        order the label lists them."""
+        order the label lists them.
+        """
         sig = self.sigs[label]
         out = [binds[var] if binds and var in binds else self.flabel[var]
                for _typecode, var in sig.floats]

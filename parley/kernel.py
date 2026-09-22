@@ -213,7 +213,8 @@ def _add(row, rule, dot, origin, parts):
     A `Rule` is hashed by identity, so it keys the row as it stands. The
     caller wants the item it just added and not a second lookup for it:
     this runs a hundred million times in a corpus build, and the row is
-    the hottest dictionary in the program."""
+    the hottest dictionary in the program.
+    """
     key = (rule, dot, origin)
     if key in row:
         return None

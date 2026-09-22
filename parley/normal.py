@@ -38,7 +38,8 @@ def keyed(one):
     What they take is a whole number, a fraction, a term as the kernel
     spells it, or a run of pairs — a monomial is a name and a power, one
     pair per factor. Only the runs are not already something a dictionary
-    will hold, and only because some of them arrive as lists."""
+    will hold, and only because some of them arrive as lists.
+    """
     if isinstance(one, (list, tuple)):
         return tuple(keyed(each) for each in one)
     return one
@@ -56,7 +57,8 @@ def remembered(method):
 
     This changes how often a proof is built and not what is written: every
     call site still writes out what it is handed, so the file is the same
-    file. `Emitter.held` is the same idea for the membership of an atom."""
+    file. `Emitter.held` is the same idea for the membership of an atom.
+    """
     def asked(self, *args):
         key = (method.__name__, *(keyed(one) for one in args))
         if key not in self.made:
@@ -89,7 +91,8 @@ class Emitter(Builder):
 
     Everything here is built by applying a label to what it is applied to,
     and nothing is parsed, so the syntax axioms `Builder` can reach are
-    never asked for."""
+    never asked for.
+    """
 
     def __init__(self, sigs, under, atom, apart=None):
         super().__init__(sigs)
@@ -115,7 +118,8 @@ class Emitter(Builder):
         """What says a numeral is a complex number.
 
         set.mm proves one for each digit but takes the one for 1 as an
-        axiom, so that digit is named differently from the rest."""
+        axiom, so that digit is named differently from the rest.
+        """
         return 'ax-1cn' if value == 1 else f'{value}cn'
 
     @staticmethod
@@ -213,7 +217,8 @@ class Emitter(Builder):
         A canonical form associates to the left, so a rewrite of the first
         k parts sits under one `oveq1d` for each part after them. Sums and
         products are the same shape, which is why this takes the operation
-        rather than assuming one."""
+        rather than assuming one.
+        """
         for one in tail:
             proof = self.ap('oveq1d',
                             {'ph': self.under, 'A': left, 'B': right,
@@ -227,7 +232,8 @@ class Emitter(Builder):
         `add32` says `( ( A + B ) + C ) = ( ( A + C ) + B )`, which is the
         swap when the two sit at the end of a run; `addcom` is the case
         where they are the whole of it. Either way the terms after them
-        come along under `lift`."""
+        come along under `lift`.
+        """
         head = items[:at]
         a, b = self.spell_term(items[at]), self.spell_term(items[at + 1])
         tail = [self.spell_term(i) for i in items[at + 2:]]
@@ -268,7 +274,8 @@ class Emitter(Builder):
         it leaves out are exactly those with a zero, which `addlid` and
         `addrid` cover. A pair that cancels is `negidd`. Anything else is
         refused rather than guessed at: the step stays assumed, which is
-        what it already was."""
+        what it already was.
+        """
         total = first + second
         said = field.spell_coefficient(total)
         c, d = (field.spell_coefficient(first),
@@ -348,7 +355,8 @@ class Emitter(Builder):
 
         `subadd` says a difference is a number exactly when adding that
         number back gives the first, so the subtraction is answered out of
-        the addition table and set.mm needs no second one."""
+        the addition table and set.mm needs no second one.
+        """
         left, right = NUMERAL[bigger], NUMERAL[smaller]
         out = NUMERAL[bigger - smaller]
         return self.ap(
@@ -373,7 +381,8 @@ class Emitter(Builder):
         """( under -> ( i + -u j ) = k ), the two of opposite sign.
 
         `negsub` turns the sum into a difference, and which way round the
-        difference goes decides whether the answer carries a minus."""
+        difference goes decides whether the answer carries a minus.
+        """
         gap = op(NUMERAL[first], NUMERAL[second], 'cmin')
         return self.chain(
             self.ap('syl2anc',
@@ -418,7 +427,8 @@ class Emitter(Builder):
 
         `adddir` distributes a sum over a product; read the other way it
         collects two terms that share a monomial, which is the only place
-        the coefficients meet."""
+        the coefficients meet.
+        """
         spelt = spell_monomial(monomial)
         c, d = (field.spell_coefficient(first),
                 field.spell_coefficient(second))
@@ -452,7 +462,8 @@ class Emitter(Builder):
         Leftward is the direction an appended term travels to reach the
         place its degree puts it; rightward is how a term whose
         coefficient has cancelled reaches the end, where it comes off.
-        Each step is one `swap`."""
+        Each step is one `swap`.
+        """
         start = said = self.spell_run(items)
         proof = None
         for at in (range(frm, to) if to > frm else range(frm - 1, to - 1, -1)):
@@ -470,7 +481,8 @@ class Emitter(Builder):
 
         A coefficient that has cancelled leaves `( 0 x. M )`, which is
         zero by `mul02` and comes off the end by `addrid`. The term is
-        walked to the end first, because that is where it can come off."""
+        walked to the end first, because that is where it can come off.
+        """
         start = self.spell_run(items)
         items, walked = self.shift(items, at, len(items) - 1)
         run = self.spell_run(items)
@@ -501,7 +513,8 @@ class Emitter(Builder):
 
         One term put where its degree says it goes. If the monomial is
         already there the two coefficients meet and may cancel; otherwise
-        the term simply travels left to its place."""
+        the term simply travels left to its place.
+        """
         term = self.spell_term((monomial, weight))
         if not items:
             return [(monomial, weight)], self.ap(
@@ -537,7 +550,8 @@ class Emitter(Builder):
         """Two neighbours that share a monomial, collected into one term.
 
         `addass` exposes them as a pair where they sit at the end of a
-        run; where they are the whole of it they are already exposed."""
+        run; where they are the whole of it they are already exposed.
+        """
         head, rest = items[:at], items[at + 2:]
         monomial = items[at][0]
         a, b = self.spell_term(items[at]), self.spell_term(items[at + 1])
@@ -572,7 +586,8 @@ class Emitter(Builder):
         The right-hand run is taken apart from its end, one term at a time,
         and each is put into the left by `insert`. `addass` is what peels
         a term off: the run associates to the left, so its last term is
-        already where the law can reach it."""
+        already where the law can reach it.
+        """
         start = op(self.spell_run(left), self.spell_run(right), ADD)
         if not right:
             keep = self.spell_run(left)
@@ -682,7 +697,8 @@ class Emitter(Builder):
         """( under -> ( ( x ^ j ) x. ( x ^ k ) ) = ( x ^ ( j + k ) ) ).
 
         `expadd` read backwards, which is where two powers of one atom
-        meet, and the only place the exponents are added."""
+        meet, and the only place the exponents are added.
+        """
         a, b = op(name, NUMERAL[first], EXP), op(name, NUMERAL[second], EXP)
         total = first + second
         if total > 9:
@@ -839,7 +855,8 @@ class Emitter(Builder):
 
         Signs come off first — `mulneg1`, `mulneg2` and `mul2neg` say where
         the minus goes — and what is left is two whole numbers, which
-        set.mm names a lemma for."""
+        set.mm names a lemma for.
+        """
         total = first * second
         said = field.spell_coefficient(total)
         c = field.spell_coefficient(first)
@@ -878,7 +895,8 @@ class Emitter(Builder):
         """( under -> ( ( c x. M ) x. ( d x. N ) ) = ( e x. P ) ).
 
         `mul4` puts the two coefficients together and the two monomials
-        together, and then each side is its own problem."""
+        together, and then each side is its own problem.
+        """
         (first, weight), (second, other) = one, two
         c = field.spell_coefficient(weight)
         d = field.spell_coefficient(other)
@@ -927,7 +945,8 @@ class Emitter(Builder):
         """( under -> ( t x. spell_run(right) ) = spell_run(product) ).
 
         `adddi` takes the right-hand run apart from its end, one term at a
-        time, and each product of two terms is `term_times_term`."""
+        time, and each product of two terms is `term_times_term`.
+        """
         term = self.spell_term(one)
         start = op(term, self.spell_run(right), MUL)
         if not right:
@@ -968,7 +987,8 @@ class Emitter(Builder):
 
         `adddir` takes the left-hand run apart, and what each of its terms
         does to the whole right-hand run is `term_times_run`. The pieces
-        are then added, which is what `add` is for."""
+        are then added, which is what `add` is for.
+        """
         start = op(self.spell_run(left), self.spell_run(right), MUL)
         if not left:
             keep = self.spell_run(right)
@@ -1010,7 +1030,8 @@ class Emitter(Builder):
         """( under -> ( spell_run(items) ^ k ) = spell_run(the power) ).
 
         `expp1` peels one factor off, and it states the exponent as
-        `N + 1`, so the numeral is rewritten that way round first."""
+        `N + 1`, so the numeral is rewritten that way round first.
+        """
         run = self.spell_run(items)
         start = op(run, NUMERAL[times], EXP)
         if times == 0:
@@ -1075,7 +1096,8 @@ class Emitter(Builder):
         Recursion on the term, not a search: at each node the children are
         already canonical and what remains is one of the operations above.
         A subterm this does not recognise is an atom, and the caller is
-        asked once for its membership."""
+        asked once for its membership.
+        """
         said = term.rpn(labels)
         if term.variable is None and term.label in field.DIGITS:
             value = Fraction(field.DIGITS[term.label])
@@ -1150,7 +1172,8 @@ class Emitter(Builder):
 
         The minus one has to be written the way a canonical form writes a
         constant, `( -u 1 x. 1 )`, before `multiply` will take it, which
-        `mulrid` supplies."""
+        `mulrid` supplies.
+        """
         run = self.spell_run(items)
         minus, bare = [((), Fraction(-1))], seq(NUMERAL[1], 'cneg')
         unit = self.spell_run(minus)
@@ -1187,7 +1210,8 @@ class Emitter(Builder):
         """X - Y, turned into X + -u Y, which the sum side already does.
 
         `negsub` states the two as equal one way round, so it is read
-        backwards; the negation is then the case already written."""
+        backwards; the negation is then the case already written.
+        """
         a_cc = self.ap('eqeltrd', {'ph': self.under, 'A': la,
                                    'B': self.spell_run(first), 'C': 'cc'},
                        one, self.run_cc(first))
@@ -1254,7 +1278,8 @@ class Emitter(Builder):
 
         A denominator that is a number says for itself that it is not
         zero, since the canonical form of a constant is `( n x. 1 )` and
-        the scope knows only about the `n`."""
+        the scope knows only about the `n`.
+        """
         said = self.spell_run(under)
         if len(under) == 1:
             monomial, weight = under[0]
@@ -1271,7 +1296,8 @@ class Emitter(Builder):
         about is `( c x. ( x ^ k ) )`, which the scope has never heard of.
         A product is not zero when neither side is, and a power is not
         when what it raises is not, so the whole of it comes off the
-        atoms the scope does know."""
+        atoms the scope does know.
+        """
         digit = field.spell_coefficient(weight)
         whole = abs(weight.numerator)
         nonzero = self.a1i(seq(NUMERAL[whole], 'cc0', 'wne'),
@@ -1320,7 +1346,8 @@ class Emitter(Builder):
         """A numerator on its own, given the denominator of one it hides.
 
         `div1` says a term over one is the term, so it is what promotes a
-        polynomial into the pair the laws below want."""
+        polynomial into the pair the laws below want.
+        """
         if under is not None:
             return over, under, proof
         one = [((), Fraction(1))]
@@ -1349,7 +1376,8 @@ class Emitter(Builder):
         `under` is None where the term divides nothing, and the proof is
         then of the numerator alone: a term that divides nothing must not
         be made to carry a denominator of one, or every caller's output
-        would change."""
+        would change.
+        """
         said = term.rpn(labels)
         if not divides(term, labels):
             items, proof = self.normalize(term, labels)
@@ -1369,7 +1397,8 @@ class Emitter(Builder):
     def quotient_of(self, left, right, labels, said):
         """`a / b`, where what is below may divide as well.
 
-        `divdiv1` is what folds a division under a division into one."""
+        `divdiv1` is what folds a division under a division into one.
+        """
         over, under, first = self.normalize_quotient(left, labels)
         below, beneath, second = self.normalize_quotient(right, labels)
         if beneath is not None:
@@ -1422,7 +1451,8 @@ class Emitter(Builder):
 
         `divadddiv` and `divmuldiv` say what the pair becomes, and the
         numerator and denominator they land on are then multiplied out by
-        the operations above."""
+        the operations above.
+        """
         over, under, first = self.as_quotient(
             *self.normalize_quotient(left, labels), left.rpn(labels))
         below, beneath, second = self.as_quotient(

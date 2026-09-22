@@ -107,14 +107,16 @@ def verified():
 
     `parley/verify.py` asks for this rather than reading a directory, because
     they do not all live in one and two of them share a basename with a file
-    that is not among them."""
+    that is not among them.
+    """
     return [ROOT / a.path for a in ARTIFACTS if a.verified]
 
 
 def path_of(name):
     """Where one artifact goes, for a tool that reads it rather than builds
     it. `parley/labels.py` and `parley/elaborate.py` both want geometry.mm,
-    and three copies of a path are three chances for two of them to agree."""
+    and three copies of a path are three chances for two of them to agree.
+    """
     for artifact in ARTIFACTS:
         if artifact.name == name:
             return ROOT / artifact.path
@@ -151,7 +153,8 @@ def citing():
     `db/items.records` says a theorem is this corpus's, and the proof text
     says which it cites — so it is read and not listed. A list here would
     be the same knowledge in a third place, and the one that could quietly
-    disagree with the proofs."""
+    disagree with the proofs.
+    """
     records, theorems = corpus(ROOT)
     ours = {r.name for r in records
             if r.kind == 'theorem' and 'proved-in' in r.fields}
@@ -176,7 +179,8 @@ def waves(wanted):
     fifteen that read none of each other's go at once. A `needs` naming
     something not being built is not waited for: asking for one theorem
     rebuilds that theorem and not the geometry it reads, the same as asking
-    for it before this ran concurrently."""
+    for it before this ran concurrently.
+    """
     here = {a.name for a in wanted}
     cited = citing()
     left, done, out = list(wanted), set(), []

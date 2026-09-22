@@ -126,7 +126,8 @@ def requires_refs(text):
 def in_scope(cited, here):
     """A step numbered `cited` is visible from the step numbered `here` when it
     is an ancestor, or shares `here`'s path to some position and comes before
-    it there. Steps inside a closed block are not visible outside it."""
+    it there. Steps inside a closed block are not visible outside it.
+    """
     if len(cited) > len(here):
         return False
     return cited[:-1] == here[:len(cited) - 1] and cited[-1] < here[len(cited) - 1]
@@ -136,7 +137,8 @@ def labels_in_scope(thm, step):
     """Hypothesis labels hold throughout a proof. A label declared by a block
     holds inside that block only. When the block has parts, a label declared by
     one part holds in that part alone, so one case of a case analysis cannot
-    cite the assumption of another."""
+    cite the assumption of another.
+    """
     out = {lab: ('hypothesis', no) for _, _, lab, no in thm.hypotheses if lab}
     for _, _, lab, no in thm.defines:
         if no < step.line:
@@ -211,7 +213,8 @@ SORT_NAMES = {'number', 'set', 'point', 'formula', 'function', 'property',
 
 def check_notation(report, records):
     """A notation record declares a pattern, the sort of each hole, and what it
-    yields. Two things follow mechanically and are checked here."""
+    yields. Two things follow mechanically and are checked here.
+    """
     for r in records:
         if r.kind != 'notation':
             continue
@@ -347,7 +350,8 @@ def check_blocks(report, thm, methods):
 def check_chain(report, thm, step):
     """A calculation only joins. Every line cites a numbered step or a label and
     carries no reasoning of its own, so a line that names an item or instantiates
-    one is carrying a justification that belongs in a step."""
+    one is carrying a justification that belongs in a step.
+    """
     if step.just.head != 'calculation':
         return
     if not step.just.chain:
@@ -492,7 +496,8 @@ def check_run_together(report, thm, words):
     word `an`, but that is a convention of school geometry and not a rule:
     topology and differential geometry both name points with lowercase letters,
     and set.mm's plane is ℂ, where a point would naturally be z or w. So the
-    collision is checked rather than assumed away."""
+    collision is checked rather than assumed away.
+    """
     for s in thm.steps:
         for text in s.claim:
             for pattern in ADJACENT_HOLES:
@@ -509,7 +514,8 @@ def check_capture(report, thm, claims):
     """A substitution may not capture. If the term being substituted names a
     variable bound where it lands, the step is rejected rather than the
     variable quietly renamed, because renaming would make the machine do
-    something the page does not show."""
+    something the page does not show.
+    """
     for s in thm.steps:
         if not s.just or s.just.head != 'instantiate':
             continue
@@ -557,7 +563,8 @@ def fixed_by(records, g):
     `_ + _` fixing a name, and every proof in the corpus writes `+`.
 
     A definition using no notation of its own fixes nothing, and so does one
-    whose every `let` reaches the hole."""
+    whose every `let` reaches the hole.
+    """
     out = {}
     for r in records:
         if r.kind != 'definition':
@@ -603,7 +610,8 @@ def check_declared(report, records, fixed):
     `db/notation.records` says it with `@a` in the target, which is what an
     elaborator builds the term from. A target fixing a name the definition
     does not is a term about something nothing declares; a definition fixing
-    a name the target does not is a parameter dropped from the term."""
+    a name the target does not is a parameter dropped from the term.
+    """
     for r in records:
         if r.kind != 'notation' or 'target' not in r.fields:
             continue
@@ -636,7 +644,8 @@ def check_fixed(report, thm, fixed, g):
 
     Refused rather than renamed, for the reason a substitution that captures
     is refused: renaming would make the machine do something the page does
-    not show."""
+    not show.
+    """
     if not fixed:
         return
     bound = {}
@@ -675,7 +684,8 @@ class Library:
 
     A record with two `then` groups, as def:S has, states each conclusion under
     the hypotheses written above it, so the groups are kept apart and a
-    citation satisfies any one of them."""
+    citation satisfies any one of them.
+    """
 
     def __init__(self, records, theorems, g):
         self.g = g
@@ -754,7 +764,8 @@ def negates(a, b, wrappers):
 
     A folded negation counts, because a record declaring `negates` makes
     "n is not odd" the same tree as "not (n is odd)". `wrappers` is the set of
-    notations those records name, so no notation is known here by its text."""
+    notations those records name, so no notation is known here by its text.
+    """
     return (a is not None and b is not None and a.children
             and a.notation in wrappers and a.children[0].shape() == b.shape())
 
@@ -768,7 +779,8 @@ def check_contradiction(report, thm, g):
     negation directly. No formula is its own double negation, so at most one
     holds and the expansion each needs is never in doubt. Anything else the
     method refuses, which is why this is reported rather than left to fail
-    later with nothing to point at."""
+    later with nothing to point at.
+    """
     sorts_in_scope(thm, g)
     wrappers = {n.folds for n in g.notations if n.folds}
     defined = definitions_in_scope(thm, g)
@@ -822,7 +834,8 @@ def supply(patterns, facts, binding, variables, library,
     its body with some value in place of the bound variable, which is the move
     SYNTAX.md describes for exhibit: the cited line determines the value and
     the text never writes it. `there is s ∈ S`, which says only that S has a
-    member, is stated by any fact putting something in S."""
+    member, is stated by any fact putting something in S.
+    """
     if not patterns:
         return binding
     first, rest = patterns[0], patterns[1:]
@@ -889,7 +902,8 @@ def citation_parts(step, just, scope, library, sorts, defined):
     variables stand for.
 
     A defined name and the term it names are one formula, so all three are
-    expanded: the facts, the claim, and the written instantiation alike."""
+    expanded: the facts, the claim, and the written instantiation alike.
+    """
     g = library.g
     supplied = []
     for ref in just.refs:
@@ -919,7 +933,8 @@ def conjuncts(node, library):
     """A conjunction taken apart. A claim may take one part of what it gets,
     and a fact may supply one part of what is asked, because a line is a
     conjunction at kernel level either way and the projection lives in the
-    method's expansion."""
+    method's expansion.
+    """
     if node.notation in library.conj and len(node.children) == 2:
         return (conjuncts(node.children[0], library)
                 + conjuncts(node.children[1], library))
@@ -950,7 +965,8 @@ def take(claims, candidates, binding, used, need, given, variables, library,
     those readings ask for is then supplied by the facts.
 
     It backtracks, because a sentence can fit a reading whose requirement the
-    step does not meet while another reading's it does."""
+    step does not meet while another reading's it does.
+    """
     if not claims:
         return supply(need + used, given, binding, variables, library,
                       sites, reuse=True) is not None
@@ -981,7 +997,8 @@ def walk(nodes):
 
 def check_conclusion(report, thm, library):
     """A citation's claim is what the item concludes, under the binding its
-    hypotheses fixed."""
+    hypotheses fixed.
+    """
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
@@ -1029,7 +1046,8 @@ def check_requires(report, thm, library):
 
     A step's citation is matched this way already. A requires line carries the
     same kind of pointer to the same kind of item, and was checked only for
-    resolving, so an item that did not cover the fact went unnoticed."""
+    resolving, so an item that did not cover the fact went unnoticed.
+    """
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
@@ -1086,7 +1104,8 @@ def derives(claim, groups, facts, library, depth=5):
     `thm:int-closure` once where the kernel applies it three times, and a
     reader wants the one line. So the item's own conclusions are matched
     against the claim and against whatever they then ask for, and nothing
-    else is allowed in."""
+    else is allowed in.
+    """
     if depth <= 0:
         return False
     if any(f.shape() == claim.shape() for f in facts):
@@ -1116,7 +1135,8 @@ def check_hypotheses(report, thm, library):
     writes no instantiation is checked the same way as one that does: 37 of the
     corpus's 106 write none and a reader still sees the match. Where an
     instantiation is written it seeds the binding, which makes it checked
-    rather than taken on trust."""
+    rather than taken on trust.
+    """
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
@@ -1161,7 +1181,8 @@ def check_statements(report, records, g):
     An item's statement is a formula in the same language as a claim, and the
     elaborator matches one against the other, so a statement that does not read
     is a defect wherever it is written. An item proved in this corpus keeps its
-    statement at the head of its proof file and has none here."""
+    statement at the head of its proof file and has none here.
+    """
     for r in records:
         if r.kind not in ('definition', 'theorem'):
             continue
@@ -1202,7 +1223,8 @@ def check_symbols(report, records):
     claim the same token, and that some notation actually reaches it. Whether
     the token is already a label of the library, and whether the term parses
     and closes over its own variables, wants the library — which this checker
-    does not read — and is checked where the library is."""
+    does not read — and is checked where the library is.
+    """
     claimed = {}
     for r in records:
         if r.kind != 'definition':
@@ -1260,7 +1282,8 @@ def check_formulas(report, thm, g):
     carry on: it has been reported here, once, with the line it is on. A
     pass that gathered and also complained would say it twice; one that
     stopped would hide the rest of what it was looking for behind the first
-    defect."""
+    defect.
+    """
     sorts_in_scope(thm, g)
     places = [(s.line, f'step {fmt(s.number)}', ' '.join(s.claim))
               for s in thm.steps]
@@ -1289,7 +1312,8 @@ def check_sorts(report, thm):
     introduces a name. Without that rule a parser would have to chase the
     cited item's conclusion to learn a sort, and sorts are what disambiguate
     a notation, so two implementations chasing differently would parse the
-    same formula differently."""
+    same formula differently.
+    """
     for s in thm.steps:
         if not s.just or s.just.head != 'obtain':
             continue
@@ -1328,7 +1352,8 @@ def check_readings(report, thm):
     nothing to check about it and a reader can meet a construction with no
     idea why it is there. The reading is the one line saying what the name
     means in words. Nothing can judge the words, but their absence is the
-    commonest way for the device to be forgotten, so that much is required."""
+    commonest way for the device to be forgotten, so that much is required.
+    """
     for _, _, label, no in thm.defines:
         if label not in thm.readings:
             report.say(thm.path, no,
@@ -1343,7 +1368,8 @@ def check_readings(report, thm):
 
 def introduction_problem(body):
     """What is wrong with a `let` body, or None. Used for a proof's lines and
-    for an item's alike, since an item states its hypotheses the same way."""
+    for an item's alike, since an item states its hypotheses the same way.
+    """
     if not any(p.match(body) for _, p in INTRODUCTIONS):
         return (f'`let {body[:40]}` is none of the five introductions: '
                 f'{", ".join(n for n, _ in INTRODUCTIONS)}')
@@ -1361,7 +1387,8 @@ def introduction_problem(body):
 def check_introductions(report, thm):
     """A `let` line carries an introduction, not a formula. It names something
     and says what it is, asserting nothing, and there are exactly four forms.
-    `assume` takes a formula, because it does assert."""
+    `assume` takes a formula, because it does assert.
+    """
     lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
     for s in thm.steps:
         lines += [(k, t, n) for k, t, _, n, _ in s.openers]

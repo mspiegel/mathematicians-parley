@@ -69,7 +69,8 @@ def _tokens(text):
 
     Comments nest in Metamath, so the depth is counted rather than matched.
     An include names a file rather than saying anything, and the caller
-    supplies the files it wants read, so the directive is dropped."""
+    supplies the files it wants read, so the directive is dropped.
+    """
     out, depth, including = [], 0, False
     for tok in text.split():
         if tok == '$(':
@@ -96,7 +97,8 @@ def stamp(paths):
     Asked by trying, which is the one place here that is right to: a file
     can go between being asked about and being opened, so there is nothing
     to be gained by asking first. What is caught is a file that is not
-    there, and not a route that does not apply."""
+    there, and not a route that does not apply.
+    """
     try:
         said = [os.stat(one) for one in paths]
     except OSError:
@@ -120,7 +122,8 @@ def read(path, *more):
     is a copy of the table, because a reader adds to the one it is given —
     the elaborator writes the constants this corpus introduces into it — and
     the signatures inside are shared, because nothing changes one once it is
-    made."""
+    made.
+    """
     held = stamp((path, *more))
     if held is not None and held in _READ:
         return dict(_READ[held])

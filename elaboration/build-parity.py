@@ -63,7 +63,8 @@ def double(X, p_x):
 
     Twice-two is the only numeral fact these identities need, and it is
     reached the same way each time: associate, then replace the product of
-    numerals. Three of the five uses below are this one call."""
+    numerals. Three of the five uses below are this one call.
+    """
     assoc = seq(ALG, mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X)),
                 seq(ALG, w3a(inCC(TWO), inCC(TWO), inCC(X)),
                     eq(mul(mul(TWO, TWO), X), mul(TWO, mul(TWO, X))),

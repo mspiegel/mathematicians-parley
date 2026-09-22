@@ -67,7 +67,8 @@ def roots(built):
 
     Read off the inclusions so that a proof added later is covered without
     this being edited. set.mm is included too and is not one of these files,
-    so it falls out of the difference on its own."""
+    so it falls out of the difference on its own.
+    """
     here = {p.name: p for p in built}
     included = set()
     for path in built:

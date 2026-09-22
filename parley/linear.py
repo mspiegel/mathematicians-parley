@@ -71,7 +71,8 @@ class Fact:
     built from, and in what multiple. A fact straight from the caller is
     one times itself; one that elimination produced is the combination
     that produced it. Carrying it is what lets a refutation be turned
-    into a proof rather than only a verdict."""
+    into a proof rather than only a verdict.
+    """
 
     __slots__ = ('how', 'side', 'weights', 'why')
 
@@ -124,7 +125,8 @@ def read(term, labels):
 
     What is not built from numerals by the operations above is an atom, and
     is keyed by the term it spells so that two occurrences of one subterm
-    are one atom."""
+    are one atom.
+    """
     value = numeral(term, labels)
     if value is not None:
         return Linear(constant=value)
@@ -158,7 +160,8 @@ def fact(term, labels, why=None):
 
     The claim is moved to one side, so `a <_ b` becomes `a - b <_ 0`, and a
     negated relation is turned rather than carried: not (a <_ b) is b < a.
-    A disequality is carried as one fact and split where it is used."""
+    A disequality is carried as one fact and split where it is used.
+    """
     negated = False
     if term.variable is None and term.label == 'wn' \
             and len(term.children) == 1:
@@ -212,7 +215,8 @@ def certificate(facts):
 
     A disequality is the one fact with two readings, so it is taken both
     ways and the set fails only when both do. There is then no single
-    combination, and `('either', i, one, other)` says so."""
+    combination, and `('either', i, one, other)` says so.
+    """
     for i, one in enumerate(facts):
         if one.how == '=/=':
             rest = [*facts[:i], *facts[i + 1:]]
@@ -267,5 +271,6 @@ def follows(given, claim):
 
     The claim is denied and the set shown to have no solution. Denying an
     equation gives a disequality, which is the one fact that splits, so an
-    equation concluded and a disequality cited cost the same."""
+    equation concluded and a disequality cited cost the same.
+    """
     return refutes([*given, opposite(claim)])

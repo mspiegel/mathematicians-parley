@@ -24,7 +24,8 @@ class Problem(Exception):
     One of two, and the other is below. This one is a person's to fix: the
     proof text says something wrong, or a database record does, and nothing
     should carry on past it. Anything that catches this to try something
-    else is accepting a proof with a defect in it."""
+    else is accepting a proof with a defect in it.
+    """
 
     def __init__(self, path, line, message):
         super().__init__(message)
@@ -61,7 +62,8 @@ class Declined:
     nobody: a route declines, the caller tries the next, and writing a term
     out the way a Metamath file writes it is not cheap. Elaborating the
     geometric series declines over a million times, and rendering those was
-    a third of what it cost."""
+    a third of what it cost.
+    """
 
     __slots__ = ('shape', 'spell', 'terms')
 
@@ -96,7 +98,8 @@ class Line:
 
 def read_lines(path, text):
     """Physical lines, comments and blanks dropped, joined by the continuation
-    rule: a line continues onto the next when it ends with a comma."""
+    rule: a line continues onto the next when it ends with a comma.
+    """
     out, pending = [], None
     for no, raw in enumerate(text.split('\n'), 1):
         if not raw.strip() or raw.lstrip().startswith('#'):
@@ -141,7 +144,8 @@ RECORD_KINDS = ('notation', 'method', 'definition', 'theorem', 'precedence')
 
 def parse_database(path, text):
     """Records of db/*.records. A record begins at column 0; its fields are
-    indented. `let`, `assume` and `then` lines carry an item's statement."""
+    indented. `let`, `assume` and `then` lines carry an item's statement.
+    """
     records, cur = [], None
     # A field sits at the record's field indent. Anything indented further
     # continues the field above it, which is how a long `note` is wrapped.
@@ -244,7 +248,8 @@ def citations(text):
 
 def _refs(text):
     """References named by a justification, read from their syntactic position
-    and never by scanning for digits."""
+    and never by scanning for digits.
+    """
     out = []
     m = re.search(rf'\bfrom\s+line\s+({NUMBER})\b', text)
     if m:
@@ -296,7 +301,8 @@ STEP_RE = re.compile(rf'^({NUMBER})\.\s+(.*)$')
 
 def parse_proof(path, text):
     """Theorems of a .proof file. Structure comes from the step number;
-    indentation is presentation and is not consulted."""
+    indentation is presentation and is not consulted.
+    """
     theorems, thm, step, claim, defined = [], None, None, None, None
     # A part marker or a block opener appears before the sub-steps it governs,
     # so it is held until the next step arrives and is then attached to that
@@ -313,7 +319,8 @@ def parse_proof(path, text):
 
     def attach(number):
         """Resolve held markers and openers against the owner of the block that
-        the step numbered `number` sits in, and say which part it sits in."""
+        the step numbered `number` sits in, and say which part it sits in.
+        """
         parent = number[:-1]
         owner = by_number.get(parent)
         for marker, no in pending_markers:
@@ -430,7 +437,8 @@ CHAIN_TAIL = re.compile(rf'({REF})(?:,\s*right to left)?$')
 
 def chain_citation(path, line):
     """A chain line's citation, read from the right end of the line rather than
-    from the whitespace that happens to separate it."""
+    from the whitespace that happens to separate it.
+    """
     m = CHAIN_TAIL.search(line.text)
     if not m:
         raise Problem(path, line.no,

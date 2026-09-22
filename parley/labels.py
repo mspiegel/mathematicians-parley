@@ -57,7 +57,8 @@ def named(records):
 
     That field is where the check's first run found its one error — a
     `dvds` that meant `df-dvds` — so leaving it out would leave out the
-    thing the check was built for."""
+    thing the check was built for.
+    """
     out = {}
     for r in records:
         for field in ('target', 'defines'):
@@ -91,7 +92,8 @@ def supplied(records):
 
     A definition that carries a `symbol` brings a constant and the axiom
     defining it; `geometry.mm` brings whatever it proves, and
-    `parley/build.py` is what says where that file is."""
+    `parley/build.py` is what says where that file is.
+    """
     out = set()
     for r in records:
         if 'symbol' in r.fields:

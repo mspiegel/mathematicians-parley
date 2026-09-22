@@ -31,7 +31,8 @@ class Poly:
     """A polynomial over atoms, as coefficients by monomial.
 
     A monomial is a tuple of (atom, power) in atom order, so the empty tuple
-    is the constant one and two spellings of a product are one key."""
+    is the constant one and two spellings of a product are one key.
+    """
 
     __slots__ = ('terms',)
 
@@ -105,7 +106,8 @@ def order(monomial):
     """Descending degree, then by atom.
 
     The order a polynomial is written in, so that `4m^2 + 4m + 1` comes out
-    that way round rather than the other."""
+    that way round rather than the other.
+    """
     return (-sum(power for _, power in monomial), monomial)
 
 
@@ -113,7 +115,8 @@ def spell_monomial(monomial):
     """One monomial in reverse Polish, as a product of powers.
 
     Every factor is written `( x ^ k )`, the exponent one included, and
-    the empty monomial is `1`. The product associates to the left."""
+    the empty monomial is `1`. The product associates to the left.
+    """
     if not monomial:
         return NUMERAL[1]
     said = [f'{atom} {NUMERAL[power]} cexp co' for atom, power in monomial]
@@ -127,7 +130,8 @@ def spell_coefficient(weight):
     """A rational coefficient as a numeral, negated where it is negative.
 
     None where it is not a whole number the kernel has one digit for,
-    which is past anything this corpus writes."""
+    which is past anything this corpus writes.
+    """
     if weight.denominator != 1 or abs(weight.numerator) > 9:
         return None
     digit = NUMERAL[abs(weight.numerator)]
@@ -147,7 +151,8 @@ def spell(poly):
     step of the arithmetic over these forms has one shape to handle
     rather than four.
 
-    None where a coefficient is past what `spell_coefficient` writes."""
+    None where a coefficient is past what `spell_coefficient` writes.
+    """
     if not poly.terms:
         return NUMERAL[0]
     said = []
@@ -255,7 +260,8 @@ def denied(term, labels):
 
     The corpus writes `a ≠ 1` as a negated equation, which the `negates`
     line of `db/notation.records` folds into one tree, so what arrives here
-    is a `wn` around the equation and the polynomial is the equation's."""
+    is a `wn` around the equation and the polynomial is the equation's.
+    """
     if term.variable is not None or term.label != 'wn':
         return None
     if len(term.children) != 1:
@@ -277,7 +283,8 @@ def follows(given, claim, atoms):
     What is returned is the combination itself, one `(which, shape, scale)`
     for each equation taken off: the claim is their sum. A proof of the step
     is built from it, so it is kept rather than discarded, as
-    `linear.certificate` keeps Farkas's."""
+    `linear.certificate` keeps Farkas's.
+    """
     if claim.zero():
         return []
     if not given:
@@ -310,7 +317,8 @@ def _cancels(claim, part):
     """The rational that makes this part cancel the claim's leading term.
 
     The leading term is the largest monomial the claim has, in the order the
-    keys sort in, so taking it off strictly shrinks what is left."""
+    keys sort in, so taking it off strictly shrinks what is left.
+    """
     if part.zero():
         return None
     lead = max(claim.terms)

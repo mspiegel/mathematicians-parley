@@ -41,7 +41,8 @@ def terms(records):
     """For each notation, the term each of its patterns builds.
 
     A folded pattern builds another notation's tree, so it has no entry of its
-    own and is recorded as None."""
+    own and is recorded as None.
+    """
     out = {}
     for r in records:
         if r.kind != 'notation' or 'target' not in r.fields:
@@ -53,7 +54,8 @@ def terms(records):
 
 def unfolding(record):
     """The theorem that unfolds a definition, and whether it faces the other
-    way from the `then` line."""
+    way from the `then` line.
+    """
     value = record.fields.get('target')
     if not value:
         return None, False
@@ -68,7 +70,8 @@ def lemma(record):
     variables, and nothing derives the correspondence: `thm:not-both` is
     double negation and its `ph` is what the readable statement calls `n is
     even`. So the item says it, as `notnot with ph := n is even`, and each
-    right-hand side is a formula in the item's own names."""
+    right-hand side is a formula in the item's own names.
+    """
     value = record.fields.get('target')
     if not value or ' with ' not in value:
         return (value.strip() if value else None), {}
@@ -87,7 +90,8 @@ def commuting(records):
     Each entry is the constructor, the two positions the holes occupy, and
     what stands in every other position: the product is `co` with holes at 0
     and 1 and `cmul` at 2. The positions are read off the target, so nothing
-    here assumes where a constructor keeps its operator."""
+    here assumes where a constructor keeps its operator.
+    """
     out = []
     for r in records:
         if r.kind != 'notation' or 'commutes' not in r.fields:
@@ -116,7 +120,8 @@ def clauses(record):
     lemma in it: `thm:lowest-terms` is assembled from three theorems about
     a rational's numerator and denominator, and all three are about the
     same rational. What stands after it is the filling and not a list,
-    however many commas it takes."""
+    however many commas it takes.
+    """
     value = record.fields.get('target')
     if not value:
         return []
@@ -133,7 +138,8 @@ def fill(pattern, holes, fixed=()):
 
     A hole is filled from the node being read and a fixed name from where
     the notation's definition fixed it, which is why they are two arguments
-    and not one."""
+    and not one.
+    """
     said = HOLE.sub(lambda m: holes[int(m.group(1)) - 1], pattern)
     return FIXED.sub(lambda m: fixed[m.group(1)], said) if fixed else said
 

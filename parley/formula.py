@@ -37,7 +37,8 @@ def tokenise(text, words, symbols, path='', line=0):
     At the start of a sentence a declared word also matches with its first
     letter capitalised, which is how the corpus writes `For every` and
     `There is`. The allowance is deliberately that narrow: matching case
-    anywhere would let the name `s` match the declared word `S`."""
+    anywhere would let the name `s` match the declared word `S`.
+    """
     out, i = [], 0
 
     def take(kind, spelling, at):
@@ -187,7 +188,8 @@ def compile_notations(records):
 def compile_precedence(records):
     """The partial order. `tighter[a]` is everything a binds more tightly than,
     closed under transitivity. Levels unrelated in either direction are
-    incomparable and an expression mixing them needs brackets."""
+    incomparable and an expression mixing them needs brackets.
+    """
     direct = {}
     for r in records:
         if r.kind != 'precedence':
@@ -237,7 +239,8 @@ class Node:
 
         The literal is part of it wherever there is one, because a record may
         declare several patterns and they are different formulas: `a < b` and
-        `a ≥ b` are both `order`, and only the sign tells them apart."""
+        `a ≥ b` are both `order`, and only the sign tells them apart.
+        """
         head = f'{self.notation}:{self.text}' if self.text else self.notation
         if not self.children:
             return head
@@ -253,7 +256,8 @@ class Node:
 class Ambiguous(Problem):
     """Two notations fit and the sorts do not separate them. The parser says
     so rather than choosing, because choosing is how a reader and the kernel
-    come to hold different formulas without anything noticing."""
+    come to hold different formulas without anything noticing.
+    """
 
 
 @dataclass
@@ -278,7 +282,8 @@ def fits(hole, sort):
 
     `any` means two different things and both are unknown-ish. As a hole it
     says "any term"; as what a notation yields, as application does, it says
-    "whatever came back", which is exactly a value of no known sort."""
+    "whatever came back", which is exactly a value of no known sort.
+    """
     if sort in (None, 'unknown', 'any'):
         return True
     if hole == 'any':
@@ -295,7 +300,8 @@ def parse(text, g, path='', line=0):
     Nothing below raises for a reading that did not work out: it gives back
     None and says where it stopped. This is the one place that turns having
     no reading into a defect, because it is the one place that knows there
-    is no other reading left to try."""
+    is no other reading left to try.
+    """
     tokens = tokenise(text, g.words, g.symbols, path, line)
     p = _Parser(tokens, g, path, line, text)
     node = p.expression(None)
@@ -322,7 +328,8 @@ class _Parser:
     the last reading to fail used to leave one. `stopped` keeps the furthest
     any reading reached and what stood in its way there, which is the
     reading that got closest to working and the one worth telling a reader
-    about."""
+    about.
+    """
 
     def __init__(self, tokens, g, path, line, text):
         self.t, self.g, self.path, self.line, self.src = tokens, g, path, line, text
@@ -334,7 +341,8 @@ class _Parser:
 
     def no(self, message):
         """No reading here, and why. Always None, so a caller may `return
-        self.no(...)` and be read as giving up rather than as reporting."""
+        self.no(...)` and be read as giving up rather than as reporting.
+        """
         if self.i > self.stopped[0]:
             self.stopped = (self.i, message)
         return None
@@ -349,7 +357,8 @@ class _Parser:
 
         `stop` is the literal that closes an interior hole. Without it the hole
         runs past its own delimiter: the set in `for every s ∈ S, d ≤ s` would
-        swallow the comma and try to be the first point of a triangle."""
+        swallow the comma and try to be the first point of a triangle.
+        """
         left = self.primary()
         if left is None:
             return None
@@ -443,7 +452,8 @@ class _Parser:
     def apply(self, cands, left):
         """Try each candidate. Exactly one must fit, or none does and this
         is no reading; two do and the text is ambiguous, which is a defect
-        and the one thing here that is raised."""
+        and the one thing here that is raised.
+        """
         if not cands:
             tok = self.peek()
             return self.no(f'no notation starts at {tok.text!r} '
@@ -474,7 +484,8 @@ class _Parser:
 
         A hole with a token after it is delimited by that token and takes any
         expression. Only a hole at the right edge needs the pattern's level as
-        a barrier, since only there can a looser notation swallow the rest."""
+        a barrier, since only there can a looser notation swallow the rest.
+        """
         kids = []
         for k, part in enumerate(n.parts):
             if part is HOLE:
@@ -517,7 +528,8 @@ class _Parser:
     def hole(self, want, barrier, stop):
         """A `variable` hole takes a bare name; any other takes an expression,
         bounded by `barrier` when the hole sits at the pattern's right edge and
-        by `stop`, the literal that follows it, when it does not."""
+        by `stop`, the literal that follows it, when it does not.
+        """
         if want == 'variable':
             tok = self.peek()
             if tok is None or tok.kind != 'name':

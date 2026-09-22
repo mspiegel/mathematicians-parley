@@ -48,7 +48,8 @@ def shapes(proof, sigs):
     number here is what lets the rest of this work on numbers rather than
     on the text: the step being counted is four and a half million tokens
     long in one case, and comparing those as strings is the quadratic this
-    avoids."""
+    avoids.
+    """
     seen, kinds, stack = {}, [], []
     for token in proof.split():
         sig = sigs[token]
@@ -73,7 +74,8 @@ def standing(root, kinds):
     proof that shares its parts all the way down stands for a tree with
     more nodes than it has tokens, by a lot. A subproof is numbered after
     everything it holds, so one pass from the top down reaches each before
-    the things under it."""
+    the things under it.
+    """
     out = [0] * len(kinds)
     out[root] = 1
     for at in range(len(kinds) - 1, -1, -1):
@@ -128,7 +130,8 @@ def expand(said, mandatory, sigs):
 
     Nothing in the build needs this. `parley/test_compress.py` does: what
     makes a format change safe to make is that the proof it writes is the
-    proof it was given, and this is how that is asked."""
+    proof it was given, and this is how that is asked.
+    """
     head, _, rest = said.partition(')')
     block = mandatory + head.replace('(', '').split()
     numbers, running = [], 0

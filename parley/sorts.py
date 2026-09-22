@@ -56,7 +56,8 @@ def definitions_in_scope(thm, g):
     A define asserts nothing; it abbreviates. So the name and the term are one
     formula wherever two formulas are compared, and this is the table that says
     which term each name stands for. A define may name something in terms of an
-    earlier one, so the terms are read in the order they are written."""
+    earlier one, so the terms are read in the order they are written.
+    """
     out = {}
     for _, text, _, _ in thm.defines:
         m = DEFINE.match(LABEL.sub('', text).strip())
@@ -75,7 +76,8 @@ def sorts_of_record(record):
 
     A record keeps the keyword of a hypothesis in the field name where a proof
     line keeps it in the text, and a record has no steps and no `define`. That
-    is the whole difference from `sorts_in_scope`."""
+    is the whole difference from `sorts_in_scope`.
+    """
     out = {}
     for kind, value, _, _ in record.hypotheses:
         if kind in ('let', 'assume'):
@@ -90,7 +92,8 @@ def sorts_in_scope(thm, g):
 
     The lines are read in the order they are written, because a `define` takes
     its sort from its right-hand side and that side may name something an
-    earlier line introduced."""
+    earlier line introduced.
+    """
     events = []
     for kind, text, _, no in thm.hypotheses:
         events.append((no, kind, text))

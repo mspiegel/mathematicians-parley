@@ -105,7 +105,8 @@ def whole_multiple(cited, claim):
     """How many times the claim the cited equation is, if a whole number.
 
     Both are the polynomial that must vanish, so one being a multiple of
-    the other is the two saying the same thing at different scales."""
+    the other is the two saying the same thing at different scales.
+    """
     if cited is None or claim is None or not claim.terms:
         return None
     lead = max(claim.terms)
@@ -126,7 +127,8 @@ def multiplier(shape, scale):
     the first power and multiplies it by one. That is what two polynomials
     being compared want and not what a factor wants: `( -u 1 x. ( q ^ 1 ) )`
     asks for two memberships nothing declares where `-u q` asks for one that
-    is. So a multiplier is written the short way."""
+    is. So a multiplier is written the short way.
+    """
     monomials = list(shape.terms)
     if len(monomials) != 1 or shape.terms[monomials[0]] != 1:
         return None
@@ -150,7 +152,8 @@ def rescales(cited, claim):
     Two disequalities say one thing when one polynomial is the other
     scaled: `1 − a` is `−1` times `a − 1`, so `1 − a ≠ 0` and `a ≠ 1` deny
     the same number. Any nonzero rational will do, where `whole_multiple`
-    wants a digit, because nothing here has to spell the scalar."""
+    wants a digit, because nothing here has to spell the scalar.
+    """
     if cited is None or claim is None or not cited.terms or not claim.terms:
         return None
     lead = max(claim.terms)
@@ -168,7 +171,8 @@ def hypothesis_body(kind, text):
     `let A be a set` and `let P be a point` introduce a name and state what
     the sort means, and the notation that states it is what the database
     declares. The line reads better as it is written, so the substitution
-    happens here and every reader of a hypothesis gets it."""
+    happens here and every reader of a hypothesis gets it.
+    """
     body = text[len(kind):] if text.startswith(kind) else text
     if kind == 'let':
         body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
@@ -185,7 +189,8 @@ def label_of(name, taken=(), path='', line=0):
 
     Where it runs out of names the theorem is the thing to rename, so its
     own place is what the defect carries. This is the one defect outside
-    `Elaborator`, which is why it is passed rather than known."""
+    `Elaborator`, which is why it is passed rather than known.
+    """
     stem = name.replace('-', '')[:8]
     if stem not in taken:
         return stem
@@ -201,7 +206,8 @@ class Fact:
 
     A line may say several things, and a substitution may land in one of
     them, so what is kept is every sentence rather than the claim as one
-    tree. A line read from no text at all keeps none."""
+    tree. A line read from no text at all keeps none.
+    """
 
     def __init__(self, term, proof, sentences=()):
         self.term, self.proof, self.sentences = term, proof, sentences
@@ -341,7 +347,8 @@ class Elaborator(Builder):
         it is in, and none of them can be wrong about it.
 
         A defect that names a line and no file names half a place, and
-        `parley/test_elaborate.py` asserts the whole of one."""
+        `parley/test_elaborate.py` asserts the whole of one.
+        """
         return Problem(self.thm.path, line, message)
 
     def no(self, shape, *terms):
@@ -351,7 +358,8 @@ class Elaborator(Builder):
         almost nothing does: the route that asked goes on to the next. That
         is what a decline is for, and writing a term out the way a Metamath
         file writes it is not cheap — this is given back 1.2 million times
-        in elaborating the geometric series alone."""
+        in elaborating the geometric series alone.
+        """
         return Declined(shape, terms, self.render)
 
     # --- terms --------------------------------------------------------------
@@ -364,7 +372,8 @@ class Elaborator(Builder):
         meant, and `|_|` is cardinality or absolute value according to what
         stands inside it. The names in scope are the proof's; an item's
         hypotheses are written in its own, and `let Y be a set` is where it
-        says so."""
+        says so.
+        """
         kept = self.g.sorts
         self.g.sorts = {**kept, **sorts_of_record(item)}
         try:
@@ -378,7 +387,8 @@ class Elaborator(Builder):
         Where the elaborator has got to goes with it. A formula that does
         not parse is a defect and wants somewhere to point; without a
         position it arrived looking like a route declining, and a `requires`
-        line nobody could read was taken as stated instead of reported."""
+        line nobody could read was taken as stated instead of reported.
+        """
         return parse(LABEL.sub('', text).strip(), self.g,
                      self.thm.path, self.at)
 
@@ -415,7 +425,8 @@ class Elaborator(Builder):
         Read from what the theorem fixed rather than from the names in hand,
         so the answer is the same wherever the notation is written. A proof
         that never fixes the name cannot write the notation at all, which is
-        what being local to a definition means."""
+        what being local to a definition means.
+        """
         out = {}
         for name in targets.fixes(self.pattern(node)):
             if name not in self.fixed:
@@ -430,7 +441,8 @@ class Elaborator(Builder):
 
         A shape is read from this rather than from the target as written,
         because a fixed name is a term of the theorem's and not a hole: a
-        rewrite walks past it the way it walks past a constant."""
+        rewrite walks past it the way it walks past a constant.
+        """
         pattern, fixed = self.pattern(node), self.held(node)
         return (targets.FIXED.sub(lambda m: fixed[m.group(1)], pattern)
                 if fixed else pattern)
@@ -441,7 +453,8 @@ class Elaborator(Builder):
         A notation with no target is a gap in `db/notation.records` and so
         a person's to fix. The position is the line that wrote the notation
         rather than the record that fails to declare it, because that is the
-        one this knows and it is where a reader would start looking."""
+        one this knows and it is where a reader would start looking.
+        """
         entries = self.terms.get(node.notation)
         if entries is None:
             raise self.defect(self.at,
@@ -464,7 +477,8 @@ class Elaborator(Builder):
         build that fact for a compound term, because to a reader that is
         not a step. It is settled the way every side condition is, from the
         lemmas `targets.MEMBERSHIP` names: putting a sum of integers in ZZ
-        and putting a summation index in CC are one question asked twice."""
+        and putting a summation index in CC are one question asked twice.
+        """
         goal = seq(self.term(node), want, 'wcel')
         if goal in facts:
             return facts[goal]
@@ -506,7 +520,8 @@ class Elaborator(Builder):
         A step is passed only where one is there to have cited a witness,
         which is what lets an existential be proved at all. Side conditions
         pass none, so they stay what they are: settled from declared
-        lemmas, never by finding a fact that happens to fit."""
+        lemmas, never by finding a fact that happens to fit.
+        """
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
@@ -595,7 +610,8 @@ class Elaborator(Builder):
         decrease and would go round until the stack gave out. It used to go
         round until the stack gave out and then catch that, which is a
         stack overflow read as a route declining; this is the same cut made
-        where it can be seen. `supplying` guards `requires` the same way."""
+        where it can be seen. `supplying` guards `requires` the same way.
+        """
         want = wanted.rpn(self.flabel)
         if want in self.saying:
             return None
@@ -621,7 +637,8 @@ class Elaborator(Builder):
             def stands(one, other, where, _held, reads=reads, names=names,
                        label=label):
                 """The one place the fact and the wanted differ, if the
-                equation is what stands between them."""
+                equation is what stands between them.
+                """
                 bound = kernel.match(reads.children[0], one, {}, names)
                 if bound is None or reads.children[0].names() - set(bound):
                     return None
@@ -657,7 +674,8 @@ class Elaborator(Builder):
         wants one set inside another before it will say that quantifying
         over the smaller is quantifying over the larger with the smaller in
         the body. So the asking is peeled off first and what is left is read
-        the same way a bare biconditional is."""
+        the same way a bare biconditional is.
+        """
         whole = self.syntax.statement(sig)
         asks, joins, reads = [], [], whole
         while reads.label == 'wi':
@@ -699,7 +717,8 @@ class Elaborator(Builder):
 
         `joins` says how each was joined to what followed it, which is what
         decides the lemma that discharges it. A reading that crosses a
-        biconditional has one of each and they do not discharge alike."""
+        biconditional has one of each and they do not discharge alike.
+        """
         variables = whole.names()
         binding = None
         while True:
@@ -776,7 +795,8 @@ class Elaborator(Builder):
 
         A target need not be one constructor. `S(_)` is a sum over a range
         that holds the hole, so reaching the hole passes a `csu` and then a
-        `co`, and each level wants its own congruence lemma."""
+        `co`, and each level wants its own congruence lemma.
+        """
         if pattern in self.shapes:
             return self.shapes[pattern]
         stack = []
@@ -819,7 +839,8 @@ class Elaborator(Builder):
 
         The path from the root of the claim to the occurrence decides the
         lemmas, one per step along it, and which hole the occurrence sits in
-        decides which lemma. Nothing is searched for."""
+        decides which lemma. Nothing is searched for.
+        """
         if self.term(node) == old:
             return new, eqproof
         # A binder's variable fills its slot as itself, and nothing rewrites
@@ -884,7 +905,8 @@ class Elaborator(Builder):
         Returns the unfolding lemma, the bound variable, the node the
         existential quantifies, and what it quantifies over. The body is
         returned facing the way the lemma writes it, which is not always the
-        way the text writes it."""
+        way the text writes it.
+        """
         item = self.items[name.split(':', 1)[1]]
         lemma, flipped = targets.unfolding(item)
         if lemma is None:
@@ -910,7 +932,8 @@ class Elaborator(Builder):
         rather than assumed of it.
 
         Returns the proof and the right side it reached. `ex` is the wording
-        the step wants; pass None to take whatever the lemma says."""
+        the step wants; pass None to take whatever the lemma says.
+        """
         sig = self.sigs[lemma]
         whole = self.syntax.statement(sig)
         asks, reads = [], whole
@@ -999,7 +1022,8 @@ class Elaborator(Builder):
         Built from the innermost quantifier out, which is the order the
         witnesses go in: `rspcev` wants the body at one witness and gives
         the existential over it, so the next one out is handed what the
-        last one proved."""
+        last one proved.
+        """
         layers, rest = [], wanted
         while rest.label == 'wrex':
             body, var, over = rest.children
@@ -1059,7 +1083,8 @@ class Elaborator(Builder):
         """`term` with every occurrence of the subterm `was` reading `now`.
 
         Both are given in reverse Polish, because a term is compared by what
-        it spells: the kernel's terms are trees without an equality."""
+        it spells: the kernel's terms are trees without an equality.
+        """
         if term.rpn(self.flabel) == was:
             return self.to_term(now)
         if term.variable is not None:
@@ -1076,7 +1101,8 @@ class Elaborator(Builder):
         the map binds, where that runs and what it builds are read back out
         of it, which is the same move `instanced` makes for a hypothesis
         relating two formulas: the lemma is saying what it means, not
-        asking for something."""
+        asking for something.
+        """
         for text in sig.essentials:
             asked = self.syntax.parse(text[1:], 'wff')
             if asked.label != 'wceq' or len(asked.children) != 2:
@@ -1107,7 +1133,8 @@ class Elaborator(Builder):
 
         A hypothesis relating two terms says the same thing of them as one
         relating two formulas says of those: `fsum1` asks `( k = M -> A =
-        B )`, and B is the summand read at M."""
+        B )`, and B is the summand read at M.
+        """
         out = dict(binding)
         for text in sig.essentials:
             asked = self.syntax.parse(text[1:], 'wff')
@@ -1131,7 +1158,8 @@ class Elaborator(Builder):
 
         `commutes` in `db/notation.records` is what says which operands may be,
         and which theorem proves it is not asked here: the exchange is an
-        equation, and an equation is settled like anything else."""
+        equation, and an equation is settled like anything else.
+        """
         for label, places, fixed in self.commutes:
             if given.label != label or want.label != label:
                 continue
@@ -1151,7 +1179,8 @@ class Elaborator(Builder):
         """A proof that two terms differing by an exchange agree.
 
         set.mm writes `( k x. 2 )` where the corpus writes 2k, and those are
-        the same number but not the same formula."""
+        the same number but not the same formula.
+        """
         def swapped(one, other, where, held):
             if not self.exchanged(one, other):
                 return None
@@ -1190,7 +1219,8 @@ class Elaborator(Builder):
         scope under the binder and forbids the binder in what it carries,
         and the scope here names the very set-builder whose body binds it.
         None of this wants a scope: the two are one claim wherever they
-        stand."""
+        stand.
+        """
         if given.rpn(self.flabel) == want.rpn(self.flabel):
             return None                        # nothing is spelt differently
         if (given.label != want.label
@@ -1287,7 +1317,8 @@ class Elaborator(Builder):
         What it refuses is a route declining and not a defect, however it
         was reached. It used to carry the step's line where a caller had a
         step and none where one did not, so the same failure was a defect
-        or a decline according to who was on the stack."""
+        or a decline according to who was on the stack.
+        """
         found = leaf(given, want, scope, facts)
         if found is not None:
             return found
@@ -1356,7 +1387,8 @@ class Elaborator(Builder):
 
         `then x ≤ |x|. −x ≤ |x|.` states two things at once, and the kernel
         has one conclusion, so the sentences are conjoined in the order the
-        text writes them."""
+        text writes them.
+        """
         said = [self.term(self.read(s)) for s in self.sentences(text)]
         whole = said[0]
         for extra in said[1:]:
@@ -1371,7 +1403,8 @@ class Elaborator(Builder):
         `let f : A → 𝒫A` by saying what the name maps between. All three
         name the thing they introduce first, so all three are read the same
         way: name the leftmost leaf, then read the line as a claim about
-        it."""
+        it.
+        """
         nodes, spare = [], list(CLASS_NAMES)
         for kind, text, _label, _line in self.thm.hypotheses:
             node = self.read(hypothesis_body(kind, text))
@@ -1401,7 +1434,8 @@ class Elaborator(Builder):
         `a` an `obtain` obtained. Read at the top they find neither.
 
         A block gives its names back when it closes, and these go with
-        them."""
+        them.
+        """
         while self.unread < len(self.thm.defines):
             _kind, text, label, line = self.thm.defines[self.unread]
             if line >= before:
@@ -1428,7 +1462,8 @@ class Elaborator(Builder):
         Only the names the body binds. A body may also mention a name the
         proof is already holding — the subsets proof defines U as the power
         set of X without the `a` it obtained — and renaming that one would
-        make the definition speak of some other element."""
+        make the definition speak of some other element.
+        """
         whole = self.to_term(rpn)
         binding = {}
         holds = {t.split()[0] for t in self.names.values()
@@ -1532,7 +1567,8 @@ class Elaborator(Builder):
 
         This is what every block form does when it opens: `ELABORATION.md`
         requirement 1. The frame is kept so that a step whose lemma forbids
-        the innermost assumption can be proved without it."""
+        the innermost assumption can be proved without it.
+        """
         inner = seq(scope, added, 'wa')
         lifted = {k: seq(inner, scope, k, seq(scope, added, 'simpl'), v, 'syl')
                   for k, v in facts.items()}
@@ -1568,7 +1604,8 @@ class Elaborator(Builder):
         """A block's assumption is conjoined onto the antecedent.
 
         All four block forms do this; what differs is the lemma that closes
-        them. `ELABORATION.md` requirement 1."""
+        them. `ELABORATION.md` requirement 1.
+        """
         head = step.just.head
         block = Block(step, scope, facts, len(self.frames) - 1)
         # Taken before the block names anything, so that what it names is
@@ -1650,7 +1687,8 @@ class Elaborator(Builder):
         """A closed block is the result of the part of its parent it sits in.
 
         What it was proved under goes up with it, because a part's claim is
-        written inside the part and what reads it stands outside."""
+        written inside the part and what reads it stands outside.
+        """
         if done.owner.part is not None and blocks:
             blocks[-1].parts[done.owner.part] = (done.claim, done.proof,
                                                  done.outer)
@@ -1664,7 +1702,8 @@ class Elaborator(Builder):
         it discharges where the block does, since the lemma that closes the
         block wants what the block holds and not what the obtain's scope
         holds. So the closers raised inside a contradiction are spent on it,
-        and only what is left over reaches the end of the proof."""
+        and only what is left over reaches the end of the proof.
+        """
         step = block.owner
         head = step.just.head
         inside = closers[block.opened_at:]
@@ -1720,7 +1759,8 @@ class Elaborator(Builder):
         A joined line may say several things at once — 3.1 names p and q and
         says in the same breath that nothing above 1 divides both — so the
         pair is looked for among the parts of the two lines rather than
-        between the lines whole."""
+        between the lines whole.
+        """
         step, scope, supposed = block.owner, block.outer, block.supposed
         if not self.joined:
             raise self.defect(step.line, 'the block closes on no join')
@@ -1751,7 +1791,8 @@ class Elaborator(Builder):
         What holds the pair differs by proof: the √2 proof joins two lines
         that each say one thing, and Cantor's cases give back a single line
         saying both. So every part of every line offered is a candidate, and
-        a line saying several things is taken apart first."""
+        a line saying several things is taken apart first.
+        """
         known = dict(facts)
         for line in lines:
             if line in known:
@@ -1777,7 +1818,8 @@ class Elaborator(Builder):
 
         Two places in a proof may bind one name under two words, because
         each is written where different words were already taken. What is
-        proved is the same claim, and `renaming` is what says so."""
+        proved is the same claim, and `renaming` is what says so.
+        """
         if said == want:
             return proof
         apart = self.renaming(self.to_term(said), self.to_term(want))
@@ -1802,7 +1844,8 @@ class Elaborator(Builder):
         each lemma can be applied in.
 
         A fix that is one part of an induction never arrives here:
-        `close_block` hands that one over whole, for `nnind` to take."""
+        `close_block` hands that one over whole, for `nnind` to take.
+        """
         step = block.owner
         # Read with the variables the block had, not the ones given back:
         # the claim quantifies the names the block fixed, and closing it
@@ -1893,7 +1936,8 @@ class Elaborator(Builder):
         own assumption conjoined, which is what each part was proved as, and
         the disjunction the block cites. The fourth and last block form, and
         the same shape as the other three: widen, prove, close with one
-        lemma."""
+        lemma.
+        """
         step, scope = block.owner, block.outer
         if set(block.parts) != set(block.assumed):
             raise self.defect(step.line, 'a case of the block proves nothing')
@@ -1913,7 +1957,8 @@ class Elaborator(Builder):
         of them: it says only which name to induct on and where to start. So
         the claim is read as a function of that name and instantiated, and
         each instance is tied to the general one by congruence.
-        `ELABORATION.md` requirement 13."""
+        `ELABORATION.md` requirement 13.
+        """
         step, scope = block.owner, block.outer
         if set(block.parts) != {0, 1}:
             raise self.defect(step.line, 'induction wants a base and a step')
@@ -2062,7 +2107,8 @@ class Elaborator(Builder):
         """Every sentence of a step's claim, as trees.
 
         `node` above is the last of them, because that is what an expansion
-        is about. A line is cited whole, so what it keeps is all of them."""
+        is about. A line is cited whole, so what it keeps is all of them.
+        """
         return tuple(self.read(s)
                      for s in self.sentences(' '.join(step.claim)))
 
@@ -2084,7 +2130,8 @@ class Elaborator(Builder):
 
         The claim may come from a definition unfolded, or from a theorem that
         states one outright, and it may introduce more than one name at once:
-        `thm:lowest-terms` gives a numerator and a denominator together."""
+        `thm:lowest-terms` gives a numerator and a denominator together.
+        """
         got = [n.strip() for n in re.match(
             r'obtain\s+(.+?)(?::|\s+from\b)', step.just.text).group(1)
             .split(',')]
@@ -2212,7 +2259,8 @@ class Elaborator(Builder):
         An item the corpus proves carries no statement in the database, so
         that the statement has one home and cannot drift; the home is the
         `theorem` line of the proof that proves it. One the database states
-        outright has it there."""
+        outright has it there.
+        """
         if item.conclusions:
             return item.conclusions[0][0]
         return self.proofs[item.name].conclusion
@@ -2227,7 +2275,8 @@ class Elaborator(Builder):
 
         Assuming it instead would give the same file, the same assumption
         count and no message, so a target that can never fire would read
-        exactly like a target nobody wrote."""
+        exactly like a target nobody wrote.
+        """
         # An item this corpus proves is applied the way a cited one is,
         # however the step reaches it: `obtain` asks for the existence its
         # statement claims, and `thm:lowest-terms` is proved here.
@@ -2260,7 +2309,8 @@ class Elaborator(Builder):
 
         `thm:lowest-terms` is the case: set.mm has nothing of its shape, as
         `db/items.records` says, so what it claims is assumed under the hypotheses
-        it asks for."""
+        it asks for.
+        """
         saved = dict(self.names)
         for name, value in instantiation(cites or step.just.text):
             self.names[name] = self.term(self.read(value))
@@ -2305,7 +2355,8 @@ class Elaborator(Builder):
         A line proved before a block opened holds inside it too, and the
         scope carries a copy that says so. The line's own proof states it at
         the scope it was made in, which is not where a step inside the block
-        can use it."""
+        can use it.
+        """
         held = lines[cite]
         return facts.get(held.term, held.proof)
 
@@ -2321,7 +2372,8 @@ class Elaborator(Builder):
 
         set.mm asks `( x = A -> ( ph <-> ps ) )` of it, which is the same
         thing `elrab` and `rspcev` ask, so what `ps` is is worked out from
-        the body rather than taken from anywhere."""
+        the body rather than taken from anywhere.
+        """
         where = step.just.target
         held = lines.get(where)
         if held is None:
@@ -2399,7 +2451,8 @@ class Elaborator(Builder):
         is `ELABORATION.md` requirement 11. The two differ in what comes out —
         rewriting inside a claim gives an equation between the two readings,
         rewriting a whole claim gives a biconditional — so what closes them
-        differs too."""
+        differs too.
+        """
         # The reference is a bracket near the end; the equation may hold
         # brackets of its own, as `S(k) = k(k + 1)/2` does, and `into` may
         # follow, as `substitute √2 = p/q (line 3.1) into line 1` does.
@@ -2488,7 +2541,8 @@ class Elaborator(Builder):
         both sides are driven to the same canonical term and the step is
         the two of them meeting. What that module does not yet write — a
         quotient, a coefficient past one digit — is taken as stated, which
-        is what every `algebra` step was before it existed."""
+        is what every `algebra` step was before it existed.
+        """
         self.decide_field(step, term, lines)
         found = self.prove_field(step, term, scope, facts, lines)
         if declined(found):
@@ -2559,7 +2613,8 @@ class Elaborator(Builder):
         The scalar is 1 or −1. `decide_field` allows any nonzero rational and
         a step wanting another is refused here rather than guessed at: it
         would have to be spelt as a term and multiplied in, and the corpus
-        has no such step to check that against."""
+        has no such step to check that against.
+        """
         if step is None:
             return Declined('a disequality needs the step it cites')
         claim = field.denied(goal, self.flabel)
@@ -2605,7 +2660,8 @@ class Elaborator(Builder):
 
         sqrt2-irrational concludes `m^2 = 2 j^2` from `( m / j ) ^ 2 = 2`.
         Those are the same equation: the second divides where the first
-        has multiplied out, and `divmuleq` is the step between them."""
+        has multiplied out, and `divmuleq` is the step between them.
+        """
         want = field.equation(self.to_term(seq(left, right, 'wceq')),
                               self.flabel)
         for ref in step.just.refs:
@@ -2681,7 +2737,8 @@ class Elaborator(Builder):
 
         The text writes these: `requires 2 =/= 0` and `requires q =/= 0`
         are what a step dividing by either of them carries, so the fact is
-        there to be found rather than to be proved again here."""
+        there to be found rather than to be proved again here.
+        """
         def apart(said):
             want = seq(said, 'cc0', 'wne')
             if want in facts:
@@ -2703,7 +2760,8 @@ class Elaborator(Builder):
         number and the two lookups above compare spellings, so the fact the
         step wrote is there and is missed. What decides is the polynomial,
         and the equation carrying one spelling to the other is the
-        normalizer's own: it is what `normalize` returns beside the terms."""
+        normalizer's own: it is what `normalize` returns beside the terms.
+        """
         work = normal.Emitter(
             self.sigs, scope,
             lambda term: facts.get(seq(term, 'cc', 'wcel'))
@@ -2746,7 +2804,8 @@ class Elaborator(Builder):
         Where either divides, the canonical form is a numerator over a
         denominator, and two of those are the same when the cross product
         of them is — which is `divmuleq`, and leaves a polynomial identity
-        for the case above to answer."""
+        for the case above to answer.
+        """
         first_items, first_under, first = work.normalize_quotient(
             self.to_term(left), self.flabel)
         second_items, second_under, second = work.normalize_quotient(
@@ -2836,7 +2895,8 @@ class Elaborator(Builder):
         left is saying it. Each cited equation is a difference that is zero;
         each is multiplied by what the combination says, and stays zero; the
         sum of them is zero because every one is; and that sum is the
-        claim's own difference, which is the normalizer's question."""
+        claim's own difference, which is the normalizer's question.
+        """
         want = field.equation(self.to_term(seq(left, right, 'wceq')),
                               self.flabel)
         given, where = [], []
@@ -2860,7 +2920,8 @@ class Elaborator(Builder):
             is a sum of two products of a difference of a product — and each
             level is a closure lemma with the atoms at the bottom reached
             through `recn`. Five is not enough for that and is the depth a
-            side condition wants, so this asks for its own."""
+            side condition wants, so this asks for its own.
+            """
             want_cc = seq(said, 'cc', 'wcel')
             if want_cc in facts:
                 return facts[want_cc]
@@ -2921,7 +2982,8 @@ class Elaborator(Builder):
         sqrt2-irrational concludes `j^2 = 2 p^2` from `2 j^2 = 4 p^2`: the
         equation it cites is the claim with both sides doubled. Proving
         each side is that multiple is the polynomial case again, and what
-        is left is cancelling the multiplier."""
+        is left is cancelling the multiplier.
+        """
         want = field.equation(self.to_term(seq(left, right, 'wceq')),
                               self.flabel)
         for ref in step.just.refs:
@@ -2988,7 +3050,8 @@ class Elaborator(Builder):
         cited it must be a combination of them. That the denominators are
         not zero is not decided here — the text writes those as `requires`
         lines, which is what `METHODS.md` means by them being hypotheses of
-        the method."""
+        the method.
+        """
         claim = field.equation(self.to_term(term), self.flabel)
         if claim is None:
             return self.decide_apart(step, term, lines)
@@ -3019,7 +3082,8 @@ class Elaborator(Builder):
         here decides that.
 
         A claim that is neither an equation nor a disequality is left alone,
-        as it was before either was decided."""
+        as it was before either was decided.
+        """
         claim = field.denied(self.to_term(term), self.flabel)
         if claim is None:
             return
@@ -3040,7 +3104,8 @@ class Elaborator(Builder):
 
         A relation between two numerals is said outright; a value is an
         identity of the field with no atoms in it, so it goes where
-        identities go rather than wanting a second procedure."""
+        identities go rather than wanting a second procedure.
+        """
         for how in (lambda: self.prove_numeral(term, scope, facts),
                     lambda: self.prove_field(step, term, scope, facts,
                                              lines)):
@@ -3057,7 +3122,8 @@ class Elaborator(Builder):
         set.mm names for every pair — that one number is below another —
         and everything else is that weakened or turned: `ltle` for `at
         most`, `ltne` for `not equal`, `leid` and `eqid` where the two are
-        the same number."""
+        the same number.
+        """
         goal = self.to_term(term)
         negated = False
         if goal.variable is None and goal.label == 'wn' \
@@ -3133,7 +3199,8 @@ class Elaborator(Builder):
         """( scope -> a < b ), the one thing set.mm names for every pair.
 
         It names `0 < n` as `npos` rather than `0ltn`, and one is the
-        exception to that, so the three spellings are all there is."""
+        exception to that, so the three spellings are all there is.
+        """
         if a != 0:
             label = f'{a}lt{b}'
         else:
@@ -3182,7 +3249,8 @@ class Elaborator(Builder):
 
         A step that cites nothing decidable is taken as before: the method
         carries steps whose facts are not linear, and `METHODS.md` refuses
-        those rather than this."""
+        those rather than this.
+        """
         self.decide_order(step, term, lines)
         found = self.prove_order(step.just.refs, term, scope, facts, lines)
         if declined(found):
@@ -3207,7 +3275,8 @@ class Elaborator(Builder):
         two being the same expression is a question for the normalizer.
 
         A combination that scales an inequality is a different proof and
-        is not written yet, so those steps stay assumed."""
+        is not written yet, so those steps stay assumed.
+        """
         goal = self.to_term(term)
         given, where = [], []
         for ref in refs:
@@ -3275,7 +3344,8 @@ class Elaborator(Builder):
         by splitting the claim into its two halves, which is not a split
         any cited line offers, so the two bounds are looked for as they
         stand: Bezout's step 20 has d ≤ gcd(a, b) and gcd(a, b) ≤ d, and
-        says the two are equal."""
+        says the two are equal.
+        """
         sides = order_sides(goal)
         if sides is None or sides[2] != '=':
             return None
@@ -3309,7 +3379,8 @@ class Elaborator(Builder):
         and `order_sides` cannot read a denial at all, so such a claim was
         decided and then had nothing to emit. What holds instead is proved
         first, and `ltnle` or `lenlt` turns it round. Those are two of the
-        three labels `db/methods.records` names for this method."""
+        three labels `db/methods.records` names for this method.
+        """
         sides = order_sides(goal.children[0])
         if sides is None or sides[2] not in ('<', '<='):
             return Declined('what is denied states no relation')
@@ -3344,7 +3415,8 @@ class Elaborator(Builder):
         combination. Each side is the same claim at a scope one wider, with
         the side's bound standing as a line of its own, so the method proves
         it the way it proves anything; a side that splits again is another
-        of these. `mpjaodan` puts the two back together."""
+        of these. `mpjaodan` puts the two back together.
+        """
         _tag, which = found[0], found[1]
         if which >= len(given):
             return Declined('what splits is the claim, not a citation')
@@ -3395,7 +3467,8 @@ class Elaborator(Builder):
         claim. The claim may follow from the bound and what is cited, which
         is the method again. Or the bound may contradict what is cited, and
         then the claim holds because nothing does: the case is impossible
-        and `METHODS.md` counts it refuted rather than proved."""
+        and `METHODS.md` counts it refuted rather than proved.
+        """
         if term in facts:
             return facts[term]
         found = self.prove_order(refs, term, scope, facts, lines, skip)
@@ -3407,7 +3480,8 @@ class Elaborator(Builder):
         """The claim, because the bound this scope opened cannot hold.
 
         `lenlt` is what says so: a ≤ b and b < a deny each other, and the
-        step already has the first where the case supposes the second."""
+        step already has the first where the case supposes the second.
+        """
         node = self.to_term(bound)
         sides = order_sides(node)
         if sides is None or sides[2] != '<':
@@ -3442,7 +3516,8 @@ class Elaborator(Builder):
         The claim is a denial, so the combination that reaches it is the
         denial supposed and contradicted. Where the contradiction is with
         a single strict bound between the very two the claim names, that
-        whole argument is `ltne`: something below another is not it."""
+        whole argument is `ltne`: something below another is not it.
+        """
         if len(used) != 1 or given[used[0]].how != '<':
             return Declined('not one strict bound')
         ref, said = where[used[0]]
@@ -3485,7 +3560,8 @@ class Elaborator(Builder):
 
         A claim that is strict gets its strictness from the constant the
         bounds leave over, which is a closed numeral fact the step does
-        not cite. `METHODS.md` says the method may use one."""
+        not cite. `METHODS.md` says the method may use one.
+        """
         if how == '<':
             if spare != -1 or len(used) != 1:
                 return Declined('only one bound short of one is '
@@ -3581,7 +3657,8 @@ class Elaborator(Builder):
 
         `leltadd` is the addition that keeps the strictness, and `suble0`
         has no strict twin, so the claim comes back through `ltsubadd`
-        with nothing on the right and `addlid` to tidy it."""
+        with nothing on the right and `addlid` to tidy it.
+        """
         scope = work.under
         minus, span = seq('c1', 'cneg'), seq(left, right, 'cmin', 'co')
         total = seq(gap, minus, 'caddc', 'co')
@@ -3669,7 +3746,8 @@ class Elaborator(Builder):
         """A term at most zero, said of the claim's two sides.
 
         The normalizer says the term is the claim's difference, and
-        `suble0` says a difference at most zero is `<_` between them."""
+        `suble0` says a difference at most zero is `<_` between them.
+        """
         scope, span = work.under, seq(left, right, 'cmin', 'co')
         return work.ap(
             'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
@@ -3691,7 +3769,8 @@ class Elaborator(Builder):
         Everything a sum takes is brought to that one shape first, so the
         addition has one case rather than one per relation. An equation is
         at most zero because it is zero exactly; an inequality already is,
-        and scaling it by something positive leaves it so."""
+        and scaling it by something positive leaves it so.
+        """
         scope = work.under
         if said.variable is None and said.label == 'wn' \
                 and len(said.children) == 1:
@@ -3788,7 +3867,8 @@ class Elaborator(Builder):
 
         `prime-above` reaches its bound by supposing the opposite and
         finding no witness, so what it has is `-. A < m` where the method
-        wants `m <_ A`. `lenlt` is the one saying those are the same."""
+        wants `m <_ A`. `lenlt` is the one saying those are the same.
+        """
         parts = order_sides(inner)
         if parts is None or parts[2] != '<':
             return Declined('only a denied `<` is turned round')
@@ -3823,7 +3903,8 @@ class Elaborator(Builder):
 
         A line may say several things at once — `abs-bounds` concludes a
         pair of bounds — and what the step uses is one of them, so the
-        line is taken apart the way `opposing` takes one apart."""
+        line is taken apart the way `opposing` takes one apart.
+        """
         want = said.rpn(self.flabel)
         held = self.carried(ref, facts, lines)
         if lines[ref].term == want:
@@ -3856,7 +3937,8 @@ class Elaborator(Builder):
         An equation may be multiplied by anything, which is what lets one
         cited equation carry a claim on its own. A combination that uses
         an inequality needs that inequality scaled and added, and is a
-        different proof."""
+        different proof.
+        """
         ref, said = cited
         parts = order_sides(said)
         if parts is None or parts[2] != '=':
@@ -3963,7 +4045,8 @@ class Elaborator(Builder):
 
         A cited line of several sentences supplies each sentence that is a
         linear fact and is ignored for the rest, so citing a line that also
-        states a membership is not an error."""
+        states a membership is not an error.
+        """
         claim = linear.fact(self.to_term(term), self.flabel)
         if claim is None:
             return                               # not a relation this decides
@@ -3987,7 +4070,8 @@ class Elaborator(Builder):
         `def:irrational` says x is irrational exactly when x is real and not
         rational, and the step cites the two lines that say each. The lemma
         gives the biconditional and the lines give its right side, so the
-        definition is read the way the text reads it: right to left."""
+        definition is read the way the text reads it: right to left.
+        """
         item = self.items[step.just.head.split(':', 1)[1]]
         return self.trying(item, step, self.one_equivalent, term, scope,
                            facts, lines)
@@ -4027,7 +4111,8 @@ class Elaborator(Builder):
         `def:set-builder` says that belonging to {t ∈ X : P(t)} is belonging
         to X and having the property, and Cantor's step 3.1.3.1 wants the
         second of those from a line that says the first. So the definition
-        is read left to right and what it gives is taken apart."""
+        is read left to right and what it gives is taken apart.
+        """
         item = self.items[step.just.head.split(':', 1)[1]]
         return self.trying(item, step, self.one_unfolded, term, scope, facts,
                            lines)
@@ -4114,7 +4199,8 @@ class Elaborator(Builder):
         A defect the way found on its own account is not one of the lemmas
         declining, and goes past. It used to be caught here with them and
         kept in `trouble`, which meant a proof whose later lemma happened to
-        fit was accepted with the defect in it and nothing said so."""
+        fit was accepted with the defect in it and nothing said so.
+        """
         declines = []
         for lemma in targets.clauses(item):
             found = way(lemma, step, term, scope, facts, lines)
@@ -4135,7 +4221,8 @@ class Elaborator(Builder):
         Every lemma the target names is asked, not just the first: `rabid`
         and `elrab` say the same thing of a set-builder and differ only in
         what they ask, so which of the two fits says nothing about which
-        way the definition is being read."""
+        way the definition is being read.
+        """
         for lemma in targets.clauses(item):
             whole = self.syntax.statement(self.sigs[lemma])
             while whole.label == 'wi':
@@ -4154,7 +4241,8 @@ class Elaborator(Builder):
         elaborates to the conjunction of the six equations `def:congruent`
         lists, so a step reading one of them off names the definition but
         asks for nothing the file does not have: the claim is a conjunct,
-        and `unpack` reaches it."""
+        and `unpack` reaches it.
+        """
         found = self.projected(step, term, scope, facts, lines)
         if found is not None:
             return found
@@ -4164,7 +4252,8 @@ class Elaborator(Builder):
         """The claim, when a line the step cites is a conjunction stating it.
 
         The depth is the six conjuncts of a congruence, which nest to the
-        left, so reaching the first of them costs five."""
+        left, so reaching the first of them costs five.
+        """
         for ref in step.just.refs:
             cited = lines[ref]
             known = dict(facts)
@@ -4185,7 +4274,8 @@ class Elaborator(Builder):
         and the next one is asked. What it is not is the elaborator's own
         limit: the database named these lemmas, so a step none of them
         reaches is a step claiming what the definition does not say, and
-        that is a defect rather than a decline."""
+        that is a defect rather than a decline.
+        """
         item = self.items[step.just.head.split(':', 1)[1]]
         found = self.by_clause(targets.split_entries(item.fields['target']),
                                term, scope, facts, step,
@@ -4213,7 +4303,8 @@ class Elaborator(Builder):
         exactly one, eliminated, and the claim introduced at the variables
         it gave up. `obtain` does the eliminating for a step, deferring the
         discharge because only the main loop knows a goal; here the goal is
-        in hand and nothing is deferred."""
+        in hand and nothing is deferred.
+        """
         if goal.label != 'wrex' or reads.label not in ('wrex', 'wreu'):
             return None
         if seed is None or (reads.names() - set(seed)
@@ -4286,7 +4377,8 @@ class Elaborator(Builder):
         So each is proved at what the `with` target says it is about, and
         the claim introduced at the terms they turn out to be about. The
         lemmas are the ones the database names and the witnesses are read
-        off them, which is what keeps this from being a search."""
+        off them, which is what keeps this from being a search.
+        """
         if not labels or not seed:
             return None
         want = self.to_term(goal)
@@ -4317,7 +4409,8 @@ class Elaborator(Builder):
         A binder is written `cv` over a setvar, which matches a setvar and
         nothing else. What a claim quantifies over may be answered by a
         term — a rational's numerator is one — and the name is the claim's
-        way of writing it, not a constraint on what it is."""
+        way of writing it, not a constraint on what it is.
+        """
         if node.variable is not None:
             return node
         if node.label == 'cv' and node.children[0].variable in marks:
@@ -4338,7 +4431,8 @@ class Elaborator(Builder):
         rational is its numerator over its denominator, and matching a
         claim's `x = p / q` against it is what says that p and q stand for
         those two — so the binder is matched as the class it stands for
-        rather than as the name it is written with."""
+        rather than as the name it is written with.
+        """
         marks, rest = [], goal
         while rest.label == 'wrex':
             marks.append(rest.children[1].variable)
@@ -4409,7 +4503,8 @@ class Elaborator(Builder):
         caller handing each of them a spare variable hands them out in this
         order and the proof it writes says which. A set here spelt the same
         proof two ways from one run to the next, and the build's report that
-        nothing changed is the only evidence a change moved no proof."""
+        nothing changed is the only evidence a change moved no proof.
+        """
         out, rest = [], term
         while rest.label in ('wrex', 'wreu'):
             out.append(rest.children[1].variable)
@@ -4423,7 +4518,8 @@ class Elaborator(Builder):
         whatever divisor it is given, and `def:gcd` says it of every e in
         ℕ. The name is fixed, the lemma applied to it, and `ralrimiva`
         gives it back — the same move a `fix` block closes with, over a
-        lemma rather than over a block."""
+        lemma rather than over a block.
+        """
         if goal.label != 'wral':
             return None
         body, variable, over = goal.children
@@ -4447,7 +4543,8 @@ class Elaborator(Builder):
         `gcddvds` says in one conjunction that a gcd divides both its
         arguments, and `def:gcd` states those as two sentences because a
         reader reads them as two. The half the claim is fixes the lemma,
-        and `simpld` or `simprd` takes it."""
+        and `simpld` or `simprd` takes it.
+        """
         if reads.label != 'wa' or len(reads.children) != 2:
             return None
         asks, walk = [], whole
@@ -4493,7 +4590,8 @@ class Elaborator(Builder):
 
         Only with a full seed. A claim left to fix a variable is a claim
         the conclusion has to match, or the lemma would be applied at
-        whatever made the bridge work rather than at what the item says."""
+        whatever made the bridge work rather than at what the item says.
+        """
         if seed is None or reads.names() - set(seed):
             return None
         said = reads.substitute(seed)
@@ -4527,7 +4625,8 @@ class Elaborator(Builder):
 
         The walk decides where to ask, so nothing is looked for: each place
         the two terms differ is one equation, and it is settled where it
-        stands. A difference the scope does not prove is not a route."""
+        stands. A difference the scope does not prove is not a route.
+        """
         def proved(one, other, where, held):
             if one.rpn(self.flabel) == other.rpn(self.flabel):
                 return None
@@ -4573,7 +4672,8 @@ class Elaborator(Builder):
 
         The bridge comes from `targets.MEMBERSHIP` and nowhere else, which
         is the rule that stops an elaborator reaching a claim by whatever it
-        can find that fits."""
+        can find that fits.
+        """
         variables = whole.names()
         want = goal.rpn(self.flabel)
         for bridge in targets.MEMBERSHIP:
@@ -4623,7 +4723,8 @@ class Elaborator(Builder):
         write, so nothing is lost by writing it.
 
         Read only after the conclusion and the scope have both been asked,
-        so a class the step does decide is decided by the step."""
+        so a class the step does decide is decided by the step.
+        """
         out, rest = [], [slot]
         while rest:
             node = rest.pop()
@@ -4660,7 +4761,8 @@ class Elaborator(Builder):
         `seed` is what a `with` target said the lemma's variables stand
         for. The match confirms it where the conclusion is the claim, and
         supplies it where the conclusion is the claim said differently and
-        so fixes nothing."""
+        so fixes nothing.
+        """
         sig = self.sigs[label]
         whole = self.syntax.statement(sig)
         variables = whole.names()
@@ -4835,7 +4937,8 @@ class Elaborator(Builder):
         So the lemma proves what it does say — `G(0) = a^0` — and the
         claim is settled from that, here, where the theorem's `let a ∈ ℝ`
         is in scope. That is the only place the fact is available and the
-        reason the closed hypothesis could never have carried it."""
+        reason the closed hypothesis could never have carried it.
+        """
         reads = self.syntax.statement(sig)
         while reads.label == 'wi':
             reads = reads.children[1]
@@ -4905,7 +5008,8 @@ class Elaborator(Builder):
         `fsump1` forbids its summation variable in the antecedent, and the
         induction hypothesis is an equation between sums, so it holds that
         variable. The step is written inside that scope and cannot be proved
-        there. It is proved one frame out and carried back in."""
+        there. It is proved one frame out and carried back in.
+        """
         forbidden = set()
         for a, b in sig.disjoint:
             for one, other in ((a, b), (b, a)):
@@ -4940,7 +5044,8 @@ class Elaborator(Builder):
         theorem; under the lines it cites it assumes only that two
         inequalities may be added, which is what the method is for. The
         cited lines are also why the file needs the proofs above it: an
-        assumption that drops them leaves them unused and unchecked."""
+        assumption that drops them leaves them unused and unchecked.
+        """
         asks = []
         for ref in step.just.refs:
             cited = lines[ref]
@@ -4976,7 +5081,8 @@ class Elaborator(Builder):
         What a statement asks to be pushed is every variable it mentions, in
         the order the database declares them, which is not the order the
         statement happens to write them in. The same statement asked for
-        twice is listed once: two steps may need the same arithmetic."""
+        twice is listed once: two steps may need the same arithmetic.
+        """
         if text in self.assumed:
             return self.assumed[text]
         label = self.fresh(prefix)
@@ -4996,7 +5102,8 @@ class Elaborator(Builder):
         class: Cantor quantifies over B, and B there is a class variable.
         So the letter's own label is taken only when it names a setvar, and
         a spare stands in otherwise — the same one every time, since the
-        name is one name wherever the proof writes it."""
+        name is one name wherever the proof writes it.
+        """
         if name in self.bound_as:
             return self.bound_as[name]
         label = self.flabel.get(name)
@@ -5027,7 +5134,8 @@ class Elaborator(Builder):
         `close_block` gives the word back when the block ends.
 
         What the scope does not hold is free to agree, which is why the
-        Cantor proof's fixed x is the x its conclusion quantifies."""
+        Cantor proof's fixed x is the x its conclusion quantifies.
+        """
         own = self.flabel.get(name)
         held = ({t.split()[0] for t in self.names.values()
                  if isinstance(t, str) and t.endswith(' cv')}
@@ -5051,7 +5159,8 @@ class Elaborator(Builder):
         what says so for the rest of the proof. Bezout defines S over an m
         before any step writes one; handing that m out again would make one
         variable of two binders, and a lemma eliminating either of them
-        forbids the other in what it carries."""
+        forbids the other in what it carries.
+        """
         held = ({t.split()[0] for t in self.names.values()
                  if isinstance(t, str) and t.endswith(' cv')}
                 | self.reserved | set(self.bound_as.values()))
@@ -5068,7 +5177,8 @@ class Elaborator(Builder):
         `_i =/= 1`, and a file that includes another numbers its own from one
         as well. So the label says which file it belongs to, and is looked
         for rather than taken: the library is large enough that a short name
-        is never safely free."""
+        is never safely free.
+        """
         stem = label_of(self.thm.name, self.sigs, self.thm.path,
                         self.thm.line)
         number = len(self.axioms) + 1
@@ -5088,7 +5198,8 @@ class Elaborator(Builder):
 
         A line naming an item is that item cited, and citing it asks the
         step for its own `requires` lines again. The one being proved is
-        not among what can prove it, so it is held out while it is."""
+        not among what can prove it, so it is held out while it is.
+        """
         known = dict(facts)
         for text, how, _line in (step.requires if step is not None else ()):
             want = self.read(text)
@@ -5109,7 +5220,8 @@ class Elaborator(Builder):
         is not expanded has to say so. `requires q ≠ 0: inequalities, from
         3.1` asks only that a positive number is not zero; an assumption
         that drops the 3.1 asks that the number is not zero, which is more
-        than the line says and leaves 3.1 unused."""
+        than the line says and leaves 3.1 unused.
+        """
         term = self.term(want)
         if term in facts:
             return facts[term]
@@ -5185,7 +5297,8 @@ class Elaborator(Builder):
 
         A link may cite a line the other way round — `3.3, right to left` —
         because nothing in the readable layer says which way an equation
-        faces, and the chain wants them all facing the same way."""
+        faces, and the chain wants them all facing the same way.
+        """
         links = []
         for text, _line in step.just.chain:
             turned = 'right to left' in text
@@ -5242,7 +5355,8 @@ class Elaborator(Builder):
         claims something above 1 divides both, and the line saying 2 divides
         p is what says the something is 2. That is the same expansion as a
         definition used to conclude an existence claim, with the witness
-        coming from a different place. `ELABORATION.md` requirement 7."""
+        coming from a different place. `ELABORATION.md` requirement 7.
+        """
         whole = self.to_term(term)
         if whole.label != 'wrex':
             raise self.defect(step.line,
@@ -5305,7 +5419,8 @@ class Elaborator(Builder):
         Bezout proof cites `a = a·1 + b·0` for a body quantified over two
         names, and looking for one of them at a time finds neither: where
         the pattern holds the other's variable the line holds a numeral, and
-        a place that has to agree does not."""
+        a place that has to agree does not.
+        """
         found = {}
         if (pattern.label == actual.label
                 and self.aligned(pattern, actual, marks, found)
@@ -5337,7 +5452,8 @@ class Elaborator(Builder):
         """A definition used the other way: to conclude an existence claim.
 
         The witness is never written in the text. It is read off the cited
-        line, by walking the shape the definition states against it."""
+        line, by walking the shape the definition states against it.
+        """
         subject = self.term(self.read(instantiation(step.just.text)[0][1]))
         var = self.spare_var()
         saved = dict(self.names)
@@ -5406,7 +5522,8 @@ class Elaborator(Builder):
         both joined lines itself, so the join only records which pair. Inside
         a case it is `jca`, and the lines are paired by what they claim, since
         the text lists them in the order they were derived and the conclusion
-        states them in the theorem's order. `ELABORATION.md` requirement 8."""
+        states them in the theorem's order. `ELABORATION.md` requirement 8.
+        """
         self.joined = [lines[ref].term for ref in step.just.refs]
         if self.enclosing is not None \
                 and self.enclosing.owner.just.head == 'contradiction':
@@ -5440,7 +5557,8 @@ class Elaborator(Builder):
         That works while the conclusion is the claim. Where it is the claim
         said differently, nothing fixes the lemma's variables at all, and
         the item says which is which: `target <label> with N := n` is the
-        `with` form `targets.lemma` has always read."""
+        `with` form `targets.lemma` has always read.
+        """
         labels = targets.clauses(item)
         if not labels:
             # Nothing in the library has its shape, so the file states what
@@ -5463,7 +5581,8 @@ class Elaborator(Builder):
         usually claims one of them — `def:sqrt` is cited three times over —
         but it may claim what the item says entire, as Bezout's step 15
         says what a gcd is in four sentences, and then the clauses are
-        taken one to a sentence and joined."""
+        taken one to a sentence and joined.
+        """
         for label in labels:
             found = self.apply_lemma(label, self.to_term(term), scope,
                                      facts, step, seed=seed)
@@ -5488,7 +5607,8 @@ class Elaborator(Builder):
         wrote what those stand for, so they are read under the citation's
         instantiation — the reading `assume_item` makes of the same text,
         and from the same place, since an `obtain` writes it apart from the
-        justification the step carries."""
+        justification the step carries.
+        """
         _label, fills = targets.lemma(item)
         if not fills:
             return {}
@@ -5515,7 +5635,8 @@ class Elaborator(Builder):
         a hypothesis binds takes the same variable in either proof, since
         that is what `binder_var` is for. What a class variable stands for
         does not, which is why a setvar standing in for one — Bezout puts
-        an obtained d where this theorem writes D — is not one of these."""
+        an obtained d where this theorem writes D — is not one of these.
+        """
         bound, rest = set(), [self.to_term(one) for one in said]
         while rest:
             node = rest.pop()
@@ -5548,7 +5669,8 @@ class Elaborator(Builder):
 
         None where the file is not there, which is every proof cited before
         it has been built. Those are the ones whose names happen to agree,
-        and they are pushed as they were before this."""
+        and they are pushed as they were before this.
+        """
         path = path_of(name)
         if not path.exists():
             return None
@@ -5582,7 +5704,8 @@ class Elaborator(Builder):
         """Apply a theorem this corpus proves, as this elaborator states it.
 
         Its hypotheses became the antecedent of one implication, so citing it
-        is conjoining the facts the step supplies and applying one label."""
+        is conjoining the facts the step supplies and applying one label.
+        """
         other = self.proofs[item.name]
         if item.name not in self.cited:
             self.cited.append(item.name)
@@ -5656,7 +5779,8 @@ class Elaborator(Builder):
 
         A lemma can ask for more than the text writes: `divides` wants both
         sides of `d || n` in ZZ, and only the side a reader could doubt is
-        written down. What no line supplies is settled from the term."""
+        written down. What no line supplies is settled from the term.
+        """
         if goal in facts:
             return facts[goal]
         for text, _how, _line in step.requires:
@@ -5681,7 +5805,8 @@ class Elaborator(Builder):
         Freezing the tree settles what it means before the names change
         back. A binder's own variable is left alone: it stands for itself,
         and the slot it fills wants the variable rather than a term saying
-        what the variable means."""
+        what the variable means.
+        """
         if not node.children:
             return _Literal(self.term(node))
         # The body speaks of what the binder introduces, so the name stands
@@ -5737,7 +5862,8 @@ def definitions(records, sigs):
     the token is not already a label, and that the term parses and closes
     over its own variables. A definition introducing a symbol the library
     already has would not be a definition, and one whose term had a free
-    variable would not be eliminable."""
+    variable would not be eliminable.
+    """
     labels = {s.statement[1]: s.label for s in sigs.values()
               if s.kind == '$f'}
     said = []
@@ -5784,7 +5910,8 @@ def say_library(path, count):
     `count` is read off the library before anything is elaborated. An
     elaborator adds to its own table as it goes — the corpus's definitions,
     and a label for each statement a file assumes — so counting at the point
-    the header is written would count those too."""
+    the header is written would count those too.
+    """
     digest = hashlib.sha256(Path(path).read_bytes()).hexdigest()
     print(f'   Checked against a set.mm of {count:,} assertions, sha256')
     print(f'   {digest}. $)')
@@ -5822,7 +5949,8 @@ def render(rpn, sigs):
 
     A proof is reverse Polish because that is what the kernel reads, and a
     `$a` states its claim in full, so anything the elaborator writes out has
-    to come back the other way."""
+    to come back the other way.
+    """
     stack = []
     for token in rpn.split():
         sig = sigs[token]
@@ -5852,7 +5980,8 @@ def term_of(rpn, sigs):
 def main(argv, root=None):
     """Elaborate one theorem of the corpus at `root`, which is this one
     unless a caller says otherwise. `parley/test_elaborate.py` says
-    otherwise, because it plants a defect in a copy."""
+    otherwise, because it plants a defect in a copy.
+    """
     if len(argv) < 3:
         print(__doc__.strip().splitlines()[-1], file=sys.stderr)
         return 2
@@ -5972,7 +6101,8 @@ def report(argv):
     more than the traceback that used to carry it. A route declining is not
     one of those and never reaches here: `Elaborator.step` is where every
     route having declined becomes a defect, because that is where the step
-    it was about is known."""
+    it was about is known.
+    """
     try:
         return main(argv)
     except Problem as said:

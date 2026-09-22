@@ -11,7 +11,14 @@ line-length = 88
 # that catch real mistakes, and ruff's own checks, which include telling us
 # when a `noqa` stops applying. Deliberately not the style rules that rewrite
 # working code into a house dialect: this is a gate, not a formatter.
-select = ["E", "W", "F", "I", "B", "RUF"]
+select = ["E", "W", "F", "I", "B", "RUF", "D209"]
+
+# D209 is the one docstring rule taken from pydocstyle: a docstring that runs
+# to several lines closes on a line of its own, so that the last sentence and
+# the quotes that end the docstring are not the same line. The rest of `D` is
+# left out under the sentence above. It asks for a one-line summary with the
+# body below it, and an `Args:` entry per parameter, and those are judgements
+# about how to write a docstring rather than about where a quote sits.
 
 # The ambiguous-character rules ask whether ℝ was meant to be R, and whether
 # the minus sign was meant to be a hyphen. In this repository they always were

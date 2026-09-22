@@ -40,7 +40,8 @@ def triangle(p, q, r):
     """What `def:triangle` says of three points, as set.mm writes it.
 
     Three distinct points that are not collinear, and in the plane the
-    three being collinear is (r − p)/(q − p) being real."""
+    three being collinear is (r − p)/(q − p) being real.
+    """
     return (f'( ( ( -. {p} = {q} /\\ -. {q} = {r} ) /\\ -. {p} = {r} ) '
             f'/\\ -. ( ( {r} - {p} ) / ( {q} - {p} ) ) e. RR )')
 
@@ -49,7 +50,8 @@ def differs(b, under, x, y, mem_x, mem_y, unequal):
     """( under -> ( x - y ) =/= 0 ), given ( under -> -. x = y ).
 
     A difference is zero exactly when the two are equal, so the point of
-    the step is to carry that across the negation."""
+    the step is to carry that across the negation.
+    """
     w = {'ph': b.wff(under), 'A': b.rpn(x), 'B': b.rpn(y)}
     return b.ap('mpbird',
                 {'ph': b.wff(under), 'ps': b.wff(f'( {x} - {y} ) =/= 0'),
@@ -78,7 +80,8 @@ def triangle_lemmas(b):
     plane the three being collinear is (R − P)/(Q − P) being real. Swapping
     two vertices inverts that quotient and rotating them replaces it by
     (1 − t)/(−t); neither leaves the reals, so neither makes a triangle
-    collinear. `gtrirec` is the inversion and the rest is bookkeeping."""
+    collinear. `gtrirec` is the inversion and the rest is bookkeeping.
+    """
     out = []
 
     # ( A / B ) is real and nonzero exactly when its inverse is, and its
@@ -212,7 +215,8 @@ def rotation(b, out):
     rotating them takes it to 1 − (C − B)/(A − B), so the step is an
     identity of the field rather than one fact about reciprocals. The
     identity holds because (A − B) − (C − B) is A − C, and dividing that by
-    A − B splits into the two quotients."""
+    A − B splits into the two quotients.
+    """
     w3a = '( A e. CC /\\ B e. CC /\\ C e. CC )'
     apart = '( ( A - B ) =/= 0 /\\ ( C - B ) =/= 0 )'
     ph = f'( {w3a} /\\ {apart} )'
@@ -425,7 +429,8 @@ def angle_symmetry(b, out):
     signed angle of an inverse is the negative of the angle. On the cut
     `arginv` does not apply and nothing is negated: `lognegb` says a number
     whose negative is a positive real has angle pi exactly, and the inverse
-    of such a number is another, so both angles are pi."""
+    of such a number is another, so both angles are pi.
+    """
     ph = '( ( A e. CC /\\ A =/= 0 ) /\\ ( B e. CC /\\ B =/= 0 ) )'
     z, rz = '( B / A )', '( 1 / ( B / A ) )'
     theta, rtheta = f'( Im ` ( log ` {z} ) )', f'( Im ` ( log ` {rz} ) )'
@@ -670,7 +675,8 @@ def angle_size(b, out):
     signed angle, and the corpus writes the unsigned one, so a step that
     carries an angle between the two has to know that cosine cannot tell
     them apart, and that going back is possible because cosine is one to
-    one on the range the unsigned angle occupies."""
+    one on the range the unsigned angle occupies.
+    """
     # Cosine is even, so it reads an absolute value and the sign it lost.
     real = 'A e. RR'
     same = '( cos ` ( abs ` A ) ) = ( cos ` A )'
@@ -815,7 +821,8 @@ def law_of_cosines(b, out):
     constant and not another. Two things still have to move: `lawcos` names
     the third side |C − B| where the corpus names it |B − C|, and it uses
     the signed angle where the corpus uses the unsigned one. `abssub` and
-    `gcosabs` are those two steps."""
+    `gcosabs` are those two steps.
+    """
     points = '( A e. CC /\\ B e. CC /\\ C e. CC )'
     apart = '( -. A = B /\\ -. C = B )'
     ph = f'( {points} /\\ {apart} )'
@@ -989,7 +996,8 @@ def cancelling(b, out):
     two squares added and K the two sides multiplied. What is wanted is X,
     so Z comes off by `subcan` and the two factors by `mulcan`. K is a
     product of two lengths and is nonzero because neither vertex meets the
-    one the angle sits at."""
+    one the angle sits at.
+    """
     ph = ('( ( X e. CC /\\ Y e. CC /\\ Z e. CC ) '
           '/\\ ( K e. CC /\\ K =/= 0 ) )')
     left, right = '( 2 x. ( K x. X ) )', '( 2 x. ( K x. Y ) )'
@@ -1113,7 +1121,8 @@ def side_angle_side(b, out):
     not negative. With all three sides equal the other two angles follow
     the other way round: the law at each of the remaining vertices has the
     same sides on both sides of the comparison, so `gcoscan` leaves the
-    cosines equal and `gangeq` turns that back into the angles."""
+    cosines equal and `gangeq` turns that back into the angles.
+    """
     first = '( P e. CC /\\ Q e. CC /\\ R e. CC )'
     second = '( S e. CC /\\ T e. CC /\\ U e. CC )'
     pts = f'( {first} /\\ {second} )'
@@ -1172,7 +1181,8 @@ def side_angle_side(b, out):
 
         The predicate is ((( x!=y & y!=z ) & x!=z ) & not collinear), so
         the three come off by taking the left conjunct twice and then the
-        halves; the reversed ones the rotations want come off `flipped`."""
+        halves; the reversed ones the rotations want come off `flipped`.
+        """
         inner = (f'( ( -. {x} = {y} /\\ -. {y} = {z} ) /\\ -. {x} = {z} )')
         pair = f'( -. {x} = {y} /\\ -. {y} = {z} )'
         held = given(level)
@@ -1377,7 +1387,8 @@ def side_angle_side(b, out):
 
         Both laws have the same two sides at the vertex and the same side
         opposite it, so what is left once `gcoscan` has taken the squares
-        and the factors off is the cosine, and `gangeq` is the way back."""
+        and the factors off is the cosine, and `gangeq` is the way back.
+        """
         z_of = f'( ( {side(x, y)} ^ 2 ) + ( {side(y, z)} ^ 2 ) )'
         k_of = f'( {side(x, y)} x. {side(y, z)} )'
         cos1, cos2 = f'( cos ` {at(x, y, z)} )', f'( cos ` {at(x2, y2, z2)} )'

@@ -64,7 +64,8 @@ def binding_context(notations):
 
     Both are read from the declarations: a binder is a notation with a `binds`
     line, and a property application is one whose first hole takes a property.
-    Nothing here is known by name."""
+    Nothing here is known by name.
+    """
     binders, props = {}, set()
     for n in notations:
         if n.holes and n.holes[0] == 'property':
@@ -88,7 +89,8 @@ def binding_sites(pattern, binders, props, bound=(), out=None):
     every occurrence of that variable in the condition must therefore be the
     hole. An occurrence outside is applied to an ordinary name the property is
     allowed to mention, where several readings would fit, so it is checked
-    against what the inside one decided and never allowed to decide."""
+    against what the inside one decided and never allowed to decide.
+    """
     out = set() if out is None else out
     if (pattern.notation in props and len(pattern.children) == 2
             and pattern.children[1].notation == 'name'
@@ -108,7 +110,8 @@ def binding_sites(pattern, binders, props, bound=(), out=None):
 def match(pattern, ground, binding, variables, props=(), sites=frozenset()):
     """Bind the pattern's variables so that it becomes the ground tree.
 
-    Returns the binding, or None. The binding is not modified on failure."""
+    Returns the binding, or None. The binding is not modified on failure.
+    """
     if pattern.notation == 'name' and pattern.text in variables:
         seen = binding.get(pattern.text)
         if seen is not None:
@@ -161,7 +164,8 @@ def match_all(patterns, facts, binding, variables):
 
     Each fact is used once, because two hypotheses asking the same thing want
     two lines saying it. The search backtracks, since an early pattern that
-    fits several facts can bind a name the wrong way."""
+    fits several facts can bind a name the wrong way.
+    """
     if not patterns:
         return binding
     first, rest = patterns[0], patterns[1:]
@@ -183,7 +187,8 @@ def expand(node, definitions, depth=8):
     concluding the same thing with the sets written out say the same thing. A
     define may be written in terms of an earlier one, so this repeats, and the
     depth is bounded because nothing stops a file naming something after
-    itself."""
+    itself.
+    """
     if not definitions or depth <= 0:
         return node
     if node.notation == 'name' and node.text in definitions:
