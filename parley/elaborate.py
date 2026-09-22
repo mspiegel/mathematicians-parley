@@ -1600,17 +1600,13 @@ class Elaborator(Builder):
         for close in reversed(closers):
             proof = close(proof, goal)
         self.unread = self.unread_requires()
-        # A method step's `requires` lines are the method's own hypotheses
-        # written down, so one going unread means the method found the side
-        # condition rather than reading it, which is what `inequalities` did
-        # until it was given `supplied`.
         if 'method' in self.unread:
             raise self.defect(
                 self.unread['method'][0],
                 f'the requires lines at '
-                f'{", ".join(str(n) for n in self.unread["method"])} are a '
-                f'method\'s own hypotheses and nothing read them, so it '
-                f'settled them instead of taking what the page justified')
+                f'{", ".join(str(n) for n in self.unread["method"])} were '
+                f'read by nothing, so what they say was settled instead of '
+                f'taken from what the page justified')
         return goal, terms, proof
 
     def unread_requires(self):
@@ -1628,12 +1624,15 @@ class Elaborator(Builder):
         still looked at, and that is not the case this is for.
 
         A method step's unread line is a defect and an item step's is not,
-        which is a baseline rather than a principle: one line in the corpus
-        is unread, and it is unread because nothing asks for it. Step 6 of
-        `odd-square` writes `requires 2 ∈ ℤ` where neither `odd2np1` nor
-        `def:odd` wants it. That is the other defect this file records — a
-        step naming what it does not use — and raising here would report it
-        in the words of this one. The split goes when that line does.
+        which is where the corpus stands rather than a rule about the two.
+        One line is unread: step 6 of `odd-square` writes `requires 2 ∈ ℤ`
+        under `def:odd`, and what wants it is the sibling line beside it —
+        `check.py` discharges a `requires` line from the step's others, so
+        `2k² + 2k ∈ ℤ` leans on `2 ∈ ℤ` to reach `thm:int-closure`. Deleting
+        it makes the checker say so. The elaborator takes another route to
+        the same sibling and never asks, which is this defect and not a
+        surplus line, so raising would be right and the gate would be red
+        until the route changes.
         """
         out = {'method': [], 'item': []}
         for step in self.thm.steps:

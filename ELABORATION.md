@@ -1761,13 +1761,20 @@ three moves both callers share, with what counts as answering a part left to
 the caller. `settle` proves a part from the scope; `required` reads the line
 the step wrote for it.
 
-**116 of the corpus's 117 lines are read. The one that is not is the other
-defect.** Step 6 of `odd-square` writes `requires 2 ∈ ℤ` under
-`def:odd n := n²`. `odd2np1` asks only `N e. ZZ` and `def:odd` asks only
-`let n ∈ ℤ`, so nothing demands it; the step's other two lines are both asked
-for and both match. It is the first instance of *a step may name what it does
-not use* found in the corpus rather than planted, and `READERS.md`'s test —
-whether the cited item demands it — is what says it should not be there.
+**116 of the corpus's 117 lines are read, and the one that is not is this
+defect too.** Step 6 of `odd-square` writes `requires 2 ∈ ℤ` under
+`def:odd n := n²`. Neither `odd2np1` nor `def:odd` asks for it, which reads
+like a step naming what it does not use — and deleting it makes the checker
+say *the requires line of step 6 needs something that thm:int-closure does not
+conclude*. What wants it is the line beside it: `check.py` discharges a
+`requires` line from the step's others, so `2k² + 2k ∈ ℤ` leans on `2 ∈ ℤ` to
+reach `thm:int-closure`. The elaborator takes another route to that sibling
+and so never asks for the line at all.
+
+So the guard holds a method step to a stricter rule than an item step, and
+that is where the corpus stands rather than a rule about the two. Raising on
+this one would be right and would leave the gate red until the route changes,
+which is why it does not yet.
 
 It is also why the defects raised for a missing membership have no planted case
 in `test_elaborate.py`: the corpus route does not reach them, and the harness
