@@ -1645,3 +1645,47 @@ covers, and the disagreement was invisible because the half that gave up
 last is the one that speaks. Byte-identity is what made each safe to repair:
 in all five, no other proof in the corpus moved, which is what says the
 capability was missing rather than wrong.
+
+## Two things nothing checks
+
+Both tools ask whether what a step names is enough to reach its claim. Neither
+asks whether any of it is spare, and neither notices when a line that is owed
+goes missing. What follows was measured by planting each case and running the
+checker and the elaborator over it.
+
+**A step may name what it does not use.** Three shapes, none reported:
+
+| planted | where |
+|---|---|
+| `requires 2 ∈ ℝ: arithmetic`, which nothing asks for | sum-formula, step 1.4.3 |
+| `inequalities, from 3, 4` written `from 1, 3, 4` | triangle-inequality, step 5.2 |
+| `thm:nonneg-or-neg …, from 1` written `from 1, H1` | triangle-inequality, step 2 |
+
+Each is true, well formed, and does no work, and each gives 0 problems and
+builds. Wrongness is caught — swapping that requires line's justification to
+`thm:int-real` gets *the requires line of step 1.4.3 needs something that
+thm:int-real does not conclude* — so what is missing is not soundness but
+minimality. A step that names a fact doing no work says something untrue about
+why it holds, which is the shape of a `target` that never fires, and
+`DATABASE.md` already calls that an error rather than a shrug.
+
+Not this, which is a stated move and correct: citing an item that concludes
+more than the step takes. `DATABASE.md` lists *a claim taking one conjunct*
+among the moves, and step 5.2 uses it — lines 3 and 4 each say two things and
+it takes one from each.
+
+**A `requires` line may go missing and nothing says so.** Deleting any one of
+the eighteen in the triangle inequality leaves a proof that still elaborates;
+all eighteen were tried, one at a time. The elaborator does not need them,
+because `targets.MEMBERSHIP` reaches the same facts: with the `|a| ∈ ℝ` line
+gone *and* `abscl` taken out of that table, it stops with *nothing says
+( abs ` B ) e. RR, which this step needs*.
+
+That is not an argument for dropping the lines. `READERS.md` considered
+exactly this — such a fact never fails, the `let` line is in view, the price
+is 97 lines — and rejected the exemption, because whether a fact can fail is
+not the test and whether the cited item demands it is. The finding is narrower:
+the line is unprotected, and its loss would show up nowhere. It is also why
+the defects raised for a missing membership have no planted case in
+`test_elaborate.py` — the corpus route does not reach them, and the harness
+elaborates in one process, so it cannot plant the table instead.
