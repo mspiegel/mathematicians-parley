@@ -1657,8 +1657,7 @@ Both tools ask whether what a step names is enough to reach its claim. Neither
 asks whether any of it is spare, and neither noticed that a side condition the
 page justifies was being worked out again rather than read. What follows was
 measured by planting each case and running the checker and the elaborator over
-it. The second is now a defect where a method step carries it and is open on
-the seven where an item does.
+it. The second is closed and is a defect now, on any step; the first is open.
 
 **A step may name what it does not use.** Three shapes, none reported:
 
