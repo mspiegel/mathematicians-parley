@@ -131,6 +131,7 @@ theorem difference-set
   let X be a set                                                      (H1)
   then        X ∖ {a} is a set
   metamath    difexg
+  target      difexg
   first-used  subsets
 
 theorem subset-of-difference
@@ -255,6 +256,7 @@ theorem int-closure
   let b ∈ ℤ                                                           (H2)
   then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
   metamath    zsqcl, zaddcl, zsubcl, zmulcl
+  target      zsqcl, zaddcl, zsubcl, zmulcl
   first-used  sqrt2-irrational
   note        The square stands in a group of its own because it needs one
               integer and the rest need two. A proof asking only that n² is an
@@ -299,6 +301,7 @@ theorem int-real
   let m ∈ ℤ                                                           (H1)
   then        m ∈ ℝ
   metamath    zre
+  target      zre
   first-used  bezout
   note        `algebra` and `inequalities` work over a field, so a step
               reasoning about integers carries its atoms into ℝ first.

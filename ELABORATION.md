@@ -1761,6 +1761,41 @@ three moves both callers share, with what counts as answering a part left to
 the caller. `settle` proves a part from the scope; `required` reads the line
 the step wrote for it.
 
+**A `requires` line is discharged by the item it names.** `GOALS.md` decision
+9 — the readable text is canonical and the kernel proof is derived from it —
+was not holding for side conditions: `side` tried `settle` and `closure`
+before what the line named, so the fact came from whatever
+`targets.MEMBERSHIP` reached. The citation now goes first.
+
+Three things had to be true before that would work, and only the first was.
+
+*The item has to be citable.* Citing one with no `target` runs `assume_item`,
+which would turn 37 proved facts into assumed ones and lengthen the lists
+`GEOMETRY.md` measures the corpus by. `int-real`, `int-closure` and
+`difference-set` name their lemmas in `metamath` and now carry them as
+`target` as well; `def:triangle` has no set.mm backing and stays open, so its
+three lines still settle. The branch is guarded on the target for that reason.
+
+*The name has to end where the name ends.* `thm:abs-real x := a, from H1` was
+looked up under `abs-real x := a`, which is no item, so every line binding a
+variable fell past the citation. It had stood last, where nothing noticed.
+
+*The variables have to be fixed.* They are, by the lemma the target names
+rather than by the item's own letters — which is why a `requires` line needs
+no `v := t` of its own, though 8 of the 84 write one. Reordering before the
+targets existed broke seven theorems with `no kernel name for 'm'`, and the
+targets are what fixed it.
+
+Nothing moved that a reader would see: 5 assumptions before and after, 305,321
+bytes against 305,414, two files differing by one line each, and the build 48s
+against 46s. Both routes reach the same lemma — `thm:int-real` names `zre` and
+`zre` is in `MEMBERSHIP` — so what changed is where the proof was derived from,
+not what it says.
+
+Thirteen side conditions still settle, and the elaborator says so per theorem:
+ten name `arithmetic` and it could not reach them, three name `def:triangle`.
+That number is what remains between the corpus and decision 9.
+
 **116 of the corpus's 117 lines are read, and the one that is not is this
 defect too.** Step 6 of `odd-square` writes `requires 2 ∈ ℤ` under
 `def:odd n := n²`. Neither `odd2np1` nor `def:odd` asks for it, which reads

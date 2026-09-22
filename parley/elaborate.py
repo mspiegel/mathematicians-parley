@@ -317,6 +317,8 @@ class Elaborator(Builder):
         self.supplying = set()   # `requires` terms being discharged now
         self.consulted = set()   # lines of the `requires` lines read so far
         self.unread = []         # and the lines of those nothing read
+        self.settled_anyway = []  # (line, how) settled where the page said
+                                  # which item supplies it
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.bound_as = {}       # binder name -> the setvar it stands for
@@ -5413,20 +5415,37 @@ class Elaborator(Builder):
             found = self.prove_numeral(term, scope, facts)
             if not declined(found):
                 return found
+        # A line naming an item is that item cited, the same as a step
+        # naming it. `GOALS.md` decision 9 is why this stands before the two
+        # routes below rather than after them: the readable text is canonical
+        # and the kernel proof is derived from it, so what the line says
+        # supplies the fact is what supplies it. Settling first reached the
+        # same fact through whatever `targets.MEMBERSHIP` holds, which
+        # derives the proof from the claim and a table.
+        #
+        # Only where the item has a target. Citing one without is assuming
+        # it, and the lists at the head of each elaborated file are what
+        # `GEOMETRY.md` measures the corpus by: settling such a line proves
+        # what assuming it would not.
+        #
+        # The name ends at the first space, because what follows it is the
+        # instantiation: `thm:abs-real x := a, from H1` names `abs-real` and
+        # not `abs-real x := a`. Taking the whole of it looked the item up
+        # under a name no item has, so every line that bound a variable fell
+        # past this to be settled — which is what it did while this stood
+        # last and nothing noticed.
+        if step is not None and closure.split(':', 1)[0] in ('thm', 'def'):
+            item = self.items.get(closure.split(':', 1)[1].split()[0])
+            if item is not None and targets.clauses(item):
+                return self.cite_item(step, term, scope, facts, item, how)
         found = self.settle(self.to_term(term), scope, facts)
         if not declined(found):
+            self.settled_anyway.append((self.at, how.strip()))
             return found
         if want.notation == 'membership':
+            self.settled_anyway.append((self.at, how.strip()))
             return self.closure(want.children[0],
                                 self.term(want.children[1]), scope, facts)
-        # A line naming an item is that item cited, the same as a step
-        # naming it. The membership above is the common case and reaches
-        # the closure methods; what a reader writes as a denial —
-        # `requires a ∉ X ∖ {a}: thm:not-in-difference` — is not one.
-        if step is not None and closure.split(':', 1)[0] in ('thm', 'def'):
-            item = self.items.get(closure.split(':', 1)[1])
-            if item is not None:
-                return self.cite_item(step, term, scope, facts, item, how)
         if closure == 'arithmetic':
             # A value is the other thing `arithmetic` decides, and a closed
             # one is an identity of the field with no atoms in it, so it
@@ -6280,6 +6299,14 @@ def main(argv, root=None):
 
     work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()
+    if work.settled_anyway:
+        # Said here rather than at the head of the file: the file lists what
+        # it assumed, and none of these is assumed. They are proved, by a
+        # route the page did not name.
+        print(f'{thm.name}: {len(work.settled_anyway)} side condition(s) '
+              f'settled rather than taken from what the line names — '
+              f'{", ".join(sorted({h for _l, h in work.settled_anyway}))}',
+              file=sys.stderr)
     antecedent = hypotheses[0] if hypotheses else None
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')
