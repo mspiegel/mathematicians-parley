@@ -2882,6 +2882,9 @@ class Elaborator(Builder):
         claim = linear.fact(goal, self.flabel)
         if claim is None:
             raise normal.Unhandled('the claim is not linear')
+        closed = self.by_antisymmetry(goal, scope, facts)
+        if closed is not None:
+            return closed
         found = linear.certificate([*given, linear.opposite(claim)])
         if not isinstance(found, dict):
             return self.either_way(found, refs, where, given, term, scope,
@@ -2921,6 +2924,40 @@ class Elaborator(Builder):
                               for i in used],
                              left, right, how, spare.constant, scope, facts,
                              lines)
+
+    def by_antisymmetry(self, goal, scope, facts):
+        """An equation from the two bounds that close on it.
+
+        A number neither greater nor smaller than another is that number,
+        and `letri3` is set.mm saying so. The decision procedure reaches it
+        by splitting the claim into its two halves, which is not a split
+        any cited line offers, so the two bounds are looked for as they
+        stand: Bezout's step 20 has d ≤ gcd(a, b) and gcd(a, b) ≤ d, and
+        says the two are equal."""
+        sides = order_sides(goal)
+        if sides is None or sides[2] != '=':
+            return None
+        a, b = (one.rpn(self.flabel) for one in sides[:2])
+        up, down = seq(a, b, 'cle', 'wbr'), seq(b, a, 'cle', 'wbr')
+        if up not in facts or down not in facts:
+            return None
+        work = normal.Emitter(self.sigs, scope, lambda t: self.settle(
+            self.to_term(seq(t, 'cc', 'wcel')), scope, facts))
+
+        def real(one):
+            want = seq(one, 'cr', 'wcel')
+            return facts.get(want) or self.settle(self.to_term(want), scope,
+                                                  facts)
+        both = seq(up, down, 'wa')
+        return work.ap(
+            'mpbird', {'ph': scope, 'ps': goal.rpn(self.flabel), 'ch': both},
+            work.ap('jca', {'ph': scope, 'ps': up, 'ch': down},
+                    facts[up], facts[down]),
+            work.ap('syl2anc',
+                    {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
+                     'ch': seq(b, 'cr', 'wcel'),
+                     'th': seq(goal.rpn(self.flabel), both, 'wb')},
+                    real(a), real(b), work.ap('letri3', {'A': a, 'B': b})))
 
     def negated_order(self, goal, refs, term, scope, facts, lines, skip):
         """A claim denying a relation, as the relation that holds instead.
@@ -3971,6 +4008,31 @@ class Elaborator(Builder):
             rest = rest.children[0]
         return tuple(out)
 
+    def as_seeded(self, label, reads, goal, scope, facts, step, seed):
+        """A lemma whose `with` target already says what it concludes.
+
+        Where the seed fixes every variable there is nothing left for the
+        claim to fix, and the two need not be spelt the same: `dvds2ln`
+        writes the multiplier before the number being divided and the
+        corpus writes it after, so what the lemma gives is what the step
+        claims with each product exchanged. `db/notation.records` declares
+        that the product may be, and `bridging` carries it.
+
+        Only with a full seed. A claim left to fix a variable is a claim
+        the conclusion has to match, or the lemma would be applied at
+        whatever made the bridge work rather than at what the item says."""
+        if seed is None or reads.names() - set(seed):
+            return None
+        said = reads.substitute(seed)
+        if said.rpn(self.flabel) == goal.rpn(self.flabel):
+            return None
+        proof = self.apply_lemma(label, said, scope, facts, step,
+                                 crossing=False, seed=seed)
+        if proof is None:
+            return None
+        return seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
+                   self.bridging(said, goal, scope, facts, step), 'mpbid')
+
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
 
@@ -4056,6 +4118,10 @@ class Elaborator(Builder):
                         label, whole, reads, goal, scope, facts, step, seed)
                     if through is not None:
                         return through
+                    seeded = self.as_seeded(label, reads, goal, scope, facts,
+                                            step, seed)
+                    if seeded is not None:
+                        return seeded
                 return (self.crossed(label, whole, reads, goal, scope,
                                      facts, step) if crossing else None)
             # A biconditional says one thing and reaching it either way is

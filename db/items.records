@@ -499,6 +499,7 @@ theorem divides-combination
   assume e divides b                                                  (H7)
   then        e divides a·x + b·y
   metamath    dvds2ln
+  target      dvds2ln with K := e, I := x, M := a, J := y, N := b
   first-used  bezout
 
 theorem divides-le
