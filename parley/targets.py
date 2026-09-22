@@ -179,12 +179,21 @@ MEMBERSHIP = [
     # ℕ₀, which over `( 0 ... n )` the range itself gives.
     'elfzelz', 'elfznn0', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
-    'renegcl', 'negcl', 'reexpcl',
+    'renegcl', 'negcl', 'reexpcl', 'nn0expcl', '2nn0', 'peano2nn0',
     # and what a commuting pair asks, which `db/notation.records` declares by
     # notation and this answers by statement
     'mulcom', 'addcom',
     # and sethood, which set theory asks where arithmetic asks closure
-    'rabexg', 'ssexg', 'difexg', 'pwexg', 'unexg', 'rnexg', 'mptexg',
+    'rabexg', 'ssexg', 'difexg', 'pwexg', 'unexg', 'rnexg', 'mptexg', '0ex',
+    # and finiteness, which the readable layer never says at all. It counts
+    # a set and the count is a natural number, and every lemma about
+    # cardinality asks for `e. Fin` instead. `hashvnfin` is set.mm saying
+    # those come to the same thing, so the subsets proof reaches `Fin`
+    # from what it does write rather than from a word added to every line.
+    # `enfi` is the other way in: a set counted by being put beside one
+    # already counted has no size of its own yet, and the bijection is
+    # what says it is finite.
+    'hashvnfin', 'enfi',
     # A claim that there is one of a thing and says nothing about it is
     # nonemptiness, and the corpus writes it with a name for the element:
     # `there is s ∈ S` builds a restricted existential whose body is T..

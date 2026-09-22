@@ -124,6 +124,7 @@ definition powerset
 theorem powerset-empty
   then        𝒫∅ = {∅}
   metamath    pw0
+  target      pw0
   first-used  subsets
 
 theorem difference-set
@@ -135,7 +136,8 @@ theorem difference-set
 theorem not-in-difference
   let X be a set                                                      (H1)
   then        a ∉ X ∖ {a}
-  metamath    eldifsn, whose right side needs a ≠ a
+  metamath    neldifsn
+  target      neldifsn
   first-used  subsets
   note        Added because thm:add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
@@ -605,12 +607,18 @@ theorem card-zero
   assume |X| = 0                                                      (H2)
   then        X = ∅
   metamath    hasheq0
+  target      hasheq0
   first-used  subsets
 
 theorem card-singleton
+  let x be a set                                                      (H1)
   then        |{x}| = 1
   metamath    hashsng
+  target      hashsng
   first-used  subsets
+  note        A singleton has one element only when there is an element for it
+              to have: `{ x }` for a proper class x is empty, and `hashsng`
+              asks for the set because of it.
 
 theorem card-nonempty
   let X be a set                                                      (H1)
@@ -618,6 +626,9 @@ theorem card-nonempty
   then        there is a ∈ X
   metamath    hashnncl, n0
   first-used  subsets
+  note        No `target` yet, and the same bridge `thm:card-remove` wants:
+              `hashnncl` asks that the size be a natural number where the
+              hypothesis says what the size is.
 
 theorem card-remove
   let X be a set                                                      (H1)
@@ -626,6 +637,11 @@ theorem card-remove
   then        |X ∖ {a}| = k
   metamath    hashdifsn
   first-used  subsets
+  note        No `target` yet. `hashdifsn` says the size drops by one and the
+              item says what it drops to, so the bridge between them is
+              `( k + 1 ) - 1 = k` read through the hypothesis that says what
+              the size was. An elaborator that rewrote by an equation a step
+              cited would have it; none does.
 
 theorem card-bijection
   let X be a set                                                      (H1)
@@ -634,6 +650,7 @@ theorem card-bijection
   assume there is a bijection from X to Y                             (H4)
   then        |Y| = m
   metamath    hashen
+  target      hashen with A := X, B := Y
   first-used  subsets
 
 theorem card-disjoint-union
@@ -644,6 +661,7 @@ theorem card-disjoint-union
   assume X ∩ Y = ∅                                                    (H5)
   then        |X ∪ Y| = m + n
   metamath    hashun
+  target      hashun with A := X, B := Y
   first-used  subsets
 
 theorem add-element-bijection

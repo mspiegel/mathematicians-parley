@@ -466,8 +466,16 @@ class Elaborator(Builder):
             stack.append(kernel.Term(token, tuple(args)))
         return stack[0]
 
-    def settle(self, wanted, scope, facts, depth=5, step=None, lines=None):
+    def settle(self, wanted, scope, facts, depth=7, step=None, lines=None):
         """A proof of something a step needs and the text does not write.
+
+        `depth` bounds the chain, and seven is what the deepest one in the
+        corpus costs: a power set is finite because its size is a natural
+        number, which is a power of two, whose base is two. Each of those is
+        a declared lemma asking the next, and a shorter bound stopped that
+        chain rather than any search. It is not free — six costs
+        `least-combination-divides` 27 seconds to elaborate and eight costs
+        it 37 — so it is the depth that was measured, not a round number.
 
         A cited lemma asks side conditions of its own — that an index is in
         the upper integers, that a summand is complex — and those are not
@@ -642,12 +650,12 @@ class Elaborator(Builder):
                     binding = filled
                     break
             else:
-                # A slot neither the claim nor a fact fixes is set.mm asking
+                # A class neither the claim nor a fact fixes is set.mm asking
                 # where to look for the thing rather than asking anything of
                 # it, which `apply_lemma` reads the same way: `pwexg` wants a
                 # class holding the set whose power class is about to be one,
                 # and _V holds every set. What is left is then settled.
-                for open_slot in slot.names() - set(binding):
+                for open_slot in self.sethood(slot, binding):
                     binding[open_slot] = kernel.Term('cvv')
 
         proof = self.ap(label, self.spelt(binding))
@@ -4365,9 +4373,55 @@ class Elaborator(Builder):
             # the item says, and then none of them is.
             across = self.bridging(said, goal, scope, facts, step)
         except Unhandled:
+            across = self.by_equation(said, goal, scope, facts, step)
+        if across is None:
             return None
         return seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
                    across, 'mpbid')
+
+    def by_equation(self, said, goal, scope, facts, step):
+        """A lemma's conclusion carried to the claim by an equation proved.
+
+        `hashun` says the size of a disjoint union is the sum of the two
+        sizes; `thm:card-disjoint-union` assumes each size is a number and
+        states the claim in those numbers, so what stands between the two
+        is the equations the item assumes. The step cites the lines that
+        prove them — `substitute` is the readable method for the same
+        rewrite, and the text writes no step for it here because the item
+        already said which equations are in play.
+
+        The walk decides where to ask, so nothing is looked for: each place
+        the two terms differ is one equation, and it is settled where it
+        stands. A difference the scope does not prove is not a route."""
+        def proved(one, other, where, held):
+            if one.rpn(self.flabel) == other.rpn(self.flabel):
+                return None
+            asked = seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')
+            if asked not in held:
+                return None      # the walk goes on to where they differ
+            return held[asked]
+
+        try:
+            return self.congruence(said, goal, scope, facts, step, proved)
+        except (Unhandled, Problem):
+            pass
+        if goal.label != 'wceq' or len(goal.children) != 2:
+            return None
+        # An equation is the same equation written the other way round, and
+        # a lemma need not write it the way the item states it: `hashen`
+        # equates the size already known with the size being asked for, and
+        # the step claims the second of them. `eqcom` is closed, so it
+        # crosses into the scope rather than being proved inside it.
+        turned = kernel.Term('wceq', goal.children[::-1])
+        try:
+            across = self.congruence(said, turned, scope, facts, step, proved)
+        except (Unhandled, Problem):
+            return None
+        both = [c.rpn(self.flabel) for c in turned.children]
+        return seq(scope, said.rpn(self.flabel), turned.rpn(self.flabel),
+                   goal.rpn(self.flabel), across,
+                   seq(seq(turned.rpn(self.flabel), goal.rpn(self.flabel),
+                           'wb'), scope, seq(*both, 'eqcom'), 'a1i'), 'bitrd')
 
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
@@ -4426,6 +4480,31 @@ class Elaborator(Builder):
                 return seq(scope, said, want, found, alike, 'mpbid')
         return None
 
+    def sethood(self, slot, binding):
+        """The classes an antecedent asks about and nothing decides.
+
+        `hashsng` asks `A e. V` and concludes about `{ A }`, so nothing it
+        says fixes the class; `hashvnfin` asks it inside a conjunction and
+        is the same. set.mm leaves such a class free so that a citation may
+        name any class holding A, and what it is asking is that A be a set.
+        `_V` is how that is written, and the weakest class there is to
+        write, so nothing is lost by writing it.
+
+        Read only after the conclusion and the scope have both been asked,
+        so a class the step does decide is decided by the step."""
+        out, rest = [], [slot]
+        while rest:
+            node = rest.pop()
+            if node.label == 'wa':
+                rest.extend(node.children)
+                continue
+            if node.label != 'wcel':
+                continue
+            name = node.children[1].variable
+            if name is not None and name not in binding:
+                out.append(name)
+        return out
+
     def apply_lemma(self, label, goal, scope, facts, step, crossing=True,
                     seed=None):
         """Apply one set.mm lemma to reach a claim, side conditions and all.
@@ -4481,6 +4560,15 @@ class Elaborator(Builder):
                     joins.append(TURNED)
                     binding, reads = turned, reads.children[0]
                     break
+                # The near side may be the claim said differently, and only
+                # a full seed can tell: `hashen` equates two sizes and the
+                # step claims one of them, so nothing in the goal matches
+                # either side and nothing in it fixes the lemma's classes.
+                if crossing:
+                    seeded = self.as_seeded(label, reads.children[0], goal,
+                                            scope, facts, step, seed)
+                    if seeded is not None:
+                        return seeded
             antecedents.append(reads.children[0])
             joins.append(reads.label)
             reads = reads.children[1]
@@ -4514,6 +4602,8 @@ class Elaborator(Builder):
                 if filled is not None:
                     binding = filled
                     break
+            for open_class in self.sethood(slot, binding):
+                binding[open_class] = self.to_term('cvv')
         essentials = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)
             for e in sig.essentials]
@@ -4531,18 +4621,25 @@ class Elaborator(Builder):
             for later, join in reversed(list(zip(antecedents[i + 1:],
                                                  joins[i + 1:], strict=True))):
                 if later.substitute(binding).rpn(self.flabel) != where:
-                    if join is TURNED:
-                        raise Unhandled(f'{label} asks something past a '
-                                        f'biconditional it states the other '
-                                        f'way round')
-                    rest = seq(later.substitute(binding).rpn(self.flabel),
-                               rest, join)
+                    said = later.substitute(binding).rpn(self.flabel)
+                    # A biconditional crossed the other way puts the claim
+                    # on the left, where every other join puts what is asked
+                    # on the left: `hashen` asks two sets be finite and then
+                    # equates their sizes with a bijection, and reaching the
+                    # sizes from the bijection reads it right to left.
+                    rest = (seq(rest, said, 'wb') if join is TURNED
+                            else seq(said, rest, join))
             first = proof.split()[-1] == label
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
                     ('wb', True): 'sylib', ('wb', False): 'mpbid',
                     (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
-            proof = seq(where, asks.rpn(self.flabel), rest,
-                        self.settle(asks, where, known), proof,
+            # `mpbird` names the two sides in the order it states them, and
+            # a crossed biconditional states the claim first; every other
+            # fold states what is asked first.
+            sides = ((rest, asks.rpn(self.flabel))
+                     if joins[i] is TURNED and not first
+                     else (asks.rpn(self.flabel), rest))
+            proof = seq(where, *sides, self.settle(asks, where, known), proof,
                         fold[(joins[i], first)])
         return self.carry(proof, goal.rpn(self.flabel), frame)
 

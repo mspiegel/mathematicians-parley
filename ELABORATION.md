@@ -904,19 +904,35 @@ what each proof still takes as stated rather than builds:
 | geometric-sum | 0 | |
 | least-combination-divides | 0 | |
 | bezout | 0 | |
-| subsets-count | 11 | eleven set-theoretic items with no `target` |
+| subsets-count | 5 | three items set.mm has no label for, two a `target` cannot reach |
 
-All fourteen verify. That 11 was 26 across eight proofs when this section was
-first written; what closed the gap for the thirteen above it was writing the
-four closure methods out rather than taking their steps as stated, and the
-assumption count is the measure that says whether a method is written or only
-named.
+All fourteen verify. That 5 was 11 when `subsets-count` first elaborated, and
+26 across eight proofs when this section was first written; what closed the
+gap for the thirteen above it was writing the four closure methods out rather
+than taking their steps as stated, and the assumption count is the measure
+that says whether a method is written or only named.
 
-`subsets-count` is the newest and its eleven are all one kind of debt: items
-about cardinality, power sets and disjoint unions whose `target` field is
-empty, so the elaborator has nothing to cite and states them. That is a
-database question and not an elaborator one — the same debt `thm:divides-gcd`
-and `thm:rational-coprime` carried until a field was written for each.
+The six that closed were `target` fields, the debt `thm:divides-gcd` and
+`thm:rational-coprime` carried until a field was written for each. Under them
+was one question and not six: the readable layer never says a set is finite,
+it counts one, and every set.mm lemma about cardinality asks for `e. Fin`.
+`hashvnfin` says a set whose count is a natural number is finite and `enfi`
+says a set in bijection with a finite one is finite, and between them every
+`Fin` in the proof is reached from what the text does write.
+
+The five that remain are two different debts.
+
+`thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn`
+and `hashnncl` — and no `target`, because what stands between each lemma and
+its item is an equation the step cited. `hashdifsn` says the size drops by
+one and the item says what it drops to, which is `( k + 1 ) - 1 = k` read
+through the hypothesis saying what the size was. Nothing here rewrites by a
+line's equation while settling a side condition, and whether anything should
+is a question about `settle`'s rule, not a missing field.
+
+`thm:add-element-bijection`, `thm:powerset-split` and
+`thm:powerset-split-disjoint` are `open`: no set.mm label states them, and
+each wants a proof in the readable layer the way `thm:lowest-terms` did.
 
 Among the closure methods none remains. The last was `thm:lowest-terms`,
 whose `metamath` field read
