@@ -664,6 +664,7 @@ notation for-every-with
   binds       hole 1 over holes 3 and 4
   reads       for every, with
   metamath    wral, with wi inside it
+  target      _3 _4 wi _1 _2 wral
   first-used  intermediate-value
   note        The restricted universal, "for every ε ∈ ℝ with ε > 0". Two uses,
               the definition of continuity and step 16 of the pilot that needs

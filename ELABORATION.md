@@ -14,8 +14,8 @@ built. **Build first, every time** — the gate never runs the elaborator over
 the corpus, so breaking the elaborator and leaving the built files alone
 passes every stage.
 
-Sixteen theorems stand in `proof/`, fifteen of them elaborate, and
-`build.py` writes 22 artifacts. `elaboration/elaborated/` holds what the
+Sixteen theorems stand in `proof/`, all of them elaborate, and
+`build.py` writes 23 artifacts. `elaboration/elaborated/` holds what the
 program writes. The files beside it are hand-written: `geometry.mm`, which is
 the only statement of what it proves, and hand elaborations kept for
 comparison.
@@ -54,6 +54,13 @@ implication out of a supposition.
 So the form is decided by where the theorem may be used, which the theorem
 itself cannot know. Every theorem gets the same one.
 
+A step citing a theorem this corpus proves conjoins what the step supplies for
+its hypotheses and applies it with `syl` to its whole conclusion. A step may
+claim one sentence of a conclusion that says several — `intermediate-value`
+cites `thm:abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
+the whole. The conclusion is read in the sorts the cited theorem's own
+hypotheses state, since `|x|` is absolute value only where x is a number.
+
 ## Scopes
 
 All four block forms widen the antecedent by what they assume and close with
@@ -68,7 +75,13 @@ one lemma:
 
 `cases` differs in one way: it opens a scope for each of its parts rather than
 one for all its children, so the scope changes between siblings and not only
-on the way in and out.
+on the way in and out. An `obtain` inside a case is discharged where that case
+ends, since `mpjaodan` wants each case over the scope the case opened: the
+first case of `intermediate-value` obtains δ and then x₁. More than two cases
+follow the disjunction the block cites, which is built from the left:
+`jaodan` makes one case of the first two, over their disjunction, and
+`mpjaodan` closes on the last. The cases must be that disjunction's, in its
+order.
 
 An `obtain` of two names at once is `rexlimdvva` — one lemma, not two nested
 discharges. The existential the kernel supplies carries the kernel's own bound
@@ -129,7 +142,8 @@ deduction form each is the `d`-suffixed variant.
 both joined lines. Inside a `case` it is `jca`, and it pairs its cited lines
 by what they claim rather than by the order the line lists them, because the
 readable order is the order they were derived and the conclusion's order is the
-theorem's.
+theorem's. A join of one line is that line: a case whose assumption is already
+the block's claim ends on `join C2`, and the line must be what the step claims.
 
 **`exhibit`, and a definition used to conclude an existence claim,** are
 `rspcev`: restricted existential introduction. The witness comes either from a
@@ -381,17 +395,36 @@ five seconds.
 ## What a file states rather than proves
 
 The head of each file says what is not expanded: a closure method, or an item
-the database gives no target for. Each becomes an axiom claiming exactly what
-the readable line claims, under the `requires` lines that line carries **and**
-the lines it cites — both, or the axiom says more than the method does and the
-proof above it goes unused.
+the database gives no target for. A method step becomes an axiom claiming
+exactly what the readable line claims, under the `requires` lines that line
+carries **and** the lines it cites — both, or the axiom says more than the
+method does and the proof above it goes unused.
 
-Fourteen of the sixteen written files assume nothing. What is left:
+An item becomes an axiom claiming what the item states, under its hypotheses,
+and the step owes those hypotheses like any others. What the item states and
+what the step claims must be one statement up to the letters they bind, or one
+side of it where the item states a biconditional; then the other side is what
+the step cites. `thm:abs-difference-lt` says |x − c| < δ exactly when
+c − δ < x and x < c + δ, and step 17.11 of `intermediate-value` claims the
+first from lines saying the second. Stated with the step's claim under the
+item's hypotheses, the axiom would say that every |x − c| is below every δ,
+and the kernel accepts whatever is assumed. Anything else is a defect naming
+both statements.
+
+Fourteen of the seventeen written files assume nothing. What is left:
 
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
 | `subsets-count.mm` | 4 | two items set.mm has no label for, two a `target` cannot reach |
+| `intermediate-value.mm` | 33 | ten definitions and thirteen items with no `target`, and ten `inequalities` steps |
+
+`intermediate-value`'s ten `inequalities` steps are decided — the certificate
+refuses a step that does not follow — and stated where `prove_order` cannot
+build the proof. Its definitions and items are real analysis the database has
+not yet pointed at set.mm: the interval, upper and least upper bounds,
+continuity, completeness, trichotomy, a function's value, `thm:point-right`,
+`thm:abs-difference-lt`, `thm:from-contradiction`, and two set inclusions.
 
 `thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn` and
 `hashnncl` — and no `target`, because what stands between each lemma and its
@@ -540,24 +573,6 @@ think a is one. `thm:powerset-split-disjoint`'s proof needs it and is held out
 of `proof/` until it is decided which gives way; see *What a file states rather
 than proves*.
 
-## The one that does not elaborate
-
-`intermediate-value` is the sixteenth theorem and stops at line 44 of 288,
-step 8: `thm:completeness` is taken as stated and asks for
-`E. u e. RR A. s e. {...} s <_ u`, which step 8 does not supply. It gives an
-instance where the lemma wants the existential.
-
-The same crossing appears elsewhere and is worth naming as one shape. A "there
-is" supplied by a fact giving an instance is `rspcev`, which cannot be declared
-in `targets.MEMBERSHIP` because `settle` skips any lemma with an essential
-hypothesis. `thm:prime-factor` wants it the other way — `exprmfct` quantifies
-over `Prime` where the readable line quantifies over ℕ and says primality in
-the body — and `rexlimiva` is the elimination half.
-
-Sixteen `inequalities` steps sit in `bezout` and `intermediate-value`, which is
-the largest untested weight on that method. They are untested because those
-proofs stop for reasons that have nothing to do with inequalities.
-
 ## Geometry
 
 The readable layer writes `∠CAB = ∠CBA`, an equation between numbers, and no
@@ -598,8 +613,8 @@ maintains. Missing, the stage says so and the gate is not green, the way it
 goes for ruff: a gate that skipped either would be saying green about a thing
 it had not looked at.
 
-`parley/verify.py` runs `mmverify.py` over all 29 proofs — the fifteen
-theorems and `geometry.mm`'s fourteen lemmas — in about eighteen seconds,
+`parley/verify.py` runs `mmverify.py` over all 30 proofs — the sixteen
+theorems and `geometry.mm`'s fourteen lemmas — in about nineteen seconds,
 nearly all of which is reading set.mm. Given a file whose whole contents are
 `$[ set.mm $]` it takes 17.8 seconds, and the proofs add a tenth of one.
 Which files that one includes is read off the `$[ ... $]` lines rather than

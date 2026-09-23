@@ -13,8 +13,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
 1.  a ∈ [a, b]
     def:interval x := a, from H1, H2
-    requires a ≤ a: inequalities
-    requires a ≤ b: inequalities, from H3
+    requires a ≤ a: inequalities, from H1
+    requires a ≤ b: inequalities, from H1, H2, H3
 
 2.  a ∈ S
     def:set-builder u := a, from 1, H6
@@ -43,6 +43,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
 8.  c ∈ ℝ. c is a least upper bound of S.
     obtain c: thm:completeness S := S, from 5, 2, 7
+    requires b ∈ ℝ: from H2
 
 9.  c is an upper bound of S.
     For every u ∈ ℝ, if u is an upper bound of S then c ≤ u.
@@ -89,8 +90,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
            17.1.3.  b ∈ [a, b]
                     def:interval x := b, from H1, H2
-                    requires a ≤ b: inequalities, from H3
-                    requires b ≤ b: inequalities
+                    requires a ≤ b: inequalities, from H1, H2, H3
+                    requires b ≤ b: inequalities, from H2
 
            17.1.4.  f(b) ∈ ℝ
                     thm:function-value, from 17.1.3
@@ -125,10 +126,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     17.7.  a ≤ x₁
            inequalities, from 11, 17.6
            requires a ∈ ℝ: from H1
-           requires b ∈ ℝ: from H2
            requires c ∈ ℝ: from 8
            requires x₁ ∈ ℝ: from 17.6
-           requires δ ∈ ℝ: from 17.5
 
     17.8.  x₁ ∈ [a, b]
            def:interval x := x₁, from H1, H2, 17.6, 17.7
@@ -176,10 +175,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.19. not x₁ ≤ c
            inequalities, from 17.6
-           requires b ∈ ℝ: from H2
            requires c ∈ ℝ: from 8
            requires x₁ ∈ ℝ: from 17.6
-           requires δ ∈ ℝ: from 17.5
 
     17.20. x₁ ≤ c. not x₁ ≤ c.
            join 17.18, 17.19

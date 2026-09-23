@@ -43,17 +43,19 @@ from compress import compress
 from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
-from match import instantiation
+from match import binding_context, instantiation, match
+from match import names as names_in
 from parse import (
     NAME,
     Declined,
     Problem,
+    Theorem,
     citations,
     corpus,
     declined,
     fmt,
 )
-from sorts import sorts_in_scope, sorts_of_record
+from sorts import sorts_in_scope, sorts_of_record, sorts_of_statement
 from spell import Builder, Proof, seq
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
@@ -266,6 +268,7 @@ class Block:
         self.inner = None           # and which each had while it was open
         self.assumed = {}           # cases: part number -> what it assumes
         self.entered = None         # cases: the part now open
+        self.case_opened_at = None  # cases: the closers before that part
         self.claim = self.proof = None
         self.parts = {}             # part number -> the last fact in it
 
@@ -355,8 +358,9 @@ class Elaborator(Builder):
         self.supplying = set()   # `requires` terms being discharged now
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
+        self.citing = frozenset()    # the lines what is being proved cites
         self.combined = {}           # by step line, what its method combined
-        self.sorts = frozenset()     # labels of `be a set`, `be a point`
+        self.sorts = frozenset()     # labels of set, point and function lines
         self.defines = frozenset()   # labels of `define` lines
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
@@ -419,7 +423,9 @@ class Elaborator(Builder):
         says so.
         """
         kept = self.g.sorts
-        self.g.sorts = {**kept, **sorts_of_record(item)}
+        own = (sorts_of_statement(item) if isinstance(item, Theorem)
+               else sorts_of_record(item))
+        self.g.sorts = {**kept, **own}
         try:
             yield
         finally:
@@ -844,7 +850,12 @@ class Elaborator(Builder):
                 continue
             args = stack[len(stack) - count:]
             del stack[len(stack) - count:]
-            if token in WRAPS:                # the operation is an operand
+            # The operation is an operand of the lemma that rewrites under
+            # it where it is a constant, as `cabs` is in |x|. Where it is a
+            # hole it is an argument like any other: `application` targets
+            # `_2 _1 cfv` and its function is `f`, which taken for a label
+            # was its hole's index, and a zero `seq` leaves out.
+            if token in WRAPS and args[-1][0] == 'const':
                 stack.append(('app', args[-1][1], token, args[:-1]))
             else:
                 stack.append(('app', token, None, args))
@@ -1108,6 +1119,8 @@ class Elaborator(Builder):
             cited = lines.get(ref)
             found = cited and self.witnesses_in(
                 rest, self.to_term(cited.term), marks)
+            if not found and cited and len(layers) == 1:
+                found = self.member_named(cited.term, layers[0])
             if found:
                 break
         else:
@@ -1123,9 +1136,15 @@ class Elaborator(Builder):
         innermost = layers[-1][0]
         for _b, v, _o in layers:
             innermost = self.restated(innermost, f'{v} cv', found[f'{v} cv'])
-        if innermost.rpn(self.flabel) != cited.term:
+        if innermost.rpn(self.flabel) == 'wtru':
+            # A body that says nothing of its variable — S is not empty —
+            # holds outright, by the one lemma that states truth.
+            proof = self.seq('wtru', scope, 'tru', 'a1i')
+        elif innermost.rpn(self.flabel) != cited.term:
             proof = self.settle(innermost, scope, facts, step=step,
                                 lines=lines)
+            if declined(proof):
+                return proof
         for i in reversed(range(len(layers))):
             body, var, over = layers[i]
             mark, held = f'{var} cv', body
@@ -1140,9 +1159,17 @@ class Elaborator(Builder):
             # `rspcev` asks what `elrab` asks — the body before and after,
             # tied by the witness standing where the variable did — so the
             # same branch of `prove_essential` discharges it.
-            instance = self.prove_essential(
-                self.to_term(self.seq(self.seq(mark, witness, 'wceq'),
-                                 self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            if ph == ps:
+                # The body does not mention the variable, so the witness
+                # changes nothing in it: `biidd` says so outright.
+                instance = self.seq(seq(mark, witness, 'wceq'), ph, 'biidd')
+            else:
+                instance = self.prove_essential(
+                    self.to_term(self.seq(self.seq(mark, witness, 'wceq'),
+                                          self.seq(ph, ps, 'wb'), 'wi')),
+                    scope, facts)
+                if declined(instance):
+                    return instance
             member = self.seq(witness, over, 'wcel')
             proof = self.seq(scope, self.seq(member, ps, 'wa'), self.seq(ph, var, over,
                                                           'wrex'),
@@ -1151,6 +1178,23 @@ class Elaborator(Builder):
                             proof, 'jca'),
                         ph, ps, var, witness, over, instance, 'rspcev', 'syl')
         return proof
+
+    def member_named(self, said, layer):
+        """The witness a line gives by putting something in the domain.
+
+        A "there is s ∈ S" whose body says nothing of s — S is not empty —
+        is not matched by what a line says of s, since it says nothing: its
+        witness is whatever a cited line puts in S. `check.py` reads the
+        same claim the same way, as stated by any fact putting something in
+        S; the intermediate value theorem cites `a ∈ S`.
+        """
+        _body, var, over = layer
+        for part in self.parts(said):
+            node = self.to_term(part)
+            if node.variable is None and node.label == 'wcel' \
+                    and node.children[1].rpn(self.flabel) == over:
+                return {f'{var} cv': node.children[0].rpn(self.flabel)}
+        return None
 
     def restated(self, term, was, now):
         """`term` with every occurrence of the subterm `was` reading `now`.
@@ -1568,7 +1612,8 @@ class Elaborator(Builder):
                 *(o for s in self.thm.steps for o in s.openers)]
         self.sorts = frozenset(
             o[2] for o in lets if o[0] == 'let' and o[2]
-            and (' be a set' in o[1] or ' be a point' in o[1]))
+            and (' be a set' in o[1] or ' be a point' in o[1]
+                 or '→' in o[1]))
         self.defines = frozenset(d[2] for d in self.thm.defines)
         # What stands above the first step is the theorem's own, and the
         # hypotheses and the conclusion below may lean on it.
@@ -1624,14 +1669,24 @@ class Elaborator(Builder):
             # Any define standing above this step, now that the block it
             # sits in is open and the names it leans on are in hand.
             self.defined(step.line)
+            # A step in a case sits under the case's assumption, a block as
+            # much as a plain step: the intermediate value proof's first
+            # case opens with a contradiction whose second step substitutes
+            # into that assumption.
+            # Only where the part is new. Within a part the scope is what the
+            # steps before this one left it: an obtain opens one of its own,
+            # and resetting to the case's lost what it obtained.
+            if blocks and blocks[-1].assumed and step.part is not None \
+                    and blocks[-1].entered != step.part:
+                closers = self.end_case(blocks[-1], closers)
+                scope, facts = self.enter_case(blocks[-1], step.part, lines)
+                blocks[-1].case_opened_at = len(closers)
             if step.openers or step.parts:
                 block = self.open_block(step, scope, facts, lines)
                 block.opened_at = len(closers)
                 blocks.append(block)
                 scope, facts = block.scope, block.facts
                 continue
-            if blocks and blocks[-1].assumed and step.part is not None:
-                scope, facts = self.enter_case(blocks[-1], step.part, lines)
             self.enclosing = blocks[-1] if blocks else None
             scope, facts, closers = self.step(step, scope, facts, lines,
                                               closers)
@@ -2052,6 +2107,25 @@ class Elaborator(Builder):
         return block.scope, block.facts
 
     @staticmethod
+    def end_case(block, closers):
+        """The closers an obtain raised inside a case, spent where it ends.
+
+        The lemma that closes the cases wants each case over the scope the
+        case opened, and an obtain inside one widens that: the first case
+        of the intermediate value proof obtains δ and then x₁. So what the
+        case ends on is discharged of them, as a contradiction's claim is.
+        """
+        if block.case_opened_at is None:
+            return closers
+        inside = closers[block.case_opened_at:]
+        if inside and block.entered in block.parts:
+            claim, proof, _where = block.parts[block.entered]
+            for close in reversed(inside):
+                proof = close(proof, claim)
+            block.parts[block.entered] = (claim, proof, block.scope)
+        return closers[:block.case_opened_at]
+
+    @staticmethod
     def hand_up(done, blocks):
         """A closed block is the result of the part of its parent it sits in.
 
@@ -2098,6 +2172,7 @@ class Elaborator(Builder):
             block.claim, block.proof = self.close_fix(block, held, inside)
             closers = closers[:block.opened_at]
         elif head == 'cases':
+            closers = self.end_case(block, closers)
             block.claim, block.proof = self.close_cases(block, lines)
         elif head == 'induction':
             block.claim, block.proof = self.close_induction(block, lines)
@@ -2303,25 +2378,38 @@ class Elaborator(Builder):
         return claim, proof
 
     def close_cases(self, block, lines):
-        """Two cases and the disjunction that says one of them holds.
+        """The cases and the disjunction that says one of them holds.
 
         mpjaodan wants each case as an implication out of the scope with its
         own assumption conjoined, which is what each part was proved as, and
         the disjunction the block cites. The fourth and last block form, and
         the same shape as the other three: widen, prove, close with one
         lemma.
+
+        More than two cases follow the disjunction, which is built from the
+        left: `f(c) < 0 or f(c) = 0 or 0 < f(c)` is the first two or'd, then
+        the third. `jaodan` makes one case of the first two, over their
+        disjunction, and so on down, and `mpjaodan` closes on the last.
         """
         step, scope = block.owner, block.outer
         if set(block.parts) != set(block.assumed):
             raise self.defect(step.line, 'a case of the block proves nothing')
         claim = self.claim_of(' '.join(step.claim))
         parts = sorted(block.assumed)
-        first, second = (self.term(block.assumed[p][0]) for p in parts)
+        assumed = [self.term(block.assumed[p][0]) for p in parts]
         said = [block.parts[p][1] for p in parts]
-        return claim, self.seq(scope, first, claim, second, *said,
-                          self.carried(step.just.refs[0], block.outside,
-                                       lines),
-                          'mpjaodan')
+        which, proof = assumed[0], said[0]
+        for one, shown in zip(assumed[1:-1], said[1:-1], strict=True):
+            proof = self.ap('jaodan', {'ph': scope, 'ps': which, 'ch': claim,
+                                       'th': one}, proof, shown)
+            which = seq(which, one, 'wo')
+        disjunction = self.carried(step.just.refs[0], block.outside, lines)
+        if seq(which, assumed[-1], 'wo') != self.lines[step.just.refs[0]].term:
+            raise self.defect(step.line, 'the cases are not the disjunction '
+                                         'the block cites, taken in order')
+        return claim, self.ap('mpjaodan', {'ph': scope, 'ps': which,
+                                           'ch': claim, 'th': assumed[-1]},
+                              proof, said[-1], disjunction)
 
     def close_induction(self, block, lines):
         """Induction closes with the lemma for the set it runs over.
@@ -2469,10 +2557,11 @@ class Elaborator(Builder):
                 k: (scope, v) for k, v in known.items()
                 if any(o.startswith(REQUIRES)
                        for o in getattr(v, 'origin', ()))}}
+        citing, self.citing = self.citing, frozenset(step.just.refs)
         try:
             proof = how(step, node, term, scope, facts, lines)
         finally:
-            self.written = kept
+            self.written, self.citing = kept, citing
         # Every route the method had declined, so nothing here owns the
         # step. That is this elaborator's limit rather than a defect in the
         # text, and it is said here because here is where the step is.
@@ -2596,8 +2685,11 @@ class Elaborator(Builder):
             item = self.items[named.group(1).split(':', 1)[1]]
             for name, value in instantiation(cites):
                 self.names[name] = self.term(self.read(value))
+            # A name is a variable of the kernel whatever it is spelt with:
+            # `x₁` is no set.mm letter, and a spare stands for it as one
+            # does for a binder's name.
             for name in got:
-                self.names[name] = f'{self.flabel[name]} cv'
+                self.names[name] = f'{self.binder_var(name)} cv'
             ex = self.term(self.read(self.claimed_by(item)))
             self.names = saved
             # An item states its existential in its own names, and a binder
@@ -2646,6 +2738,39 @@ class Elaborator(Builder):
                        'mpd')
 
         return inner, lifted, [*closers, close]
+
+    def rebound(self, stated, claimed):
+        """Whether two statements differ only in the letters they bind.
+
+        An `obtain` renames what its existential binds, and a name the page
+        defines is read with the proof's letters rather than the item's: the
+        subsets proof's T binds `o` where `thm:powerset-split-disjoint`'s
+        own reading binds `u`. Those are one statement. A letter is bound
+        where it stands directly under a constructor other than `cv`; every
+        other letter must be the same on both sides.
+        """
+        pairs, binders = {}, set()
+
+        def alike(one, two):
+            if one.variable is not None or two.variable is not None:
+                if one.variable is None or two.variable is None:
+                    return False
+                return pairs.setdefault(one.variable,
+                                        two.variable) == two.variable
+            if (one.label != two.label
+                    or len(one.children) != len(two.children)):
+                return False
+            if one.label != 'cv':
+                binders.update(c.variable for c in one.children
+                               if c.variable is not None)
+            return all(alike(a, b)
+                       for a, b in zip(one.children, two.children,
+                                       strict=True))
+
+        return (alike(self.to_term(stated), self.to_term(claimed))
+                and len(set(pairs.values())) == len(pairs)
+                and all(mine == theirs or mine in binders
+                        for mine, theirs in pairs.items()))
 
     def renamed(self, ex, depth):
         """An existential rewritten to bind variables nothing else holds."""
@@ -2718,16 +2843,43 @@ class Elaborator(Builder):
         it asks for.
         """
         saved = dict(self.names)
-        for name, value in instantiation(cites or step.just.text):
-            self.names[name] = self.term(self.read(value))
+        for name, node in self.item_binding(step, item, cites).items():
+            self.names[name] = self.term(node)
         asks = []
         with self.in_its_names(item):
             for kind, text, _label, _line in item.hypotheses:
                 body = hypothesis_body(kind, text)
                 asks.append(self.term(self.read(body)))
+            ends = [self.term(self.read(text))
+                    for text, _line in item.conclusions]
         self.names = saved
 
-        statement = goal
+        # What is assumed is what the item states, and a step may claim one
+        # side of it: `thm:abs-difference-lt` says |x − c| < δ exactly when
+        # c − δ < x and x < c + δ, and step 17.11 of the intermediate value
+        # proof claims the first from lines saying the second. Stating the
+        # claim under the item's hypotheses alone would assume that every
+        # |x − c| is below every δ.
+        whole = ends[0]
+        for extra in ends[1:]:
+            whole = self.seq(whole, extra, 'wa')
+        other = None
+        if self.rebound(whole, goal):
+            whole = goal
+        if whole != goal:
+            node = self.to_term(whole)
+            sides = ([c.rpn(self.flabel) for c in node.children]
+                     if node.label == 'wb' else [])
+            if goal not in sides:
+                kind = 'def' if item.kind == 'definition' else 'thm'
+                raise self.defect(
+                    step.line,
+                    f'{kind}:{item.name} is taken as stated and states '
+                    f'{self.render(whole)}, where step {fmt(step.number)} '
+                    f'claims {self.render(goal)}')
+            other = sides[1 - sides.index(goal)]
+
+        statement = whole
         for one in reversed(asks):
             statement = self.seq(one, statement, 'wi')
         label = self.fresh('itm')
@@ -2739,18 +2891,23 @@ class Elaborator(Builder):
             label, '$a', text.split(),
             [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
         proof = self.seq(*(self.flabel[v] for v in free), label)
-        if not asks:
-            return self.seq(goal, scope, proof, 'a1i')
         # An item taken as stated asks for its hypotheses like any other,
         # and a hypothesis a reader would not write as a line is written as
         # a `requires`: the subsets proof adds an element back to the set it
         # was removed from and says `requires a ∉ X ∖ {a}`.
-        known = self.supplied(step, scope, facts)
+        known = self.with_cited(step, scope,
+                                self.supplied(step, scope, facts))
+        if not asks:
+            proof = self.seq(whole, scope, proof, 'a1i')
         for i, one in enumerate(asks):
-            rest = goal
+            rest = whole
             for later in reversed(asks[i + 1:]):
                 rest = self.seq(later, rest, 'wi')
-            supplied = self.settle(self.to_term(one), scope, known)
+            # With the step, so a "there is" it asks can be given by an
+            # instance a cited line names: `thm:completeness` asks that S be
+            # bounded above, and the step cites that b is an upper bound.
+            supplied = self.settle(self.to_term(one), scope, known,
+                                   step=step, lines=self.lines)
             # The item is assumed because the database points at nothing for
             # it, and the head of the file says so. Its hypotheses are a
             # different matter: they are stated, and a step citing the item
@@ -2767,7 +2924,71 @@ class Elaborator(Builder):
                     f'not supply: {supplied}')
             proof = self.seq(scope, one, rest, supplied, proof,
                         'syl' if i == 0 else 'mpd')
-        return proof
+        if other is None:
+            return proof
+        # The side the step does not claim is what it cites, a line whole or
+        # one line per conjunct.
+        node = self.to_term(other)
+        pair = ([c.rpn(self.flabel) for c in node.children]
+                if node.label == 'wa' else [])
+        if other in known:
+            given = known[other]
+        elif pair and all(p in known for p in pair):
+            given = self.seq(scope, *pair, *(known[p] for p in pair), 'jca')
+        else:
+            raise self.defect(step.line,
+                              f'step {fmt(step.number)} cites nothing that '
+                              f'says {self.render(other)}')
+        if goal == self.to_term(whole).children[0].rpn(self.flabel):
+            return self.seq(scope, goal, other, given, proof, 'mpbird')
+        return self.seq(scope, other, goal, given, proof, 'mpbid')
+
+    def item_binding(self, step, item, cites=None):
+        """What an item's names stand for at this step, as the page says it.
+
+        A name the step writes, `v := t`, first. Then the item's conclusion
+        matched against the step's claim, and each of its hypotheses against
+        what the step cites, until nothing more is learned — which is how
+        `check.py` reads a citation, done here so an item taken as stated is
+        stated about the step's things: `thm:function-value` says `let x ∈
+        D`, and the intermediate value proof has no D. A name nothing fixes
+        is read as the proof's own letter.
+        """
+        bound = {}
+        for name, value in instantiation(cites or step.just.text):
+            bound[name] = self.read(value)
+        with self.in_its_names(item):
+            ends = [self.read(text) for text, _line in item.conclusions]
+            hyps = [self.read(hypothesis_body(kind, text))
+                    for kind, text, _label, _line in item.hypotheses]
+        variables = set().union(*(names_in(n) for n in [*ends, *hyps]))
+        props = binding_context(self.g.notations)[1]
+        for end in ends:
+            for said in self.said(step):
+                got = match(end, said, bound, variables, props)
+                if got is not None:
+                    bound = got
+                    break
+        given = []
+        for ref in step.just.refs:
+            if ref in self.lines:
+                given += list(self.lines[ref].sentences)
+        # Only what the step cites. A sort line fixes nothing: every set in
+        # scope is a set, and `let X be a set` matched against the first one
+        # bound the subsets proof's X to its A.
+        given += [self.read(hypothesis_body(kind, text))
+                  for kind, text, label, _line in self.thm.hypotheses
+                  if label in step.just.refs]
+        learned = True
+        while learned:
+            learned = False
+            for hyp in hyps:
+                for fact in given:
+                    got = match(hyp, fact, bound, variables, props)
+                    if got is not None and len(got) > len(bound):
+                        bound, learned = got, True
+                        break
+        return bound
 
     def carried(self, cite, facts, lines):
         """A cited line's proof, said where the citing step sits.
@@ -2802,11 +3023,21 @@ class Elaborator(Builder):
         # A line may say several things at once, and the `for every` is
         # rarely the first of them: Bezout's line 15 says four and
         # quantifies in the fourth. Unpacking makes each a fact of its own.
-        known = dict(facts)
-        known[held.term] = self.carried(where, facts, lines)
+        # Taken apart on its own, so each part is the cited line's and not
+        # a copy of the same claim the scope holds from another line.
+        known = {held.term: self.carried(where, facts, lines)}
         self.unpack(held.term, known[held.term], scope, known)
-        said = next((p for p in self.parts(held.term)
-                     if self.to_term(p).label in ('wral', 'wal')), None)
+        universals = [p for p in self.parts(held.term)
+                      if self.to_term(p).label in ('wral', 'wal')]
+        # The universal is the one binding the name the step instantiates.
+        # A line may hold two: the intermediate value proof's line 9 says c
+        # is an upper bound, which is `for every s ∈ S`, and then `for every
+        # u ∈ ℝ`, and step 12 instantiates u.
+        named = [name for name, _value in instantiation(step.just.text)]
+        bound = {self.bound_as.get(n) or self.flabel.get(n) for n in named}
+        said = next((p for p in universals
+                     if self.to_term(p).children[1].rpn(self.flabel) in bound),
+                    universals[0] if universals else None)
         if said is None:
             raise self.defect(step.line,
                               f'{where} claims nothing of every such name')
@@ -3917,6 +4148,8 @@ class Elaborator(Builder):
         held = facts.get(instead)
         if held is None:
             held = self.prove_order(refs, instead, scope, facts, lines, skip)
+            if declined(held):
+                return held
 
         def real(one):
             return self.membership(one, 'cr', scope, facts)
@@ -4786,9 +5019,13 @@ class Elaborator(Builder):
         """
         for ref in step.just.refs:
             cited = lines[ref]
-            known = dict(facts)
-            self.unpack(cited.term, self.carried(ref, facts, lines),
-                        scope, known, depth=8)
+            # The cited line taken apart on its own. Taken apart into the
+            # scope, a part the scope already holds is kept as the scope has
+            # it: line 8 of the intermediate value proof says c is a least
+            # upper bound, which holds that c is an upper bound, and step 10
+            # citing line 9 for it got line 8's.
+            known = {cited.term: self.carried(ref, facts, lines)}
+            self.unpack(cited.term, known[cited.term], scope, known, depth=8)
             if term in known:
                 return known[term]
         return None
@@ -5385,7 +5622,9 @@ class Elaborator(Builder):
             where, frame = self.allowed(sig, binding, variables)
             if declined(where):
                 return where
-        known = self.supplied(step, where, self.frames_facts(frame, facts))
+        known = self.with_cited(
+            step, where, self.supplied(step, where,
+                                       self.frames_facts(frame, facts)))
         for slot in antecedents:
             if not slot.names() - set(binding):
                 continue
@@ -5607,12 +5846,18 @@ class Elaborator(Builder):
         for ref in step.just.refs:
             cited = lines[ref]
             asks.append((cited.term, self.carried(ref, facts, lines)))
-        for want, (_t, how, _l) in zip(
+        for want, (_t, how, line) in zip(
                 [self.read(t) for t, _h, _l in step.requires], step.requires,
                 strict=True):
             here = self.term(want)
             if here not in [a for a, _p in asks]:
-                asks.append((here, self.side(want, how, scope, facts)))
+                # Proved from its reason and checked against it, as
+                # `supplied` and `required` prove one, so the step rests on
+                # the line and not on whatever the line was proved from.
+                made = self.side(want, how, scope, facts, step)
+                if not declined(made):
+                    made = self.discharged_by(made, step, how, line)
+                asks.append((here, made))
 
         statement = term
         for one, _given in reversed(asks):
@@ -5787,6 +6032,25 @@ class Elaborator(Builder):
             known[term] = made
         return known
 
+    def with_cited(self, step, scope, known):
+        """The facts a lemma is answered from, what the step cites first.
+
+        Each line the step cites is taken apart on its own and laid over the
+        scope's copies of the same claims. The scope holds one proof per
+        claim, and which line put it there is not the step's to choose:
+        `thm:from-contradiction` asks for P and not P, the step cites the
+        line joining them, and the scope held each from the line before.
+        """
+        out = dict(known)
+        for ref in (step.just.refs if step is not None else ()):
+            line = self.lines.get(ref)
+            if line is None:
+                continue
+            parts = {line.term: self.carried(ref, known, self.lines)}
+            self.unpack(line.term, parts[line.term], scope, parts)
+            out.update(parts)
+        return out
+
     def rests_on_lines(self, how):
         """Whether a `requires` line's reason is the lines it cites.
 
@@ -5821,6 +6085,13 @@ class Elaborator(Builder):
             self.unpack(line.term, held[line.term], scope, held)
             if term in held:
                 return held[term]
+            # What the line says beyond its recorded term: an obtain records
+            # the body it obtained, and `c ∈ ℝ` went into the scope when the
+            # name's domain was assumed. Its origin is the line, and that is
+            # what makes it the line's to give.
+            found = facts.get(term)
+            if found is not None and getattr(found, 'origin', None) == {ref}:
+                return found
         return Declined('no line this names says it')
 
     def side(self, want, how, scope, facts, step=None):
@@ -5832,6 +6103,16 @@ class Elaborator(Builder):
         that drops the 3.1 asks that the number is not zero, which is more
         than the line says and leaves 3.1 unused.
         """
+        # While the line is proved, what it cites is what may be carried
+        # without a search.
+        citing, self.citing = self.citing, frozenset(citations(how))
+        try:
+            return self.by_its_reason(want, how, scope, facts, step)
+        finally:
+            self.citing = citing
+
+    def by_its_reason(self, want, how, scope, facts, step=None):
+        """`side`, with what the line cites in hand."""
         term = self.term(want)
         # Read from the lines it cites before the scope is asked, since the
         # scope may hold the same claim for another reason.
@@ -6178,6 +6459,15 @@ class Elaborator(Builder):
         wanted = self.claim_of(' '.join(step.claim))
         held = {lines[ref].term: self.carried(ref, facts, lines)
                 for ref in step.just.refs}
+        # One line joined is that line restated: a case whose assumption is
+        # the block's claim ends on it, as the intermediate value proof's
+        # second case does with `join C2`.
+        if len(step.just.refs) == 1:
+            if wanted not in held:
+                raise self.defect(step.line,
+                                  'the joined line is not what the step '
+                                  'claims')
+            return held[wanted]
         left, right = self.to_term(wanted).children
         pair = [left.rpn(self.flabel), right.rpn(self.flabel)]
         if not all(p in held for p in pair):
@@ -6380,6 +6670,15 @@ class Elaborator(Builder):
                 binds[theirs] = self.names[name]
         wanted = [self.term(self.read(hypothesis_body(kind, htext)))
                   for kind, htext, _l, _n in other.hypotheses]
+        # The step may claim one sentence of a conclusion that says several:
+        # `thm:abs-bounds` concludes x ≤ |x| and −x ≤ |x|, and a step that
+        # needs only the first says only the first. The theorem gives the
+        # whole, read in its own sorts, and the sentence is taken out of it.
+        whole = term
+        if (len(self.sentences(other.conclusion))
+                > len(self.sentences(' '.join(step.claim)))):
+            with self.in_its_names(other):
+                whole = self.claim_of(other.conclusion)
         self.names, self.sets = saved, kept
 
         # A cited theorem asks for what it asks for, and a hypothesis a
@@ -6405,7 +6704,7 @@ class Elaborator(Builder):
             pair = self.seq(pair, extra, 'wa')
         # A variable the file declares and this proof says nothing about is
         # one the statement binds, and it stands for itself.
-        mine = self.cited_floats([*wanted, term], binds)
+        mine = self.cited_floats([*wanted, whole], binds)
         pushed = (self.cited_pushes(item.name, binds, mine)
                   or [binds.get(label, label) for label in mine])
         cited = label_of(item.name, self.sigs, self.thm.path, self.thm.line)
@@ -6419,7 +6718,16 @@ class Elaborator(Builder):
         self.arities.setdefault(cited, Signature(
             cited, '$p', ['|-'],
             [('class', f'{cited}.{n}') for n in range(len(pushed))]))
-        return self.seq(scope, pair, term, proof, *pushed, cited, 'syl')
+        proof = self.seq(scope, pair, whole, proof, *pushed, cited, 'syl')
+        if term == whole:
+            return proof
+        parts = {}
+        self.unpack(whole, proof, scope, parts)
+        if term not in parts:
+            raise self.defect(step.line, f'{step.just.head} does not conclude '
+                                         f'what step {fmt(step.number)} '
+                                         f'claims')
+        return parts[term]
 
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition.
@@ -6557,8 +6865,14 @@ class Elaborator(Builder):
                 held = self.written.get(claim)
                 if held is not None:
                     proof = self.lifted_to(claim, held[1], held[0], scope)
-            if proof is None or not any(o.startswith(REQUIRES)
-                                        for o in getattr(proof, 'origin', ())):
+            # What a requires line wrote, or what a line being cited says:
+            # `requires |f(x₁) − f(c)| ∈ ℝ: thm:abs-real …, from 17.14` wants
+            # the difference in ℂ and cites the line saying it is real, and
+            # without this the lemmas were searched in their order, 25
+            # seconds of it, to reach the same fact.
+            origin = getattr(proof, 'origin', frozenset())
+            if proof is None or not (from_requires(proof)
+                                     or (origin and origin <= self.citing)):
                 continue
             return self.ap('syl', {'ph': scope, 'ps': claim,
                                    'ch': self.seq(said, system, 'wcel')},

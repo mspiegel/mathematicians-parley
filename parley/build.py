@@ -15,7 +15,7 @@ introduces; `geometry.mm` has to exist before any theorem elaborates, because
 hand-written proofs read nothing.
 
 Saying it in a field rather than in the order of the list is what lets the
-fifteen that wait for nothing run at once. They are separate processes
+sixteen that wait for nothing run at once. They are separate processes
 writing separate paths and sharing only the machine, so the only thing the
 concurrency costs is memory: each holds its own copy of the library.
 
@@ -50,7 +50,7 @@ CITES = re.compile(r'\bthm:([A-Za-z0-9-]+)')
 SETMM = '<set.mm>'
 # How many recipes run at once. Each holds its own copy of set.mm's 51,256
 # signatures and peaks near 550MB, so the ceiling is there to keep a wave of
-# fifteen from asking for eight gigabytes at once.
+# sixteen from asking for nine gigabytes at once.
 WORKERS = min(8, os.cpu_count() or 1)
 
 
@@ -65,7 +65,7 @@ class Artifact:
     needs: tuple = ()   # artifacts whose files this recipe reads
 
 
-# The fifteen readable proofs the elaborator can expand. The file each
+# The sixteen readable proofs the elaborator can expand. The file each
 # writes is named for the theorem, which is not always the name of the proof
 # file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
 # `geometric-sum` from `proof/geometric-series.proof`, both `subsets-count`
@@ -77,7 +77,7 @@ THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
             'least-combination-divides', 'bezout', 'add-element-bijection',
-            'subsets-count')
+            'subsets-count', 'intermediate-value')
 
 # The five proofs worked out by hand, which share two of their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`
@@ -176,7 +176,7 @@ def waves(wanted):
     """The artifacts in groups that may be built at the same time.
 
     An artifact waits for the files it reads and for nothing else, so the
-    fifteen that read none of each other's go at once. A `needs` naming
+    sixteen that read none of each other's go at once. A `needs` naming
     something not being built is not waited for: asking for one theorem
     rebuilds that theorem and not the geometry it reads, the same as asking
     for it before this ran concurrently.

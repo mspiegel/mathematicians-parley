@@ -87,6 +87,21 @@ def sorts_of_record(record):
     return out
 
 
+def sorts_of_statement(thm):
+    """The sort of every name a proved theorem's hypotheses state one for.
+
+    What a citation of it reads: the statement, not the proof beneath. A
+    proof line keeps its keyword in the text, which a record does not.
+    """
+    out = {}
+    for kind, text, _, _ in thm.hypotheses:
+        if kind in ('let', 'assume'):
+            found = _from_introduction(_body(text, kind))
+            if found:
+                out.setdefault(*found)
+    return out
+
+
 def sorts_in_scope(thm, g):
     """The sort of every name the theorem states one for.
 

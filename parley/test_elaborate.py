@@ -172,6 +172,23 @@ CASES = [
      '    2.9.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a) + 1',
      'is not an identity'),
+
+    # An item taken as stated is stated as the item says it, and a step
+    # claiming one side of a biconditional owes the other. Stating the
+    # claim under the item's hypotheses alone assumed that |x − c| < δ for
+    # every x, c and δ, and the kernel accepts whatever is assumed. The
+    # side left uncited is still in scope, so what reports it is the step
+    # resting on a line it does not name.
+    ('claim one side of a stated biconditional without the other',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     'from 17.6, 8, 17.5, 17.9, 17.10',
+     'from 17.6, 8, 17.5, 17.10',
+     'step 17.11 rests on 17.9, which it does not name'),
+    ('claim what an item taken as stated does not state',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     '    17.11. |x₁ − c| < δ',
+     '    17.11. |x₁ − c| ≤ δ',
+     'thm:abs-difference-lt is taken as stated and states'),
 ]
 
 
