@@ -105,6 +105,34 @@ CASES = [
      '    requires A ≠ B: def:triangle, from 7',
      'proof/isosceles.proof:48  def:triangle, from 7 does not reach'),
 
+    # A step's proof rests only on what it names (`GOALS.md` decision 9).
+    # Without its requires line the step still elaborates and verifies:
+    # `algebra` wants k ∈ ℂ, and the scope holds k ∈ ℤ from line 1, which
+    # step 3 does not cite. Provenance is what sees that.
+    ('lean on a line the step does not name',
+     'odd-square', 'proof/sqrt2-irrational.proof',
+     '3.  (2k + 1)² = 4k² + 4k + 1\n'
+     '    algebra\n'
+     '    requires k ∈ ℝ: thm:int-real, from 1\n',
+     '3.  (2k + 1)² = 4k² + 4k + 1\n'
+     '    algebra\n',
+     'proof/sqrt2-irrational.proof:12  step 3 rests on 1, which it does '
+     'not name'),
+
+    # A requires line rests only on its reason. Line 2 does not say k is an
+    # integer, and `thm:int-real` asks it; the scope has it from line 1, so
+    # the line is proved, verifies, and rests on a line it does not cite.
+    ('give a requires line a reason that is not where its proof comes from',
+     'odd-square', 'proof/sqrt2-irrational.proof',
+     '3.  (2k + 1)² = 4k² + 4k + 1\n'
+     '    algebra\n'
+     '    requires k ∈ ℝ: thm:int-real, from 1\n',
+     '3.  (2k + 1)² = 4k² + 4k + 1\n'
+     '    algebra\n'
+     '    requires k ∈ ℝ: thm:int-real, from 2\n',
+     'proof/sqrt2-irrational.proof:14  the requires line rests on 1, which '
+     'it does not name'),
+
     # `decide_field` refuses a claim that is not an identity. It is raised
     # outside the handler that falls back to stating the step, and must
     # stay that way.

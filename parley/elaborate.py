@@ -357,6 +357,8 @@ class Elaborator(Builder):
         self.discharged = {}     # by line, the proofs its own reason made
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
+        self.sorts = frozenset()     # labels of `be a set`, `be a point`
+        self.defines = frozenset()   # labels of `define` lines
         self.unread = []         # and the lines of those nothing read
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
@@ -1561,6 +1563,15 @@ class Elaborator(Builder):
         # which is what stops a block binding the same letter from reaching
         # it.
         self.fixed = dict(self.names)
+        # A sort is stated once, like a declared type, and a step may rest
+        # on it without naming it (`READERS.md`). A define is never emitted,
+        # so naming one is never a use of it.
+        lets = [*self.thm.hypotheses,
+                *(o for s in self.thm.steps for o in s.openers)]
+        self.sorts = frozenset(
+            o[2] for o in lets if o[0] == 'let' and o[2]
+            and (' be a set' in o[1] or ' be a point' in o[1]))
+        self.defines = frozenset(d[2] for d in self.thm.defines)
         # What stands above the first step is the theorem's own, and the
         # hypotheses and the conclusion below may lean on it.
         self.defined(self.thm.steps[0].line if self.thm.steps else _ENDLESS)
@@ -1721,6 +1732,57 @@ class Elaborator(Builder):
                         'syl')
             here = inner
         return proof if here == scope else None
+
+    def named(self, step, number, block=False):
+        """What a step names, which is everything its proof may rest on.
+
+        The lines it cites and its own requires lines, and the sorts in
+        scope. A block also rests on its own steps and on what it assumes,
+        and on the lines a `join` inside it names: a join that closes a
+        contradiction emits nothing, and the block's close uses what it
+        joined (`ELABORATION.md` requirement 8).
+        """
+        out = (set(step.just.refs) - self.defines) | self.sorts
+        out |= {requirement(line) for _t, _h, line in step.requires}
+        if block:
+            out |= {k for k in self.lines if k.startswith(number + '.')}
+            out |= {o[2] for o in step.openers if o[2]}
+            out.add(f'{number} assumes')
+            depth = number.count('.') + 1
+            for inner in self.thm.steps:
+                name = '.'.join(str(p) for p in inner.number)
+                if name.startswith(number + '.') \
+                        and name.count('.') == depth \
+                        and inner.just.head == 'join':
+                    out |= set(inner.just.refs) - self.defines
+        return out
+
+    def discharged_by(self, made, step, how, line):
+        """A requires line's proof, checked against its reason and sealed.
+
+        It rests only on the lines its reason cites, the step's other
+        requires lines, which `check.py` also lets one line discharge from
+        another, and the sorts in scope.
+        """
+        allowed = set(citations(how)) | self.sorts
+        allowed |= {requirement(one) for _t, _h, one in step.requires}
+        self.rests_on_named(made, allowed, line, 'the requires line')
+        return self.seal(made, requirement(line))
+
+    def rests_on_named(self, proof, allowed, line, what):
+        """A proof resting on nothing its line does not name, or a defect.
+
+        `GOALS.md` decision 9: the kernel proof is derived from the text, so
+        what it rests on is what the text says it rests on. A proof that
+        verifies while resting on something else says nothing is wrong, and
+        this is where that is said.
+        """
+        extra = sorted(getattr(proof, 'origin', frozenset()) - allowed)
+        if extra:
+            shown = ', '.join(f'the requires line at {e[len(REQUIRES):]}'
+                              if e.startswith(REQUIRES) else e for e in extra)
+            raise self.defect(line, f'{what} rests on {shown}, which it does '
+                                    f'not name')
 
     def seal(self, proof, item):
         """The proof, standing from here on for one thing on the page.
@@ -1931,6 +1993,8 @@ class Elaborator(Builder):
         elif head == 'induction':
             block.claim, block.proof = self.close_induction(block, lines)
         number = '.'.join(str(p) for p in step.number)
+        self.rests_on_named(block.proof, self.named(step, number, block=True),
+                            step.line, f'step {number}')
         block.proof = self.seal(block.proof, number)
         outer = dict(block.outside)
         outer[block.claim] = block.proof
@@ -2308,6 +2372,8 @@ class Elaborator(Builder):
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
         said = self.said(step)
+        self.rests_on_named(proof, self.named(step, number), step.line,
+                            f'step {number}')
         proof = self.seal(proof, number)
         lines[number] = Fact(term, proof, said)
         facts[term] = proof
@@ -2431,6 +2497,8 @@ class Elaborator(Builder):
             p_ex = self.cite_item(step, ex, scope, facts, item, cites)
         # What the line is obtained from is what it rests on; what it
         # introduces is sealed below with the same name, and rests on nothing.
+        self.rests_on_named(p_ex, self.named(step, number), step.line,
+                            f'step {number}')
         p_ex = self.seal(p_ex, number)
 
         # The existential says which names it introduces and where they run,
@@ -5595,8 +5663,9 @@ class Elaborator(Builder):
                 made = self.side(want, how, scope, given, step)
             finally:
                 self.supplying.discard(term)
-            known[term] = (made if declined(made)
-                           else self.seal(made, requirement(line)))
+            if not declined(made):
+                made = self.discharged_by(made, step, how, line)
+            known[term] = made
             self.discharged.setdefault(line, set()).add(known[term])
         return known
 
@@ -6281,7 +6350,7 @@ class Elaborator(Builder):
                         self.at,
                         f'the requires line for {self.render(goal)} is '
                         f'justified by {how}, which does not reach it: {made}')
-                return self.seal(made, requirement(line))
+                return self.discharged_by(made, step, how, line)
         # A `requires` line that is not there is the text's to fix, so this
         # one is a defect. What it is built from declining is not, which is
         # why only a decline is turned into one here.
