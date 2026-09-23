@@ -54,7 +54,7 @@ from parse import (
     fmt,
 )
 from sorts import sorts_in_scope, sorts_of_record
-from spell import Builder, Proof, seq
+from spell import Builder, Proof, seq, spelt
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
@@ -816,7 +816,7 @@ class Elaborator(Builder):
             under = self.settle(asks, scope, facts, depth - 1)
             if declined(under):
                 return None
-            first = proof.split()[-1] == label
+            first = spelt(proof).split()[-1] == label
             fold = self.DISCHARGE[(joins[i], first)]
             if joins[i] == 'wb' and backwards:
                 fold = 'sylibr' if first else 'mpbird'
@@ -1796,7 +1796,7 @@ class Elaborator(Builder):
         """
         self.rests_on[item] = (self.rests_on.get(item, frozenset())
                                | getattr(proof, 'origin', frozenset()))
-        return Proof(proof, {item})
+        return Proof(spelt(proof), {item})
 
     # A fact that conjoins several things says each of them, and the steps
     # below cite them one at a time: an `obtain` hands over one body saying
@@ -4558,8 +4558,8 @@ class Elaborator(Builder):
             return Declined(f'no cited line is what {lemma} unfolds')
         # What the left side fixes need not be everything the right side
         # holds: `rabid` learns the property from the claim itself.
-        for spelt in self.parts(reads.children[1].rpn(self.flabel)):
-            filled = kernel.match(self.to_term(spelt), self.to_term(term),
+        for part in self.parts(reads.children[1].rpn(self.flabel)):
+            filled = kernel.match(self.to_term(part), self.to_term(term),
                                   dict(binding), variables)
             if filled is not None:
                 binding = filled
@@ -5322,7 +5322,7 @@ class Elaborator(Builder):
             # antecedents was the scope, which `ssneld` does: it asks for
             # the inclusion under the scope and then says, still under it,
             # that what is outside the larger set is outside the smaller.
-            first = proof.split()[-1] == label and not carried
+            first = spelt(proof).split()[-1] == label and not carried
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
                     ('wb', True): 'sylib', ('wb', False): 'mpbid',
                     (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
@@ -5343,7 +5343,7 @@ class Elaborator(Builder):
             # in by one: `readdcl` asks `( A ∈ ℝ ∧ B ∈ ℝ )`, the triangle
             # inequality's scope is exactly that, and its step 1 is the
             # lemma alone. It rests on everything the scope says.
-            proof = Proof(proof, getattr(proof, 'origin', frozenset())
+            proof = Proof(spelt(proof), getattr(proof, 'origin', frozenset())
                           | self.scope_origin(where, known))
         return self.carry(proof, goal.rpn(self.flabel), frame)
 
@@ -6746,6 +6746,9 @@ def main(argv, root=None):
 
     work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()
+    # What is written out is the proof's text, and this is where it stops
+    # carrying what it rests on: everything that asked has asked.
+    proof = spelt(proof)
     antecedent = hypotheses[0] if hypotheses else None
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')

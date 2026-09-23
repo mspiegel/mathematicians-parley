@@ -20,11 +20,14 @@ library, because only the library knows what a label wants pushed.
 The second is the better of the two and the first is not deprecated: a script
 with no other reason to read set.mm would gain a 51 MB dependency by moving.
 """
+from dataclasses import dataclass
+
 import kernel
 from library import Signature
 
 
-class Proof(str):
+@dataclass(frozen=True)
+class Proof:
     """A proof, and what on the page it rests on.
 
     `origin` names the things a reader can point at — a hypothesis, a block's
@@ -33,20 +36,32 @@ class Proof(str):
     `GOALS.md` decision 9 is that the kernel proof is derived from the text,
     and this is what lets that be asked of a proof rather than assumed.
 
-    A proof is a string because everything that reads one reads it as text.
-    The text is the proof; the origin is carried beside it, so two proofs with
-    the same text and different origins compare equal, and a cache keyed on
-    the text must decide whether that is what it wants.
+    It is not text, and will not be made into text without being asked:
+    `spelt` is how. Code that handled a proof as a string and so lost what
+    it rests on would leave a proof resting on nothing, which every check
+    of what a step names would pass. So `str` and a format refuse, the way
+    `seq` refuses a decline, and the line that forgot is the line that
+    fails.
     """
 
-    def __new__(cls, text, origin):
-        # Anything else would be turned into text here and carry on as a
-        # proof, which is what `seq` refuses for the same reason.
-        if not isinstance(text, str):
-            raise TypeError(f'a proof is text, not {type(text).__name__}')
-        made = super().__new__(cls, text)
-        made.origin = frozenset(origin)
-        return made
+    text: str
+    origin: frozenset = frozenset()
+
+    def __post_init__(self):
+        if not isinstance(self.text, str):
+            raise TypeError(f'a proof is text, not {type(self.text).__name__}')
+        object.__setattr__(self, 'origin', frozenset(self.origin))
+
+    def __str__(self):
+        raise TypeError('a proof is not text; spelt() gives its text')
+
+    def __format__(self, spec):
+        raise TypeError('a proof is not text; spelt() gives its text')
+
+
+def spelt(proof):
+    """A proof's text, whether or not anything on the page went into it."""
+    return proof.text if type(proof) is Proof else proof
 
 
 def seq(*parts):
@@ -54,9 +69,10 @@ def seq(*parts):
 
     A proof put together from proofs rests on what they rest on. Terms and
     formulas carry no origin and come back as plain text, which keeps the
-    common case as cheap as joining.
+    common case as cheap as joining. Anything that is neither text nor a
+    proof — a decline — is refused by the join.
     """
-    text = ' '.join(p for p in parts if p)
+    text = ' '.join(p.text if type(p) is Proof else p for p in parts if p)
     held = [p.origin for p in parts if type(p) is Proof]
     if not held:
         return text
