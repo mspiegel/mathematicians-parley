@@ -545,7 +545,9 @@ SENTENCES = re.compile(r'(?<=[.])\s+')
 # A `let` names what it introduces first. The keyword is part of the text in
 # a proof's own lines and stripped from a database record's, so it is optional
 # here and the name is what matters.
-LET_NAME = re.compile(r'^(?:let\s+)?([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|be\b)')
+LET_NAME = re.compile(r'^(?:let\s+)?([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|∉|be\b)')
+# `let x be an element` declares a thing and claims nothing of its kind.
+ELEMENT = re.compile(r'^\S+\s+be an element$')
 
 
 def fixed_by(records, g):
@@ -750,7 +752,8 @@ class Library:
     def _facts(self, lines, sorts):
         out = []
         for kind, text in lines:
-            if kind == 'let' and (KIND.match(text) or FUNCTION.match(text)):
+            if kind == 'let' and (KIND.match(text) or FUNCTION.match(text)
+                                  or ELEMENT.match(text)):
                 continue
             self.g.sorts = sorts
             try:
@@ -1583,6 +1586,8 @@ def check_sorts(report, thm):
 
 INTRODUCTIONS = (
     ('a membership',            re.compile(r'^\S+\s*∈\s*\S')),
+    ('a thing not in a set',    re.compile(r'^\S+\s*∉\s*\S')),
+    ('an arbitrary element',    ELEMENT),
     ('an arbitrary set',        re.compile(r'^\S+\s+be a set$')),
     ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
     ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
@@ -1617,8 +1622,8 @@ def introduction_problem(body):
     for an item's alike, since an item states its hypotheses the same way.
     """
     if not any(p.match(body) for _, p in INTRODUCTIONS):
-        return (f'`let {body[:40]}` is none of the five introductions: '
-                f'{", ".join(n for n, _ in INTRODUCTIONS)}')
+        return (f'`let {body[:40]}` is none of the {len(INTRODUCTIONS)} '
+                f'introductions: {", ".join(n for n, _ in INTRODUCTIONS)}')
     # A function's codomain is a set. A sort is a label for what kind of thing
     # a name is, and there is no set of formulas to map into: writing one there
     # says a property is a function, which it is not.
@@ -1632,8 +1637,8 @@ def introduction_problem(body):
 
 def check_introductions(report, thm):
     """A `let` line carries an introduction, not a formula. It names something
-    and says what it is, asserting nothing, and there are exactly four forms.
-    `assume` takes a formula, because it does assert.
+    and says what it is, asserting nothing, and `INTRODUCTIONS` is every form
+    one takes. `assume` takes a formula, because it does assert.
     """
     lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
     for s in thm.steps:

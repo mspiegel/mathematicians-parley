@@ -41,15 +41,20 @@ theorem even-square
 ```
 
 - A `let` line introduces a variable and says what it is: `let n ∈ ℕ` for
-  an element of a named set, `let A be a set` for an arbitrary set, `let
+  an element of a named set, `let a ∉ X` for a thing of the kind X holds
+  that is not in X, `let x be an element` for a thing whose kind the text
+  decides, `let A be a set` for an arbitrary set, `let
   A be a point` for a point of the plane, `let f : A → B` for a
   function with its domain and codomain, and `let P be a property of the
-  elements of X` for a property that a statement can be written about. An
-  `assume` line states a
+  elements of X` for a property that a statement can be written about.
+  Neither `∉` nor `be an element` claims the thing is a set, which `be a
+  set` does (`READERS.md`, on kinds); the kernel still has it be one, and
+  that is apparatus the page never writes.
+  An `assume` line states a
   formula. These are the theorem's hypotheses, and they map onto
   Metamath's floating and essential hypotheses; `let A be a set` is
   set.mm's `A e. _V`. They are part of the statement, not of the proof.
-  Those five are all the forms a `let` line has. It carries an
+  Those seven are all the forms a `let` line has. It carries an
   introduction, which names something and says what it is, and never a
   formula, because it asserts nothing; `assume` is the line that asserts.
   A property line never names the thing the property holds of, because that
@@ -57,8 +62,8 @@ theorem even-square
   introduce `t`, and `t` does not exist on the line above. `P(t)` reads "the
   property P holds of t", which is substitution into a statement and not a
   function applied to an argument; the `holds-of` record says why.
-  Two of the five, `be a set` and `be a point`, are therefore not notations
-  and never appear inside a formula. Quantifying over an arbitrary set
+  Three of the seven, `be an element`, `be a set` and `be a point`, are
+  therefore not notations and never appear inside a formula. Quantifying over an arbitrary set
   inside a formula is the separate `for every set X, ...`, a binder with no
   domain, which is to `let X be a set` what `for every n ∈ ℕ, ...` is to
   `let n ∈ ℕ`.

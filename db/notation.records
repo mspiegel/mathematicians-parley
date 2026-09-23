@@ -821,10 +821,11 @@ notation is-a-set
   target      _1 cvv wcel
   first-used  subsets
   note        Sethood, which ZF distinguishes from being a proper class and
-              set.mm writes as membership of _V. Two uses, thm:difference-set
-              and the requires line of the subsets proof that cites it. It is
-              the formula-position counterpart of the `let X be a set`
-              introduction, as for-every-set is of the same line in a binder.
+              set.mm writes as membership of _V. One use, thm:difference-set;
+              a proof does not write that a set built from sets is a set
+              (`READERS.md`). It is the formula-position counterpart of the
+              `let X be a set` introduction, as for-every-set is of the same
+              line in a binder.
 
 notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _

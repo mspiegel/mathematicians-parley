@@ -122,10 +122,8 @@ sorts it waited for step 17.25.3 to say `s ∈ ℝ`.
 **Status.** The parser and checker today implement flat sorts: a set has the
 sort `set` and nothing about what it holds, and nothing is inferred. A scratch
 checker has inferred kinds over the whole corpus under these rules and found no
-clash in 16 proofs and 108 statements. What the rules do change is
-`thm:add-element-bijection`, whose `let a be a set` makes its X a set of sets
-and so narrows `subsets-count`, which cites it; under these rules it reads
-`let a ∉ X`.
+clash in 16 proofs and 108 statements, and no statement that narrows another
+where it is cited.
 
 **The parser checks every hole against its declared sort**, not only where two
 notations compete. The sorts are declared, and an unchecked declaration rots;
@@ -467,8 +465,11 @@ it holds of, because that name comes from the notation that binds it: in
 `{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
 Three of those, `be an element`, `be a set` and `be a point`, are not notations
 and never appear inside a formula. `assume` does take a formula, because it
-does assert. The parser does not yet read `∉` or `be an element` as
-introductions; no statement in the corpus uses them yet.
+does assert. `thm:add-element-bijection` introduces its `a` by `∉`, and
+`thm:card-singleton` and eight other items introduce theirs by `be an
+element`. The kernel reads either as the thing being a set as well, since
+`{a}` of a proper class is empty; that sethood is apparatus the page never
+writes.
 
 Quantifying over an arbitrary set is the formula-position counterpart, and it is
 a notation: `for every set X, ...`, declared in `db/notation.records` as a binder

@@ -131,13 +131,15 @@ theorem powerset-empty
 
 theorem difference-set
   let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
   then        X ∖ {a} is a set
   metamath    difexg
   target      difexg
   first-used  subsets
 
 theorem subset-of-difference
-  assume Y ⊆ X ∖ {a}                                                  (H1)
+  let a be an element                                                 (H1)
+  assume Y ⊆ X ∖ {a}                                                  (H2)
   then        a ∉ Y
   metamath    ssdifsn
   target      ssdifsn
@@ -146,27 +148,29 @@ theorem subset-of-difference
               says two things at once, and this is the second of them.
 
 theorem difference-of-union
+  let a be an element                                                 (H1)
   then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
   metamath    difun2
   target      difun2
   first-used  subsets
 
 theorem difference-absent
-  assume a ∉ Y                                                        (H1)
+  let a ∉ Y                                                           (H1)
   then        Y ∖ {a} = Y
   metamath    difsn
   target      difsn
   first-used  subsets
 
 theorem not-in-subset
-  assume Y ⊆ Z                                                        (H1)
-  assume a ∉ Z                                                        (H2)
+  let a ∉ Z                                                           (H1)
+  assume Y ⊆ Z                                                        (H2)
   then        a ∉ Y
   metamath    ssneld
   target      ssneld
   first-used  subsets
 
 theorem in-union-singleton
+  let a be an element                                                 (H1)
   then        a ∈ Y ∪ {a}
   metamath    elun2, over the singleton snidg puts a in
   target      elun2
@@ -186,7 +190,8 @@ theorem disjoint-empty
 
 theorem added-elements-are-new
   let Y be a set                                                      (H1)
-  assume for every s ∈ Y, s ∪ {a} ∉ Y                                 (H2)
+  let a be an element                                                 (H2)
+  assume for every s ∈ Y, s ∪ {a} ∉ Y                                 (H3)
   then        for every u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
   metamath    ralrnmpt
   target      ralrnmpt
@@ -199,6 +204,7 @@ theorem added-elements-are-new
 
 theorem not-in-difference
   let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
   then        a ∉ X ∖ {a}
   metamath    neldifsn
   target      neldifsn
@@ -690,7 +696,7 @@ theorem card-zero
   first-used  subsets
 
 theorem card-singleton
-  let x be a set                                                      (H1)
+  let x be an element                                                 (H1)
   then        |{x}| = 1
   metamath    hashsng
   target      hashsng
@@ -750,8 +756,9 @@ theorem card-disjoint-union
 
 theorem image-of-injection
   let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
   assume for every S ∈ Y, for every T ∈ Y, if S ∪ {a} = T ∪ {a}
-         then S = T                                                   (H2)
+         then S = T                                                   (H3)
   then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
   metamath    f1oeng, over the map f1mpt and f1f1orn show is one-to-one
   target      f1oeng with F := the map sending S ∈ Y to S ∪ {a}

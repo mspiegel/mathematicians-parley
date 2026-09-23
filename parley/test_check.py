@@ -122,7 +122,7 @@ CASES = [
      'proof/cantor.proof',
      '  let A be a set                                                      (H1)',
      '  let A ⊆ B                                                           (H1)',
-     'none of the five introductions'),
+     'none of the 7 introductions'),
 
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has

@@ -64,6 +64,8 @@ LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # written; the claim is the notation the database declares. Points are the
 # same shape, and every sort with a notation could be.
 BE_A = re.compile(r'\s+be\s+a\s+(set|point)\b')
+BE_AN_ELEMENT = re.compile(r'^(\S+)\s+be\s+an\s+element$')
+NOT_IN = re.compile(r'^(\S+)\s*∉\s*\S')
 # Past the last line any proof has, for reading every define that is left.
 _ENDLESS = float('inf')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
@@ -212,9 +214,22 @@ def hypothesis_body(kind, text):
     the sort means, and the notation that states it is what the database
     declares. The line reads better as it is written, so the substitution
     happens here and every reader of a hypothesis gets it.
+
+    `let a ∉ X` and `let x be an element` claim no kind on the page, and the
+    kernel still wants the thing to be a set, not a proper class: `{a}` of a
+    proper class is empty. That sethood is apparatus (`READERS.md`, hidden
+    entirely), so it is added here and never written: `let a ∉ X` reads as
+    a is a set and a ∉ X, and `let x be an element` as x is a set.
     """
     body = text[len(kind):] if text.startswith(kind) else text
     if kind == 'let':
+        said = LABEL.sub('', body).strip()
+        element = BE_AN_ELEMENT.match(said)
+        if element:
+            return f'{element.group(1)} is a set'
+        outside = NOT_IN.match(said)
+        if outside:
+            return f'{outside.group(1)} is a set and {said}'
         body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
     return body
 
@@ -2050,7 +2065,7 @@ class Elaborator(Builder):
                     # and it must avoid whatever the notations bind: the sum
                     # binds `k`, so a proof that fixes `k` cannot use it.
                     node = self.read(body)
-                    name = node.children[0].text
+                    name = self.subject_of(node).text
                     block.variable = self.fixed_var(name, block.scope)
                     self.names[name] = f'{block.variable} cv'
                     # `let X be a set` fixes a name over nothing and says
@@ -6795,9 +6810,11 @@ class Elaborator(Builder):
             node = self.read(hypothesis_body(kind, htext))
             # `let X be a set` names a class as surely as `let n ∈ ℕ` does;
             # `hypothesis_body` has already turned it into the formula that
-            # says so, and the name is in the same place.
-            if kind == 'let' and node.notation in ('membership', 'is-a-set'):
-                name = node.children[0].text
+            # says so, and the name is in the same place. `let a ∉ X` reads
+            # as a conjunction whose first leaf is the name.
+            if kind == 'let' and node.notation in ('membership', 'is-a-set',
+                                                   'conjunction'):
+                name = self.subject_of(node).text
                 theirs = spare.pop(0)
                 # A hypothesis the citation does not name stands for what
                 # the citing proof calls by the same word. Bezout cites this

@@ -624,11 +624,14 @@ the elaborator's.
 **That an element is a set.** set.mm has everything a set, so `a ∈ X` makes a a
 set by `elex`, and a name a step introduces is a set by `vex`, where a reader
 told `let a ∈ X` with X a set of numbers does not think a is one. `READERS.md`
-decides it — the kernel's sethood of an element is hidden apparatus — but
-nothing checks that the page never claims it, and `subsets-count` step 1.2.1.4
-has the kernel prove `a` a set by `vex` because `thm:add-element-bijection`
-says `let a be a set`. `thm:powerset-split-disjoint`'s proof is held out until
-the tools do their side; see *What a file states rather than proves*.
+decides it — the kernel's sethood of an element is hidden apparatus — and
+`let a ∉ X` and `let x be an element` are how a statement introduces such a
+thing: `hypothesis_body` reads each as the thing being a set as well, which
+the page never writes. `subsets-count` step 1.2.1.4 still has the kernel prove
+its `a` a set by `vex`, now as that apparatus. Nothing yet checks that the page
+never claims an element is a set, and `thm:powerset-split-disjoint`'s proof is
+held out until the tools do their side; see *What a file states rather than
+proves*.
 
 ## Geometry
 
