@@ -96,12 +96,33 @@ def requirement(line):
     It has no number of its own, so it is named by where it stands.
     """
     return f'{REQUIRES}{line}'
+
+
+def from_requires(proof):
+    """Whether a `requires` line made this proof."""
+    return any(o.startswith(REQUIRES) for o in getattr(proof, 'origin', ()))
 # How set.mm names that a digit belongs to a number system, by the system.
 # The label is the digit and this suffix throughout — `2z`, `1nn`, `0re` —
 # so what a system needs here is how its name is spelt in that label and
 # nothing else.
 SYSTEMS = {'cc': 'cn', 'cr': 're', 'cz': 'z', 'cn': 'nn', 'cn0': 'nn0',
            'cq': 'q'}
+# The lemma that puts a sum, difference, product or power in a number system
+# from its parts being there, by operator and system; a power's exponent is
+# in ℕ₀ whatever the system. A compound's membership is built from its
+# atoms' this way, so an atom's is the step's own line where it wrote one.
+CLOSED = {
+    ('caddc', 'cc'): 'addcld', ('cmin', 'cc'): 'subcld',
+    ('cmul', 'cc'): 'mulcld', ('cexp', 'cc'): 'expcld',
+    ('caddc', 'cr'): 'readdcld', ('cmin', 'cr'): 'resubcld',
+    ('cmul', 'cr'): 'remulcld', ('cexp', 'cr'): 'reexpcld',
+    ('caddc', 'cz'): 'zaddcld', ('cmin', 'cz'): 'zsubcld',
+    ('cmul', 'cz'): 'zmulcld', ('cexp', 'cz'): 'zexpcld',
+    ('caddc', 'cn'): 'nnaddcld', ('cmul', 'cn'): 'nnmulcld',
+    ('caddc', 'cn0'): 'nn0addcld', ('cmul', 'cn0'): 'nn0mulcld',
+    ('cexp', 'cn0'): 'nn0expcld',
+}
+NEGATED = {'cc': 'negcld', 'cr': 'renegcld', 'cz': 'znegcld'}
 
 
 
@@ -1670,6 +1691,37 @@ class Elaborator(Builder):
         self.frames.append((inner, added, lifted))
         return inner, lifted
 
+    def lifted_to(self, claim, proof, at, scope):
+        """A proof made under `at`, said under `scope`, if `scope` is `at`
+        widened; None otherwise.
+
+        Every widening conjoins one assumption onto the antecedent, so a
+        scope opened inside another reads back as that one with each added
+        assumption hanging off it, and the proof is carried in the way
+        `widen` carries every fact: one `simpl` and `syl` per assumption.
+        A scope that is not a widening of `at` — one a step was hoisted to —
+        gives None, and the proof made under `at` is not offered there.
+        """
+        if at == scope:
+            return proof
+        chain, node = [], self.to_term(scope)
+        while node.variable is None and node.label == 'wa' \
+                and len(node.children) == 2:
+            outer, added = node.children
+            chain.append(added.rpn(self.flabel))
+            if outer.rpn(self.flabel) == at:
+                break
+            node = outer
+        else:
+            return None
+        here = at
+        for added in reversed(chain):
+            inner = seq(here, added, 'wa')
+            proof = seq(inner, here, claim, seq(here, added, 'simpl'), proof,
+                        'syl')
+            here = inner
+        return proof if here == scope else None
+
     def seal(self, proof, item):
         """The proof, standing from here on for one thing on the page.
 
@@ -2229,7 +2281,24 @@ class Elaborator(Builder):
             how = self.cite
         if how is None:
             raise self.defect(step.line, f'no expansion for {head!r}')
-        proof = how(step, node, term, scope, facts, lines)
+        # The step's own requires lines hold for the whole of it, not only
+        # for the helpers that ask `supplied` themselves. A membership asked
+        # while turning an equation round in `def:divides` is as much the
+        # step's as one asked by the lemma it cites, and the line the page
+        # wrote for it is the one to use. Offered as `written` is, which the
+        # membership lookup and the one-lemma bridge read and a search does
+        # not, so what `settle` searches is no wider.
+        kept = self.written
+        if step.requires:
+            known = self.supplied(step, scope, facts)
+            self.written = {**kept, **{
+                k: (scope, v) for k, v in known.items()
+                if any(o.startswith(REQUIRES)
+                       for o in getattr(v, 'origin', ()))}}
+        try:
+            proof = how(step, node, term, scope, facts, lines)
+        finally:
+            self.written = kept
         # Every route the method had declined, so nothing here owns the
         # step. That is this elaborator's limit rather than a defect in the
         # text, and it is said here because here is where the step is.
@@ -3114,11 +3183,17 @@ class Elaborator(Builder):
             level is a closure lemma with the atoms at the bottom reached
             through `recn`. Five is not enough for that and is the depth a
             side condition wants, so this asks for its own.
+
+            Built by `part` first, which is that walk done by table with the
+            atoms taken from the step's own lines. Searched for, `zcn` stands
+            before `mulcl`, and the product came from the hypotheses through
+            ℤ while the lines the step wrote for its atoms went unused.
             """
-            want_cc = seq(said, 'cc', 'wcel')
-            if want_cc in facts:
-                return facts[want_cc]
-            return self.settle(self.to_term(want_cc), scope, facts, depth=12)
+            found = self.part(said, 'cc', scope, facts)
+            if not declined(found):
+                return found
+            return self.settle(self.to_term(seq(said, 'cc', 'wcel')), scope,
+                               facts, depth=12)
 
         atoms = {a for p in [*given, want] for m in p.terms for a, _ in m}
         how = field.follows(given, want, atoms)
@@ -5151,11 +5226,15 @@ class Elaborator(Builder):
             # to be brought into the scope the step sits in.
             return self.carry(seq(goal.rpn(self.flabel), where, proof, 'a1i'),
                               goal.rpn(self.flabel), frame)
-        carried = False
+        carried = stood_under = False
         for i, slot in enumerate(antecedents):
             asks = slot.substitute(binding)
             if asks.rpn(self.flabel) == where:
                 carried = True
+                # A variable slot is the context a deduction-form lemma is
+                # stated in, and uses nothing; a formula the scope happens to
+                # be is what the lemma asks, and uses all of it.
+                stood_under = stood_under or slot.variable is None
                 continue                      # the deduction slot
             rest = goal.rpn(self.flabel)
             for later, join in reversed(list(zip(antecedents[i + 1:],
@@ -5190,7 +5269,30 @@ class Elaborator(Builder):
                 return under
             proof = seq(where, *sides, under, proof,
                         fold[(joins[i], first)])
+        if stood_under:
+            # An antecedent that is the scope is supplied by standing under
+            # it, not by a fact looked up, so what it rests on is not carried
+            # in by one: `readdcl` asks `( A ∈ ℝ ∧ B ∈ ℝ )`, the triangle
+            # inequality's scope is exactly that, and its step 1 is the
+            # lemma alone. It rests on everything the scope says.
+            proof = Proof(proof, getattr(proof, 'origin', frozenset())
+                          | self.scope_origin(where, known))
         return self.carry(proof, goal.rpn(self.flabel), frame)
+
+    def scope_origin(self, scope, facts):
+        """The page items a scope is the conjunction of."""
+        out, todo = set(), [scope]
+        while todo:
+            one = todo.pop()
+            held = getattr(facts.get(one), 'origin', None)
+            if held:
+                out |= held
+                continue
+            node = self.to_term(one)
+            if node.variable is None and node.label == 'wa' \
+                    and len(node.children) == 2:
+                todo.extend(c.rpn(self.flabel) for c in node.children)
+        return frozenset(out)
 
     def at_its_own_value(self, label, sig, goal, scope, facts, step, settled):
         """A lemma proved at the value its own hypothesis gives it.
@@ -6205,43 +6307,26 @@ class Elaborator(Builder):
         covering the step, which is the one thing it does not mean.
         """
         want = seq(said, system, 'wcel')
-        # The page's own line for exactly this comes before the scope's copy
-        # of the same claim: `abs-bounds` writes `requires x ∈ ℝ: from H1`
-        # beside a hypothesis saying `x ∈ ℝ`, and the two are one claim with
-        # two origins, of which only one is what the step names.
-        found = facts.get(want)
-        if found is not None and any(o.startswith(REQUIRES)
-                                     for o in getattr(found, 'origin', ())):
+        # What the step's own lines say, first. The scope may hold the same
+        # claim with another origin — `abs-bounds` writes `requires x ∈ ℝ:
+        # from H1` beside the hypothesis saying `x ∈ ℝ` — or a claim one
+        # lemma away — `k ∈ ℤ` from the line that obtained k, where the step
+        # wrote `k ∈ ℝ` and wants `k ∈ ℂ` — or the claim whole where the step
+        # names only its parts, as the triangle inequality's step 5.2 names
+        # `a ∈ ℝ` and `b ∈ ℝ` and line 1 says `a + b ∈ ℝ`. In each the line
+        # the step names is the one to use; `part` says in what order.
+        found = self.part(said, system, scope, facts)
+        if not declined(found):
             return found
-        # What the step wrote a `requires` line for where `inequalities` put
-        # it, which is not among the facts. Only at the scope it was proved
-        # under: a split opens a scope inside the step and carries its facts
-        # across, and this is not carried, so deeper in it is the wrong proof
-        # and `least-combination-divides` stops verifying.
-        held = self.written.get(want)
-        if held is not None and held[0] == scope:
-            return held[1]
-        if found is not None:
-            return found
-        # What those lines say is also what a membership they do not state
-        # exactly is built from. A step asking `k ∈ ℂ` writes `k ∈ ℝ` as its
-        # requires line, while the scope may hold `k ∈ ℤ` from the line that
-        # obtained k; `targets.MEMBERSHIP` tries `zcn` before `recn`, so the
-        # scope alone would answer from the obtaining line and leave the line
-        # the page wrote proved and unused.
-        written = {k: v for k, v in facts.items()
-                   if any(o.startswith(REQUIRES)
-                          for o in getattr(v, 'origin', ()))}
-        written.update({k: v for k, (at, v) in self.written.items()
-                        if at == scope})
-        found = self.bridged(said, system, scope, written)
-        if found is not None:
-            return found
-        # A compound is built from its atoms, `−x ∈ ℝ` from `x ∈ ℝ`, and the
-        # atom's membership is the step's own line where it wrote one rather
-        # than the scope's copy of the same claim. Laid over the scope, the
-        # written lines replace those copies and add almost nothing, so the
-        # search is no wider than it was.
+        # What `part` cannot build is searched for, with the step's own lines
+        # laid over the scope's copies of the same claims. They replace those
+        # copies and add almost nothing, so the search is no wider than it
+        # was, and what it finds rests on the lines the step names.
+        written = {k: v for k, v in facts.items() if from_requires(v)}
+        for k, (at, v) in self.written.items():
+            lifted = self.lifted_to(k, v, at, scope)
+            if lifted is not None:
+                written[k] = lifted
         found = self.settle(self.to_term(want), scope, {**facts, **written})
         if declined(found):
             raise self.defect(
@@ -6282,6 +6367,10 @@ class Elaborator(Builder):
                 continue
             claim = seq(said, source, 'wcel')
             proof = written.get(claim)
+            if proof is None:
+                held = self.written.get(claim)
+                if held is not None:
+                    proof = self.lifted_to(claim, held[1], held[0], scope)
             if proof is None or not any(o.startswith(REQUIRES)
                                         for o in getattr(proof, 'origin', ())):
                 continue
@@ -6290,6 +6379,77 @@ class Elaborator(Builder):
                            proof,
                            self.ap(label, {self.sigs[label].push[0]: said}))
         return None
+
+    def built(self, said, system, scope, facts):
+        """`said ∈ system` for a compound, from its parts; else a decline.
+
+        A sum of reals is real by `readdcld` from its two parts being real,
+        and each part is what the step's own line says of it where it wrote
+        one. Searched for instead, `settle` tries its lemmas in their order
+        and `zcn` comes before `mulcl`, so `a·x₀ ∈ ℂ` was reached through
+        `a ∈ ℤ` from the hypothesis rather than through `a ∈ ℝ` from the line
+        the page wrote. A fixed table and no search, so nothing it cannot
+        build costs more than a lookup.
+        """
+        node = self.to_term(said)
+        if node.variable is None and node.label == 'co' \
+                and len(node.children) == 3:
+            left, right, op = node.children
+            op = op.rpn(self.flabel)
+            lemma = CLOSED.get((op, system))
+            if lemma is None:
+                return Declined(f'no closure lemma for {op} in {system}')
+            a, b = left.rpn(self.flabel), right.rpn(self.flabel)
+            pa = self.part(a, system, scope, facts)
+            if declined(pa):
+                return pa
+            pb = self.part(b, 'cn0' if op == 'cexp' else system, scope, facts)
+            if declined(pb):
+                return pb
+            return self.ap(lemma, {'ph': scope, 'A': a,
+                                   'N' if op == 'cexp' else 'B': b}, pa, pb)
+        if node.variable is None and node.label == 'cneg' \
+                and len(node.children) == 1:
+            lemma = NEGATED.get(system)
+            if lemma is None:
+                return Declined(f'no closure lemma for negation in {system}')
+            a = node.children[0].rpn(self.flabel)
+            pa = self.part(a, system, scope, facts)
+            if declined(pa):
+                return pa
+            return self.ap(lemma, {'ph': scope, 'A': a}, pa)
+        return Declined('not a sum, difference, product, power or negation')
+
+    def part(self, said, system, scope, facts):
+        """One part of a compound, in a number system, or a decline.
+
+        The step's own line first, then that line carried by one lemma, then
+        the part built in turn if it is a compound. A numeral is the
+        library's. What the scope holds is last, and only exactly: it is a
+        line the page wrote, and a step using it without naming it is what
+        provenance is there to see.
+        """
+        want = seq(said, system, 'wcel')
+        found = facts.get(want)
+        if found is not None and from_requires(found):
+            return found
+        held = self.written.get(want)
+        if held is not None:
+            lifted = self.lifted_to(want, held[1], held[0], scope)
+            if lifted is not None:
+                return lifted
+        carried = self.bridged(said, system, scope, facts)
+        if carried is not None:
+            return carried
+        term = self.to_term(said)
+        if linear.numeral(term, self.flabel) is not None:
+            return self.settle(self.to_term(want), scope, facts)
+        made = self.built(said, system, scope, facts)
+        if not declined(made):
+            return made
+        if found is not None:
+            return found
+        return Declined(f'nothing written says {self.render(want)}')
 
     def freeze(self, node):
         """The tree with its leaves turned into the terms they stand for.
