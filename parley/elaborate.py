@@ -54,7 +54,7 @@ from parse import (
     fmt,
 )
 from sorts import sorts_in_scope, sorts_of_record
-from spell import Builder, Proof, seq, spelt
+from spell import Builder, Proof, seq
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
@@ -598,7 +598,7 @@ class Elaborator(Builder):
                 # `least-combination-divides` sixty seconds and bought
                 # nothing.
                 body, variable, over = wanted.children
-                member = seq(f'{variable.rpn(self.flabel)} cv',
+                member = self.seq(f'{variable.rpn(self.flabel)} cv',
                              over.rpn(self.flabel), 'wcel')
                 frame = len(self.frames)
                 inner, lifted = self.widen(scope, facts, member)
@@ -606,7 +606,7 @@ class Elaborator(Builder):
                 del self.frames[frame:]
                 if declined(made):
                     return made
-                return seq(scope, body.rpn(self.flabel),
+                return self.seq(scope, body.rpn(self.flabel),
                            variable.rpn(self.flabel),
                            over.rpn(self.flabel), made, 'ralrimiva')
             # Every lemma is tried as it is written before any is read
@@ -682,7 +682,7 @@ class Elaborator(Builder):
                         != other.rpn(self.flabel):
                     return None
                 return self.apply_lemma(
-                    label, self.to_term(seq(one.rpn(self.flabel),
+                    label, self.to_term(self.seq(one.rpn(self.flabel),
                                             other.rpn(self.flabel), 'wceq')),
                     where, facts, None, crossing=False)
 
@@ -694,7 +694,7 @@ class Elaborator(Builder):
                 if declined(alike):
                     continue
                 if alike is not None:
-                    return seq(scope, said, want, proof, alike, 'mpbid')
+                    return self.seq(scope, said, want, proof, alike, 'mpbid')
         return None
 
     def fits(self, label, sig, wanted, scope, facts, depth, backwards):
@@ -800,7 +800,7 @@ class Elaborator(Builder):
             return None
         proof = self.ap(label, self.spelt(binding), *essentials)
         if not antecedents:
-            return seq(wanted.rpn(self.flabel), scope, proof, 'a1i')
+            return self.seq(wanted.rpn(self.flabel), scope, proof, 'a1i')
         for i, slot in enumerate(antecedents):
             asks = slot.substitute(binding)
             rest = wanted.rpn(self.flabel)
@@ -810,17 +810,17 @@ class Elaborator(Builder):
                 said = later.substitute(binding).rpn(self.flabel)
                 # A biconditional read backwards states its sides the
                 # other way round from the order they are taken in.
-                rest = (seq(rest, said, 'wb')
+                rest = (self.seq(rest, said, 'wb')
                         if join == 'wb' and backwards
-                        else seq(said, rest, join))
+                        else self.seq(said, rest, join))
             under = self.settle(asks, scope, facts, depth - 1)
             if declined(under):
                 return None
-            first = spelt(proof).split()[-1] == label
+            first = proof.text.split()[-1] == label
             fold = self.DISCHARGE[(joins[i], first)]
             if joins[i] == 'wb' and backwards:
                 fold = 'sylibr' if first else 'mpbird'
-            proof = seq(scope, asks.rpn(self.flabel), rest, under, proof,
+            proof = self.seq(scope, asks.rpn(self.flabel), rest, under, proof,
                         fold)
         return proof
 
@@ -868,7 +868,7 @@ class Elaborator(Builder):
             return tree[1]
         _k, label, wrap, kids = tree
         parts = [self.spell(k, holes) for k in kids]
-        return seq(*parts, label, wrap) if wrap else seq(*parts, label)
+        return self.seq(*parts, label, wrap) if wrap else self.seq(*parts, label)
 
     def rewrite(self, node, old, new, scope, eqproof):
         """A proof that `node` equals `node` with `old` replaced by `new`.
@@ -923,8 +923,8 @@ class Elaborator(Builder):
         # is not. What changed comes first, old beside new, then the rest.
         moved = [x for slot in slots for x in (was[slot], now[slot])]
         rest = [o for j, o in enumerate(was) if j not in slots]
-        built = seq(*now, label, wrap) if wrap else seq(*now, label)
-        return built, seq(scope, *moved, *rest, label if wrap else '',
+        built = self.seq(*now, label, wrap) if wrap else self.seq(*now, label)
+        return built, self.seq(scope, *moved, *rest, label if wrap else '',
                           *deeper, self.CONGRUENCE[(wrap or label,
                                                     tuple(slots))])
 
@@ -1020,19 +1020,19 @@ class Elaborator(Builder):
         if held is not None and var is not None:
             binding[held] = kernel.Term(variable=self.sigs[var].statement[1])
         given = reads.children[1].substitute(binding).rpn(self.flabel)
-        says = seq(left, given, 'wb')
+        says = self.seq(left, given, 'wb')
         if not asks:
-            proof = seq(says, scope, applied, 'a1i')
+            proof = self.seq(says, scope, applied, 'a1i')
         else:
             holds = asks[0].substitute(binding).rpn(self.flabel)
             proof = self.required(step, holds, over, scope, facts)
             for slot in asks[1:]:
                 extra = slot.substitute(binding).rpn(self.flabel)
-                proof = seq(scope, holds, extra, proof,
+                proof = self.seq(scope, holds, extra, proof,
                             self.required(step, extra, over, scope, facts),
                             'jca')
-                holds = seq(holds, extra, 'wa')
-            proof = seq(scope, holds, says, proof, applied, 'syl')
+                holds = self.seq(holds, extra, 'wa')
+            proof = self.seq(scope, holds, says, proof, applied, 'syl')
         if ex is None or given == ex:
             return proof, given
         # No bridge means the lemma unfolds to a wording this step cannot be
@@ -1042,7 +1042,7 @@ class Elaborator(Builder):
                                facts, step)
         if declined(across):
             return across
-        return seq(scope, left, given, ex, proof, across, 'bitrd'), ex
+        return self.seq(scope, left, given, ex, proof, across, 'bitrd'), ex
 
     def substituted_slot(self, asked, binding):
         """A wff slot an essential fixes by saying it is a substitution.
@@ -1143,12 +1143,12 @@ class Elaborator(Builder):
             # tied by the witness standing where the variable did — so the
             # same branch of `prove_essential` discharges it.
             instance = self.prove_essential(
-                self.to_term(seq(seq(mark, witness, 'wceq'),
-                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
-            member = seq(witness, over, 'wcel')
-            proof = seq(scope, seq(member, ps, 'wa'), seq(ph, var, over,
+                self.to_term(self.seq(self.seq(mark, witness, 'wceq'),
+                                 self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            member = self.seq(witness, over, 'wcel')
+            proof = self.seq(scope, self.seq(member, ps, 'wa'), self.seq(ph, var, over,
                                                           'wrex'),
-                        seq(scope, member, ps,
+                        self.seq(scope, member, ps,
                             self.required(step, member, over, scope, facts),
                             proof, 'jca'),
                         ph, ps, var, witness, over, instance, 'rspcev', 'syl')
@@ -1260,11 +1260,11 @@ class Elaborator(Builder):
             if not self.exchanged(one, other):
                 return None
             return self.settle(self.to_term(
-                seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
+                self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
                 where, held)
         renamed = self.renaming(given, want)
         if renamed is not None:
-            return seq(seq(given.rpn(self.flabel), want.rpn(self.flabel),
+            return self.seq(self.seq(given.rpn(self.flabel), want.rpn(self.flabel),
                            'wb'), scope, renamed, 'a1i')
         return self.congruence(given, want, scope, facts, step, swapped)
 
@@ -1320,8 +1320,8 @@ class Elaborator(Builder):
 
             def bound(said, at=binds['x'], runs=over):
                 """One binder put back around a body."""
-                return (seq(said, at, runs.rpn(self.flabel), given.label)
-                        if runs is not None else seq(said, at, given.label))
+                return (self.seq(said, at, runs.rpn(self.flabel), given.label)
+                        if runs is not None else self.seq(said, at, given.label))
 
             if variable.variable == renamed.variable:
                 inner = self.renaming(body, other)
@@ -1334,9 +1334,9 @@ class Elaborator(Builder):
             here = self.restated(other, f'{renamed.rpn(self.flabel)} cv',
                                  f'{variable.rpn(self.flabel)} cv')
             middle = dict(binds, ph=here.rpn(self.flabel))
-            at = seq(seq(f'{variable.rpn(self.flabel)} cv',
+            at = self.seq(self.seq(f'{variable.rpn(self.flabel)} cv',
                          f'{renamed.rpn(self.flabel)} cv', 'wceq'),
-                     seq(middle['ph'], binds['ps'], 'wb'), 'wi')
+                     self.seq(middle['ph'], binds['ps'], 'wb'), 'wi')
             said = self.prove_essential(self.to_term(at), '', {})
             if declined(said):
                 return None
@@ -1359,7 +1359,7 @@ class Elaborator(Builder):
         # where the lemma wants the pattern's. The lifters each change one
         # side and hold the other, so the sides are changed one at a time
         # and the halfway claim is what joins the two.
-        here, start, proof = list(spelt), seq(*spelt, given.label), None
+        here, start, proof = list(spelt), self.seq(*spelt, given.label), None
         for slot in (i for i in range(len(spelt)) if spelt[i] != other[i]):
             label = self.RENAMED.get((given.label, (slot,)))
             if label is None:
@@ -1370,13 +1370,13 @@ class Elaborator(Builder):
             rest = here[1] if slot == 0 else here[0]
             step = self.ap(label, {'ph': here[slot], 'ps': other[slot],
                                    'ch': rest}, inner)
-            was = seq(*here, given.label)
+            was = self.seq(*here, given.label)
             here[slot] = other[slot]
             if proof is None:
                 proof = step
                 continue
             proof = self.ap('bitri', {'ph': start, 'ps': was,
-                                      'ch': seq(*here, given.label)},
+                                      'ch': self.seq(*here, given.label)},
                             proof, step)
         return proof
 
@@ -1405,7 +1405,7 @@ class Elaborator(Builder):
         if given.label == 'wrex':
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
-            member = seq(f'{name} cv', runs, 'wcel')
+            member = self.seq(f'{name} cv', runs, 'wcel')
             # The scope under a binder belongs to the walk and to nothing
             # else. `widen` keeps a frame so that a step whose lemma forbids
             # an assumption can be proved without it, and a frame left
@@ -1419,7 +1419,7 @@ class Elaborator(Builder):
             del self.frames[frame:]
             if declined(made):
                 return made
-            return seq(scope, body.rpn(self.flabel),
+            return self.seq(scope, body.rpn(self.flabel),
                        want.children[0].rpn(self.flabel), name, runs, made,
                        'rexbidva')
         wrapped = given.label in WRAPS
@@ -1438,7 +1438,7 @@ class Elaborator(Builder):
         for one in under:
             if declined(one):
                 return one
-        return seq(scope, *moved, *rest, head, *under,
+        return self.seq(scope, *moved, *rest, head, *under,
                    self.CONGRUENCE[(given.label, tuple(slots))])
 
     @staticmethod
@@ -1467,7 +1467,7 @@ class Elaborator(Builder):
         said = [self.term(self.read(s)) for s in self.sentences(text)]
         whole = said[0]
         for extra in said[1:]:
-            whole = seq(whole, extra, 'wa')
+            whole = self.seq(whole, extra, 'wa')
         return whole
 
     def hypotheses(self):
@@ -1580,13 +1580,13 @@ class Elaborator(Builder):
         # implication out of the scope it sits in. So the scope is truth,
         # which is discharged once at the end.
         scope = terms[0] if terms else 'wtru'
-        facts = {scope: seq(scope, 'id')}
+        facts = {scope: self.seq(scope, 'id')}
         for extra in terms[1:]:
-            wider = seq(scope, extra, 'wa')
-            facts = {k: seq(wider, scope, k, seq(scope, extra, 'simpl'), v,
+            wider = self.seq(scope, extra, 'wa')
+            facts = {k: self.seq(wider, scope, k, self.seq(scope, extra, 'simpl'), v,
                             'syl')
                      for k, v in facts.items()}
-            facts[extra] = seq(scope, extra, 'simpr')
+            facts[extra] = self.seq(scope, extra, 'simpr')
             scope = wider
         # Each hypothesis stands for itself, and is sealed before it is taken
         # apart so that what it says in pieces is still what it says.
@@ -1691,9 +1691,10 @@ class Elaborator(Builder):
         a binder introduces while its body is read is not, and has none.
         """
         inner = seq(scope, added, 'wa')
-        lifted = {k: seq(inner, scope, k, seq(scope, added, 'simpl'), v, 'syl')
+        lifted = {k: self.seq(inner, scope, k,
+                              self.seq(scope, added, 'simpl'), v, 'syl')
                   for k, v in facts.items()}
-        lifted[added] = seq(scope, added, 'simpr')
+        lifted[added] = self.seq(scope, added, 'simpr')
         if origin is not None:
             lifted[added] = self.seal(lifted[added], origin)
         self.unpack(added, lifted[added], inner, lifted)
@@ -1727,8 +1728,8 @@ class Elaborator(Builder):
             return None
         here = at
         for added in reversed(chain):
-            inner = seq(here, added, 'wa')
-            proof = seq(inner, here, claim, seq(here, added, 'simpl'), proof,
+            inner = self.seq(here, added, 'wa')
+            proof = self.seq(inner, here, claim, self.seq(here, added, 'simpl'), proof,
                         'syl')
             here = inner
         return proof if here == scope else None
@@ -1796,7 +1797,7 @@ class Elaborator(Builder):
         """
         self.rests_on[item] = (self.rests_on.get(item, frozenset())
                                | getattr(proof, 'origin', frozenset()))
-        return Proof(spelt(proof), {item})
+        return Proof(proof.text, {item})
 
     # A fact that conjoins several things says each of them, and the steps
     # below cite them one at a time: an `obtain` hands over one body saying
@@ -1827,7 +1828,7 @@ class Elaborator(Builder):
         for one in under:
             if declined(one):
                 return one
-        return seq(scope, *(one.rpn(self.flabel) for one in wanted.children),
+        return self.seq(scope, *(one.rpn(self.flabel) for one in wanted.children),
                    *under, self.JOIN[wanted.label])
 
     def unpack(self, term, proof, scope, facts, depth=4):
@@ -1842,7 +1843,7 @@ class Elaborator(Builder):
         for part, pick in zip(kids, picks, strict=True):
             if part in facts:
                 continue
-            facts[part] = seq(scope, term, part, proof, *kids, pick, 'syl')
+            facts[part] = self.seq(scope, term, part, proof, *kids, pick, 'syl')
             self.unpack(part, facts[part], scope, facts, depth - 1)
 
     def open_block(self, step, scope, facts, lines):
@@ -2035,15 +2036,15 @@ class Elaborator(Builder):
                               'the joined lines are not a contradiction')
         first, second, known = found
         claim = self.claim_of(' '.join(step.claim))
-        proof = seq(deep, first, claim, known[first], known[second],
+        proof = self.seq(deep, first, claim, known[first], known[second],
                     'pm2.21dd')
         for close in reversed(inside):
             proof = close(proof, claim)
-        lifted = seq(scope, supposed, claim, proof, 'ex')
-        if claim == seq(supposed, 'wn'):
-            return claim, seq(scope, supposed, lifted, 'pm2.01d')
-        if supposed == seq(claim, 'wn'):
-            return claim, seq(scope, claim, lifted, 'pm2.18d')
+        lifted = self.seq(scope, supposed, claim, proof, 'ex')
+        if claim == self.seq(supposed, 'wn'):
+            return claim, self.seq(scope, supposed, lifted, 'pm2.01d')
+        if supposed == self.seq(claim, 'wn'):
+            return claim, self.seq(scope, claim, lifted, 'pm2.18d')
         raise self.defect(step.line,
                           'the block claims neither its supposition negated '
                           'nor what its supposition denies')
@@ -2063,7 +2064,7 @@ class Elaborator(Builder):
         seen = [t for line in lines for t in self.parts(line) if t in known]
         for one in seen:
             for other in seen:
-                if other == seq(one, 'wn'):
+                if other == self.seq(one, 'wn'):
                     return one, other, known
         return None
 
@@ -2088,8 +2089,8 @@ class Elaborator(Builder):
         apart = self.renaming(self.to_term(said), self.to_term(want))
         if apart is None:
             return None
-        return seq(scope, said, want, proof,
-                   seq(seq(said, want, 'wb'), scope, apart, 'a1i'), 'mpbid')
+        return self.seq(scope, said, want, proof,
+                   self.seq(self.seq(said, want, 'wb'), scope, apart, 'a1i'), 'mpbid')
 
     def close_fix(self, block, held, inside=()):
         """A fix closed by giving back everything it took.
@@ -2149,9 +2150,9 @@ class Elaborator(Builder):
         for how, what, over in layers:
             scopes.append(scope)
             if how == 'ex':
-                scope = seq(scope, what, 'wa')
+                scope = self.seq(scope, what, 'wa')
             else:
-                scope = seq(scope, seq(f'{what} cv', over or 'cvv', 'wcel'),
+                scope = self.seq(scope, self.seq(f'{what} cv', over or 'cvv', 'wcel'),
                             'wa')
 
         # An `obtain` inside the block widened the scope past what the
@@ -2176,20 +2177,20 @@ class Elaborator(Builder):
         for (how, what, over), outer in zip(reversed(layers),
                                             reversed(scopes), strict=True):
             if how == 'ex':
-                proof = seq(outer, what, said, proof, 'ex')
-                said = seq(what, said, 'wi')
+                proof = self.seq(outer, what, said, proof, 'ex')
+                said = self.seq(what, said, 'wi')
             elif how == 'alrimiv':
                 # `let X be a set` says X ∈ _V and the claim quantifies X
                 # over nothing, so that membership is dropped before the
                 # name is given back: every setvar is a set, which is `vex`.
-                member = seq(f'{what} cv', 'cvv', 'wcel')
-                proof = seq(outer, member, said, self.ap('vex', {'x': what}),
+                member = self.seq(f'{what} cv', 'cvv', 'wcel')
+                proof = self.seq(outer, member, said, self.ap('vex', {'x': what}),
                             proof, 'mpan2')
-                proof = seq(outer, said, what, proof, 'alrimiv')
-                said = seq(said, what, 'wal')
+                proof = self.seq(outer, said, what, proof, 'alrimiv')
+                said = self.seq(said, what, 'wal')
             else:
-                proof = seq(outer, said, what, over, proof, 'ralrimiva')
-                said = seq(said, what, over, 'wral')
+                proof = self.seq(outer, said, what, over, proof, 'ralrimiva')
+                said = self.seq(said, what, over, 'wral')
         return claim, proof
 
     def close_cases(self, block, lines):
@@ -2208,7 +2209,7 @@ class Elaborator(Builder):
         parts = sorted(block.assumed)
         first, second = (self.term(block.assumed[p][0]) for p in parts)
         said = [block.parts[p][1] for p in parts]
-        return claim, seq(scope, first, claim, second, *said,
+        return claim, self.seq(scope, first, claim, second, *said,
                           self.carried(step.just.refs[0], block.outside,
                                        lines),
                           'mpjaodan')
@@ -2243,7 +2244,7 @@ class Elaborator(Builder):
                               f'at {self.render(begins)}, and the text says '
                               f'{self.render(start)}')
         variable = block.variable or self.spare_var()
-        next_one = seq(f'{variable} cv', 'c1', 'caddc', 'co')
+        next_one = self.seq(f'{variable} cv', 'c1', 'caddc', 'co')
 
         saved = dict(self.names)
         self.names[name] = general
@@ -2258,13 +2259,13 @@ class Elaborator(Builder):
         shapes = [start, f'{variable} cv', next_one, self.names[name]]
         instances, ties = [], []
         for value in shapes:
-            here = seq(general, value, 'wceq')
+            here = self.seq(general, value, 'wceq')
             built, proof = self.rewrite(pattern, general, value, here,
-                                        seq(here, 'id'))
+                                        self.seq(here, 'id'))
             instances.append(built)
             ties.append(proof)
         claimed, held, reached, whole = instances
-        member = seq(self.names[name], self.sets[name], 'wcel')
+        member = self.seq(self.names[name], self.sets[name], 'wcel')
         body = self.term(pattern)
 
         # A part gives back what it claims, and what a `fix` claims is a
@@ -2281,16 +2282,16 @@ class Elaborator(Builder):
         # be respelt.
         taken = self.to_term(step_claim)
         if taken.label == 'wral' and taken.children[0].label == 'wi':
-            says = seq(held, reached, 'wi')
+            says = self.seq(held, reached, 'wi')
             stepped = self.respelt(stepped, step_claim,
-                                   seq(says, variable, over, 'wral'), under)
+                                   self.seq(says, variable, over, 'wral'), under)
             if stepped is None:
                 raise self.defect(step.line,
                                   'the step does not reach the next instance')
-            inner = seq(under, seq(f'{variable} cv', over, 'wcel'), 'wa')
-            stepped = seq(under, says, variable, over, stepped, 'r19.21bi')
-            stepped = seq(inner, held, reached, stepped, 'imp')
-            step_claim, under = reached, seq(inner, held, 'wa')
+            inner = self.seq(under, self.seq(f'{variable} cv', over, 'wcel'), 'wa')
+            stepped = self.seq(under, says, variable, over, stepped, 'r19.21bi')
+            stepped = self.seq(inner, held, reached, stepped, 'imp')
+            step_claim, under = reached, self.seq(inner, held, 'wa')
 
         base = self.respelt(base, base_claim, claimed, beneath)
         stepped = self.respelt(stepped, step_claim, reached, under)
@@ -2300,7 +2301,7 @@ class Elaborator(Builder):
         if base is None:
             raise self.defect(step.line,
                               'the base does not reach the first instance')
-        run = seq(scope, body, claimed, held, reached, whole,
+        run = self.seq(scope, body, claimed, held, reached, whole,
                   block.base, variable, self.names[name], *ties, base,
                   stepped, lemma)
         # The lemma states the membership apart from the rest of the
@@ -2309,8 +2310,8 @@ class Elaborator(Builder):
         if member not in block.outside:
             raise self.defect(step.line,
                               f'nothing in scope says {member}')
-        return whole, seq(scope, seq(scope, member, 'wa'), whole,
-                          seq(scope, scope, member, seq(scope, 'id'),
+        return whole, self.seq(scope, self.seq(scope, member, 'wa'), whole,
+                          self.seq(scope, scope, member, self.seq(scope, 'id'),
                               block.outside[member], 'jca'),
                           run, 'syl')
 
@@ -2453,8 +2454,8 @@ class Elaborator(Builder):
                     raise self.defect(step.line,
                                       'the existence this obtains from binds '
                                       'a name the scope already holds')
-                p_ex = seq(scope, ex, fresh, p_ex,
-                           seq(seq(ex, fresh, 'wb'), scope, apart, 'a1i'),
+                p_ex = self.seq(scope, ex, fresh, p_ex,
+                           self.seq(self.seq(ex, fresh, 'wb'), scope, apart, 'a1i'),
                            'mpbid')
                 ex = fresh
         elif named.group(1).startswith('def:'):
@@ -2473,13 +2474,13 @@ class Elaborator(Builder):
                 named.group(1), subject, var=fresh)
             body = self.term(kernel)
             self.names = saved
-            ex = seq(body, var, over, 'wrex')
+            ex = self.seq(body, var, over, 'wrex')
             made = self.unfolding(step, lemma, left, ex, var, over, scope,
                                   facts)
             if declined(made):
                 raise self.defect(step.line, f'{lemma} does not unfold '
                                              f'what this obtains from')
-            p_ex = seq(scope, left, ex, facts[left], made[0], 'mpbid')
+            p_ex = self.seq(scope, left, ex, facts[left], made[0], 'mpbid')
         else:
             cites = step.just.text.split(':', 1)[1].strip()
             item = self.items[named.group(1).split(':', 1)[1]]
@@ -2511,9 +2512,9 @@ class Elaborator(Builder):
             rest = body_term
         body = rest.rpn(self.flabel)
 
-        member = seq(*(seq(f'{v} cv', s, 'wcel') for v, s in layers))
+        member = self.seq(*(self.seq(f'{v} cv', s, 'wcel') for v, s in layers))
         if len(layers) > 1:
-            member = seq(member, 'wa')
+            member = self.seq(member, 'wa')
         outer, held = self.widen(scope, facts, member, number)
         inner, lifted = self.widen(outer, held, body, number)
 
@@ -2528,9 +2529,9 @@ class Elaborator(Builder):
         pushed = [v for v, _s in layers] + [s for _v, s in layers]
 
         def close(proof, goal):
-            return seq(scope, ex, goal, p_ex,
-                       seq(scope, body, goal, *pushed,
-                           seq(outer, body, goal, proof, 'ex'), discharge),
+            return self.seq(scope, ex, goal, p_ex,
+                       self.seq(scope, body, goal, *pushed,
+                           self.seq(outer, body, goal, proof, 'ex'), discharge),
                        'mpd')
 
         return inner, lifted, [*closers, close]
@@ -2617,7 +2618,7 @@ class Elaborator(Builder):
 
         statement = goal
         for one in reversed(asks):
-            statement = seq(one, statement, 'wi')
+            statement = self.seq(one, statement, 'wi')
         label = self.fresh('itm')
         text = '|- ' + self.render(statement)
         self.axioms.append((label, text))
@@ -2626,9 +2627,9 @@ class Elaborator(Builder):
         self.sigs[label] = Signature(
             label, '$a', text.split(),
             [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
-        proof = seq(*(self.flabel[v] for v in free), label)
+        proof = self.seq(*(self.flabel[v] for v in free), label)
         if not asks:
-            return seq(goal, scope, proof, 'a1i')
+            return self.seq(goal, scope, proof, 'a1i')
         # An item taken as stated asks for its hypotheses like any other,
         # and a hypothesis a reader would not write as a line is written as
         # a `requires`: the subsets proof adds an element back to the set it
@@ -2637,7 +2638,7 @@ class Elaborator(Builder):
         for i, one in enumerate(asks):
             rest = goal
             for later in reversed(asks[i + 1:]):
-                rest = seq(later, rest, 'wi')
+                rest = self.seq(later, rest, 'wi')
             supplied = self.settle(self.to_term(one), scope, known)
             # The item is assumed because the database points at nothing for
             # it, and the head of the file says so. Its hypotheses are a
@@ -2653,7 +2654,7 @@ class Elaborator(Builder):
                     f'{kind}:{item.name} is taken as stated and asks for '
                     f'{self.render(one)}, which step {fmt(step.number)} does '
                     f'not supply: {supplied}')
-            proof = seq(scope, one, rest, supplied, proof,
+            proof = self.seq(scope, one, rest, supplied, proof,
                         'syl' if i == 0 else 'mpd')
         return proof
 
@@ -2718,16 +2719,16 @@ class Elaborator(Builder):
                 self.term(self.read(value))
             instance = self.restated(body, mark, at)
             ph, ps = body.rpn(self.flabel), instance.rpn(self.flabel)
-            member = seq(at, domain, 'wcel')
+            member = self.seq(at, domain, 'wcel')
             asked = self.prove_essential(
-                self.to_term(seq(seq(mark, at, 'wceq'),
-                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
+                self.to_term(self.seq(self.seq(mark, at, 'wceq'),
+                                 self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
             applied = self.ap(lemma, {
                 'ph': ph, 'ps': ps, 'x': variable.rpn(self.flabel),
                 'A': at, slot: domain}, asked)
-            proof = seq(scope, whole.rpn(self.flabel), ps, proof,
-                        seq(scope, member,
-                            seq(whole.rpn(self.flabel), ps, 'wi'),
+            proof = self.seq(scope, whole.rpn(self.flabel), ps, proof,
+                        self.seq(scope, member,
+                            self.seq(whole.rpn(self.flabel), ps, 'wi'),
                             self.required(step, member, domain, scope, facts),
                             applied, 'syl'),
                         'mpd')
@@ -2757,7 +2758,7 @@ class Elaborator(Builder):
                     f'instantiating at that term wants {self.render(asks)}, '
                     f'which step {fmt(step.number)} does not supply: '
                     f'{supplied}')
-            proof = seq(scope, asks, rest, supplied, proof, 'mpd')
+            proof = self.seq(scope, asks, rest, supplied, proof, 'mpd')
             reached = rest
         return proof
 
@@ -2788,14 +2789,14 @@ class Elaborator(Builder):
         old, new = self.term(left), self.term(right)
         # Which way the equation faces in the kernel is the lemma's choice,
         # not the text's, so either is accepted and turned if it has to be.
-        facing = facts.get(seq(old, new, 'wceq'))
+        facing = facts.get(self.seq(old, new, 'wceq'))
         if facing is None:
-            held = facts.get(seq(new, old, 'wceq'))
+            held = facts.get(self.seq(new, old, 'wceq'))
             if held is None:
                 raise self.defect(step.line,
                                   f'no equation {old} = {new} in scope')
-            facing = seq(scope, new, old, held, 'eqcomd')
-        turned = seq(scope, old, new, facing, 'eqcomd')
+            facing = self.seq(scope, new, old, held, 'eqcomd')
+        turned = self.seq(scope, old, new, facing, 'eqcomd')
 
         if said.group(2) is None:
             # An equation is one fact and a claimed equation is one fact, and
@@ -2815,7 +2816,7 @@ class Elaborator(Builder):
                     built, proof = made
                     if built != self.term(other):
                         continue
-                    return seq(scope, self.term(start), self.term(other),
+                    return self.seq(scope, self.term(start), self.term(other),
                                proof, 'eqcomd') if flip else proof
             raise self.defect(step.line,
                               'the substitution misses the claim')
@@ -2847,7 +2848,7 @@ class Elaborator(Builder):
                     continue
                 built, proof = made
                 if built == term:
-                    return seq(scope, start, term, known[start], proof,
+                    return self.seq(scope, start, term, known[start], proof,
                                'mpbid')
         raise self.defect(step.line, 'the substitution misses the claim')
 
@@ -2935,7 +2936,7 @@ class Elaborator(Builder):
         claim = field.denied(goal, self.flabel)
         left, right = goal.children[0].children
         lhs, rhs = left.rpn(self.flabel), right.rpn(self.flabel)
-        whole = seq(lhs, rhs, 'cmin', 'co')
+        whole = self.seq(lhs, rhs, 'cmin', 'co')
         for ref in step.just.refs:
             held = lines.get(ref)
             if held is None:
@@ -2947,7 +2948,7 @@ class Elaborator(Builder):
                     continue
                 p, q = (c.rpn(self.flabel)
                         for c in node.children[0].children)
-                gap = seq(p, q, 'cmin', 'co')
+                gap = self.seq(p, q, 'cmin', 'co')
                 given = self.cited_fact(ref, node, scope, facts, lines)
                 if declined(given):
                     return given
@@ -2958,7 +2959,7 @@ class Elaborator(Builder):
                 if rescales(cited, claim) == -1:
                     apart = work.ap('negne0d', {'ph': scope, 'A': gap},
                                     complex_number(gap), apart)
-                    gap = seq(gap, 'cneg')
+                    gap = self.seq(gap, 'cneg')
                 alike = self.same_polynomial(work, gap, whole)
                 if declined(alike):
                     return alike
@@ -2981,7 +2982,7 @@ class Elaborator(Builder):
         Those are the same equation: the second divides where the first
         has multiplied out, and `divmuleq` is the step between them.
         """
-        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+        want = field.equation(self.to_term(self.seq(left, right, 'wceq')),
                               self.flabel)
         for ref in step.just.refs:
             held = lines.get(ref)
@@ -3013,13 +3014,13 @@ class Elaborator(Builder):
         c, d = work.spell_run(below), work.spell_run(beneath)
         crossed = work.ap(
             'mpbid', {'ph': work.under,
-                      'ps': seq(seq(a, b, 'cdiv', 'co'),
-                                seq(c, d, 'cdiv', 'co'), 'wceq'),
-                      'ch': seq(seq(a, d, 'cmul', 'co'),
-                                seq(c, b, 'cmul', 'co'), 'wceq')},
+                      'ps': self.seq(self.seq(a, b, 'cdiv', 'co'),
+                                self.seq(c, d, 'cdiv', 'co'), 'wceq'),
+                      'ch': self.seq(self.seq(a, d, 'cmul', 'co'),
+                                self.seq(c, b, 'cmul', 'co'), 'wceq')},
             work.ap('3eqtr3d', {'ph': work.under, 'A': was[0], 'B': was[1],
-                                'C': seq(a, b, 'cdiv', 'co'),
-                                'D': seq(c, d, 'cdiv', 'co')},
+                                'C': self.seq(a, b, 'cdiv', 'co'),
+                                'D': self.seq(c, d, 'cdiv', 'co')},
                     given, first, second),
             work.ap('syl2anc',
                     {'ph': work.under,
@@ -3027,31 +3028,31 @@ class Elaborator(Builder):
                                'wa'),
                      'ch': seq(seq(seq(b, 'cc', 'wcel'),
                                    seq(b, 'cc0', 'wne'), 'wa'),
-                               seq(seq(d, 'cc', 'wcel'),
-                                   seq(d, 'cc0', 'wne'), 'wa'), 'wa'),
-                     'th': seq(seq(seq(a, b, 'cdiv', 'co'),
-                                   seq(c, d, 'cdiv', 'co'), 'wceq'),
-                               seq(seq(a, d, 'cmul', 'co'),
-                                   seq(c, b, 'cmul', 'co'), 'wceq'), 'wb')},
+                               self.seq(self.seq(d, 'cc', 'wcel'),
+                                   self.seq(d, 'cc0', 'wne'), 'wa'), 'wa'),
+                     'th': self.seq(self.seq(self.seq(a, b, 'cdiv', 'co'),
+                                   self.seq(c, d, 'cdiv', 'co'), 'wceq'),
+                               self.seq(self.seq(a, d, 'cmul', 'co'),
+                                   self.seq(c, b, 'cmul', 'co'), 'wceq'), 'wb')},
                     work.ap('jca', {'ph': work.under,
-                                    'ps': seq(a, 'cc', 'wcel'),
-                                    'ch': seq(c, 'cc', 'wcel')},
+                                    'ps': self.seq(a, 'cc', 'wcel'),
+                                    'ch': self.seq(c, 'cc', 'wcel')},
                             work.run_cc(over), work.run_cc(below)),
                     work.ap('jca', {'ph': work.under,
-                                    'ps': seq(seq(b, 'cc', 'wcel'),
-                                              seq(b, 'cc0', 'wne'), 'wa'),
-                                    'ch': seq(seq(d, 'cc', 'wcel'),
-                                              seq(d, 'cc0', 'wne'), 'wa')},
+                                    'ps': self.seq(self.seq(b, 'cc', 'wcel'),
+                                              self.seq(b, 'cc0', 'wne'), 'wa'),
+                                    'ch': self.seq(self.seq(d, 'cc', 'wcel'),
+                                              self.seq(d, 'cc0', 'wne'), 'wa')},
                             work.pair_of(under), work.pair_of(beneath)),
                     work.ap('divmuleq', {'A': a, 'B': c, 'C': b, 'D': d})))
-        sides = [self.same_polynomial(work, left, seq(a, d, 'cmul', 'co')),
-                 self.same_polynomial(work, right, seq(c, b, 'cmul', 'co'))]
+        sides = [self.same_polynomial(work, left, self.seq(a, d, 'cmul', 'co')),
+                 self.same_polynomial(work, right, self.seq(c, b, 'cmul', 'co'))]
         for one in sides:
             if declined(one):
                 return one
         return work.ap(
-            '3eqtr4d', {'ph': work.under, 'A': seq(a, d, 'cmul', 'co'),
-                        'B': seq(c, b, 'cmul', 'co'), 'C': left,
+            '3eqtr4d', {'ph': work.under, 'A': self.seq(a, d, 'cmul', 'co'),
+                        'B': self.seq(c, b, 'cmul', 'co'), 'C': left,
                         'D': right},
             crossed, *sides)
 
@@ -3063,12 +3064,12 @@ class Elaborator(Builder):
         there to be found rather than to be proved again here.
         """
         def apart(said):
-            want = seq(said, 'cc0', 'wne')
+            want = self.seq(said, 'cc0', 'wne')
             if want in facts:
                 return facts[want]
-            denied = seq(seq(said, 'cc0', 'wceq'), 'wn')
+            denied = self.seq(self.seq(said, 'cc0', 'wceq'), 'wn')
             if denied in facts:
-                return seq(scope, said, 'cc0', facts[denied], 'neqned')
+                return self.seq(scope, said, 'cc0', facts[denied], 'neqned')
             found = self.apart_as_written(said, scope, facts)
             if found is not None:
                 return found
@@ -3109,7 +3110,7 @@ class Elaborator(Builder):
                 if inner.variable is not None or inner.label != 'wceq':
                     continue
                 subject, zero = inner.children
-                given = seq(scope, subject.rpn(self.flabel), 'cc0', proof,
+                given = self.seq(scope, subject.rpn(self.flabel), 'cc0', proof,
                             'neqned')
             else:
                 subject, zero = node.children
@@ -3159,35 +3160,35 @@ class Elaborator(Builder):
                                                   right)
         a, b = work.spell_run(over), work.spell_run(under)
         c, d = work.spell_run(below), work.spell_run(beneath)
-        crossed = self.same_polynomial(work, seq(a, d, 'cmul', 'co'),
-                                       seq(c, b, 'cmul', 'co'))
+        crossed = self.same_polynomial(work, self.seq(a, d, 'cmul', 'co'),
+                                       self.seq(c, b, 'cmul', 'co'))
         return work.ap(
             'eqtr4d', {'ph': work.under, 'A': left,
-                       'B': seq(a, b, 'cdiv', 'co'), 'C': right},
+                       'B': self.seq(a, b, 'cdiv', 'co'), 'C': right},
             first,
             work.ap('eqtrd', {'ph': work.under, 'A': right,
-                              'B': seq(c, d, 'cdiv', 'co'),
-                              'C': seq(a, b, 'cdiv', 'co')},
+                              'B': self.seq(c, d, 'cdiv', 'co'),
+                              'C': self.seq(a, b, 'cdiv', 'co')},
                     second,
                     work.ap('mpbird',
                             {'ph': work.under,
-                             'ps': seq(seq(c, d, 'cdiv', 'co'),
-                                       seq(a, b, 'cdiv', 'co'), 'wceq'),
-                             'ch': seq(seq(c, b, 'cmul', 'co'),
-                                       seq(a, d, 'cmul', 'co'), 'wceq')},
+                             'ps': self.seq(self.seq(c, d, 'cdiv', 'co'),
+                                       self.seq(a, b, 'cdiv', 'co'), 'wceq'),
+                             'ch': self.seq(self.seq(c, b, 'cmul', 'co'),
+                                       self.seq(a, d, 'cmul', 'co'), 'wceq')},
                             work.ap('eqcomd',
                                     {'ph': work.under,
-                                     'A': seq(a, d, 'cmul', 'co'),
-                                     'B': seq(c, b, 'cmul', 'co')}, crossed),
+                                     'A': self.seq(a, d, 'cmul', 'co'),
+                                     'B': self.seq(c, b, 'cmul', 'co')}, crossed),
                             work.ap('syl2anc',
                                     {'ph': work.under,
-                                     'ps': seq(seq(c, 'cc', 'wcel'),
-                                               seq(a, 'cc', 'wcel'), 'wa'),
-                                     'ch': seq(seq(seq(d, 'cc', 'wcel'),
-                                                   seq(d, 'cc0', 'wne'),
+                                     'ps': self.seq(self.seq(c, 'cc', 'wcel'),
+                                               self.seq(a, 'cc', 'wcel'), 'wa'),
+                                     'ch': self.seq(self.seq(self.seq(d, 'cc', 'wcel'),
+                                                   self.seq(d, 'cc0', 'wne'),
                                                    'wa'),
-                                               seq(seq(b, 'cc', 'wcel'),
-                                                   seq(b, 'cc0', 'wne'),
+                                               self.seq(self.seq(b, 'cc', 'wcel'),
+                                                   self.seq(b, 'cc0', 'wne'),
                                                    'wa'), 'wa'),
                                      'th': seq(seq(seq(c, d, 'cdiv', 'co'),
                                                    seq(a, b, 'cdiv', 'co'),
@@ -3197,17 +3198,17 @@ class Elaborator(Builder):
                                                    'wceq'), 'wb')},
                                     work.ap('jca',
                                             {'ph': work.under,
-                                             'ps': seq(c, 'cc', 'wcel'),
-                                             'ch': seq(a, 'cc', 'wcel')},
+                                             'ps': self.seq(c, 'cc', 'wcel'),
+                                             'ch': self.seq(a, 'cc', 'wcel')},
                                             work.run_cc(below),
                                             work.run_cc(over)),
                                     work.ap('jca',
                                             {'ph': work.under,
-                                             'ps': seq(seq(d, 'cc', 'wcel'),
-                                                       seq(d, 'cc0', 'wne'),
+                                             'ps': self.seq(self.seq(d, 'cc', 'wcel'),
+                                                       self.seq(d, 'cc0', 'wne'),
                                                        'wa'),
-                                             'ch': seq(seq(b, 'cc', 'wcel'),
-                                                       seq(b, 'cc0', 'wne'),
+                                             'ch': self.seq(self.seq(b, 'cc', 'wcel'),
+                                                       self.seq(b, 'cc0', 'wne'),
                                                        'wa')},
                                             work.pair_of(beneath),
                                             work.pair_of(under)),
@@ -3227,7 +3228,7 @@ class Elaborator(Builder):
         sum of them is zero because every one is; and that sum is the
         claim's own difference, which is the normalizer's question.
         """
-        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+        want = field.equation(self.to_term(self.seq(left, right, 'wceq')),
                               self.flabel)
         given, where = [], []
         for ref in step.just.refs:
@@ -3260,7 +3261,7 @@ class Elaborator(Builder):
             found = self.part(said, 'cc', scope, facts)
             if not declined(found):
                 return found
-            return self.settle(self.to_term(seq(said, 'cc', 'wcel')), scope,
+            return self.settle(self.to_term(self.seq(said, 'cc', 'wcel')), scope,
                                facts, depth=12)
 
         atoms = {a for p in [*given, want] for m in p.terms for a, _ in m}
@@ -3272,7 +3273,7 @@ class Elaborator(Builder):
         for which, shape, scale in how:
             ref, node = where[which]
             a, b = (c.rpn(self.flabel) for c in node.children)
-            gap = seq(a, b, 'cmin', 'co')
+            gap = self.seq(a, b, 'cmin', 'co')
             times = multiplier(shape, scale)
             if times is None:
                 return Declined('a multiplier with no spelling')
@@ -3283,32 +3284,32 @@ class Elaborator(Builder):
                     return one
             given, a_cc, b_cc = parts
             vanishes = work.ap(
-                'mpbird', {'ph': scope, 'ps': seq(gap, 'cc0', 'wceq'),
-                           'ch': seq(a, b, 'wceq')},
+                'mpbird', {'ph': scope, 'ps': self.seq(gap, 'cc0', 'wceq'),
+                           'ch': self.seq(a, b, 'wceq')},
                 given,
                 work.ap('subeq0ad', {'ph': scope, 'A': a, 'B': b},
                         a_cc, b_cc))
-            piece = seq(times, gap, 'cmul', 'co')
+            piece = self.seq(times, gap, 'cmul', 'co')
             pieces.append((piece, work.ap(
                 'eqtrd', {'ph': scope, 'A': piece,
-                          'B': seq(times, 'cc0', 'cmul', 'co'), 'C': 'cc0'},
+                          'B': self.seq(times, 'cc0', 'cmul', 'co'), 'C': 'cc0'},
                 work.ap('oveq2d', {'ph': scope, 'A': gap, 'B': 'cc0',
                                    'C': times, 'F': 'cmul'}, vanishes),
                 work.ap('mul01d', {'ph': scope, 'A': times},
                         work.atom(times)))))
         total, sums = pieces[0]
         for piece, proof in pieces[1:]:
-            joined = seq(total, piece, 'caddc', 'co')
+            joined = self.seq(total, piece, 'caddc', 'co')
             sums = work.ap(
                 'eqtrd', {'ph': scope, 'A': joined,
-                          'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0'},
+                          'B': self.seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0'},
                 work.ap('oveq12d',
                         {'ph': scope, 'A': total, 'B': 'cc0', 'C': piece,
                          'D': 'cc0', 'F': 'caddc'}, sums, proof),
-                work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0',
+                work.a1i(self.seq(self.seq('cc0', 'cc0', 'caddc', 'co'), 'cc0',
                              'wceq'), '00id'))
             total = joined
-        whole = seq(left, right, 'cmin', 'co')
+        whole = self.seq(left, right, 'cmin', 'co')
         ends = [self.same_polynomial(work, total, whole),
                 in_cc(left), in_cc(right)]
         for one in ends:
@@ -3316,8 +3317,8 @@ class Elaborator(Builder):
                 return one
         alike, left_cc, right_cc = ends
         return work.ap(
-            'mpbid', {'ph': scope, 'ps': seq(whole, 'cc0', 'wceq'),
-                      'ch': seq(left, right, 'wceq')},
+            'mpbid', {'ph': scope, 'ps': self.seq(whole, 'cc0', 'wceq'),
+                      'ch': self.seq(left, right, 'wceq')},
             work.ap('eqtr3d',
                     {'ph': scope, 'A': total, 'B': whole, 'C': 'cc0'},
                     alike, sums),
@@ -3332,7 +3333,7 @@ class Elaborator(Builder):
         each side is that multiple is the polynomial case again, and what
         is left is cancelling the multiplier.
         """
-        want = field.equation(self.to_term(seq(left, right, 'wceq')),
+        want = field.equation(self.to_term(self.seq(left, right, 'wceq')),
                               self.flabel)
         for ref in step.just.refs:
             held = lines.get(ref)
@@ -3345,7 +3346,7 @@ class Elaborator(Builder):
                 field.equation(cited, self.flabel), want)
             if times is None or f'{times}ne0' not in self.sigs:
                 continue
-            scaled = [seq(field.NUMERAL[times], one, 'cmul', 'co')
+            scaled = [self.seq(field.NUMERAL[times], one, 'cmul', 'co')
                       for one in (left, right)]
             sides = [self.same_polynomial(work, was, now) for was, now
                      in zip([c.rpn(self.flabel) for c in cited.children],
@@ -3368,23 +3369,23 @@ class Elaborator(Builder):
                         'C': scaled[0], 'D': scaled[1]},
             given, *sides)
         return work.ap(
-            'mpbid', {'ph': scope, 'ps': seq(scaled[0], scaled[1], 'wceq'),
-                      'ch': seq(left, right, 'wceq')},
+            'mpbid', {'ph': scope, 'ps': self.seq(scaled[0], scaled[1], 'wceq'),
+                      'ch': self.seq(left, right, 'wceq')},
             matched,
             work.ap('syl3anc',
-                    {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
-                     'ch': seq(right, 'cc', 'wcel'),
-                     'th': seq(seq(numeral, 'cc', 'wcel'),
-                               seq(numeral, 'cc0', 'wne'), 'wa'),
-                     'ta': seq(seq(scaled[0], scaled[1], 'wceq'),
-                               seq(left, right, 'wceq'), 'wb')},
+                    {'ph': scope, 'ps': self.seq(left, 'cc', 'wcel'),
+                     'ch': self.seq(right, 'cc', 'wcel'),
+                     'th': self.seq(self.seq(numeral, 'cc', 'wcel'),
+                               self.seq(numeral, 'cc0', 'wne'), 'wa'),
+                     'ta': self.seq(self.seq(scaled[0], scaled[1], 'wceq'),
+                               self.seq(left, right, 'wceq'), 'wb')},
                     self.membership(left, 'cc', scope, facts),
                     self.membership(right, 'cc', scope, facts),
                     work.ap('jca', {'ph': scope,
-                                    'ps': seq(numeral, 'cc', 'wcel'),
-                                    'ch': seq(numeral, 'cc0', 'wne')},
+                                    'ps': self.seq(numeral, 'cc', 'wcel'),
+                                    'ch': self.seq(numeral, 'cc0', 'wne')},
                             work.number(times),
-                            work.a1i(seq(numeral, 'cc0', 'wne'),
+                            work.a1i(self.seq(numeral, 'cc0', 'wne'),
                                      f'{times}ne0')),
                     work.ap('mulcan', {'A': left, 'B': right,
                                        'C': numeral})))
@@ -3508,7 +3509,7 @@ class Elaborator(Builder):
                 return Declined('a denial of what holds')
             return self.numerals_differ(work, a, b)
         if how == '=' and a == b:
-            return work.a1i(seq(field.NUMERAL[a], field.NUMERAL[b], 'wceq'),
+            return work.a1i(self.seq(field.NUMERAL[a], field.NUMERAL[b], 'wceq'),
                             work.ap('eqid', {'A': field.NUMERAL[a]}))
         if how == '<' and a < b:
             return self.numeral_below(work, a, b)
@@ -3516,25 +3517,25 @@ class Elaborator(Builder):
             if a == b:
                 return work.ap(
                     'syl', {'ph': scope,
-                            'ps': seq(field.NUMERAL[a], 'cr', 'wcel'),
-                            'ch': seq(field.NUMERAL[a], field.NUMERAL[a],
+                            'ps': self.seq(field.NUMERAL[a], 'cr', 'wcel'),
+                            'ch': self.seq(field.NUMERAL[a], field.NUMERAL[a],
                                       'cle', 'wbr')},
                     self.numeral_real(work, a),
                     work.ap('leid', {'A': field.NUMERAL[a]}))
             return work.ap(
                 'mpd', {'ph': scope,
-                        'ps': seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
+                        'ps': self.seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
                                   'wbr'),
-                        'ch': seq(field.NUMERAL[a], field.NUMERAL[b], 'cle',
+                        'ch': self.seq(field.NUMERAL[a], field.NUMERAL[b], 'cle',
                                   'wbr')},
                 self.numeral_below(work, a, b),
                 work.ap('syl2anc',
                         {'ph': scope,
-                         'ps': seq(field.NUMERAL[a], 'cr', 'wcel'),
-                         'ch': seq(field.NUMERAL[b], 'cr', 'wcel'),
-                         'th': seq(seq(field.NUMERAL[a], field.NUMERAL[b],
+                         'ps': self.seq(field.NUMERAL[a], 'cr', 'wcel'),
+                         'ch': self.seq(field.NUMERAL[b], 'cr', 'wcel'),
+                         'th': self.seq(self.seq(field.NUMERAL[a], field.NUMERAL[b],
                                        'clt', 'wbr'),
-                                   seq(field.NUMERAL[a], field.NUMERAL[b],
+                                   self.seq(field.NUMERAL[a], field.NUMERAL[b],
                                        'cle', 'wbr'), 'wi')},
                         self.numeral_real(work, a),
                         self.numeral_real(work, b),
@@ -3573,11 +3574,11 @@ class Elaborator(Builder):
         work = normal.Emitter(self.sigs, scope,
                               lambda t: self.membership(t, 'cc', scope,
                                                         facts))
-        return work.a1i(seq(field.NUMERAL[digit], system.label, 'wcel'),
+        return work.a1i(self.seq(field.NUMERAL[digit], system.label, 'wcel'),
                         label)
 
     def numeral_real(self, work, value):
-        return work.a1i(seq(field.NUMERAL[value], 'cr', 'wcel'),
+        return work.a1i(self.seq(field.NUMERAL[value], 'cr', 'wcel'),
                         f'{value}re')
 
     def numeral_below(self, work, a, b):
@@ -3590,7 +3591,7 @@ class Elaborator(Builder):
             label = f'{a}lt{b}'
         else:
             label = '0lt1' if b == 1 else f'{b}pos'
-        return work.a1i(seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
+        return work.a1i(self.seq(field.NUMERAL[a], field.NUMERAL[b], 'clt',
                             'wbr'), label)
 
     def numerals_differ(self, work, a, b):
@@ -3598,14 +3599,14 @@ class Elaborator(Builder):
         low, high = (a, b) if a < b else (b, a)
         apart = work.ap(
             'syl', {'ph': work.under,
-                    'ps': seq(seq(field.NUMERAL[low], 'cr', 'wcel'),
-                              seq(field.NUMERAL[low], field.NUMERAL[high],
+                    'ps': self.seq(self.seq(field.NUMERAL[low], 'cr', 'wcel'),
+                              self.seq(field.NUMERAL[low], field.NUMERAL[high],
                                   'clt', 'wbr'), 'wa'),
-                    'ch': seq(field.NUMERAL[high], field.NUMERAL[low],
+                    'ch': self.seq(field.NUMERAL[high], field.NUMERAL[low],
                               'wne')},
             work.ap('jca', {'ph': work.under,
-                            'ps': seq(field.NUMERAL[low], 'cr', 'wcel'),
-                            'ch': seq(field.NUMERAL[low],
+                            'ps': self.seq(field.NUMERAL[low], 'cr', 'wcel'),
+                            'ch': self.seq(field.NUMERAL[low],
                                       field.NUMERAL[high], 'clt', 'wbr')},
                     self.numeral_real(work, low),
                     self.numeral_below(work, low, high)),
@@ -3759,7 +3760,7 @@ class Elaborator(Builder):
         if sides is None or sides[2] != '=':
             return None
         a, b = (one.rpn(self.flabel) for one in sides[:2])
-        up, down = seq(a, b, 'cle', 'wbr'), seq(b, a, 'cle', 'wbr')
+        up, down = self.seq(a, b, 'cle', 'wbr'), self.seq(b, a, 'cle', 'wbr')
         if up not in facts or down not in facts:
             return None
         work = normal.Emitter(self.sigs, scope,
@@ -3767,15 +3768,15 @@ class Elaborator(Builder):
 
         def real(one):
             return self.membership(one, 'cr', scope, facts)
-        both = seq(up, down, 'wa')
+        both = self.seq(up, down, 'wa')
         return work.ap(
             'mpbird', {'ph': scope, 'ps': goal.rpn(self.flabel), 'ch': both},
             work.ap('jca', {'ph': scope, 'ps': up, 'ch': down},
                     facts[up], facts[down]),
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
-                     'ch': seq(b, 'cr', 'wcel'),
-                     'th': seq(goal.rpn(self.flabel), both, 'wb')},
+                    {'ph': scope, 'ps': self.seq(a, 'cr', 'wcel'),
+                     'ch': self.seq(b, 'cr', 'wcel'),
+                     'th': self.seq(goal.rpn(self.flabel), both, 'wb')},
                     real(a), real(b), work.ap('letri3', {'A': a, 'B': b})))
 
     def negated_order(self, goal, refs, term, scope, facts, lines, skip):
@@ -3794,7 +3795,7 @@ class Elaborator(Builder):
         a, b = (one.rpn(self.flabel) for one in sides[:2])
         turns, how = (('ltnle', 'clt') if sides[2] == '<='
                       else ('lenlt', 'cle'))
-        instead = seq(b, a, how, 'wbr')
+        instead = self.seq(b, a, how, 'wbr')
         held = facts.get(instead)
         if held is None:
             held = self.prove_order(refs, instead, scope, facts, lines, skip)
@@ -3806,9 +3807,9 @@ class Elaborator(Builder):
         return work.ap(
             'mpbid', {'ph': scope, 'ps': instead, 'ch': term}, held,
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(b, 'cr', 'wcel'),
-                     'ch': seq(a, 'cr', 'wcel'),
-                     'th': seq(instead, term, 'wb')},
+                    {'ph': scope, 'ps': self.seq(b, 'cr', 'wcel'),
+                     'ch': self.seq(a, 'cr', 'wcel'),
+                     'th': self.seq(instead, term, 'wb')},
                     real(b), real(a), work.ap(turns, {'A': b, 'B': a})))
 
     def either_way(self, found, refs, where, given, term, scope, facts,
@@ -3830,7 +3831,7 @@ class Elaborator(Builder):
                 or said.children[0].label != 'wceq':
             return Declined('what splits is not a denied equation')
         a, b = (c.rpn(self.flabel) for c in said.children[0].children)
-        below, above = (seq(a, b, 'clt', 'wbr'), seq(b, a, 'clt', 'wbr'))
+        below, above = (self.seq(a, b, 'clt', 'wbr'), self.seq(b, a, 'clt', 'wbr'))
 
         work = normal.Emitter(self.sigs, scope,
                               lambda t: self.membership(t, 'cc', scope, facts))
@@ -3842,14 +3843,14 @@ class Elaborator(Builder):
         if declined(given):
             return given
         whether = work.ap(
-            'mpbid', {'ph': scope, 'ps': seq(a, b, 'wne'),
-                      'ch': seq(below, above, 'wo')},
+            'mpbid', {'ph': scope, 'ps': self.seq(a, b, 'wne'),
+                      'ch': self.seq(below, above, 'wo')},
             work.ap('neqned', {'ph': scope, 'A': a, 'B': b}, given),
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(a, 'cr', 'wcel'),
-                     'ch': seq(b, 'cr', 'wcel'),
-                     'th': seq(seq(a, b, 'wne'),
-                               seq(below, above, 'wo'), 'wb')},
+                    {'ph': scope, 'ps': self.seq(a, 'cr', 'wcel'),
+                     'ch': self.seq(b, 'cr', 'wcel'),
+                     'th': self.seq(self.seq(a, b, 'wne'),
+                               self.seq(below, above, 'wo'), 'wb')},
                     real(a), real(b), work.ap('lttri2', {'A': a, 'B': b})))
 
         frame, sides = len(self.frames), []
@@ -3896,7 +3897,7 @@ class Elaborator(Builder):
         if sides is None or sides[2] != '<':
             return Declined('the bound states no strict order')
         low, high = (one.rpn(self.flabel) for one in sides[:2])
-        denies = seq(high, low, 'cle', 'wbr')
+        denies = self.seq(high, low, 'cle', 'wbr')
         if denies not in facts:
             return Declined('nothing in scope denies the bound')
 
@@ -3908,12 +3909,12 @@ class Elaborator(Builder):
             'pm2.21dd', {'ph': scope, 'ps': bound, 'ch': term},
             facts[bound],
             work.ap('mpbid', {'ph': scope, 'ps': denies,
-                              'ch': seq(bound, 'wn')},
+                              'ch': self.seq(bound, 'wn')},
                     facts[denies],
                     work.ap('syl2anc',
-                            {'ph': scope, 'ps': seq(high, 'cr', 'wcel'),
-                             'ch': seq(low, 'cr', 'wcel'),
-                             'th': seq(denies, seq(bound, 'wn'), 'wb')},
+                            {'ph': scope, 'ps': self.seq(high, 'cr', 'wcel'),
+                             'ch': self.seq(low, 'cr', 'wcel'),
+                             'th': self.seq(denies, self.seq(bound, 'wn'), 'wb')},
                             real(high), real(low),
                             work.ap('lenlt', {'A': high, 'B': low}))))
 
@@ -3949,9 +3950,9 @@ class Elaborator(Builder):
         return work.ap(
             'neneqd', {'ph': scope, 'A': below[1], 'B': below[0]},
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(below[0], 'cr', 'wcel'),
-                     'ch': seq(below[0], below[1], 'clt', 'wbr'),
-                     'th': seq(below[1], below[0], 'wne')},
+                    {'ph': scope, 'ps': self.seq(below[0], 'cr', 'wcel'),
+                     'ch': self.seq(below[0], below[1], 'clt', 'wbr'),
+                     'th': self.seq(below[1], below[0], 'wne')},
                     real_number(below[0]), bound,
                     work.ap('ltne', {'A': below[0], 'B': below[1]})))
 
@@ -3997,28 +3998,28 @@ class Elaborator(Builder):
             # Nothing to add: the one bound is already the claim's.
             return self.bound_reaches(work, gaps[0], bounds[0], left, right,
                                       real_number)
-        total = seq(gaps[0], gaps[1], 'caddc', 'co')
-        zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
+        total = self.seq(gaps[0], gaps[1], 'caddc', 'co')
+        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
         added = work.ap(
             'breqtrd', {'ph': scope, 'A': total,
-                        'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
+                        'B': self.seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
                         'R': 'cle'},
             work.ap('mpd',
                     {'ph': scope,
-                     'ps': seq(seq(gaps[0], 'cc0', 'cle', 'wbr'),
-                               seq(gaps[1], 'cc0', 'cle', 'wbr'), 'wa'),
-                     'ch': seq(total, seq('cc0', 'cc0', 'caddc', 'co'),
+                     'ps': self.seq(self.seq(gaps[0], 'cc0', 'cle', 'wbr'),
+                               self.seq(gaps[1], 'cc0', 'cle', 'wbr'), 'wa'),
+                     'ch': self.seq(total, self.seq('cc0', 'cc0', 'caddc', 'co'),
                                'cle', 'wbr')},
                     work.ap('jca', {'ph': scope,
-                                    'ps': seq(gaps[0], 'cc0', 'cle', 'wbr'),
-                                    'ch': seq(gaps[1], 'cc0', 'cle', 'wbr')},
+                                    'ps': self.seq(gaps[0], 'cc0', 'cle', 'wbr'),
+                                    'ch': self.seq(gaps[1], 'cc0', 'cle', 'wbr')},
                             *bounds),
                     work.ap('syl',
                             {'ph': scope,
-                             'ps': seq(seq(seq(gaps[0], 'cr', 'wcel'),
-                                           seq(gaps[1], 'cr', 'wcel'), 'wa'),
-                                       seq(seq('cc0', 'cr', 'wcel'),
-                                           seq('cc0', 'cr', 'wcel'), 'wa'),
+                             'ps': self.seq(self.seq(self.seq(gaps[0], 'cr', 'wcel'),
+                                           self.seq(gaps[1], 'cr', 'wcel'), 'wa'),
+                                       self.seq(self.seq('cc0', 'cr', 'wcel'),
+                                           self.seq('cc0', 'cr', 'wcel'), 'wa'),
                                        'wa'),
                              'ch': seq(seq(seq(gaps[0], 'cc0', 'cle', 'wbr'),
                                            seq(gaps[1], 'cc0', 'cle', 'wbr'),
@@ -4028,25 +4029,25 @@ class Elaborator(Builder):
                                            'cle', 'wbr'), 'wi')},
                             work.ap('jca',
                                     {'ph': scope,
-                                     'ps': seq(seq(gaps[0], 'cr', 'wcel'),
-                                               seq(gaps[1], 'cr', 'wcel'),
+                                     'ps': self.seq(self.seq(gaps[0], 'cr', 'wcel'),
+                                               self.seq(gaps[1], 'cr', 'wcel'),
                                                'wa'),
-                                     'ch': seq(seq('cc0', 'cr', 'wcel'),
-                                               seq('cc0', 'cr', 'wcel'),
+                                     'ch': self.seq(self.seq('cc0', 'cr', 'wcel'),
+                                               self.seq('cc0', 'cr', 'wcel'),
                                                'wa')},
                                     work.ap('jca',
                                             {'ph': scope,
-                                             'ps': seq(gaps[0], 'cr', 'wcel'),
-                                             'ch': seq(gaps[1], 'cr',
+                                             'ps': self.seq(gaps[0], 'cr', 'wcel'),
+                                             'ch': self.seq(gaps[1], 'cr',
                                                        'wcel')}, *real),
                                     work.ap('jca',
                                             {'ph': scope,
-                                             'ps': seq('cc0', 'cr', 'wcel'),
-                                             'ch': seq('cc0', 'cr', 'wcel')},
+                                             'ps': self.seq('cc0', 'cr', 'wcel'),
+                                             'ch': self.seq('cc0', 'cr', 'wcel')},
                                             zero, zero)),
                             work.ap('le2add', {'A': gaps[0], 'B': gaps[1],
                                                'C': 'cc0', 'D': 'cc0'}))),
-            work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
+            work.a1i(self.seq(self.seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
                      '00id'))
         return self.bound_reaches(work, total, added, left, right,
                                   real_number)
@@ -4060,86 +4061,86 @@ class Elaborator(Builder):
         with nothing on the right and `addlid` to tidy it.
         """
         scope = work.under
-        minus, span = seq('c1', 'cneg'), seq(left, right, 'cmin', 'co')
-        total = seq(gap, minus, 'caddc', 'co')
+        minus, span = self.seq('c1', 'cneg'), self.seq(left, right, 'cmin', 'co')
+        total = self.seq(gap, minus, 'caddc', 'co')
         alike = self.same_polynomial(work, span, total)
         if declined(alike):
             return alike
-        zero = work.a1i(seq('cc0', 'cr', 'wcel'), '0re')
+        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
         pair = seq(seq(gap, 'cr', 'wcel'), seq(minus, 'cr', 'wcel'), 'wa')
         added = work.ap(
             'breqtrd', {'ph': scope, 'A': total,
-                        'B': seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
+                        'B': self.seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
                         'R': 'clt'},
             work.ap('mpd',
                     {'ph': scope,
-                     'ps': seq(seq(gap, 'cc0', 'cle', 'wbr'),
-                               seq(minus, 'cc0', 'clt', 'wbr'), 'wa'),
-                     'ch': seq(total, seq('cc0', 'cc0', 'caddc', 'co'),
+                     'ps': self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
+                               self.seq(minus, 'cc0', 'clt', 'wbr'), 'wa'),
+                     'ch': self.seq(total, self.seq('cc0', 'cc0', 'caddc', 'co'),
                                'clt', 'wbr')},
                     work.ap('jca', {'ph': scope,
-                                    'ps': seq(gap, 'cc0', 'cle', 'wbr'),
-                                    'ch': seq(minus, 'cc0', 'clt', 'wbr')},
+                                    'ps': self.seq(gap, 'cc0', 'cle', 'wbr'),
+                                    'ch': self.seq(minus, 'cc0', 'clt', 'wbr')},
                             bound,
-                            work.a1i(seq(minus, 'cc0', 'clt', 'wbr'),
+                            work.a1i(self.seq(minus, 'cc0', 'clt', 'wbr'),
                                      'neg1lt0')),
                     work.ap('syl',
                             {'ph': scope,
-                             'ps': seq(pair,
-                                       seq(seq('cc0', 'cr', 'wcel'),
-                                           seq('cc0', 'cr', 'wcel'), 'wa'),
+                             'ps': self.seq(pair,
+                                       self.seq(self.seq('cc0', 'cr', 'wcel'),
+                                           self.seq('cc0', 'cr', 'wcel'), 'wa'),
                                        'wa'),
-                             'ch': seq(seq(seq(gap, 'cc0', 'cle', 'wbr'),
-                                           seq(minus, 'cc0', 'clt', 'wbr'),
+                             'ch': self.seq(self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
+                                           self.seq(minus, 'cc0', 'clt', 'wbr'),
                                            'wa'),
-                                       seq(total,
-                                           seq('cc0', 'cc0', 'caddc', 'co'),
+                                       self.seq(total,
+                                           self.seq('cc0', 'cc0', 'caddc', 'co'),
                                            'clt', 'wbr'), 'wi')},
                             work.ap('jca',
                                     {'ph': scope, 'ps': pair,
-                                     'ch': seq(seq('cc0', 'cr', 'wcel'),
-                                               seq('cc0', 'cr', 'wcel'),
+                                     'ch': self.seq(self.seq('cc0', 'cr', 'wcel'),
+                                               self.seq('cc0', 'cr', 'wcel'),
                                                'wa')},
                                     work.ap('jca',
                                             {'ph': scope,
-                                             'ps': seq(gap, 'cr', 'wcel'),
-                                             'ch': seq(minus, 'cr', 'wcel')},
+                                             'ps': self.seq(gap, 'cr', 'wcel'),
+                                             'ch': self.seq(minus, 'cr', 'wcel')},
                                             gap_real,
                                             self.real_numeral(
                                                 work, Fraction(-1))),
                                     work.ap('jca',
                                             {'ph': scope,
-                                             'ps': seq('cc0', 'cr', 'wcel'),
-                                             'ch': seq('cc0', 'cr', 'wcel')},
+                                             'ps': self.seq('cc0', 'cr', 'wcel'),
+                                             'ch': self.seq('cc0', 'cr', 'wcel')},
                                             zero, zero)),
                             work.ap('leltadd', {'A': gap, 'B': minus,
                                                 'C': 'cc0', 'D': 'cc0'}))),
-            work.a1i(seq(seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
+            work.a1i(self.seq(self.seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
                      '00id'))
         return work.ap(
             'breqtrd', {'ph': scope, 'A': left,
-                        'B': seq('cc0', right, 'caddc', 'co'), 'C': right,
+                        'B': self.seq('cc0', right, 'caddc', 'co'), 'C': right,
                         'R': 'clt'},
             work.ap('mpbid',
-                    {'ph': scope, 'ps': seq(span, 'cc0', 'clt', 'wbr'),
-                     'ch': seq(left, seq('cc0', right, 'caddc', 'co'),
+                    {'ph': scope, 'ps': self.seq(span, 'cc0', 'clt', 'wbr'),
+                     'ch': self.seq(left, self.seq('cc0', right, 'caddc', 'co'),
                                'clt', 'wbr')},
                     work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
                                         'C': 'cc0', 'R': 'clt'},
                             alike, added),
                     work.ap('syl3anc',
-                            {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
-                             'ch': seq(right, 'cr', 'wcel'),
-                             'th': seq('cc0', 'cr', 'wcel'),
-                             'ta': seq(seq(span, 'cc0', 'clt', 'wbr'),
-                                       seq(left,
-                                           seq('cc0', right, 'caddc', 'co'),
+                            {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
+                             'ch': self.seq(right, 'cr', 'wcel'),
+                             'th': self.seq('cc0', 'cr', 'wcel'),
+                             'ta': self.seq(self.seq(span, 'cc0', 'clt', 'wbr'),
+                                       self.seq(left,
+                                           self.seq('cc0', right, 'caddc', 'co'),
                                            'clt', 'wbr'), 'wb')},
                             real_number(left), real_number(right), zero,
                             work.ap('ltsubadd', {'A': left, 'B': right,
                                                  'C': 'cc0'}))),
-            work.ap('syl', {'ph': scope, 'ps': seq(right, 'cc', 'wcel'),
-                            'ch': seq(seq('cc0', right, 'caddc', 'co'),
+            work.ap('syl', {'ph': scope, 'ps': self.seq(right, 'cc', 'wcel'),
+                            'ch': self.seq(self.seq('cc0', right, 'caddc', 'co'),
                                       right, 'wceq')},
                     work.ap('recnd', {'ph': scope, 'A': right},
                             real_number(right)),
@@ -4151,21 +4152,21 @@ class Elaborator(Builder):
         The normalizer says the term is the claim's difference, and
         `suble0` says a difference at most zero is `<_` between them.
         """
-        scope, span = work.under, seq(left, right, 'cmin', 'co')
+        scope, span = work.under, self.seq(left, right, 'cmin', 'co')
         alike = self.same_polynomial(work, span, total)
         if declined(alike):
             return alike
         return work.ap(
-            'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
-                      'ch': seq(left, right, 'cle', 'wbr')},
+            'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'cle', 'wbr'),
+                      'ch': self.seq(left, right, 'cle', 'wbr')},
             work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
                                 'C': 'cc0', 'R': 'cle'},
                     alike, added),
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
-                     'ch': seq(right, 'cr', 'wcel'),
-                     'th': seq(seq(span, 'cc0', 'cle', 'wbr'),
-                               seq(left, right, 'cle', 'wbr'), 'wb')},
+                    {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
+                     'ch': self.seq(right, 'cr', 'wcel'),
+                     'th': self.seq(self.seq(span, 'cc0', 'cle', 'wbr'),
+                               self.seq(left, right, 'cle', 'wbr'), 'wb')},
                     real_number(left), real_number(right),
                     work.ap('suble0', {'A': left, 'B': right})))
 
@@ -4186,21 +4187,21 @@ class Elaborator(Builder):
         if parts is None:
             return Declined('a cited fact states no relation')
         was = [c.rpn(self.flabel) for c in said.children[:2]]
-        gap = seq(was[0], was[1], 'cmin', 'co')
+        gap = self.seq(was[0], was[1], 'cmin', 'co')
         real = work.ap('syl2anc',
-                       {'ph': scope, 'ps': seq(was[0], 'cr', 'wcel'),
-                        'ch': seq(was[1], 'cr', 'wcel'),
-                        'th': seq(gap, 'cr', 'wcel')},
+                       {'ph': scope, 'ps': self.seq(was[0], 'cr', 'wcel'),
+                        'ch': self.seq(was[1], 'cr', 'wcel'),
+                        'th': self.seq(gap, 'cr', 'wcel')},
                        real_number(was[0]), real_number(was[1]),
                        work.ap('resubcl', {'A': was[0], 'B': was[1]}))
         numeral = field.spell_coefficient(times)
         if numeral is None:
             return Declined(f'{times} is past one digit')
-        scaled = seq(numeral, gap, 'cmul', 'co')
+        scaled = self.seq(numeral, gap, 'cmul', 'co')
         scaled_real = work.ap(
-            'syl2anc', {'ph': scope, 'ps': seq(numeral, 'cr', 'wcel'),
-                        'ch': seq(gap, 'cr', 'wcel'),
-                        'th': seq(scaled, 'cr', 'wcel')},
+            'syl2anc', {'ph': scope, 'ps': self.seq(numeral, 'cr', 'wcel'),
+                        'ch': self.seq(gap, 'cr', 'wcel'),
+                        'th': self.seq(scaled, 'cr', 'wcel')},
             self.real_numeral(work, times), real,
             work.ap('remulcl', {'A': numeral, 'B': gap}))
         if parts[2] == '=':
@@ -4209,12 +4210,12 @@ class Elaborator(Builder):
                                    'C': numeral, 'F': 'cmul'},
                         self.difference_zero(work, was, given)),
                 work.ap('syl', {'ph': scope,
-                                'ps': seq(numeral, 'cc', 'wcel'),
-                                'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                                'ps': self.seq(numeral, 'cc', 'wcel'),
+                                'ch': self.seq(self.seq(numeral, 'cc0', 'cmul', 'co'),
                                           'cc0', 'wceq')},
                         work.coefficient(times),
                         work.ap('mul01', {'A': numeral})),
-                scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0')
+                scaled, self.seq(numeral, 'cc0', 'cmul', 'co'), 'cc0')
             return scaled, work.ap(
                 'eqled', {'ph': scope, 'A': scaled, 'B': 'cc0'},
                 scaled_real, vanishes), scaled_real
@@ -4233,37 +4234,37 @@ class Elaborator(Builder):
             return Declined('a bound may only be scaled upward')
         return scaled, work.ap(
             'breqtrd', {'ph': scope, 'A': scaled,
-                        'B': seq(numeral, 'cc0', 'cmul', 'co'), 'C': 'cc0',
+                        'B': self.seq(numeral, 'cc0', 'cmul', 'co'), 'C': 'cc0',
                         'R': 'cle'},
             work.ap('mpbid',
-                    {'ph': scope, 'ps': seq(gap, 'cc0', 'cle', 'wbr'),
-                     'ch': seq(scaled, seq(numeral, 'cc0', 'cmul', 'co'),
+                    {'ph': scope, 'ps': self.seq(gap, 'cc0', 'cle', 'wbr'),
+                     'ch': self.seq(scaled, self.seq(numeral, 'cc0', 'cmul', 'co'),
                                'cle', 'wbr')},
                     bound,
                     work.ap('syl3anc',
-                            {'ph': scope, 'ps': seq(gap, 'cr', 'wcel'),
-                             'ch': seq('cc0', 'cr', 'wcel'),
-                             'th': seq(seq(numeral, 'cr', 'wcel'),
-                                       seq('cc0', numeral, 'clt', 'wbr'),
+                            {'ph': scope, 'ps': self.seq(gap, 'cr', 'wcel'),
+                             'ch': self.seq('cc0', 'cr', 'wcel'),
+                             'th': self.seq(self.seq(numeral, 'cr', 'wcel'),
+                                       self.seq('cc0', numeral, 'clt', 'wbr'),
                                        'wa'),
-                             'ta': seq(seq(gap, 'cc0', 'cle', 'wbr'),
-                                       seq(scaled,
-                                           seq(numeral, 'cc0', 'cmul', 'co'),
+                             'ta': self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
+                                       self.seq(scaled,
+                                           self.seq(numeral, 'cc0', 'cmul', 'co'),
                                            'cle', 'wbr'), 'wb')},
-                            real, work.a1i(seq('cc0', 'cr', 'wcel'), '0re'),
+                            real, work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re'),
                             work.ap('jca',
                                     {'ph': scope,
-                                     'ps': seq(numeral, 'cr', 'wcel'),
-                                     'ch': seq('cc0', numeral, 'clt',
+                                     'ps': self.seq(numeral, 'cr', 'wcel'),
+                                     'ch': self.seq('cc0', numeral, 'clt',
                                                'wbr')},
                                     self.real_numeral(work, times),
-                                    work.a1i(seq('cc0', numeral, 'clt',
+                                    work.a1i(self.seq('cc0', numeral, 'clt',
                                                  'wbr'),
                                              f'{times.numerator}pos')),
                             work.ap('lemul2', {'A': gap, 'B': 'cc0',
                                                'C': numeral}))),
-            work.ap('syl', {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
-                            'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+            work.ap('syl', {'ph': scope, 'ps': self.seq(numeral, 'cc', 'wcel'),
+                            'ch': self.seq(self.seq(numeral, 'cc0', 'cmul', 'co'),
                                       'cc0', 'wceq')},
                     work.coefficient(times),
                     work.ap('mul01', {'A': numeral}))), scaled_real
@@ -4279,17 +4280,17 @@ class Elaborator(Builder):
         if parts is None or parts[2] != '<':
             return Declined('only a denied `<` is turned round')
         was = [c.rpn(self.flabel) for c in inner.children[:2]]
-        turned = self.to_term(seq(was[1], was[0], 'cle', 'wbr'))
+        turned = self.to_term(self.seq(was[1], was[0], 'cle', 'wbr'))
         return turned, work.ap(
             'mpbird', {'ph': work.under,
-                       'ps': seq(was[1], was[0], 'cle', 'wbr'),
-                       'ch': seq(seq(was[0], was[1], 'clt', 'wbr'), 'wn')},
+                       'ps': self.seq(was[1], was[0], 'cle', 'wbr'),
+                       'ch': self.seq(self.seq(was[0], was[1], 'clt', 'wbr'), 'wn')},
             given,
             work.ap('syl2anc',
-                    {'ph': work.under, 'ps': seq(was[1], 'cr', 'wcel'),
-                     'ch': seq(was[0], 'cr', 'wcel'),
-                     'th': seq(seq(was[1], was[0], 'cle', 'wbr'),
-                               seq(seq(was[0], was[1], 'clt', 'wbr'), 'wn'),
+                    {'ph': work.under, 'ps': self.seq(was[1], 'cr', 'wcel'),
+                     'ch': self.seq(was[0], 'cr', 'wcel'),
+                     'th': self.seq(self.seq(was[1], was[0], 'cle', 'wbr'),
+                               self.seq(self.seq(was[0], was[1], 'clt', 'wbr'), 'wn'),
                                'wb')},
                     real_number(was[1]), real_number(was[0]),
                     work.ap('lenlt', {'A': was[1], 'B': was[0]})))
@@ -4297,7 +4298,7 @@ class Elaborator(Builder):
     def real_numeral(self, work, times):
         """( scope -> n e. RR ) for a whole multiplier."""
         whole = abs(times.numerator)
-        held = work.a1i(seq(field.NUMERAL[whole], 'cr', 'wcel'),
+        held = work.a1i(self.seq(field.NUMERAL[whole], 'cr', 'wcel'),
                         f'{whole}re')
         if times.numerator >= 0:
             return held
@@ -4323,16 +4324,16 @@ class Elaborator(Builder):
 
     def difference_le(self, work, was, given, facts, real_number):
         """( scope -> ( A - B ) <_ 0 ) from a cited A <_ B."""
-        gap = seq(was[0], was[1], 'cmin', 'co')
+        gap = self.seq(was[0], was[1], 'cmin', 'co')
         return work.ap(
-            'mpbird', {'ph': work.under, 'ps': seq(gap, 'cc0', 'cle', 'wbr'),
-                       'ch': seq(was[0], was[1], 'cle', 'wbr')},
+            'mpbird', {'ph': work.under, 'ps': self.seq(gap, 'cc0', 'cle', 'wbr'),
+                       'ch': self.seq(was[0], was[1], 'cle', 'wbr')},
             given,
             work.ap('syl2anc',
-                    {'ph': work.under, 'ps': seq(was[0], 'cr', 'wcel'),
-                     'ch': seq(was[1], 'cr', 'wcel'),
-                     'th': seq(seq(gap, 'cc0', 'cle', 'wbr'),
-                               seq(was[0], was[1], 'cle', 'wbr'), 'wb')},
+                    {'ph': work.under, 'ps': self.seq(was[0], 'cr', 'wcel'),
+                     'ch': self.seq(was[1], 'cr', 'wcel'),
+                     'th': self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
+                               self.seq(was[0], was[1], 'cle', 'wbr'), 'wb')},
                     real_number(was[0]), real_number(was[1]),
                     work.ap('suble0', {'A': was[0], 'B': was[1]})))
 
@@ -4358,9 +4359,9 @@ class Elaborator(Builder):
 
         work = normal.Emitter(self.sigs, scope, complex_number)
         was = [c.rpn(self.flabel) for c in said.children]
-        gap = seq(was[0], was[1], 'cmin', 'co')
-        scaled = seq(numeral, gap, 'cmul', 'co')
-        span = seq(left, right, 'cmin', 'co')
+        gap = self.seq(was[0], was[1], 'cmin', 'co')
+        scaled = self.seq(numeral, gap, 'cmul', 'co')
+        span = self.seq(left, right, 'cmin', 'co')
         def real_number(one):
             return self.membership(one, 'cr', scope, facts)
 
@@ -4379,23 +4380,23 @@ class Elaborator(Builder):
                                        'C': numeral, 'F': 'cmul'},
                             self.difference_zero(work, was, stated)),
                     work.ap('syl',
-                            {'ph': scope, 'ps': seq(numeral, 'cc', 'wcel'),
-                             'ch': seq(seq(numeral, 'cc0', 'cmul', 'co'),
+                            {'ph': scope, 'ps': self.seq(numeral, 'cc', 'wcel'),
+                             'ch': self.seq(self.seq(numeral, 'cc0', 'cmul', 'co'),
                                        'cc0', 'wceq')},
                             work.coefficient(times),
                             work.ap('mul01', {'A': numeral})),
-                    scaled, seq(numeral, 'cc0', 'cmul', 'co'), 'cc0'),
+                    scaled, self.seq(numeral, 'cc0', 'cmul', 'co'), 'cc0'),
                 span, scaled, 'cc0')
             if how == '=':
                 return work.ap(
-                    'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'wceq'),
-                              'ch': seq(left, right, 'wceq')},
+                    'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'wceq'),
+                              'ch': self.seq(left, right, 'wceq')},
                     reached,
                     work.ap('syl2anc',
-                            {'ph': scope, 'ps': seq(left, 'cc', 'wcel'),
-                             'ch': seq(right, 'cc', 'wcel'),
-                             'th': seq(seq(span, 'cc0', 'wceq'),
-                                       seq(left, right, 'wceq'), 'wb')},
+                            {'ph': scope, 'ps': self.seq(left, 'cc', 'wcel'),
+                             'ch': self.seq(right, 'cc', 'wcel'),
+                             'th': self.seq(self.seq(span, 'cc0', 'wceq'),
+                                       self.seq(left, right, 'wceq'), 'wb')},
                             complex_number(left), complex_number(right),
                             work.ap('subeq0', {'A': left, 'B': right})))
             if how != '<=':
@@ -4404,9 +4405,9 @@ class Elaborator(Builder):
             at_most = work.ap(
                 'eqled', {'ph': scope, 'A': span, 'B': 'cc0'},
                 work.ap('syl2anc',
-                        {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
-                         'ch': seq(right, 'cr', 'wcel'),
-                         'th': seq(span, 'cr', 'wcel')},
+                        {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
+                         'ch': self.seq(right, 'cr', 'wcel'),
+                         'th': self.seq(span, 'cr', 'wcel')},
                         real_number(left), real_number(right),
                         work.ap('resubcl', {'A': left, 'B': right})),
                 reached)
@@ -4414,14 +4415,14 @@ class Elaborator(Builder):
             return Declined(f'a {how} conclusion is not written')
         # A difference at most zero is what `<_` says of the two sides.
         return work.ap(
-            'mpbid', {'ph': scope, 'ps': seq(span, 'cc0', 'cle', 'wbr'),
-                      'ch': seq(left, right, 'cle', 'wbr')},
+            'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'cle', 'wbr'),
+                      'ch': self.seq(left, right, 'cle', 'wbr')},
             at_most,
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(left, 'cr', 'wcel'),
-                     'ch': seq(right, 'cr', 'wcel'),
-                     'th': seq(seq(span, 'cc0', 'cle', 'wbr'),
-                               seq(left, right, 'cle', 'wbr'), 'wb')},
+                    {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
+                     'ch': self.seq(right, 'cr', 'wcel'),
+                     'th': self.seq(self.seq(span, 'cc0', 'cle', 'wbr'),
+                               self.seq(left, right, 'cle', 'wbr'), 'wb')},
                     real_number(left), real_number(right),
                     work.ap('suble0', {'A': left, 'B': right})))
 
@@ -4429,13 +4430,13 @@ class Elaborator(Builder):
         """( scope -> ( A - B ) = 0 ) from a cited A = B."""
         scope = work.under
         return work.ap(
-            'mpbird', {'ph': scope, 'ps': seq(seq(was[0], was[1], 'cmin',
+            'mpbird', {'ph': scope, 'ps': self.seq(self.seq(was[0], was[1], 'cmin',
                                                   'co'), 'cc0', 'wceq'),
-                       'ch': seq(was[0], was[1], 'wceq')},
+                       'ch': self.seq(was[0], was[1], 'wceq')},
             given,
             work.ap('syl2anc',
-                    {'ph': scope, 'ps': seq(was[0], 'cc', 'wcel'),
-                     'ch': seq(was[1], 'cc', 'wcel'),
+                    {'ph': scope, 'ps': self.seq(was[0], 'cc', 'wcel'),
+                     'ch': self.seq(was[1], 'cc', 'wcel'),
                      'th': seq(seq(seq(was[0], was[1], 'cmin', 'co'), 'cc0',
                                    'wceq'), seq(was[0], was[1], 'wceq'),
                                'wb')},
@@ -4485,7 +4486,7 @@ class Elaborator(Builder):
         said = [lines[ref].term for ref in step.just.refs if ref in lines]
         hint = said[0] if said else None
         for extra in said[1:]:
-            hint = seq(hint, extra, 'wa')
+            hint = self.seq(hint, extra, 'wa')
         # No name is introduced here: the claim already carries whatever the
         # lemma binds, and the match is what says which variable that is.
         made = self.unfolding(step, lemma, term, None, None, None,
@@ -4497,14 +4498,14 @@ class Elaborator(Builder):
                             step=step, lines=lines)
         if declined(under):
             return under
-        return seq(scope, term, right, under, says, 'mpbird')
+        return self.seq(scope, term, right, under, says, 'mpbird')
 
     def turned(self, rpn):
         """The same two-sided claim with its sides the other way round."""
         node = self.to_term(rpn)
         if len(node.children) != 2:
             return None
-        return seq(node.children[1].rpn(self.flabel),
+        return self.seq(node.children[1].rpn(self.flabel),
                    node.children[0].rpn(self.flabel), node.label)
 
     def unfolded(self, step, node, term, scope, facts, lines):
@@ -4580,7 +4581,7 @@ class Elaborator(Builder):
                               scope, facts)
         if declined(made):
             return made
-        proof = seq(scope, left, right, given, made[0], 'mpbid')
+        proof = self.seq(scope, left, right, given, made[0], 'mpbid')
         known = {right: proof}
         self.unpack(right, proof, scope, known)
         if term in known:
@@ -4742,7 +4743,7 @@ class Elaborator(Builder):
         if ground.label == 'wreu':
             weaker = kernel.Term('wrex', tuple(ground.children))
             body, var, over = ground.children
-            strong = seq(scope, ground.rpn(self.flabel),
+            strong = self.seq(scope, ground.rpn(self.flabel),
                          weaker.rpn(self.flabel), strong,
                          self.ap('reurex', {'ph': body.rpn(self.flabel),
                                             'x': var.rpn(self.flabel),
@@ -4756,9 +4757,9 @@ class Elaborator(Builder):
             layers.append((var.rpn(self.flabel), over.rpn(self.flabel)))
             rest = _body
         body = rest.rpn(self.flabel)
-        member = seq(*(seq(f'{v} cv', s, 'wcel') for v, s in layers))
+        member = self.seq(*(self.seq(f'{v} cv', s, 'wcel') for v, s in layers))
         if len(layers) > 1:
-            member = seq(member, 'wa')
+            member = self.seq(member, 'wa')
 
         frame = len(self.frames)
         outer, held = self.widen(scope, facts, member)
@@ -4770,9 +4771,9 @@ class Elaborator(Builder):
         want = goal.rpn(self.flabel)
         discharge = 'rexlimdva' if len(layers) == 1 else 'rexlimdvva'
         pushed = [v for v, _s in layers] + [s for _v, s in layers]
-        return seq(scope, ground.rpn(self.flabel), want, strong,
-                   seq(scope, body, want, *pushed,
-                       seq(outer, body, want, made, 'ex'), discharge),
+        return self.seq(scope, ground.rpn(self.flabel), want, strong,
+                   self.seq(scope, body, want, *pushed,
+                       self.seq(outer, body, want, made, 'ex'), discharge),
                    'mpd')
 
     def from_lemmas(self, labels, goal, scope, facts, step, seed):
@@ -4865,7 +4866,7 @@ class Elaborator(Builder):
         stood = {}
         for name, term in found.items():
             said = term.rpn(self.flabel)
-            stood[name] = (seq(said, 'cv')
+            stood[name] = (self.seq(said, 'cv')
                            if term.variable is not None else said)
 
         layers, rest = [], goal
@@ -4894,15 +4895,15 @@ class Elaborator(Builder):
                     return None
             witness = stood[name]
             instance = self.prove_essential(
-                self.to_term(seq(seq(f'{var} cv', witness, 'wceq'),
-                                 seq(ph, ps, 'wb'), 'wi')), scope, facts)
-            member = seq(witness, over, 'wcel')
+                self.to_term(self.seq(self.seq(f'{var} cv', witness, 'wceq'),
+                                 self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            member = self.seq(witness, over, 'wcel')
             stands = self.settle(self.to_term(member), scope, facts)
             if declined(stands):
                 return None
-            proof = seq(scope, seq(member, ps, 'wa'),
-                        seq(ph, var, over, 'wrex'),
-                        seq(scope, member, ps, stands, proof, 'jca'),
+            proof = self.seq(scope, self.seq(member, ps, 'wa'),
+                        self.seq(ph, var, over, 'wrex'),
+                        self.seq(scope, member, ps, stands, proof, 'jca'),
                         ph, ps, var, witness, over, instance, 'rspcev',
                         'syl')
         return proof
@@ -4934,7 +4935,7 @@ class Elaborator(Builder):
         if goal.label != 'wral':
             return None
         body, variable, over = goal.children
-        member = seq(f'{variable.rpn(self.flabel)} cv',
+        member = self.seq(f'{variable.rpn(self.flabel)} cv',
                      over.rpn(self.flabel), 'wcel')
         frame = len(self.frames)
         inner, lifted = self.widen(scope, facts, member)
@@ -4945,7 +4946,7 @@ class Elaborator(Builder):
             del self.frames[frame:]
         if proof is None:
             return None
-        return seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),
+        return self.seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),
                    over.rpn(self.flabel), proof, 'ralrimiva')
 
     def as_conjunct(self, label, whole, reads, goal, scope, facts, step, seed):
@@ -4986,7 +4987,7 @@ class Elaborator(Builder):
             if proof is None:
                 continue
             a, b = (one.rpn(self.flabel) for one in said.children)
-            return seq(scope, a, b, proof, 'simpld' if i == 0 else 'simprd')
+            return self.seq(scope, a, b, proof, 'simpld' if i == 0 else 'simprd')
         return None
 
     def as_seeded(self, label, reads, goal, scope, facts, step, seed):
@@ -5020,7 +5021,7 @@ class Elaborator(Builder):
             across = self.by_equation(said, goal, scope, facts, step)
         if across is None or declined(across):
             return None
-        return seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
+        return self.seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
                    across, 'mpbid')
 
     def by_equation(self, said, goal, scope, facts, step):
@@ -5041,7 +5042,7 @@ class Elaborator(Builder):
         def proved(one, other, where, held):
             if one.rpn(self.flabel) == other.rpn(self.flabel):
                 return None
-            asked = seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')
+            asked = self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')
             if asked not in held:
                 return None      # the walk goes on to where they differ
             return held[asked]
@@ -5061,10 +5062,10 @@ class Elaborator(Builder):
         if declined(across):
             return None
         both = [c.rpn(self.flabel) for c in turned.children]
-        return seq(scope, said.rpn(self.flabel), turned.rpn(self.flabel),
+        return self.seq(scope, said.rpn(self.flabel), turned.rpn(self.flabel),
                    goal.rpn(self.flabel), across,
-                   seq(seq(turned.rpn(self.flabel), goal.rpn(self.flabel),
-                           'wb'), scope, seq(*both, 'eqcom'), 'a1i'), 'bitrd')
+                   self.seq(self.seq(turned.rpn(self.flabel), goal.rpn(self.flabel),
+                           'wb'), scope, self.seq(*both, 'eqcom'), 'a1i'), 'bitrd')
 
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
@@ -5116,11 +5117,11 @@ class Elaborator(Builder):
                                          step, crossing=False)
                 if found is None:
                     continue
-                alike = self.settle(self.to_term(seq(said, want, 'wb')),
+                alike = self.settle(self.to_term(self.seq(said, want, 'wb')),
                                     scope, facts)
                 if declined(alike):
                     continue
-                return seq(scope, said, want, found, alike, 'mpbid')
+                return self.seq(scope, said, want, found, alike, 'mpbid')
         return None
 
     def sethood(self, slot, binding):
@@ -5292,7 +5293,7 @@ class Elaborator(Builder):
         if not antecedents:
             # The lemma asks nothing, so it states the claim outright and has
             # to be brought into the scope the step sits in.
-            return self.carry(seq(goal.rpn(self.flabel), where, proof, 'a1i'),
+            return self.carry(self.seq(goal.rpn(self.flabel), where, proof, 'a1i'),
                               goal.rpn(self.flabel), frame)
         carried = stood_under = False
         for i, slot in enumerate(antecedents):
@@ -5314,15 +5315,15 @@ class Elaborator(Builder):
                     # on the left: `hashen` asks two sets be finite and then
                     # equates their sizes with a bijection, and reaching the
                     # sizes from the bijection reads it right to left.
-                    rest = (seq(rest, said, 'wb') if join is TURNED
-                            else seq(said, rest, join))
+                    rest = (self.seq(rest, said, 'wb') if join is TURNED
+                            else self.seq(said, rest, join))
             # What decides the fold is whether what has been built so far
             # states its claim outright or states it under the scope. The
             # bare lemma states it outright — unless one of its own
             # antecedents was the scope, which `ssneld` does: it asks for
             # the inclusion under the scope and then says, still under it,
             # that what is outside the larger set is outside the smaller.
-            first = spelt(proof).split()[-1] == label and not carried
+            first = proof.text.split()[-1] == label and not carried
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
                     ('wb', True): 'sylib', ('wb', False): 'mpbid',
                     (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
@@ -5335,7 +5336,7 @@ class Elaborator(Builder):
             under = self.settle(asks, where, known)
             if declined(under):
                 return under
-            proof = seq(where, *sides, under, proof,
+            proof = self.seq(where, *sides, under, proof,
                         fold[(joins[i], first)])
         if stood_under:
             # An antecedent that is the scope is supplied by standing under
@@ -5343,8 +5344,8 @@ class Elaborator(Builder):
             # in by one: `readdcl` asks `( A ∈ ℝ ∧ B ∈ ℝ )`, the triangle
             # inequality's scope is exactly that, and its step 1 is the
             # lemma alone. It rests on everything the scope says.
-            proof = Proof(spelt(proof), getattr(proof, 'origin', frozenset())
-                          | self.scope_origin(where, known))
+            proof = Proof(proof.text,
+                          proof.origin | self.scope_origin(where, known))
         return self.carry(proof, goal.rpn(self.flabel), frame)
 
     def scope_origin(self, scope, facts):
@@ -5401,13 +5402,13 @@ class Elaborator(Builder):
             # than under the scope: `ralrnmpt` wants `F = ( x e. A |-> B )`
             # of the very map F is. `settle` would carry it into the scope,
             # which is a deduction where the hypothesis is a statement.
-            return seq(want.children[0].rpn(self.flabel), 'eqid')
+            return self.seq(want.children[0].rpn(self.flabel), 'eqid')
         if want.label != 'wi':
             return self.settle(want, scope, facts)
         left, right = want.children
         under = left.rpn(self.flabel)
         if under == right.rpn(self.flabel):
-            return seq(under, 'id')
+            return self.seq(under, 'id')
         # A lemma may state its instance rather than ask for it: `elrab`
         # says what belongs to a set-builder by way of the body read at the
         # element, and wants the body before and after tied together.
@@ -5427,16 +5428,16 @@ class Elaborator(Builder):
                         if one.rpn(self.flabel) == was
                         and other.rpn(self.flabel) == now else None)
             return self.congruence(right.children[0], right.children[1],
-                                   under, {under: seq(under, 'id')}, None,
+                                   under, {under: self.seq(under, 'id')}, None,
                                    stands)
         if under == scope:
             return self.settle(right, scope, facts)
         if (left.label == 'wa'
                 and left.children[0].rpn(self.flabel) == scope):
             extra = left.children[1].rpn(self.flabel)
-            wider = {k: seq(under, scope, k, seq(scope, extra, 'simpl'), v,
+            wider = {k: self.seq(under, scope, k, self.seq(scope, extra, 'simpl'), v,
                             'syl') for k, v in facts.items()}
-            wider[extra] = seq(scope, extra, 'simpr')
+            wider[extra] = self.seq(scope, extra, 'simpr')
             return self.settle(right, under, wider)
         return self.settle(right, under, {})
 
@@ -5468,7 +5469,7 @@ class Elaborator(Builder):
         """Bring a proof from an outer frame back to the innermost one."""
         for index in range(frame, len(self.frames) - 1):
             outer, added = self.frames[index][0], self.frames[index + 1][1]
-            proof = seq(outer, claim, added, proof, 'adantr')
+            proof = self.seq(outer, claim, added, proof, 'adantr')
         return proof
 
     def assume(self, step, term, scope, facts, prefix, lines):
@@ -5497,19 +5498,19 @@ class Elaborator(Builder):
 
         statement = term
         for one, _given in reversed(asks):
-            statement = seq(one, statement, 'wi')
+            statement = self.seq(one, statement, 'wi')
         proof = self.stated(prefix, '|- ' + self.render(statement))
         if not asks:
             # Nothing to discharge, so the statement is simply taken at the
             # scope the step sits in.
-            return seq(term, scope, proof, 'a1i')
+            return self.seq(term, scope, proof, 'a1i')
         # The conditions nest, outermost first, so each is answered in turn
         # and what is left of the statement shrinks by one.
         for i, (one, given) in enumerate(asks):
             rest = term
             for later, _p in reversed(asks[i + 1:]):
-                rest = seq(later, rest, 'wi')
-            proof = seq(scope, one, rest, given, proof,
+                rest = self.seq(later, rest, 'wi')
+            proof = self.seq(scope, one, rest, given, proof,
                         'syl' if i == 0 else 'mpd')
         return proof
 
@@ -5530,7 +5531,7 @@ class Elaborator(Builder):
         self.sigs[label] = Signature(
             label, '$a', text.split(),
             [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
-        self.assumed[text] = seq(*(self.flabel[v] for v in free), label)
+        self.assumed[text] = self.seq(*(self.flabel[v] for v in free), label)
         return self.assumed[text]
 
     def binder_var(self, name):
@@ -5785,15 +5786,15 @@ class Elaborator(Builder):
                     for ref in citations(how) if ref in self.lines]
             statement = term
             for one, _given in reversed(asks):
-                statement = seq(one, statement, 'wi')
+                statement = self.seq(one, statement, 'wi')
             proof = self.stated(closure[:3], '|- ' + self.render(statement))
             if not asks:
-                return seq(term, scope, proof, 'a1i')
+                return self.seq(term, scope, proof, 'a1i')
             for i, (one, given) in enumerate(asks):
                 rest = term
                 for later, _p in reversed(asks[i + 1:]):
-                    rest = seq(later, rest, 'wi')
-                proof = seq(scope, one, rest, given, proof,
+                    rest = self.seq(later, rest, 'wi')
+                proof = self.seq(scope, one, rest, given, proof,
                             'syl' if i == 0 else 'mpd')
             return proof
         raise self.defect(self.at,
@@ -5828,7 +5829,7 @@ class Elaborator(Builder):
                 return proof
             was, now = (c.rpn(self.flabel)
                         for c in self.to_term(line.term).children)
-            return seq(scope, was, now, proof, 'eqcomd')
+            return self.seq(scope, was, now, proof, 'eqcomd')
 
         first = self.read(links[0][0])
         if not first.text:
@@ -5856,7 +5857,7 @@ class Elaborator(Builder):
             nxt = joined.children[1].rpn(self.flabel)
             if joined.label == 'wbr':
                 relation = joined.children[2].rpn(self.flabel)
-            proof = seq(scope, left, right, nxt, relation, proof,
+            proof = self.seq(scope, left, right, nxt, relation, proof,
                         held(cite, turned), fold)
             right, rest = nxt, added
             said = 'wceq' if said == joined.label == 'wceq' else 'wbr'
@@ -5901,12 +5902,12 @@ class Elaborator(Builder):
         self.names[said] = stands
         shape = self.freeze(node.children[2])
         self.names = saved
-        at = seq(stands, witness, 'wceq')
+        at = self.seq(stands, witness, 'wceq')
         here, instance = self.rewrite(shape, stands, witness, at,
-                                      seq(at, 'id'))
+                                      self.seq(at, 'id'))
 
         known = self.supplied(step, scope, facts)
-        member = seq(witness, domain.rpn(self.flabel), 'wcel')
+        member = self.seq(witness, domain.rpn(self.flabel), 'wcel')
         # An `exhibit` is the head of a step. The witness is read off the
         # lines it cites, so what is left is that the witness lies in the
         # domain and that the body holds of it, and both are the text's to
@@ -5923,8 +5924,8 @@ class Elaborator(Builder):
         spare = self.binder_var(said)
         if declined(spare):
             raise self.defect(step.line, f'{spare}')
-        return seq(scope, seq(member, here, 'wa'), term,
-                   seq(scope, member, here, *shown, 'jca'),
+        return self.seq(scope, self.seq(member, here, 'wa'), term,
+                   self.seq(scope, member, here, *shown, 'jca'),
                    body.rpn(self.flabel), here, spare,
                    witness, domain.rpn(self.flabel), instance, 'rspcev',
                    'syl')
@@ -6018,12 +6019,12 @@ class Elaborator(Builder):
                 break
         else:
             raise self.defect(step.line, 'no cited line names a witness')
-        at = seq(f'{var} cv', witness, 'wceq')
+        at = self.seq(f'{var} cv', witness, 'wceq')
         _built, instance = self.rewrite(kernel, f'{var} cv', witness, at,
-                                        seq(at, 'id'))
+                                        self.seq(at, 'id'))
 
-        ex = seq(body, var, over, 'wrex')
-        member = seq(witness, over, 'wcel')
+        ex = self.seq(body, var, over, 'wrex')
+        member = self.seq(witness, over, 'wcel')
         p_member = self.required(step, member, over, scope, facts)
         # The cited line faces the way the text writes the definition, and
         # the existential faces the way the lemma writes it.
@@ -6032,16 +6033,16 @@ class Elaborator(Builder):
         p_cited = facts.get(cited.term, cited.proof)
         if cited.term != here:
             was = self.to_term(cited.term)
-            p_cited = seq(scope, *(c.rpn(self.flabel) for c in was.children),
+            p_cited = self.seq(scope, *(c.rpn(self.flabel) for c in was.children),
                           p_cited, 'eqcomd')
-        p_ex = seq(scope, seq(member, here, 'wa'), ex,
-                   seq(scope, member, here, p_member, p_cited, 'jca'),
+        p_ex = self.seq(scope, self.seq(member, here, 'wa'), ex,
+                   self.seq(scope, member, here, p_member, p_cited, 'jca'),
                    body, here, var, witness, over, instance, 'rspcev', 'syl')
 
         made = self.unfolding(step, lemma, term, ex, var, over, scope, facts)
         if declined(made):
             return made
-        return seq(scope, term, ex, p_ex, made[0], 'mpbird')
+        return self.seq(scope, term, ex, p_ex, made[0], 'mpbird')
 
     def join(self, step, node, term, scope, facts, lines):
         """Two lines paired, which is one thing inside a contradiction and
@@ -6065,7 +6066,7 @@ class Elaborator(Builder):
         if not all(p in held for p in pair):
             raise self.defect(step.line,
                               'the joined lines are not what the step claims')
-        return seq(scope, *pair, *(held[p] for p in pair), 'jca')
+        return self.seq(scope, *pair, *(held[p] for p in pair), 'jca')
 
     def cite(self, step, node, term, scope, facts, lines):
         """A theorem cited. Either set.mm supplies it or this corpus does."""
@@ -6126,7 +6127,7 @@ class Elaborator(Builder):
                                  step, seed) for one in node.children]
         if any(one is None for one in halves):
             return None
-        return seq(scope, *(one.rpn(self.flabel) for one in node.children),
+        return self.seq(scope, *(one.rpn(self.flabel) for one in node.children),
                    *halves, 'jca')
 
     def filling(self, step, item, cites=None):
@@ -6283,8 +6284,8 @@ class Elaborator(Builder):
                                   f'which {step.just.head} assumes')
         pair, proof = wanted[0], known[wanted[0]]
         for extra in wanted[1:]:
-            proof = seq(scope, pair, extra, proof, known[extra], 'jca')
-            pair = seq(pair, extra, 'wa')
+            proof = self.seq(scope, pair, extra, proof, known[extra], 'jca')
+            pair = self.seq(pair, extra, 'wa')
         # A variable the file declares and this proof says nothing about is
         # one the statement binds, and it stands for itself.
         mine = self.cited_floats([*wanted, term], binds)
@@ -6301,7 +6302,7 @@ class Elaborator(Builder):
         self.arities.setdefault(cited, Signature(
             cited, '$p', ['|-'],
             [('class', f'{cited}.{n}') for n in range(len(pushed))]))
-        return seq(scope, pair, term, proof, *pushed, cited, 'syl')
+        return self.seq(scope, pair, term, proof, *pushed, cited, 'syl')
 
     def required(self, step, goal, want, scope, facts):
         """The `requires` line that supplies one side condition.
@@ -6375,7 +6376,7 @@ class Elaborator(Builder):
         given back from here would reach the caller as the method not
         covering the step, which is the one thing it does not mean.
         """
-        want = seq(said, system, 'wcel')
+        want = self.seq(said, system, 'wcel')
         # What the step's own lines say, first. The scope may hold the same
         # claim with another origin — `abs-bounds` writes `requires x ∈ ℝ:
         # from H1` beside the hypothesis saying `x ∈ ℝ` — or a claim one
@@ -6434,7 +6435,7 @@ class Elaborator(Builder):
         for (source, target), label in self.bridges.items():
             if target != system:
                 continue
-            claim = seq(said, source, 'wcel')
+            claim = self.seq(said, source, 'wcel')
             proof = written.get(claim)
             if proof is None:
                 held = self.written.get(claim)
@@ -6444,7 +6445,7 @@ class Elaborator(Builder):
                                         for o in getattr(proof, 'origin', ())):
                 continue
             return self.ap('syl', {'ph': scope, 'ps': claim,
-                                   'ch': seq(said, system, 'wcel')},
+                                   'ch': self.seq(said, system, 'wcel')},
                            proof,
                            self.ap(label, {self.sigs[label].push[0]: said}))
         return None
@@ -6498,7 +6499,7 @@ class Elaborator(Builder):
         line the page wrote, and a step using it without naming it is what
         provenance is there to see.
         """
-        want = seq(said, system, 'wcel')
+        want = self.seq(said, system, 'wcel')
         found = facts.get(want)
         if found is not None and from_requires(found):
             return found
@@ -6746,16 +6747,16 @@ def main(argv, root=None):
 
     work = Elaborator(thm, grammar, items, sigs, records, theorems)
     goal, hypotheses, proof = work.run()
-    # What is written out is the proof's text, and this is where it stops
-    # carrying what it rests on: everything that asked has asked.
-    proof = spelt(proof)
     antecedent = hypotheses[0] if hypotheses else None
     for extra in hypotheses[1:]:
         antecedent = seq(antecedent, extra, 'wa')
     if antecedent is None:
         # Nothing is assumed, so the scope that carried the proof was truth
         # and the statement says only what the theorem concludes.
-        proof = seq(goal, proof, 'mptru')
+        proof = work.seq(goal, proof, 'mptru')
+    # What is written out is the proof's text, and this is where it stops
+    # carrying what it rests on: everything that asked has asked.
+    proof = proof.text
 
     print(f'$( {thm.name}, elaborated from {thm.path} by parley/elaborate.py.')
     if work.axioms:

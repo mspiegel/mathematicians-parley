@@ -130,13 +130,13 @@ class Emitter(Builder):
     @remembered
     def number(self, value):
         """( under -> n e. CC ) for a whole number the kernel spells."""
-        return self.ap('a1i', {'ph': seq(NUMERAL[value], 'cc', 'wcel'),
+        return self.ap('a1i', {'ph': self.seq(NUMERAL[value], 'cc', 'wcel'),
                                'ps': self.under}, self.complex_label(value))
 
     @remembered
     def index(self, value):
         """( under -> k e. NN0 ), which an exponent has to be."""
-        return self.ap('a1i', {'ph': seq(NUMERAL[value], 'cn0', 'wcel'),
+        return self.ap('a1i', {'ph': self.seq(NUMERAL[value], 'cn0', 'wcel'),
                                'ps': self.under}, f'{value}nn0')
 
     @remembered
@@ -242,19 +242,19 @@ class Emitter(Builder):
             before = op(op(prefix, a, ADD), b, ADD)
             after = op(op(prefix, b, ADD), a, ADD)
             step = self.ap('syl3anc',
-                           {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
-                            'ch': seq(a, 'cc', 'wcel'),
-                            'th': seq(b, 'cc', 'wcel'),
-                            'ta': seq(before, after, 'wceq')},
+                           {'ph': self.under, 'ps': self.seq(prefix, 'cc', 'wcel'),
+                            'ch': self.seq(a, 'cc', 'wcel'),
+                            'th': self.seq(b, 'cc', 'wcel'),
+                            'ta': self.seq(before, after, 'wceq')},
                            self.run_cc(head), self.term_cc(*items[at]),
                            self.term_cc(*items[at + 1]),
                            self.ap('add32', {'A': prefix, 'B': a, 'C': b}))
         else:
             before, after = op(a, b, ADD), op(b, a, ADD)
             step = self.ap('syl2anc',
-                           {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
-                            'ch': seq(b, 'cc', 'wcel'),
-                            'th': seq(before, after, 'wceq')},
+                           {'ph': self.under, 'ps': self.seq(a, 'cc', 'wcel'),
+                            'ch': self.seq(b, 'cc', 'wcel'),
+                            'th': self.seq(before, after, 'wceq')},
                            self.term_cc(*items[at]),
                            self.term_cc(*items[at + 1]),
                            self.ap('addcom', {'A': a, 'B': b}))
@@ -282,7 +282,7 @@ class Emitter(Builder):
                 field.spell_coefficient(second))
         if said is None or c is None or d is None:
             return Declined(f'{first} + {second} is past one digit')
-        claim = seq(op(c, d, ADD), said, 'wceq')
+        claim = self.seq(op(c, d, ADD), said, 'wceq')
         a, b = first.numerator, second.numerator
         if a == -b and a != 0:
             whole = NUMERAL[abs(a)]
@@ -294,9 +294,9 @@ class Emitter(Builder):
             # cancel: `negid` states the sum only one way round.
             return self.chain(
                 self.ap('syl2anc',
-                        {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
-                         'ch': seq(d, 'cc', 'wcel'),
-                         'th': seq(op(c, d, ADD), op(d, c, ADD), 'wceq')},
+                        {'ph': self.under, 'ps': self.seq(c, 'cc', 'wcel'),
+                         'ch': self.seq(d, 'cc', 'wcel'),
+                         'th': self.seq(op(c, d, ADD), op(d, c, ADD), 'wceq')},
                         self.coefficient(first), self.coefficient(second),
                         self.ap('addcom', {'A': c, 'B': d})),
                 cancels, op(c, d, ADD), op(d, c, ADD), NUMERAL[0])
@@ -310,12 +310,12 @@ class Emitter(Builder):
             return self.chain(
                 self.ap('eqcomd',
                         {'ph': self.under, 'A': op(c, d, ADD),
-                         'B': seq(op(*whole, ADD), 'cneg')},
+                         'B': self.seq(op(*whole, ADD), 'cneg')},
                         self.ap('syl2anc',
                                 {'ph': self.under,
-                                 'ps': seq(whole[0], 'cc', 'wcel'),
-                                 'ch': seq(whole[1], 'cc', 'wcel'),
-                                 'th': seq(seq(op(*whole, ADD), 'cneg'),
+                                 'ps': self.seq(whole[0], 'cc', 'wcel'),
+                                 'ch': self.seq(whole[1], 'cc', 'wcel'),
+                                 'th': self.seq(self.seq(op(*whole, ADD), 'cneg'),
                                            op(c, d, ADD), 'wceq')},
                                 self.number(-a), self.number(-b),
                                 self.ap('negdi', {'A': whole[0],
@@ -323,7 +323,7 @@ class Emitter(Builder):
                 self.ap('negeqd',
                         {'ph': self.under, 'A': op(*whole, ADD),
                          'B': NUMERAL[-a - b]}, both),
-                op(c, d, ADD), seq(op(*whole, ADD), 'cneg'), said)
+                op(c, d, ADD), self.seq(op(*whole, ADD), 'cneg'), said)
         if a < 0 or b < 0:
             if a < 0:
                 # The negative one second, so one case covers both.
@@ -332,20 +332,20 @@ class Emitter(Builder):
                     return swapped
                 return self.chain(
                     self.ap('syl2anc',
-                            {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
-                             'ch': seq(d, 'cc', 'wcel'),
-                             'th': seq(op(c, d, ADD), op(d, c, ADD),
+                            {'ph': self.under, 'ps': self.seq(c, 'cc', 'wcel'),
+                             'ch': self.seq(d, 'cc', 'wcel'),
+                             'th': self.seq(op(c, d, ADD), op(d, c, ADD),
                                        'wceq')},
                             self.coefficient(first), self.coefficient(second),
                             self.ap('addcom', {'A': c, 'B': d})),
                     swapped, op(c, d, ADD), op(d, c, ADD), said)
             return self.minus_numeral(a, -b, c, d, said)
         if a == 0:
-            return self.a1i(claim, self.mp(seq(d, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(d, 'cc', 'wcel'), claim,
                                            self.complex_label(b),
                                            self.ap('addlid', {'A': d})))
         if b == 0:
-            return self.a1i(claim, self.mp(seq(c, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(c, 'cc', 'wcel'), claim,
                                            self.complex_label(a),
                                            self.ap('addrid', {'A': c})))
         return self.a1i(claim, f'{a}p{b}e{a + b}')
@@ -370,15 +370,15 @@ class Emitter(Builder):
         return self.ap(
             'mpbird',
             {'ph': self.under,
-             'ps': seq(op(left, right, 'cmin'), out, 'wceq'),
-             'ch': seq(op(right, out, ADD), left, 'wceq')},
+             'ps': self.seq(op(left, right, 'cmin'), out, 'wceq'),
+             'ch': self.seq(op(right, out, ADD), left, 'wceq')},
             back,
             self.ap('syl3anc',
-                    {'ph': self.under, 'ps': seq(left, 'cc', 'wcel'),
-                     'ch': seq(right, 'cc', 'wcel'),
-                     'th': seq(out, 'cc', 'wcel'),
-                     'ta': seq(seq(op(left, right, 'cmin'), out, 'wceq'),
-                               seq(op(right, out, ADD), left, 'wceq'),
+                    {'ph': self.under, 'ps': self.seq(left, 'cc', 'wcel'),
+                     'ch': self.seq(right, 'cc', 'wcel'),
+                     'th': self.seq(out, 'cc', 'wcel'),
+                     'ta': self.seq(self.seq(op(left, right, 'cmin'), out, 'wceq'),
+                               self.seq(op(right, out, ADD), left, 'wceq'),
                                'wb')},
                     self.number(bigger), self.number(smaller),
                     self.number(bigger - smaller),
@@ -394,9 +394,9 @@ class Emitter(Builder):
         return self.chain(
             self.ap('syl2anc',
                     {'ph': self.under,
-                     'ps': seq(NUMERAL[first], 'cc', 'wcel'),
-                     'ch': seq(NUMERAL[second], 'cc', 'wcel'),
-                     'th': seq(op(c, d, ADD), gap, 'wceq')},
+                     'ps': self.seq(NUMERAL[first], 'cc', 'wcel'),
+                     'ch': self.seq(NUMERAL[second], 'cc', 'wcel'),
+                     'th': self.seq(op(c, d, ADD), gap, 'wceq')},
                     self.number(first), self.number(second),
                     self.ap('negsub', {'A': NUMERAL[first],
                                        'B': NUMERAL[second]})),
@@ -409,13 +409,13 @@ class Emitter(Builder):
         other = op(NUMERAL[second], NUMERAL[first], 'cmin')
         return self.chain(
             self.ap('eqcomd',
-                    {'ph': self.under, 'A': seq(other, 'cneg'),
+                    {'ph': self.under, 'A': self.seq(other, 'cneg'),
                      'B': op(NUMERAL[first], NUMERAL[second], 'cmin')},
                     self.ap('syl2anc',
                             {'ph': self.under,
-                             'ps': seq(NUMERAL[second], 'cc', 'wcel'),
-                             'ch': seq(NUMERAL[first], 'cc', 'wcel'),
-                             'th': seq(seq(other, 'cneg'),
+                             'ps': self.seq(NUMERAL[second], 'cc', 'wcel'),
+                             'ch': self.seq(NUMERAL[first], 'cc', 'wcel'),
+                             'th': self.seq(self.seq(other, 'cneg'),
                                        op(NUMERAL[first], NUMERAL[second],
                                           'cmin'), 'wceq')},
                             self.number(second), self.number(first),
@@ -425,7 +425,7 @@ class Emitter(Builder):
                                'B': NUMERAL[second - first]},
                     self.gap_numeral(second, first)),
             op(NUMERAL[first], NUMERAL[second], 'cmin'),
-            seq(other, 'cneg'), seq(NUMERAL[second - first], 'cneg'))
+            self.seq(other, 'cneg'), self.seq(NUMERAL[second - first], 'cneg'))
 
     # --- putting one term into a run --------------------------------------
 
@@ -445,10 +445,10 @@ class Emitter(Builder):
             {'ph': self.under, 'A': op(op(c, d, ADD), spelt, MUL),
              'B': op(op(c, spelt, MUL), op(d, spelt, MUL), ADD)},
             self.ap('syl3anc',
-                    {'ph': self.under, 'ps': seq(c, 'cc', 'wcel'),
-                     'ch': seq(d, 'cc', 'wcel'),
-                     'th': seq(spelt, 'cc', 'wcel'),
-                     'ta': seq(op(op(c, d, ADD), spelt, MUL),
+                    {'ph': self.under, 'ps': self.seq(c, 'cc', 'wcel'),
+                     'ch': self.seq(d, 'cc', 'wcel'),
+                     'th': self.seq(spelt, 'cc', 'wcel'),
+                     'ta': self.seq(op(op(c, d, ADD), spelt, MUL),
                                op(op(c, spelt, MUL), op(d, spelt, MUL), ADD),
                                'wceq')},
                     self.coefficient(first), self.coefficient(second),
@@ -499,8 +499,8 @@ class Emitter(Builder):
         zero = self.spell_term(items[-1])
         spelt = spell_monomial(items[-1][0])
         vanishes = self.ap('syl', {'ph': self.under,
-                                   'ps': seq(spelt, 'cc', 'wcel'),
-                                   'ch': seq(zero, NUMERAL[0], 'wceq')},
+                                   'ps': self.seq(spelt, 'cc', 'wcel'),
+                                   'ch': self.seq(zero, NUMERAL[0], 'wceq')},
                            self.monomial_cc(items[-1][0]),
                            self.ap('mul02', {'A': spelt}))
         if not rest:
@@ -510,8 +510,8 @@ class Emitter(Builder):
             self.ap('oveq2d', {'ph': self.under, 'A': zero,
                                'B': NUMERAL[0], 'C': keep, 'F': ADD},
                     vanishes),
-            self.ap('syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
-                            'ch': seq(op(keep, NUMERAL[0], ADD), keep,
+            self.ap('syl', {'ph': self.under, 'ps': self.seq(keep, 'cc', 'wcel'),
+                            'ch': self.seq(op(keep, NUMERAL[0], ADD), keep,
                                       'wceq')},
                     self.run_cc(rest), self.ap('addrid', {'A': keep})),
             run, op(keep, NUMERAL[0], ADD), keep)
@@ -527,8 +527,8 @@ class Emitter(Builder):
         term = self.spell_term((monomial, weight))
         if not items:
             return [(monomial, weight)], self.ap(
-                'syl', {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
-                        'ch': seq(op(NUMERAL[0], term, ADD), term, 'wceq')},
+                'syl', {'ph': self.under, 'ps': self.seq(term, 'cc', 'wcel'),
+                        'ch': self.seq(op(NUMERAL[0], term, ADD), term, 'wceq')},
                 self.term_cc(monomial, weight),
                 self.ap('addlid', {'A': term}))
 
@@ -571,9 +571,9 @@ class Emitter(Builder):
                              [self.spell_term(i) for i in rest])
         prefix = self.spell_run(head)
         exposed = self.ap(
-            'syl3anc', {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+            'syl3anc', {'ph': self.under, 'ps': self.seq(prefix, 'cc', 'wcel'),
                         'ch': seq(a, 'cc', 'wcel'), 'th': seq(b, 'cc', 'wcel'),
-                        'ta': seq(op(op(prefix, a, ADD), b, ADD),
+                        'ta': self.seq(op(op(prefix, a, ADD), b, ADD),
                                   op(prefix, op(a, b, ADD), ADD), 'wceq')},
             self.run_cc(head), self.term_cc(*items[at]),
             self.term_cc(*items[at + 1]),
@@ -601,8 +601,8 @@ class Emitter(Builder):
         if not right:
             keep = self.spell_run(left)
             return left, self.ap(
-                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
-                        'ch': seq(op(keep, NUMERAL[0], ADD), keep, 'wceq')},
+                'syl', {'ph': self.under, 'ps': self.seq(keep, 'cc', 'wcel'),
+                        'ch': self.seq(op(keep, NUMERAL[0], ADD), keep, 'wceq')},
                 self.run_cc(left), self.ap('addrid', {'A': keep}))
         if len(right) == 1:
             return self.insert(left, *right[0])
@@ -615,10 +615,10 @@ class Emitter(Builder):
             {'ph': self.under, 'A': op(op(held, prefix, ADD), term, ADD),
              'B': op(held, whole, ADD)},
             self.ap('syl3anc',
-                    {'ph': self.under, 'ps': seq(held, 'cc', 'wcel'),
-                     'ch': seq(prefix, 'cc', 'wcel'),
-                     'th': seq(term, 'cc', 'wcel'),
-                     'ta': seq(op(op(held, prefix, ADD), term, ADD),
+                    {'ph': self.under, 'ps': self.seq(held, 'cc', 'wcel'),
+                     'ch': self.seq(prefix, 'cc', 'wcel'),
+                     'th': self.seq(term, 'cc', 'wcel'),
+                     'ta': self.seq(op(op(held, prefix, ADD), term, ADD),
                                op(held, whole, ADD), 'wceq')},
                     self.run_cc(left), self.run_cc(rest),
                     self.term_cc(*last),
@@ -670,19 +670,19 @@ class Emitter(Builder):
             before, after = op(op(prefix, a, MUL), b, MUL), \
                 op(op(prefix, b, MUL), a, MUL)
             step = self.ap('syl3anc',
-                           {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
-                            'ch': seq(a, 'cc', 'wcel'),
-                            'th': seq(b, 'cc', 'wcel'),
-                            'ta': seq(before, after, 'wceq')},
+                           {'ph': self.under, 'ps': self.seq(prefix, 'cc', 'wcel'),
+                            'ch': self.seq(a, 'cc', 'wcel'),
+                            'th': self.seq(b, 'cc', 'wcel'),
+                            'ta': self.seq(before, after, 'wceq')},
                            self.factors_cc(head), self.factor_cc(*factors[at]),
                            self.factor_cc(*factors[at + 1]),
                            self.ap('mul32', {'A': prefix, 'B': a, 'C': b}))
         else:
             before, after = op(a, b, MUL), op(b, a, MUL)
             step = self.ap('syl2anc',
-                           {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
-                            'ch': seq(b, 'cc', 'wcel'),
-                            'th': seq(before, after, 'wceq')},
+                           {'ph': self.under, 'ps': self.seq(a, 'cc', 'wcel'),
+                            'ch': self.seq(b, 'cc', 'wcel'),
+                            'th': self.seq(before, after, 'wceq')},
                            self.factor_cc(*factors[at]),
                            self.factor_cc(*factors[at + 1]),
                            self.ap('mulcom', {'A': a, 'B': b}))
@@ -718,10 +718,10 @@ class Emitter(Builder):
              'A': op(name, op(NUMERAL[first], NUMERAL[second], ADD), EXP),
              'B': op(a, b, MUL)},
             self.ap('syl3anc',
-                    {'ph': self.under, 'ps': seq(name, 'cc', 'wcel'),
-                     'ch': seq(NUMERAL[first], 'cn0', 'wcel'),
-                     'th': seq(NUMERAL[second], 'cn0', 'wcel'),
-                     'ta': seq(op(name, op(NUMERAL[first], NUMERAL[second],
+                    {'ph': self.under, 'ps': self.seq(name, 'cc', 'wcel'),
+                     'ch': self.seq(NUMERAL[first], 'cn0', 'wcel'),
+                     'th': self.seq(NUMERAL[second], 'cn0', 'wcel'),
+                     'ta': self.seq(op(name, op(NUMERAL[first], NUMERAL[second],
                                            ADD), EXP), op(a, b, MUL),
                                'wceq')},
                     self.atom(name), self.index(first), self.index(second),
@@ -745,8 +745,8 @@ class Emitter(Builder):
         one = op(name, NUMERAL[power], EXP)
         if not factors:
             return [(name, power)], self.ap(
-                'syl', {'ph': self.under, 'ps': seq(one, 'cc', 'wcel'),
-                        'ch': seq(op(NUMERAL[1], one, MUL), one, 'wceq')},
+                'syl', {'ph': self.under, 'ps': self.seq(one, 'cc', 'wcel'),
+                        'ch': self.seq(op(NUMERAL[1], one, MUL), one, 'wceq')},
                 self.factor_cc(name, power),
                 self.ap('mullid', {'A': one}))
         appended = [*factors, (name, power)]
@@ -780,9 +780,9 @@ class Emitter(Builder):
             return self.lift(collect, op(a, b, MUL), total, tail, MUL)
         prefix = spell_monomial(tuple(head))
         exposed = self.ap(
-            'syl3anc', {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
+            'syl3anc', {'ph': self.under, 'ps': self.seq(prefix, 'cc', 'wcel'),
                         'ch': seq(a, 'cc', 'wcel'), 'th': seq(b, 'cc', 'wcel'),
-                        'ta': seq(op(op(prefix, a, MUL), b, MUL),
+                        'ta': self.seq(op(op(prefix, a, MUL), b, MUL),
                                   op(prefix, op(a, b, MUL), MUL), 'wceq')},
             self.factors_cc(head), self.factor_cc(*factors[at]),
             self.factor_cc(*factors[at + 1]),
@@ -803,8 +803,8 @@ class Emitter(Builder):
         if not right:
             keep = spell_monomial(tuple(left))
             return left, self.ap(
-                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
-                        'ch': seq(op(keep, NUMERAL[1], MUL), keep, 'wceq')},
+                'syl', {'ph': self.under, 'ps': self.seq(keep, 'cc', 'wcel'),
+                        'ch': self.seq(op(keep, NUMERAL[1], MUL), keep, 'wceq')},
                 self.factors_cc(left), self.ap('mulrid', {'A': keep}))
         if len(right) == 1:
             return self.insert_factor(left, *right[0])
@@ -817,10 +817,10 @@ class Emitter(Builder):
             {'ph': self.under, 'A': op(op(held, prefix, MUL), one, MUL),
              'B': op(held, whole, MUL)},
             self.ap('syl3anc',
-                    {'ph': self.under, 'ps': seq(held, 'cc', 'wcel'),
-                     'ch': seq(prefix, 'cc', 'wcel'),
-                     'th': seq(one, 'cc', 'wcel'),
-                     'ta': seq(op(op(held, prefix, MUL), one, MUL),
+                    {'ph': self.under, 'ps': self.seq(held, 'cc', 'wcel'),
+                     'ch': self.seq(prefix, 'cc', 'wcel'),
+                     'th': self.seq(one, 'cc', 'wcel'),
+                     'ta': self.seq(op(op(held, prefix, MUL), one, MUL),
                                op(held, whole, MUL), 'wceq')},
                     self.factors_cc(left), self.factors_cc(rest),
                     self.factor_cc(*last),
@@ -844,21 +844,21 @@ class Emitter(Builder):
     def positive_product(self, first, second):
         """( under -> ( a x. b ) = c ) for two whole numbers."""
         a, b = NUMERAL[first], NUMERAL[second]
-        claim = seq(op(a, b, MUL), NUMERAL[first * second], 'wceq')
+        claim = self.seq(op(a, b, MUL), NUMERAL[first * second], 'wceq')
         if first == 0:
-            return self.a1i(claim, self.mp(seq(b, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(b, 'cc', 'wcel'), claim,
                                            self.complex_label(second),
                                            self.ap('mul02', {'A': b})))
         if second == 0:
-            return self.a1i(claim, self.mp(seq(a, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(a, 'cc', 'wcel'), claim,
                                            self.complex_label(first),
                                            self.ap('mul01', {'A': a})))
         if first == 1:
-            return self.a1i(claim, self.mp(seq(b, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(b, 'cc', 'wcel'), claim,
                                            self.complex_label(second),
                                            self.ap('mullid', {'A': b})))
         if second == 1:
-            return self.a1i(claim, self.mp(seq(a, 'cc', 'wcel'), claim,
+            return self.a1i(claim, self.mp(self.seq(a, 'cc', 'wcel'), claim,
                                            self.complex_label(first),
                                            self.ap('mulrid', {'A': a})))
         return self.a1i(claim, f'{first}t{second}e{first * second}')
@@ -889,17 +889,17 @@ class Emitter(Builder):
         label = 'mulneg1' if a < 0 else 'mulneg2'
         return self.chain(
             self.pair(label, NUMERAL[abs(a)], NUMERAL[abs(b)],
-                      op(c, d, MUL), seq(whole, 'cneg')),
+                      op(c, d, MUL), self.seq(whole, 'cneg')),
             self.ap('negeqd', {'ph': self.under, 'A': whole,
                                'B': NUMERAL[abs(a * b)]}, size),
-            op(c, d, MUL), seq(whole, 'cneg'), said)
+            op(c, d, MUL), self.seq(whole, 'cneg'), said)
 
     def pair(self, label, left, right, before, after):
         """A two-argument law of ℂ, applied to two numerals."""
         return self.ap('syl2anc',
-                       {'ph': self.under, 'ps': seq(left, 'cc', 'wcel'),
-                        'ch': seq(right, 'cc', 'wcel'),
-                        'th': seq(before, after, 'wceq')},
+                       {'ph': self.under, 'ps': self.seq(left, 'cc', 'wcel'),
+                        'ch': self.seq(right, 'cc', 'wcel'),
+                        'th': self.seq(before, after, 'wceq')},
                        self.number(int(left_value(left))),
                        self.number(int(left_value(right))),
                        self.ap(label, {'A': left, 'B': right}))
@@ -921,21 +921,21 @@ class Emitter(Builder):
                                   'wa'),
                               seq(seq(d, 'cc', 'wcel'), seq(n, 'cc', 'wcel'),
                                   'wa'), 'wa'),
-                    'ch': seq(op(a, b, MUL),
+                    'ch': self.seq(op(a, b, MUL),
                               op(op(c, d, MUL), op(m, n, MUL), MUL), 'wceq')},
             self.ap('jca', {'ph': self.under,
-                            'ps': seq(seq(c, 'cc', 'wcel'),
-                                      seq(m, 'cc', 'wcel'), 'wa'),
-                            'ch': seq(seq(d, 'cc', 'wcel'),
-                                      seq(n, 'cc', 'wcel'), 'wa')},
+                            'ps': self.seq(self.seq(c, 'cc', 'wcel'),
+                                      self.seq(m, 'cc', 'wcel'), 'wa'),
+                            'ch': self.seq(self.seq(d, 'cc', 'wcel'),
+                                      self.seq(n, 'cc', 'wcel'), 'wa')},
                    self.ap('jca', {'ph': self.under,
-                                   'ps': seq(c, 'cc', 'wcel'),
-                                   'ch': seq(m, 'cc', 'wcel')},
+                                   'ps': self.seq(c, 'cc', 'wcel'),
+                                   'ch': self.seq(m, 'cc', 'wcel')},
                            self.coefficient(weight),
                            self.monomial_cc(first)),
                    self.ap('jca', {'ph': self.under,
-                                   'ps': seq(d, 'cc', 'wcel'),
-                                   'ch': seq(n, 'cc', 'wcel')},
+                                   'ps': self.seq(d, 'cc', 'wcel'),
+                                   'ch': self.seq(n, 'cc', 'wcel')},
                            self.coefficient(other),
                            self.monomial_cc(second))),
             self.ap('mul4', {'A': c, 'B': m, 'C': d, 'D': n}))
@@ -967,8 +967,8 @@ class Emitter(Builder):
         start = op(term, self.spell_run(right), MUL)
         if not right:
             return [], self.ap(
-                'syl', {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
-                        'ch': seq(op(term, NUMERAL[0], MUL), NUMERAL[0],
+                'syl', {'ph': self.under, 'ps': self.seq(term, 'cc', 'wcel'),
+                        'ch': self.seq(op(term, NUMERAL[0], MUL), NUMERAL[0],
                                   'wceq')},
                 self.term_cc(*one), self.ap('mul01', {'A': term}))
         if len(right) == 1:
@@ -978,9 +978,9 @@ class Emitter(Builder):
         prefix, tail = self.spell_run(rest), self.spell_term(last)
         spread = self.ap(
             'syl3anc',
-            {'ph': self.under, 'ps': seq(term, 'cc', 'wcel'),
-             'ch': seq(prefix, 'cc', 'wcel'), 'th': seq(tail, 'cc', 'wcel'),
-             'ta': seq(start, op(op(term, prefix, MUL),
+            {'ph': self.under, 'ps': self.seq(term, 'cc', 'wcel'),
+             'ch': self.seq(prefix, 'cc', 'wcel'), 'th': self.seq(tail, 'cc', 'wcel'),
+             'ta': self.seq(start, op(op(term, prefix, MUL),
                                  op(term, tail, MUL), ADD), 'wceq')},
             self.term_cc(*one), self.run_cc(rest), self.term_cc(*last),
             self.ap('adddi', {'A': term, 'B': prefix, 'C': tail}))
@@ -1009,8 +1009,8 @@ class Emitter(Builder):
         if not left:
             keep = self.spell_run(right)
             return [], self.ap(
-                'syl', {'ph': self.under, 'ps': seq(keep, 'cc', 'wcel'),
-                        'ch': seq(op(NUMERAL[0], keep, MUL), NUMERAL[0],
+                'syl', {'ph': self.under, 'ps': self.seq(keep, 'cc', 'wcel'),
+                        'ch': self.seq(op(NUMERAL[0], keep, MUL), NUMERAL[0],
                                   'wceq')},
                 self.run_cc(right), self.ap('mul02', {'A': keep}))
         if len(left) == 1:
@@ -1020,9 +1020,9 @@ class Emitter(Builder):
         whole = self.spell_run(right)
         spread = self.ap(
             'syl3anc',
-            {'ph': self.under, 'ps': seq(prefix, 'cc', 'wcel'),
-             'ch': seq(tail, 'cc', 'wcel'), 'th': seq(whole, 'cc', 'wcel'),
-             'ta': seq(start, op(op(prefix, whole, MUL),
+            {'ph': self.under, 'ps': self.seq(prefix, 'cc', 'wcel'),
+             'ch': self.seq(tail, 'cc', 'wcel'), 'th': self.seq(whole, 'cc', 'wcel'),
+             'ta': self.seq(start, op(op(prefix, whole, MUL),
                                  op(tail, whole, MUL), ADD), 'wceq')},
             self.run_cc(rest), self.term_cc(*last), self.run_cc(right),
             self.ap('adddir', {'A': prefix, 'B': tail, 'C': whole}))
@@ -1053,15 +1053,15 @@ class Emitter(Builder):
         if times == 0:
             return [((), Fraction(1))], self.chain(
                 self.ap('syl', {'ph': self.under,
-                                'ps': seq(run, 'cc', 'wcel'),
-                                'ch': seq(start, NUMERAL[1], 'wceq')},
+                                'ps': self.seq(run, 'cc', 'wcel'),
+                                'ch': self.seq(start, NUMERAL[1], 'wceq')},
                         self.run_cc(items), self.ap('exp0', {'A': run})),
                 self.one_as_term(), start, NUMERAL[1],
                 self.spell_term(((), Fraction(1))))
         if times == 1:
             return items, self.ap(
-                'syl', {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
-                        'ch': seq(start, run, 'wceq')},
+                'syl', {'ph': self.under, 'ps': self.seq(run, 'cc', 'wcel'),
+                        'ch': self.seq(start, run, 'wceq')},
                 self.run_cc(items), self.ap('exp1', {'A': run}))
         below = NUMERAL[times - 1]
         stepped_from = self.coefficient_sum(Fraction(times - 1), Fraction(1))
@@ -1076,9 +1076,9 @@ class Emitter(Builder):
                              'A': op(below, NUMERAL[1], ADD),
                              'B': NUMERAL[times]}, stepped_from)),
             self.ap('syl2anc',
-                    {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
-                     'ch': seq(below, 'cn0', 'wcel'),
-                     'th': seq(op(run, op(below, NUMERAL[1], ADD), EXP),
+                    {'ph': self.under, 'ps': self.seq(run, 'cc', 'wcel'),
+                     'ch': self.seq(below, 'cn0', 'wcel'),
+                     'th': self.seq(op(run, op(below, NUMERAL[1], ADD), EXP),
                                op(op(run, below, EXP), run, MUL), 'wceq')},
                     self.run_cc(items), self.index(times - 1),
                     self.ap('expp1', {'A': run, 'N': below})),
@@ -1170,15 +1170,15 @@ class Emitter(Builder):
         return [(((said, 1),), Fraction(1))], self.chain(
             self.ap('eqcomd', {'ph': self.under, 'A': raised, 'B': said},
                     self.ap('syl', {'ph': self.under,
-                                    'ps': seq(said, 'cc', 'wcel'),
-                                    'ch': seq(raised, said, 'wceq')},
+                                    'ps': self.seq(said, 'cc', 'wcel'),
+                                    'ch': self.seq(raised, said, 'wceq')},
                             self.atom(said), self.ap('exp1', {'A': said}))),
             self.ap('eqcomd',
                     {'ph': self.under, 'A': op(NUMERAL[1], raised, MUL),
                      'B': raised},
                     self.ap('syl', {'ph': self.under,
-                                    'ps': seq(raised, 'cc', 'wcel'),
-                                    'ch': seq(op(NUMERAL[1], raised, MUL),
+                                    'ps': self.seq(raised, 'cc', 'wcel'),
+                                    'ch': self.seq(op(NUMERAL[1], raised, MUL),
                                               raised, 'wceq')},
                             self.factor_cc(said, 1),
                             self.ap('mullid', {'A': raised}))),
@@ -1192,7 +1192,7 @@ class Emitter(Builder):
         `mulrid` supplies.
         """
         run = self.spell_run(items)
-        minus, bare = [((), Fraction(-1))], seq(NUMERAL[1], 'cneg')
+        minus, bare = [((), Fraction(-1))], self.seq(NUMERAL[1], 'cneg')
         unit = self.spell_run(minus)
         inner_cc = self.ap('eqeltrd', {'ph': self.under, 'A': inner,
                                        'B': run, 'C': 'cc'},
@@ -1201,8 +1201,8 @@ class Emitter(Builder):
             'eqcomd', {'ph': self.under, 'A': op(bare, inner, MUL),
                        'B': said},
             self.ap('syl', {'ph': self.under,
-                            'ps': seq(inner, 'cc', 'wcel'),
-                            'ch': seq(op(bare, inner, MUL), said, 'wceq')},
+                            'ps': self.seq(inner, 'cc', 'wcel'),
+                            'ch': self.seq(op(bare, inner, MUL), said, 'wceq')},
                     inner_cc, self.ap('mulm1', {'A': inner})))
         inside = self.ap('oveq2d', {'ph': self.under, 'A': inner, 'B': run,
                                     'C': bare, 'F': MUL}, proof)
@@ -1211,8 +1211,8 @@ class Emitter(Builder):
                        'F': MUL},
             self.ap('eqcomd', {'ph': self.under, 'A': unit, 'B': bare},
                     self.ap('syl', {'ph': self.under,
-                                    'ps': seq(bare, 'cc', 'wcel'),
-                                    'ch': seq(unit, bare, 'wceq')},
+                                    'ps': self.seq(bare, 'cc', 'wcel'),
+                                    'ch': self.seq(unit, bare, 'wceq')},
                             self.coefficient(Fraction(-1)),
                             self.ap('mulrid', {'A': bare}))))
         out, product = self.multiply(minus, items)
@@ -1235,14 +1235,14 @@ class Emitter(Builder):
         b_cc = self.ap('eqeltrd', {'ph': self.under, 'A': lb,
                                    'B': self.spell_run(second), 'C': 'cc'},
                        two, self.run_cc(second))
-        minus = seq(lb, 'cneg')
+        minus = self.seq(lb, 'cneg')
         plus = op(la, minus, ADD)
         turned = self.ap(
             'eqcomd', {'ph': self.under, 'A': plus, 'B': said},
             self.ap('syl2anc', {'ph': self.under,
-                                'ps': seq(la, 'cc', 'wcel'),
-                                'ch': seq(lb, 'cc', 'wcel'),
-                                'th': seq(plus, said, 'wceq')},
+                                'ps': self.seq(la, 'cc', 'wcel'),
+                                'ch': self.seq(lb, 'cc', 'wcel'),
+                                'th': self.seq(plus, said, 'wceq')},
                     a_cc, b_cc, self.ap('negsub', {'A': la, 'B': lb})))
         negated, backwards = self.negated(lb, second, two, minus)
         joined = self.ap('oveq12d',
@@ -1317,7 +1317,7 @@ class Emitter(Builder):
         """
         digit = field.spell_coefficient(weight)
         whole = abs(weight.numerator)
-        nonzero = self.a1i(seq(NUMERAL[whole], 'cc0', 'wne'),
+        nonzero = self.a1i(self.seq(NUMERAL[whole], 'cc0', 'wne'),
                            self.apart_label(whole))
         if weight.numerator < 0:
             nonzero = self.ap('negne0d', {'ph': self.under,
@@ -1335,7 +1335,7 @@ class Emitter(Builder):
     def monomial_apart(self, monomial):
         """( under -> M =/= 0 ), the empty one being one."""
         if not monomial:
-            return self.a1i(seq(NUMERAL[1], 'cc0', 'wne'),
+            return self.a1i(self.seq(NUMERAL[1], 'cc0', 'wne'),
                             self.apart_label(1))
         if self.apart is None:
             return Declined('nothing can say an atom is not zero')
@@ -1360,7 +1360,7 @@ class Emitter(Builder):
 
     def whole_index(self, power):
         """( under -> k e. ZZ ), which `expne0d` asks for."""
-        return self.a1i(seq(NUMERAL[power], 'cz', 'wcel'), f'{power}z')
+        return self.a1i(self.seq(NUMERAL[power], 'cz', 'wcel'), f'{power}z')
 
     def as_quotient(self, over, under, proof, said):
         """A numerator on its own, given the denominator of one it hides.
@@ -1379,8 +1379,8 @@ class Emitter(Builder):
                                'B': NUMERAL[1], 'C': run, 'F': DIV},
                     self.ap('eqcomd', {'ph': self.under, 'A': NUMERAL[1],
                                        'B': unit}, self.one_as_term())),
-            self.ap('syl', {'ph': self.under, 'ps': seq(run, 'cc', 'wcel'),
-                            'ch': seq(op(run, NUMERAL[1], DIV), run,
+            self.ap('syl', {'ph': self.under, 'ps': self.seq(run, 'cc', 'wcel'),
+                            'ch': self.seq(op(run, NUMERAL[1], DIV), run,
                                       'wceq')},
                     self.run_cc(over), self.ap('div1', {'A': run})),
             op(run, unit, DIV), op(run, NUMERAL[1], DIV), run)
@@ -1437,12 +1437,12 @@ class Emitter(Builder):
         outer = self.spell_run(below)
         folded = self.ap(
             'syl3anc',
-            {'ph': self.under, 'ps': seq(top, 'cc', 'wcel'),
+            {'ph': self.under, 'ps': self.seq(top, 'cc', 'wcel'),
              'ch': seq(seq(bottom, 'cc', 'wcel'), seq(bottom, 'cc0', 'wne'),
                        'wa'),
              'th': seq(seq(outer, 'cc', 'wcel'), seq(outer, 'cc0', 'wne'),
                        'wa'),
-             'ta': seq(op(op(top, bottom, DIV), outer, DIV),
+             'ta': self.seq(op(op(top, bottom, DIV), outer, DIV),
                        op(top, op(bottom, outer, MUL), DIV), 'wceq')},
             self.run_cc(over), self.pair_of(under), self.pair_of(below),
             self.ap('divdiv1', {'A': top, 'B': bottom, 'C': outer}))
@@ -1462,8 +1462,8 @@ class Emitter(Builder):
         said = self.spell_run(under)
         held, nonzero = self.denominator(under)
         return self.ap('jca', {'ph': self.under,
-                               'ps': seq(said, 'cc', 'wcel'),
-                               'ch': seq(said, 'cc0', 'wne')},
+                               'ps': self.seq(said, 'cc', 'wcel'),
+                               'ch': self.seq(said, 'cc0', 'wne')},
                        held, nonzero)
 
     def quotient_joined(self, how, left, right, labels, said):
@@ -1513,17 +1513,17 @@ class Emitter(Builder):
              'ch': seq(seq(seq(b, 'cc', 'wcel'), seq(b, 'cc0', 'wne'), 'wa'),
                        seq(seq(d, 'cc', 'wcel'), seq(d, 'cc0', 'wne'), 'wa'),
                        'wa'),
-             'th': seq(op(op(a, b, DIV), op(c, d, DIV),
+             'th': self.seq(op(op(a, b, DIV), op(c, d, DIV),
                           ADD if how == field.ADD else MUL),
                        op(top, bottom, DIV), 'wceq')},
-            self.ap('jca', {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
-                            'ch': seq(c, 'cc', 'wcel')},
+            self.ap('jca', {'ph': self.under, 'ps': self.seq(a, 'cc', 'wcel'),
+                            'ch': self.seq(c, 'cc', 'wcel')},
                     self.run_cc(over), self.run_cc(below)),
             self.ap('jca', {'ph': self.under,
-                            'ps': seq(seq(b, 'cc', 'wcel'),
-                                      seq(b, 'cc0', 'wne'), 'wa'),
-                            'ch': seq(seq(d, 'cc', 'wcel'),
-                                      seq(d, 'cc0', 'wne'), 'wa')},
+                            'ps': self.seq(self.seq(b, 'cc', 'wcel'),
+                                      self.seq(b, 'cc0', 'wne'), 'wa'),
+                            'ch': self.seq(self.seq(d, 'cc', 'wcel'),
+                                      self.seq(d, 'cc0', 'wne'), 'wa')},
                     self.pair_of(under), self.pair_of(beneath)),
             self.ap(label, {'A': a, 'B': c, 'C': b, 'D': d}))
         low, denominator = self.multiply(under, beneath)
@@ -1554,10 +1554,10 @@ class Emitter(Builder):
                           'F': EXP}, first)
         spread = self.ap(
             'syl3anc',
-            {'ph': self.under, 'ps': seq(a, 'cc', 'wcel'),
-             'ch': seq(seq(b, 'cc', 'wcel'), seq(b, 'cc0', 'wne'), 'wa'),
-             'th': seq(NUMERAL[times], 'cn0', 'wcel'),
-             'ta': seq(op(op(a, b, DIV), NUMERAL[times], EXP),
+            {'ph': self.under, 'ps': self.seq(a, 'cc', 'wcel'),
+             'ch': self.seq(self.seq(b, 'cc', 'wcel'), self.seq(b, 'cc0', 'wne'), 'wa'),
+             'th': self.seq(NUMERAL[times], 'cn0', 'wcel'),
+             'ta': self.seq(op(op(a, b, DIV), NUMERAL[times], EXP),
                        op(op(a, NUMERAL[times], EXP),
                           op(b, NUMERAL[times], EXP), DIV), 'wceq')},
             self.run_cc(over), self.pair_of(under), self.index(times),

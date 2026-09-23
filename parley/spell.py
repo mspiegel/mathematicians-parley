@@ -36,12 +36,11 @@ class Proof:
     `GOALS.md` decision 9 is that the kernel proof is derived from the text,
     and this is what lets that be asked of a proof rather than assumed.
 
-    It is not text, and will not be made into text without being asked:
-    `spelt` is how. Code that handled a proof as a string and so lost what
-    it rests on would leave a proof resting on nothing, which every check
-    of what a step names would pass. So `str` and a format refuse, the way
-    `seq` refuses a decline, and the line that forgot is the line that
-    fails.
+    It is not text: `.text` is what it spells. Code that handled a proof as
+    a string and so lost what it rests on would leave a proof resting on
+    nothing, which every check of what a step names would pass. So `str`
+    and a format refuse, the way `seq` refuses a decline, and the line that
+    forgot is the line that fails.
     """
 
     text: str
@@ -53,30 +52,25 @@ class Proof:
         object.__setattr__(self, 'origin', frozenset(self.origin))
 
     def __str__(self):
-        raise TypeError('a proof is not text; spelt() gives its text')
+        raise TypeError('a proof is not text; .text is what it spells')
 
     def __format__(self, spec):
-        raise TypeError('a proof is not text; spelt() gives its text')
-
-
-def spelt(proof):
-    """A proof's text, whether or not anything on the page went into it."""
-    return proof.text if type(proof) is Proof else proof
+        raise TypeError('a proof is not text; .text is what it spells')
 
 
 def seq(*parts):
-    """Tokens in order, skipping any that are empty.
+    """Tokens in order, skipping any that are empty, as text.
 
-    A proof put together from proofs rests on what they rest on. Terms and
-    formulas carry no origin and come back as plain text, which keeps the
-    common case as cheap as joining. Anything that is neither text nor a
-    proof — a decline — is refused by the join.
+    This builds terms and formulas, and whatever a script without a library
+    writes. A proof is built by `Builder.seq`, which knows the labels and so
+    can tell one from the other; a proof handed here is refused, since the
+    text this gives back would carry nothing of what the proof rests on.
+    Anything else that is not text — a decline — is refused by the join.
     """
-    text = ' '.join(p.text if type(p) is Proof else p for p in parts if p)
-    held = [p.origin for p in parts if type(p) is Proof]
-    if not held:
-        return text
-    return Proof(text, frozenset().union(*held))
+    for p in parts:
+        if type(p) is Proof:
+            raise TypeError('a proof joined as text; Builder.seq builds one')
+    return ' '.join(p for p in parts if p)
 
 
 # Terms. `co` is Metamath's binary operation and most of the rest are it with
@@ -234,4 +228,25 @@ class Builder:
         sig = self.sigs[label]
         out = [binds[var] if binds and var in binds else self.flabel[var]
                for _typecode, var in sig.floats]
-        return seq(*out, *essentials, label)
+        return self.seq(*out, *essentials, label)
+
+    def seq(self, *parts):
+        """Tokens in order, skipping any that are empty: a term or a proof.
+
+        Reverse Polish says which by its last token. A term ends in the
+        constructor that builds it — `wcel`, `wa`, `co` — and a proof in the
+        assertion it applies, whose statement set.mm marks `|-`: `syl`,
+        `a1i`, `readdcld`. So what is built is read off what was built. A
+        proof comes back a `Proof` always, resting on what its parts rest on
+        and on nothing where nothing on the page went into it; a term comes
+        back as text, and a term built from a proof is a mistake, and
+        refused.
+        """
+        text = ' '.join(p.text if type(p) is Proof else p for p in parts if p)
+        held = [p.origin for p in parts if type(p) is Proof]
+        last = self.sigs.get(text[text.rfind(' ') + 1:])
+        if last is not None and last.statement[:1] == ['|-']:
+            return Proof(text, frozenset().union(*held))
+        if held:
+            raise TypeError(f'a term built from a proof: …{text[-60:]}')
+        return text

@@ -1632,7 +1632,7 @@ def main(argv):
         mandatory = sorted({b.flabel[t] for t in statement.split()
                             if t in b.flabel},
                            key=lambda one: b.forder[one])
-        said = compress(proof, mandatory, {**sigs, **made})
+        said = compress(proof.text, mandatory, {**sigs, **made})
         made[label] = Signature(label, '$p', statement.split(),
                                 [('class', v) for v in mandatory])
         line = '   '
