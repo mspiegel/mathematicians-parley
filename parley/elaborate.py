@@ -54,7 +54,7 @@ from parse import (
     fmt,
 )
 from sorts import sorts_in_scope, sorts_of_record
-from spell import Builder, seq
+from spell import Builder, Proof, seq
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
@@ -85,6 +85,17 @@ TURNED = 'the other way round'
 # choosing a label. Which one a proof wants is not the text's to say twice:
 # `let n ∈ ℕ₀` already says it, and `starting at` is checked against it.
 INDUCTION = {'cn': ('nnindd', 'c1'), 'cn0': ('nn0indd', 'cc0')}
+
+
+REQUIRES = 'requires@'
+
+
+def requirement(line):
+    """What a `requires` line is called as the origin of a proof.
+
+    It has no number of its own, so it is named by where it stands.
+    """
+    return f'{REQUIRES}{line}'
 # How set.mm names that a digit belongs to a number system, by the system.
 # The label is the digit and this suffix throughout — `2z`, `1nn`, `0re` —
 # so what a system needs here is how its name is spelt in that label and
@@ -323,6 +334,8 @@ class Elaborator(Builder):
         self.supplying = set()   # `requires` terms being discharged now
         self.consulted = set()   # lines of the `requires` lines read so far
         self.discharged = {}     # by line, the proofs its own reason made
+        self.rests_on = {}       # by page item, what its proof was built on
+        self.bridges = None      # (from system, to system) -> one lemma
         self.unread = []         # and the lines of those nothing read
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
@@ -518,6 +531,16 @@ class Elaborator(Builder):
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        # A membership a requires line wrote in another number system is the
+        # one to carry, before the lemmas below are tried in their order:
+        # `nncn` stands before `recn`, and would take `A ∈ ℂ` from the
+        # hypothesis `A ∈ ℕ` rather than from the line saying `A ∈ ℝ`.
+        if wanted.label == 'wcel' and len(wanted.children) == 2:
+            found = self.bridged(wanted.children[0].rpn(self.flabel),
+                                 wanted.children[1].rpn(self.flabel),
+                                 scope, facts)
+            if found is not None:
+                return found
         if wanted.label in self.BOUND:
             # A `define` and a `fix` may write the same letter, and one of
             # them is renamed so that they do not collide. The line is then
@@ -1533,6 +1556,11 @@ class Elaborator(Builder):
                      for k, v in facts.items()}
             facts[extra] = seq(scope, extra, 'simpr')
             scope = wider
+        # Each hypothesis stands for itself, and is sealed before it is taken
+        # apart so that what it says in pieces is still what it says.
+        for h, t in zip(self.thm.hypotheses, terms, strict=True):
+            if h[2] and t in facts:
+                facts[t] = self.seal(facts[t], h[2])
         # A hypothesis may say several things at once — `A, B, C form a
         # triangle` says three — and each of them is a fact the proof may
         # lean on without a step to take it apart.
@@ -1619,22 +1647,42 @@ class Elaborator(Builder):
                       for _text, _how, line in step.requires
                       if line not in self.consulted)
 
-    def widen(self, scope, facts, added):
+    def widen(self, scope, facts, added, origin=None):
         """Conjoin one more thing onto the antecedent, carrying the facts.
 
         This is what every block form does when it opens: `ELABORATION.md`
         requirement 1. The frame is kept so that a step whose lemma forbids
         the innermost assumption can be proved without it.
+
+        `origin` is what on the page the assumption is, where it is on the
+        page at all. A block's supposition is; the membership of a variable
+        a binder introduces while its body is read is not, and has none.
         """
         inner = seq(scope, added, 'wa')
         lifted = {k: seq(inner, scope, k, seq(scope, added, 'simpl'), v, 'syl')
                   for k, v in facts.items()}
         lifted[added] = seq(scope, added, 'simpr')
+        if origin is not None:
+            lifted[added] = self.seal(lifted[added], origin)
         self.unpack(added, lifted[added], inner, lifted)
         # Each frame keeps what is known at it, because a step whose lemma
         # forbids an inner assumption is proved at an outer one.
         self.frames.append((inner, added, lifted))
         return inner, lifted
+
+    def seal(self, proof, item):
+        """The proof, standing from here on for one thing on the page.
+
+        What a later step builds from it rests on `item` and not on whatever
+        `item` was itself built from, which is the question each step is
+        asked about: what it names against what it used. What the proof was
+        built from is kept in `rests_on`, which is how a line is asked the
+        same of its own reason, and how a line's uses are traced through the
+        lines that use it.
+        """
+        self.rests_on[item] = (self.rests_on.get(item, frozenset())
+                               | getattr(proof, 'origin', frozenset()))
+        return Proof(proof, {item})
 
     # A fact that conjoins several things says each of them, and the steps
     # below cite them one at a time: an `obtain` hands over one body saying
@@ -1698,8 +1746,8 @@ class Elaborator(Builder):
             kind, text, label, _l, _p = step.openers[0]
             node = self.read(hypothesis_body(kind, text))
             block.supposed = self.term(node)
-            block.scope, block.facts = self.widen(scope, facts,
-                                                  block.supposed)
+            block.scope, block.facts = self.widen(
+                scope, facts, block.supposed, self.assumption(block, label))
             if label:
                 lines[label] = Fact(block.supposed,
                                     block.facts[block.supposed], (node,))
@@ -1723,8 +1771,9 @@ class Elaborator(Builder):
                         self.sets[name] = self.term(node.children[1])
                 node = self.read(body)
                 added = self.term(node)
-                block.scope, block.facts = self.widen(block.scope,
-                                                      block.facts, added)
+                block.scope, block.facts = self.widen(
+                    block.scope, block.facts, added,
+                    self.assumption(block, label))
                 if label:
                     lines[label] = Fact(added, block.facts[added], (node,))
         elif head == 'cases':
@@ -1746,6 +1795,19 @@ class Elaborator(Builder):
                               f'no expansion for a {head} block')
         return block
 
+    @staticmethod
+    def assumption(block, label):
+        """What on the page a block's assumption is.
+
+        Its label where the text gives one. Where it does not, the block's
+        own step, since that is where a reader finds it; an assumption with
+        no name is still something the page says, and a proof resting on it
+        rests on the page rather than on nothing.
+        """
+        if label:
+            return label
+        return '.'.join(str(p) for p in block.owner.number) + ' assumes'
+
     def enter_case(self, block, part, lines):
         """Open the scope one case of a `cases` block runs under."""
         if block.entered == part:
@@ -1759,7 +1821,8 @@ class Elaborator(Builder):
         node, label = block.assumed[part]
         assumed = self.term(node)
         block.scope, block.facts = self.widen(block.outer, block.outside,
-                                              assumed)
+                                              assumed,
+                                              self.assumption(block, label))
         block.entered = part
         if label:
             lines[label] = Fact(assumed, block.facts[assumed], (node,))
@@ -1816,6 +1879,7 @@ class Elaborator(Builder):
         elif head == 'induction':
             block.claim, block.proof = self.close_induction(block, lines)
         number = '.'.join(str(p) for p in step.number)
+        block.proof = self.seal(block.proof, number)
         outer = dict(block.outside)
         outer[block.claim] = block.proof
         lines[number] = Fact(block.claim, block.proof)
@@ -2175,6 +2239,7 @@ class Elaborator(Builder):
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
         said = self.said(step)
+        proof = self.seal(proof, number)
         lines[number] = Fact(term, proof, said)
         facts[term] = proof
         # A line saying several things says each of them: Bezout's step 15
@@ -2295,6 +2360,9 @@ class Elaborator(Builder):
             # obtains is renamed to a variable nothing else is holding.
             ex = self.renamed(ex, len(got))
             p_ex = self.cite_item(step, ex, scope, facts, item, cites)
+        # What the line is obtained from is what it rests on; what it
+        # introduces is sealed below with the same name, and rests on nothing.
+        p_ex = self.seal(p_ex, number)
 
         # The existential says which names it introduces and where they run,
         # so the scope is read off it rather than off the text.
@@ -2309,8 +2377,8 @@ class Elaborator(Builder):
         member = seq(*(seq(f'{v} cv', s, 'wcel') for v, s in layers))
         if len(layers) > 1:
             member = seq(member, 'wa')
-        outer, held = self.widen(scope, facts, member)
-        inner, lifted = self.widen(outer, held, body)
+        outer, held = self.widen(scope, facts, member, number)
+        inner, lifted = self.widen(outer, held, body, number)
 
         for name, (variable, over_term) in zip(got, layers, strict=True):
             self.names[name] = f'{variable} cv'
@@ -3438,9 +3506,14 @@ class Elaborator(Builder):
         # that search: handing `prove_order` the whole of `known` put the
         # four steps of `thm:abs-bounds` past ten million `fits` calls,
         # where the same proof takes five seconds.
+        # What a requires line made, and nothing else — including where the
+        # scope holds the same claim for another reason, which is the case
+        # the line was written for: `requires x ∈ ℝ: from H1` beside the
+        # hypothesis that says it.
         kept = self.written
         self.written = {k: (scope, v) for k, v in known.items()
-                        if k not in facts}
+                        if any(o.startswith(REQUIRES)
+                               for o in getattr(v, 'origin', ()))}
         try:
             found = self.prove_order(step.just.refs, term, scope, facts,
                                      lines)
@@ -5417,9 +5490,11 @@ class Elaborator(Builder):
                 given = {k: v for k, v in known.items() if k != term}
             self.supplying.add(term)
             try:
-                known[term] = self.side(want, how, scope, given, step)
+                made = self.side(want, how, scope, given, step)
             finally:
                 self.supplying.discard(term)
+            known[term] = (made if declined(made)
+                           else self.seal(made, requirement(line)))
             self.discharged.setdefault(line, set()).add(known[term])
         return known
 
@@ -6101,7 +6176,7 @@ class Elaborator(Builder):
                         self.at,
                         f'the requires line for {self.render(goal)} is '
                         f'justified by {how}, which does not reach it: {made}')
-                return made
+                return self.seal(made, requirement(line))
         # A `requires` line that is not there is the text's to fix, so this
         # one is a defect. What it is built from declining is not, which is
         # why only a decline is turned into one here.
@@ -6127,27 +6202,91 @@ class Elaborator(Builder):
         covering the step, which is the one thing it does not mean.
         """
         want = seq(said, system, 'wcel')
-        if want in facts:
-            return facts[want]
-        # What the step wrote a `requires` line for, which is the page
-        # saying why this holds. Asked before settling, so the proof rests
-        # on the justification the text gave rather than on whatever
-        # `targets.MEMBERSHIP` happens to reach.
-        #
-        # Only at the scope it was proved under. A split opens a scope
-        # inside the step and carries its facts across; this is not
-        # carried, so deeper in it is the wrong proof and `least-
-        # combination-divides` stops verifying, which is how that was
-        # found.
+        # The page's own line for exactly this comes before the scope's copy
+        # of the same claim: `abs-bounds` writes `requires x ∈ ℝ: from H1`
+        # beside a hypothesis saying `x ∈ ℝ`, and the two are one claim with
+        # two origins, of which only one is what the step names.
+        found = facts.get(want)
+        if found is not None and any(o.startswith(REQUIRES)
+                                     for o in getattr(found, 'origin', ())):
+            return found
+        # What the step wrote a `requires` line for where `inequalities` put
+        # it, which is not among the facts. Only at the scope it was proved
+        # under: a split opens a scope inside the step and carries its facts
+        # across, and this is not carried, so deeper in it is the wrong proof
+        # and `least-combination-divides` stops verifying.
         held = self.written.get(want)
         if held is not None and held[0] == scope:
             return held[1]
-        found = self.settle(self.to_term(want), scope, facts)
+        if found is not None:
+            return found
+        # What those lines say is also what a membership they do not state
+        # exactly is built from. A step asking `k ∈ ℂ` writes `k ∈ ℝ` as its
+        # requires line, while the scope may hold `k ∈ ℤ` from the line that
+        # obtained k; `targets.MEMBERSHIP` tries `zcn` before `recn`, so the
+        # scope alone would answer from the obtaining line and leave the line
+        # the page wrote proved and unused.
+        written = {k: v for k, v in facts.items()
+                   if any(o.startswith(REQUIRES)
+                          for o in getattr(v, 'origin', ()))}
+        written.update({k: v for k, (at, v) in self.written.items()
+                        if at == scope})
+        found = self.bridged(said, system, scope, written)
+        if found is not None:
+            return found
+        # A compound is built from its atoms, `−x ∈ ℝ` from `x ∈ ℝ`, and the
+        # atom's membership is the step's own line where it wrote one rather
+        # than the scope's copy of the same claim. Laid over the scope, the
+        # written lines replace those copies and add almost nothing, so the
+        # search is no wider than it was.
+        found = self.settle(self.to_term(want), scope, {**facts, **written})
         if declined(found):
             raise self.defect(
                 self.at, f'nothing says {self.render(want)}, which this step '
                          f'needs')
         return found
+
+    def bridged(self, said, system, scope, written):
+        """`said ∈ system`, carried in one lemma from a membership written.
+
+        Only the lemmas `targets.MEMBERSHIP` declares that take a thing in
+        one number system to another — `recn`, `zcn`, `nnre` — and only one
+        of them. Settling from the written facts instead searches everything
+        that could reach the claim, and where nothing written does, that
+        search is what costs: `abs-bounds` spent four and a half million
+        `fits` calls in it on one membership.
+        """
+        if self.bridges is None:
+            self.bridges = {}
+            for label in targets.MEMBERSHIP:
+                sig = self.sigs.get(label)
+                if sig is None or sig.essentials or len(sig.floats) != 1:
+                    continue
+                shape = self.syntax.statement(sig)
+                if shape.label != 'wi':
+                    continue
+                given, gives = shape.children
+                if given.label != 'wcel' or gives.label != 'wcel' \
+                        or given.children[0].variable is None \
+                        or given.children[0].rpn(self.flabel) \
+                        != gives.children[0].rpn(self.flabel):
+                    continue
+                self.bridges.setdefault(
+                    (given.children[1].rpn(self.flabel),
+                     gives.children[1].rpn(self.flabel)), label)
+        for (source, target), label in self.bridges.items():
+            if target != system:
+                continue
+            claim = seq(said, source, 'wcel')
+            proof = written.get(claim)
+            if proof is None or not any(o.startswith(REQUIRES)
+                                        for o in getattr(proof, 'origin', ())):
+                continue
+            return self.ap('syl', {'ph': scope, 'ps': claim,
+                                   'ch': seq(said, system, 'wcel')},
+                           proof,
+                           self.ap(label, {self.sigs[label].push[0]: said}))
+        return None
 
     def freeze(self, node):
         """The tree with its leaves turned into the terms they stand for.

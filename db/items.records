@@ -751,7 +751,13 @@ theorem add-element-bijection
               statement in the proof is the merge's reading of it.
 
 theorem powerset-split-disjoint
-  proved-in   proof/subsets.proof
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  then        𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
+  open        its proof needs a ∈ S ∪ {a}, and set.mm has that only for a
+              that is a set, which the kernel gets from a ∈ X and a reader
+              does not think; how the text says it is not settled, and
+              ELABORATION.md has the question
   first-used  subsets
   note        The pilot's row read only "the two parts above are disjoint". The
               statement in the proof is the merge's reading of it.

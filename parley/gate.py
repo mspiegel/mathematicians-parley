@@ -41,7 +41,7 @@ Serially this took fifty-four seconds and now takes twenty, which is what
 the longest stage takes. That stage is the one running `mmverify.py`, and
 nearly all of what it costs is reading set.mm: given a file whose whole
 contents are `$[ set.mm $]` it takes seventeen and a half seconds, and the
-thirty proofs add a tenth of one. It is not vendored and so has no cache to
+proofs add a tenth of one. It is not vendored and so has no cache to
 give it, which puts a floor under the gate that nothing here can lift.
 
 Three of them need something this repository does not carry, and none of the

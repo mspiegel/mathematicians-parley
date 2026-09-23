@@ -14,8 +14,8 @@ built. **Build first, every time** — the gate never runs the elaborator over
 the corpus, so breaking the elaborator and leaving the built files alone
 passes every stage.
 
-Seventeen theorems stand in `proof/`, sixteen of them elaborate, and
-`build.py` writes 23 artifacts. `elaboration/elaborated/` holds what the
+Sixteen theorems stand in `proof/`, fifteen of them elaborate, and
+`build.py` writes 22 artifacts. `elaboration/elaborated/` holds what the
 program writes. The files beside it are hand-written: `geometry.mm`, which is
 the only statement of what it proves, and hand elaborations kept for
 comparison.
@@ -381,12 +381,12 @@ the readable line claims, under the `requires` lines that line carries **and**
 the lines it cites — both, or the axiom says more than the method does and the
 proof above it goes unused.
 
-Fifteen of the seventeen written files assume nothing. What is left:
+Fourteen of the sixteen written files assume nothing. What is left:
 
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `subsets-count.mm` | 3 | one item set.mm has no label for, two a `target` cannot reach |
+| `subsets-count.mm` | 4 | two items set.mm has no label for, two a `target` cannot reach |
 
 `thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn` and
 `hashnncl` — and no `target`, because what stands between each lemma and its
@@ -395,6 +395,16 @@ the item says what it drops to, which is `( k + 1 ) - 1 = k` read through the
 hypothesis saying what the size was. Nothing here rewrites by a line's equation
 while settling a side condition. `thm:powerset-split` is `open`: no set.mm
 label states it, and it wants a proof in the readable layer.
+
+`thm:powerset-split-disjoint` is `open` for a different reason, and its proof
+is held out of `proof/` until that is settled. Its step `a ∈ S ∪ {a}` rests,
+in the kernel, on a being a set, and a is a set there only because it is an
+element of X: in set.mm everything is a set, numbers and points included, so
+`elex` gives it from `a ∈ X`. A reader told `let a ∈ X`, with X a set of
+numbers, does not think a is a set. The page cannot write the fact without
+saying something the reader does not believe, and cannot leave it out without
+the kernel proof resting on something the page does not say. `READERS.md` has
+no rule for it; which of the two gives way is not decided.
 
 The assumption count is the measure that says whether a method is written or
 only named.
@@ -476,7 +486,7 @@ among the moves, and step 5.2 uses it.
 
 ## The one that does not elaborate
 
-`intermediate-value` is the seventeenth theorem and stops at line 44 of 288,
+`intermediate-value` is the sixteenth theorem and stops at line 44 of 288,
 step 8: `thm:completeness` is taken as stated and asks for
 `E. u e. RR A. s e. {...} s <_ u`, which step 8 does not supply. It gives an
 instance where the lemma wants the existential.
@@ -532,10 +542,10 @@ maintains. Missing, the stage says so and the gate is not green, the way it
 goes for ruff: a gate that skipped either would be saying green about a thing
 it had not looked at.
 
-`parley/verify.py` runs `mmverify.py` over all 30 proofs — the sixteen
+`parley/verify.py` runs `mmverify.py` over all 29 proofs — the fifteen
 theorems and `geometry.mm`'s fourteen lemmas — in about eighteen seconds,
 nearly all of which is reading set.mm. Given a file whose whole contents are
-`$[ set.mm $]` it takes 17.8 seconds, and the thirty proofs add a tenth of one.
+`$[ set.mm $]` it takes 17.8 seconds, and the proofs add a tenth of one.
 Which files that one includes is read off the `$[ ... $]` lines rather than
 listed: a proof nothing else includes is a root. A list written down would
 leave the gate green on the day a proof was added and not read.

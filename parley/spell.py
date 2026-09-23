@@ -24,9 +24,43 @@ import kernel
 from library import Signature
 
 
+class Proof(str):
+    """A proof, and what on the page it rests on.
+
+    `origin` names the things a reader can point at — a hypothesis, a block's
+    assumption, a proved line, a `requires` line — that went into this proof.
+    Library labels are not among them: they are what the page never writes.
+    `GOALS.md` decision 9 is that the kernel proof is derived from the text,
+    and this is what lets that be asked of a proof rather than assumed.
+
+    A proof is a string because everything that reads one reads it as text.
+    The text is the proof; the origin is carried beside it, so two proofs with
+    the same text and different origins compare equal, and a cache keyed on
+    the text must decide whether that is what it wants.
+    """
+
+    def __new__(cls, text, origin):
+        # Anything else would be turned into text here and carry on as a
+        # proof, which is what `seq` refuses for the same reason.
+        if not isinstance(text, str):
+            raise TypeError(f'a proof is text, not {type(text).__name__}')
+        made = super().__new__(cls, text)
+        made.origin = frozenset(origin)
+        return made
+
+
 def seq(*parts):
-    """Tokens in order, skipping any that are empty."""
-    return ' '.join(p for p in parts if p)
+    """Tokens in order, skipping any that are empty.
+
+    A proof put together from proofs rests on what they rest on. Terms and
+    formulas carry no origin and come back as plain text, which keeps the
+    common case as cheap as joining.
+    """
+    text = ' '.join(p for p in parts if p)
+    held = [p.origin for p in parts if type(p) is Proof]
+    if not held:
+        return text
+    return Proof(text, frozenset().union(*held))
 
 
 # Terms. `co` is Metamath's binary operation and most of the rest are it with
