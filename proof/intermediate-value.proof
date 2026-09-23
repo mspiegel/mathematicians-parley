@@ -61,7 +61,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     def:interval x := c, from H1, H2, 8, 11, 12
 
 14. f(c) ∈ ℝ
-    thm:function-value, from H4, 13
+    thm:function-value, from 13
 
 15. f(c) < 0 or f(c) = 0 or 0 < f(c)
     thm:trichotomy x := f(c), from 14
@@ -93,7 +93,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                     requires b ≤ b: inequalities
 
            17.1.4.  f(b) ∈ ℝ
-                    thm:function-value, from H4, 17.1.3
+                    thm:function-value, from 17.1.3
 
            17.1.5.  not f(b) < 0
                     inequalities, from H7
@@ -154,7 +154,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            instantiate x := x₁ in line 17.5, from 17.8, 17.11
 
     17.13. f(x₁) ∈ ℝ
-           thm:function-value, from H4, 17.8
+           thm:function-value, from 17.8
 
     17.14. f(x₁) − f(c) ∈ ℝ
            thm:real-closure, from 17.13, 14
@@ -244,7 +244,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                                  instantiate x := s in line 17.24, from 17.25.1, 17.25.5.3
 
                      17.25.5.5.  f(s) ∈ ℝ
-                                 thm:function-value, from H4, 17.25.1
+                                 thm:function-value, from 17.25.1
 
                      17.25.5.6.  f(s) − f(c) ∈ ℝ
                                  thm:real-closure, from 17.25.5.5, 14

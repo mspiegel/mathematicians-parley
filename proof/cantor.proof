@@ -10,7 +10,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
     thm:set-builder-subset, from D1
 
 2.  B ∈ 𝒫A
-    def:powerset S := B, from H1, 1
+    def:powerset S := B, from 1
 
 3.  For every x ∈ A, not f(x) = B.
     fix

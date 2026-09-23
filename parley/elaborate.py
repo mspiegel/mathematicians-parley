@@ -357,6 +357,7 @@ class Elaborator(Builder):
         self.discharged = {}     # by line, the proofs its own reason made
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
+        self.combined = {}           # by step line, what its method combined
         self.sorts = frozenset()     # labels of `be a set`, `be a point`
         self.defines = frozenset()   # labels of `define` lines
         self.unread = []         # and the lines of those nothing read
@@ -1734,6 +1735,15 @@ class Elaborator(Builder):
             here = inner
         return proof if here == scope else None
 
+    def combining(self, *terms):
+        """Record what a method step's claim is built from.
+
+        The claim and the sentences of cited lines the method combined —
+        which the certificate says, not every sentence a cited line says.
+        `METHODS.md`: an atom is one of these, and each is real.
+        """
+        self.combined.setdefault(self.at, set()).update(terms)
+
     def named(self, step, number, block=False):
         """What a step names, which is everything its proof may rest on.
 
@@ -2877,6 +2887,7 @@ class Elaborator(Builder):
                           or len(goal.children) != 2):
             return Declined('the claim is not an equation')
 
+        self.combining(term)
         # A `requires` line is where a step says its denominator is not
         # zero, so what the normalizer is asked is asked of those as well
         # as of the scope.
@@ -3269,6 +3280,9 @@ class Elaborator(Builder):
         if not how:
             return Declined('no sum of the cited equations is the '
                                    'claim')
+        self.combining(self.seq(left, right, 'wceq'),
+                       *(where[which][1].rpn(self.flabel)
+                         for which, _shape, _scale in how))
         pieces = []
         for which, shape, scale in how:
             ref, node = where[which]
@@ -3353,6 +3367,7 @@ class Elaborator(Builder):
                             scaled, strict=True)]
             if any(declined(one) for one in sides):
                 continue
+            self.combining(self.seq(left, right, 'wceq'), held.term)
             return self.cancel_multiple(work, times, left, right, scaled,
                                         sides, self.carried(ref, facts,
                                                             lines),
@@ -3703,6 +3718,7 @@ class Elaborator(Builder):
         claim = linear.fact(goal, self.flabel)
         if claim is None:
             return Declined('the claim is not linear')
+        self.combining(term)
         closed = self.by_antisymmetry(goal, scope, facts)
         if closed is not None:
             return closed
@@ -3717,6 +3733,7 @@ class Elaborator(Builder):
             # supposed the bound that cannot hold.
             return Declined('the cited facts refute each other')
         used = [i for i, k in found.items() if k and i < len(given)]
+        self.combining(term, *(where[i][1].rpn(self.flabel) for i in used))
         weight = found[len(given)]
         if claim.how == '=/=':
             return self.stays_apart(used, given, where, claim, scope, facts,

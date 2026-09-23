@@ -7,10 +7,10 @@ theorem isosceles
   then ∠CAB = ∠CBA
 
 1.  |AC| = |CA|
-    thm:distance-symmetric P := A, Q := C, from H1, H3
+    thm:distance-symmetric P := A, Q := C
 
 2.  |CB| = |BC|
-    thm:distance-symmetric P := C, Q := B, from H3, H2
+    thm:distance-symmetric P := C, Q := B
 
 3.  |AC| = |BC|
     calculation
@@ -19,7 +19,7 @@ theorem isosceles
            = |BC|       2
 
 4.  ∠ACB = ∠BCA
-    thm:angle-symmetric P := A, Q := C, R := B, from H1, H3, H2
+    thm:angle-symmetric P := A, Q := C, R := B
     requires A ≠ C: def:triangle, from H4
     requires B ≠ C: def:triangle, from H4
 
@@ -28,10 +28,10 @@ theorem isosceles
       |CB| = |CA|       H5, right to left
 
 6.  A, C, B form a triangle
-    thm:triangle-swap P := A, Q := B, R := C, from H1, H2, H3, H4
+    thm:triangle-swap P := A, Q := B, R := C, from H4
 
 7.  B, C, A form a triangle
-    thm:triangle-rotate P := A, Q := B, R := C, from H1, H2, H3, H4
+    thm:triangle-rotate P := A, Q := B, R := C, from H4
 
 8.  triangle ACB ≅ triangle BCA
     thm:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
@@ -41,12 +41,12 @@ theorem isosceles
     def:congruent, from 8
 
 10. ∠CAB = ∠BAC
-    thm:angle-symmetric P := C, Q := A, R := B, from H3, H1, H2
+    thm:angle-symmetric P := C, Q := A, R := B
     requires C ≠ A: def:triangle, from 7
     requires B ≠ A: def:triangle, from 7
 
 11. ∠ABC = ∠CBA
-    thm:angle-symmetric P := A, Q := B, R := C, from H1, H2, H3
+    thm:angle-symmetric P := A, Q := B, R := C
     requires A ≠ B: def:triangle, from 6
     requires C ≠ B: def:triangle, from 6
 

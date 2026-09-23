@@ -10,6 +10,7 @@ that needs the elaborator.
 Usage:  parley/check.py [root]
 Exits non-zero when anything is reported.
 """
+import copy
 import re
 import sys
 import unicodedata
@@ -871,6 +872,14 @@ def supply(patterns, facts, binding, variables, library,
                               binding, variables)
             if found is None:
                 continue
+            # A "there is" given by an instance is given only where the
+            # instance is in the domain: `rspcev` asks it, and the step's
+            # requires lines are where `SYNTAX.md` has a witness named —
+            # `exhibit` over ℤ writes `requires 1 ∈ ℤ`. Matching the body
+            # alone took any value at all.
+            if form is not first and not witnessed_in(
+                    first, found, facts, seen, library, sites):
+                continue
             # A fact is used once when nothing has pinned the binding yet, or
             # a variable free in two hypotheses binds to whatever made the
             # first of them match and the second is then satisfied by the same
@@ -891,6 +900,29 @@ def supply(patterns, facts, binding, variables, library,
             if done is not None:
                 return done
     return None
+
+
+def witnessed_in(exists, binding, facts, variables, library, sites):
+    """Whether one of the facts puts each value a "there is" was given in the
+    domain it ranges over.
+
+    The pattern names its variables before its body, one name and one domain
+    at a time.
+    """
+    pairs = exists.children[:-1]
+    for name, domain in zip(pairs[0::2], pairs[1::2], strict=True):
+        if name.notation != 'name':
+            continue
+        value = binding.get(name.text)
+        if value is None:
+            return False
+        if not any(f.notation in library.members and len(f.children) == 2
+                   and f.children[0].shape() == value.shape()
+                   and match(domain, f.children[1], binding, variables,
+                             library.props, sites) is not None
+                   for f in facts):
+            return False
+    return True
 
 
 def statements_in_scope(thm):
@@ -1060,6 +1092,76 @@ def check_requires(report, thm, library):
     defined = definitions_in_scope(thm, g)
     scope = statements_in_scope(thm)
 
+    for step in thm.steps:
+        for no, named in unconcluded(step, scope, library, sorts, defined):
+            report.say(thm.path, no,
+                       f'the requires line of step {fmt(step.number)} '
+                       f'needs something that {named} does not conclude')
+
+
+def check_surplus(report, thm, library):
+    """What an item citation names, it needs.
+
+    `DATABASE.md` holds that a named thing doing no work is an error, the
+    shape of a `target` that never fires. For a step citing an item, the
+    item's statement says what is needed and the two checks above say
+    whether it is supplied; taking each named line away in turn and asking
+    them again says which lines supply it. One whose absence changes nothing
+    was supplying nothing. A requires line another one of the step leans on
+    is kept by the second check. A define is not asked about: citing one
+    names what a symbol means and supplies no fact.
+    """
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
+    scope = statements_in_scope(thm)
+    defines = {d[2] for d in thm.defines}
+
+    def holds(step):
+        if unsupplied(step, scope, library, sorts, defined) is not None \
+                or unconcluded(step, scope, library, sorts, defined):
+            return False
+        # What the step claims follows from what the item concludes and
+        # what the step names: a definition read either way takes the other
+        # side from a cited line, which asks for it as surely as a
+        # hypothesis does.
+        groups = library.groups(step.just.head.split(':', 1)[1])
+        facts, claims, seed = citation_parts(step, step.just, scope, library,
+                                             sorts, defined)
+        return not claims or concludes(groups, claims, facts, seed, library)
+
+    for step in thm.steps:
+        just = step.just
+        if not just or not just.head.startswith(('def:', 'thm:')) \
+                or library.groups(just.head.split(':', 1)[1]) is None \
+                or not holds(step):
+            continue
+        for ref in dict.fromkeys(just.refs):
+            if ref in defines:
+                continue
+            lighter = copy.copy(step)
+            lighter.just = copy.copy(just)
+            lighter.just.refs = [r for r in just.refs if r != ref]
+            if holds(lighter):
+                report.say(thm.path, just.line,
+                           f'step {fmt(step.number)} cites {ref}, and '
+                           f'{just.head} asks for nothing it says')
+        for i, (fact, _how, no) in enumerate(step.requires):
+            lighter = copy.copy(step)
+            lighter.requires = step.requires[:i] + step.requires[i + 1:]
+            if holds(lighter):
+                report.say(thm.path, no,
+                           f'the requires line of step {fmt(step.number)} '
+                           f'says {fact}, and neither {just.head} nor the '
+                           f'step\'s other lines ask for it')
+
+
+def unconcluded(step, scope, library, sorts, defined):
+    """The requires lines of a step whose item does not conclude them, as
+    (line, item) pairs.
+    """
+    g = library.g
+
     def read(text):
         g.sorts = sorts
         try:
@@ -1067,41 +1169,38 @@ def check_requires(report, thm, library):
         except Problem:
             return None
 
-    for step in thm.steps:
-        for fact, how, no in step.requires:
-            named = re.match(rf'^(def|thm):({NAME})', how)
-            if not named:
-                continue
-            groups = library.groups(named.group(2))
-            if groups is None:
-                continue
-            claims = [x for x in map(read, sentences(fact)) if x is not None]
-            if not claims:
-                continue
-            refs, _bad = requires_refs(how)
-            supplied = []
-            for ref in refs:
-                if ref in scope:
-                    supplied += sentences(scope[ref])
-            # A requires line may not cite another, but the facts its
-            # siblings state are established for the same step and are what
-            # a dull fact its own citation asks for is written as.
-            supplied += [other for other, _, _ in step.requires
-                         if other != fact]
-            facts = [x for x in map(read, supplied) if x is not None]
-            seed = {}
-            for name, value in instantiation(how):
-                got = read(value)
-                if got is not None:
-                    seed[name] = got
-            if concludes(groups, claims, facts, seed, library):
-                continue
-            if all(derives(c, groups, facts, library) for c in claims):
-                continue
-            report.say(thm.path, no,
-                       f'the requires line of step {fmt(step.number)} '
-                       f'needs something that {named.group(0)} does not '
-                       f'conclude')
+    out = []
+    for fact, how, no in step.requires:
+        named = re.match(rf'^(def|thm):({NAME})', how)
+        if not named:
+            continue
+        groups = library.groups(named.group(2))
+        if groups is None:
+            continue
+        claims = [x for x in map(read, sentences(fact)) if x is not None]
+        if not claims:
+            continue
+        refs, _bad = requires_refs(how)
+        supplied = []
+        for ref in refs:
+            if ref in scope:
+                supplied += sentences(scope[ref])
+        # A requires line may not cite another, but the facts its siblings
+        # state are established for the same step and are what a dull fact
+        # its own citation asks for is written as.
+        supplied += [other for other, _, _ in step.requires if other != fact]
+        facts = [x for x in map(read, supplied) if x is not None]
+        seed = {}
+        for name, value in instantiation(how):
+            got = read(value)
+            if got is not None:
+                seed[name] = got
+        if concludes(groups, claims, facts, seed, library):
+            continue
+        if all(derives(c, groups, facts, library) for c in claims):
+            continue
+        out.append((no, named.group(0)))
+    return out
 
 
 def derives(claim, groups, facts, library, depth=5):
@@ -1151,30 +1250,36 @@ def check_hypotheses(report, thm, library):
 
     for step in thm.steps:
         just = step.just
-        if not just or not just.head.startswith(('def:', 'thm:')):
-            continue
-        groups = library.groups(just.head.split(':', 1)[1])
-        if groups is None:
-            continue                      # a pointer that resolves to nothing
-        facts, _, seed = citation_parts(step, just, scope, library, sorts,
-                                        defined)
-
-        missing = None
-        for want, _ in groups:
-            if not want:
-                missing = None
-                break
-            variables = set().union(*(names(t) for _, t in want))
-            if supply([t for _, t in want], facts,
-                      dict(seed), variables, library, frozenset()) is not None:
-                missing = None
-                break
-            missing = [t for t, _ in want]
+        missing = unsupplied(step, scope, library, sorts, defined)
         if missing is not None:
             report.say(thm.path, just.line,
                        f'step {fmt(step.number)} cites {just.head}, which asks '
                        f'for {"; ".join(missing)}, and what it cites does not '
                        f'supply them')
+
+
+def unsupplied(step, scope, library, sorts, defined):
+    """The hypotheses of the item a step cites that nothing it names supplies,
+    or None where they are supplied or the step cites no item.
+    """
+    just = step.just
+    if not just or not just.head.startswith(('def:', 'thm:')):
+        return None
+    groups = library.groups(just.head.split(':', 1)[1])
+    if groups is None:
+        return None                       # a pointer that resolves to nothing
+    facts, _, seed = citation_parts(step, just, scope, library, sorts,
+                                    defined)
+    missing = None
+    for want, _ in groups:
+        if not want:
+            return None
+        variables = set().union(*(names(t) for _, t in want))
+        if supply([t for _, t in want], facts,
+                  dict(seed), variables, library, frozenset()) is not None:
+            return None
+        missing = [t for t, _ in want]
+    return missing
 
 
 def sentences(text):
@@ -1484,6 +1589,7 @@ def main(root):
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
         check_requires(report, thm, library)
+        check_surplus(report, thm, library)
         check_last_step(report, thm)
         check_readings(report, thm)
         check_introductions(report, thm)

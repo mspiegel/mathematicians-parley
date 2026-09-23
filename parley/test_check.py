@@ -62,8 +62,8 @@ CASES = [
 
     ('number a step under a parent that does not exist',
      'proof/cantor.proof',
-     '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1',
-     '2.9.4.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1',
+     '2.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
+     '2.9.4.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
      'does not exist'),
 
     ('use a part marker the method does not declare',
@@ -262,8 +262,8 @@ CASES = [
 
     ('note a step that opens no block',
      'proof/cantor.proof',
-     '2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1',
-     ('2.  B ∈ 𝒫A\n    def:powerset S := B, from H1, 1\n'
+     '2.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
+     ('2.  B ∈ 𝒫A\n    def:powerset S := B, from 1\n'
       '    note this is where B becomes a member'),
      'opens no block'),
 
@@ -344,6 +344,32 @@ CASES = [
      'definition irrational\n  first-used  sqrt2-irrational\n'
      '  then        x is irrational',
      'a second time'),
+
+    # Everything a citation names does work. Line 1 says a + b ∈ ℝ, which
+    # is what `thm:nonneg-or-neg` asks; H1 says a ∈ ℝ, which it does not.
+    ('cite a line the cited item asks nothing of',
+     'proof/triangle-inequality.proof',
+     '    thm:nonneg-or-neg x := a + b, from 1\n',
+     '    thm:nonneg-or-neg x := a + b, from 1, H1\n',
+     'step 2 cites H1, and thm:nonneg-or-neg asks for nothing it says'),
+
+    # A "there is" given by an instance is given only where the instance is
+    # in the domain. Bezout's step 2 puts a in S by exhibiting 1 and 0, and
+    # without `requires 1 ∈ ℤ` the 1 could be anything.
+    ('exhibit a witness without saying it is in the domain',
+     'proof/bezout.proof',
+     '    def:set-builder u := a, from H1, 1\n    requires 1 ∈ ℤ: arithmetic\n',
+     '    def:set-builder u := a, from H1, 1\n',
+     'step 2 claims something that def:set-builder does not conclude'),
+
+    # A sort is stated once, like a declared type, and a step does not cite
+    # it to rely on it (`READERS.md`): citing one names a line that does no
+    # work.
+    ('cite the line that says what kind of thing a name is',
+     'proof/isosceles.proof',
+     '    thm:distance-symmetric P := A, Q := C\n',
+     '    thm:distance-symmetric P := A, Q := C, from H1\n',
+     'step 1 cites H1, and thm:distance-symmetric asks for nothing it says'),
 ]
 
 

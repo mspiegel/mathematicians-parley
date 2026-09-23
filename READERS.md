@@ -88,15 +88,21 @@ demands it is, and that is the test every other dull fact is held to. An
 exemption here would be the first place the text asked a reader to supply
 something the page does not say.
 
-**A sort is stated once, and is not a dull fact.** `let X be a set` and `let
-A be a point` say what kind of thing a name is, the way a declared type does
-in a program. That holds for every step in the scope the line opens, and no
-step cites it to rely on it: once X is declared a set, a step using that X is
-a set says nothing the page has not already said. This is not the exemption
+**A sort is stated once, and is not a dull fact.** `let X be a set`, `let
+A be a point` and `let f : A → B` say what kind of thing a name is, the way a
+declared type does in a program. That holds for every step in the scope the
+line opens, and no step cites it to rely on it: once X is declared a set, a
+step using that X is a set says nothing the page has not already said. So a
+step does not cite a sort at all — a citation says the step uses what the
+line says, and this one uses nothing the reader does not already have — and
+the checker reports one that does, as it reports any cited line doing no
+work. Nor does a step write that a set built from sets is a set: `X ∖ {a}`
+is a set because X is, which is the sort again. This is not the exemption
 refused above. `let n ∈ ℤ` says what n is too, but it does so by a membership
 claim a cited item may demand, and that is written wherever it is demanded.
 The two are told apart by the form of the line, as `SYNTAX.md` gives it: `be
-a set` and `be a point` are introductions and never formulas.
+a set`, `be a point` and a function's arrow are introductions and never
+formulas.
 
 **Justification vocabulary.** The initial list of methods a step may cite.
 Each is defined in the database with a specified expansion, and each use
