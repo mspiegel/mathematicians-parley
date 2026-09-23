@@ -701,7 +701,8 @@ theorem card-singleton
 
 theorem card-nonempty
   let X be a set                                                      (H1)
-  assume |X| = k + 1                                                  (H2)
+  let k ∈ ℕ₀                                                          (H2)
+  assume |X| = k + 1                                                  (H3)
   then        there is a ∈ X
   metamath    hashnncl, n0
   first-used  subsets
@@ -712,7 +713,8 @@ theorem card-nonempty
 theorem card-remove
   let X be a set                                                      (H1)
   let a ∈ X                                                           (H2)
-  assume |X| = k + 1                                                  (H3)
+  let k ∈ ℕ₀                                                          (H3)
+  assume |X| = k + 1                                                  (H4)
   then        |X ∖ {a}| = k
   metamath    hashdifsn
   first-used  subsets

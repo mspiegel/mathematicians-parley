@@ -386,6 +386,18 @@ CASES = [
      '    obtain c: thm:completeness S := S, from 5, 2, 7, H3',
      'step 8 cites H3, and thm:completeness asks for nothing it says'),
 
+    # An item with no target is assumed as it states itself. This one said
+    # |X| = k + 1 without saying what k was, and at k = −1 and X = ∅ the
+    # axiom it became was false.
+    ('leave open a name an item uses as a number',
+     'db/items.records',
+     'theorem card-nonempty\n'
+     '  let X be a set                                                      (H1)\n'
+     '  let k ∈ ℕ₀                                                          (H2)\n',
+     'theorem card-nonempty\n'
+     '  let X be a set                                                      (H1)\n',
+     'theorem card-nonempty: k stands where a number goes'),
+
     ('obtain from a definition without the line it unfolds',
      'proof/sqrt2-irrational.proof',
      '    obtain k: def:odd n := n, from H1, H2',

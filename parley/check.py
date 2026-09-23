@@ -1394,6 +1394,65 @@ def check_statements(report, records, g):
                     report.say(r.path, no, f'{r.kind} {r.name}: {p.message}')
 
 
+def check_unsorted(report, records, g):
+    """A name an item treats as a number, a `let` says is one.
+
+    An item with no target is assumed exactly as it states itself, so a name
+    it leaves open is read as anything at all. `thm:card-nonempty` said
+    `assume |X| = k + 1` and never what k was; at k = −1 and X = ∅ its
+    hypotheses held and its conclusion did not, and the kernel accepted the
+    axiom. A name of no known sort standing where the notation wants a number
+    is that shape. One a binder introduces is spoken for, and so is the name
+    a definition's conclusion defines over, which is true of every value.
+    """
+    shapes = {}
+    for n in g.notations:
+        shapes.setdefault(n.stands_under or n.name, []).append(n.holes)
+        shapes.setdefault(n.name, []).append(n.holes)
+
+    def wanted(node, i):
+        return {h[i] for h in shapes.get(node.notation, []) if i < len(h)}
+
+    def bound(node, out):
+        for i, kid in enumerate(node.children):
+            if 'variable' in wanted(node, i):
+                out.add(kid.text)
+            bound(kid, out)
+        return out
+
+    def open_numbers(node, spoken, out):
+        for i, kid in enumerate(node.children):
+            if (kid.notation == 'name' and kid.sort in (None, 'unknown')
+                    and kid.text not in spoken
+                    and wanted(node, i) == {'number'}):
+                out.append(kid.text)
+            open_numbers(kid, spoken, out)
+        return out
+
+    for r in records:
+        if r.kind not in ('definition', 'theorem'):
+            continue
+        places = [(text, no) for kind, text, _, no in r.hypotheses
+                  if kind == 'assume']
+        if r.kind == 'theorem':
+            places += list(r.conclusions)
+        for text, no in places:
+            for sentence in SENTENCES.split(LABEL_AT_END.sub('', text).strip()):
+                sentence = sentence.strip().rstrip('.').strip()
+                if not sentence:
+                    continue
+                g.sorts = sorts_of_record(r)
+                try:
+                    tree = parse(sentence, g)
+                except Problem:
+                    continue                  # check_statements says so
+                for name in dict.fromkeys(open_numbers(tree, bound(tree, set()),
+                                                       [])):
+                    report.say(r.path, no,
+                               f'{r.kind} {r.name}: {name} stands where a '
+                               f'number goes, and no let says what {name} is')
+
+
 def check_symbols(report, records):
     """A definition that introduces a symbol says which, and is alone in it.
 
@@ -1651,6 +1710,7 @@ def main(root):
 
     grammar = Grammar.load(records)
     check_statements(report, records, grammar)
+    check_unsorted(report, records, grammar)
     check_symbols(report, records)
 
     library = Library(records, theorems, grammar)

@@ -421,6 +421,15 @@ item's hypotheses, the axiom would say that every |x − c| is below every δ,
 and the kernel accepts whatever is assumed. Anything else is a defect naming
 both statements.
 
+Stated as it says, an item is only as true as what it says, and a name it
+leaves open is read as anything at all. `thm:card-nonempty` said `assume
+|X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
+false. So `check.py` refuses a name of no known sort standing where a notation
+wants a number, in any item's assumptions and any theorem's conclusion; a
+bound name is spoken for, and so is the name a definition defines over.
+Nothing checks that an item's statement is true beyond that. The list at the
+head of each file is what to read when it changes.
+
 Fourteen of the seventeen written files assume nothing. What is left:
 
 | file | `$a` | what |
