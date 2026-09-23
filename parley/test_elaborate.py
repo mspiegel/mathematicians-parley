@@ -96,6 +96,15 @@ CASES = [
      '    requires C ≠ A: def:triangle, from 6',
      'proof/isosceles.proof:43  def:triangle, from 6 does not reach'),
 
+    # The same, where the scope already holds the claim for another reason:
+    # the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
+    # the line is read, and line 7 does not say it.
+    ('name a line that does not state a claim the scope already holds',
+     'isosceles', 'proof/isosceles.proof',
+     '    requires A ≠ B: def:triangle, from 6',
+     '    requires A ≠ B: def:triangle, from 7',
+     'proof/isosceles.proof:48  def:triangle, from 7 does not reach'),
+
     # `decide_field` refuses a claim that is not an identity. It is raised
     # outside the handler that falls back to stating the step, and must
     # stay that way.

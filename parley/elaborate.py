@@ -322,6 +322,7 @@ class Elaborator(Builder):
         self.reserved = set()    # setvars the conclusion quantifies over
         self.supplying = set()   # `requires` terms being discharged now
         self.consulted = set()   # lines of the `requires` lines read so far
+        self.discharged = {}     # by line, the proofs its own reason made
         self.unread = []         # and the lines of those nothing read
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
@@ -3265,9 +3266,8 @@ class Elaborator(Builder):
             negated, goal = True, goal.children[0]
         # Belonging to a number system is the other thing a claim with no
         # atom can say, and `METHODS.md` puts every such claim under this
-        # method. Asking only about relations left `2 e. ZZ` to be settled
-        # from whatever `targets.MEMBERSHIP` reached, so the line said
-        # `arithmetic` and the proof came from a table.
+        # method, so a line saying `arithmetic` for `2 e. ZZ` is decided here
+        # rather than by whatever `targets.MEMBERSHIP` reaches.
         if not negated and goal.variable is None and goal.label == 'wcel' \
                 and len(goal.children) == 2:
             return self.numeral_within(goal, scope, facts)
@@ -5400,14 +5400,44 @@ class Elaborator(Builder):
             self.consulted.add(line)
             want = self.read(text)
             term = self.term(want)
-            if term in known or term in self.supplying:
+            if term in self.supplying:
                 continue
+            # A claim the scope already holds is taken as it stands only
+            # where this line's own reason made that proof. This runs more
+            # than once for a step, and what one pass proves is passed on to
+            # the next, so that is the common case. Held for any other
+            # reason, the proof rests on something the line does not say:
+            # `isosceles` holds `A ≠ B` from its hypothesis, and the line
+            # asking for it says it comes from line 6. A line resting on the
+            # lines it cites is always read from them, which is a lookup.
+            given = known
+            if term in known and not self.rests_on_lines(how):
+                if known[term] in self.discharged.get(line, ()):
+                    continue
+                given = {k: v for k, v in known.items() if k != term}
             self.supplying.add(term)
             try:
-                known[term] = self.side(want, how, scope, known, step)
+                known[term] = self.side(want, how, scope, given, step)
             finally:
                 self.supplying.discard(term)
+            self.discharged.setdefault(line, set()).add(known[term])
         return known
+
+    def rests_on_lines(self, how):
+        """Whether a `requires` line's reason is the lines it cites.
+
+        `from H1` is, and so is a definition the database gives no target
+        for, which the notation folds into the line it is unfolded at.
+        """
+        reason = how.strip().split(',')[0].strip()
+        if reason.startswith('from '):
+            return True
+        kind, _, name = reason.partition(':')
+        if kind != 'def' or not name.strip():
+            return False
+        item = self.items.get(name.split()[0])
+        return item is not None and item.kind == 'definition' \
+            and not targets.clauses(item)
 
     def unfolded_at(self, term, scope, facts, refs):
         """What a line a `requires` line names says, taken apart.
@@ -5416,13 +5446,8 @@ class Elaborator(Builder):
         folds away, so there is nothing in the library to cite and the
         unfolding is the line itself: `A, B, C form a triangle` is four
         claims conjoined, and a line asking for one of them is asking for a
-        conjunct of the line it names.
-
-        Settling instead reached the same claim wherever the scope happened
-        to hold it. `isosceles` says `C ≠ A` comes from the line stating
-        that B, C, A form a triangle, and the proof took it from the
-        theorem's own hypothesis and turned it with `necom`; the line the
-        page named went unused and nothing said so.
+        conjunct of the line it names. A `from H1` reason asks the same of
+        the line it names, with no definition between.
         """
         for ref in refs:
             line = self.lines.get(ref)
@@ -5444,6 +5469,16 @@ class Elaborator(Builder):
         than the line says and leaves 3.1 unused.
         """
         term = self.term(want)
+        # Read from the lines it cites before the scope is asked, since the
+        # scope may hold the same claim for another reason.
+        if self.rests_on_lines(how):
+            found = self.unfolded_at(term, scope, facts, citations(how))
+            if declined(found):
+                raise self.defect(self.at,
+                                  f'{how.strip()} does not reach '
+                                  f'{self.render(term)}, which this line '
+                                  f'claims it supplies')
+            return found
         if term in facts:
             return facts[term]
         closure = how.strip().split(',')[0].strip()
@@ -5456,32 +5491,22 @@ class Elaborator(Builder):
             if not declined(found):
                 return found
         # A line naming an item is that item cited, the same as a step
-        # naming it. `GOALS.md` decision 9 is why this stands before the two
-        # routes below rather than after them: the readable text is canonical
-        # and the kernel proof is derived from it, so what the line says
-        # supplies the fact is what supplies it. Settling first reached the
-        # same fact through whatever `targets.MEMBERSHIP` holds, which
-        # derives the proof from the claim and a table.
+        # naming it. `GOALS.md` decision 9 is why this stands before the
+        # routes below: the readable text is canonical and the kernel proof
+        # is derived from it, so what the line says supplies the fact is
+        # what supplies it, and not whatever `targets.MEMBERSHIP` reaches.
         #
         # Only where the item has a target. Citing one without is assuming
         # it, and the lists at the head of each elaborated file are what
-        # `GEOMETRY.md` measures the corpus by: settling such a line proves
-        # what assuming it would not.
+        # `GEOMETRY.md` measures the corpus by.
         #
         # The name ends at the first space, because what follows it is the
         # instantiation: `thm:abs-real x := a, from H1` names `abs-real` and
-        # not `abs-real x := a`. Taking the whole of it looked the item up
-        # under a name no item has, so every line that bound a variable fell
-        # past this to be settled — which is what it did while this stood
-        # last and nothing noticed.
+        # not `abs-real x := a`.
         if step is not None and closure.split(':', 1)[0] in ('thm', 'def'):
             item = self.items.get(closure.split(':', 1)[1].split()[0])
             if item is not None and targets.clauses(item):
                 return self.cite_item(step, term, scope, facts, item, how)
-            if item is not None and item.kind == 'definition':
-                found = self.unfolded_at(term, scope, facts, citations(how))
-                if not declined(found):
-                    return found
         if closure == 'arithmetic':
             # A value is the other thing `arithmetic` decides, and a closed
             # one is an identity of the field with no atoms in it, so it
@@ -5500,13 +5525,11 @@ class Elaborator(Builder):
                                      self.lines)
             if not declined(found):
                 return found
-        # Nothing generic stands here. Settling reached the claim from
-        # wherever the scope happened to hold it, so the proof rested on
-        # something other than the reason the line gave and left no trace of
-        # having done so: the file verified, and the justification went
-        # unused. What is left is a method saying at the head of the file
-        # that it was not expanded, or an error naming the line — a claim
-        # supplied by neither is one this cannot write down honestly.
+        # Nothing generic stands here. A route that settles the claim from
+        # wherever the scope holds it rests the proof on something other than
+        # the reason the line gives, and the file still verifies, so nothing
+        # would show it. What is left is a method saying at the head of the
+        # file that it was not expanded, or an error naming the line.
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
             # same way a step does, and is listed the same way: under what

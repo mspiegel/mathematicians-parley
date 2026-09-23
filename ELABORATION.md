@@ -299,15 +299,17 @@ is proved by the reason that line gives, or the elaborator says it cannot.
 
 `side` is where one line is discharged, and it tries, in order:
 
-1. the facts already in scope;
-2. the method the line names, both halves of it, where it names a method;
-3. the item the line names, where the item has a `target` — the same citation a
-   step naming it makes;
-4. the line the page cites, taken apart, where the item is a definition with no
-   `target`. Such a definition is one the notation folds away, so there is
-   nothing in the library to cite and the unfolding is the cited line itself:
-   `A, B, C form a triangle` is four claims conjoined, and a line asking for one
-   of them is asking for a conjunct of the line it names.
+1. the lines the page cites, taken apart, where the reason is those lines — a
+   `from H1`, or a definition with no `target`. Such a definition is one the
+   notation folds away, so there is nothing in the library to cite and the
+   unfolding is the cited line itself: `A, B, C form a triangle` is four claims
+   conjoined, and a line asking for one of them is asking for a conjunct of the
+   line it names. This comes before the scope, because the scope may hold the
+   same claim for another reason;
+2. the facts already in scope;
+3. the method the line names, both halves of it, where it names a method;
+4. the item the line names, where the item has a `target` — the same citation a
+   step naming it makes.
 
 Nothing generic stands after those. A claim that none of them supplies is
 either a method stated at the head of the file as unexpanded, or an error
@@ -339,6 +341,15 @@ than by the item's own letters, which is why a `requires` line needs no
 built, and `required`, which answers a lemma asking for one. A method's
 hypotheses are a rule over the claim's own atoms, so every line a method step
 carries is one it asked for.
+
+**A line read is a line whose reason is used.** `supplied` runs more than once
+for a step and passes on what each pass proves, so a line's claim is often held
+by the time it is read again. It is skipped only where the proof held is one
+this line's own reason made, which `discharged` records by line; a line resting
+on the lines it cites is always read from them. Otherwise the line is
+discharged by its reason, and a reason that does not reach the claim is an
+error. `test_elaborate.py` points `isosceles`'s `A ≠ B` at a line that does not
+say it, where the hypothesis does.
 
 ### Facts the text never writes
 
@@ -462,22 +473,6 @@ rather than a shrug.
 Not this, which is a stated move and correct: citing an item that concludes
 more than the step takes. `DATABASE.md` lists *a claim taking one conjunct*
 among the moves, and step 5.2 uses it.
-
-**A `requires` line may be read and then discarded.** The unread guard proves a
-reader iterated over the line; it says nothing about the result being used.
-`supplied` records the line and then skips it where the scope already holds
-what it says, so the line passes while its reason does no work. Eighteen of the
-117 lines in the sixteen elaborated theorems take that path — `from H1` in
-`abs-bounds` and `triangle-inequality`, `def:triangle` in `isosceles`, `from 1`
-in `geometric-sum`. In each of the eighteen the line the page names does state
-the claim, so the corpus is sound; nothing in the tools enforces that.
-
-These two are one question asked from opposite sides. A line read and discarded
-is a line whose presence changed nothing, which is what surplus naming is. Both
-want the same thing and neither has it: **the elaborator does not record why it
-knows each fact.** With that, a named thing appearing in no fact's provenance is
-surplus, and a line whose reason is absent from the provenance of the fact used
-was discarded.
 
 ## The one that does not elaborate
 
