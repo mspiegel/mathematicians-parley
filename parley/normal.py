@@ -27,7 +27,7 @@ from field import NUMERAL, order, spell_monomial
 from parse import Declined, declined
 from spell import Builder, seq
 
-ADD, MUL, EXP, DIV = 'caddc', 'cmul', 'cexp', 'cdiv'
+ADD, MUL, EXP, DIV, SUB = 'caddc', 'cmul', 'cexp', 'cdiv', 'cmin'
 
 
 
@@ -1474,7 +1474,7 @@ class Emitter(Builder):
             left, right = term.children[0], term.children[1]
             if how == field.DIV:
                 return self.quotient_of(left, right, labels, said)
-            if how in (field.ADD, field.MUL):
+            if how in (field.ADD, field.SUB, field.MUL):
                 return self.quotient_joined(how, left, right, labels, said)
             if how == field.EXP:
                 return self.quotient_raised(left, right, labels, said)
@@ -1549,12 +1549,14 @@ class Emitter(Builder):
                        held, nonzero)
 
     def quotient_joined(self, how, left, right, labels, said):
-        """`a + b` or `a x. b` where one of them divides.
+        """`a + b`, `a - b` or `a x. b` where one of them divides.
 
-        `divadddiv` and `divmuldiv` say what the pair becomes, and the
-        numerator and denominator they land on are then multiplied out by
-        the operations above.
+        `divadddiv`, `divsubdiv` and `divmuldiv` say what the pair becomes,
+        and the numerator and denominator they land on are then multiplied
+        out by the operations above. A difference is what `inequalities`
+        asks of every claim it proves, so a claim about `δ/2` lands here.
         """
+        written = {field.ADD: ADD, field.SUB: SUB, field.MUL: MUL}[how]
         quotients = []
         for side in (left, right):
             made = self.normalize_quotient(side, labels)
@@ -1568,9 +1570,26 @@ class Emitter(Builder):
                          {'ph': self.under, 'A': left.rpn(labels),
                           'B': op(a, b, DIV), 'C': right.rpn(labels),
                           'D': op(c, d, DIV),
-                          'F': ADD if how == field.ADD else MUL},
+                          'F': written},
                          first, second)
-        if how == field.ADD:
+        if how == field.SUB:
+            # The numerator a difference lands on is two products, the
+            # second taken from the first, which `subtracted` does to runs.
+            label, top = 'divsubdiv', op(op(a, d, MUL), op(c, b, MUL), SUB)
+            made = self.multiply(over, beneath)
+            if declined(made):
+                return made
+            first_items, one = made
+            made = self.multiply(below, under)
+            if declined(made):
+                return made
+            second_items, two = made
+            made = self.subtracted(op(a, d, MUL), op(c, b, MUL),
+                                   first_items, one, second_items, two, top)
+            if declined(made):
+                return made
+            made, numerator = made
+        elif how == field.ADD:
             # The numerator a sum lands on is two products added, so each
             # is multiplied out and then the two of them joined.
             label, top = 'divadddiv', op(op(a, d, MUL), op(c, b, MUL), ADD)
@@ -1617,8 +1636,7 @@ class Emitter(Builder):
              'ch': seq(seq(seq(b, 'cc', 'wcel'), seq(b, 'cc0', 'wne'), 'wa'),
                        seq(seq(d, 'cc', 'wcel'), seq(d, 'cc0', 'wne'), 'wa'),
                        'wa'),
-             'th': self.seq(op(op(a, b, DIV), op(c, d, DIV),
-                          ADD if how == field.ADD else MUL),
+             'th': self.seq(op(op(a, b, DIV), op(c, d, DIV), written),
                        op(top, bottom, DIV), 'wceq')},
             self.ap('jca', {'ph': self.under, 'ps': self.seq(a, 'cc', 'wcel'),
                             'ch': self.seq(c, 'cc', 'wcel')},
@@ -1633,8 +1651,7 @@ class Emitter(Builder):
         low, denominator = multiplied
         return made, low, self.chain(
             self.chain(joined, spread, said,
-                       op(op(a, b, DIV), op(c, d, DIV),
-                          ADD if how == field.ADD else MUL),
+                       op(op(a, b, DIV), op(c, d, DIV), written),
                        op(top, bottom, DIV)),
             self.ap('oveq12d',
                     {'ph': self.under, 'A': top,

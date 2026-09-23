@@ -291,6 +291,24 @@ theorem real-closure
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
 
+theorem half-real
+  let x ∈ ℝ                                                           (H1)
+  then        x/2 ∈ ℝ
+  metamath    rehalfcl
+  target      rehalfcl
+  first-used  intermediate-value
+
+theorem half-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        x/2 > 0
+  metamath    halfpos2
+  target      halfpos2 with A := x
+  first-used  intermediate-value
+  note        `inequalities` reads x/2 as half of x, and a certificate asking
+              for half of a bound is not written; saying this once lets every
+              step after it combine bounds whole.
+
 theorem nat0-closure
   let k ∈ ℕ₀                                                          (H1)
   then        k + 1 ∈ ℕ₀
@@ -841,17 +859,11 @@ theorem completeness
               is ever in the corpus is a question about the foundation.
 
 theorem point-right
-  let c ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  let δ ∈ ℝ                                                           (H3)
-  assume c < b                                                        (H4)
-  assume δ > 0                                                        (H5)
-  then        there is x ∈ ℝ with c < x, x ≤ b, and x − c < δ
-  open        no set.mm label; take the smaller of b and c + δ/2, then the
-              midpoint
+  proved-in   proof/intermediate-value.proof
   first-used  intermediate-value
-  note        Exists only because the language has no min notation and its case
-              split. Textbooks write "take x = min(b, c + δ/2)".
+  note        Exists only because the language has no min notation. Textbooks
+              write "take x = min(b, c + δ/2)"; the proof splits on whether
+              b − c < δ and takes b or c + δ/2.
 
 
 # -------------------------------------------------------------- geometry

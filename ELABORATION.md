@@ -283,6 +283,11 @@ numeral fact the step does not cite. A number is at most itself by `leidd`,
 citing nothing. A cited bound stated as a denial is turned round first:
 `not A < B` is `B ≤ A` by `lenlt`, and `not A ≤ B` is `B < A` by `ltnle`.
 
+A claim about a quotient is built the same way: the normaliser brings a sum,
+a difference or a product of quotients to one numerator over one denominator
+(`divadddiv`, `divsubdiv`, `divmuldiv`), so `point-right`'s `c < c + δ/2`
+comes from `δ/2 > 0` like any other bound.
+
 What is unwritten is a combination of more than two bounds, and one that
 scales a bound by a number other than one: the certificate may ask for either,
 and no step in the corpus does.
@@ -473,13 +478,14 @@ Every written file but three assumes nothing. What is left:
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
 | `subsets-count.mm` | 3 | `thm:powerset-split`, which set.mm has no label for, and two a `target` cannot reach |
-| `intermediate-value.mm` | 3 | continuity, and two items with no `target` |
+| `intermediate-value.mm` | 2 | continuity and completeness |
 
 What `intermediate-value` states is not one lemma away. set.mm's
 continuity, `elcncf2`, quantifies over ℝ⁺ and measures |c − x| where the
 readable definition says ε ∈ ℝ with ε > 0 and |x − c|. Its completeness,
 `sup2`, concludes a supremum where `thm:completeness` concludes a least upper
-bound. `thm:point-right` has no set.mm label and wants a readable proof.
+bound. `thm:point-right`, which set.mm has no label for, is proved at the head
+of the same file.
 
 `thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn` and
 `hashnncl` — and no `target`, because what stands between each lemma and its

@@ -71,14 +71,16 @@ class Artifact:
 # `geometric-sum` from `proof/geometric-series.proof`, `subsets-count`,
 # `add-element-bijection` and `powerset-split-disjoint` from
 # `proof/subsets.proof`, both
-# `least-combination-divides` and `bezout` from `proof/bezout.proof`, and
-# several from `proof/sqrt2-irrational.proof`, which holds the theorem it is
-# named for and the ones it leans on.
+# `least-combination-divides` and `bezout` from `proof/bezout.proof`,
+# `point-right` from `proof/intermediate-value.proof`, and several from
+# `proof/sqrt2-irrational.proof`, which holds the theorem it is named for and
+# the ones it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
             'least-combination-divides', 'bezout', 'powerset-split-disjoint',
-            'add-element-bijection', 'subsets-count', 'intermediate-value')
+            'add-element-bijection', 'subsets-count', 'point-right',
+            'intermediate-value')
 
 # The proofs worked out by hand, some of which share their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`

@@ -1,3 +1,61 @@
+theorem point-right
+  let c ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let δ ∈ ℝ                                                           (H3)
+  assume c < b                                                        (H4)
+  assume δ > 0                                                        (H5)
+  then there is x ∈ ℝ with c < x, x ≤ b, and x − c < δ
+
+1.  b − c < δ or not b − c < δ
+    thm:excluded-middle P := b − c < δ
+
+2.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
+    cases, from 1
+    note the point is b if b is close enough to c, and c + δ/2 if not
+
+    case
+    assume b − c < δ                                                  (C1)
+
+    2.1.  b ≤ b
+          inequalities
+          requires b ∈ ℝ: from H2
+
+    2.2.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
+          exhibit, from H2, H4, 2.1, C1
+
+    case
+    assume not b − c < δ                                              (C2)
+
+    2.3.  δ/2 > 0
+          thm:half-positive x := δ, from H3, H5
+
+    2.4.  c + δ/2 ∈ ℝ
+          thm:real-closure x := c, y := δ/2, from H1
+          requires δ/2 ∈ ℝ: thm:half-real x := δ, from H3
+
+    2.5.  c < c + δ/2
+          inequalities, from 2.3
+          requires c ∈ ℝ: from H1
+          requires δ ∈ ℝ: from H3
+          requires δ/2 ∈ ℝ: thm:half-real x := δ, from H3
+
+    2.6.  c + δ/2 ≤ b
+          inequalities, from C2, 2.3
+          requires c ∈ ℝ: from H1
+          requires b ∈ ℝ: from H2
+          requires δ ∈ ℝ: from H3
+          requires δ/2 ∈ ℝ: thm:half-real x := δ, from H3
+
+    2.7.  c + δ/2 − c < δ
+          inequalities, from 2.3
+          requires c ∈ ℝ: from H1
+          requires δ ∈ ℝ: from H3
+          requires δ/2 ∈ ℝ: thm:half-real x := δ, from H3
+
+    2.8.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
+          exhibit, from 2.4, 2.5, 2.6, 2.7
+
+
 theorem intermediate-value
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)

@@ -5845,7 +5845,12 @@ class Elaborator(Builder):
             # Tried only where the forward read has already failed, so a
             # lemma that fits as it stands fits as it always did.
             if reads.label == 'wb':
-                turned = kernel.match(reads.children[0], goal, {}, variables)
+                # With the seed, as the forward read is: `halfpos2` says
+                # 0 < A exactly when 0 < A / 2, and the claim 0 < δ / 2
+                # fits the near side at A := δ / 2 unless the target says A
+                # is δ.
+                turned = kernel.match(reads.children[0], goal,
+                                      dict(seed or {}), variables)
                 if turned is not None:
                     antecedents.append(reads.children[1])
                     joins.append(TURNED)
