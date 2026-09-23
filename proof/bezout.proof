@@ -39,7 +39,6 @@ theorem least-combination-divides
     4.1.  0 < r
           inequalities, from 2, S
           requires r ∈ ℝ: thm:int-real, from 2
-          requires d ∈ ℝ: thm:nat-real, from H4
 
     4.2.  r ∈ ℕ
           thm:pos-int-nat m := r, from 2, 4.1

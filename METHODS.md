@@ -125,7 +125,15 @@ atoms, with three additions:
 
 Every atom must be a real number. This is a hypothesis of the method exactly as
 `q ≠ 0` is a hypothesis of a division, so by the dull-fact rule of `READERS.md`
-it is discharged by a cited line or written as a requires line. `READERS.md`
+it is discharged by a cited line or written as a requires line.
+
+An atom is one of the claim or of the facts the step combines — not of every
+sentence a cited line says. Line 2 of `least-combination-divides` says
+`0 ≤ r` and `r < d` among five things, and step 4.1 takes `0 < r` from the
+first of them and the supposition `r ≠ 0`; d is in none of what it combines,
+so `d ∈ ℝ` is not one of its hypotheses and is not written. A dull fact is one
+that discharges a hypothesis, and one that discharges nothing is a line doing
+no work. `READERS.md`
 already names this kind of fact, "that a product of integers is an integer",
 among its examples of dull facts.
 
