@@ -675,6 +675,15 @@ definition — `geometric-sum`'s line 1, `1 − a ≠ 0`, is the one in the corp
 `test_elaborate.py` and `test_check.py` plant one case of each rule, and each
 is confirmed to have elaborated or checked cleanly before its rule existed.
 
+R1 and R2 are enforced twice, and the planted cases above reach only the
+first: `settle` is offered what the step names and nothing else, so a
+plant that breaks either rule is caught by the search finding nothing. The
+rule checked where the proof is sealed is what catches a route that reads
+the scope without asking `settle`, and `test_elaborate.py`'s `NETS` plant
+one case of each with the search offered the whole scope. Each builds
+silently with its rule taken away as well, so the rule is the only thing
+catching it.
+
 ### What they do not check
 
 **Method steps, in the checker.** It accepts 63 steps resting on a closure

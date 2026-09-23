@@ -14,6 +14,7 @@ failure this is looking for: the defect was swallowed.
 
 Usage:  parley/test_elaborate.py [set.mm]
 """
+import contextlib
 import io
 import shutil
 import sys
@@ -286,11 +287,62 @@ CASES = [
 ]
 
 
-def run(root, wanted, setmm):
+# R1 and R2 are checked twice. `settle` is offered only what the step or
+# the requires line names (`resting_on`), so the cases above that break a
+# rule are caught by the search finding nothing; and once a proof is built,
+# `rests_on_named` refuses one resting on anything else. The second is what
+# catches a route that reads the scope without asking `settle` —
+# `introduced` does, and so does `apply_lemma` matching an antecedent — and
+# no case above reaches it, because the first always catches them sooner.
+# So these run with the search offered everything in scope, and the rule
+# afterwards is all that stands between the uncited line and the proof.
+NETS = [
+    # Step 1.2.1.8 needs T finite and no longer cites 1.2.1.5, which says
+    # |T| = 2^k. Offered the whole scope, the search finds T finite through
+    # that line, and with R1 taken away the step elaborates and verifies:
+    # nothing else here objects, since the step cites an item and the
+    # method checks do not apply.
+    ('settle a side condition from a line the step does not cite, with '
+     'nothing to stop the search',
+     'subsets-count', 'proof/subsets.proof',
+     'n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6',
+     'n := 2^k, from 1.2.1.3, 1.2.1.6',
+     'step 1.2.1.8 rests on 1.2.1.5, which it does not name'),
+
+    # The requires line's reason cites line 2, and `thm:int-real` asks k
+    # an integer, which line 1 says. With R2 taken away the step
+    # elaborates.
+    ('give a requires line a reason that is not where its proof comes '
+     'from, with nothing to stop the search',
+     'odd-square', 'proof/sqrt2-irrational.proof',
+     '    requires k ∈ ℝ: thm:int-real, from 1\n\n4.',
+     '    requires k ∈ ℝ: thm:int-real, from 2\n\n4.',
+     'proof/sqrt2-irrational.proof:14  the requires line rests on 1, which '
+     'it does not name'),
+]
+
+
+@contextlib.contextmanager
+def whole_scope_offered():
+    """`settle` offered every fact in scope, as it was before R1 existed."""
+    @contextlib.contextmanager
+    def unfiltered(_self, _allowed):
+        yield
+
+    kept = elaborate.Elaborator.resting_on
+    elaborate.Elaborator.resting_on = unfiltered
+    try:
+        yield
+    finally:
+        elaborate.Elaborator.resting_on = kept
+
+
+def run(root, wanted, setmm, net=False):
     """What elaborating says, or None where it says nothing and builds."""
     buf = io.StringIO()
+    offered = whole_scope_offered() if net else contextlib.nullcontext()
     try:
-        with redirect_stdout(buf):
+        with redirect_stdout(buf), offered:
             elaborate.main(['elaborate.py', wanted, setmm], root)
     except Problem as said:
         return str(said)
@@ -317,10 +369,12 @@ def main(argv):
         # each time, and five of these cases are about one theorem that
         # takes ten seconds to elaborate.
         healthy = {}
-        for name, wanted, rel, old, new, expect in CASES:
-            if wanted not in healthy:
-                healthy[wanted] = run(clean, wanted, setmm)
-            if healthy[wanted] is not None:
+        planted = [(case, False) for case in CASES] + \
+                  [(case, True) for case in NETS]
+        for (name, wanted, rel, old, new, expect), net in planted:
+            if (wanted, net) not in healthy:
+                healthy[wanted, net] = run(clean, wanted, setmm, net)
+            if healthy[wanted, net] is not None:
                 print(f'  SETUP FAILED  {name}\n      {wanted} does not '
                       f'elaborate before the edit')
                 failed += 1
@@ -336,7 +390,7 @@ def main(argv):
                 failed += 1
                 continue
             path.write_text(text.replace(old, new, 1), encoding='utf-8')
-            said = run(work, wanted, setmm)
+            said = run(work, wanted, setmm, net)
             if said is None:
                 print(f'  NOT CAUGHT    {name}')
                 print('      it elaborated: the defect was taken as stated')
@@ -350,7 +404,7 @@ def main(argv):
                 print(f'      got      {said[:160]!r}')
                 failed += 1
 
-    print(f'\n{passed} caught, {failed} missed, of {len(CASES)} planted '
+    print(f'\n{passed} caught, {failed} missed, of {len(planted)} planted '
           f'defects')
     return 1 if failed else 0
 
