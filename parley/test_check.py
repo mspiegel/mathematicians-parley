@@ -370,6 +370,27 @@ CASES = [
      '    thm:distance-symmetric P := A, Q := C\n',
      '    thm:distance-symmetric P := A, Q := C, from H1\n',
      'step 1 cites H1, and thm:distance-symmetric asks for nothing it says'),
+
+    # An obtain names its item after the word `obtain`, and the checks that
+    # read an item citation read only a step the item heads. The three
+    # below went unreported.
+    ('obtain from an item without what it asks for',
+     'proof/intermediate-value.proof',
+     '    obtain c: thm:completeness S := S, from 5, 2, 7',
+     '    obtain c: thm:completeness S := S, from 5, 7',
+     'step 8 cites thm:completeness, which asks for'),
+
+    ('obtain from an item and cite a line it does not ask for',
+     'proof/intermediate-value.proof',
+     '    obtain c: thm:completeness S := S, from 5, 2, 7',
+     '    obtain c: thm:completeness S := S, from 5, 2, 7, H3',
+     'step 8 cites H3, and thm:completeness asks for nothing it says'),
+
+    ('obtain from a definition without the line it unfolds',
+     'proof/sqrt2-irrational.proof',
+     '    obtain k: def:odd n := n, from H1, H2',
+     '    obtain k: def:odd n := n, from H1',
+     'step 1 obtains from def:odd, which says there is one only from'),
 ]
 
 

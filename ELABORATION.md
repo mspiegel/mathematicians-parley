@@ -400,6 +400,16 @@ exactly what the readable line claims, under the `requires` lines that line
 carries **and** the lines it cites — both, or the axiom says more than the
 method does and the proof above it goes unused.
 
+A definition with no target is not stated where a line the step cites already
+says the claim: as one of its conjuncts, which `def:congruent` relies on, or
+with another letter bound, since the notation reads "b is an upper bound of S"
+as every s in S being at most b and the block that proved that fixed a
+variable of its own.
+
+A lemma may conclude a three-way disjunction with one constructor, `w3o`,
+where the readable "a or b or c" is built from the left: `lttri4` is
+trichotomy, and `df-3or` carries it across.
+
 An item becomes an axiom claiming what the item states, under its hypotheses,
 and the step owes those hypotheses like any others. What the item states and
 what the step claims must be one statement up to the letters they bind, or one
@@ -417,14 +427,15 @@ Fourteen of the seventeen written files assume nothing. What is left:
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
 | `subsets-count.mm` | 4 | two items set.mm has no label for, two a `target` cannot reach |
-| `intermediate-value.mm` | 33 | ten definitions and thirteen items with no `target`, and ten `inequalities` steps |
+| `intermediate-value.mm` | 13 | continuity, two items with no `target`, and ten `inequalities` steps |
 
 `intermediate-value`'s ten `inequalities` steps are decided — the certificate
 refuses a step that does not follow — and stated where `prove_order` cannot
-build the proof. Its definitions and items are real analysis the database has
-not yet pointed at set.mm: the interval, upper and least upper bounds,
-continuity, completeness, trichotomy, a function's value, `thm:point-right`,
-`thm:abs-difference-lt`, `thm:from-contradiction`, and two set inclusions.
+build the proof. What else it states is not one lemma away. set.mm's
+continuity, `elcncf2`, quantifies over ℝ⁺ and measures |c − x| where the
+readable definition says ε ∈ ℝ with ε > 0 and |x − c|. Its completeness,
+`sup2`, concludes a supremum where `thm:completeness` concludes a least upper
+bound. `thm:point-right` has no set.mm label and wants a readable proof.
 
 `thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn` and
 `hashnncl` — and no `target`, because what stands between each lemma and its
@@ -552,7 +563,11 @@ sealed:
     needed. Each cited line and each requires line is taken away in turn and
     the step checked again, and one whose absence changes nothing is surplus.
     A "there is" given by an instance needs the instance in the domain, so a
-    witness's membership is at work.
+    witness's membership is at work. An `obtain` citing an item is read the
+    same way, except that what it claims is the body of the item's "there
+    is", so in place of the conclusion the checker asks that the item give
+    one from what the step names: `def:odd` gives one only from a line saying
+    n is odd.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines is a dull fact by `READERS.md`'s

@@ -1060,6 +1060,36 @@ def check_conclusion(report, thm, library):
                        f'{just.head} does not conclude')
 
 
+def check_obtained(report, thm, library):
+    """An obtain reaches a "there is" of the item it names.
+
+    What it claims is that existential's body, which `check_conclusion`
+    does not read. It does read the way there: `def:odd` gives one only from
+    a line saying n is odd, and an obtain that cites none has nothing to
+    unfold.
+    """
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
+    scope = statements_in_scope(thm)
+
+    for step in thm.steps:
+        just = step.just
+        item = cited_item(just)
+        if item is None or just.head != 'obtain':
+            continue
+        groups = library.groups(item.split(':', 1)[1])
+        if groups is None:
+            continue
+        facts, _, seed = citation_parts(step, just, scope, library, sorts,
+                                        defined)
+        if not obtains(groups, facts, seed, library):
+            report.say(thm.path, just.line,
+                       f'step {fmt(step.number)} obtains from {item}, which '
+                       f'says there is one only from something the step does '
+                       f'not cite')
+
+
 def concludes(groups, claims, facts, seed, library):
     """Whether one group of an item's conclusions covers what is claimed."""
     for want, gives in groups:
@@ -1125,15 +1155,17 @@ def check_surplus(report, thm, library):
         # what the step names: a definition read either way takes the other
         # side from a cited line, which asks for it as surely as a
         # hypothesis does.
-        groups = library.groups(step.just.head.split(':', 1)[1])
+        groups = library.groups(cited_item(step.just).split(':', 1)[1])
         facts, claims, seed = citation_parts(step, step.just, scope, library,
                                              sorts, defined)
+        if step.just.head == 'obtain':
+            return obtains(groups, facts, seed, library)
         return not claims or concludes(groups, claims, facts, seed, library)
 
     for step in thm.steps:
         just = step.just
-        if not just or not just.head.startswith(('def:', 'thm:')) \
-                or library.groups(just.head.split(':', 1)[1]) is None \
+        item = cited_item(just)
+        if item is None or library.groups(item.split(':', 1)[1]) is None \
                 or not holds(step):
             continue
         for ref in dict.fromkeys(just.refs):
@@ -1145,15 +1177,38 @@ def check_surplus(report, thm, library):
             if holds(lighter):
                 report.say(thm.path, just.line,
                            f'step {fmt(step.number)} cites {ref}, and '
-                           f'{just.head} asks for nothing it says')
+                           f'{item} asks for nothing it says')
         for i, (fact, _how, no) in enumerate(step.requires):
             lighter = copy.copy(step)
             lighter.requires = step.requires[:i] + step.requires[i + 1:]
             if holds(lighter):
                 report.say(thm.path, no,
                            f'the requires line of step {fmt(step.number)} '
-                           f'says {fact}, and neither {just.head} nor the '
+                           f'says {fact}, and neither {item} nor the '
                            f'step\'s other lines ask for it')
+
+
+def obtains(groups, facts, seed, library):
+    """Whether the item gives a "there is" from what the step names.
+
+    An obtain claims the body of what the item says there is, which
+    `concludes` does not read. What it does read is the way to the
+    existential: `def:odd` gives one only from a line saying n is odd, so
+    `obtain k: def:odd, from H1, H2` needs H2 as surely as it needs H1.
+    """
+    for _want, gives in groups:
+        for concl in gives:
+            for target, extra in readings(concl, library):
+                if target.notation not in library.exists:
+                    continue
+                need = [x for e in extra for x in conjuncts(e, library)]
+                if not need:
+                    return True
+                variables = set().union(*(names(t) for t in need))
+                if supply(need, facts, dict(seed), variables, library,
+                          frozenset()) is not None:
+                    return True
+    return False
 
 
 def unconcluded(step, scope, library, sorts, defined):
@@ -1253,9 +1308,28 @@ def check_hypotheses(report, thm, library):
         missing = unsupplied(step, scope, library, sorts, defined)
         if missing is not None:
             report.say(thm.path, just.line,
-                       f'step {fmt(step.number)} cites {just.head}, which asks '
+                       f'step {fmt(step.number)} cites {cited_item(just)}, '
+                       f'which asks '
                        f'for {"; ".join(missing)}, and what it cites does not '
                        f'supply them')
+
+
+OBTAINED_FROM = re.compile(rf'^obtain\s+[^:]+:\s*((?:def|thm):{NAME})')
+
+
+def cited_item(just):
+    """The item a step's justification cites, as `def:x` or `thm:x`, or None.
+
+    Either the head is the item, or the step obtains from one:
+    `obtain c: thm:completeness S := S, from 5, 2, 7` owes the item's
+    hypotheses as surely as a step headed by it does.
+    """
+    if not just:
+        return None
+    if just.head.startswith(('def:', 'thm:')):
+        return just.head
+    m = OBTAINED_FROM.match(just.text) if just.head == 'obtain' else None
+    return m.group(1) if m else None
 
 
 def unsupplied(step, scope, library, sorts, defined):
@@ -1263,9 +1337,10 @@ def unsupplied(step, scope, library, sorts, defined):
     or None where they are supplied or the step cites no item.
     """
     just = step.just
-    if not just or not just.head.startswith(('def:', 'thm:')):
+    item = cited_item(just)
+    if item is None:
         return None
-    groups = library.groups(just.head.split(':', 1)[1])
+    groups = library.groups(item.split(':', 1)[1])
     if groups is None:
         return None                       # a pointer that resolves to nothing
     facts, _, seed = citation_parts(step, just, scope, library, sorts,
@@ -1588,6 +1663,7 @@ def main(root):
         check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
+        check_obtained(report, thm, library)
         check_requires(report, thm, library)
         check_surplus(report, thm, library)
         check_last_step(report, thm)

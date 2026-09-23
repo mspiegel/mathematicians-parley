@@ -106,7 +106,7 @@ theorem subsets-count
                   assume |X| = k + 1                                  (C2)
 
                   1.2.1.1.  a ∈ X
-                            obtain a: thm:card-nonempty, from K3, C2
+                            obtain a: thm:card-nonempty, from C2
 
                   1.2.1.2.  |X ∖ {a}| = k
                             thm:card-remove, from 1.2.1.1, C2

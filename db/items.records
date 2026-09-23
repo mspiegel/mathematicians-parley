@@ -33,6 +33,7 @@ theorem from-contradiction
   assume not P                                                        (H2)
   then        Q
   metamath    pm2.21
+  target      pm2.21
   first-used  intermediate-value
   note        Closes an impossible case of a `cases` block so that every case
               ends in the block's common claim.
@@ -112,6 +113,7 @@ theorem subset-transitive
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z
   metamath    sstr
+  target      sstr
   first-used  intermediate-value
 
 definition powerset
@@ -405,6 +407,7 @@ theorem trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x
   metamath    lttri4, 0re
+  target      lttri4 with B := 0
   first-used  intermediate-value
 
 theorem nonneg-or-neg
@@ -646,6 +649,7 @@ theorem abs-difference-lt
   let δ ∈ ℝ                                                           (H3)
   then        |x − c| < δ ↔ c − δ < x and x < c + δ
   metamath    absdiflt, abslt
+  target      absdiflt
   first-used  intermediate-value
 
 
@@ -664,6 +668,7 @@ theorem function-value
   let x ∈ D                                                           (H2)
   then        f(x) ∈ ℝ
   metamath    ffvelcdm
+  target      ffvelcdm
   first-used  intermediate-value
   note        The intermediate value pilot called this def:function, colliding
               with the Cantor pilot's definition of the same name. Renamed by the
@@ -790,6 +795,7 @@ definition interval
   let b ∈ ℝ                                                           (H2)
   then        x ∈ [a, b] ↔ x ∈ ℝ and a ≤ x and x ≤ b
   metamath    elicc2
+  target      elicc2
   first-used  intermediate-value
 
 theorem interval-real
@@ -797,6 +803,7 @@ theorem interval-real
   let b ∈ ℝ                                                           (H2)
   then        [a, b] ⊆ ℝ
   metamath    iccssre
+  target      iccssre
   first-used  intermediate-value
 
 definition continuous-on

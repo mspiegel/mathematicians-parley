@@ -4845,7 +4845,13 @@ class Elaborator(Builder):
         if declined(made):
             return made
         says, right = made
-        under = self.settle(self.to_term(right), scope, facts,
+        # The right side is what the step supplies, its requires lines and
+        # the lines it cites, and not whatever the scope would give: step 1
+        # of the intermediate value proof writes `a ≤ b` for `def:interval`,
+        # and the scope would build it from a < b behind the line's back.
+        known = self.with_cited(step, scope,
+                                self.supplied(step, scope, facts))
+        under = self.settle(self.to_term(right), scope, known,
                             step=step, lines=lines)
         if declined(under):
             return under
@@ -5009,6 +5015,20 @@ class Elaborator(Builder):
         found = self.projected(step, term, scope, facts, lines)
         if found is not None:
             return found
+        # Or says it with another letter bound. The notation reads "b is an
+        # upper bound of S" as every s in S being at most b, and the block
+        # that proved it for every s fixed a variable of its own, so the
+        # line and the claim differ only in the letter.
+        for ref in step.just.refs:
+            held = lines.get(ref)
+            if held is None:
+                continue
+            parts = {held.term: self.carried(ref, facts, lines)}
+            self.unpack(held.term, parts[held.term], scope, parts)
+            for said, proof in parts.items():
+                spelt = self.respelt(proof, said, term, scope)
+                if spelt is not None:
+                    return spelt
         return self.assume(step, term, scope, facts, 'def', lines)
 
     def projected(self, step, term, scope, facts, lines):
@@ -5533,6 +5553,23 @@ class Elaborator(Builder):
         sig = self.sigs[label]
         whole = self.syntax.statement(sig)
         variables = whole.names()
+        # The readable "a or b or c" is built from the left, and set.mm
+        # states a three-way disjunction as one constructor: `lttri4` says
+        # A < B, A = B or B < A with `w3o`. `df-3or` says they are the same.
+        ends = whole
+        while ends.label in ('wi', 'wb'):
+            ends = ends.children[1]
+        if (ends.label == 'w3o' and goal.label == 'wo'
+                and goal.children[0].label == 'wo'):
+            three = [*(c.rpn(self.flabel) for c in goal.children[0].children),
+                     goal.children[1].rpn(self.flabel)]
+            said = self.seq(*three, 'w3o')
+            got = self.apply_lemma(label, self.to_term(said), scope, facts,
+                                   step, crossing, seed)
+            if got is None or declined(got):
+                return got
+            return self.seq(scope, said, goal.rpn(self.flabel), got,
+                            self.seq(*three, 'df-3or'), 'sylib')
         antecedents, joins, reads, binding = [], [], whole, None
         while True:
             binding = kernel.match(reads, goal, dict(seed or {}), variables)
@@ -5634,13 +5671,26 @@ class Elaborator(Builder):
             # What the lemma concludes need not fix everything it asks, so
             # an antecedent that is still open is matched against something
             # the step already has: `orel2` learns which disjunct is ruled
-            # out from the line that rules it out.
-            for held in known:
-                filled = kernel.match(slot, self.to_term(held), dict(binding),
-                                      variables)
-                if filled is not None:
-                    binding = filled
-                    break
+            # out from the line that rules it out. One that asks several
+            # things at once is matched a conjunct at a time, since each is
+            # a line of its own: `sstr` asks A ⊆ B and B ⊆ C, and only the
+            # lines say what B is.
+            pieces, parts = [], [slot]
+            while parts:
+                part = parts.pop(0)
+                if part.label in ('wa', 'w3a'):
+                    parts[:0] = part.children
+                else:
+                    pieces.append(part)
+            for piece in pieces:
+                if not piece.names() - set(binding):
+                    continue
+                for held in known:
+                    filled = kernel.match(piece, self.to_term(held),
+                                          dict(binding), variables)
+                    if filled is not None:
+                        binding = filled
+                        break
             for open_class in self.sethood(slot, binding):
                 binding[open_class] = self.to_term('cvv')
         essentials = [self.prove_essential(
@@ -6041,15 +6091,20 @@ class Elaborator(Builder):
         `thm:from-contradiction` asks for P and not P, the step cites the
         line joining them, and the scope held each from the line before.
         """
-        out = dict(known)
+        # First in order as well, because a lemma's open antecedent is
+        # matched against these in turn and takes the first that fits:
+        # `pm2.21` asks for a negation, and the one it wants is the one the
+        # step cites, not the first the scope happens to hold.
+        cited = {}
         for ref in (step.just.refs if step is not None else ()):
             line = self.lines.get(ref)
             if line is None:
                 continue
             parts = {line.term: self.carried(ref, known, self.lines)}
             self.unpack(line.term, parts[line.term], scope, parts)
-            out.update(parts)
-        return out
+            cited.update(parts)
+        return {**cited,
+                **{k: v for k, v in known.items() if k not in cited}}
 
     def rests_on_lines(self, how):
         """Whether a `requires` line's reason is the lines it cites.
