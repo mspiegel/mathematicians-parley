@@ -26,6 +26,32 @@ import kernel
 from library import Signature
 
 
+# What this representation costs, and what would remove the cost.
+#
+# A proof's `.text` is Metamath's normal format: a flat run of labels in
+# which a subproof used in several places is written out in full at each.
+# Proofs are built from proofs, so the text of a step holds the texts of
+# everything under it, copied. The intermediate value theorem's finished
+# proof is 225 million characters, 63.6 million labels, and only 3,030
+# distinct subproofs; compressed, it is 39.5 thousand characters. The
+# elaborator's traced memory peaks near 1.9GB building such texts, the
+# process near 4.7GB because the allocator keeps what the large texts it
+# builds and drops once held, and `compress.shapes` spends most of that
+# theorem's time reading the text back into the sharing it lost.
+#
+# The remedy is to build a proof as a shared structure: each distinct
+# subproof made once, as a label applied to the subproofs it takes, and
+# referred to wherever it is used — hash-consed, so two built alike are one
+# object. The compressed format would then be written from that structure
+# directly, with no normal-format text and no `shapes` pass, and memory
+# would follow the distinct subproofs rather than the written-out ones.
+#
+# What has to survive the change: `origin`, which every check of what a
+# step rests on reads, and which belongs to a use of a subproof rather than
+# to the subproof, since one subproof may rest on different lines where two
+# steps name it; `Builder.seq`'s telling a proof from a term by its last
+# label; the refusal of a proof handled as a string; and the elaborated
+# files byte for byte, which is the test that nothing proved has changed.
 @dataclass(frozen=True)
 class Proof:
     """A proof, and what on the page it rests on.

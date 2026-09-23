@@ -39,7 +39,8 @@ import linear
 import normal
 import targets
 from build import path_of
-from compress import compress
+from compress import compressed, shapes
+from compress import labels as compress_labels
 from formula import Grammar, Node, parse
 from library import Signature
 from library import read as read_library
@@ -1037,7 +1038,7 @@ class Elaborator(Builder):
             under = self.settle(asks, scope, facts, depth - 1)
             if declined(under):
                 return None
-            first = proof.text.split()[-1] == label
+            first = proof.text.rsplit(None, 1)[-1] == label
             fold = self.DISCHARGE[(joins[i], first)]
             if joins[i] == 'wb' and backwards:
                 fold = 'sylibr' if first else 'mpbird'
@@ -6527,7 +6528,7 @@ class Elaborator(Builder):
             # antecedents was the scope, which `ssneld` does: it asks for
             # the inclusion under the scope and then says, still under it,
             # that what is outside the larger set is outside the smaller.
-            first = proof.text.split()[-1] == label and not carried
+            first = proof.text.rsplit(None, 1)[-1] == label and not carried
             fold = {('wi', True): 'syl', ('wi', False): 'mpd',
                     ('wb', True): 'sylib', ('wb', False): 'mpbid',
                     (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
@@ -8245,8 +8246,12 @@ def main(argv, root=None):
         # and the statement says only what the theorem concludes.
         proof = work.seq(goal, proof, 'mptru')
     # What is written out is the proof's text, and this is where it stops
-    # carrying what it rests on: everything that asked has asked.
-    proof = proof.text
+    # carrying what it rests on: everything that asked has asked. It is read
+    # into its shapes once, and which labels it uses is read off those: the
+    # text runs to sixty-three million tokens for the intermediate value
+    # theorem, and splitting it for each question held gigabytes.
+    root, kinds = shapes(proof.text, {**sigs, **work.arities})
+    used = compress_labels(kinds)
 
     print(f'$( {thm.name}, elaborated from {thm.path} by parley/elaborate.py.')
     if work.axioms:
@@ -8268,7 +8273,7 @@ def main(argv, root=None):
         # geometry.mm includes the definitions, so a proof that reaches one
         # of its labels needs only the one include; a proof that reaches
         # none does not read it at all.
-        wants = provided & set(proof.split())
+        wants = provided & used
         print(f'$[ {"geometry" if wants else "definitions"}.mm $]')
     print()
     for label, statement in work.axioms:
@@ -8278,7 +8283,7 @@ def main(argv, root=None):
     # Every variable the proof touches has to be disjoint from every other:
     # the lemmas that discharge a scope want the bound name apart from what
     # the theorem is about, and there is nothing here for them to collide in.
-    held = {t for t in set(proof.split()) if t in sigs and sigs[t].kind == '$f'}
+    held = {t for t in used if t in sigs and sigs[t].kind == '$f'}
     bound = sorted(sigs[t].statement[1] for t in held
                    if sigs[t].statement[0] == 'setvar')
     free = sorted(sigs[t].statement[1] for t in held
@@ -8307,7 +8312,7 @@ def main(argv, root=None):
                         if t in work.flabel},
                        key=lambda one: work.forder[one])
     print(f'  {label} $p |- {says} $=')
-    print(f'    {compress(proof, mandatory, {**sigs, **work.arities})} $.')
+    print(f'    {compressed(root, kinds, mandatory)} $.')
     print('$}')
     return 0
 

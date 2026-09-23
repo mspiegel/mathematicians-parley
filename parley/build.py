@@ -49,9 +49,19 @@ CITES = re.compile(r'\bthm:([A-Za-z0-9-]+)')
 # until the command line and the environment have been asked.
 SETMM = '<set.mm>'
 # How many recipes run at once. Each holds its own copy of set.mm's 51,256
-# signatures and peaks near 550MB, so the ceiling is there to keep a wave of
-# every theorem at once from asking for gigabytes the machine may not have.
+# signatures and most peak near 550MB, so the ceiling is there to keep a wave
+# of every theorem at once from asking for gigabytes the machine may not have.
 WORKERS = min(8, os.cpu_count() or 1)
+# What one recipe may use at its peak before the build fails. The
+# intermediate value theorem peaks near 4.7GB, because a proof is built as
+# text in which every shared part is written out again, and the allocator
+# keeps what the large texts it builds and drops once held; it peaked near
+# 7.8GB before its text stopped being split whole. The limit is above what
+# it needs and below what it used to, so a recipe that grows past it is
+# reported rather than left to the machine.
+MEMORY_LIMIT = 6 << 30
+# `ru_maxrss` is in bytes on macOS and in kilobytes elsewhere.
+RSS_UNIT = 1 if sys.platform == 'darwin' else 1024
 
 
 @dataclass(frozen=True)
@@ -74,9 +84,8 @@ class Artifact:
 # `least-combination-divides` and `bezout` from `proof/bezout.proof`,
 # `point-right` from `proof/intermediate-value.proof`,
 # `ten-power-congruent` from `proof/divisibility-by-three.proof`, and several
-# from
-# `proof/sqrt2-irrational.proof`, which holds the theorem it is named for and
-# the ones it leans on.
+# from `proof/sqrt2-irrational.proof`, which holds the theorem it is named for
+# and the ones it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
@@ -134,16 +143,39 @@ def wants_library(artifact):
     return SETMM in artifact.recipe
 
 
+@dataclass(frozen=True)
+class Made:
+    """What one recipe wrote, None where it failed, and its peak memory."""
+
+    written: str
+    peak: int
+
+
 def produce(artifact, library):
-    """Run one recipe and return what it wrote, or None if it failed."""
+    """Run one recipe, and say what it wrote and how much memory it took.
+
+    The child is reaped with `os.wait4`, which reports that one process's
+    peak; `subprocess.run` reaps it without saying, and the whole build's
+    figure cannot tell one recipe from the seven beside it. Its two streams
+    are read at once, since a child filling one while the other is waited
+    on would never finish.
+    """
     argv = [sys.executable] + [str(library) if part == SETMM else part
                                for part in artifact.recipe]
-    done = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True)
-    if done.returncode != 0:
+    child = subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, text=True)
+    with ThreadPoolExecutor(max_workers=2) as streams:
+        out = streams.submit(child.stdout.read)
+        err = streams.submit(child.stderr.read)
+        written, complained = out.result(), err.result()
+    _pid, status, usage = os.wait4(child.pid, 0)
+    child.returncode = os.waitstatus_to_exitcode(status)
+    peak = usage.ru_maxrss * RSS_UNIT
+    if child.returncode != 0:
         print(f'{artifact.name}: {artifact.recipe[0]} failed', file=sys.stderr)
-        print(done.stderr.rstrip(), file=sys.stderr)
-        return None
-    return done.stdout
+        print(complained.rstrip(), file=sys.stderr)
+        return Made(None, peak)
+    return Made(written, peak)
 
 
 @functools.cache
@@ -214,7 +246,7 @@ def main(argv):
               'copy or a link at the root of the working tree')
         return 2
 
-    changed, said = 0, {}
+    changed, said, peaks = 0, {}, {}
     for wave in waves(wanted):
         # Each recipe is its own process writing its own path, so the only
         # thing a wave shares is the machine. A file is written as soon as
@@ -222,7 +254,10 @@ def main(argv):
         # about it waits, so the report is in the manifest's order and not
         # in the order the machine happened to finish.
         with ThreadPoolExecutor(max_workers=min(len(wave), WORKERS)) as pool:
-            got = list(pool.map(lambda a: produce(a, library), wave))
+            made = list(pool.map(lambda a: produce(a, library), wave))
+        got = [one.written for one in made]
+        for artifact, one in zip(wave, made, strict=True):
+            peaks[artifact.name] = one.peak
         for artifact, written in zip(wave, got, strict=True):
             if written is None:
                 continue
@@ -241,6 +276,18 @@ def main(argv):
             mark, path = said[artifact.name]
             print(f'{mark} {path}')
     if len(said) != len(wanted):
+        return 1
+
+    # What the largest recipe took, always, and every recipe past the
+    # limit, which fails the build: the files are written, and what they
+    # cost is the defect.
+    heaviest = max(peaks, key=peaks.get)
+    print(f'\nlargest peak: {heaviest}, {peaks[heaviest] / (1 << 30):.1f}GB')
+    over = [name for name, peak in peaks.items() if peak > MEMORY_LIMIT]
+    for name in over:
+        print(f'{name} peaked at {peaks[name] / (1 << 30):.1f}GB, past the '
+              f'limit of {MEMORY_LIMIT / (1 << 30):.0f}GB', file=sys.stderr)
+    if over:
         return 1
 
     print(f'\n{len(wanted)} built, {changed} changed')

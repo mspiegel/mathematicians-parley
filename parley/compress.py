@@ -27,6 +27,25 @@ the steps that were kept.
 """
 LAST ='ABCDEFGHIJKLMNOPQRST'      # 0 to 19: the last digit of an index
 HIGH = 'UVWXY'                     # 1 to 5: the digits above it
+CHUNK = 1 << 20                    # characters split at a time
+
+
+def tokens(text):
+    """The labels of a proof in normal format, a chunk at a time.
+
+    Not `text.split()` whole, which makes every token a string at once: the
+    intermediate value proof is sixty-three million tokens, and splitting it
+    held some four gigabytes to read what comes to three thousand distinct
+    subproofs. A chunk ends at a space, so no label is cut in two, and
+    splitting a chunk is as fast as splitting the whole.
+    """
+    start, end = 0, len(text)
+    while start < end:
+        stop = text.find(' ', start + CHUNK)
+        if stop == -1:
+            stop = end
+        yield from text[start:stop].split()
+        start = stop
 
 
 def letters(index):
@@ -51,7 +70,7 @@ def shapes(proof, sigs):
     avoids.
     """
     seen, kinds, stack = {}, [], []
-    for token in proof.split():
+    for token in tokens(proof):
         sig = sigs[token]
         count = len(sig.floats) + len(sig.essentials)
         kids = tuple(stack[len(stack) - count:]) if count else ()
@@ -88,6 +107,16 @@ def standing(root, kinds):
 def compress(proof, mandatory, sigs):
     """One proof in normal format, said in the compressed one."""
     root, kinds = shapes(proof, sigs)
+    return compressed(root, kinds, mandatory)
+
+
+def labels(kinds):
+    """Every label a proof applies, read off its shapes rather than its text."""
+    return {token for token, _kids in kinds}
+
+
+def compressed(root, kinds, mandatory):
+    """The compressed format of a proof already read into its shapes."""
     often = standing(root, kinds)
     worth = [n for n, (_token, kids) in enumerate(kinds)
              if kids and often[n] > 1]
