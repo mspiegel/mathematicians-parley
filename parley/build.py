@@ -69,8 +69,8 @@ class Artifact:
 # writes is named for the theorem, which is not always the name of the proof
 # file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
 # `geometric-sum` from `proof/geometric-series.proof`, `subsets-count`,
-# `add-element-bijection` and `powerset-split-disjoint` from
-# `proof/subsets.proof`, both
+# `add-element-bijection`, `powerset-split-disjoint` and `powerset-split`
+# from `proof/subsets.proof`, both
 # `least-combination-divides` and `bezout` from `proof/bezout.proof`,
 # `point-right` from `proof/intermediate-value.proof`, and several from
 # `proof/sqrt2-irrational.proof`, which holds the theorem it is named for and
@@ -79,7 +79,8 @@ THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
             'least-combination-divides', 'bezout', 'powerset-split-disjoint',
-            'add-element-bijection', 'subsets-count', 'point-right',
+            'powerset-split', 'add-element-bijection', 'subsets-count',
+            'point-right',
             'intermediate-value')
 
 # The proofs worked out by hand, some of which share their names with

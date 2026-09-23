@@ -242,26 +242,40 @@ def hypothesis_body(kind, text):
     return body
 
 
-def label_of(name, taken=(), path='', line=0):
+def label_of(name, taken=(), path='', line=0, ours=()):
     """What this elaborator calls a theorem it has written out.
 
     set.mm proves some of what this corpus proves and has its own names for
     them, so the label is moved off any that is already in use: `sqrt2irr`
-    is taken. Which name it lands on depends only on set.mm, so a theorem
-    that cites another agrees with the file that wrote it.
+    is taken. The corpus's own theorems can share a stem as well —
+    `powerset-split` and `powerset-split-disjoint` are both `powerset` —
+    and the files that hold them are read together, so `ours`, the names
+    of every theorem the corpus proves, are given labels one at a time in
+    order of name, each moved off what set.mm and the ones before it hold.
+    Which label a theorem lands on then depends only on set.mm and the
+    corpus, so a theorem that cites another agrees with the file that wrote
+    it.
 
     Where it runs out of names the theorem is the thing to rename, so its
     own place is what the defect carries. This is the one defect outside
     `Elaborator`, which is why it is passed rather than known.
     """
-    stem = name.replace('-', '')[:8]
-    if stem not in taken:
-        return stem
-    for digit in range(1, 10):
-        moved = f'{stem[:7]}{digit}'
-        if moved not in taken:
-            return moved
-    raise Problem(path, line, f'no free label near {stem!r}')
+    given = {}
+    for one in sorted({*ours, name}):
+        stem = one.replace('-', '')[:8]
+        held = set(given.values())
+        free = [s for s in (stem, *(f'{stem[:7]}{d}' for d in range(1, 10)))
+                if s not in taken and s not in held]
+        if not free:
+            raise Problem(path, line, f'no free label near {stem!r}')
+        given[one] = free[0]
+    return given[name]
+
+
+def proved_here(items):
+    """The names of the theorems this corpus proves, which `label_of` needs."""
+    return {name for name, item in items.items()
+            if 'proved-in' in item.fields}
 
 
 class Fact:
@@ -1347,6 +1361,11 @@ class Elaborator(Builder):
         of it, which is the same move `instanced` makes for a hypothesis
         relating two formulas: the lemma is saying what it means, not
         asking for something.
+
+        What the map binds and builds may appear nowhere else: `elrnmpt1s`
+        concludes only that something is in the range, and names the map's
+        variable and body in its hypotheses alone. They are the lemma's
+        variables all the same, so the naming is read over them too.
         """
         for text in sig.essentials:
             asked = self.syntax.parse(text[1:], 'wff')
@@ -1356,7 +1375,8 @@ class Elaborator(Builder):
             if name is None or name not in binding:
                 continue
             said = kernel.match(asked.children[1], binding[name],
-                                dict(binding), variables)
+                                dict(binding),
+                                set(variables) | asked.names())
             if said is not None:
                 binding = said
         return binding
@@ -1391,6 +1411,15 @@ class Elaborator(Builder):
                 continue
             name = says.children[1].variable
             if name is None:
+                continue
+            # Read at a class nothing has fixed yet, the body would be read
+            # at the lemma's own variable. `elrnmpt1s` learns what it reads
+            # its map at from a line the step cites, which comes later, and
+            # the claim has already said what the result is. A set variable
+            # left open is different: `f1mpt` reads its map at one, and it
+            # stands in the proof as a name of its own.
+            kinds = dict((v, t) for t, v in sig.floats)
+            if any(kinds.get(v) == 'class' for v in at.names() - set(out)):
                 continue
             was, now = (c.substitute(out).rpn(self.flabel)
                         for c in at.children)
@@ -6379,7 +6408,7 @@ class Elaborator(Builder):
         is never safely free.
         """
         stem = label_of(self.thm.name, self.sigs, self.thm.path,
-                        self.thm.line)
+                        self.thm.line, proved_here(self.items))
         number = len(self.axioms) + 1
         while f'{stem}.{prefix}{number}' in self.sigs:
             number += 1
@@ -7120,7 +7149,8 @@ class Elaborator(Builder):
         mine = self.cited_floats([*wanted, whole], binds)
         pushed = (self.cited_pushes(item.name, binds, mine)
                   or [binds.get(label, label) for label in mine])
-        cited = label_of(item.name, self.sigs, self.thm.path, self.thm.line)
+        cited = label_of(item.name, self.sigs, self.thm.path, self.thm.line,
+                         proved_here(self.items))
         # The cited theorem is proved in another file and this one includes
         # it, so the library does not hold it and anything reading the proof
         # back cannot tell how much it takes. What it takes is what is being
@@ -7703,7 +7733,7 @@ def main(argv, root=None):
     for one in free:
         if bound:
             print(f'  $d {one} ' + ' '.join(bound) + ' $.')
-    label = label_of(thm.name, sigs, thm.path, thm.line)
+    label = label_of(thm.name, sigs, thm.path, thm.line, proved_here(items))
     says = (f'( {work.render(antecedent)} -> {work.render(goal)} )'
             if antecedent else work.render(goal))
     # Compressed, which is what set.mm is stored in and what `ELABORATION.md`

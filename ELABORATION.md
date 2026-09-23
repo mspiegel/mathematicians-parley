@@ -472,12 +472,11 @@ bound name is spoken for, and so is the name a definition defines over.
 Nothing checks that an item's statement is true beyond that. The list at the
 head of each file is what to read when it changes.
 
-Every written file but three assumes nothing. What is left:
+Every written file but two assumes nothing. What is left:
 
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `subsets-count.mm` | 1 | `thm:powerset-split`, which set.mm has no label for |
 | `intermediate-value.mm` | 2 | continuity and completeness |
 
 What `intermediate-value` states is not one lemma away. set.mm's
@@ -495,8 +494,17 @@ and it follows from the line the step cites, `|X| = k + 1`: `settle` reads
 k ∈ ℕ₀, and the congruence carries it back. Only an equation the step cites
 is read this way, and only a term built from others is replaced, never a
 name, whose value a `substitute` line puts in its place where a reader can
-see it. `thm:powerset-split` is `open`: no set.mm label states it, and it
-wants a proof in the readable layer.
+see it.
+
+`thm:powerset-split` has no set.mm label, and is proved in
+`proof/subsets.proof` the way a reader proves two sets equal: each inside
+the other. A subset of X either leaves a out, and is a subset of X ∖ {a},
+or holds a, and is a subset of X ∖ {a} with a put back; each subset of
+X ∖ {a}, with or without a, is a subset of X. Every step cites an item one
+set.mm lemma states. Putting a subset with a put back into the image is
+`elrnmpt1s`, which names its map and what it reads the map at only in its
+hypotheses, so the map is read back out of the naming, and where it is read
+comes from the line the step cites.
 
 `thm:powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
 `a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only

@@ -86,6 +86,98 @@ theorem powerset-split-disjoint
     thm:disjoint-empty, from 3
 
 
+theorem powerset-split
+  let X be a set                                                      (H1)
+  let a ∈ X                                                           (H2)
+  then 𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+
+1.  For every V ∈ 𝒫X, V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}.
+    fix
+    let V ∈ 𝒫X                                                        (K1)
+
+    1.1.  V ⊆ X
+          def:powerset S := V, from K1
+
+    1.2.  a ∈ V or not a ∈ V
+          thm:excluded-middle P := a ∈ V
+
+    1.3.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+          cases, from 1.2
+
+          case
+          note V is a subset without a, with a put back
+          assume a ∈ V                                                (C1)
+
+          1.3.1.  V ∖ {a} ⊆ X ∖ {a}
+                  thm:difference-shrinks, from 1.1
+
+          1.3.2.  V ∖ {a} ∈ 𝒫(X ∖ {a})
+                  def:powerset S := V ∖ {a}, from 1.3.1
+
+          1.3.3.  (V ∖ {a}) ∪ {a} ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  thm:added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a},
+                    from 1.3.2
+
+          1.3.4.  (V ∖ {a}) ∪ {a} = V
+                  thm:remove-and-restore, from C1
+
+          1.3.5.  V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  substitute (V ∖ {a}) ∪ {a} = V (line 1.3.4) into line 1.3.3
+
+          1.3.6.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  thm:in-union-right, from 1.3.5
+
+          case
+          note V leaves a out, so it is a subset of X ∖ {a}
+          assume not a ∈ V                                            (C2)
+
+          1.3.7.  V ⊆ X ∖ {a}
+                  thm:subset-into-difference, from 1.1, C2
+
+          1.3.8.  V ∈ 𝒫(X ∖ {a})
+                  def:powerset S := V, from 1.3.7
+
+          1.3.9.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  thm:in-union-left, from 1.3.8
+
+2.  𝒫X ⊆ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+    def:subset, from 1
+
+3.  X ∖ {a} ⊆ X
+    thm:difference-subset
+
+4.  𝒫(X ∖ {a}) ⊆ 𝒫X
+    thm:powerset-monotone, from 3
+
+5.  For every S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∈ 𝒫X.
+    fix
+    let S ∈ 𝒫(X ∖ {a})                                                (K2)
+
+    5.1.  S ⊆ X ∖ {a}
+          def:powerset S := S, from K2
+
+    5.2.  S ⊆ X
+          thm:subset-transitive, from 5.1, 3
+
+    5.3.  {a} ⊆ X
+          thm:singleton-subset, from H2
+
+    5.4.  S ∪ {a} ⊆ X
+          thm:union-subset, from 5.2, 5.3
+
+    5.5.  S ∪ {a} ∈ 𝒫X
+          def:powerset S := S ∪ {a}, from 5.4
+
+6.  {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} ⊆ 𝒫X
+    thm:added-elements-stay-inside Y := 𝒫(X ∖ {a}), Z := 𝒫X, from 5
+
+7.  𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} ⊆ 𝒫X
+    thm:union-subset, from 4, 6
+
+8.  𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+    thm:subset-antisymmetric, from 2, 7
+
+
 theorem subsets-count
   let n ∈ ℕ₀                                                          (H1)
   let A be a set                                                      (H2)

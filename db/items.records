@@ -800,11 +800,105 @@ theorem powerset-split-disjoint
   note        The pilot's row read only "the two parts above are disjoint". The
               statement in the proof is the merge's reading of it.
 
+theorem subset-antisymmetric
+  assume X ⊆ Y                                                        (H1)
+  assume Y ⊆ X                                                        (H2)
+  then        X = Y
+  metamath    eqss
+  target      eqss
+  first-used  subsets
+
+theorem union-subset
+  assume X ⊆ Z                                                        (H1)
+  assume Y ⊆ Z                                                        (H2)
+  then        X ∪ Y ⊆ Z
+  metamath    unss
+  target      unss
+  first-used  subsets
+
+theorem in-union-left
+  assume u ∈ Y                                                        (H1)
+  then        u ∈ Y ∪ Z
+  metamath    elun1
+  target      elun1
+  first-used  subsets
+
+theorem in-union-right
+  assume u ∈ Z                                                        (H1)
+  then        u ∈ Y ∪ Z
+  metamath    elun2
+  target      elun2
+  first-used  subsets
+
+theorem difference-subset
+  then        X ∖ Y ⊆ X
+  metamath    difss
+  target      difss
+  first-used  subsets
+
+theorem difference-shrinks
+  assume Y ⊆ X                                                        (H1)
+  then        Y ∖ Z ⊆ X ∖ Z
+  metamath    ssdif
+  target      ssdif
+  first-used  subsets
+
+theorem subset-into-difference
+  let a be an element                                                 (H1)
+  assume Y ⊆ X                                                        (H2)
+  assume a ∉ Y                                                        (H3)
+  then        Y ⊆ X ∖ {a}
+  metamath    ssdifsn
+  target      ssdifsn
+  first-used  subsets
+  note        The other half of `ssdifsn` from `thm:subset-of-difference`:
+              inside X and without a is inside X ∖ {a}.
+
+theorem remove-and-restore
+  let a ∈ Y                                                           (H1)
+  then        (Y ∖ {a}) ∪ {a} = Y
+  metamath    difsnid
+  target      difsnid
+  first-used  subsets
+
+theorem singleton-subset
+  let a ∈ X                                                           (H1)
+  then        {a} ⊆ X
+  metamath    snssi
+  target      snssi
+  first-used  subsets
+
+theorem powerset-monotone
+  assume Y ⊆ X                                                        (H1)
+  then        𝒫Y ⊆ 𝒫X
+  metamath    sspw
+  target      sspw
+  first-used  subsets
+
+theorem added-element-in-image
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let s ∈ Y                                                           (H3)
+  then        s ∪ {a} ∈ {t ∪ {a} : t ∈ Y}
+  metamath    elrnmpt1s
+  target      elrnmpt1s
+  first-used  subsets
+  note        Narrowed to the one map the corpus writes, as
+              `thm:added-elements-are-new` is.
+
+theorem added-elements-stay-inside
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  assume for every s ∈ Y, s ∪ {a} ∈ Z                                 (H3)
+  then        {s ∪ {a} : s ∈ Y} ⊆ Z
+  metamath    rnmptss
+  target      rnmptss
+  first-used  subsets
+  note        Narrowed to the one map the corpus writes, as
+              `thm:added-elements-are-new` is.
+
 theorem powerset-split
-  let X be a set                                                      (H1)
-  let a ∈ X                                                           (H2)
-  then        𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-  open        no set.mm label found; pwdif and pwsn are nearby
+  proved-in   proof/subsets.proof
   first-used  subsets
 
 

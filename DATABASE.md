@@ -39,9 +39,9 @@ comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `proved-in` | a proof file in this corpus proves it | 14 |
-| `metamath` | a set.mm label or labels supply it | 60 |
-| `open` | neither; it is cited but unproved and unbridged | 14 |
+| `proved-in` | a proof file in this corpus proves it | 19 |
+| `metamath` | a set.mm label or labels supply it | 112 |
+| `open` | neither; it is cited but unproved and unbridged | 5 |
 
 An item with `proved-in` carries no statement here. The statement lives at the
 head of its proof file, so that it has one home and cannot drift. This is the

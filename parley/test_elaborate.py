@@ -187,12 +187,18 @@ CASES = [
 
     # An item taken as stated is stated as the item says it. Stating the
     # step's claim under the item's hypotheses instead assumed whatever the
-    # step claimed, and the kernel accepts whatever is assumed.
+    # step claimed, and the kernel accepts whatever is assumed. No step in
+    # the corpus cites an item taken as stated for a claim it could get
+    # wrong, so one is made: `card-remove` loses its target and says less
+    # than step 1.2.1.2 claims of it.
     ('claim what an item taken as stated does not state',
-     'subsets-count', 'proof/subsets.proof',
-     '                  1.2.1.7.  𝒫X = U ∪ T\n',
-     '                  1.2.1.7.  𝒫X = U\n',
-     'thm:powerset-split is taken as stated and states'),
+     'subsets-count', 'db/items.records',
+     '  then        |X ∖ {a}| = k\n'
+     '  metamath    hashdifsnp1\n'
+     '  target      hashdifsnp1 with V := X, N := a, Y := k\n',
+     '  then        |X ∖ {a}| ≤ k\n'
+     '  metamath    hashdifsnp1\n',
+     'thm:card-remove is taken as stated and states'),
 
     # An item's target asks a side condition the page never writes, and
     # `rewritten` answers it through the equation the step cites: `0 < |X|`
@@ -203,6 +209,16 @@ CASES = [
      'obtain a: thm:card-nonempty, from K2, C2',
      'obtain a: thm:card-nonempty, from K2',
      'thm:card-nonempty targets hashgt0elex, and none of them reaches'),
+
+    # `elrnmpt1s` reads its map at a term only a cited line supplies. With
+    # the line gone nothing says where the map is read, and the body must
+    # not be read at the lemma's own variable instead.
+    ('put something in an image without the line saying where it comes from',
+     'powerset-split', 'proof/subsets.proof',
+     's := V ∖ {a},\n                    from 1.3.2',
+     's := V ∖ {a}',
+     'no clause of thm:added-element-in-image reaches what step 1.3.3 '
+     'claims'),
 
     # A target is where the claim lands, and a variable bound to the wrong
     # name makes it land somewhere else. That is reported, not assumed.
