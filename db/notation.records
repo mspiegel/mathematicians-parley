@@ -18,6 +18,14 @@
 #               point, formula, function, property, variable, and any. `none`
 #               if the pattern has no hole.
 #   yields      the sort the pattern produces.
+#   kinds       how the kinds of its holes relate, and the kind it produces:
+#               `α, set of α → formula` for membership. A kind is number,
+#               point, formula, `set of K`, `property of K`,
+#               `function from K to K`, or a Greek letter standing for any
+#               kind, shared by every hole that names it. Required wherever a
+#               hole or the result is a set, function, property, variable or
+#               any; a notation of numbers, points and formulas alone takes
+#               its sorts. `GRAMMAR.md` says how kinds are read off a text.
 #   level       its precedence level, from the order declared below.
 #   assoc       left or right. Required exactly when both edges are holes and
 #               `yields` fits those holes, so the pattern can nest in itself;
@@ -132,6 +140,7 @@ notation number-systems
   pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ
   holes       none
   yields      set
+  kinds       → set of number
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals
   metamath    cn, cn0, cz, cq, cr
@@ -145,6 +154,7 @@ notation membership
   pattern     _ ∈ _        _ ∉ _
   holes       any, set
   yields      formula
+  kinds       α, set of α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       is in, is not in
@@ -158,6 +168,7 @@ notation equality
   pattern     _ = _        _ ≠ _
   holes       any, any
   yields      formula
+  kinds       α, α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       equals, is not equal to
@@ -364,6 +375,7 @@ notation cardinality
   pattern     |_|
   holes       set
   yields      number
+  kinds       set of α → number
   reads       the number of elements of
   metamath    chash
   target      _1 chash cfv
@@ -406,6 +418,7 @@ notation subset
   pattern     _ ⊆ _
   holes       set, set
   yields      formula
+  kinds       set of α, set of α → formula
   level       relational
   reads       is a subset of
   metamath    wss
@@ -416,6 +429,7 @@ notation empty-set
   pattern     ∅
   holes       none
   yields      set
+  kinds       → set of α
   reads       the empty set
   metamath    c0
   target      c0
@@ -425,6 +439,7 @@ notation singleton
   pattern     {_}
   holes       any
   yields      set
+  kinds       α → set of α
   reads       the set whose only element is
   metamath    csn
   target      _1 csn
@@ -434,6 +449,7 @@ notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _
   holes       set, set
   yields      set
+  kinds       set of α, set of α → set of α
   level       additive
   assoc       left
   reads       union, difference, intersection
@@ -447,6 +463,7 @@ notation powerset
   pattern     𝒫_
   holes       set
   yields      set
+  kinds       set of α → set of set of α
   level       power
   reads       the power set of
   metamath    cpw
@@ -458,6 +475,7 @@ notation set-builder
   pattern     {_ ∈ _ : _}
   holes       variable, set, formula
   yields      set
+  kinds       α, set of α, formula → set of α
   binds       hole 1 over hole 3
   reads       the set of those in the second with the third
   metamath    crab
@@ -470,6 +488,7 @@ notation set-image
   pattern     {_ : _ ∈ _}
   holes       any, variable, set
   yields      set
+  kinds       β, α, set of α → set of β
   binds       hole 2 over hole 1
   reads       the set of the first as the second runs over the third
   metamath    the range of a cmpt, which is what elrnmpt speaks of
@@ -482,6 +501,7 @@ notation map
   pattern     the map sending _ ∈ _ to _
   holes       variable, set, any
   yields      function
+  kinds       α, set of α, β → function from α to β
   level       binder
   binds       hole 1 over hole 3
   reads       the map sending each of the first in the second to the third
@@ -503,6 +523,7 @@ notation function-type
   pattern     _ : _ → _
   holes       function, set, set
   yields      formula
+  kinds       function from α to β, set of α, set of β → formula
   level       relational
   reads       is a function from, to
   metamath    wf
@@ -513,6 +534,7 @@ notation application
   pattern     _(_)
   holes       function, any
   yields      any
+  kinds       function from α to β, α → β
   reads       applied to
   metamath    cfv
   target      _2 _1 cfv
@@ -526,6 +548,7 @@ notation holds-of
   pattern     _(_)
   holes       property, any
   yields      formula
+  kinds       property of α, α → formula
   reads       holds of
   metamath    substitution into a wff, which set.mm writes by naming the
               variable rather than with a constructor
@@ -545,6 +568,7 @@ notation closed-interval
   pattern     [_, _]
   holes       number, number
   yields      set
+  kinds       number, number → set of number
   reads       the closed interval from, to
   metamath    cicc
   target      _1 _2 cicc co
@@ -647,6 +671,7 @@ notation for-every
   pattern     for every _ ∈ _, _
   holes       variable, set, formula
   yields      formula
+  kinds       α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   reads       for every
@@ -660,6 +685,7 @@ notation for-every-with
   pattern     for every _ ∈ _ with _, _
   holes       variable, set, formula, formula
   yields      formula
+  kinds       α, set of α, formula, formula → formula
   level       binder
   binds       hole 1 over holes 3 and 4
   reads       for every, with
@@ -682,6 +708,7 @@ notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
   holes       variable, set, formula
   yields      formula
+  kinds       α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   negates     pattern 2 is logical-not of pattern 1
@@ -694,6 +721,7 @@ notation there-is-some
   pattern     there is _ ∈ _
   holes       variable, set
   yields      formula
+  kinds       α, set of α → formula
   level       binder
   binds       hole 1 over nothing
   reads       there is
@@ -715,6 +743,7 @@ notation there-are
   pattern     there are _ ∈ _ and _ ∈ _ with _
   holes       variable, set, variable, set, formula
   yields      formula
+  kinds       α, set of α, β, set of β, formula → formula
   level       binder
   binds       holes 1 and 3 over hole 5
   reads       there are, and, with
@@ -732,6 +761,7 @@ notation for-every-set
   pattern     for every set _, _
   holes       variable, formula
   yields      formula
+  kinds       set of α, formula → formula
   level       binder
   binds       hole 1 over hole 2
   reads       for every set
@@ -801,6 +831,7 @@ notation is-a-point
   pattern     _ is a point
   holes       any
   yields      formula
+  kinds       point → formula
   level       predicate
   reads       is a point
   metamath    wcel with ℂ, the plane
@@ -815,6 +846,7 @@ notation is-a-set
   pattern     _ is a set
   holes       any
   yields      formula
+  kinds       set of α → formula
   level       predicate
   reads       is a set
   metamath    wcel with _V, as difexg states it
@@ -831,6 +863,7 @@ notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _
   holes       number, set
   yields      formula
+  kinds       number, set of number → formula
   level       predicate
   reads       is an upper bound of, is a least upper bound of
   metamath    see def:upper-bound and def:least-upper-bound
@@ -851,6 +884,7 @@ notation continuous
   pattern     _ is continuous on _
   holes       function, set
   yields      formula
+  kinds       function from number to number, set of number → formula
   level       predicate
   reads       is continuous on
   metamath    ccncf
@@ -894,6 +928,7 @@ notation bijection
   pattern     there is a bijection from _ to _
   holes       set, set
   yields      formula
+  kinds       set of α, set of β → formula
   level       predicate
   reads       there is a bijection from, to
   metamath    wbr with cen

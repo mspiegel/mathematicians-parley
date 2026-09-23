@@ -119,11 +119,16 @@ bare variable. With kinds, `s` in the intermediate value proof is a number from
 its declaration `s ∈ S`, where `S` is a set-builder over `[a, b]`; with flat
 sorts it waited for step 17.25.3 to say `s ∈ ℝ`.
 
-**Status.** The parser and checker today implement flat sorts: a set has the
-sort `set` and nothing about what it holds, and nothing is inferred. A scratch
-checker has inferred kinds over the whole corpus under these rules and found no
-clash in 16 proofs and 108 statements, and no statement that narrows another
-where it is cited.
+**How the tools do it.** Each notation's `kinds` field in `db/notation.records`
+relates its holes' kinds, and `parley/kinds.py` reads a statement or a proof in
+the order it is written, unifying as it goes. A name declared of any kind — `be
+a set`, `be an element` — stays free while its statement or its block's opening
+lines may still relate it, and is fixed where the proof under them begins; from
+there nothing may narrow it. The checker reports each clash where it is
+written, including a citation whose statement would narrow a set declared of any
+kind, and each cited statement is read on its own and copied fresh at each use.
+The parser still works with the flat sorts, and takes from the kinds only a sort
+the flat reading leaves unknown: `let S ∈ 𝒫X` makes S a set.
 
 **The parser checks every hole against its declared sort**, not only where two
 notations compete. The sorts are declared, and an unchecked declaration rots;
@@ -139,18 +144,18 @@ it parses every formula in the corpus, and two of the places it found were a
 step whose name came from a `define` and an item that never said its Y was a
 set.
 
-**A value of no known sort fits any hole.** Under the flat sorts the parser
-implements today, five places in the corpus need this, all of them `s` in the
-intermediate value proof, declared `let s ∈ S` where `S` is a set-builder so
-the declaration gives no number sort. Four are order comparisons and one is
-`f(s) < 0`. Three of the five are the quantified sentences at steps 6, 10 and
-17.25, where `s` is bound by the binder and the sort has to come from what `S`
-holds. With kinds all five have a sort from their declaration, and the rule is
-left for a name whose kind the text genuinely leaves open.
+**A value of no known sort fits any hole.** The corpus has 29 places where a
+name of no known sort fills a hole that wants a number, and nearly all of them
+are names a quantifier binds: `for every s ∈ S, d ≤ s`, `there are m ∈ ℤ and
+n ∈ ℤ with d = a·m + b·n`. What such a name is, is what its domain holds, and
+the kinds read it so and check it. The parser's sorts are a name's for the
+whole theorem, and a bound name is not one, since the same letter may be bound
+over a set of numbers in one sentence and a set of sets in another; so the
+parser leaves it unknown, and this rule is what lets it through.
 
 Refusing them would be the sort system rejecting proofs for failing a test it
-was never introduced to run: `≤` and `<` are not overloaded, so nothing is
-ambiguous in any of the five. So checking is real but partial, and it is worth
+was never introduced to run: none of the 29 sits where two notations compete,
+so nothing is ambiguous in any of them. So checking is real but partial, and it is worth
 being precise about what that costs, because it is less than it sounds.
 
 The failure worth fearing is the parser reading one formula while the reader

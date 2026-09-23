@@ -19,6 +19,7 @@ from pathlib import Path
 import targets
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import kinds
 from formula import Grammar, parse
 from match import (
     PROPERTY,
@@ -40,6 +41,7 @@ from parse import (
     REF,
     Problem,
     check_encoding,
+    declined,
     fmt,
     parse_database,
     parse_proof,
@@ -227,10 +229,31 @@ def check_notation(report, records):
         holes = [h.strip() for h in r.fields.get('holes', '').split(',') if h.strip()]
         yields = r.fields.get('yields', '').strip()
 
+        # Where a hole or the result is a set, a function, a property, a
+        # variable or any term, what it holds is a kind the text reads off,
+        # and `kinds` says how the holes' kinds relate. One kind per hole.
+        want = 0 if holes == ['none'] else len(holes)
+        needs = (any(h in ('set', 'function', 'property', 'variable', 'any')
+                     for h in holes)
+                 or yields in ('set', 'function', 'any'))
+        said = r.fields.get('kinds')
+        if needs and not said:
+            report.say(r.path, r.line,
+                       f'notation {r.name} has a {yields} or set-like hole '
+                       f'and no `kinds` saying what it holds')
+        if said:
+            made = kinds.signature(said.strip())
+            if declined(made):
+                report.say(r.path, r.line,
+                           f'notation {r.name}: kinds {made}')
+            elif made.holes != want:
+                report.say(r.path, r.line,
+                           f'notation {r.name} declares {want} hole(s) and '
+                           f'kinds for {made.holes}')
+
         # Every pattern of one record takes the same holes, so they must agree
         # on how many there are.
         counts = {p.count('_') for p in patterns}
-        want = 0 if holes == ['none'] else len(holes)
         if counts != {want}:
             report.say(r.path, r.line,
                        f'notation {r.name} declares {want} hole(s) but its '
@@ -1515,6 +1538,101 @@ def check_symbols(report, records):
                        f'symbol it introduces cannot be reached')
 
 
+def statement_kinds(g, records, theorems):
+    """What each item's and each proved theorem's names are, by its name.
+
+    A cited statement is read on its own, and each citation takes its own
+    copy of what it says (`kinds.copy`), so the kinds a statement relates stay
+    related and nothing one citation fixes reaches another.
+    """
+    out = {}
+    for r in records:
+        if r.kind not in ('definition', 'theorem') or 'proved-in' in r.fields:
+            continue
+        g.sorts = sorts_of_record(r)
+        reader = kinds.Reader(g)
+        for kind, text, _label, no in r.hypotheses:
+            if kind == 'let':
+                kinds.introduce(reader, text, no, g)
+            else:
+                kinds.claim_text(reader, LABEL_AT_END.sub('', text).strip(),
+                                 no, g)
+        for text, no in r.conclusions:
+            kinds.claim_text(reader, text, no, g)
+        out[r.name] = reader
+    for thm in theorems:
+        sorts_in_scope(thm, g)
+        reader = kinds.Reader(g)
+        for kind, text, _label, no in thm.hypotheses:
+            body = LABEL_AT_END.sub('', text[len(kind):]).strip()
+            if kind == 'let':
+                kinds.introduce(reader, body, no, g)
+            else:
+                kinds.claim_text(reader, body, no, g)
+        kinds.claim_text(reader, thm.conclusion, thm.line, g)
+        out[thm.name] = reader
+    return out
+
+
+def check_item_kinds(report, statements):
+    """An item's statement is one kind throughout where it says so."""
+    for name, reader in statements.items():
+        for line, what, why in reader.clashes:
+            report.say('db/items.records', line, f'{name}: {what}: {why}')
+
+
+def check_kinds(report, thm, g, statements):
+    """What a proof's names are, read off how it uses them, fits.
+
+    `READERS.md`: a set has the kind of what it holds, nobody writes it, and
+    a set of any kind stays any kind. Each line is read in the order it is
+    written — a `let` shadows an earlier name, since blocks reuse letters —
+    and each citation's written `v := t` is fitted to a fresh copy of what
+    the cited statement says v is. What does not fit is reported where it
+    is: two kinds joined where one is wanted, an element of a set of
+    numbers said to be a set, and a set declared of any kind that a citation
+    would narrow, which is what `let a be a set` in `add-element-bijection`
+    did to `subsets-count`.
+    """
+    sorts_in_scope(thm, g)
+    reader = kinds.read_theorem(
+        thm, g, cite=lambda r, step: _cited_kinds(r, step, g, statements))
+    for line, what, why in reader.clashes:
+        report.say(thm.path, line, f'{what}: {why}')
+
+
+def _cited_kinds(reader, step, g, statements):
+    """Each written `v := t` of a step's citations, fitted to the cited
+    statement.
+
+    Each citation takes its own copy of what the statement says v is.
+    """
+    cites = []
+    item = cited_item(step.just)
+    if item:
+        cites.append((item.split(':', 1)[1], step.just.text))
+    for _fact, how, _no in step.requires:
+        m = re.match(rf'^(?:def|thm):({NAME})', how)
+        if m:
+            cites.append((m.group(1), how))
+    for name, text in cites:
+        stated = statements.get(name)
+        if stated is None:
+            continue
+        seen = {}
+        for v, t in instantiation(text):
+            if v not in stated.env:
+                continue
+            try:
+                got = reader.kind(parse(t, g), step.line)
+            except Problem:
+                continue
+            said = kinds.unify(got, kinds.copy(stated.env[v], seen))
+            if declined(said):
+                reader.clashes.append(
+                    (step.line, f'citing {name} with {v} := {t}', str(said)))
+
+
 def check_formulas(report, thm, g):
     """Every formula on the page parses, and parses one way.
 
@@ -1723,8 +1841,11 @@ def main(root):
     check_declared(report, records, fixes)
 
     proved = {}
+    statements = statement_kinds(grammar, records, theorems)
+    check_item_kinds(report, statements)
     for thm in theorems:
         check_formulas(report, thm, grammar)
+        check_kinds(report, thm, grammar, statements)
         check_contradiction(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)

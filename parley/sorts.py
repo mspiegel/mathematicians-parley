@@ -1,16 +1,17 @@
 """Where a name's sort comes from.
 
-GRAMMAR.md's "Sorts" section is the specification. Every sort is written on the
-page, so this module only reads what the text states: a `let` line, the claim
-of the `obtain` step that introduces a name, the right-hand side of a `define`,
-or any numbered step claiming a membership. Nothing here guesses, and a name
-these four sources do not reach simply has no sort, which every hole accepts.
-
-The sorts are flat, so a set carries no sort for its elements and a membership
-gives a sort only when it names a number system. That is why the five number
-systems are named below. It is the one place the tools know a notation by its
-text, and it is here rather than in the parser because the rule is about what a
+GRAMMAR.md's "Sorts" section is the specification. A declaration is written on
+the page, so this module first reads what the text states: a `let` line, the
+claim of the `obtain` step that introduces a name, the right-hand side of a
+`define`, or any numbered step claiming a membership. A membership gives a sort
+there only when it names a number system, which is why the five number systems
+are named below: it is the one place the tools know a notation by its text, and
+it is here rather than in the parser because the rule is about what a
 membership states, not about how a formula reads.
+
+What those leave unknown, the kinds may settle (`kinds.py`): a set has the kind
+of what it holds, so `let S ∈ 𝒫X` makes S a set though no number system is
+named. A name neither reaches has no sort, which every hole accepts.
 """
 import re
 
@@ -141,5 +142,15 @@ def sorts_in_scope(thm, g):
                 found = _from_introduction(sentence.strip().rstrip('.').strip())
                 if found:
                     out.setdefault(*found)
+    # What the lines above leave unknown, the kinds may settle: `let S ∈ 𝒫X`
+    # names no number system, and S is a set because what 𝒫X holds is sets.
+    # Read with the sorts found so far, and only where they found none.
+    # Imported here: `kinds` parses with the sorts this module gives it.
+    g.sorts = out
+    from kinds import read_theorem, sort_of
+    for name, kind in read_theorem(thm, g).env.items():
+        settled = sort_of(kind)
+        if settled:
+            out.setdefault(name, settled)
     g.sorts = out
     return out

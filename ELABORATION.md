@@ -14,8 +14,9 @@ built. **Build first, every time** — the gate never runs the elaborator over
 the corpus, so breaking the elaborator and leaving the built files alone
 passes every stage.
 
-Sixteen theorems stand in `proof/`, all of them elaborate, and
-`build.py` writes 23 artifacts. `elaboration/elaborated/` holds what the
+Every theorem in `proof/` elaborates, and `build.py` writes one artifact for
+each, one for the definitions, one for the geometry, and one for each proof
+worked out by hand. `elaboration/elaborated/` holds what the
 program writes. The files beside it are hand-written: `geometry.mm`, which is
 the only statement of what it proves, and hand elaborations kept for
 comparison.
@@ -402,11 +403,20 @@ elements; a shallower search found T finite through the bijection of line
 1.2.1.4 instead. Filtered, it cannot: the search finds a route through what
 the step names, or says that nothing the step names reaches the claim.
 
-The search is bounded by how many lemmas one chain applies on top of one
-another, and five is the deepest chain the corpus needs — that same step,
-where T is finite by `hashvnfin` and a set by `rnexg`, `mptexg`, `pwexg` and
-`difexg`. Splitting a conjunction applies no lemma and spends none of it;
-nor does going under a "for every".
+That a term is a set, in set.mm's sense, is not searched for: `made_a_set`
+reads it off the constructor at the term's head — `pwexg` for a power set,
+`difexg` for a difference, `rnexg` for a range, and so on (`SETHOOD`) — and
+asks the same of the parts, down to a kernel variable (`vex`) or a class the
+statement introduced. Each `let` line's class is a set by a fact `run` seals
+as a sort (`sethood@H2`): `let a ∈ X` by `elex`, `let a ∉ X` and `let x be an
+element` by the conjunct `hypothesis_body` adds. A step rests on it without
+naming it, as on `let X be a set`, since `READERS.md` makes it apparatus.
+
+The rest of the search is bounded by how many lemmas one chain applies on top
+of one another, and three is the deepest chain the corpus needs: step 2.1 of
+the geometric series needs `A^0 ∈ ℂ`, by `recn` from `A^0 ∈ ℝ`, by `reexpcl`
+asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
+spends none of it; nor does going under a "for every".
 
 ## What a file states rather than proves
 
@@ -446,12 +456,12 @@ bound name is spoken for, and so is the name a definition defines over.
 Nothing checks that an item's statement is true beyond that. The list at the
 head of each file is what to read when it changes.
 
-Fourteen of the seventeen written files assume nothing. What is left:
+Every written file but three assumes nothing. What is left:
 
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `subsets-count.mm` | 4 | two items set.mm has no label for, two a `target` cannot reach |
+| `subsets-count.mm` | 3 | `thm:powerset-split`, which set.mm has no label for, and two a `target` cannot reach |
 | `intermediate-value.mm` | 13 | continuity, two items with no `target`, and ten `inequalities` steps |
 
 `intermediate-value`'s ten `inequalities` steps are decided — the certificate
@@ -470,17 +480,13 @@ hypothesis saying what the size was. Nothing here rewrites by a line's equation
 while settling a side condition. `thm:powerset-split` is `open`: no set.mm
 label states it, and it wants a proof in the readable layer.
 
-`thm:powerset-split-disjoint` is `open` for a different reason, and its proof
-is held out of `proof/`. Its step `a ∈ S ∪ {a}` rests, in the kernel, on a
-being a set, and a is a set there only because it is an element of X: in set.mm
-everything is a set, numbers and points included, so `elex` gives it from
-`a ∈ X`. A reader told `let a ∈ X`, with X a set of numbers, does not think a
-is a set. `READERS.md` now says which gives way: a set has a kind, an element
-of it is a thing of that kind, and the kernel's use of its sethood is
-apparatus, hidden like a class variable and never written. What is not done is
-the tools' side — kinds in the parser and checker, and an elaborator that uses
-an element's sethood without the page asking it — and until it is, the proof
-stays out.
+`thm:powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
+`a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only
+because it is an element of X: in set.mm everything is a set, numbers and
+points included, so `elex` gives it from `a ∈ X`. A reader told `let a ∈ X`,
+with X a set of numbers, does not think a is a set, and `READERS.md` says the
+kernel's use of it is apparatus: `run` seals a's sethood as a sort, and the
+step names nothing for it.
 
 The assumption count is the measure that says whether a method is written or
 only named.
@@ -627,11 +633,10 @@ told `let a ∈ X` with X a set of numbers does not think a is one. `READERS.md`
 decides it — the kernel's sethood of an element is hidden apparatus — and
 `let a ∉ X` and `let x be an element` are how a statement introduces such a
 thing: `hypothesis_body` reads each as the thing being a set as well, which
-the page never writes. `subsets-count` step 1.2.1.4 still has the kernel prove
-its `a` a set by `vex`, now as that apparatus. Nothing yet checks that the page
-never claims an element is a set, and `thm:powerset-split-disjoint`'s proof is
-held out until the tools do their side; see *What a file states rather than
-proves*.
+the page never writes. The elaborator proves a term a set from its structure
+and from those facts, and never asks the page for it; the checker's kinds
+report a page that claims an element of a set of numbers is a set. See *What a
+file states rather than proves* for the proof this let back into `proof/`.
 
 ## Geometry
 
@@ -673,8 +678,8 @@ maintains. Missing, the stage says so and the gate is not green, the way it
 goes for ruff: a gate that skipped either would be saying green about a thing
 it had not looked at.
 
-`parley/verify.py` runs `mmverify.py` over all 30 proofs — the sixteen
-theorems and `geometry.mm`'s fourteen lemmas — in about nineteen seconds,
+`parley/verify.py` runs `mmverify.py` over every proof — the elaborated
+theorems and `geometry.mm`'s lemmas — in about nineteen seconds,
 nearly all of which is reading set.mm. Given a file whose whole contents are
 `$[ set.mm $]` it takes 17.8 seconds, and the proofs add a tenth of one.
 Which files that one includes is read off the `$[ ... $]` lines rather than

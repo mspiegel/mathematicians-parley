@@ -15,7 +15,7 @@ introduces; `geometry.mm` has to exist before any theorem elaborates, because
 hand-written proofs read nothing.
 
 Saying it in a field rather than in the order of the list is what lets the
-sixteen that wait for nothing run at once. They are separate processes
+ones that wait for nothing run at once. They are separate processes
 writing separate paths and sharing only the machine, so the only thing the
 concurrency costs is memory: each holds its own copy of the library.
 
@@ -50,7 +50,7 @@ CITES = re.compile(r'\bthm:([A-Za-z0-9-]+)')
 SETMM = '<set.mm>'
 # How many recipes run at once. Each holds its own copy of set.mm's 51,256
 # signatures and peaks near 550MB, so the ceiling is there to keep a wave of
-# sixteen from asking for nine gigabytes at once.
+# every theorem at once from asking for gigabytes the machine may not have.
 WORKERS = min(8, os.cpu_count() or 1)
 
 
@@ -65,21 +65,22 @@ class Artifact:
     needs: tuple = ()   # artifacts whose files this recipe reads
 
 
-# The sixteen readable proofs the elaborator can expand. The file each
+# The readable proofs the elaborator can expand. The file each
 # writes is named for the theorem, which is not always the name of the proof
 # file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
-# `geometric-sum` from `proof/geometric-series.proof`, both `subsets-count`
-# and `add-element-bijection` from `proof/subsets.proof`, both
+# `geometric-sum` from `proof/geometric-series.proof`, `subsets-count`,
+# `add-element-bijection` and `powerset-split-disjoint` from
+# `proof/subsets.proof`, both
 # `least-combination-divides` and `bezout` from `proof/bezout.proof`, and
-# four from `proof/sqrt2-irrational.proof`, which holds the theorem it is
-# named for and the three it leans on.
+# several from `proof/sqrt2-irrational.proof`, which holds the theorem it is
+# named for and the ones it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
             'sqrt2-irrational', 'prime-above', 'geometric-sum',
-            'least-combination-divides', 'bezout', 'add-element-bijection',
-            'subsets-count', 'intermediate-value')
+            'least-combination-divides', 'bezout', 'powerset-split-disjoint',
+            'add-element-bijection', 'subsets-count', 'intermediate-value')
 
-# The five proofs worked out by hand, which share two of their names with
+# The proofs worked out by hand, some of which share their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`
 # compares the two of each pair.
 BY_HAND = ('parity', 'sqrt2', 'algebra', 'sum-formula', 'abs-bounds')
@@ -87,7 +88,7 @@ BY_HAND = ('parity', 'sqrt2', 'algebra', 'sum-formula', 'abs-bounds')
 ARTIFACTS = [
     Artifact('definitions', 'elaboration/elaborated/definitions.mm',
              ('parley/elaborate.py', '--definitions', SETMM), True),
-    # Hand-written like the five below, and generated like the eleven above:
+    # Hand-written like the ones below, and generated like the ones above:
     # `build-geometry.py` holds its proofs, so it sits outside the directory
     # of things elaborated from the readable layer, and is still built here.
     Artifact('geometry', 'elaboration/geometry.mm',
@@ -176,7 +177,7 @@ def waves(wanted):
     """The artifacts in groups that may be built at the same time.
 
     An artifact waits for the files it reads and for nothing else, so the
-    sixteen that read none of each other's go at once. A `needs` naming
+    ones that read none of each other's go at once. A `needs` naming
     something not being built is not waited for: asking for one theorem
     rebuilds that theorem and not the geometry it reads, the same as asking
     for it before this ran concurrently.

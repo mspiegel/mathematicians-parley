@@ -189,13 +189,13 @@ MEMBERSHIP = [
     # and what a commuting pair asks, which `db/notation.records` declares by
     # notation and this answers by statement
     'mulcom', 'addcom',
-    # and sethood, which set theory asks where arithmetic asks closure
-    'rabexg', 'ssexg', 'difexg', 'pwexg', 'unexg', 'rnexg', 'mptexg', '0ex',
-    # A name a `fix` or an `obtain` introduces is a setvar, and a setvar is
-    # a set by the kernel's own reckoning. `elpwg` asks it of whatever it
-    # puts in a power set, and a proof that fixed the thing has nothing to
-    # say about it that `vex` does not.
-    'vex', 'snidg', 'snex',
+    # and sethood, which set theory asks where arithmetic asks closure. What
+    # a term's constructor decides is `elaborate.SETHOOD`'s, read off the
+    # term and not searched for; a subset of a set being a set is not a
+    # constructor, and is tried here.
+    'ssexg',
+    # A singleton holds what it names, which `elpwg`'s users ask.
+    'snidg',
     # A map sends no two things to the same place, which is what the readable
     # layer says, and set.mm reaches equinumerosity from it through the map
     # itself — one-to-one, then onto its own range. Neither of those is

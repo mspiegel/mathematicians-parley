@@ -398,6 +398,34 @@ CASES = [
      '  let X be a set                                                      (H1)\n',
      'theorem card-nonempty: k stands where a number goes'),
 
+    # A set has the kind of what it holds, and the page never writes it
+    # (`READERS.md`); the checker reads it off the text. Flat sorts saw none
+    # of the three below: to them a set was a set.
+    ('put a set of numbers inside a set of sets of numbers',
+     'proof/intermediate-value.proof',
+     '3.  S ⊆ [a, b]\n',
+     '3.  S ⊆ 𝒫[a, b]\n',
+     '𝒫: a set of sets of numbers where a set of numbers is wanted'),
+
+    ('say an element of a set of numbers is a set',
+     'proof/intermediate-value.proof',
+     '    6.1.  s ∈ [a, b]\n          def:set-builder, from K1\n',
+     '    6.1.  s ∈ [a, b]\n          def:set-builder, from K1\n'
+     '          requires s is a set: from K1\n',
+     's: a number where a set of things of a kind not yet fixed is wanted'),
+
+    # A set declared of any kind stays any kind. `let a be a set` made
+    # add-element-bijection's X a set of sets, and subsets-count, whose X is
+    # a set of any kind, cited it: the counting proof would hold of sets of
+    # sets only, and nothing said so.
+    ('cite a statement that narrows a set of any kind',
+     'proof/subsets.proof',
+     '  let a ∉ X                                                           (H2)\n',
+     '  let a ∉ X                                                           (H2)\n'
+     '  let a be a set                                                      (H3)\n',
+     'citing add-element-bijection with X := X ∖ {a}: a set of things of '
+     'any kind (X)'),
+
     ('obtain from a definition without the line it unfolds',
      'proof/sqrt2-irrational.proof',
      '    obtain k: def:odd n := n, from H1, H2',

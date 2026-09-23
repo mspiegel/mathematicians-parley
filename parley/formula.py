@@ -102,6 +102,7 @@ class Notation:
     literal: str = ''          # the tokens the node it builds stands for
     stands_under: str = ''     # the record's name, or another it spells
     fold_literal: str = ''     # the literal of the notation that wraps it
+    kinds: str = None          # how its holes' kinds relate, as written
 
 
 NEGATES = re.compile(r'pattern\s+(\d+)\s+is\s+(\S+)\s+of\s+pattern\s+(\d+)')
@@ -171,7 +172,8 @@ def compile_notations(records):
                 assoc=(assocs[n] if n < len(assocs) else assocs[0]).strip() or None,
                 binds=r.fields.get('binds'),
                 folds=(folded.group(2) if folded
-                       and int(folded.group(1)) == n + 1 else None)))
+                       and int(folded.group(1)) == n + 1 else None),
+                kinds=r.fields.get('kinds')))
     # A folded pattern builds the notation that wraps it, so it needs that
     # notation's literal too: `n is not odd` has to come out the same as
     # `not (n is odd)`, down to what stands in the outer node.

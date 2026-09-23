@@ -127,6 +127,14 @@ CLOSED = {
     ('cexp', 'cn0'): 'nn0expcld',
 }
 NEGATED = {'cc': 'negcld', 'cr': 'renegcld', 'cz': 'znegcld'}
+# The lemma that makes a term a set, in set.mm's sense of not a proper
+# class, by the constructor at its head; what it asks is its parts' sethood,
+# which the same table answers. A kernel variable is a set by `vex`, and a
+# class the statement introduced by its `let` line (`sethood@` in `run`).
+# `READERS.md`: this is apparatus, and the page never writes it.
+SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
+           'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
+           'cv': 'vex'}
 
 
 
@@ -549,17 +557,17 @@ class Elaborator(Builder):
             stack.append(kernel.Term(token, tuple(args)))
         return stack[0]
 
-    def settle(self, wanted, scope, facts, depth=5, step=None, lines=None):
+    def settle(self, wanted, scope, facts, depth=3, step=None, lines=None):
         """A proof of something a step needs and the text does not write.
 
         `depth` bounds how many declared lemmas a chain applies one on top
-        of another, and five is the deepest chain in the corpus: step
-        1.2.1.8 of the subsets proof needs T finite, which is `hashvnfin`
-        from the size the step cites, and T a set, which is `rnexg`,
-        `mptexg`, `pwexg` and `difexg` down to X. At four the claim cannot
-        be reached from what the step names, and the step is reported.
-        Splitting a conjunction applies no lemma and spends nothing: there
-        is one way to prove both halves, and the parts are smaller.
+        of another, and three is the deepest chain in the corpus: step 2.1
+        of the geometric series needs `A^0 ∈ ℂ`, which is `recn` from
+        `A^0 ∈ ℝ`, which is `reexpcl` asking `0 ∈ ℕ₀`, which is `0nn0`.
+        Three other theorems need three as well. That a term is a set is not
+        searched for and spends none of it (`made_a_set`), and neither does
+        splitting a conjunction: there is one way to prove both halves, and
+        the parts are smaller.
 
         What is offered is only what the proof being built may rest on
         (`resting_on`), so a route through a line the step does not name
@@ -582,6 +590,14 @@ class Elaborator(Builder):
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        # Whether a term is a set is read off its structure, not searched
+        # for: the constructor at its head says which lemma, and what the
+        # lemma asks is its parts' sethood, which comes back here.
+        if (wanted.label == 'wcel' and len(wanted.children) == 2
+                and wanted.children[1].rpn(self.flabel) == 'cvv'):
+            made = self.made_a_set(wanted, scope, facts)
+            if not declined(made):
+                return made
         # A membership a requires line wrote in another number system is the
         # one to carry, before the lemmas below are tried in their order:
         # `nncn` stands before `recn`, and would take `A ∈ ℂ` from the
@@ -1664,6 +1680,7 @@ class Elaborator(Builder):
         for extra in terms:
             if extra in facts:
                 self.unpack(extra, facts[extra], scope, facts)
+        self.sorts = self.sorts | self.sethoods(nodes, terms, scope, facts)
 
         lines = {h[2]: Fact(t, facts[t])
                  for h, t in zip(self.thm.hypotheses, terms, strict=True)}
@@ -7042,6 +7059,57 @@ class Elaborator(Builder):
                            proof,
                            self.ap(label, {self.sigs[label].push[0]: said}))
         return None
+
+    def sethoods(self, nodes, terms, scope, facts):
+        """The sethood of each class a statement's `let` lines introduce.
+
+        In the kernel's sense — not a proper class — which the page never
+        says (`READERS.md`, hidden entirely): `let a ∈ X` makes a a set by
+        `elex`, and `let a ∉ X` and `let x be an element` by the conjunct
+        `hypothesis_body` adds. Each goes into `facts` sealed as
+        `sethood@<label>`, and those origins are what this gives back, for
+        `self.sorts`: a step rests on a thing's sethood as it rests on
+        `let X be a set`, without naming the line. `be a set` is already a
+        sort.
+        """
+        out = set()
+        for h, node, t in zip(self.thm.hypotheses, nodes, terms, strict=True):
+            if h[0] != 'let' or not h[2] or ' be a set' in h[1]:
+                continue
+            kernel = self.names.get(self.subject_of(node).text)
+            if kernel is None:
+                continue
+            said = self.seq(kernel, 'cvv', 'wcel')
+            origin = f'sethood@{h[2]}'
+            if said in facts:
+                facts[said] = self.seal(facts[said], origin)
+            elif node.notation == 'membership' and t in facts:
+                a, b = (c.rpn(self.flabel) for c in self.to_term(t).children)
+                facts[said] = self.seal(
+                    self.seq(scope, t, said, facts[t],
+                             self.ap('elex', {'A': a, 'B': b}), 'syl'),
+                    origin)
+            else:
+                continue
+            out.add(origin)
+        return out
+
+    def made_a_set(self, wanted, scope, facts):
+        """`term ∈ V` from the constructor at the term's head; else a decline.
+
+        `SETHOOD` names the lemma, and `apply_lemma` asks what it asks — the
+        parts' sethood — of `settle`, which comes back here for each part. A
+        part that is a class the statement introduced is a fact already,
+        sealed as a sort in `run`. Nothing is searched: a term whose head is
+        not in the table declines, and the table's lemmas in
+        `targets.MEMBERSHIP` are what is tried after.
+        """
+        head = wanted.children[0]
+        lemma = SETHOOD.get(head.label) if head.variable is None else None
+        if lemma is None:
+            return Declined(f'no lemma makes a {head.label} a set')
+        return self.apply_lemma(lemma, wanted, scope, facts, None,
+                                crossing=False)
 
     def built(self, said, system, scope, facts):
         """`said ∈ system` for a compound, from its parts; else a decline.

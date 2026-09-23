@@ -73,20 +73,23 @@ distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
 matches the kind of the item it names.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
-for each hole, the sort each hole takes, what the pattern yields, its
-precedence level, its associativity where one is needed, and whether one of its
-patterns is the negation of another. There are two
+for each hole, the sort each hole takes, what the pattern yields, how the kinds
+of its holes relate where a hole holds sets or functions (`kinds`, `α, set of α
+→ formula` for membership), its precedence level, its associativity where one
+is needed, and whether one of its patterns is the negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
 a hole marked as binding. `db/notation.records` describes the fields, and one
 `precedence` record declares the order between levels as a partial order, so a
 formula mixing two levels that convention does not relate is rejected rather
 than guessed at.
 
-Two things about a notation are then mechanical and the checker enforces both:
-that the holes a record declares match the holes its patterns have, and that a
-pattern declares an associativity exactly when it can nest in itself, meaning
-both edges are holes and what it yields fits those holes. Ten of the 55 records
-meet that condition.
+Three things about a notation are then mechanical and the checker enforces all
+three: that the holes a record declares match the holes its patterns have, that
+a pattern declares an associativity exactly when it can nest in itself, meaning
+both edges are holes and what it yields fits those holes, and that a record
+with a set, function, property, variable or any hole or result says its
+`kinds`, readable and one per hole. Of the 57 records, ten meet the second
+condition and 27 the third.
 
 ## The character set
 
