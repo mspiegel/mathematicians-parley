@@ -477,7 +477,7 @@ Every written file but three assumes nothing. What is left:
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `subsets-count.mm` | 3 | `thm:powerset-split`, which set.mm has no label for, and two a `target` cannot reach |
+| `subsets-count.mm` | 1 | `thm:powerset-split`, which set.mm has no label for |
 | `intermediate-value.mm` | 2 | continuity and completeness |
 
 What `intermediate-value` states is not one lemma away. set.mm's
@@ -487,13 +487,16 @@ readable definition says ε ∈ ℝ with ε > 0 and |x − c|. Its completeness,
 bound. `thm:point-right`, which set.mm has no label for, is proved at the head
 of the same file.
 
-`thm:card-remove` and `thm:card-nonempty` have their labels — `hashdifsn` and
-`hashnncl` — and no `target`, because what stands between each lemma and its
-item is an equation the step cited. `hashdifsn` says the size drops by one and
-the item says what it drops to, which is `( k + 1 ) - 1 = k` read through the
-hypothesis saying what the size was. Nothing here rewrites by a line's equation
-while settling a side condition. `thm:powerset-split` is `open`: no set.mm
-label states it, and it wants a proof in the readable layer.
+`thm:card-remove` is `hashdifsnp1`, which states it whole: the size is given
+as k + 1, so nothing asks that X be finite. `thm:card-nonempty` is
+`hashgt0elex`, which asks that the size be positive. The page never says so,
+and it follows from the line the step cites, `|X| = k + 1`: `settle` reads
+`0 < |X|` through that equation as `0 < k + 1`, which `nn0p1gt0` gives from
+k ∈ ℕ₀, and the congruence carries it back. Only an equation the step cites
+is read this way, and only a term built from others is replaced, never a
+name, whose value a `substitute` line puts in its place where a reader can
+see it. `thm:powerset-split` is `open`: no set.mm label states it, and it
+wants a proof in the readable layer.
 
 `thm:powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
 `a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only

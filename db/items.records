@@ -728,11 +728,12 @@ theorem card-nonempty
   let k ∈ ℕ₀                                                          (H2)
   assume |X| = k + 1                                                  (H3)
   then        there is a ∈ X
-  metamath    hashnncl, n0
+  metamath    hashgt0elex
+  target      hashgt0elex with V := X
   first-used  subsets
-  note        No `target` yet, and the same bridge `thm:card-remove` wants:
-              `hashnncl` asks that the size be a natural number where the
-              hypothesis says what the size is.
+  note        `hashgt0elex` asks that the size be positive where the
+              hypothesis says what the size is, so the size is read as
+              k + 1 through that hypothesis before `nn0p1gt0` answers.
 
 theorem card-remove
   let X be a set                                                      (H1)
@@ -740,13 +741,11 @@ theorem card-remove
   let k ∈ ℕ₀                                                          (H3)
   assume |X| = k + 1                                                  (H4)
   then        |X ∖ {a}| = k
-  metamath    hashdifsn
+  metamath    hashdifsnp1
+  target      hashdifsnp1 with V := X, N := a, Y := k
   first-used  subsets
-  note        No `target` yet. `hashdifsn` says the size drops by one and the
-              item says what it drops to, so the bridge between them is
-              `( k + 1 ) - 1 = k` read through the hypothesis that says what
-              the size was. An elaborator that rewrote by an equation a step
-              cited would have it; none does.
+  note        `hashdifsnp1` states this item whole, hypotheses included:
+              the size is given as k + 1, so nothing asks that X be finite.
 
 theorem card-bijection
   let X be a set                                                      (H1)

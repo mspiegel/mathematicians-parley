@@ -216,8 +216,10 @@ MEMBERSHIP = [
     # set.mm says the same thing three ways and relates them, so a line
     # putting something in the set reaches it.
     'ne0i', 'n0', 'rextru',
-    # and what an order relation asks, which is the same kind of thing
-    'ltle', 'ltnri', 'leid', 'nn0ge0', 'nngt0',
+    # and what an order relation asks, which is the same kind of thing.
+    # `nn0p1gt0` is what a size given as k + 1 says about being positive,
+    # which `hashgt0elex` asks before it will say the set has an element.
+    'ltle', 'ltnri', 'leid', 'nn0ge0', 'nngt0', 'nn0p1gt0',
     # A lemma stated over the integers asks what a natural number being one
     # does not say in those words: `divalg` divides by anything but zero,
     # and the readable statement divides by a natural number. It bounds by

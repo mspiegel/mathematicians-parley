@@ -388,6 +388,7 @@ class Elaborator(Builder):
         self.defines = frozenset()   # labels of `define` lines
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
+        self.rewriting = set()   # terms `rewritten` is working on now
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
@@ -577,7 +578,8 @@ class Elaborator(Builder):
         the upper integers, that a summand is complex — and those are not
         `requires` lines, because to a reader they are not steps. They are
         settled from the lemmas `targets.MEMBERSHIP` names, by matching what
-        each concludes against what is wanted.
+        each concludes against what is wanted, and failing that from what is
+        wanted read through an equation the step cites (`rewritten`).
 
         A step is passed only where one is there to have cited a witness,
         which is what lets an existential be proved at all. Side conditions
@@ -666,7 +668,91 @@ class Elaborator(Builder):
             found = self.said_otherwise(wanted, scope, facts, depth)
             if found is not None:
                 return found
+            found = self.rewritten(wanted, scope, facts, depth)
+            if not declined(found):
+                return found
         return self.no('cannot settle {}', rpn)
+
+    def rewritten(self, wanted, scope, facts, depth):
+        """What is wanted, with a term in it put as an equation in hand says.
+
+        `hashgt0elex` asks that a set's size be positive, and the subsets
+        proof says what the size is: |X| = k + 1, the line the step cites.
+        Nothing declared says a size is positive, and something does say
+        k + 1 is, once the size is read as the line says. So the term is
+        replaced by what the equation equates it to, what is left is
+        settled, and the congruence carries it back.
+
+        The equations are the ones in `facts`, which during a step is what
+        the step names and the sorts (`resting_on`), and the sorts are
+        never equations. So this rewrites only by a line the step cites,
+        and a line merely in scope rewrites nothing.
+
+        Only a term built from others is replaced, never a name or a
+        constant. Putting a name's value in its place is what a
+        `substitute` line writes, so a reader sees it done; a size or a sum
+        read as a line equates it is the step's own business. No proof in
+        the corpus needs more, and none changes when names are allowed too.
+        Each rewrite spends a level, and a term already being rewritten is
+        not rewritten again, so the rewrites stop.
+        """
+        want = wanted.rpn(self.flabel)
+        if want in self.rewriting:
+            return self.no('{} is already being rewritten', want)
+        self.rewriting.add(want)
+        try:
+            return self.rewrite_by_facts(wanted, want, scope, facts, depth)
+        finally:
+            self.rewriting.discard(want)
+
+    def rewrite_by_facts(self, wanted, want, scope, facts, depth):
+        """One pass over the equations in hand, for `rewritten`."""
+        for said in list(facts):
+            equation = self.to_term(said)
+            if equation.label != 'wceq' or len(equation.children) != 2:
+                continue
+            left, right = equation.children
+            for old, new in ((left, right), (right, left)):
+                if old.variable is not None or not old.children \
+                        or old.label == 'cv':
+                    continue
+                was, now = old.rpn(self.flabel), new.rpn(self.flabel)
+                put = self.replaced(wanted, was, new)
+                if put.rpn(self.flabel) == want:
+                    continue
+                under = self.settle(put, scope, facts, depth - 1)
+                if declined(under):
+                    continue
+
+                def stands(one, other, where, held, was=was, now=now,
+                           said=said, flip=old is left):
+                    if (one.rpn(self.flabel) != now
+                            or other.rpn(self.flabel) != was):
+                        return None
+                    if said not in held:
+                        return self.no('{} is not in hand here', said)
+                    # The line says `was = now` or `now = was`, and what
+                    # carries the settled term back is `now = was`.
+                    return (self.seq(where, was, now, held[said], 'eqcomd')
+                            if flip else held[said])
+
+                alike = self.congruence(put, wanted, scope, facts, None,
+                                        stands)
+                if declined(alike):
+                    continue
+                return self.seq(scope, put.rpn(self.flabel), want, under,
+                                alike, 'mpbid')
+        return self.no('no equation in hand rewrites {}', want)
+
+    def replaced(self, term, was, new):
+        """`term` with every occurrence of the term spelt `was` put as `new`."""
+        if term.rpn(self.flabel) == was:
+            return new
+        if term.variable is not None or not term.children:
+            return term
+        return kernel.Term(term.label,
+                           tuple(self.replaced(c, was, new)
+                                 for c in term.children))
 
     def said_otherwise(self, wanted, scope, facts, depth):
         """What is wanted, held by the scope under another name for a term.
@@ -764,6 +850,10 @@ class Elaborator(Builder):
             side = 0 if backwards else 1
             readings = [([whole.children[1 - side]], ['wb'],
                          whole.children[side])]
+            # and the biconditional itself, which is what `crossed` asks
+            # for when `rextru` is the bridge between two existentials
+            if not backwards:
+                readings.append(((), (), whole))
         elif reads.label == 'wb':
             # Asked something and then said two things. Either side may be
             # what is wanted, and so may the whole biconditional, which is

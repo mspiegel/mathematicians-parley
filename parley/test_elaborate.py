@@ -173,9 +173,6 @@ CASES = [
      '(1 − a^(k + 1)·a)/(1 − a) + 1',
      'is not an identity'),
 
-    # An item taken as stated is stated as the item says it. Stating the
-    # step's claim under the item's hypotheses instead assumed whatever the
-    # step claimed, and the kernel accepts whatever is assumed.
     # A side condition is searched for among what the step names, not among
     # everything in scope. Without 1.2.1.5 the step still needs T finite,
     # and the scope holds |T| = 2^k: offered it, the search found the route
@@ -188,11 +185,32 @@ CASES = [
      'no clause of thm:card-disjoint-union reaches what step 1.2.1.8 '
      'claims'),
 
+    # An item taken as stated is stated as the item says it. Stating the
+    # step's claim under the item's hypotheses instead assumed whatever the
+    # step claimed, and the kernel accepts whatever is assumed.
     ('claim what an item taken as stated does not state',
      'subsets-count', 'proof/subsets.proof',
-     '                  1.2.1.2.  |X ∖ {a}| = k\n',
-     '                  1.2.1.2.  |X ∖ {a}| ≤ k\n',
-     'thm:card-remove is taken as stated and states'),
+     '                  1.2.1.7.  𝒫X = U ∪ T\n',
+     '                  1.2.1.7.  𝒫X = U\n',
+     'thm:powerset-split is taken as stated and states'),
+
+    # An item's target asks a side condition the page never writes, and
+    # `rewritten` answers it through the equation the step cites: `0 < |X|`
+    # is `0 < k + 1` by C2. Without C2 cited, the equation is in scope and
+    # not in hand, and the side condition must go unanswered.
+    ('answer a side condition by an equation the step does not cite',
+     'subsets-count', 'proof/subsets.proof',
+     'obtain a: thm:card-nonempty, from K2, C2',
+     'obtain a: thm:card-nonempty, from K2',
+     'thm:card-nonempty targets hashgt0elex, and none of them reaches'),
+
+    # A target is where the claim lands, and a variable bound to the wrong
+    # name makes it land somewhere else. That is reported, not assumed.
+    ('bind a target variable to the wrong name',
+     'subsets-count', 'db/items.records',
+     '  target      hashdifsnp1 with V := X, N := a, Y := k',
+     '  target      hashdifsnp1 with V := X, N := a, Y := X',
+     'no clause of thm:card-remove reaches what step 1.2.1.2 claims'),
 ]
 
 
