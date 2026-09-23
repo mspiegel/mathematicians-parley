@@ -878,7 +878,14 @@ def supply(patterns, facts, binding, variables, library,
             # check, one line may legitimately answer two requirements: a
             # hypothesis and what an unfolding asks for are often the same
             # fact.
-            rest_facts = facts if reuse else facts[:i] + facts[i + 1:]
+            # A hypothesis whose every variable the binding already fixed is
+            # a closed claim, and what goes wrong above cannot: nothing is
+            # left for the line to bind. `card-disjoint-union` at m := 2^k
+            # and n := 2^k asks `2^k ∈ ℕ₀` twice, and one line says it.
+            pinned = all(n.text in binding for n in walk([first])
+                         if n.notation == 'name' and n.text in variables)
+            rest_facts = (facts if reuse or pinned
+                          else facts[:i] + facts[i + 1:])
             done = supply(rest, rest_facts, found, variables, library, sites,
                           reuse)
             if done is not None:

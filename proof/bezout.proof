@@ -133,6 +133,8 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
     10.2. a·x + b·y ∈ S
           def:set-builder u := a·x + b·y, from K3, 10.1
+          requires x ∈ ℤ: from K1
+          requires y ∈ ℤ: from K2
 
     10.3. d ≤ a·x + b·y
           instantiate s := a·x + b·y in line 5, from 10.2

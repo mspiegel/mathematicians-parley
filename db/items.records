@@ -381,6 +381,16 @@ theorem power-real
               so it has to be known real in its own right rather than through
               its base.
 
+theorem power-nat0
+  let a ∈ ℕ₀                                                          (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℕ₀
+  metamath    nn0expcl
+  target      nn0expcl
+  first-used  subsets
+  note        A size is a member of ℕ₀, and the sizes subsets-count counts are
+              powers of two.
+
 theorem exponent-one
   let a ∈ ℝ                                                           (H1)
   then        a^1 = a
@@ -710,8 +720,9 @@ theorem card-remove
 theorem card-bijection
   let X be a set                                                      (H1)
   let Y be a set                                                      (H2)
-  assume |X| = m                                                      (H3)
-  assume there is a bijection from X to Y                             (H4)
+  let m ∈ ℕ₀                                                          (H3)
+  assume |X| = m                                                      (H4)
+  assume there is a bijection from X to Y                             (H5)
   then        |Y| = m
   metamath    hashen
   target      hashen with A := X, B := Y
@@ -720,9 +731,11 @@ theorem card-bijection
 theorem card-disjoint-union
   let X be a set                                                      (H1)
   let Y be a set                                                      (H2)
-  assume |X| = m                                                      (H3)
-  assume |Y| = n                                                      (H4)
-  assume X ∩ Y = ∅                                                    (H5)
+  let m ∈ ℕ₀                                                          (H3)
+  let n ∈ ℕ₀                                                          (H4)
+  assume |X| = m                                                      (H5)
+  assume |Y| = n                                                      (H6)
+  assume X ∩ Y = ∅                                                    (H7)
   then        |X ∪ Y| = m + n
   metamath    hashun
   target      hashun with A := X, B := Y

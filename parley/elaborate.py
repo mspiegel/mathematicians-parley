@@ -6139,7 +6139,11 @@ class Elaborator(Builder):
         sides of `d || n` in ZZ, and only the side a reader could doubt is
         written down. What no line supplies is settled from the term.
         """
-        if goal in facts:
+        written = {self.term(self.read(t)) for t, _h, _l in step.requires}
+        # The scope's copy of a claim is taken only where no line of the
+        # step writes it: `let x ∈ ℤ` and `requires x ∈ ℤ: from K1` are one
+        # claim, and the step names the second.
+        if goal in facts and goal not in written:
             return facts[goal]
         # A lemma may ask its side conditions as one conjunction where the
         # text writes a line each: `divides` wants ( M e. ZZ /\ N e. ZZ )
@@ -6149,7 +6153,6 @@ class Elaborator(Builder):
         # a time. Only then: a conjunction no line touches is left to the
         # route below, which is what proved it before.
         whole = self.to_term(goal)
-        written = {self.term(self.read(t)) for t, _h, _l in step.requires}
         if any(one.rpn(self.flabel) in written for one in whole.children):
             joined = self.conjoined(
                 whole, scope,
