@@ -353,14 +353,11 @@ class Elaborator(Builder):
         self.arities = {}        # cited corpus label -> how much it takes
         self.reserved = set()    # setvars the conclusion quantifies over
         self.supplying = set()   # `requires` terms being discharged now
-        self.consulted = set()   # lines of the `requires` lines read so far
-        self.discharged = {}     # by line, the proofs its own reason made
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
         self.combined = {}           # by step line, what its method combined
         self.sorts = frozenset()     # labels of `be a set`, `be a point`
         self.defines = frozenset()   # labels of `define` lines
-        self.unread = []         # and the lines of those nothing read
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.bound_as = {}       # binder name -> the setvar it stands for
@@ -1650,35 +1647,29 @@ class Elaborator(Builder):
         proof = lines[self.last].proof
         for close in reversed(closers):
             proof = close(proof, goal)
-        self.unread = self.unread_requires()
-        if self.unread:
+        unproved = self.unproved_requires()
+        if unproved:
             raise self.defect(
-                self.unread[0],
+                unproved[0],
                 f'the requires lines at '
-                f'{", ".join(str(n) for n in self.unread)} were read by '
-                f'nothing, so what they say was settled instead of taken '
-                f'from what the page justified')
+                f'{", ".join(str(n) for n in unproved)} were never proved '
+                f'from their reasons')
         return goal, terms, proof
 
-    def unread_requires(self):
-        """The `requires` lines of this theorem that nothing read.
+    def unproved_requires(self):
+        """The `requires` lines of this theorem never proved from their reasons.
 
-        A `requires` line is where a step writes a side condition the item or
-        method it cites asks for, and `ELABORATION.md` says the lines carry
-        those rather than leaving them to be found. A line nothing read is a
-        side condition that was found instead, so the proof rests on whatever
-        the elaborator reached for rather than on what the page justified.
-
-        Read means a reader iterated over it, which `supplied` and `required`
-        are, and not that its justification is what proved the fact: a line
-        `supplied` skips because the scope already holds what it says was
-        still looked at, and that is not the case this is for.
-
-        Every line of every step, whatever it cites.
+        A `requires` line is where a step writes a side condition and why it
+        holds, and each is proved from that reason once, when its step
+        starts, and checked then to rest on nothing else. A line never
+        proved is one whose reason nothing checked: what it says may have
+        been reached some other way, or not been needed, and either way the
+        page's justification went unread. Every line of every step, whatever
+        it cites.
         """
         return sorted(line for step in self.thm.steps
                       for _text, _how, line in step.requires
-                      if line not in self.consulted)
+                      if requirement(line) not in self.rests_on)
 
     def widen(self, scope, facts, added, origin=None):
         """Conjoin one more thing onto the antecedent, carrying the facts.
@@ -5768,7 +5759,6 @@ class Elaborator(Builder):
         """
         known = dict(facts)
         for text, how, line in (step.requires if step is not None else ()):
-            self.consulted.add(line)
             want = self.read(text)
             term = self.term(want)
             if term in self.supplying:
@@ -5783,7 +5773,8 @@ class Elaborator(Builder):
             # lines it cites is always read from them, which is a lookup.
             given = known
             if term in known and not self.rests_on_lines(how):
-                if known[term] in self.discharged.get(line, ()):
+                # This line's own proof carries the line as its origin.
+                if requirement(line) in getattr(known[term], 'origin', ()):
                     continue
                 given = {k: v for k, v in known.items() if k != term}
             self.supplying.add(term)
@@ -5794,7 +5785,6 @@ class Elaborator(Builder):
             if not declined(made):
                 made = self.discharged_by(made, step, how, line)
             known[term] = made
-            self.discharged.setdefault(line, set()).add(known[term])
         return known
 
     def rests_on_lines(self, how):
@@ -6462,7 +6452,6 @@ class Elaborator(Builder):
         for text, how, line in step.requires:
             node = self.read(text)
             if self.term(node) == goal:
-                self.consulted.add(line)
                 # `side` is where a line is discharged by what it names, so
                 # it is given `how` as well as the claim. A route reading
                 # only the claim settles it from whatever the scope holds,

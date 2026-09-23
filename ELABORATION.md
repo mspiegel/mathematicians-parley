@@ -335,21 +335,17 @@ The variables of a cited item are fixed by the lemma the target names rather
 than by the item's own letters, which is why a `requires` line needs no
 `v := t` of its own, though a few write one.
 
-**Every `requires` line is read, and an unread one is a defect on any step.**
-`run` ends by asking which lines no reader reached. The two readers are
-`supplied`, which proves a step's lines into the facts before the step is
-built, and `required`, which answers a lemma asking for one. A method's
-hypotheses are a rule over the claim's own atoms, so every line a method step
-carries is one it asked for.
-
-**A line read is a line whose reason is used.** `supplied` runs more than once
-for a step and passes on what each pass proves, so a line's claim is often held
-by the time it is read again. It is skipped only where the proof held is one
-this line's own reason made, which `discharged` records by line; a line resting
-on the lines it cites is always read from them. Otherwise the line is
-discharged by its reason, and a reason that does not reach the claim is an
-error. `test_elaborate.py` points `isosceles`'s `A ≠ B` at a line that does not
-say it, where the hypothesis does.
+**Every `requires` line is proved from its reason, once, when its step
+starts.** `step` proves them all before the step's method runs and offers them
+to the whole of the step as `written`, so a membership wanted while turning
+`def:divides`' equation round is the step's as much as one its lemma asks for.
+Where the step opens a narrower scope inside itself, a line is carried in by
+`lifted_to` — one `simpl` and `syl` per assumption, the way `widen` carries
+every fact. `supplied` runs more than once for a step and passes on what each
+pass proves; a claim already held is taken as it stands only where the proof
+held is this line's own, which its origin says, and otherwise the line is
+proved again from its reason. `run` ends by asking which lines were never
+proved from their reasons, and one that was not is a defect.
 
 ### Facts the text never writes
 
@@ -365,13 +361,22 @@ be found — the fact never fails, the `let` line is in view, the price is 97
 lines — and rejected the exemption, because whether a fact can fail is not the
 test and whether the cited item demands it is.
 
-The facts a `requires` line proves are offered to the membership lookup and to
-nothing else, stamped with the scope they were proved under. Handing
-`prove_order` the whole of `supplied` puts `abs-bounds` past ten million `fits`
-calls where the same proof takes five seconds, because `settle` searches what
-it is given; and a split opens a scope inside a step and carries its own facts
-across, so an unstamped proof used one scope in stops
-`least-combination-divides` verifying.
+A membership a step needs is looked for in a fixed order, which `part` holds:
+the step's own line for exactly that claim; that line carried to another
+number system by one of the twelve lemmas `targets.MEMBERSHIP` declares for it
+(`bridged` — `recn` takes `k ∈ ℝ` to `k ∈ ℂ`); a compound built from its parts
+by the closure lemma for its operator (`built` — `readdcld` from `a ∈ ℝ` and
+`b ∈ ℝ`); a numeral from the library; and last, the scope's own copy of the
+claim. Only then is it searched for, with the step's lines laid over the
+scope's copies of the same claims.
+
+The order is the point. Searched for first, `settle` tries its lemmas in the
+order the list gives them, and `zcn` stands before `recn` and before `mulcl`, so
+a claim came from whichever hypothesis happened to fit rather than from the
+line the page wrote. The search is not widened by this: `written` adds almost
+nothing to what it looks at, where handing `prove_order` every fact `supplied`
+proves put `abs-bounds` past ten million `fits` calls in a proof that takes
+five seconds.
 
 ## What a file states rather than proves
 
@@ -462,27 +467,78 @@ it, a route declining is returned and asked about. Each case copies the corpus,
 makes one edit, and requires that elaborating fails with a message naming
 where. A case that elaborates cleanly is the failure it is looking for.
 
+### Provenance: what each proof rests on
+
+`GOALS.md` decision 9 says the kernel proof is derived from the readable text.
+That is a property of every fact a proof uses, and the elaborator checks it
+because every proof carries what on the page it rests on.
+
+A proof is a `spell.Proof`: its text, and its **origin** — the things a reader
+can point at that went into it: a hypothesis (`H1`), a block's assumption
+(`S`, or `4 assumes` where the text gives it no label), a proved line (`3.1`),
+a requires line (`requires@47`). Library labels are never origins. A proof is
+not text, and `str` and a format refuse it, so code that handled one as a
+string cannot quietly drop what it rests on. `Builder.seq` builds terms and
+proofs alike and tells them apart by the last token, which reverse Polish makes
+decisive: a term ends in the constructor that builds it, a proof in the
+assertion it applies. A proof put together from proofs rests on the union of
+what they rest on.
+
+An origin begins where a page item does. `seal` gives a proof the item it now
+stands for and records in `rests_on` what it was built from: the hypotheses in
+`run`, a block's assumption where `widen` conjoins it, an obtain's source and
+what it introduces, a step's result, a block's result, and a requires line
+where it is proved. A conjunct taken out of a fact has that fact's origin. A
+lemma whose antecedent *is* the scope — `readdcl` asks `( A ∈ ℝ ∧ B ∈ ℝ )`, and
+the triangle inequality's scope is exactly that — uses the hypotheses by
+standing under them and looks none up, so such a proof rests on everything the
+scope says. A variable antecedent bound to the scope is the context a
+deduction-form lemma is stated in, and uses nothing.
+
+Three rules follow, each a defect naming the line, checked where the proof is
+sealed:
+
+- **R1 — a step rests only on what it names**: the lines it cites, its own
+  requires lines, and the sorts in scope; a block also on its own steps, what it
+  assumes, and what a `join` closing it names (requirement 8). *step 3 rests
+  on 1, which it does not name.*
+- **R2 — a requires line rests only on its reason**: the lines its reason
+  cites, and the step's other requires lines, which `check.py` also lets one
+  line discharge from another. *the requires line rests on 1, which it does not
+  name.*
+- **R3 — everything a step names does work.** Divided by who can see it:
+  - the elaborator, on every step but an item citation: each cited line is in
+    the proof's provenance. On a method step, a requires line the proof does
+    not rest on is at work only where the method demands it — the membership
+    of an atom of what the certificate combined, or a term of it not zero —
+    and each atom combined has its membership on the page, written or cited
+    (`METHODS.md`). An atom is what the method treats as a number it knows
+    nothing about; sums, products, quotients, negations and numeral powers are
+    looked inside, and numerals are not atoms.
+  - the checker, on a step citing an item: the item's statement says what is
+    needed. Each cited line and each requires line is taken away in turn and
+    the step checked again, and one whose absence changes nothing is surplus.
+    A "there is" given by an instance needs the instance in the domain, so a
+    witness's membership is at work.
+
+What a line is *used for* is known too, though nothing reports it: a numbered
+line whose every use is by requires lines is a dull fact by `READERS.md`'s
+definition — `geometric-sum`'s line 1, `1 − a ≠ 0`, is the one in the corpus.
+
+`test_elaborate.py` and `test_check.py` plant one case of each rule, and each
+is confirmed to have elaborated or checked cleanly before its rule existed.
+
 ### What they do not check
 
-**A step may name what it does not use.** Three shapes, none reported:
+**Method steps, in the checker.** It accepts 63 steps resting on a closure
+method without checking them; what a method decides, and what it demands, is
+the elaborator's.
 
-| planted | where |
-|---|---|
-| `requires 2 ∈ ℝ: arithmetic`, which nothing asks for | sum-formula, step 1.4.3 |
-| `inequalities, from 3, 4` written `from 1, 3, 4` | triangle-inequality, step 5.2 |
-| `thm:nonneg-or-neg …, from 1` written `from 1, H1` | triangle-inequality, step 2 |
-
-Each is true, well formed, does no work, gives 0 problems and builds.
-Wrongness is caught — pointing that requires line at `thm:int-real` gets *the
-requires line of step 1.4.3 needs something that thm:int-real does not
-conclude* — so what is missing is not soundness but minimality. A step that
-names a fact doing no work says something untrue about why it holds, which is
-the shape of a `target` that never fires, and `DATABASE.md` calls that an error
-rather than a shrug.
-
-Not this, which is a stated move and correct: citing an item that concludes
-more than the step takes. `DATABASE.md` lists *a claim taking one conjunct*
-among the moves, and step 5.2 uses it.
+**That an element is a set.** set.mm has everything a set, so `a ∈ X` makes a a
+set by `elex`, and a reader told `let a ∈ X` with X a set of numbers does not
+think a is one. `thm:powerset-split-disjoint`'s proof needs it and is held out
+of `proof/` until it is decided which gives way; see *What a file states rather
+than proves*.
 
 ## The one that does not elaborate
 
