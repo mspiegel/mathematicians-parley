@@ -1,0 +1,157 @@
+theorem ten-power-congruent
+  let k ∈ ℕ₀                                                          (H1)
+  then 10^k ≡ 1 (mod 3)
+
+1.  10^k ≡ 1 (mod 3)
+    induction on k starting at 0, from H1
+
+    base
+    1.1.  10^0 − 1 = 3·0
+          arithmetic
+
+    1.2.  3 divides 10^0 − 1
+          def:divides d := 3, n := 10^0 − 1, from 1.1
+          requires 3 ∈ ℤ: arithmetic
+          requires 0 ∈ ℤ: arithmetic
+          requires 10^0 − 1 ∈ ℤ: arithmetic
+
+    1.3.  10^0 ≡ 1 (mod 3)
+          def:congruent-mod, from 1.2
+          requires 3 ∈ ℤ: arithmetic
+          requires 10^0 ∈ ℤ: arithmetic
+          requires 1 ∈ ℤ: arithmetic
+
+    step
+    1.4.  For every m ∈ ℕ₀, if 10^m ≡ 1 (mod 3) then 10^(m + 1) ≡ 1 (mod 3).
+          fix
+          let m ∈ ℕ₀                                                  (K)
+          assume 10^m ≡ 1 (mod 3)                                     (IH)
+
+          1.4.1.  10^m ∈ ℤ
+                  thm:power-integer a := 10, from K
+                  requires 10 ∈ ℤ: arithmetic
+
+          1.4.2.  3 divides 10^m − 1
+                  def:congruent-mod, from IH
+                  requires 3 ∈ ℤ: arithmetic
+                  requires 10^m ∈ ℤ: from 1.4.1
+                  requires 1 ∈ ℤ: arithmetic
+
+          1.4.3.  9 = 3·3
+                  arithmetic
+
+          1.4.4.  3 divides 9
+                  def:divides d := 3, n := 9, from 1.4.3
+                  requires 3 ∈ ℤ: arithmetic
+                  requires 9 ∈ ℤ: arithmetic
+
+          1.4.5.  10 − 1 = 9
+                  thm:ten-minus-one
+
+          1.4.6.  3 divides 10 − 1
+                  substitute 10 − 1 = 9 (line 1.4.5) into line 1.4.4, right to left
+
+          1.4.7.  3 divides (10^m − 1)·10 + (10 − 1)·1
+                  thm:divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
+                    x := 10, y := 1, from 1.4.2, 1.4.6
+                  requires 3 ∈ ℤ: arithmetic
+                  requires 10^m − 1 ∈ ℤ: thm:int-closure, from 1.4.1
+                  requires 10 − 1 ∈ ℤ: arithmetic
+                  requires 10 ∈ ℤ: arithmetic
+                  requires 1 ∈ ℤ: arithmetic
+
+          1.4.8.  10^(m + 1) = 10^m·10
+                  thm:exponent-step a := 10, from K
+                  requires 10 ∈ ℝ: arithmetic
+
+          1.4.9.  (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1
+                  algebra
+                  requires 10^m ∈ ℝ: thm:int-real, from 1.4.1
+
+          1.4.10. 10^m·10 − 1 = 10^(m + 1) − 1
+                  substitute 10^(m + 1) = 10^m·10 (line 1.4.8), right to left
+
+          1.4.11. (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1
+                  calculation
+                    (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1       1.4.9
+                                               = 10^(m + 1) − 1    1.4.10
+
+          1.4.12. 3 divides 10^(m + 1) − 1
+                  substitute (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1 (line 1.4.11) into line 1.4.7
+
+          1.4.13. m + 1 ∈ ℕ₀
+                  thm:nat0-closure, from K
+
+          1.4.14. 10^(m + 1) ≡ 1 (mod 3)
+                  def:congruent-mod, from 1.4.12
+                  requires 3 ∈ ℤ: arithmetic
+                  requires 10 ∈ ℤ: arithmetic
+                  requires 10^(m + 1) ∈ ℤ: thm:power-integer a := 10, m := m + 1, from 1.4.13
+                  requires 1 ∈ ℤ: arithmetic
+
+
+theorem divisibility-by-three
+  let n ∈ ℕ₀                                                          (H1)
+  let d : ℕ₀ → ℤ                                                      (H2)
+  then 3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
+
+1.  For every k ∈ ℕ₀, 3 divides d(k)·10^k − d(k).
+    fix
+    note each term differs from its digit by a multiple of 10^k − 1
+    let k ∈ ℕ₀                                                        (K)
+
+    1.1.  10^k ≡ 1 (mod 3)
+          thm:ten-power-congruent k := k, from K
+
+    1.2.  10^k ∈ ℤ
+          thm:power-integer a := 10, m := k, from K
+          requires 10 ∈ ℤ: arithmetic
+
+    1.3.  3 divides 10^k − 1
+          def:congruent-mod, from 1.1
+          requires 3 ∈ ℤ: arithmetic
+          requires 10^k ∈ ℤ: from 1.2
+          requires 1 ∈ ℤ: arithmetic
+
+    1.4.  d(k) ∈ ℤ
+          thm:function-value, from K
+
+    1.5.  3 divides (10^k − 1)·d(k)
+          thm:divides-multiple e := 3, a := 10^k − 1, x := d(k), from 1.3, 1.4
+          requires 3 ∈ ℤ: arithmetic
+          requires 1 ∈ ℤ: arithmetic
+          requires 10^k − 1 ∈ ℤ: thm:int-closure, from 1.2
+
+    1.6.  (10^k − 1)·d(k) = d(k)·10^k − d(k)
+          algebra
+          requires d(k) ∈ ℝ: thm:int-real, from 1.4
+          requires 10^k ∈ ℝ: thm:int-real, from 1.2
+
+    1.7.  3 divides d(k)·10^k − d(k)
+          substitute (10^k − 1)·d(k) = d(k)·10^k − d(k) (line 1.6) into line 1.5
+
+2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))
+    thm:sum-divisible m := 3, from H1, 1
+    requires 3 ∈ ℤ: arithmetic
+
+3.  Σ(k = 0 to n) (d(k)·10^k − d(k)) = Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)
+    thm:sum-difference, from H1
+
+4.  3 divides Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)
+    substitute Σ(k = 0 to n) (d(k)·10^k − d(k)) = Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) (line 3) into line 2
+
+5.  Σ(k = 0 to n) d(k)·10^k ∈ ℤ
+    thm:sum-integer, from H1
+
+6.  Σ(k = 0 to n) d(k) ∈ ℤ
+    thm:sum-integer, from H1
+
+7.  Σ(k = 0 to n) d(k)·10^k ≡ Σ(k = 0 to n) d(k) (mod 3)
+    def:congruent-mod, from 4
+    requires 3 ∈ ℤ: arithmetic
+    requires Σ(k = 0 to n) d(k)·10^k ∈ ℤ: from 5
+    requires Σ(k = 0 to n) d(k) ∈ ℤ: from 6
+
+8.  3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
+    thm:congruent-divides m := 3, from 7, 5, 6
+    requires 3 ∈ ℤ: arithmetic

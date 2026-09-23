@@ -39,8 +39,8 @@ comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `proved-in` | a proof file in this corpus proves it | 19 |
-| `metamath` | a set.mm label or labels supply it | 112 |
+| `proved-in` | a proof file in this corpus proves it | 21 |
+| `metamath` | a set.mm label or labels supply it | 120 |
 | `open` | neither; it is cited but unproved and unbridged | 5 |
 
 An item with `proved-in` carries no statement here. The statement lives at the
@@ -74,10 +74,8 @@ two are indistinguishable — same file, same assumption count, no message — s
 a wrong target could sit in this file for as long as nobody happened to probe
 it by hand.
 
-The corpus holds 97 items, 27 definitions and 70 theorems, 56 notation records
-declaring 74 patterns, and 14 methods. The ten proofs make 193 citations to 76
-distinct items. Every pointer resolves, and every `def:` or `thm:` prefix
-matches the kind of the item it names.
+Every pointer from a proof into the database resolves, and every `def:` or
+`thm:` prefix matches the kind of the item it names; `check.py` checks both.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
 for each hole, the sort each hole takes, what the pattern yields, how the kinds

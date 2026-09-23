@@ -60,16 +60,19 @@ PROPERTY = 'property-of'
 
 
 def binding_context(notations):
-    """Which notations bind a variable, and which apply a property.
+    """Which notations bind a variable, and which apply a property or a
+    function.
 
     Both are read from the declarations: a binder is a notation with a `binds`
-    line, and a property application is one whose first hole takes a property.
+    line, and an application is one whose first hole takes a property or a
+    function. `props` says which of the two each applies, because a function
+    is read as a family only where a binder applies it to what it binds.
     Nothing here is known by name.
     """
-    binders, props = {}, set()
+    binders, props = {}, {}
     for n in notations:
-        if n.holes and n.holes[0] == 'property':
-            props.add(n.stands_under or n.name)
+        if n.holes and n.holes[0] in ('property', 'function'):
+            props[n.stands_under or n.name] = n.holes[0]
         if not n.binds:
             continue
         holes = [int(x) - 1 for x in re.findall(r'hole[s]?\s+(\d+)', n.binds)]
@@ -122,7 +125,11 @@ def match(pattern, ground, binding, variables, props=(), sites=frozenset()):
     if (pattern.notation in props and len(pattern.children) == 2
             and pattern.children[0].notation == 'name'
             and pattern.children[0].text in variables):
-        return _property(pattern, ground, binding, sites)
+        if props.get(pattern.notation) != 'function':
+            return _property(pattern, ground, binding, sites)
+        decides, found = _family(pattern, ground, binding, sites)
+        if decides:
+            return found
     if pattern.notation != ground.notation or pattern.text != ground.text:
         return None
     if len(pattern.children) != len(ground.children):
@@ -150,6 +157,37 @@ def _property(pattern, ground, binding, sites):
         return None
     filled = substitute(stands.children[0], {stands.text: arg})
     return binding if filled.shape() == ground.shape() else None
+
+
+def _family(pattern, ground, binding, sites):
+    """t applied to something, where t is a function the pattern names.
+
+    Under a binder that applies it to what it binds, t is whatever is summed
+    or said there, read as a term with that variable as its hole: an item
+    summing t(k) over k is about d(k)·10^k − d(k) when that is the step's
+    summand. It is read so only where the term is not itself a function
+    applied to the variable, since there t is simply that function, and the
+    item's other mentions of t, which are not applications, still name it.
+
+    Gives back whether this decides the match, and the binding it decides on
+    or None where it refuses. Where it does not decide, the application is
+    matched as it stands.
+    """
+    name, arg = pattern.children[0].text, pattern.children[1]
+    if arg.notation == 'name' and arg.text in binding:
+        arg = binding[arg.text]
+    stands = binding.get(name)
+    if stands is not None and stands.notation == PROPERTY:
+        filled = substitute(stands.children[0], {stands.text: arg})
+        return True, (binding if filled.shape() == ground.shape() else None)
+    plain = (ground.notation == pattern.notation and len(ground.children) == 2
+             and ground.children[1].shape() == arg.shape())
+    if (stands is None and id(pattern) in sites and arg.notation == 'name'
+            and not plain):
+        out = dict(binding)
+        out[name] = Node(PROPERTY, 'property', [ground], arg.text)
+        return True, out
+    return False, None
 
 
 def names(node):

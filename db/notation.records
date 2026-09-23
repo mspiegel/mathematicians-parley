@@ -114,7 +114,8 @@ precedence order
   # where convention does not, a reader would have to know a table, and this
   # corpus assumes no table.
   power           tighter than multiplicative
-  multiplicative  tighter than unary-minus
+  multiplicative  tighter than unary-minus, summation
+  summation       tighter than additive
   unary-minus     tighter than additive
   additive        tighter than relational
   relational      tighter than negation, predicate
@@ -806,6 +807,36 @@ notation divides
   target      _1 _2 cdvds wbr
   first-used  sqrt2-irrational
   note        Seventeen uses, the commonest word predicate. See def:divides.
+
+notation congruent-mod
+  pattern     _ ≡ _ (mod _)
+  holes       number, number, number
+  yields      formula
+  level       relational
+  reads       is congruent to, modulo
+  metamath    wbr with cdvds, of a difference
+  target      _3 _1 _2 cmin co cdvds wbr
+  first-used  divisibility-by-three
+  note        a ≡ b (mod n) says n divides a − b, which is Hammack's definition
+              and what the target writes, so a congruence and the divisibility
+              it abbreviates are one formula and every lemma about the one is
+              about the other.
+
+notation sum
+  pattern     Σ(_ = _ to _) _
+  holes       variable, number, number, number
+  yields      number
+  kinds       number, number, number, number → number
+  level       summation
+  binds       hole 1 over hole 4
+  reads       the sum, from, to, of
+  metamath    csu over ( M ... N )
+  target      _2 _3 cfz co _4 _1 csu
+  first-used  divisibility-by-three
+  note        The sum of the fourth hole for each whole number from the second
+              to the third. It binds tighter than + and −, as a reader expects:
+              Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) is one sum less
+              another, and a sum of a sum or a difference writes its brackets.
 
 notation parity
   pattern     _ is even        _ is odd        _ is not odd

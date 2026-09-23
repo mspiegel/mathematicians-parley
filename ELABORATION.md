@@ -428,11 +428,36 @@ as a sort (`sethood@H2`): `let a ∈ X` by `elex`, `let a ∉ X` and `let x be a
 element` by the conjunct `hypothesis_body` adds. A step rests on it without
 naming it, as on `let X be a set`, since `READERS.md` makes it apparatus.
 
+A number's membership of a number system is worked out, not searched for,
+and spends none of the depth. A digit's is set.mm's label for it (`9cn`, or
+`9nn0` carried by `nn0zi` where set.mm puts no `9z`). A numeral of several
+digits is set.mm's decimal, `; 1 0` for 10, and is put in ℕ₀ by `deccl` from
+its digits' own labels and carried to ℤ, ℝ or ℂ by `nn0zi`, `nn0rei` or
+`nn0cni` (`decimal_within`) — never by the search, because `deccl` asks its
+parts as closed facts and the search proves everything under a scope. A term
+built from numerals alone, `10^0 − 1`, is settled from the closure lemmas
+with the numerals inside it looked up, and what it comes to is kept for the
+file when it rests on nothing on the page.
+
+A sum's lemmas ask things of each index: `fsumdvds` that N divide the term
+for k in the range it sums over, `fsumzcl` that the term be an integer. The
+first is a line the step cites read at the index (`at_the_index`, by
+`rspcv`), since the page says it of every k ∈ ℕ₀ and k is in ℕ₀ by `elfznn0`.
+The second is settled one level deeper than elsewhere, because it is asked
+through the range: `d(k)·10^k − d(k) ∈ ℤ` is `zsubcl`, `zmulcl`, `ffvelcdm`,
+then `elfznn0`. `ffvelcdm` asks `F : A --> B` and `C e. A` as one
+antecedent, and only a line saying what F maps between says what A is, so an
+antecedent no fact matches whole is matched a conjunct at a time — after
+every antecedent has been matched whole, and after what a lemma's naming
+hypothesis decides, since a conjunct matched alone can otherwise bind a class
+another antecedent or the naming fixes (`f1mpt`'s map, `hashvnfin`'s size).
+
 The rest of the search is bounded by how many lemmas one chain applies on top
 of one another, and three is the deepest chain the corpus needs: step 2.1 of
 the geometric series needs `A^0 ∈ ℂ`, by `recn` from `A^0 ∈ ℝ`, by `reexpcl`
 asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
-spends none of it; nor does going under a "for every".
+spends none of it; nor does going under a "for every". What a lemma asks of
+a sum's index is the one place a chain of four is allowed, as above.
 
 ## What a file states rather than proves
 
@@ -441,6 +466,13 @@ the database gives no target for. A method step becomes an axiom claiming
 exactly what the readable line claims, under the `requires` lines that line
 carries **and** the lines it cites — both, or the axiom says more than the
 method does and the proof above it goes unused.
+
+`arithmetic` is the exception: it states nothing. Its claims are closed, so
+it works each one out exactly before proving it (`field.decide_closed`), and
+what it cannot prove is reported — false, dividing by zero, too large to
+work out, not rational, or true and past what it can show, which is cited
+instead. Stated, a false one was an axiom the kernel accepted, and
+`9 = 3·4` was stated so once the normaliser stopped crashing on it.
 
 A definition with no target is not stated where a line the step cites already
 says the claim: as one of its conjuncts, which `def:congruent` relies on, or

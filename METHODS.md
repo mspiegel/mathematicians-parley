@@ -373,6 +373,24 @@ non-negative, and in ℚ and ℝ always.
   series now pays four steps for that one fact.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
   arithmetic, and the corpus does not treat it as such; it cites `def:sqrt`.
+  Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
+  is taken, because a fractional power in Python is a float, and a float
+  may be inexact, infinite or zero without saying so. Every value is an
+  exact fraction.
+- **A division by zero,** `3/0` or `0^(−1)`. set.mm gives `A / 0` a
+  meaning, a class nobody writes, and a claim about it is not one a reader
+  can check.
+- **A number too large to work out.** Python's integers do not overflow, so
+  a claim like `9^(9^9)` would take time and memory without end. The size
+  of a power is estimated before it is computed, and anything past ten
+  thousand bits is refused.
+- **Anything false.** The claim is worked out before a proof is attempted,
+  so a false one is reported as false.
+
+`arithmetic` never takes a step as stated. What it cannot prove is reported:
+as false, as one of the refusals above, or, where it is true and past what
+the expansion below can show, with the instruction to cite a theorem that
+states it.
 
 ### Hypotheses
 
@@ -392,10 +410,14 @@ formula grammar.
 ### Expansion
 
 set.mm's numeral lemmas: `2re`, `2z`, `0z`, `1z`, `1nn`, `2pos`, `2ne0`,
-`1lt2` for the small cases in this corpus, and the `deccl` and `decadd`
-families for numerals of more than one digit. Evaluating a closed expression
-terminates, so the expansion is total and its size is bounded by the numerals
-in the claim.
+`1lt2` for the small cases in this corpus. A numeral of more than one digit
+is set.mm's decimal `; A B`, and its membership of a number system is built
+from its digits by `deccl` and carried on by `nn0zi`, `nn0rei` or `nn0cni`.
+What the expansion does not do is compute with such a numeral: the methods
+read a digit as its value and anything longer as a number they know nothing
+about, so 10 − 1 = 9 is true, worked out as true, and not proved. The
+divisibility proof cites `thm:ten-minus-one` for it. set.mm's `decadd`
+family is what would prove such facts, and is not yet used.
 
 ---
 

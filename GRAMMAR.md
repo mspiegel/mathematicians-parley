@@ -248,17 +248,18 @@ juxtaposed with a `0`. That matters because a numeral juxtaposed with a name is
 how `2k` works, and the two shapes would otherwise compete.
 
 **A decimal point is not written.** A fraction is written as a fraction, `1/2`
-rather than `0.5`. The corpus uses four numerals in total, `0`, `1`, `2` and
-`4`, none of them multi-digit and none with a point, so this costs nothing
-today. set.mm is the precedent: its decimal constructor builds decimal
-*integers* and the library has no decimal-point notation at all, writing
-fractions with division. Pure mathematics does the same.
+rather than `0.5`. The corpus writes digits and one numeral of two, `10`, and
+none with a point, so this costs nothing today. set.mm is the precedent: its
+decimal constructor builds decimal *integers*, which is how `10` reaches the
+kernel, as `; 1 0`, and the library has no decimal-point notation at all,
+writing fractions with division. Pure mathematics does the same.
 
 The case that looks like a counterexample is not one. Your selection table
 notes that Hammack proves ℝ uncountable using decimals, but the diagonal
 argument needs a decimal *expansion*, a function from an index to a digit, and
-no literal notation would help write it. set.mm's divisibility-by-three rule is
-the same shape, stated for digit sequences as sums.
+no literal notation would help write it. The divisibility-by-three rule is the
+same shape, and the pilot states it so: a digit function d, and the number as
+`Σ(k = 0 to n) d(k)·10^k`.
 
 It also keeps step numbers readable, which is the other thing the period does
 here. A step number is digits separated by periods, `1.2.3.4`, so it is not a
@@ -383,6 +384,15 @@ nobody agrees about, and no formula in the corpus writes it. Negation against a
 relation written as words is the pair a reader cannot see: `not n is odd` does
 not parse, because it reads as easily as "(not n) is odd", and the brackets in
 `not (n is odd)` say which was meant.
+
+A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
+`summation`, sits between multiplication and addition: multiplication binds
+tighter, so `Σ(k = 0 to n) d(k)·10^k` sums the product, and addition looser,
+so `Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)` is one sum less another.
+A sum of a sum or a difference writes its brackets, `Σ(k = 0 to n) (t(k) −
+u(k))`, as a reader expects. It is a binder, like `for every`: the `k` it
+names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
+and its brackets are part of its pattern, not a grouping.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
 says which way. Fifteen of the 73 patterns are in that position, across ten

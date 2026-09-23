@@ -775,7 +775,7 @@ class Emitter(Builder):
             gathered = self.gather_factors(name, moved[at][1],
                                            moved[at + 1][1])
             if declined(gathered):
-                return out, gathered
+                return gathered
             return out, self.chain(
                 walked,
                 self.spread(moved, at, gathered),
@@ -840,12 +840,18 @@ class Emitter(Builder):
                     self.factors_cc(left), self.factors_cc(rest),
                     self.factor_cc(*last),
                     self.ap('mulass', {'A': held, 'B': prefix, 'C': one})))
-        merged, inner = self.multiply_monomials(left, rest)
+        made = self.multiply_monomials(left, rest)
+        if declined(made):
+            return made
+        merged, inner = made
         carried = self.ap('oveq1d',
                           {'ph': self.under, 'A': op(held, prefix, MUL),
                            'B': spell_monomial(tuple(merged)), 'C': one,
                            'F': MUL}, inner)
-        out, placed = self.insert_factor(merged, *last)
+        made = self.insert_factor(merged, *last)
+        if declined(made):
+            return made
+        out, placed = made
         return out, self.chain(
             self.chain(peeled, carried, start,
                        op(op(held, prefix, MUL), one, MUL),
@@ -954,12 +960,15 @@ class Emitter(Builder):
                            self.coefficient(other),
                            self.monomial_cc(second))),
             self.ap('mul4', {'A': c, 'B': m, 'C': d, 'D': n}))
-        merged, monomial = self.multiply_monomials(list(first), list(second))
+        made = self.multiply_monomials(list(first), list(second))
+        if declined(made):
+            return made
+        merged, monomial = made
         total = weight * other
         out = (tuple(merged), total)
         times = self.coefficient_product(weight, other)
         if declined(times):
-            return out, times
+            return times
         return out, self.chain(
             regrouped,
             self.ap('oveq12d',
@@ -987,7 +996,10 @@ class Emitter(Builder):
                                   'wceq')},
                 self.term_cc(*one), self.ap('mul01', {'A': term}))
         if len(right) == 1:
-            out, proof = self.term_times_term(one, right[0])
+            made = self.term_times_term(one, right[0])
+            if declined(made):
+                return made
+            out, proof = made
             return [out], proof
         rest, last = right[:-1], right[-1]
         prefix, tail = self.spell_run(rest), self.spell_term(last)
@@ -1003,7 +1015,10 @@ class Emitter(Builder):
         if declined(made):
             return made
         inner, first = made
-        single, second = self.term_times_term(one, last)
+        made = self.term_times_term(one, last)
+        if declined(made):
+            return made
+        single, second = made
         both = op(self.spell_run(inner), self.spell_term(single), ADD)
         lined = self.chain(
             spread,

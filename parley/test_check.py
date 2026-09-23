@@ -267,6 +267,29 @@ CASES = [
       '    note this is where B becomes a member'),
      'opens no block'),
 
+    # An item's summand is whatever the sum it concludes sums, read where the
+    # sum applies it to what it binds, and every other use of it must agree.
+    ('sum over a range the item does not conclude',
+     'proof/divisibility-by-three.proof',
+     '2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))',
+     '2.  3 divides Σ(k = 1 to n) (d(k)·10^k − d(k))',
+     'step 2 claims something that thm:sum-divisible does not conclude'),
+
+    ('read an item\'s summand two ways',
+     'proof/divisibility-by-three.proof',
+     '= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n    thm:sum-difference',
+     '= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n    thm:sum-difference',
+     'step 3 claims something that thm:sum-difference does not conclude'),
+
+    # A congruence is a divisibility of a difference, and which way round
+    # the difference goes is part of what is said.
+    ('turn a congruence round',
+     'proof/divisibility-by-three.proof',
+     '    1.1.  10^k ≡ 1 (mod 3)\n          thm:ten-power-congruent',
+     '    1.1.  1 ≡ 10^k (mod 3)\n          thm:ten-power-congruent',
+     'step 1.1 claims something that thm:ten-power-congruent does not '
+     'conclude'),
+
     ('note a case part after its assumption',
      'proof/intermediate-value.proof',
      ('    note b is close enough to c, and is the point\n'

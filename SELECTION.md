@@ -138,7 +138,7 @@ list and in set.mm's main body, not a mathbox. Measured with
 
 | # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
 |---|---|---|---|---|---|---|---|---|---|
-| 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack on congruence (verify) |
+| 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack defines congruence (Definition 5.1) but not the rule |
 | 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack ch. 3 (verify) |
 | 13 | sum of the reciprocals of the triangular numbers | an infinite series: a limit of partial sums, telescoping | trirecip | 42 | no | none | none | 0 | ProofWiki |
 | 14 | Schröder–Bernstein | comparing sizes by injection; a set defined by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
@@ -152,7 +152,10 @@ another theorem for the same feature. The question now is which features are
 still untested, and a reindexed sum, a congruence and an injection-built
 bijection are among them.
 
-1. **Divisibility by 3.** The first congruence in the corpus: 10ᵏ leaves
+1. **Divisibility by 3.** Written: `proof/divisibility-by-three.proof`, with
+   its design record in `pilot/divisibility-by-three.md`, and both of its
+   theorems elaborate with nothing assumed. The first congruence in the
+   corpus: 10ᵏ leaves
    remainder 1 on division by 3, so a number and its digit sum leave the
    same remainder. set.mm states it for a digit function F : (0…N) → ℤ,
    and the readable statement is about the digits of a number, so the

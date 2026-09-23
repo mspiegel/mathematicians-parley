@@ -20,6 +20,8 @@ decided here.
 """
 from fractions import Fraction
 
+from parse import Declined, declined
+
 ADD, SUB, MUL, DIV, EXP, NEG = 'caddc', 'cmin', 'cmul', 'cdiv', 'cexp', 'cneg'
 DIGITS = {'cc0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4,
           'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
@@ -327,3 +329,165 @@ def _cancels(claim, part):
     if max(part.terms) != lead:
         return None
     return claim.terms[lead] / part.terms[lead]
+
+
+# --- closed numeral claims, which `arithmetic` decides ----------------------
+
+# A number more than this many bits long is not worked out. Python's integers
+# do not wrap round, so what a claim like 9^(9^9) costs is time and memory
+# without end, and it is refused before it is computed. The corpus's largest
+# number is 10; ten thousand bits is some three thousand digits.
+BITS = 10_000
+
+# The number systems a closed number is tested for membership of, by
+# `METHODS.md`'s tests on its value.
+SYSTEM_TESTS = {
+    'cn': lambda v: v.denominator == 1 and v > 0,
+    'cn0': lambda v: v.denominator == 1 and v >= 0,
+    'cz': lambda v: v.denominator == 1,
+    'cq': lambda v: True,
+    'cr': lambda v: True,
+    'cc': lambda v: True,
+}
+ORDER = {'clt': lambda a, b: a < b, 'cle': lambda a, b: a <= b}
+
+
+class Unworked:
+    """A closed term that has no exact value to give, and why.
+
+    It divides by zero, it is too large to work out, or it is not rational.
+    """
+
+    __slots__ = ('reason',)
+
+    def __init__(self, reason):
+        self.reason = reason
+
+
+class Verdict:
+    """What a closed claim comes to.
+
+    `holds` is True or False where the claim was worked out, and `reason`
+    says why it could not be where it was not.
+    """
+
+    __slots__ = ('holds', 'reason')
+
+    def __init__(self, holds, reason=''):
+        self.holds, self.reason = holds, reason
+
+
+def _too_large(value):
+    return max(value.numerator.bit_length(),
+               value.denominator.bit_length()) > BITS
+
+
+def closed_value(term, labels):
+    """The exact value of a term built from numerals alone.
+
+    A `Fraction`, never a float: `int / int`, a negative power of an int and
+    a fractional power all give floats, which may be inexact, `inf` or `0.0`
+    with no error, so every value is a `Fraction` from the numeral up and an
+    exponent is whole before it is used. An `Unworked` where the term has no
+    exact value, and a decline where it is not built from numerals at all.
+    """
+    if term.variable is not None:
+        return Declined('it holds a letter')
+    if term.label in DIGITS and not term.children:
+        return Fraction(DIGITS[term.label])
+    if term.label == 'cdc' and len(term.children) == 2:
+        parts = [closed_value(c, labels) for c in term.children]
+        stop = _first_stop(parts)
+        if stop is not None:
+            return stop
+        value = parts[0] * 10 + parts[1]
+    elif term.label == NEG and len(term.children) == 1:
+        inner = closed_value(term.children[0], labels)
+        if declined(inner) or isinstance(inner, Unworked):
+            return inner
+        value = -inner
+    elif term.label == 'co' and len(term.children) == 3:
+        how = term.children[2].label
+        parts = [closed_value(c, labels) for c in term.children[:2]]
+        stop = _first_stop(parts)
+        if stop is not None:
+            return stop
+        left, right = parts
+        if how == ADD:
+            value = left + right
+        elif how == SUB:
+            value = left - right
+        elif how == MUL:
+            value = left * right
+        elif how == DIV:
+            if right == 0:
+                return Unworked('divides by zero')
+            value = left / right
+        elif how == EXP:
+            if right.denominator != 1:
+                return Unworked('is not a rational number: its exponent is '
+                                'not whole')
+            power = int(right)
+            if left == 0 and power < 0:
+                return Unworked('divides by zero')
+            size = max(left.numerator.bit_length(),
+                       left.denominator.bit_length())
+            if size * abs(power) > BITS:
+                return Unworked('is too large to work out')
+            value = left ** power
+        else:
+            return Declined('not an operation arithmetic reads')
+    else:
+        return Declined('not built from numerals')
+    if type(value) is not Fraction:
+        return Unworked('is not an exact number')
+    if _too_large(value):
+        return Unworked('is too large to work out')
+    return value
+
+
+def _first_stop(parts):
+    """The first part that is not a value, a decline before an `Unworked`."""
+    for part in parts:
+        if declined(part):
+            return part
+    for part in parts:
+        if isinstance(part, Unworked):
+            return part
+    return None
+
+
+def decide_closed(claim, labels):
+    """Whether a relation between closed numeral terms holds.
+
+    `METHODS.md`'s procedure for `arithmetic`: evaluate each side to a
+    rational and decide the relation, or for a membership test the value.
+    `=`, `≠`, `<` and `≤` — a reader's `>` and `≥` arrive as these with the
+    sides turned — denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ,
+    ℝ and ℂ. A decline where the claim is none of these or holds a letter;
+    a `Verdict` otherwise.
+    """
+    negated = claim.label == 'wn' and len(claim.children) == 1
+    if negated:
+        claim = claim.children[0]
+    if claim.label in ('wceq', 'wne') and len(claim.children) == 2:
+        sides = claim.children
+        holds = ((lambda a, b: a == b) if claim.label == 'wceq'
+                 else (lambda a, b: a != b))
+    elif claim.label == 'wbr' and len(claim.children) == 3 \
+            and claim.children[2].label in ORDER:
+        sides, holds = claim.children[:2], ORDER[claim.children[2].label]
+    elif claim.label == 'wcel' and len(claim.children) == 2 \
+            and claim.children[1].label in SYSTEM_TESTS \
+            and not claim.children[1].children:
+        test = SYSTEM_TESTS[claim.children[1].label]
+        sides, holds = claim.children[:1], (lambda a: test(a))
+    else:
+        return Declined('not a relation arithmetic decides')
+    values = [closed_value(side, labels) for side in sides]
+    stop = _first_stop(values)
+    if declined(stop):
+        return stop
+    if stop is not None:
+        return Verdict(None, stop.reason)
+    return Verdict(holds(*values) != negated)

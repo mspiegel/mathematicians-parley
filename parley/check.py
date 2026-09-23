@@ -1376,8 +1376,14 @@ def unsupplied(step, scope, library, sorts, defined):
         if not want:
             return None
         variables = set().union(*(names(t) for _, t in want))
+        # Where a binder applies a function or a property to what it binds,
+        # that is what decides it, here as in the conclusion: "for every
+        # k ∈ ℕ₀, m divides t(k)" says what t is from the line supplying it.
+        sites = set()
+        for _, t in want:
+            binding_sites(t, library.binders, library.props, (), sites)
         if supply([t for _, t in want], facts,
-                  dict(seed), variables, library, frozenset()) is not None:
+                  dict(seed), variables, library, sites) is not None:
             return None
         missing = [t for t, _ in want]
     return missing

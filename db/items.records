@@ -396,6 +396,24 @@ theorem exponent-step
   target      expp1
   first-used  geometric-series
 
+theorem ten-minus-one
+  then        10 − 1 = 9
+  metamath    10m1e9
+  target      10m1e9
+  first-used  divisibility-by-three
+  note        The one fact about 10 that `arithmetic` and `algebra` do not work
+              out. They read a digit as its value and a numeral of more than
+              one digit as a number they know nothing about, so what depends
+              on 10 being ten is cited, and this is where it comes from.
+
+theorem power-integer
+  let a ∈ ℤ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℤ
+  metamath    zexpcl
+  target      zexpcl
+  first-used  divisibility-by-three
+
 theorem power-real
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
@@ -641,6 +659,50 @@ theorem divides-le
   target      dvdsle
   first-used  bezout
 
+definition congruent-mod
+  let n ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  then        a ≡ b (mod n) ↔ n divides a − b
+  metamath    the notation's own target, n ∥ ( a − b )
+  first-used  divisibility-by-three
+  note        The two sides are one formula in the kernel, so unfolding it is
+              saying the same thing the other way, and nothing is stated: a
+              step reading one from a line saying the other has that line's
+              proof. It is here so the page may say which it means.
+
+theorem divides-multiple
+  let e ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let x ∈ ℤ                                                           (H3)
+  assume e divides a                                                  (H4)
+  then        e divides a·x
+  metamath    dvdsmultr1
+  target      dvdsmultr1
+  first-used  divisibility-by-three
+
+theorem congruent-divides
+  let m ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume a ≡ b (mod m)                                                (H4)
+  then        m divides a ↔ m divides b
+  metamath    dvdssub2
+  target      dvdssub2
+  first-used  divisibility-by-three
+  note        Two numbers congruent modulo m are divisible by m together.
+
+theorem ten-power-congruent
+  proved-in   proof/divisibility-by-three.proof
+  first-used  divisibility-by-three
+
+theorem divisibility-by-three
+  proved-in   proof/divisibility-by-three.proof
+  first-used  divisibility-by-three
+  note        Wiedijk's 85, `3dvds` in set.mm, which states it for a digit
+              function on ( 0 ... N ). The digits here are any integers d(k),
+              as set.mm's are; a reader's decimal digits are the case 0 to 9.
+
 
 # ------------------------------------------- order and absolute value
 
@@ -688,9 +750,9 @@ definition function
               elaborator, since no step cites it; see that pilot's findings.
 
 theorem function-value
-  let f : D → ℝ                                                       (H1)
+  let f : D → E                                                       (H1)
   let x ∈ D                                                           (H2)
-  then        f(x) ∈ ℝ
+  then        f(x) ∈ E
   metamath    ffvelcdm
   target      ffvelcdm
   first-used  intermediate-value
@@ -900,6 +962,40 @@ theorem added-elements-stay-inside
 theorem powerset-split
   proved-in   proof/subsets.proof
   first-used  subsets
+
+
+# ------------------------------------------------------------------ sums
+
+theorem sum-divisible
+  let n ∈ ℕ₀                                                          (H1)
+  let m ∈ ℤ                                                           (H2)
+  let t : ℕ₀ → ℤ                                                      (H3)
+  assume for every k ∈ ℕ₀, m divides t(k)                             (H4)
+  then        m divides Σ(k = 0 to n) t(k)
+  metamath    fsumdvds
+  target      fsumdvds
+  first-used  divisibility-by-three
+  note        A number dividing every term divides the sum. set.mm asks it
+              only of the terms the sum takes, k from 0 to n; asked of every
+              k ∈ ℕ₀ it asks more, which is what a proof that fixes an
+              arbitrary k has.
+
+theorem sum-integer
+  let n ∈ ℕ₀                                                          (H1)
+  let t : ℕ₀ → ℤ                                                      (H2)
+  then        Σ(k = 0 to n) t(k) ∈ ℤ
+  metamath    fsumzcl
+  target      fsumzcl
+  first-used  divisibility-by-three
+
+theorem sum-difference
+  let n ∈ ℕ₀                                                          (H1)
+  let t : ℕ₀ → ℤ                                                      (H2)
+  let u : ℕ₀ → ℤ                                                      (H3)
+  then        Σ(k = 0 to n) (t(k) − u(k)) = Σ(k = 0 to n) t(k) − Σ(k = 0 to n) u(k)
+  metamath    fsumsub
+  target      fsumsub
+  first-used  divisibility-by-three
 
 
 # -------------------------------------------------------------- analysis

@@ -247,6 +247,62 @@ CASES = [
      'thm:completeness targets suprcl, suprub, and none of them reaches '
      'what step 8 obtains'),
 
+    # `arithmetic` works a closed claim out before proving it, and takes
+    # nothing as stated. A false one used to be stated as an axiom, and one
+    # of digits alone crashed the normaliser on the way.
+    ('claim a false numeral fact with a number past one digit',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '1.1.  10^0 − 1 = 3·0', '1.1.  10^0 − 1 = 3·1',
+     'step 1.1 claims 10^0 − 1 = 3·1, which is false'),
+
+    ('claim a false numeral fact of digits',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '1.4.3.  9 = 3·3', '1.4.3.  9 = 3·4',
+     'step 1.4.3 claims 9 = 3·4, which is false'),
+
+    # True, and past what the method shows while it reads digits alone: a
+    # theorem stating it is what the page cites, and saying so is the
+    # report, where the fact used to be stated.
+    ('ask arithmetic for a true fact it cannot show',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '10 − 1 = 9\n                  thm:ten-minus-one',
+     '10 − 1 = 9\n                  arithmetic',
+     'step 1.4.5 claims 10 − 1 = 9, which is true, and arithmetic cannot '
+     'show it yet'),
+
+    # What has no exact value is refused before anything is computed or
+    # stated: a division by zero, a number too large to work out, which
+    # would run for as long as memory lasts, and a power that is not a
+    # rational, which a float would otherwise have decided.
+    ('divide by zero in a numeral fact',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n'
+     '                  requires 3/0 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     'which divides by zero'),
+
+    ('state a numeral too large to work out',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n'
+     '                  requires 9^(9^9) ∈ ℕ: arithmetic\n\n          1.4.9.',
+     'which is too large to work out'),
+
+    ('raise a numeral to a power that is not whole',
+     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n'
+     '                  requires 4^(1/2) ∈ ℕ: arithmetic\n\n          1.4.9.',
+     'which is not a rational number'),
+
+    # `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
+    # says it for every k ∈ ℕ₀. Without line 1 cited nothing says it.
+    ('sum what no cited line says each term of is divisible',
+     'divisibility-by-three', 'proof/divisibility-by-three.proof',
+     'thm:sum-divisible m := 3, from H1, 1',
+     'thm:sum-divisible m := 3, from H1',
+     'no clause of thm:sum-divisible reaches what step 2 claims'),
+
     # What says f is continuous is H5, and so is what says its domain and
     # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
     # has neither.

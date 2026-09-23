@@ -181,6 +181,10 @@ SPELLINGS = ['ralrp', 'rexrp']
 MEMBERSHIP = [
     'ax-1cn', '1re', '1z', '1nn', '2cn', '2re', '2z', '2nn', '0cn', '0re',
     '0z', '0nn0', '3cn', '3re', '3z', '4cn', '4re', '4z',
+    # A numeral of more than one digit, set.mm's decimal `; A B`, is not
+    # among these: `elaborate.decimal_within` builds its membership from
+    # its digits, because `deccl` asks its parts as closed facts and a
+    # search proves everything under the step's scope.
     'nnz', 'nnre', 'nncn', 'nnnn0', 'nn0z', 'nn0re', 'nn0cn',
     'zre', 'zcn', 'recn',
     'qre', 'qcn', 'elnnuz', 'eluz2', 'eluz2b1', 'eluz2b2', 'eluz2gt1',
@@ -193,6 +197,11 @@ MEMBERSHIP = [
     # asks of it is not always integrality: a power wants its exponent in
     # ℕ₀, which over `( 0 ... n )` the range itself gives.
     'elfzelz', 'elfznn0', 'abscl', 'zaddcl', 'zsubcl', 'zmulcl', 'zsqcl',
+    # A sum asks that its range be finite and that each of its terms be a
+    # number, and a term is often a function's value at the index: a digit
+    # d(k) is an integer because d maps into ℤ, and 10^k because 10 is one
+    # and k is in ℕ₀.
+    'fzfi', 'ffvelcdm', 'zexpcl',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
     'renegcl', 'negcl', 'reexpcl', 'nn0expcl', '2nn0', 'peano2nn0',
     # and what a commuting pair asks, which `db/notation.records` declares by

@@ -403,6 +403,8 @@ class Elaborator(Builder):
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.rewriting = set()   # terms `rewritten` is working on now
+        self.numbering = set()   # memberships `numeral_within` works out now
+        self.numbers = {}        # (membership, scope) -> what it came to
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
@@ -492,7 +494,12 @@ class Elaborator(Builder):
                                   f'no kernel name for {node.text!r}')
             return self.names[node.text]
         if node.notation == 'numeral':
-            return targets.NUMERALS[node.text]
+            # set.mm writes a numeral of several digits as decimals, `; A B`
+            # with A the digits before the last: 10 is `; 1 0`.
+            said = targets.NUMERALS[node.text[0]]
+            for digit in node.text[1:]:
+                said = self.seq(said, targets.NUMERALS[digit], 'cdc')
+            return said
         # A binder's first hole is the variable it introduces, which stands
         # for itself rather than for whatever a name is bound to.
         bound = self.binders.get(node.notation, ())
@@ -606,6 +613,23 @@ class Elaborator(Builder):
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        # A number's membership of a number system is worked out from the
+        # numeral, not searched for, and spends none of the depth: a digit
+        # is set.mm's label for it, `9cn` or `9nn0`, and 10 or 10^0 − 1 is
+        # built from its digits (`numeral_within`). Spending depth on it
+        # left 10^k ∈ ℤ, deep inside a sum's term, one level short of 10.
+        if wanted.label == 'wcel' and len(wanted.children) == 2 \
+                and wanted.children[1].label in SYSTEMS \
+                and not set(wanted.children[0].rpn(self.flabel).split()) \
+                - self.NUMERIC:
+            # Inside the search that works out one number, the numbers it
+            # is built from are looked up and not searched for again: each
+            # starting its own search made 21,000 of them for one theorem.
+            number = (self.digit_within(wanted, scope, facts)
+                      if self.numbering
+                      else self.numeral_within(wanted, scope, facts))
+            if not declined(number):
+                return number
         # Whether a term is a set is read off its structure, not searched
         # for: the constructor at its head says which lemma, and what the
         # lemma asks is its parts' sethood, which comes back here.
@@ -731,6 +755,12 @@ class Elaborator(Builder):
                         or old.label == 'cv':
                     continue
                 was, now = old.rpn(self.flabel), new.rpn(self.flabel)
+                # A numeral is a constant however set.mm spells it — 10 is
+                # the decimal `; 1 0` — and so is a sum of them. A cited
+                # 9 + 1 = 10 rewrote each into the other at every level of
+                # every search that failed, and a build ran for minutes.
+                if not set(was.split()) - self.NUMERIC:
+                    continue
                 put = self.replaced(wanted, was, new)
                 if put.rpn(self.flabel) == want:
                     continue
@@ -914,7 +944,35 @@ class Elaborator(Builder):
             reads = reads.children[1]
 
         # What the lemma concludes need not fix everything it asks, so an
-        # antecedent still open is matched against something already known.
+        # antecedent still open is matched against something already known,
+        # whole, and failing that a conjunct at a time, as `apply_lemma`
+        # does: `ffvelcdm` asks `F : A --> B` and `C e. A` together, and
+        # only the line saying what F maps between says what A is. What a
+        # naming hypothesis decides comes first, as in `apply_lemma`:
+        # `f1mpt` names its map, and a conjunct of what it asks matched
+        # against a line otherwise binds the map's body to that line's.
+        binding = self.opened(antecedents,
+                              self.read_off(sig, binding, variables), facts,
+                              variables)
+        return self.fitted(label, sig, antecedents, joins, wanted, scope,
+                           facts, depth, backwards, binding)
+
+    def opened(self, antecedents, binding, facts, variables):
+        """The binding with what the antecedents leave open filled in.
+
+        A conjunct asking where to look for something rather than anything
+        of it is left to `sethood`, which reads it so, and is not matched:
+        `f1mpt` asks its map's values to lie in B, and matched alone against
+        a fact putting one of them in some set, it bound B to that set and
+        `add-element-bijection` failed.
+
+        Every antecedent is matched whole before any is taken apart, so a
+        conjunct matched alone never decides what a later antecedent says
+        outright: `hashvnfin` asks `N e. NN0` beside `S e. V` and then
+        `( # ` S ) = N`, and the first line in ℕ₀ is not the size.
+        """
+        binding = dict(binding)
+        whole = []
         for slot in antecedents:
             if not slot.names() - set(binding):
                 continue
@@ -925,14 +983,31 @@ class Elaborator(Builder):
                     binding = filled
                     break
             else:
-                # A class neither the claim nor a fact fixes is set.mm asking
-                # where to look for the thing rather than asking anything of
-                # it, which `apply_lemma` reads the same way: `pwexg` wants a
-                # class holding the set whose power class is about to be one,
-                # and _V holds every set. What is left is then settled.
-                for open_slot in self.sethood(slot, binding):
-                    binding[open_slot] = kernel.Term('cvv')
+                whole.append(slot)
+        for slot in whole:
+            for piece in self.conjuncts_of(slot):
+                if not piece.names() - set(binding) \
+                        or self.sethood(piece, binding):
+                    continue
+                for held in facts:
+                    filled = kernel.match(piece, self.to_term(held),
+                                          dict(binding), variables)
+                    if filled is not None:
+                        binding = filled
+                        break
+            # A class neither the claim nor a fact fixes is set.mm asking
+            # where to look for the thing rather than asking anything of it,
+            # which `apply_lemma` reads the same way: `pwexg` wants a class
+            # holding the set whose power class is about to be one, and _V
+            # holds every set. What is left is then settled.
+            for open_slot in self.sethood(slot, binding):
+                binding[open_slot] = kernel.Term('cvv')
+        return binding
 
+    def fitted(self, label, sig, antecedents, joins, wanted, scope, facts,
+               depth, backwards, binding):
+        """The lemma proved under one binding, or None where it is not."""
+        variables = self.syntax.statement(sig).names()
         # A declared lemma may state a hypothesis in full rather than ask for
         # it, which is a spelling and not a difference in what it leans on:
         # `f1mpt` names its map that way. The two kinds it states are the two
@@ -1951,6 +2026,10 @@ class Elaborator(Builder):
         negations and numeral powers are looked inside; numerals are not
         atoms. `METHODS.md`: each atom is a real number, which the step
         writes or cites.
+
+        A numeral of more than one digit is an atom to the method, which
+        reads only digits, but not to the page: 10 is a number to a reader
+        as 3 is, and `deccl` is what says so, so the step is not asked to.
         """
         def walk(node):
             if node.variable is None and node.label in self.RELATIONS:
@@ -1960,7 +2039,8 @@ class Elaborator(Builder):
                     walk(kid)
                 return
             terms.add(node.rpn(self.flabel))
-            if linear.numeral(node, self.flabel) is not None:
+            if linear.numeral(node, self.flabel) is not None \
+                    or node.label == 'cdc':
                 return
             if node.variable is None and node.label == 'co' \
                     and len(node.children) == 3:
@@ -2230,6 +2310,11 @@ class Elaborator(Builder):
             block.over = re.search(r'induction on (\S+)',
                                    step.just.text).group(1)
             block.base = self.spare_var()
+            # The step part fixes a name of its own, and `nn0indd` wants
+            # that one apart from this: its letter would otherwise be taken
+            # as its own even when it is this spare, as the ten-power proof's
+            # m was, and the two were one variable.
+            self.taken.add(block.base)
         else:
             raise self.defect(step.line,
                               f'no expansion for a {head} block')
@@ -4147,14 +4232,50 @@ class Elaborator(Builder):
         A relation between two numerals is said outright; a value is an
         identity of the field with no atoms in it, so it goes where
         identities go rather than wanting a second procedure.
+
+        Nothing is taken as stated. The claim is worked out first
+        (`field.decide_closed`), so what cannot be proved is reported as
+        what it is: false, or not a number, or true and past what the
+        method can show, which a theorem stating it is cited for.
         """
+        what = f'step {fmt(step.number)} claims {" ".join(step.claim)}'
+        self.worked_out(term, what)
         for how in (lambda: self.prove_numeral(term, scope, facts),
                     lambda: self.prove_field(step, term, scope, facts,
                                              lines)):
             found = how()
             if not declined(found):
                 return found
-        return self.assume(step, term, scope, facts, 'ari', lines)
+        raise self.unshown(term, what)
+
+    def worked_out(self, term, what):
+        """A claim `arithmetic` is asked for, refused where it is false or
+        has no exact value. `what` says where it was asked, as the page
+        writes it.
+        """
+        verdict = field.decide_closed(self.to_term(term), self.flabel)
+        if declined(verdict):
+            return
+        if verdict.holds is False:
+            raise self.defect(self.at, f'{what}, which is false')
+        if verdict.holds is None:
+            raise self.defect(self.at, f'{what}, which {verdict.reason}')
+
+    def unshown(self, term, what):
+        """The defect for a claim `arithmetic` could not prove.
+
+        It is never taken as stated instead: a numeral fact the method
+        cannot show is cited from a theorem that states it, as the
+        divisibility proof cites 10 − 1 = 9.
+        """
+        verdict = field.decide_closed(self.to_term(term), self.flabel)
+        if declined(verdict):
+            return self.defect(self.at, f'{what}, which is not a fact about '
+                                        f'numerals alone, and arithmetic '
+                                        f'decides nothing else')
+        return self.defect(self.at, f'{what}, which is true, and arithmetic '
+                                    f'cannot show it yet; cite a theorem '
+                                    f'that states it')
 
     def prove_numeral(self, term, scope, facts):
         """A closed numeral fact, decided by working it out and then said.
@@ -4238,7 +4359,89 @@ class Elaborator(Builder):
                                          'B': field.NUMERAL[b]})))
         return Declined(f'{a} {how} {b} is not what the numbers do')
 
+    # What a term built from numerals alone is spelt with: the digits, the
+    # decimal that joins them, and the operations `arithmetic` reads.
+    NUMERIC: typing.ClassVar = frozenset({
+        *field.DIGITS, 'cdc', 'co', 'caddc', 'cmin', 'cmul', 'cdiv', 'cexp',
+        'cneg'})
+
     def numeral_within(self, goal, scope, facts):
+        """( scope -> t e. S ), for a term built from numerals alone.
+
+        A digit set.mm names in the system is its label. Anything else built
+        only from numerals — 10, which is the decimal `; 1 0`, or 9, which
+        set.mm puts in ℕ and not in ℤ by name, or 10^0 − 1 — is settled from
+        the declared closure lemmas, which is working it out and not
+        searching: there is no letter in it for a fact to be about.
+        """
+        named = self.digit_within(goal, scope, facts)
+        if not declined(named):
+            return named
+        said = goal.children[0].rpn(self.flabel)
+        if set(said.split()) - self.NUMERIC:
+            return named
+        # One level deeper than `settle`'s default, which is chosen for
+        # chains through a proof's own facts: 10^0 − 1 ∈ ℤ is `zsubcl`, then
+        # `nn0z`, `nn0expcl` and `deccl`. `settle` sends a number here
+        # first, so while this term is being worked out it is searched
+        # for there like any other.
+        # Nothing in it is a proof's own, so what it comes to is the same
+        # wherever it is asked under this scope, and is worked out once.
+        # Only where it rests on nothing on the page, though: the search
+        # also reads a step's own requires lines, and a proof of 10 ∈ ℝ
+        # made from one step's `10 ∈ ℤ` line, handed to the next step,
+        # rested on a line that step did not name.
+        want = goal.rpn(self.flabel)
+        if (want, scope) in self.numbers:
+            return self.numbers[want, scope]
+        self.numbering.add(want)
+        try:
+            found = self.settle(goal, scope, {}, depth=4)
+        finally:
+            self.numbering.discard(want)
+        if declined(found) or not getattr(found, 'origin', None):
+            self.numbers[want, scope] = found
+        return found
+
+    # A whole number set.mm writes in ℕ₀ is in these by the closed lemma
+    # each names, which asks the number's own fact and not one in a scope.
+    FROM_NN0: typing.ClassVar = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
+                                 'cc': 'nn0cni'}
+
+    def decimal_within(self, goal, scope):
+        """( scope -> ; A B e. S ), for a numeral of more than one digit.
+
+        `deccl` puts a decimal in ℕ₀ from its parts being there, and asks
+        that as closed facts rather than under a scope, so it is built here
+        from the digits' labels and brought into the scope once, and never
+        offered to `settle`, whose proofs stand under one.
+        """
+        said, system = goal.children
+        if system.label not in self.FROM_NN0:
+            return Declined('a decimal is placed in ℕ₀, ℤ, ℝ and ℂ only')
+
+        def whole(term):
+            if term.label in field.DIGITS and not term.children:
+                return self.seq(f'{field.DIGITS[term.label]}nn0')
+            if term.label != 'cdc':
+                return Declined('not a numeral')
+            upper, last = term.children
+            parts = [whole(upper), whole(last)]
+            if any(declined(p) for p in parts):
+                return next(p for p in parts if declined(p))
+            return self.ap('deccl', {'A': upper.rpn(self.flabel),
+                                     'B': last.rpn(self.flabel)}, *parts)
+
+        closed = whole(said)
+        if declined(closed):
+            return closed
+        lift = self.FROM_NN0[system.label]
+        if lift is not None:
+            closed = self.ap(lift, {'A': said.rpn(self.flabel),
+                                    'N': said.rpn(self.flabel)}, closed)
+        return self.seq(goal.rpn(self.flabel), scope, closed, 'a1i')
+
+    def digit_within(self, goal, scope, facts):
         """( scope -> d e. S ), for a digit and a system set.mm names it in.
 
         `ax-1cn` is the one place the library spells such a label otherwise,
@@ -4250,6 +4453,8 @@ class Elaborator(Builder):
         suffix = SYSTEMS.get(system.label)
         if suffix is None or system.children:
             return Declined('not a number system set.mm names digits in')
+        if said.label == 'cdc':
+            return self.decimal_within(goal, scope)
         value = linear.numeral(said, self.flabel)
         if value is None or value.denominator != 1 \
                 or not 0 <= int(value) <= 9:
@@ -4264,8 +4469,17 @@ class Elaborator(Builder):
         label = f'{digit}{suffix}'
         if label not in self.sigs:
             label = f'ax-{label}'
+        if label not in self.sigs and suffix == 'z' \
+                and f'{digit}nn0' in self.sigs:
+            # set.mm names every digit in ℕ₀ and only some in ℤ: `9nn0` is
+            # there and `9z` is not.
+            closed = self.ap('nn0zi', {'N': field.NUMERAL[digit]},
+                             self.seq(f'{digit}nn0'))
+            return self.seq(self.seq(field.NUMERAL[digit], system.label,
+                                     'wcel'), scope, closed, 'a1i')
         if label not in self.sigs:
-            return Declined(f'set.mm does not state {self.render(goal)}')
+            return Declined(f'set.mm does not state '
+                            f'{self.render(goal.rpn(self.flabel))}')
         work = normal.Emitter(self.sigs, scope,
                               lambda t: self.membership(t, 'cc', scope,
                                                         facts))
@@ -6262,14 +6476,7 @@ class Elaborator(Builder):
             # things at once is matched a conjunct at a time, since each is
             # a line of its own: `sstr` asks A ⊆ B and B ⊆ C, and only the
             # lines say what B is.
-            pieces, parts = [], [slot]
-            while parts:
-                part = parts.pop(0)
-                if part.label in ('wa', 'w3a'):
-                    parts[:0] = part.children
-                else:
-                    pieces.append(part)
-            for piece in pieces:
+            for piece in self.conjuncts_of(slot):
                 if not piece.names() - set(binding):
                     continue
                 for held in known:
@@ -6445,8 +6652,80 @@ class Elaborator(Builder):
             wider = {k: self.seq(under, scope, k, self.seq(scope, extra, 'simpl'), v,
                             'syl') for k, v in facts.items()}
             wider[extra] = self.seq(scope, extra, 'simpr')
-            return self.settle(right, under, wider)
+            taken = self.at_the_index(left.children[1], right, under, wider)
+            if taken is not None:
+                return taken
+            # One level deeper than `settle`'s default: what is asked of an
+            # index is asked through the range it runs over, and the index
+            # is in ℕ₀ only by `elfznn0` from that. `fsumdvds` asks the
+            # digit sum's term d(k)·10^k − d(k) to be an integer, which is
+            # `zsubcl`, `zmulcl`, `ffvelcdm` and then `elfznn0`.
+            return self.settle(right, under, wider, depth=4)
         return self.settle(right, under, {})
+
+    @staticmethod
+    def conjuncts_of(slot):
+        """The things a lemma's antecedent asks, one conjunct at a time."""
+        pieces, parts = [], [slot]
+        while parts:
+            part = parts.pop(0)
+            if part.label in ('wa', 'w3a'):
+                parts[:0] = part.children
+            else:
+                pieces.append(part)
+        return pieces
+
+    def at_the_index(self, member, right, under, facts):
+        """What a lemma asks of each index, from a line saying it of all.
+
+        `fsumdvds` asks, for k in the range it sums over, that N divide the
+        term, and the divisibility proof says it for every k ∈ ℕ₀. That is
+        the line read at k, once k is in ℕ₀, which `rspcv` does. The line
+        binds a letter of its own, since its `fix` introduced the index
+        before the sum bound one, so what is compared is its body read at
+        k. Only a line in hand whose body at k is what is asked is read so,
+        which makes this an instantiation and not a search.
+
+        None where no such line is in hand, which is not a decline: the
+        caller settles what is asked another way.
+        """
+        if member.label != 'wcel' or member.children[0].label != 'cv':
+            return None
+        index = member.children[0]
+        want = right.rpn(self.flabel)
+        # Only what the step names, as `settle` is offered only that: a
+        # line in scope and not cited is not there to be read.
+        if self.resting is not None:
+            facts = {k: v for k, v in facts.items()
+                     if getattr(v, 'origin', frozenset()) <= self.resting}
+        for said, proof in facts.items():
+            line = self.to_term(said)
+            if line.label != 'wral' or line.children[1].variable is None:
+                continue
+            body, letter, over = line.children
+            if body.substitute({letter.variable: index.children[0]}).rpn(
+                    self.flabel) != want:
+                continue
+            inside = self.seq(index.rpn(self.flabel), over.rpn(self.flabel),
+                              'wcel')
+            there = self.settle(self.to_term(inside), under, facts)
+            if declined(there):
+                continue
+            reads = self.to_term(self.seq(
+                self.seq(f'{letter.rpn(self.flabel)} cv',
+                         index.rpn(self.flabel), 'wceq'),
+                self.seq(body.rpn(self.flabel), want, 'wb'), 'wi'))
+            tied = self.prove_essential(reads, under, facts)
+            if declined(tied):
+                continue
+            read = self.ap('rspcv', {'ph': body.rpn(self.flabel), 'ps': want,
+                                     'x': letter.rpn(self.flabel),
+                                     'A': index.rpn(self.flabel),
+                                     'B': over.rpn(self.flabel)}, tied)
+            carried = self.seq(under, inside, self.seq(said, want, 'wi'),
+                               there, read, 'syl')
+            return self.seq(under, said, want, proof, carried, 'mpd')
+        return None
 
     def one_direction(self, label, reads, goal, variables, scope, facts,
                       step, crossing, seed):
@@ -6830,6 +7109,8 @@ class Elaborator(Builder):
         # and a declared lemma reaching the same fact reaches it the long
         # way round: 1 < 2 through membership of ℤ≥2 costs five lemmas.
         if closure == 'arithmetic':
+            said = f'the requires line {self.render(term)}'
+            self.worked_out(term, said)
             found = self.prove_numeral(term, scope, facts)
             if not declined(found):
                 return found
@@ -6861,6 +7142,8 @@ class Elaborator(Builder):
             found = self.prove_field(None, term, scope, facts, self.lines)
             if not declined(found):
                 return found
+            raise self.unshown(term, f'the requires line '
+                                     f'{self.render(term)}')
         if closure == 'inequalities':
             # A side condition resting on a method is proved the way a step
             # resting on it is, where the method can prove one at all.
@@ -6873,10 +7156,11 @@ class Elaborator(Builder):
         # the reason the line gives, and the file still verifies, so nothing
         # would show it. What is left is a method saying at the head of the
         # file that it was not expanded, or an error naming the line.
-        if closure in ('arithmetic', 'inequalities', 'algebra'):
+        if closure in ('inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
             # same way a step does, and is listed the same way: under what
-            # the line cites, and under nothing else.
+            # the line cites, and under nothing else. `arithmetic` is not
+            # among them: it is reported above where it cannot prove.
             asks = [(self.lines[ref].term,
                      self.carried(ref, facts, self.lines))
                     for ref in citations(how) if ref in self.lines]
