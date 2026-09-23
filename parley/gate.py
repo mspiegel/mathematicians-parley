@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Everything that must be green before a commit.
+"""Everything that must be green before a commit, after `parley/build.py`.
+
+Build first, every time. Nothing here runs the elaborator over the corpus:
+the last stage verifies the files the elaborator *has written*, so it says
+something about the corpus as it stands only if those files were written from
+it. Break the elaborator, leave the built files alone, and all eight stages
+pass while no proof elaborates at all. `build.py` is what compares the two —
+it says `23 built, 0 changed` — and the gate is what checks the result.
 
 Eight things: the lint settings in `ruff.toml`, that no caller hands on a
 decline without asking whether it has one, the checker over the whole corpus,

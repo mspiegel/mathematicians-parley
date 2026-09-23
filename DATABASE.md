@@ -185,10 +185,17 @@ repaired.
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
   the chain cites that number.
-- **`parley/gate.py` is what must be green before a commit.** Five stages: ruff
-  over the tools, the checker over the corpus, the planted defects that prove
-  the checker still catches things, every set.mm label the database names, and
-  a verifier over all 23 proofs the elaborator has written. The lint settings
+- **`parley/build.py` and then `parley/gate.py` is what must be green before a
+  commit.** Build first, every time: no stage of the gate runs the elaborator
+  over the corpus, and the last one verifies the files it *has written*, so
+  those files have to have been written from the corpus as it stands. Break
+  the elaborator and leave the built files alone and the gate passes while
+  nothing elaborates. Eight stages: ruff over the tools, that no caller hands
+  on a decline without asking whether it has one, the checker over the corpus,
+  the planted defects that prove the checker still catches things, the planted
+  defects that prove the elaborator still reports things, every set.mm label
+  the database names, that a compressed proof is the proof it was made from,
+  and a verifier over all 23 proofs the elaborator has written. The lint settings
   are in `ruff.toml`, which turns off the ambiguous-character rules because
   this corpus is written in the characters they object to. Nothing the gate
   leans on is vendored: ruff is looked for on PATH, and set.mm and mmverify.py
@@ -196,8 +203,11 @@ repaired.
   link at the root. Each missing one fails the gate and says how to supply it,
   because a gate that skipped a stage would be saying green about something it
   had not looked at.
-- **The hypotheses of `algebra` and `inequalities` are still unwritten**, as
-  `SYNTAX.md` records.
+- **The hypotheses of `algebra` and `inequalities` are written.** Each method
+  record carries a `hypotheses` field — `algebra`'s reads "every atom is a real
+  number, and every denominator is nonzero" — and `SYNTAX.md` has moved the
+  question off its unsettled list: a membership is a `requires` line, and the
+  corpus complies throughout.
 - **Every formula in the corpus parses, and none is ambiguous.** That is 313
   sentences in the ten proofs and 131 statements and assumptions here, and the
   checker parses all of them on every run. Getting there took six notations
