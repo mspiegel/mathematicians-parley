@@ -949,10 +949,14 @@ theorem completeness
   assume there is s ∈ S                                               (H2)
   assume there is u ∈ ℝ with u is an upper bound of S                 (H3)
   then        there is c ∈ ℝ with c is a least upper bound of S
-  metamath    sup2, ax-pre-sup
+  metamath    suprcl, suprub, suprleub
+  target      suprcl, suprub, suprleub with c := sup S
   first-used  intermediate-value
-  note        In set.mm this is an axiom of the real numbers. Whether its proof
-              is ever in the corpus is a question about the foundation.
+  note        The least upper bound is set.mm's supremum, and each thing the
+              page asks of it is a lemma: that it is real, that nothing in S
+              is above it, and that it is at most anything nothing in S is
+              above. The `with` names what the claim binds, so it is the
+              witness rather than what a lemma's variable stands for.
 
 theorem point-right
   proved-in   proof/intermediate-value.proof

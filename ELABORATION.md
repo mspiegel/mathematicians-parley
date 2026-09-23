@@ -475,17 +475,29 @@ bound name is spoken for, and so is the name a definition defines over.
 Nothing checks that an item's statement is true beyond that. The list at the
 head of each file is what to read when it changes.
 
-Every written file but two assumes nothing. What is left:
+Every written file but one assumes nothing. What is left:
 
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `intermediate-value.mm` | 1 | completeness |
 
-What `intermediate-value` states is not one lemma away. set.mm's
-completeness, `sup2`, concludes a supremum where `thm:completeness`
-concludes a least upper bound. `thm:point-right`, which set.mm has no label
-for, is proved at the head of the same file.
+Completeness is not one lemma away. set.mm's `sup3` says its witness is
+never exceeded and that anything below it is exceeded, where
+`thm:completeness` says its witness is an upper bound and at most every
+other; between the two is a contrapositive and trichotomy, which is logic
+and not a spelling. set.mm also names the witness, the supremum, and says
+each thing the page asks of it in a lemma of its own: `suprcl` that it is
+real, `suprub` that each member of S is at most it, `suprleub` that it is at
+most any B exactly when every member is. So the target names the witness,
+`with c := sup S`: a `with` name that is none of the lemmas' variables can
+only be the claim's own binder. The supremum is put in for c, each part of
+what the claim then says is proved by the first of the three that reaches
+it — the two said of one member or one bound at a time are said of every
+one by fixing it — and the claim is introduced at the supremum. What the
+three lemmas ask, S ⊆ ℝ, S ≠ ∅ and S bounded above, the step cites: the
+last is "b is an upper bound of S", which names the bound, so a "there is"
+a lemma asks may be answered from the step's own lines. `thm:point-right`,
+which set.mm has no label for, is proved at the head of the same file.
 
 Continuity is `elcncf2`, which says what the readable definition says in
 other words: it quantifies over ℝ⁺ where the page says ε ∈ ℝ with ε > 0, and

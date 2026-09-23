@@ -5686,6 +5686,13 @@ class Elaborator(Builder):
         want = self.to_term(goal)
         if want.label != 'wrex':
             return Declined('the claim is not "there is"')
+        if any(label not in self.sigs for label in labels):
+            return Declined(f'{", ".join(labels)} are not all in the library')
+        theirs = {v for label in labels for v in self.sigs[label].push}
+        witness = [name for name in seed if name not in theirs]
+        if witness:
+            return self.at_witness(labels, want, seed, witness, scope, facts,
+                                   step)
         known = dict(facts)
         for label in labels:
             sig = self.sigs.get(label)
@@ -5704,6 +5711,50 @@ class Elaborator(Builder):
                 return proof
             known[said] = proof
             self.unpack(said, proof, scope, known)
+        return self.introduced(want, scope, known)
+
+    def at_witness(self, labels, want, seed, witness, scope, facts, step):
+        """An existence claim at the thing a `with` target names for it.
+
+        `thm:completeness` says there is a least upper bound, and set.mm
+        names one: the supremum. What the claim asks of it — that it is
+        real, that nothing in the set is above it, that it is at most
+        anything nothing in the set is above — is one lemma each, and each
+        is said of one element or one bound at a time, which `as_generalised`
+        says of every one. So the witness is put in for the binder, each
+        part of what the claim then says is proved by the first lemma that
+        reaches it, and the claim is introduced at the witness.
+
+        A `with` name that is none of the lemmas' variables is what says
+        this: it can only be the claim's own binder.
+        """
+        if len(witness) != 1:
+            return Declined(f'the target names {len(witness)} witnesses '
+                            f'and the claim is read one binder at a time')
+        body, variable, over = want.children
+        stood = seed[witness[0]]
+        member = self.seq(stood.rpn(self.flabel), over.rpn(self.flabel),
+                          'wcel')
+        said = self.replaced(body, f'{variable.rpn(self.flabel)} cv', stood)
+
+        def by_lemmas(one):
+            refused = []
+            for label in labels:
+                made = self.apply_lemma(label, one, scope, facts, step)
+                if not declined(made):
+                    return made
+                refused.append(f'{label}: {made}')
+            return Declined('; '.join(refused))
+
+        known = dict(facts)
+        for part in (self.to_term(member), said):
+            made = self.conjoined(part, scope, by_lemmas)
+            if made is None:
+                made = by_lemmas(part)
+            if declined(made):
+                return made
+            known[part.rpn(self.flabel)] = made
+            self.unpack(part.rpn(self.flabel), made, scope, known)
         return self.introduced(want, scope, known)
 
     def as_class(self, node, marks):
@@ -6143,6 +6194,16 @@ class Elaborator(Builder):
                                             scope, facts, step, seed)
                     if not declined(seeded):
                         return seeded
+                # One way of the biconditional may be the claim: `suprleub`
+                # says the supremum is at most B exactly when nothing in the
+                # set is above B, and a least upper bound is at most every
+                # such B, which is the way from the second to the first.
+                if goal.label == 'wi':
+                    taken = self.one_direction(label, reads, goal, variables,
+                                               scope, facts, step, crossing,
+                                               seed)
+                    if not declined(taken):
+                        return taken
             antecedents.append(reads.children[0])
             joins.append(reads.label)
             reads = reads.children[1]
@@ -6269,7 +6330,17 @@ class Elaborator(Builder):
             sides = ((rest, asks.rpn(self.flabel))
                      if joins[i] is TURNED and not first
                      else (asks.rpn(self.flabel), rest))
-            under = self.settle(asks, where, known)
+            # A "there is" the lemma asks can be given by an instance a line
+            # the step cites names: `suprcl` asks that S be bounded above,
+            # and step 8 of the intermediate value proof cites that b is an
+            # upper bound. Only then is the step passed, so every other side
+            # condition is settled from declared lemmas as before.
+            instanced = any(self.to_term(part).label == 'wrex'
+                            for part in self.parts(asks.rpn(self.flabel)))
+            under = (self.settle(asks, where, known, step=step,
+                                 lines=self.lines)
+                     if instanced and step is not None
+                     else self.settle(asks, where, known))
             if declined(under):
                 return under
             proof = self.seq(where, *sides, under, proof,
@@ -6377,6 +6448,31 @@ class Elaborator(Builder):
             return self.settle(right, under, wider)
         return self.settle(right, under, {})
 
+    def one_direction(self, label, reads, goal, variables, scope, facts,
+                      step, crossing, seed):
+        """A claim `P → Q` from a lemma saying `Q ↔ P`, or `P ↔ Q`.
+
+        The biconditional is proved at what the claim fixes, as the lemma
+        states it, and the way the claim goes is taken: `biimpd` from left
+        to right, `biimprd` from right to left.
+        """
+        left, right = reads.children
+        for (first, then), fold in (((left, right), 'biimpd'),
+                                    ((right, left), 'biimprd')):
+            fixed = kernel.match(kernel.Term('wi', (first, then)), goal,
+                                 dict(seed or {}), variables)
+            if fixed is None:
+                continue
+            said = reads.substitute(fixed)
+            both = self.apply_lemma(label, said, scope, facts, step,
+                                    crossing, fixed)
+            if declined(both):
+                return both
+            return self.seq(scope, left.substitute(fixed).rpn(self.flabel),
+                            right.substitute(fixed).rpn(self.flabel), both,
+                            fold)
+        return Declined(f'neither way of {label} is the claim')
+
     def allowed(self, sig, binding, variables):
         """The innermost scope a lemma's disjointness conditions permit.
 
@@ -6384,10 +6480,19 @@ class Elaborator(Builder):
         induction hypothesis is an equation between sums, so it holds that
         variable. The step is written inside that scope and cannot be proved
         there. It is proved one frame out and carried back in.
+
+        What is left unbound is the scope, which a deduction-form lemma
+        calls ph. A set variable left unbound is not: it is a letter the
+        lemma binds inside itself, as `suprcl` binds the x and y of "S is
+        bounded above", and it stands in the proof as its own name, which
+        no scope mentions.
         """
+        kinds = {v: t for t, v in sig.floats}
         forbidden = set()
         for a, b in sig.disjoint:
             for one, other in ((a, b), (b, a)):
+                if kinds.get(other) == 'setvar':
+                    continue
                 if one in binding and other not in binding:
                     forbidden |= {self.flabel.get(n, n)
                                   for n in binding[one].names()}
@@ -6955,19 +7060,32 @@ class Elaborator(Builder):
                 return got
         return None
 
-    def aligned(self, pattern, actual, marks, found):
-        """Whether these agree everywhere but the marked places."""
+    def aligned(self, pattern, actual, marks, found, paired=None):
+        """Whether these agree everywhere but the marked places.
+
+        A letter each binds at the same place may differ, and is the same
+        letter below it: `suprcl` asks that some x bound every y in S, and
+        the line saying b is an upper bound of S says it of every s. A
+        letter neither binds there must be the same letter.
+        """
+        paired = paired or {}
         here = pattern.rpn(self.flabel)
         if here in marks:
             was = actual.rpn(self.flabel)
             return found.setdefault(here, was) == was
         if pattern.variable is not None or actual.variable is not None:
-            return pattern.variable == actual.variable
+            return paired.get(pattern.variable,
+                              pattern.variable) == actual.variable
         if pattern.label != actual.label:
             return False
         if len(pattern.children) != len(actual.children):
             return False
-        return all(self.aligned(a, b, marks, found)
+        if (pattern.label in self.BOUND and len(pattern.children) >= 2
+                and pattern.children[1].variable is not None
+                and actual.children[1].variable is not None):
+            paired = {**paired, pattern.children[1].variable:
+                      actual.children[1].variable}
+        return all(self.aligned(a, b, marks, found, paired)
                    for a, b in zip(pattern.children, actual.children,
                                    strict=True))
 

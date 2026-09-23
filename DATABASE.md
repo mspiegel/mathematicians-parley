@@ -58,6 +58,13 @@ reversed`, says the theorem writes its equation the other way round from the
 `then` line, which `odd2np1` and `divides` both do. `db/notation.records`
 documents the same field on the notation side.
 
+A target may end `with v := t, …`, saying what the lemma's variables stand
+for where the claim does not fix them: `divalg with N := n, D := d`. A name
+there that is none of the lemmas' variables is the claim's own binder, and
+what it is given is the witness: `thm:completeness` targets `suprcl,
+suprub, suprleub with c := sup S`, and the least upper bound it promises is
+the supremum, which each of the three lemmas says one thing about.
+
 **A `target` that never fires is an error, not a shrug.** An item with no
 `target` is assumed, and the elaborated file says so at its head. An item that
 has one and whose every clause misses the claim is a different thing: the

@@ -226,6 +226,26 @@ CASES = [
      'there is δ ∈ ℝ with δ ≥ 0 and',
      'elcncf2 does not say'),
 
+    # The least upper bound is the supremum, which is a number only of a
+    # set bounded above, and line 7 is what says S is. Without it cited
+    # nothing names a bound, and the step says which.
+    ('obtain the least upper bound without the line bounding the set',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     'obtain c: thm:completeness S := S, from 5, 2, 7',
+     'obtain c: thm:completeness S := S, from 5, 2',
+     'proof/intermediate-value.proof:103  no cited line names a witness '
+     'for E. x e. RR'),
+
+    # Each part of what the claim asks of the witness is one of the
+    # target's lemmas, and a part none of them reaches is the target
+    # failing, not something to take as stated.
+    ('leave out the lemma saying the supremum is least',
+     'intermediate-value', 'db/items.records',
+     '  target      suprcl, suprub, suprleub with c := sup S',
+     '  target      suprcl, suprub with c := sup S',
+     'thm:completeness targets suprcl, suprub, and none of them reaches '
+     'what step 8 obtains'),
+
     # What says f is continuous is H5, and so is what says its domain and
     # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
     # has neither.

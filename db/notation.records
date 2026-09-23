@@ -471,6 +471,21 @@ notation powerset
   first-used  cantor
   note        No assoc: only the right edge is a hole.
 
+notation supremum
+  pattern     sup _
+  holes       set
+  yields      number
+  kinds       set of number → number
+  level       power
+  reads       the least upper bound of
+  metamath    df-sup
+  target      _1 cr clt csup
+  first-used  intermediate-value
+  note        set.mm's supremum is taken in an order and over a set of numbers,
+              and the page's is always the reals under <, which is what the
+              target writes. Only `thm:completeness`'s target writes it so far:
+              the least upper bound the theorem promises is this one.
+
 notation set-builder
   pattern     {_ ∈ _ : _}
   holes       variable, set, formula
