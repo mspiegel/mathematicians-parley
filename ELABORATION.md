@@ -449,7 +449,7 @@ as every s in S being at most b and the block that proved that fixed a
 variable of its own. Otherwise it is stated as an item is, below: the
 definition as the database says it, at the step's terms, and the claim read
 off one side. The cited line on the other side is what says which terms:
-"f is continuous on [a, b]" is what says continuity's D is [a, b].
+"b is an upper bound of S" is what says the definition's u is b.
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
 where the readable "a or b or c" is built from the left: `lttri4` is
@@ -480,14 +480,27 @@ Every written file but two assumes nothing. What is left:
 | file | `$a` | what |
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
-| `intermediate-value.mm` | 2 | continuity and completeness |
+| `intermediate-value.mm` | 1 | completeness |
 
 What `intermediate-value` states is not one lemma away. set.mm's
-continuity, `elcncf2`, quantifies over ℝ⁺ and measures |c − x| where the
-readable definition says ε ∈ ℝ with ε > 0 and |x − c|. Its completeness,
-`sup2`, concludes a supremum where `thm:completeness` concludes a least upper
-bound. `thm:point-right`, which set.mm has no label for, is proved at the head
-of the same file.
+completeness, `sup2`, concludes a supremum where `thm:completeness`
+concludes a least upper bound. `thm:point-right`, which set.mm has no label
+for, is proved at the head of the same file.
+
+Continuity is `elcncf2`, which says what the readable definition says in
+other words: it quantifies over ℝ⁺ where the page says ε ∈ ℝ with ε > 0, and
+it puts f : D → ℝ on its right side where the page puts it in the
+hypothesis. `targets.SPELLINGS` holds `ralrp` and `rexrp`, set.mm saying
+that a quantifier over ℝ⁺ is one over ℝ with the positivity inside, and
+what `elcncf2` unfolds to is put in those words wherever they apply, under
+every binder around them. The typing conjunct is one of the parts unfolding
+takes apart and is left there. What `elcncf2` asks first, that [a, b] and ℝ
+lie in ℂ, the line saying f is continuous says as well, by `cncfrss` and
+`cncfrss2`. The letters set.mm binds are the step's last: its x outside
+and w inside are the page's c′ and x, so they are moved to letters neither
+holds before they are given the page's, or the page's x would be caught.
+Spellings are read in one direction, of what a lemma says, and never of a
+claim.
 
 `thm:card-remove` is `hashdifsnp1`, which states it whole: the size is given
 as k + 1, so nothing asks that X be finite. `thm:card-nonempty` is

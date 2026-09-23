@@ -158,6 +158,15 @@ def slots(pattern):
 NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',
             '5': 'c5', '6': 'c6', '7': 'c7', '8': 'c8', '9': 'c9'}
 
+# What set.mm writes one way and the page another, each a closed
+# biconditional whose left side is set.mm's spelling and whose right side is
+# the page's. set.mm quantifies over the positive reals; the page says "for
+# every ε ∈ ℝ with ε > 0", which it reads as a quantifier over ℝ with the
+# positivity inside. Read in that one direction only, and only of what a
+# lemma says, so that a lemma is put in the page's words and never a claim
+# in a lemma's.
+SPELLINGS = ['ralrp', 'rexrp']
+
 # Every lemma the elaborator may lean on for a fact the text does not write,
 # tried by matching its conclusion against what is wanted. A closed one
 # settles it outright, one with an antecedent leaves that antecedent to
@@ -235,6 +244,11 @@ MEMBERSHIP = [
     # would not fit: it speaks of =/=, and `df-ne` is what relates that to
     # the -. = the `negates` line folds ≠ into.
     'df-ne', 'necom',
+    # A continuous function's domain and codomain lie in ℂ, which
+    # `elcncf2` asks before it says what continuity is, and which a reader
+    # told f is continuous on [a, b] is never told. The line saying it is
+    # continuous is what says so.
+    'cncfrss', 'cncfrss2',
     # And a pair that cannot both hold because one of them does not:
     # `dvdslegcd` divides by anything but two zeros, and a natural number
     # is one of the two, so the pair is denied by denying its first half.

@@ -202,14 +202,39 @@ CASES = [
 
     # A definition with no target is stated as the definition says it and
     # the claim read off one side. Stating the claim under the cited lines
-    # took continuity with δ where ε belongs, and only step 17's use of it
-    # noticed.
+    # took whatever the step claimed, and only a later step using it could
+    # notice.
     ('unfold a definition taken as stated into what it does not say',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     '10. For every s ∈ S, s ≤ c.',
+     '10. For every s ∈ S, s < c.',
+     'def:upper-bound is taken as stated and states'),
+
+    # `elcncf2` is read in the page's words, which is a reading and not a
+    # licence: continuity with δ where ε belongs, or with δ ≥ 0 where the
+    # definition says δ > 0, is not what it says.
+    ('unfold continuity into what it does not say',
      'intermediate-value', 'proof/intermediate-value.proof',
      'if |x − c′| < δ then |f(x) − f(c′)| < ε.',
      'if |x − c′| < δ then |f(x) − f(c′)| < δ.',
-     'proof/intermediate-value.proof:129  def:continuous-on is taken as '
-     'stated and states'),
+     'proof/intermediate-value.proof:129  no method owns this step: '
+     'elcncf2 does not say'),
+
+    ('unfold continuity with a weaker bound than it gives',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     'there is δ ∈ ℝ with δ > 0 and',
+     'there is δ ∈ ℝ with δ ≥ 0 and',
+     'elcncf2 does not say'),
+
+    # What says f is continuous is H5, and so is what says its domain and
+    # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
+    # has neither.
+    ('unfold continuity without the line saying f is continuous',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     '    def:continuous-on, from H5',
+     '    def:continuous-on',
+     'proof/intermediate-value.proof:129  no method owns this step: no '
+     'cited line is what elcncf2 unfolds'),
 
     # An item's target asks a side condition the page never writes, and
     # `rewritten` answers it through the equation the step cites: `0 < |X|`

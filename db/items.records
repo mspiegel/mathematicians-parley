@@ -925,10 +925,13 @@ definition continuous-on
   then        f is continuous on D ↔ for every c ∈ D, for every ε ∈ ℝ with
               ε > 0, there is δ ∈ ℝ with δ > 0 and for every x ∈ D, if
               |x − c| < δ then |f(x) − f(c)| < ε
-  metamath    cncfi, elcncf2
+  metamath    elcncf2
+  target      elcncf2
   first-used  intermediate-value
-  note        set.mm's continuity is topological; its unfolding to ε and δ is
-              elsewhere.
+  note        `elcncf2` quantifies over ℝ⁺ where the page says ε ∈ ℝ with
+              ε > 0, and `targets.SPELLINGS` reads the one as the other. It
+              also says f : D → ℝ on its right side, where the page puts it
+              in the hypothesis, and that conjunct is set aside.
 
 definition upper-bound
   then        u is an upper bound of S ↔ for every s ∈ S, s ≤ u

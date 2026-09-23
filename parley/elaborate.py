@@ -2434,9 +2434,121 @@ class Elaborator(Builder):
             return proof
         apart = self.renaming(self.to_term(said), self.to_term(want))
         if apart is None:
+            apart = self.renaming_apart(said, want)
+        if apart is None:
             return None
         return self.seq(scope, said, want, proof,
                    self.seq(self.seq(said, want, 'wb'), scope, apart, 'a1i'), 'mpbid')
+
+    def renaming_apart(self, said, want):
+        """`renaming` by way of letters neither statement holds.
+
+        `renaming` changes the outer binder first, restating the body it
+        wants at the old letter, and that is wrong where the old letter is
+        bound again further in: `elcncf2` binds x outside and w inside,
+        and the page binds c′ outside and x inside, so restating the page's
+        body with x for c′ puts two binders on one letter. Every letter the
+        first statement binds is moved to one nothing holds, and the
+        statement is renamed from there, where nothing can be caught.
+
+        The letters are only looked at, not taken. They stand in the middle
+        of one closed equivalence and nowhere else, and this is tried
+        wherever a plain renaming fails, which taking them each time would
+        spend the proof's spare letters on.
+        """
+        held = ({t.split()[0] for t in self.names.values()
+                 if isinstance(t, str) and t.endswith(' cv')}
+                | self.reserved | set(self.bound_as.values())
+                | set(said.split()) | set(want.split()))
+        free = iter(v for v in self.spare if v not in held)
+        moved, rest = {}, [self.to_term(said)]
+        while rest:
+            node = rest.pop()
+            if node.label in self.BOUND and len(node.children) >= 2:
+                letter = node.children[1].variable
+                if letter is not None and letter not in moved:
+                    fresh = next(free, None)
+                    if fresh is None:
+                        return None
+                    moved[letter] = kernel.Term(
+                        variable=self.sigs[fresh].statement[1])
+            rest.extend(node.children)
+        if not moved:
+            return None
+        middle = self.to_term(said).substitute(moved)
+        there = self.renaming(self.to_term(said), middle)
+        back = self.renaming(middle, self.to_term(want))
+        if there is None or back is None:
+            return None
+        return self.ap('bitri', {'ph': said, 'ps': middle.rpn(self.flabel),
+                                 'ch': want}, there, back)
+
+    def page_spelt(self, said, scope):
+        """What a lemma says, put in the page's words, and why they agree.
+
+        `elcncf2` says continuity with ε and δ in ℝ⁺, and the page says
+        ε ∈ ℝ with ε > 0. `targets.SPELLINGS` holds set.mm's statements that
+        those are the same, and each is applied wherever its left side
+        stands, under however many binders, the innermost first so that
+        what an outer one reads is already the page's.
+
+        Gives back the new statement and a proof, under the scope, that it
+        and the old one are equivalent. Where nothing is spelt differently
+        the statement comes back as it was, and there is nothing to prove.
+        """
+        old = self.to_term(said)
+        new = self.in_page_words(old)
+        want = new.rpn(self.flabel)
+        if want == said:
+            return said, None
+
+        def respelt_here(given, wanted, where, held):
+            for label in targets.SPELLINGS:
+                reads = self.syntax.statement(self.sigs[label])
+                names = reads.names()
+                ours = kernel.match(reads.children[0], given, {}, names)
+                theirs = kernel.match(reads.children[1], wanted, {}, names)
+                if ours is None or theirs is None \
+                        or ours['x'].rpn(self.flabel) \
+                        != theirs['x'].rpn(self.flabel):
+                    continue
+                # The body is put in the page's words first, under set.mm's
+                # own quantifier, and the spelling then changes the
+                # quantifier around a body both sides already share.
+                middle = reads.children[0].substitute(theirs)
+                closed = self.ap(label, self.spelt(theirs))
+                turned = self.seq(self.seq(middle.rpn(self.flabel),
+                                           wanted.rpn(self.flabel), 'wb'),
+                                  where, closed, 'a1i')
+                if middle.rpn(self.flabel) == given.rpn(self.flabel):
+                    return turned
+                inside = self.congruence(given, middle, where, held, None,
+                                         respelt_here)
+                if declined(inside):
+                    return inside
+                return self.seq(where, given.rpn(self.flabel),
+                                middle.rpn(self.flabel),
+                                wanted.rpn(self.flabel), inside, turned,
+                                'bitrd')
+            return None
+
+        alike = self.congruence(old, new, scope, {}, None, respelt_here)
+        if declined(alike):
+            return alike
+        return want, alike
+
+    def in_page_words(self, term):
+        """The statement with every spelling applied, innermost first."""
+        if term.variable is not None or not term.children:
+            return term
+        term = kernel.Term(term.label,
+                           tuple(self.in_page_words(c) for c in term.children))
+        for label in targets.SPELLINGS:
+            reads = self.syntax.statement(self.sigs[label])
+            bound = kernel.match(reads.children[0], term, {}, reads.names())
+            if bound is not None:
+                return reads.children[1].substitute(bound)
+        return term
 
     def close_fix(self, block, held, inside=()):
         """A fix closed by giving back everything it took.
@@ -5327,6 +5439,18 @@ class Elaborator(Builder):
         self.unpack(right, proof, scope, known)
         if term in known:
             return known[term]
+        # Or it is, once what the lemma says is put in the page's words and
+        # the letters it binds are the step's: `elcncf2` gives continuity
+        # over ℝ⁺ with its own x, y, z and w.
+        for said, shown in list(known.items()):
+            got = self.page_spelt(said, scope)
+            if declined(got) or got[0] == said:
+                continue
+            new, alike = got
+            carried = self.seq(scope, said, new, shown, alike, 'mpbid')
+            spelt = self.respelt(carried, new, term, scope)
+            if spelt is not None:
+                return spelt
         # What the unfolding says and how the readable line spells it are
         # allowed to differ, so long as set.mm says they are the same claim:
         # `isprm2` writes p > 1 as membership of ZZ>=2, and `eluz2gt1` is
