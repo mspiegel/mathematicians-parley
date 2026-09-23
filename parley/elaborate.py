@@ -1735,6 +1735,113 @@ class Elaborator(Builder):
             here = inner
         return proof if here == scope else None
 
+    ARITHMETIC = frozenset({'caddc', 'cmin', 'cmul', 'cdiv'})
+    RELATIONS = frozenset({'wceq', 'wne', 'wbr', 'wn', 'wa'})
+
+    def atoms_of(self, rpn, atoms, terms):
+        """The atoms of a claim a method combined, and every term in it.
+
+        An atom is what the method treats as a number it knows nothing
+        about: a name, an absolute value, a function's value, a power whose
+        exponent is not a numeral. Sums, differences, products, quotients,
+        negations and numeral powers are looked inside; numerals are not
+        atoms. `METHODS.md`: each atom is a real number, which the step
+        writes or cites.
+        """
+        def walk(node):
+            if node.variable is None and node.label in self.RELATIONS:
+                kids = node.children[:2] if node.label == 'wbr' \
+                    else node.children
+                for kid in kids:
+                    walk(kid)
+                return
+            terms.add(node.rpn(self.flabel))
+            if linear.numeral(node, self.flabel) is not None:
+                return
+            if node.variable is None and node.label == 'co' \
+                    and len(node.children) == 3:
+                op = node.children[2].rpn(self.flabel)
+                if op in self.ARITHMETIC:
+                    walk(node.children[0])
+                    walk(node.children[1])
+                    return
+                if op == 'cexp' and linear.numeral(
+                        node.children[1], self.flabel) is not None:
+                    walk(node.children[0])
+                    return
+            if node.variable is None and node.label == 'cneg':
+                walk(node.children[0])
+                return
+            atoms.add(node.rpn(self.flabel))
+        walk(self.to_term(rpn))
+
+    def does_work(self, step, number, proof):
+        """Everything a step names does work, or a defect names what does not.
+
+        A cited line or requires line is at work where the proof rests on it,
+        directly or through another of the step's requires lines. On a
+        method step a requires line is also at work where the method demands
+        it without the kernel needing it — a membership of an atom of what
+        was combined, a term of it not zero — and each such atom's membership
+        must be on the page. A step citing an item is the checker's to judge,
+        since the item's statement says what it asks.
+        """
+        head = step.just.head if step.just else ''
+        if head.startswith(('def:', 'thm:')):
+            return
+        used = set(getattr(proof, 'origin', ()))
+        todo = [u for u in used if u.startswith(REQUIRES)]
+        while todo:
+            for more in self.rests_on.get(todo.pop(), ()):
+                if more not in used:
+                    used.add(more)
+                    if more.startswith(REQUIRES):
+                        todo.append(more)
+        for ref in dict.fromkeys(step.just.refs):
+            if ref not in used and ref not in self.defines \
+                    and ref not in self.sorts:
+                raise self.defect(step.line, f'step {number} cites {ref} and '
+                                             f'uses nothing it says')
+        atoms, terms = set(), set()
+        for claim in self.combined.get(step.line, ()):
+            self.atoms_of(claim, atoms, terms)
+        written = {}
+        for text, _how, line in step.requires:
+            claim = self.to_term(self.term(self.read(text)))
+            written[line] = claim
+            if requirement(line) in used:
+                continue
+            if claim.label == 'wcel':
+                demanded = claim.children[0].rpn(self.flabel) in atoms
+            elif claim.label == 'wne':
+                demanded = claim.children[0].rpn(self.flabel) in terms
+            elif claim.label == 'wn' and claim.children[0].label == 'wceq':
+                demanded = claim.children[0].children[0].rpn(
+                    self.flabel) in terms
+            else:
+                demanded = False
+            if not demanded:
+                raise self.defect(line, f'the requires line of step {number} '
+                                        f'says {text.strip()}, and the step '
+                                        f'neither uses nor asks for it')
+        cited = {part for ref in step.just.refs if ref in self.lines
+                 for part in self.parts(self.lines[ref].term)}
+        for atom in sorted(atoms):
+            said = any(c.label == 'wcel' and c.children[0].rpn(self.flabel)
+                       == atom for c in written.values())
+            said = said or any(
+                self.to_term(p).label == 'wcel'
+                and self.to_term(p).children[0].rpn(self.flabel) == atom
+                for p in cited)
+            if not said:
+                # By the name the page writes, where the atom is one.
+                shown = next((name for name, kernel in self.names.items()
+                              if kernel == atom), self.render(atom))
+                raise self.defect(step.line,
+                                  f'step {number} combines {shown}, and '
+                                  f'nothing it writes or cites says it is a '
+                                  f'number')
+
     def combining(self, *terms):
         """Record what a method step's claim is built from.
 
@@ -2006,6 +2113,7 @@ class Elaborator(Builder):
         number = '.'.join(str(p) for p in step.number)
         self.rests_on_named(block.proof, self.named(step, number, block=True),
                             step.line, f'step {number}')
+        self.does_work(step, number, block.proof)
         block.proof = self.seal(block.proof, number)
         outer = dict(block.outside)
         outer[block.claim] = block.proof
@@ -2385,6 +2493,7 @@ class Elaborator(Builder):
         said = self.said(step)
         self.rests_on_named(proof, self.named(step, number), step.line,
                             f'step {number}')
+        self.does_work(step, number, proof)
         proof = self.seal(proof, number)
         lines[number] = Fact(term, proof, said)
         facts[term] = proof
@@ -2510,6 +2619,7 @@ class Elaborator(Builder):
         # introduces is sealed below with the same name, and rests on nothing.
         self.rests_on_named(p_ex, self.named(step, number), step.line,
                             f'step {number}')
+        self.does_work(step, number, p_ex)
         p_ex = self.seal(p_ex, number)
 
         # The existential says which names it introduces and where they run,

@@ -133,6 +133,35 @@ CASES = [
      'proof/sqrt2-irrational.proof:14  the requires line rests on 1, which '
      'it does not name'),
 
+    # Everything a step names does work. 2 is a numeral, not an atom, so
+    # `algebra` asks nothing about its being real, and the kernel has it
+    # from the library; the line is true, well formed, and does nothing.
+    ('write a requires line nothing asks for',
+     'sum-formula', 'proof/sum-formula.proof',
+     '                  requires 2 ≠ 0: arithmetic\n',
+     '                  requires 2 ≠ 0: arithmetic\n'
+     '                  requires 2 ∈ ℝ: arithmetic\n',
+     'says 2 ∈ ℝ, and the step neither uses nor asks for it'),
+
+    # The certificate combines lines 3 and 4; line 1 says a + b ∈ ℝ, which
+    # the step writes as its atoms instead, and is cited for nothing.
+    ('cite a line a method step does not combine',
+     'triangle-inequality', 'proof/triangle-inequality.proof',
+     '    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 3, 4\n',
+     '    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 3, 4\n',
+     'step 5.2 cites 1 and uses nothing it says'),
+
+    # Each atom a method combines is real, and the step says so. The
+    # kernel's `ltne` never needs d ∈ ℝ here, so nothing else would see the
+    # line gone: only what the method asks for does.
+    ('leave out the membership of an atom the method combines',
+     'lowest-terms', 'proof/sqrt2-irrational.proof',
+     '    5.7.  d ≠ 1\n          inequalities, from 5.1\n'
+     '          requires d ∈ ℝ: thm:int-real, from 5.1\n',
+     '    5.7.  d ≠ 1\n          inequalities, from 5.1\n',
+     'step 5.7 combines d, and nothing it writes or cites says it is a '
+     'number'),
+
     # `decide_field` refuses a claim that is not an identity. It is raised
     # outside the handler that falls back to stating the step, and must
     # stay that way.
