@@ -127,3 +127,65 @@ for the existence-by-construction feature.
   provides, which is what the pointer rule was designed for.
 - The informal-source entries marked "verify" should be checked against
   the book before any of those pilots is written.
+
+## The next five
+
+The ten are written and every theorem the corpus proves elaborates from
+set.mm with nothing assumed. The next five are chosen by the same coverage
+rule, now asking what none of the ten exercises. All five are on Wiedijk's
+list and in set.mm's main body, not a mathbox. Measured with
+`parley/mmstats.py` on the same set.mm.
+
+| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
+|---|---|---|---|---|---|---|---|---|---|
+| 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack on congruence (verify) |
+| 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack ch. 3 (verify) |
+| 13 | sum of the reciprocals of the triangular numbers | an infinite series: a limit of partial sums, telescoping | trirecip | 42 | no | none | none | 0 | ProofWiki |
+| 14 | Schröder–Bernstein | comparing sizes by injection; a set defined by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
+| 15 | Lagrange's theorem | an algebraic structure, which set.mm encodes through `Base`, `+g` and `SubGrp` | lagsubg | 27 | no | G, X, Y | none | 0 | ProofWiki |
+
+Three of these were set aside when the ten were chosen: Schröder–Bernstein
+because Cantor was shorter and carried the set-existence hypothesis, the
+binomial theorem because the geometric series covered induction at a third
+of the size, and the divisibility rule as heavy. Those were reasons to prefer
+another theorem for the same feature. The question now is which features are
+still untested, and a reindexed sum, a congruence and an injection-built
+bijection are among them.
+
+1. **Divisibility by 3.** The first congruence in the corpus: 10ᵏ leaves
+   remainder 1 on division by 3, so a number and its digit sum leave the
+   same remainder. set.mm states it for a digit function F : (0…N) → ℤ,
+   and the readable statement is about the digits of a number, so the
+   statement itself is the first thing to settle. Its 122 steps are what
+   the up direction would hide; the readable proof is a few lines.
+2. **Binomial theorem.** Induction again, but the step splits a sum,
+   shifts its index and applies Pascal's rule, where the geometric series
+   only adds a term at the end (`fsump1`).
+3. **Triangular reciprocals.** No class variables and nothing to hide in
+   the statement. The first limit of a sequence and the first sum over all
+   of ℕ: the partial sums telescope to 2 − 2/(n + 1), and the ε-style
+   argument the intermediate value theorem made for functions is made for
+   a sequence.
+4. **Schröder–Bernstein.** Short in set.mm and long on the page. The
+   readable proof follows the chain of repeated images and defines the
+   bijection by cases on it, so it needs a set defined by recursion and a
+   function defined piecewise, neither of which the corpus has.
+5. **Lagrange's theorem.** set.mm's group is a structure, a function from
+   slot indices to its base set and operation, and the essential hypothesis
+   `X = ( Base ` G )` is how every group theorem names its set. A reader
+   never sees that encoding, which makes this the algebraic counterpart of
+   the geometry theorem. The argument reuses the corpus's counting: the
+   cosets partition the group and each has the size of the subgroup.
+
+Order: 11 and 12 first, since each extends machinery the corpus already
+has (divisibility and sums); then 13, which extends the analysis; 14 and 15
+bring the most that is new. Before each pilot, its informal source is
+checked and the entries marked "verify" confirmed or replaced.
+
+Considered for these five and not chosen: the mean value theorem (`mvth`),
+which rests on Rolle's theorem and the extreme value theorem, a chain of
+three large proofs stated in deduction form; the countability of ℚ
+(`qnnen`), for the reason in the table above; Wilson's theorem (`wilth`)
+and Fermat's little theorem (`fermltl`), which would be a second congruence
+proof after 11; and Königsberg, Ramsey and Bertrand, each of which depends
+on a great deal of set.mm before its argument starts.
