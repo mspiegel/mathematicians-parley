@@ -106,9 +106,9 @@ CASES = [
      'proof/isosceles.proof:48  def:triangle, from 7 does not reach'),
 
     # A step's proof rests only on what it names (`GOALS.md` decision 9).
-    # Without its requires line the step still elaborates and verifies:
-    # `algebra` wants k ∈ ℂ, and the scope holds k ∈ ℤ from line 1, which
-    # step 3 does not cite. Provenance is what sees that.
+    # Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
+    # k ∈ ℤ from line 1, which step 3 does not cite. Offered that, the step
+    # elaborated and verified; it is not offered, so nothing says k ∈ ℂ.
     ('lean on a line the step does not name',
      'odd-square', 'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
@@ -116,12 +116,12 @@ CASES = [
      '    requires k ∈ ℝ: thm:int-real, from 1\n',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n',
-     'proof/sqrt2-irrational.proof:12  step 3 rests on 1, which it does '
-     'not name'),
+     'proof/sqrt2-irrational.proof:12  nothing says m e. CC, which this '
+     'step needs'),
 
     # A requires line rests only on its reason. Line 2 does not say k is an
-    # integer, and `thm:int-real` asks it; the scope has it from line 1, so
-    # the line is proved, verifies, and rests on a line it does not cite.
+    # integer, and `thm:int-real` asks it; the scope has it from line 1,
+    # which the line does not cite, so the item it names reaches nothing.
     ('give a requires line a reason that is not where its proof comes from',
      'odd-square', 'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
@@ -130,8 +130,8 @@ CASES = [
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
      '    requires k ∈ ℝ: thm:int-real, from 2\n',
-     'proof/sqrt2-irrational.proof:14  the requires line rests on 1, which '
-     'it does not name'),
+     'proof/sqrt2-irrational.proof:12  thm:int-real targets zre, and none '
+     'of them reaches m e. RR'),
 
     # Everything a step names does work. 2 is a numeral, not an atom, so
     # `algebra` asks nothing about its being real, and the kernel has it
@@ -176,6 +176,18 @@ CASES = [
     # An item taken as stated is stated as the item says it. Stating the
     # step's claim under the item's hypotheses instead assumed whatever the
     # step claimed, and the kernel accepts whatever is assumed.
+    # A side condition is searched for among what the step names, not among
+    # everything in scope. Without 1.2.1.5 the step still needs T finite,
+    # and the scope holds |T| = 2^k: offered it, the search found the route
+    # and R1 refused it afterwards, so which route the search took decided
+    # whether a correct page was reported. It must not be offered at all.
+    ('settle a side condition from a line the step does not cite',
+     'subsets-count', 'proof/subsets.proof',
+     'n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6',
+     'n := 2^k, from 1.2.1.3, 1.2.1.6',
+     'no clause of thm:card-disjoint-union reaches what step 1.2.1.8 '
+     'claims'),
+
     ('claim what an item taken as stated does not state',
      'subsets-count', 'proof/subsets.proof',
      '                  1.2.1.2.  |X ∖ {a}| = k\n',

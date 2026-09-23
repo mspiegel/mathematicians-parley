@@ -359,6 +359,7 @@ class Elaborator(Builder):
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
         self.citing = frozenset()    # the lines what is being proved cites
+        self.resting = None      # what the proof being built may rest on
         self.combined = {}           # by step line, what its method combined
         self.sorts = frozenset()     # labels of set, point and function lines
         self.defines = frozenset()   # labels of `define` lines
@@ -533,16 +534,21 @@ class Elaborator(Builder):
             stack.append(kernel.Term(token, tuple(args)))
         return stack[0]
 
-    def settle(self, wanted, scope, facts, depth=7, step=None, lines=None):
+    def settle(self, wanted, scope, facts, depth=5, step=None, lines=None):
         """A proof of something a step needs and the text does not write.
 
-        `depth` bounds the chain, and seven is what the deepest one in the
-        corpus costs: a power set is finite because its size is a natural
-        number, which is a power of two, whose base is two. Each of those is
-        a declared lemma asking the next, and a shorter bound stopped that
-        chain rather than any search. It is not free — six costs
-        `least-combination-divides` 27 seconds to elaborate and eight costs
-        it 37 — so it is the depth that was measured, not a round number.
+        `depth` bounds how many declared lemmas a chain applies one on top
+        of another, and five is the deepest chain in the corpus: step
+        1.2.1.8 of the subsets proof needs T finite, which is `hashvnfin`
+        from the size the step cites, and T a set, which is `rnexg`,
+        `mptexg`, `pwexg` and `difexg` down to X. At four the claim cannot
+        be reached from what the step names, and the step is reported.
+        Splitting a conjunction applies no lemma and spends nothing: there
+        is one way to prove both halves, and the parts are smaller.
+
+        What is offered is only what the proof being built may rest on
+        (`resting_on`), so a route through a line the step does not name
+        is not there to be found, whatever order the lemmas are tried in.
 
         A cited lemma asks side conditions of its own — that an index is in
         the upper integers, that a summand is complex — and those are not
@@ -555,6 +561,9 @@ class Elaborator(Builder):
         pass none, so they stay what they are: settled from declared
         lemmas, never by finding a fact that happens to fit.
         """
+        if self.resting is not None:
+            facts = {k: v for k, v in facts.items()
+                     if getattr(v, 'origin', frozenset()) <= self.resting}
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
@@ -581,7 +590,7 @@ class Elaborator(Builder):
         if depth > 0:
             joined = self.conjoined(
                 wanted, scope,
-                lambda one: self.settle(one, scope, facts, depth - 1, step,
+                lambda one: self.settle(one, scope, facts, depth, step,
                                         lines))
             if joined is not None:
                 return joined
@@ -595,12 +604,10 @@ class Elaborator(Builder):
                 # `ralrimiva` gives it back, which is `as_generalised` over
                 # a declared lemma rather than over a cited one.
                 #
-                # Going under the binder spends no depth. It is one claim
-                # said of one member, not a step of the chain the bound is
-                # there to cut off, and spending it stopped `f1mpt` halfway.
-                # Conjunction still spends: doing both cost
-                # `least-combination-divides` sixty seconds and bought
-                # nothing.
+                # Going under the binder spends no depth, as splitting a
+                # conjunction spends none. It is one claim said of one
+                # member, not a step of the chain the bound is there to cut
+                # off, and spending it stopped `f1mpt` halfway.
                 body, variable, over = wanted.children
                 member = self.seq(f'{variable.rpn(self.flabel)} cv',
                              over.rpn(self.flabel), 'wcel')
@@ -1928,10 +1935,14 @@ class Elaborator(Builder):
         requires lines, which `check.py` also lets one line discharge from
         another, and the sorts in scope.
         """
-        allowed = set(citations(how)) | self.sorts
-        allowed |= {requirement(one) for _t, _h, one in step.requires}
-        self.rests_on_named(made, allowed, line, 'the requires line')
+        self.rests_on_named(made, self.reason_allows(step, how), line,
+                            'the requires line')
         return self.seal(made, requirement(line))
+
+    def reason_allows(self, step, how):
+        """What a requires line with this reason may rest on (R2)."""
+        return frozenset(set(citations(how)) | self.sorts
+                         | {requirement(one) for _t, _h, one in step.requires})
 
     def rests_on_named(self, proof, allowed, line, what):
         """A proof resting on nothing its line does not name, or a defect.
@@ -2517,9 +2528,31 @@ class Elaborator(Builder):
                               block.outside[member], 'jca'),
                           run, 'syl')
 
+    @contextlib.contextmanager
+    def resting_on(self, allowed):
+        """What the proof being built may rest on, while it is built.
+
+        `settle` is offered only facts resting on these. The scope holds
+        more, and a side condition answered from a line the step does not
+        name is one R1 refuses afterwards; offered it, the search takes
+        whichever route the lemma table reaches first. Step 1.2.1.8 of the
+        subsets proof cites that T has 2^k elements, and a shallower search
+        found T finite through the bijection of 1.2.1.4 instead.
+        """
+        kept, self.resting = self.resting, allowed
+        try:
+            yield
+        finally:
+            self.resting = kept
+
     def step(self, step, scope, facts, lines, closers):
-        head = step.just.head
+        """One step, with the search offered only what the step names."""
         number = '.'.join(str(p) for p in step.number)
+        with self.resting_on(frozenset(self.named(step, number))):
+            return self.one_step(step, number, scope, facts, lines, closers)
+
+    def one_step(self, step, number, scope, facts, lines, closers):
+        head = step.just.head
         self.last = number
         self.at = step.line
         if head == 'obtain':
@@ -2825,14 +2858,18 @@ class Elaborator(Builder):
         if not declined(assembled):
             return assembled
         if labels:
-            # `step.just.head` is the word `obtain` here rather than the item,
-            # so the item names itself, and the labels it named say which
-            # field to go and look at.
+            # The item is reached from an `obtain` or from a requires line
+            # naming it, so `step.just.head` is not the item, and the item
+            # names itself. The labels it named say which field to look at,
+            # and what they did not reach is said as it stands.
             kind = 'def' if item.kind == 'definition' else 'thm'
+            wanted = (f'what step {fmt(step.number)} obtains'
+                      if step.just.head == 'obtain'
+                      else self.render(self.to_term(goal).rpn(self.flabel)))
             raise self.defect(step.line,
                               f'{kind}:{item.name} targets '
                               f'{", ".join(labels)}, and none of them reaches '
-                              f'what step {fmt(step.number)} obtains')
+                              f'{wanted}')
         return self.assume_item(step, goal, scope, facts, item, cites)
 
     def assume_item(self, step, goal, scope, facts, item, cites=None):
@@ -6199,10 +6236,13 @@ class Elaborator(Builder):
         than the line says and leaves 3.1 unused.
         """
         # While the line is proved, what it cites is what may be carried
-        # without a search.
+        # without a search, and what the search is offered is what the line
+        # may rest on.
         citing, self.citing = self.citing, frozenset(citations(how))
+        allowed = None if step is None else self.reason_allows(step, how)
         try:
-            return self.by_its_reason(want, how, scope, facts, step)
+            with self.resting_on(allowed):
+                return self.by_its_reason(want, how, scope, facts, step)
         finally:
             self.citing = citing
 

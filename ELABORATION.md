@@ -392,6 +392,22 @@ nothing to what it looks at, where handing `prove_order` every fact `supplied`
 proves put `abs-bounds` past ten million `fits` calls in a proof that takes
 five seconds.
 
+What the search is offered is only what the proof being built may rest on:
+inside a step, what R1 allows it; while a requires line is proved, what R2
+allows the line. The scope holds more, and a side condition answered from a
+line the step does not cite is one R1 would refuse afterwards — so offered
+it, which route the lemma list reached first decided whether a correct page
+was reported. Step 1.2.1.8 of the subsets proof cites that T has 2^k
+elements; a shallower search found T finite through the bijection of line
+1.2.1.4 instead. Filtered, it cannot: the search finds a route through what
+the step names, or says that nothing the step names reaches the claim.
+
+The search is bounded by how many lemmas one chain applies on top of one
+another, and five is the deepest chain the corpus needs — that same step,
+where T is finite by `hashvnfin` and a set by `rnexg`, `mptexg`, `pwexg` and
+`difexg`. Splitting a conjunction applies no lemma and spends none of it;
+nor does going under a "for every".
+
 ## What a file states rather than proves
 
 The head of each file says what is not expanded: a closure method, or an item
