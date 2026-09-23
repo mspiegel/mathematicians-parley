@@ -84,6 +84,18 @@ CASES = [
      'proof/geometric-series.proof:15  no clause of def:G gives what '
      'step 2.1 claims'),
 
+    # A `requires` line has a claim and a reason, and only the claim was
+    # used: the reason could name any line at all and the fact was settled
+    # from whatever the scope held. Here line 6 does not say `C ≠ A` and
+    # line 7 does, and the proof took it from the theorem's own hypothesis
+    # and turned it with `necom`, so the file verified and the line the
+    # page named went unused.
+    ('name a line that does not state the side condition',
+     'isosceles', 'proof/isosceles.proof',
+     '    requires C ≠ A: def:triangle, from 7',
+     '    requires C ≠ A: def:triangle, from 6',
+     'proof/isosceles.proof:43  def:triangle, from 6 does not reach'),
+
     # `decide_field` refuses a claim that is not an identity. It is raised
     # outside the handler that falls back to stating the step, and must
     # stay that way.

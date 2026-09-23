@@ -1772,8 +1772,10 @@ Three things had to be true before that would work, and only the first was.
 which would turn 37 proved facts into assumed ones and lengthen the lists
 `GEOMETRY.md` measures the corpus by. `int-real`, `int-closure` and
 `difference-set` name their lemmas in `metamath` and now carry them as
-`target` as well; `def:triangle` has no set.mm backing and stays open, so its
-three lines still settle. The branch is guarded on the target for that reason.
+`target` as well. The branch is guarded on the target for that reason.
+`def:triangle` has no set.mm backing and none to give it, and is reached
+instead by unfolding the line it cites, which is what that kind of definition
+means in the kernel.
 
 *The name has to end where the name ends.* `thm:abs-real x := a, from H1` was
 looked up under `abs-real x := a`, which is no item, so every line binding a
@@ -1795,12 +1797,40 @@ not what it says.
 justification at all, so a line reaching the elaborator either way is
 discharged by what it names.
 
-Twenty-two side conditions still settle. Eighteen name `arithmetic` and one
-`inequalities`, which is a method tried and unable to reach the fact rather
-than a citation missed; three name `def:triangle`, which has no lemma to cite
-and is one of the nine open items. That is what remains between the corpus and
-decision 9, measured by recording each fall-through and running the sixteen
-theorems.
+**No side condition settles now, and the generic route is gone.** Twenty-two
+did, and the three reasons were three different things.
+
+Eighteen named `arithmetic` and asked that a numeral belongs to a number
+system: `2 ∈ ℤ`, `2 ∈ ℝ`, `1 ∈ ℕ`, `0 ∈ ℤ`. `METHODS.md` puts a claim with no
+atom under that method, so the text is right; `prove_numeral` declined them
+because it looked only for a relation between two sides, and membership is not
+one. set.mm names the fact for each digit and system — `2z`, `1nn`, `0re`,
+with `ax-1cn` the one place it spells such a label otherwise — and
+`numeral_within` builds that label, so the method decides what it is said to
+decide. Where the library names nothing the fact is one it does not state:
+`0 ∈ ℕ` is false and `2 ∈ ℚ` unwritten, and both decline.
+
+One named `inequalities` and never reached `prove_order` at all. `prove_field`
+and `prove_order` sat *below* `settle` while `prove_numeral` sat above it, so
+which half of a method ran first decided whether the other half ran. Both
+stand above it now, and `METHODS.md` lists the two as one method.
+
+Three named `def:triangle`, and calling that a database gap was wrong. The
+definition folds into the notation — `A, B, C form a triangle` is four claims
+conjoined — so there is nothing in the library to cite and the unfolding is
+the cited line itself. `unfolded_at` takes the conjunct out of the line the
+page names. Settling instead reached `-. C = A` from the theorem's own
+hypothesis, turned with `necom`, while the line said *from 7*; line 7 went
+unused and the file verified.
+
+With the count at zero, `settle` and `closure` are gone from `side`, and
+`closure` with them, having had no other caller. What is left for a line whose
+reason cannot reach its claim is a method stated at the head of the file, or
+an error naming the line: *def:triangle, from 6 does not reach -. C = A, which
+this line claims it supplies*. Planting that is a case in `test_elaborate.py`,
+and with the generic route put back it elaborates clean and says nothing,
+which is what it did for as long as it stood. Nothing a reader sees moved: 5
+assumptions before and after, one artifact changed and 214 bytes shorter.
 
 **All 117 lines are read, and an unread one is a defect on any step.** The
 last to close was `requires 2 ∈ ℤ` on step 6 of `odd-square`, where neither

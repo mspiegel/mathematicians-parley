@@ -85,6 +85,12 @@ TURNED = 'the other way round'
 # choosing a label. Which one a proof wants is not the text's to say twice:
 # `let n ∈ ℕ₀` already says it, and `starting at` is checked against it.
 INDUCTION = {'cn': ('nnindd', 'c1'), 'cn0': ('nn0indd', 'cc0')}
+# How set.mm names that a digit belongs to a number system, by the system.
+# The label is the digit and this suffix throughout — `2z`, `1nn`, `0re` —
+# so what a system needs here is how its name is spelt in that label and
+# nothing else.
+SYSTEMS = {'cc': 'cn', 'cr': 're', 'cz': 'z', 'cn': 'nn', 'cn0': 'nn0',
+           'cq': 'q'}
 
 
 
@@ -469,23 +475,6 @@ class Elaborator(Builder):
             raise self.defect(self.at,
                               f'notation {node.notation!r} builds no term here')
         return found
-
-    # --- closure ------------------------------------------------------------
-
-    def closure(self, node, want, scope, facts):
-        """A proof that this term lies in `want`.
-
-        The readable proof writes a `requires` line saying which fact it
-        needs and which item supplies it. What it never writes is how to
-        build that fact for a compound term, because to a reader that is
-        not a step. It is settled the way every side condition is, from the
-        lemmas `targets.MEMBERSHIP` names: putting a sum of integers in ZZ
-        and putting a summation index in CC are one question asked twice.
-        """
-        goal = seq(self.term(node), want, 'wcel')
-        if goal in facts:
-            return facts[goal]
-        return self.settle(self.to_term(goal), scope, facts)
 
     # --- facts the text never writes ----------------------------------------
 
@@ -3274,6 +3263,14 @@ class Elaborator(Builder):
         if goal.variable is None and goal.label == 'wn' \
                 and len(goal.children) == 1:
             negated, goal = True, goal.children[0]
+        # Belonging to a number system is the other thing a claim with no
+        # atom can say, and `METHODS.md` puts every such claim under this
+        # method. Asking only about relations left `2 e. ZZ` to be settled
+        # from whatever `targets.MEMBERSHIP` reached, so the line said
+        # `arithmetic` and the proof came from a table.
+        if not negated and goal.variable is None and goal.label == 'wcel' \
+                and len(goal.children) == 2:
+            return self.numeral_within(goal, scope, facts)
         sides = order_sides(goal)
         if sides is None:
             return Declined('the claim states no relation')
@@ -3333,6 +3330,40 @@ class Elaborator(Builder):
                         work.ap('ltle', {'A': field.NUMERAL[a],
                                          'B': field.NUMERAL[b]})))
         return Declined(f'{a} {how} {b} is not what the numbers do')
+
+    def numeral_within(self, goal, scope, facts):
+        """( scope -> d e. S ), for a digit and a system set.mm names it in.
+
+        `ax-1cn` is the one place the library spells such a label otherwise,
+        and where it names none the fact is one it does not state: `0 e. NN`
+        is false and `2 e. QQ` unwritten. Both decline here, which leaves
+        them where a claim this method cannot decide belongs.
+        """
+        said, system = goal.children
+        suffix = SYSTEMS.get(system.label)
+        if suffix is None or system.children:
+            return Declined('not a number system set.mm names digits in')
+        value = linear.numeral(said, self.flabel)
+        if value is None or value.denominator != 1 \
+                or not 0 <= int(value) <= 9:
+            return Declined('what belongs is not a single digit')
+        digit = int(value)
+        # As in the relation above: the side must *be* its digit. One that
+        # only works out to it is a computation, and this is not the method
+        # that does computations.
+        if said.rpn(self.flabel) != field.NUMERAL[digit]:
+            return Declined('a side works out to a digit but is one '
+                            'only after working out')
+        label = f'{digit}{suffix}'
+        if label not in self.sigs:
+            label = f'ax-{label}'
+        if label not in self.sigs:
+            return Declined(f'set.mm does not state {self.render(goal)}')
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope,
+                                                        facts))
+        return work.a1i(seq(field.NUMERAL[digit], system.label, 'wcel'),
+                        label)
 
     def numeral_real(self, work, value):
         return work.a1i(seq(field.NUMERAL[value], 'cr', 'wcel'),
@@ -5378,6 +5409,31 @@ class Elaborator(Builder):
                 self.supplying.discard(term)
         return known
 
+    def unfolded_at(self, term, scope, facts, refs):
+        """What a line a `requires` line names says, taken apart.
+
+        A definition the database gives no target for is one the notation
+        folds away, so there is nothing in the library to cite and the
+        unfolding is the line itself: `A, B, C form a triangle` is four
+        claims conjoined, and a line asking for one of them is asking for a
+        conjunct of the line it names.
+
+        Settling instead reached the same claim wherever the scope happened
+        to hold it. `isosceles` says `C ≠ A` comes from the line stating
+        that B, C, A form a triangle, and the proof took it from the
+        theorem's own hypothesis and turned it with `necom`; the line the
+        page named went unused and nothing said so.
+        """
+        for ref in refs:
+            line = self.lines.get(ref)
+            if line is None:
+                continue
+            held = {line.term: self.carried(ref, facts, self.lines)}
+            self.unpack(line.term, held[line.term], scope, held)
+            if term in held:
+                return held[term]
+        return Declined('no line this names says it')
+
     def side(self, want, how, scope, facts, step=None):
         """A proof of what one `requires` line asks for.
 
@@ -5422,17 +5478,18 @@ class Elaborator(Builder):
             item = self.items.get(closure.split(':', 1)[1].split()[0])
             if item is not None and targets.clauses(item):
                 return self.cite_item(step, term, scope, facts, item, how)
-        found = self.settle(self.to_term(term), scope, facts)
-        if not declined(found):
-            return found
-        if want.notation == 'membership':
-            return self.closure(want.children[0],
-                                self.term(want.children[1]), scope, facts)
+            if item is not None and item.kind == 'definition':
+                found = self.unfolded_at(term, scope, facts, citations(how))
+                if not declined(found):
+                    return found
         if closure == 'arithmetic':
             # A value is the other thing `arithmetic` decides, and a closed
             # one is an identity of the field with no atoms in it, so it
             # goes where identities go rather than wanting a second
-            # procedure. `METHODS.md` lists the two as one method.
+            # procedure. `METHODS.md` lists the two as one method, so both
+            # halves are tried before anything generic: a line naming the
+            # method and reaching it through `settle` instead is the method
+            # not being asked rather than the method failing.
             found = self.prove_field(None, term, scope, facts, self.lines)
             if not declined(found):
                 return found
@@ -5443,6 +5500,13 @@ class Elaborator(Builder):
                                      self.lines)
             if not declined(found):
                 return found
+        # Nothing generic stands here. Settling reached the claim from
+        # wherever the scope happened to hold it, so the proof rested on
+        # something other than the reason the line gave and left no trace of
+        # having done so: the file verified, and the justification went
+        # unused. What is left is a method saying at the head of the file
+        # that it was not expanded, or an error naming the line — a claim
+        # supplied by neither is one this cannot write down honestly.
         if closure in ('arithmetic', 'inequalities', 'algebra'):
             # A side condition resting on a closure method rests on it the
             # same way a step does, and is listed the same way: under what
@@ -5464,7 +5528,9 @@ class Elaborator(Builder):
                             'syl' if i == 0 else 'mpd')
             return proof
         raise self.defect(self.at,
-                          f'cannot supply {self.render(term)}')
+                          f'{how.strip()} does not reach '
+                          f'{self.render(term)}, which this line claims '
+                          f'it supplies')
 
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain folded by transitivity, one link at a time.
@@ -5997,10 +6063,11 @@ class Elaborator(Builder):
             node = self.read(text)
             if self.term(node) == goal:
                 self.consulted.add(line)
-                # `side` is where a line is discharged by what it names, and
-                # `closure` settles from the term without ever seeing `how`.
-                # Going through `side` is what gives this path the half of
-                # the line that says why the fact holds.
+                # `side` is where a line is discharged by what it names, so
+                # it is given `how` as well as the claim. A route reading
+                # only the claim settles it from whatever the scope holds,
+                # which is the proof not resting on the reason the page
+                # gave.
                 made = self.side(node, how, scope, facts, step)
                 # A line that is there and whose justification does not
                 # reach it is the text's to fix in the same way one that is
