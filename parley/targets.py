@@ -198,11 +198,13 @@ MEMBERSHIP = [
     # and what a commuting pair asks, which `db/notation.records` declares by
     # notation and this answers by statement
     'mulcom', 'addcom',
-    # and sethood, which set theory asks where arithmetic asks closure. What
-    # a term's constructor decides is `elaborate.SETHOOD`'s, read off the
-    # term and not searched for; a subset of a set being a set is not a
-    # constructor, and is tried here.
-    'ssexg',
+    # Sethood, which set theory asks where arithmetic asks closure, is not
+    # among these: `elaborate.made_a_set` reads it off the constructor at a
+    # term's head (`elaborate.SETHOOD`), and a name the page introduces is a
+    # set by the way it was introduced. No proof here needs a subset of a set
+    # to be a set; one that does fails at its step, which is where `ssexg`
+    # would be added, with that step as its test.
+    #
     # A singleton holds what it names, which `elpwg`'s users ask.
     'snidg',
     # A map sends no two things to the same place, which is what the readable
