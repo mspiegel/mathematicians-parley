@@ -491,7 +491,8 @@ declared none of them matched anything.
 ```
 
 The note is one line, allowed only where the justification opens a block, and
-it says what the block is doing.
+it says what the block is doing. A part marker such as `case` may be followed
+by a note of its own, before the part's openers, saying what that part does.
 
 Several formulas mean their conjunction, and **a period followed by whitespace,
 or ending the claim, separates them**. Twenty-nine of the corpus's 280 claims
@@ -582,7 +583,7 @@ opening line or part markers as the method requires.
 <block> ::= [ <opener> ] { <part> | <step> }
 <opener>::= `suppose` <formula> `(` <label> `)`          -- contradiction
           | { <hypothesis> }                             -- fix
-<part>  ::= <part marker> [ <hypothesis> ] { <step> }
+<part>  ::= <part marker> [ <note> ] [ <hypothesis> ] { <step> }
 <part marker> ::= `base` | `step` | `case`
 ```
 

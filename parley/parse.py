@@ -227,6 +227,7 @@ class Step:
     line: int = 0
     part: int = None          # which part of its parent's block this step sits in
     note: tuple = None        # (text, line) saying what the block it opens does
+    part_notes: dict = field(default_factory=dict)  # part index -> (text, line)
 
 
 @dataclass
@@ -323,11 +324,13 @@ def parse_proof(path, text):
         """
         parent = number[:-1]
         owner = by_number.get(parent)
-        for marker, no in pending_markers:
+        for marker, no, note in pending_markers:
             if owner is None:
                 raise Problem(path, no, f'part marker {marker!r} outside any block')
             owner.parts.append((marker, no))
             part_no[parent] = part_no.get(parent, -1) + 1
+            if note:
+                owner.part_notes[part_no[parent]] = note
         pending_markers.clear()
         current = part_no.get(parent)
         for kind, text, label, no in pending_openers:
@@ -392,12 +395,27 @@ def parse_proof(path, text):
             thm.readings[just_defined[2]] = (t[len('reads'):].strip(), line.no)
             continue
         if head == 'note':
+            # Under a part marker, the note says what that part does; the
+            # marker is still held, because the step owning it is found only
+            # when the part's first step arrives.
+            if pending_markers:
+                marker, no, held = pending_markers[-1]
+                if held:
+                    raise Problem(path, line.no,
+                                  f'the {marker!r} part already carries a note')
+                if pending_openers:
+                    raise Problem(path, line.no,
+                                  f'a note on the {marker!r} part goes directly '
+                                  f'under its marker, before its openers')
+                pending_markers[-1] = (marker, no,
+                                       (t[len('note'):].strip(), line.no))
+                continue
             if step is None or not step.just:
                 raise Problem(path, line.no, 'note line outside a block')
             step.note = (t[len('note'):].strip(), line.no)
             continue
         if t in PART_MARKERS:
-            pending_markers.append((t, line.no))
+            pending_markers.append((t, line.no, None))
             continue
         if head in ('suppose', 'let', 'assume'):
             lab = re.search(rf'\(({LABEL})\)$', t)

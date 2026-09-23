@@ -307,7 +307,9 @@ is doing. That is the only prose in a proof that is not about a single named
 thing, and it is allowed because some of what a reader needs is not a formula:
 that a proof is splitting a set into two families is not something any step
 claims. It is one line, it sits under the method, and it is optional, because
-most blocks do not need one.
+most blocks do not need one. A part of a block may carry one too, directly
+under its marker: a proof by cases says what each case does where the case
+begins, rather than both at once above them.
 
 Neither line is read by the elaborator, and nothing can judge the words. What
 is checked is that a define has a reading, and that a note belongs to a block.

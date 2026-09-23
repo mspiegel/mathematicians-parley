@@ -11,9 +11,9 @@ theorem point-right
 
 2.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
     cases, from 1
-    note the point is b if b is close enough to c, and c + δ/2 if not
 
     case
+    note b is close enough to c, and is the point
     assume b − c < δ                                                  (C1)
 
     2.1.  b ≤ b
@@ -24,6 +24,7 @@ theorem point-right
           exhibit, from H2, H4, 2.1, C1
 
     case
+    note b is too far, so the point is halfway from c towards c + δ
     assume not b − c < δ                                              (C2)
 
     2.3.  δ/2 > 0

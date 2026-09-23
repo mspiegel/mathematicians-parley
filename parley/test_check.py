@@ -267,6 +267,21 @@ CASES = [
       '    note this is where B becomes a member'),
      'opens no block'),
 
+    ('note a case part after its assumption',
+     'proof/intermediate-value.proof',
+     ('    note b is close enough to c, and is the point\n'
+      '    assume b − c < δ                                                  (C1)'),
+     ('    assume b − c < δ                                                  (C1)\n'
+      '    note b is close enough to c, and is the point'),
+     'directly under its marker'),
+
+    ('note a case part twice',
+     'proof/intermediate-value.proof',
+     '    note b is close enough to c, and is the point\n',
+     ('    note b is close enough to c, and is the point\n'
+      '    note b is the point\n'),
+     'already carries a note'),
+
     ('suppose something unrelated to the claim',
      'proof/bezout.proof',
      '4.  r = 0\n    contradiction\n    suppose not r = 0',
