@@ -391,6 +391,9 @@ class Emitter(Builder):
         difference goes decides whether the answer carries a minus.
         """
         gap = op(NUMERAL[first], NUMERAL[second], 'cmin')
+        apart = self.same_gap(first, second)
+        if declined(apart):
+            return apart
         return self.chain(
             self.ap('syl2anc',
                     {'ph': self.under,
@@ -400,13 +403,16 @@ class Emitter(Builder):
                     self.number(first), self.number(second),
                     self.ap('negsub', {'A': NUMERAL[first],
                                        'B': NUMERAL[second]})),
-            self.same_gap(first, second), op(c, d, ADD), gap, said)
+            apart, op(c, d, ADD), gap, said)
 
     def same_gap(self, first, second):
         """( under -> ( i - j ) = k ), whichever way round the two are."""
         if first >= second:
             return self.gap_numeral(first, second)
         other = op(NUMERAL[second], NUMERAL[first], 'cmin')
+        back = self.gap_numeral(second, first)
+        if declined(back):
+            return back
         return self.chain(
             self.ap('eqcomd',
                     {'ph': self.under, 'A': self.seq(other, 'cneg'),
@@ -422,8 +428,7 @@ class Emitter(Builder):
                             self.ap('negsubdi2', {'A': NUMERAL[second],
                                                   'B': NUMERAL[first]}))),
             self.ap('negeqd', {'ph': self.under, 'A': other,
-                               'B': NUMERAL[second - first]},
-                    self.gap_numeral(second, first)),
+                               'B': NUMERAL[second - first]}, back),
             op(NUMERAL[first], NUMERAL[second], 'cmin'),
             self.seq(other, 'cneg'), self.seq(NUMERAL[second - first], 'cneg'))
 
@@ -540,6 +545,8 @@ class Emitter(Builder):
             moved, walked = self.shift(appended, len(items), at + 1)
             total = moved[at][1] + moved[at + 1][1]
             joined = self.gather(moved, at)
+            if declined(joined):
+                return joined
             out = [*moved[:at], (monomial, total), *moved[at + 2:]]
             proof = self.chain(walked, joined, start,
                                self.spell_run(moved), self.spell_run(out))
@@ -566,6 +573,8 @@ class Emitter(Builder):
         a, b = self.spell_term(items[at]), self.spell_term(items[at + 1])
         total = self.spell_term((monomial, items[at][1] + items[at + 1][1]))
         collect = self.combine(monomial, items[at][1], items[at + 1][1])
+        if declined(collect):
+            return collect
         if not head:
             return self.lift(collect, op(a, b, ADD), total,
                              [self.spell_term(i) for i in rest])
@@ -623,12 +632,18 @@ class Emitter(Builder):
                     self.run_cc(left), self.run_cc(rest),
                     self.term_cc(*last),
                     self.ap('addass', {'A': held, 'B': prefix, 'C': term})))
-        merged, inner = self.add(left, rest)
+        made = self.add(left, rest)
+        if declined(made):
+            return made
+        merged, inner = made
         carried = self.ap('oveq1d',
                           {'ph': self.under, 'A': op(held, prefix, ADD),
                            'B': self.spell_run(merged), 'C': term,
                            'F': ADD}, inner)
-        out, placed = self.insert(merged, *last)
+        made = self.insert(merged, *last)
+        if declined(made):
+            return made
+        out, placed = made
         return out, self.chain(
             self.chain(peeled, carried, start,
                        op(op(held, prefix, ADD), term, ADD),
@@ -984,7 +999,10 @@ class Emitter(Builder):
                                  op(term, tail, MUL), ADD), 'wceq')},
             self.term_cc(*one), self.run_cc(rest), self.term_cc(*last),
             self.ap('adddi', {'A': term, 'B': prefix, 'C': tail}))
-        inner, first = self.term_times_run(one, rest)
+        made = self.term_times_run(one, rest)
+        if declined(made):
+            return made
+        inner, first = made
         single, second = self.term_times_term(one, last)
         both = op(self.spell_run(inner), self.spell_term(single), ADD)
         lined = self.chain(
@@ -994,7 +1012,10 @@ class Emitter(Builder):
                      'B': self.spell_run(inner), 'C': op(term, tail, MUL),
                      'D': self.spell_term(single), 'F': ADD}, first, second),
             start, op(op(term, prefix, MUL), op(term, tail, MUL), ADD), both)
-        out, placed = self.insert(inner, *single)
+        made = self.insert(inner, *single)
+        if declined(made):
+            return made
+        out, placed = made
         return out, self.chain(lined, placed, start, both,
                                self.spell_run(out))
 
@@ -1026,8 +1047,14 @@ class Emitter(Builder):
                                  op(tail, whole, MUL), ADD), 'wceq')},
             self.run_cc(rest), self.term_cc(*last), self.run_cc(right),
             self.ap('adddir', {'A': prefix, 'B': tail, 'C': whole}))
-        inner, first = self.multiply(rest, right)
-        outer, second = self.term_times_run(last, right)
+        made = self.multiply(rest, right)
+        if declined(made):
+            return made
+        inner, first = made
+        made = self.term_times_run(last, right)
+        if declined(made):
+            return made
+        outer, second = made
         both = op(self.spell_run(inner), self.spell_run(outer), ADD)
         lined = self.chain(
             spread,
@@ -1037,7 +1064,10 @@ class Emitter(Builder):
                      'D': self.spell_run(outer), 'F': ADD}, first, second),
             start, op(op(prefix, whole, MUL), op(tail, whole, MUL), ADD),
             both)
-        out, joined = self.add(inner, outer)
+        made = self.add(inner, outer)
+        if declined(made):
+            return made
+        out, joined = made
         return out, self.chain(lined, joined, start, both,
                                self.spell_run(out))
 
@@ -1084,12 +1114,18 @@ class Emitter(Builder):
                     self.ap('expp1', {'A': run, 'N': below})),
             start, op(run, op(below, NUMERAL[1], ADD), EXP),
             op(op(run, below, EXP), run, MUL))
-        inner, smaller = self.power(items, times - 1)
+        made = self.power(items, times - 1)
+        if declined(made):
+            return made
+        inner, smaller = made
         carried = self.ap('oveq1d',
                           {'ph': self.under, 'A': op(run, below, EXP),
                            'B': self.spell_run(inner), 'C': run, 'F': MUL},
                           smaller)
-        out, product = self.multiply(inner, items)
+        made = self.multiply(inner, items)
+        if declined(made):
+            return made
+        out, product = made
         return out, self.chain(
             self.chain(stepped, carried, start,
                        op(op(run, below, EXP), run, MUL),
@@ -1132,7 +1168,10 @@ class Emitter(Builder):
                 self.positive_product(int(value), 1))
         if term.variable is None and term.label == 'cneg' \
                 and len(term.children) == 1:
-            items, proof = self.normalize(term.children[0], labels)
+            made = self.normalize(term.children[0], labels)
+            if declined(made):
+                return made
+            items, proof = made
             return self.negated(term.children[0].rpn(labels), items, proof,
                                 said)
         if term.variable is None and term.label == 'co' \
@@ -1149,8 +1188,14 @@ class Emitter(Builder):
                 # is asked for is the one thing an atom has to say.
                 times = field.numeral(right, labels)
                 if times is not None and 0 <= times <= 9:
-                    inner, proof = self.normalize(left, labels)
-                    out, raised = self.power(inner, times)
+                    made = self.normalize(left, labels)
+                    if declined(made):
+                        return made
+                    inner, proof = made
+                    made = self.power(inner, times)
+                    if declined(made):
+                        return made
+                    out, raised = made
                     return out, self.chain(
                         self.ap('oveq1d',
                                 {'ph': self.under, 'A': left.rpn(labels),
@@ -1215,7 +1260,10 @@ class Emitter(Builder):
                                     'ch': self.seq(unit, bare, 'wceq')},
                             self.coefficient(Fraction(-1)),
                             self.ap('mulrid', {'A': bare}))))
-        out, product = self.multiply(minus, items)
+        made = self.multiply(minus, items)
+        if declined(made):
+            return made
+        out, product = made
         return out, self.chain(
             self.chain(
                 self.chain(becomes, inside, said, op(bare, inner, MUL),
@@ -1244,13 +1292,19 @@ class Emitter(Builder):
                                 'ch': self.seq(lb, 'cc', 'wcel'),
                                 'th': self.seq(plus, said, 'wceq')},
                     a_cc, b_cc, self.ap('negsub', {'A': la, 'B': lb})))
-        negated, backwards = self.negated(lb, second, two, minus)
+        made = self.negated(lb, second, two, minus)
+        if declined(made):
+            return made
+        negated, backwards = made
         joined = self.ap('oveq12d',
                          {'ph': self.under, 'A': la,
                           'B': self.spell_run(first), 'C': minus,
                           'D': self.spell_run(negated), 'F': ADD},
                          one, backwards)
-        out, combined = self.add(first, negated)
+        made = self.add(first, negated)
+        if declined(made):
+            return made
+        out, combined = made
         middle = op(self.spell_run(first), self.spell_run(negated), ADD)
         return out, self.chain(
             self.chain(turned, joined, said, plus, middle),
@@ -1258,8 +1312,14 @@ class Emitter(Builder):
 
     def binary(self, how, left, right, labels, said):
         """`+`, `-` or `x.` with both sides taken to canonical form first."""
-        first, one = self.normalize(left, labels)
-        second, two = self.normalize(right, labels)
+        made = self.normalize(left, labels)
+        if declined(made):
+            return made
+        first, one = made
+        made = self.normalize(right, labels)
+        if declined(made):
+            return made
+        second, two = made
         if how == field.SUB:
             return self.subtracted(left.rpn(labels), right.rpn(labels),
                                    first, one, second, two, said)
@@ -1269,8 +1329,11 @@ class Emitter(Builder):
                           'B': self.spell_run(first),
                           'C': right.rpn(labels),
                           'D': self.spell_run(second), 'F': what}, one, two)
-        out, combined = (self.add(first, second) if how == field.ADD
-                         else self.multiply(first, second))
+        made = (self.add(first, second) if how == field.ADD
+                else self.multiply(first, second))
+        if declined(made):
+            return made
+        out, combined = made
         middle = op(self.spell_run(first), self.spell_run(second), what)
         return out, self.chain(joined, combined, said, middle,
                                self.spell_run(out))
@@ -1400,7 +1463,10 @@ class Emitter(Builder):
         """
         said = term.rpn(labels)
         if not divides(term, labels):
-            items, proof = self.normalize(term, labels)
+            made = self.normalize(term, labels)
+            if declined(made):
+                return made
+            items, proof = made
             return items, None, proof
         if term.variable is None and term.label == 'co' \
                 and len(term.children) == 3:
@@ -1419,8 +1485,14 @@ class Emitter(Builder):
 
         `divdiv1` is what folds a division under a division into one.
         """
-        over, under, first = self.normalize_quotient(left, labels)
-        below, beneath, second = self.normalize_quotient(right, labels)
+        made = self.normalize_quotient(left, labels)
+        if declined(made):
+            return made
+        over, under, first = made
+        made = self.normalize_quotient(right, labels)
+        if declined(made):
+            return made
+        below, beneath, second = made
         if beneath is not None:
             return Declined(f'{said} divides by something that divides')
         joined = self.ap('oveq12d',
@@ -1435,6 +1507,10 @@ class Emitter(Builder):
         # the two of them multiplied out.
         top, bottom = self.spell_run(over), self.spell_run(under)
         outer = self.spell_run(below)
+        pairs = [self.pair_of(under), self.pair_of(below)]
+        for one in pairs:
+            if declined(one):
+                return one
         folded = self.ap(
             'syl3anc',
             {'ph': self.under, 'ps': self.seq(top, 'cc', 'wcel'),
@@ -1444,9 +1520,12 @@ class Emitter(Builder):
                        'wa'),
              'ta': self.seq(op(op(top, bottom, DIV), outer, DIV),
                        op(top, op(bottom, outer, MUL), DIV), 'wceq')},
-            self.run_cc(over), self.pair_of(under), self.pair_of(below),
+            self.run_cc(over), *pairs,
             self.ap('divdiv1', {'A': top, 'B': bottom, 'C': outer}))
-        made, product = self.multiply(under, below)
+        multiplied = self.multiply(under, below)
+        if declined(multiplied):
+            return multiplied
+        made, product = multiplied
         return over, made, self.chain(
             self.chain(joined, folded,
                        said, op(op(top, bottom, DIV), outer, DIV),
@@ -1460,7 +1539,10 @@ class Emitter(Builder):
     def pair_of(self, under):
         """( under -> ( d e. CC /\\ d =/= 0 ) ), which every law wants."""
         said = self.spell_run(under)
-        held, nonzero = self.denominator(under)
+        made = self.denominator(under)
+        if declined(made):
+            return made
+        held, nonzero = made
         return self.ap('jca', {'ph': self.under,
                                'ps': self.seq(said, 'cc', 'wcel'),
                                'ch': self.seq(said, 'cc0', 'wne')},
@@ -1473,10 +1555,13 @@ class Emitter(Builder):
         numerator and denominator they land on are then multiplied out by
         the operations above.
         """
-        over, under, first = self.as_quotient(
-            *self.normalize_quotient(left, labels), left.rpn(labels))
-        below, beneath, second = self.as_quotient(
-            *self.normalize_quotient(right, labels), right.rpn(labels))
+        quotients = []
+        for side in (left, right):
+            made = self.normalize_quotient(side, labels)
+            if declined(made):
+                return made
+            quotients.append(self.as_quotient(*made, side.rpn(labels)))
+        (over, under, first), (below, beneath, second) = quotients
         a, b = self.spell_run(over), self.spell_run(under)
         c, d = self.spell_run(below), self.spell_run(beneath)
         joined = self.ap('oveq12d',
@@ -1489,9 +1574,18 @@ class Emitter(Builder):
             # The numerator a sum lands on is two products added, so each
             # is multiplied out and then the two of them joined.
             label, top = 'divadddiv', op(op(a, d, MUL), op(c, b, MUL), ADD)
-            first_items, one = self.multiply(over, beneath)
-            second_items, two = self.multiply(below, under)
-            made, together = self.add(first_items, second_items)
+            made = self.multiply(over, beneath)
+            if declined(made):
+                return made
+            first_items, one = made
+            made = self.multiply(below, under)
+            if declined(made):
+                return made
+            second_items, two = made
+            made = self.add(first_items, second_items)
+            if declined(made):
+                return made
+            made, together = made
             middle = op(self.spell_run(first_items),
                         self.spell_run(second_items), ADD)
             numerator = self.chain(
@@ -1504,8 +1598,18 @@ class Emitter(Builder):
                 together, top, middle, self.spell_run(made))
         else:
             label, top = 'divmuldiv', op(a, c, MUL)
-            made, numerator = self.multiply(over, below)
+            made = self.multiply(over, below)
+            if declined(made):
+                return made
+            made, numerator = made
         bottom = op(b, d, MUL)
+        pairs = [self.pair_of(under), self.pair_of(beneath)]
+        for one in pairs:
+            if declined(one):
+                return one
+        multiplied = self.multiply(under, beneath)
+        if declined(multiplied):
+            return multiplied
         spread = self.ap(
             'syl2anc',
             {'ph': self.under,
@@ -1524,9 +1628,9 @@ class Emitter(Builder):
                                       self.seq(b, 'cc0', 'wne'), 'wa'),
                             'ch': self.seq(self.seq(d, 'cc', 'wcel'),
                                       self.seq(d, 'cc0', 'wne'), 'wa')},
-                    self.pair_of(under), self.pair_of(beneath)),
+                    *pairs),
             self.ap(label, {'A': a, 'B': c, 'C': b, 'D': d}))
-        low, denominator = self.multiply(under, beneath)
+        low, denominator = multiplied
         return made, low, self.chain(
             self.chain(joined, spread, said,
                        op(op(a, b, DIV), op(c, d, DIV),
@@ -1545,9 +1649,14 @@ class Emitter(Builder):
         times = field.numeral(right, labels)
         if times is None or not 0 <= times <= 9:
             return Declined(f'{said} has no numeral exponent')
-        over, under, first = self.as_quotient(
-            *self.normalize_quotient(left, labels), left.rpn(labels))
+        made = self.normalize_quotient(left, labels)
+        if declined(made):
+            return made
+        over, under, first = self.as_quotient(*made, left.rpn(labels))
         a, b = self.spell_run(over), self.spell_run(under)
+        pair = self.pair_of(under)
+        if declined(pair):
+            return pair
         joined = self.ap('oveq1d',
                          {'ph': self.under, 'A': left.rpn(labels),
                           'B': op(a, b, DIV), 'C': NUMERAL[times],
@@ -1560,10 +1669,16 @@ class Emitter(Builder):
              'ta': self.seq(op(op(a, b, DIV), NUMERAL[times], EXP),
                        op(op(a, NUMERAL[times], EXP),
                           op(b, NUMERAL[times], EXP), DIV), 'wceq')},
-            self.run_cc(over), self.pair_of(under), self.index(times),
+            self.run_cc(over), pair, self.index(times),
             self.ap('expdiv', {'A': a, 'B': b, 'N': NUMERAL[times]}))
-        made, numerator = self.power(over, times)
-        low, denominator = self.power(under, times)
+        made = self.power(over, times)
+        if declined(made):
+            return made
+        made, numerator = made
+        lowered = self.power(under, times)
+        if declined(lowered):
+            return lowered
+        low, denominator = lowered
         return made, low, self.chain(
             self.chain(joined, spread, said,
                        op(op(a, b, DIV), NUMERAL[times], EXP),

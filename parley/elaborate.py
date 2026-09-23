@@ -2457,8 +2457,13 @@ class Elaborator(Builder):
         instances, ties = [], []
         for value in shapes:
             here = self.seq(general, value, 'wceq')
-            built, proof = self.rewrite(pattern, general, value, here,
-                                        self.seq(here, 'id'))
+            made = self.rewrite(pattern, general, value, here,
+                                self.seq(here, 'id'))
+            if declined(made):
+                raise self.defect(step.line,
+                                  f'the claim is not about the induction '
+                                  f'variable: {made}')
+            built, proof = made
             instances.append(built)
             ties.append(proof)
         claimed, held, reached, whole = instances
@@ -2663,12 +2668,7 @@ class Elaborator(Builder):
             # A fresh name, not the lemma's own: `divides` binds `n`, and a
             # proof that obtains from it twice would introduce one variable
             # for two different numbers.
-            # `spare_var` runs out only when a proof has introduced more
-            # names than the kernel has letters, which is the tool at its
-            # limit rather than a route declining or the text at fault.
             fresh = self.spare_var()
-            if declined(fresh):
-                raise self.defect(step.line, f'{fresh}')
             lemma, var, kernel, _t, over, left = self.definition(
                 named.group(1), subject, var=fresh)
             body = self.term(kernel)
@@ -2819,10 +2819,10 @@ class Elaborator(Builder):
         for label in labels:
             found = self.apply_lemma(label, self.to_term(goal), scope, facts,
                                      step, seed=seed)
-            if found is not None:
+            if not declined(found):
                 return found
         assembled = self.from_lemmas(labels, goal, scope, facts, step, seed)
-        if assembled is not None:
+        if not declined(assembled):
             return assembled
         if labels:
             # `step.just.head` is the word `obtain` here rather than the item,
@@ -3065,6 +3065,10 @@ class Elaborator(Builder):
             asked = self.prove_essential(
                 self.to_term(self.seq(self.seq(mark, at, 'wceq'),
                                  self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            if declined(asked):
+                raise self.defect(step.line,
+                                  f'{lemma} cannot tie the line to its '
+                                  f'instance: {asked}')
             applied = self.ap(lemma, {
                 'ph': ph, 'ps': ps, 'x': variable.rpn(self.flabel),
                 'A': at, slot: domain}, asked)
@@ -3349,12 +3353,19 @@ class Elaborator(Builder):
     def cleared(self, work, cited, left, right, given):
         """The cited equation with its denominators multiplied out."""
         was = [one.rpn(self.flabel) for one in cited.children]
-        over, under, first = work.as_quotient(
-            *work.normalize_quotient(cited.children[0], self.flabel), was[0])
-        below, beneath, second = work.as_quotient(
-            *work.normalize_quotient(cited.children[1], self.flabel), was[1])
+        quotients = []
+        for side, said in zip(cited.children, was, strict=True):
+            made = work.normalize_quotient(side, self.flabel)
+            if declined(made):
+                return made
+            quotients.append(work.as_quotient(*made, said))
+        (over, under, first), (below, beneath, second) = quotients
         a, b = work.spell_run(over), work.spell_run(under)
         c, d = work.spell_run(below), work.spell_run(beneath)
+        pairs = [work.pair_of(under), work.pair_of(beneath)]
+        for one in pairs:
+            if declined(one):
+                return one
         crossed = work.ap(
             'mpbid', {'ph': work.under,
                       'ps': self.seq(self.seq(a, b, 'cdiv', 'co'),
@@ -3386,7 +3397,7 @@ class Elaborator(Builder):
                                               self.seq(b, 'cc0', 'wne'), 'wa'),
                                     'ch': self.seq(self.seq(d, 'cc', 'wcel'),
                                               self.seq(d, 'cc0', 'wne'), 'wa')},
-                            work.pair_of(under), work.pair_of(beneath)),
+                            *pairs),
                     work.ap('divmuleq', {'A': a, 'B': c, 'C': b, 'D': d})))
         sides = [self.same_polynomial(work, left, self.seq(a, d, 'cmul', 'co')),
                  self.same_polynomial(work, right, self.seq(c, b, 'cmul', 'co'))]
@@ -3480,10 +3491,14 @@ class Elaborator(Builder):
         of them is — which is `divmuleq`, and leaves a polynomial identity
         for the case above to answer.
         """
-        first_items, first_under, first = work.normalize_quotient(
-            self.to_term(left), self.flabel)
-        second_items, second_under, second = work.normalize_quotient(
-            self.to_term(right), self.flabel)
+        made = work.normalize_quotient(self.to_term(left), self.flabel)
+        if declined(made):
+            return made
+        first_items, first_under, first = made
+        made = work.normalize_quotient(self.to_term(right), self.flabel)
+        if declined(made):
+            return made
+        second_items, second_under, second = made
         if first_under is None and second_under is None:
             if work.spell_run(first_items) != work.spell_run(second_items):
                 return Declined('the two are not one polynomial')
@@ -3505,6 +3520,12 @@ class Elaborator(Builder):
         c, d = work.spell_run(below), work.spell_run(beneath)
         crossed = self.same_polynomial(work, self.seq(a, d, 'cmul', 'co'),
                                        self.seq(c, b, 'cmul', 'co'))
+        if declined(crossed):
+            return crossed
+        pairs = [work.pair_of(beneath), work.pair_of(under)]
+        for one in pairs:
+            if declined(one):
+                return one
         return work.ap(
             'eqtr4d', {'ph': work.under, 'A': left,
                        'B': self.seq(a, b, 'cdiv', 'co'), 'C': right},
@@ -3553,8 +3574,7 @@ class Elaborator(Builder):
                                              'ch': self.seq(self.seq(b, 'cc', 'wcel'),
                                                        self.seq(b, 'cc0', 'wne'),
                                                        'wa')},
-                                            work.pair_of(beneath),
-                                            work.pair_of(under)),
+                                            *pairs),
                                     work.ap('divmuleq',
                                             {'A': c, 'B': a, 'C': d,
                                              'D': b})))))
@@ -4337,8 +4357,11 @@ class Elaborator(Builder):
             stated = self.cited_fact(ref, said, scope, facts, lines)
             if declined(stated):
                 return stated
-            one, proof, held = self.at_most_zero(
-                work, said, fact, times, stated, real_number)
+            made = self.at_most_zero(work, said, fact, times, stated,
+                                     real_number)
+            if declined(made):
+                return made
+            one, proof, held = made
             gaps.append(one)
             bounds.append(proof)
             real.append(held)
@@ -4532,8 +4555,10 @@ class Elaborator(Builder):
         scope = work.under
         if said.variable is None and said.label == 'wn' \
                 and len(said.children) == 1:
-            said, given = self.unnegated(work, said.children[0], given,
-                                         real_number)
+            made = self.unnegated(work, said.children[0], given, real_number)
+            if declined(made):
+                return made
+            said, given = made
         parts = order_sides(said)
         if parts is None:
             return Declined('a cited fact states no relation')
@@ -5067,7 +5092,7 @@ class Elaborator(Builder):
         found = self.by_clause(targets.split_entries(item.fields['target']),
                                term, scope, facts, step,
                                self.filling(step, item))
-        if found is None:
+        if declined(found):
             raise self.defect(step.line,
                               f'no clause of {step.just.head} gives what step '
                               f'{fmt(step.number)} claims')
@@ -5093,10 +5118,10 @@ class Elaborator(Builder):
         in hand and nothing is deferred.
         """
         if goal.label != 'wrex' or reads.label not in ('wrex', 'wreu'):
-            return None
+            return Declined(f'{label} and the claim are not both "there is"')
         if seed is None or (reads.names() - set(seed)
                             - set(self.bound_in(reads))):
-            return None                # nothing fixes the lemma's variables
+            return Declined(f'nothing fixes the variables of {label}')
         ground = reads.substitute(seed)
         # The lemma's binders become names in the open, so they must be
         # variables nothing else holds — and the claim's own binders are
@@ -5113,8 +5138,8 @@ class Elaborator(Builder):
         ground = ground.substitute(swap)
         strong = self.apply_lemma(label, ground, scope, facts, step,
                                   crossing=False, seed=seed)
-        if strong is None:
-            return None
+        if declined(strong):
+            return strong
         if ground.label == 'wreu':
             weaker = kernel.Term('wrex', tuple(ground.children))
             body, var, over = ground.children
@@ -5141,8 +5166,8 @@ class Elaborator(Builder):
         inner, lifted = self.widen(outer, held, body)
         made = self.introduced(goal, inner, lifted)
         del self.frames[frame:]
-        if made is None:
-            return None
+        if declined(made):
+            return made
         want = goal.rpn(self.flabel)
         discharge = 'rexlimdva' if len(layers) == 1 else 'rexlimdvva'
         pushed = [v for v, _s in layers] + [s for _v, s in layers]
@@ -5167,25 +5192,26 @@ class Elaborator(Builder):
         off them, which is what keeps this from being a search.
         """
         if not labels or not seed:
-            return None
+            return Declined('no `with` target says what the lemmas are about')
         want = self.to_term(goal)
         if want.label != 'wrex':
-            return None
+            return Declined('the claim is not "there is"')
         known = dict(facts)
         for label in labels:
             sig = self.sigs.get(label)
             if sig is None:
-                return None
+                return Declined(f'{label} is not in the library')
             reads = self.syntax.statement(sig)
             while reads.label == 'wi':
                 reads = reads.children[1]
             if reads.names() - set(seed):
-                return None      # the target does not say what it is about
+                return Declined(f'the target does not say what {label} is '
+                                f'about')
             said = reads.substitute(seed).rpn(self.flabel)
             proof = self.apply_lemma(label, self.to_term(said), scope, facts,
                                      step, crossing=False, seed=seed)
-            if proof is None:
-                return None
+            if declined(proof):
+                return proof
             known[said] = proof
             self.unpack(said, proof, scope, known)
         return self.introduced(want, scope, known)
@@ -5235,7 +5261,7 @@ class Elaborator(Builder):
             if found is not None:
                 break
         if found is None:
-            return None
+            return Declined('no fact in scope names what the claim binds')
         # What each binder stands for, as `rspcev` wants it: a class. One
         # matched where it was written keeps the `cv` that made it one.
         stood = {}
@@ -5267,15 +5293,17 @@ class Elaborator(Builder):
             if proof is None:
                 proof = self.settle(here, scope, facts)
                 if declined(proof):
-                    return None
+                    return proof
             witness = stood[name]
             instance = self.prove_essential(
                 self.to_term(self.seq(self.seq(f'{var} cv', witness, 'wceq'),
                                  self.seq(ph, ps, 'wb'), 'wi')), scope, facts)
+            if declined(instance):
+                return instance
             member = self.seq(witness, over, 'wcel')
             stands = self.settle(self.to_term(member), scope, facts)
             if declined(stands):
-                return None
+                return stands
             proof = self.seq(scope, self.seq(member, ps, 'wa'),
                         self.seq(ph, var, over, 'wrex'),
                         self.seq(scope, member, ps, stands, proof, 'jca'),
@@ -5308,7 +5336,7 @@ class Elaborator(Builder):
         lemma rather than over a block.
         """
         if goal.label != 'wral':
-            return None
+            return Declined('the claim is not "for every"')
         body, variable, over = goal.children
         member = self.seq(f'{variable.rpn(self.flabel)} cv',
                      over.rpn(self.flabel), 'wcel')
@@ -5319,8 +5347,8 @@ class Elaborator(Builder):
                                      crossing=False, seed=seed)
         finally:
             del self.frames[frame:]
-        if proof is None:
-            return None
+        if declined(proof):
+            return proof
         return self.seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),
                    over.rpn(self.flabel), proof, 'ralrimiva')
 
@@ -5333,7 +5361,7 @@ class Elaborator(Builder):
         and `simpld` or `simprd` takes it.
         """
         if reads.label != 'wa' or len(reads.children) != 2:
-            return None
+            return Declined(f'{label} does not conclude a conjunction')
         asks, walk = [], whole
         while walk.label in ('wi', 'wb') and walk is not reads:
             asks.append(walk.children[0])
@@ -5359,11 +5387,11 @@ class Elaborator(Builder):
             said = reads.substitute(bound)
             proof = self.apply_lemma(label, said, scope, facts, step,
                                      crossing=False, seed=bound)
-            if proof is None:
+            if declined(proof):
                 continue
             a, b = (one.rpn(self.flabel) for one in said.children)
             return self.seq(scope, a, b, proof, 'simpld' if i == 0 else 'simprd')
-        return None
+        return Declined(f'neither half of what {label} concludes is the claim')
 
     def as_seeded(self, label, reads, goal, scope, facts, step, seed):
         """A lemma whose `with` target already says what it concludes.
@@ -5380,14 +5408,15 @@ class Elaborator(Builder):
         whatever made the bridge work rather than at what the item says.
         """
         if seed is None or reads.names() - set(seed):
-            return None
+            return Declined(f'the target does not fix every variable of '
+                            f'{label}')
         said = reads.substitute(seed)
         if said.rpn(self.flabel) == goal.rpn(self.flabel):
-            return None
+            return Declined(f'{label} at its seed is the claim as written')
         proof = self.apply_lemma(label, said, scope, facts, step,
                                  crossing=False, seed=seed)
-        if proof is None:
-            return None
+        if declined(proof):
+            return proof
         # No bridge means the lemma is not this claim said otherwise. A
         # target may name several lemmas, each giving a part of what the
         # item says, and then none of them is.
@@ -5395,7 +5424,7 @@ class Elaborator(Builder):
         if declined(across):
             across = self.by_equation(said, goal, scope, facts, step)
         if across is None or declined(across):
-            return None
+            return Declined(f'nothing carries what {label} gives to the claim')
         return self.seq(scope, said.rpn(self.flabel), goal.rpn(self.flabel), proof,
                    across, 'mpbid')
 
@@ -5490,14 +5519,15 @@ class Elaborator(Builder):
                 said = candidate.rpn(self.flabel)
                 found = self.apply_lemma(label, candidate, scope, facts,
                                          step, crossing=False)
-                if found is None:
+                if declined(found):
                     continue
                 alike = self.settle(self.to_term(self.seq(said, want, 'wb')),
                                     scope, facts)
                 if declined(alike):
                     continue
                 return self.seq(scope, said, want, found, alike, 'mpbid')
-        return None
+        return Declined(f'no declared biconditional carries what {label} '
+                        f'concludes to the claim')
 
     def sethood(self, slot, binding):
         """The classes an antecedent asks about and nothing decides.
@@ -5566,7 +5596,7 @@ class Elaborator(Builder):
             said = self.seq(*three, 'w3o')
             got = self.apply_lemma(label, self.to_term(said), scope, facts,
                                    step, crossing, seed)
-            if got is None or declined(got):
+            if declined(got):
                 return got
             return self.seq(scope, said, goal.rpn(self.flabel), got,
                             self.seq(*three, 'df-3or'), 'sylib')
@@ -5579,22 +5609,23 @@ class Elaborator(Builder):
                 if crossing:
                     through = self.through_existential(
                         label, whole, reads, goal, scope, facts, step, seed)
-                    if through is not None:
+                    if not declined(through):
                         return through
                     seeded = self.as_seeded(label, reads, goal, scope, facts,
                                             step, seed)
-                    if seeded is not None:
+                    if not declined(seeded):
                         return seeded
                     part = self.as_conjunct(label, whole, reads, goal, scope,
                                             facts, step, seed)
-                    if part is not None:
+                    if not declined(part):
                         return part
                     every = self.as_generalised(label, goal, scope, facts,
                                                 step, seed)
-                    if every is not None:
+                    if not declined(every):
                         return every
-                return (self.crossed(label, whole, reads, goal, scope,
-                                     facts, step) if crossing else None)
+                    return self.crossed(label, whole, reads, goal, scope,
+                                        facts, step)
+                return Declined(f'{label} does not conclude the claim')
             # A biconditional says one thing and reaching it either way is
             # reaching it: `elnnz` says a natural number is an integer above
             # zero, and a step with the integer and the bound wants the
@@ -5615,7 +5646,7 @@ class Elaborator(Builder):
                 if crossing:
                     seeded = self.as_seeded(label, reads.children[0], goal,
                                             scope, facts, step, seed)
-                    if seeded is not None:
+                    if not declined(seeded):
                         return seeded
             antecedents.append(reads.children[0])
             joins.append(reads.label)
@@ -5696,6 +5727,9 @@ class Elaborator(Builder):
         essentials = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)
             for e in sig.essentials]
+        for one in essentials:
+            if declined(one):
+                return one
         proof = self.ap(label, self.spelt(binding), *essentials)
         if not antecedents:
             # The lemma asks nothing, so it states the claim outright and has
@@ -5793,8 +5827,8 @@ class Elaborator(Builder):
         # back, and reading a hypothesis twice reads the same value.
         proof = self.apply_lemma(label, said, scope, facts, step,
                                  crossing=False)
-        if proof is None:
-            return Declined(f'{label} proves nothing at its own value')
+        if declined(proof):
+            return proof
         known = dict(facts)
         known[said.rpn(self.flabel)] = proof
         return self.settle(goal, scope, known)
@@ -6012,6 +6046,11 @@ class Elaborator(Builder):
         before any step writes one; handing that m out again would make one
         variable of two binders, and a lemma eliminating either of them
         forbids the other in what it carries.
+
+        Running out is raised, not declined: it is the tool at its limit, a
+        proof introducing more names than the kernel has letters, and not a
+        route that does not apply. A decline here would go into an f-string
+        as its message and stand in the proof as a kernel name.
         """
         held = ({t.split()[0] for t in self.names.values()
                  if isinstance(t, str) and t.endswith(' cv')}
@@ -6019,7 +6058,8 @@ class Elaborator(Builder):
         while self.spare and self.spare[0] in held:
             self.spare.pop(0)
         if not self.spare:
-            return Declined('no variable left to introduce a name with')
+            raise self.defect(self.at,
+                              'no variable left to introduce a name with')
         return self.spare.pop(0)
 
     def fresh(self, prefix):
@@ -6356,8 +6396,12 @@ class Elaborator(Builder):
         shape = self.freeze(node.children[2])
         self.names = saved
         at = self.seq(stands, witness, 'wceq')
-        here, instance = self.rewrite(shape, stands, witness, at,
-                                      self.seq(at, 'id'))
+        made = self.rewrite(shape, stands, witness, at, self.seq(at, 'id'))
+        if declined(made):
+            raise self.defect(step.line,
+                              f'the witness stands nowhere in the claim: '
+                              f'{made}')
+        here, instance = made
 
         known = self.supplied(step, scope, facts)
         member = self.seq(witness, domain.rpn(self.flabel), 'wcel')
@@ -6375,8 +6419,6 @@ class Elaborator(Builder):
                     f'which step {fmt(step.number)} does not supply: {one}')
             shown.append(one)
         spare = self.binder_var(said)
-        if declined(spare):
-            raise self.defect(step.line, f'{spare}')
         return self.seq(scope, self.seq(member, here, 'wa'), term,
                    self.seq(scope, member, here, *shown, 'jca'),
                    body.rpn(self.flabel), here, spare,
@@ -6473,8 +6515,13 @@ class Elaborator(Builder):
         else:
             raise self.defect(step.line, 'no cited line names a witness')
         at = self.seq(f'{var} cv', witness, 'wceq')
-        _built, instance = self.rewrite(kernel, f'{var} cv', witness, at,
-                                        self.seq(at, 'id'))
+        made = self.rewrite(kernel, f'{var} cv', witness, at,
+                            self.seq(at, 'id'))
+        if declined(made):
+            raise self.defect(step.line,
+                              f'the witness stands nowhere in the claim: '
+                              f'{made}')
+        _built, instance = made
 
         ex = self.seq(body, var, over, 'wrex')
         member = self.seq(witness, over, 'wcel')
@@ -6559,7 +6606,7 @@ class Elaborator(Builder):
             return self.assume_item(step, term, scope, facts, item)
         seed = self.filling(step, item)
         found = self.by_clause(labels, term, scope, facts, step, seed)
-        if found is None:
+        if declined(found):
             raise self.defect(step.line,
                               f'no clause of {step.just.head} reaches what '
                               f'step {fmt(step.number)} claims')
@@ -6578,17 +6625,16 @@ class Elaborator(Builder):
         for label in labels:
             found = self.apply_lemma(label, self.to_term(term), scope,
                                      facts, step, seed=seed)
-            if declined(found):
-                continue          # not this `then` group; ask the next
-            if found is not None:
-                return found
+            if not declined(found):
+                return found      # otherwise not this `then` group
         node = self.to_term(term)
         if node.label != 'wa':
-            return None
+            return Declined('no clause of the item reaches the claim')
         halves = [self.by_clause(labels, one.rpn(self.flabel), scope, facts,
                                  step, seed) for one in node.children]
-        if any(one is None for one in halves):
-            return None
+        for one in halves:
+            if declined(one):
+                return one
         return self.seq(scope, *(one.rpn(self.flabel) for one in node.children),
                    *halves, 'jca')
 
@@ -6810,6 +6856,11 @@ class Elaborator(Builder):
                 whole, scope,
                 lambda one: self.required(step, one.rpn(self.flabel), want,
                                           scope, facts))
+            # Each part raises where its line does not reach it, so what
+            # comes back is never a decline; asked all the same, because a
+            # caller of this takes what it gives as a proof.
+            if declined(joined):
+                raise self.defect(self.at, f'{joined}')
             if joined is not None:
                 return joined
         for text, how, line in step.requires:

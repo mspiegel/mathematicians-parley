@@ -4,25 +4,26 @@
 Build first, every time. Nothing here runs the elaborator over the corpus:
 the last stage verifies the files the elaborator *has written*, so it says
 something about the corpus as it stands only if those files were written from
-it. Break the elaborator, leave the built files alone, and all eight stages
+it. Break the elaborator, leave the built files alone, and all nine stages
 pass while no proof elaborates at all. `build.py` is what compares the two —
 it says `23 built, 0 changed` — and the gate is what checks the result.
 
-Eight things: the lint settings in `ruff.toml`, that no caller hands on a
-decline without asking whether it has one, the checker over the whole corpus,
-the planted defects that prove the checker still catches things, the planted
-defects that prove the elaborator still reports things, every set.mm label
-the database names, that a compressed proof is the proof it was made from,
-and a verifier over every proof the elaborator has written. Any one of them
-failing fails the gate.
+Nine things: the lint settings in `ruff.toml`, that no caller hands on a
+decline without asking whether it has one, the planted shapes that prove
+that stage still finds them, the checker over the whole corpus, the planted
+defects that prove the checker still catches things, the planted defects that
+prove the elaborator still reports things, every set.mm label the database
+names, that a compressed proof is the proof it was made from, and a verifier
+over every proof the elaborator has written. Any one of them failing fails
+the gate.
 
-The first two read the tools; the rest read the corpus. The last is the only
-one that is evidence the elaborator is right rather than
+The first three read the tools; the rest read the corpus. The last is the
+only one that is evidence the elaborator is right rather than
 consistent. The five before it read the corpus against itself or against a
 list of names; a proof that assumes nothing and proves the wrong thing passes
 all of them, and has.
 
-The fourth is there because none of the others watches what the elaborator
+The sixth is there because none of the others watches what the elaborator
 does with a defect. It may take a step as stated where it has no method for
 it, which is right, and it did the same where the text was wrong, which is
 not: the step was listed as assumed and the error never seen. Nothing said
@@ -79,6 +80,7 @@ def stage(name):
 STAGES = [
     ('ruff', None),
     ('declines nobody asked about', stage('declines')),
+    ('planted declines', stage('test_declines')),
     ('checker', stage('check')),
     ('planted defects', stage('test_check')),
     ('planted defects the elaborator must report', stage('test_elaborate')),

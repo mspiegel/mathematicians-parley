@@ -499,12 +499,24 @@ an elaborator can be held to.
 
 ## What the tools check
 
-`parley/gate.py` runs eight stages: the lint settings, that no caller hands on
-a decline without asking whether it has one, the checker over the whole corpus,
-the planted defects that prove the checker still catches things, the planted
-defects that prove the elaborator still reports things, every set.mm label the
-database names, that a compressed proof is the proof it was made from, and a
-verifier over every proof the elaborator has written.
+`parley/gate.py` runs nine stages: the lint settings, that no caller hands on
+a decline without asking whether it has one, the planted shapes that prove that
+stage still finds them, the checker over the whole corpus, the planted defects
+that prove the checker still catches things, the planted defects that prove the
+elaborator still reports things, every set.mm label the database names, that a
+compressed proof is the proof it was made from, and a verifier over every proof
+the elaborator has written.
+
+`parley/declines.py` reads the tools' own source. A `Declined` is what a route
+gives back when it does not apply, and a caller that uses one without asking
+`declined()` has a proof that is not one. It reports a decline passed to a
+call, bound to a name and then passed on, stored in a dictionary, written into
+an f-string, unpacked as a tuple, or spread with `*`, in a function that never
+asks about it; asking `is None` is not asking. A function declines if it gives
+one back, and the set is closed across files, so `work.normalize` in
+`elaborate.py` is `normal.py`'s. Running out of kernel variables is raised, not
+declined: it is the tool at its limit, and never happens on a run where nothing
+is wrong.
 
 The last is the only one that is evidence the elaborator is right rather than
 consistent. The others read the corpus against itself or against a list of
