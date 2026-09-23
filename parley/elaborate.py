@@ -4120,8 +4120,10 @@ class Elaborator(Builder):
         is zero, scaled, is the difference the claim says is zero, and the
         two being the same expression is a question for the normalizer.
 
-        A combination that scales an inequality is a different proof and
-        is not written yet, so those steps stay assumed.
+        Otherwise the claim is the cited bounds added (`from_sum`), keeping
+        a strict one strict (`strictly`). A combination of more than two
+        bounds, or one scaling a bound by other than one, is not written,
+        and a step needing one is stated.
         """
         goal = self.to_term(term)
         given, where = [], []
@@ -4407,6 +4409,21 @@ class Elaborator(Builder):
         bounds leave over, which is a closed numeral fact the step does
         not cite. `METHODS.md` says the method may use one.
         """
+        def real_number(one):
+            return self.membership(one, 'cr', scope, facts)
+
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
+        # A number is at most itself, and uses no bound at all: the
+        # requires line `a ≤ a` of the intermediate value proof's step 1.
+        if not used and how == '<=' and spare == 0 and left == right:
+            return work.ap('leidd', {'ph': scope, 'A': left},
+                           real_number(left))
+        # A strict claim whose strictness comes from a cited strict fact,
+        # with nothing left over: the facts are added keeping it.
+        if how == '<' and spare == 0:
+            return self.strictly(work, used, left, right, scope, facts,
+                                 lines, real_number)
         if how == '<':
             if spare != -1 or len(used) != 1:
                 return Declined('only one bound short of one is '
@@ -4415,12 +4432,6 @@ class Elaborator(Builder):
             return Declined('only one or two bounds is written')
         if not 1 <= len(used) <= 2:
             return Declined('only one or two bounds is written')
-
-        def real_number(one):
-            return self.membership(one, 'cr', scope, facts)
-
-        work = normal.Emitter(self.sigs, scope,
-                              lambda t: self.membership(t, 'cc', scope, facts))
         gaps, bounds, real = [], [], []
         for (ref, said), fact, times in used:
             stated = self.cited_fact(ref, said, scope, facts, lines)
@@ -4495,13 +4506,139 @@ class Elaborator(Builder):
         return self.bound_reaches(work, total, added, left, right,
                                   real_number)
 
+    def strictly(self, work, used, left, right, scope, facts, lines,
+                 real_number):
+        """A strict claim from one or two cited bounds, one of them strict.
+
+        Each bound is said as its difference against zero — `sublt0d` for a
+        strict one, keeping the strictness, and `difference_le` for one at
+        most — and two are added by the lemma their strictness calls for:
+        `ltleadd`, `leltadd` or `lt2add`. The sum is the claim's difference,
+        which is the normalizer's question, and `sublt0d` turns a
+        difference below zero back into the claim. `f(c) < 0` gives
+        `0 < −f(c)` this way, and `x₁ − c < δ` gives `x₁ < c + δ`.
+        """
+        if not 1 <= len(used) <= 2:
+            return Declined('only one or two strict bounds is written')
+        gaps, bounds, reals, strict = [], [], [], []
+        for (ref, said), _fact, times in used:
+            if times != 1:
+                return Declined(f'a strict bound scaled by {times} is not '
+                                f'written')
+            given = self.cited_fact(ref, said, scope, facts, lines)
+            if declined(given):
+                return given
+            if said.variable is None and said.label == 'wn' \
+                    and len(said.children) == 1:
+                made = self.unnegated(work, said.children[0], given,
+                                      real_number)
+                if declined(made):
+                    return made
+                said, given = made
+            parts = order_sides(said)
+            if parts is None or parts[2] not in ('<', '<='):
+                return Declined('a strict sum takes bounds, not equations')
+            was = [c.rpn(self.flabel) for c in said.children[:2]]
+            gap = self.seq(was[0], was[1], 'cmin', 'co')
+            if parts[2] == '<':
+                bounds.append(work.ap(
+                    'mpbird',
+                    {'ph': scope, 'ps': self.seq(gap, 'cc0', 'clt', 'wbr'),
+                     'ch': self.seq(was[0], was[1], 'clt', 'wbr')},
+                    given,
+                    work.ap('sublt0d', {'ph': scope, 'A': was[0],
+                                        'B': was[1]},
+                            real_number(was[0]), real_number(was[1]))))
+            else:
+                bounds.append(self.difference_le(work, was, given, None,
+                                                 real_number))
+            strict.append(parts[2] == '<')
+            gaps.append(gap)
+            reals.append(work.ap(
+                'syl2anc', {'ph': scope, 'ps': self.seq(was[0], 'cr', 'wcel'),
+                            'ch': self.seq(was[1], 'cr', 'wcel'),
+                            'th': self.seq(gap, 'cr', 'wcel')},
+                real_number(was[0]), real_number(was[1]),
+                work.ap('resubcl', {'A': was[0], 'B': was[1]})))
+        if not any(strict):
+            return Declined('no cited bound is strict')
+        if len(gaps) == 1:
+            total, below = gaps[0], bounds[0]
+        else:
+            total, below = self.added_strictly(work, gaps, bounds, reals,
+                                               strict)
+        span = self.seq(left, right, 'cmin', 'co')
+        alike = self.same_polynomial(work, span, total)
+        if declined(alike):
+            return alike
+        return work.ap(
+            'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'clt', 'wbr'),
+                      'ch': self.seq(left, right, 'clt', 'wbr')},
+            work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
+                                'C': 'cc0', 'R': 'clt'}, alike, below),
+            work.ap('sublt0d', {'ph': scope, 'A': left, 'B': right},
+                    real_number(left), real_number(right)))
+
+    def added_strictly(self, work, gaps, bounds, reals, strict):
+        """Two differences against zero added, one strictly below it.
+
+        What comes back is ( scope -> ( g1 + g2 ) < 0 ).
+        """
+        scope = work.under
+        lemma = {(True, False): 'ltleadd', (False, True): 'leltadd',
+                 (True, True): 'lt2add'}[tuple(strict)]
+        rel = ['clt' if s else 'cle' for s in strict]
+        total = self.seq(gaps[0], gaps[1], 'caddc', 'co')
+        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
+        sum_zero = self.seq('cc0', 'cc0', 'caddc', 'co')
+        each = self.seq(self.seq(gaps[0], 'cc0', rel[0], 'wbr'),
+                        self.seq(gaps[1], 'cc0', rel[1], 'wbr'), 'wa')
+        reals_pair = self.seq(self.seq(gaps[0], 'cr', 'wcel'),
+                              self.seq(gaps[1], 'cr', 'wcel'), 'wa')
+        zeros_pair = self.seq(self.seq('cc0', 'cr', 'wcel'),
+                              self.seq('cc0', 'cr', 'wcel'), 'wa')
+        added = work.ap(
+            'mpd', {'ph': scope, 'ps': each,
+                    'ch': self.seq(total, sum_zero, 'clt', 'wbr')},
+            work.ap('jca', {'ph': scope,
+                            'ps': self.seq(gaps[0], 'cc0', rel[0], 'wbr'),
+                            'ch': self.seq(gaps[1], 'cc0', rel[1], 'wbr')},
+                    *bounds),
+            work.ap('syl',
+                    {'ph': scope,
+                     'ps': self.seq(reals_pair, zeros_pair, 'wa'),
+                     'ch': self.seq(each,
+                                    self.seq(total, sum_zero, 'clt', 'wbr'),
+                                    'wi')},
+                    work.ap('jca', {'ph': scope, 'ps': reals_pair,
+                                    'ch': zeros_pair},
+                            work.ap('jca',
+                                    {'ph': scope,
+                                     'ps': self.seq(gaps[0], 'cr', 'wcel'),
+                                     'ch': self.seq(gaps[1], 'cr', 'wcel')},
+                                    *reals),
+                            work.ap('jca',
+                                    {'ph': scope,
+                                     'ps': self.seq('cc0', 'cr', 'wcel'),
+                                     'ch': self.seq('cc0', 'cr', 'wcel')},
+                                    zero, zero)),
+                    work.ap(lemma, {'A': gaps[0], 'B': gaps[1],
+                                    'C': 'cc0', 'D': 'cc0'})))
+        return total, work.ap(
+            'breqtrd', {'ph': scope, 'A': total, 'B': sum_zero, 'C': 'cc0',
+                        'R': 'clt'},
+            added,
+            work.a1i(self.seq(sum_zero, 'cc0', 'wceq'), '00id'))
+
     def short_of_one(self, work, gap, bound, gap_real, left, right,
                      real_number):
         """A bound and a minus one, added, to reach a strict claim.
 
-        `leltadd` is the addition that keeps the strictness, and `suble0`
-        has no strict twin, so the claim comes back through `ltsubadd`
-        with nothing on the right and `addlid` to tidy it.
+        `leltadd` is the addition that keeps the strictness, and the claim
+        comes back through `ltsubadd` with nothing on the right and `addlid`
+        to tidy it. `strictly` turns a difference back with `sublt0d`;
+        both are sound, and moving this route onto it would change the
+        files it writes and prove nothing more.
         """
         scope = work.under
         minus, span = self.seq('c1', 'cneg'), self.seq(left, right, 'cmin', 'co')
@@ -4719,26 +4856,32 @@ class Elaborator(Builder):
 
         `prime-above` reaches its bound by supposing the opposite and
         finding no witness, so what it has is `-. A < m` where the method
-        wants `m <_ A`. `lenlt` is the one saying those are the same.
+        wants `m <_ A`. `lenlt` is the one saying those are the same, and
+        `ltnle` the same the other way round: the intermediate value proof
+        supposes `not s ≤ c − δ` and wants `c − δ < s`.
         """
         parts = order_sides(inner)
-        if parts is None or parts[2] != '<':
-            return Declined('only a denied `<` is turned round')
+        turns = {'<': ('clt', 'cle', 'lenlt'), '<=': ('cle', 'clt', 'ltnle')}
+        if parts is None or parts[2] not in turns:
+            return Declined('only a denied `<` or `≤` is turned round')
+        denied, said, lemma = turns[parts[2]]
         was = [c.rpn(self.flabel) for c in inner.children[:2]]
-        turned = self.to_term(self.seq(was[1], was[0], 'cle', 'wbr'))
+        turned = self.to_term(self.seq(was[1], was[0], said, 'wbr'))
         return turned, work.ap(
             'mpbird', {'ph': work.under,
-                       'ps': self.seq(was[1], was[0], 'cle', 'wbr'),
-                       'ch': self.seq(self.seq(was[0], was[1], 'clt', 'wbr'), 'wn')},
+                       'ps': self.seq(was[1], was[0], said, 'wbr'),
+                       'ch': self.seq(self.seq(was[0], was[1], denied, 'wbr'),
+                                      'wn')},
             given,
             work.ap('syl2anc',
                     {'ph': work.under, 'ps': self.seq(was[1], 'cr', 'wcel'),
                      'ch': self.seq(was[0], 'cr', 'wcel'),
-                     'th': self.seq(self.seq(was[1], was[0], 'cle', 'wbr'),
-                               self.seq(self.seq(was[0], was[1], 'clt', 'wbr'), 'wn'),
+                     'th': self.seq(self.seq(was[1], was[0], said, 'wbr'),
+                               self.seq(self.seq(was[0], was[1], denied, 'wbr'),
+                                        'wn'),
                                'wb')},
                     real_number(was[1]), real_number(was[0]),
-                    work.ap('lenlt', {'A': was[1], 'B': was[0]})))
+                    work.ap(lemma, {'A': was[1], 'B': was[0]})))
 
     def real_numeral(self, work, times):
         """( scope -> n e. RR ) for a whole multiplier."""

@@ -272,9 +272,20 @@ conclude something about `|x|` from a line saying what `|x|` equals, and
 forward chaining from facts reaches neither side. That is `from_equation` —
 the equality-aware rewriting `substitute` has, pointed at a relation.
 
-The one case unwritten is a combination that scales an *inequality* rather
-than an equation, which is a different proof and which no step in the corpus
-needs.
+A claim built from bounds is built by adding them. Each cited bound is said as
+its difference against zero; two are added by `le2add`, or, where one is
+strict, by `ltleadd`, `leltadd` or `lt2add`, which keep the strictness; the
+sum is the claim's difference, which the normaliser decides; and `suble0` or
+`sublt0d` turns a difference against zero back into the claim. A strict claim
+takes its strictness from a cited strict bound — `f(c) < 0` gives
+`0 < −f(c)` — or from a constant the bounds leave over, which is a closed
+numeral fact the step does not cite. A number is at most itself by `leidd`,
+citing nothing. A cited bound stated as a denial is turned round first:
+`not A < B` is `B ≤ A` by `lenlt`, and `not A ≤ B` is `B < A` by `ltnle`.
+
+What is unwritten is a combination of more than two bounds, and one that
+scales a bound by a number other than one: the certificate may ask for either,
+and no step in the corpus does.
 
 ### What algebra costs
 
@@ -462,11 +473,9 @@ Every written file but three assumes nothing. What is left:
 |---|---|---|
 | `definitions.mm` | 2 | `ang`, the angle constant this corpus declares |
 | `subsets-count.mm` | 3 | `thm:powerset-split`, which set.mm has no label for, and two a `target` cannot reach |
-| `intermediate-value.mm` | 13 | continuity, two items with no `target`, and ten `inequalities` steps |
+| `intermediate-value.mm` | 3 | continuity, and two items with no `target` |
 
-`intermediate-value`'s ten `inequalities` steps are decided — the certificate
-refuses a step that does not follow — and stated where `prove_order` cannot
-build the proof. What else it states is not one lemma away. set.mm's
+What `intermediate-value` states is not one lemma away. set.mm's
 continuity, `elcncf2`, quantifies over ℝ⁺ and measures |c − x| where the
 readable definition says ε ∈ ℝ with ε > 0 and |x − c|. Its completeness,
 `sup2`, concludes a supremum where `thm:completeness` concludes a least upper

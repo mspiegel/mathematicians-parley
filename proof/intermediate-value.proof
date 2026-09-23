@@ -134,14 +134,12 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     17.9.  c − δ < x₁
            inequalities, from 17.6, 17.5
-           requires b ∈ ℝ: from H2
            requires c ∈ ℝ: from 8
            requires x₁ ∈ ℝ: from 17.6
            requires δ ∈ ℝ: from 17.5
 
     17.10. x₁ < c + δ
            inequalities, from 17.6
-           requires b ∈ ℝ: from H2
            requires c ∈ ℝ: from 8
            requires x₁ ∈ ℝ: from 17.6
            requires δ ∈ ℝ: from 17.5
