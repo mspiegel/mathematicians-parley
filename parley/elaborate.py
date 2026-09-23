@@ -3058,6 +3058,14 @@ class Elaborator(Builder):
             node = self.to_term(whole)
             sides = ([c.rpn(self.flabel) for c in node.children]
                      if node.label == 'wb' else [])
+            # A side binding other letters than the claim is the claim, as
+            # the whole is above, and is stated in the claim's letters:
+            # step 16 of the intermediate value proof unfolds continuity
+            # over c′ where the definition says c.
+            for i, side in enumerate(sides):
+                if side != goal and self.rebound(side, goal):
+                    sides[i] = goal
+                    whole = self.seq(*sides, 'wb')
             if goal not in sides:
                 kind = 'def' if item.kind == 'definition' else 'thm'
                 raise self.defect(
@@ -3149,9 +3157,29 @@ class Elaborator(Builder):
             ends = [self.read(text) for text, _line in item.conclusions]
             hyps = [self.read(hypothesis_body(kind, text))
                     for kind, text, _label, _line in item.hypotheses]
-        variables = set().union(*(names_in(n) for n in [*ends, *hyps]))
-        props = binding_context(self.g.notations)[1]
-        for end in ends:
+        binders, props = binding_context(self.g.notations)
+        # A name the item binds itself is the item's own and stands for
+        # nothing at the step: continuity's c runs over D, and matched
+        # against the step's claim it would be bound to the step's c′,
+        # which is nothing outside its own binder either.
+        own = set()
+        rest = [*ends, *hyps]
+        while rest:
+            node = rest.pop()
+            shape = binders.get(node.notation)
+            if shape and node.children[shape[0]].notation == 'name':
+                own.add(node.children[shape[0]].text)
+            rest.extend(node.children)
+        variables = set().union(*(names_in(n) for n in [*ends, *hyps])) - own
+        # A definition is a biconditional, and a step unfolding one claims
+        # one side and cites the other: `def:continuous-on` from "f is
+        # continuous on [a, b]" is what says D is [a, b]. So each side is
+        # matched as well as the whole, the claim against either and the
+        # cited lines against either.
+        sides = [side for end in ends if end.notation == 'biconditional'
+                 for side in end.children]
+        hyps = [*hyps, *sides]
+        for end in [*ends, *sides]:
             for said in self.said(step):
                 got = match(end, said, bound, variables, props)
                 if got is not None:
@@ -5367,6 +5395,12 @@ class Elaborator(Builder):
         lists, so a step reading one of them off names the definition but
         asks for nothing the file does not have: the claim is a conjunct,
         and `unpack` reaches it.
+
+        Otherwise what is stated is the definition, in its own words and at
+        the step's terms, and the claim is read off it by `assume_item` as
+        an item's is. Stating the claim itself under the cited lines would
+        take whatever the step claimed: continuity with δ where ε belongs
+        was taken, and only a later step using it noticed.
         """
         found = self.projected(step, term, scope, facts, lines)
         if found is not None:
@@ -5385,7 +5419,8 @@ class Elaborator(Builder):
                 spelt = self.respelt(proof, said, term, scope)
                 if spelt is not None:
                     return spelt
-        return self.assume(step, term, scope, facts, 'def', lines)
+        return self.assume_item(step, term, scope, facts,
+                                self.items[step.just.head.split(':', 1)[1]])
 
     def projected(self, step, term, scope, facts, lines):
         """The claim, when a line the step cites is a conjunction stating it.

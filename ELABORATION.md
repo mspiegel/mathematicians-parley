@@ -446,7 +446,10 @@ A definition with no target is not stated where a line the step cites already
 says the claim: as one of its conjuncts, which `def:congruent` relies on, or
 with another letter bound, since the notation reads "b is an upper bound of S"
 as every s in S being at most b and the block that proved that fixed a
-variable of its own.
+variable of its own. Otherwise it is stated as an item is, below: the
+definition as the database says it, at the step's terms, and the claim read
+off one side. The cited line on the other side is what says which terms:
+"f is continuous on [a, b]" is what says continuity's D is [a, b].
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
 where the readable "a or b or c" is built from the left: `lttri4` is

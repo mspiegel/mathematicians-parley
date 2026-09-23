@@ -200,6 +200,17 @@ CASES = [
      '  metamath    hashdifsnp1\n',
      'thm:card-remove is taken as stated and states'),
 
+    # A definition with no target is stated as the definition says it and
+    # the claim read off one side. Stating the claim under the cited lines
+    # took continuity with δ where ε belongs, and only step 17's use of it
+    # noticed.
+    ('unfold a definition taken as stated into what it does not say',
+     'intermediate-value', 'proof/intermediate-value.proof',
+     'if |x − c′| < δ then |f(x) − f(c′)| < ε.',
+     'if |x − c′| < δ then |f(x) − f(c′)| < δ.',
+     'proof/intermediate-value.proof:129  def:continuous-on is taken as '
+     'stated and states'),
+
     # An item's target asks a side condition the page never writes, and
     # `rewritten` answers it through the equation the step cites: `0 < |X|`
     # is `0 < k + 1` by C2. Without C2 cited, the equation is in scope and
