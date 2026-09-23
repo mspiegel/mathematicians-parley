@@ -471,14 +471,16 @@ while settling a side condition. `thm:powerset-split` is `open`: no set.mm
 label states it, and it wants a proof in the readable layer.
 
 `thm:powerset-split-disjoint` is `open` for a different reason, and its proof
-is held out of `proof/` until that is settled. Its step `a ∈ S ∪ {a}` rests,
-in the kernel, on a being a set, and a is a set there only because it is an
-element of X: in set.mm everything is a set, numbers and points included, so
-`elex` gives it from `a ∈ X`. A reader told `let a ∈ X`, with X a set of
-numbers, does not think a is a set. The page cannot write the fact without
-saying something the reader does not believe, and cannot leave it out without
-the kernel proof resting on something the page does not say. `READERS.md` has
-no rule for it; which of the two gives way is not decided.
+is held out of `proof/`. Its step `a ∈ S ∪ {a}` rests, in the kernel, on a
+being a set, and a is a set there only because it is an element of X: in set.mm
+everything is a set, numbers and points included, so `elex` gives it from
+`a ∈ X`. A reader told `let a ∈ X`, with X a set of numbers, does not think a
+is a set. `READERS.md` now says which gives way: a set has a kind, an element
+of it is a thing of that kind, and the kernel's use of its sethood is
+apparatus, hidden like a class variable and never written. What is not done is
+the tools' side — kinds in the parser and checker, and an elaborator that uses
+an element's sethood without the page asking it — and until it is, the proof
+stays out.
 
 The assumption count is the measure that says whether a method is written or
 only named.
@@ -620,10 +622,13 @@ method without checking them; what a method decides, and what it demands, is
 the elaborator's.
 
 **That an element is a set.** set.mm has everything a set, so `a ∈ X` makes a a
-set by `elex`, and a reader told `let a ∈ X` with X a set of numbers does not
-think a is one. `thm:powerset-split-disjoint`'s proof needs it and is held out
-of `proof/` until it is decided which gives way; see *What a file states rather
-than proves*.
+set by `elex`, and a name a step introduces is a set by `vex`, where a reader
+told `let a ∈ X` with X a set of numbers does not think a is one. `READERS.md`
+decides it — the kernel's sethood of an element is hidden apparatus — but
+nothing checks that the page never claims it, and `subsets-count` step 1.2.1.4
+has the kernel prove `a` a set by `vex` because `thm:add-element-bijection`
+says `let a be a set`. `thm:powerset-split-disjoint`'s proof is held out until
+the tools do their side; see *What a file states rather than proves*.
 
 ## Geometry
 

@@ -58,18 +58,21 @@ what tell two notations sharing a pattern apart. So a parser has to know the
 sort of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
 
-They are **sorts** in the sense of many-sorted logic, and not types. There are
-eight fixed labels; nothing composes, since sets are deliberately flat; nothing
-is inferred, since every sort is written down; and `any` is a label rather than
-the top of a lattice. Above all a sort never affects meaning. It picks which
-notation applies, and after that the meaning is the notation's. Metamath has the
-same idea one layer down and calls them typecodes, of which set.mm has three;
-your goals document's "no types beyond typecodes" is the kernel drawing this
-same line.
+They are **sorts** in the sense of many-sorted logic, and a set's sort has the
+kind of what it holds: *set of numbers*, *set of points*, *set of sets of
+numbers*. That is `READERS.md`'s reader, who thinks of a set as holding one kind
+of thing. What a name is declared is written down; how the kinds of names
+relate is read off the text, as below; and a statement about every set is about
+a set of one unknown kind, not a set of anything at all. Above all a sort never
+affects meaning. It picks which notation applies, and after that the meaning is
+the notation's. Metamath has the same idea one layer down and calls them
+typecodes, of which set.mm has three; your goals document's "no types beyond
+typecodes" is the kernel drawing this same line, and kinds do not cross it: the
+kernel never sees one.
 
-**Every sort is written on the page, and a parser infers none.** A name's sort
-comes from any line in scope that states its membership of a number system, or
-from a `define`. In practice that is:
+**Every declaration is written on the page, and how kinds relate is read off
+it.** A name's sort comes from a line in scope that introduces it or states its
+membership, or from a `define`. In practice that is:
 
 - a `let` line, in the statement or opening a block;
 - the claim of the `obtain` step that introduces the name, which states its
@@ -78,21 +81,51 @@ from a `define`. In practice that is:
 - any numbered step claiming the membership, which need not be the line that
   introduced the name.
 
-The last is what keeps the sorts flat. A `let` line naming a number system
-gives a sort directly, but 21 of the corpus's 72 memberships name a set instead:
-`s ∈ [a, b]`, `a ∈ S`, `x ∈ A`. The sorts have `set` and no way to say *a set of
-numbers*, so those declarations give nothing. The alternative was to let a set
-carry the sort of its elements, which turns a flat list of seven words into a
-system with parts inside it, and the corpus does not need it.
+A `let` line naming a number system gives a sort directly, but 21 of the
+corpus's 72 memberships name a set instead: `s ∈ [a, b]`, `a ∈ S`, `x ∈ A`.
+Those give the name the kind of what the set holds: `[a, b]` holds numbers, so
+`s ∈ [a, b]` makes s a number, and `a ∈ X` makes a whatever kind X holds.
 
-It does not need it because a bar is settled either by the operator inside it,
-as `|s − c|` is by subtraction and `|X ∖ {a}|` by difference, or by a bare
-variable whose sort is stated somewhere in scope. Exactly one variable is
-declared loosely and later firmed: `s` in the intermediate value proof, declared
-`s ∈ S` and given a number sort by step 17.25.3, which precedes the step writing
-`|s − c|`. That step exists because the membership rule requires every atom of an
-`inequalities` step to be shown real, so the rule that made the corpus more
-verbose also made it parseable.
+**Kinds are read off how the text uses its names.** Nobody writes "X and Y are
+sets of the same kind", and nothing here asks it. Each notation relates the
+kinds of its holes — `X ∪ Y` and `X ⊆ Y` join two sets of one kind, `a ∈ X`
+makes a the kind X holds, `𝒫X` holds sets of X's kind, `{x}` holds x's kind,
+`{t ∈ X : P(t)}` has X's kind, `|X|` is a number whatever X holds — and a name
+takes the most general kind the text allows. What the text does not link stays
+independent: a bijection may run from a set of numbers to a set of points.
+The most general kind is unique, so two parsers reading the same statement
+assign the same kinds, which is what `GOALS.md`'s comparable elaborators need.
+Nothing is chased into a cited item to find it: a statement is read on its own,
+and citing it gives each use its own copy of its kinds.
+
+A few consequences, each a decision of 2026-09-23:
+
+- Two kinds joined where the text needs one is a defect reported where it is
+  written, and so is a set that would hold two kinds: `{3, P}`, for a number
+  and a point, has no kind.
+- `∅` has whichever kind its place gives it, so the empty set of points is not
+  compared with the empty set of numbers.
+- Inside a proof, "for every set X" ranges over sets of the one kind the proof
+  is about. A theorem is general in its kinds when it is cited, so each citing
+  step takes the kind it needs; a lemma a proof needs at two kinds is stated as
+  its own theorem.
+- A name is introduced without claiming a kind by `let a ∉ X`, which gives it
+  the kind X holds, or by `let x be an element`, which leaves its kind to the
+  text. `let x be a set` claims more, and makes whatever holds x a set of sets.
+
+The bar is settled the same way it always was, by the operator inside it, as
+`|s − c|` is by subtraction and `|X ∖ {a}|` by difference, or by the sort of a
+bare variable. With kinds, `s` in the intermediate value proof is a number from
+its declaration `s ∈ S`, where `S` is a set-builder over `[a, b]`; with flat
+sorts it waited for step 17.25.3 to say `s ∈ ℝ`.
+
+**Status.** The parser and checker today implement flat sorts: a set has the
+sort `set` and nothing about what it holds, and nothing is inferred. A scratch
+checker has inferred kinds over the whole corpus under these rules and found no
+clash in 16 proofs and 108 statements. What the rules do change is
+`thm:add-element-bijection`, whose `let a be a set` makes its X a set of sets
+and so narrows `subsets-count`, which cites it; under these rules it reads
+`let a ∉ X`.
 
 **The parser checks every hole against its declared sort**, not only where two
 notations compete. The sorts are declared, and an unchecked declaration rots;
@@ -108,13 +141,14 @@ it parses every formula in the corpus, and two of the places it found were a
 step whose name came from a `define` and an item that never said its Y was a
 set.
 
-**A value of no known sort fits any hole.** Five places in the corpus need
-this, all of them `s` in the intermediate value proof, declared `let s ∈ S`
-where `S` is a set-builder so the declaration gives no number sort. Four are
-order comparisons and one is `f(s) < 0`. Three of the five are the quantified
-sentences at steps 6, 10 and 17.25, where `s` is bound by the binder and the
-sort would have to come from the element sort of `S`, which flat sorts do not
-have.
+**A value of no known sort fits any hole.** Under the flat sorts the parser
+implements today, five places in the corpus need this, all of them `s` in the
+intermediate value proof, declared `let s ∈ S` where `S` is a set-builder so
+the declaration gives no number sort. Four are order comparisons and one is
+`f(s) < 0`. Three of the five are the quantified sentences at steps 6, 10 and
+17.25, where `s` is bound by the binder and the sort has to come from what `S`
+holds. With kinds all five have a sort from their declaration, and the rule is
+left for a name whose kind the text genuinely leaves open.
 
 Refusing them would be the sort system rejecting proofs for failing a test it
 was never introduced to run: `≤` and `<` are not overloaded, so nothing is
@@ -144,12 +178,13 @@ dull facts, and the kernel guarantees soundness regardless because it works with
 classes. Nothing unsound reaches the archive. What is lost is that a proof can
 break our own presentation convention and be found out late rather than early.
 
-### What flat sorts cost in set theory
+### What kinds cost in set theory
 
 set.mm is ZF, so a number *is* a set: 0 is the empty set, 2 is {∅, {∅}}, and ℕ
 is the set of finite von Neumann ordinals. The rule above gives a name the sort
-`number` as soon as it sees `n ∈ ℕ`, and a number is not a set here. Because
-holes are checked rather than merely disambiguated, these cannot be written:
+`number` as soon as it sees `n ∈ ℕ`, and a number is not a set here, nor is
+anything a set of numbers holds. Because holes are checked rather than merely
+disambiguated, these cannot be written:
 
 | statement | why |
 |---|---|
@@ -175,7 +210,9 @@ a pair of nested empty sets.
 If such a theorem is ever wanted the fix is a database addition, not a redesign:
 declare ordinals as their own sort, or declare a coercion notation so the text
 says where the encoding is being used. That is the honest form regardless, since
-a step resting on `2 = {∅, {∅}}` should be visible as one.
+a step resting on `2 = {∅, {∅}}` should be visible as one. A set holding two
+kinds at once, which the page refuses, wants the same remedy where it is ever
+wanted, a tuple encoded as a set among them.
 
 The second is the rule that keeps this bounded. Without it a parser would chase
 the cited item's conclusion to learn what an obtained name is, and two
@@ -402,6 +439,8 @@ substitution in the corpus comes close.
                   { <define> | <step> }
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
+                | <name> `∉` <term>
+                | <name> `be an element`
                 | <name> `be a set`
                 | <name> `be a point`
                 | <name> `:` <term> `→` <term>
@@ -420,12 +459,16 @@ and that a note belongs to a block. `SYNTAX.md` says why they exist and why
 prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
-says what it is; it asserts nothing, and the five forms above are all of them.
-The last says what a property is a property of, and never names the thing it
-holds of, because that name comes from the notation that binds it: in
+says what it is; it asserts nothing, and the seven forms above are all of them.
+`∉` introduces a thing of the kind a set holds that is not in it, and `be an
+element` a thing whose kind the text decides; neither claims the thing is a
+set. The last says what a property is a property of, and never names the thing
+it holds of, because that name comes from the notation that binds it: in
 `{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
-Two of those, `be a set` and `be a point`, are not notations and never appear
-inside a formula. `assume` does take a formula, because it does assert.
+Three of those, `be an element`, `be a set` and `be a point`, are not notations
+and never appear inside a formula. `assume` does take a formula, because it
+does assert. The parser does not yet read `∉` or `be an element` as
+introductions; no statement in the corpus uses them yet.
 
 Quantifying over an arbitrary set is the formula-position counterpart, and it is
 a notation: `for every set X, ...`, declared in `db/notation.records` as a binder

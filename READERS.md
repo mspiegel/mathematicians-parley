@@ -104,6 +104,30 @@ The two are told apart by the form of the line, as `SYNTAX.md` gives it: `be
 a set`, `be a point` and a function's arrow are introductions and never
 formulas.
 
+**A set has a kind, and the page never writes it.** A reader thinks of a set
+as holding one kind of thing. A set of numbers is not a set of points, and a
+set of sets of numbers is neither. The kinds of thing are numbers, points,
+functions, and sets of any one kind, so kinds nest: `𝒫X` is a set of sets of
+what X holds. *Number* is one kind, and ℕ ⊆ ℤ ⊆ ℝ is an inclusion rather than
+a change of kind, since mathematics does not cast a natural number to an
+integer. The one escape is a statement about every set, `let X be a set`,
+which is about a set of some kind, one kind throughout. Mathematics does not
+say which sets share a kind, and neither does the page: a kind is read off how
+the text uses a name. `X ∪ Y` makes X and Y one kind, `a ∉ X` makes a the kind
+of what X holds, `let s ∈ S` makes s the kind of what S holds, and what the
+text does not link stays independent, so a bijection may relate a set of
+numbers to a set of points. Whatever joins two kinds that differ is reported
+where it is written, and so is a set that would hold two kinds at once:
+`{3, P}`, for a number and a point, has no kind. `∅` has whichever kind its
+place gives it. Inside a proof, "for every set X" ranges over sets of the one
+kind the proof is about; a theorem is general in its kinds when it is cited,
+and a lemma needed at two kinds is stated as its own theorem.
+
+A name is introduced without claiming a kind by what it is not in, `let a ∉
+X`, which makes it the kind of what X holds, or by `let x be an element`,
+which says nothing of its kind and leaves it to the text. `let x be a set`
+claims more: it makes x a set, and so whatever holds x a set of sets.
+
 **Justification vocabulary.** The initial list of methods a step may cite.
 Each is defined in the database with a specified expansion, and each use
 points to that definition.
@@ -137,6 +161,16 @@ in `SYNTAX.md`.
 contexts, disjoint-variable conditions, the distinction between wff, class
 and set variables, and every syntax step. A set-existence hypothesis is
 not hidden but written as "Let A be a set", which is what it says.
+
+Hidden with them is set.mm's own sense of "is a set": not a proper class. In
+set.mm everything is a set, a number and a point included, and the kernel
+uses that — `elex` has an element of a set be a set, and a name a step
+introduces is a set variable and a set by `vex` — where a reader thinks an
+element of a set of numbers is a number. On the page an element of a set is
+a thing of the set's kind and nothing more is said of it; the kernel's use of
+its sethood is apparatus, like a class variable, and is never written. This is
+the move the sort paragraph above makes for a set built from sets, made for an
+element: the kind again.
 
 ## Reader B: graduate degree in mathematics
 
