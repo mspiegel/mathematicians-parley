@@ -127,7 +127,7 @@ it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
    and an edit to the third that read its k from 0 rather than 1 passed.
    It now reads a label as the block around the citing step writes it.
 
-Numbers, for the record: 101 numbered steps, 86 in `binomial-step` and 15
+Numbers, for the record: 98 numbered steps, 84 in `binomial-step` and 14
 in `binomial`, and 99 requires lines, 91 of them in `binomial-step`, most
 of them the memberships of x, y and m that the sum items ask and the
 integer memberships of the ranges' ends. Each theorem elaborates in under

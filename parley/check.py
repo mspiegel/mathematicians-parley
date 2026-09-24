@@ -67,7 +67,7 @@ PRODUCTIONS = {
     'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+'
                      rf'(?:line\s+{NUMBER}|{LABEL})$',
     'exhibit':       rf'^exhibit,\s*{FROM}$',
-    'substitute':    rf'^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL})\)'
+    'substitute':    rf'^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)'
                      rf'(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?'
                      r'(?:,\s*right to left)?$',
     'instantiate':   rf'^instantiate\s+{INST}\s+in\s+(?:line\s+{NUMBER}|{LABEL})'
@@ -389,6 +389,73 @@ def check_chain(report, thm, step):
                        'the reasoning lives in that step')
         if not any(text.lstrip().startswith(r) or f' {r} ' in text for r in RELATIONS):
             report.say(thm.path, no, 'chain line carries no relation')
+
+
+def outermost(words, relation):
+    """Where a chain's first line puts its relation: outside every bracket,
+    since a sum binds its index with the same `=`.
+    """
+    depth = 0
+    for at, word in enumerate(words):
+        if depth == 0 and word == relation:
+            return at
+        depth += sum(word.count(c) for c in '({[') \
+            - sum(word.count(c) for c in ')}]')
+    return None
+
+
+def check_closed_arithmetic(report, thm, g):
+    """`arithmetic` stands in for a line only where the fact is numerals alone.
+
+    A `substitute` may take its equation from `arithmetic`, and a chain link
+    may give `arithmetic` as its reason, because a claim with no letter in it
+    gives a reader nothing to check but working it out. One with a letter
+    has something to check, and is a numbered step of its own. `SYNTAX.md`
+    has the rule.
+    """
+    sorts_in_scope(thm, g)
+
+    def closed(text):
+        try:
+            return not names(parse(text, g))
+        except Problem:
+            return True               # `check_formulas` says it does not read
+
+    for step in thm.steps:
+        just = step.just
+        if not just:
+            continue
+        if just.head == 'substitute':
+            m = re.match(r'substitute\s+(.*?)\s*\(\s*arithmetic\s*\)',
+                         just.text)
+            if m and not closed(m.group(1)):
+                report.say(thm.path, just.line,
+                           f'step {fmt(step.number)} takes {m.group(1)} from '
+                           f'arithmetic, and it has a letter in it; a fact '
+                           f'with a letter is a numbered step of its own')
+        if just.head != 'calculation' or not just.chain:
+            continue
+        previous = None
+        for text, no in just.chain:
+            body = re.sub(r',\s*right to left\s*$', '', text).strip()
+            body, _, cite = body.rpartition(' ')
+            body = body.strip()
+            if previous is None:
+                words = body.split()
+                at = next((outermost(words, r) for r in RELATIONS
+                           if outermost(words, r) is not None), None)
+                claim = body
+                previous = ' '.join(words[at + 1:]) if at is not None else ''
+            else:
+                mark, _, added = body.partition(' ')
+                claim = f'{previous} {mark} {added.strip()}'
+                previous = added.strip()
+            if cite == 'arithmetic' and not closed(claim):
+                report.say(thm.path, no,
+                           f'a link of step {fmt(step.number)} names '
+                           f'arithmetic for {claim}, which has a letter in '
+                           f'it; a link of numerals alone may, and any other '
+                           f'cites the numbered step that states it')
 
 
 def claims_of(thm):
@@ -1898,6 +1965,7 @@ def main(root):
         check_formulas(report, thm, grammar)
         check_kinds(report, thm, grammar, statements)
         check_contradiction(report, thm, grammar)
+        check_closed_arithmetic(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
         check_obtained(report, thm, library)

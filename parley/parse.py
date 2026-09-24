@@ -450,19 +450,23 @@ def parse_proof(path, text):
     return theorems
 
 
-CHAIN_TAIL = re.compile(rf'({REF})(?:,\s*right to left)?$')
+CHAIN_TAIL = re.compile(rf'(\barithmetic|{REF})(?:,\s*right to left)?$')
 
 
 def chain_citation(path, line):
     """A chain line's citation, read from the right end of the line rather than
     from the whitespace that happens to separate it.
+
+    A link relating numerals alone may name `arithmetic` in place of a line,
+    and then it cites nothing: the fact is worked out where it stands.
     """
     m = CHAIN_TAIL.search(line.text)
     if not m:
         raise Problem(path, line.no,
                       'chain line names no line or label; a chain only joins, '
-                      'so every line must cite a numbered step or a label')
-    return [m.group(1)]
+                      'so every line must cite a numbered step, a label, or '
+                      '`arithmetic` for a link of numerals alone')
+    return [] if m.group(1) == 'arithmetic' else [m.group(1)]
 
 
 def fmt(number):

@@ -3638,7 +3638,7 @@ class Elaborator(Builder):
         # allows the marker because it tells a reader which way the author
         # had in mind.
         text = re.sub(r',\s*right to left\s*$', '', step.just.text).strip()
-        said = re.match(r'substitute\s+(.*)\s*\([^()]*\)'
+        said = re.match(r'substitute\s+(.*)\s*\(([^()]*)\)'
                         r'(?:\s+into\s+(\S.*?))?\s*$', text)
         if said is None:
             raise self.defect(step.line,
@@ -3647,7 +3647,14 @@ class Elaborator(Builder):
         old, new = self.term(left), self.term(right)
         # Which way the equation faces in the kernel is the lemma's choice,
         # not the text's, so either is accepted and turned if it has to be.
+        # An equation of numerals alone the page may take from `arithmetic`
+        # where it rewrites by it, and it is proved here, in place.
         facing = facts.get(self.seq(old, new, 'wceq'))
+        if said.group(2).strip() == 'arithmetic':
+            facing = self.closed_fact(
+                self.seq(old, new, 'wceq'), scope, facts,
+                f'step {fmt(step.number)} substitutes {said.group(1).strip()}',
+                step)
         if facing is None:
             held = facts.get(self.seq(new, old, 'wceq'))
             if held is None:
@@ -3656,7 +3663,7 @@ class Elaborator(Builder):
             facing = self.seq(scope, new, old, held, 'eqcomd')
         turned = self.seq(scope, old, new, facing, 'eqcomd')
 
-        if said.group(2) is None:
+        if said.group(3) is None:
             # An equation is one fact and a claimed equation is one fact, and
             # neither carries a direction: if a = b then b = a. So the cited
             # equation is read whichever way rewrites, and the step's own two
@@ -3679,11 +3686,11 @@ class Elaborator(Builder):
             raise self.defect(step.line,
                               'the substitution misses the claim')
 
-        where = said.group(2).split()[-1]
+        where = said.group(3).split()[-1]
         into = lines[where]
         if not into.sentences:
             raise self.defect(step.line,
-                              f'{said.group(2)} is not a line to rewrite')
+                              f'{said.group(3)} is not a line to rewrite')
         # A line may say several things and the substitution land in one of
         # them: bezout obtains a quotient and a remainder and three facts
         # about them on one line, and rewrites the third. So each sentence
@@ -4338,10 +4345,21 @@ class Elaborator(Builder):
         method can show, which a theorem stating it is cited for.
         """
         what = f'step {fmt(step.number)} claims {" ".join(step.claim)}'
+        return self.closed_fact(term, scope, facts, what, step)
+
+    def closed_fact(self, term, scope, facts, what, step=None):
+        """A fact about closed numerals, worked out and then proved.
+
+        Wherever it stands: a step of its own, the equation a `substitute`
+        rewrites by, or a link of a `calculation`. A claim with nothing in
+        it but numerals gives a reader nothing to check but working it out,
+        so the page may name `arithmetic` where the fact is used, and each
+        of those places is held to the same refusals as a step. `what` says
+        where it was asked, as the page writes it.
+        """
         self.worked_out(term, what)
         for how in (lambda: self.prove_numeral(term, scope, facts),
-                    lambda: self.prove_field(step, term, scope, facts,
-                                             lines)):
+                    lambda: self.prove_field(step, term, scope, facts, {})):
             found = how()
             if not declined(found):
                 return found
@@ -7261,7 +7279,14 @@ class Elaborator(Builder):
         # and a declared lemma reaching the same fact reaches it the long
         # way round: 1 < 2 through membership of ℤ≥2 costs five lemmas.
         if closure == 'arithmetic':
-            said = f'the requires line {self.render(term)}'
+            # Said in the page's words where the line is in hand, as a
+            # step's claim is.
+            written = next((fact for fact, _how, _no in
+                            (step.requires if step is not None else ())
+                            if self.claim_of(fact) == term), None)
+            said = (f'the requires line of step {fmt(step.number)} claims '
+                    f'{written.strip()}' if written is not None
+                    else f'the requires line {self.render(term)}')
             self.worked_out(term, said)
             found = self.prove_numeral(term, scope, facts)
             if not declined(found):
@@ -7371,7 +7396,14 @@ class Elaborator(Builder):
             body, cite = body.rsplit(None, 1)
             links.append((body.strip(), cite, turned))
 
-        def held(cite, turned):
+        def held(cite, turned, claim, written):
+            # A link of numerals alone may name `arithmetic` rather than a
+            # line, and what it relates is proved where it stands.
+            if cite == 'arithmetic':
+                return self.closed_fact(
+                    claim.rpn(self.flabel), scope, facts,
+                    f'a link of step {fmt(step.number)} claims {written}',
+                    step)
             line = lines[cite]
             proof = self.carried(cite, facts, lines)
             if not turned:
@@ -7390,7 +7422,7 @@ class Elaborator(Builder):
         right = whole.children[1].rpn(self.flabel)
         said = whole.label
         relation = whole.children[2].rpn(self.flabel) if said == 'wbr' else ''
-        proof = held(links[0][1], links[0][2])
+        proof = held(links[0][1], links[0][2], whole, links[0][0])
         for body, cite, turned in links[1:]:
             mark, added = body.split(None, 1)
             joined = self.to_term(self.term(self.read(f'{rest} {mark} {added}')))
@@ -7407,7 +7439,8 @@ class Elaborator(Builder):
             if joined.label == 'wbr':
                 relation = joined.children[2].rpn(self.flabel)
             proof = self.seq(scope, left, right, nxt, relation, proof,
-                        held(cite, turned), fold)
+                        held(cite, turned, joined,
+                             f'{rest} {mark} {added}'), fold)
             right, rest = nxt, added
             said = 'wceq' if said == joined.label == 'wceq' else 'wbr'
         return proof
@@ -7567,9 +7600,21 @@ class Elaborator(Builder):
         # text may write facing either way.
         body = self.term(kernel)
         mark = f'{var} cv'
-        for ref in step.just.refs:
-            cited = lines[ref]
-            held = self.to_term(cited.term)
+        # A requires line may say it too, where what names the witness is a
+        # fact of numerals alone: `requires 9 = 3·3: arithmetic` under
+        # `3 divides 9`. The cited lines are asked first, as before.
+        candidates = [(lines[ref].term,
+                       lambda ref=ref: facts.get(lines[ref].term,
+                                                 lines[ref].proof))
+                      for ref in step.just.refs]
+        if step.requires:
+            known = self.supplied(step, scope, facts)
+            for text, _how, _no in step.requires:
+                said = self.claim_of(text)
+                if said in known:
+                    candidates.append((said, lambda said=said: known[said]))
+        for said, proof_of in candidates:
+            held = self.to_term(said)
             witness = None
             for shape in (body, self.turned(body)):
                 if shape is not None:
@@ -7579,7 +7624,8 @@ class Elaborator(Builder):
             if witness is None:
                 continue
             here = self.term(self.substituted(kernel, mark, witness))
-            if cited.term in (here, self.turned(here)):
+            if said in (here, self.turned(here)):
+                chosen = proof_of
                 break
         else:
             raise self.defect(step.line, 'no cited line names a witness')
@@ -7599,9 +7645,9 @@ class Elaborator(Builder):
         # the existential faces the way the lemma writes it.
         # A line proved before a block opened holds inside it too, and the
         # scope's own copy is what says so where the step sits.
-        p_cited = facts.get(cited.term, cited.proof)
-        if cited.term != here:
-            was = self.to_term(cited.term)
+        p_cited = chosen()
+        if said != here:
+            was = self.to_term(said)
             p_cited = self.seq(scope, *(c.rpn(self.flabel) for c in was.children),
                           p_cited, 'eqcomd')
         p_ex = self.seq(scope, self.seq(member, here, 'wa'), ex,

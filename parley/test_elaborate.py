@@ -43,15 +43,15 @@ CASES = [
      '                  requires a^(k + 1) ∈ ℝ',
      '                  requires a ¿ ℝ: from H1\n'
      '                  requires a^(k + 1) ∈ ℝ',
-     'proof/geometric-series.proof:65'),
+     'proof/geometric-series.proof:62'),
 
     # `substitute` walks its equation both ways and each sentence of the
     # line it names, catching what declines. A name the proof never
     # introduced is not one of those, and used to be caught as one.
     ('substitute a name the proof never introduced',
      'geometric-sum', 'proof/geometric-series.proof',
-     '          substitute a^(0 + 1) = a (line 2.5)',
-     '          substitute a^(0 + 1) = z (line 2.5)',
+     '          substitute a^(0 + 1) = a (line 2.4)',
+     '          substitute a^(0 + 1) = z (line 2.4)',
      "no kernel name for 'z'"),
 
     # A gap in the database rather than in the text. It was reported with
@@ -71,8 +71,8 @@ CASES = [
      '  first-used  geometric-series',
      '  target      fsum1, fsum1\n'
      '  first-used  geometric-series',
-     'proof/geometric-series.proof:53  no clause of def:G gives what '
-     'step 2.9.1 claims'),
+     'proof/geometric-series.proof:50  no clause of def:G gives what '
+     'step 2.8.1 claims'),
 
     # The same report reached from the other side: the target is right and
     # the step claims something the definition does not say. It used to be
@@ -168,9 +168,9 @@ CASES = [
     # stay that way.
     ('claim an algebra step the cited lines do not give',
      'geometric-sum', 'proof/geometric-series.proof',
-     '    2.9.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
+     '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a)',
-     '    2.9.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
+     '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a) + 1',
      'is not an identity'),
 
@@ -252,13 +252,14 @@ CASES = [
     # of digits alone crashed the normaliser on the way.
     ('claim a false numeral fact with a number past one digit',
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '1.1.  10^0 − 1 = 3·0', '1.1.  10^0 − 1 = 3·1',
-     'step 1.1 claims 10^0 − 1 = 3·1, which is false'),
+     'requires 10^0 − 1 = 3·0: arithmetic',
+     'requires 10^0 − 1 = 3·1: arithmetic',
+     'claims 10^0 − 1 = 3·1, which is false'),
 
     ('claim a false numeral fact of digits',
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '1.4.3.  9 = 3·3', '1.4.3.  9 = 3·4',
-     'step 1.4.3 claims 9 = 3·4, which is false'),
+     'requires 9 = 3·3: arithmetic', 'requires 9 = 3·4: arithmetic',
+     'claims 9 = 3·4, which is false'),
 
     # True, and past what the method shows while it reads digits alone: a
     # theorem stating it is what the page cites, and saying so is the
@@ -267,7 +268,7 @@ CASES = [
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
      '10 − 1 = 9\n                  thm:ten-minus-one',
      '10 − 1 = 9\n                  arithmetic',
-     'step 1.4.5 claims 10 − 1 = 9, which is true, and arithmetic cannot '
+     'step 1.3.4 claims 10 − 1 = 9, which is true, and arithmetic cannot '
      'show it yet'),
 
     # What has no exact value is refused before anything is computed or
@@ -276,24 +277,38 @@ CASES = [
     # rational, which a float would otherwise have decided.
     ('divide by zero in a numeral fact',
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
-     '                  requires 3/0 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 3/0 ∈ ℝ: arithmetic\n\n          1.3.8.',
      'which divides by zero'),
 
     ('state a numeral too large to work out',
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
-     '                  requires 9^(9^9) ∈ ℕ: arithmetic\n\n          1.4.9.',
+     '                  requires 9^(9^9) ∈ ℕ: arithmetic\n\n          1.3.8.',
      'which is too large to work out'),
 
     ('raise a numeral to a power that is not whole',
      'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.4.9.',
+     '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
-     '                  requires 4^(1/2) ∈ ℕ: arithmetic\n\n          1.4.9.',
+     '                  requires 4^(1/2) ∈ ℕ: arithmetic\n\n          1.3.8.',
      'which is not a rational number'),
+
+    # Named where it is used, `arithmetic` works the fact out first, as it
+    # does a step of its own: a false one is reported, never rewritten by.
+    ('substitute by a false fact of numerals',
+     'geometric-sum', 'proof/geometric-series.proof',
+     'substitute 0 + 1 = 1 (arithmetic)',
+     'substitute 0 + 1 = 2 (arithmetic)',
+     'step 2.2 substitutes 0 + 1 = 2, which is false'),
+
+    ('a chain link of numerals that is false',
+     'sum-formula', 'proof/sum-formula.proof',
+     '= 1(1 + 1)/2        arithmetic',
+     '= 1(1 + 1)/3        arithmetic',
+     'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
 
     # `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
     # says it for every k ∈ ℕ₀. Without line 1 cited nothing says it.
@@ -349,58 +364,58 @@ CASES = [
     # is now offered only the lines it holds, and the step is reported.
     ('rewrite a sum term by term under a hypothesis naming its index',
      'binomial', 'proof/binomial.proof',
-     '          1.9.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
+     '          1.8.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
      'Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n'
      '                  thm:binomial-step m := m, from H1, H2, K\n'
      '\n'
-     '          1.9.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     '          1.8.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
      'x^((m + 1) − k)·y^k\n'
      '                  calculation\n'
      '                    (x + y)^(m + 1) = (x + y)^m·(x + y)'
-     '                                          1.9.2\n'
+     '                                          1.8.2\n'
      '                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·'
-     'y^k)·(x + y)              1.9.3\n'
+     'y^k)·(x + y)              1.8.3\n'
      '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
-     'x^((m + 1) − k)·y^k          1.9.4\n',
-     '          1.9.4.  m ∈ ℤ\n'
+     'x^((m + 1) − k)·y^k          1.8.4\n',
+     '          1.8.4.  m ∈ ℤ\n'
      '                  thm:nat0-int, from K\n'
      '\n'
-     '          1.9.5.  For every k ∈ {0, …, m}, k + 0 = k.\n'
+     '          1.8.5.  For every k ∈ {0, …, m}, k + 0 = k.\n'
      '                  fix\n'
      '                  let k ∈ {0, …, m}'
      '                                   (J)\n'
      '\n'
-     '                  1.9.5.1.  k ∈ ℤ\n'
+     '                  1.8.5.1.  k ∈ ℤ\n'
      '                            thm:range-integer a := 0, b := m, from J\n'
      '                            requires 0 ∈ ℤ: arithmetic\n'
-     '                            requires m ∈ ℤ: from 1.9.4\n'
+     '                            requires m ∈ ℤ: from 1.8.4\n'
      '\n'
-     '                  1.9.5.2.  k ∈ ℝ\n'
-     '                            thm:int-real, from 1.9.5.1\n'
+     '                  1.8.5.2.  k ∈ ℝ\n'
+     '                            thm:int-real, from 1.8.5.1\n'
      '\n'
-     '                  1.9.5.3.  k + 0 = k\n'
+     '                  1.8.5.3.  k + 0 = k\n'
      '                            algebra\n'
-     '                            requires k ∈ ℝ: from 1.9.5.2\n'
+     '                            requires k ∈ ℝ: from 1.8.5.2\n'
      '\n'
-     '          1.9.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n'
-     '                  thm:sum-termwise a := 0, b := m, from 1.9.5\n'
+     '          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n'
+     '                  thm:sum-termwise a := 0, b := m, from 1.8.5\n'
      '                  requires 0 ∈ ℤ: arithmetic\n'
-     '                  requires m ∈ ℤ: from 1.9.4\n'
+     '                  requires m ∈ ℤ: from 1.8.4\n'
      '\n'
-     '          1.9.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
+     '          1.8.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
      'Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n'
      '                  thm:binomial-step m := m, from H1, H2, K\n'
      '\n'
-     '          1.9.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     '          1.8.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
      'x^((m + 1) − k)·y^k\n'
      '                  calculation\n'
      '                    (x + y)^(m + 1) = (x + y)^m·(x + y)'
-     '                                          1.9.2\n'
+     '                                          1.8.2\n'
      '                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·'
-     'y^k)·(x + y)              1.9.3\n'
+     'y^k)·(x + y)              1.8.3\n'
      '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
-     'x^((m + 1) − k)·y^k          1.9.7\n',
-     'no clause of thm:sum-termwise reaches what step 1.9.6 claims'),
+     'x^((m + 1) − k)·y^k          1.8.7\n',
+     'no clause of thm:sum-termwise reaches what step 1.8.6 claims'),
 
     # A closed exponent's membership of ℕ₀ is placed through the digit it
     # comes to (`by_value`), and (0 − 1) − 0 comes to −1, which is no

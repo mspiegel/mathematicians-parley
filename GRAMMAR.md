@@ -536,7 +536,7 @@ A justification is a head and a set of optional slots. The slots are:
 | names | `<name> { , <name> } :` , only after `obtain` |
 | target | `in line <number>` \| `in <label>` |
 | destination | `into line <number>` \| `into <label>` |
-| source | `(line <number>)` \| `(<label>)` |
+| source | `(line <number>)` \| `(<label>)` \| `(arithmetic)`, for an equation of numerals alone |
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
 | reversal | `right to left` |
 | start | `starting at <term>` |
@@ -615,13 +615,15 @@ step`, and cases declares a repeating `case` whose parts open with `assume`.
 <first line> ::= <term> <rel> <term> <citation>
 <chain line> ::= <rel> <term> <citation>
 <rel>        ::= `=` | `≤` | `<`
-<citation>   ::= <ref> [ `,` `right to left` ]
+<citation>   ::= <ref> [ `,` `right to left` ] | `arithmetic`
 ```
 
-The citation is separated from the term by two or more spaces in all 62 chain
-lines. A parser should not rely on that. Read the citation from the right end
+The citation is separated from the term by two or more spaces in every chain
+line. A parser should not rely on that. Read the citation from the right end
 of the line instead, since it is a reference optionally followed by the
-reversal marker, and treat the whitespace as layout.
+reversal marker, and treat the whitespace as layout. `arithmetic` stands in
+for a reference only on a line whose relation is between numerals alone, and
+cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
 
 The claim's relation is `=` if every line is `=`, `≤` if every line is `=` or
 `≤`, and `<` if any line is `<`.

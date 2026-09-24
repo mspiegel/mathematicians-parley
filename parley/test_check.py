@@ -80,8 +80,8 @@ CASES = [
 
     ('a character that is in no notation record',
      'proof/sum-formula.proof',
-     '1.2.  1 = 1(1 + 1)/2',
-     '1.2.  1 = 1(1 ⊕ 1)/2',
+     '= 1(1 + 1)/2        arithmetic',
+     '= 1(1 ⊕ 1)/2        arithmetic',
      'is in no record'),
 
     # U+2208 followed by a combining solidus looks like the not-an-element sign
@@ -100,9 +100,10 @@ CASES = [
 
     ('a block whose method takes none',
      'proof/sum-formula.proof',
-     '    1.2.  1 = 1(1 + 1)/2\n          arithmetic',
-     ('    1.2.  1 = 1(1 + 1)/2\n          arithmetic\n\n'
-      '    1.2.1.  1 = 1\n            arithmetic'),
+     '                  requires k ∈ ℝ: thm:nat-real, from K\n',
+     ('                  requires k ∈ ℝ: thm:nat-real, from K\n\n'
+      '                  1.3.3.1.  k = k\n'
+      '                            algebra\n'),
      'takes no block'),
 
     ('a contradiction whose block does not suppose anything',
@@ -211,9 +212,9 @@ CASES = [
     # an `a` of its own is writing about the name it bound.
     ('bind a name the notation it uses fixes',
      'proof/geometric-series.proof',
-     '    2.9.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)\n'
+     '    2.8.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)\n'
      '          then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).',
-     '    2.9.  For every a ∈ ℕ₀, if G(a) = (1 − a^(a + 1))/(1 − a)\n'
+     '    2.8.  For every a ∈ ℕ₀, if G(a) = (1 − a^(a + 1))/(1 − a)\n'
      '          then G(a + 1) = (1 − a^((a + 1) + 1))/(1 − a).',
      'a proof may not bind a name the notation it uses fixes'),
 
@@ -474,9 +475,9 @@ CASES = [
     # the mistake a reader makes when the index shift goes the wrong way.
     ('Pascal with the shift going the wrong way',
      'proof/binomial.proof',
-     '    49.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
-     '    49.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
-     'step 49.5 claims something that thm:pascal does not conclude'),
+     '    47.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
+     '    47.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
+     'step 47.5 claims something that thm:pascal does not conclude'),
 
     # Shifting the index moves the range with it.
     ('a shifted sum left over the range it came from',
@@ -489,9 +490,9 @@ CASES = [
     # the index m + 1, which the sum to m + 1 takes.
     ('a term-by-term line over too short a range',
      'proof/binomial.proof',
-     '    thm:sum-termwise a := 0, b := m + 1, from 49\n',
+     '    thm:sum-termwise a := 0, b := m + 1, from 47\n',
      '    thm:sum-termwise a := 0, b := m + 1, from 8\n',
-     'step 50 cites thm:sum-termwise, which asks for'),
+     'step 48 cites thm:sum-termwise, which asks for'),
 
     # C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
     ('a coefficient called zero where k is not above n',
@@ -509,7 +510,22 @@ CASES = [
      '           requires 1 ∈ ℤ: arithmetic\n',
      'thm:range-integer a := 0, b := m + 1, from J\n'
      '           requires 0 ∈ ℤ: arithmetic\n',
-     'step 30.1 cites thm:range-integer, which asks for'),
+     'step 29.1 cites thm:range-integer, which asks for'),
+
+    # `arithmetic` may stand where a closed-numeral fact is used, and only
+    # there: an equation with a letter in it gives a reader something to
+    # check, and is a numbered step. `SYNTAX.md` has the rule.
+    ('take an equation with a letter in it from arithmetic',
+     'proof/binomial.proof',
+     'substitute (m + 1) − 0 = m + 1 (line 34)',
+     'substitute (m + 1) − 0 = m + 1 (arithmetic)',
+     'takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it'),
+
+    ('a chain link with a letter in it naming arithmetic',
+     'proof/sum-formula.proof',
+     '= (k + 1)((k + 1) + 1)/2       1.3.3',
+     '= (k + 1)((k + 1) + 1)/2       arithmetic',
+     'names arithmetic for'),
 
     # What a summand's function hypothesis asks is the membership of the
     # names the summand is built from, and 1 is none of them.

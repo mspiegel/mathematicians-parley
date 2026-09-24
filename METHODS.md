@@ -334,10 +334,15 @@ into every line.
 
 ## arithmetic
 
-`arithmetic` decides **closed numeral facts**. Counted by step justifications
-it is the smallest of the four, at three. Counted by use it is not: eighteen
-more uses justify a requires line, which makes it the most common terminator
-of a dull fact in the corpus.
+`arithmetic` decides **closed numeral facts**. No step of the corpus is
+justified by it: a fact with no letter in it gives a reader nothing to check
+but working it out, so it names `arithmetic` where it is used rather than
+standing as a step of its own (`SYNTAX.md`). It justifies a requires line,
+which makes it the most common terminator of a dull fact in the corpus; it is
+the source of a `substitute`, `substitute 0 + 1 = 1 (arithmetic)`; and it is
+the reason on a chain line of numerals alone, `= 1(1 + 1)/2    arithmetic`.
+In each place the same procedure and the same refusals apply, and the
+checker refuses the method for a fact with a letter in it.
 
 | what the claim is | uses |
 |---|---|

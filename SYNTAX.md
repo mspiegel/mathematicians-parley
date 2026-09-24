@@ -266,7 +266,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for every x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
 | `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for every k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
-| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
+| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t are numerals alone; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
 
 `L` is a list of line numbers, hypothesis labels and supposition labels,
 and nothing else: an item's sentence that a step needs as a fact is first
@@ -324,6 +324,20 @@ alternative, letting a line carry `algebra` or `substitute` inline as a
 textbook calculation does, was considered and rejected so that every
 fact in a proof is a numbered step with its own justification, and the
 chain is only the reader's view of how they join.
+
+**Every fact with a letter in it is a numbered step.** An identity
+`algebra` proves, an exponent law, a function value: each is a step of its
+own, which a reader checks where it is written and later lines cite.
+
+**A fact about closed numerals is not.** `0 + 1 = 1` has no letter in it and
+gives a reader nothing to check but working it out, so it names
+`arithmetic` where it is used rather than standing as a step for one line
+to cite: as the source of a substitution, `substitute 0 + 1 = 1
+(arithmetic)`; as the reason on a chain line, `= 1(1 + 1)/2    arithmetic`;
+and as a `requires` line an item's hypothesis reads, `requires 9 = 3·3:
+arithmetic` under `3 divides 9`. The checker refuses `arithmetic` in any of
+these places for a fact with a letter in it, and the elaborator works each
+fact out before proving it, as it does a step's.
 
 ```
 5.4.  |a + b| = −(a + b)

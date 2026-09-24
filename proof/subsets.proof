@@ -205,21 +205,18 @@ theorem subsets-count
           1.1.4.  |{∅}| = 1
                   thm:card-singleton x := ∅
 
-          1.1.5.  1 = 2^0
-                  arithmetic
-
-          1.1.6.  𝒫X = {∅}
+          1.1.5.  𝒫X = {∅}
                   calculation
                     𝒫X = 𝒫∅        1.1.2
                        = {∅}       1.1.3
 
-          1.1.7.  |𝒫X| = 1
-                  substitute 𝒫X = {∅} (line 1.1.6) into line 1.1.4
+          1.1.6.  |𝒫X| = 1
+                  substitute 𝒫X = {∅} (line 1.1.5) into line 1.1.4
 
-          1.1.8.  |𝒫X| = 2^0
+          1.1.7.  |𝒫X| = 2^0
                   calculation
-                    |𝒫X| = 1        1.1.7
-                         = 2^0      1.1.5
+                    |𝒫X| = 1        1.1.6
+                         = 2^0      arithmetic
 
     step
     1.2.  For every k ∈ ℕ₀, if (for every set X, if |X| = k then |𝒫X| = 2^k)

@@ -100,7 +100,7 @@ disjointness condition can make a step's expansion illegal under the antecedent
 the readable proof states it under while the same step is provable one scope
 out. `fsump1` forbids its summation variable in the antecedent, and
 `sum-formula`'s induction hypothesis is an equation between sums, so it holds
-that variable; step 1.4.1 is written inside the `fix` block and cannot be
+that variable; step 1.3.1 is written inside the `fix` block and cannot be
 proved there.
 
 `allowed` picks the innermost frame the lemma's disjointness conditions permit,
@@ -254,6 +254,18 @@ Two shapes, and both are tried before anything generic:
 
 A closed value is an identity of the field with no atoms in it, so it goes
 where identities go rather than wanting a procedure of its own.
+
+The page names `arithmetic` where a closed fact is used, not only as a step,
+and each place is expanded by one routine, `closed_fact`: work the claim out
+(`worked_out`, which refuses a false one), then prove it as above. A
+`substitute` whose source is `(arithmetic)` proves its equation in place
+instead of looking for a line that states it; a chain line whose reason is
+`arithmetic` proves its link in place; and a requires line reading
+`arithmetic` supplies what an item's hypothesis asks, including the line a
+definition like `divides` reads its witness from. The kernel proofs are the
+ones the separate steps built: when the corpus's eight such steps were
+folded into their uses, every elaborated file came out byte for byte the
+same.
 
 **`algebra` has a normal form and a fixed order**: carry the atoms into ℂ,
 apply the one structural lemma the shape calls for, then reduce the numerals.
