@@ -14,23 +14,23 @@ theorem least-combination-divides
   then d divides c
 
 1.  There are q ∈ ℤ and r ∈ ℤ with c = q·d + r, 0 ≤ r, and r < d.
-    thm:division-algorithm n := c, d := d, from H3, H4
+    thm:stdlib/divisibility/division-algorithm n := c, d := d, from H3, H4
 
 2.  q ∈ ℤ. r ∈ ℤ. c = q·d + r. 0 ≤ r. r < d.
     obtain q, r from line 1
 
 3.  r = a·(u − q·x₀) + b·(v − q·y₀)
     algebra, from 2, H9, H10
-    requires a ∈ ℝ: thm:nat-real, from H1
-    requires b ∈ ℝ: thm:nat-real, from H2
-    requires c ∈ ℝ: thm:nat-real, from H3
-    requires d ∈ ℝ: thm:nat-real, from H4
-    requires u ∈ ℝ: thm:int-real, from H5
-    requires v ∈ ℝ: thm:int-real, from H6
-    requires x₀ ∈ ℝ: thm:int-real, from H7
-    requires y₀ ∈ ℝ: thm:int-real, from H8
-    requires q ∈ ℝ: thm:int-real, from 2
-    requires r ∈ ℝ: thm:int-real, from 2
+    requires a ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+    requires b ∈ ℝ: thm:stdlib/numbers/nat-real, from H2
+    requires c ∈ ℝ: thm:stdlib/numbers/nat-real, from H3
+    requires d ∈ ℝ: thm:stdlib/numbers/nat-real, from H4
+    requires u ∈ ℝ: thm:stdlib/numbers/int-real, from H5
+    requires v ∈ ℝ: thm:stdlib/numbers/int-real, from H6
+    requires x₀ ∈ ℝ: thm:stdlib/numbers/int-real, from H7
+    requires y₀ ∈ ℝ: thm:stdlib/numbers/int-real, from H8
+    requires q ∈ ℝ: thm:stdlib/numbers/int-real, from 2
+    requires r ∈ ℝ: thm:stdlib/numbers/int-real, from 2
 
 4.  r = 0
     contradiction
@@ -38,26 +38,26 @@ theorem least-combination-divides
 
     4.1.  0 < r
           inequalities, from 2, S
-          requires r ∈ ℝ: thm:int-real, from 2
+          requires r ∈ ℝ: thm:stdlib/numbers/int-real, from 2
 
     4.2.  r ∈ ℕ
-          thm:pos-int-nat m := r, from 2, 4.1
+          thm:stdlib/numbers/pos-int-nat m := r, from 2, 4.1
 
     4.3.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
           substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 3) into line 4.2
 
     4.4.  d ≤ a·(u − q·x₀) + b·(v − q·y₀)
           instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 4.3
-          requires u − q·x₀ ∈ ℤ: thm:int-closure, from H5, 2, H7
-          requires v − q·y₀ ∈ ℤ: thm:int-closure, from H6, 2, H8
+          requires u − q·x₀ ∈ ℤ: thm:stdlib/numbers/int-closure, from H5, 2, H7
+          requires v − q·y₀ ∈ ℤ: thm:stdlib/numbers/int-closure, from H6, 2, H8
 
     4.5.  d ≤ r
           substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 3) into line 4.4
 
     4.6.  not d ≤ r
           inequalities, from 2
-          requires r ∈ ℝ: thm:int-real, from 2
-          requires d ∈ ℝ: thm:nat-real, from H4
+          requires r ∈ ℝ: thm:stdlib/numbers/int-real, from 2
+          requires d ∈ ℝ: thm:stdlib/numbers/nat-real, from H4
 
     4.7.  d ≤ r. not d ≤ r.
           join 4.5, 4.6
@@ -67,17 +67,18 @@ theorem least-combination-divides
 
 6.  c = d·q
     algebra, from 5
-    requires c ∈ ℝ: thm:nat-real, from H3
-    requires d ∈ ℝ: thm:nat-real, from H4
-    requires q ∈ ℝ: thm:int-real, from 2
+    requires c ∈ ℝ: thm:stdlib/numbers/nat-real, from H3
+    requires d ∈ ℝ: thm:stdlib/numbers/nat-real, from H4
+    requires q ∈ ℝ: thm:stdlib/numbers/int-real, from 2
 
 7.  d divides c
-    def:divides d := d, n := c, from 2, 6
-    requires d ∈ ℤ: thm:nat-int, from H4
-    requires c ∈ ℤ: thm:nat-int, from H3
+    def:stdlib/divisibility/divides d := d, n := c, from 2, 6
+    requires d ∈ ℤ: thm:stdlib/numbers/nat-int, from H4
+    requires c ∈ ℤ: thm:stdlib/numbers/nat-int, from H3
 
 
 theorem bezout
+  metamath    bezout
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then there are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b)
@@ -87,31 +88,31 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 1.  a = a·1 + b·0
     algebra
-    requires a ∈ ℝ: thm:nat-real, from H1
-    requires b ∈ ℝ: thm:nat-real, from H2
+    requires a ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+    requires b ∈ ℝ: thm:stdlib/numbers/nat-real, from H2
 
 2.  a ∈ S
-    def:set-builder u := a, from H1, 1
+    def:stdlib/sets/set-builder u := a, from H1, 1
     requires 1 ∈ ℤ: arithmetic
     requires 0 ∈ ℤ: arithmetic
 
 3.  S ⊆ ℕ
-    thm:set-builder-subset, from D1
+    thm:stdlib/sets/set-builder-subset, from D1
 
 4.  There is d ∈ S with for every s ∈ S, d ≤ s.
-    thm:well-ordering S := S, from 3, 2
+    thm:stdlib/numbers/well-ordering S := S, from 3, 2
 
 5.  d ∈ S. For every s ∈ S, d ≤ s.
     obtain d from line 4
 
 6.  For every t ∈ S, t ∈ ℕ
-    def:subset, from 3
+    def:stdlib/sets/subset, from 3
 
 7.  d ∈ ℕ
     instantiate t := d in line 6, from 5
 
 8.  There are m ∈ ℤ and n ∈ ℤ with d = a·m + b·n.
-    def:set-builder u := d, from 5
+    def:stdlib/sets/set-builder u := d, from 5
 
 9.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
     obtain x₀, y₀ from line 8
@@ -125,13 +126,13 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
     10.1. a·x + b·y = a·x + b·y
           algebra
-          requires a ∈ ℝ: thm:nat-real, from H1
-          requires b ∈ ℝ: thm:nat-real, from H2
-          requires x ∈ ℝ: thm:int-real, from K1
-          requires y ∈ ℝ: thm:int-real, from K2
+          requires a ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+          requires b ∈ ℝ: thm:stdlib/numbers/nat-real, from H2
+          requires x ∈ ℝ: thm:stdlib/numbers/int-real, from K1
+          requires y ∈ ℝ: thm:stdlib/numbers/int-real, from K2
 
     10.2. a·x + b·y ∈ S
-          def:set-builder u := a·x + b·y, from K3, 10.1
+          def:stdlib/sets/set-builder u := a·x + b·y, from K3, 10.1
           requires x ∈ ℤ: from K1
           requires y ∈ ℤ: from K2
 
@@ -140,8 +141,8 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 11. a = a·1 + b·0
     algebra
-    requires a ∈ ℝ: thm:nat-real, from H1
-    requires b ∈ ℝ: thm:nat-real, from H2
+    requires a ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+    requires b ∈ ℝ: thm:stdlib/numbers/nat-real, from H2
 
 12. d divides a
     thm:least-combination-divides c := a, u := 1, v := 0, from H1, H2,
@@ -151,8 +152,8 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 13. b = a·0 + b·1
     algebra
-    requires a ∈ ℝ: thm:nat-real, from H1
-    requires b ∈ ℝ: thm:nat-real, from H2
+    requires a ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+    requires b ∈ ℝ: thm:stdlib/numbers/nat-real, from H2
 
 14. d divides b
     thm:least-combination-divides c := b, u := 0, v := 1, from H1, H2,
@@ -162,27 +163,27 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 15. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    def:gcd a := a, b := b, from H1, H2
+    def:stdlib/divisibility/gcd a := a, b := b, from H1, H2
 
 16. d ≤ gcd(a, b)
     instantiate e := d in line 15, from 7, 12, 14
 
 17. gcd(a, b) divides a·x₀ + b·y₀
-    thm:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 15, 9
-    requires gcd(a, b) ∈ ℤ: thm:nat-int, from 15
-    requires a ∈ ℤ: thm:nat-int, from H1
-    requires b ∈ ℤ: thm:nat-int, from H2
+    thm:stdlib/divisibility/divides-combination e := gcd(a, b), x := x₀, y := y₀, from 15, 9
+    requires gcd(a, b) ∈ ℤ: thm:stdlib/numbers/nat-int, from 15
+    requires a ∈ ℤ: thm:stdlib/numbers/nat-int, from H1
+    requires b ∈ ℤ: thm:stdlib/numbers/nat-int, from H2
 
 18. gcd(a, b) divides d
     substitute d = a·x₀ + b·y₀ (line 9) into line 17
 
 19. gcd(a, b) ≤ d
-    thm:divides-le e := gcd(a, b), m := d, from 15, 7, 18
+    thm:stdlib/divisibility/divides-le e := gcd(a, b), m := d, from 15, 7, 18
 
 20. d = gcd(a, b)
     inequalities, from 16, 19
-    requires d ∈ ℝ: thm:nat-real, from 7
-    requires gcd(a, b) ∈ ℝ: thm:nat-real, from 15
+    requires d ∈ ℝ: thm:stdlib/numbers/nat-real, from 7
+    requires gcd(a, b) ∈ ℝ: thm:stdlib/numbers/nat-real, from 15
 
 21. a·x₀ + b·y₀ = gcd(a, b)
     calculation

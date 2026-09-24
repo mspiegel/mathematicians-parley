@@ -1,5 +1,5 @@
-$( thm:sqrt2-irrational, from proof/sqrt2-irrational.proof, as a
-   Metamath proof.
+$( thm:proof/sqrt2-irrational/sqrt2-irrational, from
+   proof/sqrt2-irrational.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with parity.mm and set.mm in the same
    directory:
@@ -10,16 +10,17 @@ $( thm:sqrt2-irrational, from proof/sqrt2-irrational.proof, as a
    copy of that file truncated after oddm1even, which is the last statement it
    uses.
 
-   thm:lowest-terms and the proof's three `algebra` steps are axioms here.
-   Everything else uses set.mm's own theorems, or thm:even-square, which
-   parity.mm proves.
+   thm:proof/sqrt2-irrational/lowest-terms and the proof's three `algebra`
+   steps are axioms here. Everything else uses set.mm's own theorems, or
+   thm:proof/sqrt2-irrational/even-square, which parity.mm proves.
 $)
 
 $[ parity.mm $]
 
-$( thm:lowest-terms, stated as its readable form states it. set.mm's nearest
-   statement is qredeu, which gives a unique pair in ( ZZ X. NN ) whose gcd
-   is 1; the shapes do not match, and closing the gap is a proof of its own. $)
+$( thm:proof/sqrt2-irrational/lowest-terms, stated as its readable form
+   states it. set.mm's nearest statement is qredeu, which gives a unique
+   pair in ( ZZ X. NN ) whose gcd is 1; the shapes do not match, and closing
+   the gap is a proof of its own. $)
 ${
   $d p q r s d n $.  $d p q r s d n A $.
   ltrm $a |- ( A e. QQ -> E. p e. ZZ E. q e. ZZ ( 0 < q /\ A = ( p / q ) /\

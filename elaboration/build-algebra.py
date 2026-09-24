@@ -1,4 +1,4 @@
-"""Assemble step 3 of thm:least-combination-divides as a Metamath proof.
+"""Assemble step 3 of thm:proof/bezout/least-combination-divides as a Metamath proof.
 
 It is the one `algebra` step in the corpus whose coefficients are not
 constants. The step combines three cited equations with coefficients -1, 1 and
@@ -166,7 +166,7 @@ HYP_TXT = ('( C = ( ( Q x. D ) + R ) /\\ C = ( ( A x. U ) + ( B x. V ) ) '
            '/\\ D = ( ( A x. X ) + ( B x. Y ) ) )')
 OUT_TXT = 'R = ( ( A x. ( U - ( Q x. X ) ) ) + ( B x. ( V - ( Q x. Y ) ) ) )'
 
-HEADER = """$( Step 3 of thm:least-combination-divides, from
+HEADER = """$( Step 3 of thm:proof/bezout/least-combination-divides, from
    proof/bezout.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:

@@ -3,8 +3,9 @@
 `SYNTAX.md` says what a step must contain and why each form was chosen.
 `DATABASE.md` says where things are stored. This document says how the stored
 text is read: the line kinds, the justification forms, what a formula is, and
-the rules a parser applies. It is written from the ten proofs in `proof/` and
-the three database files in `db/`, and every rule below holds on all of them.
+the rules a parser applies. It is written from the proofs in `proof/`, the
+standard library in `stdlib/` and the notation and methods in `db/`, and every
+rule below holds on all of them.
 
 It has two halves. The **skeleton** is the text around a formula, and its
 productions are written out here. A **formula** is not: it is parsed from the
@@ -39,9 +40,14 @@ listed in the checker instead.
   `1.1`, `17.25.5.10`.
 - `<ref>` is a `<number>` or a `<label>`.
 - `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and
-  `nat0-closure`. The capital is in the pattern for `def:S` and `def:G`, the
-  two items that take the letter of the function they define. Every other name
-  is lowercase words joined by hyphens.
+  `nat0-closure`. The capital is in the pattern for `def:stdlib/sums/S` and
+  `def:stdlib/sums/G`, the two items that take the letter of the function they
+  define. Every other name is lowercase words joined by hyphens.
+- `<module>` is `<name> { / <name> }`, a file's path from the root of the
+  corpus without its extension: `stdlib/numbers`, `proof/bezout`.
+- `<cited>` is `[ <module> / ] <name>`, what follows `def:` or `thm:`. With
+  its module it is a full name, `stdlib/numbers/int-real`; without one it is a
+  theorem of the citing file. "Names" below says how one is resolved.
 - `<term>` and `<formula>` are given by the notations declared in
   `db/notation.records`, under "Formulas" below. The skeleton rules here delimit
   them; they do not describe what is inside.
@@ -451,11 +457,14 @@ substitution in the corpus comes close.
 ## Files
 
 ```
-<proof file>  ::= { <theorem> }
+<proof file>  ::= { <import> } { <theorem> }
+<import>      ::= `import` <module>
 <theorem>     ::= `theorem` <name>
+                  { <theorem field> }
                   { <hypothesis> }
                   <conclusion>
                   { <define> | <step> }
+<theorem field> ::= ( `metamath` | `note` ) <words>
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
                 | <name> `∉` <term>
@@ -470,7 +479,11 @@ substitution in the corpus comes close.
 ```
 
 Theorems appear in dependency order, so every pointer resolves to something
-earlier. A `define` line claims nothing and is cited by its label, and the
+earlier. A theorem field says what a record's field of the same name says: a
+`metamath` line names set.mm's counterpart of the theorem, which is checked to
+be a label set.mm has, and a `note` is prose for a person. Each is said at most
+once, between the `theorem` line and the statement, and continues on lines
+indented further than it. A `define` line claims nothing and is cited by its label, and the
 `reads` line under it says in words what the name means. Both `reads` and the
 `note` a block opener may carry are one line each, are the only prose a proof
 holds, and are read by no tool: what is checked is that a define has a reading
@@ -486,8 +499,8 @@ it holds of, because that name comes from the notation that binds it: in
 `{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
 Three of those, `be an element`, `be a set` and `be a point`, are not notations
 and never appear inside a formula. `assume` does take a formula, because it
-does assert. `thm:add-element-bijection` introduces its `a` by `∉`, and
-`thm:card-singleton` and eight other items introduce theirs by `be an
+does assert. `thm:proof/subsets/add-element-bijection` introduces its `a` by `∉`, and
+`thm:stdlib/counting/card-singleton` and eight other items introduce theirs by `be an
 element`. The kernel reads either as the thing being a set as well, since
 `{a}` of a proper class is empty; that sethood is apparatus the page never
 writes.
@@ -497,6 +510,38 @@ a notation: `for every set X, ...`, declared in `db/notation.records` as a binde
 with no domain. Ten lines in the corpus use one of these arbitrary forms, four
 `be a set`, three `be a point` and three `for every set`, and until they were
 declared none of them matched anything.
+
+## Names
+
+A definition or theorem is named by the file that holds it and its own name:
+its full name is the file's path from the root without the extension, `/`, and
+the name on its `theorem` or record line. `stdlib/numbers.records` holds
+`stdlib/numbers/int-real`; `proof/triangle-inequality.proof` holds
+`proof/triangle-inequality/abs-bounds`. A name need only be unique within its
+file.
+
+A citation writes the full name, `thm:stdlib/numbers/int-real`, so each line
+says where what it cites comes from. The one shorter form is a theorem of the
+citing file, which is written bare: `thm:proof/sqrt2-irrational/odd-square` in the file that proves
+it. A bare name that is no theorem of the file is a defect, and so is a full
+name that resolves to nothing.
+
+`stdlib` is the one directory the rules name, because the standard library is
+treated differently: it is never imported, and every proof may cite it. Any
+other module names a proof file, `<module>.proof`, wherever under the root that
+file is kept.
+
+A proof file imports each other proof file it cites, and only those:
+
+```
+import proof/triangle-inequality
+```
+
+The imports come before the first theorem. Citing a proof file that is not
+imported, importing one that nothing cites, importing a file twice, importing
+the file itself or the standard library, and importing a file that does not
+exist are each a defect. The imports have no cycle, since the theorems a file
+imports are built before its own.
 
 ## Steps
 
@@ -545,8 +590,8 @@ The fifteen heads and the slots each admits:
 
 ```
 <justification> ::=
-    ( `def:` | `thm:` ) <name> [ <instantiation> ] [ `,` <from> ]
-  | `obtain` <names> ( `def:` | `thm:` ) <name> [ <instantiation> ] `,` <from>
+    ( `def:` | `thm:` ) <cited> [ <instantiation> ] [ `,` <from> ]
+  | `obtain` <names> ( `def:` | `thm:` ) <cited> [ <instantiation> ] `,` <from>
   | `obtain` <name> `from` `line` <number>
   | `exhibit` `,` <from>
   | `substitute` <formula> <source> [ <destination> ] [ `,` <reversal> ]
@@ -570,7 +615,7 @@ on the page. An item's sentences reach a proof by being claimed in a numbered
 step that cites the item, and later steps cite that number.
 
 `obtain` has two forms. With an item it names its objects with a colon, as in
-`obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4`. Without one
+`obtain q, r: thm:stdlib/divisibility/division-algorithm n := c, d := d, from H3, H4`. Without one
 it takes a line, as in `obtain q, r from line 1`, carrying no colon: there is
 no item to separate the names from, and no hypothesis list to introduce.
 
@@ -662,7 +707,8 @@ comment. An item's statement is written with the same `let`, `assume` and
 
 Three definitions carry two `then` groups with a `let` between them, because a
 recursive definition's base sentence takes no hypothesis and its step sentence
-takes one. They are `def:S`, `def:G` and `def:factorial`.
+takes one. They are `def:stdlib/sums/S`, `def:stdlib/sums/G` and
+`def:stdlib/counting/factorial`.
 
 ## Not decided here
 

@@ -30,7 +30,7 @@ import targets
 from build import path_of
 from library import read as read_library
 from library import where_set_mm
-from parse import Problem, check_encoding, parse_database
+from parse import Problem, corpus
 
 ROOT = Path(__file__).resolve().parent.parent
 # What a set.mm label looks like, strictly enough that no word of a sentence
@@ -99,7 +99,7 @@ def supplied(records):
         if 'symbol' in r.fields:
             token = r.fields['symbol'].strip()
             out.update({f'c{token}', f'df-{token}'})
-    built = path_of('geometry')
+    built = path_of('stdlib/geometry')
     if built.exists():
         out.update(read_library(built))
     return out
@@ -111,16 +111,14 @@ def main(argv):
         print('set.mm not found; say where it is with SET_MM, or leave a '
               'copy or a link at the root of the working tree')
         return 2
-    records = []
-    for path in sorted((ROOT / 'db').glob('*.records')):
-        rel = str(path.relative_to(ROOT))
-        try:
-            records.extend(parse_database(
-                rel, check_encoding(rel, path.read_bytes())))
-        except Problem as trouble:
-            print(trouble, file=sys.stderr)
-            return 2
-    wanted = named(records)
+    try:
+        records, theorems = corpus(ROOT)
+    except Problem as trouble:
+        print(trouble, file=sys.stderr)
+        return 2
+    # A proved theorem's `metamath` line says which set.mm theorem is its
+    # counterpart, and is checked like any record's.
+    wanted = named([*records, *theorems])
     have = set(read_library(library)) | supplied(records)
     missing = sorted((place, line, who, label)
                      for label, (place, line, who) in wanted.items()

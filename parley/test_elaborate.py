@@ -38,18 +38,20 @@ CASES = [
     # not lex raised a defect carrying nowhere, which is what a route
     # declining carries. The step was assumed and the build went green.
     ('a requires line that does not lex',
-     'geometric-sum', 'proof/geometric-series.proof',
+     'proof/geometric-series/geometric-sum',
+     'proof/geometric-series.proof',
      '                  requires a ∈ ℝ: from H1\n'
      '                  requires a^(k + 1) ∈ ℝ',
      '                  requires a ¿ ℝ: from H1\n'
      '                  requires a^(k + 1) ∈ ℝ',
-     'proof/geometric-series.proof:62'),
+     'proof/geometric-series.proof:63'),
 
     # `substitute` walks its equation both ways and each sentence of the
     # line it names, catching what declines. A name the proof never
     # introduced is not one of those, and used to be caught as one.
     ('substitute a name the proof never introduced',
-     'geometric-sum', 'proof/geometric-series.proof',
+     'proof/geometric-series/geometric-sum',
+     'proof/geometric-series.proof',
      '          substitute a^(0 + 1) = a (line 2.4)',
      '          substitute a^(0 + 1) = z (line 2.4)',
      "no kernel name for 'z'"),
@@ -57,7 +59,8 @@ CASES = [
     # A gap in the database rather than in the text. It was reported with
     # no position at all, which read like a route declining.
     ('take away a target the corpus writes',
-     'cantor', 'db/notation.records',
+     'proof/cantor/cantor',
+     'db/notation.records',
      '  target      _1 cpw',
      '  metamath    cpw-without-a-target',
      "notation 'powerset' has no target field"),
@@ -66,23 +69,25 @@ CASES = [
     # a notation: the target names a lemma that proves the other `then`
     # group, so the step's own group has nothing behind it.
     ('name the wrong clause in a definition target',
-     'geometric-sum', 'db/items.records',
+     'proof/geometric-series/geometric-sum',
+     'stdlib/sums.records',
      '  target      fsum1, fsump1\n'
      '  first-used  geometric-series',
      '  target      fsum1, fsum1\n'
      '  first-used  geometric-series',
-     'proof/geometric-series.proof:50  no clause of def:G gives what '
-     'step 2.8.1 claims'),
+     'proof/geometric-series.proof:51  no clause of def:stdlib/sums/G gives '
+     'what step 2.8.1 claims'),
 
     # The same report reached from the other side: the target is right and
     # the step claims something the definition does not say. It used to be
     # given back as a route declining, which anything above was free to
     # take as stated.
     ('claim of a definition what it does not say',
-     'geometric-sum', 'proof/geometric-series.proof',
+     'proof/geometric-series/geometric-sum',
+     'proof/geometric-series.proof',
      '    2.1.  G(0) = 1',
      '    2.1.  G(0) = 2',
-     'proof/geometric-series.proof:15  no clause of def:G gives what '
+     'proof/geometric-series.proof:16  no clause of def:stdlib/sums/G gives what '
      'step 2.1 claims'),
 
     # A `requires` line has a claim and a reason, and only the claim was
@@ -92,53 +97,61 @@ CASES = [
     # and turned it with `necom`, so the file verified and the line the
     # page named went unused.
     ('name a line that does not state the side condition',
-     'isosceles', 'proof/isosceles.proof',
-     '    requires C ≠ A: def:triangle, from 7',
-     '    requires C ≠ A: def:triangle, from 6',
-     'proof/isosceles.proof:43  def:triangle, from 6 does not reach'),
+     'proof/isosceles/isosceles',
+     'proof/isosceles.proof',
+     '    requires C ≠ A: def:stdlib/geometry/triangle, from 7',
+     '    requires C ≠ A: def:stdlib/geometry/triangle, from 6',
+     'proof/isosceles.proof:44  def:stdlib/geometry/triangle, from 6 does not '
+     'reach'),
 
     # The same, where the scope already holds the claim for another reason:
     # the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
     # the line is read, and line 7 does not say it.
     ('name a line that does not state a claim the scope already holds',
-     'isosceles', 'proof/isosceles.proof',
-     '    requires A ≠ B: def:triangle, from 6',
-     '    requires A ≠ B: def:triangle, from 7',
-     'proof/isosceles.proof:48  def:triangle, from 7 does not reach'),
+     'proof/isosceles/isosceles',
+     'proof/isosceles.proof',
+     '    requires A ≠ B: def:stdlib/geometry/triangle, from 6',
+     '    requires A ≠ B: def:stdlib/geometry/triangle, from 7',
+     'proof/isosceles.proof:49  def:stdlib/geometry/triangle, from 7 does not '
+     'reach'),
 
     # A step's proof rests only on what it names (`GOALS.md` decision 9).
     # Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
     # k ∈ ℤ from line 1, which step 3 does not cite. Offered that, the step
     # elaborated and verified; it is not offered, so nothing says k ∈ ℂ.
     ('lean on a line the step does not name',
-     'odd-square', 'proof/sqrt2-irrational.proof',
+     'proof/sqrt2-irrational/odd-square',
+     'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
-     '    requires k ∈ ℝ: thm:int-real, from 1\n',
+     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n',
-     'proof/sqrt2-irrational.proof:12  nothing says m e. CC, which this '
+     'proof/sqrt2-irrational.proof:13  nothing says m e. CC, which this '
      'step needs'),
 
     # A requires line rests only on its reason. Line 2 does not say k is an
-    # integer, and `thm:int-real` asks it; the scope has it from line 1,
+    # integer, and `thm:stdlib/numbers/int-real` asks it; the scope has it from line 1,
     # which the line does not cite, so the item it names reaches nothing.
     ('give a requires line a reason that is not where its proof comes from',
-     'odd-square', 'proof/sqrt2-irrational.proof',
+     'proof/sqrt2-irrational/odd-square',
+     'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
-     '    requires k ∈ ℝ: thm:int-real, from 1\n',
+     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
-     '    requires k ∈ ℝ: thm:int-real, from 2\n',
-     'proof/sqrt2-irrational.proof:12  thm:int-real targets zre, and none '
+     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n',
+     'proof/sqrt2-irrational.proof:13  thm:stdlib/numbers/int-real targets '
+     'zre, and none '
      'of them reaches m e. RR'),
 
     # Everything a step names does work. 2 is a numeral, not an atom, so
     # `algebra` asks nothing about its being real, and the kernel has it
     # from the library; the line is true, well formed, and does nothing.
     ('write a requires line nothing asks for',
-     'sum-formula', 'proof/sum-formula.proof',
+     'proof/sum-formula/sum-formula',
+     'proof/sum-formula.proof',
      '                  requires 2 ≠ 0: arithmetic\n',
      '                  requires 2 ≠ 0: arithmetic\n'
      '                  requires 2 ∈ ℝ: arithmetic\n',
@@ -147,7 +160,8 @@ CASES = [
     # The certificate combines lines 3 and 4; line 1 says a + b ∈ ℝ, which
     # the step writes as its atoms instead, and is cited for nothing.
     ('cite a line a method step does not combine',
-     'triangle-inequality', 'proof/triangle-inequality.proof',
+     'proof/triangle-inequality/triangle-inequality',
+     'proof/triangle-inequality.proof',
      '    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 3, 4\n',
      '    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 3, 4\n',
      'step 5.2 cites 1 and uses nothing it says'),
@@ -156,9 +170,10 @@ CASES = [
     # kernel's `ltne` never needs d ∈ ℝ here, so nothing else would see the
     # line gone: only what the method asks for does.
     ('leave out the membership of an atom the method combines',
-     'lowest-terms', 'proof/sqrt2-irrational.proof',
+     'proof/sqrt2-irrational/lowest-terms',
+     'proof/sqrt2-irrational.proof',
      '    5.7.  d ≠ 1\n          inequalities, from 5.1\n'
-     '          requires d ∈ ℝ: thm:int-real, from 5.1\n',
+     '          requires d ∈ ℝ: thm:stdlib/numbers/int-real, from 5.1\n',
      '    5.7.  d ≠ 1\n          inequalities, from 5.1\n',
      'step 5.7 combines d, and nothing it writes or cites says it is a '
      'number'),
@@ -167,7 +182,8 @@ CASES = [
     # outside the handler that falls back to stating the step, and must
     # stay that way.
     ('claim an algebra step the cited lines do not give',
-     'geometric-sum', 'proof/geometric-series.proof',
+     'proof/geometric-series/geometric-sum',
+     'proof/geometric-series.proof',
      '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a)',
      '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
@@ -180,10 +196,11 @@ CASES = [
     # and R1 refused it afterwards, so which route the search took decided
     # whether a correct page was reported. It must not be offered at all.
     ('settle a side condition from a line the step does not cite',
-     'subsets-count', 'proof/subsets.proof',
+     'proof/subsets/subsets-count',
+     'proof/subsets.proof',
      'n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6',
      'n := 2^k, from 1.2.1.3, 1.2.1.6',
-     'no clause of thm:card-disjoint-union reaches what step 1.2.1.8 '
+     'no clause of thm:stdlib/counting/card-disjoint-union reaches what step 1.2.1.8 '
      'claims'),
 
     # An item taken as stated is stated as the item says it. Stating the
@@ -193,36 +210,40 @@ CASES = [
     # wrong, so one is made: `card-remove` loses its target and says less
     # than step 1.2.1.2 claims of it.
     ('claim what an item taken as stated does not state',
-     'subsets-count', 'db/items.records',
+     'proof/subsets/subsets-count',
+     'stdlib/counting.records',
      '  then        |X ∖ {a}| = k\n'
      '  metamath    hashdifsnp1\n'
      '  target      hashdifsnp1 with V := X, N := a, Y := k\n',
      '  then        |X ∖ {a}| ≤ k\n'
      '  metamath    hashdifsnp1\n',
-     'thm:card-remove is taken as stated and states'),
+     'thm:stdlib/counting/card-remove is taken as stated and states'),
 
     # A definition with no target is stated as the definition says it and
     # the claim read off one side. Stating the claim under the cited lines
     # took whatever the step claimed, and only a later step using it could
     # notice.
     ('unfold a definition taken as stated into what it does not say',
-     'intermediate-value', 'proof/intermediate-value.proof',
+     'proof/intermediate-value/intermediate-value',
+     'proof/intermediate-value.proof',
      '10. For every s ∈ S, s ≤ c.',
      '10. For every s ∈ S, s < c.',
-     'def:upper-bound is taken as stated and states'),
+     'def:stdlib/calculus/upper-bound is taken as stated and states'),
 
     # `elcncf2` is read in the page's words, which is a reading and not a
     # licence: continuity with δ where ε belongs, or with δ ≥ 0 where the
     # definition says δ > 0, is not what it says.
     ('unfold continuity into what it does not say',
-     'intermediate-value', 'proof/intermediate-value.proof',
+     'proof/intermediate-value/intermediate-value',
+     'proof/intermediate-value.proof',
      'if |x − c′| < δ then |f(x) − f(c′)| < ε.',
      'if |x − c′| < δ then |f(x) − f(c′)| < δ.',
-     'proof/intermediate-value.proof:129  no method owns this step: '
+     'proof/intermediate-value.proof:135  no method owns this step: '
      'elcncf2 does not say'),
 
     ('unfold continuity with a weaker bound than it gives',
-     'intermediate-value', 'proof/intermediate-value.proof',
+     'proof/intermediate-value/intermediate-value',
+     'proof/intermediate-value.proof',
      'there is δ ∈ ℝ with δ > 0 and',
      'there is δ ∈ ℝ with δ ≥ 0 and',
      'elcncf2 does not say'),
@@ -231,33 +252,37 @@ CASES = [
     # set bounded above, and line 7 is what says S is. Without it cited
     # nothing names a bound, and the step says which.
     ('obtain the least upper bound without the line bounding the set',
-     'intermediate-value', 'proof/intermediate-value.proof',
-     'obtain c: thm:completeness S := S, from 5, 2, 7',
-     'obtain c: thm:completeness S := S, from 5, 2',
-     'proof/intermediate-value.proof:103  no cited line names a witness '
+     'proof/intermediate-value/intermediate-value',
+     'proof/intermediate-value.proof',
+     'obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7',
+     'obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2',
+     'proof/intermediate-value.proof:109  no cited line names a witness '
      'for E. x e. RR'),
 
     # Each part of what the claim asks of the witness is one of the
     # target's lemmas, and a part none of them reaches is the target
     # failing, not something to take as stated.
     ('leave out the lemma saying the supremum is least',
-     'intermediate-value', 'db/items.records',
+     'proof/intermediate-value/intermediate-value',
+     'stdlib/calculus.records',
      '  target      suprcl, suprub, suprleub with c := sup S',
      '  target      suprcl, suprub with c := sup S',
-     'thm:completeness targets suprcl, suprub, and none of them reaches '
-     'what step 8 obtains'),
+     'thm:stdlib/calculus/completeness targets suprcl, suprub, and none of '
+     'them reaches what step 8 obtains'),
 
     # `arithmetic` works a closed claim out before proving it, and takes
     # nothing as stated. A false one used to be stated as an axiom, and one
     # of digits alone crashed the normaliser on the way.
     ('claim a false numeral fact with a number past one digit',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
      'requires 10^0 − 1 = 3·0: arithmetic',
      'requires 10^0 − 1 = 3·1: arithmetic',
      'claims 10^0 − 1 = 3·1, which is false'),
 
     ('claim a false numeral fact of digits',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
      'requires 9 = 3·3: arithmetic', 'requires 9 = 3·4: arithmetic',
      'claims 9 = 3·4, which is false'),
 
@@ -265,8 +290,9 @@ CASES = [
     # theorem stating it is what the page cites, and saying so is the
     # report, where the fact used to be stated.
     ('ask arithmetic for a true fact it cannot show',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
-     '10 − 1 = 9\n                  thm:ten-minus-one',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
+     '10 − 1 = 9\n                  thm:stdlib/numbers/ten-minus-one',
      '10 − 1 = 9\n                  arithmetic',
      'step 1.3.4 claims 10 − 1 = 9, which is true, and arithmetic cannot '
      'show it yet'),
@@ -276,21 +302,24 @@ CASES = [
     # would run for as long as memory lasts, and a power that is not a
     # rational, which a float would otherwise have decided.
     ('divide by zero in a numeral fact',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
      '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
      '                  requires 3/0 ∈ ℝ: arithmetic\n\n          1.3.8.',
      'which divides by zero'),
 
     ('state a numeral too large to work out',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
      '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
      '                  requires 9^(9^9) ∈ ℕ: arithmetic\n\n          1.3.8.',
      'which is too large to work out'),
 
     ('raise a numeral to a power that is not whole',
-     'ten-power-congruent', 'proof/divisibility-by-three.proof',
+     'proof/divisibility-by-three/ten-power-congruent',
+     'proof/divisibility-by-three.proof',
      '                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.',
      '                  requires 10 ∈ ℝ: arithmetic\n'
      '                  requires 4^(1/2) ∈ ℕ: arithmetic\n\n          1.3.8.',
@@ -299,13 +328,15 @@ CASES = [
     # Named where it is used, `arithmetic` works the fact out first, as it
     # does a step of its own: a false one is reported, never rewritten by.
     ('substitute by a false fact of numerals',
-     'geometric-sum', 'proof/geometric-series.proof',
+     'proof/geometric-series/geometric-sum',
+     'proof/geometric-series.proof',
      'substitute 0 + 1 = 1 (arithmetic)',
      'substitute 0 + 1 = 2 (arithmetic)',
      'step 2.2 substitutes 0 + 1 = 2, which is false'),
 
     ('a chain link of numerals that is false',
-     'sum-formula', 'proof/sum-formula.proof',
+     'proof/sum-formula/sum-formula',
+     'proof/sum-formula.proof',
      '= 1(1 + 1)/2        arithmetic',
      '= 1(1 + 1)/3        arithmetic',
      'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
@@ -313,19 +344,21 @@ CASES = [
     # `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
     # says it for every k ∈ ℕ₀. Without line 1 cited nothing says it.
     ('sum what no cited line says each term of is divisible',
-     'divisibility-by-three', 'proof/divisibility-by-three.proof',
-     'thm:sum-divisible m := 3, from H1, 1',
-     'thm:sum-divisible m := 3, from H1',
-     'no clause of thm:sum-divisible reaches what step 2 claims'),
+     'proof/divisibility-by-three/divisibility-by-three',
+     'proof/divisibility-by-three.proof',
+     'thm:stdlib/sums/sum-divisible m := 3, from H1, 1',
+     'thm:stdlib/sums/sum-divisible m := 3, from H1',
+     'no clause of thm:stdlib/sums/sum-divisible reaches what step 2 claims'),
 
     # What says f is continuous is H5, and so is what says its domain and
     # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
     # has neither.
     ('unfold continuity without the line saying f is continuous',
-     'intermediate-value', 'proof/intermediate-value.proof',
-     '    def:continuous-on, from H5',
-     '    def:continuous-on',
-     'proof/intermediate-value.proof:129  no method owns this step: no '
+     'proof/intermediate-value/intermediate-value',
+     'proof/intermediate-value.proof',
+     '    def:stdlib/calculus/continuous-on, from H5',
+     '    def:stdlib/calculus/continuous-on',
+     'proof/intermediate-value.proof:135  no method owns this step: no '
      'cited line is what elcncf2 unfolds'),
 
     # An item's target asks a side condition the page never writes, and
@@ -333,28 +366,32 @@ CASES = [
     # is `0 < k + 1` by C2. Without C2 cited, the equation is in scope and
     # not in hand, and the side condition must go unanswered.
     ('answer a side condition by an equation the step does not cite',
-     'subsets-count', 'proof/subsets.proof',
-     'obtain a: thm:card-nonempty, from K2, C2',
-     'obtain a: thm:card-nonempty, from K2',
-     'thm:card-nonempty targets hashgt0elex, and none of them reaches'),
+     'proof/subsets/subsets-count',
+     'proof/subsets.proof',
+     'obtain a: thm:stdlib/counting/card-nonempty, from K2, C2',
+     'obtain a: thm:stdlib/counting/card-nonempty, from K2',
+     'thm:stdlib/counting/card-nonempty targets hashgt0elex, and none of them reaches'),
 
     # `elrnmpt1s` reads its map at a term only a cited line supplies. With
     # the line gone nothing says where the map is read, and the body must
     # not be read at the lemma's own variable instead.
     ('put something in an image without the line saying where it comes from',
-     'powerset-split', 'proof/subsets.proof',
+     'proof/subsets/powerset-split',
+     'proof/subsets.proof',
      's := V ∖ {a},\n                    from 1.3.2',
      's := V ∖ {a}',
-     'no clause of thm:added-element-in-image reaches what step 1.3.3 '
+     'no clause of thm:stdlib/functions/added-element-in-image reaches what step 1.3.3 '
      'claims'),
 
     # A target is where the claim lands, and a variable bound to the wrong
     # name makes it land somewhere else. That is reported, not assumed.
     ('bind a target variable to the wrong name',
-     'subsets-count', 'db/items.records',
+     'proof/subsets/subsets-count',
+     'stdlib/counting.records',
      '  target      hashdifsnp1 with V := X, N := a, Y := k',
      '  target      hashdifsnp1 with V := X, N := a, Y := X',
-     'no clause of thm:card-remove reaches what step 1.2.1.2 claims'),
+     'no clause of thm:stdlib/counting/card-remove reaches what step 1.2.1.2 '
+     'claims'),
 
     # `sumeq2dv` forbids the sum's index in the scope, and the induction
     # hypothesis names it, so the lemma is proved one frame out. The line it
@@ -363,7 +400,8 @@ CASES = [
     # nothing was assumed, and only the verifier refused it. An outer frame
     # is now offered only the lines it holds, and the step is reported.
     ('rewrite a sum term by term under a hypothesis naming its index',
-     'binomial', 'proof/binomial.proof',
+     'proof/binomial/binomial',
+     'proof/binomial.proof',
      '          1.8.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
      'Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n'
      '                  thm:binomial-step m := m, from H1, H2, K\n'
@@ -378,7 +416,7 @@ CASES = [
      '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
      'x^((m + 1) − k)·y^k          1.8.4\n',
      '          1.8.4.  m ∈ ℤ\n'
-     '                  thm:nat0-int, from K\n'
+     '                  thm:stdlib/numbers/nat0-int, from K\n'
      '\n'
      '          1.8.5.  For every k ∈ {0, …, m}, k + 0 = k.\n'
      '                  fix\n'
@@ -386,19 +424,20 @@ CASES = [
      '                                   (J)\n'
      '\n'
      '                  1.8.5.1.  k ∈ ℤ\n'
-     '                            thm:range-integer a := 0, b := m, from J\n'
+     '                            thm:stdlib/sums/range-integer a := 0, b := m, '
+     'from J\n'
      '                            requires 0 ∈ ℤ: arithmetic\n'
      '                            requires m ∈ ℤ: from 1.8.4\n'
      '\n'
      '                  1.8.5.2.  k ∈ ℝ\n'
-     '                            thm:int-real, from 1.8.5.1\n'
+     '                            thm:stdlib/numbers/int-real, from 1.8.5.1\n'
      '\n'
      '                  1.8.5.3.  k + 0 = k\n'
      '                            algebra\n'
      '                            requires k ∈ ℝ: from 1.8.5.2\n'
      '\n'
      '          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n'
-     '                  thm:sum-termwise a := 0, b := m, from 1.8.5\n'
+     '                  thm:stdlib/sums/sum-termwise a := 0, b := m, from 1.8.5\n'
      '                  requires 0 ∈ ℤ: arithmetic\n'
      '                  requires m ∈ ℤ: from 1.8.4\n'
      '\n'
@@ -415,19 +454,20 @@ CASES = [
      'y^k)·(x + y)              1.8.3\n'
      '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
      'x^((m + 1) − k)·y^k          1.8.7\n',
-     'no clause of thm:sum-termwise reaches what step 1.8.6 claims'),
+     'no clause of thm:stdlib/sums/sum-termwise reaches what step 1.8.6 claims'),
 
     # A closed exponent's membership of ℕ₀ is placed through the digit it
     # comes to (`by_value`), and (0 − 1) − 0 comes to −1, which is no
     # digit and not in ℕ₀. The term's membership is refused, so the lemma
     # is, and the step is reported rather than the value looked up.
     ('a closed exponent that is not a whole number',
-     'binomial', 'proof/binomial.proof',
+     'proof/binomial/binomial',
+     'proof/binomial.proof',
      '    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = '
      'C(0, 0)·x^(0 − 0)·y^0\n',
      '    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = '
      'C(0, 0)·x^((0 − 1) − 0)·y^0\n',
-     'no clause of thm:sum-single reaches what step 1.1 claims'),
+     'no clause of thm:stdlib/sums/sum-single reaches what step 1.1 claims'),
 ]
 
 
@@ -448,20 +488,22 @@ NETS = [
     # method checks do not apply.
     ('settle a side condition from a line the step does not cite, with '
      'nothing to stop the search',
-     'subsets-count', 'proof/subsets.proof',
+     'proof/subsets/subsets-count',
+     'proof/subsets.proof',
      'n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6',
      'n := 2^k, from 1.2.1.3, 1.2.1.6',
      'step 1.2.1.8 rests on 1.2.1.5, which it does not name'),
 
-    # The requires line's reason cites line 2, and `thm:int-real` asks k
+    # The requires line's reason cites line 2, and `thm:stdlib/numbers/int-real` asks k
     # an integer, which line 1 says. With R2 taken away the step
     # elaborates.
     ('give a requires line a reason that is not where its proof comes '
      'from, with nothing to stop the search',
-     'odd-square', 'proof/sqrt2-irrational.proof',
-     '    requires k ∈ ℝ: thm:int-real, from 1\n\n4.',
-     '    requires k ∈ ℝ: thm:int-real, from 2\n\n4.',
-     'proof/sqrt2-irrational.proof:14  the requires line rests on 1, which '
+     'proof/sqrt2-irrational/odd-square',
+     'proof/sqrt2-irrational.proof',
+     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n\n4.',
+     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n\n4.',
+     'proof/sqrt2-irrational.proof:15  the requires line rests on 1, which '
      'it does not name'),
 ]
 
@@ -503,7 +545,7 @@ def main(argv):
     passed = failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         clean = Path(tmp) / 'clean'
-        for part in ('db', 'proof', 'parley', 'elaboration'):
+        for part in ('db', 'stdlib', 'proof', 'parley', 'elaboration'):
             shutil.copytree(ROOT / part, clean / part,
                             ignore=shutil.ignore_patterns('__pycache__'))
 

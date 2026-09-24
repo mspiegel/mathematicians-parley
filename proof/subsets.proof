@@ -1,4 +1,7 @@
 theorem add-element-bijection
+  note        The pilot's row was itself incomplete, reading "Let X be a set, a
+              with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The
+              statement in the proof is the merge's reading of it.
   let X be a set                                                      (H1)
   let a ∉ X                                                           (H2)
   then there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
@@ -11,28 +14,28 @@ theorem add-element-bijection
     assume S ∪ {a} = T ∪ {a}                                          (K3)
 
     1.1.  S ⊆ X
-          def:powerset S := S, from K1
+          def:stdlib/sets/powerset S := S, from K1
 
     1.2.  T ⊆ X
-          def:powerset S := T, from K2
+          def:stdlib/sets/powerset S := T, from K2
 
     1.3.  a ∉ S
-          thm:not-in-subset Y := S, Z := X, from 1.1, H2
+          thm:stdlib/sets/not-in-subset Y := S, Z := X, from 1.1, H2
 
     1.4.  a ∉ T
-          thm:not-in-subset Y := T, Z := X, from 1.2, H2
+          thm:stdlib/sets/not-in-subset Y := T, Z := X, from 1.2, H2
 
     1.5.  (S ∪ {a}) ∖ {a} = S ∖ {a}
-          thm:difference-of-union
+          thm:stdlib/sets/difference-of-union
 
     1.6.  (T ∪ {a}) ∖ {a} = T ∖ {a}
-          thm:difference-of-union
+          thm:stdlib/sets/difference-of-union
 
     1.7.  S ∖ {a} = S
-          thm:difference-absent, from 1.3
+          thm:stdlib/sets/difference-absent, from 1.3
 
     1.8.  T ∖ {a} = T
-          thm:difference-absent, from 1.4
+          thm:stdlib/sets/difference-absent, from 1.4
 
     1.9.  (T ∪ {a}) ∖ {a} = S ∖ {a}
           substitute S ∪ {a} = T ∪ {a} (K3) into line 1.5
@@ -45,45 +48,47 @@ theorem add-element-bijection
               = T                  1.8
 
 2.  There is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}.
-    thm:image-of-injection Y := 𝒫X, from 1
+    thm:stdlib/functions/image-of-injection Y := 𝒫X, from 1
 
 
 theorem powerset-split-disjoint
+  note        The pilot's row read only "the two parts above are disjoint". The
+              statement in the proof is the merge's reading of it.
   let X be a set                                                      (H1)
   let a ∈ X                                                           (H2)
   then 𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
 
 1.  a ∉ X ∖ {a}
-    thm:not-in-difference
+    thm:stdlib/sets/not-in-difference
 
 2.  For every S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∉ 𝒫(X ∖ {a}).
     fix
     let S ∈ 𝒫(X ∖ {a})                                                (K1)
 
     2.1.  a ∈ S ∪ {a}
-          thm:in-union-singleton
+          thm:stdlib/sets/in-union-singleton
 
     2.2.  S ∪ {a} ∉ 𝒫(X ∖ {a})
           contradiction
           suppose not S ∪ {a} ∉ 𝒫(X ∖ {a})                            (S1)
 
           2.2.1.  S ∪ {a} ∈ 𝒫(X ∖ {a})
-                  thm:double-negation P := S ∪ {a} ∈ 𝒫(X ∖ {a}), from S1
+                  thm:stdlib/reasoning/double-negation P := S ∪ {a} ∈ 𝒫(X ∖ {a}), from S1
 
           2.2.2.  S ∪ {a} ⊆ X ∖ {a}
-                  def:powerset S := S ∪ {a}, from 2.2.1
+                  def:stdlib/sets/powerset S := S ∪ {a}, from 2.2.1
 
           2.2.3.  a ∉ S ∪ {a}
-                  thm:subset-of-difference, from 2.2.2
+                  thm:stdlib/sets/subset-of-difference, from 2.2.2
 
           2.2.4.  a ∈ S ∪ {a}. a ∉ S ∪ {a}.
                   join 2.1, 2.2.3
 
 3.  For every V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}, V ∉ 𝒫(X ∖ {a}).
-    thm:added-elements-are-new Y := 𝒫(X ∖ {a}), from 2
+    thm:stdlib/functions/added-elements-are-new Y := 𝒫(X ∖ {a}), from 2
 
 4.  𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
-    thm:disjoint-empty, from 3
+    thm:stdlib/sets/disjoint-empty, from 3
 
 
 theorem powerset-split
@@ -96,10 +101,10 @@ theorem powerset-split
     let V ∈ 𝒫X                                                        (K1)
 
     1.1.  V ⊆ X
-          def:powerset S := V, from K1
+          def:stdlib/sets/powerset S := V, from K1
 
     1.2.  a ∈ V or not a ∈ V
-          thm:excluded-middle P := a ∈ V
+          thm:stdlib/reasoning/excluded-middle P := a ∈ V
 
     1.3.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
           cases, from 1.2
@@ -109,76 +114,77 @@ theorem powerset-split
           assume a ∈ V                                                (C1)
 
           1.3.1.  V ∖ {a} ⊆ X ∖ {a}
-                  thm:difference-shrinks, from 1.1
+                  thm:stdlib/sets/difference-shrinks, from 1.1
 
           1.3.2.  V ∖ {a} ∈ 𝒫(X ∖ {a})
-                  def:powerset S := V ∖ {a}, from 1.3.1
+                  def:stdlib/sets/powerset S := V ∖ {a}, from 1.3.1
 
           1.3.3.  (V ∖ {a}) ∪ {a} ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  thm:added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a},
+                  thm:stdlib/functions/added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a},
                     from 1.3.2
 
           1.3.4.  (V ∖ {a}) ∪ {a} = V
-                  thm:remove-and-restore, from C1
+                  thm:stdlib/sets/remove-and-restore, from C1
 
           1.3.5.  V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
                   substitute (V ∖ {a}) ∪ {a} = V (line 1.3.4) into line 1.3.3
 
           1.3.6.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  thm:in-union-right, from 1.3.5
+                  thm:stdlib/sets/in-union-right, from 1.3.5
 
           case
           note V leaves a out, so it is a subset of X ∖ {a}
           assume not a ∈ V                                            (C2)
 
           1.3.7.  V ⊆ X ∖ {a}
-                  thm:subset-into-difference, from 1.1, C2
+                  thm:stdlib/sets/subset-into-difference, from 1.1, C2
 
           1.3.8.  V ∈ 𝒫(X ∖ {a})
-                  def:powerset S := V, from 1.3.7
+                  def:stdlib/sets/powerset S := V, from 1.3.7
 
           1.3.9.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  thm:in-union-left, from 1.3.8
+                  thm:stdlib/sets/in-union-left, from 1.3.8
 
 2.  𝒫X ⊆ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-    def:subset, from 1
+    def:stdlib/sets/subset, from 1
 
 3.  X ∖ {a} ⊆ X
-    thm:difference-subset
+    thm:stdlib/sets/difference-subset
 
 4.  𝒫(X ∖ {a}) ⊆ 𝒫X
-    thm:powerset-monotone, from 3
+    thm:stdlib/sets/powerset-monotone, from 3
 
 5.  For every S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∈ 𝒫X.
     fix
     let S ∈ 𝒫(X ∖ {a})                                                (K2)
 
     5.1.  S ⊆ X ∖ {a}
-          def:powerset S := S, from K2
+          def:stdlib/sets/powerset S := S, from K2
 
     5.2.  S ⊆ X
-          thm:subset-transitive, from 5.1, 3
+          thm:stdlib/sets/subset-transitive, from 5.1, 3
 
     5.3.  {a} ⊆ X
-          thm:singleton-subset, from H2
+          thm:stdlib/sets/singleton-subset, from H2
 
     5.4.  S ∪ {a} ⊆ X
-          thm:union-subset, from 5.2, 5.3
+          thm:stdlib/sets/union-subset, from 5.2, 5.3
 
     5.5.  S ∪ {a} ∈ 𝒫X
-          def:powerset S := S ∪ {a}, from 5.4
+          def:stdlib/sets/powerset S := S ∪ {a}, from 5.4
 
 6.  {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} ⊆ 𝒫X
-    thm:added-elements-stay-inside Y := 𝒫(X ∖ {a}), Z := 𝒫X, from 5
+    thm:stdlib/functions/added-elements-stay-inside Y := 𝒫(X ∖ {a}), Z := 𝒫X, from 5
 
 7.  𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} ⊆ 𝒫X
-    thm:union-subset, from 4, 6
+    thm:stdlib/sets/union-subset, from 4, 6
 
 8.  𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-    thm:subset-antisymmetric, from 2, 7
+    thm:stdlib/sets/subset-antisymmetric, from 2, 7
 
 
 theorem subsets-count
+  metamath    hashpw
   let n ∈ ℕ₀                                                          (H1)
   let A be a set                                                      (H2)
   assume |A| = n                                                      (H3)
@@ -194,16 +200,16 @@ theorem subsets-count
           assume |X| = 0                                              (C1)
 
           1.1.1.  X = ∅
-                  thm:card-zero, from C1
+                  thm:stdlib/counting/card-zero, from C1
 
           1.1.2.  𝒫X = 𝒫∅
                   substitute X = ∅ (line 1.1.1)
 
           1.1.3.  𝒫∅ = {∅}
-                  thm:powerset-empty
+                  thm:stdlib/sets/powerset-empty
 
           1.1.4.  |{∅}| = 1
-                  thm:card-singleton x := ∅
+                  thm:stdlib/counting/card-singleton x := ∅
 
           1.1.5.  𝒫X = {∅}
                   calculation
@@ -232,10 +238,10 @@ theorem subsets-count
                   assume |X| = k + 1                                  (C2)
 
                   1.2.1.1.  a ∈ X
-                            obtain a: thm:card-nonempty, from K2, C2
+                            obtain a: thm:stdlib/counting/card-nonempty, from K2, C2
 
                   1.2.1.2.  |X ∖ {a}| = k
-                            thm:card-remove, from 1.2.1.1, K2, C2
+                            thm:stdlib/counting/card-remove, from 1.2.1.1, K2, C2
 
                   define U := 𝒫(X ∖ {a})                                 (D1)
                          reads the subsets of X that do not contain a
@@ -247,14 +253,14 @@ theorem subsets-count
 
                   1.2.1.4.  There is a bijection from U to T.
                             thm:add-element-bijection X := X ∖ {a}, from D2
-                            requires a ∉ X ∖ {a}: thm:not-in-difference,
+                            requires a ∉ X ∖ {a}: thm:stdlib/sets/not-in-difference,
                               from K3
 
                   1.2.1.5.  |T| = 2^k
-                            thm:card-bijection X := U, Y := T, m := 2^k,
+                            thm:stdlib/counting/card-bijection X := U, Y := T, m := 2^k,
                               from 1.2.1.3, 1.2.1.4
                             requires 2 ∈ ℕ₀: arithmetic
-                            requires 2^k ∈ ℕ₀: thm:power-nat0 a := 2, m := k, from K2
+                            requires 2^k ∈ ℕ₀: thm:stdlib/numbers/power-nat0 a := 2, m := k, from K2
 
                   1.2.1.6.  U ∩ T = ∅
                             thm:powerset-split-disjoint, from 1.2.1.1
@@ -263,10 +269,10 @@ theorem subsets-count
                             thm:powerset-split, from 1.2.1.1
 
                   1.2.1.8.  |U ∪ T| = 2^k + 2^k
-                            thm:card-disjoint-union X := U, Y := T, m := 2^k,
+                            thm:stdlib/counting/card-disjoint-union X := U, Y := T, m := 2^k,
                               n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6
                             requires 2 ∈ ℕ₀: arithmetic
-                            requires 2^k ∈ ℕ₀: thm:power-nat0 a := 2, m := k, from K2
+                            requires 2^k ∈ ℕ₀: thm:stdlib/numbers/power-nat0 a := 2, m := k, from K2
 
                   1.2.1.9.  |𝒫X| = 2^k + 2^k
                             substitute 𝒫X = U ∪ T (line 1.2.1.7) into line 1.2.1.8
@@ -274,10 +280,10 @@ theorem subsets-count
                   1.2.1.10. 2^k + 2^k = 2^k·2
                             algebra
                             requires 2 ∈ ℝ: arithmetic
-                            requires 2^k ∈ ℝ: thm:power-real a := 2, m := k, from K2
+                            requires 2^k ∈ ℝ: thm:stdlib/numbers/power-real a := 2, m := k, from K2
 
                   1.2.1.11. 2^(k + 1) = 2^k·2
-                            thm:exponent-step a := 2, m := k, from K2
+                            thm:stdlib/numbers/exponent-step a := 2, m := k, from K2
                             requires 2 ∈ ℝ: arithmetic
 
                   1.2.1.12. |𝒫X| = 2^(k + 1)

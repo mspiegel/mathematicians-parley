@@ -23,6 +23,9 @@ claiming exactly what the readable line claims, under the `requires` lines
 that line carries and the lines it cites. Both, or the axiom says more than
 the method does and the proof above it goes unused.
 
+A theorem is named in full, by its proof file's path and its own name:
+`parley/elaborate.py proof/sqrt2-irrational/odd-square <set.mm>`.
+
 Usage:  parley/elaborate.py <theorem> <set.mm>
 """
 import contextlib
@@ -38,7 +41,7 @@ import kernel
 import linear
 import normal
 import targets
-from build import path_of
+from build import DEFINITIONS, path_of
 from compress import compressed, shapes
 from compress import labels as compress_labels
 from formula import Grammar, Node, parse
@@ -47,15 +50,21 @@ from library import read as read_library
 from match import binding_context, instantiation, match
 from match import names as names_in
 from parse import (
-    NAME,
+    CITED,
+    STDLIB,
     Declined,
     Problem,
     Theorem,
     citations,
+    cited_name,
     corpus,
     declined,
     fmt,
+    proved,
+    qualified,
+    resolve,
 )
+from parse import index as full_names
 from sorts import sorts_in_scope, sorts_of_record, sorts_of_statement
 from spell import Builder, Proof, seq
 
@@ -70,6 +79,9 @@ NOT_IN = re.compile(r'^(\S+)\s*∉\s*\S')
 # Past the last line any proof has, for reading every define that is left.
 _ENDLESS = float('inf')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
+# What the library proves below the readable layer, read alongside set.mm so
+# a `target` may name its labels.
+GEOMETRY = f'{STDLIB}/geometry'
 # Variables for a name the proof does not spell: what a `define` renames
 # its body's binders to, and what an `obtain` introduces. A name the text
 # does spell keeps its own letter, so this holds what a reader is least
@@ -249,10 +261,12 @@ def label_of(name, taken=(), path='', line=0, ours=()):
     set.mm proves some of what this corpus proves and has its own names for
     them, so the label is moved off any that is already in use: `sqrt2irr`
     is taken. The corpus's own theorems can share a stem as well —
-    `powerset-split` and `powerset-split-disjoint` are both `powerset` —
-    and the files that hold them are read together, so `ours`, the names
-    of every theorem the corpus proves, are given labels one at a time in
-    order of name, each moved off what set.mm and the ones before it hold.
+    `powerset-split` and `powerset-split-disjoint` are both `powerset`, and
+    two proof files may each hold a theorem of one name — and the files
+    that hold them are read together, so `ours`, the full names of every
+    theorem the corpus proves, are given labels one at a time in order of
+    full name, each moved off what set.mm and the ones before it hold. The
+    stem is the theorem's own name, without its file's path.
     Which label a theorem lands on then depends only on set.mm and the
     corpus, so a theorem that cites another agrees with the file that wrote
     it.
@@ -263,7 +277,7 @@ def label_of(name, taken=(), path='', line=0, ours=()):
     """
     given = {}
     for one in sorted({*ours, name}):
-        stem = one.replace('-', '')[:8]
+        stem = one.rsplit('/', 1)[-1].replace('-', '')[:8]
         held = set(given.values())
         free = [s for s in (stem, *(f'{stem[:7]}{d}' for d in range(1, 10)))
                 if s not in taken and s not in held]
@@ -274,9 +288,11 @@ def label_of(name, taken=(), path='', line=0, ours=()):
 
 
 def proved_here(items):
-    """The names of the theorems this corpus proves, which `label_of` needs."""
-    return {name for name, item in items.items()
-            if 'proved-in' in item.fields}
+    """The full names of the theorems this corpus proves.
+
+    `label_of` needs them.
+    """
+    return {name for name, item in items.items() if proved(item)}
 
 
 class Fact:
@@ -366,8 +382,10 @@ class Elaborator(Builder):
         ('wceq', 'wceq'): 'eqtrd', ('wceq', 'wbr'): 'eqbrtrd',
         ('wbr', 'wceq'): 'breqtrd'}
 
-    def __init__(self, thm, grammar, items, sigs, records, theorems=()):
+    def __init__(self, thm, grammar, items, sigs, records):
         super().__init__(sigs)
+        # Every definition and theorem by its full name, the proved theorems
+        # of the corpus among them, as `parse.index` gives them.
         self.thm, self.g, self.items = thm, grammar, items
         self.terms = targets.terms(records)
         # A name the proof introduces becomes a variable of the kernel, and it
@@ -377,7 +395,6 @@ class Elaborator(Builder):
                       for e in entries if e for t in e.split()}
         self.spare = [v for v in SPARE_VARS if v not in self.taken]
         self.commutes = targets.commuting(records)
-        self.proofs = {t.name: t for t in theorems}
         self.cited = []          # corpus theorems this proof leans on
         self.joined = None
         self.enclosing = None    # the block a step sits directly inside
@@ -1206,6 +1223,14 @@ class Elaborator(Builder):
 
     # --- definitions --------------------------------------------------------
 
+    def item_cited(self, cited):
+        """The item a citation in this theorem's file names.
+
+        The citation is `def:x` or `thm:x`, spelt with its file's path, or
+        bare for a theorem of this file.
+        """
+        return self.items[resolve(cited_name(cited), self.thm.module)]
+
     def flip(self, node):
         """The same equality with its sides the other way round."""
         return Node(node.notation, node.sort, list(reversed(node.children)),
@@ -1219,7 +1244,7 @@ class Elaborator(Builder):
         returned facing the way the lemma writes it, which is not always the
         way the text writes it.
         """
-        item = self.items[name.split(':', 1)[1]]
+        item = self.item_cited(name)
         lemma, flipped = targets.unfolding(item)
         if lemma is None:
             raise self.defect(self.at,
@@ -1395,9 +1420,9 @@ class Elaborator(Builder):
                               f'{self.render(wanted.rpn(self.flabel))}')
 
         # The line that names the witnesses need not be all the claim says
-        # of them: `thm:lowest-terms` exhibits a p and a q that one line
-        # says are a fraction in lowest terms, another says is positive,
-        # and a third says nothing divides. Where it is all of it, its own
+        # of them: `thm:proof/sqrt2-irrational/lowest-terms` exhibits a p and
+        # a q that one line says are a fraction in lowest terms, another says
+        # is positive, and a third says nothing divides. Where it is all of it, its own
         # proof is taken, because that is fewer steps than settling it.
         proof = facts.get(cited.term, cited.proof)
         innermost = layers[-1][0]
@@ -1880,10 +1905,10 @@ class Elaborator(Builder):
         nodes = self.hypotheses()
         # A notation may hold a name no hole of it fills, and that name is
         # bound where the definition introducing it stands rather than where
-        # the notation is written: `def:G` says `let a ∈ ℝ`, and every `G(n)`
-        # below is about that `a`. The theorem's `let` lines are that place,
-        # and they are read before its conclusion and before any step, so
-        # what is taken here is what the text fixed. Nothing writes it again,
+        # the notation is written: `def:stdlib/sums/G` says `let a ∈ ℝ`, and
+        # every `G(n)` below is about that `a`. The theorem's `let` lines are
+        # that place, and they are read before its conclusion and before any
+        # step, so what is taken here is what the text fixed. Nothing writes it again,
         # which is what stops a block binding the same letter from reaching
         # it.
         self.fixed = dict(self.names)
@@ -3013,7 +3038,7 @@ class Elaborator(Builder):
                'calculation': self.calculation, 'join': self.join,
                'exhibit': self.exhibit}.get(head)
         if how is None and head.startswith('def:'):
-            item = self.items[head.split(':', 1)[1]]
+            item = self.item_cited(head)
             # A definition stated as a biconditional is used by unfolding it;
             # one stated as an equation is used by citing the lemma that
             # proves it. With no target it is taken as stated, like a closure
@@ -3030,11 +3055,11 @@ class Elaborator(Builder):
             raise self.defect(step.line, f'no expansion for {head!r}')
         # The step's own requires lines hold for the whole of it, not only
         # for the helpers that ask `supplied` themselves. A membership asked
-        # while turning an equation round in `def:divides` is as much the
-        # step's as one asked by the lemma it cites, and the line the page
-        # wrote for it is the one to use. Offered as `written` is, which the
-        # membership lookup and the one-lemma bridge read and a search does
-        # not, so what `settle` searches is no wider.
+        # while turning an equation round in `def:stdlib/divisibility/divides`
+        # is as much the step's as one asked by the lemma it cites, and the
+        # line the page wrote for it is the one to use. Offered as `written`
+        # is, which the membership lookup and the one-lemma bridge read and a
+        # search does not, so what `settle` searches is no wider.
         kept = self.written
         if step.requires:
             known = self.supplied(step, scope, facts)
@@ -3098,15 +3123,16 @@ class Elaborator(Builder):
 
         The claim may come from a definition unfolded, or from a theorem that
         states one outright, and it may introduce more than one name at once:
-        `thm:lowest-terms` gives a numerator and a denominator together.
+        `thm:proof/sqrt2-irrational/lowest-terms` gives a numerator and a
+        denominator together.
         """
         got = [n.strip() for n in re.match(
             r'obtain\s+(.+?)(?::|\s+from\b)', step.just.text).group(1)
             .split(',')]
-        # Spelt as `parse.NAME` spells an item and not as a run of anything
+        # Spelt as `parse.CITED` spells an item and not as a run of anything
         # that is not a space: an obtain writing no instantiation puts a
         # comma straight after the name, and it is not part of it.
-        named = re.search(rf'\b((?:def|thm):{NAME})', step.just.text)
+        named = re.search(rf'\b((?:def|thm):{CITED})', step.just.text)
         saved = dict(self.names)
         if named is None:
             # The line already claims the existence, so there is no item to
@@ -3162,7 +3188,7 @@ class Elaborator(Builder):
             p_ex = self.seq(scope, left, ex, facts[left], made[0], 'mpbid')
         else:
             cites = step.just.text.split(':', 1)[1].strip()
-            item = self.items[named.group(1).split(':', 1)[1]]
+            item = self.item_cited(named.group(1))
             for name, value in instantiation(cites):
                 self.names[name] = self.term(self.read(value))
             # A name is a variable of the kernel whatever it is spelt with:
@@ -3224,7 +3250,7 @@ class Elaborator(Builder):
 
         An `obtain` renames what its existential binds, and a name the page
         defines is read with the proof's letters rather than the item's: the
-        subsets proof's T binds `o` where `thm:powerset-split-disjoint`'s
+        subsets proof's T binds `o` where `thm:proof/subsets/powerset-split-disjoint`'s
         own reading binds `u`. Those are one statement. A letter is bound
         where it stands directly under a constructor other than `cv`; every
         other letter must be the same on both sides.
@@ -3267,14 +3293,12 @@ class Elaborator(Builder):
     def claimed_by(self, item):
         """What an item claims, from wherever its statement lives.
 
-        An item the corpus proves carries no statement in the database, so
-        that the statement has one home and cannot drift; the home is the
-        `theorem` line of the proof that proves it. One the database states
-        outright has it there.
+        A theorem the corpus proves is its proof, and the statement is at the
+        head of it; one the library states has it in its record.
         """
-        if item.conclusions:
-            return item.conclusions[0][0]
-        return self.proofs[item.name].conclusion
+        if proved(item):
+            return item.conclusion
+        return item.conclusions[0][0]
 
     def cite_item(self, step, goal, scope, facts, item, cites=None):
         """What an item states, however the database says it is supplied.
@@ -3290,8 +3314,9 @@ class Elaborator(Builder):
         """
         # An item this corpus proves is applied the way a cited one is,
         # however the step reaches it: `obtain` asks for the existence its
-        # statement claims, and `thm:lowest-terms` is proved here.
-        if 'proved-in' in item.fields:
+        # statement claims, and `thm:proof/sqrt2-irrational/lowest-terms` is
+        # proved here.
+        if proved(item):
             return self.cite_corpus(step, goal, scope, facts, None, item,
                                     cites)
         labels = targets.clauses(item)
@@ -3314,7 +3339,7 @@ class Elaborator(Builder):
                       if step.just.head == 'obtain'
                       else self.render(self.to_term(goal).rpn(self.flabel)))
             raise self.defect(step.line,
-                              f'{kind}:{item.name} targets '
+                              f'{kind}:{qualified(item)} targets '
                               f'{", ".join(labels)}, and none of them reaches '
                               f'{wanted}')
         return self.assume_item(step, goal, scope, facts, item, cites)
@@ -3322,9 +3347,9 @@ class Elaborator(Builder):
     def assume_item(self, step, goal, scope, facts, item, cites=None):
         """An item the database gives no target for, taken as it states itself.
 
-        `thm:lowest-terms` is the case: set.mm has nothing of its shape, as
-        `db/items.records` says, so what it claims is assumed under the hypotheses
-        it asks for.
+        `thm:proof/sqrt2-irrational/lowest-terms` is the case: set.mm has
+        nothing of its shape, as its `note` says, so what it claims is assumed
+        under the hypotheses it asks for.
         """
         saved = dict(self.names)
         for name, node in self.item_binding(step, item, cites).items():
@@ -3339,8 +3364,8 @@ class Elaborator(Builder):
         self.names = saved
 
         # What is assumed is what the item states, and a step may claim one
-        # side of it: `thm:abs-difference-lt` says |x − c| < δ exactly when
-        # c − δ < x and x < c + δ, and step 17.11 of the intermediate value
+        # side of it: `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ
+        # exactly when c − δ < x and x < c + δ, and step 17.11 of the intermediate value
         # proof claims the first from lines saying the second. Stating the
         # claim under the item's hypotheses alone would assume that every
         # |x − c| is below every δ.
@@ -3366,7 +3391,7 @@ class Elaborator(Builder):
                 kind = 'def' if item.kind == 'definition' else 'thm'
                 raise self.defect(
                     step.line,
-                    f'{kind}:{item.name} is taken as stated and states '
+                    f'{kind}:{qualified(item)} is taken as stated and states '
                     f'{self.render(whole)}, where step {fmt(step.number)} '
                     f'claims {self.render(goal)}')
             other = sides[1 - sides.index(goal)]
@@ -3396,8 +3421,8 @@ class Elaborator(Builder):
             for later in reversed(asks[i + 1:]):
                 rest = self.seq(later, rest, 'wi')
             # With the step, so a "there is" it asks can be given by an
-            # instance a cited line names: `thm:completeness` asks that S be
-            # bounded above, and the step cites that b is an upper bound.
+            # instance a cited line names: `thm:stdlib/calculus/completeness`
+            # asks that S be bounded above, and the step cites that b is an upper bound.
             supplied = self.settle(self.to_term(one), scope, known,
                                    step=step, lines=self.lines)
             # The item is assumed because the database points at nothing for
@@ -3411,7 +3436,7 @@ class Elaborator(Builder):
                 kind = 'def' if item.kind == 'definition' else 'thm'
                 raise self.defect(
                     step.line,
-                    f'{kind}:{item.name} is taken as stated and asks for '
+                    f'{kind}:{qualified(item)} is taken as stated and asks for '
                     f'{self.render(one)}, which step {fmt(step.number)} does '
                     f'not supply: {supplied}')
             proof = self.seq(scope, one, rest, supplied, proof,
@@ -3442,9 +3467,9 @@ class Elaborator(Builder):
         matched against the step's claim, and each of its hypotheses against
         what the step cites, until nothing more is learned — which is how
         `check.py` reads a citation, done here so an item taken as stated is
-        stated about the step's things: `thm:function-value` says `let x ∈
-        D`, and the intermediate value proof has no D. A name nothing fixes
-        is read as the proof's own letter.
+        stated about the step's things: `thm:stdlib/functions/function-value`
+        says `let x ∈ D`, and the intermediate value proof has no D. A name
+        nothing fixes is read as the proof's own letter.
         """
         bound = {}
         for name, value in instantiation(cites or step.just.text):
@@ -3468,7 +3493,7 @@ class Elaborator(Builder):
             rest.extend(node.children)
         variables = set().union(*(names_in(n) for n in [*ends, *hyps])) - own
         # A definition is a biconditional, and a step unfolding one claims
-        # one side and cites the other: `def:continuous-on` from "f is
+        # one side and cites the other: `def:stdlib/calculus/continuous-on` from "f is
         # continuous on [a, b]" is what says D is [a, b]. So each side is
         # matched as well as the whole, the claim against either and the
         # cited lines against either.
@@ -4711,8 +4736,8 @@ class Elaborator(Builder):
         # Offered to the membership lookup and to nothing else. `settle`
         # searches what it is given, and widening the facts it sees widens
         # that search: handing `prove_order` the whole of `known` put the
-        # four steps of `thm:abs-bounds` past ten million `fits` calls,
-        # where the same proof takes five seconds.
+        # four steps of `thm:proof/triangle-inequality/abs-bounds` past ten
+        # million `fits` calls, where the same proof takes five seconds.
         # What a requires line made, and nothing else — including where the
         # scope holds the same claim for another reason, which is the case
         # the line was written for: `requires x ∈ ℝ: from H1` beside the
@@ -5685,12 +5710,12 @@ class Elaborator(Builder):
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
 
-        `def:irrational` says x is irrational exactly when x is real and not
-        rational, and the step cites the two lines that say each. The lemma
+        `def:stdlib/numbers/irrational` says x is irrational exactly when x is
+        real and not rational, and the step cites the two lines that say each. The lemma
         gives the biconditional and the lines give its right side, so the
         definition is read the way the text reads it: right to left.
         """
-        item = self.items[step.just.head.split(':', 1)[1]]
+        item = self.item_cited(step.just.head)
         return self.trying(item, step, self.one_equivalent, term, scope,
                            facts, lines)
 
@@ -5711,8 +5736,9 @@ class Elaborator(Builder):
         says, right = made
         # The right side is what the step supplies, its requires lines and
         # the lines it cites, and not whatever the scope would give: step 1
-        # of the intermediate value proof writes `a ≤ b` for `def:interval`,
-        # and the scope would build it from a < b behind the line's back.
+        # of the intermediate value proof writes `a ≤ b` for
+        # `def:stdlib/calculus/interval`, and the scope would build it from
+        # a < b behind the line's back.
         known = self.with_cited(step, scope,
                                 self.supplied(step, scope, facts))
         under = self.settle(self.to_term(right), scope, known,
@@ -5732,12 +5758,12 @@ class Elaborator(Builder):
     def unfolded(self, step, node, term, scope, facts, lines):
         """A definition unfolded to reach one part of what it says.
 
-        `def:set-builder` says that belonging to {t ∈ X : P(t)} is belonging
+        `def:stdlib/sets/set-builder` says that belonging to {t ∈ X : P(t)} is belonging
         to X and having the property, and Cantor's step 3.1.3.1 wants the
         second of those from a line that says the first. So the definition
         is read left to right and what it gives is taken apart.
         """
-        item = self.items[step.just.head.split(':', 1)[1]]
+        item = self.item_cited(step.just.head)
         return self.trying(item, step, self.one_unfolded, term, scope, facts,
                            lines)
 
@@ -5853,7 +5879,7 @@ class Elaborator(Builder):
                 return found
             declines.append(str(found))
         return Declined('; '.join(declines) if declines
-                        else f'{item.name} targets nothing')
+                        else f'{qualified(item)} targets nothing')
 
     def reading(self, item, term):
         """Which of three ways a biconditional definition reaches a claim.
@@ -5883,10 +5909,10 @@ class Elaborator(Builder):
         """A definition with no target is taken as it states itself.
 
         Unless a line the step cites already says it. A congruence
-        elaborates to the conjunction of the six equations `def:congruent`
-        lists, so a step reading one of them off names the definition but
-        asks for nothing the file does not have: the claim is a conjunct,
-        and `unpack` reaches it.
+        elaborates to the conjunction of the six equations
+        `def:stdlib/geometry/congruent` lists, so a step reading one of them
+        off names the definition but asks for nothing the file does not have:
+        the claim is a conjunct, and `unpack` reaches it.
 
         Otherwise what is stated is the definition, in its own words and at
         the step's terms, and the claim is read off it by `assume_item` as
@@ -5912,7 +5938,7 @@ class Elaborator(Builder):
                 if spelt is not None:
                     return spelt
         return self.assume_item(step, term, scope, facts,
-                                self.items[step.just.head.split(':', 1)[1]])
+                                self.item_cited(step.just.head))
 
     def projected(self, step, term, scope, facts, lines):
         """The claim, when a line the step cites is a conjunction stating it.
@@ -5936,8 +5962,8 @@ class Elaborator(Builder):
     def unfold_equation(self, step, node, term, scope, facts, lines):
         """A definition stated as an equation, one clause per `then` group.
 
-        `def:S` says what S(1) is and what S(n + 1) is, and set.mm proves each
-        separately. The clause is chosen by which lemma's conclusion is what
+        `def:stdlib/sums/S` says what S(1) is and what S(n + 1) is, and set.mm
+        proves each separately. The clause is chosen by which lemma's conclusion is what
         the step claims, so the text never says which.
 
         A clause that declines is a clause that is not this `then` group,
@@ -5946,7 +5972,7 @@ class Elaborator(Builder):
         reaches is a step claiming what the definition does not say, and
         that is a defect rather than a decline.
         """
-        item = self.items[step.just.head.split(':', 1)[1]]
+        item = self.item_cited(step.just.head)
         found = self.by_clause(targets.split_entries(item.fields['target']),
                                term, scope, facts, step,
                                self.filling(step, item))
@@ -6037,12 +6063,12 @@ class Elaborator(Builder):
     def from_lemmas(self, labels, goal, scope, facts, step, seed):
         """An existence claim its item's lemmas together give.
 
-        `thm:lowest-terms` says a rational is some p over some q with
-        nothing above 1 dividing both. set.mm says that of the numerator
-        and denominator it names for a rational, in three theorems and no
-        existential at all: what they are is `qnumdencl`, that the rational
-        is their quotient is `qeqnumdivden`, and that they are coprime is
-        `qnumdencoprm`.
+        `thm:proof/sqrt2-irrational/lowest-terms` says a rational is some p
+        over some q with nothing above 1 dividing both. set.mm says that of
+        the numerator and denominator it names for a rational, in three
+        theorems and no existential at all: what they are is `qnumdencl`, that
+        the rational is their quotient is `qeqnumdivden`, and that they are
+        coprime is `qnumdencoprm`.
 
         So each is proved at what the `with` target says it is about, and
         the claim introduced at the terms they turn out to be about. The
@@ -6084,7 +6110,7 @@ class Elaborator(Builder):
     def at_witness(self, labels, want, seed, witness, scope, facts, step):
         """An existence claim at the thing a `with` target names for it.
 
-        `thm:completeness` says there is a least upper bound, and set.mm
+        `thm:stdlib/calculus/completeness` says there is a least upper bound, and set.mm
         names one: the supremum. What the claim asks of it — that it is
         real, that nothing in the set is above it, that it is at most
         anything nothing in the set is above — is one lemma each, and each
@@ -6239,8 +6265,8 @@ class Elaborator(Builder):
         """A lemma said of every such name.
 
         `dvdslegcd` says a common divisor is no greater than the gcd, of
-        whatever divisor it is given, and `def:gcd` says it of every e in
-        ℕ. The name is fixed, the lemma applied to it, and `ralrimiva`
+        whatever divisor it is given, and `def:stdlib/divisibility/gcd` says it
+        of every e in ℕ. The name is fixed, the lemma applied to it, and `ralrimiva`
         gives it back — the same move a `fix` block closes with, over a
         lemma rather than over a block.
         """
@@ -6265,9 +6291,9 @@ class Elaborator(Builder):
         """One half of what a lemma concludes.
 
         `gcddvds` says in one conjunction that a gcd divides both its
-        arguments, and `def:gcd` states those as two sentences because a
-        reader reads them as two. The half the claim is fixes the lemma,
-        and `simpld` or `simprd` takes it.
+        arguments, and `def:stdlib/divisibility/gcd` states those as two
+        sentences because a reader reads them as two. The half the claim is
+        fixes the lemma, and `simpld` or `simprd` takes it.
         """
         if reads.label != 'wa' or len(reads.children) != 2:
             return Declined(f'{label} does not conclude a conjunction')
@@ -6341,8 +6367,8 @@ class Elaborator(Builder):
         """A lemma's conclusion carried to the claim by an equation proved.
 
         `hashun` says the size of a disjoint union is the sum of the two
-        sizes; `thm:card-disjoint-union` assumes each size is a number and
-        states the claim in those numbers, so what stands between the two
+        sizes; `thm:stdlib/counting/card-disjoint-union` assumes each size is
+        a number and states the claim in those numbers, so what stands between the two
         is the equations the item assumes. The step cites the lines that
         prove them — `substitute` is the readable method for the same
         rewrite, and the text writes no step for it here because the item
@@ -7114,7 +7140,7 @@ class Elaborator(Builder):
         for rather than taken: the library is large enough that a short name
         is never safely free.
         """
-        stem = label_of(self.thm.name, self.sigs, self.thm.path,
+        stem = label_of(qualified(self.thm), self.sigs, self.thm.path,
                         self.thm.line, proved_here(self.items))
         number = len(self.axioms) + 1
         while f'{stem}.{prefix}{number}' in self.sigs:
@@ -7171,8 +7197,8 @@ class Elaborator(Builder):
         Each line the step cites is taken apart on its own and laid over the
         scope's copies of the same claims. The scope holds one proof per
         claim, and which line put it there is not the step's to choose:
-        `thm:from-contradiction` asks for P and not P, the step cites the
-        line joining them, and the scope held each from the line before.
+        `thm:stdlib/reasoning/from-contradiction` asks for P and not P, the
+        step cites the line joining them, and the scope held each from the line before.
         """
         # First in order as well, because a lemma's open antecedent is
         # matched against these in turn and takes the first that fits:
@@ -7207,7 +7233,7 @@ class Elaborator(Builder):
         kind, _, name = reason.partition(':')
         if kind != 'def' or not name.strip():
             return False
-        item = self.items.get(name.split()[0])
+        item = self.items.get(resolve(name.split()[0], self.thm.module))
         return item is not None and item.kind == 'definition' \
             and not targets.clauses(item)
 
@@ -7302,10 +7328,11 @@ class Elaborator(Builder):
         # `GEOMETRY.md` measures the corpus by.
         #
         # The name ends at the first space, because what follows it is the
-        # instantiation: `thm:abs-real x := a, from H1` names `abs-real` and
-        # not `abs-real x := a`.
+        # instantiation: `thm:stdlib/numbers/abs-real x := a, from H1` names
+        # `stdlib/numbers/abs-real` and not `stdlib/numbers/abs-real x := a`.
         if step is not None and closure.split(':', 1)[0] in ('thm', 'def'):
-            item = self.items.get(closure.split(':', 1)[1].split()[0])
+            item = self.items.get(resolve(closure.split(':', 1)[1].split()[0],
+                                          self.thm.module))
             if item is not None and targets.clauses(item):
                 return self.cite_item(step, term, scope, facts, item, how)
         if closure == 'arithmetic':
@@ -7584,8 +7611,9 @@ class Elaborator(Builder):
         subject = self.term(self.read(instantiation(step.just.text)[0][1]))
         var = self.spare_var()
         saved = dict(self.names)
-        # A definition may name more than the thing it is about: `def:divides`
-        # is about d and says what it divides, and the step fills in both.
+        # A definition may name more than the thing it is about:
+        # `def:stdlib/divisibility/divides` is about d and says what it
+        # divides, and the step fills in both.
         for name, value in instantiation(step.just.text):
             self.names[name] = self.term(self.read(value))
         lemma, var, kernel, _w, over, _left = self.definition(
@@ -7694,8 +7722,8 @@ class Elaborator(Builder):
 
     def cite(self, step, node, term, scope, facts, lines):
         """A theorem cited. Either set.mm supplies it or this corpus does."""
-        item = self.items[step.just.head.split(':', 1)[1]]
-        if 'proved-in' in item.fields:
+        item = self.item_cited(step.just.head)
+        if proved(item):
             return self.cite_corpus(step, term, scope, facts, lines, item)
         return self.cite_library(step, term, scope, facts, lines, item)
 
@@ -7717,7 +7745,8 @@ class Elaborator(Builder):
         if not labels:
             # Nothing in the library has its shape, so the file states what
             # it claims and lists it, the same as an item obtained from.
-            # `thm:lowest-terms` is the case, and `thm:angle-symmetric`.
+            # `thm:proof/sqrt2-irrational/lowest-terms` is the case, and
+            # `thm:stdlib/geometry/angle-symmetric`.
             return self.assume_item(step, term, scope, facts, item)
         seed = self.filling(step, item)
         found = self.by_clause(labels, term, scope, facts, step, seed)
@@ -7732,8 +7761,8 @@ class Elaborator(Builder):
 
         An item may state several things and set.mm prove each separately,
         which is why a target names one lemma per `then` group. A step
-        usually claims one of them — `def:sqrt` is cited three times over —
-        but it may claim what the item says entire, as Bezout's step 15
+        usually claims one of them — `def:stdlib/numbers/sqrt` is cited three
+        times over — but it may claim what the item says entire, as Bezout's step 15
         says what a gcd is in four sentences, and then the clauses are
         taken one to a sentence and joined.
         """
@@ -7863,9 +7892,9 @@ class Elaborator(Builder):
         Its hypotheses became the antecedent of one implication, so citing it
         is conjoining the facts the step supplies and applying one label.
         """
-        other = self.proofs[item.name]
-        if item.name not in self.cited:
-            self.cited.append(item.name)
+        other, full = item, qualified(item)
+        if full not in self.cited:
+            self.cited.append(full)
         saved, kept = dict(self.names), dict(self.sets)
         spare = list(CLASS_NAMES)
         written = dict(instantiation(cites or step.just.text))
@@ -7893,9 +7922,10 @@ class Elaborator(Builder):
         wanted = [self.term(self.read(hypothesis_body(kind, htext)))
                   for kind, htext, _l, _n in other.hypotheses]
         # The step may claim one sentence of a conclusion that says several:
-        # `thm:abs-bounds` concludes x ≤ |x| and −x ≤ |x|, and a step that
-        # needs only the first says only the first. The theorem gives the
-        # whole, read in its own sorts, and the sentence is taken out of it.
+        # `thm:proof/triangle-inequality/abs-bounds` concludes x ≤ |x| and
+        # −x ≤ |x|, and a step that needs only the first says only the
+        # first. The theorem gives the whole, read in its own sorts, and the
+        # sentence is taken out of it.
         whole = term
         if (len(self.sentences(other.conclusion))
                 > len(self.sentences(' '.join(step.claim)))):
@@ -7927,9 +7957,9 @@ class Elaborator(Builder):
         # A variable the file declares and this proof says nothing about is
         # one the statement binds, and it stands for itself.
         mine = self.cited_floats([*wanted, whole], binds)
-        pushed = (self.cited_pushes(item.name, binds, mine)
+        pushed = (self.cited_pushes(full, binds, mine)
                   or [binds.get(label, label) for label in mine])
-        cited = label_of(item.name, self.sigs, self.thm.path, self.thm.line,
+        cited = label_of(full, self.sigs, self.thm.path, self.thm.line,
                          proved_here(self.items))
         # The cited theorem is proved in another file and this one includes
         # it, so the library does not hold it and anything reading the proof
@@ -8094,10 +8124,10 @@ class Elaborator(Builder):
                 if held is not None:
                     proof = self.lifted_to(claim, held[1], held[0], scope)
             # What a requires line wrote, or what a line being cited says:
-            # `requires |f(x₁) − f(c)| ∈ ℝ: thm:abs-real …, from 17.14` wants
-            # the difference in ℂ and cites the line saying it is real, and
-            # without this the lemmas were searched in their order, 25
-            # seconds of it, to reach the same fact.
+            # `requires |f(x₁) − f(c)| ∈ ℝ: thm:stdlib/numbers/abs-real …,
+            # from 17.14` wants the difference in ℂ and cites the line saying
+            # it is real, and without this the lemmas were searched in their
+            # order, 25 seconds of it, to reach the same fact.
             origin = getattr(proof, 'origin', frozenset())
             if proof is None or not (from_requires(proof)
                                      or (origin and origin <= self.citing)):
@@ -8258,8 +8288,8 @@ class Elaborator(Builder):
 
         A definition's body is read with the definition's own names bound,
         and those names may be the ones the proof is using for something
-        else: `def:odd` binds `k` and so does the step that obtains from it.
-        Freezing the tree settles what it means before the names change
+        else: `def:stdlib/divisibility/odd` binds `k` and so does the step that
+        obtains from it. Freezing the tree settles what it means before the names change
         back. A binder's own variable is left alone: it stands for itself,
         and the slot it fills wants the variable rather than a term saying
         what the variable means.
@@ -8377,7 +8407,8 @@ def say_library(path, count):
 def write_definitions(records, sigs, setmm):
     """The corpus's definitions, as a file the proofs include."""
     said = definitions(records, sigs)
-    print('$( definitions, from db/items.records by parley/elaborate.py.')
+    print(f'$( {STDLIB}/definitions, from the {STDLIB}/*.records files by '
+          f'parley/elaborate.py.')
     if said:
         print('   Each introduces one constant the library does not have,')
         print('   and stands for a term that closes over its own names.')
@@ -8448,9 +8479,8 @@ def main(argv, root=None):
     if wanted == '--definitions':
         return write_definitions(records, read_library(setmm), setmm)
     grammar = Grammar.load(records)
-    items = {r.name: r for r in records
-             if r.kind in ('definition', 'theorem')}
-    found = [t for t in theorems if t.name == wanted]
+    items = full_names(records, theorems)
+    found = [t for t in theorems if qualified(t) == wanted]
     if not found:
         print(f'no theorem {wanted!r}', file=sys.stderr)
         return 2
@@ -8460,7 +8490,7 @@ def main(argv, root=None):
     # library, so a `target` may name one of its labels exactly as it names
     # a set.mm label. The file is generated, and a proof that cites nothing
     # in it elaborates whether or not it has been built.
-    supplied = path_of('geometry')
+    supplied = path_of(GEOMETRY)
     provided = set(read_library(supplied)) if supplied.exists() else set()
     sigs = (read_library(setmm, supplied) if supplied.exists()
             else read_library(setmm))
@@ -8477,7 +8507,7 @@ def main(argv, root=None):
             f'df-{token}', '$a',
             ('|-', token, '=', *render(body, sigs).split()))
 
-    work = Elaborator(thm, grammar, items, sigs, records, theorems)
+    work = Elaborator(thm, grammar, items, sigs, records)
     goal, hypotheses, proof = work.run()
     antecedent = hypotheses[0] if hypotheses else None
     for extra in hypotheses[1:]:
@@ -8494,7 +8524,8 @@ def main(argv, root=None):
     root, kinds = shapes(proof.text, {**sigs, **work.arities})
     used = compress_labels(kinds)
 
-    print(f'$( {thm.name}, elaborated from {thm.path} by parley/elaborate.py.')
+    print(f'$( {qualified(thm)}, elaborated from {thm.path} by '
+          f'parley/elaborate.py.')
     if work.axioms:
         print('   Everything is built except the statements below, which are')
         print('   taken as the readable lines state them: a closure method')
@@ -8507,7 +8538,8 @@ def main(argv, root=None):
     # A theorem this corpus proves is cited as one label, so the file that
     # elaborated it is read first and the rest comes in through it. What is
     # underneath everything is the corpus's own definitions, which include
-    # the library: one chain rather than one per proof.
+    # the library: one chain rather than one per proof. A file is included
+    # by its path under elaboration/, which is its name.
     for name in work.cited:
         print(f'$[ {name}.mm $]')
     if not work.cited:
@@ -8515,7 +8547,7 @@ def main(argv, root=None):
         # of its labels needs only the one include; a proof that reaches
         # none does not read it at all.
         wants = provided & used
-        print(f'$[ {"geometry" if wants else "definitions"}.mm $]')
+        print(f'$[ {GEOMETRY if wants else DEFINITIONS}.mm $]')
     print()
     for label, statement in work.axioms:
         print(f'{label} $a {statement} $.')
@@ -8540,7 +8572,8 @@ def main(argv, root=None):
     for one in free:
         if bound:
             print(f'  $d {one} ' + ' '.join(bound) + ' $.')
-    label = label_of(thm.name, sigs, thm.path, thm.line, proved_here(items))
+    label = label_of(qualified(thm), sigs, thm.path, thm.line,
+                     proved_here(items))
     says = (f'( {work.render(antecedent)} -> {work.render(goal)} )'
             if antecedent else work.render(goal))
     # Compressed, which is what set.mm is stored in and what `ELABORATION.md`

@@ -1,4 +1,5 @@
 theorem cantor
+  metamath    canth
   let A be a set                                                      (H1)
   let f : A → 𝒫A                                                      (H2)
   then there is B ∈ 𝒫A with for every x ∈ A, not f(x) = B
@@ -7,10 +8,10 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
        reads the members of A that their own image leaves out
 
 1.  B ⊆ A
-    thm:set-builder-subset, from D1
+    thm:stdlib/sets/set-builder-subset, from D1
 
 2.  B ∈ 𝒫A
-    def:powerset S := B, from 1
+    def:stdlib/sets/powerset S := B, from 1
 
 3.  For every x ∈ A, not f(x) = B.
     fix
@@ -21,10 +22,10 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
           suppose not not f(x) = B                                    (S)
 
           3.1.1.  f(x) = B
-                  thm:double-negation P := f(x) = B, from S
+                  thm:stdlib/reasoning/double-negation P := f(x) = B, from S
 
           3.1.2.  x ∈ B or x ∉ B
-                  thm:excluded-middle P := x ∈ B
+                  thm:stdlib/reasoning/excluded-middle P := x ∈ B
 
           3.1.3.  x ∈ B. x ∉ B.
                   cases, from 3.1.2
@@ -33,7 +34,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                   assume x ∈ B                                        (C1)
 
                   3.1.3.1.  x ∉ f(x)
-                            def:set-builder, from C1
+                            def:stdlib/sets/set-builder, from C1
 
                   3.1.3.2.  x ∉ B
                             substitute f(x) = B (line 3.1.1) into line 3.1.3.1
@@ -48,7 +49,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                             substitute f(x) = B (line 3.1.1) into C2
 
                   3.1.3.5.  x ∈ B
-                            def:set-builder, from K, 3.1.3.4
+                            def:stdlib/sets/set-builder, from K, 3.1.3.4
 
                   3.1.3.6.  x ∈ B. x ∉ B.
                             join 3.1.3.5, C2

@@ -1,0 +1,169 @@
+# Standard library: geometry
+#
+# Points, distances and angles in the plane, triangles, and congruence.
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:stdlib/geometry/<name> or thm:stdlib/geometry/<name>,
+# and the prefix must match the kind. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, first-used, note, and for the one definition that
+# introduces a symbol, symbol and defines.
+
+
+definition point
+  open        The pilot's row reads "Let A be a point. (The plane is a set of
+              points with distance and angle defined on it.)", which is a gloss
+              and not a statement. What it becomes waits on def:stdlib/geometry/angle: a point
+              is a complex number if the angle is, and a member of a TarskiG
+              base set if the angle is a congruence. ELABORATION.md.
+  metamath    A ∈ ℂ
+  first-used  isosceles
+
+definition angle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
+  symbol      ang
+  defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
+              vy cv vx cv cdiv co clog cfv cim cfv cmpo
+  metamath    set.mm writes this function inline in every theorem about it and
+              never names it, so the corpus declares the constant
+  first-used  isosceles
+  note        The angle the corpus writes is unsigned: ∠PQR is the absolute
+              value of ang applied to the two differences, which lands in
+              0 to π and makes thm:stdlib/geometry/angle-symmetric true. ang itself is
+              signed, in −π to π, as set.mm has it. GEOMETRY.md weighs the
+              seven candidate geometries and takes this one.
+
+              This is the only definition in the corpus that introduces a
+              symbol; every other names a word for something set.mm already
+              has. See GOALS.md decision 12.
+
+definition collinear
+  open        Incidence is a primitive of the geometry, and the readable layer
+              cannot state what it is. In the plane it says (R − P)/(Q − P) is
+              real, and subtraction takes numbers while P, Q and R are points:
+              the sorts that stop |CA| reading as a product stop this too. The
+              notation carries a target, so a claim of collinearity elaborates;
+              what has no readable statement is the equivalence.
+  first-used  isosceles
+  note        Named by the merge because def:stdlib/geometry/triangle needs a word for what a
+              triangle's vertices are not.
+
+definition triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
+              not (P, Q, R are collinear)
+  open        set.mm has no single notion. The three inequalities are stated
+              here and the rest is def:stdlib/geometry/collinear, which is open.
+  first-used  isosceles
+  note        That the three are points is the three let lines, not a clause of
+              the statement; the pilot's row wrote it as prose and the sorts
+              carry it.
+
+definition congruent
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  then        triangle PQR ≅ triangle P′Q′R′ ↔ |PQ| = |P′Q′|, |QR| = |Q′R′|,
+              |RP| = |R′P′|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, and
+              ∠RPQ = ∠R′P′Q′
+  open        six equations; no set.mm item
+  first-used  isosceles
+
+theorem distance-symmetric
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| = |QP|
+  metamath    abssub
+  target      abssub
+  first-used  isosceles
+
+theorem angle-symmetric
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR = ∠RQP
+  metamath    gangsym3, which this corpus proves in elaboration/stdlib/geometry.mm.
+              The angle it writes is unsigned, which is what makes this true:
+              ang itself is signed, and the two directions differ in sign. Off
+              the branch cut that is arginv; on the cut nothing is negated and
+              lognegb gives both directions as π. So the proof is in two cases
+              and the absolute values agree either way.
+  target      gangsym3
+  first-used  isosceles
+
+theorem triangle-swap
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        P, R, Q form a triangle
+  metamath    gtriswap, which this corpus proves in elaboration/stdlib/geometry.mm:
+              set.mm states nothing about a triangle, having no notion of one
+  target      gtriswap
+  first-used  isosceles
+
+theorem triangle-rotate
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        Q, R, P form a triangle
+  metamath    gtrirotate, which this corpus proves in elaboration/stdlib/geometry.mm.
+              A swap inverts the quotient that says the three are collinear; a
+              rotation takes it to 1 − (R − Q)/(P − Q), so this one rests on an
+              identity of the field rather than on one fact about reciprocals
+  target      gtrirotate
+  first-used  isosceles
+  note        These two replace a thm:triangle-permute whose conclusion, "any
+              ordering of P, Q, R forms a triangle", was not a formula. A swap
+              and a rotation generate all six orderings, and they are the two
+              the isosceles proof cites: one for A, C, B and one for B, C, A.
+              Stating one theorem per ordering was the alternative and is five
+              items for two uses.
+
+theorem side-angle-side
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume |PQ| = |P′Q′|                                                (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  assume |QR| = |Q′R′|                                                (H11)
+  then        triangle PQR ≅ triangle P′Q′R′
+  metamath    gsas, which this corpus proves in elaboration/stdlib/geometry.mm. An
+              axiom in Euclid and in Hilbert, because a synthetic geometry has
+              no coordinates to compute with and congruence has to be
+              stipulated; over ℂ it is a theorem. The proof is the law of
+              cosines at each of the three vertices, six applications in all,
+              which are three cyclic rotations of glawcos in each triangle.
+              The third side comes first, since equal sides and equal cosines
+              make equal squares and a length is not negative; with all three
+              sides equal the other two angles follow the other way round.
+  target      gsas
+  first-used  isosceles
+  note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
+              this statement's variable names. One of the two must change; the
+              merge changed neither. See DATABASE.md.

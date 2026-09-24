@@ -1,4 +1,5 @@
 theorem sum-formula
+  metamath    arisum
   let n ∈ ℕ                                                           (H1)
   then S(n) = n(n + 1)/2
 
@@ -7,7 +8,7 @@ theorem sum-formula
 
     base
     1.1.  S(1) = 1
-          def:S
+          def:stdlib/sums/S
 
     1.2.  S(1) = 1(1 + 1)/2
           calculation
@@ -22,7 +23,7 @@ theorem sum-formula
           assume S(k) = k(k + 1)/2                                    (IH)
 
           1.3.1.  S(k + 1) = S(k) + (k + 1)
-                  def:S n := k, from K
+                  def:stdlib/sums/S n := k, from K
 
           1.3.2.  S(k) + (k + 1) = k(k + 1)/2 + (k + 1)
                   substitute S(k) = k(k + 1)/2 (IH)
@@ -30,7 +31,7 @@ theorem sum-formula
           1.3.3.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2
                   algebra
                   requires 2 ≠ 0: arithmetic
-                  requires k ∈ ℝ: thm:nat-real, from K
+                  requires k ∈ ℝ: thm:stdlib/numbers/nat-real, from K
 
           1.3.4.  S(k + 1) = (k + 1)((k + 1) + 1)/2
                   calculation

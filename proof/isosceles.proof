@@ -1,4 +1,5 @@
 theorem isosceles
+  metamath    isosctr
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -7,10 +8,10 @@ theorem isosceles
   then ∠CAB = ∠CBA
 
 1.  |AC| = |CA|
-    thm:distance-symmetric P := A, Q := C
+    thm:stdlib/geometry/distance-symmetric P := A, Q := C
 
 2.  |CB| = |BC|
-    thm:distance-symmetric P := C, Q := B
+    thm:stdlib/geometry/distance-symmetric P := C, Q := B
 
 3.  |AC| = |BC|
     calculation
@@ -19,36 +20,36 @@ theorem isosceles
            = |BC|       2
 
 4.  ∠ACB = ∠BCA
-    thm:angle-symmetric P := A, Q := C, R := B
-    requires A ≠ C: def:triangle, from H4
-    requires B ≠ C: def:triangle, from H4
+    thm:stdlib/geometry/angle-symmetric P := A, Q := C, R := B
+    requires A ≠ C: def:stdlib/geometry/triangle, from H4
+    requires B ≠ C: def:stdlib/geometry/triangle, from H4
 
 5.  |CB| = |CA|
     calculation
       |CB| = |CA|       H5, right to left
 
 6.  A, C, B form a triangle
-    thm:triangle-swap P := A, Q := B, R := C, from H4
+    thm:stdlib/geometry/triangle-swap P := A, Q := B, R := C, from H4
 
 7.  B, C, A form a triangle
-    thm:triangle-rotate P := A, Q := B, R := C, from H4
+    thm:stdlib/geometry/triangle-rotate P := A, Q := B, R := C, from H4
 
 8.  triangle ACB ≅ triangle BCA
-    thm:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
+    thm:stdlib/geometry/side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
       from 6, 7, 3, 4, 5
 
 9.  ∠BAC = ∠ABC
-    def:congruent, from 8
+    def:stdlib/geometry/congruent, from 8
 
 10. ∠CAB = ∠BAC
-    thm:angle-symmetric P := C, Q := A, R := B
-    requires C ≠ A: def:triangle, from 7
-    requires B ≠ A: def:triangle, from 7
+    thm:stdlib/geometry/angle-symmetric P := C, Q := A, R := B
+    requires C ≠ A: def:stdlib/geometry/triangle, from 7
+    requires B ≠ A: def:stdlib/geometry/triangle, from 7
 
 11. ∠ABC = ∠CBA
-    thm:angle-symmetric P := A, Q := B, R := C
-    requires A ≠ B: def:triangle, from 6
-    requires C ≠ B: def:triangle, from 6
+    thm:stdlib/geometry/angle-symmetric P := A, Q := B, R := C
+    requires A ≠ B: def:stdlib/geometry/triangle, from 6
+    requires C ≠ B: def:stdlib/geometry/triangle, from 6
 
 12. ∠CAB = ∠CBA
     calculation

@@ -50,7 +50,7 @@ def remembered(method):
 
     These build a proof from their arguments and from `under`, which does
     not change while one emitter is alive, so the same question has the
-    same answer every time. Normalising `thm:least-combination-divides`
+    same answer every time. Normalising `thm:proof/bezout/least-combination-divides`
     step 3 asks `index` for `1 e. NN0` six hundred and nineteen times and
     gets the same eleven tokens back, and asks for one of twenty monomials
     three hundred and fifteen times.

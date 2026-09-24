@@ -7,12 +7,20 @@ script and which somewhere, so that knowledge lived in six usage lines that a
 person read and followed by hand. One of them named a path nothing reads, and
 the build went on looking as though it had worked.
 
+What there is to build is read off the tree rather than listed. Every theorem
+of a `.proof` file is elaborated; the standard library's definitions are
+written by the elaborator; and every `build-<name>.py` under `elaboration/`
+writes `<name>.mm` beside it. A file's path under `elaboration/` is its name
+with `.mm`, so the theorem `proof/bezout/bezout` is written to
+`elaboration/proof/bezout/bezout.mm`, and a file including it says so.
+
 Which artifact has to exist before which is a real constraint, and `needs`
-is where it is written. `definitions.mm` has to exist before
-`build-geometry.py` runs, because that script reads it for the constant it
-introduces; `geometry.mm` has to exist before any theorem elaborates, because
-`elaborate.py` reads it so a `target` may name one of its labels. The five
-hand-written proofs read nothing.
+is where it is written. `stdlib/definitions.mm` has to exist before a
+library script such as `build-geometry.py` runs, because that script reads it
+for the constant it introduces; every library file has to exist before any
+theorem elaborates, because `elaborate.py` reads them so a `target` may name
+one of their labels; and a theorem waits for the theorems it cites. The
+hand-written proofs beside `elaboration/` itself read nothing.
 
 Saying it in a field rather than in the order of the list is what lets the
 ones that wait for nothing run at once. They are separate processes
@@ -29,7 +37,6 @@ Exits non-zero when a recipe fails.
 """
 import functools
 import os
-import re
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -39,12 +46,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from library import where_set_mm
-from parse import corpus
+from parse import STDLIB, Problem, cited_items, corpus, in_stdlib, qualified
 
 ROOT = Path(__file__).resolve().parent.parent
-# How a proof names a theorem, wherever it names one: in the justification
-# that cites it and in the justification of a `requires` line.
-CITES = re.compile(r'\bthm:([A-Za-z0-9-]+)')
+ELABORATION = ROOT / 'elaboration'
+# The library's definitions, which the elaborator writes and everything reads.
+DEFINITIONS = f'{STDLIB}/definitions'
 # Stands in the recipe where the library's path goes, which is not known
 # until the command line and the environment have been asked.
 SETMM = '<set.mm>'
@@ -68,76 +75,72 @@ RSS_UNIT = 1 if sys.platform == 'darwin' else 1024
 class Artifact:
     """One generated file: what makes it, where it goes, who reads it."""
 
-    name: str
-    path: str
+    name: str           # its path under elaboration/, without `.mm`
     recipe: tuple
     verified: bool      # one of the files `parley/verify.py` checks
     needs: tuple = ()   # artifacts whose files this recipe reads
 
+    @property
+    def path(self):
+        return str(path_of(self.name).relative_to(ROOT))
 
-# The readable proofs the elaborator can expand. The file each
-# writes is named for the theorem, which is not always the name of the proof
-# file: `prime-above` is elaborated from `proof/infinitely-many-primes.proof`,
-# `geometric-sum` from `proof/geometric-series.proof`, `subsets-count`,
-# `add-element-bijection`, `powerset-split-disjoint` and `powerset-split`
-# from `proof/subsets.proof`, both
-# `least-combination-divides` and `bezout` from `proof/bezout.proof`,
-# `point-right` from `proof/intermediate-value.proof`,
-# `ten-power-congruent` from `proof/divisibility-by-three.proof`,
-# `binomial-step` from `proof/binomial.proof`, and several
-# from `proof/sqrt2-irrational.proof`, which holds the theorem it is named for
-# and the ones it leans on.
-THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
-            'triangle-inequality', 'cantor', 'isosceles', 'lowest-terms',
-            'sqrt2-irrational', 'prime-above', 'geometric-sum',
-            'least-combination-divides', 'bezout', 'powerset-split-disjoint',
-            'powerset-split', 'add-element-bijection', 'subsets-count',
-            'point-right',
-            'intermediate-value', 'ten-power-congruent',
-            'divisibility-by-three', 'binomial-step', 'binomial')
 
-# The proofs worked out by hand, some of which share their names with
-# elaborated ones and are told apart here by the prefix. `ELABORATION.md`
-# compares the two of each pair.
-BY_HAND = ('parity', 'sqrt2', 'algebra', 'sum-formula', 'abs-bounds')
+def path_of(name):
+    """Where one artifact goes, for a tool that reads it rather than builds
+    it. The name is the path, so this is the one place that says how.
+    """
+    return ELABORATION / f'{name}.mm'
 
-ARTIFACTS = [
-    Artifact('definitions', 'elaboration/elaborated/definitions.mm',
-             ('parley/elaborate.py', '--definitions', SETMM), True),
-    # Hand-written like the ones below, and generated like the ones above:
-    # `build-geometry.py` holds its proofs, so it sits outside the directory
-    # of things elaborated from the readable layer, and is still built here.
-    Artifact('geometry', 'elaboration/geometry.mm',
-             ('elaboration/build-geometry.py', SETMM), True,
-             ('definitions',)),
-    *(Artifact(name, f'elaboration/elaborated/{name}.mm',
-               ('parley/elaborate.py', name, SETMM), True, ('geometry',))
-      for name in THEOREMS),
-    *(Artifact(f'hand-{name}', f'elaboration/{name}.mm',
-               (f'elaboration/build-{name}.py',), False)
-      for name in BY_HAND),
-]
+
+def scripts(where):
+    """The hand-written builders in one directory, by what each builds."""
+    return {script.stem[len('build-'):]: script
+            for script in sorted(where.glob('build-*.py'))}
+
+
+@functools.cache
+def artifacts():
+    """Every file this project generates, read off the working tree.
+
+    In the order they are reported: the library's files, the theorems in
+    the order their proof files are read, and the hand-written proofs that
+    `ELABORATION.md` compares with the elaborated ones.
+    """
+    _records, theorems = corpus(ROOT)
+    library = [Artifact(DEFINITIONS,
+                        ('parley/elaborate.py', '--definitions', SETMM), True)]
+    for stem, script in scripts(ELABORATION / STDLIB).items():
+        library.append(Artifact(f'{STDLIB}/{stem}',
+                                (str(script.relative_to(ROOT)), SETMM), True,
+                                (DEFINITIONS,)))
+    reads = tuple(a.name for a in library)
+    ours = {qualified(thm) for thm in theorems}
+    proved = []
+    for thm in theorems:
+        name = qualified(thm)
+        # A proof citing another proof's theorem reads the file that theorem
+        # was written to, because it has to push a term for each variable of
+        # that statement in the order that file declares them, and two
+        # proofs need not spell a statement's bound names alike. So that
+        # file has to be there first. Which theorems those are is read off
+        # the citations, the same way the checker reads them.
+        cited = dict.fromkeys(full for full, _line in cited_items(thm)
+                              if full in ours and full != name
+                              and not in_stdlib(full))
+        proved.append(Artifact(name, ('parley/elaborate.py', name, SETMM),
+                               True, (*reads, *cited)))
+    by_hand = [Artifact(stem, (str(script.relative_to(ROOT)),), False)
+               for stem, script in scripts(ELABORATION).items()]
+    return (*library, *proved, *by_hand)
 
 
 def verified():
     """The files that together are the corpus a verifier is given.
 
     `parley/verify.py` asks for this rather than reading a directory, because
-    they do not all live in one and two of them share a basename with a file
-    that is not among them.
+    the hand-written comparisons sit beside them and are not among them.
     """
-    return [ROOT / a.path for a in ARTIFACTS if a.verified]
-
-
-def path_of(name):
-    """Where one artifact goes, for a tool that reads it rather than builds
-    it. `parley/labels.py` and `parley/elaborate.py` both want geometry.mm,
-    and three copies of a path are three chances for two of them to agree.
-    """
-    for artifact in ARTIFACTS:
-        if artifact.name == name:
-            return ROOT / artifact.path
-    raise KeyError(name)
+    return [ROOT / a.path for a in artifacts() if a.verified]
 
 
 def wants_library(artifact):
@@ -179,39 +182,6 @@ def produce(artifact, library):
     return Made(written, peak)
 
 
-@functools.cache
-def citing():
-    """For each theorem, the theorems of this corpus its proof cites.
-
-    A proof citing another proof's theorem reads the file that theorem was
-    written to, because it has to push a term for each variable of that
-    statement in the order that file declares them, and two proofs need not
-    spell a statement's bound names alike. So the file has to be there
-    first, which is what `needs` is for.
-
-    Which those are is already written down twice over — `proved-in` in
-    `db/items.records` says a theorem is this corpus's, and the proof text
-    says which it cites — so it is read and not listed. A list here would
-    be the same knowledge in a third place, and the one that could quietly
-    disagree with the proofs.
-    """
-    records, theorems = corpus(ROOT)
-    ours = {r.name for r in records
-            if r.kind == 'theorem' and 'proved-in' in r.fields}
-    out = {}
-    for theorem in theorems:
-        named = []
-        for step in theorem.steps:
-            said = [step.just.text, *(just for _fact, just, _no
-                                      in step.requires)]
-            for name in {n for text in said for n in CITES.findall(text)}:
-                if name in ours and name != theorem.name \
-                        and name not in named:
-                    named.append(name)
-        out[theorem.name] = tuple(sorted(named))
-    return out
-
-
 def waves(wanted):
     """The artifacts in groups that may be built at the same time.
 
@@ -222,12 +192,9 @@ def waves(wanted):
     for it before this ran concurrently.
     """
     here = {a.name for a in wanted}
-    cited = citing()
     left, done, out = list(wanted), set(), []
     while left:
-        ready = [a for a in left
-                 if not ((set(a.needs) | set(cited.get(a.name, ()))) & here)
-                 - done]
+        ready = [a for a in left if not (set(a.needs) & here) - done]
         out.append(ready)
         done |= {a.name for a in ready}
         left = [a for a in left if a not in ready]
@@ -235,11 +202,16 @@ def waves(wanted):
 
 
 def main(argv):
-    wanted = [a for a in ARTIFACTS if a.name == argv[1]] if len(argv) > 1 \
-        else ARTIFACTS
+    try:
+        every = artifacts()
+    except Problem as trouble:
+        print(trouble, file=sys.stderr)
+        return 2
+    wanted = [a for a in every if a.name == argv[1]] if len(argv) > 1 \
+        else list(every)
     if not wanted:
         print(f'no artifact {argv[1]!r}; there are: '
-              f'{", ".join(a.name for a in ARTIFACTS)}')
+              f'{", ".join(a.name for a in every)}')
         return 2
     library = where_set_mm(['', argv[2]] if len(argv) > 2 else [''])
     if library is None and any(wants_library(a) for a in wanted):

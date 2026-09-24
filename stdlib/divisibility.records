@@ -1,0 +1,216 @@
+# Standard library: divisibility
+#
+# Even and odd, divisors, primes, greatest common divisors, division with a
+# remainder, and congruence modulo a number.
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:stdlib/divisibility/<name> or
+# thm:stdlib/divisibility/<name>, and the prefix must match the kind. Format is
+# described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, first-used, note.
+
+
+definition divides
+  let d ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  then        d divides n ↔ there is k ∈ ℤ with n = d·k
+  metamath    df-dvds, as divides states it
+  target      divides, equation reversed
+  first-used  sqrt2-irrational
+  note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
+              dull fact. This is the principle recorded by the primes pilot: a
+              relation is defined once, on the widest set where it makes sense.
+
+definition even
+  let n ∈ ℤ                                                           (H1)
+  then        n is even ↔ there is k ∈ ℤ with n = 2k
+  metamath    df-dvds, whose right side is the same existential
+  target      divides, equation reversed
+  first-used  sqrt2-irrational
+  note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
+              word. See DATABASE.md on what def: means.
+
+              The field said `dvds`, which is not a label. df-dvds defines ∥ as
+              the pairs with an n ∈ ℤ making n·x = y, so the unfolding is the
+              same existential this statement writes. Found by checking every
+              label the database names against set.mm.
+
+definition odd
+  let n ∈ ℤ                                                           (H1)
+  then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
+  metamath    not 2 ∥ n
+  target      odd2np1, equation reversed
+  first-used  sqrt2-irrational
+
+theorem even-or-odd
+  let n ∈ ℤ                                                           (H1)
+  then        n is even or n is odd
+  metamath    exmid
+  target      exmid
+  first-used  sqrt2-irrational
+  note        def:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
+              statement is excluded middle, ( ph or not ph ), and the
+              expansion never uses H1. zeo says the same thing for an encoding
+              where "odd" means n - 1 is even, which is not the one def:stdlib/divisibility/odd
+              chose.
+
+theorem not-both
+  let n ∈ ℤ                                                           (H1)
+  assume n is even                                                    (H2)
+  then        n is not odd
+  metamath    notnot
+  target      notnot
+  first-used  sqrt2-irrational
+  note        def:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
+              double negation introduction, ( ph -> not not ph ), and the
+              expansion never uses H1.
+
+theorem divides-gcd
+  let d ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume d divides a                                                  (H4)
+  assume d divides b                                                  (H5)
+  then        d divides gcd(a, b)
+  metamath    dvdsgcd
+  target      dvdsgcd
+  first-used  sqrt2-irrational
+
+theorem division-algorithm
+  let n ∈ ℕ                                                           (H1)
+  let d ∈ ℕ                                                           (H2)
+  then        there are q ∈ ℤ and r ∈ ℤ with n = q·d + r, 0 ≤ r, and r < d
+  metamath    divalg
+  target      divalg with N := n, D := d
+  first-used  bezout
+  note        divalg says exactly one remainder, quantified the other way
+              round, bounded by the absolute value, and saying its three
+              things in a different order. The elaborator takes its
+              existential apart and puts this one back, which is what makes
+              the last two of those stop being differences. Nothing fixes
+              divalg's own variables, because its conclusion is never
+              matched against this claim, so `with` says which is which.
+
+definition prime
+  let p ∈ ℕ                                                           (H1)
+  then        p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then
+              d = 1 or d = p
+  metamath    isprm2, whose first conjunct is membership of ℤ≥2
+  target      isprm2
+  first-used  infinitely-many-primes
+  note        isprm2 writes p > 1 as p ∈ ℤ≥2, which is not the formula this
+              line writes, so unfolding the definition does not land on the
+              words of the right side. What carries one to the other is
+              eluz2gt1, declared with the rest of what an elaborator may
+              lean on. `target` still names the unfolding and nothing else.
+
+definition gcd
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+              For every e ∈ ℕ, if e divides a and e divides b then
+              e ≤ gcd(a, b).
+  metamath    gcdnncl, gcddvds, dvdslegcd
+  target      gcdnncl, gcddvds, dvdslegcd
+  note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
+              this statement puts it in ℕ, which gcdnncl gives because both
+              arguments are natural numbers; gcddvds says in one conjunction
+              what the second and third sentences say separately; and
+              dvdslegcd is the fourth said of one divisor where this says it
+              of every e ∈ ℕ.
+  first-used  bezout
+
+theorem prime-factor
+  let m ∈ ℕ                                                           (H1)
+  assume m > 1                                                        (H2)
+  then        there is p ∈ ℕ with p is prime and p divides m
+  metamath    exprmfct, which quantifies over Prime rather than over ℕ
+  target      exprmfct
+  first-used  infinitely-many-primes
+  note        No target, so an elaborator states this and lists it. exprmfct
+              says E. p e. Prime p || N, putting primality in the domain; this
+              quantifies over ℕ and says it in the body, which is how a reader
+              meets the claim. The two are equivalent and the bridge is a proof
+              rather than a field of this file.
+
+theorem divides-difference
+  let d ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume d divides a                                                  (H4)
+  assume d divides b                                                  (H5)
+  then        d divides a − b
+  metamath    dvds2sub
+  target      dvds2sub
+  first-used  infinitely-many-primes
+
+theorem divides-one
+  let d ∈ ℕ                                                           (H1)
+  assume d divides 1                                                  (H2)
+  then        d = 1
+  metamath    dvds1, read left to right
+  target      dvds1
+  first-used  infinitely-many-primes
+
+theorem divides-combination
+  let e ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  let x ∈ ℤ                                                           (H4)
+  let y ∈ ℤ                                                           (H5)
+  assume e divides a                                                  (H6)
+  assume e divides b                                                  (H7)
+  then        e divides a·x + b·y
+  metamath    dvds2ln
+  target      dvds2ln with K := e, I := x, M := a, J := y, N := b
+  first-used  bezout
+
+theorem divides-le
+  let e ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  assume e divides m                                                  (H3)
+  then        e ≤ m
+  metamath    dvdsle
+  target      dvdsle
+  first-used  bezout
+
+definition congruent-mod
+  let n ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  then        a ≡ b (mod n) ↔ n divides a − b
+  metamath    the notation's own target, n ∥ ( a − b )
+  first-used  divisibility-by-three
+  note        The two sides are one formula in the kernel, so unfolding it is
+              saying the same thing the other way, and nothing is stated: a
+              step reading one from a line saying the other has that line's
+              proof. It is here so the page may say which it means.
+
+theorem divides-multiple
+  let e ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let x ∈ ℤ                                                           (H3)
+  assume e divides a                                                  (H4)
+  then        e divides a·x
+  metamath    dvdsmultr1
+  target      dvdsmultr1
+  first-used  divisibility-by-three
+
+theorem congruent-divides
+  let m ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume a ≡ b (mod m)                                                (H4)
+  then        m divides a ↔ m divides b
+  metamath    dvdssub2
+  target      dvdssub2
+  first-used  divisibility-by-three
+  note        Two numbers congruent modulo m are divisible by m together.

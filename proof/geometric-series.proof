@@ -1,4 +1,5 @@
 theorem geometric-sum
+  metamath    geoser
   let a ∈ ℝ                                                           (H1)
   assume a ≠ 1                                                        (H2)
   let n ∈ ℕ₀                                                          (H3)
@@ -13,13 +14,13 @@ theorem geometric-sum
 
     base
     2.1.  G(0) = 1
-          def:G, from H1
+          def:stdlib/sums/G, from H1
 
     2.2.  a^(0 + 1) = a^1
           substitute 0 + 1 = 1 (arithmetic)
 
     2.3.  a^1 = a
-          thm:exponent-one a := a, from H1
+          thm:stdlib/numbers/exponent-one a := a, from H1
 
     2.4.  a^(0 + 1) = a
           calculation
@@ -48,22 +49,22 @@ theorem geometric-sum
           assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
 
           2.8.1.  G(k + 1) = G(k) + a^(k + 1)
-                  def:G n := k, from H1, K
+                  def:stdlib/sums/G n := k, from H1, K
 
           2.8.2.  G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
                   substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
 
           2.8.3.  k + 1 ∈ ℕ₀
-                  thm:nat0-closure, from K
+                  thm:stdlib/numbers/nat0-closure, from K
 
           2.8.4.  a^((k + 1) + 1) = a^(k + 1)·a
-                  thm:exponent-step m := k + 1, from H1, 2.8.3
+                  thm:stdlib/numbers/exponent-step m := k + 1, from H1, 2.8.3
 
           2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
                   algebra
                   requires 1 − a ≠ 0: from 1
                   requires a ∈ ℝ: from H1
-                  requires a^(k + 1) ∈ ℝ: thm:power-real m := k + 1, from H1, 2.8.3
+                  requires a^(k + 1) ∈ ℝ: thm:stdlib/numbers/power-real m := k + 1, from H1, 2.8.3
 
           2.8.6.  (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
                   substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.8.4), right to left

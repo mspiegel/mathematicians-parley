@@ -9,10 +9,40 @@ the merge of the ten pilots' item tables decided.
 ```
 db/notation.records      symbols a claim may use
 db/methods.records       the justification vocabulary
-db/items.records         definitions and theorems
-proof/*.proof       the proof skeletons, one file per pilot
-pilot/*.md          the design commentary for each pilot
+stdlib/*.records         the standard library: definitions and theorems
+proof/*.proof            the proof skeletons, one file per pilot
+pilot/*.md               the design commentary for each pilot
 ```
+
+## Names and the standard library
+
+A definition or theorem is named by the file that holds it and then its own
+name, and a citation writes both: `def:stdlib/divisibility/odd`,
+`thm:stdlib/numbers/int-real`, `thm:proof/triangle-inequality/abs-bounds`. The
+file is its path without the extension, so the name says where to look. A
+theorem of the citing file is written bare, `thm:proof/sqrt2-irrational/odd-square`, and that is the
+only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
+`import` line a proof file writes for each other proof file it cites.
+
+The standard library is every item a set.mm label supplies or that is still
+open: what a proof cites and this corpus does not prove. It is split by
+subject, in words a reader of `READERS.md` already has, and a subject is one
+file:
+
+| file | holds | items |
+|---|---|---|
+| `stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
+| `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 31 |
+| `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 17 |
+| `stdlib/sums.records` | sums over a range, and the ranges | 16 |
+| `stdlib/sets.records` | subsets, set-builder, union, difference, power set | 24 |
+| `stdlib/functions.records` | functions, their values, and images | 7 |
+| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 16 |
+| `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 6 |
+| `stdlib/geometry.records` | points, distance, angles, triangles, congruence | 10 |
+
+The library is never imported: every proof may cite it. It is the one
+directory the tools know by name, and a module anywhere else is a proof file.
 
 A `.proof` file holds only the skeleton. `SYNTAX.md` says the stored text is
 every line a field the elaborator reads and nothing else, so the commentary that
@@ -34,24 +64,26 @@ An item's statement is written in the theorem form of `SYNTAX.md`: labelled
 `let` and `assume` lines, then a `then` line. The database and the proof files
 therefore share one grammar, and one parser reads both.
 
-Every item in `db/items.records` carries exactly one of three fields saying where it
-comes from:
+Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `proved-in` | a proof file in this corpus proves it | 23 |
-| `metamath` | a set.mm label or labels supply it | 141 |
-| `open` | neither; it is cited but unproved and unbridged | 5 |
+| `metamath` | a set.mm label or labels supply it | 127 |
+| `open` | it is cited but unproved and unbridged | 5 |
 
-An item with `proved-in` carries no statement here. The statement lives at the
-head of its proof file, so that it has one home and cannot drift. This is the
-rule that the collisions below were caused by breaking.
+`def:stdlib/geometry/point` carries both. A theorem this corpus proves has no
+record: it is its proof, and its statement is the head of the proof file, so
+that it has one home and cannot drift. This is the rule that the collisions
+below were caused by breaking. What a record would say beside the statement,
+the set.mm theorem it answers to and a note, the proof says in `metamath` and
+`note` lines under its `theorem` line; 14 of the 23 name a set.mm
+counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
 unfolds it, or, for one stated as an equation, one theorem per `then` group:
-`def:S` names `fsum1, fsump1`, and which clause a step uses is decided by
+`def:stdlib/sums/S` names `fsum1, fsump1`, and which clause a step uses is decided by
 which one's conclusion is what the step claims. That is not what `metamath` says: `metamath` says what the
-definition means, and `def:odd` gives `not 2 ∥ n`, where unfolding it to the
+definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
@@ -61,7 +93,7 @@ documents the same field on the notation side.
 A target may end `with v := t, …`, saying what the lemma's variables stand
 for where the claim does not fix them: `divalg with N := n, D := d`. A name
 there that is none of the lemmas' variables is the claim's own binder, and
-what it is given is the witness: `thm:completeness` targets `suprcl,
+what it is given is the witness: `thm:stdlib/calculus/completeness` targets `suprcl,
 suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
 
@@ -74,8 +106,9 @@ two are indistinguishable — same file, same assumption count, no message — s
 a wrong target could sit in this file for as long as nobody happened to probe
 it by hand.
 
-Every pointer from a proof into the database resolves, and every `def:` or
-`thm:` prefix matches the kind of the item it names; `check.py` checks both.
+Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
+kind of the item it names, and every proof file imports exactly the proof
+files it cites; `check.py` checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
 for each hole, the sort each hole takes, what the pattern yields, how the kinds
@@ -123,32 +156,32 @@ three rather than trusting them.
 
 ## What the merge decided
 
-**`def:function` was two items under one name.** The Cantor pilot stated it as a
+**`def:stdlib/functions/function` was two items under one name.** The Cantor pilot stated it as a
 biconditional defining `f : A → B`; the intermediate value pilot stated it as
 the derived fact that a function's values land in its codomain, and cited it
-three times for exactly that. The fact is now `thm:function-value` and those
-three citations are renamed. `def:function` keeps the name for the definition,
+three times for exactly that. The fact is now `thm:stdlib/functions/function-value` and those
+three citations are renamed. `def:stdlib/functions/function` keeps the name for the definition,
 which is `open` because the Cantor pilot's row is truncated and no proof cites
 it.
 
-**`thm:real-closure` had two statements.** The triangle inequality pilot gave
+**`thm:stdlib/numbers/real-closure` had two statements.** The triangle inequality pilot gave
 addition, the intermediate value pilot gave addition and subtraction. Merged to
-both sentences, which is the shape `thm:int-closure` and `thm:nat-closure`
+both sentences, which is the shape `thm:stdlib/numbers/int-closure` and `thm:stdlib/numbers/nat-closure`
 already have. Neither proof changes.
 
-**Five statements were cross-references.** `def:set-builder` and
-`thm:set-builder-subset` read "as in the Bezout pilot" and are now written out
-once. `thm:abs-bounds` read "from the triangle inequality pilot" and is now
-`proved-in` that file.
+**Five statements were cross-references.** `def:stdlib/sets/set-builder` and
+`thm:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
+once. `thm:proof/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
+proved in that file.
 
 **Theorems are stored in dependency order.** A pointer must resolve to something
 earlier, as `READERS.md` requires. Only the √2 file needed reordering: it now
 runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 
-**Six items had no row anywhere.** `thm:sqrt2-irrational` was the only pilot's
-main theorem missing from its own table. `def:set-image` is named in `SYNTAX.md`
-and was in no table. `def:angle` appears only in the isosceles findings, though
+**Six items had no row anywhere.** `thm:proof/sqrt2-irrational/sqrt2-irrational` was the only pilot's
+main theorem missing from its own table. `def:stdlib/functions/set-image` is named in `SYNTAX.md`
+and was in no table. `def:stdlib/geometry/angle` appears only in the isosceles findings, though
 the ∠ notation needs it. Notation for ℕ₀, for the general power `^` and for
 binary − was used by five pilots and declared by none.
 
@@ -170,23 +203,23 @@ repaired.
   `|A|` is cardinality and `|PQ|` is distance. Settled since: each is its own
   notation record and they are told apart by the sort of the hole, which
   `GRAMMAR.md` describes. It is the only overloaded pattern of the 63 declared.
-- **Recursive definitions do not fit the theorem form.** `def:S`, `def:G` and
-  `def:factorial` have a base sentence with no hypothesis and a step sentence
+- **Recursive definitions do not fit the theorem form.** `def:stdlib/sums/S`, `def:stdlib/sums/G` and
+  `def:stdlib/counting/factorial` have a base sentence with no hypothesis and a step sentence
   with one, and the form puts all hypotheses before all conclusions. They are
   written with two `then` groups, which no other record uses.
-- **`thm:side-angle-side` and its one citation disagree on variable names.** The
+- **`thm:stdlib/geometry/side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,
   C, A′, B′, C′. One of the two must change. Settled since: the proof changed,
   because every other geometry item names its points P, Q and R.
 - **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
-  Q, R forms a triangle" is replaced by `thm:triangle-swap` and
-  `thm:triangle-rotate`, which generate all six orderings and are the two the
+  Q, R forms a triangle" is replaced by `thm:stdlib/geometry/triangle-swap` and
+  `thm:stdlib/geometry/triangle-rotate`, which generate all six orderings and are the two the
   isosceles proof cites.
-- **Set-existence hypotheses are inconsistent.** `thm:well-ordering` and
-  `thm:completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
+- **Set-existence hypotheses are inconsistent.** `thm:stdlib/numbers/well-ordering` and
+  `thm:stdlib/calculus/completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
   because that is what the pilot tables said and what the proofs discharge.
   Whether the set-existence hypothesis belongs there is open.
-  `thm:card-bijection` and `thm:card-disjoint-union` were the same and now
+  `thm:stdlib/counting/card-bijection` and `thm:stdlib/counting/card-disjoint-union` were the same and now
   carry the `let` lines, because without them their statements could not be
   read: `|Y| = m` fits both cardinality and absolute value.
 - **The isosceles proof had one step that broke the calculation rule.** A chain
@@ -236,26 +269,26 @@ repaired.
   line that types their parameter, Bezout's step 14 missing two integer
   memberships, a disjunctive syllogism whose two spellings of one negation did
   not match, and a bijection that adds an element without saying it was absent.
-  The last needed a new item, `thm:not-in-difference`.
+  The last needed a new item, `thm:stdlib/sets/not-in-difference`.
 
 ## Nine open items
 
-`def:collinear`, `def:congruent`, `def:function`, `def:point`, `def:triangle`,
-`thm:add-element-bijection`, `thm:point-right`, `thm:powerset-split`,
-`thm:powerset-split-disjoint`.
+`def:stdlib/geometry/collinear`, `def:stdlib/geometry/congruent`, `def:stdlib/functions/function`, `def:stdlib/geometry/point`, `def:stdlib/geometry/triangle`,
+`thm:proof/subsets/add-element-bijection`, `thm:proof/intermediate-value/point-right`, `thm:proof/subsets/powerset-split`,
+`thm:proof/subsets/powerset-split-disjoint`.
 
 Four of the nine are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
 subsets pilot leaned on. One is the lemma the intermediate value pilot needs
-only because the language has no `min`, and one is what `def:function` would
+only because the language has no `min`, and one is what `def:stdlib/functions/function` would
 have to say about a map.
 
-Five more were open and are not. `thm:angle-symmetric`, `thm:side-angle-side`,
-`thm:triangle-swap` and `thm:triangle-rotate` are proved in
-`elaboration/geometry.mm`, which is a third way to supply an item: neither a
+Five more were open and are not. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
+`thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in
+`elaboration/stdlib/geometry.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.
-`def:angle` closed differently — it carries a `symbol` and a `defines` now,
+`def:stdlib/geometry/angle` closed differently — it carries a `symbol` and a `defines` now,
 and is the one definition in this corpus that introduces a constant.
 
 **That third way is a last resort, and a new one needs a reason of the same
@@ -272,7 +305,7 @@ teaching it to say that, or teaching the elaborator to work it out, and a
 hand proof is what is left when neither is worth its price.
 
 The four that remain open in the geometry are open for a reason rather than
-for want of work. Incidence is a primitive, and `def:collinear` says so: in
+for want of work. Incidence is a primitive, and `def:stdlib/geometry/collinear` says so: in
 the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of

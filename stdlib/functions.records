@@ -1,0 +1,100 @@
+# Standard library: functions
+#
+# Functions, their values, and the set of values a function takes.
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:stdlib/functions/<name> or
+# thm:stdlib/functions/<name>, and the prefix must match the kind. Format is
+# described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, first-used, note.
+
+
+definition set-image
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let E : Y → Z                                                       (H3)
+  then        u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)
+  metamath    cmpt with elrnmpt, or crab with a witness
+  first-used  subsets
+  note        Named in SYNTAX.md beside def:stdlib/sets/set-builder. No pilot table carried
+              a row for it; the statement here is SYNTAX.md's sentence. Added by
+              the merge.
+
+theorem added-elements-are-new
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  assume for every s ∈ Y, s ∪ {a} ∉ Y                                 (H3)
+  then        for every u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
+  metamath    ralrnmpt
+  target      ralrnmpt
+  note        Running over the sets with a added is running over the sets and
+              adding a, which `ralrnmpt` says of the range of any map written
+              on the spot and of any property of its members. Both are
+              narrowed here to the one map the corpus writes and the one
+              property it asks, because the language can name neither — the
+              same gap `notation bijection` records.
+
+definition function
+  open        The Cantor pilot's row reads "f : A → B ↔ for every x ∈ A,
+              f(x) ∈ B, and ..." and is truncated. No pilot cites it. The
+              statement has to be written before the item exists.
+  first-used  cantor
+  note        set.mm's df-f is the target. The Cantor proof needs f only for the
+              elaborator, since no step cites it; see that pilot's findings.
+
+theorem function-value
+  let f : D → E                                                       (H1)
+  let x ∈ D                                                           (H2)
+  then        f(x) ∈ E
+  metamath    ffvelcdm
+  target      ffvelcdm
+  first-used  intermediate-value
+  note        The intermediate value pilot called this def:stdlib/functions/function, colliding
+              with the Cantor pilot's definition of the same name. Renamed by the
+              merge; that proof's three citations are renamed with it.
+
+theorem image-of-injection
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  assume for every S ∈ Y, for every T ∈ Y, if S ∪ {a} = T ∪ {a}
+         then S = T                                                   (H3)
+  then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
+  metamath    f1oeng, over the map f1mpt and f1f1orn show is one-to-one
+  target      f1oeng with F := the map sending S ∈ Y to S ∪ {a}
+  first-used  subsets
+  note        A map that sends no two things to the same place pairs its
+              domain off against what comes out of it. Narrowed to the one
+              map the corpus builds, as `thm:stdlib/functions/added-elements-are-new` is: the
+              readable layer states the property and the `target` names the
+              map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
+              and does not name a function to say it.
+
+theorem added-element-in-image
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let s ∈ Y                                                           (H3)
+  then        s ∪ {a} ∈ {t ∪ {a} : t ∈ Y}
+  metamath    elrnmpt1s
+  target      elrnmpt1s
+  first-used  subsets
+  note        Narrowed to the one map the corpus writes, as
+              `thm:stdlib/functions/added-elements-are-new` is.
+
+theorem added-elements-stay-inside
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  assume for every s ∈ Y, s ∪ {a} ∈ Z                                 (H3)
+  then        {s ∪ {a} : s ∈ Y} ⊆ Z
+  metamath    rnmptss
+  target      rnmptss
+  first-used  subsets
+  note        Narrowed to the one map the corpus writes, as
+              `thm:stdlib/functions/added-elements-are-new` is.

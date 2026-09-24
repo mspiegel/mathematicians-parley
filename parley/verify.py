@@ -14,11 +14,11 @@ against the working directory and keeps the set of files it has opened, so
 including them all from one file reads set.mm once and the nine cost
 eighteen seconds together.
 
-Which files there are comes from `parley/build.py`, which is where every
-generated file is listed. Reading a directory instead would be simpler and
-wrong: they do not all sit in one, and two of them share a basename with a
-hand-written proof that is not among them, which the flat directory below
-could not hold at once.
+Which files there are comes from `parley/build.py`, which is what finds every
+generated file. Reading the directory instead would be simpler and wrong:
+the hand-written comparisons sit in it beside them and are not among them.
+Each file is placed in the directory below at the path the others include it
+by, its path under `elaboration/`.
 
 Which of them to include is read off the inclusions rather than listed: a
 proof that nothing else includes is a root, and including every root reaches
@@ -43,7 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build import verified
+from build import ELABORATION, verified
 from library import where_set_mm
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -69,12 +69,17 @@ def roots(built):
     this being edited. set.mm is included too and is not one of these files,
     so it falls out of the difference on its own.
     """
-    here = {p.name: p for p in built}
+    here = {included_as(p): p for p in built}
     included = set()
     for path in built:
         included |= {name for name in INCLUDE.findall(path.read_text())
                      if name in here}
     return sorted(set(here) - included)
+
+
+def included_as(path):
+    """How a file including this one names it: its path under elaboration/."""
+    return str(path.relative_to(ELABORATION))
 
 
 def main(argv):
@@ -101,12 +106,15 @@ def main(argv):
     print(f'{proved} proofs in {len(built)} files, reached from '
           f'{", ".join(top)}')
 
-    # An inclusion resolves against the working directory, so everything has
-    # to sit in one place. Linked rather than copied: set.mm is 51 MB.
+    # An inclusion resolves against the working directory, so each file sits
+    # at the path the others include it by. Linked rather than copied:
+    # set.mm is 51 MB.
     with tempfile.TemporaryDirectory() as tmp:
         where = Path(tmp)
         for path in built:
-            (where / path.name).symlink_to(path)
+            link = where / included_as(path)
+            link.parent.mkdir(parents=True, exist_ok=True)
+            link.symlink_to(path)
         (where / library.name).symlink_to(library.resolve())
         if library.name != 'set.mm':
             (where / 'set.mm').symlink_to(library.resolve())

@@ -1,0 +1,292 @@
+# Standard library: numbers
+#
+# The number systems and how they sit inside each other, what stays in each
+# under addition and multiplication, order, powers, square roots and absolute
+# value.
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:stdlib/numbers/<name> or thm:stdlib/numbers/<name>, and
+# the prefix must match the kind. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, first-used, note.
+
+
+definition rational
+  then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℤ with q ≠ 0 and x = p/q
+  metamath    elq
+  first-used  sqrt2-irrational
+
+definition irrational
+  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
+  metamath    ℝ ∖ ℚ, as in sqrt2irr0
+  target      eldif
+  first-used  sqrt2-irrational
+  note        Names a word for an existing set.mm construct rather than
+              introducing a symbol. See DATABASE.md on what def: means.
+
+definition sqrt
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 0                                                        (H2)
+  then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
+  metamath    df-sqrt, resqrtcl, sqrtge0, resqrtth
+  target      resqrtcl, sqrtge0, resqrtth
+  first-used  sqrt2-irrational
+
+theorem int-closure
+  let a ∈ ℤ                                                           (H1)
+  then        a² ∈ ℤ
+  let b ∈ ℤ                                                           (H2)
+  then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
+  metamath    zsqcl, zaddcl, zsubcl, zmulcl
+  target      zsqcl, zaddcl, zsubcl, zmulcl
+  first-used  sqrt2-irrational
+  note        The square stands in a group of its own because it needs one
+              integer and the rest need two. A proof asking only that n² is an
+              integer cites this item from one line, and a `then` group with
+              one `let` above it is how the database says so. See DATABASE.md
+              on groups.
+
+theorem nat-closure
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then        a + b ∈ ℕ. a·b ∈ ℕ.
+  metamath    nnaddcl, nnmulcl
+  target      nnaddcl, nnmulcl
+  first-used  infinitely-many-primes
+
+theorem real-closure
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x + y ∈ ℝ. x − y ∈ ℝ.
+  metamath    readdcl, resubcl
+  target      readdcl, resubcl
+  first-used  triangle-inequality
+  note        The triangle inequality pilot stated addition only; the
+              intermediate value pilot stated both. Merged to both, which is the
+              shape of int-closure and nat-closure. Neither proof changes.
+
+theorem half-real
+  let x ∈ ℝ                                                           (H1)
+  then        x/2 ∈ ℝ
+  metamath    rehalfcl
+  target      rehalfcl
+  first-used  intermediate-value
+
+theorem half-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        x/2 > 0
+  metamath    halfpos2
+  target      halfpos2 with A := x
+  first-used  intermediate-value
+  note        `inequalities` reads x/2 as half of x, and a certificate asking
+              for half of a bound is not written; saying this once lets every
+              step after it combine bounds whole.
+
+theorem nat0-closure
+  let k ∈ ℕ₀                                                          (H1)
+  then        k + 1 ∈ ℕ₀
+  metamath    peano2nn0
+  target      peano2nn0
+  first-used  geometric-series
+
+theorem nat-int
+  let m ∈ ℕ                                                           (H1)
+  then        m ∈ ℤ
+  metamath    nnz
+  target      nnz
+  first-used  infinitely-many-primes
+
+theorem int-real
+  let m ∈ ℤ                                                           (H1)
+  then        m ∈ ℝ
+  metamath    zre
+  target      zre
+  first-used  bezout
+  note        `algebra` and `inequalities` work over a field, so a step
+              reasoning about integers carries its atoms into ℝ first.
+
+theorem nat-real
+  let m ∈ ℕ                                                           (H1)
+  then        m ∈ ℝ
+  metamath    nnre
+  target      nnre
+  first-used  infinitely-many-primes
+  note        Direct rather than through nat-int and int-real. The chain would
+              be two citations, and a requires line carries one, so every
+              natural atom would need a numbered step of its own. set.mm has
+              the direct lemma, so the expansion is direct too.
+
+theorem nat0-real
+  let m ∈ ℕ₀                                                          (H1)
+  then        m ∈ ℝ
+  metamath    nn0re
+  first-used  subsets
+  note        Direct, for the same reason as nat-real.
+
+theorem below-successor
+  let a ∈ ℝ                                                           (H1)
+  then        a < a + 1
+  metamath    ltp1
+  target      ltp1
+  first-used  binomial
+  note        `inequalities` decides this and cannot yet build it: its
+              proofs combine cited facts, and this one cites none.
+
+theorem nat0-int
+  let m ∈ ℕ₀                                                          (H1)
+  then        m ∈ ℤ
+  metamath    nn0z
+  target      nn0z
+  first-used  binomial
+
+theorem nat-ge-1
+  let m ∈ ℕ                                                           (H1)
+  then        m ≥ 1
+  metamath    nnge1
+  target      nnge1
+  first-used  infinitely-many-primes
+
+theorem pos-int-nat
+  let m ∈ ℤ                                                           (H1)
+  assume 0 < m                                                        (H2)
+  then        m ∈ ℕ
+  metamath    elnnz
+  target      elnnz
+  first-used  bezout
+
+theorem exponent-step
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^(m + 1) = a^m·a
+  metamath    expp1
+  target      expp1
+  first-used  geometric-series
+
+theorem ten-minus-one
+  then        10 − 1 = 9
+  metamath    10m1e9
+  target      10m1e9
+  first-used  divisibility-by-three
+  note        The one fact about 10 that `arithmetic` and `algebra` do not work
+              out. They read a digit as its value and a numeral of more than
+              one digit as a number they know nothing about, so what depends
+              on 10 being ten is cited, and this is where it comes from.
+
+theorem power-integer
+  let a ∈ ℤ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℤ
+  metamath    zexpcl
+  target      zexpcl
+  first-used  divisibility-by-three
+
+theorem power-real
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℝ
+  metamath    reexpcl
+  target      reexpcl
+  first-used  geometric-series
+  note        A power whose exponent is not a numeral is an atom to `algebra`,
+              so it has to be known real in its own right rather than through
+              its base.
+
+theorem power-nat0
+  let a ∈ ℕ₀                                                          (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℕ₀
+  metamath    nn0expcl
+  target      nn0expcl
+  first-used  subsets
+  note        A size is a member of ℕ₀, and the sizes subsets-count counts are
+              powers of two.
+
+theorem exponent-one
+  let a ∈ ℝ                                                           (H1)
+  then        a^1 = a
+  metamath    exp1
+  target      exp1
+  first-used  geometric-series
+  note        The base case of the geometric series needs a^(0 + 1) = a. The
+              arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
+              exponent laws are theorems rather than closure methods.
+
+theorem exponent-zero
+  let a ∈ ℝ                                                           (H1)
+  then        a^0 = 1
+  metamath    exp0
+  target      exp0
+  first-used  binomial
+
+theorem trichotomy
+  let x ∈ ℝ                                                           (H1)
+  then        x < 0 or x = 0 or 0 < x
+  metamath    lttri4, 0re
+  target      lttri4 with B := 0
+  first-used  intermediate-value
+
+theorem nonneg-or-neg
+  let x ∈ ℝ                                                           (H1)
+  then        x ≥ 0 or x < 0
+  metamath    0re, lelttric
+  target      lelttric
+  first-used  triangle-inequality
+
+theorem rational-coprime
+  let x ∈ ℚ                                                           (H1)
+  then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
+  metamath    elq2
+  target      elq2 with Q := x
+  first-used  sqrt2-irrational
+  note        set.mm's second reading of being rational, beside elq, which is
+              def:stdlib/numbers/rational. An implication and not a biconditional: it says a
+              rational can be written one way, not what one is.
+
+theorem well-ordering
+  assume S ⊆ ℕ                                                        (H1)
+  assume there is s ∈ S                                               (H2)
+  then        there is d ∈ S with for every s ∈ S, d ≤ s
+  metamath    nnwo
+  target      nnwo
+  first-used  bezout
+  note        Whether S also needs "let S be a set" is open; see DATABASE.md.
+
+definition abs
+  let x ∈ ℝ                                                           (H1)
+  then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
+  metamath    absid, absnid
+  target      absid, absnid
+  first-used  triangle-inequality
+  note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
+              the real case. So this elaborates to a pair of theorems, not to a
+              definition. It is still called def:stdlib/numbers/abs because that is what it is
+              to Reader A.
+
+theorem abs-real
+  let x ∈ ℝ                                                           (H1)
+  then        |x| ∈ ℝ
+  metamath    recn, abscl
+  target      abscl
+  first-used  triangle-inequality
+  note        No proof cites it yet. `inequalities` treats |x| as an atom it
+              knows nothing about, so an absolute value has to be known real
+              like any other term. Eight steps of the triangle inequality and
+              intermediate value proofs will need it. set.mm defines abs on ℂ
+              by df-abs, so the real case goes through recn. See METHODS.md.
+
+theorem abs-difference-lt
+  let x ∈ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let δ ∈ ℝ                                                           (H3)
+  then        |x − c| < δ ↔ c − δ < x and x < c + δ
+  metamath    absdiflt, abslt
+  target      absdiflt
+  first-used  intermediate-value

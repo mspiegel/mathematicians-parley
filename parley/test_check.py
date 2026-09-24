@@ -50,20 +50,32 @@ CASES = [
 
     ('point at an item that is not in the database',
      'proof/cantor.proof',
-     '    thm:set-builder-subset, from D1',
-     '    thm:set-builder-nonesuch, from D1',
+     '    thm:stdlib/sets/set-builder-subset, from D1',
+     '    thm:stdlib/sets/set-builder-nonesuch, from D1',
      'resolves to no item'),
+
+    ('point at a library file that does not exist',
+     'proof/cantor.proof',
+     '    thm:stdlib/sets/set-builder-subset, from D1',
+     '    thm:stdlib/nonesuch/set-builder-subset, from D1',
+     'resolves to no item'),
+
+    ('cite an item of another file by its bare name',
+     'proof/cantor.proof',
+     '    thm:stdlib/sets/set-builder-subset, from D1',
+     '    thm:set-builder-subset, from D1',
+     'names no theorem of this file'),
 
     ('use def: for something that is a theorem',
      'proof/sqrt2-irrational.proof',
-     '          requires n² ∈ ℤ: thm:int-closure, from H1',
-     '          requires n² ∈ ℤ: def:int-closure, from H1',
+     '          requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1',
+     '          requires n² ∈ ℤ: def:stdlib/numbers/int-closure, from H1',
      'names a theorem'),
 
     ('number a step under a parent that does not exist',
      'proof/cantor.proof',
-     '2.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
-     '2.9.4.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
+     '2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1',
+     '2.9.4.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1',
      'does not exist'),
 
     ('use a part marker the method does not declare',
@@ -75,7 +87,7 @@ CASES = [
     ('instantiate an item instead of a line',
      'proof/intermediate-value.proof',
      '    instantiate u := b in line 9, from H2, 7',
-     '    instantiate u := b in def:least-upper-bound, from H2, 7',
+     '    instantiate u := b in def:stdlib/calculus/least-upper-bound, from H2, 7',
      'never an item'),
 
     ('a character that is in no notation record',
@@ -93,15 +105,15 @@ CASES = [
      'Normalisation Form C'),
 
     ('an item that says nothing about where it comes from',
-     'db/items.records',
+     'stdlib/sets.records',
      'theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath    pw0',
      'theorem powerset-empty\n  then        𝒫∅ = {∅}',
-     'neither where it is proved'),
+     'neither which set.mm label'),
 
     ('a block whose method takes none',
      'proof/sum-formula.proof',
-     '                  requires k ∈ ℝ: thm:nat-real, from K\n',
-     ('                  requires k ∈ ℝ: thm:nat-real, from K\n\n'
+     '                  requires k ∈ ℝ: thm:stdlib/numbers/nat-real, from K\n',
+     ('                  requires k ∈ ℝ: thm:stdlib/numbers/nat-real, from K\n\n'
       '                  1.3.3.1.  k = k\n'
       '                            algebra\n'),
      'takes no block'),
@@ -113,11 +125,71 @@ CASES = [
      '    contradiction',
      'does not open with `suppose`'),
 
-    ('a theorem proved here and absent from the database',
+    ('cite another proof file without importing it',
+     'proof/intermediate-value.proof',
+     'import proof/triangle-inequality\n',
+     '',
+     'proof/triangle-inequality is not imported'),
+
+    ('import a proof file and cite nothing from it',
      'proof/cantor.proof',
-     'theorem cantor',
-     'theorem cantor-two',
-     'is in no record'),
+     'theorem cantor\n',
+     'import proof/bezout\n\ntheorem cantor\n',
+     'imports proof/bezout and cites nothing from it'),
+
+    ('import the standard library',
+     'proof/cantor.proof',
+     'theorem cantor\n',
+     'import stdlib/sets\n\ntheorem cantor\n',
+     'the standard library is never imported'),
+
+    ('import a file that is not there',
+     'proof/cantor.proof',
+     'theorem cantor\n',
+     'import proof/nonesuch\n\ntheorem cantor\n',
+     'import proof/nonesuch names no proof file'),
+
+    ('import the same file twice',
+     'proof/intermediate-value.proof',
+     'import proof/triangle-inequality\n',
+     'import proof/triangle-inequality\nimport proof/triangle-inequality\n',
+     'proof/triangle-inequality is imported twice'),
+
+    ('a proof file that imports itself',
+     'proof/cantor.proof',
+     'theorem cantor\n',
+     'import proof/cantor\n\ntheorem cantor\n',
+     'proof/cantor imports itself'),
+
+    ('two proof files that import each other',
+     'proof/triangle-inequality.proof',
+     'theorem abs-bounds\n',
+     'import proof/intermediate-value\n\ntheorem abs-bounds\n',
+     'closes a cycle'),
+
+    ('two theorems of one name in one file',
+     'proof/sqrt2-irrational.proof',
+     'theorem even-square\n',
+     'theorem odd-square\n',
+     'theorem odd-square is already proved'),
+
+    ('two items of one name in one library file',
+     'stdlib/sets.records',
+     'theorem powerset-empty\n',
+     'theorem powerset-monotone\n',
+     'theorem powerset-monotone is already defined'),
+
+    ('an item stated outside the standard library',
+     'db/methods.records',
+     'method algebra\n',
+     'theorem stray\n  then        P\n  metamath    exmid\n\nmethod algebra\n',
+     'stray is outside stdlib/'),
+
+    ('a theorem field said twice',
+     'proof/cantor.proof',
+     '  metamath    canth\n',
+     '  metamath    canth\n  metamath    canth\n',
+     'says metamath twice'),
 
     ('a let line that asserts instead of introducing',
      'proof/cantor.proof',
@@ -143,14 +215,15 @@ CASES = [
 
     ('obtain a name without stating its sort',
      'proof/sqrt2-irrational.proof',
-     '1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
-     '1.  n = 2k + 1.\n    obtain k: def:odd n := n, from H1, H2',
+     '1.  k ∈ ℤ. n = 2k + 1.\n'
+     '    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2',
+     '1.  n = 2k + 1.\n    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2',
      'without stating its sort'),
 
     ('write a claim in a notation nobody declared',
      'proof/infinitely-many-primes.proof',
-     '6.  p > 1\n    def:prime p := p, from 5',
-     '6.  p exceeds 1\n    def:prime p := p, from 5',
+     '6.  p > 1\n    def:stdlib/divisibility/prime p := p, from 5',
+     '6.  p exceeds 1\n    def:stdlib/divisibility/prime p := p, from 5',
      'token(s) left over'),
 
     ('write a formula the sorts cannot read one way',
@@ -161,14 +234,14 @@ CASES = [
 
     ('drop a line a citation needs for a hypothesis',
      'proof/intermediate-value.proof',
-     '    def:interval x := a, from H1, H2',
-     '    def:interval x := a, from H1',
+     '    def:stdlib/calculus/interval x := a, from H1, H2',
+     '    def:stdlib/calculus/interval x := a, from H1',
      'does not supply them'),
 
     ('supply a hypothesis with the wrong number system',
      'proof/geometric-series.proof',
-     '    2.1.  G(0) = 1\n          def:G, from H1',
-     '    2.1.  G(0) = 1\n          def:G, from H3',
+     '    2.1.  G(0) = 1\n          def:stdlib/sums/G, from H1',
+     '    2.1.  G(0) = 1\n          def:stdlib/sums/G, from H3',
      'does not supply them'),
 
     ('stop declaring which pattern is a negation of which',
@@ -191,8 +264,8 @@ CASES = [
 
     ('point a requires line at an item that does not cover it',
      'proof/sqrt2-irrational.proof',
-     '    requires n² ∈ ℤ: thm:int-closure, from H1',
-     '    requires n² ∈ ℤ: thm:int-real, from H1',
+     '    requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1',
+     '    requires n² ∈ ℤ: thm:stdlib/numbers/int-real, from H1',
      'does not conclude'),
 
     ('drop the dull fact a requires line leans on',
@@ -203,13 +276,13 @@ CASES = [
 
     ('claim something the cited item does not conclude',
      'proof/infinitely-many-primes.proof',
-     '6.  p > 1\n    def:prime p := p, from 5',
-     '6.  p > 2\n    def:prime p := p, from 5',
+     '6.  p > 1\n    def:stdlib/divisibility/prime p := p, from 5',
+     '6.  p > 2\n    def:stdlib/divisibility/prime p := p, from 5',
      'does not conclude'),
 
-    # `G(n)` is the sum of the powers of `a`, and `def:G` fixes `a` for the
-    # whole theorem rather than showing it in the notation. A proof that binds
-    # an `a` of its own is writing about the name it bound.
+    # `G(n)` is the sum of the powers of `a`, and `def:stdlib/sums/G` fixes `a`
+    # for the whole theorem rather than showing it in the notation. A proof
+    # that binds an `a` of its own is writing about the name it bound.
     ('bind a name the notation it uses fixes',
      'proof/geometric-series.proof',
      '    2.8.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)\n'
@@ -219,8 +292,8 @@ CASES = [
      'a proof may not bind a name the notation it uses fixes'),
 
     # The same fixed name is said twice and neither file reads the other:
-    # `def:G`'s `let` lines and the hole of `G(_)` say it on the page, and
-    # `@a` in the target says it to the elaborator.
+    # `def:stdlib/sums/G`'s `let` lines and the hole of `G(_)` say it on the
+    # page, and `@a` in the target says it to the elaborator.
     ('drop the fixed parameter from a notation target',
      'db/notation.records',
      '  target      cc0 _1 cfz co @a vk cv cexp co vk csu',
@@ -240,13 +313,13 @@ CASES = [
      'does not conclude'),
 
     ('stop saying which variable the braces bind',
-     'db/items.records',
+     'stdlib/sets.records',
      '  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)',
      '  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)',
      'does not conclude'),
 
     ('say a property is a function into a formula',
-     'db/items.records',
+     'stdlib/sets.records',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)\n'
      '  let P be a property of the elements of X                            (H2)',
@@ -263,8 +336,8 @@ CASES = [
 
     ('note a step that opens no block',
      'proof/cantor.proof',
-     '2.  B ∈ 𝒫A\n    def:powerset S := B, from 1',
-     ('2.  B ∈ 𝒫A\n    def:powerset S := B, from 1\n'
+     '2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1',
+     ('2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1\n'
       '    note this is where B becomes a member'),
      'opens no block'),
 
@@ -274,13 +347,17 @@ CASES = [
      'proof/divisibility-by-three.proof',
      '2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))',
      '2.  3 divides Σ(k = 1 to n) (d(k)·10^k − d(k))',
-     'step 2 claims something that thm:sum-divisible does not conclude'),
+     'step 2 claims something that thm:stdlib/sums/sum-divisible does not '
+     'conclude'),
 
     ('read an item\'s summand two ways',
      'proof/divisibility-by-three.proof',
-     '= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n    thm:sum-difference',
-     '= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n    thm:sum-difference',
-     'step 3 claims something that thm:sum-difference does not conclude'),
+     '= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n'
+     '    thm:stdlib/sums/sum-difference',
+     '= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n'
+     '    thm:stdlib/sums/sum-difference',
+     'step 3 claims something that thm:stdlib/sums/sum-difference does not '
+     'conclude'),
 
     # A congruence is a divisibility of a difference, and which way round
     # the difference goes is part of what is said.
@@ -319,19 +396,19 @@ CASES = [
      'does not state a formula and that formula negated'),
 
     ('write a word predicate under a bare not',
-     'db/items.records',
+     'stdlib/geometry.records',
      '              not (P, Q, R are collinear)',
      '              not P, Q, R are collinear',
      'token(s) left over'),
 
     ('state an item in a notation nobody declared',
-     'db/items.records',
+     'stdlib/sets.records',
      'theorem subset-transitive\n  assume X ⊆ Y',
      'theorem subset-transitive\n  assume X is within Y',
      'theorem subset-transitive'),
 
     ('leave the name in an item statement with no sort',
-     'db/items.records',
+     'stdlib/sets.records',
      'theorem set-builder-subset\n  let X be a set'
      '                                                      (H1)\n'
      '  let P be a property of the elements of X                            (H2)',
@@ -340,35 +417,35 @@ CASES = [
      'theorem set-builder-subset'),
 
     ('introduce a symbol and say nothing it stands for',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr\n'
      '  then        x is irrational',
      'says nothing it stands for'),
 
     ('define a term and name no symbol for it',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  defines     cr cq cdif\n'
      '  then        x is irrational',
      'names no symbol for it'),
 
     ('introduce a symbol nothing writes',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr\n  defines     cr cq cdif\n'
      '  then        x is irrational',
      'cannot be reached'),
 
     ('introduce a symbol in more than one token',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  symbol      irr ational\n'
      '  defines     cr cq cdif\n  then        x is irrational',
      'is not one token'),
 
     ('introduce one symbol from two definitions',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n'
      '  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ',
      'definition irrational\n  symbol      dup\n  defines     cr\n'
@@ -378,58 +455,64 @@ CASES = [
      'is already introduced by'),
 
     ('state a field twice, which reads as one field joined',
-     'db/items.records',
+     'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
      'definition irrational\n  first-used  sqrt2-irrational\n'
      '  then        x is irrational',
      'a second time'),
 
     # Everything a citation names does work. Line 1 says a + b ∈ ℝ, which
-    # is what `thm:nonneg-or-neg` asks; H1 says a ∈ ℝ, which it does not.
+    # is what `thm:stdlib/numbers/nonneg-or-neg` asks; H1 says a ∈ ℝ, which
+    # it does not.
     ('cite a line the cited item asks nothing of',
      'proof/triangle-inequality.proof',
-     '    thm:nonneg-or-neg x := a + b, from 1\n',
-     '    thm:nonneg-or-neg x := a + b, from 1, H1\n',
-     'step 2 cites H1, and thm:nonneg-or-neg asks for nothing it says'),
+     '    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1\n',
+     '    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1, H1\n',
+     'step 2 cites H1, and thm:stdlib/numbers/nonneg-or-neg asks for nothing '
+     'it says'),
 
     # A "there is" given by an instance is given only where the instance is
     # in the domain. Bezout's step 2 puts a in S by exhibiting 1 and 0, and
     # without `requires 1 ∈ ℤ` the 1 could be anything.
     ('exhibit a witness without saying it is in the domain',
      'proof/bezout.proof',
-     '    def:set-builder u := a, from H1, 1\n    requires 1 ∈ ℤ: arithmetic\n',
-     '    def:set-builder u := a, from H1, 1\n',
-     'step 2 claims something that def:set-builder does not conclude'),
+     '    def:stdlib/sets/set-builder u := a, from H1, 1\n'
+     '    requires 1 ∈ ℤ: arithmetic\n',
+     '    def:stdlib/sets/set-builder u := a, from H1, 1\n',
+     'step 2 claims something that def:stdlib/sets/set-builder does not '
+     'conclude'),
 
     # A sort is stated once, like a declared type, and a step does not cite
     # it to rely on it (`READERS.md`): citing one names a line that does no
     # work.
     ('cite the line that says what kind of thing a name is',
      'proof/isosceles.proof',
-     '    thm:distance-symmetric P := A, Q := C\n',
-     '    thm:distance-symmetric P := A, Q := C, from H1\n',
-     'step 1 cites H1, and thm:distance-symmetric asks for nothing it says'),
+     '    thm:stdlib/geometry/distance-symmetric P := A, Q := C\n',
+     '    thm:stdlib/geometry/distance-symmetric P := A, Q := C, from H1\n',
+     'step 1 cites H1, and thm:stdlib/geometry/distance-symmetric asks for '
+     'nothing it says'),
 
     # An obtain names its item after the word `obtain`, and the checks that
     # read an item citation read only a step the item heads. The three
     # below went unreported.
     ('obtain from an item without what it asks for',
      'proof/intermediate-value.proof',
-     '    obtain c: thm:completeness S := S, from 5, 2, 7',
-     '    obtain c: thm:completeness S := S, from 5, 7',
-     'step 8 cites thm:completeness, which asks for'),
+     '    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7',
+     '    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 7',
+     'step 8 cites thm:stdlib/calculus/completeness, which asks for'),
 
     ('obtain from an item and cite a line it does not ask for',
      'proof/intermediate-value.proof',
-     '    obtain c: thm:completeness S := S, from 5, 2, 7',
-     '    obtain c: thm:completeness S := S, from 5, 2, 7, H3',
-     'step 8 cites H3, and thm:completeness asks for nothing it says'),
+     '    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7',
+     '    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7, H3',
+     'step 8 cites H3, and thm:stdlib/calculus/completeness asks for nothing '
+     'it says'),
 
     # An item with no target is assumed as it states itself. This one said
     # |X| = k + 1 without saying what k was, and at k = −1 and X = ∅ the
     # axiom it became was false.
     ('leave open a name an item uses as a number',
-     'db/items.records',
+     'stdlib/counting.records',
      'theorem card-nonempty\n'
      '  let X be a set                                                      (H1)\n'
      '  let k ∈ ℕ₀                                                          (H2)\n',
@@ -448,8 +531,8 @@ CASES = [
 
     ('say an element of a set of numbers is a set',
      'proof/intermediate-value.proof',
-     '    6.1.  s ∈ [a, b]\n          def:set-builder, from K1\n',
-     '    6.1.  s ∈ [a, b]\n          def:set-builder, from K1\n'
+     '    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n',
+     '    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n'
      '          requires s is a set: from K1\n',
      's: a number where a set of things of a kind not yet fixed is wanted'),
 
@@ -462,14 +545,15 @@ CASES = [
      '  let a ∉ X                                                           (H2)\n',
      '  let a ∉ X                                                           (H2)\n'
      '  let a be a set                                                      (H3)\n',
-     'citing add-element-bijection with X := X ∖ {a}: a set of things of '
-     'any kind (X)'),
+     'citing proof/subsets/add-element-bijection with X := X ∖ {a}: a set of '
+     'things of any kind (X)'),
 
     ('obtain from a definition without the line it unfolds',
      'proof/sqrt2-irrational.proof',
-     '    obtain k: def:odd n := n, from H1, H2',
-     '    obtain k: def:odd n := n, from H1',
-     'step 1 obtains from def:odd, which says there is one only from'),
+     '    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2',
+     '    obtain k: def:stdlib/divisibility/odd n := n, from H1',
+     'step 1 obtains from def:stdlib/divisibility/odd, which says there is one '
+     'only from'),
 
     # Pascal's rule pairs C(n, k) with C(n, k − 1). The other neighbour is
     # the mistake a reader makes when the index shift goes the wrong way.
@@ -477,40 +561,43 @@ CASES = [
      'proof/binomial.proof',
      '    47.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
      '    47.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
-     'step 47.5 claims something that thm:pascal does not conclude'),
+     'step 47.5 claims something that thm:stdlib/counting/pascal does not '
+     'conclude'),
 
     # Shifting the index moves the range with it.
     ('a shifted sum left over the range it came from',
      'proof/binomial.proof',
      '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)',
      '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)',
-     'step 27 claims something that thm:sum-shift does not conclude'),
+     'step 27 claims something that thm:stdlib/sums/sum-shift does not '
+     'conclude'),
 
     # A line saying something of every index from 0 to m says nothing of
     # the index m + 1, which the sum to m + 1 takes.
     ('a term-by-term line over too short a range',
      'proof/binomial.proof',
-     '    thm:sum-termwise a := 0, b := m + 1, from 47\n',
-     '    thm:sum-termwise a := 0, b := m + 1, from 8\n',
-     'step 48 cites thm:sum-termwise, which asks for'),
+     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 47\n',
+     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 8\n',
+     'step 48 cites thm:stdlib/sums/sum-termwise, which asks for'),
 
     # C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
     ('a coefficient called zero where k is not above n',
      'proof/binomial.proof',
-     '    thm:binomial-above n := m, k := m + 1, from H3, 3, 10',
-     '    thm:binomial-above n := m + 1, k := m + 1, from H3, 3, 10',
-     'step 11 cites thm:binomial-above, which asks for'),
+     '    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 3, 10',
+     '    thm:stdlib/counting/binomial-above n := m + 1, k := m + 1, '
+     'from H3, 3, 10',
+     'step 11 cites thm:stdlib/counting/binomial-above, which asks for'),
 
     # Four blocks of binomial-step each fix k under the label J, and J means
     # what the block around the citing step says: here k runs from 1. Read
     # theorem-wide, J was the last block's, from 0, and this edit passed.
     ('a label read as a sibling block\'s',
      'proof/binomial.proof',
-     'thm:range-integer a := 1, b := m + 1, from J\n'
+     'thm:stdlib/sums/range-integer a := 1, b := m + 1, from J\n'
      '           requires 1 ∈ ℤ: arithmetic\n',
-     'thm:range-integer a := 0, b := m + 1, from J\n'
+     'thm:stdlib/sums/range-integer a := 0, b := m + 1, from J\n'
      '           requires 0 ∈ ℤ: arithmetic\n',
-     'step 29.1 cites thm:range-integer, which asks for'),
+     'step 29.1 cites thm:stdlib/sums/range-integer, which asks for'),
 
     # `arithmetic` may stand where a closed-numeral fact is used, and only
     # there: an equation with a letter in it gives a reader something to
@@ -531,10 +618,12 @@ CASES = [
     # names the summand is built from, and 1 is none of them.
     ('a requires line the summand does not ask for',
      'proof/binomial.proof',
-     '    thm:sum-real a := 0, b := m\n    requires 0 ∈ ℤ: arithmetic\n',
-     '    thm:sum-real a := 0, b := m\n    requires 1 ∈ ℤ: arithmetic\n'
+     '    thm:stdlib/sums/sum-real a := 0, b := m\n'
      '    requires 0 ∈ ℤ: arithmetic\n',
-     'says 1 ∈ ℤ, and neither thm:sum-real nor'),
+     '    thm:stdlib/sums/sum-real a := 0, b := m\n'
+     '    requires 1 ∈ ℤ: arithmetic\n'
+     '    requires 0 ∈ ℤ: arithmetic\n',
+     'says 1 ∈ ℤ, and neither thm:stdlib/sums/sum-real nor'),
 ]
 
 
@@ -549,8 +638,8 @@ def main():
     passed = failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         clean = Path(tmp) / 'clean'
-        shutil.copytree(ROOT / 'db', clean / 'db')
-        shutil.copytree(ROOT / 'proof', clean / 'proof')
+        for part in ('db', 'stdlib', 'proof'):
+            shutil.copytree(ROOT / part, clean / part)
         base = run(clean)
         n_base = int(base.split(' problem(s)')[0].split('\n')[-1])
         if n_base != BASELINE:

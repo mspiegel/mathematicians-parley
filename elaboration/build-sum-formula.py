@@ -1,4 +1,4 @@
-"""Assemble thm:sum-formula as a Metamath proof.
+"""Assemble thm:proof/sum-formula/sum-formula as a Metamath proof.
 
 Each readable step is one named block below, so the correspondence between the
 proof text and the expansion stays visible.
@@ -25,7 +25,7 @@ KV = 'vk cv'
 S1 = summ(fz(ONE, ONE), KV, 'vk')
 RHS1 = dv(mul(ONE, add(ONE, ONE)), TWO)
 
-# 1.1  S(1) = 1, the base sentence of def:S.
+# 1.1  S(1) = 1, the base sentence of def:stdlib/sums/S.
 p11 = seq(cel(ONE, 'cz'), cel(ONE, 'cc'), eq(S1, ONE), '1z', 'ax-1cn',
           seq(KV, ONE, 'vk', ONE, seq(eq(KV, ONE), 'id'), 'fsum1'), 'mp2an')
 
@@ -71,7 +71,7 @@ p_y2cn = seq(TH, YV, TWO, p_ycn, p_2cn, 'addcld')
 p_yy1 = seq(TH, YV, Y1, p_ycn, p_y1cn, 'mulcld')
 p_2y1 = seq(TH, TWO, Y1, p_2cn, p_y1cn, 'mulcld')
 
-# 1.4.1  the step sentence of def:S, which is where the recursion unfolds.
+# 1.4.1  the step sentence of def:stdlib/sums/S, which is where the recursion unfolds.
 #
 # fsump1 requires that its bound variable not occur in the antecedent, and the
 # induction hypothesis is an equation between sums, so it mentions that
@@ -181,8 +181,8 @@ proof = seq(claim(XV), claim(ONE), claim(YV), claim(Y1), claim(AV),
             instance(ONE), instance(YV), instance(Y1), instance(AV),
             base, step, 'nnind')
 
-HEADER = """$( thm:sum-formula, from proof/sum-formula.proof, as a Metamath
-   proof.
+HEADER = """$( thm:proof/sum-formula/sum-formula, from proof/sum-formula.proof, as a
+   Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

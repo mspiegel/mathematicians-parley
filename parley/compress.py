@@ -4,7 +4,7 @@ A proof in normal format is a flat run of labels, and a subproof used twice
 is written out twice. The corpus does that a great deal: in deduction form
 every line carries the whole scope as an antecedent, so the same membership
 is re-proved under the same scope wherever it is wanted.
-`thm:least-combination-divides` step 3 writes `( under -> 1 e. NN0 )` six
+`thm:proof/bezout/least-combination-divides` step 3 writes `( under -> 1 e. NN0 )` six
 hundred and nineteen times, and its scope — a hundred and twenty-eight
 tokens — seven thousand four hundred and sixty-seven times.
 

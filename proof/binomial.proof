@@ -1,23 +1,27 @@
 theorem binomial-step
+  note        The induction step's algebra, stated apart from the induction.
+              Inside the step the hypothesis is in scope and names the sum's
+              index, and set.mm's lemma for rewriting a sum term by term
+              forbids its index in the scope; here nothing in scope names it.
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let m ∈ ℕ₀                                                          (H3)
   then (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
 
 1.  m ∈ ℤ
-    thm:nat0-int, from H3
+    thm:stdlib/numbers/nat0-int, from H3
 
 2.  m + 1 ∈ ℕ₀
-    thm:nat0-closure, from H3
+    thm:stdlib/numbers/nat0-closure, from H3
 
 3.  m + 1 ∈ ℤ
-    thm:nat0-int, from 2
+    thm:stdlib/numbers/nat0-int, from 2
 
 4.  m ∈ ℝ
-    thm:int-real, from 1
+    thm:stdlib/numbers/int-real, from 1
 
 5.  Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ
-    thm:sum-real a := 0, b := m
+    thm:stdlib/sums/sum-real a := 0, b := m
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
     requires m ∈ ℕ₀: from H3
@@ -31,7 +35,7 @@ theorem binomial-step
     requires y ∈ ℝ: from H2
 
 7.  x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)
-    thm:sum-scaled a := 0, b := m, c := x
+    thm:stdlib/sums/sum-scaled a := 0, b := m, c := x
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
     requires m ∈ ℕ₀: from H3
@@ -44,24 +48,24 @@ theorem binomial-step
     let k ∈ {0, …, m}                                                 (J)
 
     8.1.  k ∈ ℤ
-          thm:range-integer a := 0, b := m, from J
+          thm:stdlib/sums/range-integer a := 0, b := m, from J
           requires 0 ∈ ℤ: arithmetic
           requires m ∈ ℤ: from 1
 
     8.2.  k ∈ ℕ₀
-          thm:range-nat0 n := m, from J
+          thm:stdlib/sums/range-nat0 n := m, from J
           requires m ∈ ℤ: from 1
 
     8.3.  m − k ∈ ℕ₀
-          thm:range-difference a := 0, n := m, from J
+          thm:stdlib/sums/range-difference a := 0, n := m, from J
           requires 0 ∈ ℤ: arithmetic
           requires m ∈ ℤ: from 1
 
     8.4.  k ∈ ℝ
-          thm:int-real, from 8.1
+          thm:stdlib/numbers/int-real, from 8.1
 
     8.5.  x^((m − k) + 1) = x^(m − k)·x
-          thm:exponent-step a := x, m := m − k, from H1, 8.3
+          thm:stdlib/numbers/exponent-step a := x, m := m − k, from H1, 8.3
 
     8.6.  (m − k) + 1 = (m + 1) − k
           algebra
@@ -79,9 +83,9 @@ theorem binomial-step
     8.9.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
           algebra
           requires x ∈ ℝ: from H1
-          requires C(m, k) ∈ ℕ₀: thm:binomial-nat0, from H3, 8.1
-          requires x^(m − k) ∈ ℝ: thm:power-real, from H1, 8.3
-          requires y^k ∈ ℝ: thm:power-real, from H2, 8.2
+          requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 8.1
+          requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 8.3
+          requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 8.2
 
     8.10. C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
           substitute x^(m − k)·x = x^((m + 1) − k) (line 8.8)
@@ -92,15 +96,15 @@ theorem binomial-step
                                       = C(m, k)·x^((m + 1) − k)·y^k    8.10
 
 9.  Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
-    thm:sum-termwise a := 0, b := m, from 8
+    thm:stdlib/sums/sum-termwise a := 0, b := m, from 8
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
 
 10. m < m + 1
-    thm:below-successor a := m, from 4
+    thm:stdlib/numbers/below-successor a := m, from 4
 
 11. C(m, m + 1) = 0
-    thm:binomial-above n := m, k := m + 1, from H3, 3, 10
+    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 3, 10
 
 12. (m + 1) − (m + 1) = 0
     algebra
@@ -110,7 +114,7 @@ theorem binomial-step
     substitute (m + 1) − (m + 1) = 0 (line 12)
 
 14. y^(m + 1) ∈ ℝ
-    thm:power-real a := y, m := m + 1, from H2, 2
+    thm:stdlib/numbers/power-real a := y, m := m + 1, from H2, 2
 
 15. C(m, m + 1)·x^0·y^(m + 1) = 0·x^0·y^(m + 1)
     substitute C(m, m + 1) = 0 (line 11)
@@ -127,7 +131,7 @@ theorem binomial-step
                                                   = 0                             16
 
 18. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k + C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1)
-    thm:sum-last n := m, from H3
+    thm:stdlib/sums/sum-last n := m, from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
@@ -153,7 +157,7 @@ theorem binomial-step
                                               = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k    21, right to left
 
 24. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)
-    thm:sum-scaled a := 0, b := m, c := y
+    thm:stdlib/sums/sum-scaled a := 0, b := m, c := y
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
     requires m ∈ ℕ₀: from H3
@@ -165,28 +169,28 @@ theorem binomial-step
     let k ∈ {0, …, m}                                                 (J)
 
     25.1.  k ∈ ℤ
-           thm:range-integer a := 0, b := m, from J
+           thm:stdlib/sums/range-integer a := 0, b := m, from J
            requires 0 ∈ ℤ: arithmetic
            requires m ∈ ℤ: from 1
 
     25.2.  k ∈ ℕ₀
-           thm:range-nat0 n := m, from J
+           thm:stdlib/sums/range-nat0 n := m, from J
            requires m ∈ ℤ: from 1
 
     25.3.  m − k ∈ ℕ₀
-           thm:range-difference a := 0, n := m, from J
+           thm:stdlib/sums/range-difference a := 0, n := m, from J
            requires 0 ∈ ℤ: arithmetic
            requires m ∈ ℤ: from 1
 
     25.4.  y^(k + 1) = y^k·y
-           thm:exponent-step a := y, m := k, from H2, 25.2
+           thm:stdlib/numbers/exponent-step a := y, m := k, from H2, 25.2
 
     25.5.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·(y^k·y)
            algebra
            requires y ∈ ℝ: from H2
-           requires C(m, k) ∈ ℕ₀: thm:binomial-nat0, from H3, 25.1
-           requires x^(m − k) ∈ ℝ: thm:power-real, from H1, 25.3
-           requires y^k ∈ ℝ: thm:power-real, from H2, 25.2
+           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 25.1
+           requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 25.3
+           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 25.2
 
     25.6.  C(m, k)·x^(m − k)·(y^k·y) = C(m, k)·x^(m − k)·y^(k + 1)
            substitute y^(k + 1) = y^k·y (line 25.4), right to left
@@ -197,12 +201,12 @@ theorem binomial-step
                                        = C(m, k)·x^(m − k)·y^(k + 1)    25.6
 
 26. Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1)
-    thm:sum-termwise a := 0, b := m, from 25
+    thm:stdlib/sums/sum-termwise a := 0, b := m, from 25
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
 
 27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
-    thm:sum-shift a := 0, b := m, c := 1
+    thm:stdlib/sums/sum-shift a := 0, b := m, c := 1
     requires 0 ∈ ℤ: arithmetic
     requires m ∈ ℤ: from 1
     requires 1 ∈ ℤ: arithmetic
@@ -218,12 +222,12 @@ theorem binomial-step
     let k ∈ {1, …, m + 1}                                             (J)
 
     29.1.  k ∈ ℤ
-           thm:range-integer a := 1, b := m + 1, from J
+           thm:stdlib/sums/range-integer a := 1, b := m + 1, from J
            requires 1 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: from 3
 
     29.2.  k ∈ ℝ
-           thm:int-real, from 29.1
+           thm:stdlib/numbers/int-real, from 29.1
 
     29.3.  m − (k − 1) = (m + 1) − k
            algebra
@@ -246,12 +250,12 @@ theorem binomial-step
                                                          = C(m, k − 1)·x^((m + 1) − k)·y^k                29.6
 
 30. Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    thm:sum-termwise a := 1, b := m + 1, from 29
+    thm:stdlib/sums/sum-termwise a := 1, b := m + 1, from 29
     requires 1 ∈ ℤ: arithmetic
     requires m + 1 ∈ ℤ: from 3
 
 31. C(m, −1) = 0
-    thm:binomial-below n := m, from H3
+    thm:stdlib/counting/binomial-below n := m, from H3
 
 32. C(m, 0 − 1) = C(m, −1)
     substitute 0 − 1 = −1 (arithmetic)
@@ -269,7 +273,7 @@ theorem binomial-step
     substitute (m + 1) − 0 = m + 1 (line 34)
 
 36. x^(m + 1) ∈ ℝ
-    thm:power-real a := x, m := m + 1, from H1, 2
+    thm:stdlib/numbers/power-real a := x, m := m + 1, from H1, 2
 
 37. C(m, 0 − 1)·x^(m + 1)·y^0 = 0·x^(m + 1)·y^0
     substitute C(m, 0 − 1) = 0 (line 33)
@@ -286,7 +290,7 @@ theorem binomial-step
                                       = 0                            38
 
 40. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = C(m, 0 − 1)·x^((m + 1) − 0)·y^0 + Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    thm:sum-first n := m + 1, from 2
+    thm:stdlib/sums/sum-first n := m + 1, from 2
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
@@ -298,7 +302,7 @@ theorem binomial-step
     substitute 0 + 1 = 1 (arithmetic) into line 41
 
 43. Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ
-    thm:sum-real a := 1, b := m + 1
+    thm:stdlib/sums/sum-real a := 1, b := m + 1
     requires 1 ∈ ℤ: arithmetic
     requires m + 1 ∈ ℤ: from 3
     requires m ∈ ℕ₀: from H3
@@ -320,7 +324,7 @@ theorem binomial-step
                                               = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  42, right to left
 
 46. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    thm:sum-add a := 0, b := m + 1
+    thm:stdlib/sums/sum-add a := 0, b := m + 1
     requires 0 ∈ ℤ: arithmetic
     requires m + 1 ∈ ℤ: from 3
     requires m ∈ ℕ₀: from H3
@@ -333,32 +337,32 @@ theorem binomial-step
     let k ∈ {0, …, m + 1}                                             (J)
 
     47.1.  k ∈ ℤ
-           thm:range-integer a := 0, b := m + 1, from J
+           thm:stdlib/sums/range-integer a := 0, b := m + 1, from J
            requires 0 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: from 3
 
     47.2.  k ∈ ℕ₀
-           thm:range-nat0 n := m + 1, from J
+           thm:stdlib/sums/range-nat0 n := m + 1, from J
            requires m + 1 ∈ ℤ: from 3
 
     47.3.  (m + 1) − k ∈ ℕ₀
-           thm:range-difference a := 0, n := m + 1, from J
+           thm:stdlib/sums/range-difference a := 0, n := m + 1, from J
            requires 0 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: from 3
 
     47.4.  k − 1 ∈ ℤ
-           thm:int-closure a := k, b := 1, from 47.1
+           thm:stdlib/numbers/int-closure a := k, b := 1, from 47.1
            requires 1 ∈ ℤ: arithmetic
 
     47.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)
-           thm:pascal n := m, k := k, from H3, 47.1
+           thm:stdlib/counting/pascal n := m, k := k, from H3, 47.1
 
     47.6.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k
            algebra
-           requires C(m, k) ∈ ℕ₀: thm:binomial-nat0, from H3, 47.1
-           requires C(m, k − 1) ∈ ℕ₀: thm:binomial-nat0 k := k − 1, from H3, 47.4
-           requires x^((m + 1) − k) ∈ ℝ: thm:power-real, from H1, 47.3
-           requires y^k ∈ ℝ: thm:power-real, from H2, 47.2
+           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 47.1
+           requires C(m, k − 1) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0 k := k − 1, from H3, 47.4
+           requires x^((m + 1) − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 47.3
+           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 47.2
 
     47.7.  (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
            substitute C(m, k) + C(m, k − 1) = C(m + 1, k) (line 47.5)
@@ -369,7 +373,7 @@ theorem binomial-step
                                                                            = C(m + 1, k)·x^((m + 1) − k)·y^k                  47.7
 
 48. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
-    thm:sum-termwise a := 0, b := m + 1, from 47
+    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 47
     requires 0 ∈ ℤ: arithmetic
     requires m + 1 ∈ ℤ: from 3
 
@@ -389,6 +393,7 @@ theorem binomial-step
 
 
 theorem binomial
+  metamath    binom
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let n ∈ ℕ₀                                                          (H3)
@@ -399,13 +404,13 @@ theorem binomial
 
     base
     1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^(0 − 0)·y^0
-          thm:sum-single a := 0
+          thm:stdlib/sums/sum-single a := 0
           requires 0 ∈ ℤ: arithmetic
           requires x ∈ ℝ: from H1
           requires y ∈ ℝ: from H2
 
     1.2.  C(0, 0) = 1
-          thm:binomial-zero-index n := 0
+          thm:stdlib/counting/binomial-zero-index n := 0
           requires 0 ∈ ℕ₀: arithmetic
 
     1.3.  C(0, 0)·x^(0 − 0)·y^0 = 1·x^(0 − 0)·y^0
@@ -440,10 +445,10 @@ theorem binomial
           assume (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k      (IH)
 
           1.8.1.  x + y ∈ ℝ
-                  thm:real-closure, from H1, H2
+                  thm:stdlib/numbers/real-closure, from H1, H2
 
           1.8.2.  (x + y)^(m + 1) = (x + y)^m·(x + y)
-                  thm:exponent-step a := x + y, from 1.8.1, K
+                  thm:stdlib/numbers/exponent-step a := x + y, from 1.8.1, K
 
           1.8.3.  (x + y)^m·(x + y) = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)
                   substitute (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (IH)

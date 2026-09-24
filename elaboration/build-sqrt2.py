@@ -1,11 +1,12 @@
-"""Assemble thm:sqrt2-irrational as a Metamath proof.
+"""Assemble thm:proof/sqrt2-irrational/sqrt2-irrational as a Metamath proof.
 
 Each readable step is one named block below, so the correspondence between the
 proof text and the expansion stays visible.
 
-The proof cites thm:even-square, which `parity.mm` proves, so this file builds
-on that one rather than on set.mm directly. thm:lowest-terms and the three
-`algebra` steps are axioms here; everything else is the real thing.
+The proof cites thm:proof/sqrt2-irrational/even-square, which `parity.mm`
+proves, so this file builds on that one rather than on set.mm directly.
+thm:proof/sqrt2-irrational/lowest-terms and the three `algebra` steps are
+axioms here; everything else is the real thing.
 """
 
 import sys
@@ -217,9 +218,10 @@ s33 = seq(TH1, eq(exp(PQ, TWO), TWO), EQ33, s32,
 def even_of(th, X, Y, p_eq, p_yzz, p_xzz):
     """th -> 2 || X, where p_eq proves th -> X = ( 2 x. Y ).
 
-    This is `def:even` used to conclude, as step 6 of odd-square was. The
-    kernel writes the witness equation as ( k x. 2 ) = X where the corpus
-    writes X = 2k, so the two ends of it have to be turned round.
+    This is `def:stdlib/divisibility/even` used to conclude, as step 6 of
+    odd-square was. The kernel writes the witness equation as
+    ( k x. 2 ) = X where the corpus writes X = 2k, so the two ends of it have
+    to be turned round.
     """
     comm = seq(th, TWO, Y, a1i(cel(TWO, 'cc'), th, '2cn'), zcn(th, Y, p_yzz),
                'mulcomd')
@@ -313,8 +315,9 @@ UP3 = [cel(SV, 'cz'), eq(mul(SV, TWO), QV)]
 
 # --- steps 3.14 to 3.16, the exhibit ----------------------------------------
 # 3.14 and 3.15 change the word for what the kernel has already: `p is even`
-# and `2 divides p` are one formula once def:even and def:divides are
-# unfolded, so the two steps carry no kernel move of their own.
+# and `2 divides p` are one formula once def:stdlib/divisibility/even and
+# def:stdlib/divisibility/divides are unfolded, so the two steps carry no
+# kernel move of their own.
 s314 = lift(dvds(TWO, PV), s35, TH1, UP2 + UP3)
 s315 = lift(dvds(TWO, QV), s312, TH2, UP3)
 PH16 = w3a(lt(ONE, DV), dvds(DV, PV), dvds(DV, QV))
@@ -354,8 +357,8 @@ step4 = seq(DIFF, wa(IN2, wn(S)),
             seq(IN2, wn(S), step2, step3, 'pm3.2i'),
             SQ2, 'cr', 'cq', 'eldif', 'mpbir')
 
-HEADER = """$( thm:sqrt2-irrational, from proof/sqrt2-irrational.proof, as a
-   Metamath proof.
+HEADER = """$( thm:proof/sqrt2-irrational/sqrt2-irrational, from
+   proof/sqrt2-irrational.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with parity.mm and set.mm in the same
    directory:
@@ -366,18 +369,19 @@ HEADER = """$( thm:sqrt2-irrational, from proof/sqrt2-irrational.proof, as a
    copy of that file truncated after oddm1even, which is the last statement it
    uses.
 
-   thm:lowest-terms and the proof's three `algebra` steps are axioms here.
-   Everything else uses set.mm's own theorems, or thm:even-square, which
-   parity.mm proves.
+   thm:proof/sqrt2-irrational/lowest-terms and the proof's three `algebra`
+   steps are axioms here. Everything else uses set.mm's own theorems, or
+   thm:proof/sqrt2-irrational/even-square, which parity.mm proves.
 $)
 
 """
 
 print(HEADER + f'''$[ parity.mm $]
 
-$( thm:lowest-terms, stated as its readable form states it. set.mm's nearest
-   statement is qredeu, which gives a unique pair in ( ZZ X. NN ) whose gcd
-   is 1; the shapes do not match, and closing the gap is a proof of its own. $)
+$( thm:proof/sqrt2-irrational/lowest-terms, stated as its readable form
+   states it. set.mm's nearest statement is qredeu, which gives a unique
+   pair in ( ZZ X. NN ) whose gcd is 1; the shapes do not match, and closing
+   the gap is a proof of its own. $)
 ${{
   $d p q r s d n $.  $d p q r s d n A $.
   ltrm $a |- ( A e. QQ -> E. p e. ZZ E. q e. ZZ ( 0 < q /\\ A = ( p / q ) /\\

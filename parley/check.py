@@ -33,18 +33,27 @@ from match import (
 )
 from parse import (
     BLOCK_HEADS,
+    CITED,
     HEADS,
     LABEL,
-    NAME,
     NUMBER,
     PART_MARKERS,
     REF,
+    REQUIRES_ITEM,
+    STDLIB,
     Problem,
     check_encoding,
+    cited_item,
+    cited_items,
     declined,
     fmt,
+    in_stdlib,
+    index,
     parse_database,
     parse_proof,
+    proof_files,
+    qualified,
+    record_files,
 )
 from sorts import (
     FUNCTION,
@@ -61,8 +70,8 @@ from sorts import (
 INST = r'(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*'
 FROM = rf'from\s+{REF}(?:\s*,\s*{REF})*'
 PRODUCTIONS = {
-    'citation':      rf'^(?:def|thm):{NAME}(?:\s+{INST})?(?:,\s*{FROM})?$',
-    'obtain-item':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{NAME}'
+    'citation':      rf'^(?:def|thm):{CITED}(?:\s+{INST})?(?:,\s*{FROM})?$',
+    'obtain-item':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{CITED}'
                      rf'(?:\s+{INST})?,\s*{FROM}$',
     'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+'
                      rf'(?:line\s+{NUMBER}|{LABEL})$',
@@ -177,7 +186,10 @@ def check_characters(report, path, text, allowed):
 def check_database(report, records):
     seen = {}
     for r in records:
-        key = (r.kind if r.kind in ('notation', 'method') else 'item', r.name)
+        # Notation and methods are one vocabulary; an item's name need only
+        # be unique within its file, since it is cited with the file's path.
+        key = ((r.kind, r.name) if r.kind in ('notation', 'method')
+               else ('item', qualified(r)))
         if key in seen:
             report.say(r.path, r.line,
                        f'{r.kind} {r.name} is already defined at line {seen[key]}')
@@ -188,17 +200,16 @@ def check_database(report, records):
                        f'two are joined into one field, so the second is not '
                        f'read on its own and saying it changes nothing')
         if r.kind in ('definition', 'theorem'):
-            sources = [f for f in ('proved-in', 'metamath', 'open') if f in r.fields]
-            if not sources:
+            if not in_stdlib(qualified(r)):
                 report.say(r.path, r.line,
-                           f'{r.name} says neither where it is proved, nor which '
-                           f'set.mm label supplies it, nor that it is open')
-            if 'proved-in' in r.fields and (r.hypotheses or r.conclusions):
+                           f'{r.kind} {r.name} is outside {STDLIB}/; a '
+                           f'definition or theorem the database states lives '
+                           f'in the standard library')
+            if 'metamath' not in r.fields and 'open' not in r.fields:
                 report.say(r.path, r.line,
-                           f'{r.name} is proved in a proof file but also carries a '
-                           f'statement here; the statement must have one home')
-            if ('proved-in' not in r.fields and not r.conclusions
-                    and 'open' not in r.fields):
+                           f'{r.name} says neither which set.mm label supplies '
+                           f'it nor that it is open')
+            if not r.conclusions and 'open' not in r.fields:
                 report.say(r.path, r.line, f'{r.name} has no `then` line')
         if r.kind == 'method' and 'parts' in r.fields:
             for part in re.split(r',\s*', r.fields['parts']):
@@ -471,6 +482,14 @@ def claims_of(thm):
     return out
 
 
+def unresolved(cited):
+    """What to say of a citation that names nothing."""
+    if '/' not in cited:
+        return (f'{cited} names no theorem of this file; an item of another '
+                f'file is cited by its full name')
+    return f'{cited} resolves to no item'
+
+
 def check_citations(report, thm, items, methods, notation):
     numbers = {s.number for s in thm.steps}
     for step in thm.steps:
@@ -503,10 +522,10 @@ def check_citations(report, thm, items, methods, notation):
                        f'step {fmt(step.number)} instantiates {just.target}; the '
                        f'target of instantiate is a line or a label, never an item')
         if just.head.startswith(('def:', 'thm:')):
-            kind, name = just.head.split(':', 1)
-            item = items.get(name)
+            kind = just.head.split(':', 1)[0]
+            item = items.get(just.item(just.head))
             if item is None:
-                report.say(thm.path, just.line, f'{just.head} resolves to no item')
+                report.say(thm.path, just.line, unresolved(just.head))
             elif item.kind != ('definition' if kind == 'def' else 'theorem'):
                 report.say(thm.path, just.line,
                            f'{just.head} names a {item.kind}')
@@ -521,12 +540,11 @@ def check_citations(report, thm, items, methods, notation):
                            f'neither a method, an item, nor a line')
             # A requires line cites an item like any other citation, so its
             # pointer resolves and its prefix matches the item's kind.
-            m = re.match(rf'^(def|thm):({NAME})', text)
+            m = REQUIRES_ITEM.match(text)
             if m:
-                item = items.get(m.group(2))
+                item = items.get(just.item(m.group(0)))
                 if item is None:
-                    report.say(thm.path, no,
-                               f'{m.group(0)} resolves to no item')
+                    report.say(thm.path, no, unresolved(m.group(0)))
                 elif item.kind != ('definition' if m.group(1) == 'def' else 'theorem'):
                     report.say(thm.path, no, f'{m.group(0)} names a {item.kind}')
             refs, bad = requires_refs(text)
@@ -557,9 +575,9 @@ OBTAIN_NAMES = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 # start of a sentence, so this is deliberately case-insensitive.
 BINDER = re.compile(r'(?:for every|there is(?: no)?)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈',
                     re.IGNORECASE)
-# Named VARNAME rather than NAME: `NAME` is imported from parse and is the
-# pattern for an item name, and shadowing it silently breaks every check that
-# builds a regex from it.
+# Named VARNAME rather than NAME: `NAME` in parse is the pattern for an item
+# name, and a module that imports it and shadows it silently breaks every
+# check that builds a regex from it.
 VARNAME = re.compile(r'(?<![A-Za-zα-ω])([A-Za-zα-ω][₀-₉′]*)(?![A-Za-zα-ω])')
 PAIR = re.compile(r'([^\s,]+)\s*:=\s*([^,]+?)(?=,\s*[^\s,]+\s*:=|,\s*from|\s+in |$)')
 
@@ -643,7 +661,7 @@ ELEMENT = re.compile(r'^\S+\s+be an element$')
 def fixed_by(records, g):
     """For each notation, the names the definition introducing it fixes.
 
-    `def:G` writes `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its sentences are
+    `def:stdlib/sums/G` writes `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its sentences are
     `G(0) = 1` and `G(n + 1) = G(n) + a^(n + 1)`. The hole takes 0, n + 1
     and n, so `n` is what the notation varies over; `a` appears only outside
     it and is fixed for the whole theorem. That is the difference between a
@@ -651,7 +669,7 @@ def fixed_by(records, g):
 
     What a definition introduces is what stands on the left of its defining
     sentence, and only that. Its body may mention any notation at all —
-    `def:G`'s right side is a sum and a power — and those belong to whoever
+    `def:stdlib/sums/G`'s right side is a sum and a power — and those belong to whoever
     declared them. Reading every notation a definition touches would have
     `_ + _` fixing a name, and every proof in the corpus writes `+`.
 
@@ -676,8 +694,9 @@ def fixed_by(records, g):
                     continue
         # A notation with no hole takes no argument, so it fixes nothing and
         # nothing can fill it. Without this a definition whose sentence opens
-        # with a bare name — `def:gcd` has one — would have `name` fixing
-        # every letter it mentions, and every formula ever written is a name.
+        # with a bare name — `def:stdlib/divisibility/gcd` has one — would have
+        # `name` fixing every letter it mentions, and every formula ever
+        # written is a name.
         introduced = {t.children[0].notation for t in trees
                       if t is not None and t.children and t.children[0].children}
         filled = set()
@@ -698,7 +717,7 @@ def check_declared(report, records, fixed):
     """What a notation's target holds fixed is what its definition fixes.
 
     Two files say which names a notation holds fixed and neither reads the
-    other. `db/items.records` says it by what the definition's `let` lines
+    other. The library says it by what the definition's `let` lines
     name and where the hole goes, which is the reading on the page;
     `db/notation.records` says it with `@a` in the target, which is what an
     elaborator builds the term from. A target fixing a name the definition
@@ -726,7 +745,7 @@ def check_declared(report, records, fixed):
 def check_fixed(report, thm, fixed, g):
     """A proof may not bind a name the notation it uses fixes.
 
-    `G(n)` is the sum of the powers of `a`, and `a` is fixed by `def:G` for
+    `G(n)` is the sum of the powers of `a`, and `a` is fixed by `def:stdlib/sums/G` for
     the whole theorem rather than shown in the notation. A proof that bound
     an `a` of its own while writing `G(n)` would be writing about the name
     it bound, and nothing downstream would say so: the term is built from
@@ -775,16 +794,17 @@ class Library:
     which is what Metamath calls a floating hypothesis; a membership and an
     `assume` are essential and a step citing the item has to supply them.
 
-    A record with two `then` groups, as def:S has, states each conclusion under
-    the hypotheses written above it, so the groups are kept apart and a
-    citation satisfies any one of them.
+    A record with two `then` groups, as def:stdlib/sums/S has, states each
+    conclusion under the hypotheses written above it, so the groups are kept
+    apart and a citation satisfies any one of them. Items are asked for by
+    their full name.
     """
 
     def __init__(self, records, theorems, g):
         self.g = g
-        self.items = {r.name: r for r in records
+        self.items = {qualified(r): r for r in records
                       if r.kind in ('definition', 'theorem')}
-        self.proved = {t.name: t for t in theorems}
+        self.proved = {qualified(t): t for t in theorems}
         self.cache = {}
         # Which notations are an existential and which a membership, taken
         # from what they target in the kernel rather than named here. A
@@ -1147,7 +1167,7 @@ def check_conclusion(report, thm, library):
         if not just or not just.head.startswith(('def:', 'thm:')):
             continue
         scope = statements_in_scope(thm, step)
-        groups = library.groups(just.head.split(':', 1)[1])
+        groups = library.groups(just.item(just.head))
         if groups is None:
             continue
         facts, claims, seed = citation_parts(step, just, scope, library,
@@ -1164,9 +1184,9 @@ def check_obtained(report, thm, library):
     """An obtain reaches a "there is" of the item it names.
 
     What it claims is that existential's body, which `check_conclusion`
-    does not read. It does read the way there: `def:odd` gives one only from
-    a line saying n is odd, and an obtain that cites none has nothing to
-    unfold.
+    does not read. It does read the way there: `def:stdlib/divisibility/odd`
+    gives one only from a line saying n is odd, and an obtain that cites none
+    has nothing to unfold.
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
@@ -1177,7 +1197,7 @@ def check_obtained(report, thm, library):
         item = cited_item(just)
         if item is None or just.head != 'obtain':
             continue
-        groups = library.groups(item.split(':', 1)[1])
+        groups = library.groups(just.item(item))
         if groups is None:
             continue
         facts, _, seed = citation_parts(step, just, scope, library, sorts,
@@ -1224,7 +1244,7 @@ def family_asks(step, scope, library, sorts, defined):
     membership.
     """
     just = step.just
-    groups = library.groups(cited_item(just).split(':', 1)[1])
+    groups = library.groups(just.item(cited_item(just)))
     _facts, claims, seed = citation_parts(step, just, scope, library, sorts,
                                           defined)
     held = set()
@@ -1301,7 +1321,7 @@ def check_surplus(report, thm, library):
         # what the step names: a definition read either way takes the other
         # side from a cited line, which asks for it as surely as a
         # hypothesis does.
-        groups = library.groups(cited_item(step.just).split(':', 1)[1])
+        groups = library.groups(step.just.item(cited_item(step.just)))
         facts, claims, seed = citation_parts(step, step.just, scope, library,
                                              sorts, defined)
         if step.just.head == 'obtain':
@@ -1311,7 +1331,7 @@ def check_surplus(report, thm, library):
     for step in thm.steps:
         just = step.just
         item = cited_item(just)
-        if item is None or library.groups(item.split(':', 1)[1]) is None \
+        if item is None or library.groups(just.item(item)) is None \
                 or not holds(step):
             continue
         for ref in dict.fromkeys(just.refs):
@@ -1341,8 +1361,9 @@ def obtains(groups, facts, seed, library):
 
     An obtain claims the body of what the item says there is, which
     `concludes` does not read. What it does read is the way to the
-    existential: `def:odd` gives one only from a line saying n is odd, so
-    `obtain k: def:odd, from H1, H2` needs H2 as surely as it needs H1.
+    existential: `def:stdlib/divisibility/odd` gives one only from a line
+    saying n is odd, so `obtain k: def:stdlib/divisibility/odd, from H1, H2`
+    needs H2 as surely as it needs H1.
     """
     for _want, gives in groups:
         for concl in gives:
@@ -1374,10 +1395,10 @@ def unconcluded(step, scope, library, sorts, defined):
 
     out = []
     for fact, how, no in step.requires:
-        named = re.match(rf'^(def|thm):({NAME})', how)
+        named = REQUIRES_ITEM.match(how)
         if not named:
             continue
-        groups = library.groups(named.group(2))
+        groups = library.groups(step.just.item(named.group(0)))
         if groups is None:
             continue
         claims = [x for x in map(read, sentences(fact)) if x is not None]
@@ -1410,7 +1431,7 @@ def derives(claim, groups, facts, library, depth=5):
     """The fact follows from the cited item applied as often as it takes.
 
     A closure line names a principle, not one use of it: `2k² + 2k ∈ ℤ` cites
-    `thm:int-closure` once where the kernel applies it three times, and a
+    `thm:stdlib/numbers/int-closure` once where the kernel applies it three times, and a
     reader wants the one line. So the item's own conclusions are matched
     against the claim and against whatever they then ask for, and nothing
     else is allowed in.
@@ -1461,24 +1482,6 @@ def check_hypotheses(report, thm, library):
                        f'supply them')
 
 
-OBTAINED_FROM = re.compile(rf'^obtain\s+[^:]+:\s*((?:def|thm):{NAME})')
-
-
-def cited_item(just):
-    """The item a step's justification cites, as `def:x` or `thm:x`, or None.
-
-    Either the head is the item, or the step obtains from one:
-    `obtain c: thm:completeness S := S, from 5, 2, 7` owes the item's
-    hypotheses as surely as a step headed by it does.
-    """
-    if not just:
-        return None
-    if just.head.startswith(('def:', 'thm:')):
-        return just.head
-    m = OBTAINED_FROM.match(just.text) if just.head == 'obtain' else None
-    return m.group(1) if m else None
-
-
 def unsupplied(step, scope, library, sorts, defined):
     """The hypotheses of the item a step cites that nothing it names supplies,
     or None where they are supplied or the step cites no item.
@@ -1487,7 +1490,7 @@ def unsupplied(step, scope, library, sorts, defined):
     item = cited_item(just)
     if item is None:
         return None
-    groups = library.groups(item.split(':', 1)[1])
+    groups = library.groups(just.item(item))
     if groups is None:
         return None                       # a pointer that resolves to nothing
     facts, _, seed = citation_parts(step, just, scope, library, sorts,
@@ -1551,7 +1554,7 @@ def check_unsorted(report, records, g):
     """A name an item treats as a number, a `let` says is one.
 
     An item with no target is assumed exactly as it states itself, so a name
-    it leaves open is read as anything at all. `thm:card-nonempty` said
+    it leaves open is read as anything at all. `thm:stdlib/counting/card-nonempty` said
     `assume |X| = k + 1` and never what k was; at k = −1 and X = ∅ its
     hypotheses held and its conclusion did not, and the kernel accepted the
     axiom. A name of no known sort standing where the notation wants a number
@@ -1610,8 +1613,9 @@ def check_symbols(report, records):
     """A definition that introduces a symbol says which, and is alone in it.
 
     Most definitions name a word for something the library already has and
-    introduce nothing: `def:even` is divisibility by two, `def:irrational` is
-    membership of the reals minus the rationals. One that introduces a symbol
+    introduce nothing: `def:stdlib/divisibility/even` is divisibility by two,
+    `def:stdlib/numbers/irrational` is membership of the reals minus the
+    rationals. One that introduces a symbol
     is the case decision 12 of `GOALS.md` is about, wanting a definitional
     axiom "syntactically checked to introduce one new symbol and be
     eliminable". It says so with a `symbol` field naming the token, and a
@@ -1647,9 +1651,9 @@ def check_symbols(report, records):
         if token in claimed:
             report.say(r.path, r.line,
                        f'definition {r.name}: {token!r} is already introduced '
-                       f'by definition {claimed[token]}')
+                       f'by definition {claimed[token].name}')
             continue
-        claimed[token] = r.name
+        claimed[token] = r
     # A symbol nothing reaches is a symbol the corpus cannot write. The
     # constant a definition introduces is `c` and the token, by the naming
     # set.mm uses for every other one.
@@ -1658,15 +1662,15 @@ def check_symbols(report, records):
         if r.kind != 'notation':
             continue
         reached.update(r.fields.get('target', '').split())
-    for token, name in claimed.items():
+    for token, r in claimed.items():
         if f'c{token}' not in reached:
-            report.say('db/items.records', 0,
-                       f'definition {name}: nothing writes c{token}, so the '
+            report.say(r.path, r.line,
+                       f'definition {r.name}: nothing writes c{token}, so the '
                        f'symbol it introduces cannot be reached')
 
 
 def statement_kinds(g, records, theorems):
-    """What each item's and each proved theorem's names are, by its name.
+    """What each item's and each proved theorem's names are, by its full name.
 
     A cited statement is read on its own, and each citation takes its own
     copy of what it says (`kinds.copy`), so the kinds a statement relates stay
@@ -1674,10 +1678,10 @@ def statement_kinds(g, records, theorems):
     """
     out = {}
     for r in records:
-        if r.kind not in ('definition', 'theorem') or 'proved-in' in r.fields:
+        if r.kind not in ('definition', 'theorem'):
             continue
         g.sorts = sorts_of_record(r, g)
-        out[r.name] = kinds.read_record(r, g)
+        out[qualified(r)] = kinds.read_record(r, g)
     for thm in theorems:
         sorts_in_scope(thm, g)
         reader = kinds.Reader(g)
@@ -1688,15 +1692,15 @@ def statement_kinds(g, records, theorems):
             else:
                 kinds.claim_text(reader, body, no, g)
         kinds.claim_text(reader, thm.conclusion, thm.line, g)
-        out[thm.name] = reader
+        out[qualified(thm)] = reader
     return out
 
 
-def check_item_kinds(report, statements):
+def check_item_kinds(report, statements, names):
     """An item's statement is one kind throughout where it says so."""
     for name, reader in statements.items():
         for line, what, why in reader.clashes:
-            report.say('db/items.records', line, f'{name}: {what}: {why}')
+            report.say(names[name].path, line, f'{name}: {what}: {why}')
 
 
 def check_kinds(report, thm, g, statements):
@@ -1728,11 +1732,11 @@ def _cited_kinds(reader, step, g, statements):
     cites = []
     item = cited_item(step.just)
     if item:
-        cites.append((item.split(':', 1)[1], step.just.text))
+        cites.append((step.just.item(item), step.just.text))
     for _fact, how, _no in step.requires:
-        m = re.match(rf'^(?:def|thm):({NAME})', how)
+        m = REQUIRES_ITEM.match(how)
         if m:
-            cites.append((m.group(1), how))
+            cites.append((step.just.item(m.group(0)), how))
     for name, text in cites:
         stated = statements.get(name)
         if stated is None:
@@ -1896,18 +1900,83 @@ def check_last_step(report, thm):
 
 # -------------------------------------------------------------------- main
 
+def check_imports(report, theorems):
+    """A proof file imports exactly the other proof files it cites.
+
+    The standard library is never imported: every proof may cite it. The
+    imports have no cycle, because the theorems a file imports are built
+    before its own.
+    """
+    files = {}
+    for thm in theorems:
+        files.setdefault(thm.module, []).append(thm)
+    graph = {}
+    for module, thms in files.items():
+        path = thms[0].path
+        said, seen = {}, set()
+        for name, no in thms[0].imports:
+            if name in seen:
+                report.say(path, no, f'{name} is imported twice')
+                continue
+            seen.add(name)
+            if name == STDLIB or in_stdlib(name):
+                report.say(path, no,
+                           f'import {name}: the standard library is never '
+                           f'imported, and every proof may cite it')
+            elif name == module:
+                report.say(path, no, f'{name} imports itself')
+            elif name not in files:
+                report.say(path, no, f'import {name} names no proof file')
+            else:
+                said[name] = no
+        cited = {}
+        for thm in thms:
+            for full, no in cited_items(thm):
+                other = full.rsplit('/', 1)[0]
+                if other != module and not in_stdlib(full):
+                    cited.setdefault(other, (full, no))
+        for other, (full, no) in cited.items():
+            if other in files and other not in seen:
+                report.say(path, no,
+                           f'{full} is cited and {other} is not imported')
+        for name, no in said.items():
+            if name not in cited:
+                report.say(path, no,
+                           f'imports {name} and cites nothing from it')
+        graph[module] = said
+
+    done, trail = set(), []
+
+    def visit(module):
+        if module in done:
+            return
+        trail.append(module)
+        for name, no in graph.get(module, {}).items():
+            if name in trail:
+                cycle = ' → '.join([*trail[trail.index(name):], name])
+                report.say(files[module][0].path, no,
+                           f'import {name} closes a cycle: {cycle}')
+            else:
+                visit(name)
+        trail.pop()
+        done.add(module)
+
+    for module in sorted(graph):
+        visit(module)
+
+
 def main(root):
     root = Path(root)
     report = Report()
 
-    db_files = sorted((root / 'db').glob('*.records'))
-    proof_files = sorted((root / 'proof').glob('*.proof'))
-    if not db_files or not proof_files:
+    db_files = record_files(root)
+    proofs = proof_files(root)
+    if not db_files or not proofs:
         print(f'no corpus under {root}', file=sys.stderr)
         return 2
 
     records, texts = [], {}
-    for path in db_files + proof_files:
+    for path in db_files + proofs:
         rel = str(path.relative_to(root))
         try:
             texts[rel] = check_encoding(rel, path.read_bytes())
@@ -1923,7 +1992,6 @@ def main(root):
         except Problem as p:
             report.problems.append(p)
 
-    items = {r.name: r for r in records if r.kind in ('definition', 'theorem')}
     methods = {r.name: r for r in records if r.kind == 'method'}
     notation = [r for r in records if r.kind == 'notation']
     allowed = set()
@@ -1937,7 +2005,7 @@ def main(root):
     words = declared_words(records)
 
     theorems = []
-    for path in proof_files:
+    for path in proofs:
         rel = str(path.relative_to(root))
         if rel not in texts:
             continue
@@ -1949,6 +2017,17 @@ def main(root):
             continue
         theorems.extend(found)
 
+    items = index(records, theorems)
+    seen = {}
+    for thm in theorems:
+        name = qualified(thm)
+        if name in seen:
+            report.say(thm.path, thm.line,
+                       f'theorem {thm.name} is already proved at line '
+                       f'{seen[name]}')
+        seen.setdefault(name, thm.line)
+    check_imports(report, theorems)
+
     grammar = Grammar.load(records)
     check_statements(report, records, grammar)
     check_unsorted(report, records, grammar)
@@ -1958,9 +2037,8 @@ def main(root):
     fixes = fixed_by(records, grammar)
     check_declared(report, records, fixes)
 
-    proved = {}
     statements = statement_kinds(grammar, records, theorems)
-    check_item_kinds(report, statements)
+    check_item_kinds(report, statements, items)
     for thm in theorems:
         check_formulas(report, thm, grammar)
         check_kinds(report, thm, grammar, statements)
@@ -1985,19 +2063,6 @@ def main(root):
                 check_justification_form(report, thm.path, step.just)
                 check_chain(report, thm, step)
         check_citations(report, thm, items, methods, notation)
-        proved.setdefault(thm.name, thm)
-
-    for name, item in sorted(items.items()):
-        where = item.fields.get('proved-in')
-        if where and name not in proved:
-            report.say(item.path, item.line,
-                       f'{name} says it is proved in {where}, and no theorem there '
-                       f'has that name')
-    for thm in theorems:
-        if thm.name not in items:
-            report.say(thm.path, thm.line,
-                       f'theorem {thm.name} is proved here and is in no record of '
-                       f'db/items.records')
 
     for p in sorted(report.problems, key=lambda p: (p.path, p.line)):
         print(p)

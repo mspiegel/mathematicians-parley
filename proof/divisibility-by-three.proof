@@ -7,14 +7,14 @@ theorem ten-power-congruent
 
     base
     1.1.  3 divides 10^0 − 1
-          def:divides d := 3, n := 10^0 − 1
+          def:stdlib/divisibility/divides d := 3, n := 10^0 − 1
           requires 10^0 − 1 = 3·0: arithmetic
           requires 3 ∈ ℤ: arithmetic
           requires 0 ∈ ℤ: arithmetic
           requires 10^0 − 1 ∈ ℤ: arithmetic
 
     1.2.  10^0 ≡ 1 (mod 3)
-          def:congruent-mod, from 1.1
+          def:stdlib/divisibility/congruent-mod, from 1.1
           requires 3 ∈ ℤ: arithmetic
           requires 10^0 ∈ ℤ: arithmetic
           requires 1 ∈ ℤ: arithmetic
@@ -26,43 +26,43 @@ theorem ten-power-congruent
           assume 10^m ≡ 1 (mod 3)                                     (IH)
 
           1.3.1.  10^m ∈ ℤ
-                  thm:power-integer a := 10, from K
+                  thm:stdlib/numbers/power-integer a := 10, from K
                   requires 10 ∈ ℤ: arithmetic
 
           1.3.2.  3 divides 10^m − 1
-                  def:congruent-mod, from IH
+                  def:stdlib/divisibility/congruent-mod, from IH
                   requires 3 ∈ ℤ: arithmetic
                   requires 10^m ∈ ℤ: from 1.3.1
                   requires 1 ∈ ℤ: arithmetic
 
           1.3.3.  3 divides 9
-                  def:divides d := 3, n := 9
+                  def:stdlib/divisibility/divides d := 3, n := 9
                   requires 9 = 3·3: arithmetic
                   requires 3 ∈ ℤ: arithmetic
                   requires 9 ∈ ℤ: arithmetic
 
           1.3.4.  10 − 1 = 9
-                  thm:ten-minus-one
+                  thm:stdlib/numbers/ten-minus-one
 
           1.3.5.  3 divides 10 − 1
                   substitute 10 − 1 = 9 (line 1.3.4) into line 1.3.3, right to left
 
           1.3.6.  3 divides (10^m − 1)·10 + (10 − 1)·1
-                  thm:divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
+                  thm:stdlib/divisibility/divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
                     x := 10, y := 1, from 1.3.2, 1.3.5
                   requires 3 ∈ ℤ: arithmetic
-                  requires 10^m − 1 ∈ ℤ: thm:int-closure, from 1.3.1
+                  requires 10^m − 1 ∈ ℤ: thm:stdlib/numbers/int-closure, from 1.3.1
                   requires 10 − 1 ∈ ℤ: arithmetic
                   requires 10 ∈ ℤ: arithmetic
                   requires 1 ∈ ℤ: arithmetic
 
           1.3.7.  10^(m + 1) = 10^m·10
-                  thm:exponent-step a := 10, from K
+                  thm:stdlib/numbers/exponent-step a := 10, from K
                   requires 10 ∈ ℝ: arithmetic
 
           1.3.8.  (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1
                   algebra
-                  requires 10^m ∈ ℝ: thm:int-real, from 1.3.1
+                  requires 10^m ∈ ℝ: thm:stdlib/numbers/int-real, from 1.3.1
 
           1.3.9.  10^m·10 − 1 = 10^(m + 1) − 1
                   substitute 10^(m + 1) = 10^m·10 (line 1.3.7), right to left
@@ -76,17 +76,20 @@ theorem ten-power-congruent
                   substitute (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1 (line 1.3.10) into line 1.3.6
 
           1.3.12. m + 1 ∈ ℕ₀
-                  thm:nat0-closure, from K
+                  thm:stdlib/numbers/nat0-closure, from K
 
           1.3.13. 10^(m + 1) ≡ 1 (mod 3)
-                  def:congruent-mod, from 1.3.11
+                  def:stdlib/divisibility/congruent-mod, from 1.3.11
                   requires 3 ∈ ℤ: arithmetic
                   requires 10 ∈ ℤ: arithmetic
-                  requires 10^(m + 1) ∈ ℤ: thm:power-integer a := 10, m := m + 1, from 1.3.12
+                  requires 10^(m + 1) ∈ ℤ: thm:stdlib/numbers/power-integer a := 10, m := m + 1, from 1.3.12
                   requires 1 ∈ ℤ: arithmetic
 
 
 theorem divisibility-by-three
+  note        Wiedijk's 85, `3dvds` in set.mm, which states it for a digit
+              function on ( 0 ... N ). The digits here are any integers d(k),
+              as set.mm's are; a reader's decimal digits are the case 0 to 9.
   let n ∈ ℕ₀                                                          (H1)
   let d : ℕ₀ → ℤ                                                      (H2)
   then 3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
@@ -100,54 +103,54 @@ theorem divisibility-by-three
           thm:ten-power-congruent k := k, from K
 
     1.2.  10^k ∈ ℤ
-          thm:power-integer a := 10, m := k, from K
+          thm:stdlib/numbers/power-integer a := 10, m := k, from K
           requires 10 ∈ ℤ: arithmetic
 
     1.3.  3 divides 10^k − 1
-          def:congruent-mod, from 1.1
+          def:stdlib/divisibility/congruent-mod, from 1.1
           requires 3 ∈ ℤ: arithmetic
           requires 10^k ∈ ℤ: from 1.2
           requires 1 ∈ ℤ: arithmetic
 
     1.4.  d(k) ∈ ℤ
-          thm:function-value, from K
+          thm:stdlib/functions/function-value, from K
 
     1.5.  3 divides (10^k − 1)·d(k)
-          thm:divides-multiple e := 3, a := 10^k − 1, x := d(k), from 1.3, 1.4
+          thm:stdlib/divisibility/divides-multiple e := 3, a := 10^k − 1, x := d(k), from 1.3, 1.4
           requires 3 ∈ ℤ: arithmetic
           requires 1 ∈ ℤ: arithmetic
-          requires 10^k − 1 ∈ ℤ: thm:int-closure, from 1.2
+          requires 10^k − 1 ∈ ℤ: thm:stdlib/numbers/int-closure, from 1.2
 
     1.6.  (10^k − 1)·d(k) = d(k)·10^k − d(k)
           algebra
-          requires d(k) ∈ ℝ: thm:int-real, from 1.4
-          requires 10^k ∈ ℝ: thm:int-real, from 1.2
+          requires d(k) ∈ ℝ: thm:stdlib/numbers/int-real, from 1.4
+          requires 10^k ∈ ℝ: thm:stdlib/numbers/int-real, from 1.2
 
     1.7.  3 divides d(k)·10^k − d(k)
           substitute (10^k − 1)·d(k) = d(k)·10^k − d(k) (line 1.6) into line 1.5
 
 2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))
-    thm:sum-divisible m := 3, from H1, 1
+    thm:stdlib/sums/sum-divisible m := 3, from H1, 1
     requires 3 ∈ ℤ: arithmetic
 
 3.  Σ(k = 0 to n) (d(k)·10^k − d(k)) = Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)
-    thm:sum-difference, from H1
+    thm:stdlib/sums/sum-difference, from H1
 
 4.  3 divides Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)
     substitute Σ(k = 0 to n) (d(k)·10^k − d(k)) = Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) (line 3) into line 2
 
 5.  Σ(k = 0 to n) d(k)·10^k ∈ ℤ
-    thm:sum-integer, from H1
+    thm:stdlib/sums/sum-integer, from H1
 
 6.  Σ(k = 0 to n) d(k) ∈ ℤ
-    thm:sum-integer, from H1
+    thm:stdlib/sums/sum-integer, from H1
 
 7.  Σ(k = 0 to n) d(k)·10^k ≡ Σ(k = 0 to n) d(k) (mod 3)
-    def:congruent-mod, from 4
+    def:stdlib/divisibility/congruent-mod, from 4
     requires 3 ∈ ℤ: arithmetic
     requires Σ(k = 0 to n) d(k)·10^k ∈ ℤ: from 5
     requires Σ(k = 0 to n) d(k) ∈ ℤ: from 6
 
 8.  3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
-    thm:congruent-divides m := 3, from 7, 5, 6
+    thm:stdlib/divisibility/congruent-divides m := 3, from 7, 5, 6
     requires 3 ∈ ℤ: arithmetic

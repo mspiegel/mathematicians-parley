@@ -1,5 +1,6 @@
-$( thm:odd-square and thm:even-square, from
-   proof/sqrt2-irrational.proof, as Metamath proofs.
+$( thm:proof/sqrt2-irrational/odd-square and
+   thm:proof/sqrt2-irrational/even-square, from proof/sqrt2-irrational.proof,
+   as Metamath proofs.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

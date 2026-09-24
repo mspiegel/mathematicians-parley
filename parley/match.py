@@ -1,10 +1,11 @@
 """Match an item's hypothesis against the fact a step supplies for it.
 
 The match is one-way: the item is a pattern whose names stand for anything, and
-the fact is ground. `thm:subset-transitive` assumes X ⊆ Y and Y ⊆ Z, and a step
-citing it from two lines claiming S ⊆ [a, b] and [a, b] ⊆ ℝ supplies them with
-X, Y, Z standing for S, [a, b] and ℝ. A name that appears twice must stand for
-the same thing both times, which is what makes the middle Y load-bearing.
+the fact is ground. `thm:stdlib/sets/subset-transitive` assumes X ⊆ Y and
+Y ⊆ Z, and a step citing it from two lines claiming S ⊆ [a, b] and
+[a, b] ⊆ ℝ supplies them with X, Y, Z standing for S, [a, b] and ℝ. A name
+that appears twice must stand for the same thing both times, which is what
+makes the middle Y load-bearing.
 
 A citation may write its instantiation and 69 of the corpus's 106 do. The
 written pairs seed the binding, so they are checked rather than trusted, and a

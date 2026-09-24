@@ -1,4 +1,7 @@
-"""Assemble thm:odd-square and thm:even-square as Metamath proofs.
+"""Assemble two theorems of proof/sqrt2-irrational as Metamath proofs.
+
+They are thm:proof/sqrt2-irrational/odd-square and
+thm:proof/sqrt2-irrational/even-square.
 
 Each readable step is one named block below, so the correspondence between the
 proof text and the expansion stays visible.
@@ -220,8 +223,9 @@ e_2 = seq(CH2, wo(dvds(TWO, A), ODD_A), dvds(TWO, A), e_or,
           seq(CH2, wn(ODD_A), wi(wo(dvds(TWO, A), ODD_A), dvds(TWO, A)),
               e_1, ODD_A, dvds(TWO, A), 'orel2 syl'), 'mpd')
 
-HEADER = """$( thm:odd-square and thm:even-square, from
-   proof/sqrt2-irrational.proof, as Metamath proofs.
+HEADER = """$( thm:proof/sqrt2-irrational/odd-square and
+   thm:proof/sqrt2-irrational/even-square, from proof/sqrt2-irrational.proof,
+   as Metamath proofs.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

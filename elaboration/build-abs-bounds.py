@@ -1,4 +1,4 @@
-"""Assemble thm:abs-bounds as a Metamath proof.
+"""Assemble thm:proof/triangle-inequality/abs-bounds as a Metamath proof.
 
 Each readable step is one named block below, so the correspondence between the
 proof text and the expansion stays visible.
@@ -94,8 +94,8 @@ case2 = seq(C2, le(X, ABSX), le(NEGX, ABSX), p27, p26, 'jca')
 # --- step 2, the cases block closing ----------------------------------------
 proof = seq(PH, le(ZERO, X), CONCL, lt(X, ZERO), case1, case2, p1, 'mpjaodan')
 
-HEADER = """$( thm:abs-bounds, from proof/triangle-inequality.proof, as a
-   Metamath proof.
+HEADER = """$( thm:proof/triangle-inequality/abs-bounds, from
+   proof/triangle-inequality.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

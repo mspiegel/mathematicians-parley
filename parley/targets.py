@@ -1,10 +1,10 @@
 """Where the readable layer's words land in set.mm.
 
-`db/notation.records` and `db/items.records` carry a `target` field beside `metamath`,
-and this reads it. `metamath` says in words which set.mm construct a pattern
-or an item corresponds to, which is what a person checking the database
-wants; `target` says the same thing as a term, which is what a program needs.
-Neither is derivable from the other, so both are written.
+`db/notation.records` and the `stdlib/*.records` files carry a `target` field
+beside `metamath`, and this reads it. `metamath` says in words which set.mm
+construct a pattern or an item corresponds to, which is what a person checking
+the database wants; `target` says the same thing as a term, which is what a
+program needs. Neither is derivable from the other, so both are written.
 
 What is still here rather than in the databases is `MEMBERSHIP`: which
 set.mm lemmas an elaborator may lean on for what the readable layer never
@@ -67,10 +67,11 @@ def lemma(record):
     """The set.mm theorem an item corresponds to, and what fills it.
 
     A readable theorem and the lemma that supplies it are stated in different
-    variables, and nothing derives the correspondence: `thm:not-both` is
-    double negation and its `ph` is what the readable statement calls `n is
-    even`. So the item says it, as `notnot with ph := n is even`, and each
-    right-hand side is a formula in the item's own names.
+    variables, and nothing derives the correspondence:
+    `thm:stdlib/divisibility/not-both` is double negation and its `ph` is what
+    the readable statement calls `n is even`. So the item says it, as
+    `notnot with ph := n is even`, and each right-hand side is a formula in
+    the item's own names.
     """
     value = record.fields.get('target')
     if not value or ' with ' not in value:
@@ -112,15 +113,16 @@ def commuting(records):
 def clauses(record):
     """The lemmas an item's `target` names, one per `then` group.
 
-    An item may state several things at once — `thm:real-closure` says a sum
-    and a difference are both real — and set.mm proves each separately, so a
-    step citing the item claims one of them.
+    An item may state several things at once —
+    `thm:stdlib/numbers/real-closure` says a sum and a difference are both
+    real — and set.mm proves each separately, so a step citing the item
+    claims one of them.
 
     What stands before `with` is still a list, and the filling serves every
-    lemma in it: `thm:lowest-terms` is assembled from three theorems about
-    a rational's numerator and denominator, and all three are about the
-    same rational. What stands after it is the filling and not a list,
-    however many commas it takes.
+    lemma in it: `thm:proof/sqrt2-irrational/lowest-terms` is assembled from
+    three theorems about a rational's numerator and denominator, and all
+    three are about the same rational. What stands after it is the filling
+    and not a list, however many commas it takes.
     """
     value = record.fields.get('target')
     if not value:
@@ -262,7 +264,7 @@ MEMBERSHIP = [
     'nnne0',
     # The two equations in this list, and what `said_otherwise` rewrites a
     # fact by. `fsum1` says a one-term sum is its summand read at the limit,
-    # so def:G's base clause reaches `a^0` where the definition says 1.
+    # so def:stdlib/sums/G's base clause reaches `a^0` where the definition says 1.
     'nn0absid', 'exp0',
     # A disequality is one fact in two orders and the corpus writes it as a
     # negated equation, which set.mm names and then commutes. `necom` alone
