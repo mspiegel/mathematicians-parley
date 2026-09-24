@@ -352,11 +352,11 @@ A pattern is a candidate at a position when its leading token matches, a hole
 being a token that matches anything. Three things then narrow the candidates, in
 this order:
 
-1. **The literal tokens.** Most patterns are settled here alone. Of the 73
-   declared patterns two shapes are shared outright, `|_|` and `_(_)`; 21 open
-   the same way as some other pattern and are separated by a token further on,
-   as `_, _` and `_, and _` are, and as the two universals are by the `with`
-   that one of them carries.
+1. **The literal tokens.** Most patterns are settled here alone. Of the 80
+   declared patterns two shapes are shared outright, `|_|` and `_(_)`; others
+   open the same way as some other pattern and are separated by a token further
+   on, as `_, _` and `_, and _` are, as the two universals are by the `with`
+   that one of them carries, and as `{_}` and `{_, …, _}` are by the comma.
 2. **The sorts of the holes.** This decides the two overloaded patterns. `|_|`
    is absolute value, cardinality or distance according to what is inside, and
    `_(_)` is a function applied to an argument, a number times a bracketed one,
@@ -394,8 +394,14 @@ u(k))`, as a reader expects. It is a binder, like `for every`: the `k` it
 names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
 and its brackets are part of its pattern, not a grouping.
 
+The range a sum runs over is written as a set, `{0, …, n}`, where a line says
+something of every index in it: "for every k ∈ {0, …, m}, …" is the line a
+sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is a
+pattern whose `C` is a literal, as the `S` of `S(n)` is, so a proof that writes
+the coefficient cannot also name a variable C.
+
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
-says which way. Fifteen of the 73 patterns are in that position, across ten
+says which way. Fifteen of the 80 patterns are in that position, across ten
 records, and the checker enforces that exactly those ten declare one.
 
 ### A folded negation
@@ -630,7 +636,9 @@ has closed are not visible outside it, so `17.2` cannot cite `17.1.1` but can
 cite `17.1`.
 
 A label is in scope inside the block that declares it and nowhere else. A
-theorem's hypothesis labels are in scope throughout its proof.
+theorem's hypothesis labels are in scope throughout its proof. So two sibling
+blocks may use one label, as `binomial-step`'s four `fix` blocks each fix k
+as `(J)`, and a citation of it means the line of the block it sits in.
 
 References cannot be found by scanning a line for digits. Claims are full of
 numerals that look like step numbers: a square-root instantiation contains a 2

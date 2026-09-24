@@ -72,12 +72,14 @@ def definitions_in_scope(thm, g):
     return out
 
 
-def sorts_of_record(record):
+def sorts_of_record(record, g):
     """The sort of every name an item's own lines state one for.
 
     A record keeps the keyword of a hypothesis in the field name where a proof
     line keeps it in the text, and a record has no steps and no `define`. That
-    is the whole difference from `sorts_in_scope`.
+    is the whole difference from `sorts_in_scope`, and what the lines leave
+    unknown the kinds settle here as they do there: `let k ∈ {a, …, n}` names
+    no number system, and k is a number because the range holds numbers.
     """
     out = {}
     for kind, value, _, _ in record.hypotheses:
@@ -85,6 +87,18 @@ def sorts_of_record(record):
             found = _from_introduction(LABEL.sub('', value).strip())
             if found:
                 out.setdefault(*found)
+    # The parser's sorts are left as they were found: a record is read while
+    # a proof that cites it is being read, and the proof's sorts are the ones
+    # its next line is parsed with.
+    kept, g.sorts = g.sorts, out
+    from kinds import read_record, sort_of
+    try:
+        for name, kind in read_record(record, g).env.items():
+            settled = sort_of(kind)
+            if settled:
+                out.setdefault(name, settled)
+    finally:
+        g.sorts = kept
     return out
 
 

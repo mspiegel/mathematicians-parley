@@ -350,6 +350,22 @@ theorem nat0-real
   first-used  subsets
   note        Direct, for the same reason as nat-real.
 
+theorem below-successor
+  let a ∈ ℝ                                                           (H1)
+  then        a < a + 1
+  metamath    ltp1
+  target      ltp1
+  first-used  binomial
+  note        `inequalities` decides this and cannot yet build it: its
+              proofs combine cited facts, and this one cites none.
+
+theorem nat0-int
+  let m ∈ ℕ₀                                                          (H1)
+  then        m ∈ ℤ
+  metamath    nn0z
+  target      nn0z
+  first-used  binomial
+
 theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then        m ≥ 1
@@ -444,6 +460,13 @@ theorem exponent-one
   note        The base case of the geometric series needs a^(0 + 1) = a. The
               arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
               exponent laws are theorems rather than closure methods.
+
+theorem exponent-zero
+  let a ∈ ℝ                                                           (H1)
+  then        a^0 = 1
+  metamath    exp0
+  target      exp0
+  first-used  binomial
 
 theorem trichotomy
   let x ∈ ℝ                                                           (H1)
@@ -699,6 +722,19 @@ theorem ten-power-congruent
 theorem divisibility-by-three
   proved-in   proof/divisibility-by-three.proof
   first-used  divisibility-by-three
+
+theorem binomial-step
+  proved-in   proof/binomial.proof
+  first-used  binomial
+  note        The induction step's algebra, stated apart from the induction.
+              Inside the step the hypothesis is in scope and names the sum's
+              index, and set.mm's lemma for rewriting a sum term by term
+              forbids its index in the scope; here nothing in scope names it.
+
+theorem binomial
+  proved-in   proof/binomial.proof
+  metamath    binom
+  first-used  binomial
   note        Wiedijk's 85, `3dvds` in set.mm, which states it for a digit
               function on ( 0 ... N ). The digits here are any integers d(k),
               as set.mm's are; a reader's decimal digits are the case 0 to 9.
@@ -996,6 +1032,176 @@ theorem sum-difference
   metamath    fsumsub
   target      fsumsub
   first-used  divisibility-by-three
+
+theorem sum-single
+  let a ∈ ℤ                                                           (H1)
+  let t : {a, …, a} → ℝ                                               (H2)
+  then        Σ(k = a to a) t(k) = t(a)
+  metamath    fsum1
+  target      fsum1
+  first-used  binomial
+
+theorem sum-last
+  let n ∈ ℕ₀                                                          (H1)
+  let t : {0, …, n + 1} → ℝ                                           (H2)
+  then        Σ(k = 0 to n + 1) t(k) = Σ(k = 0 to n) t(k) + t(n + 1)
+  metamath    fsump1
+  target      fsump1
+  first-used  binomial
+
+theorem sum-first
+  let n ∈ ℕ₀                                                          (H1)
+  let t : {0, …, n} → ℝ                                               (H2)
+  then        Σ(k = 0 to n) t(k) = t(0) + Σ(k = 0 + 1 to n) t(k)
+  metamath    fsum1p
+  target      fsum1p
+  first-used  binomial
+  note        The rest of the sum starts at 0 + 1, as set.mm writes it; a
+              proof that wants 1 there substitutes.
+
+theorem sum-shift
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let t : {a, …, b} → ℝ                                               (H4)
+  then        Σ(k = a to b) t(k) = Σ(k = a + c to b + c) t(k − c)
+  metamath    fsumshft
+  target      fsumshft
+  first-used  binomial
+  note        The same terms counted from a different start: the term the
+              left side takes at k, the right side takes at k + c.
+
+theorem sum-scaled
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let t : {a, …, b} → ℝ                                               (H4)
+  then        c·(Σ(k = a to b) t(k)) = Σ(k = a to b) c·t(k)
+  metamath    fsummulc2
+  target      fsummulc2
+  first-used  binomial
+
+theorem sum-add
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  let u : {a, …, b} → ℝ                                               (H4)
+  then        Σ(k = a to b) (t(k) + u(k)) = Σ(k = a to b) t(k) + Σ(k = a to b) u(k)
+  metamath    fsumadd
+  target      fsumadd
+  first-used  binomial
+
+theorem sum-termwise
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  let u : {a, …, b} → ℝ                                               (H4)
+  assume for every k ∈ {a, …, b}, t(k) = u(k)                          (H5)
+  then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
+  metamath    sumeq2dv
+  target      sumeq2dv
+  first-used  binomial
+  note        Two sums over one range are equal when their terms are, index
+              by index. The terms need agree only where the sum takes them,
+              which is what lets a term be rewritten by a fact that holds on
+              the range and nowhere else.
+
+theorem sum-real
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  then        Σ(k = a to b) t(k) ∈ ℝ
+  metamath    fsumrecl
+  target      fsumrecl
+  first-used  binomial
+
+theorem range-difference
+  let a ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  let k ∈ {a, …, n}                                                   (H3)
+  then        n − k ∈ ℕ₀
+  metamath    fznn0sub
+  target      fznn0sub
+  first-used  binomial
+  note        An index no greater than n leaves a whole number when taken
+              from n, which is what lets x^(n − k) be a power with a natural
+              exponent.
+
+theorem range-integer
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let k ∈ {a, …, b}                                                   (H3)
+  then        k ∈ ℤ
+  metamath    elfzelz
+  target      elfzelz
+  first-used  binomial
+
+theorem range-nat0
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then        k ∈ ℕ₀
+  metamath    elfznn0
+  target      elfznn0
+  first-used  binomial
+
+
+# ------------------------------------------------- binomial coefficients
+
+definition binomial-coefficient
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then        C(n, k) = n!/((n − k)!·k!)
+  metamath    bcval2
+  target      bcval2
+  first-used  binomial
+  note        set.mm defines C(n, k) for every integer k, as 0 outside
+              0 … n, and the formula is its value inside. The binomial proof
+              does not unfold this: it rests on Pascal's rule and on the
+              values at the edges, which are set.mm theorems proved from it.
+
+theorem pascal
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ ℤ                                                           (H2)
+  then        C(n, k) + C(n, k − 1) = C(n + 1, k)
+  metamath    bcpasc
+  target      bcpasc
+  first-used  binomial
+  note        Holds for every integer k, the ends included, because C(n, k)
+              is 0 outside 0 … n.
+
+theorem binomial-zero-index
+  let n ∈ ℕ₀                                                          (H1)
+  then        C(n, 0) = 1
+  metamath    bcn0
+  target      bcn0
+  first-used  binomial
+
+theorem binomial-above
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ ℤ                                                           (H2)
+  assume n < k                                                        (H3)
+  then        C(n, k) = 0
+  metamath    bcval4
+  target      bcval4
+  first-used  binomial
+  note        set.mm states the two ways a coefficient is zero as one
+              disjunction, k < 0 or n < k. This is the second of them, and the
+              disjunction is apparatus `olc` supplies from it.
+
+theorem binomial-below
+  let n ∈ ℕ₀                                                          (H1)
+  then        C(n, −1) = 0
+  metamath    bcneg1
+  target      bcneg1
+  first-used  binomial
+
+theorem binomial-nat0
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ ℤ                                                           (H2)
+  then        C(n, k) ∈ ℕ₀
+  metamath    bccl
+  target      bccl
+  first-used  binomial
 
 
 # -------------------------------------------------------------- analysis

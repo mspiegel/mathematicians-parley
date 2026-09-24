@@ -83,7 +83,8 @@ class Artifact:
 # from `proof/subsets.proof`, both
 # `least-combination-divides` and `bezout` from `proof/bezout.proof`,
 # `point-right` from `proof/intermediate-value.proof`,
-# `ten-power-congruent` from `proof/divisibility-by-three.proof`, and several
+# `ten-power-congruent` from `proof/divisibility-by-three.proof`,
+# `binomial-step` from `proof/binomial.proof`, and several
 # from `proof/sqrt2-irrational.proof`, which holds the theorem it is named for
 # and the ones it leans on.
 THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
@@ -93,7 +94,7 @@ THEOREMS = ('odd-square', 'even-square', 'sum-formula', 'abs-bounds',
             'powerset-split', 'add-element-bijection', 'subsets-count',
             'point-right',
             'intermediate-value', 'ten-power-congruent',
-            'divisibility-by-three')
+            'divisibility-by-three', 'binomial-step', 'binomial')
 
 # The proofs worked out by hand, some of which share their names with
 # elaborated ones and are told apart here by the prefix. `ELABORATION.md`

@@ -752,7 +752,7 @@ class Library:
         item = self.items.get(name)
         if item is None:
             return None
-        sorts = sorts_of_record(item)
+        sorts = sorts_of_record(item, self.g)
         out = []
         for text, at in item.conclusions:
             lines = [(h[0], LABEL_AT_END.sub('', h[1]).strip())
@@ -951,14 +951,22 @@ def witnessed_in(exists, binding, facts, variables, library, sites):
     return True
 
 
-def statements_in_scope(thm):
-    """Every line a citation may name, by the reference that names it."""
+def statements_in_scope(thm, step):
+    """Every line a step's citation may name, by the reference that names it.
+
+    A block's label holds inside that block only (`labels_in_scope`), so two
+    sibling blocks may each fix a k under the same label, and what the label
+    says is what the block around the citing step says.
+    """
     out = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
-    lines = [(k, t, lab) for k, t, lab, _ in thm.hypotheses]
-    lines += [(k, t, lab) for s in thm.steps for k, t, lab, _, _ in s.openers]
-    for kind, text, label in lines:
+    for kind, text, label, _no in thm.hypotheses:
         if label:
             out[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+    visible = labels_in_scope(thm, step)
+    for other in thm.steps:
+        for kind, text, label, no, _part in other.openers:
+            if label and visible.get(label) == ('block', no):
+                out[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
     return out
 
 
@@ -1067,12 +1075,11 @@ def check_conclusion(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = statements_in_scope(thm)
-
     for step in thm.steps:
         just = step.just
         if not just or not just.head.startswith(('def:', 'thm:')):
             continue
+        scope = statements_in_scope(thm, step)
         groups = library.groups(just.head.split(':', 1)[1])
         if groups is None:
             continue
@@ -1097,10 +1104,9 @@ def check_obtained(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = statements_in_scope(thm)
-
     for step in thm.steps:
         just = step.just
+        scope = statements_in_scope(thm, step)
         item = cited_item(just)
         if item is None or just.head != 'obtain':
             continue
@@ -1136,6 +1142,54 @@ def concludes(groups, claims, facts, seed, library):
     return False
 
 
+def family_asks(step, scope, library, sorts, defined):
+    """The requires lines a cited item's function hypotheses ask for.
+
+    `let t : {a, …, b} → ℝ` in a sum item, where the step's summand is
+    what t stands for, says every term is real. That is not a line the page
+    writes: the terms are built from numbers the step names, and the
+    elaborator builds each term's membership from theirs, as `algebra`
+    builds a compound's from its atoms'. So what the hypothesis asks is the
+    membership of each name the summand holds that the sum does not bind:
+    C(m, k)·x^(m − k)·y^k asks x ∈ ℝ, y ∈ ℝ and m ∈ ℕ₀, and nothing of k.
+
+    Gives back a test: whether one requires line's fact is such a
+    membership.
+    """
+    just = step.just
+    groups = library.groups(cited_item(just).split(':', 1)[1])
+    _facts, claims, seed = citation_parts(step, just, scope, library, sorts,
+                                          defined)
+    held = set()
+    for want, gives in groups:
+        trees = gives + [t for _, t in want]
+        sites = set()
+        for t in trees:
+            binding_sites(t, library.binders, library.props, (), sites)
+        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        for concl in gives:
+            for target, _extra in readings(concl, library):
+                for cand in conjuncts(target, library):
+                    for claim in claims:
+                        found = match(cand, claim, dict(seed), variables,
+                                      library.props, sites)
+                        for value in (found or {}).values():
+                            if value.notation == PROPERTY:
+                                held |= names(value.children[0]) - {value.text}
+
+    def asks(fact):
+        library.g.sorts = sorts
+        try:
+            node = parse(fact, library.g)
+        except Problem:
+            return False
+        return (node.notation == 'membership'
+                and node.children[1].notation == 'number-systems'
+                and bool(names(node.children[0]))
+                and names(node.children[0]) <= held)
+    return asks
+
+
 def check_requires(report, thm, library):
     """A requires line needs what the item it cites concludes.
 
@@ -1146,9 +1200,8 @@ def check_requires(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = statements_in_scope(thm)
-
     for step in thm.steps:
+        scope = statements_in_scope(thm, step)
         for no, named in unconcluded(step, scope, library, sorts, defined):
             report.say(thm.path, no,
                        f'the requires line of step {fmt(step.number)} '
@@ -1170,10 +1223,10 @@ def check_surplus(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = statements_in_scope(thm)
     defines = {d[2] for d in thm.defines}
 
     def holds(step):
+        scope = statements_in_scope(thm, step)
         if unsupplied(step, scope, library, sorts, defined) is not None \
                 or unconcluded(step, scope, library, sorts, defined):
             return False
@@ -1204,10 +1257,12 @@ def check_surplus(report, thm, library):
                 report.say(thm.path, just.line,
                            f'step {fmt(step.number)} cites {ref}, and '
                            f'{item} asks for nothing it says')
+        asks = family_asks(step, statements_in_scope(thm, step), library,
+                           sorts, defined)
         for i, (fact, _how, no) in enumerate(step.requires):
             lighter = copy.copy(step)
             lighter.requires = step.requires[:i] + step.requires[i + 1:]
-            if holds(lighter):
+            if holds(lighter) and not asks(fact):
                 report.say(thm.path, no,
                            f'the requires line of step {fmt(step.number)} '
                            f'says {fact}, and neither {item} nor the '
@@ -1327,10 +1382,9 @@ def check_hypotheses(report, thm, library):
     g = library.g
     sorts = sorts_in_scope(thm, g)
     defined = definitions_in_scope(thm, g)
-    scope = statements_in_scope(thm)
-
     for step in thm.steps:
         just = step.just
+        scope = statements_in_scope(thm, step)
         missing = unsupplied(step, scope, library, sorts, defined)
         if missing is not None:
             report.say(thm.path, just.line,
@@ -1405,7 +1459,7 @@ def check_statements(report, records, g):
     for r in records:
         if r.kind not in ('definition', 'theorem'):
             continue
-        g.sorts = sorts_of_record(r)
+        g.sorts = sorts_of_record(r, g)
         for kind, text, _, no in r.hypotheses:
             if kind != 'let':
                 continue
@@ -1473,7 +1527,7 @@ def check_unsorted(report, records, g):
                 sentence = sentence.strip().rstrip('.').strip()
                 if not sentence:
                     continue
-                g.sorts = sorts_of_record(r)
+                g.sorts = sorts_of_record(r, g)
                 try:
                     tree = parse(sentence, g)
                 except Problem:
@@ -1555,17 +1609,8 @@ def statement_kinds(g, records, theorems):
     for r in records:
         if r.kind not in ('definition', 'theorem') or 'proved-in' in r.fields:
             continue
-        g.sorts = sorts_of_record(r)
-        reader = kinds.Reader(g)
-        for kind, text, _label, no in r.hypotheses:
-            if kind == 'let':
-                kinds.introduce(reader, text, no, g)
-            else:
-                kinds.claim_text(reader, LABEL_AT_END.sub('', text).strip(),
-                                 no, g)
-        for text, no in r.conclusions:
-            kinds.claim_text(reader, text, no, g)
-        out[r.name] = reader
+        g.sorts = sorts_of_record(r, g)
+        out[r.name] = kinds.read_record(r, g)
     for thm in theorems:
         sorts_in_scope(thm, g)
         reader = kinds.Reader(g)

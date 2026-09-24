@@ -143,9 +143,8 @@ def match(pattern, ground, binding, variables, props=(), sites=frozenset()):
 
 def _property(pattern, ground, binding, sites):
     """P applied to something, where P is one of the pattern's variables."""
-    name, arg = pattern.children[0].text, pattern.children[1]
-    if arg.notation == 'name' and arg.text in binding:
-        arg = binding[arg.text]
+    name, arg = pattern.children[0].text, _read_at(pattern.children[1],
+                                                   binding)
     if name not in binding:
         if id(pattern) not in sites or arg.notation != 'name':
             return None                 # only the inside occurrence decides
@@ -157,6 +156,18 @@ def _property(pattern, ground, binding, sites):
         return None
     filled = substitute(stands.children[0], {stands.text: arg})
     return binding if filled.shape() == ground.shape() else None
+
+
+def _read_at(arg, binding):
+    """What a property or a function is applied to, in the ground's terms.
+
+    Every name in it the match has bound is what it was bound to: an item's
+    `t(n + 1)` asks of the step's summand at m + 1 where n is m, and its
+    `t(k − c)` at k − 1 where c is 1. What is bound to a property is not a
+    term, and is left alone.
+    """
+    return substitute(arg, {v: t for v, t in binding.items()
+                            if t.notation != PROPERTY})
 
 
 def _family(pattern, ground, binding, sites):
@@ -173,9 +184,8 @@ def _family(pattern, ground, binding, sites):
     or None where it refuses. Where it does not decide, the application is
     matched as it stands.
     """
-    name, arg = pattern.children[0].text, pattern.children[1]
-    if arg.notation == 'name' and arg.text in binding:
-        arg = binding[arg.text]
+    name, arg = pattern.children[0].text, _read_at(pattern.children[1],
+                                                   binding)
     stands = binding.get(name)
     if stands is not None and stands.notation == PROPERTY:
         filled = substitute(stands.children[0], {stands.text: arg})

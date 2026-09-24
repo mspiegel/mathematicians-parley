@@ -469,6 +469,56 @@ CASES = [
      '    obtain k: def:odd n := n, from H1, H2',
      '    obtain k: def:odd n := n, from H1',
      'step 1 obtains from def:odd, which says there is one only from'),
+
+    # Pascal's rule pairs C(n, k) with C(n, k − 1). The other neighbour is
+    # the mistake a reader makes when the index shift goes the wrong way.
+    ('Pascal with the shift going the wrong way',
+     'proof/binomial.proof',
+     '    49.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
+     '    49.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
+     'step 49.5 claims something that thm:pascal does not conclude'),
+
+    # Shifting the index moves the range with it.
+    ('a shifted sum left over the range it came from',
+     'proof/binomial.proof',
+     '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)',
+     '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)',
+     'step 27 claims something that thm:sum-shift does not conclude'),
+
+    # A line saying something of every index from 0 to m says nothing of
+    # the index m + 1, which the sum to m + 1 takes.
+    ('a term-by-term line over too short a range',
+     'proof/binomial.proof',
+     '    thm:sum-termwise a := 0, b := m + 1, from 49\n',
+     '    thm:sum-termwise a := 0, b := m + 1, from 8\n',
+     'step 50 cites thm:sum-termwise, which asks for'),
+
+    # C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
+    ('a coefficient called zero where k is not above n',
+     'proof/binomial.proof',
+     '    thm:binomial-above n := m, k := m + 1, from H3, 3, 10',
+     '    thm:binomial-above n := m + 1, k := m + 1, from H3, 3, 10',
+     'step 11 cites thm:binomial-above, which asks for'),
+
+    # Four blocks of binomial-step each fix k under the label J, and J means
+    # what the block around the citing step says: here k runs from 1. Read
+    # theorem-wide, J was the last block's, from 0, and this edit passed.
+    ('a label read as a sibling block\'s',
+     'proof/binomial.proof',
+     'thm:range-integer a := 1, b := m + 1, from J\n'
+     '           requires 1 ∈ ℤ: arithmetic\n',
+     'thm:range-integer a := 0, b := m + 1, from J\n'
+     '           requires 0 ∈ ℤ: arithmetic\n',
+     'step 30.1 cites thm:range-integer, which asks for'),
+
+    # What a summand's function hypothesis asks is the membership of the
+    # names the summand is built from, and 1 is none of them.
+    ('a requires line the summand does not ask for',
+     'proof/binomial.proof',
+     '    thm:sum-real a := 0, b := m\n    requires 0 ∈ ℤ: arithmetic\n',
+     '    thm:sum-real a := 0, b := m\n    requires 1 ∈ ℤ: arithmetic\n'
+     '    requires 0 ∈ ℤ: arithmetic\n',
+     'says 1 ∈ ℤ, and neither thm:sum-real nor'),
 ]
 
 

@@ -356,6 +356,24 @@ def claim_text(reader, text, line, g):
         reader.claim(node, line)
 
 
+def read_record(record, g):
+    """An item's kinds, read from its own lines in the order they are written.
+
+    A record keeps the keyword of a hypothesis in the field name where a
+    proof line keeps it in the text, and has no steps. The parser's sorts
+    for `record` must be in `g` already.
+    """
+    reader = Reader(g)
+    for kind, text, _label, no in record.hypotheses:
+        if kind == 'let':
+            introduce(reader, text, no, g)
+        else:
+            claim_text(reader, LABEL.sub('', text).strip(), no, g)
+    for text, no in record.conclusions:
+        claim_text(reader, text, no, g)
+    return reader
+
+
 def read_theorem(thm, g, cite=None):
     """A theorem's kinds, read in the order its lines are written.
 

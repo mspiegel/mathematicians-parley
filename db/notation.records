@@ -415,6 +415,19 @@ notation gcd
   target      _1 _2 cgcd co
   first-used  bezout
 
+notation binomial
+  pattern     C(_, _)
+  holes       number, number
+  yields      number
+  reads       choose
+  metamath    cbc
+  target      _1 _2 cbc co
+  first-used  binomial
+  note        C(n, k) is n choose k, the number of k-element subsets of an
+              n-element set, and def:binomial-coefficient gives its value.
+              The `C` is a literal the way the `S` of S(_) is, and a proof
+              that names a variable C cannot also write this.
+
 notation subset
   pattern     _ ⊆ _
   holes       set, set
@@ -589,6 +602,21 @@ notation closed-interval
   metamath    cicc
   target      _1 _2 cicc co
   first-used  intermediate-value
+
+notation integer-range
+  pattern     {_, …, _}
+  holes       number, number
+  yields      set
+  kinds       number, number → set of number
+  reads       the whole numbers from, to
+  metamath    cfz
+  target      _1 _2 cfz co
+  first-used  binomial
+  note        The range a sum runs over, written as a set so that a line can
+              say something of every index in it. A sum over {0, …, m} and a
+              line "for every k ∈ {0, …, m}" name one set, which is how a
+              line read at a sum's index is found. The ellipsis is what tells
+              it from the singleton {_}.
 
 notation juxtaposition
   pattern     __

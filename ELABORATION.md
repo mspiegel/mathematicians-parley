@@ -106,8 +106,15 @@ proved there.
 `allowed` picks the innermost frame the lemma's disjointness conditions permit,
 before anything is built, and `carry` brings the result back in with `adantr`.
 Each frame keeps the facts known at it, because a hoisted step is proved from
-those rather than from the innermost ones. The readable order is still correct
-— the reader needs the step where it stands — so what moves is the
+those rather than from the innermost ones, and that holds for the lines the
+step cites as well: a line proved inside the frame is not offered to a lemma
+proved outside it (`with_cited`). Its proof states it under the inner scope,
+and handed to the lemma it is a proof of another statement, which the
+verifier refuses and the elaborator did not; now the lemma declines and the
+step is reported. The binomial theorem's induction step met this, and states
+its sum algebra as a theorem of its own, `binomial-step`, where no
+hypothesis in scope names the sum's index. The readable order is still
+correct — the reader needs the step where it stands — so what moves is the
 elaborator's order and not the author's.
 
 This is the only rule anywhere in the expansion that is about *where* a step
@@ -437,7 +444,19 @@ its digits' own labels and carried to ℤ, ℝ or ℂ by `nn0zi`, `nn0rei` or
 parts as closed facts and the search proves everything under a scope. A term
 built from numerals alone, `10^0 − 1`, is settled from the closure lemmas
 with the numerals inside it looked up, and what it comes to is kept for the
-file when it rests on nothing on the page.
+file when it rests on nothing on the page. One the closure lemmas cannot
+place — `0 − 0 ∈ ℕ₀`, since a difference of whole numbers need not be whole —
+is placed through the digit it works out to: the equation is proved as
+`arithmetic` proves one, and `eqeltrd` carries the digit's membership across
+it (`by_value`).
+
+A compound's membership of a number system is read off its operation the
+same way, and spends none of the depth: a product of reals is real by
+`remulcld` from its factors, each settled in turn with the depth the whole
+was given (`closed_under`, from the `CLOSED` table `part` also uses). The
+binomial theorem's summand C(m, k)·x^(m − k)·y^k is two products, a power and
+a coefficient complex through ℕ₀, and searched for, each product was a lemma
+spent before the atoms were reached.
 
 A sum's lemmas ask things of each index: `fsumdvds` that N divide the term
 for k in the range it sums over, `fsumzcl` that the term be an integer. The
@@ -451,6 +470,18 @@ antecedent no fact matches whole is matched a conjunct at a time — after
 every antecedent has been matched whole, and after what a lemma's naming
 hypothesis decides, since a conjunct matched alone can otherwise bind a class
 another antecedent or the naming fixes (`f1mpt`'s map, `hashvnfin`'s size).
+
+A lemma that re-indexes a sum binds two letters and keeps them apart:
+`fsumshft` writes j on one side and k on the other. The page writes k on
+both, as a reader does, since what a sum binds is no part of what it is. So
+where two letters a lemma keeps apart are bound to one, the sum on the right
+of the claim is renamed to a letter nothing holds, the lemma proves that, and
+`cbvsumv` says the two sums are one (`letters_apart`). An induction over a
+claim holding a sum rewrites its variable in the summand as well as the
+limit, which `sumeq2sdv` does from an equation with no index in it and only
+where the scope does not mention the index, as the induction's `x = y` does
+not (`summand_changed`). And a rewrite walking into a sum reads the summand
+with the sum's own letter in hand, as reading a claim does.
 
 The rest of the search is bounded by how many lemmas one chain applies on top
 of one another, and three is the deepest chain the corpus needs: step 2.1 of
@@ -694,7 +725,12 @@ sealed:
     needed. Each cited line and each requires line is taken away in turn and
     the step checked again, and one whose absence changes nothing is surplus.
     A "there is" given by an instance needs the instance in the domain, so a
-    witness's membership is at work. An `obtain` citing an item is read the
+    witness's membership is at work. So does the membership of a name a
+    summand is built from and its sum does not bind, where the item reads a
+    function hypothesis, `let t : {a, …, b} → ℝ`, as that summand
+    (`family_asks`): the hypothesis says every term is real, the page does
+    not write that, and the elaborator builds it from those memberships as
+    it builds a compound's from its atoms'. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
     one from what the step names: `def:odd` gives one only from a line saying

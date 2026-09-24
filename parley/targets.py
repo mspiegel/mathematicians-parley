@@ -202,6 +202,20 @@ MEMBERSHIP = [
     # d(k) is an integer because d maps into ℤ, and 10^k because 10 is one
     # and k is in ℕ₀.
     'fzfi', 'ffvelcdm', 'zexpcl',
+    # A binomial coefficient is a whole number at every integer, and a
+    # power's exponent n − k is a whole number when k is in 0 … n, which is
+    # the range the binomial sum runs over.
+    'bccl', 'fznn0sub',
+    # and an index of a sum to m is in the range to m + 1, where the
+    # exponent (m + 1) − k is a whole number: the binomial step's terms
+    # carry that exponent while their sum still runs to m.
+    'fzelp1',
+    # An index of a sum from 1 is a natural number, where a power wants it.
+    'elfznn',
+    # set.mm says a coefficient is zero when k < 0 or n < k, as one
+    # disjunction, and a proof says which of the two holds. A line saying
+    # one side is the disjunction, which the page never writes.
+    'olc', 'orc',
     'addcl', 'subcl', 'mulcl', 'sqcl', 'readdcl', 'remulcl', 'resqcl',
     'renegcl', 'negcl', 'reexpcl', 'nn0expcl', '2nn0', 'peano2nn0',
     # and what a commuting pair asks, which `db/notation.records` declares by

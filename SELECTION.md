@@ -139,7 +139,7 @@ list and in set.mm's main body, not a mathbox. Measured with
 | # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
 |---|---|---|---|---|---|---|---|---|---|
 | 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack defines congruence (Definition 5.1) but not the rule |
-| 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack ch. 3 (verify) |
+| 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack states it as Theorem 3.1 (§3.6) and leaves the induction to exercise 10.23, with Pascal's rule as Equation (3.3) |
 | 13 | sum of the reciprocals of the triangular numbers | an infinite series: a limit of partial sums, telescoping | trirecip | 42 | no | none | none | 0 | ProofWiki |
 | 14 | Schröder–Bernstein | comparing sizes by injection; a set defined by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
 | 15 | Lagrange's theorem | an algebraic structure, which set.mm encodes through `Base`, `+g` and `SubGrp` | lagsubg | 27 | no | G, X, Y | none | 0 | ProofWiki |
@@ -161,9 +161,11 @@ bijection are among them.
    and the readable statement is about the digits of a number, so the
    statement itself is the first thing to settle. Its 122 steps are what
    the up direction would hide; the readable proof is a few lines.
-2. **Binomial theorem.** Induction again, but the step splits a sum,
-   shifts its index and applies Pascal's rule, where the geometric series
-   only adds a term at the end (`fsump1`).
+2. **Binomial theorem.** Written: `proof/binomial.proof`, with its design
+   record in `pilot/binomial.md`, and both of its theorems elaborate with
+   nothing assumed. Induction again, but the step shifts a sum's index,
+   extends two sums by a zero term and applies Pascal's rule, where the
+   geometric series only adds a term at the end (`fsump1`).
 3. **Triangular reciprocals.** No class variables and nothing to hide in
    the statement. The first limit of a sequence and the first sum over all
    of ℕ: the partial sums telescope to 2 − 2/(n + 1), and the ε-style

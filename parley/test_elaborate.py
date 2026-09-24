@@ -340,6 +340,79 @@ CASES = [
      '  target      hashdifsnp1 with V := X, N := a, Y := k',
      '  target      hashdifsnp1 with V := X, N := a, Y := X',
      'no clause of thm:card-remove reaches what step 1.2.1.2 claims'),
+
+    # `sumeq2dv` forbids the sum's index in the scope, and the induction
+    # hypothesis names it, so the lemma is proved one frame out. The line it
+    # reads term by term is proved in the inner frame, and handed across it
+    # was a proof of another statement: the step elaborated, the file said
+    # nothing was assumed, and only the verifier refused it. An outer frame
+    # is now offered only the lines it holds, and the step is reported.
+    ('rewrite a sum term by term under a hypothesis naming its index',
+     'binomial', 'proof/binomial.proof',
+     '          1.9.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
+     'Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n'
+     '                  thm:binomial-step m := m, from H1, H2, K\n'
+     '\n'
+     '          1.9.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     'x^((m + 1) − k)·y^k\n'
+     '                  calculation\n'
+     '                    (x + y)^(m + 1) = (x + y)^m·(x + y)'
+     '                                          1.9.2\n'
+     '                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·'
+     'y^k)·(x + y)              1.9.3\n'
+     '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     'x^((m + 1) − k)·y^k          1.9.4\n',
+     '          1.9.4.  m ∈ ℤ\n'
+     '                  thm:nat0-int, from K\n'
+     '\n'
+     '          1.9.5.  For every k ∈ {0, …, m}, k + 0 = k.\n'
+     '                  fix\n'
+     '                  let k ∈ {0, …, m}'
+     '                                   (J)\n'
+     '\n'
+     '                  1.9.5.1.  k ∈ ℤ\n'
+     '                            thm:range-integer a := 0, b := m, from J\n'
+     '                            requires 0 ∈ ℤ: arithmetic\n'
+     '                            requires m ∈ ℤ: from 1.9.4\n'
+     '\n'
+     '                  1.9.5.2.  k ∈ ℝ\n'
+     '                            thm:int-real, from 1.9.5.1\n'
+     '\n'
+     '                  1.9.5.3.  k + 0 = k\n'
+     '                            algebra\n'
+     '                            requires k ∈ ℝ: from 1.9.5.2\n'
+     '\n'
+     '          1.9.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n'
+     '                  thm:sum-termwise a := 0, b := m, from 1.9.5\n'
+     '                  requires 0 ∈ ℤ: arithmetic\n'
+     '                  requires m ∈ ℤ: from 1.9.4\n'
+     '\n'
+     '          1.9.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = '
+     'Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n'
+     '                  thm:binomial-step m := m, from H1, H2, K\n'
+     '\n'
+     '          1.9.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     'x^((m + 1) − k)·y^k\n'
+     '                  calculation\n'
+     '                    (x + y)^(m + 1) = (x + y)^m·(x + y)'
+     '                                          1.9.2\n'
+     '                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·'
+     'y^k)·(x + y)              1.9.3\n'
+     '                                    = Σ(k = 0 to m + 1) C(m + 1, k)·'
+     'x^((m + 1) − k)·y^k          1.9.7\n',
+     'no clause of thm:sum-termwise reaches what step 1.9.6 claims'),
+
+    # A closed exponent's membership of ℕ₀ is placed through the digit it
+    # comes to (`by_value`), and (0 − 1) − 0 comes to −1, which is no
+    # digit and not in ℕ₀. The term's membership is refused, so the lemma
+    # is, and the step is reported rather than the value looked up.
+    ('a closed exponent that is not a whole number',
+     'binomial', 'proof/binomial.proof',
+     '    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = '
+     'C(0, 0)·x^(0 − 0)·y^0\n',
+     '    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = '
+     'C(0, 0)·x^((0 − 1) − 0)·y^0\n',
+     'no clause of thm:sum-single reaches what step 1.1 claims'),
 ]
 
 

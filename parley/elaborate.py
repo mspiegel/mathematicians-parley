@@ -466,7 +466,7 @@ class Elaborator(Builder):
         """
         kept = self.g.sorts
         own = (sorts_of_statement(item) if isinstance(item, Theorem)
-               else sorts_of_record(item))
+               else sorts_of_record(item, self.g))
         self.g.sorts = {**kept, **own}
         try:
             yield
@@ -649,6 +649,14 @@ class Elaborator(Builder):
                                  scope, facts)
             if found is not None:
                 return found
+        # A sum, difference, product, power or negation is in a number
+        # system because its parts are, and that is read off the operation,
+        # spending none of the depth (`closed_under`).
+        if wanted.label == 'wcel' and len(wanted.children) == 2 \
+                and wanted.children[1].label in SYSTEMS:
+            made = self.closed_under(wanted, scope, facts, depth)
+            if not declined(made):
+                return made
         if wanted.label in self.BOUND:
             # A `define` and a `fix` may write the same letter, and one of
             # them is renamed so that they do not collide. The line is then
@@ -1110,16 +1118,25 @@ class Elaborator(Builder):
         # it: the claim is about what the binder ranges over, not about the
         # name it ranges under.
         bound = self.binders.get(node.notation, ())
-        holes = [self.binder_var(c.text) if i in bound else self.term(c)
-                 for i, c in enumerate(node.children)]
-        after, proofs = list(holes), {}
-        for i, child in enumerate(node.children):
-            if i in bound or old not in self.term(child):
-                continue
-            made = self.rewrite(child, old, new, scope, eqproof)
-            if declined(made):
-                return made
-            after[i], proofs[i] = made
+        # The body speaks of what the binder introduces, as in `term`: the
+        # lower limit of a sum is rewritten beside a summand that names k.
+        saved = dict(self.names)
+        for i in bound:
+            said = node.children[i].text
+            self.names[said] = f'{self.binder_var(said)} cv'
+        try:
+            holes = [self.binder_var(c.text) if i in bound else self.term(c)
+                     for i, c in enumerate(node.children)]
+            after, proofs = list(holes), {}
+            for i, child in enumerate(node.children):
+                if i in bound or old not in self.term(child):
+                    continue
+                made = self.rewrite(child, old, new, scope, eqproof)
+                if declined(made):
+                    return made
+                after[i], proofs[i] = made
+        finally:
+            self.names = saved
         if not proofs:
             return Declined(f'nothing to rewrite in {self.term(node)}')
         return self.descend(self.shape(self.spelling(node)), holes, after,
@@ -1148,12 +1165,44 @@ class Elaborator(Builder):
         # An operation or a relation is itself an operand of the lemma that
         # rewrites under it; a constructor that takes its arguments directly
         # is not. What changed comes first, old beside new, then the rest.
+        built = self.seq(*now, label, wrap) if wrap else self.seq(*now, label)
+        if (wrap or label) == 'csu' and 1 in slots:
+            made = self.summand_changed(scope, was, now,
+                                        dict(zip(slots, deeper, strict=True)))
+            return made if declined(made) else (built, made)
         moved = [x for slot in slots for x in (was[slot], now[slot])]
         rest = [o for j, o in enumerate(was) if j not in slots]
-        built = self.seq(*now, label, wrap) if wrap else self.seq(*now, label)
         return built, self.seq(scope, *moved, *rest, label if wrap else '',
                           *deeper, self.CONGRUENCE[(wrap or label,
                                                     tuple(slots))])
+
+    def summand_changed(self, scope, was, now, proofs):
+        """A sum rewritten where its summand changes, and its range maybe.
+
+        The claim of an induction over a sum holds the variable in the
+        summand as well as the limit: the binomial theorem's n is in both.
+        `sumeq2sdv` rewrites the summand from an equation with no index in
+        it, which set.mm lets it do only where the scope does not mention
+        the index, as the induction's `x = y` does not. The range, where it
+        changes too, is rewritten first by `sumeq1d`, and `eqtrd` joins the
+        two. A scope that mentions the index declines here: set.mm's own
+        lemma would be refused by the verifier.
+        """
+        limits, summand, index = was
+        if index in scope.split():
+            return Declined('the scope mentions the index the sum binds')
+        rewritten = self.ap('sumeq2sdv', {'ph': scope, 'A': now[0],
+                                          'B': summand, 'C': now[1],
+                                          'k': index}, proofs[1])
+        if 0 not in proofs:
+            return rewritten
+        moved = self.ap('sumeq1d', {'ph': scope, 'A': limits, 'B': now[0],
+                                    'C': summand, 'k': index}, proofs[0])
+        return self.ap('eqtrd', {'ph': scope,
+                                 'A': self.seq(limits, summand, index, 'csu'),
+                                 'B': self.seq(now[0], summand, index, 'csu'),
+                                 'C': self.seq(now[0], now[1], index, 'csu')},
+                       moved, rewritten)
 
     # --- definitions --------------------------------------------------------
 
@@ -2568,6 +2617,55 @@ class Elaborator(Builder):
             return None
         return self.ap('bitri', {'ph': said, 'ps': middle.rpn(self.flabel),
                                  'ch': want}, there, back)
+
+    def letters_apart(self, label, goal, scope, facts, step, crossing, seed):
+        """A lemma that binds two letters apart, where the claim binds one.
+
+        `fsumshft` re-indexes a sum and names the index j on one side and k
+        on the other, and keeps them apart; the page writes k on both, as
+        a reader does, since what a sum binds is no part of what it is. So
+        the sum on the right is renamed to a letter nothing holds, the
+        lemma proves that, and `cbvsumv` says the two sums are one. The
+        letter is only looked at, not taken: it stands in this proof and
+        nowhere else.
+        """
+        if goal.label != 'wceq' or goal.children[1].label != 'csu':
+            return Declined(f'{label} binds two letters apart where the claim '
+                            f'binds one, and the claim is not an equation '
+                            f'with a sum on its right')
+        left, right = goal.children
+        limits, summand, index = right.children
+        held = ({t.split()[0] for t in self.names.values()
+                 if isinstance(t, str) and t.endswith(' cv')}
+                | self.reserved | set(self.bound_as.values())
+                | set(goal.rpn(self.flabel).split()))
+        free = next((v for v in self.spare if v not in held), None)
+        if free is None:
+            return Declined('no letter left to rename a sum with')
+        letter = kernel.Term(variable=self.sigs[free].statement[1])
+        moved = summand.substitute({index.variable: letter})
+        renamed = kernel.Term('csu', (limits, moved, letter))
+        first = self.apply_lemma(
+            label, kernel.Term('wceq', (left, renamed)), scope, facts, step,
+            crossing, seed)
+        if declined(first):
+            return first
+        tie = self.prove_essential(
+            kernel.Term('wi', (kernel.Term('wceq', (
+                kernel.Term('cv', (letter,)), kernel.Term('cv', (index,)))),
+                kernel.Term('wceq', (moved, summand)))), scope, facts)
+        if declined(tie):
+            return tie
+        same = self.ap('cbvsumv', {'j': letter.rpn(self.flabel),
+                                   'k': index.rpn(self.flabel),
+                                   'A': limits.rpn(self.flabel),
+                                   'B': moved.rpn(self.flabel),
+                                   'C': summand.rpn(self.flabel)}, tie)
+        was, now = renamed.rpn(self.flabel), right.rpn(self.flabel)
+        return self.ap('eqtrd', {'ph': scope, 'A': left.rpn(self.flabel),
+                                 'B': was, 'C': now},
+                       first, self.seq(self.seq(was, now, 'wceq'), scope,
+                                       same, 'a1i'))
 
     def page_spelt(self, said, scope):
         """What a lemma says, put in the page's words, and why they agree.
@@ -4398,11 +4496,48 @@ class Elaborator(Builder):
         self.numbering.add(want)
         try:
             found = self.settle(goal, scope, {}, depth=4)
+            if declined(found):
+                found = self.by_value(goal, scope)
         finally:
             self.numbering.discard(want)
         if declined(found) or not getattr(found, 'origin', None):
             self.numbers[want, scope] = found
         return found
+
+    def by_value(self, goal, scope):
+        """( scope -> t e. S ) for a closed t, through the digit it comes to.
+
+        The closure lemmas build a membership from the parts' and cannot
+        build every one: a difference of whole numbers need not be whole, so
+        nothing puts 0 − 0 in ℕ₀, which the binomial theorem's term at n = 0
+        asks of its exponent. It is 0, which is. So the equation is worked
+        out as `arithmetic` works one out, and the membership is the
+        digit's, carried across it by `eqeltrd`.
+        """
+        said, system = goal.children
+        value = field.closed_value(said, self.flabel)
+        if declined(value):
+            return value
+        if not isinstance(value, Fraction) or value.denominator != 1 \
+                or not 0 <= value <= 9:
+            return Declined('it does not come to a digit')
+        digit = field.NUMERAL[int(value)]
+        if said.rpn(self.flabel) == digit:
+            return Declined('it is a digit already')
+        member = self.digit_within(
+            self.to_term(self.seq(digit, system.rpn(self.flabel), 'wcel')),
+            scope, {})
+        if declined(member):
+            return member
+        same = self.prove_field(
+            None, self.seq(said.rpn(self.flabel), digit, 'wceq'), scope, {},
+            None)
+        if declined(same):
+            return same
+        return self.ap('eqeltrd', {'ph': scope, 'A': said.rpn(self.flabel),
+                                   'B': digit,
+                                   'C': system.rpn(self.flabel)},
+                       same, member)
 
     # A whole number set.mm writes in ℕ₀ is in these by the closed lemma
     # each names, which asks the number's own fact and not one in a scope.
@@ -6439,6 +6574,16 @@ class Elaborator(Builder):
         # not fix, and a biconditional crossed the other way leaves that
         # side for the hypothesis to decide.
         binding = settled
+        # Two letters the lemma binds and keeps apart, which the claim spells
+        # alike, cannot both be the claim's: the lemma is used with one of
+        # them renamed (`letters_apart`).
+        kinds = {v: t for t, v in sig.floats}
+        if any(kinds.get(a) == 'setvar' == kinds.get(b)
+               and a in binding and b in binding
+               and binding[a].rpn(self.flabel) == binding[b].rpn(self.flabel)
+               for a, b in sig.disjoint):
+            return self.letters_apart(label, goal, scope, facts, step,
+                                      crossing, seed)
         # The scope is where a lemma's disjointness conditions can forbid it,
         # so it is chosen before anything is built. ELABORATION.md 14.
         where, frame = self.allowed(sig, binding, variables)
@@ -7015,10 +7160,16 @@ class Elaborator(Builder):
         # matched against these in turn and takes the first that fits:
         # `pm2.21` asks for a negation, and the one it wants is the one the
         # step cites, not the first the scope happens to hold.
+        # A lemma whose disjointness conditions forbid the innermost scope is
+        # proved in an outer one (`allowed`), and there a line proved further
+        # in does not hold: its proof states it under the scope it was made
+        # in, and handed to the lemma it is a proof of another statement,
+        # which the verifier refuses. Only what that scope holds is offered.
+        outer = bool(self.frames) and scope != self.frames[-1][0]
         cited = {}
         for ref in (step.just.refs if step is not None else ()):
             line = self.lines.get(ref)
-            if line is None:
+            if line is None or (outer and line.term not in known):
                 continue
             parts = {line.term: self.carried(ref, known, self.lines)}
             self.unpack(line.term, parts[line.term], scope, parts)
@@ -7183,6 +7334,23 @@ class Elaborator(Builder):
                           f'{self.render(term)}, which this line claims '
                           f'it supplies')
 
+    @staticmethod
+    def outermost(words, relation):
+        """Where a chain's first line puts its relation: the first time the
+        symbol stands outside every bracket.
+
+        A sum binds its index with the same `=` a chain relates by, so
+        `x·(Σ(k = 0 to m) t(k)) = …` has an `=` inside the sum before the
+        one the chain means.
+        """
+        depth = 0
+        for at, word in enumerate(words):
+            if depth == 0 and word == relation:
+                return at
+            depth += sum(word.count(c) for c in '({[') \
+                - sum(word.count(c) for c in ')}]')
+        return words.index(relation)
+
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain folded by transitivity, one link at a time.
 
@@ -7216,7 +7384,7 @@ class Elaborator(Builder):
         if not first.text:
             raise self.defect(step.line, 'a chain starts with no relation')
         words = links[0][0].split()
-        rest = ' '.join(words[words.index(first.text) + 1:])
+        rest = ' '.join(words[self.outermost(words, first.text) + 1:])
         whole = self.to_term(self.term(first))
         left = whole.children[0].rpn(self.flabel)
         right = whole.children[1].rpn(self.flabel)
@@ -7588,6 +7756,10 @@ class Elaborator(Builder):
             if node.label in ('cmpt', 'wal'):
                 at = 0 if node.label == 'cmpt' else 1
                 bound.add(node.children[at].rpn(self.flabel))
+            # and so does a sum, its index: `binomial-step` states one sum
+            # over k equal to another.
+            if node.label == 'csu':
+                bound.add(node.children[2].rpn(self.flabel))
             rest.extend(node.children)
         return sorted(bound | set(classes),
                       key=lambda label: self.forder[label])
@@ -7941,15 +8113,17 @@ class Elaborator(Builder):
         return self.apply_lemma(lemma, wanted, scope, facts, None,
                                 crossing=False)
 
-    def built(self, said, system, scope, facts):
+    def built(self, said, system, scope, parts):
         """`said ∈ system` for a compound, from its parts; else a decline.
 
-        A sum of reals is real by `readdcld` from its two parts being real,
-        and each part is what the step's own line says of it where it wrote
-        one. Searched for instead, `settle` tries its lemmas in their order
-        and `zcn` comes before `mulcl`, so `a·x₀ ∈ ℂ` was reached through
-        `a ∈ ℤ` from the hypothesis rather than through `a ∈ ℝ` from the line
-        the page wrote. A fixed table and no search, so nothing it cannot
+        A sum of reals is real by `readdcld` from its two parts being real.
+        What each part is proved by is the caller's: `parts(term, system)`.
+        A method takes a part from what the step's own line says of it
+        (`part`). Searched for instead, `settle` tries its lemmas in their
+        order and `zcn` comes before `mulcl`, so `a·x₀ ∈ ℂ` was reached
+        through `a ∈ ℤ` from the hypothesis rather than through `a ∈ ℝ` from
+        the line the page wrote. A side condition takes a part from `settle`
+        (`closed_under`). A fixed table and no search, so nothing it cannot
         build costs more than a lookup.
         """
         node = self.to_term(said)
@@ -7961,10 +8135,10 @@ class Elaborator(Builder):
             if lemma is None:
                 return Declined(f'no closure lemma for {op} in {system}')
             a, b = left.rpn(self.flabel), right.rpn(self.flabel)
-            pa = self.part(a, system, scope, facts)
+            pa = parts(a, system)
             if declined(pa):
                 return pa
-            pb = self.part(b, 'cn0' if op == 'cexp' else system, scope, facts)
+            pb = parts(b, 'cn0' if op == 'cexp' else system)
             if declined(pb):
                 return pb
             return self.ap(lemma, {'ph': scope, 'A': a,
@@ -7975,11 +8149,30 @@ class Elaborator(Builder):
             if lemma is None:
                 return Declined(f'no closure lemma for negation in {system}')
             a = node.children[0].rpn(self.flabel)
-            pa = self.part(a, system, scope, facts)
+            pa = parts(a, system)
             if declined(pa):
                 return pa
             return self.ap(lemma, {'ph': scope, 'A': a}, pa)
         return Declined('not a sum, difference, product, power or negation')
+
+    def closed_under(self, wanted, scope, facts, depth):
+        """A compound's membership of a number system, from its parts'.
+
+        A product of three factors is real because each factor is, and
+        searched for, each product is a lemma spent: the binomial theorem's
+        summand C(m, k)·x^(m − k)·y^k is two products, a power, and a
+        coefficient that is complex through ℕ₀, past any depth a search is
+        given. Walking the term by `CLOSED` spends none, as splitting a
+        conjunction spends none: there is one way to build a product from
+        its factors, and the factors are smaller. Each factor is settled in
+        turn with the depth the whole was given.
+        """
+        return self.built(
+            wanted.children[0].rpn(self.flabel),
+            wanted.children[1].rpn(self.flabel), scope,
+            lambda term, system: self.settle(
+                self.to_term(self.seq(term, system, 'wcel')), scope, facts,
+                depth))
 
     def part(self, said, system, scope, facts):
         """One part of a compound, in a number system, or a decline.
@@ -8005,7 +8198,9 @@ class Elaborator(Builder):
         term = self.to_term(said)
         if linear.numeral(term, self.flabel) is not None:
             return self.settle(self.to_term(want), scope, facts)
-        made = self.built(said, system, scope, facts)
+        made = self.built(said, system, scope,
+                          lambda term, into: self.part(term, into, scope,
+                                                       facts))
         if not declined(made):
             return made
         if found is not None:
