@@ -5,13 +5,21 @@ Each case copies the corpus, makes one edit that should be a defect, and
 requires that the reported problems change. A checker that passes a clean
 corpus proves nothing on its own; this is the half that matters.
 
+The cases run at once, each in a process of its own over a copy of its own,
+so they share nothing but the machine; each checks the whole corpus, and one
+after another they took over two minutes. What each found is printed in the
+order the cases are listed.
+
 Usage:  parley/test_check.py
 """
 import io
+import os
 import shutil
 import sys
 import tempfile
+from concurrent.futures import ProcessPoolExecutor
 from contextlib import redirect_stdout
+from itertools import repeat
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -634,8 +642,28 @@ def run(root):
     return buf.getvalue()
 
 
+def plant(case, clean, work):
+    """Plant one case's defect in a copy of its own and check it.
+
+    Gives back whether it was caught and what to say about it.
+    """
+    name, rel, old, new, expect = case
+    shutil.copytree(clean, work)
+    path = work / rel
+    text = path.read_text(encoding='utf-8')
+    if old not in text:
+        return False, f'  SETUP FAILED  {name}\n      anchor not found in {rel}'
+    path.write_text(text.replace(old, new, 1), encoding='utf-8')
+    out = run(work)
+    if expect in out:
+        return True, f'  caught        {name}'
+    said = [x for x in out.splitlines() if x and not x[0].isdigit()]
+    return False, (f'  NOT CAUGHT    {name}\n'
+                   f'      expected a report containing {expect!r}\n'
+                   f'      got: {" | ".join(said)[:200]}')
+
+
 def main():
-    passed = failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         clean = Path(tmp) / 'clean'
         for part in ('db', 'stdlib', 'proof'):
@@ -647,28 +675,14 @@ def main():
             print(base)
             return 1
 
-        for name, rel, old, new, expect in CASES:
-            work = Path(tmp) / 'work'
-            shutil.rmtree(work, ignore_errors=True)
-            shutil.copytree(clean, work)
-            path = work / rel
-            text = path.read_text(encoding='utf-8')
-            if old not in text:
-                print(f'  SETUP FAILED  {name}\n      anchor not found in {rel}')
-                failed += 1
-                continue
-            path.write_text(text.replace(old, new, 1), encoding='utf-8')
-            out = run(work)
-            if expect in out:
-                print(f'  caught        {name}')
-                passed += 1
-            else:
-                print(f'  NOT CAUGHT    {name}')
-                print(f'      expected a report containing {expect!r}')
-                said = [x for x in out.splitlines() if x and not x[0].isdigit()]
-                print('      got:', ' | '.join(said)[:200])
-                failed += 1
+        works = [Path(tmp) / f'work-{i}' for i in range(len(CASES))]
+        with ProcessPoolExecutor(max_workers=os.cpu_count() or 1) as pool:
+            results = list(pool.map(plant, CASES, repeat(clean), works))
 
+    for _caught, said in results:
+        print(said)
+    passed = sum(caught for caught, _said in results)
+    failed = len(results) - passed
     print(f'\n{passed} caught, {failed} missed, of {len(CASES)} planted defects')
     return 1 if failed else 0
 
