@@ -23,8 +23,8 @@ The skeleton is `proof/geometric-series.proof`. The items it cites are in
 
 ## Database items
 
-This pilot introduced `def:G`, `thm:exponent-step`, `thm:nat0-closure` and
-`thm:geometric-sum` in `db/items.records`, and the G row in `db/notation.records`. The
+This pilot introduced `def:stdlib/sums/G`, `thm:stdlib/numbers/exponent-step`, `thm:stdlib/numbers/nat0-closure` and
+`thm:proof/geometric-series/geometric-sum` in the database, and the G row in `db/notation.records`. The
 table that used to stand here was merged into those files; `DATABASE.md`
 records what the merge decided.
 
@@ -41,7 +41,7 @@ records what the merge decided.
    those two hypotheses and nothing else, which raises the question of
    whether step 1 should itself have been a requires line, written twice.
 2. **Exponent laws are theorems, not algebra.** a^((k + 1) + 1) =
-   a^(k + 1)·a is cited from thm:exponent-step, and `algebra` is used only
+   a^(k + 1)·a is cited from thm:stdlib/numbers/exponent-step, and `algebra` is used only
    after it, on an expression where the exponents are opaque symbols.
    This draws a line on the boundary of `algebra`: ring and field
    identities in the variables and named subterms, with no knowledge of
@@ -52,7 +52,7 @@ records what the merge decided.
    arithmetic, and then a^1 = a, which is an exponent law. Writing the whole
    claim as one `arithmetic` step let an exponent law in by the back door,
    contradicting finding 2 above within this same file. The base case now
-   spends four steps and cites `thm:exponent-one`. The line between
+   spends four steps and cites `thm:stdlib/numbers/exponent-one`. The line between
    `arithmetic` and `algebra` is closed numerals against symbols, and neither
    of them knows what an exponent means.
 4. **Deduction form is invisible.** set.mm's geoser has every hypothesis

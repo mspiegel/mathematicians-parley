@@ -20,7 +20,7 @@ Equation (3.3), which it gives for 1 ≤ k ≤ n.
 
 - **C(n, k)** is the notation. The `C` is a literal of the pattern, as the
   `S` of `S(n)` is.
-- **The factorial formula** is the definition, `def:binomial-coefficient`,
+- **The factorial formula** is the definition, `def:stdlib/counting/binomial-coefficient`,
   with set.mm's `bcval2` as its target. The proof never unfolds it: it rests
   on Pascal's rule and on the values at the edges, which are set.mm theorems
   proved from the definition.
@@ -50,14 +50,14 @@ that appears, (m + 1) − k and k for k from 0 to m + 1, is a whole number.
 
 ## Database items
 
-This pilot introduced, in `db/items.records`, `def:binomial-coefficient`,
-`thm:pascal`, `thm:binomial-zero-index`, `thm:binomial-above`,
-`thm:binomial-below`, `thm:binomial-nat0`, the sum items `thm:sum-single`,
-`thm:sum-last`, `thm:sum-first`, `thm:sum-shift`, `thm:sum-scaled`,
-`thm:sum-add`, `thm:sum-termwise` and `thm:sum-real`, the range items
-`thm:range-difference`, `thm:range-integer` and `thm:range-nat0`, and
-`thm:exponent-zero`, `thm:nat0-int` and `thm:below-successor`, with
-`thm:binomial-step` and `thm:binomial` proved here. In `db/notation.records`
+This pilot introduced, in the database, `def:stdlib/counting/binomial-coefficient`,
+`thm:stdlib/counting/pascal`, `thm:stdlib/counting/binomial-zero-index`, `thm:stdlib/counting/binomial-above`,
+`thm:stdlib/counting/binomial-below`, `thm:stdlib/counting/binomial-nat0`, the sum items `thm:stdlib/sums/sum-single`,
+`thm:stdlib/sums/sum-last`, `thm:stdlib/sums/sum-first`, `thm:stdlib/sums/sum-shift`, `thm:stdlib/sums/sum-scaled`,
+`thm:stdlib/sums/sum-add`, `thm:stdlib/sums/sum-termwise` and `thm:stdlib/sums/sum-real`, the range items
+`thm:stdlib/sums/range-difference`, `thm:stdlib/sums/range-integer` and `thm:stdlib/sums/range-nat0`, and
+`thm:stdlib/numbers/exponent-zero`, `thm:stdlib/numbers/nat0-int` and `thm:stdlib/numbers/below-successor`, with
+`thm:proof/binomial/binomial-step` and `thm:proof/binomial/binomial` proved here. In `db/notation.records`
 it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
 
 ---
@@ -116,7 +116,7 @@ it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
    `binomial-step`, where nothing in scope names k.
 8. **A fact `inequalities` decides and cannot yet build.** m < m + 1
    cites no fact, and the method's proofs combine cited ones, so it was
-   stated as an axiom. It is cited instead, `thm:below-successor`
+   stated as an axiom. It is cited instead, `thm:stdlib/numbers/below-successor`
    (`ltp1`), so that nothing is stated.
 
 9. **A label means its own block's line.** The four `fix` blocks of

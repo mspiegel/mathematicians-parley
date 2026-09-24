@@ -6,7 +6,7 @@ Number 52 on Wiedijk's list, `hashpw` in set.mm, stated in Hammack's
 chapter on sets and proved in his chapter on induction.
 
 Provisional forms, listed in the batch report: cardinality written |A|
-with `def:card`; induction from 0, written `induction on n starting at
+with `def:stdlib/counting/card`; induction from 0, written `induction on n starting at
 0, from H`; `define` inside a block; ∪, ∖, ∩, ∅ and {a}.
 
 The counting facts the argument rests on are cited, not proved: removing
@@ -24,22 +24,22 @@ The skeleton is `proof/subsets.proof`. The items it cites are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:card`, `thm:card-zero`, `thm:powerset-empty`,
-`thm:card-singleton`, `thm:card-nonempty`, `thm:card-remove`,
-`thm:difference-set`, `thm:add-element-bijection`, `thm:card-bijection`,
-`thm:powerset-split`, `thm:powerset-split-disjoint`,
-`thm:card-disjoint-union` and `thm:subsets-count` in `db/items.records`, and the
+This pilot introduced `def:stdlib/counting/card`, `thm:stdlib/counting/card-zero`, `thm:stdlib/sets/powerset-empty`,
+`thm:stdlib/counting/card-singleton`, `thm:stdlib/counting/card-nonempty`, `thm:stdlib/counting/card-remove`,
+`thm:stdlib/sets/difference-set`, `thm:proof/subsets/add-element-bijection`, `thm:stdlib/counting/card-bijection`,
+`thm:proof/subsets/powerset-split`, `thm:proof/subsets/powerset-split-disjoint`,
+`thm:stdlib/counting/card-disjoint-union` and `thm:proof/subsets/subsets-count` in the database, and the
 cardinality, set-operation and set-image rows in `db/notation.records`. The table
 that used to stand here was merged into those files; `DATABASE.md` records
 what the merge decided.
 
 Three of these are open items, as finding 4 below says. Two of the three had
-rows that were not statements: `thm:add-element-bijection`'s row trailed off
-mid-sentence and `thm:powerset-split-disjoint`'s read only "the two parts
-above are disjoint". `db/items.records` carries the merge's reading of each, which
+rows that were not statements: `thm:proof/subsets/add-element-bijection`'s row trailed off
+mid-sentence and `thm:proof/subsets/powerset-split-disjoint`'s read only "the two parts
+above are disjoint". The proof file carries the merge's reading of each, which
 should be checked before either is proved.
 
-`def:set-image` was named in `SYNTAX.md` for the `{E(s) : s ∈ Y}` notation
+`def:stdlib/functions/set-image` was named in `SYNTAX.md` for the `{E(s) : s ∈ Y}` notation
 this pilot uses, and no table carried a row for it. The merge added one.
 
 ---

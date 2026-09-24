@@ -46,7 +46,7 @@ something.
 
 **What this says, and what was done.** No propositional decision procedure is
 needed. The method was split: the three real inferences became cited theorems,
-`thm:double-negation` twice and `thm:disjunctive-syllogism` once, joining the
+`thm:stdlib/reasoning/double-negation` twice and `thm:stdlib/reasoning/disjunctive-syllogism` once, joining the
 two logical items the database already had. The thirteen remaining uses do one
 thing and the method is now called `join`, which says so. `METHODS.md`
 specifies it and records the criterion for where the line falls: a move needs a
@@ -146,7 +146,7 @@ narrow: the claim needs 0 + 1 = 1, which is arithmetic, and then that a^1 is a,
 which is an exponent law. Letting `arithmetic` swallow the whole claim let an
 exponent law in by the back door, in the very pilot whose findings say that
 exponent laws are theorems. The proof now spends four steps and cites
-`thm:exponent-one`.
+`thm:stdlib/numbers/exponent-one`.
 
 ## What to do
 
@@ -169,7 +169,7 @@ carries 97 such lines across the 42 steps that cite `algebra` or
 written, and three facts needed numbered steps rather than requires lines.
 
 The sweep wrote the lines; it did not check that what they cite covers them.
-Doing that found two more gaps, both now closed. `thm:int-closure` stated
+Doing that found two more gaps, both now closed. `thm:stdlib/numbers/int-closure` stated
 `a + b ∈ ℤ` and `a·b ∈ ℤ` but neither `a − b ∈ ℤ` nor `a² ∈ ℤ`, and seven
 requires lines across three proofs wanted one of those; the square stands in a
 `then` group of its own, since it needs one integer where the rest need two.
@@ -177,7 +177,7 @@ And two steps leaned on a numeral's membership without writing it, which is
 the thing the sweep exists to prevent.
 
 A requires line names a principle rather than one use of it. `2k² + 2k ∈ ℤ`
-cites `thm:int-closure` once where the kernel applies it three times, and the
+cites `thm:stdlib/numbers/int-closure` once where the kernel applies it three times, and the
 line a reader wants is the one the corpus writes. So the check applies the
 cited item to what the line supplies, and to whatever that then asks for, and
 admits nothing else. Writing each application as its own line would have put

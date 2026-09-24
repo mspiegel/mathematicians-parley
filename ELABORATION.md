@@ -8,7 +8,8 @@ working.
 parley/elaborate.py <theorem> <set.mm>
 ```
 
-writes one proof to standard output. `parley/build.py` runs it over the whole
+writes one proof to standard output. The theorem is named in full, by its proof
+file and its own name: `proof/sqrt2-irrational/odd-square`. `parley/build.py` runs it over the whole
 corpus and puts each result where it belongs; `parley/gate.py` checks what was
 built. **Build first, every time** — the gate never runs the elaborator over
 the corpus, so breaking the elaborator and leaving the built files alone
@@ -16,10 +17,15 @@ passes every stage.
 
 Every theorem in `proof/` elaborates, and `build.py` writes one artifact for
 each, one for the definitions, one for the geometry, and one for each proof
-worked out by hand. `elaboration/elaborated/` holds what the
-program writes. The files beside it are hand-written: `geometry.mm`, which is
-the only statement of what it proves, and hand elaborations kept for
-comparison.
+worked out by hand. Nothing lists them: `build.py` reads the theorems off the
+proof files and the hand-written builders off their names, and a file's path
+under `elaboration/` is its name. `elaboration/proof/bezout/bezout.mm` is the
+theorem `proof/bezout/bezout`, and a file citing it includes it by that path.
+`elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
+elaborator writes, and `geometry.mm`, written by `build-geometry.py` beside it
+and the only statement of what it proves. The `build-<name>.py` scripts in
+`elaboration/` itself write the hand elaborations kept for comparison, each
+to `<name>.mm` beside it.
 
 Two things shape the whole design. A step is elaborated in deduction form, so
 every line is an implication whose antecedent is the scope it sits in, and a
@@ -30,7 +36,7 @@ is settled from a declared list of library lemmas.
 
 ## The statement a theorem becomes
 
-Hypotheses are conjoined into an antecedent. `thm:odd-square` —
+Hypotheses are conjoined into an antecedent. `thm:proof/sqrt2-irrational/odd-square` —
 
 ```
 theorem odd-square
@@ -58,7 +64,7 @@ itself cannot know. Every theorem gets the same one.
 A step citing a theorem this corpus proves conjoins what the step supplies for
 its hypotheses and applies it with `syl` to its whole conclusion. A step may
 claim one sentence of a conclusion that says several — `intermediate-value`
-cites `thm:abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
+cites `thm:proof/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
 the whole. The conclusion is read in the sorts the cited theorem's own
 hypotheses state, since `|x|` is absolute value only where x is a number.
 
@@ -180,7 +186,7 @@ whole; this one takes one apart and rebuilds it.
 to its term and never emitted, which is what keeps it apart from a bound name
 spelt the same.
 
-**A `def:` is a theorem, not a replacement.** `def:odd` targets `2 ∥ n`
+**A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.
 
@@ -191,7 +197,7 @@ applies is settled by what the lemma states and what the step claims, not by
 how the readable right side is phrased. A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a recursive definition is a pair of
-theorems, one per `then` group, as `def:S` names `fsum1, fsump1`.
+theorems, one per `then` group, as `def:stdlib/sums/S` names `fsum1, fsump1`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
@@ -227,7 +233,7 @@ same term wherever it appears. A theorem that fixes no `a` cannot write `G(_)`
 at all, which is what being local to a definition means.
 
 Which name a notation fixes is derived rather than declared, because it is
-already on the page: `def:G` says `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its
+already on the page: `def:stdlib/sums/G` says `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its
 sentences put 0, `n + 1` and `n` in the hole. Only the notation a definition
 *introduces* counts, or `_ + _` would fix a name and every proof writes `+`.
 One notation in the corpus fixes anything. The matching rule about the page —
@@ -366,14 +372,14 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proof/isosceles.proof:43  def:triangle, from 6 does not reach -. C = A,
+proof/isosceles.proof:43  def:stdlib/geometry/triangle, from 6 does not reach -. C = A,
                           which this line claims it supplies
 ```
 
 The item branch is guarded on the `target` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name
 ends at the first space, since what follows it is the instantiation:
-`thm:abs-real x := a, from H1` names `abs-real`.
+`thm:stdlib/numbers/abs-real x := a, from H1` names `abs-real`.
 
 A lemma may ask its side conditions as one conjunction where the text writes a
 line each — `divides` is `( ( M e. ZZ /\ N e. ZZ ) -> ... )` — so a conjunction
@@ -388,7 +394,7 @@ than by the item's own letters, which is why a `requires` line needs no
 **Every `requires` line is proved from its reason, once, when its step
 starts.** `step` proves them all before the step's method runs and offers them
 to the whole of the step as `written`, so a membership wanted while turning
-`def:divides`' equation round is the step's as much as one its lemma asks for.
+`def:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
 Where the step opens a narrower scope inside itself, a line is carried in by
 `lifted_to` — one `simpl` and `syl` per assumption, the way `widen` carries
 every fact. `supplied` runs more than once for a step and passes on what each
@@ -518,7 +524,7 @@ instead. Stated, a false one was an axiom the kernel accepted, and
 `9 = 3·4` was stated so once the normaliser stopped crashing on it.
 
 A definition with no target is not stated where a line the step cites already
-says the claim: as one of its conjuncts, which `def:congruent` relies on, or
+says the claim: as one of its conjuncts, which `def:stdlib/geometry/congruent` relies on, or
 with another letter bound, since the notation reads "b is an upper bound of S"
 as every s in S being at most b and the block that proved that fixed a
 variable of its own. Otherwise it is stated as an item is, below: the
@@ -534,7 +540,7 @@ An item becomes an axiom claiming what the item states, under its hypotheses,
 and the step owes those hypotheses like any others. What the item states and
 what the step claims must be one statement up to the letters they bind, or one
 side of it where the item states a biconditional; then the other side is what
-the step cites. `thm:abs-difference-lt` says |x − c| < δ exactly when
+the step cites. `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
 c − δ < x and x < c + δ, and step 17.11 of `intermediate-value` claims the
 first from lines saying the second. Stated with the step's claim under the
 item's hypotheses, the axiom would say that every |x − c| is below every δ,
@@ -542,7 +548,7 @@ and the kernel accepts whatever is assumed. Anything else is a defect naming
 both statements.
 
 Stated as it says, an item is only as true as what it says, and a name it
-leaves open is read as anything at all. `thm:card-nonempty` said `assume
+leaves open is read as anything at all. `thm:stdlib/counting/card-nonempty` said `assume
 |X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
 false. So `check.py` refuses a name of no known sort standing where a notation
 wants a number, in any item's assumptions and any theorem's conclusion; a
@@ -558,7 +564,7 @@ Every written file but one assumes nothing. What is left:
 
 Completeness is not one lemma away. set.mm's `sup3` says its witness is
 never exceeded and that anything below it is exceeded, where
-`thm:completeness` says its witness is an upper bound and at most every
+`thm:stdlib/calculus/completeness` says its witness is an upper bound and at most every
 other; between the two is a contrapositive and trichotomy, which is logic
 and not a spelling. set.mm also names the witness, the supremum, and says
 each thing the page asks of it in a lemma of its own: `suprcl` that it is
@@ -571,7 +577,7 @@ it — the two said of one member or one bound at a time are said of every
 one by fixing it — and the claim is introduced at the supremum. What the
 three lemmas ask, S ⊆ ℝ, S ≠ ∅ and S bounded above, the step cites: the
 last is "b is an upper bound of S", which names the bound, so a "there is"
-a lemma asks may be answered from the step's own lines. `thm:point-right`,
+a lemma asks may be answered from the step's own lines. `thm:proof/intermediate-value/point-right`,
 which set.mm has no label for, is proved at the head of the same file.
 
 Continuity is `elcncf2`, which says what the readable definition says in
@@ -589,8 +595,8 @@ holds before they are given the page's, or the page's x would be caught.
 Spellings are read in one direction, of what a lemma says, and never of a
 claim.
 
-`thm:card-remove` is `hashdifsnp1`, which states it whole: the size is given
-as k + 1, so nothing asks that X be finite. `thm:card-nonempty` is
+`thm:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
+as k + 1, so nothing asks that X be finite. `thm:stdlib/counting/card-nonempty` is
 `hashgt0elex`, which asks that the size be positive. The page never says so,
 and it follows from the line the step cites, `|X| = k + 1`: `settle` reads
 `0 < |X|` through that equation as `0 < k + 1`, which `nn0p1gt0` gives from
@@ -599,7 +605,7 @@ is read this way, and only a term built from others is replaced, never a
 name, whose value a `substitute` line puts in its place where a reader can
 see it.
 
-`thm:powerset-split` has no set.mm label, and is proved in
+`thm:proof/subsets/powerset-split` has no set.mm label, and is proved in
 `proof/subsets.proof` the way a reader proves two sets equal: each inside
 the other. A subset of X either leaves a out, and is a subset of X ∖ {a},
 or holds a, and is a subset of X ∖ {a} with a put back; each subset of
@@ -609,7 +615,7 @@ set.mm lemma states. Putting a subset with a put back into the image is
 hypotheses, so the map is read back out of the naming, and where it is read
 comes from the line the step cites.
 
-`thm:powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
+`thm:proof/subsets/powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
 `a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only
 because it is an element of X: in set.mm everything is a set, numbers and
 points included, so `elex` gives it from `a ∈ X`. A reader told `let a ∈ X`,
@@ -628,7 +634,7 @@ written out in full at every use — three nested scopes make it about ninety
 tokens, written perhaps two hundred times. So size is driven by copying the
 context and grows with steps times scope depth, and the compressed format
 disposes of it. The elaborated corpus is 144 KB and its largest proof,
-`thm:least-combination-divides`, is 26 KB; in normal format each is larger by
+`thm:proof/bezout/least-combination-divides`, is 26 KB; in normal format each is larger by
 orders of magnitude, since nothing about the proof changes and only the
 repetition is written down differently.
 
@@ -745,7 +751,7 @@ sealed:
     it builds a compound's from its atoms'. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
-    one from what the step names: `def:odd` gives one only from a line saying
+    one from what the step names: `def:stdlib/divisibility/odd` gives one only from a line saying
     n is odd.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
@@ -792,10 +798,10 @@ signed.
 `GEOMETRY.md` weighs the seven candidates and takes the complex plane with the
 angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `definitions.mm` — and the four items set.mm does not state are proved in
-`elaboration/geometry.mm`. `isosceles` elaborates and assumes nothing.
+`elaboration/stdlib/geometry.mm`. `isosceles` elaborates and assumes nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
-`ang180` wants three points pairwise distinct, so `def:triangle` elaborates to
+`ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
 a conjunction taken apart at nearly every step. Synthetic geometry says "A, B,
 C form a triangle" once and is done.
 
@@ -900,5 +906,5 @@ leave the gate green on the day a proof was added and not read.
     names it with `commutes`. A *named equivalence* is two constructs set.mm
     proves equal, and something has to point at the theorem that does. A
     *rebuilt quantifier* is neither and needs a proof, which is why
-    `thm:prime-factor` is not a gap a table could close. A *rescaled denial* is
+    `thm:stdlib/divisibility/prime-factor` is not a gap a table could close. A *rescaled denial* is
     the normaliser's, since the polynomials decide it.

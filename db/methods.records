@@ -150,7 +150,7 @@ method join
               cited and nothing about what it did, and four unrelated jobs
               collected under it unnoticed: joining, double negation,
               disjunctive syllogism and restating a case assumption. The two
-              laws are now thm:double-negation and thm:disjunctive-syllogism.
+              laws are now thm:stdlib/reasoning/double-negation and thm:stdlib/reasoning/disjunctive-syllogism.
               Restating one cited line is joining a list of one.
 
 method contradiction
@@ -211,7 +211,7 @@ method cases
   first-used  triangle-inequality
   note        A case that is impossible still ends by claiming the common
               formula: it reaches some P and not P, then claims the formula by
-              thm:from-contradiction.
+              thm:stdlib/reasoning/from-contradiction.
 
 method calculation
   form        calculation, then a chain

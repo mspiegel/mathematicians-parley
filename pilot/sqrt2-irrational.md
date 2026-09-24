@@ -91,10 +91,10 @@ question and not a property of the text.
 
 ## Database items
 
-This pilot introduced most of the database. In `db/items.records`: `def:sqrt`,
-`def:rational`, `def:irrational`, `def:even`, `def:odd`, `def:divides`,
-`thm:lowest-terms`, `thm:int-closure`, `thm:even-or-odd`, `thm:not-both`,
-`thm:odd-square`, `thm:even-square` and `thm:sqrt2-irrational`. In
+This pilot introduced most of the database. In the database: `def:stdlib/numbers/sqrt`,
+`def:stdlib/numbers/rational`, `def:stdlib/numbers/irrational`, `def:stdlib/divisibility/even`, `def:stdlib/divisibility/odd`, `def:stdlib/divisibility/divides`,
+`thm:proof/sqrt2-irrational/lowest-terms`, `thm:stdlib/numbers/int-closure`, `thm:stdlib/divisibility/even-or-odd`, `thm:stdlib/divisibility/not-both`,
+`thm:proof/sqrt2-irrational/odd-square`, `thm:proof/sqrt2-irrational/even-square` and `thm:proof/sqrt2-irrational/sqrt2-irrational`. In
 `db/notation.records`: the number systems, the relations, the arithmetic
 operations and the logical symbols. In `db/methods.records`: `arithmetic`,
 `algebra`, `inequalities`, `substitute`, `join`, `obtain`, `exhibit`,
@@ -102,7 +102,7 @@ operations and the logical symbols. In `db/methods.records`: `arithmetic`,
 to stand here were merged into those files; `DATABASE.md` records what the
 merge decided.
 
-`thm:sqrt2-irrational` was not in the table. It was the only pilot's main
+`thm:proof/sqrt2-irrational/sqrt2-irrational` was not in the table. It was the only pilot's main
 theorem missing a row of its own, and the merge added it.
 
 ---
@@ -173,8 +173,8 @@ Findings about the vocabulary in `READERS.md`:
    quantifier move is a database item; the pilot now names two, `obtain`
    and `exhibit`, and they belong in the vocabulary. Later decided: the
    witness is never written, because the literal-instance rule makes the
-   cited line determine it, so `exhibit q²: def:even n := p², from 3.3`
-   became `def:even n := p², from 3.3`, and a bare "there is" claim is
+   cited line determine it, so `exhibit q²: def:stdlib/divisibility/even n := p², from 3.3`
+   became `def:stdlib/divisibility/even n := p², from 3.3`, and a bare "there is" claim is
    justified by `exhibit, from L`. `obtain` keeps its names, since a new
    name is a choice the reader cannot infer.
 9. **Hypotheses of cited items are easy to miss by hand.** A second review
@@ -202,7 +202,7 @@ Findings about the vocabulary in `READERS.md`:
     equation right to left: line 3.9 opens with "2q² = p², by 3.3", and
     line 3.3 states p² = 2q². And a step claims one conjunct of a cited
     item's conclusion: step 1 takes "(√2)² = 2" out of the three conjuncts
-    of def:sqrt, and the requires line at step 3 takes "√2 ∈ ℝ" out of the
+    of def:stdlib/numbers/sqrt, and the requires line at step 3 takes "√2 ∈ ℝ" out of the
     same three. Symmetry of equality and conjunction elimination are steps
     the kernel will see. Either the language says both are allowed at every
     citation, or they become explicit. The pilot allows both and marks them

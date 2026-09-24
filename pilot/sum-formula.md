@@ -77,7 +77,7 @@ The skeleton is `proof/sum-formula.proof`. The items it cites are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:S` and `thm:sum-formula` in `db/items.records`, the ℕ
+This pilot introduced `def:stdlib/sums/S` and `thm:proof/sum-formula/sum-formula` in the database, the ℕ
 and S rows in `db/notation.records`, and the `induction` and `fix` methods in
 `db/methods.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
@@ -127,7 +127,7 @@ files; `DATABASE.md` records what the merge decided.
    S by recursion, with two sentences that a step cites one at a time, and
    the base case cites the first without any hypothesis while the step
    cites the second with n := k. set.mm writes the sum with Σ over an
-   interval, and its two recursion facts are separate theorems; def:S will
+   interval, and its two recursion facts are separate theorems; def:stdlib/sums/S will
    have to elaborate to those. A reader who wants the theorem about
    1 + 2 + ... + n gets it only through the definition of S, which is the
    honest state of affairs.

@@ -109,18 +109,18 @@ natural number p with p prime and p > n.
 
 ## Database items
 
-This pilot introduced `def:factorial`, `def:prime`, `thm:factorial-nat`,
-`thm:nat-closure`, `thm:nat-ge-1`, `thm:nat-int`, `thm:prime-factor`,
-`thm:factorial-divisible`, `thm:divides-difference`, `thm:divides-one` and
-`thm:prime-above` in `db/items.records`, and the factorial row in
+This pilot introduced `def:stdlib/counting/factorial`, `def:stdlib/divisibility/prime`, `thm:stdlib/counting/factorial-nat`,
+`thm:stdlib/numbers/nat-closure`, `thm:stdlib/numbers/nat-ge-1`, `thm:stdlib/numbers/nat-int`, `thm:stdlib/divisibility/prime-factor`,
+`thm:stdlib/counting/factorial-divisible`, `thm:stdlib/divisibility/divides-difference`, `thm:stdlib/divisibility/divides-one` and
+`thm:proof/infinitely-many-primes/prime-above` in the database, and the factorial row in
 `db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
 No new methods. `substitute ... into`, `inequalities`, `join`,
 `obtain`, `exhibit` and `contradiction` are as in `SYNTAX.md`.
 
-`def:factorial` is one of the three recursive definitions, with `def:S` and
-`def:G`, whose base sentence carries no hypothesis and whose step sentence
+`def:stdlib/counting/factorial` is one of the three recursive definitions, with `def:stdlib/sums/S` and
+`def:stdlib/sums/G`, whose base sentence carries no hypothesis and whose step sentence
 carries one. The theorem form puts all hypotheses before all conclusions, so
 these three are the only records written with two `then` groups.
 
@@ -147,9 +147,9 @@ these three are the only records written with two `then` groups.
    7.8 can state the pair. This is the same discipline as finding 2, from
    the other side.
 4. **The ↔ convention has been in use since the first pilot and is not
-   written down.** Step 6 cites def:prime, whose body is "p is prime ↔
+   written down.** Step 6 cites def:stdlib/divisibility/prime, whose body is "p is prime ↔
    ...", with a line stating "p is prime", and claims one sentence of the
-   right-hand side. The √2 pilot did the same with def:even at every
+   right-hand side. The √2 pilot did the same with def:stdlib/divisibility/even at every
    `obtain` and `exhibit`. `SYNTAX.md` lists the conventions for
    conjunctions, right-to-left equations and conditionals, but not this
    one: given a line stating one side of a cited "A ↔ B", a step may
@@ -164,7 +164,7 @@ these three are the only records written with two `then` groups.
    least element. This is the first pilot to lean on the database this
    much, and it shows the corpus will be a tree of theorems, not ten
    isolated files.
-6. **Divisibility on ℤ costs three dull facts.** def:divides from the √2
+6. **Divisibility on ℤ costs three dull facts.** def:stdlib/divisibility/divides from the √2
    pilot is stated on ℤ, so divides-difference is too, and citing it for
    natural numbers needs p, n! and n! + 1 moved from ℕ to ℤ, three
    requires lines at 7.3. Stating divides on ℕ for Reader A, with the ℤ

@@ -87,16 +87,16 @@ The items they cite are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:abs`, `thm:nonneg-or-neg`, `thm:real-closure`,
-`thm:abs-bounds` and `thm:triangle-inequality` in `db/items.records`, the absolute
+This pilot introduced `def:stdlib/numbers/abs`, `thm:stdlib/numbers/nonneg-or-neg`, `thm:stdlib/numbers/real-closure`,
+`thm:proof/triangle-inequality/abs-bounds` and `thm:proof/triangle-inequality/triangle-inequality` in the database, the absolute
 value and negation rows in `db/notation.records`, and the `cases` method in
 `db/methods.records`. It also settled the mixed = and ≤ chain, which is part of
 the `calculation` record rather than a method of its own. The table that used
 to stand here was merged into those files.
 
-Two things the merge changed. `thm:real-closure` was stated here for addition
+Two things the merge changed. `thm:stdlib/numbers/real-closure` was stated here for addition
 only and in the intermediate value pilot for addition and subtraction; it now
-carries both sentences, which is the shape `thm:int-closure` already had, and
+carries both sentences, which is the shape `thm:stdlib/numbers/int-closure` already had, and
 neither proof changes. And the absolute value bars collide with cardinality
 in the subsets pilot and with distance in the isosceles pilot; telling the
 three apart needs the kind of the argument, which the readable layer does not
@@ -162,15 +162,15 @@ track. `DATABASE.md` leaves that for the formula parser.
    "x is a real number" are not written. The "Not settled" item in
    `SYNTAX.md` now names `inequalities` beside `algebra`.
 8. **Step 1 exists only to feed step 2.** a + b ∈ ℝ is a hypothesis of
-   nonneg-or-neg and of def:abs, and it is proved as a numbered step
+   nonneg-or-neg and of def:stdlib/numbers/abs, and it is proved as a numbered step
    rather than as a requires line because it is cited three times. By the
    role rule it is not a dull fact, since its use is not only to discharge
    one item's hypothesis, but it reads like one. The rule holds; the
    reading is a consequence of it.
 9. **set.mm's absolute value is not defined by cases.** df-abs defines
    |x| on ℂ as √(x·x̄), and the two branches for reals are the theorems
-   absid and absnid. So def:abs in this language elaborates to a pair of
-   theorems, not to a definition. The pointer is still called def:abs
+   absid and absnid. So def:stdlib/numbers/abs in this language elaborates to a pair of
+   theorems, not to a definition. The pointer is still called def:stdlib/numbers/abs
    because that is what it is to Reader A, and decision 12 of `GOALS.md`
    about checked definitions applies to the language's definitions, not
    set.mm's.

@@ -31,11 +31,11 @@ together.
 
 ## Database items
 
-This pilot introduced, in `db/items.records`, `def:congruent-mod`,
-`thm:divides-multiple`, `thm:congruent-divides`, `thm:power-integer`,
-`thm:ten-minus-one`, `thm:sum-divisible`, `thm:sum-integer`,
-`thm:sum-difference`, `thm:ten-power-congruent` and
-`thm:divisibility-by-three`, and widened `thm:function-value` from functions
+This pilot introduced, in the database, `def:stdlib/divisibility/congruent-mod`,
+`thm:stdlib/divisibility/divides-multiple`, `thm:stdlib/divisibility/congruent-divides`, `thm:stdlib/numbers/power-integer`,
+`thm:stdlib/numbers/ten-minus-one`, `thm:stdlib/sums/sum-divisible`, `thm:stdlib/sums/sum-integer`,
+`thm:stdlib/sums/sum-difference`, `thm:proof/divisibility-by-three/ten-power-congruent` and
+`thm:proof/divisibility-by-three/divisibility-by-three`, and widened `thm:stdlib/functions/function-value` from functions
 into ℝ to functions into any set. In `db/notation.records` it added `sum` and
 `congruent-mod`, and a precedence level, `summation`.
 
@@ -56,7 +56,7 @@ into ℝ to functions into any set. In `db/notation.records` it added `sum` and
 2. **Congruence is divisibility, and the kernel says so.** `a ≡ b (mod n)`
    is a notation whose target is n ∣ (a − b), Hammack's definition, so a
    congruence and the divisibility it abbreviates are one formula and every
-   lemma about the one is about the other. `def:congruent-mod` is still an
+   lemma about the one is about the other. `def:stdlib/divisibility/congruent-mod` is still an
    item, with no target, so that a step can say which way it is reading:
    its two sides are one kernel formula, and unfolding it hands on the
    cited line's own proof.
@@ -80,7 +80,7 @@ into ℝ to functions into any set. In `db/notation.records` it added `sum` and
 6. **10 is the first number past a digit.** set.mm writes it as the decimal
    `; 1 0`. The methods read a digit as its value and anything longer as a
    number they know nothing about, so what depends on 10 being ten is
-   cited: `thm:ten-minus-one`, and the step case is arranged so that
+   cited: `thm:stdlib/numbers/ten-minus-one`, and the step case is arranged so that
    `algebra` never needs the value — (10^m − 1)·10 + (10 − 1)·1 is
    10^m·10 − 1 whatever 10 is. A decimal's membership of a number system is
    built from its digits (`decimal_within`), not searched for.
@@ -98,5 +98,5 @@ into ℝ to functions into any set. In `db/notation.records` it added `sum` and
 
 Numbers, for the record: 34 numbered steps, 19 in `ten-power-congruent` and
 15 in `divisibility-by-three`, and 37 requires lines, 23 of them in the
-lemma, most of them integer memberships that `def:divides` and
-`def:congruent-mod` ask. set.mm's `3dvds` has 122 essential steps.
+lemma, most of them integer memberships that `def:stdlib/divisibility/divides` and
+`def:stdlib/divisibility/congruent-mod` ask. set.mm's `3dvds` has 122 essential steps.

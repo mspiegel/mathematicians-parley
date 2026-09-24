@@ -31,17 +31,17 @@ mechanical rather than a matter of taste. The conforming form is a step
 
 ## Database items
 
-This pilot introduced `def:point`, `def:triangle`, `def:congruent`,
-`thm:distance-symmetric`, `thm:angle-symmetric`, `thm:triangle-permute`,
-`thm:side-angle-side` and `thm:isosceles` in `db/items.records`, and the point,
+This pilot introduced `def:stdlib/geometry/point`, `def:stdlib/geometry/triangle`, `def:stdlib/geometry/congruent`,
+`thm:stdlib/geometry/distance-symmetric`, `thm:stdlib/geometry/angle-symmetric`, `thm:triangle-permute`,
+`thm:stdlib/geometry/side-angle-side` and `thm:proof/isosceles/isosceles` in the database, and the point,
 distance, angle and congruence rows in `db/notation.records`. The table that used
 to stand here was merged into those files.
 
 Seven of the eight are open items, which is what finding 1 below says. Three
-further things the merge found. `def:angle` is needed by the ∠ notation and
+further things the merge found. `def:stdlib/geometry/angle` is needed by the ∠ notation and
 appeared only in the findings, so it was added as an open item.
 `thm:triangle-permute`'s conclusion is not a formula and has to be restated.
-And `thm:side-angle-side` names its variables P, Q, R while step 7 of the
+And `thm:stdlib/geometry/side-angle-side` names its variables P, Q, R while step 7 of the
 proof instantiates A, B, C; one of the two must change, and the merge changed
 neither.
 
@@ -57,8 +57,8 @@ neither.
    direction has the most to build.
 2. **Angles need an orientation convention.** set.mm's angle function
    gives a signed angle, and ∠PQR = −∠RQP up to a multiple of 2π. The
-   school reader's angle is unsigned. def:angle must take the absolute
-   value or the pilot's thm:angle-symmetric is false in set.mm's terms.
+   school reader's angle is unsigned. def:stdlib/geometry/angle must take the absolute
+   value or the pilot's thm:stdlib/geometry/angle-symmetric is false in set.mm's terms.
 3. **Side-angle-side is an axiom or a theorem depending on the
    foundation.** Euclid and Hilbert take it as an axiom; over ℂ it is a
    theorem about distances and arguments. The pointer does not care which,

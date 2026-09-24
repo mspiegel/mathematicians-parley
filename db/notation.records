@@ -301,7 +301,7 @@ notation comma-conjunction
               reads badly, as it does inside a "there is ... with ..." phrase.
               Two patterns reach every length: the comma form builds the list
               and the comma-and form closes it, so the six clauses of
-              def:congruent need no six-hole pattern. Both are left, matching
+              def:stdlib/geometry/congruent need no six-hole pattern. Both are left, matching
               the plain "and" and set.mm's ternary conjunction.
 
               The two patterns are one notation, so the final "and" is layout:
@@ -424,7 +424,7 @@ notation binomial
   target      _1 _2 cbc co
   first-used  binomial
   note        C(n, k) is n choose k, the number of k-element subsets of an
-              n-element set, and def:binomial-coefficient gives its value.
+              n-element set, and def:stdlib/counting/binomial-coefficient gives its value.
               The `C` is a literal the way the `S` of S(_) is, and a proof
               that names a variable C cannot also write this.
 
@@ -497,7 +497,7 @@ notation supremum
   first-used  intermediate-value
   note        set.mm's supremum is taken in an order and over a set of numbers,
               and the page's is always the reals under <, which is what the
-              target writes. Only `thm:completeness`'s target writes it so far:
+              target writes. Only `thm:stdlib/calculus/completeness`'s target writes it so far:
               the least upper bound the theorem promises is this one.
 
 notation set-builder
@@ -511,7 +511,7 @@ notation set-builder
   target      _3 _1 _2 crab
   first-used  bezout
   note        Told apart from set-image by what precedes the colon: a variable
-              and its domain here, an expression there. See def:set-builder.
+              and its domain here, an expression there. See def:stdlib/sets/set-builder.
 
 notation set-image
   pattern     {_ : _ ∈ _}
@@ -524,7 +524,7 @@ notation set-image
   target      _2 _3 _1 cmpt crn
   first-used  subsets
   note        The binding hole is not the first one, which is why `binds` names
-              the holes rather than assuming an order. See def:set-image.
+              the holes rather than assuming an order. See def:stdlib/functions/set-image.
 
 notation map
   pattern     the map sending _ ∈ _ to _
@@ -631,7 +631,7 @@ notation juxtaposition
   first-used  sqrt2-irrational
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
-              it the √2 proof could not cite def:divides, whose statement says
+              it the √2 proof could not cite def:stdlib/divisibility/divides, whose statement says
               n = d·k while the proof offers p = 2r.
 
               The one shape with no token, covering 2k and k(k + 1). It never
@@ -662,7 +662,7 @@ notation angle
   first-used  isosceles
   note        Three juxtaposed holes after a token. set.mm's angle function is
               signed and it never names it, so `ang` is the one constant this
-              corpus introduces; see def:angle. The absolute value is what
+              corpus introduces; see def:stdlib/geometry/angle. The absolute value is what
               makes ∠PQR = ∠RQP true, which the signed function does not.
 
 notation congruent
@@ -671,7 +671,7 @@ notation congruent
   yields      formula
   level       predicate
   reads       is congruent to
-  metamath    the three sides and the three angles equal, as def:congruent
+  metamath    the three sides and the three angles equal, as def:stdlib/geometry/congruent
               states them
   target      _1 _2 cmin co cabs cfv _4 _5 cmin co cabs cfv wceq _2 _3 cmin co
               cabs cfv _5 _6 cmin co cabs cfv wceq wa _3 _1 cmin co cabs cfv _6 _4
@@ -690,7 +690,7 @@ notation sum-function
   metamath    Σ k ∈ (1...n) k
   target      c1 _1 cfz co vk cv vk csu
   first-used  sum-formula
-  note        Introduced by def:S, which is local to the sum-formula pilot.
+  note        Introduced by def:stdlib/sums/S, which is local to the sum-formula pilot.
 
 notation geometric-function
   pattern     G(_)
@@ -700,9 +700,9 @@ notation geometric-function
   metamath    Σ k ∈ (0...n) a^k
   target      cc0 _1 cfz co @a vk cv cexp co vk csu
   first-used  geometric-series
-  note        Introduced by def:G, which is local to the geometric-series pilot.
+  note        Introduced by def:stdlib/sums/G, which is local to the geometric-series pilot.
               The one notation in the corpus that holds a name fixed. `a` is
-              its base, which def:G declares as H1 and the pattern has no hole
+              its base, which def:stdlib/sums/G declares as H1 and the pattern has no hole
               for, so the target writes it as @a and the theorem's `let a ∈ ℝ`
               is what it stands for. A theorem that fixes no `a` cannot write
               G(_), which is what makes the definition local.
@@ -773,12 +773,12 @@ notation there-is-some
   target      wtru _1 _2 wrex
   first-used  subsets
   note        Nonemptiness, with a name for the element and nothing said about
-              it. Three uses: the statement of thm:card-nonempty and a
-              hypothesis each of thm:well-ordering and thm:completeness.
+              it. Three uses: the statement of thm:stdlib/counting/card-nonempty and a
+              hypothesis each of thm:stdlib/numbers/well-ordering and thm:stdlib/calculus/completeness.
 
               The name binds over nothing, which no other binder does. Writing
               X ≠ ∅ instead would need no record and is what set.mm states, but
-              the subsets proof reads "obtain a: thm:card-nonempty", and an
+              the subsets proof reads "obtain a: thm:stdlib/counting/card-nonempty", and an
               obtain takes its name from an existence claim that names one. So
               the conclusion has to name an element, and the two hypotheses are
               written the same way rather than two ways.
@@ -796,8 +796,8 @@ notation there-are
   first-used  bezout
   note        The two-variable form. Six uses: Bezout's statement and its
               step 19, the set-builder body of its define line, and the
-              statements of def:rational, thm:lowest-terms and
-              thm:division-algorithm. Writing it as two nested `there is`
+              statements of def:stdlib/numbers/rational, thm:proof/sqrt2-irrational/lowest-terms and
+              thm:stdlib/divisibility/division-algorithm. Writing it as two nested `there is`
               phrases was the alternative and reads far worse, which is why
               every one of the six is written this way.
 
@@ -834,7 +834,7 @@ notation divides
   metamath    wbr with cdvds
   target      _1 _2 cdvds wbr
   first-used  sqrt2-irrational
-  note        Seventeen uses, the commonest word predicate. See def:divides.
+  note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
 
 notation congruent-mod
   pattern     _ ≡ _ (mod _)
@@ -879,7 +879,7 @@ notation parity
   note        "is not odd" keeps the word inside the phrase, which is how the
               corpus reads best, and the `negates` line is what makes it the
               same formula as "not (n is odd)". Without it the √2 proof could
-              not cite thm:disjunctive-syllogism, which assumes "not Q".
+              not cite thm:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
 
 notation prime
   pattern     _ is prime
@@ -927,7 +927,7 @@ notation is-a-set
   target      _1 cvv wcel
   first-used  subsets
   note        Sethood, which ZF distinguishes from being a proper class and
-              set.mm writes as membership of _V. One use, thm:difference-set;
+              set.mm writes as membership of _V. One use, thm:stdlib/sets/difference-set;
               a proof does not write that a set built from sets is a set
               (`READERS.md`). It is the formula-position counterpart of the
               `let X be a set` introduction, as for-every-set is of the same
@@ -940,15 +940,15 @@ notation bound
   kinds       number, set of number → formula
   level       predicate
   reads       is an upper bound of, is a least upper bound of
-  metamath    see def:upper-bound and def:least-upper-bound
+  metamath    see def:stdlib/calculus/upper-bound and def:stdlib/calculus/least-upper-bound
   target      vs cv _1 cle wbr vs _2 wral,
               vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
               _1 vt cv cle wbr wi vt cr wral wa
   first-used  intermediate-value
   note        set.mm has no upper bound of its own: `df-sup` builds the idea
               inside a class abstraction and nothing names it. So each entry
-              is the quantified formula `def:upper-bound` and
-              `def:least-upper-bound` state, which is what those two say the
+              is the quantified formula `def:stdlib/calculus/upper-bound` and
+              `def:stdlib/calculus/least-upper-bound` state, which is what those two say the
               notation means. `s` ranges over the set and `t` over the reals
               the second pattern compares against; neither is a hole, and
               reserving them is what stops a proof that fixes an `s` of its
@@ -968,7 +968,7 @@ notation continuous
               domain and a codomain and gives the set of continuous functions
               between them, so continuity is membership of that set. The
               codomain is the operand no hole fills. The readable pattern
-              names only the domain because `def:continuous-on` takes
+              names only the domain because `def:stdlib/calculus/continuous-on` takes
               `f : D → ℝ` as its hypothesis, so the codomain is ℝ wherever
               this pattern may be written.
 
@@ -980,11 +980,11 @@ notation collinear
   reads       are collinear
   metamath    the ratio of the two differences is real
   target      _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
-  note        Three points on one line, which def:triangle needs to say that a
-              triangle's are not. Its definition is open, as def:angle is while
+  note        Three points on one line, which def:stdlib/geometry/triangle needs to say that a
+              triangle's are not. Its definition is open, as def:stdlib/geometry/angle is while
               the ∠ notation stands declared: incidence is a primitive of the
               geometry, and what it means in set.mm's plane is the same
-              question def:point leaves open.
+              question def:stdlib/geometry/point leaves open.
   first-used  isosceles
 
 notation forms-a-triangle

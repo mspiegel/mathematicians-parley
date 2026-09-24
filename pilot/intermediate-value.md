@@ -23,33 +23,33 @@ The skeleton is `proof/intermediate-value.proof`. The items it cites are in
 `db/`.
 
 The merge renamed three of its citations. Steps 14, 17.13 and 17.25.5.5 cited
-`def:function` for the fact that f(x) is real, while the Cantor pilot used the
+`def:stdlib/functions/function` for the fact that f(x) is real, while the Cantor pilot used the
 same name for a definition of what `f : A → B` means. The fact is now
-`thm:function-value` and those three steps name it.
+`thm:stdlib/functions/function-value` and those three steps name it.
 
 
 ---
 
 ## Database items
 
-This pilot introduced `def:interval`, `thm:interval-real`,
-`thm:subset-transitive`, `thm:function-value`, `def:continuous-on`,
-`def:upper-bound`, `def:least-upper-bound`, `thm:completeness`,
-`thm:trichotomy`, `thm:from-contradiction`, `thm:point-right`,
-`thm:abs-difference-lt` and `thm:intermediate-value` in `db/items.records`, and
+This pilot introduced `def:stdlib/calculus/interval`, `thm:stdlib/calculus/interval-real`,
+`thm:stdlib/sets/subset-transitive`, `thm:stdlib/functions/function-value`, `def:stdlib/calculus/continuous-on`,
+`def:stdlib/calculus/upper-bound`, `def:stdlib/calculus/least-upper-bound`, `thm:stdlib/calculus/completeness`,
+`thm:stdlib/numbers/trichotomy`, `thm:stdlib/reasoning/from-contradiction`, `thm:proof/intermediate-value/point-right`,
+`thm:stdlib/numbers/abs-difference-lt` and `thm:proof/intermediate-value/intermediate-value` in the database, and
 the closed interval row in `db/notation.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
 
-Three things the merge changed. The row called `def:function` here is a
+Three things the merge changed. The row called `def:stdlib/functions/function` here is a
 derived fact, not a definition, and collided with the Cantor pilot's
-definition of that name; it is now `thm:function-value`, and the three steps
-citing it name it. `thm:real-closure` was stated here with two sentences and
+definition of that name; it is now `thm:stdlib/functions/function-value`, and the three steps
+citing it name it. `thm:stdlib/numbers/real-closure` was stated here with two sentences and
 in the triangle inequality pilot with one; the merged item carries both.
-`thm:abs-bounds` read "from the triangle inequality pilot" and is now
+`thm:proof/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 recorded as proved in that pilot's proof file.
 
-`thm:point-right` is one of the twelve open items, and the only one that
+`thm:proof/intermediate-value/point-right` is one of the twelve open items, and the only one that
 exists purely because the language has no `min` notation.
 
 ---
@@ -71,7 +71,7 @@ exists purely because the language has no `min` notation.
    block; widening the contradiction rule to accept a claimless cases
    block whose cases end in different pairs; and, chosen, splitting on
    all three signs by trichotomy and closing each impossible case with
-   thm:from-contradiction, "if P and not P then Q", so that every case
+   thm:stdlib/reasoning/from-contradiction, "if P and not P then Q", so that every case
    ends in the common claim f(c) = 0. The chosen form keeps every step
    with a claim, needs no new rule, keeps the textbook's "negative, zero
    or positive" narrative, and scales in the viewer. Its cost is the
@@ -86,7 +86,7 @@ exists purely because the language has no `min` notation.
    real-closure facts. SYNTAX.md now says a requires line has one
    citation and does not nest.
 4. **Nothing after `from` but lines.** The first draft wrote step 3 as
-   "S ⊆ ℝ, from thm:set-builder-subset, thm:interval-real", citing two
+   "S ⊆ ℝ, from thm:stdlib/sets/set-builder-subset, thm:stdlib/calculus/interval-real", citing two
    theorems as if they were lines. They are now steps 3 and 4, each
    citing its theorem, and step 5 joins them.
 5. **Numbering reaches four levels.** The deepest step is 17.25.5.10. The
@@ -95,12 +95,12 @@ exists purely because the language has no `min` notation.
    case inside a cases block with a contradiction inside it. The numbers
    are long, and that is a viewer problem before it is a text problem.
 6. **Completeness of ℝ is above the ceiling and is a pointer.** Step 8
-   cites thm:completeness. A school reader has never seen it, and
+   cites thm:stdlib/calculus/completeness. A school reader has never seen it, and
    READERS.md's answer is that the pointer leads to a definition and a
    statement, both readable. Whether the *proof* of completeness is ever
    in the corpus is a question about the foundation, since in set.mm it
    is an axiom of the real numbers, ax-pre-sup.
-7. **A lemma that exists only to avoid min.** thm:point-right is cited to
+7. **A lemma that exists only to avoid min.** thm:proof/intermediate-value/point-right is cited to
    get a point x₁ just right of c, within δ and not past b. Textbooks
    write "take x₁ = min(b, c + δ/2)". Without a min notation and its
    case split, the lemma is the honest form; it is one more item the

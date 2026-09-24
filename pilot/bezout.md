@@ -10,7 +10,7 @@ Provisional forms introduced here, all listed in the batch report:
 
 - `define S := {...} (D1)`: an unnumbered, labelled line that names an
   object built from things already in scope. Cited by label.
-- Set-builder notation {t ∈ X : ...}, with the convention `def:set-builder`
+- Set-builder notation {t ∈ X : ...}, with the convention `def:stdlib/sets/set-builder`
   that t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t).
 - `instantiate v := t in line L, from L2`: line L claims "for every
   v ∈ X, ..."; the step claims the body with t for v, and L2 supplies
@@ -37,11 +37,11 @@ In `proof/bezout.proof`, second of the two.
 
 ## Database items
 
-This pilot introduced `def:set-builder`, `def:subset`,
-`thm:set-builder-subset`, `def:gcd`, `thm:well-ordering`,
-`thm:division-algorithm`, `thm:pos-int-nat`, `thm:divides-combination`,
-`thm:divides-le`, `thm:least-combination-divides` and `thm:bezout` in
-`db/items.records`, the set-builder, subset and gcd rows in `db/notation.records`, and
+This pilot introduced `def:stdlib/sets/set-builder`, `def:stdlib/sets/subset`,
+`thm:stdlib/sets/set-builder-subset`, `def:stdlib/divisibility/gcd`, `thm:stdlib/numbers/well-ordering`,
+`thm:stdlib/divisibility/division-algorithm`, `thm:stdlib/numbers/pos-int-nat`, `thm:stdlib/divisibility/divides-combination`,
+`thm:stdlib/divisibility/divides-le`, `thm:proof/bezout/least-combination-divides` and `thm:proof/bezout/bezout` in
+the database, the set-builder, subset and gcd rows in `db/notation.records`, and
 the `instantiate` method in `db/methods.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
@@ -51,10 +51,10 @@ makes it the third kind of unnumbered line beside `let` and `assume`, so it
 belongs to the grammar and not to the justification vocabulary. It is
 described in `DATABASE.md` rather than in `db/methods.records`.
 
-`thm:well-ordering` is stated with `assume S ⊆ ℕ` and no `let S be a set`,
+`thm:stdlib/numbers/well-ordering` is stated with `assume S ⊆ ℕ` and no `let S be a set`,
 because that is what this table said and what step 4 discharges. Whether a
 set-existence hypothesis belongs there is open, and the same question applies
-to `thm:completeness` in the intermediate value pilot and to two counting
+to `thm:stdlib/calculus/completeness` in the intermediate value pilot and to two counting
 lemmas in the subsets pilot.
 
 ---
@@ -82,12 +82,12 @@ lemmas in the subsets pilot.
    did not need.
 5. **Set-builder membership is a definition used both ways.** Step 2 puts
    a into S with the witnesses read off line 1; step 6 takes d out of S by obtaining
-   them. Both are the ↔ convention on def:set-builder with the ∃ inside.
-6. **An item is not a line.** The first draft cited "def:gcd" in `from`
+   them. Both are the ↔ convention on def:stdlib/sets/set-builder with the ∃ inside.
+6. **An item is not a line.** The first draft cited "def:stdlib/divisibility/gcd" in `from`
    at three steps, as if it were a line, because its sentences about
    gcd(a, b) are facts once a and b are fixed. Decided: `from` lists
    lines and labels only. The four sentences are now step 12, citing
-   def:gcd once with a and b filled in, and the later steps cite line 12.
+   def:stdlib/divisibility/gcd once with a and b filled in, and the later steps cite line 12.
    One step more, and nothing after `from` that is not on the page.
 7. **Twelve requires lines for ℤ and numerals.** 1 ∈ ℤ, 0 ∈ ℤ, and
    nat-int appear repeatedly. This is the divides-on-ℤ decision paying

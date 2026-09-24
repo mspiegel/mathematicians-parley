@@ -61,7 +61,7 @@ So in `f(x₁) − f(c) ≤ |f(x₁) − f(c)|` the atoms are `f(x₁)`, `f(c)` 
 inside contains the first two. The method never looks inside an atom and knows
 nothing about what it means. That `|y|` is at least `y` is not available to it;
 that fact reaches a step as a cited line, which is what
-`thm:abs-bounds` is for.
+`thm:proof/triangle-inequality/abs-bounds` is for.
 
 ### Facts in
 
@@ -141,8 +141,8 @@ The corpus complies. Writing the specification showed that many steps could not
 have stated their hypotheses at all, because the facts had no item behind them:
 nothing said the absolute value of a real number is real, nothing carried an
 integer, a natural or a natural-with-zero into the reals, and nothing said a
-power is real. `thm:abs-real`, `thm:int-real`, `thm:nat-real`,
-`thm:nat0-real` and `thm:power-real` were added for that, and the sweep then
+power is real. `thm:stdlib/numbers/abs-real`, `thm:stdlib/numbers/int-real`, `thm:stdlib/numbers/nat-real`,
+`thm:stdlib/numbers/nat0-real` and `thm:stdlib/numbers/power-real` were added for that, and the sweep then
 wrote 97 membership lines across the 42 steps citing this method or `algebra`.
 
 Two shapes are worth knowing. Most are a bare citation of a fact already on the
@@ -240,7 +240,7 @@ The exponent rule is the whole of the boundary the pilots argued about. In
 only atom is `k`. In `2^k + 2^k = 2^k·2` the exponent is a variable, so `2^k`
 is an atom and the step is only `x + x = x·2`. In
 `(1 − a^(k + 1))/(1 − a) + a^(k + 1)` the atoms are `a` and `a^(k + 1)`, and
-the method cannot connect them. That is why `thm:exponent-step` exists and why
+the method cannot connect them. That is why `thm:stdlib/numbers/exponent-step` exists and why
 the subsets proof was wrong to fold it in.
 
 ### Facts in
@@ -313,7 +313,7 @@ with coefficients of degree at most one.
 
 Six steps are written out in `elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 3 of
-`thm:least-combination-divides`, the only step in the corpus whose
+`thm:proof/bezout/least-combination-divides`, the only step in the corpus whose
 coefficients are not constants, and it is in `elaboration/algebra.mm`.
 
 Each follows one order — carry the atoms into ℂ, apply the structural lemma
@@ -377,7 +377,7 @@ non-negative, and in ℚ and ℝ always.
   refusing it exposed that the claim smuggled in an exponent law. The geometric
   series now pays four steps for that one fact.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
-  arithmetic, and the corpus does not treat it as such; it cites `def:sqrt`.
+  arithmetic, and the corpus does not treat it as such; it cites `def:stdlib/numbers/sqrt`.
   Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
   is taken, because a fractional power in Python is a float, and a float
   may be inexact, infinite or zero without saying so. Every value is an
@@ -421,7 +421,7 @@ from its digits by `deccl` and carried on by `nn0zi`, `nn0rei` or `nn0cni`.
 What the expansion does not do is compute with such a numeral: the methods
 read a digit as its value and anything longer as a number they know nothing
 about, so 10 − 1 = 9 is true, worked out as true, and not proved. The
-divisibility proof cites `thm:ten-minus-one` for it. set.mm's `decadd`
+divisibility proof cites `thm:stdlib/numbers/ten-minus-one` for it. set.mm's `decadd`
 family is what would prove such facts, and is not yet used.
 
 ---
@@ -482,10 +482,10 @@ pilot had already asked for it to be tested on a real reader rather than
 assumed.
 
 That criterion also accounts for the two logical items the database already
-had, `thm:excluded-middle` and `thm:from-contradiction`, which is the sign that
+had, `thm:stdlib/reasoning/excluded-middle` and `thm:stdlib/reasoning/from-contradiction`, which is the sign that
 it was the rule operating implicitly all along. The three moves that left
-`join` are now `thm:double-negation`, cited twice, and
-`thm:disjunctive-syllogism`, cited once.
+`join` are now `thm:stdlib/reasoning/double-negation`, cited twice, and
+`thm:stdlib/reasoning/disjunctive-syllogism`, cited once.
 
 ---
 
@@ -556,13 +556,13 @@ five are reductio and two prove a negation directly.
 
 `db/methods.records` used to say the block assumes "not C" written literally, and
 five of the seven blocks do exactly that, two of them writing a doubled
-negation and stripping it with `thm:double-negation` in the next line. The
+negation and stripping it with `thm:stdlib/reasoning/double-negation` in the next line. The
 other two suppose the thing the claim negates.
 
 Both are correct, and forcing either one on the other costs something real.
 Requiring the literal negation everywhere would put a doubled negation and a
 cited classical step into two proofs that need neither, and the note on
-`thm:double-negation` says citing it is the text saying which logic it is in,
+`thm:stdlib/reasoning/double-negation` says citing it is the text saying which logic it is in,
 which is worth nothing if it appears where the logic is not classical.
 Requiring the direct form everywhere would rewrite the other two and remove a
 step from each. Accepting both changes no proof in the corpus, and the
@@ -583,13 +583,13 @@ change the corpus has taken.
 | requires lines in the corpus, before and after | 38 → 139 |
 | database items added to make them writable | 5 |
 
-Five items were missing: `thm:abs-real`, `thm:int-real`, `thm:nat-real`,
-`thm:nat0-real` and `thm:power-real`. None of them is deep, and none had been
+Five items were missing: `thm:stdlib/numbers/abs-real`, `thm:stdlib/numbers/int-real`, `thm:stdlib/numbers/nat-real`,
+`thm:stdlib/numbers/nat0-real` and `thm:stdlib/numbers/power-real`. None of them is deep, and none had been
 noticed in three passes over the corpus, because nothing had yet had to say
 what a method required of its terms.
 
 Three steps could not be reached by a requires line at all and needed numbered
 steps instead. The geometric series now states `k + 1 ∈ ℕ₀` as a step, since
-`thm:power-real` needs it and it had only ever been a requires line. The
+`thm:stdlib/numbers/power-real` needs it and it had only ever been a requires line. The
 intermediate value proof now states `b ∈ [a, b]` and then `f(b) ∈ ℝ`, neither
 of which the proof had ever established, although it used `f(b)` freely.

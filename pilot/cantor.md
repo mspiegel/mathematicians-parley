@@ -22,18 +22,18 @@ The skeleton is `proof/cantor.proof`. The items it cites are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:powerset`, `def:function`, `thm:excluded-middle`
-and `thm:cantor` in `db/items.records`, and the power set and function rows in
+This pilot introduced `def:stdlib/sets/powerset`, `def:stdlib/functions/function`, `thm:stdlib/reasoning/excluded-middle`
+and `thm:proof/cantor/cantor` in the database, and the power set and function rows in
 `db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 
-Two things the merge changed. `def:function` as written here was truncated
+Two things the merge changed. `def:stdlib/functions/function` as written here was truncated
 and is now an open item, and the intermediate value pilot's item of the same
-name, which was a different statement, became `thm:function-value`. The rows
-reading "as in the Bezout pilot" are written out once in `db/items.records`.
+name, which was a different statement, became `thm:stdlib/functions/function-value`. The rows
+reading "as in the Bezout pilot" are written out once in the database.
 
 The hypothesis `let A be a set` is set.mm's `A e. _V`. The hypothesis
-`let f : A → 𝒫A` is `F : A --> ~P A`. def:function is not cited in the
+`let f : A → 𝒫A` is `F : A --> ~P A`. def:stdlib/functions/function is not cited in the
 proof, since nothing about f is used except that f(x) is something x may
 or may not belong to.
 
@@ -52,11 +52,11 @@ or may not belong to.
    "not f(x) = B", so by the literal-negation rule the supposition is
    "not not f(x) = B", and step 3.1.1 removes the double negation. Ugly on
    the page, and correct; it is where the classical step sits. It cites
-   `thm:double-negation`, by the same argument finding 3 makes about
+   `thm:stdlib/reasoning/double-negation`, by the same argument finding 3 makes about
    excluded middle: the step intuitionistic logic refuses is a choice among
    logics, and a choice among logics gets a pointer.
 3. **Excluded middle is a cited theorem.** 3.1.2 claims "x ∈ B or not
-   x ∈ B" from thm:excluded-middle with P := x ∈ B. The first draft wrote
+   x ∈ B" from thm:stdlib/reasoning/excluded-middle with P := x ∈ B. The first draft wrote
    it as a bare propositional step with nothing cited, a tautology; that was rejected
    because nothing is assumed, and a school reader has never been told
    that "P or not P" is a law. The citation is also the first to
