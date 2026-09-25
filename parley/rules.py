@@ -60,6 +60,9 @@ CONGRUENCE = {
     # quantifies and the subsets proof inducts under.
     ('wal', (0,)): 'albidv'}
 
+# The constructors that take a function, operation or relation as an operand.
+WRAPS = ('co', 'wbr', 'cfv')
+
 # Lifting a closed biconditional through one level of a term. The
 # deduction forms `congruence` uses take the scope as an antecedent;
 # these take nothing, which is what a renaming needs.

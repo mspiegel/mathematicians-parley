@@ -81,9 +81,10 @@ pilot is the test of whether the list still holds.
 **What is true of the code today.** The calculators decide in their own
 modules (`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and
 `parley/calculators.py` turns what they decide into proof steps. The rule
-tables are one data module, `parley/rules.py`; a few tables are still
-written inside the methods that read them. The proof rules are
-`parley/provenance.py`. `Elaborator` inherits from both classes. The other
+tables are one data module, `parley/rules.py`, and `parley/tables.py` is
+the code that reads them; a few tables are still written inside the
+methods that read them. The proof rules are `parley/provenance.py`.
+`Elaborator` inherits from the classes of all three modules. The other
 three parts are not yet separate: each is spread through
 `parley/elaborate.py`, apart from the two records a scope keeps, `Fact` and
 `Block`, which are in `parley/scopes.py`. The matcher is written as many
