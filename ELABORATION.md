@@ -78,18 +78,26 @@ Twenty-three proofs are too few to know how many kinds of translation there
 are. Each family is one table, so the next one is added in one place, and each
 pilot is the test of whether the list still holds.
 
-**What is true of the code today.** The calculators decide in their own
-modules (`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and
-`parley/calculators.py` turns what they decide into proof steps. The rule
-tables are one data module, `parley/rules.py`, and `parley/tables.py` is
-the code that reads them; a few tables are still written inside the
-methods that read them. The proof rules are `parley/provenance.py`,
-reading is `parley/reading.py`, and the scopes are `parley/scopes.py`.
-`Elaborator` inherits from the classes of these modules. The matcher is
-not yet separate: it is spread through `parley/elaborate.py`, and written
-as many cases rather than one match modulo rules. Moving the code into this shape is
-done one part at a time, with every elaborated file byte for byte what it was,
-and the section on each part changes when its part does.
+**What is true of the code today.** Each part is a module, and
+`Elaborator` in `parley/elaborate.py` inherits a class from each:
+
+| part | module | lines |
+|---|---|---|
+| reading | `parley/reading.py` | 491 |
+| scopes | `parley/scopes.py` | 950 |
+| the matcher | `parley/matcher.py` | 2,072 |
+| rule tables, as data | `parley/rules.py` | 280 |
+| rule tables, read | `parley/tables.py` | 474 |
+| the calculators | `parley/calculators.py`, deciding in `parley/field.py`, `parley/normal.py`, `parley/linear.py` | 1,971 |
+| the proof rules | `parley/provenance.py` | 542 |
+
+What `parley/elaborate.py` keeps (2,118 lines) is the step loop, the handler
+for each kind of step, citing an item or a corpus theorem, the definition
+readings, and the command line. The parts still share their state on the one
+object, and each is written as it was: the matcher is many cases rather than
+one match modulo rules, and a few tables are still written inside the methods
+that read them. Simplifying each part toward this design is done one part at
+a time, and the section on each part changes when its part does.
 
 ### What the corpus asks of it
 
