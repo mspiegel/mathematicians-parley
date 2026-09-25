@@ -34,6 +34,115 @@ rather than of the step alone. And the readable layer writes which side
 condition a step needs but never how to prove it, so what the text leaves out
 is settled from a declared list of library lemmas.
 
+## How the elaborator is built
+
+The elaborator is six parts, each given one thing and producing one thing.
+The page's language is not one of the things any part may change: every
+difference between how the page says something and how set.mm says it is
+bridged on set.mm's side, and a proof reads as a mathematician writes it.
+
+1. **Reading.** Given a line of the page and the notation records, it produces
+   kernel terms, with each name the page uses standing for a kernel variable.
+   The sections on names and on the statement a theorem becomes describe it.
+2. **Scopes.** Given the blocks, hypotheses, cases and `define` lines, it
+   produces the context each line is proved under, carries a fact into an
+   inner scope, and closes a block into the claim it owns. This is working in
+   deduction form, and the section on scopes describes it.
+3. **The matcher.** Given a lemma's statement, a claim, and the facts a step
+   names, it produces what the lemma's variables stand for and the antecedents
+   left to discharge. It matches modulo declared rules: each rule is a set.mm
+   equivalence, applied in one direction only, from set.mm's way of saying a
+   thing to the page's, and each application is a step of the proof. So
+   rewriting always ends and has one answer, and the rules are theorems, as
+   decision 5 of `GOALS.md` asks.
+4. **Rule tables.** Data, not code: which lemma lifts an equation through each
+   constructor; which lemma carries a membership from one number system to
+   another, or through an operation; what a closed numeral is; and the
+   spellings, such as ε ∈ ℝ⁺ read as ε ∈ ℝ with ε > 0.
+5. **The calculators.** `algebra`, `inequalities` and `arithmetic`: given a
+   claim and the lines a step cites, each decides whether the claim follows
+   and produces its proof. `METHODS.md` specifies each.
+6. **The proof rules.** Given a finished step's proof and what the step names,
+   it refuses a proof that rests on anything the step does not name, a
+   `requires` line or a named line that does no work, and a `requires` line
+   whose proof does not come from its reason. The section on provenance
+   states the rules.
+
+**Growth goes into the tables first.** A pilot that meets a new difference
+between the page and set.mm adds a rule or a table entry. A new part is for a
+new kind of reasoning that no part covers, and a special case written into a
+part is what this shape exists to prevent.
+
+**The families are what the corpus has needed, not a complete list.**
+Twenty-three proofs are too few to know how many kinds of translation there
+are. Each family is one table, so the next one is added in one place, and each
+pilot is the test of whether the list still holds.
+
+**What is true of the code today.** The calculators are separate modules
+(`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and the rule
+tables exist as data (`CONGRUENCE`, `SYSTEMS`, `CLOSED`, `NEGATED` and
+`SETHOOD` in `parley/elaborate.py`; `MEMBERSHIP` and `SPELLINGS` in
+`parley/targets.py`). The other four parts are not yet separate: each is
+spread through `parley/elaborate.py`, and the matcher is written as many
+cases rather than one match modulo rules. Moving the code into this shape is
+done one part at a time, with every elaborated file byte for byte what it was,
+and the section on each part changes when its part does.
+
+### What the corpus asks of it
+
+Measured on 2026-09-25 over the 23 theorems and the 37 planted elaborator
+cases, by recording each line of `parley/elaborate.py` as it first runs, what
+each route returns, and every lemma in the expanded proofs.
+
+**The proofs are almost all translation.** The 23 proofs expand to 958,473
+logical steps. 17,133 of them, under 2%, apply a lemma the page names. The
+rest come from 243 set.mm lemmas in nine families:
+
+| family | share of those steps | lemmas |
+|---|---|---|
+| working in deduction form | 75.2% | 30 |
+| rewriting equals inside a term | 8.7% | 49 |
+| membership of a number system or of the sets | 7.7% | 38 |
+| facts about particular numerals | 5.3% | 31 |
+| the `algebra` calculator | 2.6% | 38 |
+| the `inequalities` calculator | 0.3% | 23 |
+| using and proving "for every" and "there is" | 0.2% | 10 |
+| induction and cases | under 0.1% | 9 |
+| spellings between set.mm and the page | under 0.1% | 14 |
+
+**The code is load-bearing.** Of the 5,334 executable lines of
+`parley/elaborate.py`, 87% run in some proof, 3% only in the planted cases,
+and 10% in nothing, in scattered branches rather than whole functions.
+
+**It hardly searches.** Of the 3,985 side conditions `settle` answered, 73.7%
+were a fact already in hand and 21.7% came from structure (a conjunction
+split, a membership carried between number systems or through an operation, a
+digit, sethood). The search through declared lemmas answered 4.3%, with 47
+pairings of what was wanted and which lemma gave it, from 38 lemmas. Of the
+items whose target names several lemmas, only `def:stdlib/sets/set-builder`
+names two, and `elrab` fitted all ten times.
+
+**Where the code goes.** Counting each function under the family of the
+lemmas it names, and sorting the functions that name none by what they do:
+
+| part | lines, roughly |
+|---|---|
+| matching a lemma to a claim | 800 |
+| scopes and names, beside the deduction-form code | 460, and 1,400 |
+| rewriting equals, and walking terms | 930, and 230 |
+| using and proving "for every" and "there is" | 780 |
+| the calculators and the code calling them | 780, and 385 |
+| the proof rules | 410 |
+| membership and numerals | 440 |
+| reading the page | 185 |
+| induction and cases | 330 |
+| the step loop, reporting, and code naming only lemmas the page cites | 550 |
+
+The figures are rough at their edges, since a function is counted once, under
+the family most of its lemmas belong to. What they show is that the code
+sorts into the six parts with little left over, and that the matcher and the
+scopes are the two largest.
+
 ## The statement a theorem becomes
 
 Hypotheses are conjoined into an antecedent. `thm:proof/sqrt2-irrational/odd-square` —
