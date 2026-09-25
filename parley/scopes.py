@@ -821,6 +821,10 @@ class Scopes:
             if declined(p_ex):
                 raise self.defect(line, f'cannot show that what {label} '
                                         f'names is a set: {p_ex}')
+            # That the body is a set is the define's own and rests on the
+            # define: `min(b, c + δ/2)` is one because b is real, and the
+            # block the define stands in did not say so and need not.
+            p_ex = self.seal(p_ex, label)
             outer, held = self.widen(scope, facts, said, label)
             turned = self.seq(body, f'{var} cv', 'wceq')
             held[turned] = self.seq(outer, f'{var} cv', body, held[said],

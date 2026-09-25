@@ -271,19 +271,20 @@ repaired.
   not match, and a bijection that adds an element without saying it was absent.
   The last needed a new item, `thm:stdlib/sets/not-in-difference`.
 
-## Nine open items
+## Eight open items
 
 `def:stdlib/geometry/collinear`, `def:stdlib/geometry/congruent`, `def:stdlib/functions/function`, `def:stdlib/geometry/point`, `def:stdlib/geometry/triangle`,
-`thm:proof/subsets/add-element-bijection`, `thm:proof/intermediate-value/point-right`, `thm:proof/subsets/powerset-split`,
+`thm:proof/subsets/add-element-bijection`, `thm:proof/subsets/powerset-split`,
 `thm:proof/subsets/powerset-split-disjoint`.
 
-Four of the nine are geometry, which is what the isosceles pilot predicted:
+Four of the eight are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
-subsets pilot leaned on. One is the lemma the intermediate value pilot needs
-only because the language has no `min`, and one is what `def:stdlib/functions/function` would
+subsets pilot leaned on, and one is what `def:stdlib/functions/function` would
 have to say about a map.
 
-Five more were open and are not. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
+Six more were open and are not. `thm:proof/intermediate-value/point-right`
+existed only because the language had no `min`; with the `min` notation the
+proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
 `thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in
 `elaboration/stdlib/geometry.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof

@@ -377,18 +377,18 @@ CASES = [
      'conclude'),
 
     ('note a case part after its assumption',
-     'proof/intermediate-value.proof',
-     ('    note b is close enough to c, and is the point\n'
-      '    assume b − c < δ                                                  (C1)'),
-     ('    assume b − c < δ                                                  (C1)\n'
-      '    note b is close enough to c, and is the point'),
+     'proof/subsets.proof',
+     ('          note V is a subset without a, with a put back\n'
+      '          assume a ∈ V                                                (C1)'),
+     ('          assume a ∈ V                                                (C1)\n'
+      '          note V is a subset without a, with a put back'),
      'directly under its marker'),
 
     ('note a case part twice',
-     'proof/intermediate-value.proof',
-     '    note b is close enough to c, and is the point\n',
-     ('    note b is close enough to c, and is the point\n'
-      '    note b is the point\n'),
+     'proof/subsets.proof',
+     '          note V is a subset without a, with a put back\n',
+     ('          note V is a subset without a, with a put back\n'
+      '          note V holds a\n'),
      'already carries a note'),
 
     ('suppose something unrelated to the claim',

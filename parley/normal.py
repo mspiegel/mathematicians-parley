@@ -306,8 +306,9 @@ class Emitter(Builder):
                 return both
             return self.chain(
                 self.ap('eqcomd',
-                        {'ph': self.under, 'A': op(c, d, ADD),
-                         'B': self.seq(op(*whole, ADD), 'cneg')},
+                        {'ph': self.under,
+                         'A': self.seq(op(*whole, ADD), 'cneg'),
+                         'B': op(c, d, ADD)},
                         self.ap('syl2anc',
                                 {'ph': self.under,
                                  'ps': self.seq(whole[0], 'cc', 'wcel'),

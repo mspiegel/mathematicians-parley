@@ -290,3 +290,54 @@ theorem abs-difference-lt
   metamath    absdiflt, abslt
   target      absdiflt
   first-used  intermediate-value
+
+theorem min-real
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        min(x, y) ∈ ℝ
+  metamath    ifcl
+  target      ifcl
+  first-used  intermediate-value
+
+theorem min-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        min(x, y) ≤ x. min(x, y) ≤ y.
+  metamath    min1, min2
+  target      min1, min2
+  first-used  intermediate-value
+
+theorem lt-min
+  let z ∈ ℝ                                                           (H1)
+  let x ∈ ℝ                                                           (H2)
+  let y ∈ ℝ                                                           (H3)
+  then        z < min(x, y) ↔ z < x and z < y
+  metamath    ltmin
+  target      ltmin
+  first-used  intermediate-value
+
+theorem max-real
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        max(x, y) ∈ ℝ
+  metamath    ifcl
+  target      ifcl
+  note        No proof cites it yet; it is here beside `min-real`, which
+              the intermediate value proof cites.
+
+theorem le-max
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x ≤ max(x, y). y ≤ max(x, y).
+  metamath    max1, max2
+  target      max1, max2
+  note        No proof cites it yet.
+
+theorem max-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  then        max(x, y) ≤ z ↔ x ≤ z and y ≤ z
+  metamath    maxle
+  target      maxle
+  note        No proof cites it yet.

@@ -415,6 +415,29 @@ notation gcd
   target      _1 _2 cgcd co
   first-used  bezout
 
+notation min
+  pattern     min(_, _)
+  holes       number, number
+  yields      number
+  reads       the smaller of
+  metamath    cif, cle
+  target      _1 _2 cle wbr _1 _2 cif
+  first-used  intermediate-value
+  note        set.mm has no minimum of its own: it writes the smaller of A
+              and B as if ( A <_ B , A , B ), and proves what the page needs
+              of that (`min1`, `min2`, `ltmin`).
+
+notation max
+  pattern     max(_, _)
+  holes       number, number
+  yields      number
+  reads       the larger of
+  metamath    cif, cle
+  target      _1 _2 cle wbr _2 _1 cif
+  first-used  intermediate-value
+  note        set.mm writes the larger of A and B as if ( A <_ B , B , A )
+              (`max1`, `max2`, `maxle`).
+
 notation binomial
   pattern     C(_, _)
   holes       number, number

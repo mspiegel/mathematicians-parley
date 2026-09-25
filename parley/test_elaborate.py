@@ -238,7 +238,7 @@ CASES = [
      'proof/intermediate-value.proof',
      'if |x − c′| < δ then |f(x) − f(c′)| < ε.',
      'if |x − c′| < δ then |f(x) − f(c′)| < δ.',
-     'proof/intermediate-value.proof:135  no method owns this step: '
+     'proof/intermediate-value.proof:73  no method owns this step: '
      'elcncf2 does not say'),
 
     ('unfold continuity with a weaker bound than it gives',
@@ -256,7 +256,7 @@ CASES = [
      'proof/intermediate-value.proof',
      'obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7',
      'obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2',
-     'proof/intermediate-value.proof:109  no cited line names a witness '
+     'proof/intermediate-value.proof:47  no cited line names a witness '
      'for E. x e. RR'),
 
     # Each part of what the claim asks of the witness is one of the
@@ -358,7 +358,7 @@ CASES = [
      'proof/intermediate-value.proof',
      '    def:stdlib/calculus/continuous-on, from H5',
      '    def:stdlib/calculus/continuous-on',
-     'proof/intermediate-value.proof:135  no method owns this step: no '
+     'proof/intermediate-value.proof:73  no method owns this step: no '
      'cited line is what elcncf2 unfolds'),
 
     # An item's target asks a side condition the page never writes, and

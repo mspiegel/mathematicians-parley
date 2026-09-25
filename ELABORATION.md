@@ -489,8 +489,8 @@ citing nothing. A cited bound stated as a denial is turned round first:
 
 A claim about a quotient is built the same way: the normaliser brings a sum,
 a difference or a product of quotients to one numerator over one denominator
-(`divadddiv`, `divsubdiv`, `divmuldiv`), so `point-right`'s `c < c + δ/2`
-comes from `δ/2 > 0` like any other bound.
+(`divadddiv`, `divsubdiv`, `divmuldiv`), so the intermediate value proof's
+`c < c + δ/2` comes from `δ/2 > 0` like any other bound.
 
 What is unwritten is a combination of more than two bounds, and one that
 scales a bound by a number other than one: the certificate may ask for either,
@@ -768,8 +768,7 @@ it — the two said of one member or one bound at a time are said of every
 one by fixing it — and the claim is introduced at the supremum. What the
 three lemmas ask, S ⊆ ℝ, S ≠ ∅ and S bounded above, the step cites: the
 last is "b is an upper bound of S", which names the bound, so a "there is"
-a lemma asks may be answered from the step's own lines. `thm:proof/intermediate-value/point-right`,
-which set.mm has no label for, is proved at the head of the same file.
+a lemma asks may be answered from the step's own lines.
 
 Continuity is `elcncf2`, which says what the readable definition says in
 other words: it quantifies over ℝ⁺ where the page says ε ∈ ℝ with ε > 0, and

@@ -1754,9 +1754,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             # x ≤ |x| and −x ≤ |x|, and a step that needs only the first
             # says only the first. The theorem gives the whole, read in its
             # own sorts, and the sentence is taken out of it.
-            # The theorem speaks of what a defined name names, so the claim
-            # is written out for it and carried back at the end.
-            said = self.spelt_out(self.to_term(term)).rpn(self.flabel)
+            # A claim naming what a define named is written out for the
+            # theorem, which speaks of the body — the subsets proof claims a
+            # bijection from U to T, and the theorem concludes one from
+            # 𝒫(X ∖ {a}) — and the define's equation carries it back. Not a
+            # name the citation instantiates with: x := f(x₁) − f(c) applies
+            # the theorem at x₁, and there the theorem speaks of x₁.
+            keep = frozenset(t for value in binds.values()
+                             for t in value.split() if t in self.definitions)
+            said = self.spelt_out(self.to_term(term), keep).rpn(self.flabel)
             whole = said
             if (len(self.sentences(other.conclusion))
                     > len(self.sentences(' '.join(step.claim)))):

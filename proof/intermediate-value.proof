@@ -1,67 +1,5 @@
 import proof/triangle-inequality
 
-theorem point-right
-  note        Exists only because the language has no min notation. Textbooks
-              write "take x = min(b, c + δ/2)"; the proof splits on whether
-              b − c < δ and takes b or c + δ/2.
-  let c ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  let δ ∈ ℝ                                                           (H3)
-  assume c < b                                                        (H4)
-  assume δ > 0                                                        (H5)
-  then there is x ∈ ℝ with c < x, x ≤ b, and x − c < δ
-
-1.  b − c < δ or not b − c < δ
-    thm:stdlib/reasoning/excluded-middle P := b − c < δ
-
-2.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
-    cases, from 1
-
-    case
-    note b is close enough to c, and is the point
-    assume b − c < δ                                                  (C1)
-
-    2.1.  b ≤ b
-          inequalities
-          requires b ∈ ℝ: from H2
-
-    2.2.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
-          exhibit, from H2, H4, 2.1, C1
-
-    case
-    note b is too far, so the point is halfway from c towards c + δ
-    assume not b − c < δ                                              (C2)
-
-    2.3.  δ/2 > 0
-          thm:stdlib/numbers/half-positive x := δ, from H3, H5
-
-    2.4.  c + δ/2 ∈ ℝ
-          thm:stdlib/numbers/real-closure x := c, y := δ/2, from H1
-          requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from H3
-
-    2.5.  c < c + δ/2
-          inequalities, from 2.3
-          requires c ∈ ℝ: from H1
-          requires δ ∈ ℝ: from H3
-          requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from H3
-
-    2.6.  c + δ/2 ≤ b
-          inequalities, from C2, 2.3
-          requires c ∈ ℝ: from H1
-          requires b ∈ ℝ: from H2
-          requires δ ∈ ℝ: from H3
-          requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from H3
-
-    2.7.  c + δ/2 − c < δ
-          inequalities, from 2.3
-          requires c ∈ ℝ: from H1
-          requires δ ∈ ℝ: from H3
-          requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from H3
-
-    2.8.  There is x ∈ ℝ with c < x, x ≤ b, and x − c < δ.
-          exhibit, from 2.4, 2.5, 2.6, 2.7
-
-
 theorem intermediate-value
   metamath    ivth, the general form
   let a ∈ ℝ                                                           (H1)
@@ -185,164 +123,193 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            For every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
            obtain δ from line 17.4
 
-    17.6.  x₁ ∈ ℝ. c < x₁. x₁ ≤ b. x₁ − c < δ.
-           obtain x₁: thm:point-right c := c, b := b, δ := δ, from 8, H2, 17.5, 17.2
+    define x₁ := min(b, c + δ/2)                                       (D2)
+           reads a point right of c, within δ of it, and not past b
 
-    17.7.  a ≤ x₁
-           inequalities, from 11, 17.6
+    17.6.  δ/2 > 0
+           thm:stdlib/numbers/half-positive x := δ, from 17.5
+
+    17.7.  c + δ/2 ∈ ℝ
+           thm:stdlib/numbers/real-closure x := c, y := δ/2, from 8
+           requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from 17.5
+
+    17.8.  c < c + δ/2
+           inequalities, from 17.6
+           requires c ∈ ℝ: from 8
+           requires δ ∈ ℝ: from 17.5
+           requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from 17.5
+
+    17.9.  x₁ ∈ ℝ
+           thm:stdlib/numbers/min-real x := b, y := c + δ/2, from H2, 17.7
+
+    17.10. c < x₁
+           thm:stdlib/numbers/lt-min z := c, x := b, y := c + δ/2, from 8, H2, 17.7, 17.2, 17.8
+
+    17.11. x₁ ≤ b. x₁ ≤ c + δ/2.
+           thm:stdlib/numbers/min-le x := b, y := c + δ/2, from H2, 17.7
+
+    17.12. x₁ − c < δ
+           inequalities, from 17.11, 17.6
+           requires x₁ ∈ ℝ: from 17.9
+           requires c ∈ ℝ: from 8
+           requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from 17.5
+           requires δ ∈ ℝ: from 17.5
+
+    17.13. a ≤ x₁
+           inequalities, from 11, 17.10
            requires a ∈ ℝ: from H1
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 17.6
+           requires x₁ ∈ ℝ: from 17.9
 
-    17.8.  x₁ ∈ [a, b]
-           def:stdlib/calculus/interval x := x₁, from H1, H2, 17.6, 17.7
+    17.14. x₁ ∈ [a, b]
+           def:stdlib/calculus/interval x := x₁, from H1, H2, 17.9, 17.13, 17.11
 
-    17.9.  c − δ < x₁
-           inequalities, from 17.6, 17.5
+    17.15. c − δ < x₁
+           inequalities, from 17.10, 17.5
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 17.6
+           requires x₁ ∈ ℝ: from 17.9
            requires δ ∈ ℝ: from 17.5
 
-    17.10. x₁ < c + δ
-           inequalities, from 17.6
+    17.16. x₁ < c + δ
+           inequalities, from 17.12
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 17.6
+           requires x₁ ∈ ℝ: from 17.9
            requires δ ∈ ℝ: from 17.5
 
-    17.11. |x₁ − c| < δ
-           thm:stdlib/numbers/abs-difference-lt x := x₁, c := c, δ := δ, from 17.6, 8, 17.5, 17.9, 17.10
+    17.17. |x₁ − c| < δ
+           thm:stdlib/numbers/abs-difference-lt x := x₁, c := c, δ := δ, from 17.9, 8, 17.5, 17.15, 17.16
 
-    17.12. |f(x₁) − f(c)| < −f(c)
-           instantiate x := x₁ in line 17.5, from 17.8, 17.11
+    17.18. |f(x₁) − f(c)| < −f(c)
+           instantiate x := x₁ in line 17.5, from 17.14, 17.17
 
-    17.13. f(x₁) ∈ ℝ
-           thm:stdlib/functions/function-value, from 17.8
+    17.19. f(x₁) ∈ ℝ
+           thm:stdlib/functions/function-value, from 17.14
 
-    17.14. f(x₁) − f(c) ∈ ℝ
-           thm:stdlib/numbers/real-closure, from 17.13, 14
+    17.20. f(x₁) − f(c) ∈ ℝ
+           thm:stdlib/numbers/real-closure, from 17.19, 14
 
-    17.15. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
-           thm:proof/triangle-inequality/abs-bounds x := f(x₁) − f(c), from 17.14
+    17.21. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
+           thm:proof/triangle-inequality/abs-bounds x := f(x₁) − f(c), from 17.20
 
-    17.16. f(x₁) < 0
-           inequalities, from 17.15, 17.12
-           requires f(x₁) ∈ ℝ: from 17.13
+    17.22. f(x₁) < 0
+           inequalities, from 17.21, 17.18
+           requires f(x₁) ∈ ℝ: from 17.19
            requires f(c) ∈ ℝ: from 14
-           requires |f(x₁) − f(c)| ∈ ℝ: thm:stdlib/numbers/abs-real x := f(x₁) − f(c), from 17.14
+           requires |f(x₁) − f(c)| ∈ ℝ: thm:stdlib/numbers/abs-real x := f(x₁) − f(c), from 17.20
 
-    17.17. x₁ ∈ S
-           def:stdlib/sets/set-builder u := x₁, from 17.8, 17.16
+    17.23. x₁ ∈ S
+           def:stdlib/sets/set-builder u := x₁, from 17.14, 17.22
 
-    17.18. x₁ ≤ c
-           instantiate s := x₁ in line 10, from 17.17
+    17.24. x₁ ≤ c
+           instantiate s := x₁ in line 10, from 17.23
 
-    17.19. not x₁ ≤ c
-           inequalities, from 17.6
+    17.25. not x₁ ≤ c
+           inequalities, from 17.10
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 17.6
+           requires x₁ ∈ ℝ: from 17.9
 
-    17.20. x₁ ≤ c. not x₁ ≤ c.
-           join 17.18, 17.19
+    17.26. x₁ ≤ c. not x₁ ≤ c.
+           join 17.24, 17.25
 
-    17.21. f(c) = 0
-           thm:stdlib/reasoning/from-contradiction P := x₁ ≤ c, Q := f(c) = 0, from 17.20
+    17.27. f(c) = 0
+           thm:stdlib/reasoning/from-contradiction P := x₁ ≤ c, Q := f(c) = 0, from 17.26
 
     case
     assume f(c) = 0                                                   (C2)
 
-    17.22. f(c) = 0
+    17.28. f(c) = 0
            join C2
 
     case
     assume 0 < f(c)                                                   (C3)
 
-    17.23. There is δ ∈ ℝ with δ > 0 and
+    17.29. There is δ ∈ ℝ with δ > 0 and
            for every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
            instantiate c′ := c, ε := f(c) in line 16, from 13, 14, C3
 
-    17.24. δ ∈ ℝ. δ > 0.
+    17.30. δ ∈ ℝ. δ > 0.
            For every x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
-           obtain δ from line 17.23
+           obtain δ from line 17.29
 
-    17.25. For every s ∈ S, s ≤ c − δ.
+    17.31. For every s ∈ S, s ≤ c − δ.
            fix
            let s ∈ S                                                  (K2)
 
-           17.25.1.  s ∈ [a, b]
+           17.31.1.  s ∈ [a, b]
                      def:stdlib/sets/set-builder, from K2
 
-           17.25.2.  f(s) < 0
+           17.31.2.  f(s) < 0
                      def:stdlib/sets/set-builder, from K2
 
-           17.25.3.  s ∈ ℝ
-                     def:stdlib/calculus/interval, from H1, H2, 17.25.1
+           17.31.3.  s ∈ ℝ
+                     def:stdlib/calculus/interval, from H1, H2, 17.31.1
 
-           17.25.4.  s ≤ c
+           17.31.4.  s ≤ c
                      instantiate s := s in line 10, from K2
 
-           17.25.5.  s ≤ c − δ
+           17.31.5.  s ≤ c − δ
                      contradiction
                      suppose not s ≤ c − δ                            (S2)
 
-                     17.25.5.1.  c − δ < s
+                     17.31.5.1.  c − δ < s
                                  inequalities, from S2
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 17.25.3
-                                 requires δ ∈ ℝ: from 17.24
+                                 requires s ∈ ℝ: from 17.31.3
+                                 requires δ ∈ ℝ: from 17.30
 
-                     17.25.5.2.  s < c + δ
-                                 inequalities, from 17.25.4, 17.24
+                     17.31.5.2.  s < c + δ
+                                 inequalities, from 17.31.4, 17.30
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 17.25.3
-                                 requires δ ∈ ℝ: from 17.24
+                                 requires s ∈ ℝ: from 17.31.3
+                                 requires δ ∈ ℝ: from 17.30
 
-                     17.25.5.3.  |s − c| < δ
+                     17.31.5.3.  |s − c| < δ
                                  thm:stdlib/numbers/abs-difference-lt x := s, c := c, δ := δ,
-                                   from 17.25.3, 8, 17.24, 17.25.5.1, 17.25.5.2
+                                   from 17.31.3, 8, 17.30, 17.31.5.1, 17.31.5.2
 
-                     17.25.5.4.  |f(s) − f(c)| < f(c)
-                                 instantiate x := s in line 17.24, from 17.25.1, 17.25.5.3
+                     17.31.5.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 17.30, from 17.31.1, 17.31.5.3
 
-                     17.25.5.5.  f(s) ∈ ℝ
-                                 thm:stdlib/functions/function-value, from 17.25.1
+                     17.31.5.5.  f(s) ∈ ℝ
+                                 thm:stdlib/functions/function-value, from 17.31.1
 
-                     17.25.5.6.  f(s) − f(c) ∈ ℝ
-                                 thm:stdlib/numbers/real-closure, from 17.25.5.5, 14
+                     17.31.5.6.  f(s) − f(c) ∈ ℝ
+                                 thm:stdlib/numbers/real-closure, from 17.31.5.5, 14
 
-                     17.25.5.7.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
-                                 thm:proof/triangle-inequality/abs-bounds x := f(s) − f(c), from 17.25.5.6
+                     17.31.5.7.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                                 thm:proof/triangle-inequality/abs-bounds x := f(s) − f(c), from 17.31.5.6
 
-                     17.25.5.8.  0 < f(s)
-                                 inequalities, from 17.25.5.7, 17.25.5.4
-                                 requires f(s) ∈ ℝ: from 17.25.5.5
+                     17.31.5.8.  0 < f(s)
+                                 inequalities, from 17.31.5.7, 17.31.5.4
+                                 requires f(s) ∈ ℝ: from 17.31.5.5
                                  requires f(c) ∈ ℝ: from 14
                                  requires |f(s) − f(c)| ∈ ℝ: thm:stdlib/numbers/abs-real x := f(s) − f(c),
-                                   from 17.25.5.6
+                                   from 17.31.5.6
 
-                     17.25.5.9.  not f(s) < 0
-                                 inequalities, from 17.25.5.8
-                                 requires f(s) ∈ ℝ: from 17.25.5.5
+                     17.31.5.9.  not f(s) < 0
+                                 inequalities, from 17.31.5.8
+                                 requires f(s) ∈ ℝ: from 17.31.5.5
 
-                     17.25.5.10. f(s) < 0. not f(s) < 0.
-                                 join 17.25.2, 17.25.5.9
+                     17.31.5.10. f(s) < 0. not f(s) < 0.
+                                 join 17.31.2, 17.31.5.9
 
-    17.26. c − δ is an upper bound of S
-           def:stdlib/calculus/upper-bound, from 17.25
+    17.32. c − δ is an upper bound of S
+           def:stdlib/calculus/upper-bound, from 17.31
 
-    17.27. c ≤ c − δ
-           instantiate u := c − δ in line 9, from 17.26
-           requires c − δ ∈ ℝ: thm:stdlib/numbers/real-closure, from 8, 17.24
+    17.33. c ≤ c − δ
+           instantiate u := c − δ in line 9, from 17.32
+           requires c − δ ∈ ℝ: thm:stdlib/numbers/real-closure, from 8, 17.30
 
-    17.28. not c ≤ c − δ
-           inequalities, from 17.24
+    17.34. not c ≤ c − δ
+           inequalities, from 17.30
            requires c ∈ ℝ: from 8
-           requires δ ∈ ℝ: from 17.24
+           requires δ ∈ ℝ: from 17.30
 
-    17.29. c ≤ c − δ. not c ≤ c − δ.
-           join 17.27, 17.28
+    17.35. c ≤ c − δ. not c ≤ c − δ.
+           join 17.33, 17.34
 
-    17.30. f(c) = 0
-           thm:stdlib/reasoning/from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.29
+    17.36. f(c) = 0
+           thm:stdlib/reasoning/from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.35
 
 18. There is c ∈ [a, b] with f(c) = 0.
     exhibit, from 13, 17

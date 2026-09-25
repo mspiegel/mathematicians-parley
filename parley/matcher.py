@@ -2069,9 +2069,10 @@ class Matcher:
         return self.seq(scope, instance.rpn(self.flabel),
                         goal.rpn(self.flabel), found, across, 'mpbid')
 
-    def spelt_out(self, term):
+    def spelt_out(self, term, keep=frozenset()):
         """A term with every name a `define` introduced replaced by the
-        term it names, and nothing else changed.
+        term it names, and nothing else changed; but for the defined
+        variables in `keep`, which stay names.
 
         A lemma speaks of the body — `elrab` of `{x ∈ A : φ}` — and a line
         of the name, so what fixes the lemma's variables is the line spelt
@@ -2081,10 +2082,12 @@ class Matcher:
         if term.variable is not None or not term.children:
             return term
         if term.label == 'cv':
-            body = self.definitions.get(term.children[0].rpn(self.flabel))
+            var = term.children[0].rpn(self.flabel)
+            body = None if var in keep else self.definitions.get(var)
             return term if body is None else self.spelt_out(self.to_term(body))
         return kernel.Term(term.label,
-                           tuple(self.spelt_out(c) for c in term.children))
+                           tuple(self.spelt_out(c, keep)
+                                 for c in term.children))
 
     def read_through(self, term):
         """A term with every one-way rule of `rules.STANDARD` applied,
@@ -2145,6 +2148,33 @@ class Matcher:
 
     def apply_lemma(self, label, goal, scope, facts, step, crossing=True,
                     seed=None):
+        """Apply one set.mm lemma to reach a claim, side conditions and all
+        (`applied_as_written`), or to reach it written out.
+
+        A claim may name what a `define` named, and a lemma speaks of the
+        body: `ltmin` says when z is below `if ( x <_ y , x , y )`, and the
+        step claims c < x₁. Where the claim as written does not fit, the
+        lemma is applied to it written out (`spelt_out`) and the define's
+        equation carries that back (`same`).
+        """
+        found = self.applied_as_written(label, goal, scope, facts, step,
+                                        crossing, seed)
+        out = self.spelt_out(goal)
+        if not declined(found) \
+                or out.rpn(self.flabel) == goal.rpn(self.flabel):
+            return found
+        written = self.applied_as_written(label, out, scope, facts, step,
+                                          crossing, seed)
+        if declined(written):
+            return found
+        alike = self.same(out, goal, scope, facts, step)
+        if declined(alike):
+            return alike
+        return self.seq(scope, out.rpn(self.flabel), goal.rpn(self.flabel),
+                        written, alike, 'mpbid')
+
+    def applied_as_written(self, label, goal, scope, facts, step,
+                           crossing=True, seed=None):
         """Apply one set.mm lemma to reach a claim, side conditions and all.
 
         What a lemma states before the claim it reaches may be an

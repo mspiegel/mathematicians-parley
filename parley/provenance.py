@@ -297,12 +297,17 @@ class ProofRules:
             # reason, the proof rests on something the line does not say:
             # `isosceles` holds `A ≠ B` from its hypothesis, and the line
             # asking for it says it comes from line 6. A line resting on the
-            # lines it cites is always read from them, which is a lookup.
+            # lines it cites is read from them, which is a lookup — except
+            # where an earlier pass already did: this line's own proof
+            # carries the line as its origin, and was checked against its
+            # reason when it was made. Read again, a fact the scope took from
+            # a line's naming (`c ∈ ℝ` from an obtain) is no longer the one
+            # in hand, and the lookup finds nothing.
             given = known
+            if term in known \
+                    and requirement(line) in getattr(known[term], 'origin', ()):
+                continue
             if term in known and not self.rests_on_lines(how):
-                # This line's own proof carries the line as its origin.
-                if requirement(line) in getattr(known[term], 'origin', ()):
-                    continue
                 given = {k: v for k, v in known.items() if k != term}
             self.supplying.add(term)
             try:
