@@ -318,10 +318,7 @@ class Scopes:
         elif head == 'induction':
             block.claim, block.proof = self.close_induction(block, lines)
         number = '.'.join(str(p) for p in step.number)
-        self.rests_on_named(block.proof, self.named(step, number, block=True),
-                            step.line, f'step {number}')
-        self.does_work(step, number, block.proof)
-        block.proof = self.seal(block.proof, number)
+        block.proof = self.check_step(block.proof, step, number, block=True)
         outer = dict(block.outside)
         outer[block.claim] = block.proof
         lines[number] = Fact(block.claim, block.proof)
@@ -736,10 +733,7 @@ class Scopes:
             p_ex = self.cite_item(step, ex, scope, facts, item, cites)
         # What the line is obtained from is what it rests on; what it
         # introduces is sealed below with the same name, and rests on nothing.
-        self.rests_on_named(p_ex, self.named(step, number), step.line,
-                            f'step {number}')
-        self.does_work(step, number, p_ex)
-        p_ex = self.seal(p_ex, number)
+        p_ex = self.check_step(p_ex, step, number)
 
         # The existential says which names it introduces and where they run,
         # so the scope is read off it rather than off the text.

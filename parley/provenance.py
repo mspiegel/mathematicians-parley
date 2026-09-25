@@ -224,6 +224,21 @@ class ProofRules:
                                | getattr(proof, 'origin', frozenset()))
         return Proof(proof.text, {item})
 
+    def check_step(self, proof, step, number, block=False):
+        """A step's finished proof, checked by the rules and sealed.
+
+        It rests on nothing the step does not name (R1), everything the
+        step names does work, and from here on the proof stands for the
+        step's number. What the step names is `named`, which is also what
+        `resting_on` offers the search while the step is built, so what the
+        search may use and what the check allows are one set. A block names
+        its own steps and assumption as well.
+        """
+        self.rests_on_named(proof, self.named(step, number, block=block),
+                            step.line, f'step {number}')
+        self.does_work(step, number, proof)
+        return self.seal(proof, number)
+
     @contextlib.contextmanager
     def resting_on(self, allowed):
         """What the proof being built may rest on, while it is built.

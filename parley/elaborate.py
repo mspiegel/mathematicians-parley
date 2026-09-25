@@ -552,10 +552,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         if proof is None:                  # a join, which emits nothing
             return scope, facts, closers
         said = self.said(step)
-        self.rests_on_named(proof, self.named(step, number), step.line,
-                            f'step {number}')
-        self.does_work(step, number, proof)
-        proof = self.seal(proof, number)
+        proof = self.check_step(proof, step, number)
         lines[number] = Fact(term, proof, said)
         facts[term] = proof
         # A line saying several things says each of them: Bezout's step 15

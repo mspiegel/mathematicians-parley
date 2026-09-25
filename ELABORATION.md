@@ -840,7 +840,11 @@ scope says. A variable antecedent bound to the scope is the context a
 deduction-form lemma is stated in, and uses nothing.
 
 Three rules follow, each a defect naming the line, checked where the proof is
-sealed:
+sealed. A step's proof, a block's, and an obtain's source all pass through
+one `check_step` in `parley/provenance.py`, which applies R1 and then R3 and
+then seals; what it allows is `named`, the same set `resting_on` offers the
+search while the step is built. A requires line is checked by R2 where it is
+proved (`discharged_by`).
 
 - **R1 — a step rests only on what it names**: the lines it cites, its own
   requires lines, and the sorts in scope; a block also on its own steps, what it
