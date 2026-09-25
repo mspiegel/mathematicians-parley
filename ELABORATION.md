@@ -83,12 +83,11 @@ modules (`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and
 `parley/calculators.py` turns what they decide into proof steps. The rule
 tables are one data module, `parley/rules.py`, and `parley/tables.py` is
 the code that reads them; a few tables are still written inside the
-methods that read them. The proof rules are `parley/provenance.py`, and
-reading is `parley/reading.py`. `Elaborator` inherits from the classes of
-these modules. The scopes and the matcher are not yet separate: each is
-spread through `parley/elaborate.py`, apart from the two records a scope
-keeps, `Fact` and `Block`, which are in `parley/scopes.py`. The matcher is
-written as many cases rather than one match modulo rules. Moving the code into this shape is
+methods that read them. The proof rules are `parley/provenance.py`,
+reading is `parley/reading.py`, and the scopes are `parley/scopes.py`.
+`Elaborator` inherits from the classes of these modules. The matcher is
+not yet separate: it is spread through `parley/elaborate.py`, and written
+as many cases rather than one match modulo rules. Moving the code into this shape is
 done one part at a time, with every elaborated file byte for byte what it was,
 and the section on each part changes when its part does.
 
