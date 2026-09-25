@@ -444,37 +444,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         if want == said:
             return said, None
 
-        def respelt_here(given, wanted, where, held):
-            for label in rules.SPELLINGS:
-                reads = self.syntax.statement(self.sigs[label])
-                names = reads.names()
-                ours = kernel.match(reads.children[0], given, {}, names)
-                theirs = kernel.match(reads.children[1], wanted, {}, names)
-                if ours is None or theirs is None \
-                        or ours['x'].rpn(self.flabel) \
-                        != theirs['x'].rpn(self.flabel):
-                    continue
-                # The body is put in the page's words first, under set.mm's
-                # own quantifier, and the spelling then changes the
-                # quantifier around a body both sides already share.
-                middle = reads.children[0].substitute(theirs)
-                closed = self.ap(label, self.spelt(theirs))
-                turned = self.seq(self.seq(middle.rpn(self.flabel),
-                                           wanted.rpn(self.flabel), 'wb'),
-                                  where, closed, 'a1i')
-                if middle.rpn(self.flabel) == given.rpn(self.flabel):
-                    return turned
-                inside = self.congruence(given, middle, where, held, None,
-                                         respelt_here)
-                if declined(inside):
-                    return inside
-                return self.seq(where, given.rpn(self.flabel),
-                                middle.rpn(self.flabel),
-                                wanted.rpn(self.flabel), inside, turned,
-                                'bitrd')
-            return None
-
-        alike = self.congruence(old, new, scope, {}, None, respelt_here)
+        alike = self.congruence(old, new, scope, {}, None,
+                                self.closing(('spelt',)))
         if declined(alike):
             return alike
         return want, alike

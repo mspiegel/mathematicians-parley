@@ -22,6 +22,18 @@ from parse import Declined, declined
 from rules import TURNED
 from spell import Proof, seq
 
+# The kinds of difference the one walk closes where a lemma's conclusion, or a
+# fact, and what is wanted are both known and differ in places (`closing`).
+# Each is a method `closed_<kind>`, and each closes its difference with a
+# proof step:
+#   held      an equation in hand says the two are equal
+#   cited     the equation a step cites, which rewrote the place
+#   assumed   the equation a lemma's own hypothesis assumes
+#   declared  a declared equation (`rules.MEMBERSHIP`, role `equation`)
+#   commuted  a commuting pair exchanged (`db/notation.records`)
+#   spelt     a quantifier set.mm spells another way (`rules.SPELLINGS`)
+DIFFERENCES = ('held', 'cited', 'assumed', 'declared', 'commuted', 'spelt')
+
 
 class Matcher:
     # --- facts the text never writes ----------------------------------------
@@ -329,21 +341,9 @@ class Matcher:
                 under = self.settle(put, scope, facts, depth - 1)
                 if declined(under):
                     continue
-
-                def stands(one, other, where, held, was=was, now=now,
-                           said=said, flip=old is left):
-                    if (one.rpn(self.flabel) != now
-                            or other.rpn(self.flabel) != was):
-                        return None
-                    if said not in held:
-                        return self.no('{} is not in hand here', said)
-                    # The line says `was = now` or `now = was`, and what
-                    # carries the settled term back is `now = was`.
-                    return (self.seq(where, was, now, held[said], 'eqcomd')
-                            if flip else held[said])
-
-                alike = self.congruence(put, wanted, scope, facts, None,
-                                        stands)
+                alike = self.congruence(
+                    put, wanted, scope, facts, None,
+                    self.closing(('cited', was, now, said, old is left)))
                 if declined(alike):
                     continue
                 return self.seq(scope, put.rpn(self.flabel), want, under,
@@ -398,28 +398,12 @@ class Matcher:
             names, reads = says.names(), says
             while reads.label == 'wi':
                 reads = reads.children[1]
-
-            def stands(one, other, where, _held, reads=reads, names=names,
-                       label=label):
-                """The one place the fact and the wanted differ, if the
-                equation is what stands between them.
-                """
-                bound = kernel.match(reads.children[0], one, {}, names)
-                if bound is None or reads.children[0].names() - set(bound):
-                    return None
-                if reads.children[1].substitute(bound).rpn(self.flabel) \
-                        != other.rpn(self.flabel):
-                    return None
-                return self.apply_lemma(
-                    label, self.to_term(self.seq(one.rpn(self.flabel),
-                                            other.rpn(self.flabel), 'wceq')),
-                    where, facts, None, crossing=False)
-
+            leaf = self.closing(('declared', label, reads, names, facts))
             for said, proof in list(facts.items()):
                 if said == want:
                     continue
                 alike = self.congruence(self.to_term(said), wanted,
-                                        scope, facts, None, stands)
+                                        scope, facts, None, leaf)
                 if declined(alike):
                     continue
                 if alike is not None:
@@ -749,6 +733,123 @@ class Matcher:
                                  'C': self.seq(now[0], now[1], index, 'csu')},
                        moved, rewritten)
 
+    # --- closing a difference -----------------------------------------------
+
+    def closing(self, *rows):
+        """What the walk asks where two terms differ, row by row.
+
+        `congruence` walks two terms together and asks this at every place
+        they differ, outermost first; the first row that closes the
+        difference gives the proof there, and where none does the walk goes
+        a level in. Each row is one kind in `DIFFERENCES`, with what that
+        kind needs to know, and each closes a difference with a proof step.
+        """
+        def leaf(one, other, where, held):
+            for kind, *given in rows:
+                found = getattr(self, f'closed_{kind}')(one, other, where,
+                                                        held, *given)
+                if found is not None:
+                    return found
+            return None
+        return leaf
+
+    def closed_held(self, one, other, where, held):
+        """Two terms an equation in hand says are equal."""
+        if one.rpn(self.flabel) == other.rpn(self.flabel):
+            return None
+        asked = self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')
+        if asked not in held:
+            return None      # the walk goes on to where they differ
+        return held[asked]
+
+    def closed_cited(self, one, other, where, held, was, now, said, flip):
+        """The place one cited equation rewrote, carried back.
+
+        The line says `was = now` or `now = was` (`flip`), and what carries
+        the settled term back is `now = was`.
+        """
+        if (one.rpn(self.flabel) != now
+                or other.rpn(self.flabel) != was):
+            return None
+        if said not in held:
+            return self.no('{} is not in hand here', said)
+        return (self.seq(where, was, now, held[said], 'eqcomd')
+                if flip else held[said])
+
+    def closed_assumed(self, one, other, where, held, was, now, under):
+        """The place a lemma's own assumed equation says the two agree.
+
+        The equation is handed over as a fact rather than reproved at the
+        leaf: the walk widens the scope where it passes a binder, and a
+        proof under the scope it started at would not be a proof under that
+        one.
+        """
+        return (held.get(under)
+                if one.rpn(self.flabel) == was
+                and other.rpn(self.flabel) == now else None)
+
+    def closed_declared(self, one, other, where, held, label, reads, names,
+                        facts):
+        """The one place a fact and what is wanted differ, if a declared
+        equation is what stands between them.
+        """
+        bound = kernel.match(reads.children[0], one, {}, names)
+        if bound is None or reads.children[0].names() - set(bound):
+            return None
+        if reads.children[1].substitute(bound).rpn(self.flabel) \
+                != other.rpn(self.flabel):
+            return None
+        return self.apply_lemma(
+            label, self.to_term(self.seq(one.rpn(self.flabel),
+                                    other.rpn(self.flabel), 'wceq')),
+            where, facts, None, crossing=False)
+
+    def closed_commuted(self, one, other, where, held):
+        """Two terms that are one with a commuting pair exchanged.
+
+        set.mm writes `( k x. 2 )` where the corpus writes 2k; the exchange
+        is an equation, settled like anything else.
+        """
+        if not self.exchanged(one, other):
+            return None
+        return self.settle(self.to_term(
+            self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
+            where, held)
+
+    def closed_spelt(self, given, wanted, where, held):
+        """A quantifier set.mm writes one way and the page another.
+
+        `rules.SPELLINGS` holds set.mm's statements that the two agree. The
+        body is put in the page's words first, under set.mm's own
+        quantifier, and the spelling then changes the quantifier around a
+        body both sides already share.
+        """
+        for label in rules.SPELLINGS:
+            reads = self.syntax.statement(self.sigs[label])
+            names = reads.names()
+            ours = kernel.match(reads.children[0], given, {}, names)
+            theirs = kernel.match(reads.children[1], wanted, {}, names)
+            if ours is None or theirs is None \
+                    or ours['x'].rpn(self.flabel) \
+                    != theirs['x'].rpn(self.flabel):
+                continue
+            middle = reads.children[0].substitute(theirs)
+            closed = self.ap(label, self.spelt(theirs))
+            turned = self.seq(self.seq(middle.rpn(self.flabel),
+                                       wanted.rpn(self.flabel), 'wb'),
+                              where, closed, 'a1i')
+            if middle.rpn(self.flabel) == given.rpn(self.flabel):
+                return turned
+            inside = self.congruence(given, middle, where, held, None,
+                                     self.closing(('spelt',)))
+            if declined(inside):
+                return inside
+            return self.seq(where, given.rpn(self.flabel),
+                            middle.rpn(self.flabel),
+                            wanted.rpn(self.flabel), inside, turned,
+                            'bitrd')
+        return None
+
     # --- a lemma's own substitutions ----------------------------------------
 
     def substituted_slot(self, asked, binding):
@@ -1013,17 +1114,12 @@ class Matcher:
         set.mm writes `( k x. 2 )` where the corpus writes 2k, and those are
         the same number but not the same formula.
         """
-        def swapped(one, other, where, held):
-            if not self.exchanged(one, other):
-                return None
-            return self.settle(self.to_term(
-                self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
-                where, held)
         renamed = self.renaming(given, want)
         if renamed is not None:
             return self.seq(self.seq(given.rpn(self.flabel), want.rpn(self.flabel),
                            'wb'), scope, renamed, 'a1i')
-        return self.congruence(given, want, scope, facts, step, swapped)
+        return self.congruence(given, want, scope, facts, step,
+                               self.closing(('commuted',)))
 
     def renaming(self, given, want):
         """The two as one claim, spelt with different bound variables.
@@ -1612,14 +1708,7 @@ class Matcher:
         the two terms differ is one equation, and it is settled where it
         stands. A difference the scope does not prove is not a route.
         """
-        def proved(one, other, where, held):
-            if one.rpn(self.flabel) == other.rpn(self.flabel):
-                return None
-            asked = self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')
-            if asked not in held:
-                return None      # the walk goes on to where they differ
-            return held[asked]
-
+        proved = self.closing(('held',))
         straight = self.congruence(said, goal, scope, facts, step, proved)
         if not declined(straight):
             return straight
@@ -2033,18 +2122,9 @@ class Matcher:
                 and left.children[0].label == 'cv'):
             was = left.children[0].rpn(self.flabel)
             now = left.children[1].rpn(self.flabel)
-
-            # The equation is what is assumed, so it is handed over as a
-            # fact rather than reproved at the leaf: the walk widens the
-            # scope where it passes a binder, and a proof under the scope
-            # it started at would not be a proof under that one.
-            def stands(one, other, _where, held):
-                return (held.get(under)
-                        if one.rpn(self.flabel) == was
-                        and other.rpn(self.flabel) == now else None)
             return self.congruence(right.children[0], right.children[1],
                                    under, {under: self.seq(under, 'id')}, None,
-                                   stands)
+                                   self.closing(('assumed', was, now, under)))
         if under == scope:
             return self.settle(right, scope, facts)
         if (left.label == 'wa'
