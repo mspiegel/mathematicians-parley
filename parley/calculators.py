@@ -20,7 +20,6 @@ import normal
 import rules
 from library import Signature
 from parse import Declined, declined, fmt
-from provenance import REQUIRES
 from scopes import Fact
 from spell import seq
 
@@ -528,8 +527,7 @@ class Calculators:
             found = self.part(said, 'cc', scope, facts)
             if not declined(found):
                 return found
-            return self.settle(self.to_term(self.seq(said, 'cc', 'wcel')), scope,
-                               facts, depth=12)
+            return self.within(said, 'cc', scope, facts, 12)
 
         atoms = {a for p in [*given, want] for m in p.terms for a, _ in m}
         how = field.follows(given, want, atoms)
@@ -929,24 +927,14 @@ class Calculators:
         # what the readable layer does not write.
         known = self.supplied(step, scope, facts) if step is not None \
             else facts
-        # Offered to the membership lookup and to nothing else. `settle`
-        # searches what it is given, and widening the facts it sees widens
-        # that search: handing `prove_order` the whole of `known` put the
-        # four steps of `thm:proof/triangle-inequality/abs-bounds` past ten
-        # million `fits` calls, where the same proof takes five seconds.
-        # What a requires line made, and nothing else — including where the
-        # scope holds the same claim for another reason, which is the case
-        # the line was written for: `requires x ∈ ℝ: from H1` beside the
-        # hypothesis that says it.
-        kept = self.written
-        self.written = {k: (scope, v) for k, v in known.items()
-                        if any(o.startswith(REQUIRES)
-                               for o in getattr(v, 'origin', ()))}
-        try:
+        # Offered to the membership lookup and to nothing else (`writing`).
+        # `settle` searches what it is given, and widening the facts it sees
+        # widens that search: handing `prove_order` the whole of `known` put
+        # the four steps of `thm:proof/triangle-inequality/abs-bounds` past
+        # ten million `fits` calls, where the same proof takes five seconds.
+        with self.writing(scope, known):
             found = self.prove_order(step.just.refs, term, scope, facts,
                                      lines)
-        finally:
-            self.written = kept
         if declined(found):
             return self.assume(step, term, scope, facts, 'ine', lines)
         return found

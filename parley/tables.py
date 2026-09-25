@@ -8,6 +8,7 @@ term's sethood — it looks up the lemma the table names for that shape and
 builds the proof from it. Nothing here searches: what a table has no entry
 for is declined, and left to what is tried after.
 """
+import contextlib
 from fractions import Fraction
 
 import field
@@ -19,6 +20,36 @@ from provenance import from_requires
 
 
 class TableReading:
+    @contextlib.contextmanager
+    def writing(self, scope, known, keep=False):
+        """What the step's requires lines made, offered while a step is built.
+
+        `written` is what the membership lookup (`part`, `membership`) and
+        the one-lemma bridge read before any search, and a search never
+        does, so offering these widens nothing `settle` looks through. Only
+        what a requires line made is offered, including where the scope
+        holds the same claim for another reason: that is the case a line
+        like `requires x ∈ ℝ: from H1` is written for. `keep` lays these
+        over what is already offered rather than in its place.
+        """
+        kept = self.written
+        made = {k: (scope, v) for k, v in known.items() if from_requires(v)}
+        self.written = {**kept, **made} if keep else made
+        try:
+            yield
+        finally:
+            self.written = kept
+
+    def within(self, said, system, scope, facts, depth):
+        """`said ∈ system` searched for, at the depth the caller gives.
+
+        For a caller whose term is deeper than a side condition, as a
+        method's own claim may be: `part` first, from the step's own lines,
+        is the caller's to try.
+        """
+        return self.settle(self.to_term(self.seq(said, system, 'wcel')),
+                           scope, facts, depth=depth)
+
     def congruence(self, given, want, scope, facts, step, leaf):
         """Carry one change up to the whole term it sits in.
 

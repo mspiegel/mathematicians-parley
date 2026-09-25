@@ -57,7 +57,7 @@ from parse import (
     qualified,
 )
 from parse import index as full_names
-from provenance import REQUIRES, ProofRules
+from provenance import ProofRules
 from reading import CLASS_NAMES, Reading, hypothesis_body, render
 from scopes import Fact, Scopes
 from sorts import sorts_in_scope
@@ -534,18 +534,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # line the page wrote for it is the one to use. Offered as `written`
         # is, which the membership lookup and the one-lemma bridge read and a
         # search does not, so what `settle` searches is no wider.
-        kept = self.written
-        if step.requires:
-            known = self.supplied(step, scope, facts)
-            self.written = {**kept, **{
-                k: (scope, v) for k, v in known.items()
-                if any(o.startswith(REQUIRES)
-                       for o in getattr(v, 'origin', ()))}}
+        known = self.supplied(step, scope, facts) if step.requires else {}
         citing, self.citing = self.citing, frozenset(step.just.refs)
         try:
-            proof = how(step, node, term, scope, facts, lines)
+            with self.writing(scope, known, keep=True):
+                proof = how(step, node, term, scope, facts, lines)
         finally:
-            self.written, self.citing = kept, citing
+            self.citing = citing
         # Every route the method had declined, so nothing here owns the
         # step. That is this elaborator's limit rather than a defect in the
         # text, and it is said here because here is where the step is.
