@@ -86,6 +86,36 @@ def shapes(proof, sigs):
     return stack[0], kinds
 
 
+def shapes_of(items):
+    """`shapes`, read off the steps a proof was built as (`spell.Step`).
+
+    The same numbering the text gives: each subproof numbered when it is
+    first finished, walking the parts left to right, which is the order the
+    text writes them in. A step reached again through another place that
+    uses it is already numbered, and so is one built apart but alike, by
+    the label and the numbers of its parts.
+    """
+    if len(items) != 1:
+        raise ValueError(f'the proof leaves {len(items)} things on the stack')
+    seen, kinds, number = {}, [], {}
+    work = [(items[0], False)]
+    while work:
+        step, done = work.pop()
+        if id(step) in number:
+            continue
+        if step.kids and not done:
+            work.append((step, True))
+            work.extend((kid, False) for kid in reversed(step.kids))
+            continue
+        key = (step.label, tuple(number[id(kid)] for kid in step.kids))
+        at = seen.get(key)
+        if at is None:
+            at = seen[key] = len(kinds)
+            kinds.append(key)
+        number[id(step)] = at
+    return number[id(items[0])], kinds
+
+
 def standing(root, kinds):
     """How many places each subproof stands in, counted no higher than two.
 

@@ -22,13 +22,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from compress import HIGH, LAST, compress, expand, letters
+from compress import HIGH, LAST, compress, expand, letters, shapes, shapes_of
 from library import read as read_library
 from library import where_set_mm
 from spell import Builder
 
 ROOT = Path(__file__).resolve().parent.parent
 PROVED = re.compile(r'(?m)^\s*(\S+)\s+\$p\s+(.*?)\$=(.*?)\$\.', re.S)
+STEPPED = 1_000_000          # labels, the most a proof is rebuilt as steps
 
 
 def decoded(said):
@@ -54,7 +55,7 @@ def main(argv):
     built = sorted((ROOT / 'elaboration').rglob('*.mm'))
     sigs = read_library(str(setmm), *(str(p) for p in built))
     spell = Builder(sigs)
-    passed = failed = 0
+    passed = failed = stepped = 0
     for path in built:
         for found in PROVED.finditer(path.read_text()):
             label, says, said = found.group(1), found.group(2), found.group(3)
@@ -68,14 +69,42 @@ def main(argv):
             mandatory = sorted({spell.flabel[t] for t in says.split()
                                 if t in spell.flabel},
                                key=lambda one: spell.forder[one])
-            again = compress(expand(said, mandatory, sigs), mandatory, sigs)
+            text = expand(said, mandatory, sigs)
+            again = compress(text, mandatory, sigs)
             if again == said:
                 passed += 1
             else:
                 failed += 1
                 print(f'  NOT THE SAME  {label} in {path.name}')
+            # The elaborator writes from the steps it built and not from
+            # text, and the two must number a proof alike. Read back one
+            # step per label, a proof of millions of labels would take
+            # gigabytes to rebuild here, and the build writing every file
+            # byte for byte is what checks those.
+            if text.count(' ') < STEPPED:
+                stack = []
+                spell.read_onto(text, stack)
+                if shapes_of(tuple(stack)) == shapes(text, sigs):
+                    stepped += 1
+                else:
+                    failed += 1
+                    print(f'  STEPS NUMBERED OTHERWISE  {label} in '
+                          f'{path.name}')
 
-    print(f'\n{passed} proof(s) survive a round trip, {failed} do not')
+    # A part of the wrong kind is refused where it is handed over: `eqid`
+    # takes a class, and a proof is not one.
+    try:
+        spell.seq(spell.ap('0re'), 'eqid')
+    except TypeError:
+        refused = True
+    else:
+        refused = False
+        failed += 1
+        print('  a proof handed to eqid as a class was not refused')
+
+    print(f'\n{passed} proof(s) survive a round trip, {failed} do not; '
+          f'{stepped} numbered alike from their steps; a part of the wrong '
+          f'kind {"is" if refused else "is not"} refused')
     return 1 if failed else 0
 
 

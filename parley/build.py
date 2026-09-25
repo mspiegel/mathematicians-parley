@@ -59,14 +59,13 @@ SETMM = '<set.mm>'
 # signatures and most peak near 550MB, so the ceiling is there to keep a wave
 # of every theorem at once from asking for gigabytes the machine may not have.
 WORKERS = min(8, os.cpu_count() or 1)
-# What one recipe may use at its peak before the build fails. The
-# intermediate value theorem peaks near 4.7GB, because a proof is built as
-# text in which every shared part is written out again, and the allocator
-# keeps what the large texts it builds and drops once held; it peaked near
-# 7.8GB before its text stopped being split whole. The limit is above what
-# it needs and below what it used to, so a recipe that grows past it is
+# What one recipe may use at its peak before the build fails. A proof is
+# built as steps that share their parts (`spell.Step`), and no recipe peaks
+# above 0.6GB; built as text, with every shared part written out again, the
+# intermediate value theorem took 6GB. The limit is well above what any
+# recipe needs and well below that, so a recipe that grows past it is
 # reported rather than left to the machine.
-MEMORY_LIMIT = 6 << 30
+MEMORY_LIMIT = 2 << 30
 # `ru_maxrss` is in bytes on macOS and in kilobytes elsewhere.
 RSS_UNIT = 1 if sys.platform == 'darwin' else 1024
 

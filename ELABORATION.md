@@ -830,6 +830,16 @@ disposes of it. The elaborated corpus is 144 KB and its largest proof,
 orders of magnitude, since nothing about the proof changes and only the
 repetition is written down differently.
 
+The elaborator never writes normal format. A proof is built as steps
+(`spell.Step`), each a label applied to the steps it takes and sharing them
+rather than copying them, and the compressed file is written from those
+(`compress.shapes_of`). So what a proof costs to build follows its distinct
+parts: the intermediate value theorem is 63 million labels written out and
+3,030 distinct subproofs, and it elaborates in 3.5 seconds and 0.56GB. As a
+step is built, each part is checked against the kind its label takes, so a
+proof handed where a class belongs fails at the call that made it rather
+than in the verifier.
+
 It verifies faster too, because a step that was kept is not checked again.
 What makes it safe is that the proof written is the proof that was given:
 `compress.expand` reads one back, and `parley/test_compress.py` asks that of

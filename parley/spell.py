@@ -26,32 +26,46 @@ import kernel
 from library import Signature
 
 
-# What this representation costs, and what would remove the cost.
+# Why a proof is a structure and not text.
 #
-# A proof's `.text` is Metamath's normal format: a flat run of labels in
-# which a subproof used in several places is written out in full at each.
-# Proofs are built from proofs, so the text of a step holds the texts of
-# everything under it, copied. The intermediate value theorem's finished
-# proof is 225 million characters, 63.6 million labels, and only 3,030
-# distinct subproofs; compressed, it is 39.5 thousand characters. The
-# elaborator's traced memory peaks near 1.9GB building such texts, the
-# process near 4.7GB because the allocator keeps what the large texts it
-# builds and drops once held, and `compress.shapes` spends most of that
-# theorem's time reading the text back into the sharing it lost.
+# Written out, a proof is Metamath's normal format: a flat run of labels in
+# which a subproof used in several places is spelt in full at each. Proofs
+# are built from proofs, so a step's text would hold a copy of everything
+# under it. The intermediate value theorem's proof is 63.6 million labels
+# that way and only 3,030 distinct subproofs, and building it as text took
+# gigabytes. So a proof is built as `Step`s, each a label applied to the
+# steps it takes and referring to them rather than copying them, and the
+# compressed file is written from that (`compress.shapes_of`).
 #
-# The remedy is to build a proof as a shared structure: each distinct
-# subproof made once, as a label applied to the subproofs it takes, and
-# referred to wherever it is used — hash-consed, so two built alike are one
-# object. The compressed format would then be written from that structure
-# directly, with no normal-format text and no `shapes` pass, and memory
-# would follow the distinct subproofs rather than the written-out ones.
-#
-# What has to survive the change: `origin`, which every check of what a
-# step rests on reads, and which belongs to a use of a subproof rather than
-# to the subproof, since one subproof may rest on different lines where two
-# steps name it; `Builder.seq`'s telling a proof from a term by its last
-# label; the refusal of a proof handled as a string; and the elaborated
-# files byte for byte, which is the test that nothing proved has changed.
+# `origin` stays on `Proof` and not on a `Step`: it belongs to a use of a
+# subproof, since one subproof may rest on different lines where two steps
+# name it.
+class Step:
+    """One label applied to the steps it takes, and what kind of thing that
+    builds: a `wff`, a `class`, a `setvar`, or a proof (`|-`).
+    """
+
+    __slots__ = ('kids', 'label', 'typecode')
+
+    def __init__(self, label, kids, typecode):
+        self.label, self.kids, self.typecode = label, kids, typecode
+
+
+def spelt(items):
+    """Steps in normal format, written without recursion: these run to
+    millions of labels and deeper than any stack Python will give.
+    """
+    out, work = [], [(one, False) for one in reversed(items)]
+    while work:
+        step, done = work.pop()
+        if done or not step.kids:
+            out.append(step.label)
+            continue
+        work.append((step, True))
+        work.extend((kid, False) for kid in reversed(step.kids))
+    return ' '.join(out)
+
+
 @dataclass(frozen=True)
 class Proof:
     """A proof, and what on the page it rests on.
@@ -62,20 +76,33 @@ class Proof:
     `GOALS.md` decision 9 is that the kernel proof is derived from the text,
     and this is what lets that be asked of a proof rather than assumed.
 
-    It is not text: `.text` is what it spells. Code that handled a proof as
-    a string and so lost what it rests on would leave a proof resting on
-    nothing, which every check of what a step names would pass. So `str`
-    and a format refuse, the way `seq` refuses a decline, and the line that
-    forgot is the line that fails.
+    It is not text: `items` are the steps it is, usually one, and `.text`
+    is what it spells. Code that handled a proof as a string and so lost
+    what it rests on would leave a proof resting on nothing, which every
+    check of what a step names would pass. So `str` and a format refuse,
+    the way `seq` refuses a decline, and the line that forgot is the line
+    that fails.
     """
 
-    text: str
+    items: tuple
     origin: frozenset = frozenset()
 
     def __post_init__(self):
-        if not isinstance(self.text, str):
-            raise TypeError(f'a proof is text, not {type(self.text).__name__}')
+        if not (isinstance(self.items, tuple)
+                and all(type(one) is Step for one in self.items)):
+            raise TypeError(f'a proof is steps, not '
+                            f'{type(self.items).__name__}')
         object.__setattr__(self, 'origin', frozenset(self.origin))
+
+    @property
+    def text(self):
+        """The proof in normal format, for reading it; nothing builds it."""
+        return spelt(self.items)
+
+    @property
+    def last(self):
+        """The label applied last, which says what the proof is of."""
+        return self.items[-1].label
 
     def __str__(self):
         raise TypeError('a proof is not text; .text is what it spells')
@@ -206,6 +233,11 @@ class Builder:
         # in the order set.mm declares the floats, which is the order they
         # are read in and not the order a statement happens to write them.
         self.forder = {label: i for i, label in enumerate(sigs)}
+        # What each label takes, and the steps a term's text builds. A
+        # scope is written into nearly every step of a proof, and read
+        # once it is one set of steps that all of them share.
+        self.arity_of = {}
+        self.term_steps = {}
 
     @property
     def syntax(self):
@@ -267,12 +299,86 @@ class Builder:
         and on nothing where nothing on the page went into it; a term comes
         back as text, and a term built from a proof is a mistake, and
         refused.
+
+        A proof is built as steps (`Step`), each part checked against what
+        its label takes: a proof handed where a class belongs is refused
+        here, at the call that made it, and not by the verifier later.
         """
-        text = ' '.join(p.text if type(p) is Proof else p for p in parts if p)
+        parts = [p for p in parts if p]
+        for p in parts:
+            if type(p) is not Proof and not isinstance(p, str):
+                raise TypeError(f'a {type(p).__name__} handed to seq')
         held = [p.origin for p in parts if type(p) is Proof]
-        last = self.sigs.get(text[text.rfind(' ') + 1:])
-        if last is not None and last.statement[:1] == ['|-']:
-            return Proof(text, frozenset().union(*held))
-        if held:
-            raise TypeError(f'a term built from a proof: …{text[-60:]}')
-        return text
+        end = parts[-1] if parts else ''
+        end = end.last if type(end) is Proof else end[end.rfind(' ') + 1:]
+        last = self.sigs.get(end)
+        if last is None or last.statement[:1] != ['|-']:
+            if held:
+                text = ' '.join(p.text if type(p) is Proof else p
+                                for p in parts)
+                raise TypeError(f'a term built from a proof: …{text[-60:]}')
+            return ' '.join(parts)
+        stack = []
+        for part in parts:
+            if type(part) is Proof:
+                stack.extend(part.items)
+            else:
+                self.read_onto(part, stack)
+        return Proof(tuple(stack), frozenset().union(*held))
+
+    def read_onto(self, text, stack):
+        """The labels of `text` applied onto `stack`.
+
+        Text that builds whole things of its own — a term, a scope — is
+        read once and its steps shared wherever it is written again. Text
+        that takes what is already on the stack, a bare `syl`, is applied
+        where it stands.
+        """
+        known = self.term_steps.get(text)
+        if known is not None:
+            stack.extend(known)
+            return
+        base = low = len(stack)
+        for label in text.split():
+            takes, typecode, kinds = self.taking(label)
+            if len(stack) < takes:
+                raise TypeError(f'{label} takes {takes} things and has '
+                                f'{len(stack)}: …{text[-60:]}')
+            kids = tuple(stack[len(stack) - takes:]) if takes else ()
+            if kinds is not None:
+                for n, (kid, kind) in enumerate(zip(kids, kinds,
+                                                    strict=True)):
+                    if kid.typecode != kind:
+                        raise TypeError(
+                            f'{label} takes a {kind} in place {n + 1} and '
+                            f'is handed a {kid.typecode}: '
+                            f'…{spelt((kid,))[-60:]}')
+            del stack[len(stack) - takes:]
+            low = min(low, len(stack))
+            stack.append(Step(label, kids, typecode))
+        if low >= base:
+            self.term_steps[text] = tuple(stack[base:])
+
+    def taking(self, label):
+        """How many things a label takes, what it builds, and the kind of
+        each thing it takes.
+
+        A theorem this corpus proves and a proof cites is not in the
+        library, and `arities` says only how many it takes, so its parts
+        are counted and not checked.
+        """
+        found = self.arity_of.get(label)
+        if found is not None:
+            return found
+        sig = self.sigs.get(label)
+        if sig is not None:
+            kinds = ([typecode for typecode, _v in sig.floats]
+                     + ['|-'] * len(sig.essentials))
+            found = (len(kinds), sig.statement[0],
+                     None if sig.kind == '$f' else kinds)
+        else:
+            sig = getattr(self, 'arities', {})[label]
+            found = (len(sig.floats) + len(sig.essentials), sig.statement[0],
+                     None)
+        self.arity_of[label] = found
+        return found

@@ -567,7 +567,7 @@ class Matcher:
             under = self.settle(asks, scope, facts, depth - 1)
             if declined(under):
                 return None
-            first = proof.text.rsplit(None, 1)[-1] == label
+            first = proof.last == label
             fold = rules.DISCHARGE[(joins[i], first)]
             if joins[i] == 'wb' and backwards:
                 fold = 'sylibr' if first else 'mpbird'
@@ -2343,7 +2343,7 @@ class Matcher:
             # antecedents was the scope, which `ssneld` does: it asks for
             # the inclusion under the scope and then says, still under it,
             # that what is outside the larger set is outside the smaller.
-            first = proof.text.rsplit(None, 1)[-1] == label and not carried
+            first = proof.last == label and not carried
             # `mpbird` names the two sides in the order it states them, and
             # a crossed biconditional states the claim first; every other
             # fold states what is asked first.
@@ -2371,7 +2371,7 @@ class Matcher:
             # in by one: `readdcl` asks `( A ∈ ℝ ∧ B ∈ ℝ )`, the triangle
             # inequality's scope is exactly that, and its step 1 is the
             # lemma alone. It rests on everything the scope says.
-            proof = Proof(proof.text,
+            proof = Proof(proof.items,
                           proof.origin | self.scope_origin(where, known))
         return self.carry(proof, goal.rpn(self.flabel), frame)
 

@@ -221,7 +221,7 @@ class ProofRules:
         """
         self.rests_on[item] = (self.rests_on.get(item, frozenset())
                                | getattr(proof, 'origin', frozenset()))
-        return Proof(proof.text, {item})
+        return Proof(proof.items, {item})
 
     def check_step(self, proof, step, number, block=False):
         """A step's finished proof, checked by the rules and sealed.

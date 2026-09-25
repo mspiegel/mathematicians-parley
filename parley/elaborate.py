@@ -38,7 +38,7 @@ import rules
 import targets
 from build import DEFINITIONS, path_of
 from calculators import Calculators
-from compress import compressed, shapes
+from compress import compressed, shapes_of
 from compress import labels as compress_labels
 from formula import Grammar
 from library import Signature
@@ -1987,12 +1987,11 @@ def main(argv, root=None):
         # Nothing is assumed, so the scope that carried the proof was truth
         # and the statement says only what the theorem concludes.
         proof = work.seq(goal, proof, 'mptru')
-    # What is written out is the proof's text, and this is where it stops
-    # carrying what it rests on: everything that asked has asked. It is read
-    # into its shapes once, and which labels it uses is read off those: the
-    # text runs to sixty-three million tokens for the intermediate value
-    # theorem, and splitting it for each question held gigabytes.
-    root, kinds = shapes(proof.text, {**sigs, **work.arities})
+    # What is written out is the proof's steps, and this is where it stops
+    # carrying what it rests on: everything that asked has asked. The steps
+    # are numbered into their shapes once, and which labels the proof uses
+    # is read off those.
+    root, kinds = shapes_of(proof.items)
     used = compress_labels(kinds)
 
     print(f'$( {qualified(thm)}, elaborated from {thm.path} by '
