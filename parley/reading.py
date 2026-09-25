@@ -304,13 +304,13 @@ class Reading:
         return nodes
 
     def defined(self, before):
-        """Bind what every `define` above line `before` stands for.
+        """Each `define` above line `before`, as its label, its line, the
+        name it introduces and the term that name stands for.
 
-        A define is an abbreviation and nothing more: Cantor names a set B
-        and every line about B is a line about the set-builder it names. So
-        the name is bound to that term and the proof never carries it, which
-        is also what keeps it apart from the B the conclusion quantifies
-        over — those are two different things spelt the same way.
+        What the name becomes is the scopes part's (`define`): a variable
+        of its own and the equation saying what it is. Here is only what
+        the text says, read with the names in hand when it is reached, so
+        each is taken before the next is read.
 
         It is read where it stands, which is what the parser's own comment
         says of it. One written above the first step names what the theorem
@@ -334,7 +334,8 @@ class Reading:
                 raise self.defect(line, f'define {label} says nothing')
             if name in self.names:
                 raise self.defect(line, f'{name} is already named')
-            self.names[name] = self.apart(self.term(self.read(body.strip())))
+            yield label, line, name, self.apart(
+                self.term(self.read(body.strip())))
 
     def apart(self, rpn):
         """A term whose bound names are ones nothing else is using.

@@ -350,9 +350,20 @@ with the induction variable rebound to a variable of the kernel and ties each
 instance to the general one by congruence. Every other method consumes a claim
 whole; this one takes one apart and rebuilds it.
 
-**`define`** names a thing and the proof is about the thing. The name is bound
-to its term and never emitted, which is what keeps it apart from a bound name
-spelt the same.
+**`define`** introduces a name and the equation saying what it is, as a
+textbook's "let x₁ = min(b, c + δ/2)" does, and the steps after it are about
+the name. It is taken the way an `obtain` is: `elisset` gives `∃x x = E` once E
+is a set (`rules.SETHOOD`), the scope is widened by `x = E`, and `exlimdv`
+discharges it where the scope ends (`scopes.define`). The variable is a spare,
+never the name's own letter, which keeps Cantor's defined B apart from the B
+its conclusion binds. A body naming an earlier define is held written out.
+
+A lemma speaks of the body and a line of the name, so where the two meet the
+line is read written out (`spelt_out`) — fitting a lemma, unfolding a
+definition, `instantiate`, citing a corpus theorem — and the `defined` row of
+`same` carries it back through the equation. A step may rest on a define
+without citing it, as on a sort: the checker reads a defined name as its body
+wherever it compares two formulas (`SYNTAX.md`).
 
 **A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
@@ -1078,8 +1089,9 @@ leave the gate green on the day a proof was added and not read.
 16. **A name introduced is not the letter it is spelt with.** The kernel has to
     see two names where the text writes one.
 
-17. **An abbreviation, carried by neither side.** `define` names a thing and the
-    proof is about the thing.
+17. **A name and its equation.** `define` introduces a name, the proof is about
+    the name, and the equation carries it to the thing where a lemma needs to
+    see inside.
 
 18. **A chain may change relation partway.**
 

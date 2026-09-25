@@ -64,8 +64,6 @@ from sorts import sorts_in_scope
 from spell import Builder, seq
 from tables import TableReading
 
-# Past the last line any proof has, for reading every define that is left.
-_ENDLESS = float('inf')
 # What the library proves below the readable layer, read alongside set.mm so
 # a `target` may name its labels.
 GEOMETRY = f'{STDLIB}/geometry'
@@ -157,8 +155,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.citing = frozenset()    # the lines what is being proved cites
         self.resting = None      # what the proof being built may rest on
         self.combined = {}           # by step line, what its method combined
-        self.sorts = frozenset()     # labels of set, point and function lines
-        self.defines = frozenset()   # labels of `define` lines
+        self.sorts = frozenset()     # labels of sort lines and `define` lines
         self.written = {}        # side conditions the step being proved wrote
         self.saying = set()      # terms `said_otherwise` is working on now
         self.rewriting = set()   # terms `rewritten` is working on now
@@ -167,6 +164,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.bound_as = {}       # binder name -> the setvar it stands for
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
+        self.definitions = {}    # a defined name's setvar -> the term it names
         self.last = None
         # The scope frames, innermost last, each (scope, what it added, what
         # is known there); `run` opens the outermost at the hypotheses.
@@ -321,18 +319,16 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # it.
         self.fixed = dict(self.names)
         # A sort is stated once, like a declared type, and a step may rest
-        # on it without naming it (`READERS.md`). A define is never emitted,
-        # so naming one is never a use of it.
+        # on it without naming it (`READERS.md`). So may a define: the
+        # checker reads a defined name as what it names wherever two
+        # formulas are compared (`SYNTAX.md`), and the equation the
+        # elaboration holds for it is that reading, which no step cites.
         lets = [*self.thm.hypotheses,
                 *(o for s in self.thm.steps for o in s.openers)]
         self.sorts = frozenset(
             o[2] for o in lets if o[0] == 'let' and o[2]
             and (' be a set' in o[1] or ' be a point' in o[1]
-                 or '→' in o[1]))
-        self.defines = frozenset(d[2] for d in self.thm.defines)
-        # What stands above the first step is the theorem's own, and the
-        # hypotheses and the conclusion below may lean on it.
-        self.defined(self.thm.steps[0].line if self.thm.steps else _ENDLESS)
+                 or '→' in o[1])) | {d[2] for d in self.thm.defines}
         terms = [self.term(n) for n in nodes]
         # A theorem may assume nothing, and every step here is still an
         # implication out of the scope it sits in. So the scope is truth,
@@ -383,8 +379,12 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                                          closers, scope)
                 self.hand_up(done, blocks)
             # Any define standing above this step, now that the block it
-            # sits in is open and the names it leans on are in hand.
-            self.defined(step.line)
+            # sits in is open and the names it leans on are in hand. One
+            # above the first step is the theorem's own and stands in the
+            # outermost frame; the hypotheses and conclusion come before it
+            # in the text and do not name it.
+            scope, facts, closers = self.define(step.line, scope, facts,
+                                                lines, closers)
             # A step in a case sits under the case's assumption, a block as
             # much as a plain step: the intermediate value proof's first
             # case opens with a contradiction whose second step substitutes
@@ -807,8 +807,17 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # step claims what it concludes. Each thing asked on the way is a
         # line the step cites.
         reached = whole.rpn(self.flabel)
+        out = self.spelt_out(self.to_term(term)).rpn(self.flabel)
         while reached != term:
             reads = self.to_term(reached)
+            # The step may name what a define named where the universal
+            # speaks of it written out, and the define's equation is what
+            # says those are one claim.
+            if self.spelt_out(reads).rpn(self.flabel) == out:
+                alike = self.same(reads, self.to_term(term), scope, facts)
+                if not declined(alike):
+                    return self.seq(scope, reached, term, proof, alike,
+                                    'mpbid')
             if reads.label != 'wi':
                 raise self.defect(step.line,
                                   f'{where} at those terms says '
@@ -941,6 +950,19 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                            facts, lines)
 
     def one_equivalent(self, lemma, step, term, scope, facts, lines):
+        # A claim about a defined name is reached as the claim about what it
+        # names, and the define's equation carries it back.
+        out = self.spelt_out(self.to_term(term))
+        if out.rpn(self.flabel) != term:
+            made = self.one_equivalent(lemma, step, out.rpn(self.flabel),
+                                       scope, facts, lines)
+            if declined(made):
+                return made
+            alike = self.same(out, self.to_term(term), scope, facts)
+            if declined(alike):
+                return alike
+            return self.seq(scope, out.rpn(self.flabel), term, made, alike,
+                            'mpbid')
         # What a lemma's right side says beyond what its left fixes can
         # only come from the lines the step cites, offered in the order the
         # step writes them.
@@ -1019,6 +1041,16 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                        {}, variables)
                 if binding:
                     given = shown
+                    break
+                # A line about a defined name is a line about what it names.
+                out = self.spelt_out(self.to_term(said))
+                binding = kernel.match(reads.children[0], out, {}, variables)
+                if not binding:
+                    continue
+                alike = self.same(self.to_term(said), out, scope, facts)
+                if not declined(alike):
+                    given = self.seq(scope, said, out.rpn(self.flabel), shown,
+                                     alike, 'mpbid')
                     break
             else:
                 continue
@@ -1117,7 +1149,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 whole = whole.children[1]
             if whole.label != 'wb' or whole.children[1].label == 'wrex':
                 return self.conclude
-            if kernel.match(whole.children[0], self.to_term(term), {},
+            if kernel.match(whole.children[0],
+                            self.spelt_out(self.to_term(term)), {},
                             whole.names()) is not None:
                 return self.equivalent
         return self.unfolded
@@ -1721,7 +1754,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             # x ≤ |x| and −x ≤ |x|, and a step that needs only the first
             # says only the first. The theorem gives the whole, read in its
             # own sorts, and the sentence is taken out of it.
-            whole = term
+            # The theorem speaks of what a defined name names, so the claim
+            # is written out for it and carried back at the end.
+            said = self.spelt_out(self.to_term(term)).rpn(self.flabel)
+            whole = said
             if (len(self.sentences(other.conclusion))
                     > len(self.sentences(' '.join(step.claim)))):
                 with self.in_its_names(other):
@@ -1766,15 +1802,23 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             cited, '$p', ['|-'],
             [('class', f'{cited}.{n}') for n in range(len(pushed))]))
         proof = self.seq(scope, pair, whole, proof, *pushed, cited, 'syl')
-        if term == whole:
+        if said != whole:
+            parts = {}
+            self.unpack(whole, proof, scope, parts)
+            if said not in parts:
+                raise self.defect(step.line,
+                                  f'{step.just.head} does not conclude what '
+                                  f'step {fmt(step.number)} claims')
+            proof = parts[said]
+        if said == term:
             return proof
-        parts = {}
-        self.unpack(whole, proof, scope, parts)
-        if term not in parts:
-            raise self.defect(step.line, f'{step.just.head} does not conclude '
-                                         f'what step {fmt(step.number)} '
-                                         f'claims')
-        return parts[term]
+        alike = self.same(self.to_term(said), self.to_term(term), scope, facts)
+        if declined(alike):
+            raise self.defect(step.line,
+                              f'{step.just.head} concludes what step '
+                              f'{fmt(step.number)} claims written out, and '
+                              f'the defines do not carry it back: {alike}')
+        return self.seq(scope, said, term, proof, alike, 'mpbid')
 
 
 def definitions(records, sigs):

@@ -169,7 +169,7 @@ FROM_NN0 = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
 # `READERS.md`: this is apparatus, and the page never writes it.
 SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
-           'cv': 'vex'}
+           'cv': 'vex', 'co': 'ovex', 'cif': 'ifexg', 'cn': 'nnex'}
 
 # Two differences against zero added, by which of the two is strictly
 # below it: the lemma that adds them and keeps the strictness.

@@ -789,6 +789,63 @@ class Scopes:
 
         return inner, lifted, [*closers, close]
 
+    def define(self, before, scope, facts, lines, closers):
+        """Each `define` above line `before` as a name and its equation.
+
+        A textbook's "let x₁ = min(b, c + δ/2)" introduces a number and says
+        what it is, and the steps after it are about x₁. So a define is
+        taken the way an `obtain` is: from `∃x x = E`, which `elisset` gives
+        once E is a set, the scope is widened by `x = E` and the existential
+        is discharged where the scope ends (`exlimdv`). Written out at every
+        use instead, the min/max proof's bound put an `if` term into every
+        inequality about x₁ and the calculators ran out of memory on it.
+
+        The variable is a spare and never the name's own letter: Cantor
+        defines a B and concludes that there is a B, and those are two sets.
+        `definitions` keeps what each such variable stands for, so a lemma
+        whose conclusion is written about the body can be fitted to a claim
+        written about the name (`read_through`); the equation is held both
+        ways round, so either side of a comparison may be the name.
+        """
+        for label, line, name, body in self.defined(before):
+            self.at = line
+            # A body naming an earlier define is held written out, so every
+            # equation says in full what its name is: the subsets proof's T
+            # is built over its U, and a lemma about T speaks of U's body.
+            body = self.spelt_out(self.to_term(body)).rpn(self.flabel)
+            var = self.spare_var()
+            said = self.seq(f'{var} cv', body, 'wceq')
+            ex = self.seq(said, var, 'wex')
+            p_ex = self.apply_lemma('elisset', self.to_term(ex), scope, facts,
+                                    None, crossing=False)
+            if declined(p_ex):
+                raise self.defect(line, f'cannot show that what {label} '
+                                        f'names is a set: {p_ex}')
+            outer, held = self.widen(scope, facts, said, label)
+            turned = self.seq(body, f'{var} cv', 'wceq')
+            held[turned] = self.seq(outer, f'{var} cv', body, held[said],
+                                    'eqcomd')
+            self.names[name] = f'{var} cv'
+            self.definitions[var] = body
+            lines[label] = Fact(said, held[said])
+
+            def close(proof, goal, scope=scope, said=said, var=var, ex=ex,
+                      p_ex=p_ex, line=line, label=label):
+                # The claim discharged here was read before the define was,
+                # so it cannot name the variable; `exlimdv` forbids it.
+                if var in goal.split():
+                    raise self.defect(line, f'what {label} names is still '
+                                            f'named where its scope ends')
+                return self.seq(scope, ex, goal, p_ex,
+                                self.seq(scope, said, goal, var,
+                                         self.seq(scope, said, goal, proof,
+                                                  'ex'),
+                                         'exlimdv'),
+                                'mpd')
+
+            scope, facts, closers = outer, held, [*closers, close]
+        return scope, facts, closers
+
     def rebound(self, stated, claimed):
         """Whether two statements differ only in the letters they bind.
 

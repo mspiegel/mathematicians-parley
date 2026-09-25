@@ -102,8 +102,7 @@ class ProofRules:
                     if more.startswith(REQUIRES):
                         todo.append(more)
         for ref in dict.fromkeys(step.just.refs):
-            if ref not in used and ref not in self.defines \
-                    and ref not in self.sorts:
+            if ref not in used and ref not in self.sorts:
                 raise self.defect(step.line, f'step {number} cites {ref} and '
                                              f'uses nothing it says')
         atoms, terms = set(), set()
@@ -164,7 +163,7 @@ class ProofRules:
         contradiction emits nothing, and the block's close uses what it
         joined (`ELABORATION.md` requirement 8).
         """
-        out = (set(step.just.refs) - self.defines) | self.sorts
+        out = set(step.just.refs) | self.sorts
         out |= {requirement(line) for _t, _h, line in step.requires}
         if block:
             out |= {k for k in self.lines if k.startswith(number + '.')}
@@ -176,7 +175,7 @@ class ProofRules:
                 if name.startswith(number + '.') \
                         and name.count('.') == depth \
                         and inner.just.head == 'join':
-                    out |= set(inner.just.refs) - self.defines
+                    out |= set(inner.just.refs)
         return out
 
     def discharged_by(self, made, step, how, line):

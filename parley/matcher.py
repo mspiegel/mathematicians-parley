@@ -29,9 +29,10 @@ from spell import Proof, seq
 #   held      an equation in hand says the two are equal
 #   cited     the equation a step cites, which rewrote the place
 #   assumed   the equation a lemma's own hypothesis assumes
+#   defined   a name a `define` introduced, and the term it names
 #   standard  the two have one standard form (`same`, `rules.STANDARD`)
 #   toward    a term carried to its standard form, which `standard` asks
-DIFFERENCES = ('held', 'cited', 'assumed', 'standard', 'toward')
+DIFFERENCES = ('held', 'cited', 'assumed', 'defined', 'standard', 'toward')
 
 
 class Matcher:
@@ -750,6 +751,38 @@ class Matcher:
             return None      # the walk goes on to where they differ
         return held[asked]
 
+    def closed_defined(self, one, other, where, held):
+        """A defined name and a term that is what it names once both are
+        written out, by the equation the define holds (`define`).
+
+        A body may itself name what an earlier define named — the subsets
+        proof's T is built over its U — so the name's own body and the term
+        may still differ, and `same` joins them.
+        """
+        if one.variable is not None or other.variable is not None \
+                or self.spelt_out(one).rpn(self.flabel) \
+                != self.spelt_out(other).rpn(self.flabel):
+            return None
+        if one.label != 'cv' or one.children[0].rpn(self.flabel) \
+                not in self.definitions:
+            if other.label != 'cv' or other.children[0].rpn(self.flabel) \
+                    not in self.definitions:
+                return None
+            found = self.closed_defined(other, one, where, held)
+            return None if found is None else self.seq(
+                where, other.rpn(self.flabel), one.rpn(self.flabel), found,
+                'eqcomd')
+        name = one.rpn(self.flabel)
+        body = self.definitions[one.children[0].rpn(self.flabel)]
+        said = held.get(self.seq(name, body, 'wceq'))
+        if said is None or body == other.rpn(self.flabel):
+            return said
+        rest = self.same(self.to_term(body), other, where, held)
+        if declined(rest):
+            return None
+        return self.seq(where, name, body, other.rpn(self.flabel), said, rest,
+                        'eqtrd')
+
     def closed_cited(self, one, other, where, held, was, now, said, flip):
         """The place one cited equation rewrote, carried back.
 
@@ -794,7 +827,7 @@ class Matcher:
         self.binding = self.letters_bound(given) | self.letters_bound(want)
         try:
             return self.congruence(given, want, scope, facts, step,
-                                   self.closing(('standard',)))
+                                   self.closing(('defined',), ('standard',)))
         finally:
             self.binding = kept
 
@@ -2036,6 +2069,23 @@ class Matcher:
         return self.seq(scope, instance.rpn(self.flabel),
                         goal.rpn(self.flabel), found, across, 'mpbid')
 
+    def spelt_out(self, term):
+        """A term with every name a `define` introduced replaced by the
+        term it names, and nothing else changed.
+
+        A lemma speaks of the body — `elrab` of `{x ∈ A : φ}` — and a line
+        of the name, so what fixes the lemma's variables is the line spelt
+        out; the equation the define holds carries one to the other
+        (`closed_defined`).
+        """
+        if term.variable is not None or not term.children:
+            return term
+        if term.label == 'cv':
+            body = self.definitions.get(term.children[0].rpn(self.flabel))
+            return term if body is None else self.spelt_out(self.to_term(body))
+        return kernel.Term(term.label,
+                           tuple(self.spelt_out(c) for c in term.children))
+
     def read_through(self, term):
         """A term with every one-way rule of `rules.STANDARD` applied,
         parts first, and nothing put in order.
@@ -2045,7 +2095,13 @@ class Matcher:
         proof that follows (`same`) applies it again only where what it
         asks is settled, and a symmetric pair is left as written, since in
         a lemma's conclusion the two sides may be variables not yet fixed.
+
+        A name a `define` introduced is read as the term it names, so that
+        `set-builder-subset`, which speaks of `{x ∈ A : φ}`, finds its A in
+        a claim about the name; the equation the define holds joins the two
+        in `same`.
         """
+        term = self.spelt_out(term)
         if term.variable is not None or not term.children:
             return term
         term = kernel.Term(term.label,
