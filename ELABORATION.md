@@ -562,11 +562,12 @@ statement (`declared` in `parley/matcher.py`): what each reading of it can
 conclude, and a membership's class where it fixes one. `settle` tries, in the
 declared order, only the lemmas that could conclude what is wanted, which is
 every lemma that would have matched. The same reading gives each lemma its
-role — of the 90 declared today, 4 are equations `said_otherwise` rewrites
-by, 10 equivalences `crossed` reads as one claim said two ways, 12 carriers
-`bridged` moves a membership between number systems with, and 64 side
-conditions — so a lemma is declared once, in the list, and nothing kept by
-hand says what it is for.
+role — of the 90 declared today, 12 are carriers `bridged` moves a
+membership between number systems with, and the rest side conditions — so a
+lemma is declared once, in the list, and nothing kept by hand says what it
+is for. What says one thing two ways, set.mm's form and the page's, is a
+rule of the standard form (`rules.STANDARD`), and the matcher compares
+through it (`same`).
 
 `READERS.md` weighed dropping the `requires` lines and leaving all of this to
 be found — the fact never fails, the `let` line is in view, the price is 97

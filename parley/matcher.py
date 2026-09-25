@@ -193,11 +193,12 @@ class Matcher:
     def declared_as(self, role):
         """The declared lemmas of one role, in the order they are declared.
 
-        A lemma's role is read off its statement (`role`): an `equation`
-        that `said_otherwise` rewrites by, an `equivalence` that `crossed`
-        reads as one claim said two ways, a `carrier` that `bridged` takes
-        from one number system to another, and otherwise a `side`
-        condition. `settle` tries every role.
+        A lemma's role is read off its statement (`role`): a `carrier`
+        that `bridged` takes from one number system to another, and
+        otherwise a `side` condition. `settle` tries every role. What says
+        one thing two ways — an equation such as `exp0`, a biconditional
+        such as `rexss` — is also a rule of the standard form, where
+        `rules.STANDARD` names it.
         """
         return [label for label, (_heads, said) in self.lemma_index().items()
                 if said == role]
@@ -218,13 +219,6 @@ class Matcher:
         whole = self.syntax.statement(sig)
         if sig.essentials:
             return 'side'
-        ends = whole
-        while ends.label == 'wi':
-            ends = ends.children[1]
-        if ends.label == 'wceq' and len(ends.children) == 2:
-            return 'equation'
-        if ends.label == 'wb':
-            return 'equivalence'
         if len(sig.floats) == 1 and whole.label == 'wi':
             given, gives = whole.children
             if given.label == 'wcel' and gives.label == 'wcel' \
@@ -429,8 +423,8 @@ class Matcher:
             side = 0 if backwards else 1
             readings = [([whole.children[1 - side]], ['wb'],
                          whole.children[side])]
-            # and the biconditional itself, which is what `crossed` asks
-            # for when `rextru` is the bridge between two existentials
+            # and the biconditional itself, which a side condition may ask
+            # for as it stands: `rextru` between two existentials
             if not backwards:
                 readings.append(((), (), whole))
         elif reads.label == 'wb':
@@ -1055,6 +1049,27 @@ class Matcher:
                 == self.standard(b).rpn(self.flabel)
                 for a, b in zip(one.children, other.children, strict=True)):
             return None                       # the walk goes a level in
+        # One rewrite at the head of either side, and the walk again from
+        # there, touches only what differs: `lttri4`'s three-way "or" is the
+        # page's two nested ones by `df-3or`, and what the two say inside
+        # is already one.
+        for a, b in ((one, other), (other, one)):
+            head = self.standard_step(a)
+            if head is None:
+                continue
+            how, nxt = head
+            made = self.standard_proof(a, how, nxt, where, held)
+            if declined(made):
+                continue
+            links = [(a, nxt, made)]
+            if nxt.rpn(self.flabel) != b.rpn(self.flabel):
+                rest = self.congruence(nxt, b, where, held, None,
+                                       self.closing(('standard',)))
+                if declined(rest):
+                    continue
+                links.append((nxt, b, rest))
+            proof = self.chained(where, links)
+            return proof if a is one else self.flipped(where, a, b, proof)
         links = []
         if ours.rpn(self.flabel) != one.rpn(self.flabel):
             made = self.congruence(one, ours, where, held, None,
@@ -1982,58 +1997,65 @@ class Matcher:
         return self.chained(scope, [(said, turned, across),
                                     (turned, goal, back)])
 
-    def crossed(self, label, whole, reads, goal, scope, facts, step):
-        """A lemma reaching a claim set.mm says is the same claim.
+    def in_other_words(self, label, whole, reads, goal, scope, facts, step,
+                       seed):
+        """A lemma reaching a claim it says in other words.
 
         `exprmfct` says there is a prime dividing a number; the readable
         line says there is a natural number, prime, dividing it. Those are
         one statement written two ways, and `rexss` is set.mm saying so:
         quantifying over a subset is quantifying over the set with
-        membership of the subset moved into the body.
+        membership of the subset moved into the body. `lttri4` says
+        A < B, A = B or B < A with one three-way "or" where the page nests
+        two, and `df-3or` says those are one.
 
-        So where what a lemma concludes is not what is wanted, a declared
-        biconditional is asked whether the two are the same thing. The goal
-        is ground, so matching one side of the bridge against it fixes the
-        bridge; the other side is then determined, and matching that against
-        the lemma's conclusion fixes what the goal could not.
-
-        The bridge comes from `rules.MEMBERSHIP` and nowhere else, which
-        is the rule that stops an elaborator reaching a claim by whatever it
-        can find that fits.
+        So both are read through the rules of `rules.STANDARD` and matched
+        again, which fixes what the lemma's variables stand for. The lemma
+        is proved at that, as it says it, and `same` carries it to the
+        claim, applying each rule where it stands with what it asks settled
+        there. The rules are declared, which is what stops an elaborator
+        reaching a claim by whatever it can find that fits.
         """
         variables = whole.names()
-        want = goal.rpn(self.flabel)
-        for bridge in self.declared_as('equivalence'):
-            says = self.syntax.statement(self.sigs[bridge])
-            names = says.names()
-            while says.label == 'wi':
-                says = says.children[1]
-            for near, far in (says.children, says.children[::-1]):
-                bound = kernel.match(far, goal, {}, names)
-                if bound is None:
-                    continue
-                # A side the goal did not fix would leave the bridge's own
-                # variable standing in what is proved. Asked of the side
-                # rather than of the result: the proof has names of its own
-                # and one of them is spelt `A`, which is also what `rexss`
-                # calls the set it quantifies over.
-                if near.names() - set(bound):
-                    continue
-                candidate = near.substitute(bound)
-                if kernel.match(reads, candidate, {}, variables) is None:
-                    continue
-                said = candidate.rpn(self.flabel)
-                found = self.apply_lemma(label, candidate, scope, facts,
-                                         step, crossing=False)
-                if declined(found):
-                    continue
-                alike = self.settle(self.to_term(self.seq(said, want, 'wb')),
-                                    scope, facts)
-                if declined(alike):
-                    continue
-                return self.seq(scope, said, want, found, alike, 'mpbid')
-        return Declined(f'no declared biconditional carries what {label} '
-                        f'concludes to the claim')
+        ours, theirs = self.read_through(reads), self.read_through(goal)
+        binding = kernel.match(ours, theirs, dict(seed or {}), variables)
+        if binding is None or reads.names() - set(binding):
+            return Declined(f'{label} does not conclude the claim in any '
+                            f'words the rules read')
+        instance = reads.substitute(binding)
+        if instance.rpn(self.flabel) == goal.rpn(self.flabel):
+            return Declined(f'{label} at what it concludes is the claim '
+                            f'as written')
+        found = self.apply_lemma(label, instance, scope, facts, step,
+                                 crossing=False, seed=binding)
+        if declined(found):
+            return found
+        across = self.same(instance, goal, scope, facts, step)
+        if declined(across):
+            return across
+        return self.seq(scope, instance.rpn(self.flabel),
+                        goal.rpn(self.flabel), found, across, 'mpbid')
+
+    def read_through(self, term):
+        """A term with every one-way rule of `rules.STANDARD` applied,
+        parts first, and nothing put in order.
+
+        For finding what a lemma's variables stand for, and nothing else:
+        a conditional rule is applied here whatever it asks, since the
+        proof that follows (`same`) applies it again only where what it
+        asks is settled, and a symmetric pair is left as written, since in
+        a lemma's conclusion the two sides may be variables not yet fixed.
+        """
+        if term.variable is not None or not term.children:
+            return term
+        term = kernel.Term(term.label,
+                           tuple(self.read_through(c) for c in term.children))
+        for conditional in (False, True):
+            for _label, given, gives, names in self.rewrites(conditional):
+                bound = kernel.match(given, term, {}, names)
+                if bound is not None and not gives.names() - set(bound):
+                    return self.read_through(gives.substitute(bound))
+        return term
 
     def sethood(self, slot, binding):
         """The classes an antecedent asks about and nothing decides.
@@ -2089,23 +2111,6 @@ class Matcher:
         sig = self.sigs[label]
         whole = self.syntax.statement(sig)
         variables = whole.names()
-        # The readable "a or b or c" is built from the left, and set.mm
-        # states a three-way disjunction as one constructor: `lttri4` says
-        # A < B, A = B or B < A with `w3o`. `df-3or` says they are the same.
-        ends = whole
-        while ends.label in ('wi', 'wb'):
-            ends = ends.children[1]
-        if (ends.label == 'w3o' and goal.label == 'wo'
-                and goal.children[0].label == 'wo'):
-            three = [*(c.rpn(self.flabel) for c in goal.children[0].children),
-                     goal.children[1].rpn(self.flabel)]
-            said = self.seq(*three, 'w3o')
-            got = self.apply_lemma(label, self.to_term(said), scope, facts,
-                                   step, crossing, seed)
-            if declined(got):
-                return got
-            return self.seq(scope, said, goal.rpn(self.flabel), got,
-                            self.seq(*three, 'df-3or'), 'sylib')
         antecedents, joins, reads, binding = [], [], whole, None
         while True:
             binding = kernel.match(reads, goal, dict(seed or {}), variables)
@@ -2129,8 +2134,8 @@ class Matcher:
                                                 step, seed)
                     if not declined(every):
                         return every
-                    return self.crossed(label, whole, reads, goal, scope,
-                                        facts, step)
+                    return self.in_other_words(label, whole, reads, goal,
+                                               scope, facts, step, seed)
                 return Declined(f'{label} does not conclude the claim')
             # A biconditional says one thing and reaching it either way is
             # reaching it: `elnnz` says a natural number is an integer above

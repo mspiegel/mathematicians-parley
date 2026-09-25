@@ -50,6 +50,8 @@ CONGRUENCE = {
     ('wa', (0, 1)): 'anbi12d',
     ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
     ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d',
+    ('wo', (0,)): 'orbi1d', ('wo', (1,)): 'orbi2d',
+    ('wo', (0, 1)): 'orbi12d',
     ('wn', (0,)): 'notbid',
     # A universal over an `if ... then` changes both sides at once when
     # the name it binds stands on each of them.
