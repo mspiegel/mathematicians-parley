@@ -80,10 +80,11 @@ pilot is the test of whether the list still holds.
 
 **What is true of the code today.** The calculators are separate modules
 (`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and the rule
-tables are one data module, `parley/rules.py`. A few tables are still
-written inside the methods that read them. The other four parts are not yet separate: each is
-spread through `parley/elaborate.py`, and the matcher is written as many
-cases rather than one match modulo rules. Moving the code into this shape is
+tables are one data module, `parley/rules.py`; a few tables are still
+written inside the methods that read them. The proof rules are
+`parley/provenance.py`, a class `Elaborator` inherits from. The other three
+parts are not yet separate: each is spread through `parley/elaborate.py`, and
+the matcher is written as many cases rather than one match modulo rules. Moving the code into this shape is
 done one part at a time, with every elaborated file byte for byte what it was,
 and the section on each part changes when its part does.
 
