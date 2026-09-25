@@ -139,9 +139,51 @@ CASES = [
 ]
 
 
+# A class split over two files is one object: what one file's method gives
+# back is reached through `self` from the other. Each: what it is, the second
+# file, and whether the stage must report it.
+PART = '''
+class Part:
+    def route(self, x):
+        if x:
+            return Declined('no')
+        return x
+'''
+
+SPLIT = [
+    ('a decline reached through self from a class in another file', '''
+     class Whole(Part):
+         def g(self):
+             return seq(self.route(1))
+     ''', True),
+
+    ('a method of the same name on a class that is no relative', '''
+     class Other:
+         def g(self):
+             return seq(self.route(1))
+     ''', False),
+]
+
+
 def main():
     passed = failed = 0
     with tempfile.TemporaryDirectory() as tmp:
+        for i, (name, body, reported) in enumerate(SPLIT):
+            here = Path(tmp) / f'split{i}'
+            here.mkdir()
+            part, whole = here / 'part.py', here / 'whole.py'
+            part.write_text(PART, encoding='utf-8')
+            whole.write_text(textwrap.dedent(body), encoding='utf-8')
+            seen = declines.across([str(part), str(whole)])
+            found = declines.sites(str(whole), *seen[str(whole)])
+            if bool(found) == reported:
+                print(f'  {"caught" if reported else "silent"}        {name}')
+                passed += 1
+            else:
+                said = f'reported {found}' if found else 'said nothing'
+                print(f'  {"NOT CAUGHT" if reported else "FALSE ALARM"}  '
+                      f'{name}\n      {said}')
+                failed += 1
         for i, (name, body, others, reported) in enumerate(CASES):
             path = Path(tmp) / f'case{i}.py'
             path.write_text(DECLINER + textwrap.dedent(body), encoding='utf-8')
@@ -155,7 +197,8 @@ def main():
                 print(f'  {"NOT CAUGHT" if reported else "FALSE ALARM"}  '
                       f'{name}\n      {said}')
                 failed += 1
-    print(f'\n{passed} right, {failed} wrong, of {len(CASES)} planted cases')
+    print(f'\n{passed} right, {failed} wrong, of {len(CASES) + len(SPLIT)} '
+          f'planted cases')
     return 1 if failed else 0
 
 
