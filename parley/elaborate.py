@@ -151,6 +151,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.supplying = set()   # `requires` terms being discharged now
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
+        self.lemma_heads = None  # declared lemma -> what its readings end on
         self.citing = frozenset()    # the lines what is being proved cites
         self.resting = None      # what the proof being built may rest on
         self.combined = {}           # by step line, what its method combined

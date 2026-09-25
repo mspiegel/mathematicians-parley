@@ -149,12 +149,9 @@ class Matcher:
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
             for backwards in (False, True):
-                for label in rules.MEMBERSHIP:
-                    sig = self.sigs.get(label)
-                    if sig is None:
-                        continue
-                    found = self.fits(label, sig, wanted, scope, facts,
-                                      depth, backwards)
+                for label in self.declared(wanted, backwards):
+                    found = self.fits(label, self.sigs[label], wanted, scope,
+                                      facts, depth, backwards)
                     if found is not None:
                         return found
             found = self.said_otherwise(wanted, scope, facts, depth)
@@ -164,6 +161,117 @@ class Matcher:
             if not declined(found):
                 return found
         return self.no('cannot settle {}', rpn)
+
+    def declared(self, wanted, backwards):
+        """The declared lemmas that could conclude what is wanted, in order.
+
+        `rules.MEMBERSHIP` is the one place a lemma is declared, and this
+        reads it through an index built from each lemma's own statement:
+        the constructor each reading of it can end on (`fits` and `fitting`
+        read a lemma the same way), and, for a membership, the class where
+        the lemma fixes one. A lemma the index leaves out is one whose
+        conclusion cannot match what is wanted at any reading, so nothing
+        is lost that `fits` would have found; what the index saves is
+        asking each of them. Nothing is kept by hand, so a lemma declared
+        for a new proof is found the day it is declared.
+        """
+        keys = self.head_keys(wanted)
+        return [label for label, (heads, _role) in self.lemma_index().items()
+                if heads[backwards] & keys]
+
+    def declared_as(self, role):
+        """The declared lemmas of one role, in the order they are declared.
+
+        A lemma's role is read off its statement (`role`): an `equation`
+        that `said_otherwise` rewrites by, an `equivalence` that `crossed`
+        reads as one claim said two ways, a `carrier` that `bridged` takes
+        from one number system to another, and otherwise a `side`
+        condition. `settle` tries every role.
+        """
+        return [label for label, (_heads, said) in self.lemma_index().items()
+                if said == role]
+
+    def lemma_index(self):
+        """Every declared lemma set.mm has, with its readings and its role."""
+        if self.lemma_heads is None:
+            self.lemma_heads = {}
+            for label in rules.MEMBERSHIP:
+                sig = self.sigs.get(label)
+                if sig is not None:
+                    self.lemma_heads[label] = (self.heads(sig),
+                                               self.role(sig))
+        return self.lemma_heads
+
+    def role(self, sig):
+        """What a declared lemma is for, read off what it states."""
+        whole = self.syntax.statement(sig)
+        if sig.essentials:
+            return 'side'
+        ends = whole
+        while ends.label == 'wi':
+            ends = ends.children[1]
+        if ends.label == 'wceq' and len(ends.children) == 2:
+            return 'equation'
+        if ends.label == 'wb':
+            return 'equivalence'
+        if len(sig.floats) == 1 and whole.label == 'wi':
+            given, gives = whole.children
+            if given.label == 'wcel' and gives.label == 'wcel' \
+                    and given.children[0].variable is not None \
+                    and given.children[0].rpn(self.flabel) \
+                    == gives.children[0].rpn(self.flabel):
+                return 'carrier'
+        return 'side'
+
+    def heads(self, sig):
+        """What each reading of a lemma can end on, forwards and backwards.
+
+        The readings are the ones `fits` makes: the statement whole, and a
+        biconditional's far side forwards or its near side backwards, after
+        what it asks; `fitting` then peels implications, and may stop at
+        any of them.
+        """
+        whole = self.syntax.statement(sig)
+        reads = whole
+        while reads.label == 'wi':
+            reads = reads.children[1]
+        said = whole if whole.label == 'wb' else reads
+        forward, backward = [whole], []
+        if said.label == 'wb':
+            forward.append(said.children[1])
+            backward.append(said.children[0])
+
+        def ends(starts):
+            out = set()
+            for node in starts:
+                out.add(self.head_key(node))
+                while node.label == 'wi' and node.variable is None:
+                    node = node.children[1]
+                    out.add(self.head_key(node))
+            return out
+        return {False: ends(forward), True: ends(backward)}
+
+    def head_key(self, node):
+        """How a lemma's conclusion constrains what it can match.
+
+        Any claim where it is a variable, a membership of one class where it
+        names a closed one, and otherwise its constructor.
+        """
+        if node.variable is not None:
+            return 'any'
+        if node.label == 'wcel' and len(node.children) == 2 \
+                and not node.children[1].names():
+            return ('wcel', node.children[1].rpn(self.flabel))
+        return (node.label, None)
+
+    def head_keys(self, wanted):
+        """The keys a lemma's conclusion may carry and still match `wanted`."""
+        if wanted.variable is not None:
+            return {'any'}
+        keys = {'any', (wanted.label, None)}
+        if wanted.label == 'wcel' and len(wanted.children) == 2:
+            keys.add(('wcel', wanted.children[1].rpn(self.flabel)))
+        return keys
 
     def rewritten(self, wanted, scope, facts, depth):
         """What is wanted, with a term in it put as an equation in hand says.
@@ -285,16 +393,11 @@ class Matcher:
 
     def otherwise(self, wanted, want, scope, facts, depth):
         """One pass over the declared equations, for `said_otherwise`."""
-        for label in rules.MEMBERSHIP:
-            sig = self.sigs.get(label)
-            if sig is None or sig.essentials:
-                continue
-            says = self.syntax.statement(sig)
+        for label in self.declared_as('equation'):
+            says = self.syntax.statement(self.sigs[label])
             names, reads = says.names(), says
             while reads.label == 'wi':
                 reads = reads.children[1]
-            if reads.label != 'wceq' or len(reads.children) != 2:
-                continue
 
             def stands(one, other, where, _held, reads=reads, names=names,
                        label=label):
@@ -1558,16 +1661,11 @@ class Matcher:
         """
         variables = whole.names()
         want = goal.rpn(self.flabel)
-        for bridge in rules.MEMBERSHIP:
-            other = self.sigs.get(bridge)
-            if other is None or other.essentials:
-                continue
-            says = self.syntax.statement(other)
+        for bridge in self.declared_as('equivalence'):
+            says = self.syntax.statement(self.sigs[bridge])
             names = says.names()
             while says.label == 'wi':
                 says = says.children[1]
-            if says.label != 'wb':
-                continue
             for near, far in (says.children, says.children[::-1]):
                 bound = kernel.match(far, goal, {}, names)
                 if bound is None:

@@ -557,6 +557,17 @@ than about the readable corpus, so no field of a readable database is its home.
 It is one list tried by matching, because putting a sum of integers in ℤ and
 putting a summation index in ℂ are one question asked twice.
 
+The list is read through an index the matcher builds from each lemma's own
+statement (`declared` in `parley/matcher.py`): what each reading of it can
+conclude, and a membership's class where it fixes one. `settle` tries, in the
+declared order, only the lemmas that could conclude what is wanted, which is
+every lemma that would have matched. The same reading gives each lemma its
+role — of the 90 declared today, 4 are equations `said_otherwise` rewrites
+by, 10 equivalences `crossed` reads as one claim said two ways, 12 carriers
+`bridged` moves a membership between number systems with, and 64 side
+conditions — so a lemma is declared once, in the list, and nothing kept by
+hand says what it is for.
+
 `READERS.md` weighed dropping the `requires` lines and leaving all of this to
 be found — the fact never fails, the `let` line is in view, the price is 97
 lines — and rejected the exemption, because whether a fact can fail is not the

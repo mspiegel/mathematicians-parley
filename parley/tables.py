@@ -314,19 +314,8 @@ class TableReading:
         """
         if self.bridges is None:
             self.bridges = {}
-            for label in rules.MEMBERSHIP:
-                sig = self.sigs.get(label)
-                if sig is None or sig.essentials or len(sig.floats) != 1:
-                    continue
-                shape = self.syntax.statement(sig)
-                if shape.label != 'wi':
-                    continue
-                given, gives = shape.children
-                if given.label != 'wcel' or gives.label != 'wcel' \
-                        or given.children[0].variable is None \
-                        or given.children[0].rpn(self.flabel) \
-                        != gives.children[0].rpn(self.flabel):
-                    continue
+            for label in self.declared_as('carrier'):
+                given, gives = self.syntax.statement(self.sigs[label]).children
                 self.bridges.setdefault(
                     (given.children[1].rpn(self.flabel),
                      gives.children[1].rpn(self.flabel)), label)
