@@ -19,13 +19,8 @@ conjunct projected (`as_conjunct`).
 import kernel
 import rules
 from parse import Declined, declined
+from rules import TURNED
 from spell import Proof, seq
-
-# Stands where a join would name the constructor, for a biconditional a
-# lemma states the other way round from the way a step reaches it. It is no
-# label, so a statement built from it would not spell, which is what stops a
-# second antecedent being folded past one read this way.
-TURNED = 'the other way round'
 
 
 class Matcher:
@@ -1862,9 +1857,6 @@ class Matcher:
             # the inclusion under the scope and then says, still under it,
             # that what is outside the larger set is outside the smaller.
             first = proof.text.rsplit(None, 1)[-1] == label and not carried
-            fold = {('wi', True): 'syl', ('wi', False): 'mpd',
-                    ('wb', True): 'sylib', ('wb', False): 'mpbid',
-                    (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
             # `mpbird` names the two sides in the order it states them, and
             # a crossed biconditional states the claim first; every other
             # fold states what is asked first.
@@ -1885,7 +1877,7 @@ class Matcher:
             if declined(under):
                 return under
             proof = self.seq(where, *sides, under, proof,
-                        fold[(joins[i], first)])
+                        rules.DISCHARGE[(joins[i], first)])
         if stood_under:
             # An antecedent that is the scope is supplied by standing under
             # it, not by a fact looked up, so what it rests on is not carried
@@ -2055,8 +2047,8 @@ class Matcher:
         to right, `biimprd` from right to left.
         """
         left, right = reads.children
-        for (first, then), fold in (((left, right), 'biimpd'),
-                                    ((right, left), 'biimprd')):
+        for (first, then), fold in zip(((left, right), (right, left)),
+                                       rules.ONE_WAY, strict=True):
             fixed = kernel.match(kernel.Term('wi', (first, then)), goal,
                                  dict(seed or {}), variables)
             if fixed is None:

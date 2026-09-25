@@ -17,6 +17,7 @@ from fractions import Fraction
 import field
 import linear
 import normal
+import rules
 from library import Signature
 from parse import Declined, declined, fmt
 from provenance import REQUIRES
@@ -1432,8 +1433,7 @@ class Calculators:
         What comes back is ( scope -> ( g1 + g2 ) < 0 ).
         """
         scope = work.under
-        lemma = {(True, False): 'ltleadd', (False, True): 'leltadd',
-                 (True, True): 'lt2add'}[tuple(strict)]
+        lemma = rules.ADDING[tuple(strict)]
         rel = ['clt' if s else 'cle' for s in strict]
         total = self.seq(gaps[0], gaps[1], 'caddc', 'co')
         zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
@@ -1708,10 +1708,9 @@ class Calculators:
         supposes `not s ≤ c − δ` and wants `c − δ < s`.
         """
         parts = order_sides(inner)
-        turns = {'<': ('clt', 'cle', 'lenlt'), '<=': ('cle', 'clt', 'ltnle')}
-        if parts is None or parts[2] not in turns:
+        if parts is None or parts[2] not in rules.DENIED:
             return Declined('only a denied `<` or `≤` is turned round')
-        denied, said, lemma = turns[parts[2]]
+        denied, said, lemma = rules.DENIED[parts[2]]
         was = [c.rpn(self.flabel) for c in inner.children[:2]]
         turned = self.to_term(self.seq(was[1], was[0], said, 'wbr'))
         return turned, work.ap(

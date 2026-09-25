@@ -166,7 +166,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.unread = 0          # how far down the `define` lines we have read
         self.last = None
         # `Builder` gives the name-to-label direction; this is the other one.
-        self.fname = {v: k for k, v in self.flabel.items()}
         # Which pattern of a record matched is read from the node's literal,
         # so a record's patterns are listed by theirs, in the order the
         # `pattern` and `target` fields both use. A folded pattern carries the
@@ -843,12 +842,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             # A name may run over a set or over anything that is one. The
             # two lemmas are the same shape and ask the same thing; what
             # differs is whether the term has to be in a set or only be one.
-            if whole.label == 'wral':
-                body, variable, over = whole.children
-                lemma, slot, domain = 'rspcv', 'B', over.rpn(self.flabel)
-            elif whole.label == 'wal':
-                body, variable = whole.children
-                lemma, slot, domain = 'spcgv', 'V', 'cvv'
+            if whole.label in rules.INSTANCES:
+                body, variable, *over = whole.children
+                lemma, slot, domain = rules.INSTANCES[whole.label]
+                domain = domain or over[0].rpn(self.flabel)
             else:
                 raise self.defect(step.line,
                                   'more names instantiated than are '

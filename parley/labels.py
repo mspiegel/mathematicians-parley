@@ -37,6 +37,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # What a set.mm label looks like, strictly enough that no word of a sentence
 # is mistaken for one: lower case, and hyphenated only as `df-` names are.
 LABEL_SHAPED = re.compile(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)*')
+# What a label in a rule table looks like. A table holds nothing but labels
+# and a few symbols, so this admits what prose would not: a leading digit, as
+# in `1re`, and a dot, as in `pm2.21dd`.
+TABLED = re.compile(r'[a-z0-9][a-z0-9.]*(?:-[a-z0-9.]+)*')
 
 
 def named(records):
@@ -83,9 +87,38 @@ def named(records):
             if not LABEL_SHAPED.fullmatch(entry):
                 break
             out.setdefault(entry, (r.path, r.line, r.name))
-    for one in rules.MEMBERSHIP:
-        out.setdefault(one, ('parley/rules.py', 0, 'MEMBERSHIP'))
+    for table, one in tabled():
+        out.setdefault(one, ('parley/rules.py', 0, table))
     return out
+
+
+def tabled():
+    """Every label the elaborator's rule tables name, with its table.
+
+    The tables are `parley/rules.py`'s upper-case names, and every string
+    in one is a label, keys and values alike, except where it is plainly
+    not one: a relation's symbol, the marker `TURNED`, or the upper-case
+    name of a lemma's variable. `SYSTEMS` is read by its keys alone, since
+    each value is the suffix a digit's label ends with and not a label.
+    """
+    def strings(value):
+        if isinstance(value, str):
+            yield value
+        elif isinstance(value, dict):
+            for key, inner in value.items():
+                yield from strings(key)
+                yield from strings(inner)
+        elif isinstance(value, (list, tuple, set, frozenset)):
+            for inner in value:
+                yield from strings(inner)
+
+    for table in sorted(n for n in vars(rules) if n.isupper()):
+        value = getattr(rules, table)
+        if table == 'SYSTEMS':
+            value = list(value)
+        for one in strings(value):
+            if TABLED.fullmatch(one):
+                yield table, one
 
 
 def supplied(records):

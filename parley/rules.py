@@ -76,13 +76,30 @@ BOUND = {'wrex': ('rexbii', 'cbvrexvw'),
          'wral': ('ralbii', 'cbvralvw'),
          'wal': ('albii', 'cbvalvw')}
 
+# Stands where a join would name the constructor, for a biconditional a
+# lemma states the other way round from the way a step reaches it. It is no
+# label, so a statement built from it would not spell, which is what stops a
+# second antecedent being folded past one read this way.
+TURNED = 'the other way round'
+
 # Which lemma discharges one thing a lemma asked, by how that thing was
 # joined to what follows it and whether the lemma is still bare. The
 # first is composed with the lemma itself; every later one is applied to
 # what the last already deduced.
 DISCHARGE = {
     ('wi', True): 'syl', ('wi', False): 'mpd',
-    ('wb', True): 'sylib', ('wb', False): 'mpbid'}
+    ('wb', True): 'sylib', ('wb', False): 'mpbid',
+    (TURNED, True): 'sylibr', (TURNED, False): 'mpbird'}
+
+# A claim `P → Q` from a biconditional between P and Q: the lemma taking
+# it from left to right, then the one from right to left.
+ONE_WAY = ('biimpd', 'biimprd')
+
+# Instantiating a universal, by the binder: the lemma, the variable it
+# names the domain by, and the domain where the binder names none. A
+# restricted universal wants its term in the set it runs over, and an
+# unrestricted one wants it only to be a set.
+INSTANCES = {'wral': ('rspcv', 'B', None), 'wal': ('spcgv', 'V', 'cvv')}
 
 # Which transitivity folds one link of a calculation into the run above
 # it, by what each of the two claims is. Two relations in a row would
@@ -151,6 +168,16 @@ FROM_NN0 = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
 SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
            'cv': 'vex'}
+
+# Two differences against zero added, by which of the two is strictly
+# below it: the lemma that adds them and keeps the strictness.
+ADDING = {(True, False): 'ltleadd', (False, True): 'leltadd',
+          (True, True): 'lt2add'}
+
+# A denied `<` or `≤` said the other way round, by the relation denied:
+# that relation's label, the one that holds instead, and the lemma saying
+# the two are the same.
+DENIED = {'<': ('clt', 'cle', 'lenlt'), '<=': ('cle', 'clt', 'ltnle')}
 
 # The operations a method combining atoms looks inside, and the
 # connectives and relations between the terms of the claim it proves.
