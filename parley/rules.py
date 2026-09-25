@@ -184,6 +184,24 @@ DENIED = {'<': ('clt', 'cle', 'lenlt'), '<=': ('cle', 'clt', 'ltnle')}
 ARITHMETIC = frozenset({'caddc', 'cmin', 'cmul', 'cdiv'})
 RELATIONS = frozenset({'wceq', 'wne', 'wbr', 'wn', 'wa'})
 
+# The rules that put a statement in one standard form, so that what a lemma
+# says and what is wanted can be compared as they stand: each a set.mm
+# biconditional or equation, by which of its two sides is the standard one
+# (0 the left, 1 the right). A rule rewrites only toward a side whose
+# variables all appear on the other, so rewriting ends and has one answer:
+# `rexss` rewrites the page's restriction in the body back to set.mm's
+# restriction in the domain, because the other way would have to invent the
+# larger set. What a rule asks — `rexss` a subset, `exp0` a complex number —
+# is settled where it is applied.
+STANDARD = {'df-3or': 1, 'df-ne': 1, 'ralrp': 1, 'rexrp': 1, 'exp0': 1,
+            'nn0absid': 1, 'rexss': 0, 'rextru': 1}
+
+# The rules whose two sides are the same shape the other way round, which no
+# direction can orient: the two sides are put in a fixed order instead, the
+# one whose reverse Polish sorts first on the left. Inequalities are never
+# among them, since their sides are not interchangeable.
+SYMMETRIC = ('eqcom', 'addcom', 'mulcom')
+
 # What set.mm writes one way and the page another, each a closed
 # biconditional whose left side is set.mm's spelling and whose right side is
 # the page's. set.mm quantifies over the positive reals; the page says "for
