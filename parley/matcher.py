@@ -2079,13 +2079,7 @@ class Matcher:
             if node.label in ('wral', 'wal'):
                 rest.append(node.children[0])
                 continue
-            # Where a map's values land is the same kind of question as where
-            # a set lives, and set.mm asks it the same way: `f1f1orn` wants a
-            # codomain and says nothing about it, because being one-to-one
-            # into one class is being one-to-one into any that holds the
-            # values. `_V` holds them all.
-            at = {'wcel': 1, 'wf': 1, 'wf1': 1, 'wfo': 1, 'wf1o': 1}.get(
-                node.label)
+            at = rules.HELD_IN.get(node.label)
             if at is None:
                 continue
             name = node.children[at].variable

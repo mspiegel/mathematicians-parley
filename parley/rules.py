@@ -181,6 +181,15 @@ ADDING = {(True, False): 'ltleadd', (False, True): 'leltadd',
 # the two are the same.
 DENIED = {'<': ('clt', 'cle', 'lenlt'), '<=': ('cle', 'clt', 'ltnle')}
 
+# What says a thing lies in a class, by where that class stands among its
+# parts: a membership, and a map's codomain. Where a map's values land is
+# the same kind of question as where a set lives, and set.mm asks it the
+# same way: `f1f1orn` wants a codomain and says nothing about it, because
+# being one-to-one into one class is being one-to-one into any that holds
+# the values. A class a lemma asks for here and nothing fixes is `_V`,
+# which holds them all (`sethood` in `parley/matcher.py`).
+HELD_IN = {'wcel': 1, 'wf': 1, 'wf1': 1, 'wfo': 1, 'wf1o': 1}
+
 # The operations a method combining atoms looks inside, and the
 # connectives and relations between the terms of the claim it proves.
 ARITHMETIC = frozenset({'caddc', 'cmin', 'cmul', 'cdiv'})

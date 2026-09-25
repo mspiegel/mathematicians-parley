@@ -32,7 +32,7 @@ def order_sides(goal):
         return goal.children[0], goal.children[1], '='
     if goal.label != 'wbr' or len(goal.children) != 3:
         return None
-    how = {'cle': '<=', 'clt': '<'}.get(goal.children[2].label)
+    how = linear.RELATIONS.get(goal.children[2].label)
     return None if how is None else (goal.children[0], goal.children[1], how)
 
 

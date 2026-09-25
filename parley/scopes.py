@@ -55,6 +55,10 @@ class Block:
 
 
 class Scopes:
+    def open_outermost(self, scope, facts):
+        """The first frame: the theorem's hypotheses, and what they say."""
+        self.frames = [(scope, None, facts)]
+
     @contextlib.contextmanager
     def frames_kept(self):
         """The frames as they stand, given back when the block of code ends.

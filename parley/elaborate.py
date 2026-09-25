@@ -369,7 +369,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.reserved = {t for t in goal.split()
                          if t in self.sigs
                          and self.sigs[t].statement[0] == 'setvar'}
-        self.frames = [(scope, None, facts)]
+        self.open_outermost(scope, facts)
         # A `requires` line names the lines it rests on, and what supplies it
         # is reached from places the step's own lines are not passed to.
         self.lines = lines
