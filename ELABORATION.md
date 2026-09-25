@@ -50,11 +50,24 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    deduction form, and the section on scopes describes it.
 3. **The matcher.** Given a lemma's statement, a claim, and the facts a step
    names, it produces what the lemma's variables stand for and the antecedents
-   left to discharge. It matches modulo declared rules: each rule is a set.mm
-   equivalence, applied in one direction only, from set.mm's way of saying a
-   thing to the page's, and each application is a step of the proof. So
-   rewriting always ends and has one answer, and the rules are theorems, as
-   decision 5 of `GOALS.md` asks.
+   left to discharge. It matches modulo declared rules, each a set.mm
+   theorem, as decision 5 of `GOALS.md` asks, and each application a step of
+   the proof. Two things written differently are the same claim when they
+   reach one standard form (`same` in `parley/matcher.py`):
+   - a one-way rule (`rules.STANDARD`) rewrites toward the side whose
+     variables all appear on the other, which is what makes rewriting end
+     and have one answer: `df-3or`, `df-ne`, the ℝ⁺ spellings, `rextru`;
+   - a symmetric one (`rules.SYMMETRIC`: `eqcom`, and the commuting pairs)
+     puts its two sides in a fixed order, read with the letters the
+     statement binds as blanks;
+   - a rule that asks something first (`exp0`, `nn0absid`, `rexss`) holds
+     only where that is so, and is applied only where it closes a difference,
+     with what it asks settled there;
+   - letters bound under other names are one claim by a renaming.
+
+   The walk proves it at the smallest places the two differ. A lemma whose
+   conclusion does not match the claim as written is read through the same
+   rules to fix its variables, proved at that, and carried to the claim.
 4. **Rule tables.** Data, not code: which lemma lifts an equation through each
    constructor; which lemma carries a membership from one number system to
    another, or through an operation; what a closed numeral is; and the
@@ -83,21 +96,32 @@ pilot is the test of whether the list still holds.
 
 | part | module | lines |
 |---|---|---|
-| reading | `parley/reading.py` | 491 |
-| scopes | `parley/scopes.py` | 950 |
-| the matcher | `parley/matcher.py` | 2,072 |
-| rule tables, as data | `parley/rules.py` | 280 |
-| rule tables, read | `parley/tables.py` | 474 |
-| the calculators | `parley/calculators.py`, deciding in `parley/field.py`, `parley/normal.py`, `parley/linear.py` | 1,971 |
-| the proof rules | `parley/provenance.py` | 542 |
+| reading | `parley/reading.py` | 505 |
+| scopes | `parley/scopes.py` | 964 |
+| the matcher | `parley/matcher.py` | 2,486 |
+| rule tables, as data | `parley/rules.py` | 329 |
+| rule tables, read | `parley/tables.py` | 508 |
+| the calculators | `parley/calculators.py`, deciding in `parley/field.py`, `parley/normal.py`, `parley/linear.py` | 1,957 |
+| the proof rules | `parley/provenance.py` | 557 |
 
-What `parley/elaborate.py` keeps (2,118 lines) is the step loop, the handler
+What `parley/elaborate.py` keeps (2,039 lines) is the step loop, the handler
 for each kind of step, citing an item or a corpus theorem, the definition
-readings, and the command line. The parts still share their state on the one
-object, and each is written as it was: the matcher is many cases rather than
-one match modulo rules, and a few tables are still written inside the methods
-that read them. Simplifying each part toward this design is done one part at
-a time, and the section on each part changes when its part does.
+readings, and the command line. The parts share their state on the one
+object, and each part changes it only through its own methods: the frames
+through the scopes (`frames_kept`, `open_outermost`), what names stand for
+through reading (`names_kept`), what a step's lines wrote through the tables
+(`writing`), and a step's proof through the proof rules (`check_step`). Every
+table is in `parley/rules.py`.
+
+The matcher compares through one standard form (above). What it keeps as
+named operations, because none is a rewrite of one statement into another,
+is ∃-introduction and elimination (`witnessed`, `introduced`,
+`through_existential`, `from_lemmas`), a lemma's implicit substitution
+(`instanced`, `substituted_slot`, `as_class`), taking one half of a
+conjunction (`as_conjunct`), a lemma said of every such name
+(`as_generalised`), a lemma at its own value (`at_its_own_value`), and
+re-indexing a sum (`letters_apart`). `settle`'s search for side conditions
+reads the declared lemmas through an index built from their statements.
 
 Measured on 2026-09-25, every proof, the definitions and the planted cases
 between them run 1,271 of the 1,445 executable lines of
@@ -110,13 +134,15 @@ written.
 
 ### What the corpus asks of it
 
-Measured on 2026-09-25 over the 23 theorems and the 37 planted elaborator
-cases, by recording each line of `parley/elaborate.py` as it first runs, what
-each route returns, and every lemma in the expanded proofs.
+Measured again on 2026-09-25, after the refactor, over the 23 theorems and
+the 37 planted elaborator cases, by recording each line of the eight modules
+as it first runs, what each route returns, and every lemma in the expanded
+proofs.
 
-**The proofs are almost all translation.** The 23 proofs expand to 958,473
+**The proofs are almost all translation.** The 23 proofs expand to 958,486
 logical steps. 17,133 of them, under 2%, apply a lemma the page names. The
-rest come from 243 set.mm lemmas in nine families:
+rest come from 244 set.mm lemmas in nine families (the one lemma added,
+`bicomd`, turns `rexss` round in the infinitely-many-primes proof):
 
 | family | share of those steps | lemmas |
 |---|---|---|
@@ -130,38 +156,35 @@ rest come from 243 set.mm lemmas in nine families:
 | induction and cases | under 0.1% | 9 |
 | spellings between set.mm and the page | under 0.1% | 14 |
 
-**The code is load-bearing.** Of the 5,334 executable lines of
-`parley/elaborate.py`, 87% run in some proof, 3% only in the planted cases,
-and 10% in nothing, in scattered branches rather than whole functions.
+**The code is load-bearing.** Of the 5,625 executable lines of the eight
+modules, 87% run in some proof, 3% only in the planted cases, and 10% in
+nothing, in scattered branches rather than whole functions:
 
-**It hardly searches.** Of the 3,985 side conditions `settle` answered, 73.7%
-were a fact already in hand and 21.7% came from structure (a conjunction
+| module | run in a proof | only in planted cases | in nothing |
+|---|---|---|---|
+| `reading.py` | 92.7% | 2.0% | 5.2% |
+| `scopes.py` | 90.5% | 0.0% | 9.5% |
+| `matcher.py` | 90.5% | 1.3% | 8.2% |
+| `rules.py` | 100.0% | 0.0% | 0.0% |
+| `tables.py` | 91.6% | 1.3% | 7.0% |
+| `calculators.py` | 87.1% | 0.9% | 12.0% |
+| `provenance.py` | 82.1% | 5.8% | 12.0% |
+| `elaborate.py` | 78.5% | 7.7% | 13.8% |
+
+**It hardly searches.** Of the 3,983 side conditions `settle` answered, 73.7%
+were a fact already in hand and 22.0% came from structure (a conjunction
 split, a membership carried between number systems or through an operation, a
-digit, sethood). The search through declared lemmas answered 4.3%, with 47
-pairings of what was wanted and which lemma gave it, from 38 lemmas. Of the
+digit, sethood). The search through declared lemmas answered 4.2%, with 45
+pairings of what was wanted and which lemma gave it, from 36 lemmas. Of the
 items whose target names several lemmas, only `def:stdlib/sets/set-builder`
 names two, and `elrab` fitted all ten times.
 
-**Where the code goes.** Counting each function under the family of the
-lemmas it names, and sorting the functions that name none by what they do:
-
-| part | lines, roughly |
-|---|---|
-| matching a lemma to a claim | 800 |
-| scopes and names, beside the deduction-form code | 460, and 1,400 |
-| rewriting equals, and walking terms | 930, and 230 |
-| using and proving "for every" and "there is" | 780 |
-| the calculators and the code calling them | 780, and 385 |
-| the proof rules | 410 |
-| membership and numerals | 440 |
-| reading the page | 185 |
-| induction and cases | 330 |
-| the step loop, reporting, and code naming only lemmas the page cites | 550 |
-
-The figures are rough at their edges, since a function is counted once, under
-the family most of its lemmas belong to. What they show is that the code
-sorts into the six parts with little left over, and that the matcher and the
-scopes are the two largest.
+**What comparing through one standard form changed.** Four of the thirty
+elaborated files: the ten-power congruence, √2's irrationality and the
+intermediate value theorem take the same lemmas in another order, and the
+infinitely-many-primes proof applies `rexss` where the two statements differ
+rather than searching the declared equivalences for it. The largest grew by
+0.7%; every one verifies, and none states an axiom.
 
 ## The statement a theorem becomes
 
