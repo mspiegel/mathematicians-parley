@@ -46,16 +46,11 @@ class TableReading:
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
             member = self.seq(f'{name} cv', runs, 'wcel')
             # The scope under a binder belongs to the walk and to nothing
-            # else. `widen` keeps a frame so that a step whose lemma forbids
-            # an assumption can be proved without it, and a frame left
-            # standing here is offered to whatever is proved next: a lemma
-            # chose one and stated its hypothesis under a binder's
-            # membership, which mmverify is what caught.
-            frame = len(self.frames)
-            inner, lifted = self.widen(scope, facts, member)
-            made = self.congruence(body, want.children[0], inner, lifted,
-                                   step, leaf)
-            del self.frames[frame:]
+            # else (`frames_kept`).
+            with self.frames_kept():
+                inner, lifted = self.widen(scope, facts, member)
+                made = self.congruence(body, want.children[0], inner, lifted,
+                                       step, leaf)
             if declined(made):
                 return made
             return self.seq(scope, body.rpn(self.flabel),

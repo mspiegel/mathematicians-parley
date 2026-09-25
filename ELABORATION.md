@@ -246,6 +246,22 @@ elaborator's order and not the author's.
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
 
+**What a scope owns, in the code.** `parley/scopes.py` keeps the frames, and
+nothing outside it pushes or drops one: a route that widens the scope for a
+moment — a binder's membership while `settle` proves a universal, each side of
+an `inequalities` split — opens it inside `frames_kept`, which gives the frames
+back when the route ends. An `obtain` is a scope too, of another shape: it
+pushes no block, and hands the step loop a closer, a function that discharges
+its existential around whatever proof it is given. The closers form a stack
+beside the blocks, and a block spends the ones raised inside it when it
+closes.
+
+A block gives back its frames, the names it bound and the letters they took.
+It does not give back `sets`, what each name was let into: a name fixed or
+obtained inside a block keeps its set after the block closes. No proof reads
+one there, because the name is no longer bound, and this is recorded as found
+rather than relied on.
+
 ## What each step becomes
 
 **`obtain`** is not a step. There is no kernel move that hands you a name.

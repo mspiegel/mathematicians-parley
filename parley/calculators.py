@@ -1143,19 +1143,18 @@ class Calculators:
                                self.seq(below, above, 'wo'), 'wb')},
                     real(a), real(b), work.ap('lttri2', {'A': a, 'B': b})))
 
-        frame, sides = len(self.frames), []
-        for bound in (below, above):
-            inner, lifted = self.widen(scope, facts, bound)
-            held = dict(lines)
-            held[bound] = Fact(bound, lifted[bound])
-            side = self.one_way(bound, term, inner, lifted, held,
-                                [*refs, bound],
-                                (*skip, said.rpn(self.flabel)))
-            if declined(side):
-                del self.frames[frame:]
-                return side
-            sides.append(side)
-        del self.frames[frame:]
+        sides = []
+        with self.frames_kept():
+            for bound in (below, above):
+                inner, lifted = self.widen(scope, facts, bound)
+                held = dict(lines)
+                held[bound] = Fact(bound, lifted[bound])
+                side = self.one_way(bound, term, inner, lifted, held,
+                                    [*refs, bound],
+                                    (*skip, said.rpn(self.flabel)))
+                if declined(side):
+                    return side
+                sides.append(side)
         return work.ap('mpjaodan',
                        {'ph': scope, 'ps': below, 'ch': term, 'th': above},
                        sides[0], sides[1], whether)

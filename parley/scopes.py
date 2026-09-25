@@ -11,6 +11,7 @@ entry per assumption: the scope with it conjoined, the assumption, and what
 was known there. A step whose lemma forbids an inner assumption is proved at
 an outer frame and carried back in.
 """
+import contextlib
 import re
 
 import kernel
@@ -54,6 +55,23 @@ class Block:
 
 
 class Scopes:
+    @contextlib.contextmanager
+    def frames_kept(self):
+        """The frames as they stand, given back when the block of code ends.
+
+        A route that widens the scope to prove something under a binder or
+        a case — a membership `ralrimiva` gives back, each side of a split —
+        owns the frames it pushes and nothing else does. A frame left
+        standing is offered to whatever is proved next, and a lemma once
+        stated its hypothesis under a binder's membership that way, which
+        mmverify caught.
+        """
+        frame = len(self.frames)
+        try:
+            yield
+        finally:
+            del self.frames[frame:]
+
     def widen(self, scope, facts, added, origin=None):
         """Conjoin one more thing onto the antecedent, carrying the facts.
 

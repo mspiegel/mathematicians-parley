@@ -137,10 +137,9 @@ class Matcher:
                 body, variable, over = wanted.children
                 member = self.seq(f'{variable.rpn(self.flabel)} cv',
                              over.rpn(self.flabel), 'wcel')
-                frame = len(self.frames)
-                inner, lifted = self.widen(scope, facts, member)
-                made = self.settle(body, inner, lifted, depth)
-                del self.frames[frame:]
+                with self.frames_kept():
+                    inner, lifted = self.widen(scope, facts, member)
+                    made = self.settle(body, inner, lifted, depth)
                 if declined(made):
                     return made
                 return self.seq(scope, body.rpn(self.flabel),
@@ -1199,11 +1198,10 @@ class Matcher:
         if len(layers) > 1:
             member = self.seq(member, 'wa')
 
-        frame = len(self.frames)
-        outer, held = self.widen(scope, facts, member)
-        inner, lifted = self.widen(outer, held, body)
-        made = self.introduced(goal, inner, lifted)
-        del self.frames[frame:]
+        with self.frames_kept():
+            outer, held = self.widen(scope, facts, member)
+            inner, lifted = self.widen(outer, held, body)
+            made = self.introduced(goal, inner, lifted)
         if declined(made):
             return made
         want = goal.rpn(self.flabel)
@@ -1414,13 +1412,10 @@ class Matcher:
         body, variable, over = goal.children
         member = self.seq(f'{variable.rpn(self.flabel)} cv',
                      over.rpn(self.flabel), 'wcel')
-        frame = len(self.frames)
-        inner, lifted = self.widen(scope, facts, member)
-        try:
+        with self.frames_kept():
+            inner, lifted = self.widen(scope, facts, member)
             proof = self.apply_lemma(label, body, inner, lifted, step,
                                      crossing=False, seed=seed)
-        finally:
-            del self.frames[frame:]
         if declined(proof):
             return proof
         return self.seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),

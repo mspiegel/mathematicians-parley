@@ -165,7 +165,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
         self.last = None
-        # `Builder` gives the name-to-label direction; this is the other one.
+        # The scope frames, innermost last, each (scope, what it added, what
+        # is known there); `run` opens the outermost at the hypotheses.
+        self.frames = []
+        self.lines = {}          # line label -> the Fact it proved
         # Which pattern of a record matched is read from the node's literal,
         # so a record's patterns are listed by theirs, in the order the
         # `pattern` and `target` fields both use. A folded pattern carries the
