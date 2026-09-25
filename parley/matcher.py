@@ -29,10 +29,9 @@ from spell import Proof, seq
 #   held      an equation in hand says the two are equal
 #   cited     the equation a step cites, which rewrote the place
 #   assumed   the equation a lemma's own hypothesis assumes
-#   defined   a name a `define` introduced, and the term it names
 #   standard  the two have one standard form (`same`, `rules.STANDARD`)
 #   toward    a term carried to its standard form, which `standard` asks
-DIFFERENCES = ('held', 'cited', 'assumed', 'defined', 'standard', 'toward')
+DIFFERENCES = ('held', 'cited', 'assumed', 'standard', 'toward')
 
 
 class Matcher:
@@ -751,38 +750,6 @@ class Matcher:
             return None      # the walk goes on to where they differ
         return held[asked]
 
-    def closed_defined(self, one, other, where, held):
-        """A defined name and a term that is what it names once both are
-        written out, by the equation the define holds (`define`).
-
-        A body may itself name what an earlier define named — the subsets
-        proof's T is built over its U — so the name's own body and the term
-        may still differ, and `same` joins them.
-        """
-        if one.variable is not None or other.variable is not None \
-                or self.spelt_out(one).rpn(self.flabel) \
-                != self.spelt_out(other).rpn(self.flabel):
-            return None
-        if one.label != 'cv' or one.children[0].rpn(self.flabel) \
-                not in self.definitions:
-            if other.label != 'cv' or other.children[0].rpn(self.flabel) \
-                    not in self.definitions:
-                return None
-            found = self.closed_defined(other, one, where, held)
-            return None if found is None else self.seq(
-                where, other.rpn(self.flabel), one.rpn(self.flabel), found,
-                'eqcomd')
-        name = one.rpn(self.flabel)
-        body = self.definitions[one.children[0].rpn(self.flabel)]
-        said = held.get(self.seq(name, body, 'wceq'))
-        if said is None or body == other.rpn(self.flabel):
-            return said
-        rest = self.same(self.to_term(body), other, where, held)
-        if declined(rest):
-            return None
-        return self.seq(where, name, body, other.rpn(self.flabel), said, rest,
-                        'eqtrd')
-
     def closed_cited(self, one, other, where, held, was, now, said, flip):
         """The place one cited equation rewrote, carried back.
 
@@ -827,7 +794,7 @@ class Matcher:
         self.binding = self.letters_bound(given) | self.letters_bound(want)
         try:
             return self.congruence(given, want, scope, facts, step,
-                                   self.closing(('defined',), ('standard',)))
+                                   self.closing(('standard',)))
         finally:
             self.binding = kept
 
@@ -888,13 +855,17 @@ class Matcher:
     def standard_step(self, term):
         """One rewrite toward the standard form at the head of `term`.
 
-        `(how, what it becomes)`: a rule of `rules.STANDARD` by its label, or
+        `(how, what it becomes)`: `defined` for a name a `define` introduced
+        (`named_body`), a rule of `rules.STANDARD` by its label, or
         `eqcom` or `commuted` for a symmetric pair put in order — the side
         whose `order_key` sorts first on the left, and a tie left as it
         stands. None where nothing rewrites the head.
         """
         if term.variable is not None:
             return None
+        body = self.named_body(term, self.binding)
+        if body is not None:
+            return 'defined', body
         for label, given, gives, names in self.rewrites(conditional=False):
             bound = kernel.match(given, term, {}, names)
             if bound is not None and not gives.names() - set(bound):
@@ -915,6 +886,24 @@ class Matcher:
                 kids[i], kids[j] = kids[j], kids[i]
                 return 'commuted', kernel.Term(label, tuple(kids))
         return None
+
+    def named_body(self, term, bound=frozenset()):
+        """What a name a `define` introduced names, where `term` is that
+        name standing free; else None.
+
+        One more rule of the standard form, and the only one that is not a
+        set.mm lemma: the define's own equation is its proof
+        (`standard_proof`). A name is read as its body wherever two things
+        are compared, and nowhere else, so a calculator still sees x₁. A
+        letter the compared statements bind is never a defined name, even
+        where a lemma happens to bind the letter a define was given.
+        """
+        if term.variable is not None or term.label != 'cv' \
+                or len(term.children) != 1 \
+                or term.children[0].variable in bound:
+            return None
+        body = self.definitions.get(term.children[0].rpn(self.flabel))
+        return None if body is None else self.to_term(body)
 
     def rewrites(self, conditional):
         """The rules of `rules.STANDARD` set.mm has, as (label, the side
@@ -950,6 +939,10 @@ class Matcher:
         equation `settle` answers from the declared `addcom` and `mulcom`.
         """
         a, b = cur.rpn(self.flabel), nxt.rpn(self.flabel)
+        if how == 'defined':
+            said = held.get(self.seq(a, b, 'wceq'))
+            return said if said is not None \
+                else Declined('the equation a define holds is not in hand')
         if how == 'eqcom':
             left, right = (c.rpn(self.flabel) for c in cur.children)
             return self.seq(self.seq(a, b, 'wb'), where,
@@ -1066,12 +1059,14 @@ class Matcher:
             return None
         # Two that differ only in the letters they bind are one claim by a
         # renaming, which is closed and asks nothing of the scope.
-        if self.is_wff(one) and self.rebound(one.rpn(self.flabel),
-                                             other.rpn(self.flabel)):
-            renamed = self.renamed_apart(one, other)
+        if self.rebound(one.rpn(self.flabel), other.rpn(self.flabel)):
+            wff = self.is_wff(one)
+            renamed = (self.renamed_apart(one, other) if wff
+                       else self.class_renamed(one, other))
             if renamed is not None:
                 return self.seq(self.seq(one.rpn(self.flabel),
-                                         other.rpn(self.flabel), 'wb'),
+                                         other.rpn(self.flabel),
+                                         'wb' if wff else 'wceq'),
                                 where, renamed, 'a1i')
         ours, theirs = self.standard(one), self.standard(other)
         said, want = ours.rpn(self.flabel), theirs.rpn(self.flabel)
@@ -1111,14 +1106,14 @@ class Matcher:
                 return made
             links.append((one, ours, made))
         if said != want:
-            if not self.is_wff(ours):
-                return Declined('two classes differ in the letters they bind')
-            renamed = self.renamed_apart(ours, theirs)
+            wff = self.is_wff(ours)
+            renamed = (self.renamed_apart(ours, theirs) if wff
+                       else self.class_renamed(ours, theirs))
             if renamed is None:
-                return Declined('no renaming says the two are one claim')
+                return Declined('no renaming says the two are one')
             links.append((ours, theirs,
-                          self.seq(self.seq(said, want, 'wb'), where, renamed,
-                                   'a1i')))
+                          self.seq(self.seq(said, want, 'wb' if wff else 'wceq'),
+                                   where, renamed, 'a1i')))
         if theirs.rpn(self.flabel) != other.rpn(self.flabel):
             made = self.congruence(other, theirs, where, held, None,
                                    self.closing(('toward',)))
@@ -1138,6 +1133,35 @@ class Matcher:
             renamed = self.renaming_apart(one.rpn(self.flabel),
                                           other.rpn(self.flabel))
         return renamed
+
+    def class_renamed(self, one, other):
+        """A closed proof that two classes differing in the letter they bind
+        are one (`one = other`), by the lemma `rules.CLASS_BOUND` names for
+        the binder; else None.
+
+        The lemma's two sides are matched against the two classes, which
+        fixes its letters, its domain and its bodies, and what it asks —
+        that the bodies agree at x = y — is proved as `renaming` proves what
+        `cbvrexvw` asks.
+        """
+        lemma = rules.CLASS_BOUND.get(one.label) \
+            if one.variable is None and other.label == one.label else None
+        if lemma is None:
+            return None
+        sig = self.sigs[lemma]
+        says = self.syntax.statement(sig)
+        variables = says.names()
+        binding = kernel.match(says.children[0], one, {}, variables)
+        if binding is not None:
+            binding = kernel.match(says.children[1], other, binding,
+                                   variables)
+        if binding is None:
+            return None
+        asked = self.syntax.parse(sig.essentials[0][1:], 'wff')
+        said = self.prove_essential(asked.substitute(binding), '', {})
+        if declined(said):
+            return None
+        return self.ap(lemma, self.spelt(binding), said)
 
     def flipped(self, where, x, y, proof):
         """( where -> y <-> x ), or `=`, from a proof of `x` against `y`."""
@@ -2050,7 +2074,8 @@ class Matcher:
         reaching a claim by whatever it can find that fits.
         """
         variables = whole.names()
-        ours, theirs = self.read_through(reads), self.read_through(goal)
+        ours = self.read_through(reads, named=False)
+        theirs = self.read_through(goal)
         binding = kernel.match(ours, theirs, dict(seed or {}), variables)
         if binding is None or reads.names() - set(binding):
             return Declined(f'{label} does not conclude the claim in any '
@@ -2089,8 +2114,8 @@ class Matcher:
                            tuple(self.spelt_out(c, keep)
                                  for c in term.children))
 
-    def read_through(self, term):
-        """A term with every one-way rule of `rules.STANDARD` applied,
+    def read_through(self, term, named=True, letters=None):
+        """A term with every one-way rule of the standard form applied,
         parts first, and nothing put in order.
 
         For finding what a lemma's variables stand for, and nothing else:
@@ -2099,21 +2124,27 @@ class Matcher:
         asks is settled, and a symmetric pair is left as written, since in
         a lemma's conclusion the two sides may be variables not yet fixed.
 
-        A name a `define` introduced is read as the term it names, so that
+        A defined name is read as what it names (`named_body`), so that
         `set-builder-subset`, which speaks of `{x ∈ A : φ}`, finds its A in
-        a claim about the name; the equation the define holds joins the two
-        in `same`.
+        a claim about the name. Only where `named`: a lemma's own letters
+        are the lemma's, whatever a define was given.
         """
-        term = self.spelt_out(term)
+        if letters is None:
+            letters = self.letters_bound(term)
+        body = self.named_body(term, letters) if named else None
+        if body is not None:
+            return self.read_through(body, named, letters)
         if term.variable is not None or not term.children:
             return term
         term = kernel.Term(term.label,
-                           tuple(self.read_through(c) for c in term.children))
+                           tuple(self.read_through(c, named, letters)
+                                 for c in term.children))
         for conditional in (False, True):
             for _label, given, gives, names in self.rewrites(conditional):
                 bound = kernel.match(given, term, {}, names)
                 if bound is not None and not gives.names() - set(bound):
-                    return self.read_through(gives.substitute(bound))
+                    return self.read_through(gives.substitute(bound), named,
+                                             letters)
         return term
 
     def sethood(self, slot, binding):

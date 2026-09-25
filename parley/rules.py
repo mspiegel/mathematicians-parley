@@ -37,7 +37,7 @@ CONGRUENCE = {
     ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
     ('wcel', (0, 1)): 'eleq12d',
     ('csu', (0,)): 'sumeq1d',
-    ('cpw', (0,)): 'pweqd', ('csn', (0,)): 'sneqd',
+    ('cpw', (0,)): 'pweqd', ('csn', (0,)): 'sneqd', ('crn', (0,)): 'rneqd',
     ('cun', (0,)): 'uneq1d', ('cun', (1,)): 'uneq2d',
     ('cun', (0, 1)): 'uneq12d',
     ('cdif', (0,)): 'difeq1d', ('cdif', (1,)): 'difeq2d',
@@ -77,6 +77,12 @@ RENAMED = {('wa', (0,)): 'anbi1i', ('wa', (1,)): 'anbi2i',
 BOUND = {'wrex': ('rexbii', 'cbvrexvw'),
          'wral': ('ralbii', 'cbvralvw'),
          'wal': ('albii', 'cbvalvw')}
+
+# A class that binds a name, and the lemma that changes the name; its
+# hypothesis says how the two bodies agree at x = y. Neither leans on
+# ax-13. A map in a theorem the subsets proof cites binds `o` where the
+# define it is compared with binds `l`, and those are one class.
+CLASS_BOUND = {'cmpt': 'cbvmptv', 'crab': 'cbvrabv'}
 
 # Stands where a join would name the constructor, for a biconditional a
 # lemma states the other way round from the way a step reaches it. It is no

@@ -831,6 +831,10 @@ class Scopes:
                                     'eqcomd')
             self.names[name] = f'{var} cv'
             self.definitions[var] = body
+            # What a term comes to in standard form now reads this name as
+            # its body (`named_body`), and a form worked out before could
+            # hold the name as it stood.
+            self.standards.clear()
             lines[label] = Fact(said, held[said])
 
             def close(proof, goal, scope=scope, said=said, var=var, ex=ex,
