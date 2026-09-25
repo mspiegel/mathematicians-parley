@@ -206,9 +206,6 @@ class Emitter(Builder):
         self.held[said] = out
         return out
 
-    def poly_cc(self, poly):
-        return self.run_cc(terms_of(poly))
-
     # --- moving a term along a sum ---------------------------------------
 
     def lift(self, proof, left, right, tail, what=ADD):
