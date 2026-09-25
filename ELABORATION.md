@@ -99,6 +99,15 @@ one match modulo rules, and a few tables are still written inside the methods
 that read them. Simplifying each part toward this design is done one part at
 a time, and the section on each part changes when its part does.
 
+Measured on 2026-09-25, every proof, the definitions and the planted cases
+between them run 1,271 of the 1,445 executable lines of
+`parley/calculators.py`. What none runs is a route declining, a refusal no
+planted case reaches, a case of a method no proof has needed yet (`3 ≤ 3`),
+and `assume` with `stated`: no step in the corpus is taken as stated any
+longer, and the two stay, because taking a decided step as stated and
+listing it is what the methods promise where the proof cannot yet be
+written.
+
 ### What the corpus asks of it
 
 Measured on 2026-09-25 over the 23 theorems and the 37 planted elaborator
