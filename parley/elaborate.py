@@ -152,6 +152,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
         self.lemma_heads = None  # declared lemma -> what its readings end on
+        self.standards = {}      # term -> its standard form (`standard`)
+        self.binding = frozenset()   # letters `same` reads as blanks
         self.citing = frozenset()    # the lines what is being proved cites
         self.resting = None      # what the proof being built may rest on
         self.combined = {}           # by step line, what its method combined
@@ -424,44 +426,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 f'{", ".join(str(n) for n in unproved)} were never proved '
                 f'from their reasons')
         return goal, terms, proof
-
-    def page_spelt(self, said, scope):
-        """What a lemma says, put in the page's words, and why they agree.
-
-        `elcncf2` says continuity with ε and δ in ℝ⁺, and the page says
-        ε ∈ ℝ with ε > 0. `rules.SPELLINGS` holds set.mm's statements that
-        those are the same, and each is applied wherever its left side
-        stands, under however many binders, the innermost first so that
-        what an outer one reads is already the page's.
-
-        Gives back the new statement and a proof, under the scope, that it
-        and the old one are equivalent. Where nothing is spelt differently
-        the statement comes back as it was, and there is nothing to prove.
-        """
-        old = self.to_term(said)
-        new = self.in_page_words(old)
-        want = new.rpn(self.flabel)
-        if want == said:
-            return said, None
-
-        alike = self.congruence(old, new, scope, {}, None,
-                                self.closing(('spelt',)))
-        if declined(alike):
-            return alike
-        return want, alike
-
-    def in_page_words(self, term):
-        """The statement with every spelling applied, innermost first."""
-        if term.variable is not None or not term.children:
-            return term
-        term = kernel.Term(term.label,
-                           tuple(self.in_page_words(c) for c in term.children))
-        for label in rules.SPELLINGS:
-            reads = self.syntax.statement(self.sigs[label])
-            bound = kernel.match(reads.children[0], term, {}, reads.names())
-            if bound is not None:
-                return reads.children[1].substitute(bound)
-        return term
 
     def step(self, step, scope, facts, lines, closers):
         """One step, with the search offered only what the step names."""
@@ -1092,16 +1056,12 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             return known[term]
         # Or it is, once what the lemma says is put in the page's words and
         # the letters it binds are the step's: `elcncf2` gives continuity
-        # over ℝ⁺ with its own x, y, z and w.
+        # over ℝ⁺ with its own x, y, z and w (`same`).
         for said, shown in list(known.items()):
-            got = self.page_spelt(said, scope)
-            if declined(got) or got[0] == said:
-                continue
-            new, alike = got
-            carried = self.seq(scope, said, new, shown, alike, 'mpbid')
-            spelt = self.respelt(carried, new, term, scope)
-            if spelt is not None:
-                return spelt
+            alike = self.same(self.to_term(said), self.to_term(term), scope,
+                              facts)
+            if not declined(alike):
+                return self.seq(scope, said, term, shown, alike, 'mpbid')
         # What the unfolding says and how the readable line spells it are
         # allowed to differ, so long as set.mm says they are the same claim:
         # `isprm2` writes p > 1 as membership of ZZ>=2, and `eluz2gt1` is

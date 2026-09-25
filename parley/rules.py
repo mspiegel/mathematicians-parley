@@ -204,15 +204,6 @@ STANDARD = {'df-3or': RIGHT, 'df-ne': RIGHT, 'ralrp': RIGHT, 'rexrp': RIGHT,
 # among them, since their sides are not interchangeable.
 SYMMETRIC = ('eqcom', 'addcom', 'mulcom')
 
-# What set.mm writes one way and the page another, each a closed
-# biconditional whose left side is set.mm's spelling and whose right side is
-# the page's. set.mm quantifies over the positive reals; the page says "for
-# every ε ∈ ℝ with ε > 0", which it reads as a quantifier over ℝ with the
-# positivity inside. Read in that one direction only, and only of what a
-# lemma says, so that a lemma is put in the page's words and never a claim
-# in a lemma's.
-SPELLINGS = ['ralrp', 'rexrp']
-
 # Every lemma the elaborator may lean on for a fact the text does not write,
 # tried by matching its conclusion against what is wanted. A closed one
 # settles it outright, one with an antecedent leaves that antecedent to

@@ -739,10 +739,11 @@ which set.mm has no label for, is proved at the head of the same file.
 Continuity is `elcncf2`, which says what the readable definition says in
 other words: it quantifies over ℝ⁺ where the page says ε ∈ ℝ with ε > 0, and
 it puts f : D → ℝ on its right side where the page puts it in the
-hypothesis. `rules.SPELLINGS` holds `ralrp` and `rexrp`, set.mm saying
-that a quantifier over ℝ⁺ is one over ℝ with the positivity inside, and
-what `elcncf2` unfolds to is put in those words wherever they apply, under
-every binder around them. The typing conjunct is one of the parts unfolding
+hypothesis. `ralrp` and `rexrp` are set.mm saying that a quantifier over
+ℝ⁺ is one over ℝ with the positivity inside, and both are rules of the
+standard form (`rules.STANDARD`), so what `elcncf2` unfolds to and what the
+page says reach one statement, and the walk rewrites each quantifier where it
+stands, under every binder around it. The typing conjunct is one of the parts unfolding
 takes apart and is left there. What `elcncf2` asks first, that [a, b] and ℝ
 lie in ℂ, the line saying f is continuous says as well, by `cncfrss` and
 `cncfrss2`. The letters set.mm binds are the step's last: its x outside

@@ -41,7 +41,7 @@ definition continuous-on
   target      elcncf2
   first-used  intermediate-value
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε ∈ ℝ with
-              ε > 0, and `rules.SPELLINGS` reads the one as the other. It
+              ε > 0, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
               in the hypothesis, and that conjunct is set aside.
 

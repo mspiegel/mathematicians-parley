@@ -75,6 +75,15 @@ class TableReading:
         if given.label == 'wrex':
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
+            # Only the body is carried under the binder; a change in what it
+            # binds or where that runs is not this walk's to make.
+            if [c.rpn(self.flabel) for c in want.children[1:]] \
+                    != [name, runs]:
+                return Declined('the two bind differently')
+            # `rexbidva` keeps its letter apart from the scope it carries,
+            # as `sumeq2sdv` does its index (`summand_changed`).
+            if name in scope.split():
+                return Declined('the scope mentions the letter this binds')
             member = self.seq(f'{name} cv', runs, 'wcel')
             # The scope under a binder belongs to the walk and to nothing
             # else (`frames_kept`).
@@ -95,6 +104,17 @@ class TableReading:
         slots = [i for i in range(len(kids)) if spelt[i] != other[i]]
         if not slots:
             return Declined('nothing changed under this term')
+        # What lifts the change is the lemma for this constructor and these
+        # places, and the operation it lifts under must be the same one.
+        lifting = rules.CONGRUENCE.get((given.label, tuple(slots)))
+        if lifting is None or (wrapped and given.children[-1].rpn(self.flabel)
+                               != want.children[-1].rpn(self.flabel)):
+            return Declined('no lemma carries this change up')
+        # The lemmas that carry a change under a binder keep its letter
+        # apart from the scope, as `rexbidva` does above.
+        if given.label in rules.BOUND and len(given.children) >= 2 \
+                and given.children[1].rpn(self.flabel) in scope.split():
+            return Declined('the scope mentions the letter this binds')
         moved = [x for i in slots for x in (spelt[i], other[i])]
         rest = [s for i, s in enumerate(spelt) if i not in slots]
         head = given.children[-1].rpn(self.flabel) if wrapped else ''
@@ -103,8 +123,7 @@ class TableReading:
         for one in under:
             if declined(one):
                 return one
-        return self.seq(scope, *moved, *rest, head, *under,
-                   rules.CONGRUENCE[(given.label, tuple(slots))])
+        return self.seq(scope, *moved, *rest, head, *under, lifting)
 
     def numeral_within(self, goal, scope, facts):
         """( scope -> t e. S ), for a term built from numerals alone.

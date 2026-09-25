@@ -24,15 +24,14 @@ from spell import Proof, seq
 
 # The kinds of difference the one walk closes where a lemma's conclusion, or a
 # fact, and what is wanted are both known and differ in places (`closing`).
-# Each is a method `closed_<kind>`, and each closes its difference with a
-# proof step:
+# Each is a method `closed_<kind>`, and each closes its difference with proof
+# steps:
 #   held      an equation in hand says the two are equal
 #   cited     the equation a step cites, which rewrote the place
 #   assumed   the equation a lemma's own hypothesis assumes
-#   declared  a declared equation (`rules.MEMBERSHIP`, role `equation`)
-#   commuted  a commuting pair exchanged (`db/notation.records`)
-#   spelt     a quantifier set.mm spells another way (`rules.SPELLINGS`)
-DIFFERENCES = ('held', 'cited', 'assumed', 'declared', 'commuted', 'spelt')
+#   standard  the two have one standard form (`same`, `rules.STANDARD`)
+#   toward    a term carried to its standard form, which `standard` asks
+DIFFERENCES = ('held', 'cited', 'assumed', 'standard', 'toward')
 
 
 class Matcher:
@@ -392,22 +391,17 @@ class Matcher:
             self.saying.discard(want)
 
     def otherwise(self, wanted, want, scope, facts, depth):
-        """One pass over the declared equations, for `said_otherwise`."""
-        for label in self.declared_as('equation'):
-            says = self.syntax.statement(self.sigs[label])
-            names, reads = says.names(), says
-            while reads.label == 'wi':
-                reads = reads.children[1]
-            leaf = self.closing(('declared', label, reads, names, facts))
-            for said, proof in list(facts.items()):
-                if said == want:
-                    continue
-                alike = self.congruence(self.to_term(said), wanted,
-                                        scope, facts, None, leaf)
-                if declined(alike):
-                    continue
-                if alike is not None:
-                    return self.seq(scope, said, want, proof, alike, 'mpbid')
+        """One pass over the facts in hand, for `said_otherwise`.
+
+        The first whose standard form is what is wanted's (`same`), which
+        is where a declared equation such as `exp0` stands between them.
+        """
+        for said, proof in list(facts.items()):
+            if said == want:
+                continue
+            alike = self.same(self.to_term(said), wanted, scope, facts)
+            if not declined(alike):
+                return self.seq(scope, said, want, proof, alike, 'mpbid')
         return None
 
     def fits(self, label, sig, wanted, scope, facts, depth, backwards):
@@ -788,66 +782,353 @@ class Matcher:
                 if one.rpn(self.flabel) == was
                 and other.rpn(self.flabel) == now else None)
 
-    def closed_declared(self, one, other, where, held, label, reads, names,
-                        facts):
-        """The one place a fact and what is wanted differ, if a declared
-        equation is what stands between them.
+    # --- one standard form -------------------------------------------------
+
+    def same(self, given, want, scope, facts, step=None):
+        """( scope -> given <-> want ), or `=` for classes, where the two have
+        one standard form; a decline where they do not.
+
+        What a lemma says and what the page says may differ in how they are
+        written and not in what they say: `k · 2` and `2 · k`, a three-way
+        "or" and two nested ones, ℝ⁺ and ℝ with a positive bound, a letter
+        bound by another name. Each is a rule of `rules.STANDARD` or
+        `rules.SYMMETRIC`, or a renaming, and the two are the same claim
+        exactly when their standard forms agree up to the letters they
+        bind. The walk proves it at the smallest places they differ.
         """
-        bound = kernel.match(reads.children[0], one, {}, names)
-        if bound is None or reads.children[0].names() - set(bound):
-            return None
-        if reads.children[1].substitute(bound).rpn(self.flabel) \
-                != other.rpn(self.flabel):
-            return None
-        return self.apply_lemma(
-            label, self.to_term(self.seq(one.rpn(self.flabel),
-                                    other.rpn(self.flabel), 'wceq')),
-            where, facts, None, crossing=False)
+        kept = self.binding
+        self.binding = self.letters_bound(given) | self.letters_bound(want)
+        try:
+            return self.congruence(given, want, scope, facts, step,
+                                   self.closing(('standard',)))
+        finally:
+            self.binding = kept
 
-    def closed_commuted(self, one, other, where, held):
-        """Two terms that are one with a commuting pair exchanged.
+    @staticmethod
+    def letters_bound(term):
+        """The variables a term binds.
 
-        set.mm writes `( k x. 2 )` where the corpus writes 2k; the exchange
-        is an equation, settled like anything else.
+        Each one standing directly under a constructor other than `cv`, as
+        `rebound` reads them.
         """
-        if not self.exchanged(one, other):
-            return None
-        return self.settle(self.to_term(
-            self.seq(one.rpn(self.flabel), other.rpn(self.flabel), 'wceq')),
-            where, held)
-
-    def closed_spelt(self, given, wanted, where, held):
-        """A quantifier set.mm writes one way and the page another.
-
-        `rules.SPELLINGS` holds set.mm's statements that the two agree. The
-        body is put in the page's words first, under set.mm's own
-        quantifier, and the spelling then changes the quantifier around a
-        body both sides already share.
-        """
-        for label in rules.SPELLINGS:
-            reads = self.syntax.statement(self.sigs[label])
-            names = reads.names()
-            ours = kernel.match(reads.children[0], given, {}, names)
-            theirs = kernel.match(reads.children[1], wanted, {}, names)
-            if ours is None or theirs is None \
-                    or ours['x'].rpn(self.flabel) \
-                    != theirs['x'].rpn(self.flabel):
+        out, rest = set(), [term]
+        while rest:
+            node = rest.pop()
+            if node.variable is not None:
                 continue
-            middle = reads.children[0].substitute(theirs)
-            closed = self.ap(label, self.spelt(theirs))
-            turned = self.seq(self.seq(middle.rpn(self.flabel),
-                                       wanted.rpn(self.flabel), 'wb'),
-                              where, closed, 'a1i')
-            if middle.rpn(self.flabel) == given.rpn(self.flabel):
-                return turned
-            inside = self.congruence(given, middle, where, held, None,
-                                     self.closing(('spelt',)))
-            if declined(inside):
-                return inside
-            return self.seq(where, given.rpn(self.flabel),
-                            middle.rpn(self.flabel),
-                            wanted.rpn(self.flabel), inside, turned,
-                            'bitrd')
+            if node.label != 'cv':
+                out.update(c.variable for c in node.children
+                           if c.variable is not None)
+            rest.extend(node.children)
+        return frozenset(out)
+
+    def order_key(self, term):
+        """What decides which of a symmetric pair goes first.
+
+        The term as reverse Polish, with every letter the statement binds
+        read as a blank: which letter a binder uses is no part of what a
+        statement says, so it cannot decide an order, or one claim bound
+        with `i` and `j` and the same claim bound with `m` and `y` would
+        come out in two orders.
+        """
+        if term.variable is not None:
+            return '_' if term.variable in self.binding \
+                else self.flabel[term.variable]
+        return ' '.join([*(self.order_key(c) for c in term.children),
+                         term.label])
+
+    def standard(self, term):
+        """The term with every rule applied, parts first, each pair in order.
+
+        What a rule asks — `rexss` a subset, `exp0` a complex number — is
+        not asked here: this says what the term comes to, and the proof
+        that it does asks it where the rule is applied.
+        """
+        key = (term.rpn(self.flabel), self.binding)
+        found = self.standards.get(key)
+        if found is not None:
+            return found
+        if term.variable is not None or not term.children:
+            found = term
+        else:
+            parts = kernel.Term(term.label,
+                                tuple(self.standard(c) for c in term.children))
+            step = self.standard_step(parts)
+            found = parts if step is None else self.standard(step[1])
+        self.standards[key] = found
+        return found
+
+    def standard_step(self, term):
+        """One rewrite toward the standard form at the head of `term`.
+
+        `(how, what it becomes)`: a rule of `rules.STANDARD` by its label, or
+        `eqcom` or `commuted` for a symmetric pair put in order — the side
+        whose `order_key` sorts first on the left, and a tie left as it
+        stands. None where nothing rewrites the head.
+        """
+        if term.variable is not None:
+            return None
+        for label, given, gives, names in self.rewrites(conditional=False):
+            bound = kernel.match(given, term, {}, names)
+            if bound is not None and not gives.names() - set(bound):
+                return label, gives.substitute(bound)
+        if term.label == 'wceq' and len(term.children) == 2:
+            a, b = term.children
+            if self.order_key(b) < self.order_key(a):
+                return 'eqcom', kernel.Term('wceq', (b, a))
+        for label, (i, j), fixed in self.commutes:
+            if term.label != label or len(term.children) != len(fixed) + 2:
+                continue
+            if any(term.children[k].rpn(self.flabel) != token
+                   for k, token in fixed.items()):
+                continue
+            if self.order_key(term.children[j]) \
+                    < self.order_key(term.children[i]):
+                kids = list(term.children)
+                kids[i], kids[j] = kids[j], kids[i]
+                return 'commuted', kernel.Term(label, tuple(kids))
+        return None
+
+    def rewrites(self, conditional):
+        """The rules of `rules.STANDARD` set.mm has, as (label, the side
+        rewritten, the side it becomes, the lemma's variables).
+
+        A rule that asks something first — `exp0` a complex number,
+        `nn0absid` a whole number, `rexss` a subset — holds only where that
+        is so, which a standard form, worked out before anything is proved,
+        cannot know: |x| is x only for a whole number. Such a rule is
+        `conditional`, and is used only where it closes a difference the
+        walk has found, with what it asks settled there (`closed_standard`).
+        """
+        out = []
+        for label, side in rules.STANDARD.items():
+            sig = self.sigs.get(label)
+            if sig is None:
+                continue
+            says = self.syntax.statement(sig)
+            if (says.label == 'wi') != conditional:
+                continue
+            body = says
+            while body.label == 'wi':
+                body = body.children[1]
+            out.append((label, body.children[1 - side], body.children[side],
+                        says.names()))
+        return out
+
+    def standard_proof(self, cur, how, nxt, where, held):
+        """( where -> cur <-> nxt ), or `=`, for one rewrite at the head.
+
+        A rule's lemma is applied as `apply_lemma` applies any lemma, which
+        settles what it asks from what is in hand; a commuting pair is the
+        equation `settle` answers from the declared `addcom` and `mulcom`.
+        """
+        a, b = cur.rpn(self.flabel), nxt.rpn(self.flabel)
+        if how == 'eqcom':
+            left, right = (c.rpn(self.flabel) for c in cur.children)
+            return self.seq(self.seq(a, b, 'wb'), where,
+                            self.ap('eqcom', {'A': left, 'B': right}), 'a1i')
+        if how == 'commuted':
+            return self.settle(self.to_term(self.seq(a, b, 'wceq')), where,
+                               held)
+        wff = self.is_wff(cur)
+        join = 'wb' if wff else 'wceq'
+        if rules.STANDARD[how] == rules.RIGHT:
+            return self.apply_lemma(how, self.to_term(self.seq(a, b, join)),
+                                    where, held, None, crossing=False)
+        made = self.apply_lemma(how, self.to_term(self.seq(b, a, join)),
+                                where, held, None, crossing=False)
+        if declined(made):
+            return made
+        if wff:
+            return self.ap('bicomd', {'ph': where, 'ps': b, 'ch': a}, made)
+        return self.ap('eqcomd', {'ph': where, 'A': b, 'B': a}, made)
+
+    def is_wff(self, term):
+        """Whether a term is a statement rather than a class."""
+        label = term.label if term.variable is None \
+            else self.flabel[term.variable]
+        return self.sigs[label].statement[0] == 'wff'
+
+    def chained(self, where, links):
+        """One proof of the first term against the last.
+
+        From `(x, y, proof)` links each proving `x` against `y`, joined by
+        `bitrd` or `eqtrd`.
+        """
+        first, last, proof = links[0]
+        wff = self.is_wff(first)
+        start = first.rpn(self.flabel)
+        for _was, now, more in links[1:]:
+            mid, end = last.rpn(self.flabel), now.rpn(self.flabel)
+            proof = (self.ap('bitrd', {'ph': where, 'ps': start, 'ch': mid,
+                                       'th': end}, proof, more)
+                     if wff else
+                     self.ap('eqtrd', {'ph': where, 'A': start, 'B': mid,
+                                       'C': end}, proof, more))
+            last = now
+        return proof
+
+    def lifts(self, one, other):
+        """Whether the walk can go a level in from these two.
+
+        The same constructor, and a lemma in `rules.CONGRUENCE` for the
+        places that differ; under an existential only its body may.
+        """
+        if one.variable is not None or other.variable is not None \
+                or one.label != other.label \
+                or len(one.children) != len(other.children):
+            return False
+        spelt = [c.rpn(self.flabel) for c in one.children]
+        other_spelt = [c.rpn(self.flabel) for c in other.children]
+        if one.label == 'wrex':
+            return spelt[1:] == other_spelt[1:]
+        places = range(len(spelt))
+        if one.label in rules.WRAPS:
+            if spelt[-1] != other_spelt[-1]:
+                return False
+            places = range(len(spelt) - 1)
+        slots = tuple(i for i in places if spelt[i] != other_spelt[i])
+        return not slots or (one.label, slots) in rules.CONGRUENCE
+
+    def closed_toward(self, one, other, where, held):
+        """`one` carried to `other`, its standard form.
+
+        Where only the parts rewrite, the walk goes a level in; otherwise
+        the parts are put in standard form first, the head is rewritten
+        once, and what that gives is carried on the same way.
+        """
+        if one.rpn(self.flabel) == other.rpn(self.flabel):
+            return None
+        parts = kernel.Term(one.label,
+                            tuple(self.standard(c) for c in one.children))
+        if parts.rpn(self.flabel) == other.rpn(self.flabel) \
+                and self.lifts(one, parts):
+            return None
+        links, cur = [], one
+        if parts.rpn(self.flabel) != one.rpn(self.flabel):
+            if not self.lifts(one, parts):
+                return Declined('the parts cannot be rewritten in place')
+            made = self.congruence(one, parts, where, held, None,
+                                   self.closing(('toward',)))
+            if declined(made):
+                return made
+            links.append((one, parts, made))
+            cur = parts
+        step = self.standard_step(cur)
+        if step is None:
+            return Declined('no rule rewrites the head')
+        how, nxt = step
+        made = self.standard_proof(cur, how, nxt, where, held)
+        if declined(made):
+            return made
+        links.append((cur, nxt, made))
+        if nxt.rpn(self.flabel) != other.rpn(self.flabel):
+            made = self.congruence(nxt, other, where, held, None,
+                                   self.closing(('toward',)))
+            if declined(made):
+                return made
+            links.append((nxt, other, made))
+        return self.chained(where, links)
+
+    def closed_standard(self, one, other, where, held):
+        """Two terms with one standard form, at the smallest place they
+        differ: each carried to its standard form, and the two forms joined
+        by a renaming where they differ only in the letters they bind.
+        """
+        if one.rpn(self.flabel) == other.rpn(self.flabel):
+            return None
+        # Two that differ only in the letters they bind are one claim by a
+        # renaming, which is closed and asks nothing of the scope.
+        if self.is_wff(one) and self.rebound(one.rpn(self.flabel),
+                                             other.rpn(self.flabel)):
+            renamed = self.renamed_apart(one, other)
+            if renamed is not None:
+                return self.seq(self.seq(one.rpn(self.flabel),
+                                         other.rpn(self.flabel), 'wb'),
+                                where, renamed, 'a1i')
+        ours, theirs = self.standard(one), self.standard(other)
+        said, want = ours.rpn(self.flabel), theirs.rpn(self.flabel)
+        if said != want and not self.rebound(said, want):
+            return self.conditioned(one, other, where, held)
+        if self.lifts(one, other) and all(
+                self.standard(a).rpn(self.flabel)
+                == self.standard(b).rpn(self.flabel)
+                for a, b in zip(one.children, other.children, strict=True)):
+            return None                       # the walk goes a level in
+        links = []
+        if ours.rpn(self.flabel) != one.rpn(self.flabel):
+            made = self.congruence(one, ours, where, held, None,
+                                   self.closing(('toward',)))
+            if declined(made):
+                return made
+            links.append((one, ours, made))
+        if said != want:
+            if not self.is_wff(ours):
+                return Declined('two classes differ in the letters they bind')
+            renamed = self.renamed_apart(ours, theirs)
+            if renamed is None:
+                return Declined('no renaming says the two are one claim')
+            links.append((ours, theirs,
+                          self.seq(self.seq(said, want, 'wb'), where, renamed,
+                                   'a1i')))
+        if theirs.rpn(self.flabel) != other.rpn(self.flabel):
+            made = self.congruence(other, theirs, where, held, None,
+                                   self.closing(('toward',)))
+            if declined(made):
+                return made
+            links.append((theirs, other,
+                          self.flipped(where, other, theirs, made)))
+        return self.chained(where, links)
+
+    def renamed_apart(self, one, other):
+        """A closed proof that two statements differing in their bound
+        letters are one, by `renaming`, or by way of letters neither holds
+        where one letter is bound twice (`renaming_apart`); else None.
+        """
+        renamed = self.renaming(one, other)
+        if renamed is None:
+            renamed = self.renaming_apart(one.rpn(self.flabel),
+                                          other.rpn(self.flabel))
+        return renamed
+
+    def flipped(self, where, x, y, proof):
+        """( where -> y <-> x ), or `=`, from a proof of `x` against `y`."""
+        a, b = x.rpn(self.flabel), y.rpn(self.flabel)
+        if self.is_wff(x):
+            return self.ap('bicomd', {'ph': where, 'ps': a, 'ch': b}, proof)
+        return self.ap('eqcomd', {'ph': where, 'A': a, 'B': b}, proof)
+
+    def conditioned(self, one, other, where, held):
+        """Two terms a conditional rule makes one, at this place; else None.
+
+        The rule is applied to either side where it stands, what it asks is
+        settled here, and what it gives must then have the other side's
+        standard form: `nn0absid` takes |N| to N where N is a whole number,
+        `rexss` a restriction in the body to one in the domain where the
+        one set lies inside the other.
+        """
+        for label, given, gives, names in self.rewrites(conditional=True):
+            for a, b, forward in ((one, other, True), (other, one, False)):
+                bound = kernel.match(given, a, {}, names)
+                if bound is None or gives.names() - set(bound):
+                    continue
+                became = gives.substitute(bound)
+                ours = self.standard(became).rpn(self.flabel)
+                theirs = self.standard(b).rpn(self.flabel)
+                if ours != theirs and not self.rebound(ours, theirs):
+                    continue
+                made = self.standard_proof(a, label, became, where, held)
+                if declined(made):
+                    continue
+                links = [(a, became, made)]
+                if became.rpn(self.flabel) != b.rpn(self.flabel):
+                    rest = self.congruence(became, b, where, held, None,
+                                           self.closing(('standard',)))
+                    if declined(rest):
+                        continue
+                    links.append((became, b, rest))
+                proof = self.chained(where, links)
+                return proof if forward else self.flipped(where, a, b, proof)
         return None
 
     # --- a lemma's own substitutions ----------------------------------------
@@ -1086,40 +1367,13 @@ class Matcher:
 
     # --- one claim spelt two ways -------------------------------------------
 
-    def exchanged(self, given, want):
-        """Whether these are one term with a commuting pair exchanged.
-
-        `commutes` in `db/notation.records` is what says which operands may be,
-        and which theorem proves it is not asked here: the exchange is an
-        equation, and an equation is settled like anything else.
-        """
-        for label, places, fixed in self.commutes:
-            if given.label != label or want.label != label:
-                continue
-            if len(given.children) != len(want.children) != len(fixed) + 2:
-                continue
-            spelt = [c.rpn(self.flabel) for c in given.children]
-            other = [c.rpn(self.flabel) for c in want.children]
-            if any(spelt[i] != token or other[i] != token
-                   for i, token in fixed.items()):
-                continue
-            one, two = places
-            if spelt[one] == other[two] and spelt[two] == other[one]:
-                return True
-        return False
-
     def bridging(self, given, want, scope, facts, step):
-        """A proof that two terms differing by an exchange agree.
+        """A proof that two terms written differently agree.
 
         set.mm writes `( k x. 2 )` where the corpus writes 2k, and those are
-        the same number but not the same formula.
+        the same number but not the same formula: `same` says so.
         """
-        renamed = self.renaming(given, want)
-        if renamed is not None:
-            return self.seq(self.seq(given.rpn(self.flabel), want.rpn(self.flabel),
-                           'wb'), scope, renamed, 'a1i')
-        return self.congruence(given, want, scope, facts, step,
-                               self.closing(('commuted',)))
+        return self.same(given, want, scope, facts, step)
 
     def renaming(self, given, want):
         """The two as one claim, spelt with different bound variables.
@@ -1225,17 +1479,16 @@ class Matcher:
 
         Two places in a proof may bind one name under two words, because
         each is written where different words were already taken. What is
-        proved is the same claim, and `renaming` is what says so.
+        proved is the same claim, and `same` is what says so; it asks
+        nothing of the scope, since a renaming or a rewriting rule that asks
+        nothing is all the two can differ by here.
         """
         if said == want:
             return proof
-        apart = self.renaming(self.to_term(said), self.to_term(want))
-        if apart is None:
-            apart = self.renaming_apart(said, want)
-        if apart is None:
+        alike = self.same(self.to_term(said), self.to_term(want), scope, {})
+        if declined(alike):
             return None
-        return self.seq(scope, said, want, proof,
-                   self.seq(self.seq(said, want, 'wb'), scope, apart, 'a1i'), 'mpbid')
+        return self.seq(scope, said, want, proof, alike, 'mpbid')
 
     def renaming_apart(self, said, want):
         """`renaming` by way of letters neither statement holds.
@@ -1723,11 +1976,11 @@ class Matcher:
         across = self.congruence(said, turned, scope, facts, step, proved)
         if declined(across):
             return None
-        both = [c.rpn(self.flabel) for c in turned.children]
-        return self.seq(scope, said.rpn(self.flabel), turned.rpn(self.flabel),
-                   goal.rpn(self.flabel), across,
-                   self.seq(self.seq(turned.rpn(self.flabel), goal.rpn(self.flabel),
-                           'wb'), scope, self.seq(*both, 'eqcom'), 'a1i'), 'bitrd')
+        back = self.same(turned, goal, scope, facts, step)
+        if declined(back):
+            return None
+        return self.chained(scope, [(said, turned, across),
+                                    (turned, goal, back)])
 
     def crossed(self, label, whole, reads, goal, scope, facts, step):
         """A lemma reaching a claim set.mm says is the same claim.
