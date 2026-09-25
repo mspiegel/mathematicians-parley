@@ -26,6 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import rules
 import targets
 from build import path_of
 from library import read as read_library
@@ -82,8 +83,8 @@ def named(records):
             if not LABEL_SHAPED.fullmatch(entry):
                 break
             out.setdefault(entry, (r.path, r.line, r.name))
-    for one in targets.MEMBERSHIP:
-        out.setdefault(one, ('parley/targets.py', 0, 'MEMBERSHIP'))
+    for one in rules.MEMBERSHIP:
+        out.setdefault(one, ('parley/rules.py', 0, 'MEMBERSHIP'))
     return out
 
 

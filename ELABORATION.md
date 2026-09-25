@@ -80,9 +80,8 @@ pilot is the test of whether the list still holds.
 
 **What is true of the code today.** The calculators are separate modules
 (`parley/field.py`, `parley/normal.py`, `parley/linear.py`), and the rule
-tables exist as data (`CONGRUENCE`, `SYSTEMS`, `CLOSED`, `NEGATED` and
-`SETHOOD` in `parley/elaborate.py`; `MEMBERSHIP` and `SPELLINGS` in
-`parley/targets.py`). The other four parts are not yet separate: each is
+tables are one data module, `parley/rules.py`. A few tables are still
+written inside the methods that read them. The other four parts are not yet separate: each is
 spread through `parley/elaborate.py`, and the matcher is written as many
 cases rather than one match modulo rules. Moving the code into this shape is
 done one part at a time, with every elaborated file byte for byte what it was,
@@ -514,7 +513,7 @@ proved from their reasons, and one that was not is a defect.
 
 ### Facts the text never writes
 
-What no `requires` line spells out is settled from `targets.MEMBERSHIP`: which
+What no `requires` line spells out is settled from `rules.MEMBERSHIP`: which
 set.mm lemma puts a sum of integers in ℤ, which moves an integer into ℂ, which
 puts a set-builder over a set in `_V`. That is a fact about the library rather
 than about the readable corpus, so no field of a readable database is its home.
@@ -528,7 +527,7 @@ test and whether the cited item demands it is.
 
 A membership a step needs is looked for in a fixed order, which `part` holds:
 the step's own line for exactly that claim; that line carried to another
-number system by one of the twelve lemmas `targets.MEMBERSHIP` declares for it
+number system by one of the twelve lemmas `rules.MEMBERSHIP` declares for it
 (`bridged` — `recn` takes `k ∈ ℝ` to `k ∈ ℂ`); a compound built from its parts
 by the closure lemma for its operator (`built` — `readdcld` from `a ∈ ℝ` and
 `b ∈ ℝ`); a numeral from the library; and last, the scope's own copy of the
@@ -692,7 +691,7 @@ which set.mm has no label for, is proved at the head of the same file.
 Continuity is `elcncf2`, which says what the readable definition says in
 other words: it quantifies over ℝ⁺ where the page says ε ∈ ℝ with ε > 0, and
 it puts f : D → ℝ on its right side where the page puts it in the
-hypothesis. `targets.SPELLINGS` holds `ralrp` and `rexrp`, set.mm saying
+hypothesis. `rules.SPELLINGS` holds `ralrp` and `rexrp`, set.mm saying
 that a quantifier over ℝ⁺ is one over ℝ with the positivity inside, and
 what `elcncf2` unfolds to is put in those words wherever they apply, under
 every binder around them. The typing conjunct is one of the parts unfolding
@@ -918,7 +917,7 @@ C form a triangle" once and is done.
 
 `parley/labels.py` reads 278 labels — every token of a `target` or a `defines`,
 which are machine-read and so name nothing else, plus what
-`targets.MEMBERSHIP` lists — and asks set.mm whether it has them.
+`rules.MEMBERSHIP` lists — and asks set.mm whether it has them.
 
 `metamath` is prose meant for a person and names its labels in a sentence, so
 it is read only as far as it is certainly naming them: the leading entries that

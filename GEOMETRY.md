@@ -182,7 +182,7 @@ hypotheses they need: `thm:stdlib/geometry/angle-symmetric` reads `let P be a po
 times and `then ∠PQR = ∠RQP`, with no disequality anywhere, and the same
 holds of `thm:stdlib/geometry/side-angle-side` and `def:stdlib/geometry/congruent`. Those statements are
 incomplete as written and would be whatever backend was chosen. And `A ≠ C`
-against `C ≠ A` is `necom`, which belongs in `targets.MEMBERSHIP` beside
+against `C ≠ A` is `necom`, which belongs in `rules.MEMBERSHIP` beside
 `nnz` and `zre` — a side condition the text never writes, settled by the
 elaborator. No reader should meet a `requires C ≠ A` under a page that says
 `A ≠ C`.

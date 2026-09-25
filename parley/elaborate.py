@@ -15,7 +15,7 @@ alone. And the readable layer writes which side condition a step needs but
 never how to prove it, so what the text leaves out — that a product of
 integers is an integer, that an integer is a complex number, that a
 set-builder over a set is a set — is settled from the lemmas
-`targets.MEMBERSHIP` names.
+`rules.MEMBERSHIP` names.
 
 What is not expanded is stated at the head of the file it writes: a closure
 method, or an item the database gives no target for. Each becomes an axiom
@@ -32,7 +32,6 @@ import contextlib
 import hashlib
 import re
 import sys
-import typing
 from fractions import Fraction
 from pathlib import Path
 
@@ -40,6 +39,7 @@ import field
 import kernel
 import linear
 import normal
+import rules
 import targets
 from build import DEFINITIONS, path_of
 from compress import compressed, shapes
@@ -96,12 +96,6 @@ WRAPS = ('co', 'wbr', 'cfv')
 # label, so a statement built from it would not spell, which is what stops a
 # second antecedent being folded past one read this way.
 TURNED = 'the other way round'
-# What closes an induction, by the set the name inducted on runs over, and
-# where that lemma starts. The two have the same six hypotheses in the same
-# order and differ only in the set and the base, so choosing between them is
-# choosing a label. Which one a proof wants is not the text's to say twice:
-# `let n ∈ ℕ₀` already says it, and `starting at` is checked against it.
-INDUCTION = {'cn': ('nnindd', 'c1'), 'cn0': ('nn0indd', 'cc0')}
 
 
 REQUIRES = 'requires@'
@@ -118,36 +112,6 @@ def requirement(line):
 def from_requires(proof):
     """Whether a `requires` line made this proof."""
     return any(o.startswith(REQUIRES) for o in getattr(proof, 'origin', ()))
-# How set.mm names that a digit belongs to a number system, by the system.
-# The label is the digit and this suffix throughout — `2z`, `1nn`, `0re` —
-# so what a system needs here is how its name is spelt in that label and
-# nothing else.
-SYSTEMS = {'cc': 'cn', 'cr': 're', 'cz': 'z', 'cn': 'nn', 'cn0': 'nn0',
-           'cq': 'q'}
-# The lemma that puts a sum, difference, product or power in a number system
-# from its parts being there, by operator and system; a power's exponent is
-# in ℕ₀ whatever the system. A compound's membership is built from its
-# atoms' this way, so an atom's is the step's own line where it wrote one.
-CLOSED = {
-    ('caddc', 'cc'): 'addcld', ('cmin', 'cc'): 'subcld',
-    ('cmul', 'cc'): 'mulcld', ('cexp', 'cc'): 'expcld',
-    ('caddc', 'cr'): 'readdcld', ('cmin', 'cr'): 'resubcld',
-    ('cmul', 'cr'): 'remulcld', ('cexp', 'cr'): 'reexpcld',
-    ('caddc', 'cz'): 'zaddcld', ('cmin', 'cz'): 'zsubcld',
-    ('cmul', 'cz'): 'zmulcld', ('cexp', 'cz'): 'zexpcld',
-    ('caddc', 'cn'): 'nnaddcld', ('cmul', 'cn'): 'nnmulcld',
-    ('caddc', 'cn0'): 'nn0addcld', ('cmul', 'cn0'): 'nn0mulcld',
-    ('cexp', 'cn0'): 'nn0expcld',
-}
-NEGATED = {'cc': 'negcld', 'cr': 'renegcld', 'cz': 'znegcld'}
-# The lemma that makes a term a set, in set.mm's sense of not a proper
-# class, by the constructor at its head; what it asks is its parts' sethood,
-# which the same table answers. A kernel variable is a set by `vex`, and a
-# class the statement introduced by its `let` line (`sethood@` in `run`).
-# `READERS.md`: this is apparatus, and the page never writes it.
-SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
-           'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
-           'cv': 'vex'}
 
 
 
@@ -328,60 +292,6 @@ class Block:
 
 
 class Elaborator(Builder):
-    # Which lemma rewrites a subterm, by what encloses it and which hole it
-    # sits in. The tree decides; nothing is searched for.
-    # A claim may change in more than one place at once — the claim of an
-    # induction holds its variable several times — so the lemma is chosen by
-    # which operands change together as well as by what encloses them.
-    CONGRUENCE: typing.ClassVar = {
-        ('co', (0,)): 'oveq1d', ('co', (1,)): 'oveq2d',
-        ('co', (0, 1)): 'oveq12d',
-        ('wbr', (0,)): 'breq1d', ('wbr', (1,)): 'breq2d',
-        ('wbr', (0, 1)): 'breq12d',
-        ('cfv', (0,)): 'fveq2d',
-        ('wceq', (0,)): 'eqeq1d', ('wceq', (1,)): 'eqeq2d',
-        ('wceq', (0, 1)): 'eqeq12d',
-        ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
-        ('wcel', (0, 1)): 'eleq12d',
-        ('csu', (0,)): 'sumeq1d',
-        ('cpw', (0,)): 'pweqd', ('csn', (0,)): 'sneqd',
-        ('cun', (0,)): 'uneq1d', ('cun', (1,)): 'uneq2d',
-        ('cun', (0, 1)): 'uneq12d',
-        ('cdif', (0,)): 'difeq1d', ('cdif', (1,)): 'difeq2d',
-        ('cdif', (0, 1)): 'difeq12d',
-        ('cin', (0,)): 'ineq1d', ('cin', (1,)): 'ineq2d',
-        ('cin', (0, 1)): 'ineq12d',
-        ('wss', (0,)): 'sseq1d', ('wss', (1,)): 'sseq2d',
-        ('wss', (0, 1)): 'sseq12d',
-        ('wa', (0,)): 'anbi1d', ('wa', (1,)): 'anbi2d',
-        ('wa', (0, 1)): 'anbi12d',
-        ('w3a', (0,)): '3anbi1d', ('w3a', (1,)): '3anbi2d',
-        ('w3a', (2,)): '3anbi3d', ('w3a', (0, 1, 2)): '3anbi123d',
-        ('wn', (0,)): 'notbid',
-        # A universal over an `if ... then` changes both sides at once when
-        # the name it binds stands on each of them.
-        ('wi', (0,)): 'imbi1d', ('wi', (1,)): 'imbi2d',
-        ('wi', (0, 1)): 'imbi12d',
-        ('wral', (0,)): 'ralbidv', ('wrex', (0,)): 'rexbidv',
-        # And the same over every set there is, which a `let X be a set`
-        # quantifies and the subsets proof inducts under.
-        ('wal', (0,)): 'albidv'}
-
-    # Which lemma discharges one thing a lemma asked, by how that thing was
-    # joined to what follows it and whether the lemma is still bare. The
-    # first is composed with the lemma itself; every later one is applied to
-    # what the last already deduced.
-    DISCHARGE: typing.ClassVar = {
-        ('wi', True): 'syl', ('wi', False): 'mpd',
-        ('wb', True): 'sylib', ('wb', False): 'mpbid'}
-
-    # Which transitivity folds one link of a calculation into the run above
-    # it, by what each of the two claims is. Two relations in a row would
-    # want the transitivity of that relation and no chain writes one.
-    FOLDING: typing.ClassVar = {
-        ('wceq', 'wceq'): 'eqtrd', ('wceq', 'wbr'): 'eqbrtrd',
-        ('wbr', 'wceq'): 'breqtrd'}
-
     def __init__(self, thm, grammar, items, sigs, records):
         super().__init__(sigs)
         # Every definition and theorem by its full name, the proved theorems
@@ -616,7 +526,7 @@ class Elaborator(Builder):
         A cited lemma asks side conditions of its own — that an index is in
         the upper integers, that a summand is complex — and those are not
         `requires` lines, because to a reader they are not steps. They are
-        settled from the lemmas `targets.MEMBERSHIP` names, by matching what
+        settled from the lemmas `rules.MEMBERSHIP` names, by matching what
         each concludes against what is wanted, and failing that from what is
         wanted read through an equation the step cites (`rewritten`).
 
@@ -637,9 +547,9 @@ class Elaborator(Builder):
         # built from its digits (`numeral_within`). Spending depth on it
         # left 10^k ∈ ℤ, deep inside a sum's term, one level short of 10.
         if wanted.label == 'wcel' and len(wanted.children) == 2 \
-                and wanted.children[1].label in SYSTEMS \
+                and wanted.children[1].label in rules.SYSTEMS \
                 and not set(wanted.children[0].rpn(self.flabel).split()) \
-                - self.NUMERIC:
+                - rules.NUMERIC:
             # Inside the search that works out one number, the numbers it
             # is built from are looked up and not searched for again: each
             # starting its own search made 21,000 of them for one theorem.
@@ -670,11 +580,11 @@ class Elaborator(Builder):
         # system because its parts are, and that is read off the operation,
         # spending none of the depth (`closed_under`).
         if wanted.label == 'wcel' and len(wanted.children) == 2 \
-                and wanted.children[1].label in SYSTEMS:
+                and wanted.children[1].label in rules.SYSTEMS:
             made = self.closed_under(wanted, scope, facts, depth)
             if not declined(made):
                 return made
-        if wanted.label in self.BOUND:
+        if wanted.label in rules.BOUND:
             # A `define` and a `fix` may write the same letter, and one of
             # them is renamed so that they do not collide. The line is then
             # the line wanted spelt with another binder, which is the same
@@ -721,7 +631,7 @@ class Elaborator(Builder):
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
             for backwards in (False, True):
-                for label in targets.MEMBERSHIP:
+                for label in rules.MEMBERSHIP:
                     sig = self.sigs.get(label)
                     if sig is None:
                         continue
@@ -785,7 +695,7 @@ class Elaborator(Builder):
                 # the decimal `; 1 0` — and so is a sum of them. A cited
                 # 9 + 1 = 10 rewrote each into the other at every level of
                 # every search that failed, and a build ran for minutes.
-                if not set(was.split()) - self.NUMERIC:
+                if not set(was.split()) - rules.NUMERIC:
                     continue
                 put = self.replaced(wanted, was, new)
                 if put.rpn(self.flabel) == want:
@@ -857,7 +767,7 @@ class Elaborator(Builder):
 
     def otherwise(self, wanted, want, scope, facts, depth):
         """One pass over the declared equations, for `said_otherwise`."""
-        for label in targets.MEMBERSHIP:
+        for label in rules.MEMBERSHIP:
             sig = self.sigs.get(label)
             if sig is None or sig.essentials:
                 continue
@@ -1064,7 +974,7 @@ class Elaborator(Builder):
             if declined(under):
                 return None
             first = proof.text.rsplit(None, 1)[-1] == label
-            fold = self.DISCHARGE[(joins[i], first)]
+            fold = rules.DISCHARGE[(joins[i], first)]
             if joins[i] == 'wb' and backwards:
                 fold = 'sylibr' if first else 'mpbird'
             proof = self.seq(scope, asks.rpn(self.flabel), rest, under, proof,
@@ -1190,7 +1100,7 @@ class Elaborator(Builder):
         moved = [x for slot in slots for x in (was[slot], now[slot])]
         rest = [o for j, o in enumerate(was) if j not in slots]
         return built, self.seq(scope, *moved, *rest, label if wrap else '',
-                          *deeper, self.CONGRUENCE[(wrap or label,
+                          *deeper, rules.CONGRUENCE[(wrap or label,
                                                     tuple(slots))])
 
     def summand_changed(self, scope, was, now, proofs):
@@ -1617,19 +1527,6 @@ class Elaborator(Builder):
                            'wb'), scope, renamed, 'a1i')
         return self.congruence(given, want, scope, facts, step, swapped)
 
-    # Lifting a closed biconditional through one level of a term. The
-    # deduction forms `congruence` uses take the scope as an antecedent;
-    # these take nothing, which is what a renaming needs.
-    RENAMED: typing.ClassVar = {('wa', (0,)): 'anbi1i', ('wa', (1,)): 'anbi2i',
-                                ('wi', (0,)): 'imbi1i', ('wi', (1,)): 'imbi2i'}
-
-    # One binder: the lemma that changes what it binds over, and the one
-    # that changes the name it binds. Both closed, and the `w` on the
-    # second is set.mm's version that does not lean on ax-13.
-    BOUND: typing.ClassVar = {'wrex': ('rexbii', 'cbvrexvw'),
-                              'wral': ('ralbii', 'cbvralvw'),
-                              'wal': ('albii', 'cbvalvw')}
-
     def renaming(self, given, want):
         """The two as one claim, spelt with different bound variables.
 
@@ -1650,7 +1547,7 @@ class Elaborator(Builder):
         if (given.label != want.label
                 or len(given.children) != len(want.children)):
             return None
-        under = self.BOUND.get(given.label)
+        under = rules.BOUND.get(given.label)
         if under is not None:
             same, cross, over = *under, None
             if len(given.children) == 3:
@@ -1710,7 +1607,7 @@ class Elaborator(Builder):
         # and the halfway claim is what joins the two.
         here, start, proof = list(spelt), self.seq(*spelt, given.label), None
         for slot in (i for i in range(len(spelt)) if spelt[i] != other[i]):
-            label = self.RENAMED.get((given.label, (slot,)))
+            label = rules.RENAMED.get((given.label, (slot,)))
             if label is None:
                 return None
             inner = self.renaming(given.children[slot], want.children[slot])
@@ -1788,7 +1685,7 @@ class Elaborator(Builder):
             if declined(one):
                 return one
         return self.seq(scope, *moved, *rest, head, *under,
-                   self.CONGRUENCE[(given.label, tuple(slots))])
+                   rules.CONGRUENCE[(given.label, tuple(slots))])
 
     @staticmethod
     def subject_of(node):
@@ -2089,9 +1986,6 @@ class Elaborator(Builder):
             here = inner
         return proof if here == scope else None
 
-    ARITHMETIC = frozenset({'caddc', 'cmin', 'cmul', 'cdiv'})
-    RELATIONS = frozenset({'wceq', 'wne', 'wbr', 'wn', 'wa'})
-
     def atoms_of(self, rpn, atoms, terms):
         """The atoms of a claim a method combined, and every term in it.
 
@@ -2107,7 +2001,7 @@ class Elaborator(Builder):
         as 3 is, and `deccl` is what says so, so the step is not asked to.
         """
         def walk(node):
-            if node.variable is None and node.label in self.RELATIONS:
+            if node.variable is None and node.label in rules.RELATIONS:
                 kids = node.children[:2] if node.label == 'wbr' \
                     else node.children
                 for kid in kids:
@@ -2120,7 +2014,7 @@ class Elaborator(Builder):
             if node.variable is None and node.label == 'co' \
                     and len(node.children) == 3:
                 op = node.children[2].rpn(self.flabel)
-                if op in self.ARITHMETIC:
+                if op in rules.ARITHMETIC:
                     walk(node.children[0])
                     walk(node.children[1])
                     return
@@ -2279,17 +2173,6 @@ class Elaborator(Builder):
                                | getattr(proof, 'origin', frozenset()))
         return Proof(proof.text, {item})
 
-    # A fact that conjoins several things says each of them, and the steps
-    # below cite them one at a time: an `obtain` hands over one body saying
-    # that q is positive, that x is p over q, and that nothing divides both.
-    SPLIT: typing.ClassVar = {'wa': ('simpl', 'simpr'),
-                              'w3a': ('simp1', 'simp2', 'simp3')}
-    # And the other direction: what conjoins a proof of each part into a
-    # proof of the whole. `SPLIT` is read where a fact is taken apart and
-    # this where a goal is put together, and both are asked by label so
-    # that a shape neither names is left alone.
-    JOIN: typing.ClassVar = {'wa': 'jca', 'w3a': '3jca'}
-
     def conjoined(self, wanted, scope, answer):
         """A conjunctive goal, from whatever answers each of its parts.
 
@@ -2302,21 +2185,21 @@ class Elaborator(Builder):
         None where the goal is not one of these shapes, which is not a
         decline: the caller has its own way on and this had no opinion.
         """
-        if wanted.label not in self.JOIN:
+        if wanted.label not in rules.JOIN:
             return None
         under = [answer(one) for one in wanted.children]
         for one in under:
             if declined(one):
                 return one
         return self.seq(scope, *(one.rpn(self.flabel) for one in wanted.children),
-                   *under, self.JOIN[wanted.label])
+                   *under, rules.JOIN[wanted.label])
 
     def unpack(self, term, proof, scope, facts, depth=4):
         """Record each conjunct of a fact as a fact of its own."""
         if depth <= 0:
             return
         node = self.to_term(term)
-        picks = self.SPLIT.get(node.label)
+        picks = rules.SPLIT.get(node.label)
         if not picks or len(picks) != len(node.children):
             return
         kids = [c.rpn(self.flabel) for c in node.children]
@@ -2578,7 +2461,7 @@ class Elaborator(Builder):
         """A fact and every conjunct inside it, the whole one first."""
         yield term
         node = self.to_term(term)
-        picks = self.SPLIT.get(node.label)
+        picks = rules.SPLIT.get(node.label)
         if picks and len(picks) == len(node.children):
             for child in node.children:
                 yield from self.parts(child.rpn(self.flabel))
@@ -2624,7 +2507,7 @@ class Elaborator(Builder):
         moved, rest = {}, [self.to_term(said)]
         while rest:
             node = rest.pop()
-            if node.label in self.BOUND and len(node.children) >= 2:
+            if node.label in rules.BOUND and len(node.children) >= 2:
                 letter = node.children[1].variable
                 if letter is not None and letter not in moved:
                     fresh = next(free, None)
@@ -2696,7 +2579,7 @@ class Elaborator(Builder):
         """What a lemma says, put in the page's words, and why they agree.
 
         `elcncf2` says continuity with ε and δ in ℝ⁺, and the page says
-        ε ∈ ℝ with ε > 0. `targets.SPELLINGS` holds set.mm's statements that
+        ε ∈ ℝ with ε > 0. `rules.SPELLINGS` holds set.mm's statements that
         those are the same, and each is applied wherever its left side
         stands, under however many binders, the innermost first so that
         what an outer one reads is already the page's.
@@ -2712,7 +2595,7 @@ class Elaborator(Builder):
             return said, None
 
         def respelt_here(given, wanted, where, held):
-            for label in targets.SPELLINGS:
+            for label in rules.SPELLINGS:
                 reads = self.syntax.statement(self.sigs[label])
                 names = reads.names()
                 ours = kernel.match(reads.children[0], given, {}, names)
@@ -2752,7 +2635,7 @@ class Elaborator(Builder):
             return term
         term = kernel.Term(term.label,
                            tuple(self.in_page_words(c) for c in term.children))
-        for label in targets.SPELLINGS:
+        for label in rules.SPELLINGS:
             reads = self.syntax.statement(self.sigs[label])
             bound = kernel.match(reads.children[0], term, {}, reads.names())
             if bound is not None:
@@ -2910,12 +2793,12 @@ class Elaborator(Builder):
             block.parts[0], block.parts[1])
         name, general = block.over, f'{block.base} cv'
         over = self.sets.get(name)
-        if over not in INDUCTION:
+        if over not in rules.INDUCTION:
             raise self.defect(step.line,
                               f'nothing here inducts over {self.render(over)}'
                               if over else
                               f'nothing says what {name} runs over')
-        lemma, begins = INDUCTION[over]
+        lemma, begins = rules.INDUCTION[over]
         at = re.search(r'starting at ([^\s,]+)', step.just.text)
         start = self.term(self.read(at.group(1))) if at else begins
         if start != begins:
@@ -4437,7 +4320,7 @@ class Elaborator(Builder):
         # Belonging to a number system is the other thing a claim with no
         # atom can say, and `METHODS.md` puts every such claim under this
         # method, so a line saying `arithmetic` for `2 e. ZZ` is decided here
-        # rather than by whatever `targets.MEMBERSHIP` reaches.
+        # rather than by whatever `rules.MEMBERSHIP` reaches.
         if not negated and goal.variable is None and goal.label == 'wcel' \
                 and len(goal.children) == 2:
             return self.numeral_within(goal, scope, facts)
@@ -4501,12 +4384,6 @@ class Elaborator(Builder):
                                          'B': field.NUMERAL[b]})))
         return Declined(f'{a} {how} {b} is not what the numbers do')
 
-    # What a term built from numerals alone is spelt with: the digits, the
-    # decimal that joins them, and the operations `arithmetic` reads.
-    NUMERIC: typing.ClassVar = frozenset({
-        *field.DIGITS, 'cdc', 'co', 'caddc', 'cmin', 'cmul', 'cdiv', 'cexp',
-        'cneg'})
-
     def numeral_within(self, goal, scope, facts):
         """( scope -> t e. S ), for a term built from numerals alone.
 
@@ -4520,7 +4397,7 @@ class Elaborator(Builder):
         if not declined(named):
             return named
         said = goal.children[0].rpn(self.flabel)
-        if set(said.split()) - self.NUMERIC:
+        if set(said.split()) - rules.NUMERIC:
             return named
         # One level deeper than `settle`'s default, which is chosen for
         # chains through a proof's own facts: 10^0 − 1 ∈ ℤ is `zsubcl`, then
@@ -4582,11 +4459,6 @@ class Elaborator(Builder):
                                    'C': system.rpn(self.flabel)},
                        same, member)
 
-    # A whole number set.mm writes in ℕ₀ is in these by the closed lemma
-    # each names, which asks the number's own fact and not one in a scope.
-    FROM_NN0: typing.ClassVar = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
-                                 'cc': 'nn0cni'}
-
     def decimal_within(self, goal, scope):
         """( scope -> ; A B e. S ), for a numeral of more than one digit.
 
@@ -4596,7 +4468,7 @@ class Elaborator(Builder):
         offered to `settle`, whose proofs stand under one.
         """
         said, system = goal.children
-        if system.label not in self.FROM_NN0:
+        if system.label not in rules.FROM_NN0:
             return Declined('a decimal is placed in ℕ₀, ℤ, ℝ and ℂ only')
 
         def whole(term):
@@ -4614,7 +4486,7 @@ class Elaborator(Builder):
         closed = whole(said)
         if declined(closed):
             return closed
-        lift = self.FROM_NN0[system.label]
+        lift = rules.FROM_NN0[system.label]
         if lift is not None:
             closed = self.ap(lift, {'A': said.rpn(self.flabel),
                                     'N': said.rpn(self.flabel)}, closed)
@@ -4629,7 +4501,7 @@ class Elaborator(Builder):
         them where a claim this method cannot decide belongs.
         """
         said, system = goal.children
-        suffix = SYSTEMS.get(system.label)
+        suffix = rules.SYSTEMS.get(system.label)
         if suffix is None or system.children:
             return Declined('not a number system set.mm names digits in')
         if said.label == 'cdc':
@@ -4729,7 +4601,7 @@ class Elaborator(Builder):
         # The method wants every atom in ℝ, and a `requires` line is where
         # the step writes that. Reading them here is what puts the page's
         # justification in the proof: settled instead, the membership comes
-        # from whatever `targets.MEMBERSHIP` reaches, which is the table for
+        # from whatever `rules.MEMBERSHIP` reaches, which is the table for
         # what the readable layer does not write.
         known = self.supplied(step, scope, facts) if step is not None \
             else facts
@@ -6421,13 +6293,13 @@ class Elaborator(Builder):
         bridge; the other side is then determined, and matching that against
         the lemma's conclusion fixes what the goal could not.
 
-        The bridge comes from `targets.MEMBERSHIP` and nowhere else, which
+        The bridge comes from `rules.MEMBERSHIP` and nowhere else, which
         is the rule that stops an elaborator reaching a claim by whatever it
         can find that fits.
         """
         variables = whole.names()
         want = goal.rpn(self.flabel)
-        for bridge in targets.MEMBERSHIP:
+        for bridge in rules.MEMBERSHIP:
             other = self.sigs.get(bridge)
             if other is None or other.essentials:
                 continue
@@ -7321,7 +7193,7 @@ class Elaborator(Builder):
         # naming it. `GOALS.md` decision 9 is why this stands before the
         # routes below: the readable text is canonical and the kernel proof
         # is derived from it, so what the line says supplies the fact is
-        # what supplies it, and not whatever `targets.MEMBERSHIP` reaches.
+        # what supplies it, and not whatever `rules.MEMBERSHIP` reaches.
         #
         # Only where the item has a target. Citing one without is assuming
         # it, and the lists at the head of each elaborated file are what
@@ -7453,7 +7325,7 @@ class Elaborator(Builder):
         for body, cite, turned in links[1:]:
             mark, added = body.split(None, 1)
             joined = self.to_term(self.term(self.read(f'{rest} {mark} {added}')))
-            fold = self.FOLDING.get((said, joined.label))
+            fold = rules.FOLDING.get((said, joined.label))
             if fold is None:
                 raise self.defect(step.line,
                                   f'no transitivity folds {said} into '
@@ -7593,7 +7465,7 @@ class Elaborator(Builder):
             return False
         if len(pattern.children) != len(actual.children):
             return False
-        if (pattern.label in self.BOUND and len(pattern.children) >= 2
+        if (pattern.label in rules.BOUND and len(pattern.children) >= 2
                 and pattern.children[1].variable is not None
                 and actual.children[1].variable is not None):
             paired = {**paired, pattern.children[1].variable:
@@ -8089,7 +7961,7 @@ class Elaborator(Builder):
     def bridged(self, said, system, scope, written):
         """`said ∈ system`, carried in one lemma from a membership written.
 
-        Only the lemmas `targets.MEMBERSHIP` declares that take a thing in
+        Only the lemmas `rules.MEMBERSHIP` declares that take a thing in
         one number system to another — `recn`, `zcn`, `nnre` — and only one
         of them. Settling from the written facts instead searches everything
         that could reach the claim, and where nothing written does, that
@@ -8098,7 +7970,7 @@ class Elaborator(Builder):
         """
         if self.bridges is None:
             self.bridges = {}
-            for label in targets.MEMBERSHIP:
+            for label in rules.MEMBERSHIP:
                 sig = self.sigs.get(label)
                 if sig is None or sig.essentials or len(sig.floats) != 1:
                     continue
@@ -8180,10 +8052,10 @@ class Elaborator(Builder):
         part that is a class the statement introduced is a fact already,
         sealed as a sort in `run`. Nothing is searched: a term whose head is
         not in the table declines, and the table's lemmas in
-        `targets.MEMBERSHIP` are what is tried after.
+        `rules.MEMBERSHIP` are what is tried after.
         """
         head = wanted.children[0]
-        lemma = SETHOOD.get(head.label) if head.variable is None else None
+        lemma = rules.SETHOOD.get(head.label) if head.variable is None else None
         if lemma is None:
             return Declined(f'no lemma makes a {head.label} a set')
         return self.apply_lemma(lemma, wanted, scope, facts, None,
@@ -8207,7 +8079,7 @@ class Elaborator(Builder):
                 and len(node.children) == 3:
             left, right, op = node.children
             op = op.rpn(self.flabel)
-            lemma = CLOSED.get((op, system))
+            lemma = rules.CLOSED.get((op, system))
             if lemma is None:
                 return Declined(f'no closure lemma for {op} in {system}')
             a, b = left.rpn(self.flabel), right.rpn(self.flabel)
@@ -8221,7 +8093,7 @@ class Elaborator(Builder):
                                    'N' if op == 'cexp' else 'B': b}, pa, pb)
         if node.variable is None and node.label == 'cneg' \
                 and len(node.children) == 1:
-            lemma = NEGATED.get(system)
+            lemma = rules.NEGATED.get(system)
             if lemma is None:
                 return Declined(f'no closure lemma for negation in {system}')
             a = node.children[0].rpn(self.flabel)
