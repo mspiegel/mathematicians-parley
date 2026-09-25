@@ -584,16 +584,15 @@ class Scopes:
         variable = block.variable or self.spare_var()
         next_one = self.seq(f'{variable} cv', 'c1', 'caddc', 'co')
 
-        saved = dict(self.names)
-        self.names[name] = general
-        # Read as a sentence, so that a claim written as prose ends where a
-        # reader ends it: the subsets proof inducts on `For every set X, if
-        # |X| = n then |𝒫X| = 2^n.`, and the stop is not part of the claim.
-        #
-        said = self.sentences(' '.join(step.claim))
-        pattern = self.freeze(self.read(said[0] if len(said) == 1
-                                        else ' '.join(step.claim)))
-        self.names = saved
+        with self.names_kept():
+            self.names[name] = general
+            # Read as a sentence, so that a claim written as prose ends where
+            # a reader ends it: the subsets proof inducts on `For every set
+            # X, if |X| = n then |𝒫X| = 2^n.`, and the stop is not part of
+            # the claim.
+            said = self.sentences(' '.join(step.claim))
+            pattern = self.freeze(self.read(said[0] if len(said) == 1
+                                            else ' '.join(step.claim)))
         shapes = [start, f'{variable} cv', next_one, self.names[name]]
         instances, ties = [], []
         for value in shapes:
@@ -678,7 +677,6 @@ class Scopes:
         # that is not a space: an obtain writing no instantiation puts a
         # comma straight after the name, and it is not part of it.
         named = re.search(rf'\b((?:def|thm):{CITED})', step.just.text)
-        saved = dict(self.names)
         if named is None:
             # The line already claims the existence, so there is no item to
             # instantiate and nothing of its own to rename. `SYNTAX.md` says
@@ -720,10 +718,10 @@ class Scopes:
             # proof that obtains from it twice would introduce one variable
             # for two different numbers.
             fresh = self.spare_var()
-            lemma, var, kernel, _t, over, left = self.definition(
-                named.group(1), subject, var=fresh)
-            body = self.term(kernel)
-            self.names = saved
+            with self.names_kept():
+                lemma, var, kernel, _t, over, left = self.definition(
+                    named.group(1), subject, var=fresh)
+                body = self.term(kernel)
             ex = self.seq(body, var, over, 'wrex')
             made = self.unfolding(step, lemma, left, ex, var, over, scope,
                                   facts)
@@ -734,15 +732,15 @@ class Scopes:
         else:
             cites = step.just.text.split(':', 1)[1].strip()
             item = self.item_cited(named.group(1))
-            for name, value in instantiation(cites):
-                self.names[name] = self.term(self.read(value))
-            # A name is a variable of the kernel whatever it is spelt with:
-            # `x₁` is no set.mm letter, and a spare stands for it as one
-            # does for a binder's name.
-            for name in got:
-                self.names[name] = f'{self.binder_var(name)} cv'
-            ex = self.term(self.read(self.claimed_by(item)))
-            self.names = saved
+            with self.names_kept():
+                for name, value in instantiation(cites):
+                    self.names[name] = self.term(self.read(value))
+                # A name is a variable of the kernel whatever it is spelt
+                # with: `x₁` is no set.mm letter, and a spare stands for it
+                # as one does for a binder's name.
+                for name in got:
+                    self.names[name] = f'{self.binder_var(name)} cv'
+                ex = self.term(self.read(self.claimed_by(item)))
             # An item states its existential in its own names, and a binder
             # takes the variable its name is spelled with. The primes proof
             # obtains a p and concludes that there is a p, so the one it

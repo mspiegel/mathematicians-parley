@@ -620,17 +620,16 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         nothing of its shape, as its `note` says, so what it claims is assumed
         under the hypotheses it asks for.
         """
-        saved = dict(self.names)
-        for name, node in self.item_binding(step, item, cites).items():
-            self.names[name] = self.term(node)
         asks = []
-        with self.in_its_names(item):
-            for kind, text, _label, _line in item.hypotheses:
-                body = hypothesis_body(kind, text)
-                asks.append(self.term(self.read(body)))
-            ends = [self.term(self.read(text))
-                    for text, _line in item.conclusions]
-        self.names = saved
+        with self.names_kept():
+            for name, node in self.item_binding(step, item, cites).items():
+                self.names[name] = self.term(node)
+            with self.in_its_names(item):
+                for kind, text, _label, _line in item.hypotheses:
+                    body = hypothesis_body(kind, text)
+                    asks.append(self.term(self.read(body)))
+                ends = [self.term(self.read(text))
+                        for text, _line in item.conclusions]
 
         # What is assumed is what the item states, and a step may claim one
         # side of it: `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ
@@ -1410,10 +1409,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         if witness is None:
             raise self.defect(step.line, 'no cited line names a witness')
 
-        saved = dict(self.names)
-        self.names[said] = stands
-        shape = self.freeze(node.children[2])
-        self.names = saved
+        with self.names_kept():
+            self.names[said] = stands
+            shape = self.freeze(node.children[2])
         at = self.seq(stands, witness, 'wceq')
         made = self.rewrite(shape, stands, witness, at, self.seq(at, 'id'))
         if declined(made):
@@ -1513,16 +1511,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         """
         subject = self.term(self.read(instantiation(step.just.text)[0][1]))
         var = self.spare_var()
-        saved = dict(self.names)
-        # A definition may name more than the thing it is about:
-        # `def:stdlib/divisibility/divides` is about d and says what it
-        # divides, and the step fills in both.
-        for name, value in instantiation(step.just.text):
-            self.names[name] = self.term(self.read(value))
-        lemma, var, kernel, _w, over, _left = self.definition(
-            step.just.head, subject, var=var)
-        kernel = self.freeze(kernel)
-        self.names = saved
+        with self.names_kept():
+            # A definition may name more than the thing it is about:
+            # `def:stdlib/divisibility/divides` is about d and says what it
+            # divides, and the step fills in both.
+            for name, value in instantiation(step.just.text):
+                self.names[name] = self.term(self.read(value))
+            lemma, var, kernel, _w, over, _left = self.definition(
+                step.just.head, subject, var=var)
+            kernel = self.freeze(kernel)
 
         # A step cites the lines it leans on, and only one of them says what
         # the witness is: 3.14 cites 3.1 for p being an integer and 3.6 for
@@ -1664,13 +1661,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         _label, fills = targets.lemma(item)
         if not fills:
             return {}
-        saved = dict(self.names)
-        for name, value in instantiation(cites or step.just.text):
-            self.names[name] = self.term(self.read(value))
-        out = {name: self.to_term(self.term(self.read(formula)))
-               for name, formula in fills.items()}
-        self.names = saved
-        return out
+        with self.names_kept():
+            for name, value in instantiation(cites or step.just.text):
+                self.names[name] = self.term(self.read(value))
+            return {name: self.to_term(self.term(self.read(formula)))
+                    for name, formula in fills.items()}
 
     def cited_floats(self, said, classes):
         """The variables the file this corpus wrote for a theorem declares.
@@ -1765,43 +1760,45 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         other, full = item, qualified(item)
         if full not in self.cited:
             self.cited.append(full)
-        saved, kept = dict(self.names), dict(self.sets)
         spare = list(CLASS_NAMES)
         written = dict(instantiation(cites or step.just.text))
         binds = {}
-        for kind, htext, _label, _line in other.hypotheses:
-            node = self.read(hypothesis_body(kind, htext))
-            # `let X be a set` names a class as surely as `let n ∈ ℕ` does;
-            # `hypothesis_body` has already turned it into the formula that
-            # says so, and the name is in the same place. `let a ∉ X` reads
-            # as a conjunction whose first leaf is the name.
-            if kind == 'let' and node.notation in ('membership', 'is-a-set',
-                                                   'conjunction'):
-                name = self.subject_of(node).text
-                theirs = spare.pop(0)
-                # A hypothesis the citation does not name stands for what
-                # the citing proof calls by the same word. Bezout cites this
-                # theorem as `c := a` and says nothing of a, b, d, x₀ or y₀,
-                # because it holds names spelt that way and those are the
-                # ones it means. A word it does not hold takes a spare.
-                if name in written:
-                    self.names[name] = self.term(self.read(written[name]))
-                elif name not in saved:
-                    self.names[name] = theirs
-                binds[theirs] = self.names[name]
-        wanted = [self.term(self.read(hypothesis_body(kind, htext)))
-                  for kind, htext, _l, _n in other.hypotheses]
-        # The step may claim one sentence of a conclusion that says several:
-        # `thm:proof/triangle-inequality/abs-bounds` concludes x ≤ |x| and
-        # −x ≤ |x|, and a step that needs only the first says only the
-        # first. The theorem gives the whole, read in its own sorts, and the
-        # sentence is taken out of it.
-        whole = term
-        if (len(self.sentences(other.conclusion))
-                > len(self.sentences(' '.join(step.claim)))):
-            with self.in_its_names(other):
-                whole = self.claim_of(other.conclusion)
-        self.names, self.sets = saved, kept
+        with self.names_kept(sets=True) as saved:
+            for kind, htext, _label, _line in other.hypotheses:
+                node = self.read(hypothesis_body(kind, htext))
+                # `let X be a set` names a class as surely as `let n ∈ ℕ`
+                # does; `hypothesis_body` has already turned it into the
+                # formula that says so, and the name is in the same place.
+                # `let a ∉ X` reads as a conjunction whose first leaf is the
+                # name.
+                if kind == 'let' and node.notation in ('membership',
+                                                       'is-a-set',
+                                                       'conjunction'):
+                    name = self.subject_of(node).text
+                    theirs = spare.pop(0)
+                    # A hypothesis the citation does not name stands for
+                    # what the citing proof calls by the same word. Bezout
+                    # cites this theorem as `c := a` and says nothing of a,
+                    # b, d, x₀ or y₀, because it holds names spelt that way
+                    # and those are the ones it means. A word it does not
+                    # hold takes a spare.
+                    if name in written:
+                        self.names[name] = self.term(self.read(written[name]))
+                    elif name not in saved:
+                        self.names[name] = theirs
+                    binds[theirs] = self.names[name]
+            wanted = [self.term(self.read(hypothesis_body(kind, htext)))
+                      for kind, htext, _l, _n in other.hypotheses]
+            # The step may claim one sentence of a conclusion that says
+            # several: `thm:proof/triangle-inequality/abs-bounds` concludes
+            # x ≤ |x| and −x ≤ |x|, and a step that needs only the first
+            # says only the first. The theorem gives the whole, read in its
+            # own sorts, and the sentence is taken out of it.
+            whole = term
+            if (len(self.sentences(other.conclusion))
+                    > len(self.sentences(' '.join(step.claim)))):
+                with self.in_its_names(other):
+                    whole = self.claim_of(other.conclusion)
 
         # A cited theorem asks for what it asks for, and a hypothesis a
         # reader would not think to write as a line is written as a

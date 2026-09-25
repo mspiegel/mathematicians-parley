@@ -85,6 +85,25 @@ class _Literal:
 
 class Reading:
     @contextlib.contextmanager
+    def names_kept(self, sets=False):
+        """What each name stands for, as it is now, given back afterwards.
+
+        Reading a binder's body, a definition's right side, or an item cited
+        at its instantiation binds names for as long as that reading lasts,
+        and the proof's own meaning of each word comes back when it ends.
+        What is given to the block is the meaning as it was. `sets`, what
+        each name was let into, is given back too where asked.
+        """
+        saved = dict(self.names)
+        kept = dict(self.sets) if sets else None
+        try:
+            yield saved
+        finally:
+            self.names = saved
+            if sets:
+                self.sets = kept
+
+    @contextlib.contextmanager
     def in_its_names(self, item):
         """The sorts an item's own lines state, while its lines are read.
 
@@ -134,16 +153,14 @@ class Reading:
         # A binder's first hole is the variable it introduces, which stands
         # for itself rather than for whatever a name is bound to.
         bound = self.binders.get(node.notation, ())
-        saved = dict(self.names)
-        for i in bound:
-            # The body speaks of what the binder introduces, so the name
-            # stands for its own variable while the body is read.
-            said = node.children[i].text
-            self.names[said] = f'{self.binder_var(said)} cv'
-        holes = [self.binder_var(c.text) if i in bound else self.term(c)
-                 for i, c in enumerate(node.children)]
-        if bound:
-            self.names = saved
+        with self.names_kept():
+            for i in bound:
+                # The body speaks of what the binder introduces, so the name
+                # stands for its own variable while the body is read.
+                said = node.children[i].text
+                self.names[said] = f'{self.binder_var(said)} cv'
+            holes = [self.binder_var(c.text) if i in bound else self.term(c)
+                     for i, c in enumerate(node.children)]
         return targets.fill(self.pattern(node), holes, self.held(node))
 
     def held(self, node):
@@ -469,16 +486,13 @@ class Reading:
         # the proof happens to be holding, which is nothing once the block
         # that fixed a name of the same spelling has closed.
         bound = self.binders.get(node.notation, ())
-        saved = dict(self.names)
-        for i in bound:
-            said = node.children[i].text
-            self.names[said] = f'{self.binder_var(said)} cv'
-        frozen = Node(node.notation, node.sort,
-                      [c if i in bound else self.freeze(c)
-                       for i, c in enumerate(node.children)], node.text)
-        if bound:
-            self.names = saved
-        return frozen
+        with self.names_kept():
+            for i in bound:
+                said = node.children[i].text
+                self.names[said] = f'{self.binder_var(said)} cv'
+            return Node(node.notation, node.sort,
+                        [c if i in bound else self.freeze(c)
+                         for i, c in enumerate(node.children)], node.text)
 
     def substituted(self, node, old, new):
         """The node with one name replaced, for reading off the instance."""

@@ -565,11 +565,10 @@ class Matcher:
         bound = self.binders.get(node.notation, ())
         # The body speaks of what the binder introduces, as in `term`: the
         # lower limit of a sum is rewritten beside a summand that names k.
-        saved = dict(self.names)
-        for i in bound:
-            said = node.children[i].text
-            self.names[said] = f'{self.binder_var(said)} cv'
-        try:
+        with self.names_kept():
+            for i in bound:
+                said = node.children[i].text
+                self.names[said] = f'{self.binder_var(said)} cv'
             holes = [self.binder_var(c.text) if i in bound else self.term(c)
                      for i, c in enumerate(node.children)]
             after, proofs = list(holes), {}
@@ -580,8 +579,6 @@ class Matcher:
                 if declined(made):
                     return made
                 after[i], proofs[i] = made
-        finally:
-            self.names = saved
         if not proofs:
             return Declined(f'nothing to rewrite in {self.term(node)}')
         return self.descend(self.shape(self.spelling(node)), holes, after,
