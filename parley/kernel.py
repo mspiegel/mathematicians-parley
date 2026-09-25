@@ -19,6 +19,14 @@ F, B and pushes A, B, F. So each rule carries the permutation between them.
 from parse import Problem
 
 TYPECODES = ('wff', 'class', 'setvar')
+# What a run of tokens spells depends on the syntax axioms and on which
+# tokens are variables of which typecode, and on nothing else. So the answers
+# outlive any one `Syntax` and are shared by every one built from the same
+# grammar. `parley/test_elaborate.py` elaborates fifty-two times in one
+# process and each elaboration builds a `Syntax` of its own: kept per
+# instance, its 4,011 parses were of 181 statements, and they were 40 of its
+# 69 seconds.
+_SPELT = {}
 
 
 class Rule:
@@ -108,11 +116,6 @@ class Syntax:
     def __init__(self, signatures):
         self.rules, self.by_yield = [], {t: [] for t in TYPECODES}
         self.typecode, self.label = {}, {}
-        # A statement spells one term and an elaborator reads the same few
-        # statements over and over: settling a side condition tries every
-        # lemma it is allowed to try, and each is a chart parse. So what a
-        # run of tokens spells is worked out once.
-        self.spelt = {}
         for sig in signatures.values():
             if sig.kind == '$f':
                 self.typecode[sig.statement[1]] = sig.statement[0]
@@ -130,6 +133,15 @@ class Syntax:
             rule = Rule(sig.label, sig.statement[0], symbols, order)
             self.rules.append(rule)
             self.by_yield[rule.yields].append(rule)
+        # A statement spells one term and an elaborator reads the same few
+        # statements over and over: settling a side condition tries every
+        # lemma it is allowed to try, and each is a chart parse. So what a
+        # run of tokens spells is worked out once for each grammar, which is
+        # the axioms and the variables together.
+        grammar = (tuple(sorted(self.typecode.items())),
+                   tuple((r.label, r.yields, tuple(r.symbols), tuple(r.order))
+                         for r in self.rules))
+        self.spelt = _SPELT.setdefault(grammar, {})
 
     def build(self, rule, parts):
         """One rule's match, with its parts put in push order."""
