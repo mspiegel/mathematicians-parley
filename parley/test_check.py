@@ -580,6 +580,16 @@ CASES = [
      '  then        x is irrational',
      'a second time'),
 
+    # A field is read by its name, so a misspelt one is not the field: the
+    # Archimedean item would have no target, and Theorem 13's citation of it
+    # would be taken as stated.
+    ('misspell a field name',
+     'stdlib/numbers.records',
+     '  target      nnrecl\n',
+     '  taget       nnrecl\n',
+     "theorem archimedean has a field 'taget', which a theorem record does "
+     'not have'),
+
     # Everything a citation names does work. Line 1 says a + b ∈ ℝ, which
     # is what `thm:stdlib/numbers/nonneg-or-neg` asks; H1 says a ∈ ℝ, which
     # it does not.

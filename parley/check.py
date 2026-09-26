@@ -34,6 +34,7 @@ from match import (
 from parse import (
     BLOCK_HEADS,
     CITED,
+    FIELDS,
     HEADS,
     LABEL,
     NUMBER,
@@ -211,6 +212,13 @@ def check_database(report, records):
                        f'{r.kind} {r.name} states {name} a second time; the '
                        f'two are joined into one field, so the second is not '
                        f'read on its own and saying it changes nothing')
+        allowed = FIELDS.get(r.kind)
+        for name in r.fields if allowed is not None else ():
+            if name not in allowed:
+                report.say(r.path, r.lines.get(name, r.line),
+                           f'{r.kind} {r.name} has a field {name!r}, which a '
+                           f'{r.kind} record does not have; its fields are '
+                           f'{", ".join(sorted(allowed))}')
         if r.kind in ('definition', 'theorem'):
             if not in_stdlib(qualified(r)):
                 report.say(r.path, r.line,

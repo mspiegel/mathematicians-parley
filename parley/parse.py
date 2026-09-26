@@ -142,6 +142,7 @@ class Record:
     hypotheses: list = field(default_factory=list)
     conclusions: list = field(default_factory=list)
     repeats: list = field(default_factory=list)   # (field, line) said twice
+    lines: dict = field(default_factory=dict)     # field -> line it is on
     line: int = 0
     path: str = ''
 
@@ -179,6 +180,22 @@ def in_stdlib(name):
 
 
 RECORD_KINDS = ('notation', 'method', 'definition', 'theorem', 'precedence')
+
+# The fields each kind of record may carry, as the header of each records
+# file describes them. A field outside its kind's list is refused: the tools
+# read fields by name, so a misspelt `target` is not a target, and the item
+# it belongs to would be taken as stated wherever it is cited. A precedence
+# record is not listed, because its fields are the levels it declares.
+FIELDS = {
+    'notation': {'pattern', 'holes', 'yields', 'kinds', 'level', 'assoc',
+                 'commutes', 'negates', 'spells', 'binds', 'reads', 'target',
+                 'metamath', 'note'},
+    'method': {'form', 'block', 'parts', 'parts-repeat', 'part-opens',
+               'checks', 'decides', 'hypotheses', 'specified-in', 'metamath',
+               'note'},
+    'definition': {'metamath', 'target', 'open', 'symbol', 'defines', 'note'},
+    'theorem': {'metamath', 'target', 'open', 'note'},
+}
 
 
 def parse_database(path, text):
@@ -236,6 +253,7 @@ def parse_database(path, text):
             # recorded for the checker to refuse.
             if key in cur.fields:
                 cur.repeats.append((key, line.no))
+            cur.lines.setdefault(key, line.no)
             cur.fields[key] = (cur.fields[key] + ' ' + value
                                if key in cur.fields else value)
     return records

@@ -745,6 +745,21 @@ a parsed justification, never by pattern.
 <field>  ::= <field name> <value>
 ```
 
+Each kind has its own field names, and a field outside them is refused:
+
+| kind | fields |
+|---|---|
+| `notation` | `pattern`, `holes`, `yields`, `kinds`, `level`, `assoc`, `commutes`, `negates`, `spells`, `binds`, `reads`, `target`, `metamath`, `note` |
+| `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
+| `definition` | `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
+| `theorem` | `metamath`, `target`, `open`, `note` |
+| `precedence` | the levels it declares |
+
+The tools read a field by its name, so a misspelt one is not that field: an
+item whose `target` is spelt `taget` has no target, and every citation of it
+would be taken as stated. `parse.FIELDS` holds the list and the checker reads
+it.
+
 A record begins at column 0; its fields are indented, one per line, and a field
 value continues on further-indented lines. `#` at the start of a line is a
 comment. An item's statement is written with the same `let`, `assume` and
