@@ -8,8 +8,10 @@ but a verifier says only that what it read is a proof; it cannot say that
 what it read is the proof the elaborator built. This can, because the
 format is reversible.
 
-So every proof in the corpus is read back into normal format and written
-out again, and the two compressed forms must be the same text. A round trip
+So every proof in the corpus is read back into the steps it was written
+from and written out again, and the two compressed forms must be the same
+text; one small enough to write out in normal format is read back as that
+too. A round trip
 through both directions catches an index written wrong, a saved step named
 before it was kept, and a label block out of order — each of which could
 otherwise leave a proof that verifies and is not the one that was meant.
@@ -22,7 +24,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from compress import HIGH, LAST, compress, expand, letters, shapes, shapes_of
+from compress import (
+    HIGH,
+    LAST,
+    compress,
+    compressed,
+    expand,
+    expand_steps,
+    letters,
+    shapes,
+    shapes_of,
+)
 from library import read as read_library
 from library import where_set_mm
 from spell import Builder
@@ -30,6 +42,23 @@ from spell import Builder
 ROOT = Path(__file__).resolve().parent.parent
 PROVED = re.compile(r'(?m)^\s*(\S+)\s+\$p\s+(.*?)\$=(.*?)\$\.', re.S)
 STEPPED = 1_000_000          # labels, the most a proof is rebuilt as steps
+
+
+def written_length(items):
+    """How many labels the steps come to written out, counted without
+    writing them: each step's length once, however often it is used.
+    """
+    length, work = {}, [(one, False) for one in items]
+    while work:
+        step, done = work.pop()
+        if id(step) in length:
+            continue
+        if step.kids and not done:
+            work.append((step, True))
+            work.extend((kid, False) for kid in step.kids)
+            continue
+        length[id(step)] = 1 + sum(length[id(kid)] for kid in step.kids)
+    return sum(length[id(one)] for one in items)
 
 
 def decoded(said):
@@ -69,22 +98,23 @@ def main(argv):
             mandatory = sorted({spell.flabel[t] for t in says.split()
                                 if t in spell.flabel},
                                key=lambda one: spell.forder[one])
-            text = expand(said, mandatory, sigs)
-            again = compress(text, mandatory, sigs)
+            # Read back as the steps it was written from, which is how the
+            # elaborator writes it, and written again from those.
+            items = expand_steps(said, mandatory, sigs)
+            again = compressed(*shapes_of(items), mandatory)
             if again == said:
                 passed += 1
             else:
                 failed += 1
                 print(f'  NOT THE SAME  {label} in {path.name}')
-            # The elaborator writes from the steps it built and not from
-            # text, and the two must number a proof alike. Read back one
-            # step per label, a proof of millions of labels would take
-            # gigabytes to rebuild here, and the build writing every file
-            # byte for byte is what checks those.
-            if text.count(' ') < STEPPED:
-                stack = []
-                spell.read_onto(text, stack)
-                if shapes_of(tuple(stack)) == shapes(text, sigs):
+            # And, where it is small enough to write out, read back as text
+            # too: the two readings must number the proof alike. Written
+            # out, the intermediate value proof is 467 million labels, and
+            # reading those took two minutes of every gate.
+            if written_length(items) < STEPPED:
+                text = expand(said, mandatory, sigs)
+                if compress(text, mandatory, sigs) == said \
+                        and shapes_of(items) == shapes(text, sigs):
                     stepped += 1
                 else:
                     failed += 1

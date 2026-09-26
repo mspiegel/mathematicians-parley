@@ -184,6 +184,40 @@ def compressed(root, kinds, mandatory):
     return f'( {" ".join(order)} ) {"".join(out)}'
 
 
+def expand_steps(said, mandatory, sigs):
+    """A compressed proof read back as the steps it was written from
+    (`spell.Step`), a subproof the format saves being one step wherever it
+    is used again.
+
+    What `expand` gives written out, with nothing written out: the
+    intermediate value proof is 467 million labels as text and a few
+    thousand distinct steps, and read back as text it took two minutes of
+    every gate. `shapes_of` numbers these as `shapes` numbers the text.
+    """
+    from spell import Step
+    head, _, rest = said.partition(')')
+    block = mandatory + head.replace('(', '').split()
+    stack, saved, running = [], [], 0
+    for letter in ''.join(rest.split()):
+        if letter == 'Z':
+            saved.append(stack[-1])
+            continue
+        if letter not in LAST:
+            running = 5 * running + HIGH.index(letter) + 1
+            continue
+        number, running = 20 * running + LAST.index(letter), 0
+        if number >= len(block):
+            stack.append(saved[number - len(block)])
+            continue
+        label = block[number]
+        sig = sigs[label]
+        count = len(sig.floats) + len(sig.essentials)
+        kids = tuple(stack[len(stack) - count:]) if count else ()
+        del stack[len(stack) - count:]
+        stack.append(Step(label, kids, sig.statement[0]))
+    return tuple(stack)
+
+
 def expand(said, mandatory, sigs):
     """A compressed proof read back, for checking that it says the same.
 
