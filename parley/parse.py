@@ -18,7 +18,8 @@ NUMBER = r'\d+(?:\.\d+)*'
 REF = rf'(?:{NUMBER}|{LABEL})'
 
 HEADS = ('def:', 'thm:', 'obtain', 'exhibit', 'substitute', 'instantiate',
-         'algebra', 'arithmetic', 'inequalities', 'join', 'contradiction',
+         'algebra', 'arithmetic', 'inequalities', 'membership', 'join',
+         'contradiction',
          'fix', 'induction', 'cases', 'calculation')
 PART_MARKERS = ('base', 'step', 'case')
 BLOCK_HEADS = ('contradiction', 'fix', 'induction', 'cases', 'calculation')

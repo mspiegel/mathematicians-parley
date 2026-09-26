@@ -417,6 +417,15 @@ class ProofRules:
         if term in facts:
             return facts[term]
         closure = how.strip().split(',')[0].strip()
+        # `membership` builds the fact from its parts, as a step naming it
+        # does, from the lines this one cites (`METHODS.md`).
+        if closure == 'membership':
+            made = self.member_of(self.to_term(term), scope, facts, step)
+            if declined(made):
+                raise self.defect(self.at, f'{self.render(term)} is not '
+                                           f'built from what the requires '
+                                           f'line cites: {made}')
+            return made
         # A line naming a method is discharged by the method it names. A
         # closed numeral inequality is what `arithmetic` decides outright,
         # and a declared lemma reaching the same fact reaches it the long

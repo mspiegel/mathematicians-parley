@@ -88,6 +88,7 @@ PRODUCTIONS = {
     'algebra':       rf'^algebra(?:,\s*{FROM})?$',
     'arithmetic':    r'^arithmetic$',
     'inequalities':  rf'^inequalities(?:,\s*{FROM})?$',
+    'membership':    rf'^membership(?:,\s*{FROM})?$',
     'join':          rf'^join\s+{REF}(?:\s*,\s*{REF})*$',
     'contradiction': r'^contradiction$',
     'fix':           r'^fix$',
@@ -97,7 +98,7 @@ PRODUCTIONS = {
 }
 
 # Methods whose steps this checker accepts without examining them.
-CLOSURE = ('algebra', 'arithmetic', 'inequalities', 'join')
+CLOSURE = ('algebra', 'arithmetic', 'inequalities', 'join', 'membership')
 
 # A variable may be a Greek letter and may carry a subscript or a prime. These
 # are not notation and have no record of their own; see GRAMMAR.md.
@@ -453,6 +454,33 @@ def changed_closed(sides, g):
                                                 strict=True))
 
     return alike(one, other)
+
+
+def check_membership_claims(report, thm, g):
+    """`membership` claims that a term is in a number system, and nothing
+    else (`METHODS.md`), or that every member of a set has a term in one.
+    """
+    sorts_in_scope(thm, g)
+
+    def says_membership(node):
+        if node.notation == 'for-every' and len(node.children) == 3:
+            return says_membership(node.children[2])
+        return (node.notation == 'membership' and len(node.children) == 2
+                and node.children[1].notation == 'number-systems')
+
+    for step in thm.steps:
+        if not step.just or step.just.head != 'membership':
+            continue
+        for sentence in sentences(' '.join(step.claim)):
+            try:
+                node = parse(sentence, g)
+            except Problem:
+                continue              # `check_formulas` says it does not read
+            if not says_membership(node):
+                report.say(thm.path, step.just.line,
+                           f'step {fmt(step.number)} names membership for '
+                           f'{sentence}, which says no term is in a number '
+                           f'system')
 
 
 def check_closed_arithmetic(report, thm, g):
@@ -2217,6 +2245,7 @@ def main(root):
         check_kinds(report, thm, grammar, statements)
         check_contradiction(report, thm, grammar)
         check_closed_arithmetic(report, thm, grammar)
+        check_membership_claims(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
         check_obtained(report, thm, library)

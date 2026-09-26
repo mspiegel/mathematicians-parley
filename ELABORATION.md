@@ -531,6 +531,16 @@ a difference or a product of quotients to one numerator over one denominator
 (`divadddiv`, `divsubdiv`, `divmuldiv`), so the intermediate value proof's
 `c < c + δ/2` comes from `δ/2 > 0` like any other bound.
 
+**`membership`** is the membership lookup `algebra` and `inequalities`
+already make for every atom (`part`), made a step's claim. The claim is read
+in standard form, so T(k) is k(k + 1)/2; that is built from its parts by the
+closure table, each atom's membership from a line the step cites or writes,
+carried by one lemma (`bridged`); and `same` carries it back to the claim as
+written. A divisor is not zero by a line, by being a digit, by a membership
+that says so (`let k ∈ ℕ`), or as a product or quotient of such (`mulne0d`,
+`divne0d`). A requires line may name it too, and is proved the same way from
+the lines it cites (`member_of`).
+
 The normaliser reads only the arithmetic it normalises, and a division
 inside anything else — the summand of Σ(k = 1 to n) 1/T(k) — belongs to that
 atom and is no denominator of the term the atom stands in.

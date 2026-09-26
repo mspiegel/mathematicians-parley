@@ -613,6 +613,35 @@ class TableReading:
             if want == apart:
                 return found
             return self.seq(scope, divisor, 'cc0', found, 'neqned')
+        # A cited line whose membership says so: `let k ∈ ℕ` says k ≠ 0
+        # (`SYNTAX.md`, what a membership line says).
+        for ref in sorted(self.citing or ()):
+            if ref not in self.lines:
+                continue
+            carried = self.carried(ref, facts, self.lines)
+            for said, proof in self.stated_by(ref, facts, self.lines).items():
+                if said == self.lines[ref].term:
+                    proof = carried
+                if proof is None:
+                    continue
+                more = self.implied(said, proof, scope)
+                if apart in more:
+                    return more[apart]
+        # A product or quotient is not zero when its parts are not.
+        node = self.to_term(divisor)
+        if node.variable is None and node.label == 'co' \
+                and len(node.children) == 3:
+            how = node.children[2].rpn(self.flabel)
+            lemma = {'cmul': 'mulne0d', 'cdiv': 'divne0d'}.get(how)
+            if lemma is not None:
+                a, b = (c.rpn(self.flabel) for c in node.children[:2])
+                parts = [self.part(one, 'cc', scope, facts) for one in (a, b)]
+                parts += [self.divisor_written(one, scope, facts)
+                          for one in (a, b)]
+                for one in parts:
+                    if declined(one):
+                        return one
+                return self.ap(lemma, {'ph': scope, 'A': a, 'B': b}, *parts)
         return Declined(f'nothing the step wrote says {self.render(apart)}')
 
     def part(self, said, system, scope, facts):

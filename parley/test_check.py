@@ -733,6 +733,15 @@ CASES = [
      '= (k + 1)((k + 1) + 1)/2       arithmetic',
      'names arithmetic for'),
 
+    # `membership` claims a term is in a number system and nothing else.
+    ('membership named for a claim that is no membership',
+     'proof/triangular-reciprocals.proof',
+     '    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n'
+     '          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n',
+     '    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n'
+     '          membership, from 1\n',
+     'names membership for'),
+
     # A line said of every k ∈ ℕ answers a hypothesis over {1, …, n}, and not
     # one over {0, …, n}: the table puts the first range inside ℕ and not
     # the second.

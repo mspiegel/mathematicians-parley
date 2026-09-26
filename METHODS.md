@@ -443,6 +443,60 @@ family is what would prove such facts, and is not yet used.
 
 ---
 
+## membership
+
+`1/T(k) ∈ ℝ, membership, from D1, K3` — a term is in a number system because
+its parts are. The method states as a step's claim what `algebra` and
+`inequalities` already work out for every atom they touch, and it exists so
+that a dull fact of this kind is one line rather than a climb up the term one
+library item at a time.
+
+### Facts in
+
+The step's requires lines and the lines it cites, read for what they say
+(`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0), and any cited define,
+whose name applied to a value is read as its rule: T(k) is k(k + 1)/2.
+
+### Fact out
+
+`t ∈ S`, with S a number system.
+
+### The procedure
+
+The term is walked by the operation at its head, as `algebra` walks it:
+
+- a sum, difference, product or power is in S when its parts are
+  (`readdcld`, `remulcld` and the rest of the closure table);
+- a negation is in S when what it negates is, for S that holds negatives;
+- a quotient is in ℝ or ℂ when its parts are and its divisor is not zero;
+- anything else is an atom, and its membership is a line the step cites or
+  writes, carried to S by at most one lemma (`nnre`, `zcn` and the rest).
+
+A divisor is not zero when a line says so, when it is a digit other than
+zero, or when it is a product or quotient of parts that are not zero
+(`mulne0d`, `divne0d`).
+
+### Refusals
+
+- **A search.** Nothing is looked for beyond the parts' own lines; an atom
+  nothing says is in S is refused, naming the atom.
+- **A difference in ℕ or ℕ₀,** which the closure table does not hold, since
+  a difference of whole numbers need not be whole.
+- **Anything about what an atom is.** |x| ∈ ℝ is the item `abs-real`, not
+  this method.
+
+### Hypotheses
+
+None beyond its facts in: a divisor's disequality and an atom's membership
+are the lines the method reads, not conditions it asks of the step.
+
+### Expansion
+
+The closure lemmas the table names, `divcld` and `redivcld` for quotients,
+`mulne0d` and `divne0d` for a divisor's disequality, and where the claim
+names a define, the claim read as its rule and carried back by the equation
+the define gives (`mpbid`).
+
 ## join
 
 `join` decides nothing. It puts together what the cited lines already say.

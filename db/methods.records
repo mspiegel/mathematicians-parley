@@ -113,6 +113,22 @@ method arithmetic
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
 
+method membership
+  form        membership, from L
+  block       none
+  checks      that the term is in the number system because its parts are,
+              starting from L.
+  decides     closure of a number system under the operations at the head of
+              the term, down to atoms whose membership L says
+  hypotheses  a divisor is not zero, by a cited line, a requires line, or
+              being a digit other than zero or a product of such
+  specified-in METHODS.md
+  metamath    readdcld, remulcld, redivcld, divcld, mulne0d, divne0d
+  first-used  triangular-reciprocals
+  note        What algebra and inequalities work out for every atom they
+              touch, stated as a step's claim, so that a membership is one
+              line rather than a library item per operation.
+
 method inequalities
   form        inequalities, from L
   block       none

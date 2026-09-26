@@ -341,6 +341,16 @@ CASES = [
      '= 1(1 + 1)/3            arithmetic',
      'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
 
+    # `membership` builds from what the line cites: ε > 0 does not say ε is
+    # a real number, and the scope's copy of the line that does is not
+    # the requires line's to use unnamed.
+    ('membership from a line that says nothing of the atom',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     'requires ε/2 ∈ ℝ: membership, from K6',
+     'requires ε/2 ∈ ℝ: membership, from A1',
+     'rests on K6, which it does not name'),
+
     # A membership line says what the table in `rules.py` says it does and
     # nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
     # the table goes one way.

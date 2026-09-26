@@ -495,6 +495,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         term = self.claim_of(' '.join(step.claim))
         how = {'algebra': self.algebra, 'arithmetic': self.arithmetic,
                'inequalities': self.inequalities,
+               'membership': self.by_membership,
                'substitute': self.substitute,
                'instantiate': self.instantiate,
                'calculation': self.calculation, 'join': self.join,

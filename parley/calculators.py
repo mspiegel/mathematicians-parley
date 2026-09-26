@@ -1072,6 +1072,50 @@ class Calculators:
                 return general
         return made
 
+    def by_membership(self, step, node, term, scope, facts, lines):
+        """`membership` (`METHODS.md`): a term in a number system because
+        its parts are, down to atoms whose membership the step's lines say.
+
+        The claim is read with its defined names as their rules — T(k) is
+        k(k + 1)/2 — and built from its parts as `part` builds any
+        membership a method reads; `same` carries it back to the claim as
+        written.
+        """
+        claim = self.to_term(term)
+        if claim.variable is not None or claim.label != 'wcel' \
+                or claim.children[1].rpn(self.flabel) not in rules.SYSTEMS:
+            raise self.defect(step.line,
+                              f'step {fmt(step.number)} names membership for '
+                              f'{self.render(term)}, which says no term is '
+                              f'in a number system')
+        known = {**facts,
+                 **self.with_cited(step, scope,
+                                   self.supplied(step, scope, facts))}
+        made = self.member_of(claim, scope, known, step)
+        if declined(made):
+            raise self.defect(step.line,
+                              f'{self.render(term)} is not built from what '
+                              f'step {fmt(step.number)} cites: {made}')
+        return made
+
+    def member_of(self, claim, scope, known, step=None):
+        """The proof of one membership by `membership`'s procedure, from
+        the facts `known`, or a decline naming what it lacks. A step's own
+        lines are the caller's to gather; a requires line naming the method
+        has its citations in hand already (`side`).
+        """
+        term = claim.rpn(self.flabel)
+        read = self.standard(claim)
+        made = self.part(read.children[0].rpn(self.flabel),
+                         read.children[1].rpn(self.flabel), scope, known)
+        if declined(made) or read.rpn(self.flabel) == term:
+            return made
+        alike = self.same(read, claim, scope, known, step)
+        if declined(alike):
+            return alike
+        return self.seq(scope, read.rpn(self.flabel), term, made, alike,
+                        'mpbid')
+
     def both_halves(self, refs, goal, scope, facts, lines, skip):
         """A claim of two sentences joined by "and", each proved in turn."""
         halves = [c.rpn(self.flabel) for c in goal.children]

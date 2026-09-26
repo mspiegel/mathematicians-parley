@@ -643,6 +643,7 @@ The fifteen heads and the slots each admits:
   | `algebra` [ `,` <from> ]
   | `arithmetic`
   | `inequalities` [ `,` <from> ]
+  | `membership` [ `,` <from> ]
   | `join` <ref> { `,` <ref> }
   | `contradiction`
   | `fix`

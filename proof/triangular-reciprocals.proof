@@ -46,27 +46,9 @@ theorem triangular-reciprocals
     fix
     let k ∈ ℕ                                                         (K4)
 
-    3.1.  1/T(k) = 2/k − 2/(k + 1)
-          instantiate k := k in line 1, from K4
-
-    3.2.  2/k ∈ ℝ
-          thm:stdlib/numbers/quotient-real x := 2, y := k, from K4
-          requires 2 ∈ ℝ: arithmetic
-
-    3.3.  k + 1 ∈ ℝ
-          thm:stdlib/numbers/real-closure x := k, y := 1, from K4
-          requires 1 ∈ ℝ: arithmetic
-
-    3.4.  2/(k + 1) ∈ ℝ
-          thm:stdlib/numbers/quotient-real x := 2, y := k + 1, from 3.3
-          requires 2 ∈ ℝ: arithmetic
+    3.1.  1/T(k) ∈ ℝ
+          membership, from D1, K4
           requires k + 1 ≠ 0: inequalities, from K4
-
-    3.5.  2/k − 2/(k + 1) ∈ ℝ
-          thm:stdlib/numbers/real-closure x := 2/k, y := 2/(k + 1), from 3.2, 3.4
-
-    3.6.  1/T(k) ∈ ℝ
-          substitute 1/T(k) = 2/k − 2/(k + 1) (line 3.1) into line 3.5
 
 4.  For every n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ.
     fix
@@ -90,7 +72,7 @@ theorem triangular-reciprocals
 
     5.2.  There is N ∈ ℕ with 1/N < ε/2.
           thm:stdlib/numbers/archimedean x := ε/2, from 5.1
-          requires ε/2 ∈ ℝ: thm:stdlib/numbers/half-real x := ε, from K6
+          requires ε/2 ∈ ℝ: membership, from K6
 
     5.3.  N ∈ ℕ. 1/N < ε/2.
           obtain N from line 5.2
@@ -106,26 +88,24 @@ theorem triangular-reciprocals
           5.4.2.  Σ(k = 1 to n) 1/T(k) ∈ ℝ
                   instantiate n := n in line 4, from K7
 
-          5.4.3.  n + 1 ∈ ℝ
-                  thm:stdlib/numbers/real-closure x := n, y := 1, from K7
-                  requires 1 ∈ ℝ: arithmetic
-
-          5.4.4.  N ≤ n + 1
+          5.4.3.  N ≤ n + 1
                   inequalities, from A2
                   requires N ∈ ℝ: from 5.3
                   requires n ∈ ℝ: from K7
 
-          5.4.5.  1/(n + 1) ≤ 1/N
-                  thm:stdlib/numbers/reciprocal-order x := N, y := n + 1, from 5.3, 5.4.3, 5.4.4
+          5.4.4.  1/(n + 1) ≤ 1/N
+                  thm:stdlib/numbers/reciprocal-order x := N, y := n + 1, from 5.3, 5.4.3
+                  requires n + 1 ∈ ℝ: membership, from K7
                   requires N > 0: inequalities, from 5.3
                   requires n + 1 > 0: inequalities, from K7
 
-          5.4.6.  1/(n + 1) > 0
-                  thm:stdlib/numbers/reciprocal-positive x := n + 1, from 5.4.3
+          5.4.5.  1/(n + 1) > 0
+                  thm:stdlib/numbers/reciprocal-positive x := n + 1
+                  requires n + 1 ∈ ℝ: membership, from K7
                   requires n + 1 > 0: inequalities, from K7
 
-          5.4.7.  2 − ε < Σ(k = 1 to n) 1/T(k)
-                  inequalities, from 5.4.1, 5.4.5, 5.3
+          5.4.6.  2 − ε < Σ(k = 1 to n) 1/T(k)
+                  inequalities, from 5.4.1, 5.4.4, 5.3
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: from 5.4.2
                   requires ε ∈ ℝ: from K6
                   requires n ∈ ℝ: from K7
@@ -133,15 +113,15 @@ theorem triangular-reciprocals
                   requires N ∈ ℝ: from 5.3
                   requires N ≠ 0: from 5.3
 
-          5.4.8.  Σ(k = 1 to n) 1/T(k) < 2 + ε
-                  inequalities, from 5.4.1, 5.4.6, A1
+          5.4.7.  Σ(k = 1 to n) 1/T(k) < 2 + ε
+                  inequalities, from 5.4.1, 5.4.5, A1
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: from 5.4.2
                   requires ε ∈ ℝ: from K6
                   requires n ∈ ℝ: from K7
                   requires n + 1 ≠ 0: inequalities, from K7
 
-          5.4.9.  |Σ(k = 1 to n) 1/T(k) − 2| < ε
-                  thm:stdlib/numbers/abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 5.4.2, K6, 5.4.7, 5.4.8
+          5.4.8.  |Σ(k = 1 to n) 1/T(k) − 2| < ε
+                  thm:stdlib/numbers/abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 5.4.2, K6, 5.4.6, 5.4.7
                   requires 2 ∈ ℝ: arithmetic
 
     5.5.  There is N ∈ ℕ with for every n ∈ ℕ with n ≥ N,
