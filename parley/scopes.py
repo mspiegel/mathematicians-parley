@@ -781,7 +781,10 @@ class Scopes:
                 ex = fresh
         elif named.group(1).startswith('def:'):
             cites = step.just.text.split(':', 1)[1].strip()
-            subject = self.names[instantiation(cites)[0][1]]
+            given = self.subject_given(named.group(1),
+                                       instantiation(cites), step.line)
+            subject = (self.names[given] if given in self.names
+                       else self.term(self.read(given)))
             # A fresh name, not the lemma's own: `divides` binds `n`, and a
             # proof that obtains from it twice would introduce one variable
             # for two different numbers.

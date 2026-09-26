@@ -258,6 +258,23 @@ class Reading:
         return (lemma, var, self.flip(body) if flipped else body, body,
                 self.term(right.children[1]), self.term(left))
 
+    def subject_given(self, name, pairs, line):
+        """What the step writes for the letter a definition is about, found
+        by that letter's name among its `v := t` pairs (`SYNTAX.md`: a
+        substitution names its variable). `divides` is about d, and
+        `n := c, d := d` gives d as d whichever pair comes first. A step that
+        gives the subject no value is refused: the pair is not optional.
+        """
+        item = self.item_cited(name)
+        left = self.read(item.conclusions[0][0]).children[0]
+        letter = self.subject_of(left).text
+        given = dict(pairs).get(letter)
+        if given is None:
+            raise self.defect(line, f'{name} is about {letter}, and the step '
+                                    f'gives {letter} no value; write it, as '
+                                    f'{letter} := t')
+        return given
+
     def sentences(self, text):
         out = []
         for piece in LABEL.sub('', text).strip().split('. '):
@@ -444,6 +461,7 @@ class Reading:
         if not (label and self.sigs[label].statement[0] == 'setvar'):
             label = self.spare_var()
         self.bound_as[name] = label
+        self.written_as[label] = name
         return label
 
     def fixed_var(self, name, scope=''):
@@ -479,6 +497,7 @@ class Reading:
                 and own not in held and own not in self.taken):
             own = self.spare_var()
         self.bound_as[name] = own
+        self.written_as[own] = name
         return own
 
     def spare_var(self):

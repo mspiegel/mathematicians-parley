@@ -1,0 +1,17 @@
+theorem values-by-name
+  let a ∈ ℤ                                                           (H1)
+  let c ∈ ℤ                                                           (H2)
+  assume c = a·2                                                      (H3)
+  assume for every x ∈ ℤ, for every y ∈ ℤ, x + y ∈ ℤ                  (H4)
+  then a divides c and a + 1 ∈ ℤ
+
+1.  a divides c
+    def:stdlib/divisibility/divides n := c, d := a, from H1, H2, H3
+    requires 2 ∈ ℤ: arithmetic
+
+2.  a + 1 ∈ ℤ
+    instantiate y := 1, x := a in H4, from H1
+    requires 1 ∈ ℤ: arithmetic
+
+3.  a divides c and a + 1 ∈ ℤ
+    join 1, 2

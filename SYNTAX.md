@@ -412,6 +412,15 @@ it; each is worked out as a closed fact is. A change touching a letter,
                 ≤ |a| + |b|             5.6
 ```
 
+**A substitution names its variable, and its place in the list says
+nothing.** Each `v := t` gives the value of the variable v, found by its
+name: `def:stdlib/divisibility/divides n := c, d := d` and `d := d, n := c`
+are one citation, and so are `instantiate x := 1, y := 2` and
+`instantiate y := 2, x := 1`. This holds wherever `:=` is written: citing a
+definition or a theorem, obtaining from one, and `instantiate`. Matching by
+name does not make a pair optional: a definition folded or obtained from
+names the value of its subject, `d := d` where it is the proof's own d.
+
 Wherever a step's claim must be an instance of a formula, such as P(k + 1)
 in an induction step, the conclusion of a theorem applied with `n := p`, or
 the body of a definition, the instance is literal: the formula with the

@@ -541,15 +541,15 @@ CASES = [
     # A link reads its cited equation from either side, and nothing on the
     # page says which: line 2 says |CB| = |BC|, which is neither way round
     # the link's |CA| = |CB|.
-    # A definition that concludes a "there is" needs to be told of what:
-    # line 5 says n² = 2(2k² + 2k) + 1, and n² is odd because the step says
-    # the value is n². Without it there is no value to read.
-    ('conclude a definition of a value the step does not name',
+    # A definition concluded of a value names that value: line 5 says what
+    # n² is, and the step says n² is odd only by writing n := n². The pair
+    # is found by its name, and it is not optional (`SYNTAX.md`).
+    ('leave out the value a definition is concluded of',
      'proof/sqrt2-irrational/odd-square',
      'proof/sqrt2-irrational.proof',
      '    def:stdlib/divisibility/odd n := n², from 5',
      '    def:stdlib/divisibility/odd, from 5',
-     'concludes what it defines of a value the step does not name'),
+     'is about n, and the step gives n no value'),
 
     ('cite an equation that says the link neither way round',
      'proof/isosceles/isosceles',

@@ -187,6 +187,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.numbering = set()   # memberships `numeral_within` works out now
         self.numbers = {}        # (membership, scope) -> what it came to
         self.bound_as = {}       # binder name -> the setvar it stands for
+        self.written_as = {}     # a binder's setvar -> the name it was written
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
         self.definitions = {}    # a defined name's setvar -> the term it names
@@ -823,7 +824,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                               f'{where} claims nothing of every such name')
 
         proof, whole = known[said], self.to_term(said)
-        for _name, value in instantiation(step.just.text):
+        # Each value is the one written for the name the line quantifies at
+        # that level, whatever its place in the list (`SYNTAX.md`: a
+        # substitution names its variable).
+        # A name reaches the kernel as the variable its binder took, and
+        # `written_as` says which name that was: Theorem 13's line 2 binds n
+        # as a spare, because the block it closes held n's own letter.
+        pairs = instantiation(step.just.text)
+        by_name = dict(pairs)
+        for _ in range(len(pairs)):
             # A name may run over a set or over anything that is one. The
             # two lemmas are the same shape and ask the same thing; what
             # differs is whether the term has to be in a set or only be one.
@@ -835,6 +844,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 raise self.defect(step.line,
                                   'more names instantiated than are '
                                   'quantified')
+            letter = variable.rpn(self.flabel)
+            value = by_name.get(self.written_as.get(letter, letter))
+            if value is None:
+                raise self.defect(step.line,
+                                  f'{where} quantifies a name the step '
+                                  f'gives no value, before the ones it '
+                                  f'does')
             mark, at = f'{variable.rpn(self.flabel)} cv', \
                 self.term(self.read(value))
             instance = self.restated(body, mark, at)
@@ -1616,12 +1632,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         line, by walking the shape the definition states against it.
         """
         named = instantiation(step.just.text)
-        if not named:
-            raise self.defect(step.line, f'{step.just.head} concludes what '
-                                         f'it defines of a value the step '
-                                         f'does not name; write which, as '
-                                         f'x := t')
-        subject = self.term(self.read(named[0][1]))
+        subject = self.term(self.read(
+            self.subject_given(step.just.head, named, step.line)))
         var = self.spare_var()
         with self.names_kept():
             # A definition may name more than the thing it is about:
