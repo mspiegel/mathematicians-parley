@@ -576,7 +576,7 @@ CASES = [
     ('state a field twice, which reads as one field joined',
      'stdlib/numbers.records',
      'definition irrational\n  then        x is irrational',
-     'definition irrational\n  first-used  sqrt2-irrational\n'
+     'definition irrational\n  target      eldif\n'
      '  then        x is irrational',
      'a second time'),
 

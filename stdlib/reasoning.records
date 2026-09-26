@@ -14,14 +14,13 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 theorem excluded-middle
   then        P or not P
   metamath    exmid
   target      exmid
-  first-used  cantor
   note        The first citation to substitute a formula for a variable rather
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
@@ -32,7 +31,6 @@ theorem from-contradiction
   then        Q
   metamath    pm2.21
   target      pm2.21
-  first-used  intermediate-value
   note        Closes an impossible case of a `cases` block so that every case
               ends in the block's common claim.
 
@@ -41,7 +39,6 @@ theorem double-negation
   then        P
   metamath    notnotr
   target      notnotr
-  first-used  cantor
   note        The step intuitionistic logic refuses, so citing it is the text
               saying which logic it is in. It appears because the contradiction
               rule demands the literal negation of the claim, and a claim that
@@ -53,7 +50,6 @@ theorem disjunctive-syllogism
   then        P
   metamath    orel2
   target      orel2
-  first-used  sqrt2-irrational
   note        The √2 pilot asked whether a school reader can check this on
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.

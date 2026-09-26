@@ -14,7 +14,7 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 theorem sum-divisible
@@ -25,7 +25,6 @@ theorem sum-divisible
   then        m divides Σ(k = 0 to n) t(k)
   metamath    fsumdvds
   target      fsumdvds
-  first-used  divisibility-by-three
   note        A number dividing every term divides the sum. set.mm asks it
               only of the terms the sum takes, k from 0 to n; asked of every
               k ∈ ℕ₀ it asks more, which is what a proof that fixes an
@@ -37,7 +36,6 @@ theorem sum-integer
   then        Σ(k = 0 to n) t(k) ∈ ℤ
   metamath    fsumzcl
   target      fsumzcl
-  first-used  divisibility-by-three
 
 theorem sum-difference
   let n ∈ ℕ₀                                                          (H1)
@@ -46,7 +44,6 @@ theorem sum-difference
   then        Σ(k = 0 to n) (t(k) − u(k)) = Σ(k = 0 to n) t(k) − Σ(k = 0 to n) u(k)
   metamath    fsumsub
   target      fsumsub
-  first-used  divisibility-by-three
 
 theorem sum-single
   let a ∈ ℤ                                                           (H1)
@@ -54,7 +51,6 @@ theorem sum-single
   then        Σ(k = a to a) t(k) = t(a)
   metamath    fsum1
   target      fsum1
-  first-used  binomial
 
 theorem sum-last
   let n ∈ ℕ₀                                                          (H1)
@@ -62,7 +58,6 @@ theorem sum-last
   then        Σ(k = 0 to n + 1) t(k) = Σ(k = 0 to n) t(k) + t(n + 1)
   metamath    fsump1
   target      fsump1
-  first-used  binomial
 
 theorem sum-extended
   let a ∈ ℤ                                                           (H1)
@@ -72,7 +67,6 @@ theorem sum-extended
   then        Σ(k = a to n + 1) t(k) = Σ(k = a to n) t(k) + t(n + 1)
   metamath    fsump1
   target      fsump1
-  first-used  sum-formula
   note        `sum-last` from a start of the proof's own choosing: the sum
               formula counts from 1, where `sum-last` counts from 0.
 
@@ -84,7 +78,6 @@ theorem sum-telescopes
   then        Σ(k = a to b) (t(k) − t(k + 1)) = t(a) − t(b + 1)
   metamath    telfsum
   target      telfsum
-  first-used  triangular-reciprocals
   note        A telescoping sum: each term's second half cancels the next
               term's first, and what is left is the first and the last.
 
@@ -94,7 +87,6 @@ theorem sum-first
   then        Σ(k = 0 to n) t(k) = t(0) + Σ(k = 0 + 1 to n) t(k)
   metamath    fsum1p
   target      fsum1p
-  first-used  binomial
   note        The rest of the sum starts at 0 + 1, as set.mm writes it; a
               proof that wants 1 there substitutes.
 
@@ -106,7 +98,6 @@ theorem sum-shift
   then        Σ(k = a to b) t(k) = Σ(k = a + c to b + c) t(k − c)
   metamath    fsumshft
   target      fsumshft
-  first-used  binomial
   note        The same terms counted from a different start: the term the
               left side takes at k, the right side takes at k + c.
 
@@ -118,7 +109,6 @@ theorem sum-scaled
   then        c·(Σ(k = a to b) t(k)) = Σ(k = a to b) c·t(k)
   metamath    fsummulc2
   target      fsummulc2
-  first-used  binomial
 
 theorem sum-add
   let a ∈ ℤ                                                           (H1)
@@ -128,7 +118,6 @@ theorem sum-add
   then        Σ(k = a to b) (t(k) + u(k)) = Σ(k = a to b) t(k) + Σ(k = a to b) u(k)
   metamath    fsumadd
   target      fsumadd
-  first-used  binomial
 
 theorem sum-termwise
   let a ∈ ℤ                                                           (H1)
@@ -139,7 +128,6 @@ theorem sum-termwise
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
   metamath    sumeq2dv
   target      sumeq2dv
-  first-used  binomial
   note        Two sums over one range are equal when their terms are, index
               by index. The terms need agree only where the sum takes them,
               which is what lets a term be rewritten by a fact that holds on
@@ -152,7 +140,6 @@ theorem sum-real
   then        Σ(k = a to b) t(k) ∈ ℝ
   metamath    fsumrecl
   target      fsumrecl
-  first-used  binomial
 
 theorem range-difference
   let a ∈ ℤ                                                           (H1)
@@ -161,7 +148,6 @@ theorem range-difference
   then        n − k ∈ ℕ₀
   metamath    fznn0sub
   target      fznn0sub
-  first-used  binomial
   note        An index no greater than n leaves a whole number when taken
               from n, which is what lets x^(n − k) be a power with a natural
               exponent.
@@ -173,7 +159,6 @@ theorem range-integer
   then        k ∈ ℤ
   metamath    elfzelz
   target      elfzelz
-  first-used  binomial
 
 theorem range-nat0
   let n ∈ ℤ                                                           (H1)
@@ -181,7 +166,6 @@ theorem range-nat0
   then        k ∈ ℕ₀
   metamath    elfznn0
   target      elfznn0
-  first-used  binomial
 
 theorem range-nat
   let n ∈ ℤ                                                           (H1)

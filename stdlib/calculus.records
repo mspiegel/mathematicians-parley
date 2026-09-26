@@ -13,7 +13,7 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 definition interval
@@ -22,7 +22,6 @@ definition interval
   then        x ∈ [a, b] ↔ x ∈ ℝ and a ≤ x and x ≤ b
   metamath    elicc2
   target      elicc2
-  first-used  intermediate-value
 
 theorem interval-real
   let a ∈ ℝ                                                           (H1)
@@ -30,7 +29,6 @@ theorem interval-real
   then        [a, b] ⊆ ℝ
   metamath    iccssre
   target      iccssre
-  first-used  intermediate-value
 
 definition continuous-on
   let f : D → ℝ                                                       (H1)
@@ -39,7 +37,6 @@ definition continuous-on
               |x − c| < δ then |f(x) − f(c)| < ε
   metamath    elcncf2
   target      elcncf2
-  first-used  intermediate-value
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε ∈ ℝ with
               ε > 0, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
@@ -53,7 +50,6 @@ definition tends-to
   metamath    climnnre, which this corpus proves in
               elaboration/stdlib/proved.mm from clim2's neighbours
   target      climnnre
-  first-used  triangular-reciprocals
   note        A sequence tends to L when, however small a distance ε is
               named, its terms from some N on are all within ε of L. set.mm's
               `clim2` says it over ℝ⁺ and the upper integers, with every term
@@ -69,7 +65,6 @@ theorem series-value
   metamath    sersumlim, which this corpus proves in
               elaboration/stdlib/proved.mm
   target      sersumlim
-  first-used  triangular-reciprocals
   note        The value of a series is the limit of its partial sums, which
               is how a textbook defines it. set.mm defines an infinite sum
               through a sequence of its own, and `sersumlim` is the join,
@@ -78,13 +73,11 @@ theorem series-value
 definition upper-bound
   then        u is an upper bound of S ↔ for every s ∈ S, s ≤ u
   metamath    ub as in df-sup
-  first-used  intermediate-value
 
 definition least-upper-bound
   then        c is a least upper bound of S ↔ c is an upper bound of S, and for
               every u ∈ ℝ, if u is an upper bound of S then c ≤ u
   metamath    df-sup, suprub, suprleub
-  first-used  intermediate-value
 
 theorem completeness
   assume S ⊆ ℝ                                                        (H1)
@@ -93,7 +86,6 @@ theorem completeness
   then        there is c ∈ ℝ with c is a least upper bound of S
   metamath    suprcl, suprub, suprleub
   target      suprcl, suprub, suprleub with c := sup S
-  first-used  intermediate-value
   note        The least upper bound is set.mm's supremum, and each thing the
               page asks of it is a lemma: that it is real, that nothing in S
               is above it, and that it is at most anything nothing in S is

@@ -80,7 +80,6 @@
 #               `target` is one whose term is not a constructor applied to its
 #               holes; an elaborator cannot build it from this file alone, and
 #               `metamath` says in words what it is.
-#   first-used  the pilot that introduced it.
 #   note        anything a reader or an implementer needs.
 #
 # A line beginning with # is a comment. A record begins at column 0 and its
@@ -136,7 +135,6 @@ notation number-systems
               the rationals, the reals
   metamath    cn, cn0, cz, cq, cr
   target      cn, cn0, cz, cq, cr
-  first-used  sqrt2-irrational
   note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader
               taught that the natural numbers begin at 0 needs this pointer to
               say so. Nothing in any text assumes either convention beyond it.
@@ -151,7 +149,6 @@ notation membership
   reads       is in, is not in
   metamath    wcel, wnel
   target      _1 _2 wcel, folded
-  first-used  sqrt2-irrational
   note        No assoc: it yields a formula and its left hole takes a term, so
               a ∈ b ∈ c cannot parse at all rather than parsing two ways.
 
@@ -165,7 +162,6 @@ notation equality
   reads       equals, is not equal to
   metamath    wceq, wne
   target      _1 _2 wceq, folded
-  first-used  sqrt2-irrational
 
 notation order
   pattern     _ < _        _ > _        _ ≤ _        _ ≥ _
@@ -175,7 +171,6 @@ notation order
   reads       is less than, is greater than, is at most, is at least
   metamath    clt, cle
   target      _1 _2 clt wbr, _2 _1 clt wbr, _1 _2 cle wbr, _2 _1 cle wbr
-  first-used  sqrt2-irrational
 
 notation additive
   pattern     _ + _        _ − _
@@ -186,7 +181,6 @@ notation additive
   reads       plus, minus
   metamath    caddc, cmin
   target      _1 _2 caddc co, _1 _2 cmin co
-  first-used  sqrt2-irrational
   note        Left is the only defensible reading of a − b − c. No chain of
               either operator occurs in the corpus, but the parse tree is
               load-bearing for the literal-instance rule and for the expansion,
@@ -202,7 +196,6 @@ notation multiplicative
   reads       times, divided by
   metamath    cmul, cdiv
   target      _1 _2 cmul co, _1 _2 cdiv co
-  first-used  sqrt2-irrational
 
 notation unary-minus
   pattern     −_
@@ -212,7 +205,6 @@ notation unary-minus
   reads       minus
   metamath    cneg
   target      _1 cneg
-  first-used  triangle-inequality
   note        No assoc, because only the right edge is a hole: −−x can be read
               one way. Written with the same character as binary minus and told
               apart by position, not by spacing.
@@ -226,7 +218,6 @@ notation power
   reads       to the power
   metamath    cexp
   target      _1 _2 cexp co
-  first-used  subsets
   note        Right by universal convention. No tower occurs in the corpus.
               An exponent that is not a numeral makes the whole power an atom
               to `algebra`; see METHODS.md.
@@ -239,7 +230,6 @@ notation square
   reads       squared
   metamath    cexp with the numeral 2
   target      _1 c2 cexp co
-  first-used  sqrt2-irrational
   note        A numeral exponent, so `algebra` expands it rather than treating
               the power as an atom.
 
@@ -251,7 +241,6 @@ notation square-root
   reads       the square root of
   metamath    csqrt
   target      _1 csqrt cfv
-  first-used  sqrt2-irrational
 
 notation logical-not
   pattern     not _
@@ -261,7 +250,6 @@ notation logical-not
   reads       not
   metamath    wn
   target      _1 wn
-  first-used  sqrt2-irrational
   note        No assoc: only the right edge is a hole.
 
 notation conjunction
@@ -273,7 +261,6 @@ notation conjunction
   reads       and
   metamath    wa
   target      _1 _2 wa
-  first-used  sqrt2-irrational
   note        Left matches set.mm's ternary conjunction, so a claim of three
               sentences maps onto the library's own lemma. See METHODS.md.
 
@@ -286,7 +273,6 @@ notation comma-conjunction
   reads       and
   metamath    wa, and nested wa for a longer list
   target      _1 _2 wa, _1 _2 wa
-  first-used  sqrt2-irrational
   note        The comma list SYNTAX.md describes, used where a run of "and"s
               reads badly, as it does inside a "there is ... with ..." phrase.
               Two patterns reach every length: the comma form builds the list
@@ -310,7 +296,6 @@ notation disjunction
   reads       or
   metamath    wo
   target      _1 _2 wo
-  first-used  sqrt2-irrational
 
 notation implication
   pattern     _ → _
@@ -321,7 +306,6 @@ notation implication
   reads       implies
   metamath    wi
   target      _1 _2 wi
-  first-used  sqrt2-irrational
 
 notation biconditional
   pattern     _ ↔ _
@@ -332,7 +316,6 @@ notation biconditional
   reads       if and only if
   metamath    wb
   target      _1 _2 wb
-  first-used  sqrt2-irrational
   note        ∀ and ∃ are not declared as symbols anywhere: SYNTAX.md writes
               them as the binders below, and ¬ ∧ ∨ as words.
 
@@ -344,7 +327,6 @@ notation conditional
   reads       if, then
   metamath    wi
   target      _1 _2 wi
-  first-used  triangle-inequality
   note        The same connective as →, written the way a definition by cases
               is read. Both spellings are in the corpus. Unlike → it needs no
               assoc, because it opens with a token: `if A then if B then C`
@@ -357,7 +339,6 @@ notation absolute-value
   reads       the absolute value of
   metamath    cabs
   target      _1 cabs cfv
-  first-used  triangle-inequality
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
@@ -370,7 +351,6 @@ notation cardinality
   reads       the number of elements of
   metamath    chash
   target      _1 chash cfv
-  first-used  subsets
 
 notation distance
   pattern     |__|
@@ -379,7 +359,6 @@ notation distance
   reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
   target      _1 _2 cmin co cabs cfv
-  first-used  isosceles
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
               |CA| would otherwise read as a product; the point sort is what
@@ -393,7 +372,6 @@ notation factorial
   reads       factorial
   metamath    cfa
   target      _1 cfa cfv
-  first-used  infinitely-many-primes
   note        No assoc: only the left edge is a hole, so n!! reads one way.
 
 notation gcd
@@ -403,7 +381,6 @@ notation gcd
   reads       the greatest common divisor of
   metamath    cgcd
   target      _1 _2 cgcd co
-  first-used  bezout
 
 notation min
   pattern     min(_, _)
@@ -412,7 +389,6 @@ notation min
   reads       the smaller of
   metamath    cif, cle
   target      _1 _2 cle wbr _1 _2 cif
-  first-used  intermediate-value
   note        set.mm has no minimum of its own: it writes the smaller of A
               and B as if ( A <_ B , A , B ), and proves what the page needs
               of that (`min1`, `min2`, `ltmin`).
@@ -424,7 +400,6 @@ notation max
   reads       the larger of
   metamath    cif, cle
   target      _1 _2 cle wbr _2 _1 cif
-  first-used  intermediate-value
   note        set.mm writes the larger of A and B as if ( A <_ B , B , A )
               (`max1`, `max2`, `maxle`).
 
@@ -435,7 +410,6 @@ notation binomial
   reads       choose
   metamath    cbc
   target      _1 _2 cbc co
-  first-used  binomial
   note        C(n, k) is n choose k, the number of k-element subsets of an
               n-element set, and def:stdlib/counting/binomial-coefficient gives its value.
               The `C` is a literal, and a proof that names a variable C
@@ -450,7 +424,6 @@ notation subset
   reads       is a subset of
   metamath    wss
   target      _1 _2 wss
-  first-used  bezout
 
 notation empty-set
   pattern     ∅
@@ -460,7 +433,6 @@ notation empty-set
   reads       the empty set
   metamath    c0
   target      c0
-  first-used  subsets
 
 notation singleton
   pattern     {_}
@@ -470,7 +442,6 @@ notation singleton
   reads       the set whose only element is
   metamath    csn
   target      _1 csn
-  first-used  subsets
 
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _
@@ -482,7 +453,6 @@ notation set-operations
   reads       union, difference, intersection
   metamath    cun, cdif, cin
   target      _1 _2 cun, _1 _2 cdif, _1 _2 cin
-  first-used  subsets
   note        Difference needs the assoc for the same reason subtraction does.
               No chain of any of the three occurs in the corpus.
 
@@ -495,7 +465,6 @@ notation powerset
   reads       the power set of
   metamath    cpw
   target      _1 cpw
-  first-used  cantor
   note        No assoc: only the right edge is a hole.
 
 notation supremum
@@ -507,7 +476,6 @@ notation supremum
   reads       the least upper bound of
   metamath    df-sup
   target      _1 cr clt csup
-  first-used  intermediate-value
   note        set.mm's supremum is taken in an order and over a set of numbers,
               and the page's is always the reals under <, which is what the
               target writes. Only `thm:stdlib/calculus/completeness`'s target writes it so far:
@@ -522,7 +490,6 @@ notation set-builder
   reads       the set of those in the second with the third
   metamath    crab
   target      _3 _1 _2 crab
-  first-used  bezout
   note        Told apart from set-image by what precedes the colon: a variable
               and its domain here, an expression there. See def:stdlib/sets/set-builder.
 
@@ -535,7 +502,6 @@ notation set-image
   reads       the set of the first as the second runs over the third
   metamath    the range of a cmpt, which is what elrnmpt speaks of
   target      _2 _3 _1 cmpt crn
-  first-used  subsets
   note        The binding hole is not the first one, which is why `binds` names
               the holes rather than assuming an order. See def:stdlib/functions/set-image.
 
@@ -549,7 +515,6 @@ notation map
   reads       the map sending each of the first in the second to the third
   metamath    cmpt
   target      _1 _2 _3 cmpt
-  first-used  subsets
   note        What set-image is the range of, which is why the two agree on
               everything but the `crn`. The corpus can say what a function
               does to a thing and what comes out of it, and until this could
@@ -570,7 +535,6 @@ notation function-type
   reads       is a function from, to
   metamath    wf
   target      _2 _3 _1 wf
-  first-used  cantor
 
 notation application
   pattern     _(_)
@@ -580,7 +544,6 @@ notation application
   reads       applied to
   metamath    cfv
   target      _2 _1 cfv
-  first-used  cantor
   note        Written identically to juxtaposition-multiplication: f(x) applies
               and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
@@ -594,7 +557,6 @@ notation holds-of
   reads       holds of
   metamath    substitution into a wff, which set.mm writes by naming the
               variable rather than with a constructor
-  first-used  bezout
   note        P(t) says the property P holds of t. It is not a function applied
               to an argument: nothing is called, and P(t) is the property with
               t written into it, which is why its target is substitution rather
@@ -614,7 +576,6 @@ notation closed-interval
   reads       the closed interval from, to
   metamath    cicc
   target      _1 _2 cicc co
-  first-used  intermediate-value
 
 notation integer-range
   pattern     {_, …, _}
@@ -624,7 +585,6 @@ notation integer-range
   reads       the whole numbers from, to
   metamath    cfz
   target      _1 _2 cfz co
-  first-used  binomial
   note        The range a sum runs over, written as a set so that a line can
               say something of every index in it. A sum over {0, …, m} and a
               line "for every k ∈ {0, …, m}" name one set, which is how a
@@ -641,7 +601,6 @@ notation juxtaposition
   reads       times
   metamath    cmul
   target      folded
-  first-used  sqrt2-irrational
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
               it the √2 proof could not cite def:stdlib/divisibility/divides, whose statement says
@@ -661,7 +620,6 @@ notation point
   yields      sort
   reads       a point of the plane
   metamath    an element of ℂ
-  first-used  isosceles
   note        A sort name rather than a notation: it appears in `let A be a
               point`, which is a hypothesis line, not inside a formula.
 
@@ -672,7 +630,6 @@ notation angle
   reads       the angle at the second from the first to the third
   metamath    the absolute value of ang applied to the two differences
   target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
-  first-used  isosceles
   note        Three juxtaposed holes after a token. set.mm's angle function is
               signed and it never names it, so `ang` is the one constant this
               corpus introduces; see def:stdlib/geometry/angle. The absolute value is what
@@ -693,7 +650,6 @@ notation congruent
               co _1 _3 cmin co cang co cabs cfv _5 _6 cmin co _4 _6 cmin co cang
               co cabs cfv wceq wa _3 _1 cmin co _2 _1 cmin co cang co cabs cfv _6
               _4 cmin co _5 _4 cmin co cang co cabs cfv wceq wa
-  first-used  isosceles
 
 
 # Binders. A hole marked by `binds` introduces a variable that scopes over
@@ -709,7 +665,6 @@ notation for-every
   reads       for every
   metamath    wral
   target      _3 _1 _2 wral
-  first-used  sum-formula
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
 
@@ -723,7 +678,6 @@ notation for-every-with
   reads       for every, with
   metamath    wral, with wi inside it
   target      _3 _4 wi _1 _2 wral
-  first-used  intermediate-value
   note        The restricted universal, "for every ε ∈ ℝ with ε > 0". Two uses,
               the definition of continuity and step 16 of the pilot that needs
               it. Writing it as "for every ε ∈ ℝ, if ε > 0 then ..." was the
@@ -747,7 +701,6 @@ notation there-is
   reads       there is, there is no
   metamath    wrex, and wrex under wn
   target      _3 _1 _2 wrex, folded
-  first-used  sqrt2-irrational
 
 notation there-is-some
   pattern     there is _ ∈ _
@@ -759,7 +712,6 @@ notation there-is-some
   reads       there is
   metamath    wrex over a true body; set.mm states it as ≠ ∅
   target      wtru _1 _2 wrex
-  first-used  subsets
   note        Nonemptiness, with a name for the element and nothing said about
               it. Three uses: the statement of thm:stdlib/counting/card-nonempty and a
               hypothesis each of thm:stdlib/numbers/well-ordering and thm:stdlib/calculus/completeness.
@@ -781,7 +733,6 @@ notation there-are
   reads       there are, and, with
   metamath    wrex nested twice, one for each variable
   target      _5 _3 _4 wrex _1 _2 wrex
-  first-used  bezout
   note        The two-variable form. Six uses: Bezout's statement and its
               step 19, the set-builder body of its define line, and the
               statements of def:stdlib/numbers/rational, thm:proof/sqrt2-irrational/lowest-terms and
@@ -799,7 +750,6 @@ notation for-every-set
   reads       for every set
   metamath    wal, with no restricting domain
   target      _2 _1 wal
-  first-used  subsets
   note        The domain-free binder, quantifying over an arbitrary set rather
               than over the elements of a named one. It is the formula-position
               counterpart of the hypothesis line `let X be a set`, exactly as
@@ -821,7 +771,6 @@ notation divides
   reads       divides
   metamath    wbr with cdvds
   target      _1 _2 cdvds wbr
-  first-used  sqrt2-irrational
   note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
 
 notation congruent-mod
@@ -832,7 +781,6 @@ notation congruent-mod
   reads       is congruent to, modulo
   metamath    wbr with cdvds, of a difference
   target      _3 _1 _2 cmin co cdvds wbr
-  first-used  divisibility-by-three
   note        a ≡ b (mod n) says n divides a − b, which is Hammack's definition
               and what the target writes, so a congruence and the divisibility
               it abbreviates are one formula and every lemma about the one is
@@ -848,7 +796,6 @@ notation sum
   reads       the sum, from, to, of
   metamath    csu over ( M ... N )
   target      _2 _3 cfz co _4 _1 csu
-  first-used  divisibility-by-three
   note        The sum of the fourth hole for each whole number from the second
               to the third. It binds tighter than + and −, as a reader expects:
               Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) is one sum less
@@ -864,7 +811,6 @@ notation series
   reads       the sum, from, without end, of
   metamath    csu over ( ZZ>= ` M )
   target      _2 cuz cfv _3 _1 csu
-  first-used  triangular-reciprocals
   note        The sum of the third hole for every whole number from the second
               on: the value of the series, which thm:stdlib/calculus/series-value
               says is the limit of its partial sums. set.mm sums over the
@@ -880,7 +826,6 @@ notation tends-to
   reads       tends to, as, grows without end
   metamath    ~~> of the sequence ( n e. NN |-> a )
   target      _3 cn _1 cmpt _2 cli wbr
-  first-used  triangular-reciprocals
   note        A sequence tending to a limit, written as a textbook writes it:
               the first hole is its n-th term, and the third names n. The
               sequence is indexed by ℕ. set.mm's `~~>` is a relation between
@@ -897,7 +842,6 @@ notation parity
   reads       is even, is odd, is not odd
   metamath    2 ∥ n and its negation
   target      c2 _1 cdvds wbr, c2 _1 cdvds wbr wn, folded
-  first-used  sqrt2-irrational
   note        "is not odd" keeps the word inside the phrase, which is how the
               corpus reads best, and the `negates` line is what makes it the
               same formula as "not (n is odd)". Without it the √2 proof could
@@ -911,7 +855,6 @@ notation prime
   reads       is prime
   metamath    wcel with cprime
   target      _1 cprime wcel
-  first-used  infinitely-many-primes
 
 notation irrational
   pattern     _ is irrational
@@ -921,7 +864,6 @@ notation irrational
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
   target      _1 cr cq cdif wcel
-  first-used  sqrt2-irrational
 
 notation is-a-point
   pattern     _ is a point
@@ -932,7 +874,6 @@ notation is-a-point
   reads       is a point
   metamath    wcel with ℂ, the plane
   target      _1 cc wcel
-  first-used  isosceles
   note        The counterpart of the `let A be a point` introduction, as
               is-a-set is of `let X be a set`. What a point is made of is the
               encoding and the reader does not meet it: the page says a point
@@ -947,7 +888,6 @@ notation is-a-set
   reads       is a set
   metamath    wcel with _V, as difexg states it
   target      _1 cvv wcel
-  first-used  subsets
   note        Sethood, which ZF distinguishes from being a proper class and
               set.mm writes as membership of _V. One use, thm:stdlib/sets/difference-set;
               a proof does not write that a set built from sets is a set
@@ -966,7 +906,6 @@ notation bound
   target      vs cv _1 cle wbr vs _2 wral,
               vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
               _1 vt cv cle wbr wi vt cr wral wa
-  first-used  intermediate-value
   note        set.mm has no upper bound of its own: `df-sup` builds the idea
               inside a class abstraction and nothing names it. So each entry
               is the quantified formula `def:stdlib/calculus/upper-bound` and
@@ -985,7 +924,6 @@ notation continuous
   reads       is continuous on
   metamath    ccncf
   target      _1 _2 cr ccncf co wcel
-  first-used  intermediate-value
   note        set.mm has no predicate for continuity at all: `-cn->` takes a
               domain and a codomain and gives the set of continuous functions
               between them, so continuity is membership of that set. The
@@ -1007,7 +945,6 @@ notation collinear
               the ∠ notation stands declared: incidence is a primitive of the
               geometry, and what it means in set.mm's plane is the same
               question def:stdlib/geometry/point leaves open.
-  first-used  isosceles
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
@@ -1018,7 +955,6 @@ notation forms-a-triangle
   metamath    the three vertices distinct and not on one line
   target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa
               _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wn wa
-  first-used  isosceles
 
 notation bijection
   pattern     there is a bijection from _ to _
@@ -1029,7 +965,6 @@ notation bijection
   reads       there is a bijection from, to
   metamath    wbr with cen
   target      _1 _2 cen wbr
-  first-used  subsets
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a
               function built on the spot.

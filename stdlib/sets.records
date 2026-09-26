@@ -13,14 +13,13 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 definition subset
   then        X ⊆ Y ↔ for every t ∈ X, t ∈ Y
   metamath    df-ss, ssel
   target      dfss3
-  first-used  bezout
 
 definition set-builder
   let X be a set                                                      (H1)
@@ -28,7 +27,6 @@ definition set-builder
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
   metamath    rabid, elrab
   target      rabid, elrab
-  first-used  bezout
   note        P(t) says the property holds of t. The line above says what P is
               a property of and never mentions t, because the braces are what
               introduce t: it does not exist until they open. See the
@@ -48,7 +46,6 @@ theorem set-builder-subset
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
   target      ssrab2
-  first-used  bezout
 
 theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
@@ -56,20 +53,17 @@ theorem subset-transitive
   then        X ⊆ Z
   metamath    sstr
   target      sstr
-  first-used  intermediate-value
 
 definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
   metamath    elpw, elpwg
   target      elpwg
-  first-used  cantor
 
 theorem powerset-empty
   then        𝒫∅ = {∅}
   metamath    pw0
   target      pw0
-  first-used  subsets
 
 theorem difference-set
   let X be a set                                                      (H1)
@@ -77,7 +71,6 @@ theorem difference-set
   then        X ∖ {a} is a set
   metamath    difexg
   target      difexg
-  first-used  subsets
 
 theorem subset-of-difference
   let a be an element                                                 (H1)
@@ -85,7 +78,6 @@ theorem subset-of-difference
   then        a ∉ Y
   metamath    ssdifsn
   target      ssdifsn
-  first-used  subsets
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
 
@@ -94,14 +86,12 @@ theorem difference-of-union
   then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
   metamath    difun2
   target      difun2
-  first-used  subsets
 
 theorem difference-absent
   let a ∉ Y                                                           (H1)
   then        Y ∖ {a} = Y
   metamath    difsn
   target      difsn
-  first-used  subsets
 
 theorem not-in-subset
   let a ∉ Z                                                           (H1)
@@ -109,21 +99,18 @@ theorem not-in-subset
   then        a ∉ Y
   metamath    ssneld
   target      ssneld
-  first-used  subsets
 
 theorem in-union-singleton
   let a be an element                                                 (H1)
   then        a ∈ Y ∪ {a}
   metamath    elun2, over the singleton snidg puts a in
   target      elun2
-  first-used  subsets
 
 theorem disjoint-empty
   assume for every s ∈ Z, s ∉ Y                                       (H1)
   then        Y ∩ Z = ∅
   metamath    disjr
   target      disjr
-  first-used  subsets
   note        Two sets are disjoint when nothing in one is in the other, which
               is what a reader proves. set.mm says it twice, over the first set
               in `disj` and over the second in `disjr`, and the second is the
@@ -136,7 +123,6 @@ theorem not-in-difference
   then        a ∉ X ∖ {a}
   metamath    neldifsn
   target      neldifsn
-  first-used  subsets
   note        Added because thm:proof/subsets/add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
@@ -147,7 +133,6 @@ theorem subset-antisymmetric
   then        X = Y
   metamath    eqss
   target      eqss
-  first-used  subsets
 
 theorem union-subset
   assume X ⊆ Z                                                        (H1)
@@ -155,34 +140,29 @@ theorem union-subset
   then        X ∪ Y ⊆ Z
   metamath    unss
   target      unss
-  first-used  subsets
 
 theorem in-union-left
   assume u ∈ Y                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath    elun1
   target      elun1
-  first-used  subsets
 
 theorem in-union-right
   assume u ∈ Z                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath    elun2
   target      elun2
-  first-used  subsets
 
 theorem difference-subset
   then        X ∖ Y ⊆ X
   metamath    difss
   target      difss
-  first-used  subsets
 
 theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
   then        Y ∖ Z ⊆ X ∖ Z
   metamath    ssdif
   target      ssdif
-  first-used  subsets
 
 theorem subset-into-difference
   let a be an element                                                 (H1)
@@ -191,7 +171,6 @@ theorem subset-into-difference
   then        Y ⊆ X ∖ {a}
   metamath    ssdifsn
   target      ssdifsn
-  first-used  subsets
   note        The other half of `ssdifsn` from `thm:stdlib/sets/subset-of-difference`:
               inside X and without a is inside X ∖ {a}.
 
@@ -200,21 +179,18 @@ theorem remove-and-restore
   then        (Y ∖ {a}) ∪ {a} = Y
   metamath    difsnid
   target      difsnid
-  first-used  subsets
 
 theorem singleton-subset
   let a ∈ X                                                           (H1)
   then        {a} ⊆ X
   metamath    snssi
   target      snssi
-  first-used  subsets
 
 theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X
   metamath    sspw
   target      sspw
-  first-used  subsets
 
 theorem intersection-member
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z

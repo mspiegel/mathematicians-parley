@@ -13,7 +13,7 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 definition factorial
@@ -22,7 +22,6 @@ definition factorial
   then        (n + 1)! = n!·(n + 1)
   metamath    fac1, facp1
   target      fac1, facp1
-  first-used  infinitely-many-primes
   note        Two `then` groups: the base sentence has no hypothesis and the
               step sentence has H1. See DATABASE.md on recursive definitions.
 
@@ -31,7 +30,6 @@ theorem factorial-nat
   then        n! ∈ ℕ
   metamath    faccl, which states it on ℕ0
   target      faccl
-  first-used  infinitely-many-primes
 
 theorem factorial-divisible
   let n ∈ ℕ                                                           (H1)
@@ -40,14 +38,12 @@ theorem factorial-divisible
   then        m divides n!
   metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
   target      dvdsfac
-  first-used  infinitely-many-primes
 
 definition card
   let A be a set                                                      (H1)
   let n ∈ ℕ₀                                                          (H2)
   then        |A| = n ↔ there is a bijection from {i ∈ ℕ : i ≤ n} to A
   metamath    hashen, hashfz1
-  first-used  subsets
 
 theorem card-zero
   let X be a set                                                      (H1)
@@ -55,14 +51,12 @@ theorem card-zero
   then        X = ∅
   metamath    hasheq0
   target      hasheq0
-  first-used  subsets
 
 theorem card-singleton
   let x be an element                                                 (H1)
   then        |{x}| = 1
   metamath    hashsng
   target      hashsng
-  first-used  subsets
   note        A singleton has one element only when there is an element for it
               to have: `{ x }` for a proper class x is empty, and `hashsng`
               asks for the set because of it.
@@ -74,7 +68,6 @@ theorem card-nonempty
   then        there is a ∈ X
   metamath    hashgt0elex
   target      hashgt0elex with V := X
-  first-used  subsets
   note        `hashgt0elex` asks that the size be positive where the
               hypothesis says what the size is, so the size is read as
               k + 1 through that hypothesis before `nn0p1gt0` answers.
@@ -87,7 +80,6 @@ theorem card-remove
   then        |X ∖ {a}| = k
   metamath    hashdifsnp1
   target      hashdifsnp1 with V := X, N := a, Y := k
-  first-used  subsets
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
 
@@ -100,7 +92,6 @@ theorem card-bijection
   then        |Y| = m
   metamath    hashen
   target      hashen with A := X, B := Y
-  first-used  subsets
 
 theorem card-disjoint-union
   let X be a set                                                      (H1)
@@ -113,7 +104,6 @@ theorem card-disjoint-union
   then        |X ∪ Y| = m + n
   metamath    hashun
   target      hashun with A := X, B := Y
-  first-used  subsets
 
 definition binomial-coefficient
   let n ∈ ℕ₀                                                          (H1)
@@ -121,7 +111,6 @@ definition binomial-coefficient
   then        C(n, k) = n!/((n − k)!·k!)
   metamath    bcval2
   target      bcval2
-  first-used  binomial
   note        set.mm defines C(n, k) for every integer k, as 0 outside
               0 … n, and the formula is its value inside. The binomial proof
               does not unfold this: it rests on Pascal's rule and on the
@@ -133,7 +122,6 @@ theorem pascal
   then        C(n, k) + C(n, k − 1) = C(n + 1, k)
   metamath    bcpasc
   target      bcpasc
-  first-used  binomial
   note        Holds for every integer k, the ends included, because C(n, k)
               is 0 outside 0 … n.
 
@@ -142,7 +130,6 @@ theorem binomial-zero-index
   then        C(n, 0) = 1
   metamath    bcn0
   target      bcn0
-  first-used  binomial
 
 theorem binomial-above
   let n ∈ ℕ₀                                                          (H1)
@@ -151,7 +138,6 @@ theorem binomial-above
   then        C(n, k) = 0
   metamath    bcval4
   target      bcval4
-  first-used  binomial
   note        set.mm states the two ways a coefficient is zero as one
               disjunction, k < 0 or n < k. This is the second of them, and the
               disjunction is apparatus `olc` supplies from it.
@@ -161,7 +147,6 @@ theorem binomial-below
   then        C(n, −1) = 0
   metamath    bcneg1
   target      bcneg1
-  first-used  binomial
 
 theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)
@@ -169,7 +154,6 @@ theorem binomial-nat0
   then        C(n, k) ∈ ℕ₀
   metamath    bccl
   target      bccl
-  first-used  binomial
 
 theorem card-empty
   then        |∅| = 0

@@ -15,20 +15,18 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, first-used, note.
+# Other fields: target, note.
 
 
 definition rational
   then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℕ with x = p/q
   metamath    elq
   target      elq
-  first-used  sqrt2-irrational
 
 definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
   metamath    ℝ ∖ ℚ, as in sqrt2irr0
   target      eldif
-  first-used  sqrt2-irrational
   note        Names a word for an existing set.mm construct rather than
               introducing a symbol. See DATABASE.md on what def: means.
 
@@ -38,7 +36,6 @@ definition sqrt
   then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
   metamath    df-sqrt, resqrtcl, sqrtge0, resqrtth
   target      resqrtcl, sqrtge0, resqrtth
-  first-used  sqrt2-irrational
 
 theorem int-closure
   let a ∈ ℤ                                                           (H1)
@@ -47,7 +44,6 @@ theorem int-closure
   then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
   metamath    zsqcl, zaddcl, zsubcl, zmulcl
   target      zsqcl, zaddcl, zsubcl, zmulcl
-  first-used  sqrt2-irrational
   note        The square stands in a group of its own because it needs one
               integer and the rest need two. A proof asking only that n² is an
               integer cites this item from one line, and a `then` group with
@@ -60,7 +56,6 @@ theorem nat-closure
   then        a + b ∈ ℕ. a·b ∈ ℕ.
   metamath    nnaddcl, nnmulcl
   target      nnaddcl, nnmulcl
-  first-used  infinitely-many-primes
 
 theorem real-closure
   let x ∈ ℝ                                                           (H1)
@@ -68,7 +63,6 @@ theorem real-closure
   then        x + y ∈ ℝ. x − y ∈ ℝ.
   metamath    readdcl, resubcl
   target      readdcl, resubcl
-  first-used  triangle-inequality
   note        The triangle inequality pilot stated addition only; the
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
@@ -78,7 +72,6 @@ theorem half-real
   then        x/2 ∈ ℝ
   metamath    rehalfcl
   target      rehalfcl
-  first-used  intermediate-value
 
 theorem half-positive
   let x ∈ ℝ                                                           (H1)
@@ -96,7 +89,6 @@ theorem nat0-closure
   then        k + 1 ∈ ℕ₀
   metamath    peano2nn0
   target      peano2nn0
-  first-used  geometric-series
 
 theorem nat-int
   let m ∈ ℕ                                                           (H1)
@@ -111,7 +103,6 @@ theorem int-real
   then        m ∈ ℝ
   metamath    zre
   target      zre
-  first-used  bezout
   note        `algebra` and `inequalities` work over a field, so a step
               reasoning about integers carries its atoms into ℝ first.
 
@@ -146,7 +137,6 @@ theorem nat0-int
   then        m ∈ ℤ
   metamath    nn0z
   target      nn0z
-  first-used  binomial
 
 theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
@@ -162,7 +152,6 @@ theorem pos-int-nat
   then        m ∈ ℕ
   metamath    elnnz
   target      elnnz
-  first-used  bezout
 
 theorem exponent-step
   let a ∈ ℝ                                                           (H1)
@@ -170,13 +159,11 @@ theorem exponent-step
   then        a^(m + 1) = a^m·a
   metamath    expp1
   target      expp1
-  first-used  geometric-series
 
 theorem ten-minus-one
   then        10 − 1 = 9
   metamath    10m1e9
   target      10m1e9
-  first-used  divisibility-by-three
   note        The one fact about 10 that `arithmetic` and `algebra` do not work
               out. They read a digit as its value and a numeral of more than
               one digit as a number they know nothing about, so what depends
@@ -188,7 +175,6 @@ theorem power-integer
   then        a^m ∈ ℤ
   metamath    zexpcl
   target      zexpcl
-  first-used  divisibility-by-three
 
 theorem power-real
   let a ∈ ℝ                                                           (H1)
@@ -196,7 +182,6 @@ theorem power-real
   then        a^m ∈ ℝ
   metamath    reexpcl
   target      reexpcl
-  first-used  geometric-series
   note        A power whose exponent is not a numeral is an atom to `algebra`,
               so it has to be known real in its own right rather than through
               its base.
@@ -207,7 +192,6 @@ theorem power-nat0
   then        a^m ∈ ℕ₀
   metamath    nn0expcl
   target      nn0expcl
-  first-used  subsets
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
 
@@ -216,7 +200,6 @@ theorem exponent-one
   then        a^1 = a
   metamath    exp1
   target      exp1
-  first-used  geometric-series
   note        The base case of the geometric series needs a^(0 + 1) = a. The
               arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
               exponent laws are theorems rather than closure methods.
@@ -226,28 +209,24 @@ theorem exponent-zero
   then        a^0 = 1
   metamath    exp0
   target      exp0
-  first-used  binomial
 
 theorem trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x
   metamath    lttri4, 0re
   target      lttri4 with B := 0
-  first-used  intermediate-value
 
 theorem nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
   then        x ≥ 0 or x < 0
   metamath    0re, lelttric
   target      lelttric
-  first-used  triangle-inequality
 
 theorem rational-coprime
   let x ∈ ℚ                                                           (H1)
   then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
   metamath    elq2
   target      elq2 with Q := x
-  first-used  sqrt2-irrational
   note        set.mm's second reading of being rational, beside elq, which is
               def:stdlib/numbers/rational. An implication and not a biconditional: it says a
               rational can be written one way, not what one is.
@@ -258,7 +237,6 @@ theorem well-ordering
   then        there is d ∈ S with for every s ∈ S, d ≤ s
   metamath    nnwo
   target      nnwo
-  first-used  bezout
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.
 
 definition abs
@@ -266,7 +244,6 @@ definition abs
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
   metamath    absid, absnid
   target      absid, absnid
-  first-used  triangle-inequality
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
               the real case. So this elaborates to a pair of theorems, not to a
               definition. It is still called def:stdlib/numbers/abs because that is what it is
@@ -277,7 +254,6 @@ theorem abs-real
   then        |x| ∈ ℝ
   metamath    recn, abscl
   target      abscl
-  first-used  triangle-inequality
   note        No proof cites it yet. `inequalities` treats |x| as an atom it
               knows nothing about, so an absolute value has to be known real
               like any other term. Eight steps of the triangle inequality and
@@ -291,7 +267,6 @@ theorem abs-difference-lt
   then        |x − c| < δ ↔ c − δ < x and x < c + δ
   metamath    absdiflt, abslt
   target      absdiflt
-  first-used  intermediate-value
 
 theorem min-real
   let x ∈ ℝ                                                           (H1)
@@ -299,7 +274,6 @@ theorem min-real
   then        min(x, y) ∈ ℝ
   metamath    ifcl
   target      ifcl
-  first-used  intermediate-value
 
 theorem min-le
   let x ∈ ℝ                                                           (H1)
@@ -307,7 +281,6 @@ theorem min-le
   then        min(x, y) ≤ x. min(x, y) ≤ y.
   metamath    min1, min2
   target      min1, min2
-  first-used  intermediate-value
 
 theorem lt-min
   let z ∈ ℝ                                                           (H1)
@@ -316,7 +289,6 @@ theorem lt-min
   then        z < min(x, y) ↔ z < x and z < y
   metamath    ltmin
   target      ltmin
-  first-used  intermediate-value
 
 theorem max-real
   let x ∈ ℝ                                                           (H1)
@@ -361,7 +333,6 @@ theorem reciprocal-positive
   then        1/x > 0
   metamath    recgt0
   target      recgt0
-  first-used  triangular-reciprocals
 
 theorem reciprocal-order
   let x ∈ ℝ                                                           (H1)
@@ -371,7 +342,6 @@ theorem reciprocal-order
   then        x ≤ y ↔ 1/y ≤ 1/x
   metamath    lerec
   target      lerec with A := x, B := y
-  first-used  triangular-reciprocals
   note        `inequalities` reads 1/x as an atom it knows nothing about, so
               that a larger number has the smaller reciprocal is cited. The
               `with` says which side is which: 1/y ≤ 1/x fits the near side
@@ -383,7 +353,6 @@ theorem archimedean
   then        there is N ∈ ℕ with 1/N < x
   metamath    nnrecl
   target      nnrecl
-  first-used  triangular-reciprocals
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
 

@@ -71,10 +71,8 @@ CASES = [
     ('name the wrong clause in a definition target',
      'proof/triangle-inequality/abs-bounds',
      'stdlib/numbers.records',
-     '  target      absid, absnid\n'
-     '  first-used  triangle-inequality',
-     '  target      absid, absid\n'
-     '  first-used  triangle-inequality',
+     '  target      absid, absnid\n',
+     '  target      absid, absid\n',
      'proof/triangle-inequality.proof:34  no clause of '
      'def:stdlib/numbers/abs gives what step 2.5 claims'),
 

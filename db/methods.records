@@ -10,7 +10,6 @@
 #   part-opens  what a part marker is followed by, when it carries an assumption
 #   checks      what a reader checks, from SYNTAX.md
 #   metamath    the lemma families the expansion targets
-#   first-used  the pilot that introduced it
 #   note        anything a reader or an implementer needs
 #
 # Every method must eventually carry a specified expansion, as READERS.md
@@ -24,7 +23,6 @@ method citation
               using the lines L to discharge its hypotheses. The claim is the
               literal instance of one sentence of X's conclusion.
   metamath    the cited item's own label, with substitution
-  first-used  sqrt2-irrational
   note        The method name is not written. The pointer is the justification.
               The prefix must match the kind of the item it names.
 
@@ -36,7 +34,6 @@ method obtain
   checks      the cited item, or with no item the line in L, concludes an
               existence claim. Name its objects a and b. The claim is the body.
   metamath    exlimiv, eximd, rexlimiv
-  first-used  sqrt2-irrational
   note        obtain keeps its names, because a new name is a choice the reader
               cannot infer.
 
@@ -47,7 +44,6 @@ method exhibit
               with some value in place of the bound variable, and the reader
               finds the value by comparing.
   metamath    rspcev, spcev
-  first-used  sqrt2-irrational
   note        The value is never written. By the literal-instance rule the cited
               lines determine it. Where the "there is" is a sentence of a cited
               definition, no keyword is used and the citation stands alone.
@@ -61,7 +57,6 @@ method substitute
               the claim is t = t′, where t′ is t with one side of e replaced by
               the other.
   metamath    oveq1d, oveq2d, eqtrd, fveq2d
-  first-used  sqrt2-irrational
   note        The equation e may be used from either side.
 
 method instantiate
@@ -72,7 +67,6 @@ method instantiate
               once. L may also be a hypothesis or supposition label, or a
               definition whose sentence is a "for every".
   metamath    rspcv, rspccva
-  first-used  bezout
 
 method algebra
   form        algebra, from L
@@ -90,7 +84,6 @@ method algebra
               both are dull facts discharged by a cited line or a requires line
   specified-in METHODS.md
   metamath    a normaliser over the ℂ field lemmas
-  first-used  sqrt2-irrational
   note        Turns (1 − a^(k + 1))/(1 − a) + a^(k + 1) into
               (1 − a^(k + 1)·a)/(1 − a), but will not turn a^(k + 1)·a into
               a^(k + 2), because the exponent is not a numeral and so the power
@@ -109,7 +102,6 @@ method arithmetic
   specified-in METHODS.md
   metamath    2re, 2z, 0z, 1z, 1nn, 2pos, 2ne0, 1lt2, and the deccl and decadd
               families for longer numerals
-  first-used  sqrt2-irrational
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
 
@@ -124,7 +116,6 @@ method membership
               being a digit other than zero or a product of such
   specified-in METHODS.md
   metamath    readdcld, remulcld, redivcld, divcld, mulne0d, divne0d
-  first-used  triangular-reciprocals
   note        What algebra and inequalities work out for every atom they
               touch, stated as a step's claim, so that a membership is one
               line rather than a library item per operation.
@@ -140,7 +131,6 @@ method inequalities
               requires line like any other dull fact
   specified-in METHODS.md
   metamath    ltne, lelttr, ltnle, letri3
-  first-used  sqrt2-irrational
   note        The name misleads. This is about the ordering of numbers, not
               about things being unequal. A ≠ reaches it only because the
               order gives one a meaning — a ≠ b is a < b or b < a — so a
@@ -161,7 +151,6 @@ method join
   specified-in METHODS.md
   metamath    jca, and the projection lemmas where a cited line contributes one
               of several sentences
-  first-used  sqrt2-irrational
   note        Named `lines` until it was specified. That name said what it
               cited and nothing about what it did, and four unrelated jobs
               collected under it unnoticed: joining, double negation,
@@ -180,7 +169,6 @@ method contradiction
               The block's last step states some P and also not P. Any
               rewriting of B is a step inside the block. See METHODS.md.
   metamath    pm2.65, and notnotr as well where the claim is not a negation
-  first-used  sqrt2-irrational
 
 method fix
   form        fix
@@ -190,7 +178,6 @@ method fix
               per let line and in that order. The block opens with the claim's
               let and assume lines, each labelled, and its last step is B.
   metamath    ralrimiva, ex, alrimiv
-  first-used  sum-formula
   note        The same rule by which a theorem's block proves its statement. At
               theorem level no method is named because the let and assume lines
               are the statement.
@@ -209,7 +196,6 @@ method induction
               P(m). The step part's last step claims "for every k ∈ ℤ with
               k ≥ m, if P(k) then P(k + 1)", with P read off the claim.
   metamath    nnind, nn0ind, uzind
-  first-used  sum-formula
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need
               no new form.
@@ -224,7 +210,6 @@ method cases
               labelled, in the order of L, and its last step claims the same
               formula as the step above the block.
   metamath    jaodan, jaoi
-  first-used  triangle-inequality
   note        A case that is impossible still ends by claiming the common
               formula: it reaches some P and not P, then claims the formula by
               thm:stdlib/reasoning/from-contradiction.
@@ -237,7 +222,6 @@ method calculation
               The claim is first term rel last term, with rel being = if every
               line is =, ≤ if every line is = or ≤, and < if any line is <.
   metamath    eqtrd, 3eqtrd, eqbrtrd, lelttrd
-  first-used  sqrt2-irrational
   note        A calculation only joins. Every line cites a numbered step or
               label that states that line's relation, and all reasoning is in
               those steps. A chain never carries a method on a line. A line may
