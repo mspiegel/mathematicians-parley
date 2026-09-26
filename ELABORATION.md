@@ -537,9 +537,13 @@ in standard form, so T(k) is k(k + 1)/2; that is built from its parts by the
 closure table, each atom's membership from a line the step cites or writes,
 carried by one lemma (`bridged`); and `same` carries it back to the claim as
 written. A divisor is not zero by a line, by being a digit, by a membership
-that says so (`let k ∈ ℕ`), or as a product or quotient of such (`mulne0d`,
-`divne0d`). A requires line may name it too, and is proved the same way from
-the lines it cites (`member_of`).
+that says so (`let k ∈ ℕ`), by being built in ℕ (`nnne0`), or as a product or
+quotient of such (`mulne0d`, `divne0d`). A requires line may name it too, and
+is proved the same way from the lines it cites (`member_of`). A claim said of
+every member is proved of one fixed by `widen`, with what its membership says
+laid beside it (`fixed`), and closed by `ralrimiva`; a sum over a range is
+`fsumrecl` or `fsumcl` over its term, proved with the index fixed in the
+range the same way (`summed`), and `fzfid` says the range is finite.
 
 The normaliser reads only the arithmetic it normalises, and a division
 inside anything else — the summand of Σ(k = 1 to n) 1/T(k) — belongs to that

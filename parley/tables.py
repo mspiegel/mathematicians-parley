@@ -12,6 +12,7 @@ import contextlib
 from fractions import Fraction
 
 import field
+import kernel
 import linear
 import normal
 import rules
@@ -351,61 +352,89 @@ class TableReading:
         """What a membership says of its term besides itself, as
         (claim, lemmas) pairs: the lemmas carry the membership to the claim
         one after another (`SYNTAX.md`, what a membership line says, and the
-        table in `rules.py`). Empty for anything but a membership of a
-        number system.
+        table in `rules.py`). A membership of a range is first one of the
+        number system the table puts the range in: k ∈ {1, …, n} gives
+        k ∈ ℕ by `elfznn`. Empty for anything else.
         """
+        return [(claim, [lemma for lemma, _binding, _at in chain])
+                for claim, chain in self.implied_chains(said)]
+
+    def implied_chains(self, said):
+        """`implied_terms` with each lemma's binding and what it reaches."""
         node = self.to_term(said)
         if node.variable is not None or node.label != 'wcel' \
                 or len(node.children) != 2:
             return []
-        term = node.children[0]
         system = node.children[1].rpn(self.flabel)
+        head = []
         if system not in rules.WITHIN and system not in rules.IMPLIED:
-            return []
-        out = []
+            where = node.children[1]
+            if where.variable is not None or where.label != 'co' \
+                    or len(where.children) != 3 \
+                    or where.children[2].rpn(self.flabel) != 'cfz':
+                return []
+            start = where.children[0].rpn(self.flabel)
+            for inside, first, lemma in rules.RANGE_WITHIN:
+                if first is None or first == start:
+                    made = self.lemma_step(lemma, node)
+                    if made is not None:
+                        head, system = [made], inside
+                        break
+            if not head:
+                return []
+        out = [(head[0][2].rpn(self.flabel), head)] if head else []
+        at = head[-1][2] if head else node
         for big in rules.SYSTEM_OF.values():
             path = rules.within_path(system, big)
-            if path:
-                out.append((self.seq(term.rpn(self.flabel), big, 'wcel'),
-                            path))
+            if not path:
+                continue
+            chain, here = list(head), at
+            for lemma in path:
+                made = self.lemma_step(lemma, here)
+                chain.append(made)
+                here = made[2]
+            out.append((here.rpn(self.flabel), chain))
         for _page, lemma in rules.IMPLIED.get(system, ()):
-            out.append((self.consequent(lemma, term), [lemma]))
+            made = self.lemma_step(lemma, at)
+            out.append((made[2].rpn(self.flabel), [*head, made]))
             # The page writes k ≠ 0 as a denied equation, `nnne0` as =/=.
-            said_ne = out[-1][0]
-            if said_ne.split()[-1] == 'wne':
-                a, b = (c.rpn(self.flabel)
-                        for c in self.to_term(said_ne).children)
-                out.append((self.seq(self.seq(a, b, 'wceq'), 'wn'),
-                            [lemma, 'neneqd']))
+            if made[2].label == 'wne':
+                a, b = made[2].children
+                denied = kernel.Term('wn', (kernel.Term('wceq', (a, b)),))
+                out.append((denied.rpn(self.flabel),
+                            [*head, made, ('neneqd', None, denied)]))
         return out
 
-    def consequent(self, lemma, term):
-        """What a one-hypothesis lemma `( P(A) -> Q(A) )` concludes at A."""
-        sig = self.sigs[lemma]
-        whole = self.syntax.statement(sig)
-        return whole.substitute({sig.push[0]: term}).children[1].rpn(
-            self.flabel)
+    def lemma_step(self, lemma, fact):
+        """(lemma, binding, what it concludes) for a lemma `( P -> Q )`
+        applied to a term matching P, or None where it does not match.
+        """
+        whole = self.syntax.statement(self.sigs[lemma])
+        binding = kernel.match(whole.children[0], fact, {}, whole.names())
+        if binding is None:
+            return None
+        return lemma, binding, whole.children[1].substitute(binding)
 
     def implied(self, said, proof, scope):
         """Each thing a membership line also says, with its proof under
         `scope` from the line's own `proof`: {claim: proof}.
         """
         out = {}
-        for claim, lemmas in self.implied_terms(said):
+        for claim, chain in self.implied_chains(said):
             held, at = proof, said
-            term = self.to_term(said).children[0].rpn(self.flabel)
-            for lemma in lemmas:
+            for lemma, binding, reached in chain:
+                after = reached.rpn(self.flabel)
                 if lemma == 'neneqd':
                     a, b = (c.rpn(self.flabel)
                             for c in self.to_term(at).children)
                     held = self.ap('neneqd', {'ph': scope, 'A': a, 'B': b},
                                    held)
-                    at = claim
-                    continue
-                after = self.consequent(lemma, self.to_term(term))
-                held = self.seq(scope, at, after, held,
-                                self.ap(lemma, {self.sigs[lemma].push[0]:
-                                                term}), 'syl')
+                else:
+                    held = self.seq(scope, at, after, held,
+                                    self.ap(lemma, {name: value.rpn(
+                                        self.flabel)
+                                        for name, value in binding.items()}),
+                                    'syl')
                 at = after
             out[claim] = held
         return out
@@ -627,6 +656,11 @@ class TableReading:
                 more = self.implied(said, proof, scope)
                 if apart in more:
                     return more[apart]
+        # A divisor built in ℕ is not zero (`nnne0`): k + 1 is, where k is.
+        natural = self.part(divisor, 'cn', scope, facts)
+        if not declined(natural):
+            return self.seq(scope, self.seq(divisor, 'cn', 'wcel'), apart,
+                            natural, self.ap('nnne0', {'A': divisor}), 'syl')
         # A product or quotient is not zero when its parts are not.
         node = self.to_term(divisor)
         if node.variable is None and node.label == 'co' \

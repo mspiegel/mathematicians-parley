@@ -347,9 +347,35 @@ CASES = [
     ('membership from a line that says nothing of the atom',
      'proof/triangular-reciprocals/triangular-reciprocals',
      'proof/triangular-reciprocals.proof',
-     'requires ε/2 ∈ ℝ: membership, from K6',
+     'requires ε/2 ∈ ℝ: membership, from K3',
      'requires ε/2 ∈ ℝ: membership, from A1',
-     'rests on K6, which it does not name'),
+     'rests on K3, which it does not name'),
+
+    # A sum's terms are built for each index in its range, and from 0 the
+    # first of them divides by T(0), which nothing says is not zero.
+    ('membership of a sum whose first term divides by zero',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     '                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership\n'
+     '                  requires ε ∈ ℝ: from K3\n'
+     '                  requires n ∈ ℝ: from K4\n'
+     '                  requires n + 1 ≠ 0: inequalities, from K4\n'
+     '                  requires N ∈ ℝ: from 3.2',
+     '                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership\n'
+     '                  requires ε ∈ ℝ: from K3\n'
+     '                  requires n ∈ ℝ: from K4\n'
+     '                  requires n + 1 ≠ 0: inequalities, from K4\n'
+     '                  requires N ∈ ℝ: from 3.2',
+     'is not built from what the requires line cites'),
+
+    # Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
+    # gives no k ≠ 0.
+    ('membership said of every integer where a divisor may be zero',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     'requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: membership',
+     'requires for every k ∈ ℤ, 1/T(k) ∈ ℝ: membership',
+     'is not built from what the requires line cites'),
 
     # A membership line says what the table in `rules.py` says it does and
     # nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since

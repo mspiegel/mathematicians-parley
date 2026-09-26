@@ -16,6 +16,7 @@ import math
 from fractions import Fraction
 
 import field
+import kernel
 import linear
 import normal
 import rules
@@ -1104,10 +1105,28 @@ class Calculators:
         lines are the caller's to gather; a requires line naming the method
         has its citations in hand already (`side`).
         """
+        # Said of every member: the member is fixed, what its membership
+        # says is laid beside it, and the claim is generalised, as a `fix`
+        # block would do it.
+        if claim.variable is None and claim.label == 'wral':
+            body, variable, over = claim.children
+            with self.frames_kept():
+                inner, lifted = self.fixed(scope, known, variable, over)
+                made = self.member_of(body, inner, lifted, step)
+            if declined(made):
+                return made
+            return self.seq(scope, body.rpn(self.flabel),
+                            variable.rpn(self.flabel), over.rpn(self.flabel),
+                            made, 'ralrimiva')
         term = claim.rpn(self.flabel)
         read = self.standard(claim)
-        made = self.part(read.children[0].rpn(self.flabel),
-                         read.children[1].rpn(self.flabel), scope, known)
+        whole, system = read.children
+        if whole.variable is None and whole.label == 'csu':
+            made = self.summed(whole, system.rpn(self.flabel), scope, known,
+                               step)
+        else:
+            made = self.part(whole.rpn(self.flabel), system.rpn(self.flabel),
+                             scope, known)
         if declined(made) or read.rpn(self.flabel) == term:
             return made
         alike = self.same(read, claim, scope, known, step)
@@ -1115,6 +1134,40 @@ class Calculators:
             return alike
         return self.seq(scope, read.rpn(self.flabel), term, made, alike,
                         'mpbid')
+
+    def fixed(self, scope, known, variable, over):
+        """The scope widened by one member of `over`, and the facts with
+        what that membership says laid beside it (`implied`).
+        """
+        member = self.seq(f'{variable.rpn(self.flabel)} cv',
+                          over.rpn(self.flabel), 'wcel')
+        inner, lifted = self.widen(scope, known, member)
+        return inner, {**lifted,
+                       **self.implied(member, lifted[member], inner)}
+
+    def summed(self, whole, system, scope, known, step):
+        """A finite sum in ℝ or ℂ because each term is, for each index in
+        its range (`fsumrecl`, `fsumcl`); a decline for anything else.
+        """
+        lemma = {'cr': 'fsumrecl', 'cc': 'fsumcl'}.get(system)
+        limits, summand, index = whole.children
+        if lemma is None or limits.variable is not None \
+                or limits.label != 'co' \
+                or limits.children[2].rpn(self.flabel) != 'cfz':
+            return Declined(f'a sum in {system} over this range is not '
+                            f'written')
+        low, high = (c.rpn(self.flabel) for c in limits.children[:2])
+        finite = self.ap('fzfid', {'ph': scope, 'M': low, 'N': high})
+        with self.frames_kept():
+            inner, lifted = self.fixed(scope, known, index, limits)
+            each = self.member_of(
+                kernel.Term('wcel', (summand, self.to_term(system))),
+                inner, lifted, step)
+        if declined(each):
+            return each
+        return self.ap(lemma, {'ph': scope, 'A': limits.rpn(self.flabel),
+                               'B': summand.rpn(self.flabel),
+                               'k': index.rpn(self.flabel)}, finite, each)
 
     def both_halves(self, refs, goal, scope, facts, lines, skip):
         """A claim of two sentences joined by "and", each proved in turn."""

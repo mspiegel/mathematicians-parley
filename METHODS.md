@@ -445,8 +445,8 @@ family is what would prove such facts, and is not yet used.
 
 ## membership
 
-`1/T(k) ∈ ℝ, membership, from D1, K3` — a term is in a number system because
-its parts are. The method states as a step's claim what `algebra` and
+`requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: membership` — a term is in a number
+system because its parts are. The method states as a step's claim what `algebra` and
 `inequalities` already work out for every atom they touch, and it exists so
 that a dull fact of this kind is one line rather than a climb up the term one
 library item at a time.
@@ -454,12 +454,16 @@ library item at a time.
 ### Facts in
 
 The step's requires lines and the lines it cites, read for what they say
-(`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0), and any cited define,
-whose name applied to a value is read as its rule: T(k) is k(k + 1)/2.
+(`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0). A defined name is read
+as its rule, T(k) as k(k + 1)/2, as it is wherever a formula is compared, and
+is not cited for it.
 
 ### Fact out
 
-`t ∈ S`, with S a number system.
+`t ∈ S`, with S a number system; or "for every k ∈ X, t ∈ S", which is
+proved as a `fix` block would prove it: k is taken in X, what that
+membership says is laid beside the other facts in, and t ∈ S is proved of
+it.
 
 ### The procedure
 
@@ -469,12 +473,16 @@ The term is walked by the operation at its head, as `algebra` walks it:
   (`readdcld`, `remulcld` and the rest of the closure table);
 - a negation is in S when what it negates is, for S that holds negatives;
 - a quotient is in ℝ or ℂ when its parts are and its divisor is not zero;
+- a sum over a range {a, …, b} is in ℝ or ℂ when its term is, for each index
+  in the range (`fsumrecl`, `fsumcl`); the index is in ℕ where the range
+  starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks
+  the page for nothing;
 - anything else is an atom, and its membership is a line the step cites or
   writes, carried to S by at most one lemma (`nnre`, `zcn` and the rest).
 
 A divisor is not zero when a line says so, when it is a digit other than
-zero, or when it is a product or quotient of parts that are not zero
-(`mulne0d`, `divne0d`).
+zero, when it is built in ℕ (`nnne0`: k + 1 where k ∈ ℕ), or when it is a
+product or quotient of parts that are not zero (`mulne0d`, `divne0d`).
 
 ### Refusals
 
