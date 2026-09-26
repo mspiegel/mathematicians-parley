@@ -571,6 +571,15 @@ CASES = [
      '1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n',
      'no clause of thm:stdlib/sets/remove-member reaches what step 1 '
      'claims'),
+
+    # A step citing a define by cases takes the case from a line it cites.
+    # Here the only line cited says x ∈ A, which is h's domain and no case.
+    ('cite a define by cases from a line that does not say the case',
+     'proof/schroeder-bernstein/schroeder-bernstein',
+     'proof/schroeder-bernstein.proof',
+     '                  D2, from 9.2.2\n',
+     '                  D2, from 9.2.3\n',
+     'no line the step cites says which case'),
 ]
 
 

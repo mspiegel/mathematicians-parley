@@ -613,7 +613,10 @@ are more than one formula, and all 96 periods inside a claim are separators.
 
 The claim runs from the step number until the first line whose first token is a
 justification head, which is why a claim may not begin with one of those fifteen
-tokens. No claim in the corpus does, and a parser rejects one that would.
+tokens. No claim in the corpus does, and a parser rejects one that would. The
+sixteenth head, a define's label, is a head only as a whole line, `D2` or `D2,
+from 4.1`, and only where a define in scope carries it: a claim may well begin
+with a capital, as `C ⊆ A` does.
 
 A step numbered `p.n` belongs to the block of the step numbered `p`.
 
@@ -637,7 +640,7 @@ A justification is a head and a set of optional slots. The slots are:
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
 | start | `starting at <term>` |
 
-The fifteen heads and the slots each admits:
+The sixteen heads and the slots each admits:
 
 ```
 <justification> ::=
@@ -657,9 +660,15 @@ The fifteen heads and the slots each admits:
   | `induction` `on` <name> <start> `,` <from>
   | `cases` `,` <from>
   | `calculation`
+  | <label> [ `,` <from> ]                         -- a define's label
 ```
 
 `join` takes its references directly and never the word `from`.
+
+A define's label as the head says the claim is what the define names: the
+name, applied or not, on one side and its value on the other. For a define by
+cases the `from` lines say which case, by its condition or the condition's
+negation.
 
 The target of `instantiate` is a line or a label, never an item. Both slots that
 name where a fact comes from, the target and `from`, admit only what is written

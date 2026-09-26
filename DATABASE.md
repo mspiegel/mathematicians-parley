@@ -54,7 +54,7 @@ has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
-| `stdlib/reasoning.records` | the laws of logic a proof cites by name | 6 |
+| `stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
 | `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
 | `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
 | `stdlib/sums.records` | sums over a range, and the ranges | 22 |

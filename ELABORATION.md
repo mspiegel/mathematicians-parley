@@ -434,6 +434,13 @@ rewrites a claim itself, so a calculator still sees x₁ as a name. A step may
 rest on a define without citing it, as on a sort: the checker reads a defined
 name as its body wherever it compares two formulas (`SYNTAX.md`).
 
+A step may also cite a define as its head, `D2, from 4.1` (`by_define`). One
+side of its equation is read once as the define says, by the define's own
+equation or `fvmptd3`, as the standard form reads it. Where that is a rule by
+cases, each case is taken by `iftrue` where `settle` finds its condition among
+what the step names, or by `iffalse` where it finds the negation. `same`
+carries what is left to the other side, and `eqtrd` joins them.
+
 **A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.

@@ -285,6 +285,7 @@ class Justification:
     chain: list = field(default_factory=list)     # (text, line) of a calculation
     bad_ref: str = None       # a `from` entry that is neither a line nor a label
     module: str = ''          # of the file it is written in, which a bare name means
+    defined: str = None       # the define's label, where the head is `define`
 
     def item(self, cited):
         """The full name a citation written in this justification's file means."""
@@ -479,6 +480,10 @@ def citations(text):
     return _refs(text)[0]
 
 
+# A justification that cites a define: its label, and what says which case.
+DEFINE_CITED = re.compile(rf'^({LABEL})(?:\s*,\s*from\s+\S.*)?$')
+
+
 def _refs(text):
     """References named by a justification, read from their syntactic position
     and never by scanning for digits.
@@ -499,9 +504,27 @@ def _refs(text):
     return out, None
 
 
-def parse_justification(path, line):
+def cites_define(text, defines):
+    """The define label a justification line cites as its head, or None.
+
+    A define is cited by its label, alone or with `from`: `D2, from 4.1`.
+    Only a whole line of that shape, and only a label a define in scope
+    carries, since a claim may begin with a capital as a label does.
+    """
+    m = DEFINE_CITED.match(text)
+    return m.group(1) if m and m.group(1) in defines else None
+
+
+def parse_justification(path, line, defines=frozenset()):
     text = line.text
     head = next((h for h in HEADS if text.startswith(h)), None)
+    label = cites_define(text, defines) if head is None else None
+    if label is not None:
+        j = Justification(head='define', text=text, line=line.no,
+                          module=module_of(path), defined=label)
+        j.refs, j.bad_ref = _refs(text)
+        j.refs.insert(0, label)
+        return j
     if head is None:
         raise Problem(path, line.no, f'no justification head in {text[:40]!r}')
     if head in ('def:', 'thm:'):
@@ -806,8 +829,11 @@ def parse_proof(path, text):
             step.requires.append((fact.strip(), just.strip(), line.no))
             continue
         if step is not None and step.just is None:
-            if any(t.startswith(h) for h in HEADS):
-                step.just = parse_justification(path, line)
+            defines = {d[2] for d in scope.defines + thm.defines} \
+                | {d[-1] for d in scope.imports}
+            if any(t.startswith(h) for h in HEADS) \
+                    or cites_define(t, defines):
+                step.just = parse_justification(path, line, defines)
             else:
                 claim.claim.append(t)          # the claim runs on
             continue

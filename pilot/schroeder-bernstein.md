@@ -84,10 +84,12 @@ x ∈ C with f(x) = b; outside R, from g(b), which is off C. ∎
 2. **"Onto" is still not a word.** `thm:stdlib/functions/onto-bijection`
    says every point is reached, as Cantor's finding 6 asked, and set.mm's
    `dffo3` reads that as onto below the page.
-3. **A value of h is read off the brace by citing its case.** A define is
-   no justification head, so `h(t) = g⁻¹(t)` cites
-   `thm:stdlib/reasoning/case-otherwise` from the line saying t ∉ C, with
-   `requires t ∈ A`. `case-taken` is the other case. `SYNTAX.md` says so.
+3. **A value of h is read off the brace by citing the define.** No
+   justification head could cite a define, and a calculation link cites
+   one line, so "t ∉ C, so by the definition of h, h(t) = g⁻¹(t)" had no
+   form. A reader points at the brace they can see, so a define's label
+   became a head: `h(t) = g⁻¹(t)` is justified `D2, from 4.1`, the line
+   saying t ∉ C and t ∈ A. `SYNTAX.md` and `GRAMMAR.md` say so.
 4. **h : A → B is shown from its values.** `thm:stdlib/functions/function-into`
    says a function whose every value lies in Y maps into Y; set.mm says it
    of a map (`fmpt`), and a defined function is one.

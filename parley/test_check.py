@@ -790,6 +790,26 @@ CASES = [
      '      from 5, 6, 3, 4, H5\n',
      '      from 5, 6, 3, 4, 2\n',
      'step 7 cites thm:stdlib/geometry/side-angle-side, which asks for'),
+
+    # A step citing a define by cases says which case it is in, by a line
+    # giving the condition or its negation, and claims that case's value.
+    ('cite a define by cases for the other case\'s value',
+     'proof/schroeder-bernstein.proof',
+     '    4.7.  h(t) = g⁻¹(t)\n',
+     '    4.7.  h(t) = f(t)\n',
+     'step 4.7 cites D2 and claims a value it does not give'),
+
+    ('cite a define by cases from no line saying the case',
+     'proof/schroeder-bernstein.proof',
+     '          D2, from 4.1\n',
+     '          D2, from K1\n',
+     'no line it cites says whether a case\'s condition holds'),
+
+    ('cite a define for a claim that does not name it',
+     'proof/schroeder-bernstein.proof',
+     '    4.7.  h(t) = g⁻¹(t)\n',
+     '    4.7.  g⁻¹(t) = g⁻¹(t)\n',
+     'step 4.7 cites D2 and its claim never names h'),
 ]
 
 

@@ -95,6 +95,7 @@ PRODUCTIONS = {
     'induction':     rf'^induction\s+on\s+\S+\s+starting\s+at\s+\S+,\s*{FROM}$',
     'cases':         rf'^cases,\s*{FROM}$',
     'calculation':   r'^calculation$',
+    'define':        rf'^{LABEL}(?:,\s*{FROM})?$',
 }
 
 # Methods whose steps this checker accepts without examining them.
@@ -625,7 +626,7 @@ def check_citations(report, thm, items, methods, notation):
             elif item.kind != ('definition' if kind == 'def' else 'theorem'):
                 report.say(thm.path, just.line,
                            f'{just.head} names a {item.kind}')
-        elif just.head not in methods:
+        elif just.head != 'define' and just.head not in methods:
             report.say(thm.path, just.line,
                        f'{just.head} is in no record of db/methods.records')
         for _, text, no in step.requires:
@@ -1229,6 +1230,97 @@ def check_conclusion(report, thm, library):
             report.say(thm.path, just.line,
                        f'step {fmt(step.number)} claims something that '
                        f'{just.head} does not conclude')
+
+
+def define_named(thm, label):
+    """The name the define carrying `label` gives, or None: one this theorem
+    writes, one its file writes, or one its file imports under an alias.
+    """
+    scope = thm.scope
+    written = list(thm.defines) + (list(scope.defines) if scope else [])
+    for _, text, at, _ in written:
+        if at == label:
+            said = define_parts(text)
+            return None if declined(said) else said.name
+    for _module, _name, alias, _no, at in (scope.imports if scope else []):
+        if at == label:
+            return alias
+    return None
+
+
+def check_define_citation(report, thm, library):
+    """A step citing a define claims what the define says the name is.
+
+    The claim is an equation with the name on one side, applied or not, and
+    its value on the other, in either order. Written out, the two sides are
+    one term. Where the define is by cases, the lines the step cites say
+    which case it is in, by its condition or that condition's negation, and
+    the value is the one that case gives: `h(t) = g⁻¹(t)` cites D2 from a
+    line saying t ∉ C.
+    """
+    g = library.g
+    sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g)
+    wrappers = {n.folds for n in g.notations if n.folds}
+    for step in thm.steps:
+        just = step.just
+        if not just or just.head != 'define':
+            continue
+        say = f'step {fmt(step.number)} cites {just.defined}'
+        name = define_named(thm, just.defined)
+        if name is None:
+            report.say(thm.path, just.line, f'{say}, which no define in '
+                                            f'scope carries')
+            continue
+        scope = statements_in_scope(thm, step)
+        facts, claims, _ = citation_parts(step, just, scope, library, sorts,
+                                          defined)
+        g.sorts = sorts
+        try:
+            written = [parse(s, g) for s in sentences(' '.join(step.claim))]
+        except Problem:
+            continue
+        if len(claims) != 1 or len(written) != 1 \
+                or claims[0].notation not in library.equals:
+            report.say(thm.path, just.line, f'{say} and claims no one '
+                                            f'equation; a define says what '
+                                            f'its name is equal to')
+            continue
+        if name not in {n.text for n in walk([written[0]])
+                        if n.notation == 'name'}:
+            report.say(thm.path, just.line, f'{say} and its claim never '
+                                            f'names {name}')
+            continue
+        left, right = claims[0].children
+        said = [f.shape() for f in facts]
+        why = None
+        for one, other in ((left, right), (right, left)):
+            got = case_taken(one, said, facts, wrappers)
+            if isinstance(got, str):
+                why = why or got
+                continue
+            if got.shape() == other.shape():
+                break
+        else:
+            report.say(thm.path, just.line,
+                       f'{say} and claims a value it does not give'
+                       + (f': {why}' if why else ''))
+
+
+def case_taken(node, said, facts, wrappers):
+    """The value a term by cases takes where the facts say which case, or a
+    string saying why no case is said. A term not by cases is its own value.
+    """
+    while node.notation == 'by-cases' and len(node.children) == 3:
+        value, condition, rest = node.children
+        if condition.shape() in said:
+            return value
+        if any(negates(f, condition, wrappers) for f in facts):
+            node = rest
+            continue
+        return ('no line it cites says whether a case\'s condition holds '
+                'or fails')
+    return node
 
 
 def check_obtained(report, thm, library):
@@ -2331,6 +2423,7 @@ def main(root):
         check_membership_claims(report, thm, grammar)
         check_hypotheses(report, thm, library)
         check_conclusion(report, thm, library)
+        check_define_citation(report, thm, library)
         check_obtained(report, thm, library)
         check_requires(report, thm, library)
         check_surplus(report, thm, library)

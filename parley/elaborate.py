@@ -78,6 +78,9 @@ SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
               'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv',
               've', 'vd', 'vc', 'vb', 'va', 'vn', 'vz', 'vy', 'vx']
 
+# Why a side of a step citing a define is not what the define names.
+NAMES_NO_DEFINE = 'this side names no define'
+
 # Where a class that binds a name keeps it among its parts: a map and an
 # indexed union first, a set built from a property second, a sum third.
 BINDER_AT = {'cmpt': 0, 'ciun': 0, 'crab': 1, 'csu': 2}
@@ -509,7 +512,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                'substitute': self.substitute,
                'instantiate': self.instantiate,
                'calculation': self.calculation, 'join': self.join,
-               'exhibit': self.exhibit}.get(head)
+               'exhibit': self.exhibit, 'define': self.by_define}.get(head)
         if how is None and head.startswith('def:'):
             item = self.item_cited(head)
             # A definition stated as a biconditional is used by unfolding it;
@@ -1518,6 +1521,91 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             right, rest = nxt, added
             said = 'wceq' if said == joined.label == 'wceq' else 'wbr'
         return proof
+
+    def by_define(self, step, node, term, scope, facts, lines):
+        """A step citing a define: the name, applied or not, is its value.
+
+        One side of the claim is read as the define says it (`named_body`
+        for a name, `applied_body` for a function at a value), and where
+        that is a rule by cases the lines the step cites say which case,
+        by its condition (`iftrue`) or the condition's negation
+        (`iffalse`). What is left is the other side, joined by `same`.
+        """
+        whole = self.to_term(term)
+        if whole.label != 'wceq':
+            raise self.defect(step.line, f'{step.just.defined} is cited for '
+                                         f'a claim that is no equation')
+        held = self.with_cited(step, scope, self.supplied(step, scope, facts))
+        why = None
+        for one, other, turned in ((*whole.children, False),
+                                   (*reversed(whole.children), True)):
+            reached = self.define_value(one, scope, held)
+            if declined(reached):
+                # What the side naming a define says, over the other's.
+                if why is None or str(why) == NAMES_NO_DEFINE:
+                    why = reached
+                continue
+            value, proof = reached
+            if value.rpn(self.flabel) != other.rpn(self.flabel):
+                alike = self.same(value, other, scope, held, step)
+                if declined(alike):
+                    why = alike
+                    continue
+                proof = self.ap('eqtrd', {
+                    'ph': scope, 'A': one.rpn(self.flabel),
+                    'B': value.rpn(self.flabel),
+                    'C': other.rpn(self.flabel)}, proof, alike)
+            if not turned:
+                return proof
+            return self.ap('eqcomd', {'ph': scope, 'A': one.rpn(self.flabel),
+                                      'B': other.rpn(self.flabel)}, proof)
+        return why
+
+    def define_value(self, one, scope, held):
+        """(value, ( scope -> one = value )) where `one` is a defined name or
+        a defined function applied, read once and taken into the case the
+        facts say; a decline otherwise.
+        """
+        kept = self.binding
+        self.binding = self.letters_bound(one)
+        try:
+            head = self.standard_step(one)
+        finally:
+            self.binding = kept
+        if head is None or head[0] not in ('defined', 'applied'):
+            return Declined(NAMES_NO_DEFINE)
+        how, value = head
+        proof = self.standard_proof(one, how, value, scope, held)
+        if declined(proof):
+            return proof
+        # Each case in turn: the condition held takes its value, the
+        # condition refuted goes on to the rest.
+        while value.label == 'cif' and len(value.children) == 3:
+            condition, first, rest = value.children
+            cond = condition.rpn(self.flabel)
+            parts = {'ph': cond, 'A': first.rpn(self.flabel),
+                     'B': rest.rpn(self.flabel)}
+            # Asked of `settle`, which is offered only what the step names.
+            holds = self.settle(condition, scope, held)
+            fails = self.settle(self.to_term(self.seq(cond, 'wn')), scope,
+                                held) if declined(holds) else holds
+            if not declined(holds):
+                taken, lemma, why = first, 'iftrue', holds
+            elif not declined(fails):
+                taken, lemma, why = rest, 'iffalse', fails
+            else:
+                return Declined('no line the step cites says which case')
+            said = self.seq(value.rpn(self.flabel), taken.rpn(self.flabel),
+                            'wceq')
+            step = self.seq(scope, cond if lemma == 'iftrue'
+                            else self.seq(cond, 'wn'), said, why,
+                            self.ap(lemma, parts), 'syl')
+            proof = self.ap('eqtrd', {'ph': scope, 'A': one.rpn(self.flabel),
+                                      'B': value.rpn(self.flabel),
+                                      'C': taken.rpn(self.flabel)},
+                            proof, step)
+            value = taken
+        return value, proof
 
     def exhibit(self, step, node, term, scope, facts, lines):
         """An existence claim shown by naming something that answers it.
