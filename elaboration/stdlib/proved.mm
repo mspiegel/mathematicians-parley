@@ -119,3 +119,21 @@ $d x U $.  $d y U $.
 
 $}
 
+${
+$( Series: the value of a series is the limit of its partial sums. $)
+$d j k n $.
+$d A j n $.
+$d ph j k $.
+
+  ${
+    sersumlim.1 $e |- ( ( ph /\ k e. NN ) -> A e. RR ) $.
+    sersumlim.2 $e |- ( ph -> ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> B ) $.
+  sersumlim $p |- ( ph -> sum_ k e. ( ZZ>= ` 1 ) A = B ) $=
+    ( c1 cuz cfv csu cn cv cfz co cmpt cli wbr wa wceq vj eqid cz wcel 1z a1i
+    cdm climrel releldmi syl cr cc simpl simpr nnuz eleqtrrdi jca recn cvv
+    oveq2 sumeq1 sumex fvmptd3 isumclim3 climuni eqcomd )
+    ACHIJZBDKZAELHEMZNOZBDKZPZCQRZVLVHQRZSCVHTAVMVNGABUADVLHVGVGUBHUCUDAUEUFAVMVLQUGUDGVLCQUHUIUJADMZVGUDZSZBUKUDZBULUDVQAVOLUDZSVRVQAVSAVPUMVQVOVGLAVPUNUOUPUQFUJBURUJAUAMZVGUDZSZEVTVKHVTNOZBDKZLVLUSVLUBVIVTTVJWCTVKWDTVIVTHNUTVJWCBDVAUJWBVTVGLAWAUNUOUPWDUSUDWBWCBDVBUFVCVDUQCVHVLVEUJVF $.
+  $}
+
+$}
+

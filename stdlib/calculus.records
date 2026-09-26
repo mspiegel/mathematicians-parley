@@ -45,6 +45,34 @@ definition continuous-on
               also says f : D → ℝ on its right side, where the page puts it
               in the hypothesis, and that conjunct is set aside.
 
+definition tends-to
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  then        x(n) → L as n → ∞ ↔ for every ε ∈ ℝ with ε > 0, there is
+              N ∈ ℕ with for every n ∈ ℕ with n ≥ N, |x(n) − L| < ε
+  metamath    clim2
+  target      clim2
+  first-used  triangular-reciprocals
+  note        A sequence tends to L when, however small a distance ε is
+              named, its terms from some N on are all within ε of L. `clim2`
+              also says L and every term are complex; those conjuncts are set
+              aside as `continuous-on`'s f : D → ℝ is, and the page's
+              "n ∈ ℕ with n ≥ N" is set.mm's upper integers from N.
+
+theorem series-value
+  let t : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume Σ(k = 1 to n) t(k) → L as n → ∞                              (H3)
+  then        Σ(k = 1 to ∞) t(k) = L
+  metamath    sersumlim, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      sersumlim
+  first-used  triangular-reciprocals
+  note        The value of a series is the limit of its partial sums, which
+              is how a textbook defines it. set.mm defines an infinite sum
+              through a sequence of its own, and `sersumlim` is the join,
+              proved below the readable layer from `isumclim3` and `climuni`.
+
 definition upper-bound
   then        u is an upper bound of S ↔ for every s ∈ S, s ≤ u
   metamath    ub as in df-sup

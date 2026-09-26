@@ -4,7 +4,8 @@
 The corpus supplies an item in one of three ways: a set.mm label, a proof
 file in the readable layer, or a Metamath proof here, for what set.mm does
 not state and the readable layer cannot. Each group of them is a module of
-its own (`proofs_geometry`), and each is written in a block of its own, so
+its own (`proofs_geometry`, `proofs_series`), and each is written in a block
+of its own, so
 what one group holds apart (`$d`) holds nothing apart in another. A label is
 global all the same, and a proof file that cites any of them includes this
 one file.
@@ -22,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'parley'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import proofs_geometry
+import proofs_series
 from build import path_of
 from compress import compress
 from library import Signature
@@ -30,7 +32,7 @@ from spell import Builder
 
 # The groups, in the order they are written: a later group may take a label
 # an earlier one proved.
-GROUPS = [proofs_geometry]
+GROUPS = [proofs_geometry, proofs_series]
 
 HEAD = """$( stdlib/proved, built by elaboration/stdlib/build-proved.py.
 
@@ -57,19 +59,28 @@ def main(argv):
     for group in GROUPS:
         print('${')
         print(group.HEAD, end='')
-        for label, statement, proof in group.proofs(b):
+        for label, statement, proof, *rest in group.proofs(b):
+            # A lemma may state hypotheses (`$e`), as set.mm's deductions
+            # do; they stand in a block of their own with it.
+            hyps = rest[0] if rest else []
+            if hyps:
+                print('  ${')
+                for said, stated in hyps:
+                    print(f'    {said} $e {stated} $.')
             print(f'  {label} $p {statement} $=')
             # Compressed, as `parley/elaborate.py` writes its proofs. These
             # lemmas lean on each other, so a label written above is one a
             # proof below may take, and the library does not hold it; what
-            # it takes is the variables of its own statement, which is what
-            # the signature below records.
-            mandatory = sorted({b.flabel[t] for t in statement.split()
-                                if t in b.flabel},
-                               key=lambda one: b.forder[one])
+            # it takes is the variables of its statement and hypotheses,
+            # then the hypotheses, which is what the signature records.
+            words = ' '.join([statement, *(s for _l, s in hyps)]).split()
+            floats = sorted({b.flabel[t] for t in words if t in b.flabel},
+                            key=lambda one: b.forder[one])
+            mandatory = floats + [said for said, _s in hyps]
             said = compress(proof.text, mandatory, {**sigs, **made})
             made[label] = Signature(label, '$p', statement.split(),
-                                    [('class', v) for v in mandatory])
+                                    [('class', v) for v in floats],
+                                    [s.split() for _l, s in hyps])
             line = '   '
             for token in said.split():
                 if len(line) + len(token) > 76:
@@ -77,6 +88,8 @@ def main(argv):
                     line = '   '
                 line += ' ' + token
             print(f'{line} $.')
+            if hyps:
+                print('  $}')
             print()
         print('$}')
         print()

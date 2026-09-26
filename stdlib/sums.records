@@ -76,6 +76,18 @@ theorem sum-extended
   note        `sum-last` from a start of the proof's own choosing: the sum
               formula counts from 1, where `sum-last` counts from 0.
 
+theorem sum-telescopes
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume b + 1 ≥ a                                                    (H3)
+  let t : {a, …, b + 1} → ℝ                                           (H4)
+  then        Σ(k = a to b) (t(k) − t(k + 1)) = t(a) − t(b + 1)
+  metamath    telfsum
+  target      telfsum
+  first-used  triangular-reciprocals
+  note        A telescoping sum: each term's second half cancels the next
+              term's first, and what is left is the first and the last.
+
 theorem sum-first
   let n ∈ ℕ₀                                                          (H1)
   let t : {0, …, n} → ℝ                                               (H2)

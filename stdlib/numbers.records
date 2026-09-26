@@ -341,3 +341,13 @@ theorem max-le
   metamath    maxle
   target      maxle
   note        No proof cites it yet.
+
+theorem archimedean
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        there is N ∈ ℕ with 1/N < x
+  metamath    nnrecl
+  target      nnrecl
+  first-used  triangular-reciprocals
+  note        However small a positive real, some 1/N is smaller: the
+              Archimedean property, in the form an ε–N argument uses it.

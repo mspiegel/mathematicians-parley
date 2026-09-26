@@ -260,6 +260,12 @@ class Builder:
             label, '$p', tokens,
             [(self.sigs[self.flabel[v]].statement[0], v) for v in free])
 
+    def hypothesis(self, label, statement):
+        """Register a hypothesis a lemma of this file states (`$e`), so its
+        proof may rest on it: a step taking nothing and giving the statement.
+        """
+        self.sigs[label] = Signature(label, '$e', statement.split())
+
     def rpn(self, text, start='class'):
         """A term written in set.mm's notation, as the labels that build it."""
         return self.syntax.parse(text.split(), start).rpn(self.flabel)

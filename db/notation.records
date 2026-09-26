@@ -854,6 +854,40 @@ notation sum
               Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) is one sum less
               another, and a sum of a sum or a difference writes its brackets.
 
+notation series
+  pattern     Σ(_ = _ to ∞) _
+  holes       variable, number, number
+  yields      number
+  kinds       number, number, number → number
+  level       summation
+  binds       hole 1 over hole 3
+  reads       the sum, from, without end, of
+  metamath    csu over ( ZZ>= ` M )
+  target      _2 cuz cfv _3 _1 csu
+  first-used  triangular-reciprocals
+  note        The sum of the third hole for every whole number from the second
+              on: the value of the series, which thm:stdlib/calculus/series-value
+              says is the limit of its partial sums. set.mm sums over the
+              upper integers from M, and ℕ is those from 1.
+
+notation tends-to
+  pattern     _ → _ as _ → ∞
+  holes       number, number, variable
+  yields      formula
+  kinds       number, number, number → formula
+  level       relational
+  binds       hole 3 over hole 1
+  reads       tends to, as, grows without end
+  metamath    ~~> of the sequence ( n e. NN |-> a )
+  target      _3 cn _1 cmpt _2 cli wbr
+  first-used  triangular-reciprocals
+  note        A sequence tending to a limit, written as a textbook writes it:
+              the first hole is its n-th term, and the third names n. The
+              sequence is indexed by ℕ. set.mm's `~~>` is a relation between
+              the sequence and the limit, so this names that relation and
+              introduces nothing; def:stdlib/calculus/tends-to says what it
+              means in ε and N.
+
 notation parity
   pattern     _ is even        _ is odd        _ is not odd
   holes       number

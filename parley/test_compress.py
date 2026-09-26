@@ -35,12 +35,13 @@ from compress import (
     shapes,
     shapes_of,
 )
+from library import Signature, where_set_mm
 from library import read as read_library
-from library import where_set_mm
 from spell import Builder
 
 ROOT = Path(__file__).resolve().parent.parent
 PROVED = re.compile(r'(?m)^\s*(\S+)\s+\$p\s+(.*?)\$=(.*?)\$\.', re.S)
+HYPOTHESIS = re.compile(r'(?m)^\s*(\S+)\s+\$e\s+(.*?)\$\.', re.S)
 STEPPED = 1_000_000          # labels, the most a proof is rebuilt as steps
 
 
@@ -86,21 +87,33 @@ def main(argv):
     spell = Builder(sigs)
     passed = failed = stepped = 0
     for path in built:
-        for found in PROVED.finditer(path.read_text()):
+        whole = path.read_text()
+        for found in PROVED.finditer(whole):
             label, says, said = found.group(1), found.group(2), found.group(3)
             said = ' '.join(said.split())
             if not said.startswith('('):
                 continue           # normal format, nothing to check
+            # A lemma may state hypotheses in a block of its own, as
+            # `sersumlim` does: they come after its variables among what
+            # the compressed format takes as given.
+            opened = max(whole.rfind('${', 0, found.start()),
+                         whole.rfind('$}', 0, found.start()))
+            block = whole[opened:found.start()]
+            hyps = HYPOTHESIS.findall(block)
+            local = {**sigs, **{h: Signature(h, '$e', s.split())
+                                for h, s in hyps}}
             # The same reckoning `parley/elaborate.py` makes when it writes
             # one. set.mm declares a float for `A` inside more than one
             # block, so which label a variable takes is `Builder`'s to say
             # and not something to work out again from the signatures.
-            mandatory = sorted({spell.flabel[t] for t in says.split()
+            words = ' '.join([says, *(s for _h, s in hyps)]).split()
+            mandatory = sorted({spell.flabel[t] for t in words
                                 if t in spell.flabel},
                                key=lambda one: spell.forder[one])
+            mandatory += [h for h, _s in hyps]
             # Read back as the steps it was written from, which is how the
             # elaborator writes it, and written again from those.
-            items = expand_steps(said, mandatory, sigs)
+            items = expand_steps(said, mandatory, local)
             again = compressed(*shapes_of(items), mandatory)
             if again == said:
                 passed += 1
@@ -112,9 +125,9 @@ def main(argv):
             # out, the intermediate value proof is 467 million labels, and
             # reading those took two minutes of every gate.
             if written_length(items) < STEPPED:
-                text = expand(said, mandatory, sigs)
-                if compress(text, mandatory, sigs) == said \
-                        and shapes_of(items) == shapes(text, sigs):
+                text = expand(said, mandatory, local)
+                if compress(text, mandatory, local) == said \
+                        and shapes_of(items) == shapes(text, local):
                     stepped += 1
                 else:
                     failed += 1
