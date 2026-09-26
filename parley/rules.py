@@ -318,7 +318,7 @@ MEMBERSHIP = [
     'nnne0',
     # The two equations in this list, and what `said_otherwise` rewrites a
     # fact by. `fsum1` says a one-term sum is its summand read at the limit,
-    # so def:stdlib/sums/G's base clause reaches `a^0` where the definition says 1.
+    # so a sum of powers from 0 to 0 reaches `a^0` where a line may say 1.
     'nn0absid', 'exp0',
     # A disequality is one fact in two orders and the corpus writes it as a
     # negated equation, which set.mm names and then commutes. `necom` alone

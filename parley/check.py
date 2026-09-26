@@ -16,8 +16,6 @@ import sys
 import unicodedata
 from pathlib import Path
 
-import targets
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kinds
 from formula import Grammar, parse
@@ -650,140 +648,8 @@ def check_capture(report, thm, claims):
 
 
 SENTENCES = re.compile(r'(?<=[.])\s+')
-# A `let` names what it introduces first. The keyword is part of the text in
-# a proof's own lines and stripped from a database record's, so it is optional
-# here and the name is what matters.
-LET_NAME = re.compile(r'^(?:let\s+)?([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|∉|be\b)')
 # `let x be an element` declares a thing and claims nothing of its kind.
 ELEMENT = re.compile(r'^\S+\s+be an element$')
-
-
-def fixed_by(records, g):
-    """For each notation, the names the definition introducing it fixes.
-
-    `def:stdlib/sums/G` writes `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its sentences are
-    `G(0) = 1` and `G(n + 1) = G(n) + a^(n + 1)`. The hole takes 0, n + 1
-    and n, so `n` is what the notation varies over; `a` appears only outside
-    it and is fixed for the whole theorem. That is the difference between a
-    parameter and an argument, and it is already on the page.
-
-    What a definition introduces is what stands on the left of its defining
-    sentence, and only that. Its body may mention any notation at all —
-    `def:stdlib/sums/G`'s right side is a sum and a power — and those belong to whoever
-    declared them. Reading every notation a definition touches would have
-    `_ + _` fixing a name, and every proof in the corpus writes `+`.
-
-    A definition using no notation of its own fixes nothing, and so does one
-    whose every `let` reaches the hole.
-    """
-    out = {}
-    for r in records:
-        if r.kind != 'definition':
-            continue
-        said = {m.group(1) for _k, text, _l, _n in r.hypotheses
-                if (m := LET_NAME.match(text.strip()))}
-        if not said:
-            continue
-        trees = []
-        for text, _no in r.conclusions:
-            for sentence in SENTENCES.split(text.strip()):
-                sentence = sentence.strip().rstrip('.').strip()
-                try:
-                    trees.append(parse(sentence, g) if sentence else None)
-                except Problem:
-                    continue
-        # A notation with no hole takes no argument, so it fixes nothing and
-        # nothing can fill it. Without this a definition whose sentence opens
-        # with a bare name — `def:stdlib/divisibility/gcd` has one — would have
-        # `name` fixing every letter it mentions, and every formula ever
-        # written is a name.
-        introduced = {t.children[0].notation for t in trees
-                      if t is not None and t.children and t.children[0].children}
-        filled = set()
-        for node in walk([t for t in trees if t is not None]):
-            if node.notation not in introduced:
-                continue
-            for hole in node.children:
-                filled |= {(node.notation, v)
-                           for v in VARNAME.findall(hole.shape())}
-        for notation in introduced:
-            held = {v for v in said if (notation, v) not in filled}
-            if held:
-                out.setdefault(notation, set()).update(held)
-    return out
-
-
-def check_declared(report, records, fixed):
-    """What a notation's target holds fixed is what its definition fixes.
-
-    Two files say which names a notation holds fixed and neither reads the
-    other. The library says it by what the definition's `let` lines
-    name and where the hole goes, which is the reading on the page;
-    `db/notation.records` says it with `@a` in the target, which is what an
-    elaborator builds the term from. A target fixing a name the definition
-    does not is a term about something nothing declares; a definition fixing
-    a name the target does not is a parameter dropped from the term.
-    """
-    for r in records:
-        if r.kind != 'notation' or 'target' not in r.fields:
-            continue
-        said = set()
-        for entry in targets.split_entries(r.fields['target']):
-            if entry not in targets.MARKERS:
-                said |= set(targets.fixes(entry))
-        wanted = fixed.get(r.name, set())
-        for name in sorted(said - wanted):
-            report.say(r.path, r.line,
-                       f'{r.name} targets @{name}, which no definition '
-                       f'introducing it fixes')
-        for name in sorted(wanted - said):
-            report.say(r.path, r.line,
-                       f'{r.name} is introduced by a definition that fixes '
-                       f'{name}, which its target does not write as @{name}')
-
-
-def check_fixed(report, thm, fixed, g):
-    """A proof may not bind a name the notation it uses fixes.
-
-    `G(n)` is the sum of the powers of `a`, and `a` is fixed by `def:stdlib/sums/G` for
-    the whole theorem rather than shown in the notation. A proof that bound
-    an `a` of its own while writing `G(n)` would be writing about the name
-    it bound, and nothing downstream would say so: the term is built from
-    whatever the proof holds when the notation is read, and a bound name is
-    exactly what it holds. `ELABORATION.md` calls this capture, and it is a
-    rule about the page rather than about the tools, which is why it is
-    here.
-
-    Refused rather than renamed, for the reason a substitution that captures
-    is refused: renaming would make the machine do something the page does
-    not show.
-    """
-    if not fixed:
-        return
-    bound = {}
-    for s in thm.steps:
-        for name in BINDER.findall(' '.join(s.claim)):
-            bound.setdefault(name, (s.line, f'step {fmt(s.number)}'))
-        for kind, text, _l, no, _p in s.openers:
-            if kind == 'let' and (m := LET_NAME.match(text.strip())):
-                bound.setdefault(m.group(1), (no, 'a fix'))
-    if not bound:
-        return
-    for s in thm.steps:
-        for sentence in SENTENCES.split(' '.join(s.claim).strip()):
-            sentence = sentence.strip().rstrip('.').strip()
-            try:
-                tree = parse(sentence, g) if sentence else None
-            except Problem:
-                continue
-            for node in walk([tree] if tree else []):
-                clash = set(bound) & fixed.get(node.notation, set())
-                for name in sorted(clash):
-                    line, where = bound[name]
-                    report.say(thm.path, line,
-                               f'{where} binds {name}, which `{node.notation}`'
-                               f' fixes; a proof may not bind a name the '
-                               f'notation it uses fixes')
 
 
 class Library:
@@ -794,7 +660,7 @@ class Library:
     which is what Metamath calls a floating hypothesis; a membership and an
     `assume` are essential and a step citing the item has to supply them.
 
-    A record with two `then` groups, as def:stdlib/sums/S has, states each
+    A record with two `then` groups, as thm:stdlib/numbers/int-closure has, states each
     conclusion under the hypotheses written above it, so the groups are kept
     apart and a citation satisfies any one of them. Items are asked for by
     their full name.
@@ -2034,8 +1900,6 @@ def main(root):
     check_symbols(report, records)
 
     library = Library(records, theorems, grammar)
-    fixes = fixed_by(records, grammar)
-    check_declared(report, records, fixes)
 
     statements = statement_kinds(grammar, records, theorems)
     check_item_kinds(report, statements, items)
@@ -2054,7 +1918,6 @@ def main(root):
         check_introductions(report, thm)
         check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))
-        check_fixed(report, thm, fixes, grammar)
         check_run_together(report, thm, words)
         check_numbering(report, thm)
         check_blocks(report, thm, methods)

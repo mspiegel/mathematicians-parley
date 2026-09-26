@@ -167,8 +167,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # conclusion that will not parse points at the theorem.
         self.at = thm.line
         self.names = {}          # readable name -> kernel term
-        self.fixed = {}          # the same, as the theorem's `let` lines left
-                                 # it, for the names a notation holds fixed
         self.sets = {}           # readable name -> the set it was let into
         self.axioms = []         # (label, statement) for each algebra step
         self.arities = {}        # cited corpus label -> how much it takes
@@ -336,15 +334,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
 
     def run(self):
         nodes = self.hypotheses()
-        # A notation may hold a name no hole of it fills, and that name is
-        # bound where the definition introducing it stands rather than where
-        # the notation is written: `def:stdlib/sums/G` says `let a ∈ ℝ`, and
-        # every `G(n)` below is about that `a`. The theorem's `let` lines are
-        # that place, and they are read before its conclusion and before any
-        # step, so what is taken here is what the text fixed. Nothing writes it again,
-        # which is what stops a block binding the same letter from reaching
-        # it.
-        self.fixed = dict(self.names)
         # A sort is stated once, like a declared type, and a step may rest
         # on it without naming it (`READERS.md`). So may a define: the
         # checker reads a defined name as what it names wherever two
@@ -1255,9 +1244,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
     def unfold_equation(self, step, node, term, scope, facts, lines):
         """A definition stated as an equation, one clause per `then` group.
 
-        `def:stdlib/sums/S` says what S(1) is and what S(n + 1) is, and set.mm
-        proves each separately. The clause is chosen by which lemma's conclusion is what
-        the step claims, so the text never says which.
+        `def:stdlib/numbers/abs` says what |x| is where x ≥ 0 and where
+        x < 0, and set.mm proves each separately. The clause is chosen by
+        which lemma's conclusion is what the step claims, so the text never
+        says which.
 
         A clause that declines is a clause that is not this `then` group,
         and the next one is asked. What it is not is the elaborator's own

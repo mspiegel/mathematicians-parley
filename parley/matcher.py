@@ -656,7 +656,7 @@ class Matcher:
                 after[i], proofs[i] = made
         if not proofs:
             return Declined(f'nothing to rewrite in {self.term(node)}')
-        return self.descend(self.shape(self.spelling(node)), holes, after,
+        return self.descend(self.shape(self.pattern(node)), holes, after,
                             proofs, scope)
 
     def descend(self, tree, before, after, proofs, scope):

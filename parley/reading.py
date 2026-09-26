@@ -161,35 +161,7 @@ class Reading:
                 self.names[said] = f'{self.binder_var(said)} cv'
             holes = [self.binder_var(c.text) if i in bound else self.term(c)
                      for i, c in enumerate(node.children)]
-        return targets.fill(self.pattern(node), holes, self.held(node))
-
-    def held(self, node):
-        """What each name this notation holds fixed stands for.
-
-        Read from what the theorem fixed rather than from the names in hand,
-        so the answer is the same wherever the notation is written. A proof
-        that never fixes the name cannot write the notation at all, which is
-        what being local to a definition means.
-        """
-        out = {}
-        for name in targets.fixes(self.pattern(node)):
-            if name not in self.fixed:
-                raise self.defect(self.at,
-                                  f'notation {node.notation!r} is about '
-                                  f'{name!r}, which this theorem does not fix')
-            out[name] = self.fixed[name]
-        return out
-
-    def spelling(self, node):
-        """The node's target with what it holds fixed already resolved.
-
-        A shape is read from this rather than from the target as written,
-        because a fixed name is a term of the theorem's and not a hole: a
-        rewrite walks past it the way it walks past a constant.
-        """
-        pattern, fixed = self.pattern(node), self.held(node)
-        return (targets.FIXED.sub(lambda m: fixed[m.group(1)], pattern)
-                if fixed else pattern)
+        return targets.fill(self.pattern(node), holes)
 
     def pattern(self, node):
         """The `target` entry of the pattern this node was built from.
