@@ -291,7 +291,7 @@ Six more were open and are not. `thm:proof/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
 proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
 `thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in
-`elaboration/stdlib/geometry.mm`, which is a third way to supply an item: neither a
+`elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.
 `def:stdlib/geometry/angle` closed differently — it carries a `symbol` and a `defines` now,

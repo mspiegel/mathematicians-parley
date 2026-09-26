@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Generate `geometry.mm`, the facts this corpus needs and set.mm lacks.
+"""The geometry facts this corpus needs and set.mm lacks, for `proved.mm`.
 
 The corpus supplies an item in one of two ways: a set.mm label, or a proof
 file in the readable layer. Four of the geometry items can take neither.
@@ -9,31 +8,16 @@ naming the branch cut of the complex logarithm. Those are the ℂ encoding,
 which `GEOMETRY.md` chose on the understanding that it would reach the reader
 as dull facts and not as case splits inside an argument.
 
-So they are proved here, below the readable layer, in the same place
-`definitions.mm` puts `df-ang`. A proof file includes this one; the database
-names these labels in a `target` the way it names a set.mm label.
+So they are proved here, below the readable layer, beside the other items
+`build-proved.py` proves and after `definitions.mm`'s `df-ang`. A proof file
+includes what that writes; the database names these labels in a `target` the
+way it names a set.mm label.
 
 Proofs are built rather than written. A Metamath proof is a flat sequence of
 labels in reverse Polish, and `ap` assembles one from a label and what it is
 applied to, so a statement is written once, in the notation set.mm writes it
 in, and never transcribed into stack order by hand.
-
-This writes to standard output. Where the file goes is `parley/build.py`,
-which is also what `parley/labels.py` and `parley/elaborate.py` ask, so the
-three cannot drift apart. Run it through `parley/build.py stdlib/geometry` rather
-than redirecting by hand: written to the wrong place it is a file nothing
-opens, and the build looks to have worked.
 """
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'parley'))
-
-from build import path_of
-from compress import compress
-from library import Signature
-from library import read as read_library
-from spell import Builder
 
 
 def triangle(p, q, r):
@@ -1576,16 +1560,12 @@ def side_angle_side(b, out):
     return out
 
 
-HEAD = """$( geometry, built by elaboration/build-geometry.py.
-
-   What this corpus needs of the plane and set.mm does not state.
-   Points are complex numbers, distance is the absolute value of a
+HEAD = """$( Geometry: what this corpus needs of the plane and set.mm does not
+   state. Points are complex numbers, distance is the absolute value of a
    difference, and the angle is the constant definitions.mm introduces,
    so everything here is a theorem rather than an axiom: CC is a model
    and nothing in it has to be assumed.  GEOMETRY.md takes that
    decision and says what it costs. $)
-
-$[ stdlib/definitions.mm $]
 
 $( `angval` reads a value of the angle by substituting for the two names
    `df-ang` binds, and asks that they be free of what is substituted. They
@@ -1606,45 +1586,13 @@ $d x U $.  $d y U $.
 """
 
 
-def main(argv):
-    if len(argv) < 2:
-        print(__doc__.strip().splitlines()[-1], file=sys.stderr)
-        return 2
-    # The angle is a constant this corpus introduces, so the definitions
-    # are read alongside the library: `angval` says what a value of it is,
-    # and discharging that needs `df-ang`.
-    sigs = read_library(argv[1], path_of('stdlib/definitions'))
-    b = Builder(sigs)
-    made = {}
-    print(HEAD, end='')
-    for label, statement, proof in side_angle_side(
-            b, cancelling(
-                b, law_of_cosines(
-                    b, angle_size(
-                        b, angle_symmetry(
-                            b, rotation(b, triangle_lemmas(b))))))):
-        print(f'  {label} $p {statement} $=')
-        # Compressed, as `parley/elaborate.py` writes its proofs. These
-        # lemmas lean on each other, so a label written above is one a
-        # proof below may take, and the library does not hold it; what it
-        # takes is the variables of its own statement, which is what the
-        # signature below records.
-        mandatory = sorted({b.flabel[t] for t in statement.split()
-                            if t in b.flabel},
-                           key=lambda one: b.forder[one])
-        said = compress(proof.text, mandatory, {**sigs, **made})
-        made[label] = Signature(label, '$p', statement.split(),
-                                [('class', v) for v in mandatory])
-        line = '   '
-        for token in said.split():
-            if len(line) + len(token) > 76:
-                print(line)
-                line = '   '
-            line += ' ' + token
-        print(f'{line} $.')
-        print()
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+def proofs(b):
+    """(label, statement, proof) for each geometry lemma, in the order a
+    later one may take an earlier.
+    """
+    return side_angle_side(
+        b, cancelling(
+            b, law_of_cosines(
+                b, angle_size(
+                    b, angle_symmetry(
+                        b, rotation(b, triangle_lemmas(b)))))))

@@ -16,7 +16,7 @@ with `.mm`, so the theorem `proof/bezout/bezout` is written to
 
 Which artifact has to exist before which is a real constraint, and `needs`
 is where it is written. `stdlib/definitions.mm` has to exist before a
-library script such as `build-geometry.py` runs, because that script reads it
+library script such as `build-proved.py` runs, because that script reads it
 for the constant it introduces; every library file has to exist before any
 theorem elaborates, because `elaborate.py` reads them so a `target` may name
 one of their labels; and a theorem waits for the theorems it cites. The

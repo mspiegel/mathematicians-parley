@@ -66,7 +66,7 @@ from tables import TableReading
 
 # What the library proves below the readable layer, read alongside set.mm so
 # a `target` may name its labels.
-GEOMETRY = f'{STDLIB}/geometry'
+PROVED = f'{STDLIB}/proved'
 # Variables for a name the proof does not spell: what a `define` renames
 # its body's binders to, and what an `obtain` introduces. A name the text
 # does spell keeps its own letter, so this holds what a reader is least
@@ -2047,7 +2047,7 @@ def main(argv, root=None):
     # library, so a `target` may name one of its labels exactly as it names
     # a set.mm label. The file is generated, and a proof that cites nothing
     # in it elaborates whether or not it has been built.
-    supplied = path_of(GEOMETRY)
+    supplied = path_of(PROVED)
     provided = set(read_library(supplied)) if supplied.exists() else set()
     sigs = (read_library(setmm, supplied) if supplied.exists()
             else read_library(setmm))
@@ -2099,11 +2099,11 @@ def main(argv, root=None):
     for name in work.cited:
         print(f'$[ {name}.mm $]')
     if not work.cited:
-        # geometry.mm includes the definitions, so a proof that reaches one
+        # proved.mm includes the definitions, so a proof that reaches one
         # of its labels needs only the one include; a proof that reaches
         # none does not read it at all.
         wants = provided & used
-        print(f'$[ {GEOMETRY if wants else DEFINITIONS}.mm $]')
+        print(f'$[ {PROVED if wants else DEFINITIONS}.mm $]')
     print()
     for label, statement in work.axioms:
         print(f'{label} $a {statement} $.')

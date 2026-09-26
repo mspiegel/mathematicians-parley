@@ -242,7 +242,7 @@ way, it would not have.
 Four items needed theorems set.mm does not have and the readable layer cannot
 state, since saying what they say means dividing one point by another and
 naming the branch cut of the complex logarithm. They are proved below the
-readable layer, in `elaboration/stdlib/geometry.mm`, which is a third way to supply
+readable layer, in `elaboration/stdlib/proved.mm`, which is a third way to supply
 an item alongside a set.mm label and a proof file:
 
 | lemma | carries |

@@ -123,7 +123,7 @@ def supplied(records):
     """The labels this corpus introduces, which set.mm will not have.
 
     A definition that carries a `symbol` brings a constant and the axiom
-    defining it; `geometry.mm` brings whatever it proves, and
+    defining it; `proved.mm` brings whatever it proves, and
     `parley/build.py` is what says where that file is.
     """
     out = set()
@@ -131,7 +131,7 @@ def supplied(records):
         if 'symbol' in r.fields:
             token = r.fields['symbol'].strip()
             out.update({f'c{token}', f'df-{token}'})
-    built = path_of('stdlib/geometry')
+    built = path_of('stdlib/proved')
     if built.exists():
         out.update(read_library(built))
     return out

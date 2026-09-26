@@ -22,8 +22,9 @@ proof files and the hand-written builders off their names, and a file's path
 under `elaboration/` is its name. `elaboration/proof/bezout/bezout.mm` is the
 theorem `proof/bezout/bezout`, and a file citing it includes it by that path.
 `elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
-elaborator writes, and `geometry.mm`, written by `build-geometry.py` beside it
-and the only statement of what it proves. The `build-<name>.py` scripts in
+elaborator writes, and `proved.mm`, written by `build-proved.py` beside it from
+one module per group of proofs (`proofs_geometry.py`), and the only statement
+of what it proves. The `build-<name>.py` scripts in
 `elaboration/` itself write the hand elaborations kept for comparison, each
 to `<name>.mm` beside it.
 
@@ -1028,7 +1029,7 @@ signed.
 `GEOMETRY.md` weighs the seven candidates and takes the complex plane with the
 angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `definitions.mm` — and the four items set.mm does not state are proved in
-`elaboration/stdlib/geometry.mm`. `isosceles` elaborates and assumes nothing.
+`elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
 `ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
@@ -1058,7 +1059,7 @@ goes for ruff: a gate that skipped either would be saying green about a thing
 it had not looked at.
 
 `parley/verify.py` runs `mmverify.py` over every proof — the elaborated
-theorems and `geometry.mm`'s lemmas — in about nineteen seconds,
+theorems and `proved.mm`'s lemmas — in about nineteen seconds,
 nearly all of which is reading set.mm. Given a file whose whole contents are
 `$[ set.mm $]` it takes 17.8 seconds, and the proofs add a tenth of one.
 Which files that one includes is read off the `$[ ... $]` lines rather than
