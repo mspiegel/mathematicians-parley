@@ -802,17 +802,19 @@ class Scopes:
 
         The variable is a spare and never the name's own letter: Cantor
         defines a B and concludes that there is a B, and those are two sets.
-        `definitions` keeps what each such variable stands for, so a lemma
-        whose conclusion is written about the body can be fitted to a claim
-        written about the name (`read_through`); the equation is held both
-        ways round, so either side of a comparison may be the name.
+        `definitions` keeps what each such variable stands for, and the
+        standard form reads the name as that wherever two things are
+        compared (`named_body`), proved by the equation held here.
         """
         for label, line, name, body in self.defined(before):
             self.at = line
             # A body naming an earlier define is held written out, so every
             # equation says in full what its name is: the subsets proof's T
-            # is built over its U, and a lemma about T speaks of U's body.
-            body = self.spelt_out(self.to_term(body)).rpn(self.flabel)
+            # is built over its U, and a theorem about T speaks of U's body.
+            # Kept over U, joining the two would change a map's domain,
+            # which `mpteq1d` does with its parts in an order the walk in
+            # `congruence` does not push.
+            body = self.written_out(self.to_term(body)).rpn(self.flabel)
             var = self.spare_var()
             said = self.seq(f'{var} cv', body, 'wceq')
             ex = self.seq(said, var, 'wex')
@@ -826,9 +828,6 @@ class Scopes:
             # block the define stands in did not say so and need not.
             p_ex = self.seal(p_ex, label)
             outer, held = self.widen(scope, facts, said, label)
-            turned = self.seq(body, f'{var} cv', 'wceq')
-            held[turned] = self.seq(outer, f'{var} cv', body, held[said],
-                                    'eqcomd')
             self.names[name] = f'{var} cv'
             self.definitions[var] = body
             # What a term comes to in standard form now reads this name as
@@ -853,6 +852,18 @@ class Scopes:
 
             scope, facts, closers = outer, held, [*closers, close]
         return scope, facts, closers
+
+    def written_out(self, term):
+        """A term with each name an earlier `define` introduced replaced by
+        what it names (`named_body`), and nothing else changed.
+        """
+        body = self.named_body(term)
+        if body is not None:
+            return self.written_out(body)
+        if term.variable is not None or not term.children:
+            return term
+        return kernel.Term(term.label,
+                           tuple(self.written_out(c) for c in term.children))
 
     def rebound(self, stated, claimed):
         """Whether two statements differ only in the letters they bind.

@@ -807,17 +807,14 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # step claims what it concludes. Each thing asked on the way is a
         # line the step cites.
         reached = whole.rpn(self.flabel)
-        out = self.spelt_out(self.to_term(term)).rpn(self.flabel)
         while reached != term:
             reads = self.to_term(reached)
-            # The step may name what a define named where the universal
-            # speaks of it written out, and the define's equation is what
-            # says those are one claim.
-            if self.spelt_out(reads).rpn(self.flabel) == out:
-                alike = self.same(reads, self.to_term(term), scope, facts)
-                if not declined(alike):
-                    return self.seq(scope, reached, term, proof, alike,
-                                    'mpbid')
+            # What the universal says may be the claim in other words: the
+            # subsets proof names U where the universal speaks of the power
+            # set U names, and the standard form reads the two as one.
+            alike = self.same(reads, self.to_term(term), scope, facts)
+            if not declined(alike):
+                return self.seq(scope, reached, term, proof, alike, 'mpbid')
             if reads.label != 'wi':
                 raise self.defect(step.line,
                                   f'{where} at those terms says '
@@ -950,19 +947,28 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                            facts, lines)
 
     def one_equivalent(self, lemma, step, term, scope, facts, lines):
-        # A claim about a defined name is reached as the claim about what it
-        # names, and the define's equation carries it back.
-        out = self.spelt_out(self.to_term(term))
-        if out.rpn(self.flabel) != term:
-            made = self.one_equivalent(lemma, step, out.rpn(self.flabel),
-                                       scope, facts, lines)
+        # A claim the lemma's left side fits only as the standard form reads
+        # it — Cantor's x ∈ B, where `elrab` speaks of the set-builder B
+        # names — is reached at the lemma's own instance and carried to the
+        # claim by `same`.
+        whole = self.syntax.statement(self.sigs[lemma])
+        while whole.label == 'wi':
+            whole = whole.children[1]
+        binding = (self.fits_as(whole.children[0], self.to_term(term),
+                                whole.names())
+                   if whole.label == 'wb' else None)
+        instance = (whole.children[0].substitute(binding).rpn(self.flabel)
+                    if binding is not None else term)
+        if instance != term:
+            made = self.one_equivalent(lemma, step, instance, scope, facts,
+                                       lines)
             if declined(made):
                 return made
-            alike = self.same(out, self.to_term(term), scope, facts)
+            alike = self.same(self.to_term(instance), self.to_term(term),
+                              scope, facts)
             if declined(alike):
                 return alike
-            return self.seq(scope, out.rpn(self.flabel), term, made, alike,
-                            'mpbid')
+            return self.seq(scope, instance, term, made, alike, 'mpbid')
         # What a lemma's right side says beyond what its left fixes can
         # only come from the lines the step cites, offered in the order the
         # step writes them.
@@ -1010,6 +1016,31 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         return self.trying(item, step, self.one_unfolded, term, scope, facts,
                            lines)
 
+    def unfolds_from(self, left, held, variables, scope, facts):
+        """`(binding, proof of the left side at it)` from one of the things
+        a cited line says; else a decline.
+
+        Each is matched as written first, so a line that fits as it stands
+        is taken as it always was. Then as the standard form reads it
+        (`fits_as`), where Cantor's `x ∈ B` is the `x ∈ {x ∈ A : φ}` that
+        `elrab` unfolds, and `same` carries the line to that.
+        """
+        for said, shown in held.items():
+            binding = kernel.match(left, self.to_term(said), {}, variables)
+            if binding:
+                return binding, shown
+        for said, shown in held.items():
+            binding = self.fits_as(left, self.to_term(said), variables)
+            if not binding:
+                continue
+            instance = left.substitute(binding)
+            alike = self.same(self.to_term(said), instance, scope, facts)
+            if not declined(alike):
+                return binding, self.seq(scope, said,
+                                         instance.rpn(self.flabel), shown,
+                                         alike, 'mpbid')
+        return Declined('nothing the line says is what the lemma unfolds')
+
     def one_unfolded(self, lemma, step, term, scope, facts, lines):
         sig = self.sigs[lemma]
         whole = self.syntax.statement(sig)
@@ -1036,25 +1067,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 if said in facts:
                     held.setdefault(said, facts[said])
             self.unpack(cited.term, held[cited.term], scope, held)
-            for said, shown in held.items():
-                binding = kernel.match(reads.children[0], self.to_term(said),
-                                       {}, variables)
-                if binding:
-                    given = shown
-                    break
-                # A line about a defined name is a line about what it names.
-                out = self.spelt_out(self.to_term(said))
-                binding = kernel.match(reads.children[0], out, {}, variables)
-                if not binding:
-                    continue
-                alike = self.same(self.to_term(said), out, scope, facts)
-                if not declined(alike):
-                    given = self.seq(scope, said, out.rpn(self.flabel), shown,
-                                     alike, 'mpbid')
-                    break
-            else:
-                continue
-            break
+            found = self.unfolds_from(reads.children[0], held, variables,
+                                      scope, facts)
+            if not declined(found):
+                binding, given = found
+                break
         else:
             return Declined(f'no cited line is what {lemma} unfolds')
         # What the left side fixes need not be everything the right side
@@ -1149,8 +1166,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 whole = whole.children[1]
             if whole.label != 'wb' or whole.children[1].label == 'wrex':
                 return self.conclude
-            if kernel.match(whole.children[0],
-                            self.spelt_out(self.to_term(term)), {},
+            if self.fits_as(whole.children[0], self.to_term(term),
                             whole.names()) is not None:
                 return self.equivalent
         return self.unfolded
@@ -1754,20 +1770,18 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             # x ≤ |x| and −x ≤ |x|, and a step that needs only the first
             # says only the first. The theorem gives the whole, read in its
             # own sorts, and the sentence is taken out of it.
-            # A claim naming what a define named is written out for the
-            # theorem, which speaks of the body — the subsets proof claims a
-            # bijection from U to T, and the theorem concludes one from
-            # 𝒫(X ∖ {a}) — and the define's equation carries it back. Not a
-            # name the citation instantiates with: x := f(x₁) − f(c) applies
-            # the theorem at x₁, and there the theorem speaks of x₁.
-            keep = frozenset(t for value in binds.values()
-                             for t in value.split() if t in self.definitions)
-            said = self.spelt_out(self.to_term(term), keep).rpn(self.flabel)
-            whole = said
+            # So is a claim that is the conclusion in other words: the
+            # subsets proof claims a bijection from U to T, and the theorem
+            # concludes one from 𝒫(X ∖ {a}), which is what U names. A claim
+            # that is the conclusion up to the letters it binds is the
+            # theorem's own instance, those letters being its floats.
+            with self.in_its_names(other):
+                stated = self.claim_of(other.conclusion)
+            whole = (term if stated == term or self.rebound(stated, term)
+                     else stated)
             if (len(self.sentences(other.conclusion))
                     > len(self.sentences(' '.join(step.claim)))):
-                with self.in_its_names(other):
-                    whole = self.claim_of(other.conclusion)
+                whole = stated
 
         # A cited theorem asks for what it asks for, and a hypothesis a
         # reader would not think to write as a line is written as a
@@ -1808,23 +1822,19 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             cited, '$p', ['|-'],
             [('class', f'{cited}.{n}') for n in range(len(pushed))]))
         proof = self.seq(scope, pair, whole, proof, *pushed, cited, 'syl')
-        if said != whole:
-            parts = {}
-            self.unpack(whole, proof, scope, parts)
-            if said not in parts:
-                raise self.defect(step.line,
-                                  f'{step.just.head} does not conclude what '
-                                  f'step {fmt(step.number)} claims')
-            proof = parts[said]
-        if said == term:
+        if term == whole:
             return proof
-        alike = self.same(self.to_term(said), self.to_term(term), scope, facts)
-        if declined(alike):
-            raise self.defect(step.line,
-                              f'{step.just.head} concludes what step '
-                              f'{fmt(step.number)} claims written out, and '
-                              f'the defines do not carry it back: {alike}')
-        return self.seq(scope, said, term, proof, alike, 'mpbid')
+        parts = {whole: proof}
+        self.unpack(whole, proof, scope, parts)
+        if term in parts:
+            return parts[term]
+        for one, shown in parts.items():
+            alike = self.same(self.to_term(one), self.to_term(term), scope,
+                              facts)
+            if not declined(alike):
+                return self.seq(scope, one, term, shown, alike, 'mpbid')
+        raise self.defect(step.line, f'{step.just.head} does not conclude '
+                                     f'what step {fmt(step.number)} claims')
 
 
 def definitions(records, sigs):

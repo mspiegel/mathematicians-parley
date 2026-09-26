@@ -1073,8 +1073,7 @@ class Matcher:
         if said != want and not self.rebound(said, want):
             return self.conditioned(one, other, where, held)
         if self.lifts(one, other) and all(
-                self.standard(a).rpn(self.flabel)
-                == self.standard(b).rpn(self.flabel)
+                self.alike_in_place(a, b)
                 for a, b in zip(one.children, other.children, strict=True)):
             return None                       # the walk goes a level in
         # One rewrite at the head of either side, and the walk again from
@@ -1133,6 +1132,21 @@ class Matcher:
             renamed = self.renaming_apart(one.rpn(self.flabel),
                                           other.rpn(self.flabel))
         return renamed
+
+    def alike_in_place(self, one, other):
+        """Whether two parts come to one standard form, where the walk
+        can close them one by one below.
+
+        Classes may also differ in the letters they bind, which only
+        `class_renamed` closes and only at the class itself, so the walk
+        has to go down to it: a map binding `o` inside a relation, against
+        one binding `l`. A statement differing so is renamed whole, where
+        it stands (`closed_standard`).
+        """
+        said = self.standard(one).rpn(self.flabel)
+        want = self.standard(other).rpn(self.flabel)
+        return said == want or (not self.is_wff(one)
+                                and self.rebound(said, want))
 
     def class_renamed(self, one, other):
         """A closed proof that two classes differing in the letter they bind
@@ -2072,47 +2086,58 @@ class Matcher:
         claim, applying each rule where it stands with what it asks settled
         there. The rules are declared, which is what stops an elaborator
         reaching a claim by whatever it can find that fits.
+
+        What the lemma concludes is tried first, and then the near side of
+        each biconditional it states, which a claim may be as surely as the
+        conclusion: `ltmin` says z < min(x, y) exactly when z is below both,
+        and the step claims c < x₁, which is the near side once x₁ is read
+        as what it names.
         """
         variables = whole.names()
-        ours = self.read_through(reads, named=False)
+        sides, rest = [reads], whole
+        while rest.label in ('wi', 'wb'):
+            if rest.label == 'wb':
+                sides.append(rest.children[0])
+            rest = rest.children[1]
         theirs = self.read_through(goal)
-        binding = kernel.match(ours, theirs, dict(seed or {}), variables)
-        if binding is None or reads.names() - set(binding):
-            return Declined(f'{label} does not conclude the claim in any '
-                            f'words the rules read')
-        instance = reads.substitute(binding)
-        if instance.rpn(self.flabel) == goal.rpn(self.flabel):
-            return Declined(f'{label} at what it concludes is the claim '
-                            f'as written')
-        found = self.apply_lemma(label, instance, scope, facts, step,
-                                 crossing=False, seed=binding)
-        if declined(found):
-            return found
-        across = self.same(instance, goal, scope, facts, step)
-        if declined(across):
-            return across
-        return self.seq(scope, instance.rpn(self.flabel),
-                        goal.rpn(self.flabel), found, across, 'mpbid')
+        found = Declined(f'{label} does not conclude the claim in any '
+                         f'words the rules read')
+        for side in sides:
+            binding = kernel.match(self.read_through(side, named=False),
+                                   theirs, dict(seed or {}), variables)
+            if binding is None or side.names() - set(binding):
+                continue
+            instance = side.substitute(binding)
+            if instance.rpn(self.flabel) == goal.rpn(self.flabel):
+                continue
+            found = self.apply_lemma(label, instance, scope, facts, step,
+                                     crossing=False, seed=binding)
+            if declined(found):
+                continue
+            across = self.same(instance, goal, scope, facts, step)
+            if declined(across):
+                found = across
+                continue
+            return self.seq(scope, instance.rpn(self.flabel),
+                            goal.rpn(self.flabel), found, across, 'mpbid')
+        return found
 
-    def spelt_out(self, term, keep=frozenset()):
-        """A term with every name a `define` introduced replaced by the
-        term it names, and nothing else changed; but for the defined
-        variables in `keep`, which stay names.
+    def fits_as(self, pattern, term, variables, seed=None):
+        """What a lemma's variables stand for where its `pattern` is `term`:
+        as written, or else with both read in standard form
+        (`read_through`); None where neither fits.
 
-        A lemma speaks of the body — `elrab` of `{x ∈ A : φ}` — and a line
-        of the name, so what fixes the lemma's variables is the line spelt
-        out; the equation the define holds carries one to the other
-        (`closed_defined`).
+        As written first, so whatever fits today fits the same way. Where
+        only the reading fits, the lemma's instance is not the line as it
+        stands, and the caller joins the two with `same`: `elrab` speaks of
+        `{x ∈ A : φ}` and Cantor's line of the B that names it.
         """
-        if term.variable is not None or not term.children:
-            return term
-        if term.label == 'cv':
-            var = term.children[0].rpn(self.flabel)
-            body = None if var in keep else self.definitions.get(var)
-            return term if body is None else self.spelt_out(self.to_term(body))
-        return kernel.Term(term.label,
-                           tuple(self.spelt_out(c, keep)
-                                 for c in term.children))
+        binding = kernel.match(pattern, term, dict(seed or {}), variables)
+        if binding is not None:
+            return binding
+        return kernel.match(self.read_through(pattern, named=False),
+                            self.read_through(term), dict(seed or {}),
+                            variables)
 
     def read_through(self, term, named=True, letters=None):
         """A term with every one-way rule of the standard form applied,
@@ -2179,33 +2204,6 @@ class Matcher:
 
     def apply_lemma(self, label, goal, scope, facts, step, crossing=True,
                     seed=None):
-        """Apply one set.mm lemma to reach a claim, side conditions and all
-        (`applied_as_written`), or to reach it written out.
-
-        A claim may name what a `define` named, and a lemma speaks of the
-        body: `ltmin` says when z is below `if ( x <_ y , x , y )`, and the
-        step claims c < x₁. Where the claim as written does not fit, the
-        lemma is applied to it written out (`spelt_out`) and the define's
-        equation carries that back (`same`).
-        """
-        found = self.applied_as_written(label, goal, scope, facts, step,
-                                        crossing, seed)
-        out = self.spelt_out(goal)
-        if not declined(found) \
-                or out.rpn(self.flabel) == goal.rpn(self.flabel):
-            return found
-        written = self.applied_as_written(label, out, scope, facts, step,
-                                          crossing, seed)
-        if declined(written):
-            return found
-        alike = self.same(out, goal, scope, facts, step)
-        if declined(alike):
-            return alike
-        return self.seq(scope, out.rpn(self.flabel), goal.rpn(self.flabel),
-                        written, alike, 'mpbid')
-
-    def applied_as_written(self, label, goal, scope, facts, step,
-                           crossing=True, seed=None):
         """Apply one set.mm lemma to reach a claim, side conditions and all.
 
         What a lemma states before the claim it reaches may be an
