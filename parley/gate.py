@@ -21,8 +21,8 @@ of them failing fails the gate.
 The first three read the tools; the rest read the corpus. The last is the
 only one that is evidence the elaborator is right rather than
 consistent. The six before it read the corpus against itself or against a
-list of names; a proof that assumes nothing and proves the wrong thing passes
-all of them, and has.
+list of names. A proof that assumes nothing and proves the wrong thing would
+pass all of them, and one already has.
 
 The ninth is there because a step taken as stated verifies: the verifier
 reads it as an axiom, so the last stage cannot see one, and a list in the
