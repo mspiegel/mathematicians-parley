@@ -100,8 +100,8 @@ CASES = [
 
     ('a character that is in no notation record',
      'proof/sum-formula.proof',
-     '= 1(1 + 1)/2        arithmetic',
-     '= 1(1 ⊕ 1)/2        arithmetic',
+     '= 1(1 + 1)/2            arithmetic',
+     '= 1(1 ⊕ 1)/2            arithmetic',
      'is in no record'),
 
     # U+2208 followed by a combining solidus looks like the not-an-element sign
@@ -248,8 +248,8 @@ CASES = [
 
     ('supply a hypothesis with the wrong number system',
      'proof/geometric-series.proof',
-     '    2.1.  G(0) = 1\n          def:stdlib/sums/G, from H1',
-     '    2.1.  G(0) = 1\n          def:stdlib/sums/G, from H3',
+     'thm:stdlib/numbers/exponent-zero a := a, from H1',
+     'thm:stdlib/numbers/exponent-zero a := a, from H3',
      'does not supply them'),
 
     ('stop declaring which pattern is a negation of which',
@@ -288,32 +288,6 @@ CASES = [
      '6.  p > 2\n    def:stdlib/divisibility/prime p := p, from 5',
      'does not conclude'),
 
-    # `G(n)` is the sum of the powers of `a`, and `def:stdlib/sums/G` fixes `a`
-    # for the whole theorem rather than showing it in the notation. A proof
-    # that binds an `a` of its own is writing about the name it bound.
-    ('bind a name the notation it uses fixes',
-     'proof/geometric-series.proof',
-     '    2.8.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)\n'
-     '          then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).',
-     '    2.8.  For every a ∈ ℕ₀, if G(a) = (1 − a^(a + 1))/(1 − a)\n'
-     '          then G(a + 1) = (1 − a^((a + 1) + 1))/(1 − a).',
-     'a proof may not bind a name the notation it uses fixes'),
-
-    # The same fixed name is said twice and neither file reads the other:
-    # `def:stdlib/sums/G`'s `let` lines and the hole of `G(_)` say it on the
-    # page, and `@a` in the target says it to the elaborator.
-    ('drop the fixed parameter from a notation target',
-     'db/notation.records',
-     '  target      cc0 _1 cfz co @a vk cv cexp co vk csu',
-     '  target      cc0 _1 cfz co c1 vk cv cexp co vk csu',
-     'which its target does not write as @a'),
-
-    ('hold a name fixed that no definition fixes',
-     'db/notation.records',
-     '  target      cc0 _1 cfz co @a vk cv cexp co vk csu',
-     '  target      cc0 _1 cfz co @a @b vk cv cexp co vk csu',
-     'which no definition introducing it fixes'),
-
     ('stop declaring that juxtaposition is the product',
      'db/notation.records',
      '  assoc       left\n  spells      multiplicative ·',
@@ -343,6 +317,13 @@ CASES = [
      'define B := {x ∈ A : x ∉ f(x)}',
      'define B(y) := {x ∈ A : x ∉ f(x)}',
      'says no domain'),
+
+    # S is defined on ℕ, so what it is applied to is a number.
+    ('apply a defined function outside its domain\'s kind',
+     'proof/sum-formula.proof',
+     '1.  S(n) = n(n + 1)/2',
+     '1.  S({n}) = n(n + 1)/2',
+     'a set of numbers where a number is wanted'),
 
     ('give a domain to a define that takes no argument',
      'proof/cantor.proof',
@@ -632,7 +613,7 @@ CASES = [
 
     ('a chain link with a letter in it naming arithmetic',
      'proof/sum-formula.proof',
-     '= (k + 1)((k + 1) + 1)/2       1.3.3',
+     '= (k + 1)((k + 1) + 1)/2       1.3.4',
      '= (k + 1)((k + 1) + 1)/2       arithmetic',
      'names arithmetic for'),
 

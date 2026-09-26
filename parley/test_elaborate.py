@@ -44,7 +44,7 @@ CASES = [
      '                  requires a^(k + 1) ∈ ℝ',
      '                  requires a ¿ ℝ: from H1\n'
      '                  requires a^(k + 1) ∈ ℝ',
-     'proof/geometric-series.proof:63'),
+     'proof/geometric-series.proof:86'),
 
     # `substitute` walks its equation both ways and each sentence of the
     # line it names, catching what declines. A name the proof never
@@ -52,8 +52,8 @@ CASES = [
     ('substitute a name the proof never introduced',
      'proof/geometric-series/geometric-sum',
      'proof/geometric-series.proof',
-     '          substitute a^(0 + 1) = a (line 2.4)',
-     '          substitute a^(0 + 1) = z (line 2.4)',
+     '          substitute a^(0 + 1) = a (line 2.6)',
+     '          substitute a^(0 + 1) = z (line 2.6)',
      "no kernel name for 'z'"),
 
     # A gap in the database rather than in the text. It was reported with
@@ -69,26 +69,26 @@ CASES = [
     # a notation: the target names a lemma that proves the other `then`
     # group, so the step's own group has nothing behind it.
     ('name the wrong clause in a definition target',
-     'proof/geometric-series/geometric-sum',
-     'stdlib/sums.records',
-     '  target      fsum1, fsump1\n'
-     '  first-used  geometric-series',
-     '  target      fsum1, fsum1\n'
-     '  first-used  geometric-series',
-     'proof/geometric-series.proof:51  no clause of def:stdlib/sums/G gives '
-     'what step 2.8.1 claims'),
+     'proof/triangle-inequality/abs-bounds',
+     'stdlib/numbers.records',
+     '  target      absid, absnid\n'
+     '  first-used  triangle-inequality',
+     '  target      absid, absid\n'
+     '  first-used  triangle-inequality',
+     'proof/triangle-inequality.proof:34  no clause of '
+     'def:stdlib/numbers/abs gives what step 2.5 claims'),
 
     # The same report reached from the other side: the target is right and
     # the step claims something the definition does not say. It used to be
     # given back as a route declining, which anything above was free to
     # take as stated.
     ('claim of a definition what it does not say',
-     'proof/geometric-series/geometric-sum',
-     'proof/geometric-series.proof',
-     '    2.1.  G(0) = 1',
-     '    2.1.  G(0) = 2',
-     'proof/geometric-series.proof:16  no clause of def:stdlib/sums/G gives what '
-     'step 2.1 claims'),
+     'proof/triangle-inequality/abs-bounds',
+     'proof/triangle-inequality.proof',
+     '    2.5.  |x| = −x',
+     '    2.5.  |x| = x',
+     'proof/triangle-inequality.proof:34  no clause of '
+     'def:stdlib/numbers/abs gives what step 2.5 claims'),
 
     # A `requires` line has a claim and a reason, and only the claim was
     # used: the reason could name any line at all and the fact was settled
@@ -184,9 +184,9 @@ CASES = [
     ('claim an algebra step the cited lines do not give',
      'proof/geometric-series/geometric-sum',
      'proof/geometric-series.proof',
-     '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
+     '    2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a)',
-     '    2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
+     '    2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = '
      '(1 − a^(k + 1)·a)/(1 − a) + 1',
      'is not an identity'),
 
@@ -332,13 +332,13 @@ CASES = [
      'proof/geometric-series.proof',
      'substitute 0 + 1 = 1 (arithmetic)',
      'substitute 0 + 1 = 2 (arithmetic)',
-     'step 2.2 substitutes 0 + 1 = 2, which is false'),
+     'step 2.4 substitutes 0 + 1 = 2, which is false'),
 
     ('a chain link of numerals that is false',
      'proof/sum-formula/sum-formula',
      'proof/sum-formula.proof',
-     '= 1(1 + 1)/2        arithmetic',
-     '= 1(1 + 1)/3        arithmetic',
+     '= 1(1 + 1)/2            arithmetic',
+     '= 1(1 + 1)/3            arithmetic',
      'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
 
     # `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
@@ -356,9 +356,9 @@ CASES = [
     ('cite a line for a link it does not say',
      'proof/sum-formula/sum-formula',
      'proof/sum-formula.proof',
+     '= k(k + 1)/2 + (k + 1)         1.3.3',
      '= k(k + 1)/2 + (k + 1)         1.3.2',
-     '= k(k + 1)/2 + (k + 1)         1.3.1',
-     '1.3.1 does not say'),
+     '1.3.2 does not say'),
 
     # What says f is continuous is H5, and so is what says its domain and
     # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step

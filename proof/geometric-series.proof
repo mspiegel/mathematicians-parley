@@ -3,7 +3,10 @@ theorem geometric-sum
   let a ∈ ℝ                                                           (H1)
   assume a ≠ 1                                                        (H2)
   let n ∈ ℕ₀                                                          (H3)
-  then G(n) = (1 − a^(n + 1))/(1 − a)
+  then Σ(k = 0 to n) a^k = (1 − a^(n + 1))/(1 − a)
+
+define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1)
+       reads the sum of the powers of a up to the m-th
 
 1.  1 − a ≠ 0
     algebra, from H2
@@ -13,65 +16,91 @@ theorem geometric-sum
     induction on n starting at 0, from H3
 
     base
-    2.1.  G(0) = 1
-          def:stdlib/sums/G, from H1
+    2.1.  Σ(j = 0 to 0) a^j = a^0
+          thm:stdlib/sums/sum-single a := 0
+          requires 0 ∈ ℤ: arithmetic
+          requires a ∈ ℝ: from H1
 
-    2.2.  a^(0 + 1) = a^1
+    2.2.  a^0 = 1
+          thm:stdlib/numbers/exponent-zero a := a, from H1
+
+    2.3.  G(0) = 1
+          calculation
+            G(0) = Σ(j = 0 to 0) a^j     D1
+                 = a^0                   2.1
+                 = 1                     2.2
+
+    2.4.  a^(0 + 1) = a^1
           substitute 0 + 1 = 1 (arithmetic)
 
-    2.3.  a^1 = a
+    2.5.  a^1 = a
           thm:stdlib/numbers/exponent-one a := a, from H1
 
-    2.4.  a^(0 + 1) = a
+    2.6.  a^(0 + 1) = a
           calculation
-            a^(0 + 1) = a^1       2.2
-                      = a         2.3
+            a^(0 + 1) = a^1       2.4
+                      = a         2.5
 
-    2.5.  1 = (1 − a)/(1 − a)
+    2.7.  1 = (1 − a)/(1 − a)
           algebra
           requires 1 − a ≠ 0: from 1
           requires a ∈ ℝ: from H1
 
-    2.6.  (1 − a)/(1 − a) = (1 − a^(0 + 1))/(1 − a)
-          substitute a^(0 + 1) = a (line 2.4)
+    2.8.  (1 − a)/(1 − a) = (1 − a^(0 + 1))/(1 − a)
+          substitute a^(0 + 1) = a (line 2.6)
 
-    2.7.  G(0) = (1 − a^(0 + 1))/(1 − a)
+    2.9.  G(0) = (1 − a^(0 + 1))/(1 − a)
           calculation
-            G(0) = 1                              2.1
-                 = (1 − a)/(1 − a)                2.5
-                 = (1 − a^(0 + 1))/(1 − a)        2.6
+            G(0) = 1                              2.3
+                 = (1 − a)/(1 − a)                2.7
+                 = (1 − a^(0 + 1))/(1 − a)        2.8
 
     step
-    2.8.  For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
+    2.10. For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
           then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).
           fix
           let k ∈ ℕ₀                                                  (K)
           assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
 
-          2.8.1.  G(k + 1) = G(k) + a^(k + 1)
-                  def:stdlib/sums/G n := k, from H1, K
-
-          2.8.2.  G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
-                  substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
-
-          2.8.3.  k + 1 ∈ ℕ₀
+          2.10.1. k + 1 ∈ ℕ₀
                   thm:stdlib/numbers/nat0-closure, from K
 
-          2.8.4.  a^((k + 1) + 1) = a^(k + 1)·a
-                  thm:stdlib/numbers/exponent-step m := k + 1, from H1, 2.8.3
+          2.10.2. Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
+                  thm:stdlib/sums/sum-last n := k, from K
+                  requires a ∈ ℝ: from H1
 
-          2.8.5.  (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
+          2.10.3. G(k + 1) = G(k) + a^(k + 1)
+                  calculation
+                    G(k + 1) = Σ(j = 0 to k + 1) a^j              D1
+                             = Σ(j = 0 to k) a^j + a^(k + 1)      2.10.2
+                             = G(k) + a^(k + 1)                   D1
+                  requires k + 1 ∈ ℕ₀: from 2.10.1
+                  requires k ∈ ℕ₀: from K
+
+          2.10.4. G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
+                  substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
+
+          2.10.5. a^((k + 1) + 1) = a^(k + 1)·a
+                  thm:stdlib/numbers/exponent-step m := k + 1, from H1, 2.10.1
+
+          2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
                   algebra
                   requires 1 − a ≠ 0: from 1
                   requires a ∈ ℝ: from H1
-                  requires a^(k + 1) ∈ ℝ: thm:stdlib/numbers/power-real m := k + 1, from H1, 2.8.3
+                  requires a^(k + 1) ∈ ℝ: thm:stdlib/numbers/power-real m := k + 1, from H1, 2.10.1
 
-          2.8.6.  (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.8.4), right to left
+          2.10.7. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
+                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.10.5), right to left
 
-          2.8.7.  G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
+          2.10.8. G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
                   calculation
-                    G(k + 1) = G(k) + a^(k + 1)                         2.8.1
-                             = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.8.2
-                             = (1 − a^(k + 1)·a)/(1 − a)               2.8.5
-                             = (1 − a^((k + 1) + 1))/(1 − a)           2.8.6
+                    G(k + 1) = G(k) + a^(k + 1)                         2.10.3
+                             = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.10.4
+                             = (1 − a^(k + 1)·a)/(1 − a)               2.10.6
+                             = (1 − a^((k + 1) + 1))/(1 − a)           2.10.7
+
+3.  Σ(k = 0 to n) a^k = (1 − a^(n + 1))/(1 − a)
+    calculation
+      Σ(k = 0 to n) a^k = G(n)                          D1
+                        = (1 − a^(n + 1))/(1 − a)       2
+    requires n ∈ ℕ₀: from H3

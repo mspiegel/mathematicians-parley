@@ -76,6 +76,28 @@ SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
               'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv']
 
 
+# A letter standing alone as a name, as `k` does in `Σ(k = 0 to m)`, and
+# not inside a word such as `calculation`.
+LETTER = re.compile(r'(?<![A-Za-z])[A-Za-z](?![A-Za-z])')
+
+
+def written(thm):
+    """Everything a theorem's lines say, as one run of text: the statement,
+    its defines, and every step's claim, openers, requires lines and
+    justification.
+    """
+    parts = [t for _k, t, _l, _n in thm.hypotheses] + [thm.conclusion]
+    parts += [t for _k, t, _l, _n in thm.defines]
+    for step in thm.steps:
+        parts += list(step.claim)
+        parts += [o[1] for o in step.openers]
+        parts += [text for text, _how, _line in step.requires]
+        if step.just:
+            parts.append(step.just.text)
+            parts += [text for text, _line in step.just.chain]
+    return ' '.join(parts)
+
+
 def label_of(name, taken=(), path='', line=0, ours=()):
     """What this elaborator calls a theorem it has written out.
 
@@ -125,10 +147,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.thm, self.g, self.items = thm, grammar, items
         self.terms = targets.terms(records)
         # A name the proof introduces becomes a variable of the kernel, and it
-        # must not be one a notation's own target binds: `S(_)` sums over `k`,
-        # so a proof that fixes `k` cannot be given `k`.
+        # must not be one a notation's own target binds, nor a letter the
+        # proof writes: a binder takes its own letter where it can
+        # (`binder_var`), so the binomial proof's `Σ(k = 0 to m)` is over k,
+        # and a spare handed out as k before that sum is read would be one
+        # variable for two things.
         self.taken = {t for entries in self.terms.values()
                       for e in entries if e for t in e.split()}
+        self.taken |= {self.flabel[c] for c in LETTER.findall(written(thm))
+                       if c in self.flabel}
         self.spare = [v for v in SPARE_VARS if v not in self.taken]
         self.commutes = targets.commuting(records)
         self.cited = []          # corpus theorems this proof leans on

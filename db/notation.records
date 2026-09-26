@@ -705,31 +705,6 @@ notation congruent
               _4 cmin co _5 _4 cmin co cang co cabs cfv wceq wa
   first-used  isosceles
 
-notation sum-function
-  pattern     S(_)
-  holes       number
-  yields      number
-  reads       the sum of the first natural numbers up to
-  metamath    Σ k ∈ (1...n) k
-  target      c1 _1 cfz co vk cv vk csu
-  first-used  sum-formula
-  note        Introduced by def:stdlib/sums/S, which is local to the sum-formula pilot.
-
-notation geometric-function
-  pattern     G(_)
-  holes       number
-  yields      number
-  reads       the sum of the powers of a up to
-  metamath    Σ k ∈ (0...n) a^k
-  target      cc0 _1 cfz co @a vk cv cexp co vk csu
-  first-used  geometric-series
-  note        Introduced by def:stdlib/sums/G, which is local to the geometric-series pilot.
-              The one notation in the corpus that holds a name fixed. `a` is
-              its base, which def:stdlib/sums/G declares as H1 and the pattern has no hole
-              for, so the target writes it as @a and the theorem's `let a ∈ ℝ`
-              is what it stands for. A theorem that fixes no `a` cannot write
-              G(_), which is what makes the definition local.
-
 
 # Binders. A hole marked by `binds` introduces a variable that scopes over
 # another hole. SYNTAX.md writes these as words rather than as ∀ and ∃.
