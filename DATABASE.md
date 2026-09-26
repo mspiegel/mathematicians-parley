@@ -236,12 +236,14 @@ repaired.
   over the corpus, and the last one verifies the files it *has written*, so
   those files have to have been written from the corpus as it stands. Break
   the elaborator and leave the built files alone and the gate passes while
-  nothing elaborates. Eight stages: ruff over the tools, that no caller hands
-  on a decline without asking whether it has one, the checker over the corpus,
-  the planted defects that prove the checker still catches things, the planted
-  defects that prove the elaborator still reports things, every set.mm label
-  the database names, that a compressed proof is the proof it was made from,
-  and a verifier over all 23 proofs the elaborator has written. The lint settings
+  nothing elaborates. Ten stages: ruff over the tools, that no caller hands
+  on a decline without asking whether it has one, the planted shapes that
+  prove that stage still finds them, the checker over the corpus, the planted
+  defects that prove the checker still catches things, the planted defects
+  that prove the elaborator still reports things, every set.mm label the
+  database names, that a compressed proof is the proof it was made from, that
+  no elaborated proof takes a step as stated that `ELABORATION.md` does not
+  record, and a verifier over every proof the elaborator has written. The lint settings
   are in `ruff.toml`, which turns off the ambiguous-character rules because
   this corpus is written in the characters they object to. Nothing the gate
   leans on is vendored: ruff is looked for on PATH, and set.mm and mmverify.py

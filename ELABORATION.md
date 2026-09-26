@@ -968,6 +968,23 @@ step names nothing for it.
 The assumption count is the measure that says whether a method is written or
 only named.
 
+### Steps taken as stated
+
+`GOALS.md` decision 17: what the elaborator cannot build is a defect, or it is
+recorded here, and a list in a file's header is not a record. The gate stage
+`parley/assumed.py` reads every elaborated proof under `elaboration/proof/`
+and is red for any statement one takes as stated that this list does not
+name, and for any this list names that no file states any longer. A record
+is one line:
+
+    - `elaboration/proof/<theorem>/<file>.mm` `<label>`: why it is not built,
+      and what would build it.
+
+Definitions are not steps, and the constants and definitions
+`stdlib/definitions.mm` declares are decision 12's, not this list's.
+
+None: every step of every proof is built.
+
 ## The output format
 
 Proofs are written compressed. In deduction form every line is an implication
@@ -1010,13 +1027,14 @@ an elaborator can be held to.
 
 ## What the tools check
 
-`parley/gate.py` runs nine stages: the lint settings, that no caller hands on
+`parley/gate.py` runs ten stages: the lint settings, that no caller hands on
 a decline without asking whether it has one, the planted shapes that prove that
 stage still finds them, the checker over the whole corpus, the planted defects
 that prove the checker still catches things, the planted defects that prove the
 elaborator still reports things, every set.mm label the database names, that a
-compressed proof is the proof it was made from, and a verifier over every proof
-the elaborator has written.
+compressed proof is the proof it was made from, that no elaborated proof takes
+a step as stated unless "Steps taken as stated" above records it, and a
+verifier over every proof the elaborator has written.
 
 `parley/declines.py` reads the tools' own source. A `Declined` is what a route
 gives back when it does not apply, and a caller that uses one without asking
