@@ -76,21 +76,62 @@ class Scopes:
         finally:
             del self.frames[frame:]
 
-    @contextlib.contextmanager
-    def frames_alone(self, scope, facts):
-        """One frame and nothing under it, given back when the block ends.
+    def for_every(self, scope, facts, body, variable, over, prove,
+                  implied=None):
+        """( scope -> for every variable ∈ over, body ), from one member.
 
-        A lemma is placed at a frame, not at the scope it is asked under, so
-        a fact wanted under less than the step's scope needs the frames to
-        be only that: `settle` proves a member's condition under its
-        membership alone where the scope names the member's bound variable.
+        The member is fixed, what its membership says laid beside the facts
+        (and, where `implied` is given, what that membership implies), the
+        body proved of it by `prove(body, inner, lifted)`, and the claim
+        generalised by `ralrimiva`, as a `fix` block would do it.
+
+        `ralrimiva` asks that the scope not name the variable, even bound: a
+        scope holding u ∈ {E(s) : s ∈ Y} names s, and the verifier refuses
+        the proof. There the claim is proved over a spare variable the scope
+        does not name, and `renaming` says the two spellings are one claim.
+        The scope is all there, so a body that needs the step's facts, as
+        `dvdslegcd` needs a and b to be numbers, still has them.
         """
-        kept = self.frames
-        self.frames = [(scope, None, facts)]
-        try:
-            yield
-        finally:
-            self.frames = kept
+        name = variable.rpn(self.flabel)
+        if name not in scope.split():
+            return self.generalised(scope, facts, body, name, over, prove,
+                                    implied)
+        where = over.rpn(self.flabel)
+        # A spare is one no name of the proof stands for, which a letter a
+        # hypothesis binds need not be: `… → 1 as n → ∞` binds an n the
+        # proof never names.
+        spelt = set(scope.split()) | set(body.rpn(self.flabel).split()) \
+            | set(where.split())
+        spare = self.spare_var()
+        while spare in spelt:
+            spare = self.spare_var()
+        again = self.restated(body, f'{name} cv', f'{spare} cv')
+        made = self.generalised(scope, facts, again, spare, over, prove,
+                                implied)
+        if declined(made):
+            return made
+        said = self.seq(again.rpn(self.flabel), spare, where, 'wral')
+        want = self.seq(body.rpn(self.flabel), name, where, 'wral')
+        across = self.renaming(self.to_term(said), self.to_term(want))
+        if across is None:
+            return Declined(f'the scope names {name}, and the claim over '
+                            f'another name is not carried back to it')
+        return self.ap('sylib', {'ph': scope, 'ps': said, 'ch': want},
+                       made, across)
+
+    def generalised(self, scope, facts, body, name, over, prove, implied):
+        """`for_every` where the scope does not name the variable."""
+        where = over.rpn(self.flabel)
+        member = self.seq(f'{name} cv', where, 'wcel')
+        with self.frames_kept():
+            inner, lifted = self.widen(scope, facts, member)
+            if implied is not None:
+                lifted = {**lifted, **implied(member, lifted[member], inner)}
+            made = prove(body, inner, lifted)
+        if declined(made):
+            return made
+        return self.seq(scope, body.rpn(self.flabel), name, where, made,
+                        'ralrimiva')
 
     def widen(self, scope, facts, added, origin=None):
         """Conjoin one more thing onto the antecedent, carrying the facts.

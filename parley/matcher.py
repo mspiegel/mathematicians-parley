@@ -145,8 +145,8 @@ class Matcher:
             if wanted.label == 'wral':
                 # A side condition may be asked of every member at once:
                 # `ralrnmpt` wants each of its map's values to be a set. The
-                # name is fixed, the condition settled of it, and
-                # `ralrimiva` gives it back, which is `as_generalised` over
+                # name is fixed, the condition settled of it, and the claim
+                # generalised (`for_every`), which is `as_generalised` over
                 # a declared lemma rather than over a cited one.
                 #
                 # Going under the binder spends no depth, as splitting a
@@ -154,34 +154,10 @@ class Matcher:
                 # member, not a step of the chain the bound is there to cut
                 # off, and spending it stopped `f1mpt` halfway.
                 body, variable, over = wanted.children
-                member = self.seq(f'{variable.rpn(self.flabel)} cv',
-                             over.rpn(self.flabel), 'wcel')
-                # `ralrimiva` keeps the bound name apart from the scope, and
-                # a scope that says it, even bound, as `u ∈ {E(s) : s ∈ Y}`
-                # does, is one the verifier refuses the proof under. The
-                # member alone is scope enough for what needs no more, as
-                # `fvex` needs nothing: settled under it, generalised by
-                # `rgen`, and carried under the scope by `a1i`.
-                said = variable.rpn(self.flabel)
-                if said in scope.split():
-                    alone = {member: self.ap('id', {'ph': member})}
-                    with self.frames_alone(member, alone):
-                        made = self.settle(body, member, alone, depth)
-                    if declined(made):
-                        return made
-                    every = self.ap('rgen', {'ph': body.rpn(self.flabel),
-                                             'x': said,
-                                             'A': over.rpn(self.flabel)},
-                                    made)
-                    return self.ap('a1i', {'ph': rpn, 'ps': scope}, every)
-                with self.frames_kept():
-                    inner, lifted = self.widen(scope, facts, member)
-                    made = self.settle(body, inner, lifted, depth)
-                if declined(made):
-                    return made
-                return self.seq(scope, body.rpn(self.flabel),
-                           variable.rpn(self.flabel),
-                           over.rpn(self.flabel), made, 'ralrimiva')
+                return self.for_every(
+                    scope, facts, body, variable, over,
+                    lambda said, inner, lifted: self.settle(said, inner,
+                                                            lifted, depth))
             # Every lemma is tried as it is written before any is read
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
@@ -2098,23 +2074,17 @@ class Matcher:
 
         `dvdslegcd` says a common divisor is no greater than the gcd, of
         whatever divisor it is given, and `def:stdlib/divisibility/gcd` says it
-        of every e in ℕ. The name is fixed, the lemma applied to it, and `ralrimiva`
-        gives it back — the same move a `fix` block closes with, over a
-        lemma rather than over a block.
+        of every e in ℕ. The name is fixed, the lemma applied to it, and the
+        claim generalised (`for_every`) — the same move a `fix` block closes
+        with, over a lemma rather than over a block.
         """
         if goal.label != 'wral':
             return Declined('the claim is not "for every"')
         body, variable, over = goal.children
-        member = self.seq(f'{variable.rpn(self.flabel)} cv',
-                     over.rpn(self.flabel), 'wcel')
-        with self.frames_kept():
-            inner, lifted = self.widen(scope, facts, member)
-            proof = self.apply_lemma(label, body, inner, lifted, step,
-                                     crossing=False, seed=seed)
-        if declined(proof):
-            return proof
-        return self.seq(scope, body.rpn(self.flabel), variable.rpn(self.flabel),
-                   over.rpn(self.flabel), proof, 'ralrimiva')
+        return self.for_every(
+            scope, facts, body, variable, over,
+            lambda said, inner, lifted: self.apply_lemma(
+                label, said, inner, lifted, step, crossing=False, seed=seed))
 
     def as_conjunct(self, label, whole, reads, goal, scope, facts, step, seed):
         """One half of what a lemma concludes.

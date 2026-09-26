@@ -1,0 +1,8 @@
+theorem citation-under-a-bound-name
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  assume for every e ∈ ℕ, e ≤ e                                       (H3)
+  then for every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b)
+
+1.  For every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
+    def:stdlib/divisibility/gcd, from H1, H2

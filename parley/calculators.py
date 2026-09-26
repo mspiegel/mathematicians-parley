@@ -1110,14 +1110,11 @@ class Calculators:
         # block would do it.
         if claim.variable is None and claim.label == 'wral':
             body, variable, over = claim.children
-            with self.frames_kept():
-                inner, lifted = self.fixed(scope, known, variable, over)
-                made = self.member_of(body, inner, lifted, step)
-            if declined(made):
-                return made
-            return self.seq(scope, body.rpn(self.flabel),
-                            variable.rpn(self.flabel), over.rpn(self.flabel),
-                            made, 'ralrimiva')
+            return self.for_every(
+                scope, known, body, variable, over,
+                lambda said, inner, lifted: self.member_of(said, inner,
+                                                           lifted, step),
+                implied=self.implied)
         term = claim.rpn(self.flabel)
         read = self.standard(claim)
         whole, system = read.children
