@@ -1131,7 +1131,7 @@ def family_asks(step, scope, library, sorts, defined):
     groups = library.groups(just.item(cited_item(just)))
     _facts, claims, seed = citation_parts(step, just, scope, library, sorts,
                                           defined)
-    held = set()
+    held, values = set(), []
     for want, gives in groups:
         trees = gives + [t for _, t in want]
         sites = set()
@@ -1147,6 +1147,7 @@ def family_asks(step, scope, library, sorts, defined):
                         for value in (found or {}).values():
                             if value.notation == PROPERTY:
                                 held |= names(value.children[0]) - {value.text}
+                                values.append(value)
 
     def asks(fact):
         library.g.sorts = sorts
@@ -1154,6 +1155,19 @@ def family_asks(step, scope, library, sorts, defined):
             node = parse(fact, library.g)
         except Problem:
             return False
+        # Or the hypothesis said whole, of every value the function takes:
+        # `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
+        # asks that every partial sum be real. T is a defined function and
+        # no name a membership could be asked of, so what is compared is
+        # the value itself, read at the name the line binds.
+        if node.notation == 'for-every' and len(node.children) == 3:
+            node = expand(node, defined)
+            bound, body = node.children[0], node.children[2]
+            if (body.notation != 'membership'
+                    or body.children[1].notation != 'number-systems'):
+                return False
+            return any(substitute(v.children[0], {v.text: bound}).shape()
+                       == body.children[0].shape() for v in values)
         return (node.notation == 'membership'
                 and node.children[1].notation == 'number-systems'
                 and bool(names(node.children[0]))

@@ -342,6 +342,38 @@ theorem max-le
   target      maxle
   note        No proof cites it yet.
 
+theorem quotient-real
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume y ≠ 0                                                        (H3)
+  then        x/y ∈ ℝ
+  metamath    redivcl
+  target      redivcl
+  first-used  triangular-reciprocals
+  note        `half-real` is the case y = 2, which needs no hypothesis on y.
+
+theorem reciprocal-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        1/x > 0
+  metamath    recgt0
+  target      recgt0
+  first-used  triangular-reciprocals
+
+theorem reciprocal-order
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  assume y > 0                                                        (H4)
+  then        x ≤ y ↔ 1/y ≤ 1/x
+  metamath    lerec
+  target      lerec with A := x, B := y
+  first-used  triangular-reciprocals
+  note        `inequalities` reads 1/x as an atom it knows nothing about, so
+              that a larger number has the smaller reciprocal is cited. The
+              `with` says which side is which: 1/y ≤ 1/x fits the near side
+              too, at x := 1/y, and that reading asks 1/y to be positive.
+
 theorem archimedean
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)

@@ -23,6 +23,7 @@ form, which is the shape of slowdown this project has met before.
 from fractions import Fraction
 
 import field
+import kernel
 from field import NUMERAL, order, spell_monomial
 from parse import Declined, declined
 from spell import Builder, seq
@@ -94,13 +95,15 @@ class Emitter(Builder):
     never asked for.
     """
 
-    def __init__(self, sigs, under, atom, apart=None):
+    def __init__(self, sigs, under, atom, apart=None, written=None):
         super().__init__(sigs)
         self.under = under
         self.atom = atom                  # rpn -> ( under -> rpn e. CC )
         self.apart = apart                # rpn -> ( under -> rpn =/= 0 )
+        self.written = written            # the same from the page, or None
         self.held = {}                    # rpn -> membership, proved once
         self.made = {}                    # what `remembered` has built
+        self.nonzero = {}                 # rpn -> ( under -> rpn =/= 0 )
 
     def same(self, what):
         """( under -> what = what )."""
@@ -1377,10 +1380,50 @@ class Emitter(Builder):
         if len(under) == 1:
             monomial, weight = under[0]
             if weight.denominator == 1 and weight.numerator != 0:
-                return self.run_cc(under), self.term_apart(monomial, weight)
+                apart = self.term_apart(monomial, weight)
+                if declined(apart):
+                    return apart
+                return self.run_cc(under), apart
+        # What the page wrote comes first, then what was kept while the
+        # denominator was made (`keep_nonzero`), then the caller's search.
+        page = self.written(said) if self.written is not None else None
+        if page is not None:
+            return self.run_cc(under), page
+        if said in self.nonzero:
+            return self.run_cc(under), self.nonzero[said]
         if self.apart is None:
             return Declined('nothing can say a denominator is not zero')
         return self.run_cc(under), self.apart(said)
+
+    def keep_nonzero(self, whole, run, apart, equal):
+        """Keep that `run` is not zero, from `whole` not being zero and
+        ( under -> whole = run ).
+
+        A denominator the normaliser makes by multiplying two out is one the
+        page never wrote: 2/k − 2/(k + 1) lands on k² + k. That it is not
+        zero is known where it is made, from its factors, and not
+        afterwards, when it is one polynomial.
+        """
+        said = self.spell_run(run)
+        if said in self.nonzero or len(run) == 1:
+            return
+        moved = self.ap('neeq1d', {'ph': self.under, 'A': whole, 'B': said,
+                                   'C': 'cc0'}, equal)
+        self.nonzero[said] = self.ap(
+            'mpbid', {'ph': self.under, 'ps': self.seq(whole, 'cc0', 'wne'),
+                      'ch': self.seq(said, 'cc0', 'wne')}, apart, moved)
+
+    def keep_product(self, one, other, run, equal):
+        """`keep_nonzero` for a denominator that is two multiplied out."""
+        made = [self.denominator(x) for x in (one, other)]
+        for part in made:
+            if declined(part):
+                return
+        (held_a, apart_a), (held_b, apart_b) = made
+        a, b = self.spell_run(one), self.spell_run(other)
+        apart = self.ap('mulne0d', {'ph': self.under, 'A': a, 'B': b},
+                        held_a, held_b, apart_a, apart_b)
+        self.keep_nonzero(op(a, b, MUL), run, apart, equal)
 
     def term_apart(self, monomial, weight):
         """( under -> ( c x. M ) =/= 0 ), for a denominator of one term.
@@ -1413,15 +1456,15 @@ class Emitter(Builder):
         if not monomial:
             return self.a1i(self.seq(NUMERAL[1], 'cc0', 'wne'),
                             self.apart_label(1))
-        if self.apart is None:
-            return Declined('nothing can say an atom is not zero')
         out, running, held = None, None, None
         for name, power in monomial:
             spelt = op(name, NUMERAL[power], EXP)
+            apart = self.atom_apart(name)
+            if declined(apart):
+                return apart
             one = self.ap('expne0d', {'ph': self.under, 'A': name,
                                       'N': NUMERAL[power]},
-                          self.atom(name), self.apart(name),
-                          self.whole_index(power))
+                          self.atom(name), apart, self.whole_index(power))
             mine = self.factor_cc(name, power)
             if out is None:
                 out, running, held = one, spelt, mine
@@ -1507,7 +1550,7 @@ class Emitter(Builder):
             return made
         below, beneath, second = made
         if beneath is not None:
-            return Declined(f'{said} divides by something that divides')
+            return self.divided_by_quotient(left, right, labels, said)
         joined = self.ap('oveq12d',
                          {'ph': self.under, 'A': left.rpn(labels),
                           'B': self.spell_quotient(over, under),
@@ -1539,6 +1582,7 @@ class Emitter(Builder):
         if declined(multiplied):
             return multiplied
         made, product = multiplied
+        self.keep_product(under, below, made, product)
         return over, made, self.chain(
             self.chain(joined, folded,
                        said, op(op(top, bottom, DIV), outer, DIV),
@@ -1548,6 +1592,96 @@ class Emitter(Builder):
                                'F': DIV}, product),
             said, op(top, op(bottom, outer, MUL), DIV),
             op(top, self.spell_run(made), DIV))
+
+    def divided_by_quotient(self, left, right, labels, said):
+        """`a / ( c / d )`, normalised as `( a x. d ) / c` (`divdiv2`).
+
+        What is asked of c is asked of it as written (`written_pair`).
+        A divisor that divides only once normalised, a sum of quotients,
+        is not reached.
+        """
+        if (right.variable is not None or right.label != 'co'
+                or len(right.children) != 3
+                or right.children[2].rpn(labels) != DIV):
+            return Declined(f'{said} divides by something that divides')
+        c, d = right.children[0], right.children[1]
+        a_s, c_s, d_s = (one.rpn(labels) for one in (left, c, d))
+        pairs = [self.written_pair(one, labels) for one in (c, d)]
+        for one in pairs:
+            if declined(one):
+                return one
+        # c is the new denominator, and its canonical form is asked later.
+        spread = self.normalize(c, labels)
+        apart = self.written_apart(c, labels)
+        if not declined(spread) and not declined(apart):
+            items, equal = spread
+            self.keep_nonzero(c_s, items, apart, equal)
+        flipped = op(op(a_s, d_s, MUL), c_s, DIV)
+        turned = self.ap(
+            'syl3anc',
+            {'ph': self.under, 'ps': self.seq(a_s, 'cc', 'wcel'),
+             'ch': seq(seq(c_s, 'cc', 'wcel'), seq(c_s, 'cc0', 'wne'), 'wa'),
+             'th': seq(seq(d_s, 'cc', 'wcel'), seq(d_s, 'cc0', 'wne'), 'wa'),
+             'ta': self.seq(said, flipped, 'wceq')},
+            self.atom(a_s), *pairs,
+            self.ap('divdiv2', {'A': a_s, 'B': c_s, 'C': d_s}))
+        rebuilt = kernel.Term('co', (kernel.Term('co', (left, d,
+                                                        kernel.Term(MUL))),
+                                     c, right.children[2]))
+        made = self.normalize_quotient(rebuilt, labels)
+        if declined(made):
+            return made
+        over, under, proof = made
+        return over, under, self.chain(turned, proof, said, flipped,
+                                       self.spell_quotient(over, under))
+
+    def written_pair(self, term, labels):
+        """( under -> ( t e. CC /\\ t =/= 0 ) ) for a term as the page wrote it.
+
+        A digit says for itself that it is not zero, and a product is not
+        zero when its factors are not (`mulne0d`). Anything else is what
+        the page said of it.
+        """
+        said = term.rpn(labels)
+        apart = self.written_apart(term, labels)
+        if declined(apart):
+            return apart
+        return self.ap('jca', {'ph': self.under,
+                               'ps': self.seq(said, 'cc', 'wcel'),
+                               'ch': self.seq(said, 'cc0', 'wne')},
+                       self.atom(said), apart)
+
+    def written_apart(self, term, labels):
+        """( under -> t =/= 0 ), for `written_pair`."""
+        said = term.rpn(labels)
+        value = field.DIGITS.get(said)
+        if value:
+            return self.a1i(self.seq(said, 'cc0', 'wne'),
+                            self.apart_label(value))
+        if (term.variable is None and term.label == 'co'
+                and len(term.children) == 3
+                and term.children[2].rpn(labels) == MUL):
+            a, b = term.children[0], term.children[1]
+            parts = [self.written_apart(one, labels) for one in (a, b)]
+            for one in parts:
+                if declined(one):
+                    return one
+            a_s, b_s = a.rpn(labels), b.rpn(labels)
+            return self.ap('mulne0d', {'ph': self.under, 'A': a_s,
+                                       'B': b_s},
+                           self.atom(a_s), self.atom(b_s), *parts)
+        return self.atom_apart(said)
+
+    def atom_apart(self, said):
+        """( under -> said =/= 0 ) from the caller, or from the page where
+        the caller gives only that (`written`), or a decline.
+        """
+        if self.apart is not None:
+            return self.apart(said)
+        found = self.written(said) if self.written is not None else None
+        if found is None:
+            return Declined(f'nothing says {said} is not zero')
+        return found
 
     def pair_of(self, under):
         """( under -> ( d e. CC /\\ d =/= 0 ) ), which every law wants."""
@@ -1662,6 +1796,7 @@ class Emitter(Builder):
                     *pairs),
             self.ap(label, {'A': a, 'B': c, 'C': b, 'D': d}))
         low, denominator = multiplied
+        self.keep_product(under, beneath, low, denominator)
         return made, low, self.chain(
             self.chain(joined, spread, said,
                        op(op(a, b, DIV), op(c, d, DIV), written),
@@ -1726,13 +1861,24 @@ class Emitter(Builder):
 
 
 def divides(term, labels):
-    """Whether a division appears anywhere in this term."""
+    """Whether a division appears in this term outside its atoms.
+
+    Only the arithmetic the normaliser reads is looked through. A sum
+    whose summand divides, Σ(k = 1 to n) 1/T(k), is an atom, and what is
+    inside it is not a denominator of the term it stands in.
+    """
     if term.variable is not None:
         return False
-    if term.label == 'co' and len(term.children) == 3 \
-            and term.children[2].rpn(labels) == field.DIV:
+    if term.label == 'cneg':
+        return any(divides(one, labels) for one in term.children)
+    if term.label != 'co' or len(term.children) != 3:
+        return False
+    how = term.children[2].rpn(labels)
+    if how == field.DIV:
         return True
-    return any(divides(one, labels) for one in term.children)
+    if how not in (field.ADD, field.SUB, field.MUL, field.EXP):
+        return False
+    return any(divides(one, labels) for one in term.children[:2])
 
 
 def left_value(numeral):

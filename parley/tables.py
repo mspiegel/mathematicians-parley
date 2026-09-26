@@ -96,6 +96,32 @@ class TableReading:
             return self.seq(scope, body.rpn(self.flabel),
                        want.children[0].rpn(self.flabel), name, runs, made,
                        'rexbidva')
+        # A sum's summand is carried the same way, under its index's range:
+        # T(k) is its rule only for k in T's domain, and the sum is what
+        # says where k runs.
+        if given.label == 'csu' \
+                and given.children[0].rpn(self.flabel) \
+                == want.children[0].rpn(self.flabel) \
+                and given.children[2].rpn(self.flabel) \
+                == want.children[2].rpn(self.flabel) \
+                and given.children[1].rpn(self.flabel) \
+                != want.children[1].rpn(self.flabel):
+            runs, body, index = given.children
+            name = index.rpn(self.flabel)
+            if name in scope.split():
+                return Declined('the scope mentions the letter this binds')
+            member = self.seq(f'{name} cv', runs.rpn(self.flabel), 'wcel')
+            with self.frames_kept():
+                inner, lifted = self.widen(scope, facts, member)
+                made = self.congruence(body, want.children[1], inner, lifted,
+                                       step, leaf)
+            if declined(made):
+                return made
+            return self.ap('sumeq2dv', {'ph': scope,
+                                        'A': runs.rpn(self.flabel),
+                                        'B': body.rpn(self.flabel),
+                                        'C': want.children[1].rpn(self.flabel),
+                                        'k': name}, made)
         wrapped = given.label in rules.WRAPS
         kids = given.children[:-1] if wrapped else given.children
         wants = want.children[:-1] if wrapped else want.children
@@ -413,7 +439,7 @@ class TableReading:
         return self.apply_lemma(lemma, wanted, scope, facts, None,
                                 crossing=False)
 
-    def built(self, said, system, scope, parts):
+    def built(self, said, system, scope, parts, nonzero=None):
         """`said ∈ system` for a compound, from its parts; else a decline.
 
         A sum of reals is real by `readdcld` from its two parts being real.
@@ -425,12 +451,30 @@ class TableReading:
         the line the page wrote. A side condition takes a part from `settle`
         (`closed_under`). A fixed table and no search, so nothing it cannot
         build costs more than a lookup.
+
+        A quotient is built only where `nonzero(divisor)` is given to prove
+        its divisor is not zero: telescoping 2/k over k from 1 asks that
+        2/k be a number, and k ≠ 0 is what the range gives.
         """
         node = self.to_term(said)
         if node.variable is None and node.label == 'co' \
                 and len(node.children) == 3:
             left, right, op = node.children
             op = op.rpn(self.flabel)
+            if op == 'cdiv' and nonzero is not None \
+                    and system in rules.DIVIDED:
+                a, b = left.rpn(self.flabel), right.rpn(self.flabel)
+                pa = parts(a, system)
+                if declined(pa):
+                    return pa
+                pb = parts(b, system)
+                if declined(pb):
+                    return pb
+                pn = nonzero(b)
+                if declined(pn):
+                    return pn
+                return self.ap(rules.DIVIDED[system],
+                               {'ph': scope, 'A': a, 'B': b}, pa, pb, pn)
             lemma = rules.CLOSED.get((op, system))
             if lemma is None:
                 return Declined(f'no closure lemma for {op} in {system}')
@@ -472,7 +516,34 @@ class TableReading:
             wanted.children[1].rpn(self.flabel), scope,
             lambda term, system: self.settle(
                 self.to_term(self.seq(term, system, 'wcel')), scope, facts,
+                depth),
+            lambda divisor: self.settle(
+                self.to_term(self.seq(divisor, 'cc0', 'wne')), scope, facts,
                 depth))
+
+    def divisor_written(self, divisor, scope, facts):
+        """( scope -> d =/= 0 ) from what the step wrote, or a decline.
+
+        A quotient's membership is built from its parts' as a sum's is
+        (`METHODS.md`, the hypothesis a reciprocal atom brings), and the
+        divisor not being zero is the one thing more it asks. It is the
+        page's to say, in a requires line or a line the step cites, and is
+        not searched for.
+        """
+        apart = self.seq(divisor, 'cc0', 'wne')
+        denied = self.seq(self.seq(divisor, 'cc0', 'wceq'), 'wn')
+        for want in (apart, denied):
+            found = facts.get(want)
+            if found is None:
+                held = self.written.get(want)
+                if held is not None:
+                    found = self.lifted_to(want, held[1], held[0], scope)
+            if found is None:
+                continue
+            if want == apart:
+                return found
+            return self.seq(scope, divisor, 'cc0', found, 'neqned')
+        return Declined(f'nothing the step wrote says {self.render(apart)}')
 
     def part(self, said, system, scope, facts):
         """One part of a compound, in a number system, or a decline.
@@ -500,7 +571,9 @@ class TableReading:
             return self.settle(self.to_term(want), scope, facts)
         made = self.built(said, system, scope,
                           lambda term, into: self.part(term, into, scope,
-                                                       facts))
+                                                       facts),
+                          lambda divisor: self.divisor_written(divisor, scope,
+                                                               facts))
         if not declined(made):
             return made
         if found is not None:

@@ -7,7 +7,9 @@ are different jobs and only the second needs the kernel.
 
 Everything rests on reading a term as a linear combination of **atoms**. An
 atom is a maximal subterm not built from numerals by `+`, `−`, unary minus,
-`·` by a numeral and `/` by a numeral. The method never looks inside one and
+`·` by a numeral and `/` by a numeral, and a numeral over anything else is
+that numeral times the reciprocal, which is the atom. The method never looks
+inside one and
 knows nothing about what it means: `|y|` is an atom, and that it is at least
 `y` reaches a step as a cited line rather than as arithmetic.
 
@@ -24,6 +26,7 @@ from fractions import Fraction
 ADD, SUB, MUL, DIV, NEG = 'caddc', 'cmin', 'cmul', 'cdiv', 'cneg'
 DIGITS = {'cc0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4,
           'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
+ONE = 'c1'
 
 # The relations a fact may carry, by the set.mm label that states it.
 RELATIONS = {'clt': '<', 'cle': '<='}
@@ -152,6 +155,11 @@ def read(term, labels):
             by = numeral(right, labels)
             if by is not None and by != 0:
                 return read(left, labels).scaled(Fraction(1) / by)
+            # A numeral over a term is the numeral times the term's
+            # reciprocal, and the reciprocal is the atom (`METHODS.md`).
+            top = numeral(left, labels)
+            if by is None and top is not None and top != 0:
+                return Linear({f'{ONE} {right.rpn(labels)} {DIV} co': top})
     return Linear({term.rpn(labels): Fraction(1)})
 
 

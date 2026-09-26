@@ -264,6 +264,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                whole.names())
         if binding is None:
             return self.no(f'{lemma} does not unfold {{}}', left)
+        # A lemma in deduction form, `climnnre`, assumes a formula it says
+        # nothing else about, and that formula is the step's scope: what the
+        # lemma asks in its hypotheses is asked under it.
+        if asks and asks[0].variable is not None:
+            binding[asks[0].variable] = self.to_term(scope)
+            asks = asks[1:]
+            deduced = True
+        else:
+            deduced = False
         # A lemma's left side need not fix everything it mentions: `elrab`
         # names the body twice, once in the set-builder's variable and once
         # in the element's, and only the second is on the right. So what the
@@ -292,9 +301,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # `elpw` wants what it is about to be a set before it will say what
         # belongs to its power class. Both are settled against the binding as
         # the match left it, before the wording below rebinds what it takes.
-        applied = self.ap(lemma, binds, *[self.prove_essential(
+        conditions = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), scope, facts)
-            for e in sig.essentials])
+            for e in sig.essentials]
+        for one in conditions:
+            if declined(one):
+                return one
+        applied = self.ap(lemma, binds, *conditions)
         # The lemma unfolds to its own wording, which need not be the text's:
         # `divides` writes the product the other way round. What it gives is
         # built first, and the text's wording is reached from it.
@@ -303,7 +316,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             binding[held] = kernel.Term(variable=self.sigs[var].statement[1])
         given = reads.children[1].substitute(binding).rpn(self.flabel)
         says = self.seq(left, given, 'wb')
-        if not asks:
+        if deduced and not asks:
+            proof = applied
+        elif not asks:
             proof = self.seq(says, scope, applied, 'a1i')
         else:
             holds = asks[0].substitute(binding).rpn(self.flabel)
@@ -1448,6 +1463,22 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 break
         if witness is None:
             raise self.defect(step.line, 'no cited line names a witness')
+        # The witness may be the very letter the claim binds: an `obtain`
+        # names N by the existential it took N from, and step 3.8 of the
+        # triangular reciprocals exhibits that N for a claim spelt with the
+        # same N. `rspcev` keeps the two apart, so the claim is exhibited
+        # under a letter nothing holds and renamed back.
+        binder = self.binder_var(said)
+        apart = None
+        if binder in witness.split():
+            letter = self.unheld(whole, self.to_term(witness))
+            if letter is None:
+                raise self.defect(step.line,
+                                  'no letter left to exhibit the witness by')
+            apart = letter.rpn(self.flabel)
+            stands = f'{apart} cv'
+            body = body.substitute({whole.children[1].variable: letter})
+            renamed = kernel.Term('wrex', (body, letter, domain))
 
         with self.names_kept():
             self.names[said] = stands
@@ -1475,12 +1506,21 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                     f'exhibiting that witness wants {self.render(want)}, '
                     f'which step {fmt(step.number)} does not supply: {one}')
             shown.append(one)
-        spare = self.binder_var(said)
-        return self.seq(scope, self.seq(member, here, 'wa'), term,
-                   self.seq(scope, member, here, *shown, 'jca'),
-                   body.rpn(self.flabel), here, spare,
-                   witness, domain.rpn(self.flabel), instance, 'rspcev',
-                   'syl')
+        spare = apart or binder
+        claimed = renamed.rpn(self.flabel) if apart else term
+        made = self.seq(scope, self.seq(member, here, 'wa'), claimed,
+                        self.seq(scope, member, here, *shown, 'jca'),
+                        body.rpn(self.flabel), here, spare,
+                        witness, domain.rpn(self.flabel), instance, 'rspcev',
+                        'syl')
+        if not apart:
+            return made
+        back = self.renaming(renamed, whole)
+        if back is None:
+            raise self.defect(step.line, 'the renamed claim does not read '
+                                         'back as the claim')
+        return self.ap('sylib', {'ph': scope, 'ps': claimed, 'ch': term},
+                       made, back)
 
     def witness_in(self, pattern, actual, mark):
         """What stands where `mark` does, in a line shaped like the pattern."""

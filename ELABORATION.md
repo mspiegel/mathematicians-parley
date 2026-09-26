@@ -259,6 +259,13 @@ uses. Two obtains from one definition in nested scopes make that compulsory
 rather than cosmetic: the second scope's antecedent already carries the first
 name free.
 
+An obtained name may stand for the very letter the goal binds. `obtain N from
+line 5.2` in the triangular reciprocals takes N as the letter the line's "there
+is N" binds, inside a block claiming "there is N ∈ ℕ with …", and
+`rexlimdva` keeps the obtained letter out of the goal. The goal is renamed
+apart for the discharge and renamed back afterwards, which says nothing new:
+the two are one claim with different bound letters.
+
 A standalone `fix` gives back everything it took — `ex` for what it supposed,
 then one `ralrimiva` per name it fixed, innermost first. Inside an induction
 it is one part of the induction, which takes it as it stands.
@@ -341,6 +348,9 @@ the block's claim ends on `join C2`, and the line must be what the step claims.
 `rspcev`: restricted existential introduction. The witness comes either from a
 cited line, which determines it, or from the `requires` lines that name it.
 The membership those lines carry is exactly `rspcev`'s side condition.
+`rspcev` keeps its bound letter out of the witness, and a witness obtained
+from a line binding the same name is that letter; the claim is then exhibited
+over a letter nothing holds and renamed to the claim's own.
 
 Witnesses are recovered by matching the body against the cited line, taking
 all the marked places together, and the introduction is built from the
@@ -518,9 +528,36 @@ a difference or a product of quotients to one numerator over one denominator
 (`divadddiv`, `divsubdiv`, `divmuldiv`), so the intermediate value proof's
 `c < c + δ/2` comes from `δ/2 > 0` like any other bound.
 
-What is unwritten is a combination of more than two bounds, and one that
-scales a bound by a number other than one: the certificate may ask for either,
-and no step in the corpus does.
+The normaliser reads only the arithmetic it normalises, and a division
+inside anything else — the summand of Σ(k = 1 to n) 1/T(k) — belongs to that
+atom and is no denominator of the term the atom stands in.
+
+A quotient by a quotient, `a / (c/d)`, is first `(a·d) / c` by `divdiv2`, and
+that is normalised as any quotient is. The law asks that `c` is not zero, and
+that is asked of `c` as the page writes it, not of its canonical form: a
+product is not zero when its factors are not (`mulne0d`), and each factor's
+disequality is the page's own. The triangular reciprocals divide 1 by
+`k(k + 1)/2` and say `k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)`
+is `k² + k`, of which the page says nothing.
+
+Where those two shapes do not reach, the certificate is written as it stands:
+any number of cited facts, each scaled by the weight the certificate gives it,
+and a number left over. The weights are brought to whole numbers by
+multiplying the claim through by a positive whole number `W`. Each fact is
+said as its difference against zero and scaled by `lemul2`, or by `ltmul2`
+for a strict one, which keeps it strict. The number left over is one more
+fact, `−n < 0` from `0 < n` (`lt0neg2d`), a closed numeral fact the step does
+not cite, as `METHODS.md` allows. The facts are added two at a time by
+`le2add`, `ltleadd`, `leltadd` or `lt2add`. The normaliser says the sum is `W`
+times the claim's difference, and `W > 0` gives back the claim.
+`n ≥ 1` gives `0 < n + 1` so, with 2 left over, and the triangular
+reciprocals' `2 − ε < 2 − 2/(n + 1)` takes two bounds each scaled by 2.
+
+A disequality `a ≠ b` that is not one strict bound turned round is proved as
+the strict bound between the two that the cited facts give, `b < a` or
+`a < b`, and turned into the disequality by `gtned` or `ltned`: `k ≥ 1` gives
+`k ≠ 0` by way of `0 < k`. A claim of two sentences joined by "and" is each
+of them proved in turn and joined by `jca`.
 
 ### What algebra costs
 
@@ -718,6 +755,34 @@ where the scope does not mention the index, as the induction's `x = y` does
 not (`summand_changed`). And a rewrite walking into a sum reads the summand
 with the sum's own letter in hand, as reading a claim does.
 
+A rewrite that changes only a sum's summand is carried under the sum's range
+by `sumeq2dv`, with the index's membership of the range added to the scope,
+as `rexbidva` carries one under a restricted "there is". The triangular
+reciprocals need it at the last step: the proof's sum holds T(k), the
+statement writes T's rule, and T(k) is its rule only for k in T's domain,
+which the range is what says.
+
+A lemma may name its summand only in its hypotheses. `telfsum` concludes
+about B, C, D and E, the summand read at j, at j + 1 and at the two ends, and
+names the summand A and its letter k only in the hypotheses tying them
+together. A hypothesis `k = j -> A = B` read the usual way says what B is from
+A; here the claim has fixed B, so it is read the other way: A is B with the
+claim's index moved to a letter nothing holds, which the lemma keeps apart
+from j (`instanced`). The other three are then read the usual way and must
+agree with the claim.
+
+A line said of every index answers a lemma's hypothesis about each index
+whether the step cites it or writes it as a requires line: `climnnre` asks
+each partial sum to be real, and the triangular reciprocals write "for every
+n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ" on the step. Where the line binds the
+index's own letter, its body at the index is its body, and `rsp` reads it
+there; `rspcv` would keep the letter apart from what it substitutes.
+
+A side condition's quotient is placed in ℂ or ℝ by `divcld` or `redivcld`
+from its parts and its divisor not being zero, which is settled like any
+side condition: `telfsum` asks each 2/k to be complex for k from 1 to n + 1,
+and k ≠ 0 there because k ∈ ℕ (`elfznn`, `nnne0`).
+
 The rest of the search is bounded by how many lemmas one chain applies on top
 of one another, and three is the deepest chain the corpus needs: step 2.1 of
 the geometric series needs `A^0 ∈ ℂ`, by `recn` from `A^0 ∈ ℝ`, by `reexpcl`
@@ -811,6 +876,22 @@ and w inside are the page's c′ and x, so they are moved to letters neither
 holds before they are given the page's, or the page's x would be caught.
 Spellings are read in one direction, of what a lemma says, and never of a
 claim.
+
+The limit of a sequence is `climnnre`, which this corpus proves in
+`elaboration/stdlib/proved.mm`, because set.mm's `clim2` names its index apart
+from the map it reads, and a sequence the page writes as a rule in n is a map
+binding n. `climnnre` states the limit as the page does — for every ε ∈ ℝ with
+ε > 0 a natural number N past which every term is within ε — from
+`rlimclim`, `rlim2`, `ralrp` and `rexuzre`. The value of a series is
+`sersumlim`, proved there from `isumclim3` and `climuni`. Both are in
+deduction form, as set.mm's series lemmas are, and a definition lemma in
+deduction form assumes a formula it says nothing else about: that formula is
+the step's scope, and the lemma's hypotheses are asked under it.
+
+A requires line may state a cited line with other bound letters: a `fix`
+elsewhere took n, so the line saying every partial sum is real binds another
+letter, and the requires line citing it writes n. The two are one claim, and
+`same` says so.
 
 `thm:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
 as k + 1, so nothing asks that X be finite. `thm:stdlib/counting/card-nonempty` is
@@ -979,7 +1060,11 @@ proved (`discharged_by`).
     function hypothesis, `let t : {a, …, b} → ℝ`, as that summand
     (`family_asks`): the hypothesis says every term is real, the page does
     not write that, and the elaborator builds it from those memberships as
-    it builds a compound's from its atoms'. An `obtain` citing an item is read the
+    it builds a compound's from its atoms'. Where the value holds no name a
+    membership could be asked of — 1/T(k), with T a defined function — the
+    hypothesis is said whole, as a requires line "for every k ∈ ℕ, 1/T(k) ∈
+    ℝ", and that line is at work when its body, with defined names written
+    out, is the value read at the name it binds. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
     one from what the step names: `def:stdlib/divisibility/odd` gives one only from a line saying

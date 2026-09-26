@@ -353,6 +353,13 @@ class ProofRules:
             self.unpack(line.term, held[line.term], scope, held)
             if term in held:
                 return held[term]
+            # The line with its own letters bound: a `fix` elsewhere took n,
+            # so line 5 of the triangular reciprocals binds g where the
+            # requires line citing it writes n. One claim, spelt apart.
+            if self.to_term(line.term).label in rules.BOUND:
+                spelt = self.respelt(held[line.term], line.term, term, scope)
+                if spelt is not None:
+                    return spelt
             # What the line says beyond its recorded term: an obtain records
             # the body it obtained, and `c ∈ ℝ` went into the scope when the
             # name's domain was assumed. Its origin is the line, and that is

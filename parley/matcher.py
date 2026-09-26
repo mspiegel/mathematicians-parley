@@ -1095,6 +1095,9 @@ class Matcher:
         other_spelt = [c.rpn(self.flabel) for c in other.children]
         if one.label == 'wrex':
             return spelt[1:] == other_spelt[1:]
+        # Only the summand, carried under its range (`congruence`).
+        if one.label == 'csu' and spelt[1] != other_spelt[1]:
+            return spelt[0] == other_spelt[0] and spelt[2] == other_spelt[2]
         places = range(len(spelt))
         if one.label in rules.WRAPS:
             if spelt[-1] != other_spelt[-1]:
@@ -1536,6 +1539,28 @@ class Matcher:
             # left open is different: `f1mpt` reads its map at one, and it
             # stands in the proof as a name of its own.
             kinds = dict((v, t) for t, v in sig.floats)
+            summand = says.children[0].variable
+            index, other = at.children[0].children[0], at.children[1]
+            # Read the other way where the claim fixed the instance and not
+            # the summand: `telfsum` concludes about B, and A and the letter
+            # it is written in appear only in its hypotheses. A is B with the
+            # claim's index moved to a letter nothing holds, which the lemma
+            # keeps apart from the index it sums over.
+            if (summand is not None and summand not in out
+                    and kinds.get(summand) == 'class' and name in out
+                    and index.variable not in out
+                    and other.label == 'cv'
+                    and other.children[0].variable in out):
+                letter = self.unheld(*out.values())
+                if letter is None:
+                    continue
+                out[index.variable] = letter
+                out[summand] = self.restated(
+                    out[name],
+                    kernel.Term('cv', (out[other.children[0].variable],)
+                                ).rpn(self.flabel),
+                    kernel.Term('cv', (letter,)).rpn(self.flabel))
+                continue
             if any(kinds.get(v) == 'class' for v in at.names() - set(out)):
                 continue
             was, now = (c.substitute(out).rpn(self.flabel)
@@ -1711,6 +1736,22 @@ class Matcher:
             return None
         return self.ap('bitri', {'ph': said, 'ps': middle.rpn(self.flabel),
                                  'ch': want}, there, back)
+
+    def unheld(self, *terms):
+        """A set variable no name in the proof holds and none of `terms`
+        spells, or None when there is none left.
+
+        Looked at, not taken, as in `letters_apart`: it stands inside one
+        lemma's use and nowhere else.
+        """
+        held = ({t.split()[0] for t in self.names.values()
+                 if isinstance(t, str) and t.endswith(' cv')}
+                | self.reserved | set(self.bound_as.values())
+                | {w for t in terms for w in t.rpn(self.flabel).split()})
+        free = next((v for v in self.spare if v not in held), None)
+        if free is None:
+            return None
+        return kernel.Term(variable=self.sigs[free].statement[1])
 
     def letters_apart(self, label, goal, scope, facts, step, crossing, seed):
         """A lemma that binds two letters apart, where the claim binds one.
@@ -2597,7 +2638,18 @@ class Matcher:
             wider = {k: self.seq(under, scope, k, self.seq(scope, extra, 'simpl'), v,
                             'syl') for k, v in facts.items()}
             wider[extra] = self.seq(scope, extra, 'simpr')
-            taken = self.at_the_index(left.children[1], right, under, wider)
+            # A line said of every index may be a requires line of the step:
+            # `climnnre` asks each partial sum to be real, and the step
+            # writes that they all are. Read here and not by the search
+            # below, as `written` is read everywhere.
+            named = dict(wider)
+            for claim, (at, proof) in self.written.items():
+                lifted = self.lifted_to(claim, proof, at, scope)
+                if lifted is not None and claim not in named:
+                    named[claim] = self.seq(under, scope, claim,
+                                            self.seq(scope, extra, 'simpl'),
+                                            lifted, 'syl')
+            taken = self.at_the_index(left.children[1], right, under, named)
             if taken is not None:
                 return taken
             # One level deeper than `settle`'s default: what is asked of an
@@ -2660,13 +2712,24 @@ class Matcher:
                 self.seq(f'{letter.rpn(self.flabel)} cv',
                          index.rpn(self.flabel), 'wceq'),
                 self.seq(body.rpn(self.flabel), want, 'wb'), 'wi'))
-            tied = self.prove_essential(reads, under, facts)
-            if declined(tied):
-                continue
-            read = self.ap('rspcv', {'ph': body.rpn(self.flabel), 'ps': want,
-                                     'x': letter.rpn(self.flabel),
-                                     'A': index.rpn(self.flabel),
-                                     'B': over.rpn(self.flabel)}, tied)
+            # The line may bind the index's own letter, and then the body at
+            # the index is the body: `rsp` reads it there, where `rspcv`
+            # keeps the letter apart from what it substitutes.
+            if body.rpn(self.flabel) == want:
+                read = self.ap('com12', {'ph': said, 'ps': inside,
+                                         'ch': want},
+                               self.ap('rsp', {'ph': want,
+                                               'x': letter.rpn(self.flabel),
+                                               'A': over.rpn(self.flabel)}))
+            else:
+                tied = self.prove_essential(reads, under, facts)
+                if declined(tied):
+                    continue
+                read = self.ap('rspcv', {'ph': body.rpn(self.flabel),
+                                         'ps': want,
+                                         'x': letter.rpn(self.flabel),
+                                         'A': index.rpn(self.flabel),
+                                         'B': over.rpn(self.flabel)}, tied)
             carried = self.seq(under, inside, self.seq(said, want, 'wi'),
                                there, read, 'syl')
             return self.seq(under, said, want, proof, carried, 'mpd')

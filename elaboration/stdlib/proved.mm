@@ -120,10 +120,23 @@ $d x U $.  $d y U $.
 $}
 
 ${
-$( Series: the value of a series is the limit of its partial sums. $)
+$( Series: the limit of a sequence as the page defines it, and the value
+   of a series as the limit of its partial sums. $)
 $d j k n $.
-$d A j n $.
-$d ph j k $.
+$d A j n x $.
+$d B j x $.
+$d ph j k n x $.
+
+  ${
+    climnnre.1 $e |- ( ( ph /\ n e. NN ) -> B e. RR ) $.
+    climnnre.2 $e |- ( ph -> A e. RR ) $.
+  climnnre $p |- ( ph -> ( ( n e. NN |-> B ) ~~> A <-> A. x e. RR ( 0 < x -> E. j e. NN A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) ) ) $=
+    ( cn cmpt cli wbr cc0 cv clt cle cmin co cabs cfv wi wral cr wrex crp
+    crli c1 nnuz cz wcel 1z a1i cc wa recnd eqid fmptd rlimclim ralrimiva wss
+    nnssre rlim2 bitr3d ralrp bitrdi cuz wb rexuzre ax-mp uznnssnn ralss syl
+    nnz anim12i eluz imbi1d ralbidva bitrd rexbiia bitr3i imbi2i ralbii )
+    AFIDJZCKLZMBNZOLZENZFNZPLZDCQRZSTZWEOLZUAZFIUBZEUCUDZUAZBUCUBZWFWNEIUDZUAZBUCUBAWDWOBUEUBZWQAWCCUFLWDWTACWCUGIUHUGUIUJZAUKULAFIDUMWCAWHIUJZUNZDGUOZWCUPUQURABEFIDCADUMUJFIXDUSIUCUTAVAULACHUOVBVCWOBVDVEWPWSBUCWOWRWFWOWLFWGVFTZUBZEIUDZWRXAXGWOVGUKWLEFUGIUHVHVIXFWNEIWGIUJZXFWHXEUJZWLUAZFIUBZWNXHXEIUTXFXKVGWGVJWLFXEIVKVLXHXJWMFIXHXBUNZXIWIWLXLWGUIUJZWHUIUJZUNXIWIVGXHXMXBXNWGVMWHVMVNWGWHVOVLVPVQVRVSVTWAWBVE $.
+  $}
 
   ${
     sersumlim.1 $e |- ( ( ph /\ k e. NN ) -> A e. RR ) $.

@@ -781,11 +781,38 @@ class Scopes:
         discharge = 'rexlimdva' if len(layers) == 1 else 'rexlimdvva'
         pushed = [v for v, _s in layers] + [s for _v, s in layers]
 
-        def close(proof, goal):
+        def discharged(proof, goal):
             return self.seq(scope, ex, goal, p_ex,
                        self.seq(scope, body, goal, *pushed,
                            self.seq(outer, body, goal, proof, 'ex'), discharge),
                        'mpd')
+
+        def close(proof, goal):
+            # The goal may bind the letter an obtained name stands for: the
+            # triangular reciprocals obtain N from a line that binds N, inside
+            # a block claiming there is an N. The discharge keeps the name out
+            # of the goal, so the goal is renamed apart for it and back.
+            caught = [v for v, _s in layers if v in goal.split()]
+            if not caught:
+                return discharged(proof, goal)
+            whole, moved = self.to_term(goal), {}
+            for v in caught:
+                letter = self.unheld(whole, *moved.values())
+                if letter is None:
+                    raise self.defect(step.line, 'no letter left to rename '
+                                                 'the goal apart with')
+                moved[self.sigs[v].statement[1]] = letter
+            apart = whole.substitute(moved)
+            back = self.renaming(apart, whole)
+            if back is None:
+                raise self.defect(step.line, 'the goal renamed apart does not '
+                                             'read back as the goal')
+            there = apart.rpn(self.flabel)
+            made = discharged(
+                self.ap('sylibr', {'ph': inner, 'ps': goal, 'ch': there},
+                        proof, back), there)
+            return self.ap('sylib', {'ph': scope, 'ps': there, 'ch': goal},
+                           made, back)
 
         return inner, lifted, [*closers, close]
 

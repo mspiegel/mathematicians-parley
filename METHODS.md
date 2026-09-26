@@ -55,6 +55,11 @@ table of named laws.
 Before anything else, both the cited facts and the claim are read as linear
 expressions over **atoms**. An atom is a maximal subterm that is not built from
 numerals and the operations `+`, `−`, `·` by a numeral, and `/` by a numeral.
+A numeral divided by a term that is not one is that numeral times the term's
+reciprocal, and the reciprocal is the atom: `2/(n + 1)` is `2 · (1/(n + 1))`,
+the same atom `1/(n + 1)` a line bounding it names. It is the rule for `/` by
+a numeral taken one step further, and it is what lets `1/(n + 1) ≤ 1/N` bound
+`2/(n + 1)` without a line saying one is twice the other.
 
 So in `f(x₁) − f(c) ≤ |f(x₁) − f(c)|` the atoms are `f(x₁)`, `f(c)` and
 `|f(x₁) − f(c)|`, three of them, and the last is an atom even though its own
@@ -113,9 +118,9 @@ atoms, with three additions:
 
 ### Refusals
 
-- **Anything non-linear.** Multiplying two atoms, or dividing by one. No step
-  in the corpus needs this, which is what makes the linear specification
-  sufficient rather than merely convenient.
+- **Anything non-linear.** Multiplying two atoms, or dividing an atom by
+  one. No step in the corpus needs this, which is what makes the linear
+  specification sufficient rather than merely convenient.
 - **Anything about what an atom means.** An exponent law, the definition of
   absolute value, the value of a function. Those are cited items.
 - **Strictness it was not given.** From `a ≤ b` alone it will not conclude
@@ -126,6 +131,11 @@ atoms, with three additions:
 Every atom must be a real number. This is a hypothesis of the method exactly as
 `q ≠ 0` is a hypothesis of a division, so by the dull-fact rule of `READERS.md`
 it is discharged by a cited line or written as a requires line.
+
+A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
+real number when `n + 1` is one and is not zero, and both are the page's to
+write. Its membership is then built from those as a sum's is from its
+parts', and no line says that `1/(n + 1)` is real.
 
 An atom is one of the claim or of the facts the step combines — not of every
 sentence a cited line says. Line 2 of `least-combination-divides` says

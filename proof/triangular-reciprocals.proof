@@ -1,0 +1,210 @@
+define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
+       reads the k-th triangular number
+
+theorem triangular-reciprocals
+  metamath    trirecip
+  then Σ(k = 1 to ∞) 1/T(k) = 2
+
+1.  For every k ∈ ℕ, 1/T(k) = 2/k − 2/(k + 1).
+    fix
+    let k ∈ ℕ                                                         (K1)
+
+    1.1.  k ∈ ℝ
+          thm:stdlib/numbers/nat-real, from K1
+
+    1.2.  k ≥ 1
+          thm:stdlib/numbers/nat-ge-1, from K1
+
+    1.3.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)
+          algebra
+          requires k ∈ ℝ: from 1.1
+          requires k ≠ 0: inequalities, from 1.1, 1.2
+          requires k + 1 ≠ 0: inequalities, from 1.1, 1.2
+
+    1.4.  1/T(k) = 2/k − 2/(k + 1)
+          calculation
+            1/T(k) = 1/(k(k + 1)/2)       D1
+                   = 2/k − 2/(k + 1)      1.3
+          requires k ∈ ℕ: from K1
+
+2.  For every n ∈ ℕ, Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1).
+    fix
+    let n ∈ ℕ                                                         (K2)
+
+    2.1.  n ∈ ℤ
+          thm:stdlib/numbers/nat-int, from K2
+
+    2.2.  n ∈ ℝ
+          thm:stdlib/numbers/nat-real, from K2
+
+    2.3.  n ≥ 1
+          thm:stdlib/numbers/nat-ge-1, from K2
+
+    2.4.  For every k ∈ {1, …, n}, 1/T(k) = 2/k − 2/(k + 1).
+          fix
+          let k ∈ {1, …, n}                                           (K3)
+
+          2.4.1.  k ∈ ℕ
+                  thm:stdlib/sums/range-nat, from 2.1, K3
+
+          2.4.2.  1/T(k) = 2/k − 2/(k + 1)
+                  instantiate k := k in line 1, from 2.4.1
+
+    2.5.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
+          thm:stdlib/sums/sum-termwise a := 1, b := n, from 2.4
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: from 2.1
+
+    2.6.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)
+          thm:stdlib/sums/sum-telescopes a := 1, b := n
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: from 2.1
+          requires n + 1 ≥ 1: inequalities, from 2.2, 2.3
+
+    2.7.  2/1 − 2/(n + 1) = 2 − 2/(n + 1)
+          algebra
+          requires n ∈ ℝ: from 2.2
+          requires n + 1 ≠ 0: inequalities, from 2.2, 2.3
+
+    2.8.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
+          calculation
+            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.5
+                                 = 2/1 − 2/(n + 1)                    2.6
+                                 = 2 − 2/(n + 1)                      2.7
+
+3.  For every k ∈ ℕ, 1/T(k) ∈ ℝ.
+    fix
+    let k ∈ ℕ                                                         (K4)
+
+    3.1.  k ∈ ℝ
+          thm:stdlib/numbers/nat-real, from K4
+
+    3.2.  k ≥ 1
+          thm:stdlib/numbers/nat-ge-1, from K4
+
+    3.3.  1/T(k) = 2/k − 2/(k + 1)
+          instantiate k := k in line 1, from K4
+
+    3.4.  2/k ∈ ℝ
+          thm:stdlib/numbers/quotient-real x := 2, y := k, from 3.1
+          requires 2 ∈ ℝ: arithmetic
+          requires k ≠ 0: inequalities, from 3.1, 3.2
+
+    3.5.  k + 1 ∈ ℝ
+          thm:stdlib/numbers/real-closure x := k, y := 1, from 3.1
+          requires 1 ∈ ℝ: arithmetic
+
+    3.6.  2/(k + 1) ∈ ℝ
+          thm:stdlib/numbers/quotient-real x := 2, y := k + 1, from 3.5
+          requires 2 ∈ ℝ: arithmetic
+          requires k + 1 ≠ 0: inequalities, from 3.1, 3.2
+
+    3.7.  2/k − 2/(k + 1) ∈ ℝ
+          thm:stdlib/numbers/real-closure x := 2/k, y := 2/(k + 1), from 3.4, 3.6
+
+    3.8.  1/T(k) ∈ ℝ
+          substitute 1/T(k) = 2/k − 2/(k + 1) (line 3.3) into line 3.7
+
+4.  For every n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ.
+    fix
+    let n ∈ ℕ                                                         (K5)
+
+    4.1.  n ∈ ℤ
+          thm:stdlib/numbers/nat-int, from K5
+
+    4.2.  Σ(k = 1 to n) 1/T(k) ∈ ℝ
+          thm:stdlib/sums/sum-real a := 1, b := n
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: from 4.1
+          requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: from 3
+
+5.  For every ε ∈ ℝ with ε > 0, there is N ∈ ℕ with
+    for every n ∈ ℕ with n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+    fix
+    let ε ∈ ℝ                                                         (K6)
+    assume ε > 0                                                      (A1)
+
+    5.1.  ε/2 > 0
+          thm:stdlib/numbers/half-positive x := ε, from K6, A1
+
+    5.2.  There is N ∈ ℕ with 1/N < ε/2.
+          thm:stdlib/numbers/archimedean x := ε/2, from 5.1
+          requires ε/2 ∈ ℝ: thm:stdlib/numbers/half-real x := ε, from K6
+
+    5.3.  N ∈ ℕ. 1/N < ε/2.
+          obtain N from line 5.2
+
+    5.4.  N ∈ ℝ
+          thm:stdlib/numbers/nat-real, from 5.3
+
+    5.5.  N ≥ 1
+          thm:stdlib/numbers/nat-ge-1, from 5.3
+
+    5.6.  For every n ∈ ℕ with n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+          fix
+          let n ∈ ℕ                                                   (K7)
+          assume n ≥ N                                                (A2)
+
+          5.6.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
+                  instantiate n := n in line 2, from K7
+
+          5.6.2.  Σ(k = 1 to n) 1/T(k) ∈ ℝ
+                  instantiate n := n in line 4, from K7
+
+          5.6.3.  n ∈ ℝ
+                  thm:stdlib/numbers/nat-real, from K7
+
+          5.6.4.  n ≥ 1
+                  thm:stdlib/numbers/nat-ge-1, from K7
+
+          5.6.5.  n + 1 ∈ ℝ
+                  thm:stdlib/numbers/real-closure x := n, y := 1, from 5.6.3
+                  requires 1 ∈ ℝ: arithmetic
+
+          5.6.6.  N ≤ n + 1
+                  inequalities, from A2
+                  requires N ∈ ℝ: from 5.4
+                  requires n ∈ ℝ: from 5.6.3
+
+          5.6.7.  1/(n + 1) ≤ 1/N
+                  thm:stdlib/numbers/reciprocal-order x := N, y := n + 1, from 5.4, 5.6.5, 5.6.6
+                  requires N > 0: inequalities, from 5.4, 5.5
+                  requires n + 1 > 0: inequalities, from 5.6.3, 5.6.4
+
+          5.6.8.  1/(n + 1) > 0
+                  thm:stdlib/numbers/reciprocal-positive x := n + 1, from 5.6.5
+                  requires n + 1 > 0: inequalities, from 5.6.3, 5.6.4
+
+          5.6.9.  2 − ε < Σ(k = 1 to n) 1/T(k)
+                  inequalities, from 5.6.1, 5.6.7, 5.3
+                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: from 5.6.2
+                  requires ε ∈ ℝ: from K6
+                  requires n ∈ ℝ: from 5.6.3
+                  requires n + 1 ≠ 0: inequalities, from 5.6.3, 5.6.4
+                  requires N ∈ ℝ: from 5.4
+                  requires N ≠ 0: inequalities, from 5.4, 5.5
+
+          5.6.10. Σ(k = 1 to n) 1/T(k) < 2 + ε
+                  inequalities, from 5.6.1, 5.6.8, A1
+                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: from 5.6.2
+                  requires ε ∈ ℝ: from K6
+                  requires n ∈ ℝ: from 5.6.3
+                  requires n + 1 ≠ 0: inequalities, from 5.6.3, 5.6.4
+
+          5.6.11. |Σ(k = 1 to n) 1/T(k) − 2| < ε
+                  thm:stdlib/numbers/abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 5.6.2, K6, 5.6.9, 5.6.10
+                  requires 2 ∈ ℝ: arithmetic
+
+    5.7.  There is N ∈ ℕ with for every n ∈ ℕ with n ≥ N,
+          |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+          exhibit, from 5.3, 5.6
+
+6.  Σ(k = 1 to n) 1/T(k) → 2 as n → ∞
+    def:stdlib/calculus/tends-to L := 2, from 5
+    requires for every n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ: from 4
+    requires 2 ∈ ℝ: arithmetic
+
+7.  Σ(k = 1 to ∞) 1/T(k) = 2
+    thm:stdlib/calculus/series-value L := 2, from 6
+    requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: from 3
+    requires 2 ∈ ℝ: arithmetic

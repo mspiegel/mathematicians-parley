@@ -182,3 +182,11 @@ theorem range-nat0
   metamath    elfznn0
   target      elfznn0
   first-used  binomial
+
+theorem range-nat
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then        k ∈ ℕ
+  metamath    elfznn
+  target      elfznn
+  first-used  triangular-reciprocals

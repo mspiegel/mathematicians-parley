@@ -12,6 +12,7 @@ step's scope.
 What a method decides but cannot yet prove is taken as stated, and listed at
 the head of the file it writes (`assume`, `stated`).
 """
+import math
 from fractions import Fraction
 
 import field
@@ -138,7 +139,8 @@ class Calculators:
             return self.membership(said, 'cc', scope, facts)
 
         work = normal.Emitter(self.sigs, scope, complex_number,
-                              self.not_zero(scope, facts))
+                              self.not_zero(scope, facts),
+                              self.written_nonzero(scope, facts))
         if apart:
             return self.apart_from_cited(step, goal, scope, facts, lines,
                                          work, complex_number)
@@ -320,16 +322,13 @@ class Calculators:
         are what a step dividing by either of them carries, so the fact is
         there to be found rather than to be proved again here.
         """
+        written = self.written_nonzero(scope, facts)
+
         def apart(said):
-            want = self.seq(said, 'cc0', 'wne')
-            if want in facts:
-                return facts[want]
-            denied = self.seq(self.seq(said, 'cc0', 'wceq'), 'wn')
-            if denied in facts:
-                return self.seq(scope, said, 'cc0', facts[denied], 'neqned')
-            found = self.apart_as_written(said, scope, facts)
+            found = written(said)
             if found is not None:
                 return found
+            want = self.seq(said, 'cc0', 'wne')
             # `normal.py` asks this while writing a proof it has already
             # decided, and takes what it is given. A decline handed back
             # there reaches the step as the method not covering it, which
@@ -341,6 +340,20 @@ class Calculators:
                              f'step needs to divide by it')
             return settled
         return apart
+
+    def written_nonzero(self, scope, facts):
+        """What the page says makes a term not zero, or None: `not_zero`
+        without the search it falls back on.
+        """
+        def written(said):
+            want = self.seq(said, 'cc0', 'wne')
+            if want in facts:
+                return facts[want]
+            denied = self.seq(self.seq(said, 'cc0', 'wceq'), 'wn')
+            if denied in facts:
+                return self.seq(scope, said, 'cc0', facts[denied], 'neqned')
+            return self.apart_as_written(said, scope, facts)
+        return written
 
     def apart_as_written(self, said, scope, facts):
         """The same fact about the same denominator, spelt as the text spells it.
@@ -974,6 +987,8 @@ class Calculators:
                 if one is not None:
                     given.append(one)
                     where.append((ref, self.to_term(said)))
+        if goal.variable is None and goal.label == 'wa':
+            return self.both_halves(refs, goal, scope, facts, lines, skip)
         claim = linear.fact(goal, self.flabel)
         if claim is None:
             return Declined('the claim is not linear')
@@ -995,8 +1010,14 @@ class Calculators:
         self.combining(term, *(where[i][1].rpn(self.flabel) for i in used))
         weight = found[len(given)]
         if claim.how == '=/=':
-            return self.stays_apart(used, given, where, claim, scope, facts,
+            made = self.stays_apart(used, given, where, claim, scope, facts,
                                     lines)
+            if declined(made):
+                apart = self.apart_by_order(refs, goal, scope, facts, lines,
+                                            skip)
+                if not declined(apart):
+                    return apart
+            return made
         if goal.variable is None and goal.label == 'wn':
             return self.negated_order(goal, refs, term, scope, facts, lines,
                                       skip)
@@ -1017,10 +1038,346 @@ class Calculators:
             spare = spare.minus(given[i].side.scaled(found[i] / weight))
         if not spare.constant_only():
             return Declined('what is left over is not a constant')
-        return self.from_sum([(where[i], given[i], found[i] / weight)
-                              for i in used],
-                             left, right, how, spare.constant, scope, facts,
-                             lines)
+        parts = [(where[i], given[i], found[i] / weight) for i in used]
+        made = self.from_sum(parts, left, right, how, spare.constant, scope,
+                             facts, lines)
+        if declined(made):
+            general = self.combination(parts, left, right, how,
+                                       spare.constant, scope, facts, lines)
+            if not declined(general):
+                return general
+        return made
+
+    def both_halves(self, refs, goal, scope, facts, lines, skip):
+        """A claim of two sentences joined by "and", each proved in turn."""
+        halves = [c.rpn(self.flabel) for c in goal.children]
+        made = [self.prove_order(refs, one, scope, facts, lines, skip)
+                for one in halves]
+        for one in made:
+            if declined(one):
+                return one
+        return self.seq(scope, *halves, *made, 'jca')
+
+    def apart_by_order(self, refs, goal, scope, facts, lines, skip):
+        """`a ≠ b` as the strict bound between them the cited facts give.
+
+        `k ≥ 1` gives `k ≠ 0` by way of `0 < k`, which `stays_apart` does
+        not reach, since no cited bound is strict. Whichever way round the
+        facts put the two is the one taken; they cannot put it both ways.
+        """
+        if goal.variable is not None or goal.label != 'wn' \
+                or goal.children[0].label != 'wceq':
+            return Declined('the claim is not a disequality')
+        a, b = (c.rpn(self.flabel) for c in goal.children[0].children)
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts))
+        for lo, hi, turn in ((b, a, 'gtned'), (a, b, 'ltned')):
+            below = self.prove_order(refs, self.seq(lo, hi, 'clt', 'wbr'),
+                                     scope, facts, lines, skip)
+            if declined(below):
+                continue
+            apart = work.ap(turn, {'ph': scope, 'A': lo, 'B': hi},
+                            self.membership(lo, 'cr', scope, facts), below)
+            return work.ap('neneqd', {'ph': scope, 'A': a, 'B': b}, apart)
+        return Declined('the cited facts put neither side below the other')
+
+    def combination(self, parts, left, right, how, spare, scope, facts,
+                    lines):
+        """Any positive combination of cited facts, and a number left over.
+
+        `from_sum` writes the shapes the corpus met first; this writes the
+        certificate as it stands. The weights are made whole by taking the
+        claim's difference `W` times over, each fact is said against zero
+        and scaled keeping its strictness (`scaled_bound`), what is left
+        over is one more fact (`number_below`), and the lot is added two at
+        a time (`added_pair`). The normalizer says the sum is `W` times the
+        claim's difference, and `W > 0` gives the claim back.
+        """
+        if how not in ('<', '<='):
+            return Declined(f'a combination reaching {how} is not written')
+        whole = math.lcm(*(times.denominator for _w, _f, times in parts),
+                         Fraction(spare).denominator)
+
+        # A reciprocal atom's divisor not being zero is the page's to say,
+        # in a requires line or a cited line, and the normaliser asks it in
+        # its own spelling, which `written_nonzero` reads as a polynomial.
+        known = dict(facts)
+        for claim, (at, proof) in self.written.items():
+            lifted = self.lifted_to(claim, proof, at, scope)
+            if lifted is not None:
+                known.setdefault(claim, lifted)
+        work = normal.Emitter(self.sigs, scope,
+                              lambda t: self.membership(t, 'cc', scope, facts),
+                              written=self.written_nonzero(scope, known))
+
+        def real_number(one):
+            return self.membership(one, 'cr', scope, facts)
+
+        terms = []
+        for (ref, said), _fact, times in parts:
+            given = self.cited_fact(ref, said, scope, facts, lines)
+            if declined(given):
+                return given
+            one = self.scaled_bound(work, said, given, times * whole,
+                                    real_number)
+            if declined(one):
+                return one
+            terms.append(one)
+        left_over = Fraction(spare) * whole
+        if left_over > 0:
+            return Declined('what is left over is above zero')
+        if left_over < 0:
+            one = self.number_below(work, -left_over)
+            if declined(one):
+                return one
+            terms.append(one)
+        if not terms:
+            return Declined('nothing is combined')
+        total = terms[0]
+        for one in terms[1:]:
+            total = self.added_pair(work, total, one)
+        term, strict, below, _real = total
+        if how == '<' and not strict:
+            return Declined('nothing combined is strict')
+        rel = 'clt' if strict else 'cle'
+        span = self.seq(left, right, 'cmin', 'co')
+        span_real = work.ap('resubcld', {'ph': scope, 'A': left, 'B': right},
+                            real_number(left), real_number(right))
+        times_span, times_real = span, span_real
+        numeral = field.NUMERAL.get(whole)
+        if whole != 1:
+            if numeral is None:
+                return Declined(f'{whole} is past one digit')
+            times_span = self.seq(numeral, span, 'cmul', 'co')
+            times_real = work.ap('remulcld', {'ph': scope, 'A': numeral,
+                                              'B': span},
+                                 self.real_numeral(work, Fraction(whole)),
+                                 span_real)
+        alike = self.same_polynomial(work, times_span, term)
+        if declined(alike):
+            return alike
+        reached = work.ap('eqbrtrd', {'ph': scope, 'A': times_span, 'B': term,
+                                      'C': 'cc0', 'R': rel}, alike, below)
+        if strict and how == '<=':
+            zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
+            reached = work.ap('ltled', {'ph': scope, 'A': times_span,
+                                        'B': 'cc0'}, times_real, zero, reached)
+            rel = 'cle'
+        if whole != 1:
+            reached = self.unscaled(work, span, span_real, numeral, whole,
+                                    rel, reached)
+        turn = self.seq(self.seq(span, 'cc0', rel, 'wbr'),
+                        self.seq(left, right, rel, 'wbr'), 'wb')
+        if rel == 'clt':
+            back = work.ap('sublt0d', {'ph': scope, 'A': left, 'B': right},
+                           real_number(left), real_number(right))
+        else:
+            back = work.ap('syl2anc',
+                           {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
+                            'ch': self.seq(right, 'cr', 'wcel'), 'th': turn},
+                           real_number(left), real_number(right),
+                           work.ap('suble0', {'A': left, 'B': right}))
+        return work.ap('mpbid', {'ph': scope,
+                                 'ps': self.seq(span, 'cc0', rel, 'wbr'),
+                                 'ch': self.seq(left, right, rel, 'wbr')},
+                       reached, back)
+
+    def scaled_bound(self, work, said, given, times, real_number):
+        """(term, strict, ( scope -> term R 0 ), ( scope -> term e. RR ))
+        for one cited fact scaled by a positive whole number.
+
+        An equation or a bound at most is `at_most_zero`'s. A strict bound
+        is said as its difference below zero and scaled by `ltmul2`, which
+        keeps it strict where `at_most_zero` gives the strictness up.
+        """
+        scope = work.under
+        if times.denominator != 1:
+            return Declined(f'a fact scaled by {times} is not written')
+        if said.variable is None and said.label == 'wn' \
+                and len(said.children) == 1:
+            made = self.unnegated(work, said.children[0], given, real_number)
+            if declined(made):
+                return made
+            said, given = made
+        parts = order_sides(said)
+        if parts is None:
+            return Declined('a cited fact states no relation')
+        # An equation may be taken either way round; a bound only upward.
+        if times <= 0 and parts[2] != '=':
+            return Declined('a bound may only be scaled upward')
+        if parts[2] != '<':
+            made = self.at_most_zero(work, said, None, times, given,
+                                     real_number)
+            if declined(made):
+                return made
+            term, below, real = made
+            return term, False, below, real
+        was = [c.rpn(self.flabel) for c in said.children[:2]]
+        gap = self.seq(was[0], was[1], 'cmin', 'co')
+        real = work.ap('resubcld', {'ph': scope, 'A': was[0], 'B': was[1]},
+                       real_number(was[0]), real_number(was[1]))
+        below = work.ap(
+            'mpbird', {'ph': scope, 'ps': self.seq(gap, 'cc0', 'clt', 'wbr'),
+                       'ch': self.seq(was[0], was[1], 'clt', 'wbr')},
+            given,
+            work.ap('sublt0d', {'ph': scope, 'A': was[0], 'B': was[1]},
+                    real_number(was[0]), real_number(was[1])))
+        if times == 1:
+            return gap, True, below, real
+        numeral = field.NUMERAL.get(int(times))
+        if numeral is None:
+            return Declined(f'{times} is past one digit')
+        scaled = self.seq(numeral, gap, 'cmul', 'co')
+        scaled_real = work.ap('remulcld', {'ph': scope, 'A': numeral,
+                                           'B': gap},
+                              self.real_numeral(work, times), real)
+        return scaled, True, self.times_positive(
+            work, gap, real, numeral, int(times), 'clt', below), scaled_real
+
+    def times_positive(self, work, gap, real, numeral, whole, rel, below):
+        """( scope -> ( n x. gap ) R 0 ) from ( scope -> gap R 0 ), n > 0."""
+        scope = work.under
+        lemma = 'ltmul2' if rel == 'clt' else 'lemul2'
+        scaled = self.seq(numeral, gap, 'cmul', 'co')
+        at_zero = self.seq(numeral, 'cc0', 'cmul', 'co')
+        positive = work.ap('jca', {'ph': scope,
+                                   'ps': self.seq(numeral, 'cr', 'wcel'),
+                                   'ch': self.seq('cc0', numeral, 'clt',
+                                                  'wbr')},
+                           self.real_numeral(work, Fraction(whole)),
+                           work.a1i(self.seq('cc0', numeral, 'clt', 'wbr'),
+                                    f'{whole}pos'))
+        moved = work.ap(
+            'mpbid', {'ph': scope, 'ps': self.seq(gap, 'cc0', rel, 'wbr'),
+                      'ch': self.seq(scaled, at_zero, rel, 'wbr')},
+            below,
+            work.ap('syl3anc',
+                    {'ph': scope, 'ps': self.seq(gap, 'cr', 'wcel'),
+                     'ch': self.seq('cc0', 'cr', 'wcel'),
+                     'th': self.seq(self.seq(numeral, 'cr', 'wcel'),
+                                    self.seq('cc0', numeral, 'clt', 'wbr'),
+                                    'wa'),
+                     'ta': self.seq(self.seq(gap, 'cc0', rel, 'wbr'),
+                                    self.seq(scaled, at_zero, rel, 'wbr'),
+                                    'wb')},
+                    real, work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re'),
+                    positive,
+                    work.ap(lemma, {'A': gap, 'B': 'cc0', 'C': numeral})))
+        return work.ap('breqtrd', {'ph': scope, 'A': scaled, 'B': at_zero,
+                                   'C': 'cc0', 'R': rel},
+                       moved,
+                       work.ap('syl', {'ph': scope,
+                                       'ps': self.seq(numeral, 'cc', 'wcel'),
+                                       'ch': self.seq(at_zero, 'cc0',
+                                                      'wceq')},
+                               work.coefficient(Fraction(whole)),
+                               work.ap('mul01', {'A': numeral})))
+
+    def unscaled(self, work, span, span_real, numeral, whole, rel, reached):
+        """( scope -> span R 0 ) from ( scope -> ( n x. span ) R 0 ), n > 0."""
+        scope = work.under
+        lemma = 'ltmul2' if rel == 'clt' else 'lemul2'
+        scaled = self.seq(numeral, span, 'cmul', 'co')
+        at_zero = self.seq(numeral, 'cc0', 'cmul', 'co')
+        positive = work.ap('jca', {'ph': scope,
+                                   'ps': self.seq(numeral, 'cr', 'wcel'),
+                                   'ch': self.seq('cc0', numeral, 'clt',
+                                                  'wbr')},
+                           self.real_numeral(work, Fraction(whole)),
+                           work.a1i(self.seq('cc0', numeral, 'clt', 'wbr'),
+                                    f'{whole}pos'))
+        at = work.ap('breqtrrd', {'ph': scope, 'A': scaled, 'B': 'cc0',
+                                  'C': at_zero, 'R': rel},
+                     reached,
+                     work.ap('syl', {'ph': scope,
+                                     'ps': self.seq(numeral, 'cc', 'wcel'),
+                                     'ch': self.seq(at_zero, 'cc0', 'wceq')},
+                             work.coefficient(Fraction(whole)),
+                             work.ap('mul01', {'A': numeral})))
+        return work.ap(
+            'mpbird', {'ph': scope, 'ps': self.seq(span, 'cc0', rel, 'wbr'),
+                       'ch': self.seq(scaled, at_zero, rel, 'wbr')},
+            at,
+            work.ap('syl3anc',
+                    {'ph': scope, 'ps': self.seq(span, 'cr', 'wcel'),
+                     'ch': self.seq('cc0', 'cr', 'wcel'),
+                     'th': self.seq(self.seq(numeral, 'cr', 'wcel'),
+                                    self.seq('cc0', numeral, 'clt', 'wbr'),
+                                    'wa'),
+                     'ta': self.seq(self.seq(span, 'cc0', rel, 'wbr'),
+                                    self.seq(scaled, at_zero, rel, 'wbr'),
+                                    'wb')},
+                    span_real, work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re'),
+                    positive,
+                    work.ap(lemma, {'A': span, 'B': 'cc0', 'C': numeral})))
+
+    def number_below(self, work, value):
+        """(−n, True, ( scope -> -u n < 0 ), ( scope -> -u n e. RR )), the
+        number a combination leaves over, as a closed numeral fact.
+        """
+        if value.denominator != 1 or int(value) not in field.NUMERAL:
+            return Declined(f'{value} is past one digit')
+        whole = int(value)
+        numeral = field.NUMERAL[whole]
+        scope = work.under
+        real = self.real_numeral(work, Fraction(whole))
+        positive = work.a1i(self.seq('cc0', numeral, 'clt', 'wbr'),
+                            '0lt1' if whole == 1 else f'{whole}pos')
+        negated = self.seq(numeral, 'cneg')
+        below = work.ap('mpbid', {'ph': scope,
+                                  'ps': self.seq('cc0', numeral, 'clt', 'wbr'),
+                                  'ch': self.seq(negated, 'cc0', 'clt', 'wbr')},
+                        positive,
+                        work.ap('lt0neg2d', {'ph': scope, 'A': numeral},
+                                real))
+        return negated, True, below, work.ap('renegcld', {'ph': scope,
+                                                          'A': numeral}, real)
+
+    def added_pair(self, work, one, other):
+        """Two terms against zero added, strict where either is."""
+        scope = work.under
+        (a, sa, pa, ra), (b, sb, pb, rb) = one, other
+        rel_a, rel_b = ('clt' if sa else 'cle'), ('clt' if sb else 'cle')
+        lemma = rules.ADDING.get((sa, sb), 'le2add')
+        rel = 'clt' if sa or sb else 'cle'
+        total = self.seq(a, b, 'caddc', 'co')
+        sum_zero = self.seq('cc0', 'cc0', 'caddc', 'co')
+        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
+        each = self.seq(self.seq(a, 'cc0', rel_a, 'wbr'),
+                        self.seq(b, 'cc0', rel_b, 'wbr'), 'wa')
+        reals = self.seq(self.seq(a, 'cr', 'wcel'), self.seq(b, 'cr', 'wcel'),
+                         'wa')
+        zeros = self.seq(self.seq('cc0', 'cr', 'wcel'),
+                         self.seq('cc0', 'cr', 'wcel'), 'wa')
+        added = work.ap(
+            'mpd', {'ph': scope, 'ps': each,
+                    'ch': self.seq(total, sum_zero, rel, 'wbr')},
+            work.ap('jca', {'ph': scope,
+                            'ps': self.seq(a, 'cc0', rel_a, 'wbr'),
+                            'ch': self.seq(b, 'cc0', rel_b, 'wbr')}, pa, pb),
+            work.ap('syl',
+                    {'ph': scope, 'ps': self.seq(reals, zeros, 'wa'),
+                     'ch': self.seq(each,
+                                    self.seq(total, sum_zero, rel, 'wbr'),
+                                    'wi')},
+                    work.ap('jca', {'ph': scope, 'ps': reals, 'ch': zeros},
+                            work.ap('jca', {'ph': scope,
+                                            'ps': self.seq(a, 'cr', 'wcel'),
+                                            'ch': self.seq(b, 'cr', 'wcel')},
+                                    ra, rb),
+                            work.ap('jca', {'ph': scope,
+                                            'ps': self.seq('cc0', 'cr',
+                                                           'wcel'),
+                                            'ch': self.seq('cc0', 'cr',
+                                                           'wcel')},
+                                    zero, zero)),
+                    work.ap(lemma, {'A': a, 'B': b, 'C': 'cc0', 'D': 'cc0'})))
+        below = work.ap('breqtrd', {'ph': scope, 'A': total, 'B': sum_zero,
+                                    'C': 'cc0', 'R': rel},
+                        added,
+                        work.a1i(self.seq(sum_zero, 'cc0', 'wceq'), '00id'))
+        real = work.ap('readdcld', {'ph': scope, 'A': a, 'B': b}, ra, rb)
+        return total, bool(sa or sb), below, real
 
     def by_antisymmetry(self, goal, scope, facts):
         """An equation from the two bounds that close on it.

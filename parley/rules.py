@@ -157,6 +157,9 @@ CLOSED = {
     ('cexp', 'cn0'): 'nn0expcld',
 }
 NEGATED = {'cc': 'negcld', 'cr': 'renegcld', 'cz': 'znegcld'}
+# A quotient asks a third thing of its parts, that the divisor is not zero,
+# so it is closed only where the caller says how that is shown.
+DIVIDED = {'cc': 'divcld', 'cr': 'redivcld'}
 
 # What a term built from numerals alone is spelt with: the digits, the
 # decimal that joins them, and the operations `arithmetic` reads.
