@@ -24,35 +24,31 @@ theorem isosceles
     requires A ≠ C: def:stdlib/geometry/triangle, from H4
     requires B ≠ C: def:stdlib/geometry/triangle, from H4
 
-5.  |CB| = |CA|
-    calculation
-      |CB| = |CA|       H5
-
-6.  A, C, B form a triangle
+5.  A, C, B form a triangle
     thm:stdlib/geometry/triangle-swap P := A, Q := B, R := C, from H4
 
-7.  B, C, A form a triangle
+6.  B, C, A form a triangle
     thm:stdlib/geometry/triangle-rotate P := A, Q := B, R := C, from H4
 
-8.  triangle ACB ≅ triangle BCA
+7.  triangle ACB ≅ triangle BCA
     thm:stdlib/geometry/side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
-      from 6, 7, 3, 4, 5
+      from 5, 6, 3, 4, H5
 
-9.  ∠BAC = ∠ABC
-    def:stdlib/geometry/congruent, from 8
+8.  ∠BAC = ∠ABC
+    def:stdlib/geometry/congruent, from 7
 
-10. ∠CAB = ∠BAC
+9.  ∠CAB = ∠BAC
     thm:stdlib/geometry/angle-symmetric P := C, Q := A, R := B
-    requires C ≠ A: def:stdlib/geometry/triangle, from 7
-    requires B ≠ A: def:stdlib/geometry/triangle, from 7
+    requires C ≠ A: def:stdlib/geometry/triangle, from 6
+    requires B ≠ A: def:stdlib/geometry/triangle, from 6
 
-11. ∠ABC = ∠CBA
+10. ∠ABC = ∠CBA
     thm:stdlib/geometry/angle-symmetric P := A, Q := B, R := C
-    requires A ≠ B: def:stdlib/geometry/triangle, from 6
-    requires C ≠ B: def:stdlib/geometry/triangle, from 6
+    requires A ≠ B: def:stdlib/geometry/triangle, from 5
+    requires C ≠ B: def:stdlib/geometry/triangle, from 5
 
-12. ∠CAB = ∠CBA
+11. ∠CAB = ∠CBA
     calculation
-      ∠CAB = ∠BAC       10
-           = ∠ABC       9
-           = ∠CBA       11
+      ∠CAB = ∠BAC       9
+           = ∠ABC       8
+           = ∠CBA       10

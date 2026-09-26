@@ -771,6 +771,15 @@ CASES = [
      '    requires 1 ∈ ℤ: arithmetic\n'
      '    requires 0 ∈ ℤ: arithmetic\n',
      'says 1 ∈ ℤ, and neither thm:stdlib/sums/sum-real nor'),
+
+    # A hypothesis asking a = b is answered by a line saying b = a, and by
+    # nothing else: line 2 says |CB| = |BC|, which is neither way round the
+    # |CB| = |CA| side-angle-side asks for.
+    ('answer an equation with one that says it neither way round',
+     'proof/isosceles.proof',
+     '      from 5, 6, 3, 4, H5\n',
+     '      from 5, 6, 3, 4, 2\n',
+     'step 7 cites thm:stdlib/geometry/side-angle-side, which asks for'),
 ]
 
 

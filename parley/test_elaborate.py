@@ -92,28 +92,26 @@ CASES = [
 
     # A `requires` line has a claim and a reason, and only the claim was
     # used: the reason could name any line at all and the fact was settled
-    # from whatever the scope held. Here line 6 does not say `C ≠ A` and
-    # line 7 does, and the proof took it from the theorem's own hypothesis
+    # from whatever the scope held. Here line 5 does not say `C ≠ A` and
+    # line 6 does, and the proof took it from the theorem's own hypothesis
     # and turned it with `necom`, so the file verified and the line the
     # page named went unused.
     ('name a line that does not state the side condition',
      'proof/isosceles/isosceles',
      'proof/isosceles.proof',
-     '    requires C ≠ A: def:stdlib/geometry/triangle, from 7',
      '    requires C ≠ A: def:stdlib/geometry/triangle, from 6',
-     'proof/isosceles.proof:44  def:stdlib/geometry/triangle, from 6 does not '
-     'reach'),
+     '    requires C ≠ A: def:stdlib/geometry/triangle, from 5',
+     'def:stdlib/geometry/triangle, from 5 does not reach'),
 
     # The same, where the scope already holds the claim for another reason:
     # the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
-    # the line is read, and line 7 does not say it.
+    # the line is read, and line 6 does not say it.
     ('name a line that does not state a claim the scope already holds',
      'proof/isosceles/isosceles',
      'proof/isosceles.proof',
+     '    requires A ≠ B: def:stdlib/geometry/triangle, from 5',
      '    requires A ≠ B: def:stdlib/geometry/triangle, from 6',
-     '    requires A ≠ B: def:stdlib/geometry/triangle, from 7',
-     'proof/isosceles.proof:49  def:stdlib/geometry/triangle, from 7 does not '
-     'reach'),
+     'def:stdlib/geometry/triangle, from 6 does not reach'),
 
     # A step's proof rests only on what it names (`GOALS.md` decision 9).
     # Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
@@ -543,14 +541,14 @@ CASES = [
      'no clause of thm:stdlib/sums/sum-single reaches what step 1.1 claims'),
 
     # A link reads its cited equation from either side, and nothing on the
-    # page says which: line 1 says |AC| = |CA|, which is neither way round
-    # the link's |CB| = |CA|.
+    # page says which: line 2 says |CB| = |BC|, which is neither way round
+    # the link's |CA| = |CB|.
     ('cite an equation that says the link neither way round',
      'proof/isosceles/isosceles',
      'proof/isosceles.proof',
-     '      |CB| = |CA|       H5\n',
-     '      |CB| = |CA|       1\n',
-     '1 does not say |CB| = |CA|'),
+     '           = |CB|       H5\n',
+     '           = |CB|       2\n',
+     '2 does not say |CA| = |CB|'),
 ]
 
 

@@ -467,9 +467,10 @@ are not hidden steps:
   `from` selects the branch. The alternative of naming the branch with a
   keyword on the citation was considered and rejected as saying what the
   reader can already see.
-- A cited equation may be read from either side, in a calculation or a
-  `substitute`, and nothing is written to say which: an equation says the
-  same thing both ways, and the reader sees which side the line uses.
+- A cited equation may be read from either side — in a calculation, a
+  `substitute`, or as an item's hypothesis — and nothing is written to say
+  which: an equation says the same thing both ways, and the reader sees
+  which side the line uses.
 
 Each method is a database item with a specified expansion, as `READERS.md`
 requires. The expansions are not yet written; the table above says what a

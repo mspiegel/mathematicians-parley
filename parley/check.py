@@ -762,10 +762,10 @@ class Library:
         # from what they target in the kernel rather than named here. A
         # metamath field may say more after the target, as "wrex, and wrex
         # under wn" does, so the target is its first word.
-        self.exists, self.members = set(), set()
+        self.exists, self.members, self.equals = set(), set(), set()
         self.conj, self.bicond, self.impl = set(), set(), set()
         targets = {'wrex': self.exists, 'wcel': self.members, 'wa': self.conj,
-                   'wb': self.bicond, 'wi': self.impl}
+                   'wb': self.bicond, 'wi': self.impl, 'wceq': self.equals}
         for r in records:
             if r.kind != 'notation':
                 continue
@@ -949,6 +949,15 @@ def supply(patterns, facts, binding, variables, library,
                 if smaller is not None:
                     found = match(form, smaller, binding, seen,
                                   library.props, sites)
+            # An equation says the same read from either side (`SYNTAX.md`),
+            # so a line saying b = a answers a hypothesis asking a = b.
+            if (found is None and form is first
+                    and fact.notation in library.equals
+                    and len(fact.children) == 2):
+                turned = Node(fact.notation, fact.sort, fact.children[::-1],
+                              fact.text)
+                found = match(form, turned, binding, seen, library.props,
+                              sites)
             if found is None:
                 continue
             # A "there is" given by an instance is given only where the

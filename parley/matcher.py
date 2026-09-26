@@ -71,6 +71,14 @@ class Matcher:
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        # An equation says the same read from either side (`SYNTAX.md`), so
+        # a line saying b = a answers a = b.
+        if wanted.label == 'wceq' and len(wanted.children) == 2:
+            a, b = (c.rpn(self.flabel) for c in wanted.children)
+            turned = self.seq(b, a, 'wceq')
+            if turned in facts:
+                return self.ap('eqcomd', {'ph': scope, 'A': b, 'B': a},
+                               facts[turned])
         # A number's membership of a number system is worked out from the
         # numeral, not searched for, and spends none of the depth: a digit
         # is set.mm's label for it, `9cn` or `9nn0`, and 10 or 10^0 − 1 is
