@@ -60,7 +60,7 @@ from parse import index as full_names
 from provenance import ProofRules
 from reading import CLASS_NAMES, Reading, hypothesis_body, render
 from scopes import Fact, Scopes
-from sorts import sorts_in_scope
+from sorts import file_definitions, sorts_in_scope
 from spell import Builder, seq
 from tables import TableReading
 
@@ -190,6 +190,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.assumed = {}        # statement -> how it is pushed, stated once
         self.unread = 0          # how far down the `define` lines we have read
         self.definitions = {}    # a defined name's setvar -> the term it names
+        self.from_outside = {}   # name -> tree, while a statement is read
+        self.file_given = False  # the file's definitions introduced yet
         self.last = None
         # The scope frames, innermost last, each (scope, what it added, what
         # is known there); `run` opens the outermost at the hypotheses.
@@ -333,6 +335,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
     # --- the proof ----------------------------------------------------------
 
     def run(self):
+        # The statement is read with the definitions the theorem sees from
+        # outside it written out, which is what set.mm states and what a
+        # theorem citing this one reads; the proof below is about the names.
+        outside = file_definitions(self.thm, self.g)
+        self.from_outside = outside
         nodes = self.hypotheses()
         # A sort is stated once, like a declared type, and a step may rest
         # on it without naming it (`READERS.md`). So may a define: the
@@ -344,7 +351,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.sorts = frozenset(
             o[2] for o in lets if o[0] == 'let' and o[2]
             and (' be a set' in o[1] or ' be a point' in o[1]
-                 or '→' in o[1])) | {d[2] for d in self.thm.defines}
+                 or '→' in o[1])) | {d[2] for d in self.thm.defines} \
+            | {self.outside_label(name, d, src)
+               for name, d, src in self.visible_outside()}
         terms = [self.term(n) for n in nodes]
         # A theorem may assume nothing, and every step here is still an
         # implication out of the scope it sits in. So the scope is truth,
@@ -378,6 +387,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # prime p above n and obtains a p along the way, and those are two
         # different numbers however the text spells them.
         goal = self.claim_of(self.thm.conclusion)
+        self.from_outside = {}
         self.reserved = {t for t in goal.split()
                          if t in self.sigs
                          and self.sigs[t].statement[0] == 'setvar'}
@@ -432,6 +442,17 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             self.hand_up(done, blocks)
 
         proof = lines[self.last].proof
+        # The last line says it with the names, the statement with what
+        # they name; the standard form reads the two as one.
+        said = lines[self.last].term
+        if said != goal:
+            alike = self.same(self.to_term(said), self.to_term(goal), scope,
+                              facts)
+            if declined(alike):
+                raise self.defect(self.thm.line,
+                                  f'the last step does not say what the '
+                                  f'theorem states: {alike}')
+            proof = self.seq(scope, said, goal, proof, alike, 'mpbid')
         for close in reversed(closers):
             proof = close(proof, goal)
         unproved = self.unproved_requires()
@@ -1317,7 +1338,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             body = re.sub(r',\s*right to left\s*$', '', text).strip()
             body, cite = body.rsplit(None, 1)
             links.append((body.strip(), cite, turned))
-        defines = {label for _k, _t, label, _l in self.thm.defines}
+        defines = {label for _k, _t, label, _l in self.thm.defines} \
+            | {self.outside_label(name, d, src)
+               for name, d, src in self.visible_outside()}
 
         def held(cite, turned, claim, written):
             # A link of numerals alone may name `arithmetic` rather than a
@@ -1804,8 +1827,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                     elif name not in saved:
                         self.names[name] = theirs
                     binds[theirs] = self.names[name]
-            wanted = [self.term(self.read(hypothesis_body(kind, htext)))
-                      for kind, htext, _l, _n in other.hypotheses]
+            # Read in its own file's definitions, as its conclusion is below.
+            with self.in_its_names(other):
+                wanted = [self.term(self.read(hypothesis_body(kind, htext)))
+                          for kind, htext, _l, _n in other.hypotheses]
             # The step may claim one sentence of a conclusion that says
             # several: `thm:proof/triangle-inequality/abs-bounds` concludes
             # x ≤ |x| and −x ≤ |x|, and a step that needs only the first
@@ -1841,7 +1866,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 raise self.defect(step.line,
                                   f'nothing supplies {self.render(one)}, '
                                   f'which {step.just.head} assumes')
-        pair, proof = wanted[0], known[wanted[0]]
+        pair, proof = (wanted[0], known[wanted[0]]) if wanted else (None, None)
         for extra in wanted[1:]:
             proof = self.seq(scope, pair, extra, proof, known[extra], 'jca')
             pair = self.seq(pair, extra, 'wa')
@@ -1862,7 +1887,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.arities.setdefault(cited, Signature(
             cited, '$p', ['|-'],
             [('class', f'{cited}.{n}') for n in range(len(pushed))]))
-        proof = self.seq(scope, pair, whole, proof, *pushed, cited, 'syl')
+        # A theorem that assumes nothing states its conclusion outright, and
+        # holds under any scope.
+        proof = (self.seq(scope, pair, whole, proof, *pushed, cited, 'syl')
+                 if wanted else
+                 self.seq(whole, scope, *pushed, cited, 'a1i'))
         if term == whole:
             return proof
         parts = {whole: proof}

@@ -16,8 +16,14 @@ import re
 import kernel
 import targets
 from formula import Node, parse
+from match import Rule, substitute
 from parse import Theorem, cited_name, declined, define_parts, proved, resolve
-from sorts import sorts_of_record, sorts_of_statement
+from sorts import (
+    definition_sorts,
+    file_definitions,
+    sorts_of_record,
+    sorts_of_statement,
+)
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
@@ -112,15 +118,22 @@ class Reading:
         stands inside it. The names in scope are the proof's; an item's
         hypotheses are written in its own, and `let Y be a set` is where it
         says so.
+
+        A theorem of the corpus is read in its own file's definitions too,
+        written out: its T is its file's T, whatever the citing proof calls
+        T or whether it has one.
         """
-        kept = self.g.sorts
+        kept, kept_written = self.g.sorts, self.from_outside
+        written = (file_definitions(item, self.g)
+                   if isinstance(item, Theorem) else {})
         own = (sorts_of_statement(item) if isinstance(item, Theorem)
                else sorts_of_record(item, self.g))
-        self.g.sorts = {**kept, **own}
+        self.g.sorts = {**kept, **definition_sorts(written), **own}
+        self.from_outside = written
         try:
             yield
         finally:
-            self.g.sorts = kept
+            self.g.sorts, self.from_outside = kept, kept_written
 
     def read(self, text):
         """One sentence of the readable layer, as a tree.
@@ -136,6 +149,19 @@ class Reading:
     def term(self, node):
         if node.notation == 'literal':
             return node.term
+        # A statement is read with the definitions from outside its theorem
+        # written out, so what it says in set.mm never names them and a
+        # theorem citing it needs none of them (`from_outside`).
+        written = self.from_outside.get(node.children[0].text) \
+            if self.from_outside and node.notation == 'application' \
+            and len(node.children) == 2 \
+            and node.children[0].notation == 'name' else None
+        if isinstance(written, Rule):
+            return self.term(substitute(written.body,
+                                        {written.param: node.children[1]}))
+        if node.notation == 'name' and node.text in self.from_outside \
+                and not isinstance(self.from_outside[node.text], Rule):
+            return self.term(self.from_outside[node.text])
         if node.notation == 'name':
             if node.text not in self.names:
                 # A name the proof never introduced, which is the text's to
@@ -298,6 +324,17 @@ class Reading:
         is what set.mm has a function be: `define S(m) := Σ(j = 1 to m) j,
         for m ∈ ℕ` is the map sending each m ∈ ℕ to that sum.
         """
+        # What the theorem sees from outside it comes first, before its own
+        # first step: written out where it was defined, and from here on a
+        # name like any the theorem defines itself.
+        if not self.file_given:
+            self.file_given = True
+            written = file_definitions(self.thm, self.g)
+            for name, d, src in self.visible_outside():
+                if name in written:
+                    yield (self.outside_label(name, d, src),
+                           d[3] if src is self.thm.scope else self.thm.line,
+                           name, self.outside_term(written[name]))
         while self.unread < len(self.thm.defines):
             _kind, text, label, line = self.thm.defines[self.unread]
             if line >= before:
@@ -313,6 +350,35 @@ class Reading:
                     f'to {said.body}')
             yield label, line, said.name, self.apart(
                 self.term(self.read(body)))
+
+    def visible_outside(self):
+        """(name, define, scope) for each definition the theorem sees from
+        outside it: those its file writes above it and those it imports.
+        """
+        scope = self.thm.scope
+        return scope.visible(self.thm.line) if scope is not None else []
+
+    def outside_label(self, name, d, src):
+        """The label a definition from outside the theorem is held under.
+
+        Its own where its file is this theorem's, so a step cites it as the
+        page does; one imported is cited by no line here, and takes a label
+        no page could write.
+        """
+        return d[2] if src is self.thm.scope else f'{src.path}:{name}'
+
+    def outside_term(self, made):
+        """A definition from outside the theorem, written out, as a term:
+        its rule, or for a function the map from its domain to its rule.
+        """
+        if not isinstance(made, Rule):
+            return self.apart(self.term(made))
+        var = self.binder_var(made.param)
+        with self.names_kept():
+            self.names[made.param] = f'{var} cv'
+            body = self.term(made.body)
+            over = self.term(self.read(made.domain))
+        return self.apart(self.seq(var, over, body, 'cmpt'))
 
     def apart(self, rpn):
         """A term whose bound names are ones nothing else is using.
