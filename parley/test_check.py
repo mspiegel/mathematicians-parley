@@ -678,34 +678,34 @@ CASES = [
     # the mistake a reader makes when the index shift goes the wrong way.
     ('Pascal with the shift going the wrong way',
      'proof/binomial.proof',
-     '    47.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
-     '    47.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
-     'step 47.5 claims something that thm:stdlib/counting/pascal does not '
+     '    44.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n',
+     '    44.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n',
+     'step 44.5 claims something that thm:stdlib/counting/pascal does not '
      'conclude'),
 
     # Shifting the index moves the range with it.
     ('a shifted sum left over the range it came from',
      'proof/binomial.proof',
-     '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)',
-     '27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)',
-     'step 27 claims something that thm:stdlib/sums/sum-shift does not '
+     '24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)',
+     '24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)',
+     'step 24 claims something that thm:stdlib/sums/sum-shift does not '
      'conclude'),
 
     # A line saying something of every index from 0 to m says nothing of
     # the index m + 1, which the sum to m + 1 takes.
     ('a term-by-term line over too short a range',
      'proof/binomial.proof',
-     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 47\n',
-     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 8\n',
-     'step 48 cites thm:stdlib/sums/sum-termwise, which asks for'),
+     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 44\n',
+     '    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 5\n',
+     'step 45 cites thm:stdlib/sums/sum-termwise, which asks for'),
 
     # C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
     ('a coefficient called zero where k is not above n',
      'proof/binomial.proof',
-     '    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 3, 10',
+     '    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 1, 7',
      '    thm:stdlib/counting/binomial-above n := m + 1, k := m + 1, '
-     'from H3, 3, 10',
-     'step 11 cites thm:stdlib/counting/binomial-above, which asks for'),
+     'from H3, 1, 7',
+     'step 8 cites thm:stdlib/counting/binomial-above, which asks for'),
 
     # Four blocks of binomial-step each fix k under the label J, and J means
     # what the block around the citing step says: here k runs from 1. Read
@@ -716,14 +716,14 @@ CASES = [
      '           requires 1 ∈ ℤ: arithmetic\n',
      'thm:stdlib/sums/range-integer a := 0, b := m + 1, from J\n'
      '           requires 0 ∈ ℤ: arithmetic\n',
-     'step 29.1 cites thm:stdlib/sums/range-integer, which asks for'),
+     'step 26.1 cites thm:stdlib/sums/range-integer, which asks for'),
 
     # `arithmetic` may stand where a closed-numeral fact is used, and only
     # there: an equation with a letter in it gives a reader something to
     # check, and is a numbered step. `SYNTAX.md` has the rule.
     ('take an equation with a letter in it from arithmetic',
      'proof/binomial.proof',
-     'substitute (m + 1) − 0 = m + 1 (line 34)',
+     'substitute (m + 1) − 0 = m + 1 (line 31)',
      'substitute (m + 1) − 0 = m + 1 (arithmetic)',
      'takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it'),
 

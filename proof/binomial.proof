@@ -8,383 +8,374 @@ theorem binomial-step
   let m ∈ ℕ₀                                                          (H3)
   then (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
 
-1.  m ∈ ℤ
-    thm:stdlib/numbers/nat0-int, from H3
-
-2.  m + 1 ∈ ℕ₀
+1.  m + 1 ∈ ℕ₀
     thm:stdlib/numbers/nat0-closure, from H3
 
-3.  m + 1 ∈ ℤ
-    thm:stdlib/numbers/nat0-int, from 2
-
-4.  m ∈ ℝ
-    thm:stdlib/numbers/int-real, from 1
-
-5.  Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ
+2.  Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ
     thm:stdlib/sums/sum-real a := 0, b := m
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-6.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
+3.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
     algebra
-    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: from 5
+    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: from 2
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-7.  x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)
+4.  x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)
     thm:stdlib/sums/sum-scaled a := 0, b := m, c := x
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-8.  For every k ∈ {0, …, m}, x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k.
+5.  For every k ∈ {0, …, m}, x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k.
     fix
     note each of x and y times the sum gains a zero term, so both run from 0 to m + 1
     let k ∈ {0, …, m}                                                 (J)
 
-    8.1.  k ∈ ℤ
+    5.1.  k ∈ ℤ
           thm:stdlib/sums/range-integer a := 0, b := m, from J
           requires 0 ∈ ℤ: arithmetic
-          requires m ∈ ℤ: from 1
+          requires m ∈ ℤ: from H3
 
-    8.2.  k ∈ ℕ₀
+    5.2.  k ∈ ℕ₀
           thm:stdlib/sums/range-nat0 n := m, from J
-          requires m ∈ ℤ: from 1
+          requires m ∈ ℤ: from H3
 
-    8.3.  m − k ∈ ℕ₀
+    5.3.  m − k ∈ ℕ₀
           thm:stdlib/sums/range-difference a := 0, n := m, from J
           requires 0 ∈ ℤ: arithmetic
-          requires m ∈ ℤ: from 1
+          requires m ∈ ℤ: from H3
 
-    8.4.  x^((m − k) + 1) = x^(m − k)·x
-          thm:stdlib/numbers/exponent-step a := x, m := m − k, from H1, 8.3
+    5.4.  x^((m − k) + 1) = x^(m − k)·x
+          thm:stdlib/numbers/exponent-step a := x, m := m − k, from H1, 5.3
 
-    8.5.  (m − k) + 1 = (m + 1) − k
+    5.5.  (m − k) + 1 = (m + 1) − k
           algebra
-          requires m ∈ ℝ: from 4
-          requires k ∈ ℝ: from 8.1
+          requires m ∈ ℝ: from H3
+          requires k ∈ ℝ: from 5.1
 
-    8.6.  x^((m − k) + 1) = x^((m + 1) − k)
-          substitute (m − k) + 1 = (m + 1) − k (line 8.5)
+    5.6.  x^((m − k) + 1) = x^((m + 1) − k)
+          substitute (m − k) + 1 = (m + 1) − k (line 5.5)
 
-    8.7.  x^(m − k)·x = x^((m + 1) − k)
+    5.7.  x^(m − k)·x = x^((m + 1) − k)
           calculation
-            x^(m − k)·x = x^((m − k) + 1)       8.4, right to left
-                        = x^((m + 1) − k)       8.6
+            x^(m − k)·x = x^((m − k) + 1)       5.4, right to left
+                        = x^((m + 1) − k)       5.6
 
-    8.8.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
+    5.8.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
           algebra
           requires x ∈ ℝ: from H1
-          requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 8.1
-          requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 8.3
-          requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 8.2
+          requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 5.1
+          requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 5.3
+          requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 5.2
 
-    8.9.  C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
-          substitute x^(m − k)·x = x^((m + 1) − k) (line 8.7)
+    5.9.  C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
+          substitute x^(m − k)·x = x^((m + 1) − k) (line 5.7)
 
-    8.10. x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k
+    5.10. x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k
           calculation
-            x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k      8.8
-                                      = C(m, k)·x^((m + 1) − k)·y^k    8.9
+            x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k      5.8
+                                      = C(m, k)·x^((m + 1) − k)·y^k    5.9
 
-9.  Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
-    thm:stdlib/sums/sum-termwise a := 0, b := m, from 8
+6.  Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
+    thm:stdlib/sums/sum-termwise a := 0, b := m, from 5
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
 
-10. m < m + 1
+7.  m < m + 1
     inequalities
-    requires m ∈ ℝ: from 4
+    requires m ∈ ℝ: from H3
 
-11. C(m, m + 1) = 0
-    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 3, 10
+8.  C(m, m + 1) = 0
+    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 1, 7
 
-12. (m + 1) − (m + 1) = 0
+9.  (m + 1) − (m + 1) = 0
     algebra
-    requires m ∈ ℝ: from 4
+    requires m ∈ ℝ: from H3
 
-13. C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = C(m, m + 1)·x^0·y^(m + 1)
-    substitute (m + 1) − (m + 1) = 0 (line 12)
+10. C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = C(m, m + 1)·x^0·y^(m + 1)
+    substitute (m + 1) − (m + 1) = 0 (line 9)
 
-14. y^(m + 1) ∈ ℝ
-    thm:stdlib/numbers/power-real a := y, m := m + 1, from H2, 2
+11. y^(m + 1) ∈ ℝ
+    thm:stdlib/numbers/power-real a := y, m := m + 1, from H2, 1
 
-15. C(m, m + 1)·x^0·y^(m + 1) = 0·x^0·y^(m + 1)
-    substitute C(m, m + 1) = 0 (line 11)
+12. C(m, m + 1)·x^0·y^(m + 1) = 0·x^0·y^(m + 1)
+    substitute C(m, m + 1) = 0 (line 8)
 
-16. 0·x^0·y^(m + 1) = 0
+13. 0·x^0·y^(m + 1) = 0
     algebra
     requires x ∈ ℝ: from H1
-    requires y^(m + 1) ∈ ℝ: from 14
+    requires y^(m + 1) ∈ ℝ: from 11
 
-17. C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0
+14. C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0
     calculation
-      C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = C(m, m + 1)·x^0·y^(m + 1)    13
-                                                  = 0·x^0·y^(m + 1)               15
-                                                  = 0                             16
+      C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = C(m, m + 1)·x^0·y^(m + 1)    10
+                                                  = 0·x^0·y^(m + 1)               12
+                                                  = 0                             13
 
-18. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k + C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1)
+15. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k + C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1)
     thm:stdlib/sums/sum-last n := m, from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-19. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k + 0
-    substitute C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0 (line 17) into line 18
+16. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k + 0
+    substitute C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0 (line 14) into line 15
 
-20. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
+17. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
     calculation
-      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)      7
-                                              = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k    9
+      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)      4
+                                              = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k    6
 
-21. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0
-    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k (line 20) into line 19, right to left
+18. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0
+    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k (line 17) into line 16, right to left
 
-22. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0 = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
+19. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0 = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
     algebra
     requires x ∈ ℝ: from H1
-    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: from 5
+    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: from 2
 
-23. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k
+20. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k
     calculation
-      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0    22, right to left
-                                              = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k    21, right to left
+      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0    19, right to left
+                                              = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k    18, right to left
 
-24. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)
+21. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)
     thm:stdlib/sums/sum-scaled a := 0, b := m, c := y
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-25. For every k ∈ {0, …, m}, y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1).
+22. For every k ∈ {0, …, m}, y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1).
     fix
     let k ∈ {0, …, m}                                                 (J)
 
-    25.1.  k ∈ ℤ
+    22.1.  k ∈ ℤ
            thm:stdlib/sums/range-integer a := 0, b := m, from J
            requires 0 ∈ ℤ: arithmetic
-           requires m ∈ ℤ: from 1
+           requires m ∈ ℤ: from H3
 
-    25.2.  k ∈ ℕ₀
+    22.2.  k ∈ ℕ₀
            thm:stdlib/sums/range-nat0 n := m, from J
-           requires m ∈ ℤ: from 1
+           requires m ∈ ℤ: from H3
 
-    25.3.  m − k ∈ ℕ₀
+    22.3.  m − k ∈ ℕ₀
            thm:stdlib/sums/range-difference a := 0, n := m, from J
            requires 0 ∈ ℤ: arithmetic
-           requires m ∈ ℤ: from 1
+           requires m ∈ ℤ: from H3
 
-    25.4.  y^(k + 1) = y^k·y
-           thm:stdlib/numbers/exponent-step a := y, m := k, from H2, 25.2
+    22.4.  y^(k + 1) = y^k·y
+           thm:stdlib/numbers/exponent-step a := y, m := k, from H2, 22.2
 
-    25.5.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·(y^k·y)
+    22.5.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·(y^k·y)
            algebra
            requires y ∈ ℝ: from H2
-           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 25.1
-           requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 25.3
-           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 25.2
+           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 22.1
+           requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 22.3
+           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 22.2
 
-    25.6.  C(m, k)·x^(m − k)·(y^k·y) = C(m, k)·x^(m − k)·y^(k + 1)
-           substitute y^(k + 1) = y^k·y (line 25.4), right to left
+    22.6.  C(m, k)·x^(m − k)·(y^k·y) = C(m, k)·x^(m − k)·y^(k + 1)
+           substitute y^(k + 1) = y^k·y (line 22.4), right to left
 
-    25.7.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1)
+    22.7.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1)
            calculation
-             y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·(y^k·y)      25.5
-                                       = C(m, k)·x^(m − k)·y^(k + 1)    25.6
+             y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·(y^k·y)      22.5
+                                       = C(m, k)·x^(m − k)·y^(k + 1)    22.6
 
-26. Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1)
-    thm:stdlib/sums/sum-termwise a := 0, b := m, from 25
+23. Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1)
+    thm:stdlib/sums/sum-termwise a := 0, b := m, from 22
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
 
-27. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
+24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
     thm:stdlib/sums/sum-shift a := 0, b := m, c := 1
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from 1
+    requires m ∈ ℤ: from H3
     requires 1 ∈ ℤ: arithmetic
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-28. Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
+25. Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
     substitute 0 + 1 = 1 (arithmetic)
 
-29. For every k ∈ {1, …, m + 1}, C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k.
+26. For every k ∈ {1, …, m + 1}, C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k.
     fix
     let k ∈ {1, …, m + 1}                                             (J)
 
-    29.1.  k ∈ ℤ
+    26.1.  k ∈ ℤ
            thm:stdlib/sums/range-integer a := 1, b := m + 1, from J
            requires 1 ∈ ℤ: arithmetic
-           requires m + 1 ∈ ℤ: from 3
+           requires m + 1 ∈ ℤ: from 1
 
-    29.2.  m − (k − 1) = (m + 1) − k
+    26.2.  m − (k − 1) = (m + 1) − k
            algebra
-           requires m ∈ ℝ: from 4
-           requires k ∈ ℝ: from 29.1
+           requires m ∈ ℝ: from H3
+           requires k ∈ ℝ: from 26.1
 
-    29.3.  (k − 1) + 1 = k
+    26.3.  (k − 1) + 1 = k
            algebra
-           requires k ∈ ℝ: from 29.1
+           requires k ∈ ℝ: from 26.1
 
-    29.4.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)
-           substitute m − (k − 1) = (m + 1) − k (line 29.2)
+    26.4.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)
+           substitute m − (k − 1) = (m + 1) − k (line 26.2)
 
-    29.5.  C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
-           substitute (k − 1) + 1 = k (line 29.3)
+    26.5.  C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
+           substitute (k − 1) + 1 = k (line 26.3)
 
-    29.6.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
+    26.6.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
            calculation
-             C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)    29.4
-                                                         = C(m, k − 1)·x^((m + 1) − k)·y^k                29.5
+             C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)    26.4
+                                                         = C(m, k − 1)·x^((m + 1) − k)·y^k                26.5
 
-30. Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    thm:stdlib/sums/sum-termwise a := 1, b := m + 1, from 29
+27. Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+    thm:stdlib/sums/sum-termwise a := 1, b := m + 1, from 26
     requires 1 ∈ ℤ: arithmetic
-    requires m + 1 ∈ ℤ: from 3
+    requires m + 1 ∈ ℤ: from 1
 
-31. C(m, −1) = 0
+28. C(m, −1) = 0
     thm:stdlib/counting/binomial-below n := m, from H3
 
-32. C(m, 0 − 1) = C(m, −1)
+29. C(m, 0 − 1) = C(m, −1)
     substitute 0 − 1 = −1 (arithmetic)
 
-33. C(m, 0 − 1) = 0
+30. C(m, 0 − 1) = 0
     calculation
-      C(m, 0 − 1) = C(m, −1)    32
-                  = 0           31
+      C(m, 0 − 1) = C(m, −1)    29
+                  = 0           28
 
-34. (m + 1) − 0 = m + 1
+31. (m + 1) − 0 = m + 1
     algebra
-    requires m ∈ ℝ: from 4
+    requires m ∈ ℝ: from H3
 
-35. C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = C(m, 0 − 1)·x^(m + 1)·y^0
-    substitute (m + 1) − 0 = m + 1 (line 34)
+32. C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = C(m, 0 − 1)·x^(m + 1)·y^0
+    substitute (m + 1) − 0 = m + 1 (line 31)
 
-36. x^(m + 1) ∈ ℝ
-    thm:stdlib/numbers/power-real a := x, m := m + 1, from H1, 2
+33. x^(m + 1) ∈ ℝ
+    thm:stdlib/numbers/power-real a := x, m := m + 1, from H1, 1
 
-37. C(m, 0 − 1)·x^(m + 1)·y^0 = 0·x^(m + 1)·y^0
-    substitute C(m, 0 − 1) = 0 (line 33)
+34. C(m, 0 − 1)·x^(m + 1)·y^0 = 0·x^(m + 1)·y^0
+    substitute C(m, 0 − 1) = 0 (line 30)
 
-38. 0·x^(m + 1)·y^0 = 0
+35. 0·x^(m + 1)·y^0 = 0
     algebra
-    requires x^(m + 1) ∈ ℝ: from 36
+    requires x^(m + 1) ∈ ℝ: from 33
     requires y ∈ ℝ: from H2
 
-39. C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = 0
+36. C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = 0
     calculation
-      C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = C(m, 0 − 1)·x^(m + 1)·y^0    35
-                                      = 0·x^(m + 1)·y^0              37
-                                      = 0                            38
+      C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = C(m, 0 − 1)·x^(m + 1)·y^0    32
+                                      = 0·x^(m + 1)·y^0              34
+                                      = 0                            35
 
-40. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = C(m, 0 − 1)·x^((m + 1) − 0)·y^0 + Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    thm:stdlib/sums/sum-first n := m + 1, from 2
+37. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = C(m, 0 − 1)·x^((m + 1) − 0)·y^0 + Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+    thm:stdlib/sums/sum-first n := m + 1, from 1
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-41. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = 0 + Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    substitute C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = 0 (line 39) into line 40
+38. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = 0 + Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+    substitute C(m, 0 − 1)·x^((m + 1) − 0)·y^0 = 0 (line 36) into line 37
 
-42. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    substitute 0 + 1 = 1 (arithmetic) into line 41
+39. Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+    substitute 0 + 1 = 1 (arithmetic) into line 38
 
-43. Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ
+40. Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ
     thm:stdlib/sums/sum-real a := 1, b := m + 1
     requires 1 ∈ ℤ: arithmetic
-    requires m + 1 ∈ ℤ: from 3
+    requires m + 1 ∈ ℤ: from 1
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-44. 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+41. 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     algebra
-    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: from 43
+    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: from 40
 
-45. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+42. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     calculation
-      y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)                          24
-                                              = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1)                          26
-                                              = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)  27
-                                              = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)      28
-                                              = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  30
-                                              = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k              44, right to left
-                                              = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  42, right to left
+      y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)                          21
+                                              = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1)                          23
+                                              = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)  24
+                                              = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)      25
+                                              = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  27
+                                              = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k              41, right to left
+                                              = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  39, right to left
 
-46. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+43. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     thm:stdlib/sums/sum-add a := 0, b := m + 1
     requires 0 ∈ ℤ: arithmetic
-    requires m + 1 ∈ ℤ: from 3
+    requires m + 1 ∈ ℤ: from 1
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-47. For every k ∈ {0, …, m + 1}, C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k.
+44. For every k ∈ {0, …, m + 1}, C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k.
     fix
     note then the two sums add term by term, and Pascal's rule joins the coefficients
     let k ∈ {0, …, m + 1}                                             (J)
 
-    47.1.  k ∈ ℤ
+    44.1.  k ∈ ℤ
            thm:stdlib/sums/range-integer a := 0, b := m + 1, from J
            requires 0 ∈ ℤ: arithmetic
-           requires m + 1 ∈ ℤ: from 3
+           requires m + 1 ∈ ℤ: from 1
 
-    47.2.  k ∈ ℕ₀
+    44.2.  k ∈ ℕ₀
            thm:stdlib/sums/range-nat0 n := m + 1, from J
-           requires m + 1 ∈ ℤ: from 3
+           requires m + 1 ∈ ℤ: from 1
 
-    47.3.  (m + 1) − k ∈ ℕ₀
+    44.3.  (m + 1) − k ∈ ℕ₀
            thm:stdlib/sums/range-difference a := 0, n := m + 1, from J
            requires 0 ∈ ℤ: arithmetic
-           requires m + 1 ∈ ℤ: from 3
+           requires m + 1 ∈ ℤ: from 1
 
-    47.4.  k − 1 ∈ ℤ
-           thm:stdlib/numbers/int-closure a := k, b := 1, from 47.1
+    44.4.  k − 1 ∈ ℤ
+           thm:stdlib/numbers/int-closure a := k, b := 1, from 44.1
            requires 1 ∈ ℤ: arithmetic
 
-    47.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)
-           thm:stdlib/counting/pascal n := m, k := k, from H3, 47.1
+    44.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)
+           thm:stdlib/counting/pascal n := m, k := k, from H3, 44.1
 
-    47.6.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k
+    44.6.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k
            algebra
-           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 47.1
-           requires C(m, k − 1) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0 k := k − 1, from H3, 47.4
-           requires x^((m + 1) − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 47.3
-           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 47.2
+           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 44.1
+           requires C(m, k − 1) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0 k := k − 1, from H3, 44.4
+           requires x^((m + 1) − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 44.3
+           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 44.2
 
-    47.7.  (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
-           substitute C(m, k) + C(m, k − 1) = C(m + 1, k) (line 47.5)
+    44.7.  (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
+           substitute C(m, k) + C(m, k − 1) = C(m + 1, k) (line 44.5)
 
-    47.8.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
+    44.8.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
            calculation
-             C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k    47.6
-                                                                           = C(m + 1, k)·x^((m + 1) − k)·y^k                  47.7
+             C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k    44.6
+                                                                           = C(m + 1, k)·x^((m + 1) − k)·y^k                  44.7
 
-48. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
-    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 47
+45. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
+    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 44
     requires 0 ∈ ℤ: arithmetic
-    requires m + 1 ∈ ℤ: from 3
+    requires m + 1 ∈ ℤ: from 1
 
-49. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
-    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k (line 23)
+46. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
+    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k (line 20)
 
-50. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
-    substitute y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k (line 45)
+47. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
+    substitute y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k (line 42)
 
-51. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
+48. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
     calculation
-      (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)                     6
-                                                    = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)               49
-                                                    = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k     50
-                                                    = Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k)                     46, right to left
-                                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k                                                     48
+      (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)                     3
+                                                    = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)               46
+                                                    = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k     47
+                                                    = Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k)                     43, right to left
+                                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k                                                     45
 
 
 theorem binomial
