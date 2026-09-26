@@ -62,6 +62,7 @@ from sorts import (
     file_definitions,
     sorts_in_scope,
     sorts_of_record,
+    sorts_of_statement,
 )
 from sorts import (
     LABEL as LABEL_AT_END,
@@ -1657,6 +1658,7 @@ def check_formulas(report, thm, g):
     defect.
     """
     sorts_in_scope(thm, g)
+    own = introduced(thm)
     places = [(s.line, f'step {fmt(s.number)}', ' '.join(s.claim))
               for s in thm.steps]
     places += [(no, f'the requires line of step {fmt(s.number)}', fact)
@@ -1674,7 +1676,71 @@ def check_formulas(report, thm, g):
             try:
                 parse(sentence, g)
             except Problem as p:
-                report.say(thm.path, line, f'{what}: {p.message}')
+                # A name the file defines only further down is why, and
+                # `check_defined_below` says so: above its define it names
+                # nothing, and `U(0)` then reads several ways because
+                # nothing says U is a function.
+                if not defined_below(thm, sentence, own):
+                    report.say(thm.path, line, f'{what}: {p.message}')
+
+
+def check_defined_below(report, thm, g):
+    """A theorem uses only the definitions written above it.
+
+    Above its define a name names nothing: `c = 5` would be about a letter
+    nobody introduced, which parses and says nothing, and `U(0)` reads
+    several ways because nothing says U is a function. So a name the file
+    defines outside its theorems only further down, used in a theorem that
+    does not introduce it itself, is said once, at the theorem.
+    """
+    for name, at in defined_below(thm, written_text(thm), introduced(thm)):
+        report.say(thm.path, thm.line,
+                   f'{name} is defined at line {at}, below theorem '
+                   f'{thm.name}; a definition is used only below where it '
+                   f'is written')
+
+
+# A name a formula binds for itself: `for every c ∈ ℕ`, `there is c ∈ A`,
+# `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the map sending c ∈ A to …`.
+BOUND_HERE = re.compile(r'(?:for every|there (?:is|are)(?: no)?|sending|\{|Σ\()'
+                        r'\s*([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|=)')
+
+
+def introduced(thm):
+    """The names a theorem introduces itself: its `let` lines, a block's,
+    and what its `obtain` steps obtain. Not every name it gives a sort:
+    `c = 5` gives c one, and introduces nothing.
+    """
+    out = set(sorts_of_statement(thm))
+    out |= {m.group(1) for _k, t, _l, _n in thm.hypotheses
+            if (m := re.match(r'^let\s+([^\s∈∉:]+)', t))}
+    for s in thm.steps:
+        out |= {m.group(1) for k, t, _l, _n, _p in s.openers
+                if k == 'let' and (m := re.match(r'^let\s+([^\s∈∉:]+)', t))}
+        if s.just and s.just.head == 'obtain':
+            got = kinds.OBTAINS.match(s.just.text)
+            if got:
+                out |= {n.strip() for n in got.group(1).split(',')}
+    return out
+
+
+def defined_below(thm, text, own):
+    """(name, line) for each name `text` writes that the theorem's file
+    defines outside its theorems only below it, and that the theorem does
+    not introduce itself: `own` (`introduced`), and what the text binds.
+    """
+    if thm.scope is None:
+        return []
+    seen = {n for n, _d, _s in thm.scope.visible(thm.line)}
+    seen |= set(own) | set(BOUND_HERE.findall(text))
+    out = []
+    for d in thm.scope.defines:
+        said = define_parts(d[1])
+        if d[3] < thm.line or declined(said) or said.name in seen:
+            continue
+        if re.search(rf'(?<![\w]){re.escape(said.name)}(?![\w])', text):
+            out.append((said.name, d[3]))
+    return out
 
 
 def check_sorts(report, thm):
@@ -2018,6 +2084,7 @@ def main(root):
     check_item_kinds(report, statements, items)
     for thm in theorems:
         check_formulas(report, thm, grammar)
+        check_defined_below(report, thm, grammar)
         check_kinds(report, thm, grammar, statements)
         check_contradiction(report, thm, grammar)
         check_closed_arithmetic(report, thm, grammar)

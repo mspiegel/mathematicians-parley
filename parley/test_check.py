@@ -115,7 +115,17 @@ CASES = [
        + '\ndefine U(k) := k, for k ∈ ℕ'
          '                                          (D2)\n'
          '       reads k itself\n')],
-     "'T(1) = 1 + U(0)' fits application"),
+     'U is defined at line 12, below theorem tri-one; a definition is '
+     'used only below where it is written'),
+
+    # A plain name above its define parses, as a letter nobody introduced.
+    ('use a plain definition above the line that defines it',
+     [('proof/early.proof', None,
+       'theorem early-use\n  then c = 5\n\n1.  c = 5\n    arithmetic\n\n'
+       'define c := 5'
+       '                                                         (D1)\n'
+       '       reads five\n')],
+     'c is defined at line 7, below theorem early-use'),
 
     # A cited theorem's T is its own file's T, and a file with a T of its
     # own cannot cite it as one about that.
