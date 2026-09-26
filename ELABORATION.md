@@ -63,11 +63,17 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    - a rule that asks something first (`exp0`, `nn0absid`, `rexss`) holds
      only where that is so, and is applied only where it closes a difference,
      with what it asks settled there;
-   - letters bound under other names are one claim by a renaming.
+   - a name a `define` introduced is what it names (`named_body`), the one
+     rule that is not a set.mm lemma: the define's own equation proves it;
+   - letters bound under other names are one claim by a renaming, and one
+     class by `rules.CLASS_BOUND` (`cbvmptv`, `cbvrabv`).
 
    The walk proves it at the smallest places the two differ. A lemma whose
-   conclusion does not match the claim as written is read through the same
-   rules to fix its variables, proved at that, and carried to the claim.
+   conclusion, or the near side of a biconditional it states, does not match
+   the claim as written is read through the same rules to fix its variables,
+   proved at that, and carried to the claim; so is a definition unfolded, an
+   `instantiate` and a corpus theorem cited (`fits_as`). As written is always
+   tried first.
 4. **Rule tables.** Data, not code: which lemma lifts an equation through each
    constructor; which lemma carries a membership from one number system to
    another, or through an operation; what a closed numeral is; and the
@@ -356,14 +362,19 @@ the name. It is taken the way an `obtain` is: `elisset` gives `∃x x = E` once 
 is a set (`rules.SETHOOD`), the scope is widened by `x = E`, and `exlimdv`
 discharges it where the scope ends (`scopes.define`). The variable is a spare,
 never the name's own letter, which keeps Cantor's defined B apart from the B
-its conclusion binds. A body naming an earlier define is held written out.
+its conclusion binds. A body naming an earlier define is held written out:
+kept over U, the subsets proof's T would meet a theorem about 𝒫(X ∖ {a}) only
+by a change of a map's domain, which `mpteq1d` makes with its parts in an
+order the congruence walk does not push.
 
-A lemma speaks of the body and a line of the name, so where the two meet the
-line is read written out (`spelt_out`) — fitting a lemma, unfolding a
-definition, `instantiate`, citing a corpus theorem — and the `defined` row of
-`same` carries it back through the equation. A step may rest on a define
-without citing it, as on a sort: the checker reads a defined name as its body
-wherever it compares two formulas (`SYNTAX.md`).
+A lemma speaks of the body and a line of the name, and the standard form
+reads the name as the body wherever two things are compared (`named_body`),
+so the matcher meets the two as it meets `k · 2` and `2 · k`: every route
+that fits a lemma matches as written and then in standard form, and `same`
+carries the lemma's instance to the line through the equation. Nothing
+rewrites a claim itself, so a calculator still sees x₁ as a name. A step may
+rest on a define without citing it, as on a sort: the checker reads a defined
+name as its body wherever it compares two formulas (`SYNTAX.md`).
 
 **A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
@@ -1099,8 +1110,8 @@ leave the gate green on the day a proof was added and not read.
     see two names where the text writes one.
 
 17. **A name and its equation.** `define` introduces a name, the proof is about
-    the name, and the equation carries it to the thing where a lemma needs to
-    see inside.
+    the name, and the standard form reads the name as the thing where a lemma
+    needs to see inside, by the equation.
 
 18. **A chain may change relation partway.**
 
