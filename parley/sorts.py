@@ -27,6 +27,19 @@ LABEL = re.compile(r'\s+\([A-Z]+[0-9]*\)\s*$')
 MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
 KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
+# `let f : A → B be one-to-one`: a function's type, and a property of it.
+FUNCTION_BEING = re.compile(r'^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$')
+
+
+def let_formula(body):
+    """A `let` body as the formula it asserts.
+
+    `let f : A → B be one-to-one` introduces f and says it is one-to-one,
+    and the formula is `f : A → B is one-to-one`: "be" is how English says
+    "is" after "let". Every other body is read as it is written.
+    """
+    m = FUNCTION_BEING.match(body)
+    return f'{m.group(1)} is {m.group(2)}' if m else body
 PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+\S+$')
 SENTENCE = re.compile(r'(?<=[.])\s+')
 

@@ -165,14 +165,12 @@ theorem schroeder-bernstein
               says it of the one-to-one functions that dominating names
   let A be a set                                                      (H1)
   let B be a set                                                      (H2)
-  let f : A → B                                                       (H3)
-  let g : B → A                                                       (H4)
-  assume f : A → B is one-to-one                                      (H5)
-  assume g : B → A is one-to-one                                      (H6)
+  let f : A → B be one-to-one                                         (H3)
+  let g : B → A be one-to-one                                         (H4)
   then there is a bijection from A to B
 
 1.  For every s ∈ A, for every t ∈ A, if f(s) = f(t) then s = t.
-    def:stdlib/functions/one-to-one, from H5
+    def:stdlib/functions/one-to-one, from H3
 
 2.  C ∈ 𝒫A. {g(y) : y ∈ B ∖ {f(x) : x ∈ C}} = A ∖ C.
     obtain C: thm:proof/schroeder-bernstein/fixed-part
@@ -212,7 +210,7 @@ theorem schroeder-bernstein
           D2, from 4.1
 
     4.8.  g⁻¹(g(y)) = y
-          thm:stdlib/functions/inverse-value, from H6, 4.6
+          thm:stdlib/functions/inverse-value, from H4, 4.6
 
     4.9.  g⁻¹(t) = g⁻¹(g(y))
           substitute t = g(y) (line 4.5)
@@ -459,7 +457,7 @@ theorem schroeder-bernstein
                   D2, from 9.2.11
 
           9.2.13. g⁻¹(g(b)) = b
-                  thm:stdlib/functions/inverse-value, from H6, K7
+                  thm:stdlib/functions/inverse-value, from H4, K7
 
           9.2.14. b = h(g(b))
                   calculation

@@ -45,7 +45,8 @@ theorem even-square
   that is not in X, `let x be an element` for a thing whose kind the text
   decides, `let A be a set` for an arbitrary set, `let
   A be a point` for a point of the plane, `let f : A → B` for a
-  function with its domain and codomain, and `let P be a property of the
+  function with its domain and codomain, `let f : A → B be one-to-one` for
+  such a function with a property, and `let P be a property of the
   elements of X` for a property that a statement can be written about.
   Neither `∉` nor `be an element` claims the thing is a set, which `be a
   set` does (`READERS.md`, on kinds); the kernel still has it be one, and
@@ -54,9 +55,12 @@ theorem even-square
   formula. These are the theorem's hypotheses, and they map onto
   Metamath's floating and essential hypotheses; `let A be a set` is
   set.mm's `A e. _V`. They are part of the statement, not of the proof.
-  Those seven are all the forms a `let` line has. It carries an
+  Those eight are all the forms a `let` line has. It carries an
   introduction, which names something and says what it is, and never a
-  formula, because it asserts nothing; `assume` is the line that asserts.
+  formula; `assume` is the line that asserts. The one thing a `let`
+  asserts is what `be` says of a function, "be" being how English says
+  "is" after "let": `let f : A → B be one-to-one` asserts that f is
+  one-to-one, and a citation of an item written so must supply it.
   A property line never names the thing the property holds of, because that
   name comes from the notation that binds it: in `{t ∈ X : P(t)}` the braces
   introduce `t`, and `t` does not exist on the line above. `P(t)` reads "the

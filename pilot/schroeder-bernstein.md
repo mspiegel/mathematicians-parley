@@ -75,12 +75,15 @@ x ∈ C with f(x) = b; outside R, from g(b), which is off C. ∎
 
 ## What the pilot reveals
 
-1. **Being one-to-one is assumed, not let.** The first draft wrote
-   `let f : A → B is one-to-one`. A `let` line introduces a name and is
-   never asked for when an item is cited, so the item's one-to-one-ness
+1. **A property in a `let` line was never asked for.** The first draft
+   wrote `let g : Y → X is one-to-one`. That fitted the function form with
+   "X is one-to-one" read as the set g maps into, and a function's type is
+   a declaration no citation is asked for, so the item's one-to-one-ness
    passed unchecked: the checker called the line that supplied it surplus.
-   The theorem and the items now `let f : A → B` and `assume` that it is
-   one-to-one.
+   A reader cannot see that difference, so the fault was the language's.
+   The line is now written as a textbook writes it, `let g : Y → X be
+   one-to-one`, and what `be` says is asked for as a membership is; the
+   plain function form refuses anything after its arrow that is not a set.
 2. **"Onto" is still not a word.** `thm:stdlib/functions/onto-bijection`
    says every point is reached, as Cantor's finding 6 asked, and set.mm's
    `dffo3` reads that as onto below the page.

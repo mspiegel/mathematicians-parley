@@ -414,4 +414,7 @@ MEMBERSHIP = [
     # `dvdslegcd` divides by anything but two zeros, and a natural number
     # is one of the two, so the pair is denied by denying its first half.
     'intnanrt',
+    # A one-to-one function is a function: `let f : A → B be one-to-one`
+    # says the first, and a lemma asking the second is answered by it.
+    'f1f',
 ]

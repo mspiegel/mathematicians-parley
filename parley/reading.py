@@ -19,8 +19,10 @@ from formula import Node, parse
 from match import Rule, substitute
 from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import (
+    FUNCTION_BEING,
     definition_sorts,
     file_definitions,
+    let_formula,
     sorts_of_record,
     sorts_of_statement,
 )
@@ -61,6 +63,8 @@ def hypothesis_body(kind, text):
         outside = NOT_IN.match(said)
         if outside:
             return f'{outside.group(1)} is a set and {said}'
+        if FUNCTION_BEING.match(said):
+            return let_formula(said)
         body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
     return body
 

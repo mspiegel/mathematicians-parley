@@ -25,7 +25,7 @@ import re
 from formula import parse
 from match import Rule
 from parse import Declined, Problem, declined, define_parts
-from sorts import LABEL, SENTENCE, element_sort, file_definitions
+from sorts import LABEL, SENTENCE, element_sort, file_definitions, let_formula
 
 OBTAINS = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 
@@ -337,7 +337,7 @@ def introduce(reader, body, line, g):
     m = re.match(r'^([^\s∈∉:]+)\s*(?:∈|∉|:)', body)
     if m:
         reader.env[m.group(1)] = Var()
-    claim_text(reader, body, line, g)
+    claim_text(reader, let_formula(body), line, g)
 
 
 def claim_text(reader, text, line, g):

@@ -60,9 +60,11 @@ from parse import (
 )
 from sorts import (
     FUNCTION,
+    FUNCTION_BEING,
     KIND,
     definitions_in_scope,
     file_definitions,
+    let_formula,
     sorts_in_scope,
     sorts_of_record,
     sorts_of_statement,
@@ -833,8 +835,13 @@ class Library:
     def _facts(self, lines, sorts):
         out = []
         for kind, text in lines:
-            if kind == 'let' and (KIND.match(text) or FUNCTION.match(text)
-                                  or ELEMENT.match(text)):
+            # A function's type is declared, and what `be` says of the
+            # function is a fact like any other, asked for as `let y ∈ Y`
+            # is: `let g : Y → X be one-to-one` asks that g be one-to-one.
+            if kind == 'let' and FUNCTION_BEING.match(text):
+                text = let_formula(text)
+            elif kind == 'let' and (KIND.match(text) or FUNCTION.match(text)
+                                    or ELEMENT.match(text)):
                 continue
             self.g.sorts = sorts
             try:
@@ -1087,12 +1094,14 @@ def statements_in_scope(thm, step):
     out = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
     for kind, text, label, _no in thm.hypotheses:
         if label:
-            out[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+            out[label] = let_formula(
+                LABEL_AT_END.sub('', text[len(kind):]).strip())
     visible = labels_in_scope(thm, step)
     for other in thm.steps:
         for kind, text, label, no, _part in other.openers:
             if label and visible.get(label) == ('block', no):
-                out[label] = LABEL_AT_END.sub('', text[len(kind):]).strip()
+                out[label] = let_formula(
+                    LABEL_AT_END.sub('', text[len(kind):]).strip())
     return out
 
 
@@ -1749,7 +1758,7 @@ def check_statements(report, records, g):
         for kind, text, _, no in r.hypotheses:
             if kind != 'let':
                 continue
-            said = introduction_problem(LABEL_AT_END.sub('', text).strip())
+            said = introduction_problem(LABEL_AT_END.sub('', text).strip(), g)
             if said:
                 report.say(r.path, no, f'{r.kind} {r.name}: {said}')
         places = [(text, no) for kind, text, _, no in r.hypotheses
@@ -2112,6 +2121,7 @@ INTRODUCTIONS = (
     ('an arbitrary set',        re.compile(r'^\S+\s+be a set$')),
     ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
     ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
+    ('a function with a property', FUNCTION_BEING),
     ('a property',              re.compile(r'^\S+\s+be a property of the '
                                            r'elements of\s+\S+$')),
 )
@@ -2138,13 +2148,32 @@ def check_readings(report, thm):
                        f'block; a note says what a block is doing')
 
 
-def introduction_problem(body):
+def introduction_problem(body, g):
     """What is wrong with a `let` body, or None. Used for a proof's lines and
     for an item's alike, since an item states its hypotheses the same way.
+    `g` must hold the sorts of the statement the line belongs to.
     """
     if not any(p.match(body) for _, p in INTRODUCTIONS):
         return (f'`let {body[:40]}` is none of the {len(INTRODUCTIONS)} '
                 f'introductions: {", ".join(n for n, _ in INTRODUCTIONS)}')
+    # A function's type is a function into a set, and nothing else: `let g :
+    # Y → X is one-to-one` fits the shape with "X is one-to-one" for the set,
+    # which is a statement, and the property it states was never asked for.
+    if FUNCTION.match(body) and not FUNCTION_BEING.match(body):
+        try:
+            node = parse(body, g)
+        except Problem:
+            node = None
+        if node is not None and node.notation != 'function-type':
+            return (f'`let {body[:40]}` says more than a function\'s type; '
+                    f'a property of it follows `be`, as `let f : A → B be '
+                    f'one-to-one`')
+    if FUNCTION_BEING.match(body):
+        try:
+            parse(let_formula(body), g)
+        except Problem:
+            return (f'`let {body[:40]}` says the function is something no '
+                    f'notation says a function is')
     # A function's codomain is a set. A sort is a label for what kind of thing
     # a name is, and there is no set of formulas to map into: writing one there
     # says a property is a function, which it is not.
@@ -2156,11 +2185,13 @@ def introduction_problem(body):
     return None
 
 
-def check_introductions(report, thm):
+def check_introductions(report, thm, g):
     """A `let` line carries an introduction, not a formula. It names something
-    and says what it is, asserting nothing, and `INTRODUCTIONS` is every form
-    one takes. `assume` takes a formula, because it does assert.
+    and says what it is, and `INTRODUCTIONS` is every form one takes; what it
+    asserts is only what `be` says of a function it names. `assume` takes a
+    formula, because it does assert.
     """
+    g.sorts = sorts_in_scope(thm, g)
     lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
     for s in thm.steps:
         lines += [(k, t, n) for k, t, _, n, _ in s.openers]
@@ -2169,7 +2200,7 @@ def check_introductions(report, thm):
             continue
         body = re.sub(r'^\s*let\s+', '', text)
         body = re.sub(r'\s*\([A-Z]+[0-9]*\)\s*$', '', body).strip()
-        said = introduction_problem(body)
+        said = introduction_problem(body, g)
         if said:
             report.say(thm.path, no, said)
 
@@ -2429,7 +2460,7 @@ def main(root):
         check_surplus(report, thm, library)
         check_last_step(report, thm)
         check_readings(report, thm)
-        check_introductions(report, thm)
+        check_introductions(report, thm, grammar)
         check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))
         check_run_together(report, thm, words)

@@ -319,7 +319,7 @@ CASES = [
      'proof/cantor.proof',
      '  let A be a set                                                      (H1)',
      '  let A ⊆ B                                                           (H1)',
-     'none of the 7 introductions'),
+     'none of the 8 introductions'),
 
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has
@@ -810,6 +810,21 @@ CASES = [
      '    4.7.  h(t) = g⁻¹(t)\n',
      '    4.7.  g⁻¹(t) = g⁻¹(t)\n',
      'step 4.7 cites D2 and its claim never names h'),
+
+    # A `let` names a function's type and nothing more, unless `be` says a
+    # property of it; a property slipped in as the codomain went unasked.
+    ('state a property in a let line as the codomain',
+     'stdlib/functions.records',
+     '  let g : Y → X be one-to-one ',
+     '  let g : Y → X is one-to-one ',
+     'says more than a function\'s type'),
+
+    # What `be` says of a function is asked for, as a membership is.
+    ('cite an item without the line saying its function is one-to-one',
+     'proof/schroeder-bernstein.proof',
+     '          thm:stdlib/functions/inverse-value, from H4, 4.6\n',
+     '          thm:stdlib/functions/inverse-value, from 4.6\n',
+     'step 4.8 cites thm:stdlib/functions/inverse-value, which asks for'),
 ]
 
 

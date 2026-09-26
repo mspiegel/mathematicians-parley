@@ -136,9 +136,8 @@ definition one-to-one
   target      dff13
 
 theorem inverse-value
-  let g : Y → X                                                       (H1)
-  assume g : Y → X is one-to-one                                      (H2)
-  let y ∈ Y                                                           (H3)
+  let g : Y → X be one-to-one                                         (H1)
+  let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
   metamath    f1f1orn and f1ocnvfv1, which this corpus proves together in
               elaboration/stdlib/proved.mm
@@ -146,9 +145,8 @@ theorem inverse-value
 
 theorem onto-bijection
   let X be a set                                                      (H1)
-  let f : X → Y                                                       (H2)
-  assume f : X → Y is one-to-one                                      (H3)
-  assume for every y ∈ Y, there is x ∈ X with y = f(x)                (H4)
+  let f : X → Y be one-to-one                                         (H2)
+  assume for every y ∈ Y, there is x ∈ X with y = f(x)                (H3)
   then        there is a bijection from X to Y
   metamath    f1f, dffo3, df-f1o and f1oeng, which this corpus proves
               together in elaboration/stdlib/proved.mm

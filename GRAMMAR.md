@@ -474,6 +474,7 @@ substitution in the corpus comes close.
                 | <name> `be a set`
                 | <name> `be a point`
                 | <name> `:` <term> `→` <term>
+                | <name> `:` <term> `→` <term> `be` <property>
                 | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
@@ -511,7 +512,13 @@ and that a note belongs to a block. `SYNTAX.md` says why they exist and why
 prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
-says what it is; it asserts nothing, and the seven forms above are all of them.
+says what it is, and the eight forms above are all of them. What it asserts
+is only what `be` says of a function it names: `let g : Y → X be one-to-one`
+asserts `g : Y → X is one-to-one`, and an item stating it asks a citation for
+that line as it asks for a membership. The function's type is a declaration
+and is not asked for. The plain function form takes a set after its arrow and
+nothing else, so `let g : Y → X is one-to-one`, which fits it with "X is
+one-to-one" for the set, is refused.
 `∉` introduces a thing of the kind a set holds that is not in it, and `be an
 element` a thing whose kind the text decides; neither claims the thing is a
 set. The last says what a property is a property of, and never names the thing
