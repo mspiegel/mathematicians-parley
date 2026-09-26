@@ -31,14 +31,16 @@ T(k) = k(k + 1)/2 is the k-th triangular number, for k ∈ ℕ.
 1. For every k ∈ ℕ, 1/T(k) = 2/k − 2/(k + 1). By the definition of T, then
    algebra.
 2. For every n ∈ ℕ, Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1). The terms are
-   rewritten by line 1 inside the sum, and the sum telescopes.
-3. Every 1/T(k) is real, and 4. every partial sum is real.
-5. For every ε > 0 there is N ∈ ℕ with, for every n ≥ N,
-   |Σ(k = 1 to n) 1/T(k) − 2| < ε. Take N with 1/N < ε/2 (Archimedean);
+   rewritten by line 1 inside the sum, the sum telescopes, and 2/1 is 2.
+3. For every ε > 0 there is N ∈ ℕ with, for every n ≥ N,
+   |Σ(k = 1 to n) 1/T(k) − 2| < ε. Choose N with 1/N < ε/2 (Archimedean);
    for n ≥ N, N ≤ n + 1, so 1/(n + 1) ≤ 1/N, and by line 2 the partial sum
    is within 2/(n + 1) ≤ 2/N < ε of 2.
-6. So the partial sums tend to 2, by the definition of a limit.
-7. So the series is 2, since a series is the limit of its partial sums.
+4. So the partial sums tend to 2, by the definition of a limit.
+5. So the series is 2, since a series is the limit of its partial sums.
+
+That every term and every partial sum is real, which the last two steps
+ask, is written on them as requires lines rather than as steps.
 
 ∎
 
@@ -51,7 +53,11 @@ In `db/notation.records`: `series`, Σ(k = a to ∞), and `tends-to`,
 
 In `stdlib/`: `definition tends-to` and `theorem series-value` (calculus);
 `archimedean`, `quotient-real`, `reciprocal-positive` and `reciprocal-order`
-(numbers); `sum-telescopes` and `range-nat` (sums).
+(numbers); `sum-telescopes` and `range-nat` (sums). `quotient-real` and
+`range-nat` were cited by drafts of the proof that the rules below made
+shorter, and the proof as it stands cites neither.
+
+In `db/methods.records`: the method `membership`.
 
 In `elaboration/stdlib/proved.mm`, proved below the readable layer by
 `elaboration/stdlib/proofs_series.py`: `climnnre`, the target of
@@ -113,26 +119,45 @@ In `elaboration/stdlib/proved.mm`, proved below the readable layer by
    apart.** `series-value` asks every term to be real, and a term 1/T(k)
    holds no name a membership could be asked of. The page says it whole —
    "for every k ∈ ℕ, 1/T(k) ∈ ℝ" — and the checker and elaborator both read
-   that as the function hypothesis said once. Line 3 still derives it in
-   numbered steps through 2/k and 2/(k + 1), because a line whose claim is a
-   membership is proved by citing items, not by a method.
+   that as the function hypothesis said once. A first draft proved it as a
+   line of its own, eight steps climbing the term one library item at a
+   time; the method `membership` builds it from its parts, so it is a
+   requires line on the step that asks for it, as `READERS.md` puts dull
+   facts.
 
-8. **An obtained name can be the letter the goal binds.** Line 5 obtains N
-   from "there is N ∈ ℕ with 1/N < ε/2" inside a block claiming "there is
+8. **A membership line says what it implies.** `let k ∈ ℕ` says k is real,
+   k ≥ 1 and k ≠ 0 as plainly as it says k ∈ ℕ, and every block of the
+   draft re-derived those as numbered steps (`nat-real`, `nat-ge-1`). Read
+   for what it implies, from one table the checker and elaborator share,
+   the `let` line answers each of them; the fact is still named on the
+   page, by that line. The same table says {1, …, n} lies in ℕ, so line 1,
+   said of every k ∈ ℕ, answers `sum-termwise`'s hypothesis over the range.
+
+9. **Closed arithmetic inside a term.** The telescoping lemma gives 2/1,
+   literally, and turning it into 2 was an `algebra` step because the chain
+   line relating the two had a letter in it. The exception for closed
+   numerals is now worded as its reason is: a chain line may name
+   `arithmetic` where only pieces with no letter in them change.
+
+10. **An obtained name can be the letter the goal binds.** Step 3.2 obtains
+   N from the Archimedean item's "there is N ∈ ℕ with 1/N < x", in one line
+   since the letter is the item's own, inside a block claiming "there is
    N ∈ ℕ with …". Both "there is" lines bind N, so the obtained N and the
    claim's N are one letter, and the lemmas that close the block and exhibit
    the witness keep those apart. Each renames the claim to a letter nothing
    holds and back.
 
-9. **Rules the elaborator follows are written down first.** Growing the
+11. **Rules the elaborator follows are written down first.** Growing the
    elaborator for this proof is what `GOALS.md` decisions 15 to 17 were
    written for: each rule is stated in `ELABORATION.md` or `METHODS.md` as
    mathematics, each has this proof as its test, and no step is taken as
    stated.
 
-Numbers, for the record: 49 numbered steps and 41 requires lines, against
-set.mm's 42 essential steps for `trirecip`. The requires lines are the price
-`READERS.md` records for writing dull facts down, and an ε–N argument over
-reciprocals is dense in them: every atom's realness and every divisor's
-disequality is written. The elaborated proof is 100 KB in compressed form
-and about 96 million labels written out.
+Numbers, for the record: 21 numbered steps and 34 requires lines, against
+set.mm's 42 essential steps for `trirecip`; the first draft that elaborated
+had 49 and 41. The requires lines are the price `READERS.md` records for
+writing dull facts down, and an ε–N argument over reciprocals is dense in
+them: every atom's realness and every divisor's disequality is written,
+though each now names the line that says it rather than a step restating
+it. The elaborated proof is 89 KB in compressed form and about 6.8 million
+labels written out.
