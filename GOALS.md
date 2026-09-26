@@ -189,6 +189,33 @@ The mathematical content lives in the long tail. That is what a reader should se
     the tools are silent about it. The second is usually the honest answer
     while the fix is out of reach, and `ELABORATION.md` is where those live.
 
+Decision 1 puts all growth above the kernel, so the elaborator is where the
+system grows. The decisions above say what the elaborator must produce. The
+three below say how it may grow.
+
+15. **A rule is stated as mathematics before it is code.** Every rule the
+    elaborator follows is written in `ELABORATION.md` or `METHODS.md` in terms
+    of the shape of the claim, the lines and the lemmas, and never in terms of
+    a particular proof or a particular label. "A lemma's term that only its
+    hypotheses name is worked out backwards from the claim" is a rule; "for
+    `telfsum`, read A from B" is not. Decision 6 depends on this: a second
+    elaborator is written from the documents, and a rule that exists only in
+    the code cannot be reimplemented, only copied.
+
+16. **A rule comes with the proof that needed it.** A rule is added because
+    a proof in the corpus reached a place the elaborator could not go, and
+    that proof is its test. Adding it changes no existing elaborated file,
+    unless each change is shown and explained. A rule no proof needs is not
+    added, however general it looks.
+
+17. **What the elaborator cannot build is a defect or written up, never
+    assumed quietly.** A step taken as stated, rather than built, enters the
+    archive as an axiom and weakens what the archive proves. Under decision
+    14 it is one of two things. Either it is a defect and the gate is red, or
+    `ELABORATION.md` records it, with the step, the reason it is not built,
+    and what would build it. A list in an elaborated file's header does not
+    count as recording it.
+
 ## First version
 
 Three pieces, with the LLM outside all of them:
