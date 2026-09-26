@@ -336,6 +336,20 @@ CASES = [
      '  let P : X → formula                                                 (H2)',
      'which is a sort and not a set'),
 
+    # A define with an argument is a function, and a function is defined
+    # somewhere: its rule alone says what it does and not where.
+    ('define a function and give no domain',
+     'proof/cantor.proof',
+     'define B := {x ∈ A : x ∉ f(x)}',
+     'define B(y) := {x ∈ A : x ∉ f(x)}',
+     'says no domain'),
+
+    ('give a domain to a define that takes no argument',
+     'proof/cantor.proof',
+     'define B := {x ∈ A : x ∉ f(x)}',
+     'define B := {x ∈ A : x ∉ f(x)}, for y ∈ A',
+     'gives a domain and takes no argument'),
+
     ('define a name and never say what it means',
      'proof/cantor.proof',
      '       reads the members of A that their own image leaves out\n',

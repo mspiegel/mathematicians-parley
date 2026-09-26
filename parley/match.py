@@ -228,6 +228,15 @@ def match_all(patterns, facts, binding, variables):
     return None
 
 
+class Rule:
+    """What a define with an argument stands for: `define S(m) := …` is a
+    function, and S(t) is its body with t for m.
+    """
+
+    def __init__(self, param, body):
+        self.param, self.body = param, body
+
+
 def expand(node, definitions, depth=8):
     """The tree with every defined name replaced by the term it names.
 
@@ -237,11 +246,25 @@ def expand(node, definitions, depth=8):
     define may be written in terms of an earlier one, so this repeats, and the
     depth is bounded because nothing stops a file naming something after
     itself.
+
+    A defined function is read where it is applied: S(k + 1) is the rule
+    with k + 1 for its parameter. Standing alone it is the function, and
+    stays a name.
     """
     if not definitions or depth <= 0:
         return node
     if node.notation == 'name' and node.text in definitions:
-        return expand(definitions[node.text], definitions, depth - 1)
+        found = definitions[node.text]
+        if isinstance(found, Rule):
+            return node
+        return expand(found, definitions, depth - 1)
+    if node.notation == 'application' and len(node.children) == 2 \
+            and node.children[0].notation == 'name' \
+            and isinstance(definitions.get(node.children[0].text), Rule):
+        rule = definitions[node.children[0].text]
+        at = expand(node.children[1], definitions, depth)
+        return expand(substitute(rule.body, {rule.param: at}), definitions,
+                      depth - 1)
     if not node.children:
         return node
     return Node(node.notation, node.sort,

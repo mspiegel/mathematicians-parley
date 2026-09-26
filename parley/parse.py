@@ -273,6 +273,48 @@ class Step:
     part_notes: dict = field(default_factory=dict)  # part index -> (text, line)
 
 
+DEFINED = re.compile(
+    r'^define\s+(?P<name>[^\s(]+)(?:\((?P<param>[^\s()]+)\))?\s*:=\s*'
+    r'(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*∈\s*(?P<domain>.+))?$')
+
+
+@dataclass
+class Define:
+    """What a `define` line says: a name, and the term it stands for.
+
+    A name with a parameter is a function, as a reader writes "S(m) = 1 + 2
+    + … + m": `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ`. Its domain is
+    said with it, because a rule without one says what S does and not where
+    S is defined.
+    """
+    name: str
+    body: str
+    param: str = None
+    domain: str = None
+
+
+def define_parts(text):
+    """A `define` line, without its label, read into its parts; or a
+    decline saying what is wrong with it.
+    """
+    said = re.sub(rf'\s*\({LABEL}\)\s*$', '', text).strip()
+    m = DEFINED.match(said)
+    if m is None or not m.group('body').strip():
+        return Declined('a define says `define <name> := <term>`')
+    param, over = m.group('param'), m.group('over')
+    if param is not None and over is None:
+        return Declined(f'define {m.group("name")}({param}) says no domain: '
+                        f'write `, for {param} ∈ …` after its rule')
+    if param is None and over is not None:
+        return Declined(f'define {m.group("name")} gives a domain and takes '
+                        f'no argument')
+    if param is not None and over != param:
+        return Declined(f'define {m.group("name")}({param}) gives the domain '
+                        f'of {over}')
+    return Define(m.group('name'), m.group('body').strip(), param,
+                  m.group('domain').strip() if param else None)
+
+
 @dataclass
 class Theorem:
     name: str
@@ -499,6 +541,9 @@ def parse_proof(path, text):
             lab = re.search(rf'\(({LABEL})\)$', t)
             if not lab:
                 raise Problem(path, line.no, 'define line carries no label')
+            parts = define_parts(t)
+            if declined(parts):
+                raise Problem(path, line.no, str(parts))
             # A define names an object and is in scope from where it stands on.
             thm.defines.append(('define', t, lab.group(1), line.no))
             defined = thm.defines[-1]

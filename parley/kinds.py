@@ -23,8 +23,8 @@ import itertools
 import re
 
 from formula import parse
-from parse import Declined, Problem, declined
-from sorts import DEFINE, LABEL, SENTENCE
+from parse import Declined, Problem, declined, define_parts
+from sorts import LABEL, SENTENCE, element_sort
 
 OBTAINS = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 
@@ -403,13 +403,33 @@ def read_theorem(thm, g, cite=None):
         if kind == 'let':
             introduce(reader, text, no, g)
         elif kind == 'define':
-            m = DEFINE.match(LABEL.sub('', text).strip())
-            if not m:
+            said = define_parts(text)
+            if declined(said):
                 continue
+            if said.param is None:
+                try:
+                    reader.env[said.name] = reader.kind(parse(said.body, g),
+                                                        no)
+                except Problem:
+                    continue
+                continue
+            # A function: what its domain holds goes in, what its rule gives
+            # comes out, and the parameter is its rule's own name.
+            kept = g.sorts
+            g.sorts = {**kept, said.param: element_sort(said.domain)}
             try:
-                reader.env[m.group(1)] = reader.kind(parse(m.group(2), g), no)
+                over = reader.kind(parse(said.domain, g), no)
+                taken = Var()
+                said_of = unify(over, ('set', taken))
+                if declined(said_of):
+                    reader.clashes.append((no, said.domain, str(said_of)))
+                gives = reader.kind(parse(said.body, g), no,
+                                    {said.param: taken})
+                reader.env[said.name] = ('function', taken, gives)
             except Problem:
                 continue
+            finally:
+                g.sorts = kept
         elif kind == 'claim':
             obtained = OBTAINS.match(step.just.text) \
                 if step.just and step.just.head == 'obtain' else None

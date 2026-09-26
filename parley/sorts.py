@@ -16,7 +16,8 @@ named. A name neither reaches has no sort, which every hole accepts.
 import re
 
 from formula import parse
-from parse import Problem
+from match import Rule
+from parse import Problem, declined, define_parts
 
 NUMBER_SYSTEMS = {'ℕ', 'ℕ₀', 'ℤ', 'ℚ', 'ℝ'}
 
@@ -25,7 +26,6 @@ MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
 KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
 PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+\S+$')
-DEFINE = re.compile(r'^define\s+(\S+)\s*:=\s*(.+)$')
 SENTENCE = re.compile(r'(?<=[.])\s+')
 
 
@@ -61,15 +61,26 @@ def definitions_in_scope(thm, g):
     """
     out = {}
     for _, text, _, _ in thm.defines:
-        m = DEFINE.match(LABEL.sub('', text).strip())
-        if not m:
+        said = define_parts(text)
+        if declined(said):
             continue
         g.sorts = sorts_in_scope(thm, g)
+        if said.param is not None:
+            g.sorts = {**g.sorts, said.param: element_sort(said.domain)}
         try:
-            out[m.group(1)] = parse(m.group(2), g)
+            body = parse(said.body, g)
         except Problem:
             continue
+        out[said.name] = (body if said.param is None
+                          else Rule(said.param, body))
     return out
+
+
+def element_sort(domain):
+    """The sort of what a define's domain holds: a number where the domain
+    is a number system, and otherwise none said here.
+    """
+    return 'number' if domain.strip() in NUMBER_SYSTEMS else None
 
 
 def sorts_of_record(record, g):
@@ -141,16 +152,21 @@ def sorts_in_scope(thm, g):
             if found:
                 out.setdefault(*found)
         elif kind == 'define':
-            m = DEFINE.match(LABEL.sub('', text).strip())
-            if not m:
+            said = define_parts(text)
+            if declined(said):
+                continue
+            # A define with an argument is a function, whatever its rule
+            # gives, and `S(n)` is then S applied to n and not S times n.
+            if said.param is not None:
+                out.setdefault(said.name, 'function')
                 continue
             g.sorts = out
             try:
-                sort = parse(m.group(2), g).sort
+                sort = parse(said.body, g).sort
             except Problem:
                 continue
             if sort not in (None, 'unknown', 'any'):
-                out.setdefault(m.group(1), sort)
+                out.setdefault(said.name, sort)
         else:
             for sentence in SENTENCE.split(text.strip()):
                 found = _from_introduction(sentence.strip().rstrip('.').strip())
