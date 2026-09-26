@@ -153,11 +153,14 @@ def labels_in_scope(thm, step):
     cite the assumption of another.
     """
     out = {lab: ('hypothesis', no) for _, _, lab, no in thm.hypotheses if lab}
-    # A define the file writes above the theorem is cited by its label too.
+    # A define the file writes above the theorem is cited by its label too,
+    # and so is one it imports, by the label on the import.
     if thm.scope is not None:
         for _n, d, src in thm.scope.visible(thm.line):
             if src is thm.scope:
                 out.setdefault(d[2], ('define', d[3]))
+        for _m, _n, _a, no, label in thm.scope.imports:
+            out.setdefault(label, ('define', no))
     for _, _, lab, no in thm.defines:
         if no < step.line:
             out[lab] = ('define', no)
@@ -1797,8 +1800,17 @@ def check_definitions(report, theorems):
         scope = thms[0].scope
         named = {}
         for alias, (_src, _d) in scope.linked.items():
-            no = next(n for _m, _x, a, n in scope.imports if a == alias)
+            no = next(n for _m, _x, a, n, _l in scope.imports if a == alias)
             named[alias] = no
+        # Every label a file gives outside its theorems is one label, cited
+        # from any theorem below it.
+        tagged = {}
+        for lab, no in ([(i[4], i[3]) for i in scope.imports]
+                        + [(d[2], d[3]) for d in scope.defines]):
+            if lab in tagged:
+                report.say(scope.path, no, f'label {lab} is already used at '
+                                           f'line {tagged[lab]}')
+            tagged.setdefault(lab, no)
         for d in scope.defines:
             said = define_parts(d[1])
             if declined(said):
@@ -1814,7 +1826,7 @@ def check_definitions(report, theorems):
                            f'what the name means')
         text = ' '.join([written_text(t) for t in thms]
                         + [d[1] for d in scope.defines])
-        for _module, name, alias, no in scope.imports:
+        for _module, name, alias, no, _label in scope.imports:
             if alias in scope.linked \
                     and not re.search(rf'(?<![\w]){re.escape(alias)}(?![\w])',
                                       text):
@@ -1825,7 +1837,7 @@ def check_definitions(report, theorems):
         for thm in thms:
             seen = {name: d for name, d, _src in scope.visible(thm.line)}
             labels = {d[2] for _n, d, src in scope.visible(thm.line)
-                      if src is scope}
+                      if src is scope} | {i[4] for i in scope.imports}
             for _k, text, lab, no in thm.defines:
                 said = define_parts(text)
                 if not declined(said) and said.name in seen:
@@ -1904,7 +1916,7 @@ def check_imports(report, theorems):
         # file cited is, so it is an edge of the same graph.
         edges = dict(said)
         if thms[0].scope is not None:
-            for other, _name, _alias, no in thms[0].scope.imports:
+            for other, _name, _alias, no, _label in thms[0].scope.imports:
                 if other in files and other != module:
                     edges.setdefault(other, no)
         graph[module] = edges

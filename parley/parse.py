@@ -328,7 +328,7 @@ class FileScope:
         self.path = path
         self.defines = []     # ('define', text, label, line), as written
         self.readings = {}    # define label -> (text, line)
-        self.imports = []     # (module, name, alias, line)
+        self.imports = []     # (module, name, alias, line, label)
         self.linked = {}      # alias -> (FileScope, define), `link_definitions`
 
     def visible(self, line):
@@ -342,6 +342,11 @@ class FileScope:
                 if not declined(said):
                     out.append((said.name, d, self))
         return out
+
+    def import_label(self, alias):
+        """The label the import writing a definition as `alias` carries."""
+        return next(label for _m, _n, a, _no, label in self.imports
+                    if a == alias)
 
     def written(self, name):
         """The define this file writes at file level under `name`; else None."""
@@ -362,7 +367,7 @@ def link_definitions(theorems):
     problems = []
     for scope in scopes.values():
         scope.linked = {}
-        for module, name, alias, no in scope.imports:
+        for module, name, alias, no, _label in scope.imports:
             src = scopes.get(module)
             if src is None:
                 problems.append((scope.path, no, f'import definition '
@@ -499,7 +504,8 @@ def cited_items(thm):
 IMPORTED = re.compile(
     rf'^import\s+(?:(?P<proof>proof)\s+(?P<module>{CITED})'
     rf'|(?P<definition>definition)\s+(?P<full>{CITED})'
-    rf'(?:\s+as\s+(?P<alias>[^\s()]+))?)\s*$')
+    rf'(?:\s+as\s+(?P<alias>[^\s()]+))?'
+    rf'(?:\s+\((?P<label>{LABEL})\))?)\s*$')
 
 
 def importing(path, no, text):
@@ -522,7 +528,13 @@ def importing(path, no, text):
     if not module:
         raise Problem(path, no, f'import definition {m.group("full")} names '
                                 f'no file')
-    return 'definition', module, name, m.group('alias') or name, no
+    # A definition a file imports is cited by its label, as one it defines
+    # is: a calculation link writing S(k + 1) out cites the equation.
+    if not m.group('label'):
+        raise Problem(path, no, f'import definition {m.group("full")} '
+                                f'carries no label')
+    return ('definition', module, name, m.group('alias') or name, no,
+            m.group('label'))
 
 
 def parse_proof(path, text):

@@ -359,13 +359,12 @@ class Reading:
         return scope.visible(self.thm.line) if scope is not None else []
 
     def outside_label(self, name, d, src):
-        """The label a definition from outside the theorem is held under.
-
-        Its own where its file is this theorem's, so a step cites it as the
-        page does; one imported is cited by no line here, and takes a label
-        no page could write.
+        """The label a definition from outside the theorem is held under:
+        its own where its file is this theorem's, and the label on the
+        import where it is imported, so a step cites it as the page does.
         """
-        return d[2] if src is self.thm.scope else f'{src.path}:{name}'
+        return (d[2] if src is self.thm.scope
+                else self.thm.scope.import_label(name))
 
     def outside_term(self, made):
         """A definition from outside the theorem, written out, as a term:

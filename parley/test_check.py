@@ -50,20 +50,38 @@ CASES = [
     ('import a definition from a file that is not there',
      'proof/cantor.proof',
      'theorem cantor\n',
-     'import definition proof/nonesuch/W\n\ntheorem cantor\n',
+     'import definition proof/nonesuch/W (D8)\n\ntheorem cantor\n',
      'names no proof file'),
 
     ('import a definition the file does not define',
      [('proof/tri.proof', None, TRI),
       ('proof/cantor.proof', 'theorem cantor\n',
-       'import definition proof/tri/W\n\ntheorem cantor\n')],
+       'import definition proof/tri/W (D8)\n\ntheorem cantor\n')],
      'defines no W outside its theorems'),
 
     ('import a definition and never use it',
      [('proof/tri.proof', None, TRI),
       ('proof/cantor.proof', 'theorem cantor\n',
-       'import definition proof/tri/T\n\ntheorem cantor\n')],
+       'import definition proof/tri/T (D8)\n\ntheorem cantor\n')],
      'imports definition T and never uses it'),
+
+    # A definition imported is cited by its label, as one defined is.
+    ('import a definition without a label',
+     [('proof/tri.proof', None, TRI),
+      ('proof/cantor.proof', 'theorem cantor\n',
+       'import definition proof/tri/T\n\ntheorem cantor\n')],
+     'import definition proof/tri/T carries no label'),
+
+    ('label an imported definition as a theorem labels a line',
+     [('proof/tri.proof', None, TRI),
+      ('proof/tri-use.proof', None,
+       'import proof proof/tri\n'
+       'import definition proof/tri/T (H1)\n\n'
+       'theorem use-one\n'
+       '  let n ∈ ℕ                                                           (H1)\n'
+       '  then T(1) = 1\n\n'
+       '1.  T(1) = 1\n    thm:proof/tri/tri-one\n')],
+     'label H1 is already a define\'s outside theorem use-one'),
 
     ('define one name twice outside the theorems',
      [('proof/tri.proof', None,
@@ -76,7 +94,7 @@ CASES = [
      [('proof/tri.proof', None, TRI),
       ('proof/tri-use.proof', None,
        'import proof proof/tri\n'
-       'import definition proof/tri/T\n\n'
+       'import definition proof/tri/T (D2)\n\n'
        'define T(k) := k, for k ∈ ℕ'
        '                                          (D1)\n'
        '       reads k itself\n\n'

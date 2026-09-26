@@ -310,8 +310,9 @@ theorem tri-one
   then T(1) = 1
 ```
 
-Another file uses it by importing it, `import definition proof/tri/T`, or
-under a name of its own, `import definition proof/tri/T as t`. What the
+Another file uses it by importing it, `import definition proof/tri/T (D1)`,
+or under a name of its own, `import definition proof/tri/T as t (D1)`, and
+cites the import's label where a step writes T out. What the
 statement says in set.mm writes the rule out, so a theorem citing `tri-one`
 needs nothing imported and its own T, if it has one, is a different thing.
 

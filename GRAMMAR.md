@@ -460,6 +460,7 @@ substitution in the corpus comes close.
 <proof file>  ::= { <import> } { <theorem> | <define> }
 <import>      ::= `import` `proof` <module>
                 | `import` `definition` <module> `/` <name> [ `as` <name> ]
+                  `(` <label> `)`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
                   { <hypothesis> }
@@ -550,12 +551,16 @@ import proof proof/triangle-inequality
 ```
 
 and each definition it uses from another file, one at a time, under its own
-name or under the name after `as`:
+name or under the name after `as`, with a label:
 
 ```
-import definition proof/series/T
-import definition proof/series/U as V
+import definition proof/series/T (D1)
+import definition proof/series/U as V (D2)
 ```
+
+The label is cited as a define's is: a calculation link writing `T(3)` out
+cites `D1`. Like every label a file gives outside its theorems, it is used
+once in the file, and no theorem below reuses it.
 
 The path is the full one from the root in both, so moving or renaming a
 directory changes the imports and nothing else about them. A bare `import`
