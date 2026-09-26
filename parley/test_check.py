@@ -228,8 +228,8 @@ CASES = [
 
     ('a block whose method takes none',
      'proof/sum-formula.proof',
-     '                  requires k ∈ ℝ: thm:stdlib/numbers/nat-real, from K\n',
-     ('                  requires k ∈ ℝ: thm:stdlib/numbers/nat-real, from K\n\n'
+     '                  requires k ∈ ℝ: from K\n',
+     ('                  requires k ∈ ℝ: from K\n\n'
       '                  1.3.3.1.  k = k\n'
       '                            algebra\n'),
      'takes no block'),
@@ -333,8 +333,8 @@ CASES = [
     # Line 4 of bezout binds s, so substituting a term naming s would capture.
     ('substitute a term that captures a bound variable',
      'proof/bezout.proof',
-     '          instantiate s := a·x + b·y in line 5, from 10.2',
-     '          instantiate s := a·x + b·s in line 5, from 10.2',
+     '          instantiate s := a·x + b·y in line 4, from 9.2',
+     '          instantiate s := a·x + b·s in line 4, from 9.2',
      'may not capture'),
 
     ('obtain a name without stating its sort',
@@ -346,8 +346,8 @@ CASES = [
 
     ('write a claim in a notation nobody declared',
      'proof/infinitely-many-primes.proof',
-     '6.  p > 1\n    def:stdlib/divisibility/prime p := p, from 5',
-     '6.  p exceeds 1\n    def:stdlib/divisibility/prime p := p, from 5',
+     '5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4',
+     '5.  p exceeds 1\n    def:stdlib/divisibility/prime p := p, from 4',
      'token(s) left over'),
 
     ('write a formula the sorts cannot read one way',
@@ -400,8 +400,8 @@ CASES = [
 
     ('claim something the cited item does not conclude',
      'proof/infinitely-many-primes.proof',
-     '6.  p > 1\n    def:stdlib/divisibility/prime p := p, from 5',
-     '6.  p > 2\n    def:stdlib/divisibility/prime p := p, from 5',
+     '5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4',
+     '5.  p > 2\n    def:stdlib/divisibility/prime p := p, from 4',
      'does not conclude'),
 
     ('stop declaring that juxtaposition is the product',
@@ -504,14 +504,14 @@ CASES = [
 
     ('suppose something unrelated to the claim',
      'proof/bezout.proof',
-     '4.  r = 0\n    contradiction\n    suppose not r = 0',
-     '4.  r = 0\n    contradiction\n    suppose not r ≤ 0',
+     '3.  r = 0\n    contradiction\n    suppose not r = 0',
+     '3.  r = 0\n    contradiction\n    suppose not r ≤ 0',
      'neither expansion of `contradiction` applies'),
 
     ('end a contradiction block without a contradiction',
      'proof/infinitely-many-primes.proof',
-     '    7.8.  p = 1. not p = 1.',
-     '    7.8.  p = 1. p = 1.',
+     '    6.8.  p = 1. not p = 1.',
+     '    6.8.  p = 1. p = 1.',
      'does not state a formula and that formula negated'),
 
     ('write a word predicate under a bare not',
@@ -732,6 +732,14 @@ CASES = [
      '= (k + 1)((k + 1) + 1)/2       1.3.4',
      '= (k + 1)((k + 1) + 1)/2       arithmetic',
      'names arithmetic for'),
+
+    # Steps count 1, 2, 3 in the order they are written: a reader meeting 8
+    # after 6 looks for a 7 that is not there.
+    ('a gap in the numbering',
+     'proof/infinitely-many-primes.proof',
+     '7.  There is p ∈ ℕ with p is prime and p > n.',
+     '8.  There is p ∈ ℕ with p is prime and p > n.',
+     'numbers run on without gaps'),
 
     # `membership` claims a term is in a number system and nothing else.
     ('membership named for a claim that is no membership',

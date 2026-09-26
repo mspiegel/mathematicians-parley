@@ -542,7 +542,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         proof = self.check_step(proof, step, number)
         lines[number] = Fact(term, proof, said)
         facts[term] = proof
-        # A line saying several things says each of them: Bezout's step 15
+        # A line saying several things says each of them: Bezout's step 14
         # states what a gcd is in four sentences and its step 17 wants the
         # first of them. Only as deep as the sentences the text wrote —
         # `claim_of` conjoined those, and splitting further would take
@@ -1217,7 +1217,18 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             whole = self.syntax.statement(self.sigs[lemma])
             while whole.label == 'wi':
                 whole = whole.children[1]
-            if whole.label != 'wb' or whole.children[1].label == 'wrex':
+            if whole.label != 'wb':
+                return self.conclude
+            if whole.children[1].label == 'wrex':
+                # The existence claim itself is the definition unfolded from
+                # a line saying its left side: "there is k ∈ ℤ with p = 2k"
+                # from "p is even", as an obtain would take it. A left side
+                # is never a "there is" — "p is even", "3 divides 9" — and
+                # is shown by a witness. The lemma may state its existential
+                # otherwise (`divides` reverses the equation), which the
+                # unfolding bridges, so the claim is read by its shape.
+                if self.to_term(term).label == 'wrex':
+                    return self.unfolded
                 return self.conclude
             if self.fits_as(whole.children[0], self.to_term(term),
                             whole.names()) is not None:
@@ -1731,7 +1742,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         An item may state several things and set.mm prove each separately,
         which is why a target names one lemma per `then` group. A step
         usually claims one of them — `def:stdlib/numbers/sqrt` is cited three
-        times over — but it may claim what the item says entire, as Bezout's step 15
+        times over — but it may claim what the item says entire, as Bezout's step 14
         says what a gcd is in four sentences, and then the clauses are
         taken one to a sentence and joined.
         """

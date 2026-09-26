@@ -80,7 +80,9 @@ theorem even-square
 ## Steps
 
 A proof is a numbered list of steps. Sub-steps are numbered under their
-step: 2.1, 2.2, and 2.1.1 beneath 2.1. A step is:
+step: 2.1, 2.2, and 2.1.1 beneath 2.1. Each run of steps counts 1, 2, 3 in
+the order it is written, with no gaps: a reader meeting 3 after 1 looks for
+the 2 that is not there, and the checker reports it. A step is:
 
 1. Its number and its **claim**: one or more sentences, each a formula.
    Several sentences mean their conjunction.

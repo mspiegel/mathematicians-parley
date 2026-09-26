@@ -10,52 +10,49 @@ theorem prime-above
     thm:stdlib/numbers/nat-closure a := n!, b := 1, from 1
     requires 1 ∈ ℕ: arithmetic
 
-3.  n! ≥ 1
-    thm:stdlib/numbers/nat-ge-1 m := n!, from 1
+3.  n! + 1 > 1
+    inequalities, from 1
+    requires n! ∈ ℝ: from 1
 
-4.  n! + 1 > 1
-    inequalities, from 3
-    requires n! ∈ ℝ: thm:stdlib/numbers/nat-real, from 1
+4.  p ∈ ℕ. p is prime. p divides n! + 1.
+    obtain p: thm:stdlib/divisibility/prime-factor m := n! + 1, from 2, 3
 
-5.  p ∈ ℕ. p is prime. p divides n! + 1.
-    obtain p: thm:stdlib/divisibility/prime-factor m := n! + 1, from 2, 4
+5.  p > 1
+    def:stdlib/divisibility/prime p := p, from 4
 
-6.  p > 1
-    def:stdlib/divisibility/prime p := p, from 5
-
-7.  p > n
+6.  p > n
     contradiction
     suppose not p > n                                                 (S)
 
-    7.1.  p ≤ n
+    6.1.  p ≤ n
           inequalities, from S
-          requires p ∈ ℝ: thm:stdlib/numbers/nat-real, from 5
-          requires n ∈ ℝ: thm:stdlib/numbers/nat-real, from H1
+          requires p ∈ ℝ: from 4
+          requires n ∈ ℝ: from H1
 
-    7.2.  p divides n!
-          thm:stdlib/counting/factorial-divisible n := n, m := p, from H1, 5, 7.1
+    6.2.  p divides n!
+          thm:stdlib/counting/factorial-divisible n := n, m := p, from H1, 4, 6.1
 
-    7.3.  p divides (n! + 1) − n!
-          thm:stdlib/divisibility/divides-difference d := p, a := n! + 1, b := n!, from 5, 7.2
-          requires n! + 1 ∈ ℤ: thm:stdlib/numbers/nat-int, from 2
-          requires n! ∈ ℤ: thm:stdlib/numbers/nat-int, from 1
+    6.3.  p divides (n! + 1) − n!
+          thm:stdlib/divisibility/divides-difference d := p, a := n! + 1, b := n!, from 4, 6.2
+          requires n! + 1 ∈ ℤ: from 2
+          requires n! ∈ ℤ: from 1
 
-    7.4.  (n! + 1) − n! = 1
+    6.4.  (n! + 1) − n! = 1
           algebra
-          requires n! ∈ ℝ: thm:stdlib/numbers/nat-real, from 1
+          requires n! ∈ ℝ: from 1
 
-    7.5.  p divides 1
-          substitute (n! + 1) − n! = 1 (line 7.4) into line 7.3
+    6.5.  p divides 1
+          substitute (n! + 1) − n! = 1 (line 6.4) into line 6.3
 
-    7.6.  p = 1
-          thm:stdlib/divisibility/divides-one d := p, from 5, 7.5
+    6.6.  p = 1
+          thm:stdlib/divisibility/divides-one d := p, from 4, 6.5
 
-    7.7.  not p = 1
-          inequalities, from 6
-          requires p ∈ ℝ: thm:stdlib/numbers/nat-real, from 5
+    6.7.  not p = 1
+          inequalities, from 5
+          requires p ∈ ℝ: from 4
 
-    7.8.  p = 1. not p = 1.
-          join 7.6, 7.7
+    6.8.  p = 1. not p = 1.
+          join 6.6, 6.7
 
-8.  There is p ∈ ℕ with p is prime and p > n.
-    exhibit, from 5, 7
+7.  There is p ∈ ℕ with p is prime and p > n.
+    exhibit, from 4, 6

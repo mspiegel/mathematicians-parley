@@ -499,7 +499,7 @@ class Calculators:
     def summed_from_cited(self, step, left, right, scope, facts, lines, work):
         """A claim the cited equations add up to.
 
-        Bezout's step 3 takes three at once — `c = q·d + r`, `c = a·u + b·v`
+        Bezout's step 2 takes three at once — `c = q·d + r`, `c = a·u + b·v`
         and `d = a·x₀ + b·y₀` — at −1, 1 and −q, and is the only step in the
         corpus whose multipliers are not all constants. `decide_field` works
         those out to decide the step at all and hands them over; what is
@@ -933,7 +933,7 @@ class Calculators:
         carries steps whose facts are not linear, and `METHODS.md` refuses
         those rather than this.
         """
-        self.decide_order(step, term, lines)
+        self.decide_order(step, term, facts, lines)
         # The method wants every atom in ℝ, and a `requires` line is where
         # the step writes that. Reading them here is what puts the page's
         # justification in the proof: settled instead, the membership comes
@@ -1507,7 +1507,7 @@ class Calculators:
         and `letri3` is set.mm saying so. The decision procedure reaches it
         by splitting the claim into its two halves, which is not a split
         any cited line offers, so the two bounds are looked for as they
-        stand: Bezout's step 20 has d ≤ gcd(a, b) and gcd(a, b) ≤ d, and
+        stand: Bezout's step 19 has d ≤ gcd(a, b) and gcd(a, b) ≤ d, and
         says the two are equal.
         """
         sides = order_sides(goal)
@@ -2365,7 +2365,7 @@ class Calculators:
                     work.atom(was[0]), work.atom(was[1]),
                     work.ap('subeq0', {'A': was[0], 'B': was[1]})))
 
-    def decide_order(self, step, term, lines):
+    def decide_order(self, step, term, facts, lines):
         """Refuse an `inequalities` step that does not follow from its lines.
 
         A cited line of several sentences supplies each sentence that is a
@@ -2384,8 +2384,9 @@ class Calculators:
                 one = linear.fact(self.to_term(said), self.flabel)
                 if one is not None:
                     given.append(one)
-                # and the bounds a membership among them implies
-                # (`METHODS.md`), as `prove_order` reads them
+            # and the bounds a membership the line states implies
+            # (`METHODS.md`), as `prove_order` reads them
+            for said in self.stated_by(ref, facts, lines):
                 for extra, _lemmas in self.implied_terms(said):
                     one = linear.fact(self.to_term(extra), self.flabel)
                     if one is not None and one.how != '=/=':

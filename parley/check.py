@@ -332,7 +332,11 @@ def check_justification_form(report, path, just):
 
 
 def check_numbering(report, thm):
-    seen = set()
+    """Every number once, under a step that exists, and each run of siblings
+    counting 1, 2, 3 in the order the text writes them: a gap is a defect,
+    since a reader meeting 3 after 1 looks for the 2 that is not there.
+    """
+    seen, last = set(), {}
     for step in thm.steps:
         n = step.number
         if n in seen:
@@ -341,6 +345,13 @@ def check_numbering(report, thm):
             report.say(thm.path, step.line,
                        f'step {fmt(n)} is numbered under {fmt(n[:-1])}, which does '
                        f'not exist')
+        expected = last.get(n[:-1], 0) + 1
+        if n not in seen and n[-1] != expected:
+            report.say(thm.path, step.line,
+                       f'step {fmt(n)} comes where step '
+                       f'{fmt((*n[:-1], expected))} should; numbers run on '
+                       f'without gaps')
+        last[n[:-1]] = max(last.get(n[:-1], 0), n[-1])
         seen.add(n)
 
 

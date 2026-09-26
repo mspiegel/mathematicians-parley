@@ -427,7 +427,7 @@ class Scopes:
         `ralrimiva` wants what was proved under a fixed name, said out of
         the scope the block opened over, and `ex` does the same for what
         the block assumed. `db/methods.records` names both, and a fix may
-        take several names before it assumes: Bezout's step 10 fixes an x
+        take several names before it assumes: Bezout's step 9 fixes an x
         and a y and supposes their combination is a natural number.
 
         Which names, which sets and which supposition are read off the
@@ -703,8 +703,15 @@ class Scopes:
             # respelt first, over names nothing else holds.
             standing = {t for t in scope.split()
                         if t in self.sigs and self.sigs[t].kind == '$f'}
-            if {self.flabel[v]
-                    for v in self.bound_in(self.to_term(ex))} & standing:
+            # And where the obtain renames — `even` says there is k, the
+            # proof obtains r — r takes a letter of its own: taking k's,
+            # it would hold the letter a later "there is k" binds.
+            binders = [self.flabel[v]
+                       for v in self.bound_in(self.to_term(ex))]
+            renames = any(self.bound_as.get(name) != letter
+                          for name, letter in zip(got, binders,
+                                                  strict=False))
+            if set(binders) & standing or renames:
                 fresh = self.renamed(ex, len(got))
                 apart = self.renaming(self.to_term(ex), self.to_term(fresh))
                 if apart is None:

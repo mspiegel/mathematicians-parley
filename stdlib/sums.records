@@ -189,4 +189,6 @@ theorem range-nat
   then        k ∈ ℕ
   metamath    elfznn
   target      elfznn
-  first-used  triangular-reciprocals
+  note        No proof cites it: a line saying k ∈ {1, …, n} says k ∈ ℕ as
+              well, and a line said of every k ∈ ℕ answers a hypothesis over
+              the range (`SYNTAX.md`), both by this lemma.

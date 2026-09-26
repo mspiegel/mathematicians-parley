@@ -102,7 +102,8 @@ theorem nat-int
   then        m ∈ ℤ
   metamath    nnz
   target      nnz
-  first-used  infinitely-many-primes
+  note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℤ as well
+              (`SYNTAX.md`, what a membership line says), by this lemma.
 
 theorem int-real
   let m ∈ ℤ                                                           (H1)
@@ -118,18 +119,16 @@ theorem nat-real
   then        m ∈ ℝ
   metamath    nnre
   target      nnre
-  first-used  infinitely-many-primes
-  note        Direct rather than through nat-int and int-real. The chain would
-              be two citations, and a requires line carries one, so every
-              natural atom would need a numbered step of its own. set.mm has
-              the direct lemma, so the expansion is direct too.
+  note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℝ as well
+              (`SYNTAX.md`, what a membership line says), by this lemma
+              directly rather than through ℤ.
 
 theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℝ
   metamath    nn0re
-  first-used  subsets
-  note        Direct, for the same reason as nat-real.
+  note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
+              this lemma, as `nat-real`'s note says of ℕ.
 
 theorem below-successor
   let a ∈ ℝ                                                           (H1)
@@ -152,7 +151,8 @@ theorem nat-ge-1
   then        m ≥ 1
   metamath    nnge1
   target      nnge1
-  first-used  infinitely-many-primes
+  note        No proof cites it: a line saying m ∈ ℕ says m ≥ 1 as well
+              (`SYNTAX.md`, what a membership line says), by this lemma.
 
 theorem pos-int-nat
   let m ∈ ℤ                                                           (H1)
@@ -349,8 +349,9 @@ theorem quotient-real
   then        x/y ∈ ℝ
   metamath    redivcl
   target      redivcl
-  first-used  triangular-reciprocals
-  note        `half-real` is the case y = 2, which needs no hypothesis on y.
+  note        No proof cites it: the method `membership` builds a quotient's
+              membership from its parts. `half-real` is the case y = 2, which
+              needs no hypothesis on y.
 
 theorem reciprocal-positive
   let x ∈ ℝ                                                           (H1)

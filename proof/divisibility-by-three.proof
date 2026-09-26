@@ -62,7 +62,7 @@ theorem ten-power-congruent
 
           1.3.8.  (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1
                   algebra
-                  requires 10^m ∈ ℝ: thm:stdlib/numbers/int-real, from 1.3.1
+                  requires 10^m ∈ ℝ: from 1.3.1
 
           1.3.9.  10^m·10 − 1 = 10^(m + 1) − 1
                   substitute 10^(m + 1) = 10^m·10 (line 1.3.7), right to left
@@ -123,8 +123,8 @@ theorem divisibility-by-three
 
     1.6.  (10^k − 1)·d(k) = d(k)·10^k − d(k)
           algebra
-          requires d(k) ∈ ℝ: thm:stdlib/numbers/int-real, from 1.4
-          requires 10^k ∈ ℝ: thm:stdlib/numbers/int-real, from 1.2
+          requires d(k) ∈ ℝ: from 1.4
+          requires 10^k ∈ ℝ: from 1.2
 
     1.7.  3 divides d(k)·10^k − d(k)
           substitute (10^k − 1)·d(k) = d(k)·10^k − d(k) (line 1.6) into line 1.5

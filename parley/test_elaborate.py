@@ -124,7 +124,7 @@ CASES = [
      'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
-     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n',
+     '    requires k ∈ ℝ: from 1\n',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n',
      'proof/sqrt2-irrational.proof:13  nothing says m e. CC, which this '
@@ -138,7 +138,7 @@ CASES = [
      'proof/sqrt2-irrational.proof',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
-     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n',
+     '    requires k ∈ ℝ: from 1\n',
      '3.  (2k + 1)² = 4k² + 4k + 1\n'
      '    algebra\n'
      '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n',
@@ -172,10 +172,10 @@ CASES = [
     ('leave out the membership of an atom the method combines',
      'proof/sqrt2-irrational/lowest-terms',
      'proof/sqrt2-irrational.proof',
-     '    5.7.  d ≠ 1\n          inequalities, from 5.1\n'
-     '          requires d ∈ ℝ: thm:stdlib/numbers/int-real, from 5.1\n',
-     '    5.7.  d ≠ 1\n          inequalities, from 5.1\n',
-     'step 5.7 combines d, and nothing it writes or cites says it is a '
+     '    3.7.  d ≠ 1\n          inequalities, from 3.1\n'
+     '          requires d ∈ ℝ: from 3.1\n',
+     '    3.7.  d ≠ 1\n          inequalities, from 3.1\n',
+     'step 3.7 combines d, and nothing it writes or cites says it is a '
      'number'),
 
     # `decide_field` refuses a claim that is not an identity. It is raised
@@ -574,7 +574,7 @@ NETS = [
      'from, with nothing to stop the search',
      'proof/sqrt2-irrational/odd-square',
      'proof/sqrt2-irrational.proof',
-     '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 1\n\n4.',
+     '    requires k ∈ ℝ: from 1\n\n4.',
      '    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n\n4.',
      'proof/sqrt2-irrational.proof:15  the requires line rests on 1, which '
      'it does not name'),

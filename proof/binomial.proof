@@ -61,39 +61,36 @@ theorem binomial-step
           requires 0 ∈ ℤ: arithmetic
           requires m ∈ ℤ: from 1
 
-    8.4.  k ∈ ℝ
-          thm:stdlib/numbers/int-real, from 8.1
-
-    8.5.  x^((m − k) + 1) = x^(m − k)·x
+    8.4.  x^((m − k) + 1) = x^(m − k)·x
           thm:stdlib/numbers/exponent-step a := x, m := m − k, from H1, 8.3
 
-    8.6.  (m − k) + 1 = (m + 1) − k
+    8.5.  (m − k) + 1 = (m + 1) − k
           algebra
           requires m ∈ ℝ: from 4
-          requires k ∈ ℝ: from 8.4
+          requires k ∈ ℝ: from 8.1
 
-    8.7.  x^((m − k) + 1) = x^((m + 1) − k)
-          substitute (m − k) + 1 = (m + 1) − k (line 8.6)
+    8.6.  x^((m − k) + 1) = x^((m + 1) − k)
+          substitute (m − k) + 1 = (m + 1) − k (line 8.5)
 
-    8.8.  x^(m − k)·x = x^((m + 1) − k)
+    8.7.  x^(m − k)·x = x^((m + 1) − k)
           calculation
-            x^(m − k)·x = x^((m − k) + 1)       8.5, right to left
-                        = x^((m + 1) − k)       8.7
+            x^(m − k)·x = x^((m − k) + 1)       8.4, right to left
+                        = x^((m + 1) − k)       8.6
 
-    8.9.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
+    8.8.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
           algebra
           requires x ∈ ℝ: from H1
           requires C(m, k) ∈ ℕ₀: thm:stdlib/counting/binomial-nat0, from H3, 8.1
           requires x^(m − k) ∈ ℝ: thm:stdlib/numbers/power-real, from H1, 8.3
           requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 8.2
 
-    8.10. C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
-          substitute x^(m − k)·x = x^((m + 1) − k) (line 8.8)
+    8.9.  C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
+          substitute x^(m − k)·x = x^((m + 1) − k) (line 8.7)
 
-    8.11. x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k
+    8.10. x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k
           calculation
-            x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k      8.9
-                                      = C(m, k)·x^((m + 1) − k)·y^k    8.10
+            x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k      8.8
+                                      = C(m, k)·x^((m + 1) − k)·y^k    8.9
 
 9.  Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k
     thm:stdlib/sums/sum-termwise a := 0, b := m, from 8
@@ -227,28 +224,25 @@ theorem binomial-step
            requires 1 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: from 3
 
-    29.2.  k ∈ ℝ
-           thm:stdlib/numbers/int-real, from 29.1
-
-    29.3.  m − (k − 1) = (m + 1) − k
+    29.2.  m − (k − 1) = (m + 1) − k
            algebra
            requires m ∈ ℝ: from 4
-           requires k ∈ ℝ: from 29.2
+           requires k ∈ ℝ: from 29.1
 
-    29.4.  (k − 1) + 1 = k
+    29.3.  (k − 1) + 1 = k
            algebra
-           requires k ∈ ℝ: from 29.2
+           requires k ∈ ℝ: from 29.1
 
-    29.5.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)
-           substitute m − (k − 1) = (m + 1) − k (line 29.3)
+    29.4.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)
+           substitute m − (k − 1) = (m + 1) − k (line 29.2)
 
-    29.6.  C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
-           substitute (k − 1) + 1 = k (line 29.4)
+    29.5.  C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
+           substitute (k − 1) + 1 = k (line 29.3)
 
-    29.7.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
+    29.6.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k
            calculation
-             C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)    29.5
-                                                         = C(m, k − 1)·x^((m + 1) − k)·y^k                29.6
+             C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)    29.4
+                                                         = C(m, k − 1)·x^((m + 1) − k)·y^k                29.5
 
 30. Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     thm:stdlib/sums/sum-termwise a := 1, b := m + 1, from 29

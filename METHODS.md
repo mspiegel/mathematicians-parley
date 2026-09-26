@@ -205,7 +205,7 @@ So a disequality belongs to `inequalities` when the order is what settles it,
 and to `algebra` when no order is involved. The corpus has one of each and
 they are not alike:
 
-- Bezout's step 4.1 turns `0 ≤ r` together with `r ≠ 0` into `0 < r`. Every
+- Bezout's step 3.1 turns `0 ≤ r` together with `r ≠ 0` into `0 < r`. Every
   part of that is the order, and the claim is an order relation, which
   `algebra` refuses.
 - The geometric series' step 1 concludes `1 − a ≠ 0` from `a ≠ 1`. That holds

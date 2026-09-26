@@ -259,6 +259,14 @@ uses. Two obtains from one definition in nested scopes make that compulsory
 rather than cosmetic: the second scope's antecedent already carries the first
 name free.
 
+An `obtain` that renames — `even` says there is k, the proof obtains r —
+gives the name a letter of its own rather than the one the existential binds,
+by the same respelling: holding k's letter, r would be captured by a later
+"there is k". And a step claiming a definition's "there is" itself, from a
+line saying its left side, unfolds that line (`unfolded`) as the obtain would;
+a definition reaches a claim by a witness (`conclude`) only where the claim is
+its left side, which is never a "there is".
+
 An obtained name may stand for the very letter the goal binds. `obtain N from
 line 5.2` in the triangular reciprocals takes N as the letter the line's "there
 is N" binds, inside a block claiming "there is N ∈ ℕ with …", and
