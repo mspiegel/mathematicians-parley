@@ -341,6 +341,23 @@ CASES = [
      '= 1(1 + 1)/3            arithmetic',
      'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
 
+    # A membership line says what the table in `rules.py` says it does and
+    # nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
+    # the table goes one way.
+    ('a membership read for a bound it does not give',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     '    let k ∈ ℕ                                                         (K1)',
+     '    let k ∈ ℤ                                                         (K1)',
+     'does not reach'),
+
+    ('a membership read into a smaller number system',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     '    let n ∈ ℕ                                                         (K2)',
+     '    let n ∈ ℝ                                                         (K2)',
+     'does not reach'),
+
     # A link whose terms have a letter may name `arithmetic` where only a
     # piece of numerals alone changes, and that piece is worked out like
     # any closed fact: 2/1 is not 3.

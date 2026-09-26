@@ -976,6 +976,11 @@ class Calculators:
         """
         goal = self.to_term(term)
         given, where = [], []
+        # What a cited membership implies — k ≥ 1 from k ∈ ℕ (`METHODS.md`,
+        # facts in) — is offered only where the facts as written do not
+        # decide the claim, so a proof that decides without it is the proof
+        # it was.
+        implied_given, implied_where = [], []
         for ref in refs:
             held = lines.get(ref)
             if held is None:
@@ -987,6 +992,16 @@ class Calculators:
                 if one is not None:
                     given.append(one)
                     where.append((ref, self.to_term(said)))
+            # The bounds only: k ≠ 0 is what a requires line reads off
+            # k ∈ ℕ, and offered here it would split every certificate.
+            for said in self.stated_by(ref, facts, lines):
+                if said in skip:
+                    continue
+                for extra, _lemmas in self.implied_terms(said):
+                    one = linear.fact(self.to_term(extra), self.flabel)
+                    if one is not None and one.how != '=/=':
+                        implied_given.append(one)
+                        implied_where.append((ref, self.to_term(extra)))
         if goal.variable is None and goal.label == 'wa':
             return self.both_halves(refs, goal, scope, facts, lines, skip)
         claim = linear.fact(goal, self.flabel)
@@ -997,6 +1012,15 @@ class Calculators:
         if closed is not None:
             return closed
         found = linear.certificate([*given, linear.opposite(claim)])
+        if not isinstance(found, dict) and implied_given:
+            wider = linear.certificate([*given, *implied_given,
+                                        linear.opposite(claim)])
+            if isinstance(wider, dict):
+                given = [*given, *implied_given]
+                where = [*where, *implied_where]
+                found = wider
+        if found is None:
+            return Declined('the cited facts do not reach the claim')
         if not isinstance(found, dict):
             return self.either_way(found, refs, where, given, term, scope,
                                    facts, lines, skip)
@@ -2096,9 +2120,32 @@ class Calculators:
             return held
         known = dict(facts)
         self.unpack(lines[ref].term, held, scope, known)
-        if want not in known:
-            return Declined('that line does not reach the fact')
-        return known[want]
+        if want in known:
+            return known[want]
+        # A bound the line's membership implies (`implied_terms`), read
+        # off what the line states and nothing else in scope.
+        for said, proof in self.stated_by(ref, known, lines).items():
+            if said == lines[ref].term:
+                proof = held
+            if proof is None:
+                continue
+            more = self.implied(said, proof, scope)
+            if want in more:
+                return more[want]
+        return Declined('that line does not reach the fact')
+
+    def stated_by(self, ref, facts, lines):
+        """What a line states, sentence by sentence, with each proof where
+        `facts` holds one: its own sentences, and where it obtained names,
+        their memberships, which the scope holds with the line as their
+        origin.
+        """
+        out = {said: facts.get(said)
+               for said in self.parts(lines[ref].term)}
+        for said, proof in facts.items():
+            if getattr(proof, 'origin', None) == {ref}:
+                out.setdefault(said, proof)
+        return out
 
     def difference_le(self, work, was, given, facts, real_number):
         """( scope -> ( A - B ) <_ 0 ) from a cited A <_ B."""
@@ -2240,6 +2287,12 @@ class Calculators:
                 one = linear.fact(self.to_term(said), self.flabel)
                 if one is not None:
                     given.append(one)
+                # and the bounds a membership among them implies
+                # (`METHODS.md`), as `prove_order` reads them
+                for extra, _lemmas in self.implied_terms(said):
+                    one = linear.fact(self.to_term(extra), self.flabel)
+                    if one is not None and one.how != '=/=':
+                        given.append(one)
         if not linear.follows(given, claim):
             raise self.defect(step.line,
                               f'{self.render(term)} does not follow from what '

@@ -37,7 +37,6 @@ theorem prime-above
 
     7.3.  p divides (n! + 1) − n!
           thm:stdlib/divisibility/divides-difference d := p, a := n! + 1, b := n!, from 5, 7.2
-          requires p ∈ ℤ: thm:stdlib/numbers/nat-int, from 5
           requires n! + 1 ∈ ℤ: thm:stdlib/numbers/nat-int, from 2
           requires n! ∈ ℤ: thm:stdlib/numbers/nat-int, from 1
 

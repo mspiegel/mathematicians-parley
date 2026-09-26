@@ -285,6 +285,17 @@ search: ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ, {1, …, b} ⊆ ℕ, {0, …, b}
 each by the set.mm lemma that says so of a member. The table is in
 `parley/rules.py`, and the checker and the elaborator read the same one.
 
+**A line saying a term is in a number system says what that implies.**
+`let k ∈ ℕ (K1)` also says k ∈ ℕ₀, k ∈ ℤ, k ∈ ℚ and k ∈ ℝ, by the table
+above, and k ≥ 1 and k ≠ 0; a line saying k ∈ ℕ₀ also says k ≥ 0. Whatever
+reads a cited line reads these as well: a method (`inequalities, from K1`
+has k ≥ 1 and k ∈ ℝ), a requires line (`requires k ∈ ℝ: from K1`), and an
+item's hypothesis (an item asking x ∈ ℝ, answered by K1). Each is one
+set.mm lemma from the line, so the fact still comes from a line the step
+names; the dull-fact rule of `READERS.md` holds, and one written line counts
+for what it plainly says. Nothing past the table is read: that an integer
+above 0 is a natural number is the item `pos-int-nat`.
+
 A `define` line names an object: `define S := E (D1)` is an unnumbered,
 labelled line placed where S is first needed, claiming nothing, and cited
 by its label wherever a step needs to know what S stands for. It is the

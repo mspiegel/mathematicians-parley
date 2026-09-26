@@ -612,6 +612,15 @@ is proved by the reason that line gives, or the elaborator says it cannot.
 4. the item the line names, where the item has a `target` — the same citation a
    step naming it makes.
 
+A line the page cites says what it states and what a membership among its
+sentences implies (`SYNTAX.md`): `let k ∈ ℕ` gives `k ∈ ℝ` by `nnre`,
+`k ≥ 1` by `nnge1` and `k ≠ 0` by `nnne0`, from the table in `rules.py`
+(`implied`). An `obtain`'s names count as their line's: the scope holds
+`N ∈ ℕ` with line 5.3 as its origin, and `requires N ≠ 0: from 5.3` reads it
+there (`stated_by`). `inequalities` is offered the bounds only, and only where
+the facts as written do not decide the claim, so a step deciding without them
+is built as it was; `k ≠ 0` would split every certificate it stood in.
+
 Nothing generic stands after those. A claim that none of them supplies is
 either a method stated at the head of the file as unexpanded, or an error
 naming the line:

@@ -1052,6 +1052,7 @@ def citation_parts(step, just, scope, library, sorts, defined):
             return None
 
     facts = [x for x in map(read, supplied) if x is not None]
+    facts += [x for fact in facts for x in implied_facts(fact, g, sorts)]
     claims = [x for x in map(read, sentences(' '.join(step.claim)))
               if x is not None]
     seed = {}
@@ -1467,6 +1468,31 @@ def check_hypotheses(report, thm, library):
                        f'which asks '
                        f'for {"; ".join(missing)}, and what it cites does not '
                        f'supply them')
+
+
+def implied_facts(fact, g, sorts):
+    """What a membership fact also says, by the table in `rules.py`.
+
+    `k ∈ ℕ` also says k ∈ ℤ, k ∈ ℝ and the rest, and k ≥ 1 and k ≠ 0
+    (`SYNTAX.md`, what a membership line says). Anything else says only
+    itself.
+    """
+    if (fact.notation != 'membership' or len(fact.children) != 2
+            or fact.children[1].notation != 'number-systems'):
+        return []
+    term = fact.children[0]
+    system = rules.SYSTEM_OF.get(fact.children[1].text)
+    # ℂ has no symbol on the page, so nothing a page writes asks for it.
+    symbol = {label: sign for sign, label in rules.SYSTEM_OF.items()
+              if label != 'cc'}
+    templates = [f'x ∈ {symbol[big]}' for big in symbol
+                 if big != system
+                 and rules.within_path(system, big) is not None]
+    templates += [said for said, _lemma in rules.IMPLIED.get(system, ())]
+    g.sorts = {**sorts, 'x': 'number'}
+    out = [substitute(parse(text, g), {'x': term}) for text in templates]
+    g.sorts = sorts
+    return out
 
 
 def unsupplied(step, scope, library, sorts, defined):

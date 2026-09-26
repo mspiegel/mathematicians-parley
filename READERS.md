@@ -88,6 +88,12 @@ demands it is, and that is the test every other dull fact is held to. An
 exemption here would be the first place the text asked a reader to supply
 something the page does not say.
 
+What a written membership says is not an exemption. `let k ∈ ℕ` says that k
+is a real number, and that k ≥ 1 and k ≠ 0, as plainly as it says k ∈ ℕ, so a
+step may cite it for any of those (`SYNTAX.md`, what a membership line says).
+The fact is still named on the page, by the line that says it; what goes is
+the numbered step restating it.
+
 **A sort is stated once, and is not a dull fact.** `let X be a set`, `let
 A be a point` and `let f : A → B` say what kind of thing a name is, the way a
 declared type does in a program. That holds for every step in the scope the

@@ -347,6 +347,69 @@ class TableReading:
                          f'needs')
         return found
 
+    def implied_terms(self, said):
+        """What a membership says of its term besides itself, as
+        (claim, lemmas) pairs: the lemmas carry the membership to the claim
+        one after another (`SYNTAX.md`, what a membership line says, and the
+        table in `rules.py`). Empty for anything but a membership of a
+        number system.
+        """
+        node = self.to_term(said)
+        if node.variable is not None or node.label != 'wcel' \
+                or len(node.children) != 2:
+            return []
+        term = node.children[0]
+        system = node.children[1].rpn(self.flabel)
+        if system not in rules.WITHIN and system not in rules.IMPLIED:
+            return []
+        out = []
+        for big in rules.SYSTEM_OF.values():
+            path = rules.within_path(system, big)
+            if path:
+                out.append((self.seq(term.rpn(self.flabel), big, 'wcel'),
+                            path))
+        for _page, lemma in rules.IMPLIED.get(system, ()):
+            out.append((self.consequent(lemma, term), [lemma]))
+            # The page writes k ≠ 0 as a denied equation, `nnne0` as =/=.
+            said_ne = out[-1][0]
+            if said_ne.split()[-1] == 'wne':
+                a, b = (c.rpn(self.flabel)
+                        for c in self.to_term(said_ne).children)
+                out.append((self.seq(self.seq(a, b, 'wceq'), 'wn'),
+                            [lemma, 'neneqd']))
+        return out
+
+    def consequent(self, lemma, term):
+        """What a one-hypothesis lemma `( P(A) -> Q(A) )` concludes at A."""
+        sig = self.sigs[lemma]
+        whole = self.syntax.statement(sig)
+        return whole.substitute({sig.push[0]: term}).children[1].rpn(
+            self.flabel)
+
+    def implied(self, said, proof, scope):
+        """Each thing a membership line also says, with its proof under
+        `scope` from the line's own `proof`: {claim: proof}.
+        """
+        out = {}
+        for claim, lemmas in self.implied_terms(said):
+            held, at = proof, said
+            term = self.to_term(said).children[0].rpn(self.flabel)
+            for lemma in lemmas:
+                if lemma == 'neneqd':
+                    a, b = (c.rpn(self.flabel)
+                            for c in self.to_term(at).children)
+                    held = self.ap('neneqd', {'ph': scope, 'A': a, 'B': b},
+                                   held)
+                    at = claim
+                    continue
+                after = self.consequent(lemma, self.to_term(term))
+                held = self.seq(scope, at, after, held,
+                                self.ap(lemma, {self.sigs[lemma].push[0]:
+                                                term}), 'syl')
+                at = after
+            out[claim] = held
+        return out
+
     def bridged(self, said, system, scope, written):
         """`said ∈ system`, carried in one lemma from a membership written.
 

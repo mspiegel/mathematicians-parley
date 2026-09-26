@@ -170,7 +170,6 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 17. gcd(a, b) divides a·x₀ + b·y₀
     thm:stdlib/divisibility/divides-combination e := gcd(a, b), x := x₀, y := y₀, from 15, 9
-    requires gcd(a, b) ∈ ℤ: thm:stdlib/numbers/nat-int, from 15
     requires a ∈ ℤ: thm:stdlib/numbers/nat-int, from H1
     requires b ∈ ℤ: thm:stdlib/numbers/nat-int, from H2
 

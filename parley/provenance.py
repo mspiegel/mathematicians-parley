@@ -353,6 +353,18 @@ class ProofRules:
             self.unpack(line.term, held[line.term], scope, held)
             if term in held:
                 return held[term]
+            # Or what a membership it states says as well: `let k ∈ ℕ`
+            # says k ∈ ℝ and k ≠ 0 (`SYNTAX.md`), each one lemma from it.
+            # An obtain's names have their membership in the scope, with the
+            # line as its origin, as below.
+            stated = dict(held)
+            for said, proof in facts.items():
+                if getattr(proof, 'origin', None) == {ref}:
+                    stated.setdefault(said, proof)
+            for said, proof in stated.items():
+                more = self.implied(said, proof, scope)
+                if term in more:
+                    return more[term]
             # The line with its own letters bound: a `fix` elsewhere took n,
             # so line 5 of the triangular reciprocals binds g where the
             # requires line citing it writes n. One claim, spelt apart.

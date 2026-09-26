@@ -87,7 +87,7 @@ theorem lowest-terms
           obtain d from S
 
     5.2.  d divides gcd(p, q)
-          thm:stdlib/divisibility/divides-gcd d := d, a := p, b := q, from 5.1, 1, 2, 5.1, 5.1
+          thm:stdlib/divisibility/divides-gcd d := d, a := p, b := q, from 5.1, 1, 5.1, 5.1
 
     5.3.  d divides 1
           substitute gcd(p, q) = 1 (line 1) into line 5.2

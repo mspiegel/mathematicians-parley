@@ -175,6 +175,12 @@ WITHIN = {
     'cq': {'cr': 'qre', 'cc': 'qcn'},
     'cr': {'cc': 'recn'},
 }
+# What else a membership says of its term, as the page writes it with x for
+# the term, and the lemma that says it (`SYNTAX.md`, what a membership line
+# says).
+IMPLIED = {'cn': (('x ≥ 1', 'nnge1'), ('x ≠ 0', 'nnne0')),
+           'cn0': (('x ≥ 0', 'nn0ge0'),)}
+
 # A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere.
 # (the system, the numeral it must start at or None, the lemma)
 RANGE_WITHIN = (('cn', 'c1', 'elfznn'), ('cn0', 'cc0', 'elfznn0'),

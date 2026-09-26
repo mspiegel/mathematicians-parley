@@ -738,11 +738,11 @@ CASES = [
     # the second.
     ('a for-every line over a set that does not hold the range',
      'proof/triangular-reciprocals.proof',
-     '    2.4.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n'
+     '    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n'
      '          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n',
-     '    2.4.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n'
+     '    2.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n'
      '          thm:stdlib/sums/sum-termwise a := 0, b := n, from 1\n',
-     'step 2.4 cites thm:stdlib/sums/sum-termwise, which asks for'),
+     'step 2.1 cites thm:stdlib/sums/sum-termwise, which asks for'),
 
     # What a summand's function hypothesis asks is the membership of the
     # names the summand is built from, and 1 is none of them.

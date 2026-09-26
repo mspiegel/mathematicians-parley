@@ -81,6 +81,11 @@ with rational coefficients. A cited line of several sentences supplies each
 sentence that has this shape and is ignored for the rest, so citing a line that
 also states a membership or a quantified sentence is not an error.
 
+A membership supplies the bounds it implies (`SYNTAX.md`): a line saying
+k ∈ ℕ supplies k ≥ 1 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. It
+also discharges the hypothesis that k is real. So `requires k ≠ 0:
+inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`.
+
 A **closed numeral fact is available without being cited**. The combination
 that reaches a claim may need one — `n! ≥ 1` gives `n! + 1 > 1`, and the
 strictness comes from `1 > 0`, which the step names nowhere. Those facts are
