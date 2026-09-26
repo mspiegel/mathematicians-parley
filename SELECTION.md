@@ -166,7 +166,9 @@ bijection are among them.
    nothing assumed. Induction again, but the step shifts a sum's index,
    extends two sums by a zero term and applies Pascal's rule, where the
    geometric series only adds a term at the end (`fsump1`).
-3. **Triangular reciprocals.** No class variables and nothing to hide in
+3. **Triangular reciprocals.** Written: `proof/triangular-reciprocals.proof`,
+   with its design record in `pilot/triangular-reciprocals.md`, and it
+   elaborates with nothing assumed. No class variables and nothing to hide in
    the statement. The first limit of a sequence and the first sum over all
    of ℕ: the partial sums telescope to 2 − 2/(n + 1), and the ε-style
    argument the intermediate value theorem made for functions is made for
