@@ -431,6 +431,18 @@ once, but it forbids the map's letter in the scope, and the scope holds that
 very equation. What the rule asks, that n is in the domain, is the step's to
 supply in a `requires` line.
 
+**A definition from outside the theorem is written out in the statement and
+a name in the proof.** What a theorem sees from outside it, a define its
+file writes above it or one its file imports (`parse.FileScope`), is read in
+the file that wrote it and written out there (`sorts.file_definitions`).
+The statement is read with those written out (`from_outside`), so its set.mm
+form never names them and a theorem citing it needs none of them. The proof
+introduces them at its first step, as any define above the first step is,
+and its steps are about the names; the last step's claim is carried to the
+written-out statement by `same`. A cited theorem's own lines are read in its
+own file's definitions (`in_its_names`), so its T is its file's T whatever
+the citing proof calls T.
+
 ## The closure methods
 
 `METHODS.md` specifies these; what follows is how each is expanded.

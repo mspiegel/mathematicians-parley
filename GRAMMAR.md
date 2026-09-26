@@ -457,8 +457,9 @@ substitution in the corpus comes close.
 ## Files
 
 ```
-<proof file>  ::= { <import> } { <theorem> }
-<import>      ::= `import` <module>
+<proof file>  ::= { <import> } { <theorem> | <define> }
+<import>      ::= `import` `proof` <module>
+                | `import` `definition` <module> `/` <name> [ `as` <name> ]
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
                   { <hypothesis> }
@@ -541,17 +542,45 @@ treated differently: it is never imported, and every proof may cite it. Any
 other module names a proof file, `<module>.proof`, wherever under the root that
 file is kept.
 
-A proof file imports each other proof file it cites, and only those:
+An import says what it brings in. A proof file imports each other proof file
+it cites, and only those:
 
 ```
-import proof/triangle-inequality
+import proof proof/triangle-inequality
 ```
 
-The imports come before the first theorem. Citing a proof file that is not
-imported, importing one that nothing cites, importing a file twice, importing
-the file itself or the standard library, and importing a file that does not
-exist are each a defect. The imports have no cycle, since the theorems a file
-imports are built before its own.
+and each definition it uses from another file, one at a time, under its own
+name or under the name after `as`:
+
+```
+import definition proof/series/T
+import definition proof/series/U as V
+```
+
+The path is the full one from the root in both, so moving or renaming a
+directory changes the imports and nothing else about them. A bare `import`
+is a defect. A theorem is imported with its file because a citation writes
+its full name; a definition is imported by name because a formula writes it
+bare, and the import is what says where that name comes from.
+
+The imports come before the first theorem and any define outside a theorem.
+Citing a proof file that is not imported, importing one that nothing cites,
+importing a file twice, importing the file itself or the standard library,
+and importing a file that does not exist are each a defect; so are importing
+a definition the file does not define outside its theorems, and importing
+one that nothing uses. The imports, of files and of definitions, have no
+cycle, since what a file imports is read before it.
+
+A `define` may stand outside any theorem: before the first, or after a
+theorem's last step, where that theorem could never use it. It belongs to
+the file, and every theorem below it may use it, in its statement as well
+as its proof. Two definitions of one name where both could be read are a
+defect: two outside the theorems, one outside and one imported, two
+imported, or a proof's own define under a name the file already gives
+something. A definition means what it meant in the file that wrote it. A
+theorem citing another file's theorem reads that theorem's definitions
+there, needs none of them imported, and cannot capture one with a name of
+its own.
 
 ## Steps
 

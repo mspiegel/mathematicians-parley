@@ -22,7 +22,8 @@ name, and a citation writes both: `def:stdlib/divisibility/odd`,
 file is its path without the extension, so the name says where to look. A
 theorem of the citing file is written bare, `thm:proof/sqrt2-irrational/odd-square`, and that is the
 only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
-`import` line a proof file writes for each other proof file it cites.
+`import proof` line a proof file writes for each other proof file it cites
+and the `import definition` line for each definition it uses from one.
 
 The standard library is every item a set.mm label supplies or that is still
 open: what a proof cites and this corpus does not prove. It is split by
@@ -108,7 +109,8 @@ it by hand.
 
 Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
 kind of the item it names, and every proof file imports exactly the proof
-files it cites; `check.py` checks all three.
+files it cites and the definitions it uses from other files; `check.py`
+checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
 for each hole, the sort each hole takes, what the pattern yields, how the kinds

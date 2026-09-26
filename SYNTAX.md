@@ -298,6 +298,23 @@ the rule out, as the sum formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and
 the proof introduces S to argue with. A function only one proof needs is
 defined there and nowhere else: it takes no letter from any other proof.
 
+**A define outside a theorem belongs to the file.** Written above a theorem,
+it may be used in that theorem's statement, as a textbook writes "let
+Tₖ = k(k + 1)/2" once and then states results about Tₖ:
+
+```
+define T(k) := k(k + 1)/2, for k ∈ ℕ                     (D1)
+       reads the k-th triangular number
+
+theorem tri-one
+  then T(1) = 1
+```
+
+Another file uses it by importing it, `import definition proof/tri/T`, or
+under a name of its own, `import definition proof/tri/T as t`. What the
+statement says in set.mm writes the rule out, so a theorem citing `tri-one`
+needs nothing imported and its own T, if it has one, is a different thing.
+
 The alternative was to make the name opaque and require a `substitute` step at
 every crossing, which is what this document's rule about unfolding a definition
 would ask for if a define were one. It is not: unfolding `even` or `divides`
