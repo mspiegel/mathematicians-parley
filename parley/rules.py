@@ -69,6 +69,9 @@ CONGRUENCE = {
     # A function against the map its define names, and a rule by cases in
     # any of its three parts; given by name too.
     ('wf', (2,)): 'feq1d', ('wf1', (2,)): 'f1eq1',
+    # An image, in its function, its set, or both.
+    ('cima', (0,)): 'imaeq1d', ('cima', (1,)): 'imaeq2d',
+    ('cima', (0, 1)): 'imaeq12d',
     **{('cif', places): 'ifbieq12d'
        for places in ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))},
     # And the same over every set there is, which a `let X be a set`
@@ -113,7 +116,8 @@ CLASS_LIFT = {('cdif', 0): 'difeq1i', ('cdif', 1): 'difeq2i',
               ('cun', 0): 'uneq1i', ('cun', 1): 'uneq2i',
               ('cin', 0): 'ineq1i', ('cin', 1): 'ineq2i',
               ('co', 0): 'oveq1i', ('co', 1): 'oveq2i',
-              ('cpw', 0): 'pweqi', ('csn', 0): 'sneqi'}
+              ('cpw', 0): 'pweqi', ('csn', 0): 'sneqi',
+              ('cima', 0): 'imaeq1i', ('cima', 1): 'imaeq2i'}
 
 # A binder's domain changed, its body kept, closed.
 DOMAIN = {'wral': 'raleqi', 'wrex': 'rexeqi', 'cmpt': 'mpteq1i'}
@@ -257,7 +261,7 @@ SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
            'cv': 'vex', 'co': 'ovex', 'cfv': 'fvex', 'cif': 'ifexg',
            'cn': 'nnex', 'ciun': 'iunexg', 'ccnv': 'cnvexg',
-           'cn0': 'nn0ex', 'csu': 'sumex'}
+           'cn0': 'nn0ex', 'csu': 'sumex', 'cima': 'imaexg'}
 
 # Two differences against zero added, by which of the two is strictly
 # below it: the lemma that adds them and keeps the strictness.
@@ -417,4 +421,6 @@ MEMBERSHIP = [
     # A one-to-one function is a function: `let f : A → B be one-to-one`
     # says the first, and a lemma asking the second is answered by it.
     'f1f',
+    # A function on a set is a set, which an image under it asks (`imaexg`).
+    'fex',
 ]

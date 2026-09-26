@@ -299,8 +299,20 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # A slot neither side fixes is set.mm asking where to look for the
         # thing rather than asking anything of it: `elpwg` wants a class
         # holding what is about to be in the power class, and _V holds
-        # everything that is a set.
+        # everything that is a set. A fixed function's type is the one
+        # exception, and is read off the line saying it (`function_fixed`):
+        # `def:stdlib/functions/image` asks g : X → W of the g the step
+        # names.
         for slot in asks:
+            for piece in self.conjuncts_of(slot):
+                if not self.function_fixed(piece, binding):
+                    continue
+                for held in facts:
+                    filled = kernel.match(piece, self.to_term(held),
+                                          dict(binding), whole.names())
+                    if filled is not None:
+                        binding = filled
+                        break
             for open_slot in slot.names() - set(binding):
                 binding[open_slot] = kernel.Term('cvv')
         binding = self.instanced(sig, binding)

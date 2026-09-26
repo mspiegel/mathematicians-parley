@@ -59,8 +59,11 @@ x ∈ C with f(x) = b; outside R, from g(b), which is off C. ∎
 
 ## Decisions made with the reader
 
-- **The image is spelt out**, `{f(x) : x ∈ X}`, not `f[X]` or `f(X)`, with a
-  proof-local `define M(X)` for the nested one.
+- **The image is `f[X]`**, set.mm's `f " X`, defined in words as
+  {f(x) : x ∈ X}. The first draft spelt it out, and the statement nested one
+  spelt-out image inside another; a reader decoded it from the inside.
+  `f(X)` was rejected because M(C) beside f(C) would put applying a function
+  and taking an image side by side under one notation.
 - **The union of a family is `⋃(X ∈ D) X`**, a new notation row
   (`indexed-union`, set.mm's `ciun`).
 - **One-to-one is `f : A → B is one-to-one`**, the arrow every function is

@@ -59,7 +59,7 @@ has, and a subject is one file:
 | `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
 | `stdlib/sums.records` | sums over a range, and the ranges | 22 |
 | `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 47 |
-| `stdlib/functions.records` | functions, their values, images, and inverses | 14 |
+| `stdlib/functions.records` | functions, their values, images, and inverses | 15 |
 | `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 17 |
 | `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
 | `stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |

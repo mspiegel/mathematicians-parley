@@ -525,8 +525,14 @@ class Matcher:
                 whole.append(slot)
         for slot in whole:
             for piece in self.conjuncts_of(slot):
-                if not piece.names() - set(binding) \
-                        or self.sethood(piece, binding):
+                if not piece.names() - set(binding):
+                    continue
+                # A fixed function's type is what a line says of it, not a
+                # place to look: `fex` asks F : A --> B of the g an image
+                # is under, and only the line saying g : B → A says what A
+                # is.
+                if self.sethood(piece, binding) \
+                        and not self.function_fixed(piece, binding):
                     continue
                 for held in facts:
                     filled = kernel.match(piece, self.to_term(held),
@@ -542,6 +548,18 @@ class Matcher:
             for open_slot in self.sethood(slot, binding):
                 binding[open_slot] = kernel.Term('cvv')
         return binding
+
+    @staticmethod
+    def function_fixed(piece, binding):
+        """Whether `piece` says what a function the binding fixes maps
+        between: `F : A --> B`, F bound.
+        """
+        if piece.variable is not None \
+                or piece.label not in ('wf', 'wf1', 'wfo', 'wf1o') \
+                or len(piece.children) != 3:
+            return False
+        function = piece.children[2]
+        return function.variable is not None and function.variable in binding
 
     def fitted(self, label, sig, antecedents, joins, wanted, scope, facts,
                depth, backwards, binding):
@@ -2665,8 +2683,15 @@ class Matcher:
         letters, where no lemma carrying a map can reach it. As the line
         writes it, the element spells none of them.
         """
+        # What each value binds, and a lemma's own letter as the letter it
+        # stands for: `elrab` holds its x apart from the element, and D's
+        # builder letter is x there.
         binds = {name: {self.flabel[v] for v in self.letters_bound(value)
                         if self.sigs[self.flabel[v]].statement[0] == 'setvar'}
+                 | ({self.flabel[value.variable]}
+                    if value.variable is not None and self.sigs[
+                        self.flabel[value.variable]].statement[0] == 'setvar'
+                    else set())
                  for name, value in binding.items()}
         written = {}
         for sub in self.subterms(term):

@@ -94,20 +94,30 @@ theorem added-elements-stay-inside
   note        Narrowed to the one map the corpus writes, as
               `thm:stdlib/functions/added-elements-are-new` is.
 
+definition image
+  let f : X → W                                                       (H1)
+  assume Y ⊆ X                                                        (H2)
+  then        u ∈ f[Y] ↔ there is s ∈ Y with u = f(s)
+  metamath    fvelimab, with ffn and eqcom, which this corpus proves
+              together in elaboration/stdlib/proved.mm
+  target      gfvelima
+  note        f[Y] is everything f sends Y to, {f(s) : s ∈ Y}. It is the same
+              set as `def:stdlib/functions/set-image` speaks of for a map
+              written on the spot; this is the one for a function with a
+              name, which a bracket can follow.
+
 theorem image-within
-  let E : Y → W                                                       (H1)
-  assume for every y ∈ Y, E(y) ∈ Z                                    (H2)
-  then        {E(y) : y ∈ Y} ⊆ Z
-  metamath    rnmptss
-  target      rnmptss
+  let f : X → W                                                       (H1)
+  then        f[Y] ⊆ W
+  metamath    fimass
+  target      fimass
 
 theorem image-monotone
-  let E : Y → W                                                       (H1)
-  assume X ⊆ Y                                                        (H2)
-  then        {E(x) : x ∈ X} ⊆ {E(x) : x ∈ Y}
-  metamath    mptss and rnss, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      grnmptss
+  let f : X → W                                                       (H1)
+  assume Y ⊆ Z                                                        (H2)
+  then        f[Y] ⊆ f[Z]
+  metamath    imass2
+  target      imass2
 
 theorem function-into
   let E : X → W                                                       (H1)
@@ -121,12 +131,13 @@ theorem function-into
               it, and the elaborator reads the one as the other.
 
 theorem value-in-image
-  let E : Y → W                                                       (H1)
-  let s ∈ Y                                                           (H2)
-  then        E(s) ∈ {E(t) : t ∈ Y}
-  metamath    elrnmpt1s, fveq2 and fvex, which this corpus proves together
-              in elaboration/stdlib/proved.mm
-  target      gfvrnmpt
+  let f : X → W                                                       (H1)
+  assume Y ⊆ X                                                        (H2)
+  let s ∈ Y                                                           (H3)
+  then        f(s) ∈ f[Y]
+  metamath    fnfvima, with ffn, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfnfvima
 
 definition one-to-one
   let f : X → Y                                                       (H1)

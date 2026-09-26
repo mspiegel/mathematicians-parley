@@ -5,9 +5,9 @@ theorem fixed-part
   let B be a set                                                      (H2)
   let f : A → B                                                       (H3)
   let g : B → A                                                       (H4)
-  then there is C ∈ 𝒫A with {g(y) : y ∈ B ∖ {f(x) : x ∈ C}} = A ∖ C
+  then there is C ∈ 𝒫A with g[B ∖ f[C]] = A ∖ C
 
-define M(X) := {g(y) : y ∈ B ∖ {f(x) : x ∈ X}}, for X ∈ 𝒫A          (D1)
+define M(X) := g[B ∖ f[X]], for X ∈ 𝒫A                              (D1)
        reads what g reaches from the part of B that f misses on X
 define D := {X ∈ 𝒫A : M(X) ⊆ A ∖ X}                                 (D2)
        reads the parts of A that M keeps out of
@@ -18,18 +18,8 @@ define C := ⋃(X ∈ D) X                                               (D3)
     fix
     let X ∈ 𝒫A                                                        (K1)
 
-    1.1.  For every y ∈ B ∖ {f(x) : x ∈ X}, g(y) ∈ A.
-          fix
-          let y ∈ B ∖ {f(x) : x ∈ X}                                  (K2)
-
-          1.1.1.  y ∈ B
-                  thm:stdlib/sets/difference-member, from K2
-
-          1.1.2.  g(y) ∈ A
-                  thm:stdlib/functions/function-value f := g, x := y, from 1.1.1
-
-    1.2.  M(X) ⊆ A
-          thm:stdlib/functions/image-within, from 1.1
+    1.1.  M(X) ⊆ A
+          thm:stdlib/functions/image-within f := g
           requires X ∈ 𝒫A: from K1
 
 2.  For every X ∈ 𝒫A, for every Y ∈ 𝒫A, if X ⊆ Y then M(Y) ⊆ M(X).
@@ -38,14 +28,14 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let Y ∈ 𝒫A                                                        (K4)
     assume X ⊆ Y                                                      (A1)
 
-    2.1.  {f(x) : x ∈ X} ⊆ {f(x) : x ∈ Y}
+    2.1.  f[X] ⊆ f[Y]
           thm:stdlib/functions/image-monotone, from A1
 
-    2.2.  B ∖ {f(x) : x ∈ Y} ⊆ B ∖ {f(x) : x ∈ X}
+    2.2.  B ∖ f[Y] ⊆ B ∖ f[X]
           thm:stdlib/sets/difference-reverses, from 2.1
 
     2.3.  M(Y) ⊆ M(X)
-          thm:stdlib/functions/image-monotone, from 2.2
+          thm:stdlib/functions/image-monotone f := g, from 2.2
           requires X ∈ 𝒫A: from K3
           requires Y ∈ 𝒫A: from K4
 
@@ -156,7 +146,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
 19. M(C) = A ∖ C
     thm:stdlib/sets/subset-antisymmetric, from 9, 18
 
-20. There is C ∈ 𝒫A with {g(y) : y ∈ B ∖ {f(x) : x ∈ C}} = A ∖ C.
+20. There is C ∈ 𝒫A with g[B ∖ f[C]] = A ∖ C.
     exhibit, from 5, 19
 
 
@@ -172,10 +162,10 @@ theorem schroeder-bernstein
 1.  For every s ∈ A, for every t ∈ A, if f(s) = f(t) then s = t.
     def:stdlib/functions/one-to-one, from H3
 
-2.  C ∈ 𝒫A. {g(y) : y ∈ B ∖ {f(x) : x ∈ C}} = A ∖ C.
+2.  C ∈ 𝒫A. g[B ∖ f[C]] = A ∖ C.
     obtain C: thm:proof/schroeder-bernstein/fixed-part
 
-    define R := {f(x) : x ∈ C}                                        (D1)
+    define R := f[C]                                                  (D1)
            reads what f reaches from C
     define h(x) := f(x)      if x ∈ C
                    g⁻¹(x)    otherwise,  for x ∈ A                    (D2)
@@ -191,14 +181,15 @@ theorem schroeder-bernstein
     4.1.  t ∈ A. t ∉ C.
           thm:stdlib/sets/difference-member, from K1
 
-    4.2.  A ∖ C ⊆ {g(y) : y ∈ B ∖ R}
+    4.2.  A ∖ C ⊆ g[B ∖ R]
           thm:stdlib/sets/equal-subset, from 2
 
-    4.3.  t ∈ {g(y) : y ∈ B ∖ R}
+    4.3.  t ∈ g[B ∖ R]
           thm:stdlib/sets/in-subset, from 4.2, K1
 
     4.4.  There is y ∈ B ∖ R with t = g(y).
-          def:stdlib/functions/set-image u := t, from 4.3
+          def:stdlib/functions/image f := g, u := t, from 4.3
+          requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
 
     4.5.  y ∈ B ∖ R. t = g(y).
           obtain y from line 4.4
@@ -253,6 +244,7 @@ theorem schroeder-bernstein
 
           5.1.3.  f(u) ∈ R
                   thm:stdlib/functions/value-in-image, from K2
+                  requires C ⊆ A: from 3
 
           5.1.4.  h(v) = f(u)
                   calculation
@@ -415,7 +407,8 @@ theorem schroeder-bernstein
           assume b ∈ R                                                (C9)
 
           9.2.1.  There is x ∈ C with b = f(x).
-                  def:stdlib/functions/set-image u := b, from C9
+                  def:stdlib/functions/image u := b, from C9
+                  requires C ⊆ A: from 3
 
           9.2.2.  x ∈ C. b = f(x).
                   obtain x from line 9.2.1
@@ -441,10 +434,11 @@ theorem schroeder-bernstein
           9.2.7.  b ∈ B ∖ R
                   thm:stdlib/sets/difference-member, from K7, C10
 
-          9.2.8.  g(b) ∈ {g(y) : y ∈ B ∖ R}
-                  thm:stdlib/functions/value-in-image, from 9.2.7
+          9.2.8.  g(b) ∈ g[B ∖ R]
+                  thm:stdlib/functions/value-in-image f := g, from 9.2.7
+                  requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
 
-          9.2.9.  {g(y) : y ∈ B ∖ R} ⊆ A ∖ C
+          9.2.9.  g[B ∖ R] ⊆ A ∖ C
                   thm:stdlib/sets/equal-subset, from 2
 
           9.2.10. g(b) ∈ A ∖ C

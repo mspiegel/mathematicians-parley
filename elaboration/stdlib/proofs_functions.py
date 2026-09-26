@@ -3,8 +3,11 @@
 What Schröder–Bernstein asks of functions that set.mm says in two steps and
 the page in one. Each lemma is a chain of two or three set.mm lemmas:
 
-- a bigger set has a bigger image: `mptss` widens the map and `rnss` its
-  range, for `thm:stdlib/functions/image-monotone`;
+- what is in an image: `fvelimab` says it of a function on A, which `ffn`
+  reads off f : A → B, with its equation turned by `eqcom` to the page's
+  u = f(s), for `def:stdlib/functions/image`;
+- a value lies in the image of a set holding its point: `fnfvima`, with
+  `ffn` the same way, for `thm:stdlib/functions/value-in-image`;
 - a one-to-one function's inverse undoes it: `f1f1orn` makes it a bijection
   onto its range, where `f1ocnvfv1` applies, for
   `thm:stdlib/functions/inverse-value`;
@@ -13,10 +16,7 @@ the page in one. Each lemma is a chain of two or three set.mm lemmas:
   `f1oeng` gives the bijection, for `thm:stdlib/functions/onto-bijection`;
 - a map sends its domain into a set exactly when each value lies there:
   `fmpt` says it of a name for the map, and `eqid` names the map itself,
-  for `thm:stdlib/functions/function-into`;
-- a value lies in the image: `elrnmpt1s` with the map named by `eqid`,
-  the value at the point by `fveq2`, and that value a set by `fvex`, for
-  `thm:stdlib/functions/value-in-image`.
+  for `thm:stdlib/functions/function-into`.
 """
 
 HEAD = """$( Functions: images, inverses, and a bijection from one-to-one and
@@ -25,31 +25,54 @@ $d x y A $.
 $d x y B $.
 $d x y F $.
 $d x D $.
+$d x S $.
 
 """
 
 
 def proofs(b):
     """(label, statement, proof) for each lemma."""
-    return [image_monotone(b), inverse_value(b), onto_bijection(b),
+    return [image_member(b), inverse_value(b), onto_bijection(b),
             map_into(b), value_in_image(b)]
 
 
+def image_member(b):
+    """( ( F : A --> B /\\ S C_ A ) ->
+    ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) )
+    """
+    held = '( F : A --> B /\\ S C_ A )'
+    member = 'D e. ( F " S )'
+    theirs = 'E. x e. S ( F ` x ) = D'
+    ours = 'E. x e. S D = ( F ` x )'
+    set_mm = b.ap('sylan', {'ph': b.wff('F : A --> B'), 'ps': b.wff('F Fn A'),
+                            'ch': b.wff('S C_ A'),
+                            'th': b.wff(f'( {member} <-> {theirs} )')},
+                  b.ap('ffn', {'F': b.rpn('F'), 'A': b.rpn('A'),
+                               'B': b.rpn('B')}),
+                  b.ap('fvelimab', {'F': b.rpn('F'), 'A': b.rpn('A'),
+                                    'B': b.rpn('S'), 'C': b.rpn('D'),
+                                    'x': b.flabel['x']}))
+    turned = b.ap('rexbii', {'ph': b.wff('( F ` x ) = D'),
+                             'ps': b.wff('D = ( F ` x )'),
+                             'x': b.flabel['x'], 'A': b.rpn('S')},
+                  b.ap('eqcom', {'A': b.rpn('( F ` x )'), 'B': b.rpn('D')}))
+    return ('gfvelima', f'|- ( {held} -> ( {member} <-> {ours} ) )', b.ap(
+        'bitrdi', {'ph': b.wff(held), 'ps': b.wff(member),
+                   'ch': b.wff(theirs), 'th': b.wff(ours)}, set_mm, turned))
+
+
 def value_in_image(b):
-    """( D e. A -> ( F ` D ) e. ran ( x e. A |-> ( F ` x ) ) )"""
-    mapped = '( x e. A |-> ( F ` x ) )'
-    value = '( F ` D )'
-    both = b.ap('elrnmpt1s', {'x': b.flabel['x'], 'A': b.rpn('A'),
-                              'B': b.rpn('( F ` x )'), 'C': b.rpn(value),
-                              'D': b.rpn('D'), 'F': b.rpn(mapped),
-                              'V': b.rpn('_V')},
-                b.ap('eqid', {'A': b.rpn(mapped)}),
-                b.ap('fveq2', {'A': b.rpn('x'), 'B': b.rpn('D'),
-                               'F': b.rpn('F')}))
-    return ('gfvrnmpt', f'|- ( D e. A -> {value} e. ran {mapped} )', b.ap(
-        'mpan2', {'ph': b.wff('D e. A'), 'ps': b.wff(f'{value} e. _V'),
-                  'ch': b.wff(f'{value} e. ran {mapped}')},
-        b.ap('fvex', {'F': b.rpn('F'), 'A': b.rpn('D')}), both))
+    """( ( F : A --> B /\\ S C_ A /\\ D e. S ) -> ( F ` D ) e. ( F " S ) )"""
+    says = '( F ` D ) e. ( F " S )'
+    return ('gfnfvima',
+            f'|- ( ( F : A --> B /\\ S C_ A /\\ D e. S ) -> {says} )',
+            b.ap('syl3an1', {'ph': b.wff('F : A --> B'),
+                             'ps': b.wff('F Fn A'), 'ch': b.wff('S C_ A'),
+                             'th': b.wff('D e. S'), 'ta': b.wff(says)},
+                 b.ap('ffn', {'F': b.rpn('F'), 'A': b.rpn('A'),
+                              'B': b.rpn('B')}),
+                 b.ap('fnfvima', {'F': b.rpn('F'), 'A': b.rpn('A'),
+                                  'S': b.rpn('S'), 'X': b.rpn('D')})))
 
 
 def map_into(b):
@@ -60,18 +83,6 @@ def map_into(b):
                           'C': b.rpn('C'), 'B': b.rpn('B'),
                           'F': b.rpn(mapped)},
                  b.ap('eqid', {'A': b.rpn(mapped)})))
-
-
-def image_monotone(b):
-    """( A C_ B -> ran ( x e. A |-> C ) C_ ran ( x e. B |-> C ) )"""
-    small, large = '( x e. A |-> C )', '( x e. B |-> C )'
-    says = f'ran {small} C_ ran {large}'
-    return ('grnmptss', f'|- ( A C_ B -> {says} )', b.ap(
-        'syl', {'ph': b.wff('A C_ B'), 'ps': b.wff(f'{small} C_ {large}'),
-                'ch': b.wff(says)},
-        b.ap('mptss', {'A': b.rpn('A'), 'B': b.rpn('B'), 'x': b.flabel['x'],
-                       'C': b.rpn('C')}),
-        b.ap('rnss', {'A': b.rpn(small), 'B': b.rpn(large)})))
 
 
 def inverse_value(b):

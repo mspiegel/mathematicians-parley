@@ -602,6 +602,19 @@ notation inverse
               for every relation, and it is a function where g is one-to-one,
               which is where the page writes it.
 
+notation image
+  pattern     _[_]
+  holes       function, set
+  yields      set
+  kinds       function from α to β, set of α → set of β
+  reads       the image under the first of the second
+  metamath    cima
+  target      _1 _2 cima
+  note        f[X] is everything f sends X to, {f(x) : x ∈ X}, which
+              def:stdlib/functions/image says. Square brackets and not f(X):
+              f(X) is f applied to one thing, and M(C) beside f[C] in
+              Schröder–Bernstein would be the two meanings side by side.
+
 notation holds-of
   pattern     _(_)
   holes       property, any

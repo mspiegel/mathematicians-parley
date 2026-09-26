@@ -164,9 +164,12 @@ $d x y A $.
 $d x y B $.
 $d x y F $.
 $d x D $.
+$d x S $.
 
-  grnmptss $p |- ( A C_ B -> ran ( x e. A |-> C ) C_ ran ( x e. B |-> C ) ) $=
-    ( wss cmpt crn mptss rnss syl ) BCEABDFZACDFZEKGLGEABCDHKLIJ $.
+  gfvelima $p |- ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) ) $=
+    ( wf wss wa cima wcel cv cfv wceq wrex wfn wb ffn fvelimab sylan eqcom
+    rexbii bitrdi )
+    BCFGZEBHZIDFEJZKZALZFMZDNZAEOZDUINZAEOUDFBPUEUGUKQBCFRABEDFSTUJULAEUIDUAUBUC $.
 
   gf1cnvfv1 $p |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C ) $=
     ( wf1 crn wf1o wcel cfv ccnv wceq f1f1orn f1ocnvfv1 sylan )
@@ -180,9 +183,9 @@ $d x D $.
   gfmpt $p |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B ) $=
     ( cmpt eqid fmpt ) ABCDABDEZHFG $.
 
-  gfvrnmpt $p |- ( D e. A -> ( F ` D ) e. ran ( x e. A |-> ( F ` x ) ) ) $=
-    ( wcel cfv cvv cv cmpt crn fvex eqid fveq2 elrnmpt1s mpan2 )
-    CBECDFZGEPABAHZDFZIZJECDKABRPCSGSLQCDMNO $.
+  gfnfvima $p |- ( ( F : A --> B /\ S C_ A /\ D e. S ) -> ( F ` D ) e. ( F " S ) ) $=
+    ( wf wfn wss wcel cfv cima ffn fnfvima syl3an1 )
+    ABEFEAGDAHCDICEJEDKIABELADECMN $.
 
 $}
 

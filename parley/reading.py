@@ -63,8 +63,12 @@ def hypothesis_body(kind, text):
         outside = NOT_IN.match(said)
         if outside:
             return f'{outside.group(1)} is a set and {said}'
-        if FUNCTION_BEING.match(said):
-            return let_formula(said)
+        # The line gives the function's type and says what it is, and both
+        # hold: an image under f asks the type (`fex`), a one-to-one lemma
+        # the property.
+        being = FUNCTION_BEING.match(said)
+        if being:
+            return f'{being.group(1)} and {let_formula(said)}'
         body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
     return body
 

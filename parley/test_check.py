@@ -825,6 +825,15 @@ CASES = [
      '          thm:stdlib/functions/inverse-value, from H4, 4.6\n',
      '          thm:stdlib/functions/inverse-value, from 4.6\n',
      'step 4.8 cites thm:stdlib/functions/inverse-value, which asks for'),
+
+    # An image's points come from a part of the function's domain, and the
+    # item asks the step to say it is one.
+    ('cite a value in an image with nothing saying the set is in the domain',
+     'proof/schroeder-bernstein.proof',
+     '                  thm:stdlib/functions/value-in-image, from K2\n'
+     '                  requires C ⊆ A: from 3\n',
+     '                  thm:stdlib/functions/value-in-image, from K2\n',
+     'step 5.1.3 cites thm:stdlib/functions/value-in-image, which asks for'),
 ]
 
 
