@@ -19,8 +19,9 @@
 
 
 definition rational
-  then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℤ with q ≠ 0 and x = p/q
+  then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℕ with x = p/q
   metamath    elq
+  target      elq
   first-used  sqrt2-irrational
 
 definition irrational
@@ -127,6 +128,7 @@ theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℝ
   metamath    nn0re
+  target      nn0re
   note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
               this lemma, as `nat-real`'s note says of ℕ.
 

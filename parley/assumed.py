@@ -8,10 +8,11 @@ not built, and what would build it. A list in the elaborated file's header
 says what the file assumes, and is not a record: nothing makes anyone read
 it.
 
-So every `$a` in a file under `elaboration/proof/` must be named in the
-section "Steps taken as stated" of `ELABORATION.md`, and every statement
-named there must still be one a file takes. The second keeps the record
-from outliving what it records.
+So every `$a` in a file under `elaboration/proof/` or `elaboration/tests/`
+must be named in the section "Steps taken as stated" of `ELABORATION.md`,
+and every statement named there must still be one a file takes. The second
+keeps the record from outliving what it records. The tests are read because
+a library item's test is where an item no lemma builds shows itself first.
 
 Reads what the build wrote and builds nothing, as the other stages do.
 
@@ -24,8 +25,12 @@ from pathlib import Path
 AXIOM = re.compile(r'(?m)^\s*(\S+)\s+\$a\s')
 # A record starts at the margin; the indented form shown in the section is
 # its example, not a record.
-RECORD = re.compile(r'(?m)^- `(elaboration/proof/[^`]+\.mm)` `([^`]+)`:')
+RECORD = re.compile(r'(?m)^- `(elaboration/(?:proof|tests)/[^`]+\.mm)` '
+                    r'`([^`]+)`:')
 SECTION = '### Steps taken as stated'
+# What the elaborator writes from readable proofs, as against the library's
+# own files beside them.
+READ = ('proof', 'tests')
 
 
 def recorded(text):
@@ -40,7 +45,9 @@ def recorded(text):
 def taken(root):
     """(file, label) pairs the elaborated proofs take as stated."""
     out = set()
-    for path in sorted((root / 'elaboration' / 'proof').rglob('*.mm')):
+    paths = [p for where in READ
+             for p in (root / 'elaboration' / where).rglob('*.mm')]
+    for path in sorted(paths):
         rel = str(path.relative_to(root))
         out |= {(rel, label) for label in AXIOM.findall(path.read_text())}
     return out

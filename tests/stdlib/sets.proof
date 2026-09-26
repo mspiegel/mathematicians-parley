@@ -1,0 +1,7 @@
+theorem difference-set
+  let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  then X ∖ {a} is a set
+
+1.  X ∖ {a} is a set
+    thm:stdlib/sets/difference-set

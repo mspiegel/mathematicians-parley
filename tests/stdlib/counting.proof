@@ -1,0 +1,29 @@
+theorem factorial-base
+  then 1! = 1
+
+1.  1! = 1
+    def:stdlib/counting/factorial
+
+theorem factorial-step
+  let n ∈ ℕ                                                           (H1)
+  then (n + 1)! = n!·(n + 1)
+
+1.  (n + 1)! = n!·(n + 1)
+    def:stdlib/counting/factorial, from H1
+
+theorem card
+  let A be a set                                                      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume |A| = n                                                      (H3)
+  then there is a bijection from {i ∈ ℕ : i ≤ n} to A
+
+1.  There is a bijection from {i ∈ ℕ : i ≤ n} to A.
+    def:stdlib/counting/card, from H2, H3
+
+theorem binomial-coefficient
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then C(n, k) = n!/((n − k)!·k!)
+
+1.  C(n, k) = n!/((n − k)!·k!)
+    def:stdlib/counting/binomial-coefficient, from H1, H2

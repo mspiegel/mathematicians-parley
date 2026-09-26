@@ -21,6 +21,7 @@ definition factorial
   let n ∈ ℕ                                                           (H1)
   then        (n + 1)! = n!·(n + 1)
   metamath    fac1, facp1
+  target      fac1, facp1
   first-used  infinitely-many-primes
   note        Two `then` groups: the base sentence has no hypothesis and the
               step sentence has H1. See DATABASE.md on recursive definitions.

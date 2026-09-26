@@ -1,0 +1,10 @@
+theorem set-image
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let E : Y → Z                                                       (H3)
+  let u be an element                                                 (H4)
+  assume u ∈ {E(s) : s ∈ Y}                                           (H5)
+  then there is s ∈ Y with u = E(s)
+
+1.  There is s ∈ Y with u = E(s).
+    def:stdlib/functions/set-image, from H5

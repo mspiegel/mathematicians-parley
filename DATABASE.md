@@ -11,6 +11,7 @@ db/notation.records      symbols a claim may use
 db/methods.records       the justification vocabulary
 stdlib/*.records         the standard library: definitions and theorems
 proof/*.proof            the proof skeletons, one file per pilot
+tests/stdlib/*.proof     a test for each library item no proof cites
 pilot/*.md               the design commentary for each pilot
 ```
 
@@ -26,9 +27,21 @@ only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
 and the `import definition` line for each definition it uses from one.
 
 The standard library is every item a set.mm label supplies or that is still
-open: what a proof cites and this corpus does not prove. It is split by
-subject, in words a reader of `READERS.md` already has, and a subject is one
-file:
+open: what a proof cites, or may, and this corpus does not prove.
+
+An item's statement is written by hand beside the lemma it names, and only a
+citation that elaborates asks whether the two agree: the elaborator applies
+the lemma to what the item says, and the result verifies or it does not. So
+every item is cited by a proof, or by its test in `tests/stdlib/<subject>.proof`,
+a theorem whose one step cites it: the item's hypotheses, and its conclusion,
+or for a definition its right side from its left. One direction is enough,
+since the lemma applied either way has the whole statement to match. The
+gate's `parley/tested.py` is red for an item neither cites; an `open` item
+has no lemma and is not asked. An item may be added before a proof needs it,
+and its test is what checks it until one does.
+
+The library is split by subject, in words a reader of `READERS.md` already
+has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
@@ -236,12 +249,13 @@ repaired.
   over the corpus, and the last one verifies the files it *has written*, so
   those files have to have been written from the corpus as it stands. Break
   the elaborator and leave the built files alone and the gate passes while
-  nothing elaborates. Ten stages: ruff over the tools, that no caller hands
+  nothing elaborates. Eleven stages: ruff over the tools, that no caller hands
   on a decline without asking whether it has one, the planted shapes that
   prove that stage still finds them, the checker over the corpus, the planted
   defects that prove the checker still catches things, the planted defects
   that prove the elaborator still reports things, every set.mm label the
-  database names, that a compressed proof is the proof it was made from, that
+  database names, that every library item is cited by a proof or has a test,
+  that a compressed proof is the proof it was made from, that
   no elaborated proof takes a step as stated that `ELABORATION.md` does not
   record, and a verifier over every proof the elaborator has written. The lint settings
   are in `ruff.toml`, which turns off the ambiguous-character rules because

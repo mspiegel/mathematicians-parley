@@ -612,8 +612,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 for kind, text, _label, _line in item.hypotheses:
                     body = hypothesis_body(kind, text)
                     asks.append(self.term(self.read(body)))
-                ends = [self.term(self.read(text))
-                        for text, _line in item.conclusions]
+                ends = [self.term(self.read(sentence))
+                        for text, _line in item.conclusions
+                        for sentence in self.sentences(text)]
 
         # What is assumed is what the item states, and a step may claim one
         # side of it: `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ
@@ -727,7 +728,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         for name, value in instantiation(cites or step.just.text):
             bound[name] = self.read(value)
         with self.in_its_names(item):
-            ends = [self.read(text) for text, _line in item.conclusions]
+            ends = [self.read(sentence) for text, _line in item.conclusions
+                    for sentence in self.sentences(text)]
             hyps = [self.read(hypothesis_body(kind, text))
                     for kind, text, _label, _line in item.hypotheses]
         binders, props = binding_context(self.g.notations)
@@ -1613,7 +1615,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         The witness is never written in the text. It is read off the cited
         line, by walking the shape the definition states against it.
         """
-        subject = self.term(self.read(instantiation(step.just.text)[0][1]))
+        named = instantiation(step.just.text)
+        if not named:
+            raise self.defect(step.line, f'{step.just.head} concludes what '
+                                         f'it defines of a value the step '
+                                         f'does not name; write which, as '
+                                         f'x := t')
+        subject = self.term(self.read(named[0][1]))
         var = self.spare_var()
         with self.names_kept():
             # A definition may name more than the thing it is about:

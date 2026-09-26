@@ -1,0 +1,7 @@
+theorem range-nat
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then k ∈ ℕ
+
+1.  k ∈ ℕ
+    thm:stdlib/sums/range-nat, from H1, H2
