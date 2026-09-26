@@ -386,3 +386,57 @@ theorem archimedean
   first-used  triangular-reciprocals
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
+
+theorem abs-product
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        |x·y| = |x|·|y|
+  metamath    absmul
+  target      absmul
+
+theorem abs-quotient
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume y ≠ 0                                                        (H3)
+  then        |x/y| = |x|/|y|
+  metamath    absdiv
+  target      absdiv
+
+theorem abs-negative
+  let x ∈ ℝ                                                           (H1)
+  then        |−x| = |x|
+  metamath    absneg
+  target      absneg
+
+theorem abs-zero
+  then        |0| = 0
+  metamath    abs0
+  target      abs0
+
+theorem abs-one
+  then        |1| = 1
+  metamath    abs1
+  target      abs1
+
+theorem abs-square
+  let x ∈ ℝ                                                           (H1)
+  then        |x|² = x²
+  metamath    absresq
+  target      absresq
+
+theorem abs-power
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  then        |x^n| = |x|^n
+  metamath    absexp
+  target      absexp
+
+theorem nat0-member
+  then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
+  metamath    elnn0
+  target      elnn0
+
+theorem nat0-as-int
+  then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
+  metamath    elnn0z
+  target      elnn0z

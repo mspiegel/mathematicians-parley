@@ -27,3 +27,15 @@ theorem binomial-coefficient
 
 1.  C(n, k) = n!/((n − k)!·k!)
     def:stdlib/counting/binomial-coefficient, from H1, H2
+
+theorem card-empty
+  then |∅| = 0
+
+1.  |∅| = 0
+    thm:stdlib/counting/card-empty
+
+theorem factorial-zero
+  then 0! = 1
+
+1.  0! = 1
+    thm:stdlib/counting/factorial-zero

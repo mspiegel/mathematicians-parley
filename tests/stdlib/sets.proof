@@ -5,3 +5,95 @@ theorem difference-set
 
 1.  X ∖ {a} is a set
     thm:stdlib/sets/difference-set
+
+theorem intersection-member
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let u be an element                                                 (H3)
+  then u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
+
+1.  u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
+    thm:stdlib/sets/intersection-member
+
+theorem union-member
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let u be an element                                                 (H3)
+  then u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
+
+1.  u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
+    thm:stdlib/sets/union-member
+
+theorem intersection-commutes
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  then Y ∩ Z = Z ∩ Y
+
+1.  Y ∩ Z = Z ∩ Y
+    thm:stdlib/sets/intersection-commutes
+
+theorem union-commutes
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  then Y ∪ Z = Z ∪ Y
+
+1.  Y ∪ Z = Z ∪ Y
+    thm:stdlib/sets/union-commutes
+
+theorem intersection-self
+  let Y be a set                                                      (H1)
+  then Y ∩ Y = Y
+
+1.  Y ∩ Y = Y
+    thm:stdlib/sets/intersection-self
+
+theorem union-self
+  let Y be a set                                                      (H1)
+  then Y ∪ Y = Y
+
+1.  Y ∪ Y = Y
+    thm:stdlib/sets/union-self
+
+theorem union-empty
+  let Y be a set                                                      (H1)
+  then Y ∪ ∅ = Y
+
+1.  Y ∪ ∅ = Y
+    thm:stdlib/sets/union-empty
+
+theorem intersection-empty
+  let Y be a set                                                      (H1)
+  then Y ∩ ∅ = ∅
+
+1.  Y ∩ ∅ = ∅
+    thm:stdlib/sets/intersection-empty
+
+theorem difference-self
+  let Y be a set                                                      (H1)
+  then Y ∖ Y = ∅
+
+1.  Y ∖ Y = ∅
+    thm:stdlib/sets/difference-self
+
+theorem difference-empty
+  let Y be a set                                                      (H1)
+  then Y ∖ ∅ = Y
+
+1.  Y ∖ ∅ = Y
+    thm:stdlib/sets/difference-empty
+
+theorem intersection-distributes
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let Z be a set                                                      (H3)
+  then X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
+
+1.  X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
+    thm:stdlib/sets/intersection-distributes
+
+theorem subset-empty
+  let Y be a set                                                      (H1)
+  then Y ⊆ ∅ ↔ Y = ∅
+
+1.  Y ⊆ ∅ ↔ Y = ∅
+    thm:stdlib/sets/subset-empty

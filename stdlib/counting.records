@@ -170,3 +170,13 @@ theorem binomial-nat0
   metamath    bccl
   target      bccl
   first-used  binomial
+
+theorem card-empty
+  then        |∅| = 0
+  metamath    hash0
+  target      hash0
+
+theorem factorial-zero
+  then        0! = 1
+  metamath    fac0
+  target      fac0

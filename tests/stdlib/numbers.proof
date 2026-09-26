@@ -104,3 +104,68 @@ theorem quotient-real
 
 1.  x/y ∈ ℝ
     thm:stdlib/numbers/quotient-real, from H1, H2, H3
+
+theorem abs-product
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then |x·y| = |x|·|y|
+
+1.  |x·y| = |x|·|y|
+    thm:stdlib/numbers/abs-product, from H1, H2
+
+theorem abs-quotient
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume y ≠ 0                                                        (H3)
+  then |x/y| = |x|/|y|
+
+1.  |x/y| = |x|/|y|
+    thm:stdlib/numbers/abs-quotient, from H1, H2, H3
+
+theorem abs-negative
+  let x ∈ ℝ                                                           (H1)
+  then |−x| = |x|
+
+1.  |−x| = |x|
+    thm:stdlib/numbers/abs-negative, from H1
+
+theorem abs-zero
+  then |0| = 0
+
+1.  |0| = 0
+    thm:stdlib/numbers/abs-zero
+
+theorem abs-one
+  then |1| = 1
+
+1.  |1| = 1
+    thm:stdlib/numbers/abs-one
+
+theorem abs-square
+  let x ∈ ℝ                                                           (H1)
+  then |x|² = x²
+
+1.  |x|² = x²
+    thm:stdlib/numbers/abs-square, from H1
+
+theorem abs-power
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  then |x^n| = |x|^n
+
+1.  |x^n| = |x|^n
+    thm:stdlib/numbers/abs-power, from H1, H2
+
+theorem nat0-member
+  let n ∈ ℝ                                                           (H1)
+  then n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
+
+1.  n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
+    thm:stdlib/numbers/nat0-member
+
+theorem nat0-as-int
+  let n ∈ ℝ                                                           (H1)
+  then n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
+
+1.  n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
+    thm:stdlib/numbers/nat0-as-int

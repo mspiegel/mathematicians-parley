@@ -192,3 +192,32 @@ theorem range-nat
   note        No proof cites it: a line saying k ∈ {1, …, n} says k ∈ ℕ as
               well, and a line said of every k ∈ ℕ answers a hypothesis over
               the range (`SYNTAX.md`), both by this lemma.
+
+theorem range-member
+  let n ∈ ℤ                                                           (H1)
+  then        k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
+  metamath    fznn
+  target      fznn
+
+theorem range0-member
+  let n ∈ ℕ₀                                                          (H1)
+  then        k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
+  metamath    fznn0
+  target      fznn0
+
+theorem range-single
+  let m ∈ ℤ                                                           (H1)
+  then        {m, …, m} = {m}
+  metamath    fzsn
+  target      fzsn
+
+theorem range-empty
+  then        {1, …, 0} = ∅
+  metamath    fz10
+  target      fz10
+
+theorem range-split
+  let k ∈ {m, …, n}                                                   (H1)
+  then        {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
+  metamath    fzsplit
+  target      fzsplit

@@ -215,3 +215,63 @@ theorem powerset-monotone
   metamath    sspw
   target      sspw
   first-used  subsets
+
+theorem intersection-member
+  then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
+  metamath    elin
+  target      elin
+
+theorem union-member
+  then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
+  metamath    elun
+  target      elun
+
+theorem intersection-commutes
+  then        Y ∩ Z = Z ∩ Y
+  metamath    incom
+  target      incom
+
+theorem union-commutes
+  then        Y ∪ Z = Z ∪ Y
+  metamath    uncom
+  target      uncom
+
+theorem intersection-self
+  then        Y ∩ Y = Y
+  metamath    inidm
+  target      inidm
+
+theorem union-self
+  then        Y ∪ Y = Y
+  metamath    unidm
+  target      unidm
+
+theorem union-empty
+  then        Y ∪ ∅ = Y
+  metamath    un0
+  target      un0
+
+theorem intersection-empty
+  then        Y ∩ ∅ = ∅
+  metamath    in0
+  target      in0
+
+theorem difference-self
+  then        Y ∖ Y = ∅
+  metamath    difid
+  target      difid
+
+theorem difference-empty
+  then        Y ∖ ∅ = Y
+  metamath    dif0
+  target      dif0
+
+theorem intersection-distributes
+  then        X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
+  metamath    indi
+  target      indi
+
+theorem subset-empty
+  then        Y ⊆ ∅ ↔ Y = ∅
+  metamath    ss0b
+  target      ss0b

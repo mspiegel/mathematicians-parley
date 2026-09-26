@@ -214,3 +214,22 @@ theorem congruent-divides
   target      dvdssub2
   first-used  divisibility-by-three
   note        Two numbers congruent modulo m are divisible by m together.
+
+theorem gcd-commutes
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        gcd(a, b) = gcd(b, a)
+  metamath    gcdcom
+  target      gcdcom
+
+theorem gcd-one
+  let a ∈ ℤ                                                           (H1)
+  then        gcd(a, 1) = 1
+  metamath    gcd1
+  target      gcd1
+
+theorem zero-divides
+  let n ∈ ℤ                                                           (H1)
+  then        0 divides n ↔ n = 0
+  metamath    0dvds
+  target      0dvds

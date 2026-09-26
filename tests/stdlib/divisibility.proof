@@ -1,0 +1,21 @@
+theorem gcd-commutes
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then gcd(a, b) = gcd(b, a)
+
+1.  gcd(a, b) = gcd(b, a)
+    thm:stdlib/divisibility/gcd-commutes, from H1, H2
+
+theorem gcd-one
+  let a ∈ ℤ                                                           (H1)
+  then gcd(a, 1) = 1
+
+1.  gcd(a, 1) = 1
+    thm:stdlib/divisibility/gcd-one, from H1
+
+theorem zero-divides
+  let n ∈ ℤ                                                           (H1)
+  then 0 divides n ↔ n = 0
+
+1.  0 divides n ↔ n = 0
+    thm:stdlib/divisibility/zero-divides, from H1

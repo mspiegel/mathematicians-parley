@@ -40,19 +40,28 @@ gate's `parley/tested.py` is red for an item neither cites; an `open` item
 has no lemma and is not asked. An item may be added before a proof needs it,
 and its test is what checks it until one does.
 
+Which items are added ahead is chosen, not swept. They come from the set.mm
+sections the library already cites from, and only facts with one natural
+statement: what it means to belong to a set or range, and the value of an
+operation at a point or its identities. Facts set.mm states in several ways
+— the Archimedean property is `arch`, `nnrecl`, `nnunb` and `btwnz` — wait
+for the proof that says which one it needs. Field and order identities are
+not items at all: `algebra` and `inequalities` prove them, as `membership`
+proves closure.
+
 The library is split by subject, in words a reader of `READERS.md` already
 has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
 | `stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
-| `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 31 |
-| `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 17 |
-| `stdlib/sums.records` | sums over a range, and the ranges | 16 |
-| `stdlib/sets.records` | subsets, set-builder, union, difference, power set | 24 |
+| `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
+| `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
+| `stdlib/sums.records` | sums over a range, and the ranges | 22 |
+| `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 36 |
 | `stdlib/functions.records` | functions, their values, and images | 7 |
-| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 16 |
-| `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 6 |
+| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 18 |
+| `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
 | `stdlib/geometry.records` | points, distance, angles, triangles, congruence | 10 |
 
 The library is never imported: every proof may cite it. It is the one

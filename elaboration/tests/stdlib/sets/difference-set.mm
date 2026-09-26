@@ -6,6 +6,6 @@ $( tests/stdlib/sets/difference-set, elaborated from tests/stdlib/sets.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  differen $p |- ( ( A e. _V /\ B e. _V ) -> ( A \ { B } ) e. _V ) $=
+  differe2 $p |- ( ( A e. _V /\ B e. _V ) -> ( A \ { B } ) e. _V ) $=
     ( cvv wcel wa csn cdif simpl id syl difexg ) ACDZBCDZEZLABFZGCDNLLLMHLIJAOCKJ $.
 $}
