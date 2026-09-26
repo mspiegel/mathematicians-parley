@@ -327,6 +327,9 @@ class Theorem:
     path: str = ''
     fields: dict = field(default_factory=dict)     # metamath, note
     imports: list = field(default_factory=list)    # (module, line) of its file
+    # (module, name, alias, line): each definition its file imports, written
+    # as `alias` there, which is `name` where the import gives none.
+    definition_imports: list = field(default_factory=list)
     kind = 'theorem'
 
     @property
@@ -432,12 +435,41 @@ def cited_items(thm):
                 yield just.item(m.group(0)), no
 
 
+IMPORTED = re.compile(
+    rf'^import\s+(?:(?P<proof>proof)\s+(?P<module>{CITED})'
+    rf'|(?P<definition>definition)\s+(?P<full>{CITED})'
+    rf'(?:\s+as\s+(?P<alias>[^\s()]+))?)\s*$')
+
+
+def importing(path, no, text):
+    """One `import` line, as ('proof', module, line) or ('definition',
+    module, name, alias, line).
+
+    Every import says what it brings in: `import proof` a proof file, whose
+    theorems the file may then cite by their full names, and `import
+    definition` one definition, which the file then writes by its name, or
+    by the name after `as`. Said on the line, a file and a definition never
+    have to be told apart by what happens to exist.
+    """
+    m = IMPORTED.match(text.strip())
+    if m is None:
+        raise Problem(path, no, 'an import says `import proof <file>` or '
+                                '`import definition <file>/<name>`')
+    if m.group('proof'):
+        return 'proof', m.group('module'), no
+    module, _, name = m.group('full').rpartition('/')
+    if not module:
+        raise Problem(path, no, f'import definition {m.group("full")} names '
+                                f'no file')
+    return 'definition', module, name, m.group('alias') or name, no
+
+
 def parse_proof(path, text):
     """Theorems of a .proof file. Structure comes from the step number;
     indentation is presentation and is not consulted.
     """
     theorems, thm, step, claim, defined = [], None, None, None, None
-    imports = []
+    imports, definitions = [], []
     # Between a theorem line and its statement a theorem may carry fields,
     # and a line there that opens no field continues the one above it.
     header, last_field = False, None
@@ -486,7 +518,8 @@ def parse_proof(path, text):
             name = t[len('theorem '):].strip()
             if not re.fullmatch(NAME, name):
                 raise Problem(path, line.no, f'theorem name {name!r} is malformed')
-            thm = Theorem(name=name, line=line.no, path=path, imports=imports)
+            thm = Theorem(name=name, line=line.no, path=path, imports=imports,
+                          definition_imports=definitions)
             theorems.append(thm)
             pending_markers.clear()
             pending_openers.clear()
@@ -496,11 +529,11 @@ def parse_proof(path, text):
             continue
         if thm is None:
             if t.startswith('import '):
-                module = t[len('import '):].strip()
-                if not re.fullmatch(CITED, module):
-                    raise Problem(path, line.no,
-                                  f'import of {module!r} is malformed')
-                imports.append((module, line.no))
+                said = importing(path, line.no, t)
+                if said[0] == 'proof':
+                    imports.append(said[1:])
+                else:
+                    definitions.append(said[1:])
                 continue
             raise Problem(path, line.no,
                           'text before any theorem header that is not an import')

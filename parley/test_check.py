@@ -135,44 +135,52 @@ CASES = [
 
     ('cite another proof file without importing it',
      'proof/intermediate-value.proof',
-     'import proof/triangle-inequality\n',
+     'import proof proof/triangle-inequality\n',
      '',
      'proof/triangle-inequality is not imported'),
+
+    # An import says what it brings in, a proof file or a definition.
+    ('import without saying what is imported',
+     'proof/intermediate-value.proof',
+     'import proof proof/triangle-inequality\n',
+     'import proof/triangle-inequality\n',
+     'an import says `import proof <file>`'),
 
     ('import a proof file and cite nothing from it',
      'proof/cantor.proof',
      'theorem cantor\n',
-     'import proof/bezout\n\ntheorem cantor\n',
+     'import proof proof/bezout\n\ntheorem cantor\n',
      'imports proof/bezout and cites nothing from it'),
 
     ('import the standard library',
      'proof/cantor.proof',
      'theorem cantor\n',
-     'import stdlib/sets\n\ntheorem cantor\n',
+     'import proof stdlib/sets\n\ntheorem cantor\n',
      'the standard library is never imported'),
 
     ('import a file that is not there',
      'proof/cantor.proof',
      'theorem cantor\n',
-     'import proof/nonesuch\n\ntheorem cantor\n',
+     'import proof proof/nonesuch\n\ntheorem cantor\n',
      'import proof/nonesuch names no proof file'),
 
     ('import the same file twice',
      'proof/intermediate-value.proof',
-     'import proof/triangle-inequality\n',
-     'import proof/triangle-inequality\nimport proof/triangle-inequality\n',
+     'import proof proof/triangle-inequality\n',
+     'import proof proof/triangle-inequality\n'
+     'import proof proof/triangle-inequality\n',
      'proof/triangle-inequality is imported twice'),
 
     ('a proof file that imports itself',
      'proof/cantor.proof',
      'theorem cantor\n',
-     'import proof/cantor\n\ntheorem cantor\n',
+     'import proof proof/cantor\n\ntheorem cantor\n',
      'proof/cantor imports itself'),
 
     ('two proof files that import each other',
      'proof/triangle-inequality.proof',
      'theorem abs-bounds\n',
-     'import proof/intermediate-value\n\ntheorem abs-bounds\n',
+     'import proof proof/intermediate-value\n\ntheorem abs-bounds\n',
      'closes a cycle'),
 
     ('two theorems of one name in one file',

@@ -1,4 +1,4 @@
-import proof/triangle-inequality
+import proof proof/triangle-inequality
 
 theorem intermediate-value
   metamath    ivth, the general form
