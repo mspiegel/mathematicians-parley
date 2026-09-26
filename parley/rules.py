@@ -87,6 +87,12 @@ BOUND = {'wrex': ('rexbii', 'cbvrexvw'),
 # rule over `i` and the same sum a line writes over `j`.
 CLASS_BOUND = {'cmpt': 'cbvmptv', 'crab': 'cbvrabv', 'csu': 'cbvsumv'}
 
+# And the lemma that changes what such a class says of each member, its
+# letter kept, closed: where one binder sits inside another, the inner is
+# renamed first and carried up through the outer by this, and the outer
+# renamed after.
+CLASS_BODY = {'cmpt': 'mpteq2ia', 'csu': 'sumeq2i'}
+
 # Stands where a join would name the constructor, for a biconditional a
 # lemma states the other way round from the way a step reaches it. It is no
 # label, so a statement built from it would not spell, which is what stops a

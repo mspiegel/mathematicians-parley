@@ -1272,8 +1272,62 @@ class Matcher:
         asked = self.syntax.parse(sig.essentials[0][1:], 'wff')
         said = self.prove_essential(asked.substitute(binding), '', {})
         if declined(said):
-            return None
+            return self.class_renamed_within(one, other)
         return self.ap(lemma, self.spelt(binding), said)
+
+    def class_renamed_within(self, one, other):
+        """`class_renamed` where a binder sits inside the one renamed.
+
+        A sequence of partial sums binds n and its sum binds k, and the
+        same sequence spelt over i and j is one class; but the lemma for
+        the outer binder asks the two bodies to agree at n = i, and they
+        still differ in the letter the sum binds. So the outer letter of
+        `other` is put back to `one`'s, the bodies are then one class by
+        renaming the inner binder, which `rules.CLASS_BODY` carries up
+        through the outer, and the outer is renamed last.
+        """
+        body_lemma = rules.CLASS_BODY.get(one.label)
+        if body_lemma is None:
+            return None
+        letters = [(i, c) for i, c in enumerate(one.children)
+                   if c.variable is not None
+                   and self.sigs[c.rpn(self.flabel)].statement[0] == 'setvar']
+        if len(letters) != 1:
+            return None
+        at, ours = letters[0]
+        theirs = other.children[at]
+        if theirs.variable is None or theirs.variable == ours.variable:
+            return None
+        middle = other.substitute({theirs.variable: ours})
+        differ = [i for i, c in enumerate(one.children)
+                  if c.rpn(self.flabel) != middle.children[i].rpn(self.flabel)]
+        if len(differ) != 1:
+            return None
+        inner = self.class_renamed(one.children[differ[0]],
+                                   middle.children[differ[0]])
+        if inner is None:
+            return None
+        sig = self.sigs[body_lemma]
+        says = self.syntax.statement(sig)
+        variables = says.names()
+        binding = kernel.match(says.children[0], one, {}, variables)
+        if binding is not None:
+            binding = kernel.match(says.children[1], middle, binding,
+                                   variables)
+        if binding is None:
+            return None
+        asked = self.syntax.parse(sig.essentials[0][1:], 'wff')
+        asked = asked.substitute(binding)
+        under, equal = (c.rpn(self.flabel) for c in asked.children)
+        lifted = self.ap(body_lemma, self.spelt(binding),
+                         self.ap('a1i', {'ph': equal, 'ps': under}, inner))
+        outer = self.class_renamed(middle, other)
+        if outer is None:
+            return None
+        return self.ap('eqtri', {'A': one.rpn(self.flabel),
+                                 'B': middle.rpn(self.flabel),
+                                 'C': other.rpn(self.flabel)},
+                       lifted, outer)
 
     def flipped(self, where, x, y, proof):
         """( where -> y <-> x ), or `=`, from a proof of `x` against `y`."""
@@ -1754,6 +1808,73 @@ class Matcher:
         if free is None:
             return None
         return kernel.Term(variable=self.sigs[free].statement[1])
+
+    def frames_spell(self):
+        """Every token the scopes of the open frames spell."""
+        return {w for frame in self.frames for w in frame[0].split()}
+
+    def letters_unheld(self, sig, binding):
+        """`binding` with a letter the frames spell given another, for each
+        set variable the lemma keeps apart from its scope and the claim did
+        not fix; unchanged where there is none.
+        """
+        kinds = {v: t for t, v in sig.floats}
+        apart = {one for a, b in sig.disjoint for one, other in ((a, b), (b, a))
+                 if kinds.get(one) == 'setvar' and other not in binding
+                 and kinds.get(other) not in (None, 'setvar')}
+        spelt = self.frames_spell()
+        out = dict(binding)
+        for var in sorted(apart - set(out)):
+            if self.flabel[var] not in spelt:
+                continue
+            fresh = self.unheld(*(self.to_term(f[0]) for f in self.frames),
+                                *out.values())
+            if fresh is not None:
+                out[var] = fresh
+        return out
+
+    def over_other_letters(self, label, goal, scope, facts, step, crossing,
+                           seed, why):
+        """The claim proved with its bound letters moved off what the
+        frames spell, and spelt back; `why` where it binds none of those.
+
+        The same move `letters_apart` makes for a sum's two indices, made
+        for a scope: `sersumlim` keeps its index apart from the scope, and
+        a hypothesis about Σ(k = 1 to n) spells the k the claim sums over.
+        Which letter a claim binds is no part of what it says, so the claim
+        over another letter is proved and `respelt` carries it back.
+        """
+        held = {t.split()[0] for t in self.names.values()
+                if isinstance(t, str) and t.endswith(' cv')}
+        spelt = self.frames_spell()
+        letters, rest = set(), [goal]
+        while rest:
+            node = rest.pop()
+            if node.variable is not None:
+                said = node.rpn(self.flabel)
+                if (self.sigs[said].statement[0] == 'setvar'
+                        and said not in held and said in spelt):
+                    letters.add(node.variable)
+                continue
+            rest.extend(node.children)
+        if not letters:
+            return why
+        moved = {}
+        for letter in sorted(letters):
+            fresh = self.unheld(goal, *(self.to_term(f[0])
+                                        for f in self.frames),
+                                *moved.values())
+            if fresh is None:
+                return why
+            moved[letter] = fresh
+        other = goal.substitute(moved)
+        proof = self.apply_lemma(label, other, scope, facts, step, crossing,
+                                 seed)
+        if declined(proof):
+            return proof
+        back = self.respelt(proof, other.rpn(self.flabel),
+                            goal.rpn(self.flabel), scope)
+        return why if back is None else back
 
     def letters_apart(self, label, goal, scope, facts, step, crossing, seed):
         """A lemma that binds two letters apart, where the claim binds one.
@@ -2454,6 +2575,13 @@ class Matcher:
                for a, b in sig.disjoint):
             return self.letters_apart(label, goal, scope, facts, step,
                                       crossing, seed)
+        # A letter the lemma binds inside itself and the claim never fixes
+        # stands as its own name, which a hypothesis may bind too:
+        # `sersumlim` binds n in its sequence, and so may the hypothesis
+        # saying where the partial sums go. The lemma forbids the scope
+        # that letter, so where the frames spell it, it is given one they
+        # do not.
+        binding = self.letters_unheld(sig, binding)
         # The scope is where a lemma's disjointness conditions can forbid it,
         # so it is chosen before anything is built. ELABORATION.md 14.
         where, frame = self.allowed(sig, binding, variables)
@@ -2464,8 +2592,12 @@ class Matcher:
             # holding the property looks forbidden. So what the facts decide
             # is read and the question asked again — only here, because
             # binding early changes which fact answers an antecedent.
+            # A bare variable slot is the scope, which is what is being
+            # chosen: filled from a fact, it would stand for that fact and
+            # the scope would go unasked.
             for slot in antecedents:
-                if not slot.names() - set(binding):
+                if slot.variable is not None \
+                        or not slot.names() - set(binding):
                     continue
                 for held in facts:
                     filled = kernel.match(slot, self.to_term(held),
@@ -2475,7 +2607,12 @@ class Matcher:
                         break
             where, frame = self.allowed(sig, binding, variables)
             if declined(where):
-                return where
+                # The claim's own bound letter may be what every frame
+                # spells: a hypothesis about Σ(k = 1 to n) holds the k the
+                # claim sums over. The claim is proved over letters no frame
+                # holds and spelt back (`respelt`).
+                return self.over_other_letters(
+                    label, goal, scope, facts, step, crossing, seed, where)
         known = self.with_cited(
             step, where, self.supplied(step, where,
                                        self.frames_facts(frame, facts)))

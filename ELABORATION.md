@@ -300,6 +300,26 @@ hypothesis in scope names the sum's index. The readable order is still
 correct — the reader needs the step where it stands — so what moves is the
 elaborator's order and not the author's.
 
+Where no frame is permitted, the letters move instead. A hypothesis saying
+Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope, and
+`sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
+apart from any scope it is used under. Which letter a statement binds is no
+part of what it says, so:
+
+- a letter the lemma binds and the claim does not fix, `sersumlim`'s n, is
+  given one no frame spells (`letters_unheld`);
+- the claim's own bound letters are moved to such letters, the claim proved
+  over them, and `respelt` carries it back (`over_other_letters`);
+- a "for every" the elaborator generalises itself is proved over a spare
+  letter where the scope spells its own, and `cbvralvw` renames it back
+  (`for_every`);
+- the hypothesis the lemma then asks for, spelt over the new letters, is the
+  scope's own spelt over the old, and where one binder sits inside another,
+  as a sum inside a sequence, the inner is renamed first and carried up
+  through the outer (`class_renamed_within`).
+
+`tests/elaborator/bound-names.proof` holds a proof of each shape.
+
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
 

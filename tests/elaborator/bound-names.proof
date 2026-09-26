@@ -1,3 +1,12 @@
+theorem series-under-its-own-letters
+  assume Σ(k = 1 to n) 1/(k·(k + 1)) → 1 as n → ∞                    (H1)
+  then Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
+
+1.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
+    thm:stdlib/calculus/series-value L := 1, from H1
+    requires for every k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
+    requires 1 ∈ ℝ: arithmetic
+
 theorem citation-under-a-bound-name
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
