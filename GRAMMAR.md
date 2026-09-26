@@ -642,7 +642,7 @@ The fifteen heads and the slots each admits:
 ```
 <justification> ::=
     ( `def:` | `thm:` ) <cited> [ <instantiation> ] [ `,` <from> ]
-  | `obtain` <names> ( `def:` | `thm:` ) <cited> [ <instantiation> ] `,` <from>
+  | `obtain` <names> ( `def:` | `thm:` ) <cited> [ <instantiation> ] [ `,` <from> ]
   | `obtain` <name> `from` `line` <number>
   | `exhibit` `,` <from>
   | `substitute` <formula> <source> [ <destination> ]

@@ -511,7 +511,12 @@ def parse_justification(path, line):
     # A malformed justification is reported by the checker, not raised here: one
     # bad line must not cost the reader every later line in the file.
     j.refs, j.bad_ref = _refs(text)
-    for src in re.finditer(rf'\((?:line\s+({NUMBER})|({LABEL}))\)', text):
+    # A substitute names its equation's source in brackets after it. Only
+    # there: M(C) on any other line is a function applied to C, not a
+    # citation of a label C.
+    src = re.match(rf'substitute\s.*\((?:line\s+({NUMBER})|({LABEL}))\)'
+                   rf'(?:\s+into\s+\S.*?)?\s*$', text)
+    if src:
         j.refs.append(src.group(1) or src.group(2))
     for dest in re.finditer(rf'\binto\s+(?:line\s+({NUMBER})|({LABEL}))\b', text):
         j.refs.append(dest.group(1) or dest.group(2))

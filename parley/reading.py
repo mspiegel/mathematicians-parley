@@ -25,7 +25,9 @@ from sorts import (
     sorts_of_statement,
 )
 
-LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
+# A label stands apart from what it labels, so `M(X)` ending a line is M
+# applied to X and not a line labelled X.
+LABEL = re.compile(r'\s+\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
 # what `A is a set` states. The hypothesis line reads better as it is
 # written; the claim is the notation the database declares. Points are the
@@ -362,9 +364,11 @@ class Reading:
                 raise self.defect(line, f'define {label}: {said}')
             if said.name in self.names:
                 raise self.defect(line, f'{said.name} is already named')
+            # The rule is bracketed, since a map binds tighter than a rule
+            # by cases: `f(x) if x ∈ C, g⁻¹(x) otherwise` is the whole rule.
             body = (said.body if said.param is None else
                     f'the map sending {said.param} ∈ {said.domain} '
-                    f'to {said.body}')
+                    f'to ({said.body})')
             yield label, line, said.name, self.apart(
                 self.term(self.read(body)))
 

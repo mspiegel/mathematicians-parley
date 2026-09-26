@@ -77,7 +77,7 @@ FROM = rf'from\s+{REF}(?:\s*,\s*{REF})*'
 PRODUCTIONS = {
     'citation':      rf'^(?:def|thm):{CITED}(?:\s+{INST})?(?:,\s*{FROM})?$',
     'obtain-item':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{CITED}'
-                     rf'(?:\s+{INST})?,\s*{FROM}$',
+                     rf'(?:\s+{INST})?(?:,\s*{FROM})?$',
     'obtain-line':   rf'^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+'
                      rf'(?:line\s+{NUMBER}|{LABEL})$',
     'exhibit':       rf'^exhibit,\s*{FROM}$',
@@ -927,6 +927,7 @@ def supply(patterns, facts, binding, variables, library,
     # facts is that formula rather than the application. Filling it in first is
     # what lets the rules below see it: `P(a)` may turn out to be a "there is",
     # and then a fact giving an instance of it supplies it.
+    open_names = variables
     if (first.notation in library.props and len(first.children) == 2
             and first.children[0].notation == 'name'):
         stands = binding.get(first.children[0].text)
@@ -935,14 +936,20 @@ def supply(patterns, facts, binding, variables, library,
             if arg.notation == 'name' and arg.text in binding:
                 arg = binding[arg.text]
             first = substitute(stands.children[0], {stands.text: arg})
-    forms = [(first, variables)]
+            # The formula a property stands for is the step's own, so a
+            # name in it is the step's, even spelt as one of the item's:
+            # Schröder–Bernstein's D binds X, and so does set-builder. Only
+            # an argument still to be matched is the item's to fill.
+            open_names = ({arg.text} if arg.notation == 'name'
+                          and arg.text in variables else set())
+    forms = [(first, open_names)]
     if first.notation in library.exists and len(first.children) > 2:
         # A "there is" pattern holds its body last and names its variables
         # before it, one name and one domain at a time, so the two-variable
         # form is read the same way as the one-variable form.
         body = first.children[-1]
         named = {c.text for c in first.children[:-1] if c.notation == 'name'}
-        forms.append((body, variables | named))
+        forms.append((body, open_names | named))
     for i, fact in enumerate(facts):
         for form, seen in forms:
             found = match(form, fact, binding, seen, library.props, sites)
@@ -1110,6 +1117,18 @@ def citation_parts(step, just, scope, library, sorts, defined):
             return None
 
     facts = [x for x in map(read, supplied) if x is not None]
+    # A defined function standing alone stays its name, so an item whose
+    # function letter the claim fills with it (`h : A → B` from every h(s)
+    # lying in B) asks for h(s) as written, which the expanded fact no
+    # longer says. The fact is offered as written too.
+    for text in supplied:
+        g.sorts = sorts
+        try:
+            written = parse(text, g)
+        except Problem:
+            continue
+        if all(written.shape() != x.shape() for x in facts):
+            facts.append(written)
     facts += [x for fact in facts for x in implied_facts(fact, g, sorts)]
     claims = [x for x in map(read, sentences(' '.join(step.claim)))
               if x is not None]
@@ -1341,6 +1360,38 @@ def check_requires(report, thm, library):
                        f'needs something that {named} does not conclude')
 
 
+def domains_asked(thm, step):
+    """What the functions a proof defines ask of what the step's claim
+    applies them to: `define M(X) := …, for X ∈ 𝒫A` and a claim holding
+    M(X) ask `X ∈ 𝒫A`, since M(X) is M's rule only there. The checker reads
+    the name as its rule without asking, and the kernel does not
+    (`SYNTAX.md`: a define may name a function).
+    """
+    claim = ' '.join(step.claim)
+    out = set()
+    for _kind, text, _label, _line in thm.defines:
+        said = define_parts(text)
+        if declined(said) or said.param is None:
+            continue
+        at = 0
+        while True:
+            at = claim.find(f'{said.name}(', at)
+            if at < 0:
+                break
+            if at and (claim[at - 1].isalnum() or claim[at - 1] in '_′'):
+                at += 1
+                continue
+            depth, start = 0, at + len(said.name)
+            for end in range(start, len(claim)):
+                depth += {'(': 1, ')': -1}.get(claim[end], 0)
+                if depth == 0:
+                    out.add(' '.join(f'{claim[start + 1:end]} ∈ '
+                                     f'{said.domain}'.split()))
+                    break
+            at += 1
+    return out
+
+
 def check_surplus(report, thm, library):
     """What an item citation names, it needs.
 
@@ -1392,10 +1443,12 @@ def check_surplus(report, thm, library):
                            f'{item} asks for nothing it says')
         asks = family_asks(step, statements_in_scope(thm, step), library,
                            sorts, defined)
+        in_domain = domains_asked(thm, step)
         for i, (fact, _how, no) in enumerate(step.requires):
             lighter = copy.copy(step)
             lighter.requires = step.requires[:i] + step.requires[i + 1:]
-            if holds(lighter) and not asks(fact):
+            if holds(lighter) and not asks(fact) \
+                    and ' '.join(fact.split()) not in in_domain:
                 report.say(thm.path, no,
                            f'the requires line of step {fmt(step.number)} '
                            f'says {fact}, and neither {item} nor the '

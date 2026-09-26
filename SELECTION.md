@@ -141,7 +141,7 @@ list and in set.mm's main body, not a mathbox. Measured with
 | 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack defines congruence (Definition 5.1) but not the rule |
 | 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack states it as Theorem 3.1 (§3.6) and leaves the induction to exercise 10.23, with Pascal's rule as Equation (3.3) |
 | 13 | sum of the reciprocals of the triangular numbers | an infinite series: a limit of partial sums, telescoping | trirecip | 42 | no | none | none | 0 | ProofWiki |
-| 14 | Schröder–Bernstein | comparing sizes by injection; a set defined by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
+| 14 | Schröder–Bernstein | comparing sizes by injection; a fixed point, built as a union rather than by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
 | 15 | Lagrange's theorem | an algebraic structure, which set.mm encodes through `Base`, `+g` and `SubGrp` | lagsubg | 27 | no | G, X, Y | none | 0 | ProofWiki |
 
 Three of these were set aside when the ten were chosen: Schröder–Bernstein

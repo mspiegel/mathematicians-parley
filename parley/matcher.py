@@ -154,10 +154,18 @@ class Matcher:
                 # member, not a step of the chain the bound is there to cut
                 # off, and spending it stopped `f1mpt` halfway.
                 body, variable, over = wanted.children
-                return self.for_every(
+                made = self.for_every(
                     scope, facts, body, variable, over,
                     lambda said, inner, lifted: self.settle(said, inner,
                                                             lifted, depth))
+                if not declined(made):
+                    return made
+                # A line may say it whole over another letter: the lemma
+                # reads a define's body, which binds a spare, and the page
+                # wrote `for every y`. The two are one claim, and
+                # `renaming` says so without a scope.
+                respelt = self.fact_respelt(wanted, scope, facts)
+                return made if respelt is None else respelt
             # Every lemma is tried as it is written before any is read
             # backwards, so that a biconditional turned round never stands
             # in for one that says what is wanted outright.
@@ -690,6 +698,19 @@ class Matcher:
             made = self.summand_changed(scope, was, now,
                                         dict(zip(slots, deeper, strict=True)))
             return made if declined(made) else (built, made)
+        # A map or an indexed union over another domain: `mpteq1d` and
+        # `iuneq1d` take the letter before the domains, so their parts are
+        # given by name, as `congruence` gives them.
+        if (wrap or label) in ('cmpt', 'ciun') and slots == [1]:
+            wider = self.domain_holding(
+                self.to_term(self.seq(*was, label)),
+                self.to_term(self.seq(*now, label)), scope, deeper[0])
+            if wider is not None:
+                return built, wider
+            return built, self.ap(
+                rules.CONGRUENCE[(wrap or label, (1,))],
+                {'ph': scope, 'x': was[0], 'A': was[1], 'B': now[1],
+                 'C': was[2]}, *deeper)
         moved = [x for slot in slots for x in (was[slot], now[slot])]
         rest = [o for j, o in enumerate(was) if j not in slots]
         return built, self.seq(scope, *moved, *rest, label if wrap else '',
@@ -930,8 +951,50 @@ class Matcher:
             return None
         at = term.children[0]
         bound, _over, rule = f.children
+        # A letter the rule binds is kept apart from every letter the value
+        # spells, bound there or not. M's rule binds i, and so does D's body
+        # inside C, and every lemma carrying a map holds its letter apart
+        # from the domains and the scope alike, so M's rule at C over i is
+        # a term nothing can rewrite. Where they meet, the rule is read in
+        # its other spelling (`rule_apart`). The value is asked as written
+        # out too, since a comparison may write C out inside the rule later.
+        spelt = set(at.rpn(self.flabel).split()) \
+            | set(self.read_through(at).rpn(self.flabel).split())
+
+        def meets(one):
+            return any(self.flabel[v] in spelt
+                       and self.sigs[self.flabel[v]].statement[0] == 'setvar'
+                       for v in self.letters_bound(one) - {bound.variable})
+
+        if meets(rule):
+            other = self.rule_apart(f)
+            if not meets(other):
+                rule = other
         return self.restated(rule, f'{bound.rpn(self.flabel)} cv',
                              at.rpn(self.flabel))
+
+    def rule_apart(self, f):
+        """A map's rule with every setvar it binds, but the map's own,
+        renamed to letters nothing holds when it is first asked for: one
+        spelling per map, so that the rule at any value reads one way
+        wherever it is read. `applied_body` uses it only at a value that
+        spells none of its letters, so a letter a later name takes is never
+        captured.
+        """
+        key = f.rpn(self.flabel)
+        if key not in self.rules_read:
+            bound, _over, rule = f.children
+            for letter in sorted(self.letters_bound(rule) - {bound.variable},
+                                 key=lambda v: self.forder[self.flabel[v]]):
+                label = self.flabel[letter]
+                if self.sigs[label].statement[0] != 'setvar':
+                    continue
+                fresh = self.unheld(rule, f)
+                if fresh is None:
+                    break
+                rule = rule.substitute({letter: fresh})
+            self.rules_read[key] = rule
+        return self.rules_read[key]
 
     def rewrites(self, conditional):
         """The rules of `rules.STANDARD` set.mm has, as (label, the side
@@ -1020,9 +1083,23 @@ class Matcher:
         C is a set are settled as any side condition is.
         """
         at, written = cur.children
-        f = self.applied_map(cur)
+        f = own = self.applied_map(cur)
         bound, over, rule = f.children
         c = nxt.rpn(self.flabel)
+        # Where the rule was read in its other spelling (`rule_apart`), the
+        # map is first shown to be the same map over that spelling, closed,
+        # and the value is taken there: the rule's own letters would be
+        # carried through a value that spells them.
+        apart = self.rules_read.get(own.rpn(self.flabel))
+        renamed = None
+        if apart is not None and self.restated(
+                rule, f'{bound.rpn(self.flabel)} cv',
+                at.rpn(self.flabel)).rpn(self.flabel) != c:
+            f = kernel.Term(own.label, (bound, over, apart))
+            rule = apart
+            renamed = self.class_alpha(own, f)
+            if renamed is None:
+                return Declined('the rule is not renamed apart')
         binds = {'ph': where, 'x': bound.rpn(self.flabel),
                  'A': at.rpn(self.flabel), 'B': rule.rpn(self.flabel),
                  'C': c, 'D': over.rpn(self.flabel),
@@ -1048,9 +1125,18 @@ class Matcher:
         # A defined name is carried to its map first. `fvmptd` would take
         # the define's equation at once, but it forbids the map's letter in
         # the scope, and the scope holds that equation, which binds it.
-        named = held.get(self.seq(binds['F'], mapped, 'wceq'))
-        if named is None:
-            return Declined('the equation a define holds is not in hand')
+        spelt = own.rpn(self.flabel)
+        named = None
+        if binds['F'] != spelt:
+            named = held.get(self.seq(binds['F'], spelt, 'wceq'))
+            if named is None:
+                return Declined('the equation a define holds is not in hand')
+        if renamed is not None:
+            same_map = self.seq(self.seq(spelt, mapped, 'wceq'), where,
+                                renamed, 'a1i')
+            named = same_map if named is None else self.ap(
+                'eqtrd', {'ph': where, 'A': binds['F'], 'B': spelt,
+                          'C': mapped}, named, same_map)
         via = self.ap('fveq1d', {'ph': where, 'A': binds['A'],
                                  'F': binds['F'], 'G': mapped}, named)
         return self.ap('eqtrd', {'ph': where,
@@ -1095,8 +1181,10 @@ class Matcher:
             return False
         spelt = [c.rpn(self.flabel) for c in one.children]
         other_spelt = [c.rpn(self.flabel) for c in other.children]
-        if one.label == 'wrex':
-            return spelt[1:] == other_spelt[1:]
+        # Under an existential its letter stays; its body changes by
+        # `rexbidv` and its domain by `rexeqdv`, as `congruence` walks them.
+        if one.label == 'wrex' and spelt[1] != other_spelt[1]:
+            return False
         # Only the summand, carried under its range (`congruence`).
         if one.label == 'csu' and spelt[1] != other_spelt[1]:
             return spelt[0] == other_spelt[0] and spelt[2] == other_spelt[2]
@@ -1117,8 +1205,14 @@ class Matcher:
         """
         if one.rpn(self.flabel) == other.rpn(self.flabel):
             return None
-        parts = kernel.Term(one.label,
-                            tuple(self.standard(c) for c in one.children))
+        # A function applied keeps its function: `M(X)` is rewritten whole,
+        # where `applied_body` reads the name M through, and only what it is
+        # applied to is put in standard form first. The walk never rewrites
+        # a function in place (`lifts`).
+        wrapped = one.label in rules.WRAPS
+        parts = kernel.Term(one.label, tuple(
+            c if wrapped and i == len(one.children) - 1 else self.standard(c)
+            for i, c in enumerate(one.children)))
         if parts.rpn(self.flabel) == other.rpn(self.flabel) \
                 and self.lifts(one, parts):
             return None
@@ -1168,7 +1262,12 @@ class Matcher:
                                 where, renamed, 'a1i')
         ours, theirs = self.standard(one), self.standard(other)
         said, want = ours.rpn(self.flabel), theirs.rpn(self.flabel)
-        if said != want and not self.rebound(said, want):
+        # Letters bound at two depths are paired at each by `class_alpha`
+        # and not by `rebound`, which pairs them once for the whole term:
+        # M's rule read at C binds p, and so does D's body inside C.
+        if said != want and not self.rebound(said, want) \
+                and (self.is_wff(ours)
+                     or self.class_alpha(ours, theirs) is None):
             return self.conditioned(one, other, where, held)
         if self.lifts(one, other) and all(
                 self.alike_in_place(a, b)
@@ -1205,7 +1304,7 @@ class Matcher:
         if said != want:
             wff = self.is_wff(ours)
             renamed = (self.renamed_apart(ours, theirs) if wff
-                       else self.class_renamed(ours, theirs))
+                       else self.class_alpha(ours, theirs))
             if renamed is None:
                 return Declined('no renaming says the two are one')
             links.append((ours, theirs,
@@ -1274,6 +1373,103 @@ class Matcher:
         if declined(said):
             return self.class_renamed_within(one, other)
         return self.ap(lemma, self.spelt(binding), said)
+
+    def by_lemma(self, lemma, one, other, *given):
+        """The closed `lemma` applied so that it states `one` against
+        `other`, its variables read off matching the two; else None.
+        """
+        sig = self.sigs[lemma]
+        says = self.syntax.statement(sig)
+        variables = says.names()
+        binding = kernel.match(says.children[0], one, {}, variables)
+        if binding is not None:
+            binding = kernel.match(says.children[1], other, binding,
+                                   variables)
+        if binding is None:
+            return None
+        return self.ap(lemma, self.spelt(binding), *given)
+
+    def class_alpha(self, one, other):
+        """A closed proof of `one = other`, two classes that differ only in
+        the letters they bind; None where they differ in more, or not at
+        all.
+
+        Where a binder's letter differs, `class_renamed` renames it; where
+        a place of a term differs, the equality of that place is carried up
+        by `rules.CLASS_LIFT`, one place at a time, joined by `eqtri`.
+        """
+        a, b = one.rpn(self.flabel), other.rpn(self.flabel)
+        if a == b or one.variable is not None or other.variable is not None \
+                or one.label != other.label \
+                or len(one.children) != len(other.children):
+            return None
+        if one.label in rules.CLASS_BOUND:
+            # The renaming lemmas hold their two letters apart, so they are
+            # asked only where the letters differ.
+            letters = one.label != 'cmpt' or \
+                one.children[0].rpn(self.flabel) \
+                != other.children[0].rpn(self.flabel)
+            renamed = self.class_renamed(one, other) if letters else None
+            if not letters:
+                # One letter over both: the domain and the rule are carried
+                # each by itself, and `mpteq12i` asks nothing of the letter.
+                parts = []
+                for x, y in zip(one.children[1:], other.children[1:],
+                                strict=True):
+                    if x.rpn(self.flabel) == y.rpn(self.flabel):
+                        parts.append(self.ap('eqid',
+                                             {'A': x.rpn(self.flabel)}))
+                    else:
+                        parts.append(self.class_alpha(x, y))
+                if any(p is None for p in parts):
+                    return None
+                return self.ap('mpteq12i', {
+                    'x': one.children[0].rpn(self.flabel),
+                    'A': one.children[1].rpn(self.flabel),
+                    'B': one.children[2].rpn(self.flabel),
+                    'C': other.children[1].rpn(self.flabel),
+                    'D': other.children[2].rpn(self.flabel)}, *parts)
+            if renamed is not None or one.label not in rules.DOMAIN:
+                return renamed
+            # The domain may differ too, in the letters it binds: M's rule
+            # at C runs over B ∖ {f(x) : x ∈ C} with its own letter for x.
+            # The domain is made the other's first (`rules.DOMAIN`), and
+            # the letter renamed over the domain the two then share.
+            x, y = one.children[1], other.children[1]
+            inner = self.class_alpha(x, y)
+            if inner is None:
+                return None
+            there = kernel.Term(one.label, (one.children[0], y,
+                                            *one.children[2:]))
+            moved = self.by_lemma(rules.DOMAIN[one.label], one, there, inner)
+            if moved is None:
+                return None
+            if there.rpn(self.flabel) == b:
+                return moved
+            rest = self.class_renamed(there, other) if letters else None
+            if rest is None:
+                return None
+            return self.ap('eqtri', {'A': a, 'B': there.rpn(self.flabel),
+                                     'C': b}, moved, rest)
+        here, proof = one, None
+        for i, (x, y) in enumerate(zip(one.children, other.children,
+                                       strict=True)):
+            if x.rpn(self.flabel) == y.rpn(self.flabel):
+                continue
+            lemma = rules.CLASS_LIFT.get((one.label, i))
+            inner = self.class_alpha(x, y)
+            if lemma is None or inner is None:
+                return None
+            there = kernel.Term(here.label, tuple(
+                y if k == i else c for k, c in enumerate(here.children)))
+            step = self.by_lemma(lemma, here, there, inner)
+            if step is None:
+                return None
+            proof = step if proof is None else self.ap(
+                'eqtri', {'A': a, 'B': here.rpn(self.flabel),
+                          'C': there.rpn(self.flabel)}, proof, step)
+            here = there
+        return proof
 
     def class_renamed_within(self, one, other):
         """`class_renamed` where a binder sits inside the one renamed.
@@ -1662,7 +1858,27 @@ class Matcher:
                 body, variable, over = given.children
                 other, renamed, runs = want.children
                 if over.rpn(self.flabel) != runs.rpn(self.flabel):
-                    return None
+                    # The domains may be one class spelt with other bound
+                    # letters inside, as `B ∖ {f(x) : x ∈ X}` is over x on
+                    # the page and over a spare in a define's body. The
+                    # domain is carried across first, and the rest renamed.
+                    lemma = rules.DOMAIN.get(given.label)
+                    same_class = self.class_alpha(over, runs)
+                    if lemma is None or same_class is None:
+                        return None
+                    moved = kernel.Term(given.label, (body, variable, runs))
+                    first = self.by_lemma(lemma, given, moved, same_class)
+                    if first is None:
+                        return None
+                    if moved.rpn(self.flabel) == want.rpn(self.flabel):
+                        return first
+                    rest = self.renaming(moved, want)
+                    if rest is None:
+                        return None
+                    return self.ap('bitri', {
+                        'ph': given.rpn(self.flabel),
+                        'ps': moved.rpn(self.flabel),
+                        'ch': want.rpn(self.flabel)}, first, rest)
             else:
                 (body, variable), (other, renamed) = (given.children,
                                                       want.children)
@@ -1808,6 +2024,32 @@ class Matcher:
         if free is None:
             return None
         return kernel.Term(variable=self.sigs[free].statement[1])
+
+    def fact_respelt(self, wanted, scope, facts):
+        """( scope -> wanted ) from a fact saying it over other bound
+        letters, carried by `renaming`; None where no fact does.
+        """
+        want = wanted.rpn(self.flabel)
+        for said, proof in facts.items():
+            if said == want:
+                return proof
+            held = self.to_term(said)
+            if held.label != wanted.label:
+                continue
+            across = self.renaming(held, wanted)
+            if across is None:
+                across = self.renaming_apart(said, want)
+            if across is None:
+                # Or read the same in standard form: the line says X ∈ D
+                # where the lemma reads D's set-builder out.
+                alike = self.same(held, wanted, scope, facts)
+                if declined(alike):
+                    continue
+                return self.seq(scope, said, want, proof, alike, 'mpbid')
+            return self.seq(scope, said, want, proof,
+                            self.seq(self.seq(said, want, 'wb'), scope,
+                                     across, 'a1i'), 'mpbid')
+        return None
 
     def frames_spell(self):
         """Every token the scopes of the open frames spell."""
@@ -2360,11 +2602,21 @@ class Matcher:
         theirs = self.read_through(goal)
         found = Declined(f'{label} does not conclude the claim in any '
                          f'words the rules read')
-        for side in sides:
+        # The seed as written first, and then read the way the claim is: a
+        # `with` value that mentions a defined name may be folded against a
+        # claim where that name is unfolded, and `union-contains-member` at
+        # A ∖ M(C) fits with C folded and the member unfolded, which no fact
+        # says. Each reading is tried to the end before the next.
+        seeds = [dict(seed or {})]
+        if seed:
+            seeds.append({name: self.read_through(value)
+                          for name, value in seed.items()})
+        for side, sown in ((s, w) for s in sides for w in seeds):
             binding = kernel.match(self.read_through(side, named=False),
-                                   theirs, dict(seed or {}), variables)
+                                   theirs, dict(sown), variables)
             if binding is None or side.names() - set(binding):
                 continue
+            binding = self.refolded(binding, goal)
             instance = side.substitute(binding)
             if instance.rpn(self.flabel) == goal.rpn(self.flabel):
                 continue
@@ -2372,7 +2624,12 @@ class Matcher:
                                      crossing=False, seed=binding)
             if declined(found):
                 continue
-            across = self.same(instance, goal, scope, facts, step)
+            # What carries the instance to the claim asks as a lemma does,
+            # from what the step names: its requires lines say a defined
+            # function's argument is in its domain, as `M(X)` asks X ∈ 𝒫A.
+            held = facts if step is None else self.with_cited(
+                step, scope, self.supplied(step, scope, facts))
+            across = self.same(instance, goal, scope, held, step)
             if declined(across):
                 found = across
                 continue
@@ -2393,9 +2650,46 @@ class Matcher:
         binding = kernel.match(pattern, term, dict(seed or {}), variables)
         if binding is not None:
             return binding
-        return kernel.match(self.read_through(pattern, named=False),
-                            self.read_through(term), dict(seed or {}),
-                            variables)
+        binding = kernel.match(self.read_through(pattern, named=False),
+                               self.read_through(term), dict(seed or {}),
+                               variables)
+        return None if binding is None else self.refolded(binding, term)
+
+    def refolded(self, binding, term):
+        """`binding` with a value the reading wrote out put back as `term`
+        writes it, where written out it spells a letter another value binds.
+
+        `A ∖ M(C) ∈ D` fits `elrab` only as read, and read, the element is
+        C's union over sets whose rule binds the letters D's condition binds
+        too. Put into the condition, it would sit under binders of its own
+        letters, where no lemma carrying a map can reach it. As the line
+        writes it, the element spells none of them.
+        """
+        binds = {name: {self.flabel[v] for v in self.letters_bound(value)
+                        if self.sigs[self.flabel[v]].statement[0] == 'setvar'}
+                 for name, value in binding.items()}
+        written = {}
+        for sub in self.subterms(term):
+            written.setdefault(self.read_through(sub).rpn(self.flabel), sub)
+        out = dict(binding)
+        for name, value in binding.items():
+            said = value.rpn(self.flabel)
+            others = set().union(*(b for n, b in binds.items() if n != name))
+            if said in written and set(said.split()) & others \
+                    and written[said].rpn(self.flabel) != said:
+                out[name] = written[said]
+        return out
+
+    @staticmethod
+    def subterms(term):
+        """Every part of a term, the whole first."""
+        out, rest = [], [term]
+        while rest:
+            node = rest.pop(0)
+            out.append(node)
+            if node.variable is None:
+                rest.extend(node.children)
+        return out
 
     def read_through(self, term, named=True, letters=None):
         """A term with every one-way rule of the standard form applied,
@@ -2433,6 +2727,42 @@ class Matcher:
                     return self.read_through(gives.substitute(bound), named,
                                              letters)
         return term
+
+    def names_read(self, term, letters=None):
+        """A term with each defined name standing free read as what it
+        names, and nothing else rewritten: a function applied is left
+        applied, and no rule of the standard form is used.
+        """
+        if letters is None:
+            letters = self.letters_bound(term)
+        body = self.named_body(term, letters)
+        if body is not None:
+            return self.names_read(body, letters)
+        if term.variable is not None or not term.children:
+            return term
+        # A function a define gives stays its name where it is applied:
+        # reading it as a map would leave the map applied, which is M's
+        # rule at a value only by `applied_body`.
+        kids = [c if term.label == 'cfv' and i == len(term.children) - 1
+                else self.names_read(c, letters)
+                for i, c in enumerate(term.children)]
+        return kernel.Term(term.label, tuple(kids))
+
+    def applications_read(self, term):
+        """A term with each defined function applied to a value read as its
+        rule there (`applied_body`), parts first, and nothing else
+        rewritten: a defined name standing free stays its name.
+
+        The reading `names_read` is the other half of. Schröder–Bernstein
+        says M(C) = A ∖ C and claims there is a C with the rule of M
+        written out, and C must stay C for the line to name it.
+        """
+        if term.variable is not None or not term.children:
+            return term
+        term = kernel.Term(term.label, tuple(self.applications_read(c)
+                                             for c in term.children))
+        applied = self.applied_body(term)
+        return term if applied is None else self.applications_read(applied)
 
     def sethood(self, slot, binding):
         """The classes an antecedent asks about and nothing decides.
@@ -2638,6 +2968,17 @@ class Matcher:
                     if filled is not None:
                         binding = filled
                         break
+                else:
+                    # Or as the standard form reads the line: `ssiun2s`
+                    # asks C ∈ A over the set-builder D names, and the line
+                    # says X ∈ D. What fixes C is read so; the antecedent is
+                    # then settled from the line as any is.
+                    for held in known:
+                        filled = self.fits_as(piece, self.to_term(held),
+                                              variables, seed=binding)
+                        if filled is not None:
+                            binding = filled
+                            break
             for open_class in self.sethood(slot, binding):
                 binding[open_class] = self.to_term('cvv')
         essentials = [self.prove_essential(
@@ -2752,6 +3093,13 @@ class Matcher:
             # of the very map F is. `settle` would carry it into the scope,
             # which is a deduction where the hypothesis is a statement.
             return self.seq(want.children[0].rpn(self.flabel), 'eqid')
+        # And the very map spelt over another letter, as R's define binds a
+        # spare where the page writes x: the same naming, closed.
+        if want.label == 'wceq' and len(want.children) == 2 \
+                and not self.is_wff(want.children[0]):
+            renamed = self.class_alpha(*want.children)
+            if renamed is not None:
+                return renamed
         if want.label != 'wi':
             return self.settle(want, scope, facts)
         left, right = want.children

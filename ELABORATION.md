@@ -316,9 +316,25 @@ part of what it says, so:
 - the hypothesis the lemma then asks for, spelt over the new letters, is the
   scope's own spelt over the old, and where one binder sits inside another,
   as a sum inside a sequence, the inner is renamed first and carried up
-  through the outer (`class_renamed_within`).
+  through the outer (`class_renamed_within`);
+- a map's rule read at a value that spells the rule's own bound letters,
+  bound there or not, is read in a second spelling of them, fixed once per
+  map (`rule_apart`), and the value taken from the map over that spelling,
+  shown the same map closed (`class_alpha`, `mpteq12i`). Schröder–Bernstein
+  reads M at C, and C written out is a union over sets whose condition is
+  M's rule, so a map over its own letter would stand in the proof, which no
+  lemma for maps may rewrite: they keep the letter apart from the domain;
+- a value a reading wrote out, where written out it would sit under a
+  binder of one of its own letters, is put back as the line writes it
+  (`refolded`), so `A ∖ M(C) ∈ D` is taken into D's condition with M(C)
+  folded;
+- a "for every" whose body changes only for a member of its domain, as
+  h(e) is h's rule only for e ∈ A, is carried with the member in scope
+  (`ralbidva`), over a spare where the scope spells its letter
+  (`under_member`).
 
-`tests/elaborator/bound-names.proof` holds a proof of each shape.
+`tests/elaborator/bound-names.proof` holds a proof of each shape but the
+last three, which `proof/schroeder-bernstein.proof` is the proof of.
 
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.

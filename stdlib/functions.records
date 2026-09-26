@@ -93,3 +93,67 @@ theorem added-elements-stay-inside
   target      rnmptss
   note        Narrowed to the one map the corpus writes, as
               `thm:stdlib/functions/added-elements-are-new` is.
+
+theorem image-within
+  let E : Y → W                                                       (H1)
+  assume for every y ∈ Y, E(y) ∈ Z                                    (H2)
+  then        {E(y) : y ∈ Y} ⊆ Z
+  metamath    rnmptss
+  target      rnmptss
+
+theorem image-monotone
+  let E : Y → W                                                       (H1)
+  assume X ⊆ Y                                                        (H2)
+  then        {E(x) : x ∈ X} ⊆ {E(x) : x ∈ Y}
+  metamath    mptss and rnss, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      grnmptss
+
+theorem function-into
+  let E : X → W                                                       (H1)
+  assume for every x ∈ X, E(x) ∈ Y                                    (H2)
+  then        E : X → Y
+  metamath    fmpt, over the map itself, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gfmpt
+  note        Narrowed to a function a `define` gives, which is a map: set.mm
+              says it of the map and the page of the name the define gave
+              it, and the elaborator reads the one as the other.
+
+theorem value-in-image
+  let E : Y → W                                                       (H1)
+  let s ∈ Y                                                           (H2)
+  then        E(s) ∈ {E(t) : t ∈ Y}
+  metamath    elrnmpt1s, fveq2 and fvex, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gfvrnmpt
+
+definition one-to-one
+  let f : X → Y                                                       (H1)
+  then        f : X → Y is one-to-one ↔ f : X → Y and for every s ∈ X,
+              for every t ∈ X, if f(s) = f(t) then s = t
+  metamath    dff13
+  target      dff13
+
+theorem inverse-value
+  let g : Y → X                                                       (H1)
+  assume g : Y → X is one-to-one                                      (H2)
+  let y ∈ Y                                                           (H3)
+  then        g⁻¹(g(y)) = y
+  metamath    f1f1orn and f1ocnvfv1, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gf1cnvfv1
+
+theorem onto-bijection
+  let X be a set                                                      (H1)
+  let f : X → Y                                                       (H2)
+  assume f : X → Y is one-to-one                                      (H3)
+  assume for every y ∈ Y, there is x ∈ X with y = f(x)                (H4)
+  then        there is a bijection from X to Y
+  metamath    f1f, dffo3, df-f1o and f1oeng, which this corpus proves
+              together in elaboration/stdlib/proved.mm
+  target      gf1foen
+  note        A function that never sends two things to one place and
+              reaches every point pairs its domain off against its
+              codomain. set.mm calls the reaching onto and the pairing a
+              one-to-one correspondence, and the page says neither word.

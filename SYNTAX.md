@@ -334,8 +334,12 @@ continues until the line carrying its label. The lines are one term,
 `f(x) if x ∈ C, g⁻¹(x) otherwise`, which may also be written on one line,
 and three or more cases nest from the right: `a if P, b if Q, c otherwise`
 on three lines is `a if P, (b if Q, c otherwise) otherwise`. A step that
-needs a value writes it and cites the define with the case's condition,
-as it cites any other define.
+needs a value writes it and cites the case it is taken in, with the line
+saying the condition: `h(t) = g⁻¹(t)` cites
+`thm:stdlib/reasoning/case-otherwise, from` the line saying t ∉ C, and
+`requires t ∈ A` as any value of a defined function does. The first case
+is `thm:stdlib/reasoning/case-taken`. A define is no justification head,
+and these two say what a reader reads off the brace.
 
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let

@@ -259,3 +259,66 @@ theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
   metamath    ss0b
   target      ss0b
+
+theorem difference-member
+  then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
+  metamath    eldif
+  target      eldif
+
+theorem in-subset
+  assume X ⊆ Y                                                        (H1)
+  assume u ∈ X                                                        (H2)
+  then        u ∈ Y
+  metamath    ssel2
+  target      ssel2
+
+theorem difference-reverses
+  assume X ⊆ Y                                                        (H1)
+  then        Z ∖ Y ⊆ Z ∖ X
+  metamath    sscon
+  target      sscon
+
+theorem complement-swap
+  assume X ⊆ Z                                                        (H1)
+  assume Y ⊆ Z                                                        (H2)
+  then        X ⊆ Z ∖ Y ↔ Y ⊆ Z ∖ X
+  metamath    ssconb
+  target      ssconb
+
+theorem complement-swap-outside
+  then        Z ∖ Y ⊆ X ↔ Z ∖ X ⊆ Y
+  metamath    difcom
+  target      difcom
+
+theorem equal-subset
+  assume X = Y                                                        (H1)
+  then        X ⊆ Y
+  metamath    eqimss
+  target      eqimss
+
+theorem difference-twice
+  assume Y ⊆ Z                                                        (H1)
+  then        Z ∖ (Z ∖ Y) = Y
+  metamath    dfss4
+  target      dfss4
+
+definition indexed-union
+  then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
+  metamath    eliun
+  target      eliun
+
+theorem union-contains-member
+  assume Y ∈ D                                                        (H1)
+  then        Y ⊆ ⋃(X ∈ D) X
+  metamath    ssiun2s
+  target      ssiun2s with C := Y
+  note        ssiun2 says it with one letter for the member and the union's
+              index; ssiun2s keeps them apart, as the page does, and ties
+              them by its hypothesis that the two sets agree where they are
+              equal.
+
+theorem union-within
+  assume for every X ∈ D, X ⊆ Z                                       (H1)
+  then        ⋃(X ∈ D) X ⊆ Z
+  metamath    iunss
+  target      iunss

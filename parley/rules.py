@@ -60,6 +60,17 @@ CONGRUENCE = {
     ('wi', (0,)): 'imbi1d', ('wi', (1,)): 'imbi2d',
     ('wi', (0, 1)): 'imbi12d',
     ('wral', (0,)): 'ralbidv', ('wrex', (0,)): 'rexbidv',
+    # Over a domain spelt another way, as a defined name read as the set it
+    # names; `congruence` takes these by name, since they order their
+    # variables apart from the rest.
+    ('wral', (2,)): 'raleqdv', ('wrex', (2,)): 'rexeqdv',
+    ('crab', (0,)): 'rabbidva',
+    ('cmpt', (1,)): 'mpteq1d', ('ciun', (1,)): 'iuneq1d',
+    # A function against the map its define names, and a rule by cases in
+    # any of its three parts; given by name too.
+    ('wf', (2,)): 'feq1d', ('wf1', (2,)): 'f1eq1',
+    **{('cif', places): 'ifbieq12d'
+       for places in ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))},
     # And the same over every set there is, which a `let X be a set`
     # quantifies and the subsets proof inducts under.
     ('wal', (0,)): 'albidv'}
@@ -92,6 +103,20 @@ CLASS_BOUND = {'cmpt': 'cbvmptv', 'crab': 'cbvrabv', 'csu': 'cbvsumv'}
 # renamed first and carried up through the outer by this, and the outer
 # renamed after.
 CLASS_BODY = {'cmpt': 'mpteq2ia', 'csu': 'sumeq2i'}
+
+# Carrying an equality of two classes up through one place of a term,
+# closed, by the constructor and the place: what two terms spelling one
+# class with different bound letters inside are shown equal by. The places
+# are the kernel term's, in the order its constructor takes them.
+CLASS_LIFT = {('cdif', 0): 'difeq1i', ('cdif', 1): 'difeq2i',
+              ('crn', 0): 'rneqi', ('cfv', 0): 'fveq2i', ('cfv', 1): 'fveq1i',
+              ('cun', 0): 'uneq1i', ('cun', 1): 'uneq2i',
+              ('cin', 0): 'ineq1i', ('cin', 1): 'ineq2i',
+              ('co', 0): 'oveq1i', ('co', 1): 'oveq2i',
+              ('cpw', 0): 'pweqi', ('csn', 0): 'sneqi'}
+
+# A binder's domain changed, its body kept, closed.
+DOMAIN = {'wral': 'raleqi', 'wrex': 'rexeqi', 'cmpt': 'mpteq1i'}
 
 # Stands where a join would name the constructor, for a biconditional a
 # lemma states the other way round from the way a step reaches it. It is no
@@ -231,7 +256,7 @@ FROM_NN0 = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
 SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
            'cv': 'vex', 'co': 'ovex', 'cfv': 'fvex', 'cif': 'ifexg',
-           'cn': 'nnex',
+           'cn': 'nnex', 'ciun': 'iunexg', 'ccnv': 'cnvexg',
            'cn0': 'nn0ex', 'csu': 'sumex'}
 
 # Two differences against zero added, by which of the two is strictly

@@ -97,14 +97,14 @@ class Scopes:
             return self.generalised(scope, facts, body, name, over, prove,
                                     implied)
         where = over.rpn(self.flabel)
-        # A spare is one no name of the proof stands for, which a letter a
-        # hypothesis binds need not be: `… → 1 as n → ∞` binds an n the
-        # proof never names.
-        spelt = set(scope.split()) | set(body.rpn(self.flabel).split()) \
-            | set(where.split())
-        spare = self.spare_var()
-        while spare in spelt:
-            spare = self.spare_var()
+        # A letter no name of the proof stands for and none of these spells,
+        # which a letter a hypothesis binds need not be: `… → 1 as n → ∞`
+        # binds an n the proof never names. Looked at, not taken: it stands
+        # inside this one generalisation, which `renaming` gives back.
+        letter = self.unheld(self.to_term(scope), body, over)
+        if letter is None:
+            return Declined(f'no letter left to generalise {name} over')
+        spare = letter.rpn(self.flabel)
         again = self.restated(body, f'{name} cv', f'{spare} cv')
         made = self.generalised(scope, facts, again, spare, over, prove,
                                 implied)

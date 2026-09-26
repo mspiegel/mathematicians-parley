@@ -157,3 +157,32 @@ $d ph j k n x $.
 
 $}
 
+${
+$( Functions: images, inverses, and a bijection from one-to-one and
+   onto. $)
+$d x y A $.
+$d x y B $.
+$d x y F $.
+$d x D $.
+
+  grnmptss $p |- ( A C_ B -> ran ( x e. A |-> C ) C_ ran ( x e. B |-> C ) ) $=
+    ( wss cmpt crn mptss rnss syl ) BCEABDFZACDFZEKGLGEABCDHKLIJ $.
+
+  gf1cnvfv1 $p |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C ) $=
+    ( wf1 crn wf1o wcel cfv ccnv wceq f1f1orn f1ocnvfv1 sylan )
+    ABDEADFZDGCAHCDIDJICKABDLAOCDMN $.
+
+  gf1foen $p |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B ) $=
+    ( wcel wf1 cv cfv wceq wrex wral w3a wf1o cen wbr simp1 wfo simp2 wf f1f
+    syl simp3 wa wb dffo3 a1i mpbir2and df-f1o f1oeng syl2anc )
+    CFGZCDEHZBIZAIZEJZKZACLZBDMZNZUMCDEOZCDPQUMUNUTRVAVBUNCDESZUMUNUTTZVAVCCDEUAZUTVAUNVEVDCDEUBUCUMUNUTUDVCVEUTUEUFVAABCDEUGUHUIVBUNVCUEUFVACDEUJUHUICDFEUKUL $.
+
+  gfmpt $p |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B ) $=
+    ( cmpt eqid fmpt ) ABCDABDEZHFG $.
+
+  gfvrnmpt $p |- ( D e. A -> ( F ` D ) e. ran ( x e. A |-> ( F ` x ) ) ) $=
+    ( wcel cfv cvv cv cmpt crn fvex eqid fveq2 elrnmpt1s mpan2 )
+    CBECDFZGEPABAHZDFZIZJECDKABRPCSGSLQCDMNO $.
+
+$}
+

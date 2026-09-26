@@ -25,6 +25,24 @@ theorem excluded-middle
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
 
+theorem case-taken
+  assume P                                                            (H1)
+  then        (a if P, b otherwise) = a
+  metamath    iftrue
+  target      iftrue
+  note        What a function defined by cases gives where the condition
+              holds. A step claims the value and cites this with the line
+              saying the condition, which is the case a reader reads off
+              the brace.
+
+theorem case-otherwise
+  assume not P                                                        (H1)
+  then        (a if P, b otherwise) = b
+  metamath    iffalse
+  target      iffalse
+  note        The value `thm:stdlib/reasoning/case-taken` does not give:
+              where the condition fails, the last line of the brace.
+
 theorem from-contradiction
   assume P                                                            (H1)
   assume not P                                                        (H2)

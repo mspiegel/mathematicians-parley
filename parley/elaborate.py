@@ -70,10 +70,17 @@ PROVED = f'{STDLIB}/proved'
 # Variables for a name the proof does not spell: what a `define` renames
 # its body's binders to, and what an `obtain` introduces. A name the text
 # does spell keeps its own letter, so this holds what a reader is least
-# likely to write, and holds enough of them that a proof binding several
-# names of its own does not run the list out.
+# likely to write. After them come the letters readers write most, which a
+# proof spelling them never draws: every setvar set.mm has, since a proof
+# fixing capital letters, which set.mm keeps for classes, takes a spare for
+# each, and Schröder–Bernstein fixes seven.
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
-              'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv']
+              'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv',
+              've', 'vd', 'vc', 'vb', 'va', 'vn', 'vz', 'vy', 'vx']
+
+# Where a class that binds a name keeps it among its parts: a map and an
+# indexed union first, a set built from a property second, a sum third.
+BINDER_AT = {'cmpt': 0, 'ciun': 0, 'crab': 1, 'csu': 2}
 
 
 # A letter standing alone as a name, as `k` does in `Σ(k = 0 to m)`, and
@@ -171,6 +178,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.axioms = []         # (label, statement) for each algebra step
         self.arities = {}        # cited corpus label -> how much it takes
         self.reserved = set()    # setvars the conclusion quantifies over
+        self.rules_read = {}     # map -> its rule spelt apart (`rule_apart`)
         self.supplying = set()   # `requires` terms being discharged now
         self.rests_on = {}       # by page item, what its proof was built on
         self.bridges = None      # (from system, to system) -> one lemma
@@ -407,6 +415,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.reserved = {t for t in goal.split()
                          if t in self.sigs
                          and self.sigs[t].statement[0] == 'setvar'}
+        self.rules_read = {}
         self.open_outermost(scope, facts)
         # A `requires` line names the lines it rests on, and what supplies it
         # is reached from places the step's own lines are not passed to.
@@ -986,6 +995,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # claims. Cantor puts f(x) = B into a line saying x ∉ f(x) and into
         # another saying x ∉ B, and writes the equation once; and B holds an
         # f(x) of its own, under a name it binds, that neither touches.
+        # An obtain holds the membership of the name it introduces apart
+        # from the body, among the facts in scope: `y ∈ B ∖ R. t = g(y).`
+        # unpacks to the equation alone.
+        for one in into.sentences:
+            start = self.term(one)
+            if start not in known and start in facts:
+                known[start] = facts[start]
         for was, now, faces in ((old, new, facing), (new, old, turned)):
             for one in into.sentences:
                 start = self.term(one)
@@ -1030,8 +1046,12 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                        lines)
             if declined(made):
                 return made
+            # Asked from what the step names, requires lines included, as
+            # the lemma's own right side is below.
             alike = self.same(self.to_term(instance), self.to_term(term),
-                              scope, facts)
+                              scope, self.with_cited(
+                                  step, scope, self.supplied(step, scope,
+                                                             facts)))
             if declined(alike):
                 return alike
             return self.seq(scope, instance, term, made, alike, 'mpbid')
@@ -1095,6 +1115,22 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             binding = kernel.match(left, self.to_term(said), {}, variables)
             if binding:
                 return binding, shown
+        # Then with only the defined names read as what they name, and the
+        # rest as written: Schröder–Bernstein's `X ∈ D` is D's set-builder,
+        # and the condition inside it, which applies M to the builder's own
+        # letter, stays as written rather than being read as M's rule there,
+        # which could only be shown under the builder.
+        for said, shown in held.items():
+            read = self.names_read(self.to_term(said))
+            if read.rpn(self.flabel) == said:
+                continue
+            binding = kernel.match(left, read, {}, variables)
+            if not binding:
+                continue
+            alike = self.same(self.to_term(said), read, scope, facts)
+            if not declined(alike):
+                return binding, self.seq(scope, said, read.rpn(self.flabel),
+                                         shown, alike, 'mpbid')
         for said, shown in held.items():
             binding = self.fits_as(left, self.to_term(said), variables)
             if not binding:
@@ -1160,6 +1196,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
 
         left = reads.children[0].substitute(binding).rpn(self.flabel)
         right = reads.children[1].substitute(binding).rpn(self.flabel)
+        # What carries the unfolding to the claim asks from what the step
+        # names, requires lines included: reading `M(X)` as M's rule asks
+        # X ∈ 𝒫A, and step 7.2 of Schröder–Bernstein says so.
+        facts = self.with_cited(step, scope, self.supplied(step, scope, facts))
         made = self.unfolding(step, lemma, left, right, None, None,
                               scope, facts)
         if declined(made):
@@ -1431,11 +1471,19 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             proof = self.carried(cite, facts, lines)
             if line.term == wanted:
                 return proof
-            said = self.to_term(line.term)
-            if said.label == 'wceq':
-                was, now = (c.rpn(self.flabel) for c in said.children)
-                if self.seq(now, was, 'wceq') == wanted:
-                    return self.seq(scope, was, now, proof, 'eqcomd')
+            # A line may say several things, and the link be one of them:
+            # `h(s) ∈ B ∖ R. g(h(s)) = s.` gives s = g(h(s)). Each sentence
+            # is offered with a proof of itself, as `substitute` offers them.
+            known = {line.term: proof}
+            self.unpack(line.term, proof, scope, known)
+            for said_as, held in known.items():
+                if said_as == wanted:
+                    return held
+                said = self.to_term(said_as)
+                if said.label == 'wceq':
+                    was, now = (c.rpn(self.flabel) for c in said.children)
+                    if self.seq(now, was, 'wceq') == wanted:
+                        return self.seq(scope, was, now, held, 'eqcomd')
             raise self.defect(step.line, f'{cite} does not say {written}')
 
         first = self.read(links[0][0])
@@ -1501,6 +1549,14 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         for ref in step.just.refs:
             witness = self.witness_in(body, self.to_term(lines[ref].term),
                                       stands)
+            if witness:
+                break
+        # A cited line may write a defined function applied where the claim
+        # writes its rule, and is read with the rule in place.
+        for ref in step.just.refs if witness is None else ():
+            witness = self.witness_in(
+                body, self.applications_read(self.to_term(lines[ref].term)),
+                stands)
             if witness:
                 break
         if witness is None:
@@ -1616,11 +1672,14 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             return False
         if len(pattern.children) != len(actual.children):
             return False
-        if (pattern.label in rules.BOUND and len(pattern.children) >= 2
-                and pattern.children[1].variable is not None
-                and actual.children[1].variable is not None):
-            paired = {**paired, pattern.children[1].variable:
-                      actual.children[1].variable}
+        # A class binds too: {g(y) : y ∈ B} is a map binding y first, and a
+        # define's rule read at a value binds letters of its own.
+        at = 1 if pattern.label in rules.BOUND else BINDER_AT.get(pattern.label)
+        if (at is not None and len(pattern.children) > at
+                and pattern.children[at].variable is not None
+                and actual.children[at].variable is not None):
+            paired = {**paired, pattern.children[at].variable:
+                      actual.children[at].variable}
         return all(self.aligned(a, b, marks, found, paired)
                    for a, b in zip(pattern.children, actual.children,
                                    strict=True))
@@ -1894,10 +1953,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 # does; `hypothesis_body` has already turned it into the
                 # formula that says so, and the name is in the same place.
                 # `let a ∉ X` reads as a conjunction whose first leaf is the
-                # name.
+                # name, and `let f : A → B` names its function first.
                 if kind == 'let' and node.notation in ('membership',
                                                        'is-a-set',
-                                                       'conjunction'):
+                                                       'conjunction',
+                                                       'function-type'):
                     name = self.subject_of(node).text
                     theirs = spare.pop(0)
                     # A hypothesis the citation does not name stands for

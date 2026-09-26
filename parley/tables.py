@@ -51,6 +51,35 @@ class TableReading:
         return self.settle(self.to_term(self.seq(said, system, 'wcel')),
                            scope, facts, depth=depth)
 
+    def over_spare_letter(self, given, want, scope, facts, step, leaf):
+        """( scope -> given = want ), two classes binding a letter the scope
+        spells, by way of the same classes over a spare: renamed to it by
+        `class_alpha`, walked there, and renamed back.
+        """
+        letter = given.children[1]
+        # Looked at, not taken, as in `letters_apart`: the letter stands
+        # inside this one equation and nowhere else.
+        fresh = self.unheld(self.to_term(scope), given, want)
+        if fresh is None:
+            return Declined('no letter left to rename a class with')
+        moved = given.substitute({letter.variable: fresh})
+        moved_want = want.substitute({letter.variable: fresh})
+        walked = self.congruence(moved, moved_want, scope, facts, step, leaf)
+        if declined(walked):
+            return walked
+        there = self.class_alpha(given, moved)
+        back = self.class_alpha(moved_want, want)
+        if there is None or back is None:
+            return Declined('the class is not renamed apart from the scope')
+        a, b = given.rpn(self.flabel), moved.rpn(self.flabel)
+        c, d = moved_want.rpn(self.flabel), want.rpn(self.flabel)
+        first = self.seq(self.seq(a, b, 'wceq'), scope, there, 'a1i')
+        last = self.seq(self.seq(c, d, 'wceq'), scope, back, 'a1i')
+        middle = self.ap('eqtrd', {'ph': scope, 'A': a, 'B': b, 'C': c},
+                         first, walked)
+        return self.ap('eqtrd', {'ph': scope, 'A': a, 'B': c, 'C': d},
+                       middle, last)
+
     def congruence(self, given, want, scope, facts, step, leaf):
         """Carry one change up to the whole term it sits in.
 
@@ -73,14 +102,14 @@ class TableReading:
             return self.no(
                 '{} and {} differ by more than the change being carried',
                 given.rpn(self.flabel), want.rpn(self.flabel))
-        if given.label == 'wrex':
+        # Only the body is carried under the binder here; a domain that
+        # changes with the body kept is the branch for domains below, and a
+        # letter that changes is not this walk's to make.
+        if given.label == 'wrex' \
+                and [c.rpn(self.flabel) for c in want.children[1:]] \
+                == [c.rpn(self.flabel) for c in given.children[1:]]:
             body, variable, over = given.children
             name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
-            # Only the body is carried under the binder; a change in what it
-            # binds or where that runs is not this walk's to make.
-            if [c.rpn(self.flabel) for c in want.children[1:]] \
-                    != [name, runs]:
-                return Declined('the two bind differently')
             # `rexbidva` keeps its letter apart from the scope it carries,
             # as `sumeq2sdv` does its index (`summand_changed`).
             if name in scope.split():
@@ -123,6 +152,82 @@ class TableReading:
                                         'B': body.rpn(self.flabel),
                                         'C': want.children[1].rpn(self.flabel),
                                         'k': name}, made)
+        # A set-builder's condition is carried the same way, under its
+        # letter's membership of the domain: D's condition applies M to the
+        # builder's own letter, and M(r) is M's rule only for r ∈ 𝒫A, which
+        # the builder is what says.
+        if given.label == 'crab' \
+                and given.children[1].rpn(self.flabel) \
+                == want.children[1].rpn(self.flabel) \
+                and given.children[2].rpn(self.flabel) \
+                == want.children[2].rpn(self.flabel) \
+                and given.children[0].rpn(self.flabel) \
+                != want.children[0].rpn(self.flabel):
+            body, letter, runs = given.children
+            name = letter.rpn(self.flabel)
+            if name in scope.split():
+                # The scope holds D's own equation, which binds this letter,
+                # so the condition is carried over a spare the scope does
+                # not spell and the builder renamed to it and back, as
+                # `for_every` does for a "for every".
+                return self.over_spare_letter(given, want, scope, facts,
+                                              step, leaf)
+            member = self.seq(f'{name} cv', runs.rpn(self.flabel), 'wcel')
+            with self.frames_kept():
+                inner, lifted = self.widen(scope, facts, member)
+                made = self.congruence(body, want.children[0], inner, lifted,
+                                       step, leaf)
+            if declined(made):
+                return made
+            return self.ap('rabbidva', {'ph': scope,
+                                        'ps': body.rpn(self.flabel),
+                                        'ch': want.children[0].rpn(self.flabel),
+                                        'x': name,
+                                        'A': runs.rpn(self.flabel)}, made)
+        # A "for every" or "there is" whose domain changes, its letter and
+        # its body kept: `for every X ∈ D` over D read as its set-builder.
+        if given.label in ('wral', 'wrex') \
+                and given.children[0].rpn(self.flabel) \
+                == want.children[0].rpn(self.flabel) \
+                and given.children[1].rpn(self.flabel) \
+                == want.children[1].rpn(self.flabel) \
+                and given.children[2].rpn(self.flabel) \
+                != want.children[2].rpn(self.flabel):
+            body, letter, runs = given.children
+            moved = self.congruence(runs, want.children[2], scope, facts,
+                                    step, leaf)
+            if declined(moved):
+                return moved
+            return self.ap(rules.CONGRUENCE[(given.label, (2,))], {
+                'ph': scope, 'ps': body.rpn(self.flabel),
+                'x': letter.rpn(self.flabel), 'A': runs.rpn(self.flabel),
+                'B': want.children[2].rpn(self.flabel)}, moved)
+        # A map whose domain changes, its letter and its rule kept: M's rule
+        # at X is a map over B ∖ {f(x) : x ∈ X}, and the rule at another X
+        # is the same map over another domain. `mpteq1d` asks nothing of
+        # the scope, since the rule does not move; an indexed union over D
+        # read as its set-builder is the same, by `iuneq1d`.
+        if given.label in ('cmpt', 'ciun') \
+                and given.children[0].rpn(self.flabel) \
+                == want.children[0].rpn(self.flabel) \
+                and given.children[2].rpn(self.flabel) \
+                == want.children[2].rpn(self.flabel) \
+                and given.children[1].rpn(self.flabel) \
+                != want.children[1].rpn(self.flabel):
+            letter, over, rule = given.children
+            moved = self.congruence(over, want.children[1], scope, facts,
+                                    step, leaf)
+            if declined(moved):
+                return moved
+            wider = self.domain_holding(given, want, scope, moved)
+            if wider is not None:
+                return wider
+            return self.ap(rules.CONGRUENCE[(given.label, (1,))], {
+                                       'ph': scope,
+                                       'x': letter.rpn(self.flabel),
+                                       'A': over.rpn(self.flabel),
+                                       'B': want.children[1].rpn(self.flabel),
+                                       'C': rule.rpn(self.flabel)}, moved)
         wrapped = given.label in rules.WRAPS
         kids = given.children[:-1] if wrapped else given.children
         wants = want.children[:-1] if wrapped else want.children
@@ -131,6 +236,44 @@ class TableReading:
         slots = [i for i in range(len(kids)) if spelt[i] != other[i]]
         if not slots:
             return Declined('nothing changed under this term')
+        # A rule by cases changes in its condition and its two values at
+        # once where a letter stands in all three, and `ifbieq12d` takes
+        # both old values before the new ones, so it is given its parts by
+        # name; a part that stays the same is carried by `biidd` or
+        # `eqidd`.
+        if given.label == 'cif':
+            parts = []
+            for i in range(3):
+                if i in slots:
+                    one = self.congruence(kids[i], wants[i], scope, facts,
+                                          step, leaf)
+                    if declined(one):
+                        return one
+                elif i == 0:
+                    one = self.ap('biidd', {'ph': scope, 'ps': spelt[0]})
+                else:
+                    one = self.ap('eqidd', {'ph': scope, 'A': spelt[i]})
+                parts.append(one)
+            return self.ap('ifbieq12d', {
+                'ph': scope, 'ps': spelt[0], 'ch': other[0], 'A': spelt[1],
+                'B': spelt[2], 'C': other[1], 'D': other[2]}, *parts)
+        # A function spelt as its define's name against the map it names:
+        # `feq1d`, and for one-to-one `f1eq1`, which has no deduction form,
+        # after the equation by `syl`. Both take the domain and codomain
+        # before the function, so they are given their parts by name.
+        if given.label in ('wf', 'wf1') and slots == [2]:
+            moved = self.congruence(kids[2], wants[2], scope, facts, step,
+                                    leaf)
+            if declined(moved):
+                return moved
+            parts = {'A': spelt[0], 'B': spelt[1], 'F': spelt[2],
+                     'G': other[2]}
+            if given.label == 'wf':
+                return self.ap('feq1d', {'ph': scope, **parts}, moved)
+            return self.ap('syl', {
+                'ph': scope, 'ps': self.seq(spelt[2], other[2], 'wceq'),
+                'ch': self.seq(given.rpn(self.flabel), want.rpn(self.flabel),
+                               'wb')}, moved, self.ap('f1eq1', parts))
         # What lifts the change is the lemma for this constructor and these
         # places, and the operation it lifts under must be the same one.
         lifting = rules.CONGRUENCE.get((given.label, tuple(slots)))
@@ -149,8 +292,74 @@ class TableReading:
                  for i in slots]
         for one in under:
             if declined(one):
+                # The body of a "for every" may change only for a member of
+                # its domain: h(e) is h's rule only for e ∈ A. So it is
+                # carried again under that membership, as a "there is" is.
+                if given.label == 'wral' and slots == [0]:
+                    return self.under_member(given, want, scope, facts, step,
+                                             leaf, one)
                 return one
         return self.seq(scope, *moved, *rest, head, *under, lifting)
+
+    def domain_holding(self, given, want, scope, moved):
+        """( scope -> given = want ), a map whose domain changes to one
+        spelling its letter, by `mpteq12dv` with its rule kept; None where
+        neither domain spells the letter.
+
+        `mpteq1d` holds the letter apart from both domains, bound in them or
+        not. M's rule at C binds i, and C written out is a union over sets
+        whose own rule binds i, so the domain M's rule runs over at C holds
+        the letter; `mpteq12dv` asks only that the scope not hold it.
+        """
+        if given.label != 'cmpt':
+            return None
+        letter, over, rule = (c.rpn(self.flabel) for c in given.children)
+        new = want.children[1].rpn(self.flabel)
+        if letter not in over.split() and letter not in new.split():
+            return None
+        return self.ap('mpteq12dv', {'ph': scope, 'x': letter, 'A': over,
+                                     'B': rule, 'C': new, 'D': rule},
+                       moved, self.ap('eqidd', {'ph': scope, 'A': rule}))
+
+    def under_member(self, given, want, scope, facts, step, leaf, why):
+        """( scope -> ( A. x e. A ph <-> A. x e. A ps ) ), the body carried
+        with x ∈ A in scope (`ralbidva`); `why` where that fails too.
+        """
+        body, variable, over = given.children
+        name, runs = variable.rpn(self.flabel), over.rpn(self.flabel)
+        if name in scope.split():
+            # `ralbidva` keeps its letter apart from the scope, so where the
+            # scope spells it the two are carried over a spare and renamed
+            # back, as `over_spare_letter` does for a class.
+            fresh = self.unheld(self.to_term(scope), given, want)
+            if fresh is None:
+                return why
+            moved = given.substitute({variable.variable: fresh})
+            moved_want = want.substitute({variable.variable: fresh})
+            walked = self.under_member(moved, moved_want, scope, facts, step,
+                                       leaf, why)
+            there = self.renamed_apart(given, moved)
+            back = self.renamed_apart(moved_want, want)
+            if declined(walked) or there is None or back is None:
+                return why
+            a, b = given.rpn(self.flabel), moved.rpn(self.flabel)
+            c, d = moved_want.rpn(self.flabel), want.rpn(self.flabel)
+            first = self.seq(self.seq(a, b, 'wb'), scope, there, 'a1i')
+            last = self.seq(self.seq(c, d, 'wb'), scope, back, 'a1i')
+            middle = self.ap('bitrd', {'ph': scope, 'ps': a, 'ch': b,
+                                       'th': c}, first, walked)
+            return self.ap('bitrd', {'ph': scope, 'ps': a, 'ch': c,
+                                     'th': d}, middle, last)
+        member = self.seq(f'{name} cv', runs, 'wcel')
+        with self.frames_kept():
+            inner, lifted = self.widen(scope, facts, member)
+            made = self.congruence(body, want.children[0], inner, lifted,
+                                   step, leaf)
+        if declined(made):
+            return why
+        return self.seq(scope, body.rpn(self.flabel),
+                        want.children[0].rpn(self.flabel), name, runs, made,
+                        'ralbidva')
 
     def numeral_within(self, goal, scope, facts):
         """( scope -> t e. S ), for a term built from numerals alone.

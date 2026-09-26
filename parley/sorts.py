@@ -21,7 +21,9 @@ from parse import Problem, declined, define_parts
 
 NUMBER_SYSTEMS = {'ℕ', 'ℕ₀', 'ℤ', 'ℚ', 'ℝ'}
 
-LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
+# A label stands apart from what it labels, so `M(X)` ending a line is M
+# applied to X and not a line labelled X.
+LABEL = re.compile(r'\s+\([A-Z]+[0-9]*\)\s*$')
 MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
 KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
