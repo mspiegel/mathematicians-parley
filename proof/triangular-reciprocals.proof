@@ -40,31 +40,21 @@ theorem triangular-reciprocals
     2.3.  n ≥ 1
           thm:stdlib/numbers/nat-ge-1, from K2
 
-    2.4.  For every k ∈ {1, …, n}, 1/T(k) = 2/k − 2/(k + 1).
-          fix
-          let k ∈ {1, …, n}                                           (K3)
-
-          2.4.1.  k ∈ ℕ
-                  thm:stdlib/sums/range-nat, from 2.1, K3
-
-          2.4.2.  1/T(k) = 2/k − 2/(k + 1)
-                  instantiate k := k in line 1, from 2.4.1
-
-    2.5.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
-          thm:stdlib/sums/sum-termwise a := 1, b := n, from 2.4
+    2.4.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
+          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: from 2.1
 
-    2.6.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)
+    2.5.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)
           thm:stdlib/sums/sum-telescopes a := 1, b := n
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: from 2.1
           requires n + 1 ≥ 1: inequalities, from 2.2, 2.3
 
-    2.7.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
+    2.6.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
           calculation
-            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.5
-                                 = 2/1 − 2/(n + 1)                    2.6
+            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.4
+                                 = 2/1 − 2/(n + 1)                    2.5
                                  = 2 − 2/(n + 1)                      arithmetic
 
 3.  For every k ∈ ℕ, 1/T(k) ∈ ℝ.

@@ -161,6 +161,43 @@ NEGATED = {'cc': 'negcld', 'cr': 'renegcld', 'cz': 'znegcld'}
 # so it is closed only where the caller says how that is shown.
 DIVIDED = {'cc': 'divcld', 'cr': 'redivcld'}
 
+# Which number sets lie inside which, each with the lemma saying so of a
+# member (`SYNTAX.md`: a line said of every member of a set says it of every
+# member of a set inside that one). One table, read by the checker and the
+# elaborator alike, and declared rather than searched.
+SYSTEM_OF = {'ℕ': 'cn', 'ℕ₀': 'cn0', 'ℤ': 'cz', 'ℚ': 'cq', 'ℝ': 'cr',
+             'ℂ': 'cc'}
+WITHIN = {
+    'cn': {'cn0': 'nnnn0', 'cz': 'nnz', 'cq': 'nnq', 'cr': 'nnre',
+           'cc': 'nncn'},
+    'cn0': {'cz': 'nn0z', 'cr': 'nn0re', 'cc': 'nn0cn'},
+    'cz': {'cq': 'zq', 'cr': 'zre', 'cc': 'zcn'},
+    'cq': {'cr': 'qre', 'cc': 'qcn'},
+    'cr': {'cc': 'recn'},
+}
+# A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere.
+# (the system, the numeral it must start at or None, the lemma)
+RANGE_WITHIN = (('cn', 'c1', 'elfznn'), ('cn0', 'cc0', 'elfznn0'),
+                ('cz', None, 'elfzelz'))
+
+
+def within_path(small, big):
+    """The lemmas carrying a member of `small` into `big`, by labels, in
+    order; [] where the two are one; None where the table does not put
+    `small` inside `big`. A direct entry is taken over a longer way: set.mm
+    says ℕ ⊆ ℝ as `nnre`, and ℕ₀ ⊆ ℚ only by way of ℤ.
+    """
+    if small == big:
+        return []
+    direct = WITHIN.get(small, {}).get(big)
+    if direct is not None:
+        return [direct]
+    for middle, lemma in WITHIN.get(small, {}).items():
+        rest = within_path(middle, big)
+        if rest is not None:
+            return [lemma, *rest]
+    return None
+
 # What a term built from numerals alone is spelt with: the digits, the
 # decimal that joins them, and the operations `arithmetic` reads.
 NUMERIC = frozenset({

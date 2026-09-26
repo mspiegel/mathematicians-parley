@@ -774,6 +774,12 @@ claim's index moved to a letter nothing holds, which the lemma keeps apart
 from j (`instanced`). The other three are then read the usual way and must
 agree with the claim.
 
+The line may be said of a larger set than the range, as `SYNTAX.md` allows:
+the triangular reciprocals' `sum-termwise` step cites line 1, said of every
+k ∈ ℕ, for a hypothesis over {1, …, n}, and the index is in ℕ by `elfznn`
+once it is in the range. The checker reads the same inclusion from the
+table in `rules.py` (`set_within`).
+
 A line said of every index answers a lemma's hypothesis about each index
 whether the step cites it or writes it as a requires line: `climnnre` asks
 each partial sum to be real, and the triangular reciprocals write "for every

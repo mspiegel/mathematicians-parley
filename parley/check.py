@@ -17,8 +17,10 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import field
 import kinds
-from formula import Grammar, parse
+import rules
+from formula import Grammar, Node, parse
 from match import (
     PROPERTY,
     binding_context,
@@ -902,6 +904,14 @@ def supply(patterns, facts, binding, variables, library,
                     and len(fact.children) == 2):
                 found = match(first.children[1], fact.children[1],
                               binding, variables)
+            # A "for every" said of a set is said of every set inside it
+            # (`SYNTAX.md`): line 1 of the triangular reciprocals, over ℕ,
+            # answers `sum-termwise`'s hypothesis over {1, …, n}.
+            if found is None and form is first:
+                smaller = narrowed(first, fact, binding)
+                if smaller is not None:
+                    found = match(form, smaller, binding, seen,
+                                  library.props, sites)
             if found is None:
                 continue
             # A "there is" given by an instance is given only where the
@@ -932,6 +942,50 @@ def supply(patterns, facts, binding, variables, library,
             if done is not None:
                 return done
     return None
+
+
+def set_within(inner, outer):
+    """Whether the declared table puts the set `inner` inside `outer`.
+
+    Both are parsed sets: a number system, or a range {a, …, b}.
+    `rules.WITHIN` and `rules.RANGE_WITHIN` are the table, which the
+    elaborator reads as well.
+    """
+    if outer.notation != 'number-systems':
+        return False
+    big = rules.SYSTEM_OF.get(outer.text)
+    if inner.notation == 'number-systems':
+        return rules.within_path(rules.SYSTEM_OF.get(inner.text),
+                                 big) is not None
+    if inner.notation == 'integer-range' and len(inner.children) == 2:
+        start = inner.children[0]
+        begins = (field.NUMERAL.get(int(start.text))
+                  if start.notation == 'numeral' and start.text.isdigit()
+                  else None)
+        return any((first is None or first == begins)
+                   and rules.within_path(system, big) is not None
+                   for system, first, _lemma in rules.RANGE_WITHIN)
+    return False
+
+
+def narrowed(pattern, fact, binding):
+    """A "for every" fact read over the smaller domain a pattern asks for,
+    or None where the table does not put that domain inside the fact's.
+    """
+    if (pattern.notation != 'for-every' or fact.notation != 'for-every'
+            or len(pattern.children) != 3 or len(fact.children) != 3):
+        return None
+    # The domain is read only once the match has fixed every letter in it:
+    # {a, …, b} says nothing until a is known to be 1.
+    if pattern.children[1].names() - set(binding):
+        return None
+    asked = substitute(pattern.children[1],
+                       {v: t for v, t in binding.items()
+                        if t.notation != PROPERTY})
+    if not set_within(asked, fact.children[1]):
+        return None
+    return Node(fact.notation, fact.sort,
+                [fact.children[0], asked, fact.children[2]], fact.text)
 
 
 def witnessed_in(exists, binding, facts, variables, library, sites):

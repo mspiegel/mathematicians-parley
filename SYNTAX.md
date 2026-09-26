@@ -277,6 +277,14 @@ in `into line 2.3` and `in line 4`, it carries the word "line"; in a
 `from` list, after `join`, and on a calculation line it is bare. Labels
 never carry the word.
 
+**A line said of every member of a set says it of every member of a set
+inside that one.** A hypothesis asking "for every k ∈ {1, …, n}, P(k)" is
+answered by a cited line "for every k ∈ ℕ, P(k)", since every k from 1 to n
+is a natural number. Which sets lie inside which is a declared table, not a
+search: ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ, {1, …, b} ⊆ ℕ, {0, …, b} ⊆ ℕ₀ and {a, …, b} ⊆ ℤ,
+each by the set.mm lemma that says so of a member. The table is in
+`parley/rules.py`, and the checker and the elaborator read the same one.
+
 A `define` line names an object: `define S := E (D1)` is an unnumbered,
 labelled line placed where S is first needed, claiming nothing, and cited
 by its label wherever a step needs to know what S stands for. It is the
