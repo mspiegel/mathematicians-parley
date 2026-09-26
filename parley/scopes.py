@@ -76,6 +76,22 @@ class Scopes:
         finally:
             del self.frames[frame:]
 
+    @contextlib.contextmanager
+    def frames_alone(self, scope, facts):
+        """One frame and nothing under it, given back when the block ends.
+
+        A lemma is placed at a frame, not at the scope it is asked under, so
+        a fact wanted under less than the step's scope needs the frames to
+        be only that: `settle` proves a member's condition under its
+        membership alone where the scope names the member's bound variable.
+        """
+        kept = self.frames
+        self.frames = [(scope, None, facts)]
+        try:
+            yield
+        finally:
+            self.frames = kept
+
     def widen(self, scope, facts, added, origin=None):
         """Conjoin one more thing onto the antecedent, carrying the facts.
 

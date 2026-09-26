@@ -26,12 +26,6 @@ definition point
   metamath    A ∈ ℂ
 
 definition angle
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P ≠ Q                                                        (H4)
-  assume R ≠ Q                                                        (H5)
-  then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
   symbol      ang
   defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
               vy cv vx cv cdiv co clog cfv cim cfv cmpo
@@ -45,7 +39,23 @@ definition angle
 
               This is the only definition in the corpus that introduces a
               symbol; every other names a word for something set.mm already
-              has. See GOALS.md decision 12.
+              has. See GOALS.md decision 12. Its statement is `defines`, what
+              the symbol stands for, and what follows from that is
+              thm:stdlib/geometry/angle-real.
+
+theorem angle-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
+  metamath    gangbnd3, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gangbnd3
+  note        ∠PQR is an absolute value, so it is real and at least 0; what
+              makes that a proof is that ang of the two differences is a
+              number, which gangrange gives by putting ∠PQR in [0, π].
 
 definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer

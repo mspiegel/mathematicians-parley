@@ -224,7 +224,8 @@ FROM_NN0 = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
 # `READERS.md`: this is apparatus, and the page never writes it.
 SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
-           'cv': 'vex', 'co': 'ovex', 'cif': 'ifexg', 'cn': 'nnex',
+           'cv': 'vex', 'co': 'ovex', 'cfv': 'fvex', 'cif': 'ifexg',
+           'cn': 'nnex',
            'cn0': 'nn0ex', 'csu': 'sumex'}
 
 # Two differences against zero added, by which of the two is strictly

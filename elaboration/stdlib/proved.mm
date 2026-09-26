@@ -88,6 +88,13 @@ $d x U $.  $d y U $.
     syl2anc ltled wb absle mpbir2and w3a 0re elicc2 mpbir3and eqeltrd )
     ACDZAEFZGZBCDZBEFZGZGZABHIZJKBALIZMKZNKZJKZEOPIZVSVTWCJABQRVSWDWEDZWDSDZEWDTUAZWDOTUAZVSWCCDZWGVSWCVSWBVSWAVSVPVMVNWACDZVSVPVQVOVRUBZUCZVSVMVNVOVRUDZUCZVSVMVNWNUEZBAUFZUGZVSVRVOGZWAEFZVSVRVOWLWNUHZBAUIZUJZUKZULZUMZWCUNUJVSWJWHXFWCUOUJVSWIOUPZWCTUAZWCOTUAZVSXGWCXGSDZVSOSDZXJUQOURUSUTXEVSXGWCVAUAZXIVSWKWTXLXIGZWRXCWAVBZVCZUCVDVSXLXIXOUEVSWCSDXKWIXHXIGVEXEXKVSUQUTZWCOVFVCVGVSESDZXKWFWGWHWIVHVEXQVSVIUTXPEOWDVJVCVKVL $.
 
+  gangbnd3 $p |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) e. RR /\ 0 <_ ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) $=
+    ( cc wcel w3a wceq wn wa cmin co cang cabs cfv cr cc0 cle wbr cpi cicc
+    wne simp1 adantr simp2 subcld simpl adantl neqned subeq0ad necon3bid
+    mpbird jca simp3 simpr gangrange syl wb 0re a1i pire elicc2 syl2anc mpbid
+    simp1d simp2d ex )
+    ADEZBDEZCDEZFZABGZHZCBGZHZIZABJKZCBJKZLKZMNZOEZPVSQRZIVJVOIZVTWAWBVTWAVSSQRZWBVSPSTKZEZVTWAWCFZWBVPDEZVPPUAZIZVQDEZVQPUAZIZIZWEWBWIWLWBWGWHWBABVJVGVOVGVHVIUBZUCZVJVHVOVGVHVIUDZUCZUEZWBWHABUAZWBABVOVLVJVLVNUFZUGZUHZWBVPPABWBABWOWQUIZUJZUKZULZWBWJWKWBCBVJVIVOVGVHVIUMZUCZWQUEZWBWKCBUAZWBCBVOVNVJVLVNUNZUGZUHZWBVQPCBWBCBXHWQUIZUJZUKZULZULZVPVQUOZUPZWBPOEZSOEZWEWFUQZYAWBURUSZYBWBUTUSZPSVSVAZVBZVCZVDWBVTWAWCYHVEULVF $.
+
   glawcos $p |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( abs ` ( C - A ) ) ^ 2 ) = ( ( ( ( abs ` ( A - B ) ) ^ 2 ) + ( ( abs ` ( B - C ) ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` ( A - B ) ) x. ( abs ` ( B - C ) ) ) x. ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) ) ) $=
     ( cc wcel w3a wceq wn wa cmin co cabs cfv c2 cexp caddc cmul cang ccos
     wne simp3 adantr simp1 simp2 3jca simpr adantl neqned simpl jca vx vy

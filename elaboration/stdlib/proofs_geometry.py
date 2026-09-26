@@ -597,12 +597,36 @@ def angle_symmetry(b, out):
     # The same on three points, which is how the corpus states it: the
     # angle at B is between the two differences, and each is nonzero
     # because B is neither of the other two.
+    points, apart, held, ab, cb, ready = sides_apart(b)
+    claim = (f'( abs ` ( {ab} ang {cb} ) ) '
+             f'= ( abs ` ( {cb} ang {ab} ) )')
+    out.append((
+        'gangsym3',
+        f'|- ( {points} -> ( {apart} -> {claim} ) )',
+        b.ap('ex', {'ph': b.wff(points), 'ps': b.wff(apart),
+                    'ch': b.wff(claim)},
+             b.ap('syl',
+                  {'ph': b.wff(held),
+                   'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
+                               f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
+                   'ch': b.wff(claim)},
+                  ready,
+                  b.ap('gangsym', {'A': b.rpn(ab), 'B': b.rpn(cb)})))))
+    return out
+
+
+def sides_apart(b):
+    """Three points with the middle one apart from the other two, and the
+    two differences from it nonzero numbers, which is what a lemma about
+    the signed angle asks of them.
+
+    Returns the points, the apartness, the two together, the differences,
+    and ( held -> ( ( A - B ) e. CC /\\ ( A - B ) =/= 0 ) /\\ ( ... ) ).
+    """
     points = '( A e. CC /\\ B e. CC /\\ C e. CC )'
     apart = '( -. A = B /\\ -. C = B )'
     held = f'( {points} /\\ {apart} )'
     ab, cb = '( A - B )', '( C - B )'
-    claim = (f'( abs ` ( {ab} ang {cb} ) ) '
-             f'= ( abs ` ( {cb} ang {ab} ) )')
 
     def member(name, which):
         return b.ap('adantr', {'ph': b.wff(points),
@@ -637,19 +661,7 @@ def angle_symmetry(b, out):
              b.ap('subcld', {'ph': b.wff(held), 'A': b.rpn('C'),
                              'B': b.rpn('B')}, mem['C'], mem['B']),
              differs(b, held, 'C', 'B', mem['C'], mem['B'], unequal['CB'])))
-    out.append((
-        'gangsym3',
-        f'|- ( {points} -> ( {apart} -> {claim} ) )',
-        b.ap('ex', {'ph': b.wff(points), 'ps': b.wff(apart),
-                    'ch': b.wff(claim)},
-             b.ap('syl',
-                  {'ph': b.wff(held),
-                   'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
-                               f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
-                   'ch': b.wff(claim)},
-                  ready,
-                  b.ap('gangsym', {'A': b.rpn(ab), 'B': b.rpn(cb)})))))
-    return out
+    return points, apart, held, ab, cb, ready
 
 
 def angle_size(b, out):
@@ -794,6 +806,52 @@ def angle_size(b, out):
              b.ap('gangval', {'A': b.rpn('A'), 'B': b.rpn('B')})),
         lands)))
     b.define('gangrange', says)
+    return out
+
+
+def angle_bounds(b, out):
+    """The unsigned angle on three points is real and at least 0.
+
+    What `thm:stdlib/geometry/angle-real` says, stated as the corpus states
+    an angle: at B, between the two differences, B apart from the other
+    two. It is the first two of the three things `gangrange` says, read off
+    the closed interval by `elicc2`.
+    """
+    points, apart, held, ab, cb, ready = sides_apart(b)
+    size = f'( abs ` ( {ab} ang {cb} ) )'
+    both = f'( {size} e. RR /\\ 0 <_ {size} )'
+    three = f'( {size} e. RR /\\ 0 <_ {size} /\\ {size} <_ _pi )'
+    inside = b.ap(
+        'syl', {'ph': b.wff(held),
+                'ps': b.wff(f'( ( {ab} e. CC /\\ {ab} =/= 0 ) '
+                            f'/\\ ( {cb} e. CC /\\ {cb} =/= 0 ) )'),
+                'ch': b.wff(f'{size} e. ( 0 [,] _pi )')},
+        ready, b.ap('gangrange', {'A': b.rpn(ab), 'B': b.rpn(cb)}))
+    spelt = b.ap(
+        'mpbid', {'ph': b.wff(held),
+                  'ps': b.wff(f'{size} e. ( 0 [,] _pi )'),
+                  'ch': b.wff(three)},
+        inside,
+        b.ap('syl2anc',
+             {'ph': b.wff(held), 'ps': b.wff('0 e. RR'),
+              'ch': b.wff('_pi e. RR'),
+              'th': b.wff(f'( {size} e. ( 0 [,] _pi ) <-> {three} )')},
+             b.ap('a1i', {'ph': b.wff('0 e. RR'), 'ps': b.wff(held)}, '0re'),
+             b.ap('a1i', {'ph': b.wff('_pi e. RR'), 'ps': b.wff(held)},
+                  'pire'),
+             b.ap('elicc2', {'A': b.rpn('0'), 'B': b.rpn('_pi'),
+                             'C': b.rpn(size)})))
+    parts = {'ph': b.wff(held), 'ps': b.wff(f'{size} e. RR'),
+             'ch': b.wff(f'0 <_ {size}'), 'th': b.wff(f'{size} <_ _pi')}
+    out.append((
+        'gangbnd3',
+        f'|- ( {points} -> ( {apart} -> {both} ) )',
+        b.ap('ex', {'ph': b.wff(points), 'ps': b.wff(apart),
+                    'ch': b.wff(both)},
+             b.ap('jca', {'ph': b.wff(held), 'ps': b.wff(f'{size} e. RR'),
+                          'ch': b.wff(f'0 <_ {size}')},
+                  b.ap('simp1d', parts, spelt),
+                  b.ap('simp2d', parts, spelt)))))
     return out
 
 
@@ -1593,6 +1651,6 @@ def proofs(b):
     return side_angle_side(
         b, cancelling(
             b, law_of_cosines(
-                b, angle_size(
+                b, angle_bounds(b, angle_size(
                     b, angle_symmetry(
-                        b, rotation(b, triangle_lemmas(b)))))))
+                        b, rotation(b, triangle_lemmas(b))))))))

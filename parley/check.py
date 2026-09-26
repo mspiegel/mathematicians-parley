@@ -229,7 +229,11 @@ def check_database(report, records):
                 report.say(r.path, r.line,
                            f'{r.name} says neither which set.mm label supplies '
                            f'it nor that it is open')
-            if not r.conclusions and 'open' not in r.fields:
+            # A definition that introduces a symbol says what it stands for
+            # in `defines`, and that is its statement: what follows from it
+            # is a theorem of its own.
+            if not r.conclusions and 'open' not in r.fields \
+                    and 'defines' not in r.fields:
                 report.say(r.path, r.line, f'{r.name} has no `then` line')
         if r.kind == 'method' and 'parts' in r.fields:
             for part in re.split(r',\s*', r.fields['parts']):

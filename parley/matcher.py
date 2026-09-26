@@ -156,6 +156,24 @@ class Matcher:
                 body, variable, over = wanted.children
                 member = self.seq(f'{variable.rpn(self.flabel)} cv',
                              over.rpn(self.flabel), 'wcel')
+                # `ralrimiva` keeps the bound name apart from the scope, and
+                # a scope that says it, even bound, as `u ∈ {E(s) : s ∈ Y}`
+                # does, is one the verifier refuses the proof under. The
+                # member alone is scope enough for what needs no more, as
+                # `fvex` needs nothing: settled under it, generalised by
+                # `rgen`, and carried under the scope by `a1i`.
+                said = variable.rpn(self.flabel)
+                if said in scope.split():
+                    alone = {member: self.ap('id', {'ph': member})}
+                    with self.frames_alone(member, alone):
+                        made = self.settle(body, member, alone, depth)
+                    if declined(made):
+                        return made
+                    every = self.ap('rgen', {'ph': body.rpn(self.flabel),
+                                             'x': said,
+                                             'A': over.rpn(self.flabel)},
+                                    made)
+                    return self.ap('a1i', {'ph': rpn, 'ps': scope}, every)
                 with self.frames_kept():
                     inner, lifted = self.widen(scope, facts, member)
                     made = self.settle(body, inner, lifted, depth)

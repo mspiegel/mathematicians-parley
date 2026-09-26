@@ -14,6 +14,9 @@ definition the right side of it from the left. One direction is enough: the
 lemma applied either way has the whole statement to match.
 
 An item marked `open` has no lemma to be asked against, and is not asked.
+Nor is a definition that only introduces a symbol, as `angle` does: it has
+no `then` line for a step to claim, and what it says, the `defines` field,
+is written into `stdlib/definitions.mm`, which the verifier reads.
 
 Usage:  parley/tested.py [root]
 """
@@ -30,7 +33,7 @@ def untested(root):
     cited = {full for thm in theorems for full, _line in cited_items(thm)}
     return [qualified(r) for r in records
             if r.kind in ('definition', 'theorem') and 'open' not in r.fields
-            and qualified(r) not in cited]
+            and r.conclusions and qualified(r) not in cited]
 
 
 def main(argv):

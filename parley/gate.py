@@ -6,7 +6,7 @@ the last stage verifies the files the elaborator *has written*, so it says
 something about the corpus as it stands only if those files were written from
 it. Break the elaborator, leave the built files alone, and all eleven stages
 pass while no proof elaborates at all. `build.py` is what compares the two —
-it says `84 built, 0 changed` — and the gate is what checks the result.
+it says `83 built, 0 changed` — and the gate is what checks the result.
 
 Eleven things: the lint settings in `ruff.toml`, that no caller hands on a
 decline without asking whether it has one, the planted shapes that prove

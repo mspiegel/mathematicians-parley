@@ -22,10 +22,11 @@ definition set-image
   let Z be a set                                                      (H2)
   let E : Y → Z                                                       (H3)
   then        u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)
-  metamath    cmpt with elrnmpt, or crab with a witness
-  note        Named in SYNTAX.md beside def:stdlib/sets/set-builder. No pilot table carried
-              a row for it; the statement here is SYNTAX.md's sentence. Added by
-              the merge.
+  metamath    elrnmptg
+  target      elrnmptg
+  note        {E(s) : s ∈ Y} is the range of the map s ↦ E(s) on Y, and
+              elrnmptg says what is in that range where every E(s) is a set,
+              which a function's value always is (`fvex`).
 
 theorem added-elements-are-new
   let Y be a set                                                      (H1)

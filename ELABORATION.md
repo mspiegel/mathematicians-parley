@@ -983,28 +983,7 @@ list names that no file states any longer. A record is one entry:
 Definitions are not steps, and the constants and definitions
 `stdlib/definitions.mm` declares are decision 12's, not this list's.
 
-Every step of every proof is built. Three library items are not, and their
-tests are where that shows; no proof cites any of them.
-
-- `elaboration/tests/stdlib/counting/card.mm` `card.itm1`: `def:stdlib/counting/card`
-  says |A| = n exactly when {1, …, n} is in bijection with A, and no one
-  set.mm lemma says that: `hashen` relates two finite sets' sizes and
-  `hashfz1` gives the size of {1, …, n}, and both ask A to be finite, which
-  the item does not. A statement with a finiteness hypothesis, targeting the
-  two lemmas chained, would build it.
-- `elaboration/tests/stdlib/functions/set-image.mm` `setimage.itm1`:
-  `def:stdlib/functions/set-image` names no target, because the record's
-  `metamath` field offers two routes (`elrnmpt`, or a set-builder with a
-  witness) and chooses neither. `elrnmpt` asks u to be a set, which the item
-  does not say; a statement that says it, targeting `elrnmpt`, would build
-  it.
-- `elaboration/tests/stdlib/geometry/angle.mm` `angle.itm1`:
-  `def:stdlib/geometry/angle` introduces the constant and then states two
-  facts about it, that ∠PQR is real and at least 0, which are not what the
-  constant is defined as but what follows from it. `abscl` and `absge0`
-  applied to the value of `ang`, which `angcld` puts in (−π, π] for P ≠ Q
-  and R ≠ Q, would build them; as a theorem item of its own rather than
-  sentences of the definition, it would be cited like any other.
+None: every step of every proof and every library test is built.
 
 ## The output format
 

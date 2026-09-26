@@ -1,4 +1,4 @@
-theorem angle
+theorem angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -7,4 +7,4 @@ theorem angle
   then ∠PQR ∈ ℝ. ∠PQR ≥ 0.
 
 1.  ∠PQR ∈ ℝ. ∠PQR ≥ 0.
-    def:stdlib/geometry/angle, from H4, H5
+    thm:stdlib/geometry/angle-real, from H4, H5

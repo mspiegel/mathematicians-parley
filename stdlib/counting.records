@@ -39,12 +39,6 @@ theorem factorial-divisible
   metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
   target      dvdsfac
 
-definition card
-  let A be a set                                                      (H1)
-  let n ∈ ℕ₀                                                          (H2)
-  then        |A| = n ↔ there is a bijection from {i ∈ ℕ : i ≤ n} to A
-  metamath    hashen, hashfz1
-
 theorem card-zero
   let X be a set                                                      (H1)
   assume |X| = 0                                                      (H2)
