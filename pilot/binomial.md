@@ -114,10 +114,12 @@ it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
    assumed. It now offers an outer frame only the lines that frame holds,
    so the case is reported at the step, and the proof puts the algebra in
    `binomial-step`, where nothing in scope names k.
-8. **A fact `inequalities` decides and cannot yet build.** m < m + 1
-   cites no fact, and the method's proofs combine cited ones, so it was
-   stated as an axiom. It is cited instead, `thm:stdlib/numbers/below-successor`
-   (`ltp1`), so that nothing is stated.
+8. **A fact that cites nothing.** m < m + 1 is `inequalities` with no
+   cited fact: what the combination leaves over is 1 > 0, a closed numeral
+   fact the method may use unwritten. The method's proofs once combined only
+   cited facts, and the step cited `thm:stdlib/numbers/below-successor`
+   (`ltp1`) so that nothing was stated; the triangular reciprocals pilot is
+   where the method learned to write the number left over.
 
 9. **A label means its own block's line.** The four `fix` blocks of
    `binomial-step` each fix k as `(J)`, which the grammar allows, since a

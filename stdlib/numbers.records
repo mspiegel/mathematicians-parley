@@ -85,10 +85,10 @@ theorem half-positive
   then        x/2 > 0
   metamath    halfpos2
   target      halfpos2 with A := x
-  first-used  intermediate-value
-  note        `inequalities` reads x/2 as half of x, and a certificate asking
-              for half of a bound is not written; saying this once lets every
-              step after it combine bounds whole.
+  note        No proof cites it. `inequalities` reads x/2 as half of x and
+              builds x/2 > 0 from x > 0 by taking the claim twice over, and
+              the intermediate value and triangular reciprocals proofs use the
+              method.
 
 theorem nat0-closure
   let k ∈ ℕ₀                                                          (H1)
@@ -136,9 +136,9 @@ theorem below-successor
   then        a < a + 1
   metamath    ltp1
   target      ltp1
-  first-used  binomial
-  note        `inequalities` decides this and cannot yet build it: its
-              proofs combine cited facts, and this one cites none.
+  note        No proof cites it. `inequalities` builds a < a + 1 from nothing
+              cited, with 1 > 0 as the closed numeral fact left over, and the
+              binomial theorem's step 10 uses the method.
 
 theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)

@@ -127,7 +127,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            reads a point right of c, within δ of it, and not past b
 
     17.6.  δ/2 > 0
-           thm:stdlib/numbers/half-positive x := δ, from 17.5
+           inequalities, from 17.5
+           requires δ ∈ ℝ: from 17.5
 
     17.7.  c + δ/2 ∈ ℝ
            thm:stdlib/numbers/real-closure x := c, y := δ/2, from 8
@@ -137,7 +138,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            inequalities, from 17.6
            requires c ∈ ℝ: from 8
            requires δ ∈ ℝ: from 17.5
-           requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from 17.5
 
     17.9.  x₁ ∈ ℝ
            thm:stdlib/numbers/min-real x := b, y := c + δ/2, from H2, 17.7
@@ -152,7 +152,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            inequalities, from 17.11, 17.6
            requires x₁ ∈ ℝ: from 17.9
            requires c ∈ ℝ: from 8
-           requires δ/2 ∈ ℝ: thm:stdlib/numbers/half-real x := δ, from 17.5
            requires δ ∈ ℝ: from 17.5
 
     17.13. a ≤ x₁

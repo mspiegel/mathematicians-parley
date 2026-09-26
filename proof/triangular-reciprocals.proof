@@ -125,7 +125,8 @@ theorem triangular-reciprocals
     assume ε > 0                                                      (A1)
 
     5.1.  ε/2 > 0
-          thm:stdlib/numbers/half-positive x := ε, from K6, A1
+          inequalities, from A1
+          requires ε ∈ ℝ: from K6
 
     5.2.  There is N ∈ ℕ with 1/N < ε/2.
           thm:stdlib/numbers/archimedean x := ε/2, from 5.1

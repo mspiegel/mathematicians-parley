@@ -101,7 +101,8 @@ theorem binomial-step
     requires m ∈ ℤ: from 1
 
 10. m < m + 1
-    thm:stdlib/numbers/below-successor a := m, from 4
+    inequalities
+    requires m ∈ ℝ: from 4
 
 11. C(m, m + 1) = 0
     thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 3, 10

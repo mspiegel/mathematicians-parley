@@ -781,7 +781,11 @@ there; `rspcv` would keep the letter apart from what it substitutes.
 A side condition's quotient is placed in ℂ or ℝ by `divcld` or `redivcld`
 from its parts and its divisor not being zero, which is settled like any
 side condition: `telfsum` asks each 2/k to be complex for k from 1 to n + 1,
-and k ≠ 0 there because k ∈ ℕ (`elfznn`, `nnne0`).
+and k ≠ 0 there because k ∈ ℕ (`elfznn`, `nnne0`). A quotient a method reads
+is built the same way from what the step writes (`part`), and its divisor
+not being zero is the step's to write too, except where the divisor is a
+digit other than zero, which says so itself (`2ne0`): the intermediate value
+proof's `δ/2` is real because `δ` is, with no line saying so.
 
 The rest of the search is bounded by how many lemmas one chain applies on top
 of one another, and three is the deepest chain the corpus needs: step 2.1 of

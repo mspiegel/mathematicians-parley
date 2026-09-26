@@ -531,6 +531,13 @@ class TableReading:
         not searched for.
         """
         apart = self.seq(divisor, 'cc0', 'wne')
+        # A digit other than zero says so itself: a closed numeral fact,
+        # which a method may use unwritten (`METHODS.md`). δ/2 is real
+        # because δ is.
+        value = field.DIGITS.get(divisor)
+        if value:
+            return self.seq(apart, scope,
+                            'ax-1ne0' if value == 1 else f'{value}ne0', 'a1i')
         denied = self.seq(self.seq(divisor, 'cc0', 'wceq'), 'wn')
         for want in (apart, denied):
             found = facts.get(want)

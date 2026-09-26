@@ -135,7 +135,9 @@ it is discharged by a cited line or written as a requires line.
 A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero, and both are the page's to
 write. Its membership is then built from those as a sum's is from its
-parts', and no line says that `1/(n + 1)` is real.
+parts', and no line says that `1/(n + 1)` is real. A divisor that is a digit
+other than zero needs no line: that 2 is not zero is a closed numeral fact,
+so `δ/2` is real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
 sentence a cited line says. Line 2 of `least-combination-divides` says
