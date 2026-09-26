@@ -65,8 +65,11 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
      with what it asks settled there;
    - a name a `define` introduced is what it names (`named_body`), the one
      rule that is not a set.mm lemma: the define's own equation proves it;
+   - a map applied to a value is its rule at that value (`applied_body`,
+     `fvmptd3`), so a function a `define` introduced is evaluated where it
+     is applied;
    - letters bound under other names are one claim by a renaming, and one
-     class by `rules.CLASS_BOUND` (`cbvmptv`, `cbvrabv`).
+     class by `rules.CLASS_BOUND` (`cbvmptv`, `cbvrabv`, `cbvsumv`).
 
    The walk proves it at the smallest places the two differ. A lemma whose
    conclusion, or the near side of a biconditional it states, does not match
@@ -386,8 +389,8 @@ step already holds, or be unfolded left to right and taken apart. Which one
 applies is settled by what the lemma states and what the step claims, not by
 how the readable right side is phrased. A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
-differ only in what they ask — and a recursive definition is a pair of
-theorems, one per `then` group, as `def:stdlib/sums/S` names `fsum1, fsump1`.
+differ only in what they ask — and a definition stated in clauses is one
+theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
@@ -398,8 +401,10 @@ where the orientation is neither the readable line's nor the label's.
 ## Names
 
 A name a proof introduces becomes a variable of the kernel, and it cannot be
-one a notation's own target binds: `S(_)` sums over `k`, so a proof that fixes
-`k` must be given something else or the sum captures it.
+one a notation's own target binds, nor a letter the proof writes as a name: a
+binder takes its own letter where it can, so the binomial proof's
+`Σ(k = 0 to m)` is over k, and a spare handed out as k before that sum is read
+would be one variable for two things.
 
 The kernel has to see two names where the text writes one — `prime-above`
 obtains a p and concludes that there is a p. Three places choose a variable and
@@ -414,20 +419,17 @@ read where it stands rather than all of them at the top, which is what lets
 `subsets` write `define U := 𝒫(X ∖ {a})` eighteen columns in, with `X` from a
 `fix` and `a` from an `obtain`.
 
-**A notation's fixed parameter is discharged, not looked up.** `G(n)` is the
-sum of `a^k` for `k` from 0 to `n`, so the term mentions two things where the
-notation has one hole. `@a` in a `target` is filled from the theorem's `let`
-lines, taken before the conclusion and before any step and never written again.
-A block binding an `a` of its own cannot reach it, and the same `G(n)` is the
-same term wherever it appears. A theorem that fixes no `a` cannot write `G(_)`
-at all, which is what being local to a definition means.
-
-Which name a notation fixes is derived rather than declared, because it is
-already on the page: `def:stdlib/sums/G` says `let a ∈ ℝ` and `let n ∈ ℕ₀`, and its
-sentences put 0, `n + 1` and `n` in the hole. Only the notation a definition
-*introduces* counts, or `_ + _` would fix a name and every proof writes `+`.
-One notation in the corpus fixes anything. The matching rule about the page —
-that a proof may not bind a name some notation fixes — is a checker rule.
+**A defined function is a map and its equation.** `define G(m) := Σ(j = 0 to
+m) a^j, for m ∈ ℕ₀` is read as the map sending each m ∈ ℕ₀ to that sum, which
+is what set.mm has a function be, and `define` gives it a name and an equation
+as it gives any define. `a` in the rule is the theorem's own `a`, a name in
+scope like any other. `G(n)` is the map applied to n: the calculators see it
+as one atom, and the standard form reads it as the rule at n wherever two
+things are compared (`applied_body`), proved by `fvmptd3` once the name is
+carried to its map by `fveq1d`. `fvmptd` would take the define's equation at
+once, but it forbids the map's letter in the scope, and the scope holds that
+very equation. What the rule asks, that n is in the domain, is the step's to
+supply in a `requires` line.
 
 ## The closure methods
 

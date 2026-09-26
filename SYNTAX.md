@@ -288,6 +288,16 @@ first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing
 both sets written out say the same thing, and the citation is checked as such.
 Expansion repeats, since a define may be written in terms of an earlier one.
 
+**A define may name a function.** `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ
+(D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
+`S(n)` is then S applied to n, and a step that needs what that is writes it
+and cites the define: `S(k + 1) = Σ(j = 1 to k + 1) j` is a link cited `D1`,
+with a `requires` line saying k + 1 is in the domain. A theorem's statement
+comes before its defines, so a statement that is about the function writes
+the rule out, as the sum formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and
+the proof introduces S to argue with. A function only one proof needs is
+defined there and nowhere else: it takes no letter from any other proof.
+
 The alternative was to make the name opaque and require a `substitute` step at
 every crossing, which is what this document's rule about unfolding a definition
 would ask for if a define were one. It is not: unfolding `even` or `divides`

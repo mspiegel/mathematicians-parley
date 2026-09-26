@@ -80,8 +80,8 @@ the set.mm theorem it answers to and a note, the proof says in `metamath` and
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
-unfolds it, or, for one stated as an equation, one theorem per `then` group:
-`def:stdlib/sums/S` names `fsum1, fsump1`, and which clause a step uses is decided by
+unfolds it, or, for one stated as an equation, one theorem per clause:
+`def:stdlib/numbers/abs` names `absid, absnid`, and which clause a step uses is decided by
 which one's conclusion is what the step claims. That is not what `metamath` says: `metamath` says what the
 definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
@@ -203,10 +203,13 @@ repaired.
   `|A|` is cardinality and `|PQ|` is distance. Settled since: each is its own
   notation record and they are told apart by the sort of the hole, which
   `GRAMMAR.md` describes. It is the only overloaded pattern of the 63 declared.
-- **Recursive definitions do not fit the theorem form.** `def:stdlib/sums/S`, `def:stdlib/sums/G` and
-  `def:stdlib/counting/factorial` have a base sentence with no hypothesis and a step sentence
-  with one, and the form puts all hypotheses before all conclusions. They are
-  written with two `then` groups, which no other record uses.
+- **Recursive definitions do not fit the theorem form.** `def:stdlib/counting/factorial` has a
+  base sentence with no hypothesis and a step sentence with one, and the form
+  puts all hypotheses before all conclusions. It is written with two `then`
+  groups, which no other record uses. The sum of the first m numbers and the
+  sum of the first powers of a were written that way too, as S and G with a
+  notation each; they are functions their proofs define now (`define S(m) :=
+  …, for m ∈ ℕ`), which took two global letters out of the notation file.
 - **`thm:stdlib/geometry/side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,
   C, A′, B′, C′. One of the two must change. Settled since: the proof changed,

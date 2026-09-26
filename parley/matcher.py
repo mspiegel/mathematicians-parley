@@ -579,9 +579,10 @@ class Matcher:
     def shape(self, pattern):
         """A target read as a tree, so a rewrite can walk down it.
 
-        A target need not be one constructor. `S(_)` is a sum over a range
-        that holds the hole, so reaching the hole passes a `csu` and then a
-        `co`, and each level wants its own congruence lemma.
+        A target need not be one constructor. `Σ(_ = _ to _) _` is a sum
+        over a range that holds its bounds, so reaching a bound passes a
+        `csu` and then a `co`, and each level wants its own congruence
+        lemma.
         """
         if pattern in self.shapes:
             return self.shapes[pattern]

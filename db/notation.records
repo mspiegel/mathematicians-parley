@@ -438,8 +438,8 @@ notation binomial
   first-used  binomial
   note        C(n, k) is n choose k, the number of k-element subsets of an
               n-element set, and def:stdlib/counting/binomial-coefficient gives its value.
-              The `C` is a literal the way the `S` of S(_) is, and a proof
-              that names a variable C cannot also write this.
+              The `C` is a literal, and a proof that names a variable C
+              cannot also write this.
 
 notation subset
   pattern     _ ⊆ _

@@ -40,9 +40,9 @@ listed in the checker instead.
   `1.1`, `17.25.5.10`.
 - `<ref>` is a `<number>` or a `<label>`.
 - `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and
-  `nat0-closure`. The capital is in the pattern for `def:stdlib/sums/S` and
-  `def:stdlib/sums/G`, the two items that take the letter of the function they
-  define. Every other name is lowercase words joined by hyphens.
+  `nat0-closure`. Every item's name is lowercase words joined by hyphens; the
+  capital is there for the name a `define` gives a function, `S` in
+  `define S(m) := …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
   corpus without its extension: `stdlib/numbers`, `proof/bezout`.
 - `<cited>` is `[ <module> / ] <name>`, what follows `def:` or `thm:`. With
@@ -335,8 +335,8 @@ article, which it did to 99 sentences before the rule existed.
 
 It costs nothing, because a pattern matches a token by its text and not by the
 category the tokeniser filed it under. In `A, B, C form a triangle` the pattern
-asks for the text `a` and finds a name spelled `a`; in `S(n)` it asks for `S`
-then `(`. What the rule forbids is a notation whose only distinguishing mark is
+asks for the text `a` and finds a name spelled `a`; in `C(n, k)` it asks for
+`C` then `(`. What the rule forbids is a notation whose only distinguishing mark is
 a lone letter with no bracket or neighbouring word to anchor it, such as a
 declared `_ x _`, which is a notation worth forbidding anyway.
 
@@ -403,8 +403,8 @@ and its brackets are part of its pattern, not a grouping.
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
 something of every index in it: "for every k ∈ {0, …, m}, …" is the line a
 sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is a
-pattern whose `C` is a literal, as the `S` of `S(n)` is, so a proof that writes
-the coefficient cannot also name a variable C.
+pattern whose `C` is a literal, so a proof that writes the coefficient cannot
+also name a variable C.
 
 A pattern with holes at both edges can nest in itself, and its declared `assoc`
 says which way. Fifteen of the 80 patterns are in that position, across ten
@@ -474,9 +474,19 @@ substitution in the corpus comes close.
                 | <name> `:` <term> `→` <term>
                 | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
-<define>      ::= `define` <name> `:=` <term> `(` <label> `)`
+<define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <term>
+                  [ `,` `for` <name> `∈` <term> ] `(` <label> `)`
                   `reads` <words>
 ```
+
+A define with a name in brackets after its own is a function: `define S(m) :=
+Σ(j = 1 to m) j, for m ∈ ℕ` says S is the function on ℕ that sends each m to
+that sum, as a reader writes "let S(m) = 1 + 2 + … + m". Its domain is said
+with it, after `for`, and names the same letter as the brackets; a parameter
+with no domain, or a domain with no parameter, is a defect. After it `S(n)` is
+S applied to n. The checker reads it as the rule with n for m wherever it
+compares two formulas, and a line whose sides agree read that way cites the
+define's label.
 
 Theorems appear in dependency order, so every pointer resolves to something
 earlier. A theorem field says what a record's field of the same name says: a
@@ -705,10 +715,11 @@ value continues on further-indented lines. `#` at the start of a line is a
 comment. An item's statement is written with the same `let`, `assume` and
 `then` lines as a theorem header, so one parser reads both.
 
-Three definitions carry two `then` groups with a `let` between them, because a
+One definition carries two `then` groups with a `let` between them, because a
 recursive definition's base sentence takes no hypothesis and its step sentence
-takes one. They are `def:stdlib/sums/S`, `def:stdlib/sums/G` and
-`def:stdlib/counting/factorial`.
+takes one: `def:stdlib/counting/factorial`. A function a single proof needs of
+its own, such as the sum of the first m numbers, is not a library item but a
+`define` in that proof.
 
 ## Not decided here
 
