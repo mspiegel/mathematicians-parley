@@ -341,6 +341,16 @@ CASES = [
      '= 1(1 + 1)/3            arithmetic',
      'a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false'),
 
+    # A link whose terms have a letter may name `arithmetic` where only a
+    # piece of numerals alone changes, and that piece is worked out like
+    # any closed fact: 2/1 is not 3.
+    ('a chain link whose closed piece is false',
+     'proof/triangular-reciprocals/triangular-reciprocals',
+     'proof/triangular-reciprocals.proof',
+     '= 2 − 2/(n + 1)                      arithmetic',
+     '= 3 − 2/(n + 1)                      arithmetic',
+     'which is false'),
+
     # `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
     # says it for every k ∈ ℕ₀. Without line 1 cited nothing says it.
     ('sum what no cited line says each term of is divisible',

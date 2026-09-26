@@ -253,7 +253,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 |---|---|
 | `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the definition's full name, the file that holds it and then its own name, as `def:stdlib/divisibility/odd` |
 | `thm:X v := t, from L` | the same for a theorem. A theorem of this proof file is written by its name alone, `thm:proof/sqrt2-irrational/odd-square`; any other by its full name, `thm:stdlib/numbers/int-real` or `thm:proof/triangle-inequality/abs-bounds`, and a proof file cited is imported at the head of the file. `GRAMMAR.md` gives the rules under "Names" |
-| `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Prefer the second form.** The first compresses two steps into one, and its name arrives in a claim written above the justification that introduces it, which is the one place in this language where a name is used before the line that names it. The Bezout proof was rewritten to the second form for that reason |
+| `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Use the first form where the names are the item's own letters**, and the second, after a step stating the existence, where the proof renames them or the existence comes from a line. In the first form the name arrives in a claim written above the justification that introduces it; where the item already says "there is N", the reader has met N, and the one line reads as "choose N with …" does. Where the item says "there is k" and the proof obtains r, the reader would meet r before learning which of the item's letters it is, so the existence is stated first. `LINTER.md` keeps the rule |
 | `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:stdlib/divisibility/even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
@@ -266,7 +266,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for every x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
 | `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for every k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
-| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t are numerals alone; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
+| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
 
 `L` is a list of line numbers, hypothesis labels and supposition labels,
 and nothing else: an item's sentence that a step needs as a fact is first
@@ -366,6 +366,13 @@ and as a `requires` line an item's hypothesis reads, `requires 9 = 3·3:
 arithmetic` under `3 divides 9`. The checker refuses `arithmetic` in any of
 these places for a fact with a letter in it, and the elaborator works each
 fact out before proving it, as it does a step's.
+
+A chain line whose terms have a letter in them may still name `arithmetic`
+where the only change between them is closed: `2/1 − 2/(n + 1)` to
+`2 − 2/(n + 1)` uses the fact `2/1 = 2` and nothing else. The two terms are
+compared where they differ, and every differing piece must have no letter in
+it; each is worked out as a closed fact is. A change touching a letter,
+`k(k + 1)/2 + (k + 1)` to `(k + 1)((k + 1) + 1)/2`, is still `algebra`'s.
 
 ```
 5.4.  |a + b| = −(a + b)

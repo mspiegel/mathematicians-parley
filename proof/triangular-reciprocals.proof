@@ -61,16 +61,11 @@ theorem triangular-reciprocals
           requires n ∈ ℤ: from 2.1
           requires n + 1 ≥ 1: inequalities, from 2.2, 2.3
 
-    2.7.  2/1 − 2/(n + 1) = 2 − 2/(n + 1)
-          algebra
-          requires n ∈ ℝ: from 2.2
-          requires n + 1 ≠ 0: inequalities, from 2.2, 2.3
-
-    2.8.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
+    2.7.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
           calculation
             Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.5
                                  = 2/1 − 2/(n + 1)                    2.6
-                                 = 2 − 2/(n + 1)                      2.7
+                                 = 2 − 2/(n + 1)                      arithmetic
 
 3.  For every k ∈ ℕ, 1/T(k) ∈ ℝ.
     fix

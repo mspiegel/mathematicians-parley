@@ -70,16 +70,21 @@ text harder to read rather than easier, which is the opposite of the point.
 
 | write | not | today |
 |---|---|---|
-| an existence step, then `obtain a, b from line L` | `obtain a, b: item, from L` | 5 in the long form, 8 compressed |
+| `obtain a, b: item, from L` where a, b are the item's own letters | an existence step, then `obtain a, b from line L` | 10 of 14 obtains follow it |
+| an existence step, then `obtain a, b from line L` where the proof renames, or the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
-The obtain rule is the one with a reason beyond taste. In the compressed form
+The obtain rule is the one with a reason beyond taste. In the one-line form
 the name appears in the claim, which is written above the justification that
-introduces it, and that is the only place in this language where a name is used
-before the line that names it. Everywhere else `let` and `define` come first.
-The Bezout proof was rewritten to the long form; eight steps in four other
-proofs still use the compressed one.
+introduces it, and that is the only place in this language where a name is
+used before the line that names it. Where the item's own "there is" uses the
+same letter, the reader has met it there, and the line reads as a textbook's
+"choose N with …" does. Where the proof renames — `even` says "there is k",
+the proof obtains r — the reader would meet r before learning which of the
+item's letters it is, so the existence is stated first and the obtain names
+it on the next line. An existence that comes from a line rather than an item
+has no item to name, so it takes the second form whatever its letters.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

@@ -425,14 +425,43 @@ def outermost(words, relation):
     return None
 
 
+def changed_closed(sides, g):
+    """Whether two terms differ only in pieces with no letter in them.
+
+    `2/1 − 2/(n + 1)` and `2 − 2/(n + 1)` differ in `2/1` against `2`, and
+    a chain link between them uses that fact and no other. The terms are
+    walked in step; where they part, both pieces must be numerals alone.
+    """
+    if sides is None:
+        return False
+    try:
+        one, other = (parse(text, g) for text in sides)
+    except Problem:
+        return False
+
+    def alike(a, b):
+        if a.shape() == b.shape():
+            return True
+        if not a.names() and not b.names():
+            return True
+        if (a.notation != b.notation or a.text != b.text
+                or len(a.children) != len(b.children)):
+            return False
+        return all(alike(x, y) for x, y in zip(a.children, b.children,
+                                                strict=True))
+
+    return alike(one, other)
+
+
 def check_closed_arithmetic(report, thm, g):
     """`arithmetic` stands in for a line only where the fact is numerals alone.
 
     A `substitute` may take its equation from `arithmetic`, and a chain link
     may give `arithmetic` as its reason, because a claim with no letter in it
     gives a reader nothing to check but working it out. One with a letter
-    has something to check, and is a numbered step of its own. `SYNTAX.md`
-    has the rule.
+    has something to check, and is a numbered step of its own. A link whose
+    terms have letters but change only where they have none uses a fact of
+    numerals alone (`changed_closed`). `SYNTAX.md` has the rule.
     """
     sorts_in_scope(thm, g)
 
@@ -467,16 +496,22 @@ def check_closed_arithmetic(report, thm, g):
                            if outermost(words, r) is not None), None)
                 claim = body
                 previous = ' '.join(words[at + 1:]) if at is not None else ''
+                sides = ((' '.join(words[:at]), previous) if at is not None
+                         else None)
             else:
                 mark, _, added = body.partition(' ')
                 claim = f'{previous} {mark} {added.strip()}'
+                sides = (previous, added.strip())
                 previous = added.strip()
-            if cite == 'arithmetic' and not closed(claim):
+            if cite == 'arithmetic' and not closed(claim) \
+                    and not changed_closed(sides, g):
                 report.say(thm.path, no,
                            f'a link of step {fmt(step.number)} names '
-                           f'arithmetic for {claim}, which has a letter in '
-                           f'it; a link of numerals alone may, and any other '
-                           f'cites the numbered step that states it')
+                           f'arithmetic for {claim}, which changes something '
+                           f'with a letter in it; a link may name arithmetic '
+                           f'where only pieces of numerals alone change, and '
+                           f'any other cites the numbered step that states '
+                           f'it')
 
 
 def claims_of(thm):

@@ -481,7 +481,10 @@ and each place is expanded by one routine, `closed_fact`: work the claim out
 (`worked_out`, which refuses a false one), then prove it as above. A
 `substitute` whose source is `(arithmetic)` proves its equation in place
 instead of looking for a line that states it; a chain line whose reason is
-`arithmetic` proves its link in place; and a requires line reading
+`arithmetic` proves its link in place — where its terms have letters in them
+and only pieces of numerals alone change, each piece is proved so and carried
+up to the term it stands in by `congruence`, as `2/1 − 2/(n + 1) = 2 −
+2/(n + 1)` is from `2/1 = 2`; and a requires line reading
 `arithmetic` supplies what an item's hypothesis asks, including the line a
 definition like `divides` reads its witness from. The kernel proofs are the
 ones the separate steps built: when the corpus's eight such steps were

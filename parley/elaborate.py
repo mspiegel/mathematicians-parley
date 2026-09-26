@@ -1360,11 +1360,32 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         def held(cite, turned, claim, written):
             # A link of numerals alone may name `arithmetic` rather than a
             # line, and what it relates is proved where it stands.
+            what = f'a link of step {fmt(step.number)} claims {written}'
+            if cite == 'arithmetic' and not claim.names():
+                return self.closed_fact(claim.rpn(self.flabel), scope, facts,
+                                        what, step)
+            # One whose terms have letters in them may too, where only
+            # pieces of numerals alone change: each piece is proved as a
+            # closed fact and carried up to the term it stands in.
             if cite == 'arithmetic':
-                return self.closed_fact(
-                    claim.rpn(self.flabel), scope, facts,
-                    f'a link of step {fmt(step.number)} claims {written}',
-                    step)
+                def piece(given, want, where, known):
+                    if given.names() or want.names():
+                        return None
+                    return self.closed_fact(
+                        self.seq(given.rpn(self.flabel),
+                                 want.rpn(self.flabel), 'wceq'),
+                        where, known, what, step)
+                if claim.label != 'wceq':
+                    raise self.defect(step.line, f'{written} relates terms '
+                                                 f'with letters in them, '
+                                                 f'which arithmetic does '
+                                                 f'not')
+                made = self.congruence(claim.children[0], claim.children[1],
+                                       scope, facts, step, piece)
+                if declined(made):
+                    raise self.defect(step.line, f'{written} changes more '
+                                                 f'than numerals: {made}')
+                return made
             line = lines[cite]
             wanted = claim.rpn(self.flabel)
             # A define says what its name is, and a link citing it says
