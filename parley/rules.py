@@ -79,10 +79,11 @@ BOUND = {'wrex': ('rexbii', 'cbvrexvw'),
          'wal': ('albii', 'cbvalvw')}
 
 # A class that binds a name, and the lemma that changes the name; its
-# hypothesis says how the two bodies agree at x = y. Neither leans on
-# ax-13. A map in a theorem the subsets proof cites binds `o` where the
-# define it is compared with binds `l`, and those are one class.
-CLASS_BOUND = {'cmpt': 'cbvmptv', 'crab': 'cbvrabv'}
+# hypothesis says how the two bodies agree at x = y. None leans on ax-13. A
+# map in a theorem the subsets proof cites binds `o` where the define it is
+# compared with binds `l`, and those are one class; so are a defined sum's
+# rule over `i` and the same sum a line writes over `j`.
+CLASS_BOUND = {'cmpt': 'cbvmptv', 'crab': 'cbvrabv', 'csu': 'cbvsumv'}
 
 # Stands where a join would name the constructor, for a biconditional a
 # lemma states the other way round from the way a step reaches it. It is no
@@ -175,7 +176,8 @@ FROM_NN0 = {'cn0': None, 'cz': 'nn0zi', 'cr': 'nn0rei',
 # `READERS.md`: this is apparatus, and the page never writes it.
 SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
-           'cv': 'vex', 'co': 'ovex', 'cif': 'ifexg', 'cn': 'nnex'}
+           'cv': 'vex', 'co': 'ovex', 'cif': 'ifexg', 'cn': 'nnex',
+           'cn0': 'nn0ex', 'csu': 'sumex'}
 
 # Two differences against zero added, by which of the two is strictly
 # below it: the lemma that adds them and keeps the strictness.

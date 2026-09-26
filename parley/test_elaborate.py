@@ -350,6 +350,16 @@ CASES = [
      'thm:stdlib/sums/sum-divisible m := 3, from H1',
      'no clause of thm:stdlib/sums/sum-divisible reaches what step 2 claims'),
 
+    # A link of a calculation is what the line it cites says, and a line
+    # saying something else is not taken for it: its proof would be of the
+    # wrong statement, and only the verifier would notice.
+    ('cite a line for a link it does not say',
+     'proof/sum-formula/sum-formula',
+     'proof/sum-formula.proof',
+     '= k(k + 1)/2 + (k + 1)         1.3.2',
+     '= k(k + 1)/2 + (k + 1)         1.3.1',
+     '1.3.1 does not say'),
+
     # What says f is continuous is H5, and so is what says its domain and
     # codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
     # has neither.

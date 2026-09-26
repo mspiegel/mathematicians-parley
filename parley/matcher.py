@@ -866,6 +866,9 @@ class Matcher:
         body = self.named_body(term, self.binding)
         if body is not None:
             return 'defined', body
+        body = self.applied_body(term)
+        if body is not None:
+            return 'applied', body
         for label, given, gives, names in self.rewrites(conditional=False):
             bound = kernel.match(given, term, {}, names)
             if bound is not None and not gives.names() - set(bound):
@@ -905,6 +908,28 @@ class Matcher:
         body = self.definitions.get(term.children[0].rpn(self.flabel))
         return None if body is None else self.to_term(body)
 
+    def applied_body(self, term):
+        """What a map applied to a value comes to: the map's rule with the
+        value for the name it binds; else None.
+
+        A rule of the standard form beside `named_body`: a function a
+        `define` introduces is a map, `S(n)` is that map applied to n, and
+        what it comes to is the rule at n. `fvmptd3` proves it where the
+        value is in the map's domain (`standard_proof`).
+
+        The function may be written as the name its define gave it, S and
+        not the map: the walk that compares two terms goes inside an
+        application's argument and never its function, so the name is read
+        through here, and its equation is what `fvmptd` is given.
+        """
+        f = self.applied_map(term)
+        if f is None:
+            return None
+        at = term.children[0]
+        bound, _over, rule = f.children
+        return self.restated(rule, f'{bound.rpn(self.flabel)} cv',
+                             at.rpn(self.flabel))
+
     def rewrites(self, conditional):
         """The rules of `rules.STANDARD` set.mm has, as (label, the side
         rewritten, the side it becomes, the lemma's variables).
@@ -943,6 +968,8 @@ class Matcher:
             said = held.get(self.seq(a, b, 'wceq'))
             return said if said is not None \
                 else Declined('the equation a define holds is not in hand')
+        if how == 'applied':
+            return self.applied_proof(cur, nxt, where, held)
         if how == 'eqcom':
             left, right = (c.rpn(self.flabel) for c in cur.children)
             return self.seq(self.seq(a, b, 'wb'), where,
@@ -962,6 +989,71 @@ class Matcher:
         if wff:
             return self.ap('bicomd', {'ph': where, 'ps': b, 'ch': a}, made)
         return self.ap('eqcomd', {'ph': where, 'A': b, 'B': a}, made)
+
+    def applied_map(self, term):
+        """The map a function application applies, written as a map or as
+        the name a define gave it; else None.
+        """
+        if term.variable is not None or term.label != 'cfv' \
+                or len(term.children) != 2:
+            return None
+        f = term.children[1]
+        named = self.named_body(f, self.binding)
+        if named is not None:
+            f = named
+        if f.variable is not None or f.label != 'cmpt' \
+                or len(f.children) != 3:
+            return None
+        return f
+
+    def applied_proof(self, cur, nxt, where, held):
+        """( where -> ( F ` A ) = C ), C the rule of F's map at A; a decline
+        where A is not shown to be in the map's domain.
+
+        By `fvmptd3` where F is the map written out, which is its own
+        equation (`eqid`), and by `fvmptd` where F is a defined name, whose
+        equation the define holds. The rule at x = A is the rule at A as
+        `renaming` proves such a hypothesis, and that A is in the domain and
+        C is a set are settled as any side condition is.
+        """
+        at, written = cur.children
+        f = self.applied_map(cur)
+        bound, over, rule = f.children
+        c = nxt.rpn(self.flabel)
+        binds = {'ph': where, 'x': bound.rpn(self.flabel),
+                 'A': at.rpn(self.flabel), 'B': rule.rpn(self.flabel),
+                 'C': c, 'D': over.rpn(self.flabel),
+                 'F': written.rpn(self.flabel), 'V': 'cvv'}
+        instance = self.prove_essential(self.to_term(self.seq(
+            self.seq(f'{binds["x"]} cv', binds['A'], 'wceq'),
+            self.seq(binds['B'], c, 'wceq'), 'wi')), '', {})
+        if declined(instance):
+            return instance
+        member = self.settle(self.to_term(self.seq(binds['A'], binds['D'],
+                                                   'wcel')), where, held)
+        if declined(member):
+            return member
+        a_set = self.settle(self.to_term(self.seq(c, 'cvv', 'wcel')), where,
+                            held)
+        if declined(a_set):
+            return a_set
+        mapped = f.rpn(self.flabel)
+        direct = self.ap('fvmptd3', dict(binds, F=mapped),
+                         self.seq(mapped, 'eqid'), instance, member, a_set)
+        if binds['F'] == mapped:
+            return direct
+        # A defined name is carried to its map first. `fvmptd` would take
+        # the define's equation at once, but it forbids the map's letter in
+        # the scope, and the scope holds that equation, which binds it.
+        named = held.get(self.seq(binds['F'], mapped, 'wceq'))
+        if named is None:
+            return Declined('the equation a define holds is not in hand')
+        via = self.ap('fveq1d', {'ph': where, 'A': binds['A'],
+                                 'F': binds['F'], 'G': mapped}, named)
+        return self.ap('eqtrd', {'ph': where,
+                                 'A': self.seq(binds['A'], binds['F'], 'cfv'),
+                                 'B': self.seq(binds['A'], mapped, 'cfv'),
+                                 'C': c}, via, direct)
 
     def is_wff(self, term):
         """Whether a term is a statement rather than a class."""
@@ -2151,8 +2243,9 @@ class Matcher:
 
         A defined name is read as what it names (`named_body`), so that
         `set-builder-subset`, which speaks of `{x ∈ A : φ}`, finds its A in
-        a claim about the name. Only where `named`: a lemma's own letters
-        are the lemma's, whatever a define was given.
+        a claim about the name, and a defined function applied to a value
+        as its rule there (`applied_body`). Only where `named`: a lemma's
+        own letters are the lemma's, whatever a define was given.
         """
         if letters is None:
             letters = self.letters_bound(term)
@@ -2164,6 +2257,9 @@ class Matcher:
         term = kernel.Term(term.label,
                            tuple(self.read_through(c, named, letters)
                                  for c in term.children))
+        applied = self.applied_body(term) if named else None
+        if applied is not None:
+            return self.read_through(applied, named, letters)
         for conditional in (False, True):
             for _label, given, gives, names in self.rewrites(conditional):
                 bound = kernel.match(given, term, {}, names)

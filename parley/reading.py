@@ -16,7 +16,7 @@ import re
 import kernel
 import targets
 from formula import Node, parse
-from parse import Theorem, cited_name, proved, resolve
+from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import sorts_of_record, sorts_of_statement
 
 LABEL = re.compile(r'\s*\([A-Z]+[0-9]*\)\s*$')
@@ -321,21 +321,26 @@ class Reading:
 
         A block gives its names back when it closes, and these go with
         them.
+
+        A function stands for the map from its domain to its rule, which
+        is what set.mm has a function be: `define S(m) := Σ(j = 1 to m) j,
+        for m ∈ ℕ` is the map sending each m ∈ ℕ to that sum.
         """
         while self.unread < len(self.thm.defines):
             _kind, text, label, line = self.thm.defines[self.unread]
             if line >= before:
                 return
             self.unread += 1
-            said = LABEL.sub('', text[len('define'):]).strip()
-            name, _, body = said.partition(':=')
-            name = name.strip()
-            if not body.strip():
-                raise self.defect(line, f'define {label} says nothing')
-            if name in self.names:
-                raise self.defect(line, f'{name} is already named')
-            yield label, line, name, self.apart(
-                self.term(self.read(body.strip())))
+            said = define_parts(text)
+            if declined(said):
+                raise self.defect(line, f'define {label}: {said}')
+            if said.name in self.names:
+                raise self.defect(line, f'{said.name} is already named')
+            body = (said.body if said.param is None else
+                    f'the map sending {said.param} ∈ {said.domain} '
+                    f'to {said.body}')
+            yield label, line, said.name, self.apart(
+                self.term(self.read(body)))
 
     def apart(self, rpn):
         """A term whose bound names are ones nothing else is using.

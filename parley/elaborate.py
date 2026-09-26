@@ -1300,6 +1300,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             body = re.sub(r',\s*right to left\s*$', '', text).strip()
             body, cite = body.rsplit(None, 1)
             links.append((body.strip(), cite, turned))
+        defines = {label for _k, _t, label, _l in self.thm.defines}
 
         def held(cite, turned, claim, written):
             # A link of numerals alone may name `arithmetic` rather than a
@@ -1310,11 +1311,34 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                     f'a link of step {fmt(step.number)} claims {written}',
                     step)
             line = lines[cite]
+            wanted = claim.rpn(self.flabel)
+            # A define says what its name is, and a link citing it says
+            # what that comes to somewhere: S(k + 1) is the sum to k + 1.
+            # The standard form reads the name as its rule, so the two
+            # sides of the link are one term to it.
+            if cite in defines and line.term != wanted:
+                # What the rule asks — that the value is in its domain — is
+                # the step's to supply, in `requires` as any side condition.
+                known = self.with_cited(step, scope,
+                                        self.supplied(step, scope, facts))
+                alike = self.same(claim.children[0], claim.children[1], scope,
+                                  {**facts, **known}, step)
+                if declined(alike):
+                    raise self.defect(step.line,
+                                      f'{written} is not what {cite} makes '
+                                      f'it: {alike}')
+                return alike
             proof = self.carried(cite, facts, lines)
             if not turned:
+                if line.term != wanted:
+                    raise self.defect(step.line, f'{cite} does not say '
+                                                 f'{written}')
                 return proof
             was, now = (c.rpn(self.flabel)
                         for c in self.to_term(line.term).children)
+            if self.seq(now, was, 'wceq') != wanted:
+                raise self.defect(step.line, f'{cite} read right to left '
+                                             f'does not say {written}')
             return self.seq(scope, was, now, proof, 'eqcomd')
 
         first = self.read(links[0][0])
