@@ -23,8 +23,9 @@ import itertools
 import re
 
 from formula import parse
+from match import Rule
 from parse import Declined, Problem, declined, define_parts
-from sorts import LABEL, SENTENCE, element_sort
+from sorts import LABEL, SENTENCE, element_sort, file_definitions
 
 OBTAINS = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 
@@ -384,6 +385,16 @@ def read_theorem(thm, g, cite=None):
     for `thm` must be in `g` already.
     """
     reader = Reader(g)
+    # What the theorem sees from outside it has its kind before its first
+    # line, read from the rule written out where it was defined.
+    for name, made in file_definitions(thm, g).items():
+        if isinstance(made, Rule):
+            taken = Var()
+            reader.env[name] = ('function', taken,
+                                reader.kind(made.body, thm.line,
+                                            {made.param: taken}))
+        else:
+            reader.env[name] = reader.kind(made, thm.line)
     events = [(no, kind, text[len(kind):], None)
               for kind, text, _label, no in thm.hypotheses]
     # The conclusion is the statement's last line, so it may still relate

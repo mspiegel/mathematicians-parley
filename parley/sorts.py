@@ -16,7 +16,7 @@ named. A name neither reaches has no sort, which every hole accepts.
 import re
 
 from formula import parse
-from match import Rule
+from match import Rule, expand
 from parse import Problem, declined, define_parts
 
 NUMBER_SYSTEMS = {'ℕ', 'ℕ₀', 'ℤ', 'ℚ', 'ℝ'}
@@ -59,7 +59,7 @@ def definitions_in_scope(thm, g):
     which term each name stands for. A define may name something in terms of an
     earlier one, so the terms are read in the order they are written.
     """
-    out = {}
+    out = file_definitions(thm, g)
     for _, text, _, _ in thm.defines:
         said = define_parts(text)
         if declined(said):
@@ -72,7 +72,70 @@ def definitions_in_scope(thm, g):
         except Problem:
             continue
         out[said.name] = (body if said.param is None
-                          else Rule(said.param, body))
+                          else Rule(said.param, body, said.domain))
+    return out
+
+
+def file_definitions(thm, g):
+    """What each definition the theorem sees from outside it stands for:
+    those its file writes above it and those its file imports.
+
+    Each is written out in the file that wrote it, and nowhere else. A
+    definition means what it meant there, whatever the reading file calls
+    things: a file with a T of its own, or one that imported this T as U,
+    reads the same rule, and a definition built from another is followed in
+    the names of the file that built it.
+    """
+    if thm.scope is None:
+        return {}
+    return written_definitions(thm.scope, thm.line, g, frozenset())
+
+
+def written_definitions(scope, line, g, seen):
+    """`name -> tree` (a `match.Rule` for a function) for every definition
+    a line of `scope`'s file at `line` may use, each written out.
+    """
+    out = {}
+    for name, d, src in scope.visible(line):
+        if (src.path, d[3]) in seen:
+            continue          # an import cycle, which `check_imports` reports
+        made = written_definition(d, src, g, seen | {(src.path, d[3])})
+        if made is not None:
+            out[name] = made
+    return out
+
+
+def written_definition(d, src, g, seen):
+    """One definition, read and written out in the file that wrote it;
+    None where its rule does not parse, which `check_formulas` reports.
+    """
+    said = define_parts(d[1])
+    if declined(said):
+        return None
+    inner = written_definitions(src, d[3], g, seen)
+    kept = g.sorts
+    g.sorts = definition_sorts(inner)
+    if said.param is not None:
+        g.sorts[said.param] = element_sort(said.domain)
+    try:
+        body = parse(said.body, g)
+    except Problem:
+        return None
+    finally:
+        g.sorts = kept
+    body = expand(body, inner)
+    return body if said.param is None else Rule(said.param, body, said.domain)
+
+
+def definition_sorts(definitions):
+    """The sort each definition gives its name: a function takes arguments,
+    and any other is what its rule is.
+    """
+    out = {}
+    for name, made in definitions.items():
+        sort = 'function' if isinstance(made, Rule) else made.sort
+        if sort not in (None, 'unknown', 'any'):
+            out[name] = sort
     return out
 
 
@@ -145,7 +208,8 @@ def sorts_in_scope(thm, g):
     for kind, text, _, no in thm.defines:
         events.append((no, kind, text))
 
-    out = {}
+    # What the theorem sees from outside it is there before its first line.
+    out = definition_sorts(file_definitions(thm, g))
     for _, kind, text in sorted(events, key=lambda e: e[0]):
         if kind in ('let', 'assume', 'suppose'):
             found = _from_introduction(_body(text, kind))

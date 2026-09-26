@@ -44,9 +44,11 @@ from parse import (
     cited_item,
     cited_items,
     declined,
+    define_parts,
     fmt,
     in_stdlib,
     index,
+    link_definitions,
     parse_database,
     parse_proof,
     proof_files,
@@ -57,6 +59,7 @@ from sorts import (
     FUNCTION,
     KIND,
     definitions_in_scope,
+    file_definitions,
     sorts_in_scope,
     sorts_of_record,
 )
@@ -150,6 +153,11 @@ def labels_in_scope(thm, step):
     cite the assumption of another.
     """
     out = {lab: ('hypothesis', no) for _, _, lab, no in thm.hypotheses if lab}
+    # A define the file writes above the theorem is cited by its label too.
+    if thm.scope is not None:
+        for _n, d, src in thm.scope.visible(thm.line):
+            if src is thm.scope:
+                out.setdefault(d[2], ('define', d[3]))
     for _, _, lab, no in thm.defines:
         if no < step.line:
             out[lab] = ('define', no)
@@ -700,8 +708,14 @@ class Library:
             sorts = sorts_in_scope(thm, self.g)
             lines = [(k, LABEL_AT_END.sub('', t[len(k):]).strip())
                      for k, t, _, _ in thm.hypotheses]
-            return [(self._facts(lines, sorts),
-                     self._trees(sentences(thm.conclusion), sorts))]
+            # A theorem's statement means what it meant in its own file: a
+            # definition it names is written out there, so what cites it is
+            # compared with the rule and never with a name of its own.
+            own = file_definitions(thm, self.g)
+            return [([(text, expand(tree, own))
+                      for text, tree in self._facts(lines, sorts)],
+                     [expand(tree, own) for tree in
+                      self._trees(sentences(thm.conclusion), sorts)])]
         item = self.items.get(name)
         if item is None:
             return None
@@ -1766,6 +1780,83 @@ def check_last_step(report, thm):
 
 # -------------------------------------------------------------------- main
 
+def check_definitions(report, theorems):
+    """What a proof file defines outside its theorems and what it imports.
+
+    Two definitions of one name are a defect wherever both could be read:
+    two the file writes, one it writes and one it imports, two it imports,
+    or a proof's own define under a name the file already gives something.
+    A definition imported and never used is a defect, as an import cited
+    from nowhere is. A define outside a theorem carries a reading like any
+    other, and its label is not one a theorem below it also uses.
+    """
+    files = {}
+    for thm in theorems:
+        files.setdefault(thm.module, []).append(thm)
+    for thms in files.values():
+        scope = thms[0].scope
+        named = {}
+        for alias, (_src, _d) in scope.linked.items():
+            no = next(n for _m, _x, a, n in scope.imports if a == alias)
+            named[alias] = no
+        for d in scope.defines:
+            said = define_parts(d[1])
+            if declined(said):
+                continue
+            if said.name in named:
+                report.say(scope.path, d[3],
+                           f'{said.name} is already defined at line '
+                           f'{named[said.name]}')
+            named.setdefault(said.name, d[3])
+            if d[2] not in scope.readings:
+                report.say(scope.path, d[3],
+                           f'define {d[2]} carries no `reads` line saying '
+                           f'what the name means')
+        text = ' '.join([written_text(t) for t in thms]
+                        + [d[1] for d in scope.defines])
+        for _module, name, alias, no in scope.imports:
+            if alias in scope.linked \
+                    and not re.search(rf'(?<![\w]){re.escape(alias)}(?![\w])',
+                                      text):
+                report.say(scope.path, no,
+                           f'imports definition {name} as {alias} and never '
+                           f'uses it' if alias != name else
+                           f'imports definition {name} and never uses it')
+        for thm in thms:
+            seen = {name: d for name, d, _src in scope.visible(thm.line)}
+            labels = {d[2] for _n, d, src in scope.visible(thm.line)
+                      if src is scope}
+            for _k, text, lab, no in thm.defines:
+                said = define_parts(text)
+                if not declined(said) and said.name in seen:
+                    report.say(thm.path, no,
+                               f'{said.name} is already defined outside '
+                               f'theorem {thm.name}')
+                if lab in labels:
+                    report.say(thm.path, no,
+                               f'label {lab} is already a define\'s outside '
+                               f'theorem {thm.name}')
+            for _k, _t, lab, no in thm.hypotheses:
+                if lab in labels:
+                    report.say(thm.path, no,
+                               f'label {lab} is already a define\'s outside '
+                               f'theorem {thm.name}')
+
+
+def written_text(thm):
+    """Everything a theorem's lines say, as one run of text."""
+    parts = [t for _k, t, _l, _n in thm.hypotheses] + [thm.conclusion]
+    parts += [t for _k, t, _l, _n in thm.defines]
+    for step in thm.steps:
+        parts += list(step.claim)
+        parts += [o[1] for o in step.openers]
+        parts += [text for text, _how, _line in step.requires]
+        if step.just:
+            parts.append(step.just.text)
+            parts += [text for text, _line in step.just.chain]
+    return ' '.join(parts)
+
+
 def check_imports(report, theorems):
     """A proof file imports exactly the other proof files it cites.
 
@@ -1809,7 +1900,14 @@ def check_imports(report, theorems):
             if name not in cited:
                 report.say(path, no,
                            f'imports {name} and cites nothing from it')
-        graph[module] = said
+        # A definition imported is a file read before this one, as a proof
+        # file cited is, so it is an edge of the same graph.
+        edges = dict(said)
+        if thms[0].scope is not None:
+            for other, _name, _alias, no in thms[0].scope.imports:
+                if other in files and other != module:
+                    edges.setdefault(other, no)
+        graph[module] = edges
 
     done, trail = set(), []
 
@@ -1892,7 +1990,10 @@ def main(root):
                        f'theorem {thm.name} is already proved at line '
                        f'{seen[name]}')
         seen.setdefault(name, thm.line)
+    for path, no, message in link_definitions(theorems):
+        report.say(path, no, message)
     check_imports(report, theorems)
+    check_definitions(report, theorems)
 
     grammar = Grammar.load(records)
     check_statements(report, records, grammar)

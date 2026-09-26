@@ -233,8 +233,8 @@ class Rule:
     function, and S(t) is its body with t for m.
     """
 
-    def __init__(self, param, body):
-        self.param, self.body = param, body
+    def __init__(self, param, body, domain=None):
+        self.param, self.body, self.domain = param, body, domain
 
 
 def expand(node, definitions, depth=8):

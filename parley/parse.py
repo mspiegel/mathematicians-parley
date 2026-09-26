@@ -315,6 +315,69 @@ def define_parts(text):
                   m.group('domain').strip() if param else None)
 
 
+class FileScope:
+    """What a proof file holds outside its theorems: the definitions it
+    writes between them, and the definitions it imports from other files.
+
+    A theorem sees the definitions written above it and every one its file
+    imports (`visible`). An imported one is read in the file that wrote it,
+    which is why each carries the scope it comes from.
+    """
+
+    def __init__(self, path):
+        self.path = path
+        self.defines = []     # ('define', text, label, line), as written
+        self.readings = {}    # define label -> (text, line)
+        self.imports = []     # (module, name, alias, line)
+        self.linked = {}      # alias -> (FileScope, define), `link_definitions`
+
+    def visible(self, line):
+        """(name, define, the scope it is read in) for every definition a
+        line of this file at `line` may use.
+        """
+        out = [(alias, d, src) for alias, (src, d) in self.linked.items()]
+        for d in self.defines:
+            if d[3] < line:
+                said = define_parts(d[1])
+                if not declined(said):
+                    out.append((said.name, d, self))
+        return out
+
+    def written(self, name):
+        """The define this file writes at file level under `name`; else None."""
+        for d in self.defines:
+            said = define_parts(d[1])
+            if not declined(said) and said.name == name:
+                return d
+        return None
+
+
+def link_definitions(theorems):
+    """Point every definition import at the define it names, and say what
+    does not resolve: (path, line, message) for each.
+    """
+    scopes = {}
+    for thm in theorems:
+        scopes.setdefault(thm.module, thm.scope)
+    problems = []
+    for scope in scopes.values():
+        scope.linked = {}
+        for module, name, alias, no in scope.imports:
+            src = scopes.get(module)
+            if src is None:
+                problems.append((scope.path, no, f'import definition '
+                                 f'{module}/{name} names no proof file'))
+                continue
+            d = src.written(name)
+            if d is None:
+                problems.append((scope.path, no, f'import definition '
+                                 f'{module}/{name}: {module} defines no '
+                                 f'{name} outside its theorems'))
+                continue
+            scope.linked[alias] = (src, d)
+    return problems
+
+
 @dataclass
 class Theorem:
     name: str
@@ -327,9 +390,7 @@ class Theorem:
     path: str = ''
     fields: dict = field(default_factory=dict)     # metamath, note
     imports: list = field(default_factory=list)    # (module, line) of its file
-    # (module, name, alias, line): each definition its file imports, written
-    # as `alias` there, which is `name` where the import gives none.
-    definition_imports: list = field(default_factory=list)
+    scope: FileScope = None    # its file's definitions outside any theorem
     kind = 'theorem'
 
     @property
@@ -469,7 +530,20 @@ def parse_proof(path, text):
     indentation is presentation and is not consulted.
     """
     theorems, thm, step, claim, defined = [], None, None, None, None
-    imports, definitions = [], []
+    imports, scope = [], FileScope(path)
+
+    def settle():
+        """A define after a theorem's last step is the file's, for the
+        theorems below it: that theorem could never use it.
+        """
+        if thm is None:
+            return
+        last = max((s.line for s in thm.steps), default=thm.line)
+        for d in [d for d in thm.defines if d[3] > last]:
+            thm.defines.remove(d)
+            scope.defines.append(d)
+            if d[2] in thm.readings:
+                scope.readings[d[2]] = thm.readings.pop(d[2])
     # Between a theorem line and its statement a theorem may carry fields,
     # and a line there that opens no field continues the one above it.
     header, last_field = False, None
@@ -515,11 +589,12 @@ def parse_proof(path, text):
         defined, just_defined = None, defined
         if t.startswith('theorem ') and line.indent == 0:
             close_step()
+            settle()
             name = t[len('theorem '):].strip()
             if not re.fullmatch(NAME, name):
                 raise Problem(path, line.no, f'theorem name {name!r} is malformed')
             thm = Theorem(name=name, line=line.no, path=path, imports=imports,
-                          definition_imports=definitions)
+                          scope=scope)
             theorems.append(thm)
             pending_markers.clear()
             pending_openers.clear()
@@ -529,14 +604,34 @@ def parse_proof(path, text):
             continue
         if thm is None:
             if t.startswith('import '):
+                if scope.defines:
+                    raise Problem(path, line.no,
+                                  'an import below a define; imports come '
+                                  'first')
                 said = importing(path, line.no, t)
                 if said[0] == 'proof':
                     imports.append(said[1:])
                 else:
-                    definitions.append(said[1:])
+                    scope.imports.append(said[1:])
+                continue
+            # A define before any theorem is the file's, for every theorem.
+            if t.startswith('define '):
+                lab = re.search(rf'\(({LABEL})\)$', t)
+                if not lab:
+                    raise Problem(path, line.no, 'define line carries no label')
+                parts = define_parts(t)
+                if declined(parts):
+                    raise Problem(path, line.no, str(parts))
+                scope.defines.append(('define', t, lab.group(1), line.no))
+                defined = scope.defines[-1]
+                continue
+            if t.startswith('reads') and just_defined is not None:
+                scope.readings[just_defined[2]] = (t[len('reads'):].strip(),
+                                                   line.no)
                 continue
             raise Problem(path, line.no,
-                          'text before any theorem header that is not an import')
+                          'text before any theorem header that is neither an '
+                          'import nor a define')
 
         head = t.split(None, 1)[0]
         if header and head in THEOREM_FIELDS:
@@ -640,6 +735,7 @@ def parse_proof(path, text):
                           f'unexpected line after a justification: {t[:48]!r}')
         raise Problem(path, line.no, f'unexpected line {t[:48]!r}')
     close_step()
+    settle()
     return theorems
 
 
@@ -704,6 +800,9 @@ def corpus(root):
         rel = str(path.relative_to(root))
         theorems.extend(parse_proof(rel, check_encoding(rel,
                                                         path.read_bytes())))
+    # What does not resolve is the checker's to report; here a definition
+    # import that names nothing is simply one that brings nothing in.
+    link_definitions(theorems)
     return records, theorems
 
 

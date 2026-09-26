@@ -31,7 +31,87 @@ ROOT = Path(__file__).resolve().parent.parent
 # baseline run must report nothing.
 BASELINE = 0
 
+# A file that defines a function outside its theorems, for the cases below
+# that import it, use it, or define its name again.
+TRI = ('define T(k) := k(k + 1)/2, for k ∈ ℕ'
+       '                                  (D1)\n'
+       '       reads the k-th triangular number\n'
+       '\n'
+       'theorem tri-one\n'
+       '  then T(1) = 1\n'
+       '\n'
+       '1.  T(1) = 1\n'
+       '    calculation\n'
+       '      T(1) = 1(1 + 1)/2        D1\n'
+       '           = 1                 arithmetic\n')
+
 CASES = [
+    # Definitions outside a theorem, and definitions imported.
+    ('import a definition from a file that is not there',
+     'proof/cantor.proof',
+     'theorem cantor\n',
+     'import definition proof/nonesuch/W\n\ntheorem cantor\n',
+     'names no proof file'),
+
+    ('import a definition the file does not define',
+     [('proof/tri.proof', None, TRI),
+      ('proof/cantor.proof', 'theorem cantor\n',
+       'import definition proof/tri/W\n\ntheorem cantor\n')],
+     'defines no W outside its theorems'),
+
+    ('import a definition and never use it',
+     [('proof/tri.proof', None, TRI),
+      ('proof/cantor.proof', 'theorem cantor\n',
+       'import definition proof/tri/T\n\ntheorem cantor\n')],
+     'imports definition T and never uses it'),
+
+    ('define one name twice outside the theorems',
+     [('proof/tri.proof', None,
+       TRI + '\ndefine T(k) := k, for k ∈ ℕ'
+             '                                          (D2)\n'
+             '       reads k itself\n')],
+     'T is already defined at line'),
+
+    ('define a name the file also imports',
+     [('proof/tri.proof', None, TRI),
+      ('proof/tri-use.proof', None,
+       'import proof proof/tri\n'
+       'import definition proof/tri/T\n\n'
+       'define T(k) := k, for k ∈ ℕ'
+       '                                          (D1)\n'
+       '       reads k itself\n\n'
+       'theorem use-one\n  then T(1) = 1\n\n'
+       '1.  T(1) = 1\n    thm:proof/tri/tri-one\n')],
+     'T is already defined at line'),
+
+    ('define inside a proof a name the file defines outside it',
+     'proof/cantor.proof',
+     'theorem cantor\n',
+     'define B := {1}                                                    (D9)\n'
+     '       reads the set holding 1\n\ntheorem cantor\n',
+     'B is already defined outside theorem cantor'),
+
+    ('use a definition above the line that defines it',
+     [('proof/tri.proof', None,
+       TRI.replace('  then T(1) = 1\n', '  then T(1) = 1 + U(0)\n')
+       + '\ndefine U(k) := k, for k ∈ ℕ'
+         '                                          (D2)\n'
+         '       reads k itself\n')],
+     "'T(1) = 1 + U(0)' fits application"),
+
+    # A cited theorem's T is its own file's T, and a file with a T of its
+    # own cannot cite it as one about that.
+    ('cite a theorem about another file\'s T as one about the file\'s own',
+     [('proof/tri.proof', None, TRI),
+      ('proof/tri-own.proof', None,
+       'import proof proof/tri\n\n'
+       'define T(k) := k·k, for k ∈ ℕ'
+       '                                         (D1)\n'
+       '       reads the square of k\n\n'
+       'theorem own-one\n  then T(1) = 1\n\n'
+       '1.  T(1) = 1\n    thm:proof/tri/tri-one\n')],
+     'does not conclude'),
+
     ('cite a line inside a block that has closed',
      'proof/intermediate-value.proof',
      '    17.2.  c < b\n           inequalities, from 12, 17.1',
@@ -650,13 +730,25 @@ def plant(case, clean, work):
 
     Gives back whether it was caught and what to say about it.
     """
-    name, rel, old, new, expect = case
+    # A case edits one file, (name, file, old, new, expected), or several,
+    # (name, [(file, old, new), ...], expected); an edit whose old text is
+    # None writes a file that was not there.
+    if len(case) == 5:
+        name, rel, old, new, expect = case
+        edits = [(rel, old, new)]
+    else:
+        name, edits, expect = case
     shutil.copytree(clean, work)
-    path = work / rel
-    text = path.read_text(encoding='utf-8')
-    if old not in text:
-        return False, f'  SETUP FAILED  {name}\n      anchor not found in {rel}'
-    path.write_text(text.replace(old, new, 1), encoding='utf-8')
+    for rel, old, new in edits:
+        path = work / rel
+        if old is None:
+            path.write_text(new, encoding='utf-8')
+            continue
+        text = path.read_text(encoding='utf-8')
+        if old not in text:
+            return False, (f'  SETUP FAILED  {name}\n'
+                           f'      anchor not found in {rel}')
+        path.write_text(text.replace(old, new, 1), encoding='utf-8')
     out = run(work)
     if expect in out:
         return True, f'  caught        {name}'
