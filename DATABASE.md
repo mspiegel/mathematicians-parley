@@ -58,7 +58,7 @@ has, and a subject is one file:
 | `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
 | `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
 | `stdlib/sums.records` | sums over a range, and the ranges | 22 |
-| `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 36 |
+| `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 37 |
 | `stdlib/functions.records` | functions, their values, and images | 7 |
 | `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 18 |
 | `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |

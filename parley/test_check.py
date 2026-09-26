@@ -836,7 +836,7 @@ def plant(case, clean, work):
 def main():
     with tempfile.TemporaryDirectory() as tmp:
         clean = Path(tmp) / 'clean'
-        for part in ('db', 'stdlib', 'proof'):
+        for part in ('db', 'stdlib', 'proof', 'tests'):
             shutil.copytree(ROOT / part, clean / part)
         base = run(clean)
         n_base = int(base.split(' problem(s)')[0].split('\n')[-1])

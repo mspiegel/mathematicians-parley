@@ -24,6 +24,15 @@ theorem union-member
 1.  u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
     thm:stdlib/sets/union-member
 
+theorem remove-member
+  let Y be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let u be an element                                                 (H3)
+  then u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
+
+1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
+    thm:stdlib/sets/remove-member
+
 theorem intersection-commutes
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)

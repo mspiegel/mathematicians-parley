@@ -557,6 +557,20 @@ CASES = [
      '           = |CB|       H5\n',
      '           = |CB|       2\n',
      '2 does not say |CA| = |CB|'),
+
+    # A lemma's conclusion is carried to the claim through the standard
+    # form, which reads eldifsn's u =/= a as the page's u ≠ a, down through
+    # the ↔ and the "and" it sits in. It reads nothing else: a claim of
+    # u = a in its place is still not what eldifsn says.
+    ('claim what a lemma says with one relation changed',
+     'tests/stdlib/sets/remove-member',
+     'tests/stdlib/sets.proof',
+     'then u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n\n'
+     '1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n',
+     'then u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n\n'
+     '1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n',
+     'no clause of thm:stdlib/sets/remove-member reaches what step 1 '
+     'claims'),
 ]
 
 
@@ -634,7 +648,8 @@ def main(argv):
     passed = failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         clean = Path(tmp) / 'clean'
-        for part in ('db', 'stdlib', 'proof', 'parley', 'elaboration'):
+        for part in ('db', 'stdlib', 'proof', 'tests', 'parley',
+                     'elaboration'):
             shutil.copytree(ROOT / part, clean / part,
                             ignore=shutil.ignore_patterns('__pycache__'))
 

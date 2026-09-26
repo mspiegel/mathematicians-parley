@@ -2234,13 +2234,20 @@ class Matcher:
         conclusion: `ltmin` says z < min(x, y) exactly when z is below both,
         and the step claims c < x₁, which is the near side once x₁ is read
         as what it names.
+
+        Last, each biconditional said whole, for a step that claims all of
+        it: `eldifsn` says u ∈ Y ∖ {a} exactly when u ∈ Y and u =/= a, and
+        the page writes u ≠ a, which is `-. u = a` until `df-ne` reads it.
+        After the others, so a claim one side reaches is reached as before.
         """
         variables = whole.names()
-        sides, rest = [reads], whole
+        sides, rest, wholes = [reads], whole, []
         while rest.label in ('wi', 'wb'):
             if rest.label == 'wb':
                 sides.append(rest.children[0])
+                wholes.append(rest)
             rest = rest.children[1]
+        sides += wholes
         theirs = self.read_through(goal)
         found = Declined(f'{label} does not conclude the claim in any '
                          f'words the rules read')
