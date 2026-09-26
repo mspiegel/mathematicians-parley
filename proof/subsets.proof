@@ -42,8 +42,8 @@ theorem add-element-bijection
 
     1.10. S = T
           calculation
-            S = S ∖ {a}            1.7, right to left
-              = (T ∪ {a}) ∖ {a}    1.9, right to left
+            S = S ∖ {a}            1.7
+              = (T ∪ {a}) ∖ {a}    1.9
               = T ∖ {a}            1.6
               = T                  1.8
 
@@ -290,7 +290,7 @@ theorem subsets-count
                             calculation
                               |𝒫X| = 2^k + 2^k      1.2.1.9
                                    = 2^k·2          1.2.1.10
-                                   = 2^(k + 1)      1.2.1.11, right to left
+                                   = 2^(k + 1)      1.2.1.11
 
 2.  |𝒫A| = 2^n
     instantiate X := A in line 1, from H2, H3

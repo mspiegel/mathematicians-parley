@@ -81,8 +81,7 @@ PRODUCTIONS = {
                      rf'(?:line\s+{NUMBER}|{LABEL})$',
     'exhibit':       rf'^exhibit,\s*{FROM}$',
     'substitute':    rf'^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)'
-                     rf'(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?'
-                     r'(?:,\s*right to left)?$',
+                     rf'(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$',
     'instantiate':   rf'^instantiate\s+{INST}\s+in\s+(?:line\s+{NUMBER}|{LABEL})'
                      rf'(?:,\s*{FROM})?$',
     'algebra':       rf'^algebra(?:,\s*{FROM})?$',
@@ -528,8 +527,7 @@ def check_closed_arithmetic(report, thm, g):
             continue
         previous = None
         for text, no in just.chain:
-            body = re.sub(r',\s*right to left\s*$', '', text).strip()
-            body, _, cite = body.rpartition(' ')
+            body, _, cite = text.strip().rpartition(' ')
             body = body.strip()
             if previous is None:
                 words = body.split()

@@ -65,7 +65,7 @@ theorem binomial-step
 
     5.7.  x^(m − k)·x = x^((m + 1) − k)
           calculation
-            x^(m − k)·x = x^((m − k) + 1)       5.4, right to left
+            x^(m − k)·x = x^((m − k) + 1)       5.4
                         = x^((m + 1) − k)       5.6
 
     5.8.  x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·(x^(m − k)·x)·y^k
@@ -133,7 +133,7 @@ theorem binomial-step
                                               = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k    6
 
 18. Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0
-    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k (line 17) into line 16, right to left
+    substitute x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) C(m, k)·x^((m + 1) − k)·y^k (line 17) into line 16
 
 19. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0 = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)
     algebra
@@ -142,8 +142,8 @@ theorem binomial-step
 
 20. x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k
     calculation
-      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0    19, right to left
-                                              = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k    18, right to left
+      x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + 0    19
+                                              = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k    18
 
 21. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)
     thm:stdlib/sums/sum-scaled a := 0, b := m, c := y
@@ -182,7 +182,7 @@ theorem binomial-step
            requires y^k ∈ ℝ: thm:stdlib/numbers/power-real, from H2, 22.2
 
     22.6.  C(m, k)·x^(m − k)·(y^k·y) = C(m, k)·x^(m − k)·y^(k + 1)
-           substitute y^(k + 1) = y^k·y (line 22.4), right to left
+           substitute y^(k + 1) = y^k·y (line 22.4)
 
     22.7.  y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1)
            calculation
@@ -306,8 +306,8 @@ theorem binomial-step
                                               = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)  24
                                               = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)      25
                                               = Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  27
-                                              = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k              41, right to left
-                                              = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  39, right to left
+                                              = 0 + Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k              41
+                                              = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k                  39
 
 43. Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     thm:stdlib/sums/sum-add a := 0, b := m + 1
@@ -374,7 +374,7 @@ theorem binomial-step
       (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)                     3
                                                     = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)               46
                                                     = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k + Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k     47
-                                                    = Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k)                     43, right to left
+                                                    = Σ(k = 0 to m + 1) (C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k)                     43
                                                     = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k                                                     45
 
 
@@ -418,10 +418,10 @@ theorem binomial
     1.7.  (x + y)^0 = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k
           calculation
             (x + y)^0 = 1                                        1.6
-                      = 1·x^0·y^0                                1.5, right to left
-                      = 1·x^(0 − 0)·y^0                          1.4, right to left
-                      = C(0, 0)·x^(0 − 0)·y^0                    1.3, right to left
-                      = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k      1.1, right to left
+                      = 1·x^0·y^0                                1.5
+                      = 1·x^(0 − 0)·y^0                          1.4
+                      = C(0, 0)·x^(0 − 0)·y^0                    1.3
+                      = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k      1.1
 
     step
     1.8.  For every m ∈ ℕ₀, if (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k

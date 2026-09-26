@@ -90,7 +90,7 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
                   requires a^(k + 1) ∈ ℝ: thm:stdlib/numbers/power-real m := k + 1, from H1, 2.10.1
 
           2.10.7. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.10.5), right to left
+                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.10.5)
 
           2.10.8. G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
                   calculation

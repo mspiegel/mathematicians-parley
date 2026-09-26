@@ -26,7 +26,7 @@ theorem isosceles
 
 5.  |CB| = |CA|
     calculation
-      |CB| = |CA|       H5, right to left
+      |CB| = |CA|       H5
 
 6.  A, C, B form a triangle
     thm:stdlib/geometry/triangle-swap P := A, Q := B, R := C, from H4

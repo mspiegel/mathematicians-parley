@@ -165,7 +165,7 @@ theorem sqrt2-irrational
 
     3.10. 2q² = 4r²
           calculation
-            2q² = p²        3.3, right to left
+            2q² = p²        3.3
                 = (2r)²     3.8
                 = 4r²       3.9
 

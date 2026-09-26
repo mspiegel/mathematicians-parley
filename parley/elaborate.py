@@ -903,13 +903,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # The reference is a bracket near the end; the equation may hold
         # brackets of its own, as `S(k) = k(k + 1)/2` does, and `into` may
         # follow, as `substitute √2 = p/q (line 3.1) into line 1` does.
-        # A direction is not part of what the line says, so a line that
-        # writes one is read the same as a line that does not. `GRAMMAR.md`
-        # allows the marker because it tells a reader which way the author
-        # had in mind.
-        text = re.sub(r',\s*right to left\s*$', '', step.just.text).strip()
         said = re.match(r'substitute\s+(.*)\s*\(([^()]*)\)'
-                        r'(?:\s+into\s+(\S.*?))?\s*$', text)
+                        r'(?:\s+into\s+(\S.*?))?\s*$', step.just.text.strip())
         if said is None:
             raise self.defect(step.line,
                               'a substitute that names no equation')
@@ -1355,21 +1350,20 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         adds, and the lemma that folds it is chosen by the two relations
         either side of the join.
 
-        A link may cite a line the other way round — `3.3, right to left` —
-        because nothing in the readable layer says which way an equation
-        faces, and the chain wants them all facing the same way.
+        A link may cite an equation that faces the other way, as a textbook
+        writes "by (3)" of either: an equation says the same thing read from
+        either side, so the line is asked as written and then turned, and
+        the two can differ only where both say the same.
         """
         links = []
         for text, _line in step.just.chain:
-            turned = 'right to left' in text
-            body = re.sub(r',\s*right to left\s*$', '', text).strip()
-            body, cite = body.rsplit(None, 1)
-            links.append((body.strip(), cite, turned))
+            body, cite = text.rsplit(None, 1)
+            links.append((body.strip(), cite))
         defines = {label for _k, _t, label, _l in self.thm.defines} \
             | {self.outside_label(name, d, src)
                for name, d, src in self.visible_outside()}
 
-        def held(cite, turned, claim, written):
+        def held(cite, claim, written):
             # A link of numerals alone may name `arithmetic` rather than a
             # line, and what it relates is proved where it stands.
             what = f'a link of step {fmt(step.number)} claims {written}'
@@ -1417,17 +1411,14 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                       f'it: {alike}')
                 return alike
             proof = self.carried(cite, facts, lines)
-            if not turned:
-                if line.term != wanted:
-                    raise self.defect(step.line, f'{cite} does not say '
-                                                 f'{written}')
+            if line.term == wanted:
                 return proof
-            was, now = (c.rpn(self.flabel)
-                        for c in self.to_term(line.term).children)
-            if self.seq(now, was, 'wceq') != wanted:
-                raise self.defect(step.line, f'{cite} read right to left '
-                                             f'does not say {written}')
-            return self.seq(scope, was, now, proof, 'eqcomd')
+            said = self.to_term(line.term)
+            if said.label == 'wceq':
+                was, now = (c.rpn(self.flabel) for c in said.children)
+                if self.seq(now, was, 'wceq') == wanted:
+                    return self.seq(scope, was, now, proof, 'eqcomd')
+            raise self.defect(step.line, f'{cite} does not say {written}')
 
         first = self.read(links[0][0])
         if not first.text:
@@ -1439,8 +1430,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         right = whole.children[1].rpn(self.flabel)
         said = whole.label
         relation = whole.children[2].rpn(self.flabel) if said == 'wbr' else ''
-        proof = held(links[0][1], links[0][2], whole, links[0][0])
-        for body, cite, turned in links[1:]:
+        proof = held(links[0][1], whole, links[0][0])
+        for body, cite in links[1:]:
             mark, added = body.split(None, 1)
             joined = self.to_term(self.term(self.read(f'{rest} {mark} {added}')))
             fold = rules.FOLDING.get((said, joined.label))
@@ -1456,7 +1447,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             if joined.label == 'wbr':
                 relation = joined.children[2].rpn(self.flabel)
             proof = self.seq(scope, left, right, nxt, relation, proof,
-                        held(cite, turned, joined,
+                        held(cite, joined,
                              f'{rest} {mark} {added}'), fold)
             right, rest = nxt, added
             said = 'wceq' if said == joined.label == 'wceq' else 'wbr'

@@ -62,7 +62,7 @@ method substitute
               the other.
   metamath    oveq1d, oveq2d, eqtrd, fveq2d
   first-used  sqrt2-irrational
-  note        Writes "right to left" where the direction matters.
+  note        The equation e may be used from either side.
 
 method instantiate
   form        instantiate v := t in line L, from L2
@@ -241,5 +241,4 @@ method calculation
   note        A calculation only joins. Every line cites a numbered step or
               label that states that line's relation, and all reasoning is in
               those steps. A chain never carries a method on a line. A line may
-              read a cited equation right to left, and writes "right to left"
-              when it does.
+              read a cited equation from either side.

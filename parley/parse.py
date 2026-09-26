@@ -752,7 +752,7 @@ def parse_proof(path, text):
     return theorems
 
 
-CHAIN_TAIL = re.compile(rf'(\barithmetic|{REF})(?:,\s*right to left)?$')
+CHAIN_TAIL = re.compile(rf'(\barithmetic|{REF})$')
 
 
 def chain_citation(path, line):

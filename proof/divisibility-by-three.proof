@@ -45,7 +45,7 @@ theorem ten-power-congruent
                   thm:stdlib/numbers/ten-minus-one
 
           1.3.5.  3 divides 10 − 1
-                  substitute 10 − 1 = 9 (line 1.3.4) into line 1.3.3, right to left
+                  substitute 10 − 1 = 9 (line 1.3.4) into line 1.3.3
 
           1.3.6.  3 divides (10^m − 1)·10 + (10 − 1)·1
                   thm:stdlib/divisibility/divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
@@ -65,7 +65,7 @@ theorem ten-power-congruent
                   requires 10^m ∈ ℝ: from 1.3.1
 
           1.3.9.  10^m·10 − 1 = 10^(m + 1) − 1
-                  substitute 10^(m + 1) = 10^m·10 (line 1.3.7), right to left
+                  substitute 10^(m + 1) = 10^m·10 (line 1.3.7)
 
           1.3.10. (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1
                   calculation

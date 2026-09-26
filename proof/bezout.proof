@@ -180,7 +180,7 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 
 20. a·x₀ + b·y₀ = gcd(a, b)
     calculation
-      a·x₀ + b·y₀ = d               8, right to left
+      a·x₀ + b·y₀ = d               8
                   = gcd(a, b)       19
 
 21. There are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b).

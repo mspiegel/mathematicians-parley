@@ -541,6 +541,16 @@ CASES = [
      '    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = '
      'C(0, 0)·x^((0 − 1) − 0)·y^0\n',
      'no clause of thm:stdlib/sums/sum-single reaches what step 1.1 claims'),
+
+    # A link reads its cited equation from either side, and nothing on the
+    # page says which: line 1 says |AC| = |CA|, which is neither way round
+    # the link's |CB| = |CA|.
+    ('cite an equation that says the link neither way round',
+     'proof/isosceles/isosceles',
+     'proof/isosceles.proof',
+     '      |CB| = |CA|       H5\n',
+     '      |CB| = |CA|       1\n',
+     '1 does not say |CB| = |CA|'),
 ]
 
 

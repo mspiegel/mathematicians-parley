@@ -627,7 +627,6 @@ A justification is a head and a set of optional slots. The slots are:
 | destination | `into line <number>` \| `into <label>` |
 | source | `(line <number>)` \| `(<label>)` \| `(arithmetic)`, for an equation of numerals alone |
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
-| reversal | `right to left` |
 | start | `starting at <term>` |
 
 The fifteen heads and the slots each admits:
@@ -638,7 +637,7 @@ The fifteen heads and the slots each admits:
   | `obtain` <names> ( `def:` | `thm:` ) <cited> [ <instantiation> ] `,` <from>
   | `obtain` <name> `from` `line` <number>
   | `exhibit` `,` <from>
-  | `substitute` <formula> <source> [ <destination> ] [ `,` <reversal> ]
+  | `substitute` <formula> <source> [ <destination> ]
   | `instantiate` <instantiation> <target> [ `,` <from> ]
   | `algebra` [ `,` <from> ]
   | `arithmetic`
@@ -705,13 +704,14 @@ step`, and cases declares a repeating `case` whose parts open with `assume`.
 <first line> ::= <term> <rel> <term> <citation>
 <chain line> ::= <rel> <term> <citation>
 <rel>        ::= `=` | `≤` | `<`
-<citation>   ::= <ref> [ `,` `right to left` ] | `arithmetic`
+<citation>   ::= <ref> | `arithmetic`
 ```
 
 The citation is separated from the term by two or more spaces in every chain
 line. A parser should not rely on that. Read the citation from the right end
-of the line instead, since it is a reference optionally followed by the
-reversal marker, and treat the whitespace as layout. `arithmetic` stands in
+of the line instead, since it is the last word, and treat the whitespace as
+layout. A cited equation may face either way; the line says nothing about
+which. `arithmetic` stands in
 for a reference only on a line whose relation is between numerals alone, and
 cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
 
