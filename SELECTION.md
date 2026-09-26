@@ -196,3 +196,40 @@ three large proofs stated in deduction form; the countability of ℚ
 and Fermat's little theorem (`fermltl`), which would be a second congruence
 proof after 11; and Königsberg, Ramsey and Bertrand, each of which depends
 on a great deal of set.mm before its argument starts.
+
+## Theorem 16: recursion
+
+The corpus leans on recursion already: Σ, n! and aⁿ are each defined in
+set.mm by `seq`, and the library names them, so a reader never meets it.
+What no proof can yet do is define a sequence of its own by a first term
+and a step. A proof that says "and so on", "repeat" or "the n-th" needs
+that, and recursion and iteration are one feature, since set.mm builds
+both with `seq`. Theorem 16 is chosen to be the test of it, so that the
+feature is tested where it is the whole argument rather than beside a
+theorem's other new features.
+
+| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
+|---|---|---|---|---|---|---|---|---|---|
+| 16 | the greatest common divisor algorithm (Euclid's algorithm) | a sequence defined by recursion; a step defined by cases | eucalg | 72 | no | A, E, M, N, R | none | 8 | Wiedijk #69; ProofWiki |
+
+set.mm states it as a sequence of pairs: `R = seq 0 ( ( E o. 1st ) ,
+( NN0 X. { A } ) )`, starting at A = ⟨M, N⟩, where the step E sends
+⟨x, y⟩ to ⟨y, x mod y⟩, or leaves it where y = 0; and it proves that after
+N steps the first of the pair is gcd(M, N). Three lemmas are the proof's
+parts: `eucalgval`, what one step does; `eucalginv`, that a step keeps the
+gcd; and `eucalglt`, that the second number shrinks until it is 0. gcd,
+divisibility and division with a remainder are in the library from Bezout
+and the primes proof, so what is new is the recursion, and the step, a
+function defined by cases, shares its form with the bijection of 14.
+
+One thing to settle before the pilot: set.mm steps through pairs and reads
+them with `1st` and `2nd`, where a textbook writes two sequences side by
+side, a(k + 1) = b(k) and b(k + 1) = a(k) mod b(k). Either the language
+gains notation for a pair, or a `define` may state two sequences together.
+
+Considered and not chosen: the derangements formula (#88), where set.mm
+defines a derangement by counting permutations and the recurrence
+`subfacp1` is a result about them, not a definition; the sum of k-th powers
+(#77), which goes through Bernoulli polynomials; Pell's equation (#39),
+where recursion describes the solutions but the proof is number theory; and
+the principle of induction (#74), a method the corpus already has.
