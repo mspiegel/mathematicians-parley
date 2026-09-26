@@ -319,6 +319,24 @@ the rule out, as the sum formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and
 the proof introduces S to argue with. A function only one proof needs is
 defined there and nowhere else: it takes no letter from any other proof.
 
+**A function may be defined by cases**, one case to a line, as a textbook
+prints it inside a brace:
+
+```
+define h(x) := f(x)      if x ∈ C
+               g⁻¹(x)    otherwise,  for x ∈ A                (D4)
+```
+
+Every line but the last gives a value and the condition it is taken under;
+the last gives the value `otherwise`, which is what makes the cases cover
+the domain and never overlap without anything having to say so. A define
+continues until the line carrying its label. The lines are one term,
+`f(x) if x ∈ C, g⁻¹(x) otherwise`, which may also be written on one line,
+and three or more cases nest from the right: `a if P, b if Q, c otherwise`
+on three lines is `a if P, (b if Q, c otherwise) otherwise`. A step that
+needs a value writes it and cites the define with the case's condition,
+as it cites any other define.
+
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let
 Tₖ = k(k + 1)/2" once and then states results about Tₖ:

@@ -382,6 +382,19 @@ notation gcd
   metamath    cgcd
   target      _1 _2 cgcd co
 
+notation by-cases
+  pattern     _ if _, _ otherwise
+  holes       any, formula, any
+  yields      any
+  kinds       α, formula, α → α
+  level       binder
+  reads       the first if, and else the second
+  metamath    cif
+  target      _2 _1 _3 cif
+  note        What a define by cases stands for: its lines, each a value and
+              the condition it is taken under and the last `otherwise`, are
+              this, nested from the right (`SYNTAX.md`).
+
 notation min
   pattern     min(_, _)
   holes       number, number
@@ -505,6 +518,20 @@ notation set-image
   note        The binding hole is not the first one, which is why `binds` names
               the holes rather than assuming an order. See def:stdlib/functions/set-image.
 
+notation indexed-union
+  pattern     ⋃(_ ∈ _) _
+  holes       variable, set, set
+  yields      set
+  kinds       α, set of α, set of β → set of β
+  level       summation
+  binds       hole 1 over hole 3
+  reads       the union, as the first runs over the second, of the third
+  metamath    ciun
+  target      _1 _2 _3 ciun
+  note        Written as Σ is, since it gathers sets as Σ adds numbers. Where
+              the set gathered is the index itself, ⋃(X ∈ D) X is set.mm's
+              U. D, and `uniiun` says the two are one.
+
 notation map
   pattern     the map sending _ ∈ _ to _
   holes       variable, set, any
@@ -536,6 +563,19 @@ notation function-type
   metamath    wf
   target      _2 _3 _1 wf
 
+notation one-to-one
+  pattern     _ : _ → _ is one-to-one
+  holes       function, set, set
+  yields      formula
+  kinds       function from α to β, set of α, set of β → formula
+  level       relational
+  reads       is a one-to-one function from, to
+  metamath    wf1
+  target      _2 _3 _1 wf1
+  note        A function that never sends two things to one place. The page
+              keeps the arrow every function is written with and says the
+              property after it, as a textbook does.
+
 notation application
   pattern     _(_)
   holes       function, any
@@ -548,6 +588,19 @@ notation application
               and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
               `holds-of` is the third reading of this pattern.
+
+notation inverse
+  pattern     _⁻¹
+  holes       function
+  yields      function
+  kinds       function from α to β → function from β to α
+  level       power
+  reads       the inverse of
+  metamath    ccnv
+  target      _1 ccnv
+  note        g⁻¹(y) is the thing g sends to y. set.mm's converse is defined
+              for every relation, and it is a function where g is one-to-one,
+              which is where the page writes it.
 
 notation holds-of
   pattern     _(_)

@@ -106,6 +106,11 @@ class Line:
 def read_lines(path, text):
     """Physical lines, comments and blanks dropped, joined by the continuation
     rule: a line continues onto the next when it ends with a comma.
+
+    A `define` continues until the line carrying its label, because a
+    function defined by cases writes one case to a line (`SYNTAX.md`). Its
+    lines are joined keeping the break, which is what tells one case from
+    the next: a value may hold a comma of its own, as gcd(a, b) does.
     """
     out, pending = [], None
     for no, raw in enumerate(text.split('\n'), 1):
@@ -117,19 +122,27 @@ def read_lines(path, text):
         stripped = raw.strip()
         indent = len(raw) - len(raw.lstrip())
         if pending is not None:
-            pending.text += ' ' + stripped
-            if not stripped.endswith(','):
+            defining = pending.text.startswith('define ')
+            pending.text += ('\n' if defining else ' ') + stripped
+            if not (unlabelled(pending.text) if defining
+                    else stripped.endswith(',')):
                 out.append(pending)
                 pending = None
             continue
         line = Line(path, no, stripped, indent)
-        if stripped.endswith(','):
+        if stripped.endswith(',') or (stripped.startswith('define ')
+                                      and unlabelled(stripped)):
             pending = line
         else:
             out.append(line)
     if pending:
         out.append(pending)
     return out
+
+
+def unlabelled(text):
+    """Whether a line ends without the label a define closes on."""
+    return re.search(rf'\({LABEL}\)$', text) is None
 
 
 # --------------------------------------------------------------- database
@@ -294,7 +307,33 @@ class Step:
 
 DEFINED = re.compile(
     r'^define\s+(?P<name>[^\s(]+)(?:\((?P<param>[^\s()]+)\))?\s*:=\s*'
-    r'(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*∈\s*(?P<domain>.+))?$')
+    r'(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*∈\s*(?P<domain>.+))?$', re.S)
+# One line of a define by cases: a value and the condition it is taken
+# under, or the last value, taken `otherwise`.
+CASE = re.compile(r'^(?P<value>.+?)\s+if\s+(?P<condition>.+)$', re.S)
+OTHERWISE = re.compile(r'^(?P<value>.+?)\s+otherwise$', re.S)
+
+
+def by_cases(lines):
+    """The lines of a define by cases as one term: each value and its
+    condition, nested from the right into `_ if _, _ otherwise`; or a
+    decline saying which line is not a case.
+    """
+    last = OTHERWISE.match(lines[-1])
+    if last is None:
+        return Declined('the last line of a define by cases is its value '
+                        '`otherwise`')
+    term, nested = last.group('value').strip(), False
+    for line in reversed(lines[:-1]):
+        case = CASE.match(line)
+        if case is None:
+            return Declined(f'{line!r} is not a case: write the value, then '
+                            f'`if` and the condition it is taken under')
+        rest = f'({term})' if nested else term
+        term = (f'{case.group("value").strip()} if '
+                f'{case.group("condition").strip()}, {rest} otherwise')
+        nested = True
+    return term
 
 
 @dataclass
@@ -321,6 +360,16 @@ def define_parts(text):
     if m is None or not m.group('body').strip():
         return Declined('a define says `define <name> := <term>`')
     param, over = m.group('param'), m.group('over')
+    body = m.group('body').strip()
+    # A define over several lines is either one term wrapped by the comma
+    # rule, or a function by cases, one case to a line.
+    pieces = [p.strip() for p in body.split('\n')]
+    if len(pieces) > 1 and OTHERWISE.match(pieces[-1]):
+        body = by_cases(pieces)
+        if declined(body):
+            return body
+    else:
+        body = ' '.join(pieces)
     if param is not None and over is None:
         return Declined(f'define {m.group("name")}({param}) says no domain: '
                         f'write `, for {param} ∈ …` after its rule')
@@ -330,8 +379,8 @@ def define_parts(text):
     if param is not None and over != param:
         return Declined(f'define {m.group("name")}({param}) gives the domain '
                         f'of {over}')
-    return Define(m.group('name'), m.group('body').strip(), param,
-                  m.group('domain').strip() if param else None)
+    return Define(m.group('name'), body, param,
+                  ' '.join(m.group('domain').split()) if param else None)
 
 
 class FileScope:

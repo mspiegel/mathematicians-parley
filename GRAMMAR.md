@@ -476,10 +476,18 @@ substitution in the corpus comes close.
                 | <name> `:` <term> `→` <term>
                 | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
-<define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <term>
+<define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
                   [ `,` `for` <name> `∈` <term> ] `(` <label> `)`
                   `reads` <words>
+<rule>        ::= <term>
+                | { <term> `if` <formula> <newline> } <term> `otherwise`
 ```
+
+A define continues until the line carrying its label. Written over several
+lines whose last ends `otherwise`, it is a function by cases, one case to a
+line, and the lines are the term `_ if _, _ otherwise` (`db/notation.records`,
+`by-cases`) nested from the right; set.mm's `if ( P , a , b )` is what it
+reads into. Otherwise the lines are one term wrapped.
 
 A define with a name in brackets after its own is a function: `define S(m) :=
 Σ(j = 1 to m) j, for m ∈ ℕ` says S is the function on ℕ that sends each m to
