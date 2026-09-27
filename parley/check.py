@@ -54,6 +54,7 @@ from parse import (
     in_stdlib,
     index,
     link_definitions,
+    outermost,
     parse_database,
     parse_proof,
     proof_files,
@@ -452,19 +453,6 @@ def check_chain(report, thm, step):
                        'the reasoning lives in that step')
         if not any(text.lstrip().startswith(r) or f' {r} ' in text for r in RELATIONS):
             report.say(thm.path, no, 'chain line carries no relation')
-
-
-def outermost(words, relation):
-    """Where a chain's first line puts its relation: outside every bracket,
-    since a sum binds its index with the same `=`.
-    """
-    depth = 0
-    for at, word in enumerate(words):
-        if depth == 0 and word == relation:
-            return at
-        depth += sum(word.count(c) for c in '({[') \
-            - sum(word.count(c) for c in ')}]')
-    return None
 
 
 def changed_closed(sides, g):

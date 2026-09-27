@@ -493,6 +493,23 @@ def written_text(thm):
     return ' '.join(parts)
 
 
+def outermost(words, relation):
+    """Where a chain's first line puts its relation: the first time the
+    symbol stands outside every bracket; None where it stands only inside.
+
+    A sum binds its index with the same `=` a chain relates by, so
+    `x·(Σ(k = 0 to m) t(k)) = …` has an `=` inside the sum before the one
+    the chain means.
+    """
+    depth = 0
+    for at, word in enumerate(words):
+        if depth == 0 and word == relation:
+            return at
+        depth += sum(word.count(c) for c in '({[') \
+            - sum(word.count(c) for c in ')}]')
+    return None
+
+
 THEOREM_FIELDS = ('metamath', 'note')
 
 

@@ -53,6 +53,7 @@ from parse import (
     corpus,
     declined,
     fmt,
+    outermost,
     proved,
     qualified,
     written_text,
@@ -1414,23 +1415,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             number += 1
         return f'{stem}.{prefix}{number}'
 
-    @staticmethod
-    def outermost(words, relation):
-        """Where a chain's first line puts its relation: the first time the
-        symbol stands outside every bracket.
-
-        A sum binds its index with the same `=` a chain relates by, so
-        `x·(Σ(k = 0 to m) t(k)) = …` has an `=` inside the sum before the
-        one the chain means.
-        """
-        depth = 0
-        for at, word in enumerate(words):
-            if depth == 0 and word == relation:
-                return at
-            depth += sum(word.count(c) for c in '({[') \
-                - sum(word.count(c) for c in ')}]')
-        return words.index(relation)
-
     def calculation(self, step, node, term, scope, facts, lines):
         """A chain folded by transitivity, one link at a time.
 
@@ -1522,7 +1506,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         if not first.text:
             raise self.defect(step.line, 'a chain starts with no relation')
         words = links[0][0].split()
-        rest = ' '.join(words[self.outermost(words, first.text) + 1:])
+        at = outermost(words, first.text)
+        if at is None:
+            raise self.defect(step.line, f'a chain\'s first line puts its '
+                                         f'{first.text} only inside brackets')
+        rest = ' '.join(words[at + 1:])
         whole = self.to_term(self.term(first))
         left = whole.children[0].rpn(self.flabel)
         right = whole.children[1].rpn(self.flabel)
