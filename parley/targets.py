@@ -140,3 +140,5 @@ def slots(pattern):
 # Numerals: the constant each digit builds.
 NUMERALS = {'0': 'cc0', '1': 'c1', '2': 'c2', '3': 'c3', '4': 'c4',
             '5': 'c5', '6': 'c6', '7': 'c7', '8': 'c8', '9': 'c9'}
+# The value of each digit's constant, which arithmetic on terms works in.
+DIGITS = {label: int(digit) for digit, label in NUMERALS.items()}

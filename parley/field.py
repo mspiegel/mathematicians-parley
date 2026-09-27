@@ -21,10 +21,9 @@ decided here.
 from fractions import Fraction
 
 from parse import Declined, declined
+from targets import DIGITS
 
 ADD, SUB, MUL, DIV, EXP, NEG = 'caddc', 'cmin', 'cmul', 'cdiv', 'cexp', 'cneg'
-DIGITS = {'cc0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4,
-          'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
 NUMERAL = {v: k for k, v in DIGITS.items()}
 CAP = 24                     # an exponent past anything the corpus writes
 

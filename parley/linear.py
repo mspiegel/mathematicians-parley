@@ -23,10 +23,10 @@ from fractions import Fraction
 
 # What a linear expression is built from, by the set.mm label of the
 # operation. Anything else is an atom, however much arithmetic is inside it.
-ADD, SUB, MUL, DIV, NEG = 'caddc', 'cmin', 'cmul', 'cdiv', 'cneg'
-DIGITS = {'cc0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4,
-          'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
-ONE = 'c1'
+from field import ADD, DIV, MUL, NEG, SUB
+from targets import DIGITS, NUMERALS
+
+ONE = NUMERALS['1']
 
 # The relations a fact may carry, by the set.mm label that states it.
 RELATIONS = {'clt': '<', 'cle': '<='}
