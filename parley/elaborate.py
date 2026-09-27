@@ -227,16 +227,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # `pattern` and `target` fields both use. A folded pattern carries the
         # literal of the one it folds into, which is what makes the first
         # match the right entry.
-        self.literals, self.binders = {}, {}
+        self.literals = {}
         for n in grammar.notations:
             self.literals.setdefault(n.name, []).append(n.literal)
-            # A binder may introduce more than one name: `there are p ∈ ℤ and
-            # q ∈ ℤ with ...` binds two.
-            said = re.match(r'holes?\s+([\d\s and]+?)\s+over', n.binds or '')
-            if said:
-                self.binders[n.name] = {int(d) - 1
-                                        for d in re.findall(r'\d+',
-                                                            said.group(1))}
+        # The holes each binder introduces a name in, and there may be more
+        # than one: `there are p ∈ ℤ and q ∈ ℤ with ...` binds two.
+        self.binders = {name: held for name, (held, _body)
+                        in binding_context(grammar.notations)[0].items()}
 
     def defect(self, line, message):
         """Something a person has to fix, and where in the proof it is.
@@ -790,9 +787,9 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         rest = [*ends, *hyps]
         while rest:
             node = rest.pop()
-            shape = binders.get(node.notation)
-            if shape and node.children[shape[0]].notation == 'name':
-                own.add(node.children[shape[0]].text)
+            held, _body = binders.get(node.notation, ((), ()))
+            own.update(node.children[at].text for at in held
+                       if node.children[at].notation == 'name')
             rest.extend(node.children)
         variables = set().union(*(names_in(n) for n in [*ends, *hyps])) - own
         # A definition is a biconditional, and a step unfolding one claims

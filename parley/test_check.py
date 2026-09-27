@@ -387,6 +387,12 @@ CASES = [
      '  target      _1 _1 caddc co, _1 _2 cmin co',
      'leaves a hole out'),
 
+    ('write a binder whose binds line does not read',
+     'db/notation.records',
+     '  binds       hole 1 over nothing',
+     '  binds       hole 1 above nothing',
+     'is not `hole N over hole M`'),
+
     ('give a notation fewer targets than it has patterns',
      'db/notation.records',
      '  target      _1 _2 cmul co, _1 _2 cdiv co',

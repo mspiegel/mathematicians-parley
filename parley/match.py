@@ -74,13 +74,8 @@ def binding_context(notations):
     for n in notations:
         if n.holes and n.holes[0] in ('property', 'function'):
             props[n.stands_under or n.name] = n.holes[0]
-        if not n.binds:
-            continue
-        holes = [int(x) - 1 for x in re.findall(r'hole[s]?\s+(\d+)', n.binds)]
-        over = re.search(r'over\s+holes?\s+(\d+)(?:\s+and\s+(\d+))?', n.binds)
-        if holes and over:
-            body = [int(g) - 1 for g in over.groups() if g]
-            binders[n.stands_under or n.name] = (holes[0], body)
+        if n.binds:
+            binders[n.stands_under or n.name] = n.binds
     return binders, props
 
 
@@ -100,13 +95,11 @@ def binding_sites(pattern, binders, props, bound=(), out=None):
             and pattern.children[1].notation == 'name'
             and pattern.children[1].text in bound):
         out.add(id(pattern))
-    shape = binders.get(pattern.notation)
+    held, body = binders.get(pattern.notation, ((), ()))
+    own = tuple(pattern.children[at].text for at in held
+                if pattern.children[at].notation == 'name')
     for i, child in enumerate(pattern.children):
-        inner = bound
-        if shape and i in shape[1]:
-            var = pattern.children[shape[0]]
-            if var.notation == 'name':
-                inner = (*bound, var.text)
+        inner = (*bound, *own) if i in body else bound
         binding_sites(child, binders, props, inner, out)
     return out
 
@@ -183,19 +176,19 @@ def _bound_as(pattern, ground, variables, binders):
     line saying the same thing may bind another: `there is b ∈ G with
     gH = bH` answers K's `there is g ∈ G with X = gH` at X := gH.
     """
-    shape = binders.get(pattern.notation)
-    if shape is None:
-        return pattern
-    at, body = shape
-    ours, theirs = pattern.children[at], ground.children[at]
-    if (ours.notation != 'name' or theirs.notation != 'name'
-            or ours.text == theirs.text or ours.text in variables
-            or theirs.text in names(pattern)):
-        return pattern
-    return Node(pattern.notation, pattern.sort,
-                [theirs if i == at
-                 else substitute(c, {ours.text: theirs}) if i in body else c
-                 for i, c in enumerate(pattern.children)], pattern.text)
+    held, body = binders.get(pattern.notation, ((), ()))
+    for at in held:
+        ours, theirs = pattern.children[at], ground.children[at]
+        if (ours.notation != 'name' or theirs.notation != 'name'
+                or ours.text == theirs.text or ours.text in variables
+                or theirs.text in names(pattern)):
+            continue
+        pattern = Node(pattern.notation, pattern.sort,
+                       [theirs if i == at
+                        else substitute(c, {ours.text: theirs}) if i in body
+                        else c
+                        for i, c in enumerate(pattern.children)], pattern.text)
+    return pattern
 
 
 def alike(a, b, binders, equations, ours=None, theirs=None):
@@ -221,12 +214,13 @@ def alike(a, b, binders, equations, ours=None, theirs=None):
         return any(all(alike(x, y, binders, equations, ours, theirs)
                        for x, y in zip(a.children, kids, strict=True))
                    for kids in orders(a, b, equations))
-    at, body = shape
-    x, y = a.children[at], b.children[at]
-    if x.notation != 'name' or y.notation != 'name':
+    held, body = shape
+    pairs = [(a.children[at], b.children[at]) for at in held]
+    if any(x.notation != 'name' or y.notation != 'name' for x, y in pairs):
         return a.shape() == b.shape()
-    inner = ({**ours, x.text: y.text}, {**theirs, y.text: x.text})
-    return all(i == at or alike(p, q, binders, equations,
+    inner = ({**ours, **{x.text: y.text for x, y in pairs}},
+             {**theirs, **{y.text: x.text for x, y in pairs}})
+    return all(i in held or alike(p, q, binders, equations,
                                 *(inner if i in body else (ours, theirs)))
                for i, (p, q) in enumerate(zip(a.children, b.children,
                                               strict=True)))
@@ -367,24 +361,24 @@ def substitute_apart(node, binding, binders):
     """
     if node.notation in ('name', 'numeral'):
         return binding.get(node.text, node)
-    shape = binders.get(node.notation)
-    if shape is None or node.children[shape[0]].notation != 'name':
+    held, body = binders.get(node.notation, ((), ()))
+    if not held or any(node.children[at].notation != 'name' for at in held):
         return Node(node.notation, node.sort,
                     [substitute_apart(c, binding, binders)
                      for c in node.children], node.text)
-    at, body = shape
-    var = node.children[at]
-    inner = {k: v for k, v in binding.items() if k != var.text}
-    caught = any(var.text in names(v) for v in inner.values())
-    if caught:
-        used = names(node).union(*(names(v) for v in binding.values()))
-        fresh = Node('name', var.sort, [], next(c for c in FRESH
-                                                if c not in used))
-        renamed = {**inner, var.text: fresh}
-    else:
-        fresh, renamed = var, inner
+    own = {node.children[at].text for at in held}
+    inner = {k: v for k, v in binding.items() if k not in own}
+    used = names(node).union(*(names(v) for v in binding.values()))
+    spelt, renamed = {}, dict(inner)
+    for at in held:
+        var = node.children[at]
+        if any(var.text in names(v) for v in inner.values()):
+            fresh = Node('name', var.sort, [], next(c for c in FRESH
+                                                    if c not in used))
+            used.add(fresh.text)
+            spelt[at], renamed[var.text] = fresh, fresh
     return Node(node.notation, node.sort,
-                [fresh if i == at
+                [spelt.get(i, c) if i in held
                  else substitute_apart(c, renamed, binders) if i in body
                  else substitute_apart(c, binding, binders)
                  for i, c in enumerate(node.children)], node.text)

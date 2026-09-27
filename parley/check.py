@@ -2481,7 +2481,13 @@ def main(root):
     check_imports(report, theorems)
     check_definitions(report, theorems)
 
-    grammar = Grammar.load(records)
+    # Nothing is read without the grammar, so a notation it cannot be built
+    # from ends the run here.
+    try:
+        grammar = Grammar.load(records)
+    except Problem as p:
+        report.problems.append(p)
+        return summary(report, theorems, items, methods)
     check_statements(report, records, grammar)
     check_unsorted(report, records, grammar)
     check_symbols(report, records)
@@ -2516,7 +2522,11 @@ def main(root):
                 check_justification_form(report, thm.path, step.just)
                 check_chain(report, thm, step)
         check_citations(report, thm, items, methods, notation)
+    return summary(report, theorems, items, methods)
 
+
+def summary(report, theorems, items, methods):
+    """Print what the run found, and give the exit status."""
     for p in sorted(report.problems, key=lambda p: (p.path, p.line)):
         print(p)
 

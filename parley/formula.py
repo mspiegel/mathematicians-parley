@@ -97,7 +97,7 @@ class Notation:
     yields: str
     level: str
     assoc: str = None
-    binds: str = None
+    binds: tuple = None        # (bound holes, body holes), from `binding`
     folds: str = None          # the notation this pattern is the negation under
     literal: str = ''          # the tokens the node it builds stands for
     stands_under: str = ''     # the record's name, or another it spells
@@ -111,6 +111,29 @@ SPELLS = re.compile(r'^\s*(\S+)\s+(\S+)')
 # `wraps hole 2 in powerset`: the node built puts that hole's term inside
 # the named notation, so `for every X ⊆ A` is `for every X ∈ 𝒫A` exactly.
 WRAPS = re.compile(r'^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$')
+# `binds holes 1 and 3 over hole 5`: the holes naming what a binder
+# introduces, and the holes where those names are its own.
+HOLE_LIST = r'holes?\s+\d+(?:\s+and\s+\d+)*'
+BINDS = re.compile(rf'^\s*({HOLE_LIST})\s+over\s+(nothing|{HOLE_LIST})\s*$')
+
+
+def binding(r):
+    """A notation's `binds` line as (the holes it binds, the holes they scope
+    over), counted from 0; None for a notation that binds nothing.
+
+    `there is _ ∈ _`, the nonempty set, binds over nothing: its name is
+    introduced and nothing is said of it.
+    """
+    said = r.fields.get('binds')
+    if said is None:
+        return None
+    m = BINDS.match(said)
+    if not m:
+        raise Problem(r.path, r.lines.get('binds', r.line),
+                      f'notation {r.name}: `binds {said.strip()}` is not '
+                      f'`hole N over hole M` or `hole N over nothing`')
+    return tuple(tuple(int(d) - 1 for d in re.findall(r'\d+', g))
+                 for g in m.groups())
 
 
 HOLE = object()
@@ -175,7 +198,7 @@ def compile_notations(records):
                 yields=r.fields.get('yields', '').strip(),
                 level=(levels[n] if n < len(levels) else levels[0]).strip(),
                 assoc=(assocs[n] if n < len(assocs) else assocs[0]).strip() or None,
-                binds=r.fields.get('binds'),
+                binds=binding(r),
                 folds=(folded.group(2) if folded
                        and int(folded.group(1)) == n + 1 else None),
                 kinds=r.fields.get('kinds'),
