@@ -970,10 +970,9 @@ class Calculators:
         is zero, scaled, is the difference the claim says is zero, and the
         two being the same expression is a question for the normalizer.
 
-        Otherwise the claim is the cited bounds added (`from_sum`), keeping
-        a strict one strict (`strictly`). A combination of more than two
-        bounds, or one scaling a bound by other than one, is not written,
-        and a step needing one is stated.
+        Otherwise the claim is the cited facts combined as the certificate
+        says (`combination`), each scaled keeping its strictness and what
+        is left over added as one more fact.
         """
         goal = self.to_term(term)
         given, where = [], []
@@ -1056,14 +1055,8 @@ class Calculators:
         if not spare.constant_only():
             return Declined('what is left over is not a constant')
         parts = [(where[i], given[i], found[i] / weight) for i in used]
-        made = self.from_sum(parts, left, right, how, spare.constant, scope,
-                             facts, lines)
-        if declined(made):
-            general = self.combination(parts, left, right, how,
-                                       spare.constant, scope, facts, lines)
-            if not declined(general):
-                return general
-        return made
+        return self.combination(parts, left, right, how, spare.constant,
+                                scope, facts, lines)
 
     def by_membership(self, step, node, term, scope, facts, lines):
         """`membership` (`METHODS.md`): a term in a number system because
@@ -1195,16 +1188,21 @@ class Calculators:
                     lines):
         """Any positive combination of cited facts, and a number left over.
 
-        `from_sum` writes the shapes the corpus met first; this writes the
-        certificate as it stands. The weights are made whole by taking the
-        claim's difference `W` times over, each fact is said against zero
-        and scaled keeping its strictness (`scaled_bound`), what is left
-        over is one more fact (`number_below`), and the lot is added two at
-        a time (`added_pair`). The normalizer says the sum is `W` times the
-        claim's difference, and `W > 0` gives the claim back.
+        This writes the certificate as it stands. The weights are made whole
+        by taking the claim's difference `W` times over, each fact is said
+        against zero and scaled keeping its strictness (`scaled_bound`),
+        what is left over is one more fact (`number_below`), and the lot is
+        added two at a time (`added_pair`). The normalizer says the sum is
+        `W` times the claim's difference, and `W > 0` gives the claim back.
+        A combination of no facts with nothing left over is a number at
+        most itself, `leidd`: the requires line `a ≤ a` of the intermediate
+        value proof's step 1.
         """
         if how not in ('<', '<='):
             return Declined(f'a combination reaching {how} is not written')
+        if not parts and how == '<=' and spare == 0 and left == right:
+            return self.ap('leidd', {'ph': scope, 'A': left},
+                           self.membership(left, 'cr', scope, facts))
         whole = math.lcm(*(times.denominator for _w, _f, times in parts),
                          Fraction(spare).denominator)
 
@@ -1699,357 +1697,6 @@ class Calculators:
                      'th': self.seq(below[1], below[0], 'wne')},
                     real_number(below[0]), bound,
                     work.ap('ltne', {'A': below[0], 'B': below[1]})))
-
-    def from_sum(self, used, left, right, how, spare, scope, facts, lines):
-        """The claim as the cited bounds added, and what they leave over.
-
-        Each says a difference is at most zero; added, the two differences
-        are the claim's, which is the normalizer's question. `le2add` is
-        the addition, and what it lands on is zero plus zero.
-
-        A claim that is strict gets its strictness from the constant the
-        bounds leave over, which is a closed numeral fact the step does
-        not cite. `METHODS.md` says the method may use one.
-        """
-        def real_number(one):
-            return self.membership(one, 'cr', scope, facts)
-
-        work = normal.Emitter(self.sigs, scope,
-                              lambda t: self.membership(t, 'cc', scope, facts))
-        # A number is at most itself, and uses no bound at all: the
-        # requires line `a ≤ a` of the intermediate value proof's step 1.
-        if not used and how == '<=' and spare == 0 and left == right:
-            return work.ap('leidd', {'ph': scope, 'A': left},
-                           real_number(left))
-        # A strict claim whose strictness comes from a cited strict fact,
-        # with nothing left over: the facts are added keeping it.
-        if how == '<' and spare == 0:
-            return self.strictly(work, used, left, right, scope, facts,
-                                 lines, real_number)
-        if how == '<':
-            if spare != -1 or len(used) != 1:
-                return Declined('only one bound short of one is '
-                                       'written')
-        elif how != '<=' or spare != 0:
-            return Declined('only one or two bounds is written')
-        if not 1 <= len(used) <= 2:
-            return Declined('only one or two bounds is written')
-        gaps, bounds, real = [], [], []
-        for (ref, said), fact, times in used:
-            stated = self.cited_fact(ref, said, scope, facts, lines)
-            if declined(stated):
-                return stated
-            made = self.at_most_zero(work, said, fact, times, stated,
-                                     real_number)
-            if declined(made):
-                return made
-            one, proof, held = made
-            gaps.append(one)
-            bounds.append(proof)
-            real.append(held)
-        if how == '<':
-            return self.short_of_one(work, gaps[0], bounds[0], real[0],
-                                     left, right, real_number)
-        if len(gaps) == 1:
-            # Nothing to add: the one bound is already the claim's.
-            return self.bound_reaches(work, gaps[0], bounds[0], left, right,
-                                      real_number)
-        total = self.seq(gaps[0], gaps[1], 'caddc', 'co')
-        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
-        added = work.ap(
-            'breqtrd', {'ph': scope, 'A': total,
-                        'B': self.seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
-                        'R': 'cle'},
-            work.ap('mpd',
-                    {'ph': scope,
-                     'ps': self.seq(self.seq(gaps[0], 'cc0', 'cle', 'wbr'),
-                               self.seq(gaps[1], 'cc0', 'cle', 'wbr'), 'wa'),
-                     'ch': self.seq(total, self.seq('cc0', 'cc0', 'caddc', 'co'),
-                               'cle', 'wbr')},
-                    work.ap('jca', {'ph': scope,
-                                    'ps': self.seq(gaps[0], 'cc0', 'cle', 'wbr'),
-                                    'ch': self.seq(gaps[1], 'cc0', 'cle', 'wbr')},
-                            *bounds),
-                    work.ap('syl',
-                            {'ph': scope,
-                             'ps': self.seq(self.seq(self.seq(gaps[0], 'cr', 'wcel'),
-                                           self.seq(gaps[1], 'cr', 'wcel'), 'wa'),
-                                       self.seq(self.seq('cc0', 'cr', 'wcel'),
-                                           self.seq('cc0', 'cr', 'wcel'), 'wa'),
-                                       'wa'),
-                             'ch': seq(seq(seq(gaps[0], 'cc0', 'cle', 'wbr'),
-                                           seq(gaps[1], 'cc0', 'cle', 'wbr'),
-                                           'wa'),
-                                       seq(total,
-                                           seq('cc0', 'cc0', 'caddc', 'co'),
-                                           'cle', 'wbr'), 'wi')},
-                            work.ap('jca',
-                                    {'ph': scope,
-                                     'ps': self.seq(self.seq(gaps[0], 'cr', 'wcel'),
-                                               self.seq(gaps[1], 'cr', 'wcel'),
-                                               'wa'),
-                                     'ch': self.seq(self.seq('cc0', 'cr', 'wcel'),
-                                               self.seq('cc0', 'cr', 'wcel'),
-                                               'wa')},
-                                    work.ap('jca',
-                                            {'ph': scope,
-                                             'ps': self.seq(gaps[0], 'cr', 'wcel'),
-                                             'ch': self.seq(gaps[1], 'cr',
-                                                       'wcel')}, *real),
-                                    work.ap('jca',
-                                            {'ph': scope,
-                                             'ps': self.seq('cc0', 'cr', 'wcel'),
-                                             'ch': self.seq('cc0', 'cr', 'wcel')},
-                                            zero, zero)),
-                            work.ap('le2add', {'A': gaps[0], 'B': gaps[1],
-                                               'C': 'cc0', 'D': 'cc0'}))),
-            work.a1i(self.seq(self.seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
-                     '00id'))
-        return self.bound_reaches(work, total, added, left, right,
-                                  real_number)
-
-    def strictly(self, work, used, left, right, scope, facts, lines,
-                 real_number):
-        """A strict claim from one or two cited bounds, one of them strict.
-
-        Each bound is said as its difference against zero — `sublt0d` for a
-        strict one, keeping the strictness, and `difference_le` for one at
-        most — and two are added by the lemma their strictness calls for:
-        `ltleadd`, `leltadd` or `lt2add`. The sum is the claim's difference,
-        which is the normalizer's question, and `sublt0d` turns a
-        difference below zero back into the claim. `f(c) < 0` gives
-        `0 < −f(c)` this way, and `x₁ − c < δ` gives `x₁ < c + δ`.
-        """
-        if not 1 <= len(used) <= 2:
-            return Declined('only one or two strict bounds is written')
-        gaps, bounds, reals, strict = [], [], [], []
-        for (ref, said), _fact, times in used:
-            if times != 1:
-                return Declined(f'a strict bound scaled by {times} is not '
-                                f'written')
-            given = self.cited_fact(ref, said, scope, facts, lines)
-            if declined(given):
-                return given
-            if said.variable is None and said.label == 'wn' \
-                    and len(said.children) == 1:
-                made = self.unnegated(work, said.children[0], given,
-                                      real_number)
-                if declined(made):
-                    return made
-                said, given = made
-            parts = order_sides(said)
-            if parts is None or parts[2] not in ('<', '<='):
-                return Declined('a strict sum takes bounds, not equations')
-            was = [c.rpn(self.flabel) for c in said.children[:2]]
-            gap = self.seq(was[0], was[1], 'cmin', 'co')
-            if parts[2] == '<':
-                bounds.append(work.ap(
-                    'mpbird',
-                    {'ph': scope, 'ps': self.seq(gap, 'cc0', 'clt', 'wbr'),
-                     'ch': self.seq(was[0], was[1], 'clt', 'wbr')},
-                    given,
-                    work.ap('sublt0d', {'ph': scope, 'A': was[0],
-                                        'B': was[1]},
-                            real_number(was[0]), real_number(was[1]))))
-            else:
-                bounds.append(self.difference_le(work, was, given, None,
-                                                 real_number))
-            strict.append(parts[2] == '<')
-            gaps.append(gap)
-            reals.append(work.ap(
-                'syl2anc', {'ph': scope, 'ps': self.seq(was[0], 'cr', 'wcel'),
-                            'ch': self.seq(was[1], 'cr', 'wcel'),
-                            'th': self.seq(gap, 'cr', 'wcel')},
-                real_number(was[0]), real_number(was[1]),
-                work.ap('resubcl', {'A': was[0], 'B': was[1]})))
-        if not any(strict):
-            return Declined('no cited bound is strict')
-        if len(gaps) == 1:
-            total, below = gaps[0], bounds[0]
-        else:
-            total, below = self.added_strictly(work, gaps, bounds, reals,
-                                               strict)
-        span = self.seq(left, right, 'cmin', 'co')
-        alike = self.same_polynomial(work, span, total)
-        if declined(alike):
-            return alike
-        return work.ap(
-            'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'clt', 'wbr'),
-                      'ch': self.seq(left, right, 'clt', 'wbr')},
-            work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
-                                'C': 'cc0', 'R': 'clt'}, alike, below),
-            work.ap('sublt0d', {'ph': scope, 'A': left, 'B': right},
-                    real_number(left), real_number(right)))
-
-    def added_strictly(self, work, gaps, bounds, reals, strict):
-        """Two differences against zero added, one strictly below it.
-
-        What comes back is ( scope -> ( g1 + g2 ) < 0 ).
-        """
-        scope = work.under
-        lemma = rules.ADDING[tuple(strict)]
-        rel = ['clt' if s else 'cle' for s in strict]
-        total = self.seq(gaps[0], gaps[1], 'caddc', 'co')
-        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
-        sum_zero = self.seq('cc0', 'cc0', 'caddc', 'co')
-        each = self.seq(self.seq(gaps[0], 'cc0', rel[0], 'wbr'),
-                        self.seq(gaps[1], 'cc0', rel[1], 'wbr'), 'wa')
-        reals_pair = self.seq(self.seq(gaps[0], 'cr', 'wcel'),
-                              self.seq(gaps[1], 'cr', 'wcel'), 'wa')
-        zeros_pair = self.seq(self.seq('cc0', 'cr', 'wcel'),
-                              self.seq('cc0', 'cr', 'wcel'), 'wa')
-        added = work.ap(
-            'mpd', {'ph': scope, 'ps': each,
-                    'ch': self.seq(total, sum_zero, 'clt', 'wbr')},
-            work.ap('jca', {'ph': scope,
-                            'ps': self.seq(gaps[0], 'cc0', rel[0], 'wbr'),
-                            'ch': self.seq(gaps[1], 'cc0', rel[1], 'wbr')},
-                    *bounds),
-            work.ap('syl',
-                    {'ph': scope,
-                     'ps': self.seq(reals_pair, zeros_pair, 'wa'),
-                     'ch': self.seq(each,
-                                    self.seq(total, sum_zero, 'clt', 'wbr'),
-                                    'wi')},
-                    work.ap('jca', {'ph': scope, 'ps': reals_pair,
-                                    'ch': zeros_pair},
-                            work.ap('jca',
-                                    {'ph': scope,
-                                     'ps': self.seq(gaps[0], 'cr', 'wcel'),
-                                     'ch': self.seq(gaps[1], 'cr', 'wcel')},
-                                    *reals),
-                            work.ap('jca',
-                                    {'ph': scope,
-                                     'ps': self.seq('cc0', 'cr', 'wcel'),
-                                     'ch': self.seq('cc0', 'cr', 'wcel')},
-                                    zero, zero)),
-                    work.ap(lemma, {'A': gaps[0], 'B': gaps[1],
-                                    'C': 'cc0', 'D': 'cc0'})))
-        return total, work.ap(
-            'breqtrd', {'ph': scope, 'A': total, 'B': sum_zero, 'C': 'cc0',
-                        'R': 'clt'},
-            added,
-            work.a1i(self.seq(sum_zero, 'cc0', 'wceq'), '00id'))
-
-    def short_of_one(self, work, gap, bound, gap_real, left, right,
-                     real_number):
-        """A bound and a minus one, added, to reach a strict claim.
-
-        `leltadd` is the addition that keeps the strictness, and the claim
-        comes back through `ltsubadd` with nothing on the right and `addlid`
-        to tidy it. `strictly` turns a difference back with `sublt0d`;
-        both are sound, and moving this route onto it would change the
-        files it writes and prove nothing more.
-        """
-        scope = work.under
-        minus, span = self.seq('c1', 'cneg'), self.seq(left, right, 'cmin', 'co')
-        total = self.seq(gap, minus, 'caddc', 'co')
-        alike = self.same_polynomial(work, span, total)
-        if declined(alike):
-            return alike
-        zero = work.a1i(self.seq('cc0', 'cr', 'wcel'), '0re')
-        pair = seq(seq(gap, 'cr', 'wcel'), seq(minus, 'cr', 'wcel'), 'wa')
-        added = work.ap(
-            'breqtrd', {'ph': scope, 'A': total,
-                        'B': self.seq('cc0', 'cc0', 'caddc', 'co'), 'C': 'cc0',
-                        'R': 'clt'},
-            work.ap('mpd',
-                    {'ph': scope,
-                     'ps': self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
-                               self.seq(minus, 'cc0', 'clt', 'wbr'), 'wa'),
-                     'ch': self.seq(total, self.seq('cc0', 'cc0', 'caddc', 'co'),
-                               'clt', 'wbr')},
-                    work.ap('jca', {'ph': scope,
-                                    'ps': self.seq(gap, 'cc0', 'cle', 'wbr'),
-                                    'ch': self.seq(minus, 'cc0', 'clt', 'wbr')},
-                            bound,
-                            work.a1i(self.seq(minus, 'cc0', 'clt', 'wbr'),
-                                     'neg1lt0')),
-                    work.ap('syl',
-                            {'ph': scope,
-                             'ps': self.seq(pair,
-                                       self.seq(self.seq('cc0', 'cr', 'wcel'),
-                                           self.seq('cc0', 'cr', 'wcel'), 'wa'),
-                                       'wa'),
-                             'ch': self.seq(self.seq(self.seq(gap, 'cc0', 'cle', 'wbr'),
-                                           self.seq(minus, 'cc0', 'clt', 'wbr'),
-                                           'wa'),
-                                       self.seq(total,
-                                           self.seq('cc0', 'cc0', 'caddc', 'co'),
-                                           'clt', 'wbr'), 'wi')},
-                            work.ap('jca',
-                                    {'ph': scope, 'ps': pair,
-                                     'ch': self.seq(self.seq('cc0', 'cr', 'wcel'),
-                                               self.seq('cc0', 'cr', 'wcel'),
-                                               'wa')},
-                                    work.ap('jca',
-                                            {'ph': scope,
-                                             'ps': self.seq(gap, 'cr', 'wcel'),
-                                             'ch': self.seq(minus, 'cr', 'wcel')},
-                                            gap_real,
-                                            self.real_numeral(
-                                                work, Fraction(-1))),
-                                    work.ap('jca',
-                                            {'ph': scope,
-                                             'ps': self.seq('cc0', 'cr', 'wcel'),
-                                             'ch': self.seq('cc0', 'cr', 'wcel')},
-                                            zero, zero)),
-                            work.ap('leltadd', {'A': gap, 'B': minus,
-                                                'C': 'cc0', 'D': 'cc0'}))),
-            work.a1i(self.seq(self.seq('cc0', 'cc0', 'caddc', 'co'), 'cc0', 'wceq'),
-                     '00id'))
-        return work.ap(
-            'breqtrd', {'ph': scope, 'A': left,
-                        'B': self.seq('cc0', right, 'caddc', 'co'), 'C': right,
-                        'R': 'clt'},
-            work.ap('mpbid',
-                    {'ph': scope, 'ps': self.seq(span, 'cc0', 'clt', 'wbr'),
-                     'ch': self.seq(left, self.seq('cc0', right, 'caddc', 'co'),
-                               'clt', 'wbr')},
-                    work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
-                                        'C': 'cc0', 'R': 'clt'},
-                            alike, added),
-                    work.ap('syl3anc',
-                            {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
-                             'ch': self.seq(right, 'cr', 'wcel'),
-                             'th': self.seq('cc0', 'cr', 'wcel'),
-                             'ta': self.seq(self.seq(span, 'cc0', 'clt', 'wbr'),
-                                       self.seq(left,
-                                           self.seq('cc0', right, 'caddc', 'co'),
-                                           'clt', 'wbr'), 'wb')},
-                            real_number(left), real_number(right), zero,
-                            work.ap('ltsubadd', {'A': left, 'B': right,
-                                                 'C': 'cc0'}))),
-            work.ap('syl', {'ph': scope, 'ps': self.seq(right, 'cc', 'wcel'),
-                            'ch': self.seq(self.seq('cc0', right, 'caddc', 'co'),
-                                      right, 'wceq')},
-                    work.ap('recnd', {'ph': scope, 'A': right},
-                            real_number(right)),
-                    work.ap('addlid', {'A': right})))
-
-    def bound_reaches(self, work, total, added, left, right, real_number):
-        """A term at most zero, said of the claim's two sides.
-
-        The normalizer says the term is the claim's difference, and
-        `suble0` says a difference at most zero is `<_` between them.
-        """
-        scope, span = work.under, self.seq(left, right, 'cmin', 'co')
-        alike = self.same_polynomial(work, span, total)
-        if declined(alike):
-            return alike
-        return work.ap(
-            'mpbid', {'ph': scope, 'ps': self.seq(span, 'cc0', 'cle', 'wbr'),
-                      'ch': self.seq(left, right, 'cle', 'wbr')},
-            work.ap('eqbrtrd', {'ph': scope, 'A': span, 'B': total,
-                                'C': 'cc0', 'R': 'cle'},
-                    alike, added),
-            work.ap('syl2anc',
-                    {'ph': scope, 'ps': self.seq(left, 'cr', 'wcel'),
-                     'ch': self.seq(right, 'cr', 'wcel'),
-                     'th': self.seq(self.seq(span, 'cc0', 'cle', 'wbr'),
-                               self.seq(left, right, 'cle', 'wbr'), 'wb')},
-                    real_number(left), real_number(right),
-                    work.ap('suble0', {'A': left, 'B': right})))
 
     def at_most_zero(self, work, said, fact, times, given, real_number):
         """One cited fact, scaled, as a term that is at most zero.

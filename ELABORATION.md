@@ -610,16 +610,10 @@ conclude something about `|x|` from a line saying what `|x|` equals, and
 forward chaining from facts reaches neither side. That is `from_equation` —
 the equality-aware rewriting `substitute` has, pointed at a relation.
 
-A claim built from bounds is built by adding them. Each cited bound is said as
-its difference against zero; two are added by `le2add`, or, where one is
-strict, by `ltleadd`, `leltadd` or `lt2add`, which keep the strictness; the
-sum is the claim's difference, which the normaliser decides; and `suble0` or
-`sublt0d` turns a difference against zero back into the claim. A strict claim
-takes its strictness from a cited strict bound — `f(c) < 0` gives
-`0 < −f(c)` — or from a constant the bounds leave over, which is a closed
-numeral fact the step does not cite. A number is at most itself by `leidd`,
-citing nothing. A cited bound stated as a denial is turned round first:
-`not A < B` is `B ≤ A` by `lenlt`, and `not A ≤ B` is `B < A` by `ltnle`.
+A claim built from bounds is built by adding them, as the certificate below
+says. A number is at most itself by `leidd`, citing nothing. A cited bound
+stated as a denial is turned round first: `not A < B` is `B ≤ A` by `lenlt`,
+and `not A ≤ B` is `B < A` by `ltnle`.
 
 A claim about a quotient is built the same way: the normaliser brings a sum,
 a difference or a product of quotients to one numerator over one denominator
@@ -652,9 +646,8 @@ disequality is the page's own. The triangular reciprocals divide 1 by
 `k(k + 1)/2` and say `k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)`
 is `k² + k`, of which the page says nothing.
 
-Where those two shapes do not reach, the certificate is written as it stands:
-any number of cited facts, each scaled by the weight the certificate gives it,
-and a number left over. The weights are brought to whole numbers by
+The certificate is written as it stands: any number of cited facts, each
+scaled by the weight the certificate gives it, and a number left over. The weights are brought to whole numbers by
 multiplying the claim through by a positive whole number `W`. Each fact is
 said as its difference against zero and scaled by `lemul2`, or by `ltmul2`
 for a strict one, which keeps it strict. The number left over is one more
