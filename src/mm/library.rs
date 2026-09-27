@@ -23,6 +23,9 @@ pub enum Kind {
     Axiom,
     Theorem,
     Float,
+    /// A hypothesis a lemma being written states, registered so its proof
+    /// may rest on it. The library's own are kept inside their assertions.
+    Essential,
 }
 
 impl Kind {
@@ -31,6 +34,7 @@ impl Kind {
             Kind::Axiom => "$a",
             Kind::Theorem => "$p",
             Kind::Float => "$f",
+            Kind::Essential => "$e",
         }
     }
 }
