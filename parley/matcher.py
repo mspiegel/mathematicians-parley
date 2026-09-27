@@ -3003,18 +3003,14 @@ class Matcher:
             step, where, self.supplied(step, where,
                                        self.frames_facts(frame, facts)))
         # A bare `Z e. B` with Z open is answered by any line putting
-        # anything in B, so it is matched after what says more of Z:
+        # anything in B, so every such conjunct is matched after the rest:
         # `grplcan` asks Z e. B before ( Z .+ X ) = ( Z .+ Y ), and only
         # the equation says which member Z is.
         loose = [piece for slot in antecedents if slot.variable is None
                  for piece in self.conjuncts_of(slot)
                  if piece.label == 'wcel'
                  and piece.children[0].variable is not None
-                 and piece.children[0].variable not in binding
-                 and any(piece.children[0].variable in other.names()
-                         and other.label != 'wcel'
-                         for later in antecedents if later.variable is None
-                         for other in self.conjuncts_of(later))]
+                 and piece.children[0].variable not in binding]
         for slot in [*antecedents, None]:
             if slot is None:
                 pieces = loose
