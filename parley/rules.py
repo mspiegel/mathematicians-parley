@@ -64,6 +64,7 @@ CONGRUENCE = {
     # names; `congruence` takes these by name, since they order their
     # variables apart from the rest.
     ('wral', (2,)): 'raleqdv', ('wrex', (2,)): 'rexeqdv',
+    ('wral', (0, 2)): 'raleqbidv', ('wrex', (0, 2)): 'rexeqbidv',
     ('crab', (0,)): 'rabbidva',
     ('cmpt', (1,)): 'mpteq1d', ('ciun', (1,)): 'iuneq1d',
     # A function against the map its define names, and a rule by cases in

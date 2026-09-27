@@ -78,7 +78,8 @@ def named(records):
                 if entry in targets.MARKERS:
                     continue
                 for token in entry.split():
-                    if targets.HOLE.fullmatch(token):
+                    if targets.HOLE.fullmatch(token) \
+                            or targets.CONTEXT.fullmatch(token):
                         continue
                     out.setdefault(token, (r.path, r.line, r.name))
         for entry in targets.split_entries(r.fields.get('metamath', '')):

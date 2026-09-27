@@ -12,6 +12,10 @@ never writes is not a database field either; `parley/rules.py` holds it.
 import re
 
 HOLE = re.compile(r'_(\d+)')
+# A part of a structure a `let` line introduced, which a target takes from
+# there: `@op` is the operation of the group the theorem lets, so `g·h` is
+# `g h ( +g ` W ) co` for that group's W, which nothing on the page names.
+CONTEXT = re.compile(r'@[a-z]+')
 FOLDED = 'folded'
 REVERSED = 'equation reversed'
 # What a `target` may say that is not a lemma: that a pattern builds another

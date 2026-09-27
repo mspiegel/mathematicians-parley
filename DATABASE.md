@@ -60,9 +60,10 @@ has, and a subject is one file:
 | `stdlib/sums.records` | sums over a range, and the ranges | 22 |
 | `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 50 |
 | `stdlib/functions.records` | functions, their values, images, and inverses | 15 |
-| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients | 17 |
+| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 22 |
 | `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
 | `stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
+| `stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
 
 The library is never imported: every proof may cite it. It is the one
 directory the tools know by name, and a module anywhere else is a proof file.

@@ -158,3 +158,52 @@ theorem factorial-zero
   then        0! = 1
   metamath    fac0
   target      fac0
+
+theorem finite-part
+  assume X is finite                                                  (H1)
+  assume Y ⊆ X                                                        (H2)
+  then        Y is finite
+  metamath    ssfi
+  target      ssfi
+
+theorem card-nat0
+  assume X is finite                                                  (H1)
+  then        |X| ∈ ℕ₀
+  metamath    hashcl
+  target      hashcl
+
+theorem parts-finite
+  assume A is finite                                                  (H1)
+  assume for every Y ∈ K, Y ⊆ A                                       (H2)
+  then        K is finite
+  metamath    pwfi and ssfi, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gpartsfin
+  note        A finite set has finitely many parts, so any set of its parts
+              is finite.
+
+theorem card-equal
+  assume X is finite                                                  (H1)
+  assume there is a bijection from X to Y                             (H2)
+  then        |X| = |Y|
+  metamath    enfi and hashen, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gcardeq
+  note        Y is finite because X is, and two finite sets paired off one
+              to one have the same number of elements.
+
+theorem partition-count
+  let A be a set                                                      (H1)
+  let K be a set                                                      (H2)
+  let m ∈ ℕ₀                                                          (H3)
+  assume A is finite                                                  (H4)
+  assume ⋃(Y ∈ K) Y = A                                               (H5)
+  assume for every Y ∈ K, for every Z ∈ K, for every x ∈ Y ∩ Z, Y = Z  (H6)
+  assume for every Y ∈ K, |Y| = m                                     (H7)
+  then        |A| = |K| · m
+  metamath    hashiun and fsumconst, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gpartcnt
+  note        A finite set split into parts that each have m elements has
+              (number of parts) · m of them. The parts make up A, and two
+              that share a point are the same part.

@@ -302,14 +302,26 @@ def fits(hole, sort):
     says "any term"; as what a notation yields, as application does, it says
     "whatever came back", which is exactly a value of no known sort.
     """
+    # Except a group element's hole: `k·m` with neither sort known is a
+    # product of numbers, as it always was, and a letter is a group element
+    # only where the page says so or says what it ranges over.
     if sort in (None, 'unknown', 'any'):
-        return True
+        return hole != 'group-element'
     if hole == 'any':
         return sort in TERM_SORTS
+    # A group's set and a set of sets are sets, and fit wherever one is
+    # wanted.
+    if hole == 'set' and sort in HOLDS:
+        return True
     return hole == sort
 
 
-TERM_SORTS = {'number', 'set', 'point', 'any'}
+TERM_SORTS = {'number', 'set', 'point', 'group-element', 'group-set',
+              'set-of-sets', 'any'}
+
+# What a set of each sort holds, where the sort says: a group's set holds
+# its elements, and a set of sets holds sets.
+HOLDS = {'group-set': 'group-element', 'set-of-sets': 'set'}
 
 
 def parse(text, g, path='', line=0):
@@ -319,17 +331,49 @@ def parse(text, g, path='', line=0):
     None and says where it stopped. This is the one place that turns having
     no reading into a defect, because it is the one place that knows there
     is no other reading left to try.
+
+    A letter the sentence binds has no sort of its own, but what it ranges
+    over may say one: in `for every g ∈ G, …` with G a group's set, g is a
+    group element, and `g·h` is the group's operation and not a product of
+    numbers. So each `x ∈ S` the sentence writes gives an x of no sort what
+    S holds, for this sentence only (`bound_sorts`).
     """
     tokens = tokenise(text, g.words, g.symbols, path, line)
-    p = _Parser(tokens, g, path, line, text)
-    node = p.expression(None)
-    if node is None:
-        raise Problem(path, line, p.why())
-    if p.i != len(tokens):
-        raise Problem(path, line,
-                      f'{text!r} has {len(tokens) - p.i} token(s) left over, '
-                      f'starting at {tokens[p.i].text!r}')
-    return node
+    kept = g.sorts
+    g.sorts = {**kept, **bound_sorts(tokens, kept)}
+    try:
+        p = _Parser(tokens, g, path, line, text)
+        node = p.expression(None)
+        if node is None:
+            raise Problem(path, line, p.why())
+        if p.i != len(tokens):
+            raise Problem(path, line,
+                          f'{text!r} has {len(tokens) - p.i} token(s) left '
+                          f'over, starting at {tokens[p.i].text!r}')
+        return node
+    finally:
+        g.sorts = kept
+
+
+def bound_sorts(tokens, sorts):
+    """The sort of each letter the tokens put in a set that says what it
+    holds, `x ∈ S`, or in a coset of one, `x ∈ gH`: {letter: sort}. Only
+    for letters of no sort already.
+    """
+    out = {}
+    for i in range(len(tokens) - 2):
+        x, sign, s = tokens[i], tokens[i + 1], tokens[i + 2]
+        if x.kind != 'name' or sign.text != '∈' or s.kind != 'name' \
+                or sorts.get(x.text) not in (None, 'unknown'):
+            continue
+        held = HOLDS.get(sorts.get(s.text))
+        if held is None and i + 3 < len(tokens) \
+                and tokens[i + 3].kind == 'name' \
+                and sorts.get(s.text) == 'group-element':
+            held = HOLDS.get(sorts.get(tokens[i + 3].text))
+        if held is not None:
+            out.setdefault(x.text, held)
+    return out
 
 
 class _Parser:
@@ -440,7 +484,13 @@ class _Parser:
                 # would otherwise read as a product of three variables the
                 # corpus uses. It leaves `2k` and `k(k + 1)`, which are the
                 # only shapes the corpus writes.
-                if tok.kind == 'name' and left.notation == 'name':
+                # The one pair of letters it does join is a group element
+                # beside a group's set, `gH`, the coset: the sorts say so,
+                # and "and" has none.
+                if tok.kind == 'name' and left.notation == 'name' and not (
+                        left.sort == 'group-element'
+                        and self.g.sorts.get(tok.text) == 'group-set'
+                        and n.holes[:2] == ['group-element', 'group-set']):
                     continue
             elif n.parts[1] != tok.text:
                 continue

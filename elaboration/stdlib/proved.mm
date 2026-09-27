@@ -190,10 +190,16 @@ $d x S $.
 $}
 
 ${
-$( Sets: the parts of a set with a property. $)
+$( Sets: the parts of a set with a property, and a set counted by the
+   equal parts it splits into. $)
 $d x ps $.
 $d x A $.
 $d x B $.
+$d v w y z K $.
+$d v w y z X $.
+$d v w y z M $.
+$d v w y z ph $.
+$d x y z $.
 
   gsspw $p |- ( ( B e. V /\ A C_ B ) -> A e. ~P B ) $=
     ( wcel cpw wss elpw2g biimpar ) BCDABEDABFABCGH $.
@@ -204,6 +210,50 @@ $d x B $.
     ( cpw crab wcel wa wss elrab elpw2g anbi1d bitrid )
     DACEHZIJDQJZBKEFJZDELZBKABCDQGMSRTBDEFNOP $.
   $}
+
+  ${
+    gpartcnt.1 $e |- ( ph -> X e. Fin ) $.
+    gpartcnt.2 $e |- ( ph -> U_ w e. K w = X ) $.
+    gpartcnt.3 $e |- ( ph -> A. y e. K A. z e. K A. x e. ( y i^i z ) y = z ) $.
+    gpartcnt.4 $e |- ( ph -> A. v e. K ( # ` v ) = M ) $.
+    gpartcnt.5 $e |- ( ph -> M e. NN0 ) $.
+  gpartcnt $p |- ( ph -> ( # ` X ) = ( ( # ` K ) x. M ) ) $=
+    ( chash cfv csu cmul co cv ciun wceq id cbviunv eqtr3id fveq2d cpw cfn
+    wcel wss pwfi sylib wa ssiun2 adantl adantr sseqtrd velpw sylibr ex ssrdv
+    ssfi syl2anc cin c0 wo wral wdisj wne wi r19.3rzv biimprd com12 wn df-ne
+    imbi1i pm4.64 orcom 3bitri biimpi syl ralimi disjor hashiun eqtr3d fveq2
+    eqeq1d cbvralvw sumeq2 eqtrd cc nn0cnd fsumconst )
+    AIOPZGHCQZGOPZHRSZAWNGCTZOPZCQZWOACGWRUAZOPWNWTAXAIOAXAEGETZUAZIECGXBWRXBWRUBZUCZUDZKUEZUFACGWRAIUGZUHUIZGXHUJZGUHUIZAIUHUIZXIJIUKZULZACGXHAWRGUIZWRXHUIZAXOUMZWRIUJZXPXQWRXAIXOWRXAUJZACGWRUNZUOZAXAIUBZXOXGUPZUQZCIURZUSZUTZVAZXHGVBZVCZXQXLXRWRUHUIAXLXOJUPYDIWRVBVCAWRDTZUBZWRYKVDZVEUBZVFZDGVGZCGVGZCGWRVHAYLBYMVGZDGVGZCGVGYQLYSYPCGYRYODGYRYMVEVIZYLVJZYOYTYRYLYTYLYRYLBYMVKVLVMUUAYOUUAYNVNZYLVJYNYLVFYOYTUUBYLYMVEVOVPYNYLVQYNYLVRVSVTWAWBWBWAGWRYKCDYLUCWCUSWDWEAWSHUBZCGVGZWTWOUBAFTZOPZHUBZFGVGUUDMUUGUUCFCGUUEWRUBUUFWSHUUEWROWFWGWHULGWSHCWIWAWJAXKHWKUIWOWQUBYJAHNWLGHCWMVCWJ $.
+  $}
+
+  ${
+    gpartsfin.1 $e |- ( ph -> X e. Fin ) $.
+    gpartsfin.2 $e |- ( ph -> A. y e. K y C_ X ) $.
+  gpartsfin $p |- ( ph -> K e. Fin ) $=
+    ( cpw cfn wcel wss pwfi sylib cv wral wi rsp syl velpw biimpri syl6 ssrdv
+    ssfi syl2anc )
+    ADGZHIZCUDJCHIADHIUEEDKLABCUDABMZCIZUFDJZUFUDIZAUHBCNUGUHOFUHBCPQUIUHBDRSTUAUDCUBUC $.
+  $}
+
+  gcardeq $p |- ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) ) $=
+    ( cfn wcel cen wbr wa chash cfv wceq simpr wb simpl enfi syl mpbid hashen
+    syl2anc mpbird )
+    ACDZABEFZGZAHIZBHIZJZUATUAKZUBTBCDZUEUALTUAMZUBTUGUHUBUATUGLUFABNOPABQRS $.
+
+$}
+
+${
+$( Groups: what is in a coset. $)
+$d y z A $.
+$d y z S $.
+$d y z X $.
+$d y z G $.
+
+  gelcoset $p |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( X e. ( { A } ( LSSum ` G ) S ) <-> E. z e. S X = ( A ( +g ` G ) z ) ) ) $=
+    ( cgrp wcel cbs cfv wss w3a csn clsm co vy cv cplusg wceq wrex cvv wb
+    simp1 elex syl simp3 snssi simp2 3jca eqid lsmelvalx oveq1 eqeq2d rexbidv
+    rexsng bitrd )
+    DFGZCDHIZJZBUQGZKZEBLZCDMIZNZGZEOPZAPZDQIZNZRZACSZOVASZEBVFVGNZRZACSZUTDTGZVAUQJZURKVDVKUAUTVOVPURUTUPVOUPURUSUBDFUCUDUTUSVPUPURUSUEZBUQUFUDUPURUSUGUHOAUQVGVBVACDTEUQUIVGUIVBUIUJUDUTUSVKVNUAVQVJVNOBUQVEBRZVIVMACVRVHVLEVEBVFVGUKULUMUNUDUO $.
 
 $}
 

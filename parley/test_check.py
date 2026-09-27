@@ -319,7 +319,7 @@ CASES = [
      'proof/cantor.proof',
      '  let A be a set                                                      (H1)',
      '  let A = B                                                           (H1)',
-     'none of the 9 introductions'),
+     'none of the 10 introductions'),
 
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has
@@ -850,6 +850,30 @@ CASES = [
      '                  thm:stdlib/sets/disjoint-member, from 7.2.3, K7\n',
      '                  thm:stdlib/sets/disjoint-member, from 7.2.3\n',
      'step 7.2.4 cites thm:stdlib/sets/disjoint-member, which asks for'),
+
+    # A group is let with its operation and its identity; one without the
+    # identity is no introduction at all.
+    ('let a group without naming its identity',
+     'proof/lagrange.proof',
+     'let G be a finite group with operation · and identity e',
+     'let G be a finite group with operation ·',
+     'is none of the 10 introductions'),
+
+    # gH is read as the coset only of a part of the group, and the step
+    # says H is one.
+    ('read a coset without saying H lies in G',
+     'proof/lagrange.proof',
+     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.3\n'
+     '          requires H ⊆ G: from 1\n',
+     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.3\n',
+     'step 5.4 cites def:stdlib/groups/coset, which asks for H ⊆ G'),
+
+    # Counting by parts asks that two parts which meet be one part.
+    ('count by parts without saying they do not overlap',
+     'proof/lagrange.proof',
+     'from H1, 14, 15, 16, 3',
+     'from H1, 14, 16, 3',
+     'step 17 cites thm:stdlib/counting/partition-count, which asks for'),
 ]
 
 

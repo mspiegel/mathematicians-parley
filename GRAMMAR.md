@@ -229,8 +229,19 @@ implementations chasing to different depths would parse the same formula
 differently. All sixteen `obtain` steps in the corpus already state the
 membership, so the rule costs nothing and the checker enforces it.
 
-The sorts are `number`, `set`, `point`, `formula`, `function`, `variable`, and
-`any`, which means any term sort and never a formula.
+The sorts are `number`, `set`, `point`, `formula`, `function`, `variable`,
+`group-element`, `group-set`, `set-of-sets`, and `any`, which means any term
+sort and never a formula. The three that say what a thing is made of fit
+where a set is wanted, and say what their members are: a `group-set` holds
+`group-element`s and a `set-of-sets` holds sets. A letter written `x ∈ S`
+takes the sort of what S holds, for that sentence, so `for every g ∈ G,
+g ∈ gH` reads g as the group's element, and `for every Y ∈ K, |Y| = m` reads
+|Y| as a size where K's members are sets. `let K be a set` is refined to
+`set-of-sets` where the kinds find what K holds is sets.
+
+A hole of sort `group-element` takes nothing of unknown sort: `k·m` with
+neither sort known is a product of numbers, and a letter is a group's element
+only where the page says so or says what it ranges over.
 
 ## Reading a run of letters
 
@@ -246,6 +257,12 @@ named variables, and juxtaposition is left with a numeral before a name, as in
 the letters `and` could be a product of `a`, `n` and `d`, all three of which
 are variables here, and nothing reading left to right could tell that from the
 connective.
+
+The one exception is the coset `gH`, which a school reader writes that way and
+no other. Two bare names are joined there only where the first is a group's
+element and the second a set of them, which the sorts decide before any
+letter is read as a word: `a`, `n` and `d` are never a group's element and a
+set of them at once.
 
 ## Reading a run of digits
 
@@ -476,6 +493,8 @@ substitution in the corpus comes close.
                 | <name> `be a point`
                 | <name> `:` <term> `→` <term>
                 | <name> `:` <term> `→` <term> `be` <property>
+                | <name> `be a` [ `finite` ] `group with operation` `·`
+                  `and identity` <name>
                 | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
@@ -513,7 +532,7 @@ and that a note belongs to a block. `SYNTAX.md` says why they exist and why
 prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
-says what it is, and the nine forms above are all of them. `⊆` introduces a
+says what it is, and the ten forms above are all of them. `⊆` introduces a
 part of a set, which is a member of its power set: `let X ⊆ A` is read as
 `X ∈ 𝒫A`, the name `for every X ⊆ A` quantifies over, and a line saying
 X ⊆ A or X ∈ 𝒫A answers for the other. What it asserts

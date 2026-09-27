@@ -25,7 +25,14 @@ import re
 from formula import parse
 from match import Rule
 from parse import Declined, Problem, declined, define_parts
-from sorts import LABEL, SENTENCE, element_sort, file_definitions, let_formula
+from sorts import (
+    GROUP,
+    LABEL,
+    SENTENCE,
+    element_sort,
+    file_definitions,
+    let_formula,
+)
 
 OBTAINS = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 
@@ -33,6 +40,8 @@ _ids = itertools.count()
 
 # The kinds a thing can be that are not sets of something.
 NUMBER, POINT, FORMULA = ('number',), ('point',), ('formula',)
+GROUP_ELEMENT = ('group-element',)
+ATOMS = ('number', 'point', 'formula', 'group-element')
 
 
 class Var:
@@ -55,9 +64,10 @@ def show(k):
     if isinstance(k, Var):
         return f'any kind{f" ({k.said})" if k.said else ""}' if k.rigid \
             else 'a kind not yet fixed'
-    if k[0] in ('number', 'point', 'formula'):
+    if k[0] in ATOMS:
         return {'number': 'a number', 'point': 'a point',
-                'formula': 'a statement'}[k[0]]
+                'formula': 'a statement',
+                'group-element': 'a group element'}[k[0]]
     if k[0] == 'set':
         return f'a set of {_plural(k[1])}'
     if k[0] == 'property':
@@ -68,6 +78,7 @@ def show(k):
 def _plural(k):
     said = show(k)
     for one, many in (('a number', 'numbers'), ('a point', 'points'),
+                      ('a group element', 'group elements'),
                       ('a statement', 'statements'), ('a set of', 'sets of'),
                       ('a property of', 'properties of'),
                       ('a function from', 'functions from')):
@@ -110,8 +121,8 @@ def unify(a, b):
 
 # ------------------------------------------------------------ the field
 
-_TOKEN = re.compile(r'set of|property of|function from|to|number|point|'
-                    r'formula|[α-ω]')
+_TOKEN = re.compile(r'group-element|set of|property of|function from|to|'
+                    r'number|point|formula|[α-ω]')
 
 
 def signature(text):
@@ -155,7 +166,7 @@ def _term(tokens):
     if not tokens:
         return Declined('a kind is missing')
     head, rest = tokens[0], tokens[1:]
-    if head in ('number', 'point', 'formula'):
+    if head in ATOMS:
         return (head,), rest
     if head in ('set of', 'property of'):
         got = _term(rest)
@@ -259,7 +270,10 @@ class Reader:
     @staticmethod
     def _by_sort(node):
         by = {'number': lambda: NUMBER, 'point': lambda: POINT,
-              'formula': lambda: FORMULA, 'set': lambda: ('set', Var())}
+              'formula': lambda: FORMULA, 'set': lambda: ('set', Var()),
+              'group-element': lambda: GROUP_ELEMENT,
+              'group-set': lambda: ('set', GROUP_ELEMENT),
+              'set-of-sets': lambda: ('set', ('set', Var()))}
         return ([by.get(c.sort, Var)() for c in node.children],
                 by.get(node.sort, Var)())
 
@@ -295,8 +309,16 @@ def sort_of(k):
     k = find(k)
     if isinstance(k, Var):
         return None
+    # A set of a group's elements is a group's set, which says what it holds.
+    if k[0] == 'set' and find(k[1]) == GROUP_ELEMENT:
+        return 'group-set'
+    # A set of sets says what it holds too: `|Y|` for Y in it is a size.
+    if k[0] == 'set' and isinstance(find(k[1]), tuple) \
+            and find(k[1])[0] == 'set':
+        return 'set-of-sets'
     return {'number': 'number', 'point': 'point', 'set': 'set',
-            'function': 'function', 'property': 'property'}.get(k[0])
+            'function': 'function', 'property': 'property',
+            'group-element': 'group-element'}.get(k[0])
 
 
 # ------------------------------------------------------------ a text
@@ -312,6 +334,12 @@ def introduce(reader, body, line, g):
     line is read as a claim.
     """
     body = LABEL.sub('', body).strip()
+    # A group is a set of group elements, and its identity is one of them.
+    m = GROUP.match(body)
+    if m:
+        reader.env[m.group('group')] = ('set', GROUP_ELEMENT)
+        reader.env[m.group('identity')] = GROUP_ELEMENT
+        return
     m = re.match(r'^(\S+)\s+be a set$', body)
     if m:
         reader.env[m.group(1)] = ('set', Var(said=m.group(1)))
@@ -428,7 +456,8 @@ def read_theorem(thm, g, cite=None):
             # A function: what its domain holds goes in, what its rule gives
             # comes out, and the parameter is its rule's own name.
             kept = g.sorts
-            g.sorts = {**kept, said.param: element_sort(said.domain)}
+            g.sorts = {**kept,
+                       said.param: element_sort(said.domain, kept)}
             try:
                 over = reader.kind(parse(said.domain, g), no)
                 taken = Var()

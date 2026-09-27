@@ -46,7 +46,8 @@ theorem even-square
   decides, `let A be a set` for an arbitrary set, `let
   A be a point` for a point of the plane, `let f : A → B` for a
   function with its domain and codomain, `let f : A → B be one-to-one` for
-  such a function with a property, and `let P be a property of the
+  such a function with a property, `let G be a group with operation · and
+  identity e` for a group, and `let P be a property of the
   elements of X` for a property that a statement can be written about.
   Neither `∉` nor `be an element` claims the thing is a set, which `be a
   set` does (`READERS.md`, on kinds); the kernel still has it be one, and
@@ -59,18 +60,27 @@ theorem even-square
   does `for every X ⊆ A`, `there is X ⊆ A with`, `{X ⊆ A : …}` and a
   define ending `for X ⊆ A`: each is the power-set form written in the
   words a school reader has, and builds the same formula.
-  Those nine are all the forms a `let` line has. It carries an
+  Those ten are all the forms a `let` line has. It carries an
   introduction, which names something and says what it is, and never a
   formula; `assume` is the line that asserts. The one thing a `let`
   asserts is what `be` says of a function, "be" being how English says
   "is" after "let": `let f : A → B be one-to-one` asserts that f is
   one-to-one, and a citation of an item written so must supply it.
+  `let G be a finite group with operation · and identity e` asserts that G
+  is finite, and a step citing the line has that.
+  A group's line names its set, its operation and its identity. G is the set
+  of the group's elements, `a·b` is the operation, `a⁻¹` is the inverse,
+  and `gH` is the coset of a set H of the group's elements by g, written as
+  a school reader writes it: the two letters side by side, read so only
+  where the first is a group's element and the second a set of them. `·` is
+  the one symbol a group's operation has. `assume H is a subgroup of G`
+  introduces H as a `let` would, and says what it is.
   A property line never names the thing the property holds of, because that
   name comes from the notation that binds it: in `{t ∈ X : P(t)}` the braces
   introduce `t`, and `t` does not exist on the line above. `P(t)` reads "the
   property P holds of t", which is substitution into a statement and not a
   function applied to an argument; the `holds-of` record says why.
-  Three of the seven, `be an element`, `be a set` and `be a point`, are
+  Three of the ten, `be an element`, `be a set` and `be a point`, are
   therefore not notations and never appear inside a formula. Quantifying over an arbitrary set
   inside a formula is the separate `for every set X, ...`, a binder with no
   domain, which is to `let X be a set` what `for every n ∈ ℕ, ...` is to

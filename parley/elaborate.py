@@ -58,9 +58,9 @@ from parse import (
 )
 from parse import index as full_names
 from provenance import ProofRules
-from reading import CLASS_NAMES, Reading, hypothesis_body, render
+from reading import CLASS_NAMES, LABEL, Reading, hypothesis_body, render
 from scopes import Fact, Scopes
-from sorts import file_definitions, sorts_in_scope
+from sorts import SUBGROUP, file_definitions, sorts_in_scope
 from spell import Builder, seq
 from tables import TableReading
 
@@ -71,12 +71,19 @@ PROVED = f'{STDLIB}/proved'
 # its body's binders to, and what an `obtain` introduces. A name the text
 # does spell keeps its own letter, so this holds what a reader is least
 # likely to write. After them come the letters readers write most, which a
-# proof spelling them never draws: every setvar set.mm has, since a proof
-# fixing capital letters, which set.mm keeps for classes, takes a spare for
-# each, and Schröder–Bernstein fixes seven.
+# proof spelling them never draws: every lettered setvar set.mm has, since a
+# proof fixing capital letters, which set.mm keeps for classes, takes a spare
+# for each, and Schröder–Bernstein fixes seven. Last come set.mm's primed
+# setvars, a′ and the rest, which no reader writes: Lagrange's theorem
+# spells fifteen letters and fixes some twenty names in its blocks, and the
+# eleven letters left over do not reach.
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
               'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv',
-              've', 'vd', 'vc', 'vb', 'va', 'vn', 'vz', 'vy', 'vx']
+              've', 'vd', 'vc', 'vb', 'va', 'vn', 'vz', 'vy', 'vx',
+              'bnjvam', 'bnjvbm', 'bnjvcm', 'bnjvdm', 'bnjvem', 'bnjvfm',
+              'bnjvgm', 'bnjvhm', 'bnjvim', 'bnjvjm', 'bnjvkm', 'bnjvlm',
+              'bnjvmm', 'bnjvnm', 'bnjvpm', 'bnjvqm', 'bnjvrm', 'bnjvtm',
+              'bnjvum', 'bnjvwm', 'bnjvxm', 'bnjvym', 'bnjvzm']
 
 # Why a side of a step citing a define is not what the define names.
 NAMES_NO_DEFINE = 'this side names no define'
@@ -387,10 +394,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # elaboration holds for it is that reading, which no step cites.
         lets = [*self.thm.hypotheses,
                 *(o for s in self.thm.steps for o in s.openers)]
+        # `assume H is a subgroup of G` introduces H as a `let` would.
         self.sorts = frozenset(
             o[2] for o in lets if o[0] == 'let' and o[2]
             and (' be a set' in o[1] or ' be a point' in o[1]
-                 or '→' in o[1])) | {d[2] for d in self.thm.defines} \
+                 or '→' in o[1] or ' group with operation ' in o[1])) \
+            | {o[2] for o in lets if o[0] == 'assume' and o[2]
+               and SUBGROUP.match(
+                   LABEL.sub('', hypothesis_body(o[0], o[1])).strip())} \
+            | {d[2] for d in self.thm.defines} \
             | {self.outside_label(name, d, src)
                for name, d, src in self.visible_outside()}
         terms = [self.term(n) for n in nodes]
@@ -1031,6 +1043,22 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                'mpbid')
         raise self.defect(step.line, 'the substitution misses the claim')
 
+    def witnessed_or_whole(self, step, node, term, scope, facts, lines):
+        """A definition whose right side is an existence claim, reaching
+        its left side.
+
+        Usually from the lines naming a witness (`conclude`): g ∈ gH from
+        e ∈ H and g = g·e. Where a cited line states the existence claim
+        itself, as `there is Y ∈ K with g ∈ Y` does for g being in the union
+        over K, the definition is read right to left as any other is.
+        """
+        if any(ref in lines and self.to_term(lines[ref].term).label == 'wrex'
+               for ref in step.just.refs):
+            found = self.equivalent(step, node, term, scope, facts, lines)
+            if not declined(found):
+                return found
+        return self.conclude(step, node, term, scope, facts, lines)
+
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
 
@@ -1297,7 +1325,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 # unfolding bridges, so the claim is read by its shape.
                 if self.to_term(term).label == 'wrex':
                     return self.unfolded
-                return self.conclude
+                return self.witnessed_or_whole
             if self.fits_as(whole.children[0], self.to_term(term),
                             whole.names()) is not None:
                 return self.equivalent
@@ -1659,6 +1687,15 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 stands)
             if witness:
                 break
+        # Or off a cited line putting it in the domain, where what the body
+        # says of it is an equation of a term with itself that no line
+        # writes: `there is a ∈ G with gH = aH` at a := g, from g ∈ G.
+        for ref in step.just.refs if witness is None else ():
+            held = self.to_term(lines[ref].term)
+            if held.label == 'wcel' and held.children[1].rpn(self.flabel) \
+                    == domain.rpn(self.flabel):
+                witness = held.children[0].rpn(self.flabel)
+                break
         if witness is None:
             raise self.defect(step.line, 'no cited line names a witness')
         # The witness may be the very letter the claim binds: an `obtain`
@@ -1697,7 +1734,13 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # supply rather than another route's to try.
         shown = []
         for want in (member, here):
-            one = self.settle(self.to_term(want), scope, known)
+            said = self.to_term(want)
+            if said.label == 'wceq' and said.children[0].rpn(self.flabel) \
+                    == said.children[1].rpn(self.flabel):
+                shown.append(self.ap('eqidd', {
+                    'ph': scope, 'A': said.children[0].rpn(self.flabel)}))
+                continue
+            one = self.settle(said, scope, known)
             if declined(one):
                 raise self.defect(
                     step.line,

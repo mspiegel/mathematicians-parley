@@ -20,7 +20,9 @@ from match import Rule, substitute
 from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import (
     FUNCTION_BEING,
+    GROUP,
     PART,
+    SUBGROUP,
     definition_sorts,
     file_definitions,
     let_formula,
@@ -220,6 +222,14 @@ class Reading:
         if found is None:
             raise self.defect(self.at,
                               f'notation {node.notation!r} builds no term here')
+        # A part of the group the theorem lets, which nothing on the page
+        # names (`targets.CONTEXT`).
+        for token in set(targets.CONTEXT.findall(found)):
+            if token not in self.names:
+                raise self.defect(self.at, f'{node.notation} needs a group, '
+                                           f'and no `let` line gives one')
+            found = re.sub(rf'(?<!\S){re.escape(token)}(?!\S)',
+                           self.names[token], found)
         return found
 
     def to_term(self, rpn):
@@ -321,8 +331,17 @@ class Reading:
         """
         nodes, spare = [], list(CLASS_NAMES)
         for kind, text, _label, _line in self.thm.hypotheses:
+            group = GROUP.match(LABEL.sub('', text[len(kind):]).strip()) \
+                if kind == 'let' else None
+            if group:
+                nodes.append(self.group(group, spare.pop(0)))
+                continue
             node = self.read(hypothesis_body(kind, text))
-            if kind == 'let':
+            # `assume H is a subgroup of G` introduces H as a `let` would:
+            # no line before it names H.
+            subgroup = kind == 'assume' and SUBGROUP.match(
+                LABEL.sub('', text[len(kind):]).strip())
+            if kind == 'let' or subgroup:
                 introduced = self.subject_of(node)
                 if introduced.text and introduced.text not in self.names:
                     self.names[introduced.text] = spare.pop(0)
@@ -330,6 +349,28 @@ class Reading:
                     self.sets[introduced.text] = self.term(node.children[1])
             nodes.append(node)
         return nodes
+
+    def group(self, said, structure):
+        """The hypothesis a group's `let` line states, with its names given.
+
+        set.mm's group is a structure: a class W whose `Base` is the set,
+        whose `+g` is the operation and whose `0g` is the identity, and the
+        hypothesis is that W is a group. The page never writes W. G names its
+        base, e its identity, and the notations that need its operation,
+        inverse, subgroups or cosets take them from the context tokens given
+        here (`targets.CONTEXT`). A finite group's base is finite too.
+        """
+        part = {name: self.seq(structure, label, 'cfv') for name, label in (
+            ('base', 'cbs'), ('@op', 'cplusg'), ('identity', 'c0g'),
+            ('@inv', 'cminusg'), ('@subgroups', 'csubg'), ('@lsm', 'clsm'))}
+        self.names[said.group('group')] = part.pop('base')
+        self.names[said.group('identity')] = part.pop('identity')
+        self.names.update(part)
+        claim = self.seq(structure, 'cgrp', 'wcel')
+        if said.group('finite'):
+            claim = self.seq(claim, self.seq(self.names[said.group('group')],
+                                             'cfn', 'wcel'), 'wa')
+        return _Literal(claim)
 
     def defined(self, before):
         """Each `define` above line `before`, as its label, its line, the

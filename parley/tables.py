@@ -202,6 +202,32 @@ class TableReading:
                 'ph': scope, 'ps': body.rpn(self.flabel),
                 'x': letter.rpn(self.flabel), 'A': runs.rpn(self.flabel),
                 'B': want.children[2].rpn(self.flabel)}, moved)
+        # And its domain and body together, as where the domain names the
+        # letter an outer universal is instantiated at: `for every x ∈ aH,
+        # xH ⊆ aH` at a := b.
+        if given.label in ('wral', 'wrex') \
+                and given.children[1].rpn(self.flabel) \
+                == want.children[1].rpn(self.flabel) \
+                and given.children[0].rpn(self.flabel) \
+                != want.children[0].rpn(self.flabel) \
+                and given.children[2].rpn(self.flabel) \
+                != want.children[2].rpn(self.flabel):
+            body, letter, runs = given.children
+            if letter.rpn(self.flabel) in scope.split():
+                return Declined('the scope mentions the letter this binds')
+            over = self.congruence(runs, want.children[2], scope, facts,
+                                   step, leaf)
+            if declined(over):
+                return over
+            said = self.congruence(body, want.children[0], scope, facts,
+                                   step, leaf)
+            if declined(said):
+                return said
+            return self.ap(rules.CONGRUENCE[(given.label, (0, 2))], {
+                'ph': scope, 'ps': body.rpn(self.flabel),
+                'ch': want.children[0].rpn(self.flabel),
+                'x': letter.rpn(self.flabel), 'A': runs.rpn(self.flabel),
+                'B': want.children[2].rpn(self.flabel)}, over, said)
         # A map whose domain changes, its letter and its rule kept: M's rule
         # at X is a map over B ∖ {f(x) : x ∈ X}, and the rule at another X
         # is the same map over another domain. `mpteq1d` asks nothing of

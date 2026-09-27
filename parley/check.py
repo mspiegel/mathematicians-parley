@@ -61,6 +61,7 @@ from parse import (
 from sorts import (
     FUNCTION,
     FUNCTION_BEING,
+    GROUP,
     KIND,
     PART,
     definitions_in_scope,
@@ -248,9 +249,10 @@ def check_database(report, records):
                                f'not a part marker')
 
 
-TERM_SORTS = {'number', 'set', 'point', 'any'}
-SORT_NAMES = {'number', 'set', 'point', 'formula', 'function', 'property',
-              'variable', 'any'}
+TERM_SORTS = {'number', 'set', 'point', 'group-element', 'group-set',
+              'set-of-sets', 'any'}
+SORT_NAMES = {'number', 'set', 'point', 'group-element', 'group-set',
+              'set-of-sets', 'formula', 'function', 'property', 'variable', 'any'}
 
 
 def check_notation(report, records):
@@ -316,7 +318,11 @@ def check_notation(report, records):
                     report.say(r.path, r.line,
                                f'notation {r.name} target {entry!r} names a '
                                f'hole outside 1 to {want}')
-                elif used != set(range(1, want + 1)):
+                # A hole naming the group a context token takes the part
+                # from, as `H is a subgroup of G` names G, is left to it.
+                elif used != set(range(1, want + 1)) and not (
+                        re.search(r'@[a-z]+', entry)
+                        and len(used) == want - 1):
                     report.say(r.path, r.line,
                                f'notation {r.name} target {entry!r} leaves a '
                                f'hole out')
@@ -843,7 +849,8 @@ class Library:
                                   or PART.match(text)):
                 text = let_formula(text)
             elif kind == 'let' and (KIND.match(text) or FUNCTION.match(text)
-                                    or ELEMENT.match(text)):
+                                    or ELEMENT.match(text)
+                                    or GROUP.match(text)):
                 continue
             self.g.sorts = sorts
             try:
@@ -2149,6 +2156,7 @@ INTRODUCTIONS = (
     ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
     ('a function with a property', FUNCTION_BEING),
     ('a part of a set',         re.compile(r'^\S+\s*⊆\s*\S')),
+    ('a group',                 GROUP),
     ('a property',              re.compile(r'^\S+\s+be a property of the '
                                            r'elements of\s+\S+$')),
 )

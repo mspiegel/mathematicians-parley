@@ -15,7 +15,7 @@ named. A name neither reaches has no sort, which every hole accepts.
 """
 import re
 
-from formula import parse
+from formula import HOLDS, parse
 from match import Rule, expand
 from parse import Problem, declined, define_parts
 
@@ -31,6 +31,14 @@ FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
 FUNCTION_BEING = re.compile(r'^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$')
 # `let X ⊆ A`: a part of a set.
 PART = re.compile(r'^(\S+)\s*⊆\s*(\S.*)$')
+# `let G be a finite group with operation · and identity e`: a set whose
+# members are group elements, its operation, and its identity, which is one
+# of them.
+GROUP = re.compile(r'^(?P<group>\S+)\s+be\s+a\s+(?P<finite>finite\s+)?group'
+                   r'\s+with\s+operation\s+(?P<operation>\S+)\s+and\s+'
+                   r'identity\s+(?P<identity>\S+)$')
+# `H is a subgroup of G`: a set of the group's elements.
+SUBGROUP = re.compile(r'^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$')
 
 
 def let_formula(body):
@@ -40,8 +48,13 @@ def let_formula(body):
     and the formula is `f : A → B is one-to-one`: "be" is how English says
     "is" after "let". `let X ⊆ A` introduces a part of A, which is a member
     of its power set, and the formula is `X ∈ 𝒫A`, the one `for every X ⊆
-    A` quantifies over. Every other body is read as it is written.
+    A` quantifies over. `let G be a finite group …` says G is finite; the
+    rest of it names things and asserts nothing a proof cites. Every other
+    body is read as it is written.
     """
+    m = GROUP.match(body)
+    if m and m.group('finite'):
+        return f"{m.group('group')} is finite"
     m = FUNCTION_BEING.match(body)
     if m:
         return f'{m.group(1)} is {m.group(2)}'
@@ -59,21 +72,33 @@ def _body(text, head):
     return LABEL.sub('', text[len(head):].strip()).strip()
 
 
-def _from_introduction(body):
-    """The sort a `let` body or a membership sentence states, or None."""
+def _introduced(body, known):
+    """The (name, sort) pairs a `let` body or a sentence states: none, one,
+    or, for a group, the group and its identity. `known` is the sorts found
+    so far, since a member of a group's set is a group element.
+    """
+    m = GROUP.match(body)
+    if m:
+        return [(m.group('group'), 'group-set'),
+                (m.group('identity'), 'group-element')]
+    m = SUBGROUP.match(body)
+    if m:
+        return [(m.group(1), 'group-set')]
     m = KIND.match(body)
     if m:
-        return m.group(1), m.group(2)
+        return [(m.group(1), m.group(2))]
     m = PROPERTY.match(body)
     if m:
-        return m.group(1), 'property'
+        return [(m.group(1), 'property')]
     m = FUNCTION.match(body)
     if m:
-        return m.group(1), 'function'
+        return [(m.group(1), 'function')]
     m = MEMBER.match(body)
     if m and m.group(2).rstrip('.') in NUMBER_SYSTEMS:
-        return m.group(1), 'number'
-    return None
+        return [(m.group(1), 'number')]
+    if m and known.get(m.group(2).rstrip('.')) == 'group-set':
+        return [(m.group(1), 'group-element')]
+    return []
 
 
 def definitions_in_scope(thm, g):
@@ -91,7 +116,8 @@ def definitions_in_scope(thm, g):
             continue
         g.sorts = sorts_in_scope(thm, g)
         if said.param is not None:
-            g.sorts = {**g.sorts, said.param: element_sort(said.domain)}
+            g.sorts = {**g.sorts,
+                       said.param: element_sort(said.domain, g.sorts)}
         try:
             body = parse(said.body, g)
         except Problem:
@@ -164,11 +190,14 @@ def definition_sorts(definitions):
     return out
 
 
-def element_sort(domain):
+def element_sort(domain, sorts=None):
     """The sort of what a define's domain holds: a number where the domain
-    is a number system, and otherwise none said here.
+    is a number system, what a name's sort says it holds where it says
+    (`sorts`, a group's elements for a group's set), and otherwise none.
     """
-    return 'number' if domain.strip() in NUMBER_SYSTEMS else None
+    if domain.strip() in NUMBER_SYSTEMS:
+        return 'number'
+    return HOLDS.get((sorts or {}).get(domain.strip()))
 
 
 def sorts_of_record(record, g):
@@ -183,8 +212,7 @@ def sorts_of_record(record, g):
     out = {}
     for kind, value, _, _ in record.hypotheses:
         if kind in ('let', 'assume'):
-            found = _from_introduction(LABEL.sub('', value).strip())
-            if found:
+            for found in _introduced(LABEL.sub('', value).strip(), out):
                 out.setdefault(*found)
     # The parser's sorts are left as they were found: a record is read while
     # a proof that cites it is being read, and the proof's sorts are the ones
@@ -193,9 +221,7 @@ def sorts_of_record(record, g):
     from kinds import read_record, sort_of
     try:
         for name, kind in read_record(record, g).env.items():
-            settled = sort_of(kind)
-            if settled:
-                out.setdefault(name, settled)
+            settle(out, name, sort_of(kind))
     finally:
         g.sorts = kept
     return out
@@ -210,8 +236,7 @@ def sorts_of_statement(thm):
     out = {}
     for kind, text, _, _ in thm.hypotheses:
         if kind in ('let', 'assume'):
-            found = _from_introduction(_body(text, kind))
-            if found:
+            for found in _introduced(_body(text, kind), out):
                 out.setdefault(*found)
     return out
 
@@ -237,8 +262,7 @@ def sorts_in_scope(thm, g):
     out = definition_sorts(file_definitions(thm, g))
     for _, kind, text in sorted(events, key=lambda e: e[0]):
         if kind in ('let', 'assume', 'suppose'):
-            found = _from_introduction(_body(text, kind))
-            if found:
+            for found in _introduced(_body(text, kind), out):
                 out.setdefault(*found)
         elif kind == 'define':
             said = define_parts(text)
@@ -258,8 +282,8 @@ def sorts_in_scope(thm, g):
                 out.setdefault(said.name, sort)
         else:
             for sentence in SENTENCE.split(text.strip()):
-                found = _from_introduction(sentence.strip().rstrip('.').strip())
-                if found:
+                for found in _introduced(sentence.strip().rstrip('.').strip(),
+                                         out):
                     out.setdefault(*found)
     # What the lines above leave unknown, the kinds may settle: `let S ∈ 𝒫X`
     # names no number system, and S is a set because what 𝒫X holds is sets.
@@ -268,8 +292,19 @@ def sorts_in_scope(thm, g):
     g.sorts = out
     from kinds import read_theorem, sort_of
     for name, kind in read_theorem(thm, g).env.items():
-        settled = sort_of(kind)
-        if settled:
-            out.setdefault(name, settled)
+        settle(out, name, sort_of(kind))
     g.sorts = out
     return out
+
+
+def settle(out, name, settled):
+    """Put the sort the kinds settle for `name` into `out`, where the lines
+    found none, or found only `set` and the kinds say what the set holds:
+    `let K be a set` with K's members read as sets makes `|Y|`, for Y in K,
+    a size.
+    """
+    if not settled:
+        return
+    if out.get(name) == 'set' and settled in HOLDS:
+        out[name] = settled
+    out.setdefault(name, settled)

@@ -1756,12 +1756,22 @@ class Matcher:
         concludes only that something is in the range, and names the map's
         variable and body in its hypotheses alone. They are the lemma's
         variables all the same, so the naming is read over them too.
+
+        And the other way: `grplcan` names its operation `.+` in a
+        hypothesis and writes it only in the side of its biconditional a
+        step supplies, so the claim `X = Y` fixes the group and not `.+`,
+        and the naming is what says `.+` is the group's `+g`.
         """
         for text in sig.essentials:
             asked = self.syntax.parse(text[1:], 'wff')
             if asked.label != 'wceq' or len(asked.children) != 2:
                 continue
             name = asked.children[0].variable
+            if name is not None and name not in binding \
+                    and asked.children[1].names() <= set(binding):
+                binding = {**binding,
+                           name: asked.children[1].substitute(binding)}
+                continue
             if name is None or name not in binding:
                 continue
             said = kernel.match(asked.children[1], binding[name],
@@ -2930,6 +2940,27 @@ class Matcher:
                for a, b in sig.disjoint):
             return self.letters_apart(label, goal, scope, facts, step,
                                       crossing, seed)
+        # A deduction's hypothesis may bind letters its conclusion never
+        # names, each its own: `gpartcnt` sums over the members of K and
+        # binds one letter in the union it is told of and another in the
+        # sizes. Each is the letter the line the step cites for that
+        # hypothesis binds.
+        cited = [self.to_term(self.lines[ref].term)
+                 for ref in (step.just.refs if step is not None else ())
+                 if ref in self.lines]
+        for text in sig.essentials:
+            said = self.syntax.parse(text[1:], 'wff')
+            if said.label != 'wi' or said.children[0].variable is None:
+                continue
+            said = said.children[1]
+            if not said.names() - set(binding):
+                continue
+            for held in cited:
+                filled = kernel.match(said, held, dict(binding),
+                                      set(variables) | said.names())
+                if filled is not None:
+                    binding = filled
+                    break
         # A letter the lemma binds inside itself and the claim never fixes
         # stands as its own name, which a hypothesis may bind too:
         # `sersumlim` binds n in its sequence, and so may the hypothesis
@@ -2971,12 +3002,30 @@ class Matcher:
         known = self.with_cited(
             step, where, self.supplied(step, where,
                                        self.frames_facts(frame, facts)))
-        for slot in antecedents:
-            if not slot.names() - set(binding):
+        # A bare `Z e. B` with Z open is answered by any line putting
+        # anything in B, so it is matched after what says more of Z:
+        # `grplcan` asks Z e. B before ( Z .+ X ) = ( Z .+ Y ), and only
+        # the equation says which member Z is.
+        loose = [piece for slot in antecedents if slot.variable is None
+                 for piece in self.conjuncts_of(slot)
+                 if piece.label == 'wcel'
+                 and piece.children[0].variable is not None
+                 and piece.children[0].variable not in binding
+                 and any(piece.children[0].variable in other.names()
+                         and other.label != 'wcel'
+                         for later in antecedents if later.variable is None
+                         for other in self.conjuncts_of(later))]
+        for slot in [*antecedents, None]:
+            if slot is None:
+                pieces = loose
+            elif not slot.names() - set(binding):
                 continue
-            if slot.variable is not None:
+            elif slot.variable is not None:
                 binding[slot.variable] = self.to_term(where)
                 continue
+            else:
+                pieces = [p for p in self.conjuncts_of(slot)
+                          if not any(p is one for one in loose)]
             # What the lemma concludes need not fix everything it asks, so
             # an antecedent that is still open is matched against something
             # the step already has: `orel2` learns which disjunct is ruled
@@ -2984,7 +3033,7 @@ class Matcher:
             # things at once is matched a conjunct at a time, since each is
             # a line of its own: `sstr` asks A ⊆ B and B ⊆ C, and only the
             # lines say what B is.
-            for piece in self.conjuncts_of(slot):
+            for piece in pieces:
                 if not piece.names() - set(binding):
                     continue
                 for held in known:
@@ -3004,7 +3053,8 @@ class Matcher:
                         if filled is not None:
                             binding = filled
                             break
-            for open_class in self.sethood(slot, binding):
+            for open_class in (self.sethood(slot, binding)
+                               if slot is not None else ()):
                 binding[open_class] = self.to_term('cvv')
         essentials = [self.prove_essential(
             self.syntax.parse(e[1:], 'wff').substitute(binding), where, known)

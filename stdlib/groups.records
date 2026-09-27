@@ -1,0 +1,110 @@
+# Standard library: groups
+#
+# A group, its laws, its subgroups, and cosets.
+#
+# One record per item. A record begins at column 0 with its kind and name; a
+# proof cites it as def:stdlib/groups/<name> or thm:stdlib/groups/<name>, and
+# the prefix must match the kind. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line. A group is let as
+# `let G be a group with operation · and identity e`, and set.mm's structure
+# beneath it is never written (`GRAMMAR.md`, the group introduction).
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, note.
+
+
+theorem group-closed
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  then        a·b ∈ G
+  metamath    grpcl
+  target      grpcl
+
+theorem group-associative
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  let c ∈ G                                                           (H4)
+  then        (a·b)·c = a·(b·c)
+  metamath    grpass
+  target      grpass
+
+theorem group-identity
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then        a·e = a
+  metamath    grprid
+  target      grprid
+
+theorem group-inverse
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then        a·a⁻¹ = e
+  metamath    grprinv
+  target      grprinv
+
+theorem group-inverse-closed
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then        a⁻¹ ∈ G
+  metamath    grpinvcl
+  target      grpinvcl
+
+theorem group-cancel
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  let g ∈ G                                                           (H4)
+  assume g·a = g·b                                                    (H5)
+  then        a = b
+  metamath    grplcan
+  target      grplcan
+
+theorem subgroup-within
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  then        H ⊆ G
+  metamath    subgss
+  target      subgss
+
+theorem subgroup-identity
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  then        e ∈ H
+  metamath    subg0cl
+  target      subg0cl
+
+theorem subgroup-closed
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let a ∈ H                                                           (H3)
+  let b ∈ H                                                           (H4)
+  then        a·b ∈ H
+  metamath    subgcl
+  target      subgcl
+
+theorem subgroup-inverse
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let a ∈ H                                                           (H3)
+  then        a⁻¹ ∈ H
+  metamath    subginvcl
+  target      subginvcl
+
+definition coset
+  let G be a group with operation · and identity e                    (H1)
+  assume H ⊆ G                                                        (H2)
+  let g ∈ G                                                           (H3)
+  then        u ∈ gH ↔ there is h ∈ H with u = g·h
+  metamath    lsmelvalx and rexsng, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gelcoset
+  note        gH is everything g combines with a member of H to give. set.mm
+              writes it as the sum of two subsets, {g} and H, and a school
+              reader writes gH.

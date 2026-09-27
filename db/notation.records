@@ -72,6 +72,12 @@
 #               the `negates` or `spells` line turns into another notation's
 #               tree, since such a pattern builds no node of its own.
 #
+#               A word beginning `@` stands for a part of the group the
+#               theorem lets, which the page never writes: `@op` its
+#               operation, `@inv` its inverse, `@subgroups` its subgroups and
+#               `@lsm` the sum of two of its subsets. So `_ · _` targets
+#               `_1 _2 @op co`, and the group's `let` line says which group.
+#
 #               A function a proof needs of its own, such as the sum of the
 #               first m numbers, is a `define` in that proof and not a
 #               notation here: `define S(m) := …, for m ∈ ℕ` (`GRAMMAR.md`).
@@ -196,6 +202,21 @@ notation multiplicative
   reads       times, divided by
   metamath    cmul, cdiv
   target      _1 _2 cmul co, _1 _2 cdiv co
+
+notation group-operation
+  pattern     _ · _
+  holes       group-element, group-element
+  yields      group-element
+  kinds       group-element, group-element → group-element
+  level       multiplicative
+  assoc       left
+  reads       combined by the group's operation with
+  metamath    the group's +g, the operation its `let` line names
+  target      _1 _2 @op co
+  note        Written with the dot a product is written with, and told apart
+              from it by what it joins: elements of a group, which the
+              group's `let` line gives their own sort. `@op` is that line's
+              operation (`targets.CONTEXT`).
 
 notation unary-minus
   pattern     −_
@@ -351,6 +372,16 @@ notation cardinality
   reads       the number of elements of
   metamath    chash
   target      _1 chash cfv
+
+notation finite
+  pattern     _ is finite
+  holes       set
+  yields      formula
+  kinds       set of α → formula
+  level       relational
+  reads       has finitely many elements
+  metamath    Fin
+  target      _1 cfn wcel
 
 notation distance
   pattern     |__|
@@ -615,6 +646,44 @@ notation inverse
   note        g⁻¹(y) is the thing g sends to y. set.mm's converse is defined
               for every relation, and it is a function where g is one-to-one,
               which is where the page writes it.
+
+notation group-inverse
+  pattern     _⁻¹
+  holes       group-element
+  yields      group-element
+  kinds       group-element → group-element
+  level       power
+  reads       the inverse in the group of
+  metamath    the group's invg
+  target      _1 @inv cfv
+  note        g⁻¹ undoes g in the group: g·g⁻¹ = e. The pattern is the
+              inverse of a function's, told apart by what it inverts.
+
+notation subgroup
+  pattern     _ is a subgroup of _
+  holes       group-set, group-set
+  yields      formula
+  kinds       set of group-element, set of group-element → formula
+  level       relational
+  reads       is a subgroup of
+  metamath    SubGrp of the group its `let` line names
+  target      _1 @subgroups wcel
+  note        The second hole names the group, which a theorem lets once;
+              the kernel takes it from there (`@subgroups`).
+
+notation coset
+  pattern     __
+  holes       group-element, group-set
+  yields      group-set
+  kinds       group-element, set of group-element → set of group-element
+  level       multiplicative
+  assoc       right
+  reads       the coset of the second by the first
+  metamath    LSSum of the singleton {g} and the subgroup H
+  target      _1 csn _2 @lsm co
+  note        gH is {g·h : h ∈ H}. Two letters side by side are joined only
+              here, and only where the first is a group element and the
+              second a group's set; "and" is neither.
 
 notation image
   pattern     _[_]
