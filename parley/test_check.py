@@ -927,6 +927,67 @@ CASES = [
      'from H1, 14, 15, 16, 3',
      'from H1, 14, 16, 3',
      'step 17 cites thm:stdlib/counting/partition-count, which asks for'),
+
+    # A define by recursion gives each name a value at 0 and a rule at the
+    # step, the rule naming the sequences only at k, and a citation of it
+    # says which case it is in and that the index is one the rule covers.
+    ('define a sequence with no value at 0',
+     'proof/euclid.proof',
+     'define a(0) := M,  b(0) := N,',
+     'define a(0) := M,',
+     'b has no value at 0'),
+
+    ('give a sequence its first value at 1',
+     'proof/euclid.proof',
+     'define a(0) := M,  b(0) := N,',
+     'define a(0) := M,  b(1) := N,',
+     'b(1) is neither b(0) nor b(k + 1)'),
+
+    ('write a step rule that names the value it defines',
+     'proof/euclid.proof',
+     '  a(k + 1) := a(k)             if b(k) = 0',
+     '  a(k + 1) := a(k + 1)         if b(k) = 0',
+     'names a at a place other than k'),
+
+    ('write a step rule that names the index itself',
+     'proof/euclid.proof',
+     '  a(k + 1) := a(k)             if b(k) = 0',
+     '  a(k + 1) := a(k) + k         if b(k) = 0',
+     'names k outside a value at k'),
+
+    ('give a first value in terms of a sequence',
+     'proof/euclid.proof',
+     'define a(0) := M,  b(0) := N,',
+     'define a(0) := b(0),  b(0) := N,',
+     'names b, which has no value before 0'),
+
+    ('cite a step rule without saying the index is in ℕ₀',
+     'proof/euclid.proof',
+     '3.1.4.2.2.  b(j + 1) = 0\n'
+     '                                        D1, from C1\n'
+     '                                        requires j ∈ ℕ₀: from J1',
+     '3.1.4.2.2.  b(j + 1) = 0\n'
+     '                                        D1, from C1',
+     'no line it cites says the index is in ℕ₀'),
+
+    ('claim the value of the other case',
+     'proof/euclid.proof',
+     '4.1.4.3.1.  a(j + 1) = a(j)',
+     '4.1.4.3.1.  a(j + 1) = b(j)',
+     'step 4.1.4.3.1 cites D1 and claims a value it does not give'),
+
+    ('cite a step rule by cases without saying which case',
+     'proof/euclid.proof',
+     'D1, from C5',
+     'D1',
+     'says whether a case\'s condition holds'),
+
+    ('define a sequence by recursion outside any theorem',
+     'proof/euclid.proof',
+     'theorem euclid',
+     'define c(0) := 1, c(k + 1) := c(k), for k ∈ ℕ₀                     (D9)\n'
+     '       reads a constant sequence\n\ntheorem euclid',
+     'is written in the theorem that uses it'),
 ]
 
 

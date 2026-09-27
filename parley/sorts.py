@@ -17,7 +17,7 @@ import re
 
 from formula import HOLDS, parse
 from match import Rule, expand
-from parse import Problem, declined, define_parts
+from parse import Problem, Recursion, declined, define_parts
 
 NUMBER_SYSTEMS = {'ℕ', 'ℕ₀', 'ℤ', 'ℚ', 'ℝ'}
 
@@ -129,11 +129,15 @@ def definitions_in_scope(thm, g, sorts):
     formula wherever two formulas are compared, and this is the table that says
     which term each name stands for. A define may name something in terms of an
     earlier one, so the terms are read in the order they are written.
+
+    A sequence defined by recursion has no term to stand for: its rule names
+    the sequence itself, so it is never expanded, and a step that needs a
+    value cites the define (`recursion_equation`).
     """
     out = file_definitions(thm, g)
     for _, text, _, _ in thm.defines:
         said = define_parts(text)
-        if declined(said):
+        if declined(said) or isinstance(said, Recursion):
             continue
         g.sorts = define_sorts(said, sorts)
         try:
@@ -294,7 +298,12 @@ def sorts_in_scope(thm, g):
             if declined(said):
                 continue
             # A define with an argument is a function, whatever its rule
-            # gives, and `S(n)` is then S applied to n and not S times n.
+            # gives, and `S(n)` is then S applied to n and not S times n. A
+            # sequence defined by recursion is one too.
+            if isinstance(said, Recursion):
+                for name in said.names:
+                    out.setdefault(name, 'function')
+                continue
             if said.param is not None:
                 out.setdefault(said.name, 'function')
                 continue

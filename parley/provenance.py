@@ -494,7 +494,11 @@ class ProofRules:
             item = self.items.get(resolve(closure.split(':', 1)[1].split()[0],
                                           self.thm.module))
             if item is not None and targets.clauses(item):
-                return self.cite_item(step, term, scope, facts, item, how)
+                # What the line cites is taken apart as a step's citations
+                # are: a line saying `a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀` gives each.
+                given = self.with_cited(step, scope, facts,
+                                        refs=citations(how))
+                return self.cite_item(step, term, scope, given, item, how)
         if closure == 'arithmetic':
             # A value is the other thing `arithmetic` decides, and a closed
             # one is an identity of the field with no atoms in it, so it

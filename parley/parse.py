@@ -352,6 +352,11 @@ class Define:
     param: str = None
     domain: str = None
 
+    @property
+    def names(self):
+        """The names the define gives, as a `Recursion` has them."""
+        return [self.name]
+
 
 @dataclass
 class Recursion:
@@ -853,6 +858,11 @@ def parse_proof(path, text):
                 parts = define_parts(t)
                 if declined(parts):
                     raise Problem(path, line.no, str(parts))
+                if isinstance(parts, Recursion):
+                    raise Problem(path, line.no,
+                                  'a define by recursion is written in the '
+                                  'theorem that uses it, in its statement or '
+                                  'its proof')
                 scope.defines.append(('define', t, lab.group(1), line.no))
                 defined = scope.defines[-1]
                 continue

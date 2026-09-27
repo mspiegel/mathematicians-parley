@@ -17,7 +17,15 @@ import kernel
 import targets
 from formula import Node, parse
 from match import Rule, substitute
-from parse import Theorem, cited_name, declined, define_parts, proved, resolve
+from parse import (
+    Recursion,
+    Theorem,
+    cited_name,
+    declined,
+    define_parts,
+    proved,
+    resolve,
+)
 from sorts import (
     ELEMENT,
     FUNCTION_BEING,
@@ -163,6 +171,14 @@ class Reading:
     def term(self, node):
         if node.notation == 'literal':
             return node.term
+        # A step rule of a define by recursion speaks of the values at k,
+        # which in set.mm are the parts of the state the step is applied to
+        # (`recursion_terms`).
+        if self.recurring and node.notation == 'application' \
+                and len(node.children) == 2 \
+                and node.children[0].notation == 'name' \
+                and node.children[0].text in self.recurring:
+            return self.recurring[node.children[0].text]
         # A statement is read with the definitions from outside its theorem
         # written out, so what it says in set.mm never names them and a
         # theorem citing it needs none of them (`from_outside`).
@@ -408,8 +424,15 @@ class Reading:
             said = define_parts(text)
             if declined(said):
                 raise self.defect(line, f'define {label}: {said}')
-            if said.name in self.names:
-                raise self.defect(line, f'{said.name} is already named')
+            for name in said.names:
+                if name in self.names:
+                    raise self.defect(line, f'{name} is already named')
+            # Sequences by recursion are one define giving several names,
+            # each the map to its part of the one recursion.
+            if isinstance(said, Recursion):
+                for name, made in self.recursion_terms(label, said).items():
+                    yield label, line, name, made
+                continue
             # The rule is bracketed, since a map binds tighter than a rule
             # by cases: `f(x) if x ∈ C, g⁻¹(x) otherwise` is the whole rule.
             body = (said.body if said.param is None else
@@ -445,6 +468,60 @@ class Reading:
             body = self.term(made.body)
             over = self.term(self.read(made.domain))
         return self.apart(self.seq(var, over, body, 'cmpt'))
+
+    def recursion_terms(self, label, said):
+        """Each name a define by recursion gives, as its set.mm term: the
+        map from ℕ₀ sending k to that name's part of the recursion's value
+        at k. Written once per define and kept, so the statement and the
+        proof speak of one recursion.
+
+        The n values are one state: the value itself for one sequence, a
+        pair for two, and for more a pair whose second is the rest. The
+        step E sends a state to the tuple of the rules at k + 1, each read
+        with a name at k as its part of the state; the recursion is set.mm's
+        `seq 0 ((E ∘ 1st), (ℕ₀ × {start}))`, which `algr0` says is the start
+        at 0 and `algrp1` says is E of its value at k at k + 1. Its bound
+        letters are spares, taken once, since the names share the one
+        recursion and a renaming for each would make it several.
+        """
+        if label in self.recursion_maps:
+            return self.recursion_maps[label]
+        state, index = self.spare_var(), self.spare_var()
+
+        def parts(of):
+            out = []
+            for _ in said.names[1:]:
+                out.append(self.seq(of, 'c1st', 'cfv'))
+                of = self.seq(of, 'c2nd', 'cfv')
+            return [*out, of]
+
+        def tuple_of(values):
+            if len(values) == 1:
+                return values[0]
+            return self.seq(values[0], tuple_of(values[1:]), 'cop')
+
+        starts = [self.term(self.read(said.start[name]))
+                  for name in said.names]
+        kept, kept_sorts = self.recurring, self.g.sorts
+        self.recurring = dict(zip(said.names, parts(f'{state} cv'),
+                                  strict=True))
+        self.g.sorts = {**kept_sorts, said.index: 'number'}
+        try:
+            steps = [self.term(self.read(said.step[name]))
+                     for name in said.names]
+        finally:
+            self.recurring, self.g.sorts = kept, kept_sorts
+        start = tuple_of(starts)
+        step = self.seq(state, 'cvv', tuple_of(steps), 'cmpt')
+        recursion = self.seq(self.seq(step, 'c1st', 'ccom'),
+                             self.seq('cn0', self.seq(start, 'csn'), 'cxp'),
+                             'cc0', 'cseq')
+        self.recursions[recursion] = (step, start, len(said.names))
+        at_k = self.seq(f'{index} cv', recursion, 'cfv')
+        maps = {name: self.seq(index, 'cn0', part, 'cmpt')
+                for name, part in zip(said.names, parts(at_k), strict=True)}
+        self.recursion_maps[label] = maps
+        return maps
 
     def apart(self, rpn):
         """A term whose bound names are ones nothing else is using.

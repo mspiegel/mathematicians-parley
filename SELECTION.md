@@ -227,6 +227,13 @@ them with `1st` and `2nd`, where a textbook writes two sequences side by
 side, a(k + 1) = b(k) and b(k + 1) = a(k) mod b(k). Either the language
 gains notation for a pair, or a `define` may state two sequences together.
 
+Settled for the second: the page writes the two sequences, and the pairs
+are the elaborator's, since set.mm's storage is not what a reader should
+have to read (`pilot/euclid.md`). The informal source was checked against
+ProofWiki's Euclidean algorithm before the pilot: the same update, the same
+three facts (the remainder is below the divisor, gcd(a, b) = gcd(b, r),
+gcd(r, 0) = r), and the same termination by falling remainders.
+
 Considered and not chosen: the derangements formula (#88), where set.mm
 defines a derangement by counting permutations and the recurrence
 `subfacp1` is a result about them, not a definition; the sum of k-th powers

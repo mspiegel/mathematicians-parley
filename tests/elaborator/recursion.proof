@@ -1,0 +1,25 @@
+theorem one-sequence
+  define c(0) := 1,  c(k + 1) := 2·c(k),  for k ∈ ℕ₀                   (D1)
+         reads the powers of two
+  then c(0 + 1) = 2
+
+1.  c(0) = 1
+    D1
+
+2.  0 ∈ ℕ₀
+    membership
+
+3.  c(0 + 1) = 2·c(0)
+    D1, from 2
+
+4.  2·c(0) = 2·1
+    substitute c(0) = 1 (line 1)
+
+5.  2·1 = 2
+    arithmetic
+
+6.  c(0 + 1) = 2
+    calculation
+      c(0 + 1) = 2·c(0)     3
+               = 2·1        4
+               = 2          5

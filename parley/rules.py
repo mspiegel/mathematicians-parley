@@ -32,6 +32,9 @@ CONGRUENCE = {
     ('wbr', (0,)): 'breq1d', ('wbr', (1,)): 'breq2d',
     ('wbr', (0, 1)): 'breq12d',
     ('cfv', (0,)): 'fveq2d',
+    # A pair, as the state of a define by recursion holds its values.
+    ('cop', (0,)): 'opeq1d', ('cop', (1,)): 'opeq2d',
+    ('cop', (0, 1)): 'opeq12d',
     ('wceq', (0,)): 'eqeq1d', ('wceq', (1,)): 'eqeq2d',
     ('wceq', (0, 1)): 'eqeq12d',
     ('wcel', (0,)): 'eleq1d', ('wcel', (1,)): 'eleq2d',
@@ -262,7 +265,20 @@ SETHOOD = {'cpw': 'pwexg', 'cdif': 'difexg', 'cun': 'unexg', 'csn': 'snex',
            'crn': 'rnexg', 'cmpt': 'mptexg', 'crab': 'rabexg', 'c0': '0ex',
            'cv': 'vex', 'co': 'ovex', 'cfv': 'fvex', 'cif': 'ifexg',
            'cn': 'nnex', 'ciun': 'iunexg', 'ccnv': 'cnvexg',
-           'cn0': 'nn0ex', 'csu': 'sumex', 'cima': 'imaexg'}
+           'cn0': 'nn0ex', 'csu': 'sumex', 'cima': 'imaexg',
+           'cop': 'opex', 'cdc': 'decex',
+           # The numerals set.mm says are sets in one lemma; 4 to 9 it does
+           # not state so, and a term holding one is not settled here.
+           'cc0': 'c0ex', 'c1': '1ex', 'c2': '2ex', 'c3': '3ex'}
+
+# That a term is a set with nothing assumed, where every part is one: the
+# step of a define by recursion is a set at every state it is given, which
+# is what makes it a function on every set. Each lemma's variables are its
+# constructor's operands in order, and what it asks is that some of them
+# are sets (`ifex`), which is asked of those parts the same way.
+CLOSED_SETHOOD = {'co': 'ovex', 'cfv': 'fvex', 'cop': 'opex', 'csn': 'snex',
+                  'cv': 'vex', 'cif': 'ifex', 'cdc': 'decex',
+                  'cc0': 'c0ex', 'c1': '1ex', 'c2': '2ex', 'c3': '3ex'}
 
 # Two differences against zero added, by which of the two is strictly
 # below it: the lemma that adds them and keeps the strictness.

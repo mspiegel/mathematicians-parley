@@ -549,6 +549,46 @@ written-out statement by `same`. A cited theorem's own lines are read in its
 own file's definitions (`in_its_names`), so its T is its file's T whatever
 the citing proof calls T.
 
+**Sequences defined by recursion are one recursion over a state.** Euclid's
+`define a(0) := M, b(0) := N, a(k + 1) := …, b(k + 1) := …, for k ∈ ℕ₀`
+gives two sequences, and set.mm has one way to define by recursion: `seq`,
+stepping one value. So the n values at k are held as one state, the value
+itself for one sequence and a pair for two (for more, a pair whose second is
+the rest), and `recursion_terms` writes out three things once per define:
+
+- the step E, the map from `_V` sending a state to the tuple of the rules
+  at k + 1, each rule read with a name at k as its part of the state:
+  `(m ∈ _V ↦ ⟨if(2nd(m) = 0, 1st(m), 2nd(m)), if(2nd(m) = 0, 0, 1st(m) mod
+  2nd(m))⟩)`;
+- the recursion R, `seq 0 ((E ∘ 1st), (ℕ₀ × {⟨M, N⟩}))`, which is set.mm's
+  own form for an algorithm (`eucalg` states Euclid's this way);
+- each name, the map from ℕ₀ sending k to its part of R(k).
+
+The names share the one R, written with spare letters once and never
+renamed apart, since two spellings of R would be two recursions. A
+recursion in the statement is written out there, as a definition from
+outside the theorem is; the proof names the maps as any define's.
+
+A step citing the define is read as a define by cases is (`define_value`),
+with one more link where the value is a part of R at 0 or at J + 1
+(`recursion_value`): at 0, `algr0` says R(0) is the start; at J + 1,
+`algrp1` says R(J + 1) is E(R(J)), which needs J ∈ ℕ₀ from the step's lines
+and E : _V ⟶ _V, which holds because each state E gives is a set with
+nothing assumed (`closed_set`): a pair always, a single value by what it is
+built from; `fvmptd3` takes E at R(J), over E respelt with a letter of its own
+(`cbvmptv`), because R(J) holds E and with it E's letter, which `fvmptd3`
+keeps apart from where the map is taken. `op1stg` and `op2ndg` take the part
+out, each component shown a set by `settle`. What is left is the rule at J
+written over 1st(R(J)) and 2nd(R(J)), and the case the step's lines say and
+`same` finish as for any define: a(J) reads as 1st(R(J)) in standard form,
+so the rule's parts and the page's names meet there.
+
+The state space is `_V` and not ℕ₀ × ℕ₀, so a define carries no claim about
+where its values lie: that every a(k) is a whole number is the proof's to
+show, and Euclid's shows it by induction. A rule names the sequences only at
+k and never k itself (`check_recursions`), because the step sees only the
+values.
+
 ## The closure methods
 
 `METHODS.md` specifies these; what follows is how each is expanded.

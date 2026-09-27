@@ -1095,8 +1095,10 @@ class Scopes:
             proof = self.seq(outer, claim, added, proof, 'adantr')
         return proof
 
-    def with_cited(self, step, scope, known):
-        """The facts a lemma is answered from, what the step cites first.
+    def with_cited(self, step, scope, known, refs=None):
+        """The facts a lemma is answered from, what the step cites first:
+        its justification's lines, or `refs` where a `requires` line names
+        its own.
 
         Each line the step cites is taken apart on its own and laid over the
         scope's copies of the same claims. The scope holds one proof per
@@ -1115,7 +1117,9 @@ class Scopes:
         # which the verifier refuses. Only what that scope holds is offered.
         outer = bool(self.frames) and scope != self.frames[-1][0]
         cited = {}
-        for ref in (step.just.refs if step is not None else ()):
+        if refs is None:
+            refs = step.just.refs if step is not None else ()
+        for ref in refs:
             line = self.lines.get(ref)
             if line is None or (outer and line.term not in known):
                 continue

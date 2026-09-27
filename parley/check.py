@@ -44,6 +44,7 @@ from parse import (
     REQUIRES_ITEM,
     STDLIB,
     Problem,
+    Recursion,
     check_encoding,
     cited_item,
     cited_items,
@@ -1118,6 +1119,7 @@ def citation_parts(step, just, scope, library, sorts, defined):
             continue
         if all(written.shape() != x.shape() for x in facts):
             facts.append(written)
+    facts = with_parts(facts, library)
     facts += [x for fact in facts for x in implied_facts(fact, g, sorts)]
     claims = [x for x in map(read, sentences(' '.join(step.claim)))
               if x is not None]
@@ -1161,6 +1163,22 @@ class Known:
                 step, step.just, self.scope(step), library, self.sorts,
                 self.defined))
         return self._parts[id(step)][1]
+
+
+def with_parts(facts, library):
+    """The facts, and each part of one that is a conjunction.
+
+    A line of two sentences supplies each, since a claim of several
+    sentences is their conjunction; a line saying `P and Q` is that same
+    conjunction written as one formula, and supplies each part the same
+    way.
+    """
+    out = list(facts)
+    for fact in facts:
+        for part in conjuncts(fact, library):
+            if all(part.shape() != x.shape() for x in out):
+                out.append(part)
+    return out
 
 
 def conjuncts(node, library):
@@ -1266,6 +1284,147 @@ def define_named(thm, label):
     return None
 
 
+def recursion_cited(thm, label):
+    """The define by recursion this theorem writes under `label`, or None
+    where the label is another kind of define or none.
+    """
+    for _, text, at, _ in thm.defines:
+        if at == label:
+            said = define_parts(text)
+            if declined(said) or not isinstance(said, Recursion):
+                return None
+            return said
+    return None
+
+
+def recursion_value(said, name, at, g, sorts):
+    """What the define by recursion says `name` is at the argument `at`,
+    as (the rule's term there, the index it is taken at, or None at 0); or
+    None where `at` is neither 0 nor something plus one.
+    """
+    if at.notation == 'numeral' and at.text == '0':
+        rule, index = said.start[name], None
+    elif (at.notation == 'additive' and at.text == '+'
+          and len(at.children) == 2 and at.children[1].notation == 'numeral'
+          and at.children[1].text == '1'):
+        rule, index = said.step[name], at.children[0]
+    else:
+        return None
+    g.sorts = {**sorts, said.index: 'number'}
+    term = parse(rule, g)
+    if index is not None:
+        term = substitute(term, {said.index: index})
+    return term, index
+
+
+def recursion_equation(claims, facts, said, g, sorts, wrappers, equals):
+    """What is wrong with a step's claim, read as one equation a define by
+    recursion gives; None where nothing is.
+
+    One side is a sequence at 0 or at X + 1, and the other is what the
+    define says it is there: the value at 0, or the rule at k + 1 with X for
+    k, in the case the cited lines say it is in. At X + 1 a cited line says
+    X ∈ ℕ₀, since the rule holds only at a step the index takes.
+    """
+    if len(claims) != 1 or claims[0].notation not in equals:
+        return ('claims no one equation; a define says what its names are '
+                'equal to')
+    said_shapes = [f.shape() for f in facts]
+    why = (f'its claim has none of {", ".join(said.names)} applied on '
+           f'either side')
+    for one, other in claims[0].children, claims[0].children[::-1]:
+        if not (one.notation == 'application' and len(one.children) == 2
+                and one.children[0].notation == 'name'
+                and one.children[0].text in said.names):
+            continue
+        why = None
+        try:
+            found = recursion_value(said, one.children[0].text,
+                                    one.children[1], g, sorts)
+        except Problem:
+            continue                  # `check_formulas` says it does not read
+        if found is None:
+            why = why or (f'{one.children[0].text} is given at 0 and at '
+                          f'{said.index} + 1, and nowhere else')
+            continue
+        term, index = found
+        if index is not None and not any(
+                f.notation == 'membership' and len(f.children) == 2
+                and f.children[0].shape() == index.shape()
+                and f.children[1].text == said.domain for f in facts):
+            why = why or (f'no line it cites says the index is in '
+                          f'{said.domain}')
+            continue
+        got = case_taken(term, said_shapes, facts, wrappers)
+        if isinstance(got, str):
+            why = why or got
+            continue
+        if got.shape() == other.shape():
+            return None
+    return f'claims a value it does not give: {why}' if why else \
+        'claims a value it does not give'
+
+
+def check_recursions(report, thm, g, known):
+    """A define by recursion says each value from the values before it.
+
+    A value at 0 names none of the sequences, and a rule at k + 1 names them
+    only at k: `a(k + 1) := a(k + 1) + 1` says nothing, and `a(k + 1) :=
+    a(k − 1)` reaches a value the rule has not given yet. Each rule reads,
+    since a rule that does not is a value nobody can cite.
+
+    Nor does a rule name k itself, outside a value at k: set.mm's recursion
+    steps from the values alone (`recursion_terms`), so `c(k + 1) := c(k) +
+    k` has no reading there. A sequence that needs its index keeps it as a
+    value of its own, `i(0) := 0, i(k + 1) := i(k) + 1`.
+    """
+    for _kind, text, label, no in thm.defines:
+        said = define_parts(text)
+        if declined(said) or not isinstance(said, Recursion):
+            continue
+        g.sorts = {**known.sorts, said.index: 'number'}
+        for given, at in ((said.start, None), (said.step, said.index)):
+            for name, rule in given.items():
+                where = f'{name}(0)' if at is None else f'{name}({at} + 1)'
+                try:
+                    tree = parse(rule, g)
+                except Problem as p:
+                    report.say(thm.path, no, f'define {label}: the rule for '
+                                             f'{where} does not read: '
+                                             f'{p.message}')
+                    continue
+                at_k = {id(node.children[1]) for node in walk([tree])
+                        if node.notation == 'application'
+                        and len(node.children) == 2
+                        and node.children[0].notation == 'name'
+                        and node.children[0].text in said.names}
+                if any(node.notation == 'name' and node.text == said.index
+                       and id(node) not in at_k for node in walk([tree])):
+                    report.say(thm.path, no,
+                               f'define {label}: the rule for {where} names '
+                               f'{said.index} outside a value at '
+                               f'{said.index}; a step sees only the values')
+                for node in walk([tree]):
+                    if not (node.notation == 'application'
+                            and len(node.children) == 2
+                            and node.children[0].notation == 'name'
+                            and node.children[0].text in said.names):
+                        continue
+                    arg = node.children[1]
+                    if at is not None and arg.notation == 'name' \
+                            and arg.text == at:
+                        continue
+                    report.say(thm.path, no,
+                               f'define {label}: the rule for {where} names '
+                               f'{node.children[0].text} at a place other '
+                               f'than {said.index}'
+                               if at is not None else
+                               f'define {label}: the value of {where} names '
+                               f'{node.children[0].text}, which has no value '
+                               f'before 0')
+                    break
+
+
 def check_define_citation(report, thm, library, known):
     """A step citing a define claims what the define says the name is.
 
@@ -1283,6 +1442,14 @@ def check_define_citation(report, thm, library, known):
         if not just or just.head != 'define':
             continue
         say = f'step {fmt(step.number)} cites {just.defined}'
+        recursion = recursion_cited(thm, just.defined)
+        if recursion is not None:
+            facts, claims, _ = known.parts(step, library)
+            why = recursion_equation(claims, facts, recursion, g,
+                                     known.sorts, wrappers, library.equals)
+            if why:
+                report.say(thm.path, just.line, f'{say} and {why}')
+            continue
         name = define_named(thm, just.defined)
         if name is None:
             report.say(thm.path, just.line, f'{say}, which no define in '
@@ -1466,19 +1633,23 @@ def domains_asked(thm, step):
     """
     claim = ' '.join(step.claim)
     out = set()
+    functions = []
     for _kind, text, _label, _line in thm.defines:
         said = define_parts(text)
-        if declined(said) or said.param is None:
-            continue
+        if isinstance(said, Recursion):
+            functions += [(name, said) for name in said.names]
+        elif not declined(said) and said.param is not None:
+            functions.append((said.name, said))
+    for name, said in functions:
         at = 0
         while True:
-            at = claim.find(f'{said.name}(', at)
+            at = claim.find(f'{name}(', at)
             if at < 0:
                 break
             if at and (claim[at - 1].isalnum() or claim[at - 1] in '_′'):
                 at += 1
                 continue
-            depth, start = 0, at + len(said.name)
+            depth, start = 0, at + len(name)
             for end in range(start, len(claim)):
                 depth += {'(': 1, ')': -1}.get(claim[end], 0)
                 if depth == 0:
@@ -1633,7 +1804,8 @@ def unconcluded(step, known, library):
         # state are established for the same step and are what a dull fact
         # its own citation asks for is written as.
         supplied += [other for other, _, _ in step.requires if other != fact]
-        facts = [x for x in map(read, supplied) if x is not None]
+        facts = with_parts([x for x in map(read, supplied) if x is not None],
+                           library)
         seed = {}
         for name, value in instantiation(how):
             got = read(value)
@@ -2266,11 +2438,12 @@ def check_definitions(report, theorems):
             said = define_parts(d[1])
             if declined(said):
                 continue
-            if said.name in named:
-                report.say(scope.path, d[3],
-                           f'{said.name} is already defined at line '
-                           f'{named[said.name]}')
-            named.setdefault(said.name, d[3])
+            for name in said.names:
+                if name in named:
+                    report.say(scope.path, d[3],
+                               f'{name} is already defined at line '
+                               f'{named[name]}')
+                named.setdefault(name, d[3])
             if d[2] not in scope.readings:
                 report.say(scope.path, d[3],
                            f'define {d[2]} carries no `reads` line saying '
@@ -2291,10 +2464,11 @@ def check_definitions(report, theorems):
                       if src is scope} | {i[4] for i in scope.imports}
             for _k, text, lab, no in thm.defines:
                 said = define_parts(text)
-                if not declined(said) and said.name in seen:
-                    report.say(thm.path, no,
-                               f'{said.name} is already defined outside '
-                               f'theorem {thm.name}')
+                for name in [] if declined(said) else said.names:
+                    if name in seen:
+                        report.say(thm.path, no,
+                                   f'{name} is already defined outside '
+                                   f'theorem {thm.name}')
                 if lab in labels:
                     report.say(thm.path, no,
                                f'label {lab} is already a define\'s outside '
@@ -2481,6 +2655,7 @@ def main(root):
         check_last_step(report, thm)
         check_readings(report, thm)
         check_introductions(report, thm, grammar, k)
+        check_recursions(report, thm, grammar, k)
         check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))
         check_run_together(report, thm, words)

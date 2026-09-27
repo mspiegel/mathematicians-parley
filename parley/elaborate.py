@@ -49,8 +49,10 @@ from parse import (
     STDLIB,
     Declined,
     Problem,
+    Recursion,
     corpus,
     declined,
+    define_parts,
     fmt,
     outermost,
     proved,
@@ -59,7 +61,14 @@ from parse import (
 )
 from parse import index as full_names
 from provenance import ProofRules
-from reading import CLASS_NAMES, LABEL, Reading, hypothesis_body, render
+from reading import (
+    CLASS_NAMES,
+    LABEL,
+    Reading,
+    _Literal,
+    hypothesis_body,
+    render,
+)
 from scopes import Fact, Scopes
 from sorts import SUBGROUP, file_definitions, sorts_in_scope
 from spell import Builder, seq
@@ -200,6 +209,12 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         self.unread = 0          # how far down the `define` lines we have read
         self.definitions = {}    # a defined name's setvar -> the term it names
         self.from_outside = {}   # name -> tree, while a statement is read
+        # A define by recursion, written in set.mm once (`recursion_terms`):
+        # its label -> each name's map; its seq term -> the recursion; and,
+        # while a step rule is read, each name -> its part of the state.
+        self.recursion_maps = {}
+        self.recursions = {}
+        self.recurring = {}
         self.file_given = False  # the file's definitions introduced yet
         self.last = None
         # The scope frames, innermost last, each (scope, what it added, what
@@ -424,12 +439,26 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 self.unpack(extra, facts[extra], scope, facts)
         self.sorts = self.sorts | self.sethoods(nodes, terms, scope, facts)
 
-        lines = {h[2]: Fact(t, facts[t])
-                 for h, t in zip(self.thm.hypotheses, terms, strict=True)}
+        # Each keeps the sentence it was read from, as a block's opening line
+        # does, so a step may substitute into it: `substitute a(0) = M (line
+        # 1) into H1` rewrites the M of `M ∈ ℕ₀`.
+        lines = {h[2]: Fact(t, facts[t], (node,))
+                 for h, t, node in zip(self.thm.hypotheses, terms, nodes,
+                                       strict=True)}
         # What the conclusion quantifies over is spoken for before anything
         # else takes a variable. The primes proof concludes that there is a
         # prime p above n and obtains a p along the way, and those are two
         # different numbers however the text spells them.
+        # A define by recursion in the statement is stated written out, as a
+        # definition from outside is: what set.mm states names the maps.
+        first = self.thm.steps[0].line if self.thm.steps else None
+        for _kind, text, label, line in self.thm.defines:
+            given = define_parts(text)
+            if declined(given) or not isinstance(given, Recursion) \
+                    or (first is not None and line >= first):
+                continue
+            for name, made in self.recursion_terms(label, given).items():
+                self.from_outside[name] = _Literal(made)
         goal = self.claim_of(self.thm.conclusion)
         self.from_outside = {}
         self.reserved = {t for t in goal.split()
@@ -1020,12 +1049,20 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # An obtain holds the membership of the name it introduces apart
         # from the body, among the facts in scope: `y ∈ B ∖ R. t = g(y).`
         # unpacks to the equation alone.
-        for one in into.sentences:
+        # A sentence joined by `and` is its parts as surely as a line of two
+        # sentences is, and `unpack` has proved each; so each is offered.
+        offered, work = [], list(into.sentences)
+        while work:
+            one = work.pop(0)
+            offered.append(one)
+            if one.children and self.to_term(self.term(one)).label == 'wa':
+                work.extend(one.children)
+        for one in offered:
             start = self.term(one)
             if start not in known and start in facts:
                 known[start] = facts[start]
         for was, now, faces in ((old, new, facing), (new, old, turned)):
-            for one in into.sentences:
+            for one in offered:
                 start = self.term(one)
                 if start not in known:
                     continue
@@ -1594,6 +1631,10 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         proof = self.standard_proof(one, how, value, scope, held)
         if declined(proof):
             return proof
+        reached = self.recursion_value(one, value, proof, scope, held)
+        if declined(reached):
+            return reached
+        value, proof = reached
         # Each case in turn: the condition held takes its value, the
         # condition refuted goes on to the rest.
         while value.label == 'cif' and len(value.children) == 3:
@@ -1622,6 +1663,165 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                             proof, step)
             value = taken
         return value, proof
+
+    def recursion_value(self, one, value, proof, scope, held):
+        """(value, ( scope -> one = value )) taken one step further where
+        `value` is a sequence's part of a recursion's value at 0 or at J + 1
+        (`recursion_terms`): at 0 the part of the start (`algr0`), at J + 1
+        the part of the step applied to the value at J (`algrp1`, the step's
+        map at that value by `fvmptd3`). Any other value is as it was.
+        """
+        path, core = [], value
+        while core.label == 'cfv' and core.children[1].label in ('c1st',
+                                                                  'c2nd'):
+            path.append(core.children[1].label)
+            core = core.children[0]
+        if core.label != 'cfv' \
+                or core.children[1].rpn(self.flabel) not in self.recursions:
+            return value, proof
+        at, made = core.children
+        recursion = made.rpn(self.flabel)
+        step, start, count = self.recursions[recursion]
+        where = at.rpn(self.flabel)
+        common = {'ph': scope, 'A': start, 'R': recursion, 'S': 'cvv',
+                  'F': step, 'M': 'cc0', 'Z': 'cn0'}
+        start_set = self.settle(self.to_term(self.seq(start, 'cvv', 'wcel')),
+                                scope, held)
+        if declined(start_set):
+            return start_set
+        asked = [self.seq('nn0uz'), self.seq(recursion, 'eqid'),
+                 self.ap('0zd', {'ph': scope}), start_set]
+        if where == 'cc0':
+            state = start
+            moved = self.ap('algr0', common, *asked)
+        elif at.label == 'co' and at.children[1].label == 'c1' \
+                and at.children[2].label == 'caddc':
+            before = at.children[0].rpn(self.flabel)
+            index_in = self.settle(self.to_term(self.seq(before, 'cn0',
+                                                         'wcel')),
+                                   scope, held)
+            if declined(index_in):
+                return index_in
+            var, _over, rule = self.to_term(step).children
+            x = var.rpn(self.flabel)
+            a_set = self.a_set_under(x, rule)
+            if declined(a_set):
+                return a_set
+            into = self.ap('fmpti', {'x': x, 'A': 'cvv', 'B': 'cvv',
+                                     'C': rule.rpn(self.flabel), 'F': step},
+                           self.seq(step, 'eqid'), a_set)
+            maps = self.seq(self.seq('cvv', 'cvv', step, 'wf'), scope, into,
+                            'a1i')
+            prior = self.seq(before, recursion, 'cfv')
+            stepped = self.ap('mpdan', {
+                'ph': scope, 'ps': self.seq(before, 'cn0', 'wcel'),
+                'ch': self.seq(self.seq(where, recursion, 'cfv'),
+                               self.seq(prior, step, 'cfv'), 'wceq')},
+                index_in,
+                self.ap('algrp1', {**common, 'K': before}, *asked, maps))
+            state = self.restated(rule, f'{x} cv', prior).rpn(self.flabel)
+            # The step is taken at its value over a letter of its own: the
+            # value at J holds the step, and with it the step's letter, which
+            # `fvmptd3` keeps apart from where the map is taken.
+            y = self.spare_var()
+            fresh = self.restated(rule, f'{x} cv', f'{y} cv').rpn(self.flabel)
+            renaming = self.prove_essential(self.to_term(self.seq(
+                self.seq(f'{x} cv', f'{y} cv', 'wceq'),
+                self.seq(rule.rpn(self.flabel), fresh, 'wceq'), 'wi')), '', {})
+            if declined(renaming):
+                return renaming
+            respelt = self.ap('cbvmptv', {'x': x, 'y': y, 'A': 'cvv',
+                                          'B': rule.rpn(self.flabel),
+                                          'C': fresh}, renaming)
+            instance = self.prove_essential(self.to_term(self.seq(
+                self.seq(f'{y} cv', prior, 'wceq'),
+                self.seq(fresh, state, 'wceq'), 'wi')), '', {})
+            if declined(instance):
+                return instance
+            state_set = self.settle(self.to_term(self.seq(state, 'cvv',
+                                                          'wcel')),
+                                    scope, held)
+            if declined(state_set):
+                return state_set
+            applied = self.ap('fvmptd3', {
+                'ph': scope, 'x': y, 'A': prior, 'B': fresh,
+                'C': state, 'D': 'cvv', 'F': step, 'V': 'cvv'},
+                respelt, instance,
+                self.seq(self.seq(prior, 'cvv', 'wcel'), scope,
+                         self.ap('fvex', {'A': before, 'F': recursion}),
+                         'a1i'),
+                state_set)
+            moved = self.ap('eqtrd', {'ph': scope,
+                                      'A': self.seq(where, recursion, 'cfv'),
+                                      'B': self.seq(prior, step, 'cfv'),
+                                      'C': state}, stepped, applied)
+        else:
+            return value, proof
+        # The part asked for, taken out of the state from the inside: each
+        # 2nd a pair's rest, and the last 1st its first value.
+        held_at = self.seq(where, recursion, 'cfv')
+        for label in reversed(path):
+            pair = self.to_term(state)
+            if pair.label != 'cop' or count < 2:
+                return Declined('the recursion\'s state is not a pair here')
+            first, rest = (c.rpn(self.flabel) for c in pair.children)
+            sets = [self.settle(self.to_term(self.seq(c, 'cvv', 'wcel')),
+                                scope, held) for c in (first, rest)]
+            if any(declined(s) for s in sets):
+                return next(s for s in sets if declined(s))
+            both = self.ap('jca', {'ph': scope,
+                                   'ps': self.seq(first, 'cvv', 'wcel'),
+                                   'ch': self.seq(rest, 'cvv', 'wcel')},
+                           *sets)
+            lemma, part = ('op1stg', first) if label == 'c1st' \
+                else ('op2ndg', rest)
+            taken = self.seq(self.seq(first, 'cvv', 'wcel'),
+                             self.seq(rest, 'cvv', 'wcel'), 'wa')
+            out = self.seq(self.seq(state, label, 'cfv'), part, 'wceq')
+            parted = self.seq(scope, taken, out, both,
+                              self.ap(lemma, {'A': first, 'B': rest,
+                                              'V': 'cvv', 'W': 'cvv'}),
+                              'syl')
+            lifted = self.ap('fveq2d', {'ph': scope, 'A': held_at,
+                                        'B': state, 'F': label}, moved)
+            moved = self.ap('eqtrd', {'ph': scope,
+                                      'A': self.seq(held_at, label, 'cfv'),
+                                      'B': self.seq(state, label, 'cfv'),
+                                      'C': part}, lifted, parted)
+            held_at, state = self.seq(held_at, label, 'cfv'), part
+        return self.to_term(state), self.ap('eqtrd', {
+            'ph': scope, 'A': one.rpn(self.flabel),
+            'B': value.rpn(self.flabel), 'C': state}, proof, moved)
+
+    def a_set_under(self, x, rule):
+        """( x e. _V -> rule e. _V ): the state a step gives is a set with
+        nothing assumed (`closed_set`), so it is one wherever x is.
+        """
+        made = self.closed_set(rule)
+        if declined(made):
+            return made
+        return self.seq(self.seq(rule.rpn(self.flabel), 'cvv', 'wcel'),
+                        self.seq(f'{x} cv', 'cvv', 'wcel'), made, 'a1i')
+
+    def closed_set(self, term):
+        """|- term e. _V from the lemmas `rules.CLOSED_SETHOOD` names, each
+        asked of the parts it asks for; a decline naming a head none covers.
+        """
+        label = rules.CLOSED_SETHOOD.get(term.label) \
+            if term.variable is None else None
+        if label is None:
+            return Declined(f'nothing says a {term.label} is a set')
+        sig = self.sigs[label]
+        binds = {name: child.rpn(self.flabel)
+                 for (_kind, name), child in zip(sig.floats, term.children,
+                                                 strict=True)}
+        asked = []
+        for said in sig.essentials:
+            part = self.closed_set(self.to_term(binds[said[1]]))
+            if declined(part):
+                return part
+            asked.append(part)
+        return self.ap(label, binds, *asked)
 
     def exhibit(self, step, node, term, scope, facts, lines):
         """An existence claim shown by naming something that answers it.

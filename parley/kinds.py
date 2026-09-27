@@ -24,7 +24,7 @@ import re
 
 from formula import parse
 from match import Rule
-from parse import Declined, Problem, declined, define_parts
+from parse import Declined, Problem, Recursion, declined, define_parts
 from sorts import (
     ELEMENT,
     GROUP,
@@ -403,6 +403,32 @@ def read_record(record, g):
     return reader
 
 
+def recursion_kinds(reader, said, line, g):
+    """The kinds of the sequences a define by recursion gives: each takes a
+    number, the index, and gives what its value at 0 is, which each rule
+    at k + 1 must give too. Every name is in scope in every rule, since a
+    rule may name any of the sequences at k.
+    """
+    gives = {name: Var() for name in said.names}
+    for name in said.names:
+        reader.env[name] = ('function', NUMBER, gives[name])
+    kept = g.sorts
+    g.sorts = {**kept, said.index: 'number'}
+    try:
+        for rules, local in ((said.start, {}),
+                             (said.step, {said.index: NUMBER})):
+            for name, rule in rules.items():
+                try:
+                    got = reader.kind(parse(rule, g), line, local)
+                except Problem:
+                    continue          # `check_formulas` says it does not read
+                fits = unify(got, gives[name])
+                if declined(fits):
+                    reader.clashes.append((line, name, str(fits)))
+    finally:
+        g.sorts = kept
+
+
 def read_theorem(thm, g, cite=None):
     """A theorem's kinds, read in the order its lines are written.
 
@@ -444,6 +470,9 @@ def read_theorem(thm, g, cite=None):
         elif kind == 'define':
             said = define_parts(text)
             if declined(said):
+                continue
+            if isinstance(said, Recursion):
+                recursion_kinds(reader, said, no, g)
                 continue
             if said.param is None:
                 try:
