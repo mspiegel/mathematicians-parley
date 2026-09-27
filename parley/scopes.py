@@ -16,8 +16,9 @@ import re
 
 import kernel
 import rules
+import targets
 from match import instantiation
-from parse import CITED, Declined, declined
+from parse import CITED, Declined, declined, fmt
 from reading import hypothesis_body
 from spell import seq
 
@@ -777,6 +778,20 @@ class Scopes:
                            self.seq(self.seq(ex, fresh, 'wb'), scope, apart, 'a1i'),
                            'mpbid')
                 ex = fresh
+        elif (named.group(1).startswith('def:')
+              and not self.states_existence(named.group(1))):
+            # A definition whose right side holds no "there is" of its own:
+            # `part-builder` says u ⊆ X and P(u), and the "there is" is P,
+            # the proof's own define's condition. The existence is the one
+            # the step's claim states, reached as a step claiming it would.
+            item = self.item_cited(named.group(1))
+            ex = self.renamed(self.existence_claimed(step, got), len(got))
+            p_ex = self.trying(item, step, self.one_unfolded, ex, scope,
+                               facts, lines)
+            if declined(p_ex):
+                raise self.defect(step.line,
+                                  f'nothing step {number} cites says '
+                                  f'{self.render(ex)}')
         elif named.group(1).startswith('def:'):
             cites = step.just.text.split(':', 1)[1].strip()
             given = self.subject_given(named.group(1),
@@ -1009,6 +1024,51 @@ class Scopes:
                 and len(set(pairs.values())) == len(pairs)
                 and all(mine == theirs or mine in binders
                         for mine, theirs in pairs.items()))
+
+    def states_existence(self, head):
+        """Whether a lemma the definition's target names has a "there is"
+        on its right side, as `reading` asks of it in `elaborate.py`.
+        """
+        for lemma in targets.clauses(self.item_cited(head)):
+            whole = self.syntax.statement(self.sigs[lemma])
+            while whole.label == 'wi':
+                whole = whole.children[1]
+            if whole.label == 'wb' and whole.children[1].label == 'wrex':
+                return True
+        return False
+
+    def existence_claimed(self, step, got):
+        """The "there is" an obtain's claim states: `a ∈ G. Y = aH.`
+        obtaining a is there is a ∈ G with Y = aH.
+
+        The claim states each name's membership as a sentence of its own
+        (`check_sorts`), which is where the name runs; the other sentences
+        are what is said of it, in the order written.
+        """
+        domains, rest = {}, []
+        for said in self.sentences(' '.join(step.claim)):
+            m = re.match(r'^(\S+)\s*∈\s*(.+)$', said)
+            if m and m.group(1) in got and m.group(1) not in domains:
+                domains[m.group(1)] = m.group(2)
+            else:
+                rest.append(said)
+        missing = [name for name in got if name not in domains]
+        if missing:
+            raise self.defect(step.line,
+                              f'step {fmt(step.number)} states no membership '
+                              f'of {", ".join(missing)}')
+        if not rest:
+            raise self.defect(step.line,
+                              f'step {fmt(step.number)} states nothing of what '
+                              f'it obtains')
+        with self.names_kept():
+            for name in got:
+                self.names[name] = f'{self.binder_var(name)} cv'
+            body = self.claim_of('. '.join(rest))
+            for name in reversed(got):
+                body = self.seq(body, self.binder_var(name),
+                                self.term(self.read(domains[name])), 'wrex')
+        return body
 
     def renamed(self, ex, depth):
         """An existential rewritten to bind variables nothing else holds."""

@@ -15,7 +15,7 @@ has as many elements as H, so |G| is |H| times the number of parts.
 The proof is `proof/lagrange.proof`, one theorem. It elaborates to
 `elaboration/proof/lagrange/lagrange.mm`, assumes nothing, and verifies.
 
-Numbers: 104 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
+Numbers: 101 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
 coset facts (gH lies in G, g is in gH, a coset is fixed by any of its
 members), block 9 is the bijection from H to gH, and 10 to 22 count.
 
@@ -136,11 +136,16 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     first; but the item is only cited, and its letters never reach the
     page. The rule now turns on where the existence comes from: an item
     gives one line, `h ∈ H. u = g·h.` by `obtain h: def:stdlib/groups/coset
-    u := u`, and a line gives two. Five pairs here became one line; the
-    three that read K's condition through `part-builder` stay two, since
-    the elaborator cannot yet obtain from them in one. An obtain from a
-    definition now takes every letter the step gives, as a definition
-    concluding does: `u := x, g := a`.
+    u := u`, and a line gives two. An obtain from a definition now takes
+    every letter the step gives, as a definition concluding does:
+    `u := x, g := a`.
+15. **An obtain may reach a "there is" a define holds.** `part-builder`
+    says Y ∈ K is Y ⊆ G and K's condition of Y, so the "there is" of
+    15.1, 15.2 and 16.1 is K's own and sits inside an "and". The checker
+    now decides K's condition from the line the step cites and finds the
+    "there is" there; the elaborator builds it from the step's claim
+    (`a ∈ G. Y = aH.` is there is a ∈ G with Y = aH) and reaches it as a
+    step claiming it would. All eight obtains from an item are one line.
 
 ---
 

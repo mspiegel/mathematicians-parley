@@ -581,6 +581,16 @@ CASES = [
      '                  D2, from 8.2.2\n',
      'no line the step cites says which case'),
 
+    # An obtain from part-builder claims what K's condition says of the set
+    # the cited line puts in K: K18 gives Y = aH, and Z = aH is another
+    # claim.
+    ('obtain from part-builder a claim the condition does not give',
+     'proof/lagrange/lagrange',
+     'proof/lagrange.proof',
+     '    15.1. a ∈ G. Y = aH.\n',
+     '    15.1. a ∈ G. Z = aH.\n',
+     'proof/lagrange.proof:304  nothing step 15.1 cites says'),
+
     # An obtain from a definition reads its left side off a line it cites,
     # through a define's name where the line uses one: C9 says b ∈ R, and R
     # is f[C]. K7 says only that b is in B.

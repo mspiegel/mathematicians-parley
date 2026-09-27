@@ -301,60 +301,51 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let Z ∈ K                                                         (K19)
     let x ∈ Y ∩ Z                                                     (K20)
 
-    15.1. There is a ∈ G with Y = aH.
-          def:stdlib/sets/part-builder, from K18
+    15.1. a ∈ G. Y = aH.
+          obtain a: def:stdlib/sets/part-builder, from K18
 
-    15.2. a ∈ G. Y = aH.
-          obtain a from line 15.1
+    15.2. b ∈ G. Z = bH.
+          obtain b: def:stdlib/sets/part-builder, from K19
 
-    15.3. There is b ∈ G with Z = bH.
-          def:stdlib/sets/part-builder, from K19
-
-    15.4. b ∈ G. Z = bH.
-          obtain b from line 15.3
-
-    15.5. x ∈ Y. x ∈ Z.
+    15.3. x ∈ Y. x ∈ Z.
           thm:stdlib/sets/intersection-member, from K20
 
-    15.6. x ∈ aH
-          substitute Y = aH (line 15.2) into line 15.5
+    15.4. x ∈ aH
+          substitute Y = aH (line 15.1) into line 15.3
 
-    15.7. x ∈ bH
-          substitute Z = bH (line 15.4) into line 15.5
+    15.5. x ∈ bH
+          substitute Z = bH (line 15.2) into line 15.3
 
-    15.8. xH = aH
-          instantiate b := a, y := x in line 8, from 15.2, 15.6
+    15.6. xH = aH
+          instantiate b := a, y := x in line 8, from 15.1, 15.4
 
-    15.9. xH = bH
-          instantiate b := b, y := x in line 8, from 15.4, 15.7
+    15.7. xH = bH
+          instantiate b := b, y := x in line 8, from 15.2, 15.5
 
-    15.10. Y = Z
-           calculation
-             Y = aH                  15.2
-               = xH                  15.8
-               = bH                  15.9
-               = Z                   15.4
+    15.8. Y = Z
+          calculation
+            Y = aH                  15.1
+              = xH                  15.6
+              = bH                  15.7
+              = Z                   15.2
 
 16. For every Y ∈ K, |Y| = |H|.
     fix
     let Y ∈ K                                                         (K21)
 
-    16.1. There is a ∈ G with Y = aH.
-          def:stdlib/sets/part-builder, from K21
+    16.1. a ∈ G. Y = aH.
+          obtain a: def:stdlib/sets/part-builder, from K21
 
-    16.2. a ∈ G. Y = aH.
-          obtain a from line 16.1
+    16.2. |H| = |aH|
+          instantiate g := a in line 9, from 16.1
 
-    16.3. |H| = |aH|
-          instantiate g := a in line 9, from 16.2
+    16.3. |Y| = |aH|
+          substitute Y = aH (line 16.1)
 
-    16.4. |Y| = |aH|
-          substitute Y = aH (line 16.2)
-
-    16.5. |Y| = |H|
+    16.4. |Y| = |H|
           calculation
-            |Y| = |aH|               16.4
-                = |H|                16.3
+            |Y| = |aH|               16.3
+                = |H|                16.2
 
 17. |G| = |K| · |H|
     thm:stdlib/counting/partition-count A := G, m := |H|, from H1, 14, 15, 16, 3

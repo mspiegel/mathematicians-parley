@@ -70,7 +70,7 @@ text harder to read rather than easier, which is the opposite of the point.
 
 | write | not | today |
 |---|---|---|
-| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | 23 of 27 obtains follow it |
+| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
@@ -86,12 +86,10 @@ its text is elsewhere, so `even`'s k never reaches the page, and stating
 "there is r ∈ ℤ with p = 2r" first only says the next line twice. An
 existence that comes from a line rather than an item has no item to name,
 so it takes the second form whatever its letters: the intermediate value
-proof obtains δ from a line an `instantiate` gave.
-
-Four obtains from an item keep two lines because the tools cannot yet write
-them in one: Lagrange's three and Bezout's one read a define's condition
-through `part-builder` or `set-builder`, whose conclusion holds the
-existence inside a conjunction.
+proof obtains δ from a line an `instantiate` gave. An item whose "there is"
+is a define's condition, which `part-builder` and `set-builder` hold inside
+a conjunction, is an item all the same: Lagrange obtains a coset's a from
+K in one line.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

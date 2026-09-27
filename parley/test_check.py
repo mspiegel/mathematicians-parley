@@ -333,8 +333,8 @@ CASES = [
     # Line 4 of bezout binds s, so substituting a term naming s would capture.
     ('substitute a term that captures a bound variable',
      'proof/bezout.proof',
-     '          instantiate s := a·x + b·y in line 4, from 9.2',
-     '          instantiate s := a·x + b·s in line 4, from 9.2',
+     '          instantiate s := a·x + b·y in line 4, from 8.2',
+     '          instantiate s := a·x + b·s in line 4, from 8.2',
      'may not capture'),
 
     ('obtain a name without stating its sort',
@@ -880,12 +880,13 @@ CASES = [
 
     # A claim may bind another letter than the definition it reads, and says
     # the same thing only where the letter it binds is the one it uses: with
-    # b bound and a free, Z = aH is a claim about a.
+    # b bound and a free, gH = aH is a claim about a, and 12.3 reads K's
+    # condition from it.
     ('read a definition with a bound letter the claim does not use',
      'proof/lagrange.proof',
-     '    15.3. There is b ∈ G with Z = bH.\n',
-     '    15.3. There is b ∈ G with Z = aH.\n',
-     'step 15.3 claims something that def:stdlib/sets/part-builder does not '
+     '    12.2. There is a ∈ G with gH = aH.\n',
+     '    12.2. There is b ∈ G with gH = aH.\n',
+     'step 12.3 claims something that def:stdlib/sets/part-builder does not '
      'conclude'),
 
     # K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
@@ -897,6 +898,15 @@ CASES = [
      '    12.2. There is g ∈ G with gH = gH.\n',
      'step 12.3 claims something that def:stdlib/sets/part-builder does not '
      'conclude'),
+
+    # An obtain from part-builder finds its "there is" in the condition of
+    # the set the cited line puts Y in; K20 says only x ∈ Y ∩ Z.
+    ('obtain from part-builder citing no line that puts the set in it',
+     'proof/lagrange.proof',
+     'obtain a: def:stdlib/sets/part-builder, from K18',
+     'obtain a: def:stdlib/sets/part-builder, from K20',
+     'step 15.1 obtains from def:stdlib/sets/part-builder, which says there '
+     'is one only from something the step does not cite'),
 
     # Counting by parts asks that two parts which meet be one part.
     ('count by parts without saying they do not overlap',

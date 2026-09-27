@@ -105,83 +105,80 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 6.  d ∈ ℕ
     instantiate t := d in line 5, from 4
 
-7.  There are m ∈ ℤ and n ∈ ℤ with d = a·m + b·n.
-    def:stdlib/sets/set-builder u := d, from 4
+7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
+    obtain x₀, y₀: def:stdlib/sets/set-builder u := d, from 4
 
-8.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
-    obtain x₀, y₀ from line 7
-
-9.  For every x ∈ ℤ, for every y ∈ ℤ,
+8.  For every x ∈ ℤ, for every y ∈ ℤ,
     if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     fix
     let x ∈ ℤ                                                         (K1)
     let y ∈ ℤ                                                         (K2)
     assume a·x + b·y ∈ ℕ                                              (K3)
 
-    9.1.  a·x + b·y = a·x + b·y
+    8.1.  a·x + b·y = a·x + b·y
           algebra
           requires a ∈ ℝ: from H1
           requires b ∈ ℝ: from H2
           requires x ∈ ℝ: from K1
           requires y ∈ ℝ: from K2
 
-    9.2.  a·x + b·y ∈ S
-          def:stdlib/sets/set-builder u := a·x + b·y, from K3, 9.1
+    8.2.  a·x + b·y ∈ S
+          def:stdlib/sets/set-builder u := a·x + b·y, from K3, 8.1
           requires x ∈ ℤ: from K1
           requires y ∈ ℤ: from K2
 
-    9.3.  d ≤ a·x + b·y
-          instantiate s := a·x + b·y in line 4, from 9.2
+    8.3.  d ≤ a·x + b·y
+          instantiate s := a·x + b·y in line 4, from 8.2
 
-10. a = a·1 + b·0
+9.  a = a·1 + b·0
     algebra
     requires a ∈ ℝ: from H1
     requires b ∈ ℝ: from H2
 
-11. d divides a
+10. d divides a
     thm:least-combination-divides c := a, u := 1, v := 0, from H1, H2,
-      H1, 6, 8, 10, 9
+      H1, 6, 7, 9, 8
     requires 1 ∈ ℤ: arithmetic
     requires 0 ∈ ℤ: arithmetic
 
-12. b = a·0 + b·1
+11. b = a·0 + b·1
     algebra
     requires a ∈ ℝ: from H1
     requires b ∈ ℝ: from H2
 
-13. d divides b
+12. d divides b
     thm:least-combination-divides c := b, u := 0, v := 1, from H1, H2,
-      H2, 6, 8, 12, 9
+      H2, 6, 7, 11, 8
     requires 0 ∈ ℤ: arithmetic
     requires 1 ∈ ℤ: arithmetic
 
-14. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
     def:stdlib/divisibility/gcd a := a, b := b, from H1, H2
 
-15. d ≤ gcd(a, b)
-    instantiate e := d in line 14, from 6, 11, 13
+14. d ≤ gcd(a, b)
+    instantiate e := d in line 13, from 6, 10, 12
 
-16. gcd(a, b) divides a·x₀ + b·y₀
-    thm:stdlib/divisibility/divides-combination e := gcd(a, b), x := x₀, y := y₀, from 14, 8
+15. gcd(a, b) divides a·x₀ + b·y₀
+    thm:stdlib/divisibility/divides-combination e := gcd(a, b), x := x₀, y := y₀, from 13, 7
     requires a ∈ ℤ: from H1
     requires b ∈ ℤ: from H2
 
-17. gcd(a, b) divides d
-    substitute d = a·x₀ + b·y₀ (line 8) into line 16
+16. gcd(a, b) divides d
+    substitute d = a·x₀ + b·y₀ (line 7) into line 15
 
-18. gcd(a, b) ≤ d
-    thm:stdlib/divisibility/divides-le e := gcd(a, b), m := d, from 14, 6, 17
+17. gcd(a, b) ≤ d
+    thm:stdlib/divisibility/divides-le e := gcd(a, b), m := d, from 13, 6, 16
 
-19. d = gcd(a, b)
-    inequalities, from 15, 18
+18. d = gcd(a, b)
+    inequalities, from 14, 17
     requires d ∈ ℝ: from 6
-    requires gcd(a, b) ∈ ℝ: from 14
+    requires gcd(a, b) ∈ ℝ: from 13
 
-20. a·x₀ + b·y₀ = gcd(a, b)
+19. a·x₀ + b·y₀ = gcd(a, b)
     calculation
-      a·x₀ + b·y₀ = d               8
-                  = gcd(a, b)       19
+      a·x₀ + b·y₀ = d               7
+                  = gcd(a, b)       18
 
-21. There are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b).
-    exhibit, from 8, 20
+20. There are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b).
+    exhibit, from 7, 19

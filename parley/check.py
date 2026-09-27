@@ -1592,17 +1592,47 @@ def obtains(groups, facts, seed, library):
     """
     for _want, gives in groups:
         for concl in gives:
+            sites = set()
+            binding_sites(concl, library.binders, library.props, (), sites)
             for target, extra in readings(concl, library):
-                if target.notation not in library.exists:
-                    continue
                 need = [x for e in extra for x in conjuncts(e, library)]
-                if not need:
-                    return True
                 variables = set().union(*(names(t) for t in need))
-                if supply(need, facts, dict(seed), variables, library,
-                          frozenset()) is not None:
+                if target.notation in library.exists:
+                    if not need:
+                        return True
+                    if supply(need, facts, dict(seed), variables, library,
+                              frozenset()) is not None:
+                        return True
+                    continue
+                # Or the "there is" is a property the definition applies,
+                # which the line the step cites decides: `part-builder`
+                # says u ⊆ X and P(u), and Y ∈ K makes P K's condition.
+                if not need:
+                    continue
+                found = supply(need, facts, dict(seed), variables, library,
+                               sites)
+                if found is not None and any(
+                        existential(part, found, library)
+                        for part in conjuncts(target, library)):
                     return True
     return False
+
+
+def existential(part, binding, library):
+    """Whether one part of what a definition says is a "there is", with a
+    property it applies read as what the binding says the property is.
+    """
+    if (part.notation in library.props and len(part.children) == 2
+            and part.children[0].notation == 'name'):
+        stands = binding.get(part.children[0].text)
+        if stands is None or stands.notation != PROPERTY:
+            return False
+        arg = substitute(part.children[1],
+                         {k: v for k, v in binding.items()
+                          if v.notation != PROPERTY})
+        part = substitute_apart(stands.children[0], {stands.text: arg},
+                                library.binders)
+    return part.notation in library.exists
 
 
 def unconcluded(step, scope, library, sorts, defined):
