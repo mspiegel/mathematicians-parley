@@ -480,7 +480,7 @@ substitution in the corpus comes close.
                   `(` <label> `)`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
-                  { <hypothesis> }
+                  { <hypothesis> | <define> }
                   <conclusion>
                   { <define> | <step> }
 <theorem field> ::= ( `metamath` | `note` ) <words>
@@ -500,9 +500,20 @@ substitution in the corpus comes close.
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
+                | `define` <recursion> `,` `for` <name> `∈` `ℕ₀`
+                  `(` <label> `)` `reads` <words>
+<recursion>   ::= <name> `(` `0` `)` `:=` <rule>
+                  { `,` <name> `(` ( `0` | <name> `+` `1` ) `)` `:=` <rule> }
 <rule>        ::= <term>
                 | { <term> `if` <formula> <newline> } <term> `otherwise`
 ```
+
+A define whose first rule is said at 0 defines sequences by recursion. Each
+name it gives has exactly one rule at `0` and one at the index `+ 1`, where
+the index is the name after `for`; a rule at any other place, a second rule
+at one, or a name missing either is a defect (`parse.recursion_parts`). A
+define written between a theorem's hypotheses and its conclusion is part of
+the statement, and the conclusion may use the names it gives.
 
 A define continues until the line carrying its label. Written over several
 lines whose last ends `otherwise`, it is a function by cases, one case to a

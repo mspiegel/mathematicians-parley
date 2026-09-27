@@ -353,11 +353,94 @@ class Define:
     domain: str = None
 
 
+@dataclass
+class Recursion:
+    """What a `define` of sequences by recursion says: each name's value at
+    0, and its value at k + 1 in terms of the values at k.
+
+    `define a(0) := M, b(0) := N, a(k + 1) := b(k), b(k + 1) := a(k) mod
+    b(k), for k ∈ ℕ₀` defines two sequences together, as a textbook writes
+    Euclid's algorithm; one name alone is the same form with one sequence.
+    `start` and `step` hold each name's rule as written, a rule by cases
+    already folded into `_ if _, _ otherwise` as `Define` folds one.
+    """
+    names: list
+    index: str
+    domain: str
+    start: dict
+    step: dict
+
+
+# A sequence is named as a variable is: a letter, perhaps with a subscript
+# or a prime.
+SEQUENCE_NAME = r'[A-Za-zα-ω][₀-₉′]*'
+# The head of one rule of a recursion: a name, the index it is said at, and
+# `:=`. A rule runs to the next head or to the closing `for`.
+RECURSIVE_HEAD = re.compile(
+    rf'(?:^|,)\s*(?P<name>{SEQUENCE_NAME})\((?P<at>[^()]*)\)\s*:=', re.S)
+RECURSIVE_FOR = re.compile(
+    r',\s*for\s+(?P<index>\S+)\s*∈\s*(?P<domain>\S+)\s*$', re.S)
+
+
+def rule_term(text):
+    """One rule's text as a term: its lines joined, or folded by cases
+    where its last line is taken `otherwise`.
+    """
+    pieces = [p.strip() for p in text.strip().rstrip(',').split('\n')]
+    if len(pieces) > 1 and OTHERWISE.match(pieces[-1]):
+        return by_cases(pieces)
+    return ' '.join(pieces)
+
+
+def recursion_parts(said):
+    """A define of sequences by recursion, without its label, read into its
+    parts; or a decline saying what is wrong with it.
+    """
+    closing = RECURSIVE_FOR.search(said)
+    if closing is None:
+        return Declined('a define by recursion ends `, for k ∈ ℕ₀`, naming '
+                        'the index its rules are written in')
+    index, domain = closing.group('index'), closing.group('domain')
+    if domain != 'ℕ₀':
+        return Declined(f'a define by recursion starts at 0, so its index '
+                        f'runs over ℕ₀, not {domain}')
+    body = said[len('define'):closing.start()]
+    heads = list(RECURSIVE_HEAD.finditer(body))
+    names, start, step = [], {}, {}
+    for head, after in zip(heads, [*heads[1:], None], strict=True):
+        name, at = head.group('name'), ' '.join(head.group('at').split())
+        rule = rule_term(body[head.end():after.start() if after else None])
+        if declined(rule):
+            return rule
+        if at == '0':
+            table = start
+        elif at == f'{index} + 1':
+            table = step
+        else:
+            return Declined(f'{name}({at}) is neither {name}(0) nor '
+                            f'{name}({index} + 1): a rule gives a value at 0 '
+                            f'or at the step')
+        if name in table:
+            return Declined(f'{name}({at}) is given twice')
+        table[name] = rule
+        if name not in names:
+            names.append(name)
+    for name in names:
+        if name not in start:
+            return Declined(f'{name} has no value at 0')
+        if name not in step:
+            return Declined(f'{name} has no rule for {name}({index} + 1)')
+    return Recursion(names, index, domain, start, step)
+
+
 def define_parts(text):
     """A `define` line, without its label, read into its parts; or a
-    decline saying what is wrong with it.
+    decline saying what is wrong with it. A define whose first rule is said
+    at 0 is a recursion (`Recursion`); any other is one name (`Define`).
     """
     said = re.sub(rf'\s*\({LABEL}\)\s*$', '', text).strip()
+    if re.match(rf'^define\s+{SEQUENCE_NAME}\(0\)\s*:=', said):
+        return recursion_parts(said)
     m = DEFINED.match(said)
     if m is None or not m.group('body').strip():
         return Declined('a define says `define <name> := <term>`')

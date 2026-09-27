@@ -332,11 +332,14 @@ Expansion repeats, since a define may be written in terms of an earlier one.
 (D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
 `S(n)` is then S applied to n, and a step that needs what that is writes it
 and cites the define: `S(k + 1) = Σ(j = 1 to k + 1) j` is a link cited `D1`,
-with a `requires` line saying k + 1 is in the domain. A theorem's statement
-comes before its defines, so a statement that is about the function writes
-the rule out, as the sum formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and
-the proof introduces S to argue with. A function only one proof needs is
-defined there and nowhere else: it takes no letter from any other proof.
+with a `requires` line saying k + 1 is in the domain. A statement that can
+say what it means without the function writes the rule out, as the sum
+formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and the proof introduces S to
+argue with. A statement that is about the object itself carries its define
+between its `let` lines and `then`, as a textbook says "let M, N ∈ ℕ₀ and
+define …; then …": Euclid's algorithm is stated of the sequences it
+defines. A function only one proof needs is defined there and nowhere else:
+it takes no letter from any other proof.
 
 **A function may be defined by cases**, one case to a line, as a textbook
 prints it inside a brace:
@@ -358,6 +361,30 @@ case it is in: `h(t) = g⁻¹(t)`, justified `D4, from` a line saying t ∉ C.
 The line gives a case's condition or its negation, and the value claimed
 is the one that case gives. That t is in h's domain, A, comes from a line
 the step cites or from a `requires` line, as for any defined function.
+
+**Sequences may be defined by recursion**, from a value at 0 and a rule
+for the value at k + 1, and several together, as a textbook writes an
+algorithm that keeps several numbers:
+
+```
+define a(0) := M,  b(0) := N,
+       a(k + 1) := b(k)             if b(k) ≠ 0
+                   a(k)             otherwise,
+       b(k + 1) := a(k) mod b(k)    if b(k) ≠ 0
+                   0                otherwise,   for k ∈ ℕ₀           (D1)
+```
+
+Each name has one value at 0 and one rule at k + 1, and a rule may be by
+cases, written as above. The index is the letter after `for`, and runs over
+ℕ₀, since the values start at 0. A rule says the value at k + 1 from the
+values at k, of this name or another the define gives, and from what was
+named before the define; it names no value at any other index. The define
+states the sequences and nothing about them, so a name is never unfolded
+into its rule: a step that needs a value writes it and cites the define.
+`a(0) = M` cites `D1`; `b(k + 1) = a(k) mod b(k)` cites `D1, from` a line
+saying b(k) ≠ 0, the case being taken as for a define by cases, with a
+`requires` line saying k ∈ ℕ₀. What holds of every value is proved by
+induction on k, as anything true for every k ∈ ℕ₀ is.
 
 **A step may cite a define** by its label alone, `D1`, or with the lines it
 uses, `D1, from 3`. Its claim is an equation with the name on one side,

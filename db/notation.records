@@ -413,6 +413,21 @@ notation gcd
   metamath    cgcd
   target      _1 _2 cgcd co
 
+notation mod
+  pattern     _ mod _
+  holes       number, number
+  yields      number
+  level       multiplicative
+  assoc       left
+  reads       the remainder on dividing by
+  metamath    cmo
+  target      _1 _2 cmo co
+  note        The remainder, a mod b, as Euclid's algorithm writes each
+              step. It binds as division does and reads left to right with
+              it, so `x·y mod m` is (x·y) mod m. The word never meets the
+              congruence's `(mod m)`, whose bracket opens a pattern of its
+              own.
+
 notation by-cases
   pattern     _ if _, _ otherwise
   holes       any, formula, any
