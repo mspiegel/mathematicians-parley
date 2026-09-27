@@ -10,11 +10,13 @@
 
 pub mod check;
 pub mod corpus;
+pub mod elab;
 pub mod formula;
 pub mod kinds;
 pub mod matching;
 pub mod mm;
 pub mod outcome;
+pub mod proofs;
 pub mod rules;
 pub mod said;
 pub mod sorts;

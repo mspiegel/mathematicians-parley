@@ -231,6 +231,26 @@ pub fn same(a: &Term, b: &Term) -> bool {
 }
 
 /// Bind the pattern's variables so that it becomes the ground term.
+/// The tree a run of reverse Polish builds.
+pub fn term_of(rpn: &str, sigs: &Signatures) -> Term {
+    let mut stack: Vec<Term> = Vec::new();
+    for token in rpn.split_whitespace() {
+        let sig = sigs
+            .get(token)
+            .unwrap_or_else(|| panic!("no label {token} to read"));
+        if sig.kind == Kind::Float {
+            stack.push(Term::var(&sig.statement[1]));
+            continue;
+        }
+        let args = stack.split_off(stack.len() - sig.floats.len());
+        stack.push(Term::apply(token, args));
+    }
+    stack
+        .into_iter()
+        .next()
+        .expect("reverse Polish that builds nothing")
+}
+
 pub fn match_term(
     pattern: &Term,
     ground: &Term,

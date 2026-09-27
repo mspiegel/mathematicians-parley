@@ -262,6 +262,45 @@ fn assertion(stack: &[Scope], kind: Kind, label: &str, body: Vec<String>) -> Sig
     }
 }
 
+/// A term written the way a Metamath file writes it.
+///
+/// A proof is reverse Polish because that is what the kernel reads, and a
+/// `$a` states its claim in full, so anything written out has to come back
+/// the other way.
+pub fn render(rpn: &str, sigs: &Signatures) -> String {
+    let mut stack: Vec<String> = Vec::new();
+    for token in rpn.split_whitespace() {
+        let sig = sigs
+            .get(token)
+            .unwrap_or_else(|| panic!("no label {token} to render"));
+        let args = stack.split_off(stack.len() - sig.floats.len());
+        let push = sig.push();
+        let written: Vec<&str> = sig.statement[1..]
+            .iter()
+            .map(|t| match push.iter().position(|v| v == t) {
+                Some(at) => args[at].as_str(),
+                None => t.as_str(),
+            })
+            .collect();
+        stack.push(written.join(" "));
+    }
+    stack.into_iter().next().unwrap_or_default()
+}
+
+/// A count written with a comma between each three digits, as a person
+/// reads a library's size.
+pub fn thousands(n: usize) -> String {
+    let digits = n.to_string();
+    let mut out = String::new();
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i) % 3 == 0 {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

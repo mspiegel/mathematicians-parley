@@ -209,6 +209,27 @@ pub fn rex(body: &str, v: &str, over: &str) -> String {
     seq(&[body, v, over, "wrex"])
 }
 
+/// What a step binds each of its label's variables to, in reverse Polish.
+pub type Binds = IndexMap<String, String>;
+
+/// A binding written out: `binds! { "ph" => b.wff(..), "A" => b.class(..) }`.
+#[macro_export]
+macro_rules! binds {
+    ($($var:expr => $term:expr),* $(,)?) => {{
+        #[allow(unused_mut)]
+        let mut out = $crate::mm::spell::Binds::new();
+        $(out.insert(String::from($var), String::from($term));)*
+        out
+    }};
+}
+
+/// A binding with more bound, or bound otherwise: `{**w, 'ps': ...}`.
+pub fn with(base: &Binds, more: Binds) -> Binds {
+    let mut out = base.clone();
+    out.extend(more);
+    out
+}
+
 /// How many things a label takes, what it builds, and the kind of each
 /// thing it takes where that is known.
 #[derive(Clone, Debug)]
@@ -316,6 +337,20 @@ impl Builder {
         Ok(term.rpn(&self.flabel).to_string())
     }
 
+    /// The label that pushes a variable: its floating hypothesis.
+    pub fn float(&self, var: &str) -> String {
+        self.flabel
+            .get(var)
+            .cloned()
+            .unwrap_or_else(|| panic!("no float for {var}"))
+    }
+
+    /// A proof that is one label taking nothing: a hypothesis, or a closed
+    /// lemma such as `1z`.
+    pub fn step(&self, label: &str) -> Proof {
+        self.proof(&[Part::Text(label)])
+    }
+
     /// A class written in set.mm's notation, in reverse Polish.
     pub fn class(&self, text: &str) -> String {
         self.rpn(text, "class")
@@ -334,12 +369,7 @@ impl Builder {
     /// each as the term bound to it or as its own variable where the step
     /// leaves it open; then the proofs of the essential hypotheses, in the
     /// order the label lists them.
-    pub fn ap(
-        &self,
-        label: &str,
-        binds: &[(&str, &str)],
-        essentials: &[&Proof],
-    ) -> Proof {
+    pub fn ap(&self, label: &str, binds: &Binds, essentials: &[&Proof]) -> Proof {
         let sig = self
             .sigs
             .get(label)
@@ -347,14 +377,9 @@ impl Builder {
         let pushed: Vec<String> = sig
             .floats
             .iter()
-            .map(|(_, var)| {
-                binds
-                    .iter()
-                    .find(|(v, _)| v == var)
-                    .map(|(_, t)| t.to_string())
-                    .unwrap_or_else(|| {
-                        self.flabel.get(var).cloned().unwrap_or_default()
-                    })
+            .map(|(_, var)| match binds.get(var) {
+                Some(t) => t.clone(),
+                None => self.flabel.get(var).cloned().unwrap_or_default(),
             })
             .collect();
         let mut parts: Vec<Part> = pushed.iter().map(Part::from).collect();
