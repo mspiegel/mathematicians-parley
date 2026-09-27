@@ -986,8 +986,11 @@ def supply(patterns, facts, binding, variables, library,
                     found = match(form, smaller, binding, seen,
                                   library.props, sites)
             # An equation says the same read from either side (`SYNTAX.md`),
-            # so a line saying b = a answers a hypothesis asking a = b.
-            if (found is None and form is first
+            # so a line saying b = a answers a hypothesis asking a = b, and
+            # names a witness for a "there is" whose body asks it: g·e = g
+            # puts g in gH, which asks g = g·h for some h ∈ H.
+            if (found is None
+                    and (form is first or form.notation in library.equals)
                     and fact.notation in library.equals
                     and len(fact.children) == 2):
                 turned = Node(fact.notation, fact.sort, fact.children[::-1],

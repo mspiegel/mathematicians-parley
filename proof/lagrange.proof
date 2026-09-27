@@ -56,12 +56,8 @@ define K := {X ⊆ G : there is a ∈ G with X = aH}                    (D1)
     5.2.  g·e = g
           thm:stdlib/groups/group-identity a := g, from K3
 
-    5.3.  g = g·e
-          calculation
-            g = g·e                  5.2
-
-    5.4.  g ∈ gH
-          def:stdlib/groups/coset u := g, from K3, 5.1, 5.3
+    5.3.  g ∈ gH
+          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2
           requires H ⊆ G: from 1
 
 6.  For every a ∈ G, for every x ∈ aH, xH ⊆ aH.

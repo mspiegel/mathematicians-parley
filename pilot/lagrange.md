@@ -15,7 +15,7 @@ has as many elements as H, so |G| is |H| times the number of parts.
 The proof is `proof/lagrange.proof`, one theorem. It elaborates to
 `elaboration/proof/lagrange/lagrange.mm`, assumes nothing, and verifies.
 
-Numbers: 110 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
+Numbers: 109 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
 coset facts (gH lies in G, g is in gH, a coset is fixed by any of its
 members), block 9 is the bijection from H to gH, and 10 to 22 count.
 

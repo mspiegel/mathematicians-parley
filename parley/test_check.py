@@ -863,10 +863,20 @@ CASES = [
     # says H is one.
     ('read a coset without saying H lies in G',
      'proof/lagrange.proof',
-     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.3\n'
+     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n'
      '          requires H ⊆ G: from 1\n',
-     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.3\n',
-     'step 5.4 cites def:stdlib/groups/coset, which asks for H ⊆ G'),
+     '          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n',
+     'step 5.3 cites def:stdlib/groups/coset, which asks for H ⊆ G'),
+
+    # An equation names a witness read either way round, and only so: g
+    # is in gH as g = g·h for some h ∈ H, and e·g = g fits that neither
+    # way.
+    ('name a coset witness by an equation that does not fit either way',
+     'proof/lagrange.proof',
+     '    5.2.  g·e = g\n',
+     '    5.2.  e·g = g\n',
+     'step 5.3 claims something that def:stdlib/groups/coset does not '
+     'conclude'),
 
     # Counting by parts asks that two parts which meet be one part.
     ('count by parts without saying they do not overlap',

@@ -593,13 +593,13 @@ CASES = [
      'from 3 does not reach'),
 
     # g ∈ gH is shown by the member of H that g is g times, and the line
-    # saying g = g·e is what names it.
+    # saying g·e = g is what names it.
     ('a coset member with no line naming what it is the element times',
      'proof/lagrange/lagrange',
      'proof/lagrange.proof',
-     'def:stdlib/groups/coset u := g, from K3, 5.1, 5.3',
+     'def:stdlib/groups/coset u := g, from K3, 5.1, 5.2',
      'def:stdlib/groups/coset u := g, from K3, 5.1',
-     'proof/lagrange.proof:63  no cited line names a witness'),
+     'proof/lagrange.proof:59  no cited line names a witness'),
 ]
 
 
