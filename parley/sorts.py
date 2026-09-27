@@ -71,7 +71,20 @@ def let_formula(body):
         whole = m.group(2).strip()
         return f'{m.group(1)} ∈ 𝒫{whole if " " not in whole else f"({whole})"}'
     return body
+
+
 SENTENCE = re.compile(r'(?<=[.])\s+')
+
+
+def sentences(text):
+    """The sentences of a line, each without its full stop.
+
+    A sentence ends at a full stop followed by any space, a line break
+    included, so a claim written across two lines splits where it would
+    written on one.
+    """
+    pieces = (p.strip().rstrip('.').strip() for p in SENTENCE.split(text.strip()))
+    return [p for p in pieces if p]
 
 
 def _body(text, head):
@@ -288,9 +301,8 @@ def sorts_in_scope(thm, g):
             if sort not in (None, 'unknown', 'any'):
                 out.setdefault(said.name, sort)
         else:
-            for sentence in SENTENCE.split(text.strip()):
-                for found in _introduced(sentence.strip().rstrip('.').strip(),
-                                         out):
+            for sentence in sentences(text):
+                for found in _introduced(sentence, out):
                     out.setdefault(*found)
     # What the lines above leave unknown, the kinds may settle: `let S ∈ 𝒫X`
     # names no number system, and S is a set because what 𝒫X holds is sets.

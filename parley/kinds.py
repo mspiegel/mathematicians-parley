@@ -31,10 +31,10 @@ from sorts import (
     KIND,
     LABEL,
     PROPERTY,
-    SENTENCE,
     element_sort,
     file_definitions,
     let_formula,
+    sentences,
 )
 
 OBTAINS = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
@@ -377,10 +377,7 @@ def claim_text(reader, text, line, g):
     One that does not parse is `check_formulas`'s to report, and is passed
     over here.
     """
-    for sentence in SENTENCE.split(text.strip()):
-        sentence = sentence.strip().rstrip('.').strip()
-        if not sentence:
-            continue
+    for sentence in sentences(text):
         try:
             node = parse(sentence, g)
         except Problem:

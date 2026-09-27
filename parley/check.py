@@ -72,6 +72,7 @@ from sorts import (
     definitions_in_scope,
     file_definitions,
     let_formula,
+    sentences,
     sorts_in_scope,
     sorts_of_record,
     sorts_of_statement,
@@ -757,7 +758,6 @@ def check_capture(report, thm, claims):
                            f'lands; a substitution may not capture')
 
 
-SENTENCES = re.compile(r'(?<=[.])\s+')
 
 
 class Library:
@@ -1796,11 +1796,6 @@ def unsupplied(step, scope, library, sorts, defined):
     return missing
 
 
-def sentences(text):
-    return [s.strip().rstrip('.').strip()
-            for s in SENTENCES.split(text.strip()) if s.strip()]
-
-
 def check_statements(report, records, g):
     """Every statement in the database parses, and parses one way.
 
@@ -1823,10 +1818,7 @@ def check_statements(report, records, g):
                   if kind == 'assume']
         places += list(r.conclusions)
         for text, no in places:
-            for sentence in SENTENCES.split(LABEL_AT_END.sub('', text).strip()):
-                sentence = sentence.strip().rstrip('.').strip()
-                if not sentence:
-                    continue
+            for sentence in sentences(LABEL_AT_END.sub('', text)):
                 try:
                     parse(sentence, g)
                 except Problem as p:
@@ -1876,10 +1868,7 @@ def check_unsorted(report, records, g):
         if r.kind == 'theorem':
             places += list(r.conclusions)
         for text, no in places:
-            for sentence in SENTENCES.split(LABEL_AT_END.sub('', text).strip()):
-                sentence = sentence.strip().rstrip('.').strip()
-                if not sentence:
-                    continue
+            for sentence in sentences(LABEL_AT_END.sub('', text)):
                 g.sorts = sorts_of_record(r, g)
                 try:
                     tree = parse(sentence, g)
@@ -2068,10 +2057,7 @@ def check_formulas(report, thm, g):
                for k, t, n in lines if k in ('assume', 'suppose')]
     places.append((thm.line, f'the statement of {thm.name}', thm.conclusion))
     for line, what, text in places:
-        for sentence in SENTENCES.split(text.strip()):
-            sentence = sentence.strip().rstrip('.').strip()
-            if not sentence:
-                continue
+        for sentence in sentences(text):
             try:
                 parse(sentence, g)
             except Problem as p:

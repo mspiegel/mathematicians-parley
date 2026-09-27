@@ -29,6 +29,7 @@ from sorts import (
     definition_sorts,
     file_definitions,
     let_formula,
+    sentences,
     sorts_of_record,
     sorts_of_statement,
 )
@@ -297,12 +298,7 @@ class Reading:
         return given
 
     def sentences(self, text):
-        out = []
-        for piece in LABEL.sub('', text).strip().split('. '):
-            piece = piece.strip().rstrip('.').strip()
-            if piece:
-                out.append(piece)
-        return out
+        return sentences(LABEL.sub('', text))
 
     def claim_of(self, text):
         """A claim of several sentences is their conjunction.
