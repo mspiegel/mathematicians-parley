@@ -5,6 +5,6 @@ use parley::mm::{Builder, Signatures};
 
 fn main() {
     let b = Builder::new(Signatures::new());
-    let proof = b.ap("0re", &[], &[]);
+    let proof = b.ap("0re", &parley::binds! {}, &[]);
     let _ = b.term(&[&proof, "eqid"]);
 }
