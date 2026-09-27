@@ -481,9 +481,10 @@ step already holds, or be unfolded left to right and taken apart. Which one
 applies is settled by what the lemma states and what the step claims, not by
 how the readable right side is phrased. A definition reaching its left side
 from a line that states the existence itself — `g ∈ ⋃(Y ∈ K) Y` from
-`there is Y ∈ K with g ∈ Y` — is read right to left as any other is
-(`witnessed_or_whole`); only one reached from lines naming the witness takes
-the witness route. A definition's target may name more
+`there is Y ∈ K with g ∈ Y` — is read right to left as any other is, and
+one reached from lines naming the witness takes the witness route; which of
+the two is decided once, by whether a cited line states the existence
+(`reading`). A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
 theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.

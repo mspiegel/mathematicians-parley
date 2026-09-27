@@ -557,7 +557,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             if 'target' not in item.fields:
                 how = self.take_definition
             elif any('↔' in text for text, _line in item.conclusions):
-                how = self.reading(item, term)
+                how = self.reading(item, term, step, lines)
             else:
                 how = self.unfold_equation
         if how is None and head.startswith('thm:'):
@@ -1056,22 +1056,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                                'mpbid')
         raise self.defect(step.line, 'the substitution misses the claim')
 
-    def witnessed_or_whole(self, step, node, term, scope, facts, lines):
-        """A definition whose right side is an existence claim, reaching
-        its left side.
-
-        Usually from the lines naming a witness (`conclude`): g ∈ gH from
-        e ∈ H and g = g·e. Where a cited line states the existence claim
-        itself, as `there is Y ∈ K with g ∈ Y` does for g being in the union
-        over K, the definition is read right to left as any other is.
-        """
-        if any(ref in lines and self.to_term(lines[ref].term).label == 'wrex'
-               for ref in step.just.refs):
-            found = self.equivalent(step, node, term, scope, facts, lines)
-            if not declined(found):
-                return found
-        return self.conclude(step, node, term, scope, facts, lines)
-
     def equivalent(self, step, node, term, scope, facts, lines):
         """A definition whose right side is not an existence claim.
 
@@ -1309,13 +1293,17 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         return Declined('; '.join(declines) if declines
                         else f'{qualified(item)} targets nothing')
 
-    def reading(self, item, term):
+    def reading(self, item, term, step, lines):
         """Which of three ways a biconditional definition reaches a claim.
 
         The claim decides, and what the lemma states decides with it. A
         definition reaching an existence claim supplies a witness; one whose
         right side the step already holds is read right to left; one whose
-        left side the step holds is unfolded and taken apart.
+        left side the step holds is unfolded and taken apart. A definition
+        whose right side is a "there is" reaches its left side right to left
+        where a line the step cites states the existence itself — `there is
+        Y ∈ K with g ∈ Y` for g being in the union over K — and by a witness
+        otherwise: g ∈ gH from e ∈ H and g = g·e.
 
         Every lemma the target names is asked, not just the first: `rabid`
         and `elrab` say the same thing of a set-builder and differ only in
@@ -1338,7 +1326,11 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
                 # unfolding bridges, so the claim is read by its shape.
                 if self.to_term(term).label == 'wrex':
                     return self.unfolded
-                return self.witnessed_or_whole
+                if any(ref in lines
+                       and self.to_term(lines[ref].term).label == 'wrex'
+                       for ref in step.just.refs):
+                    return self.equivalent
+                return self.conclude
             if self.fits_as(whole.children[0], self.to_term(term),
                             whole.names()) is not None:
                 return self.equivalent
