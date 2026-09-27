@@ -3,9 +3,9 @@ $( tests/stdlib/numbers/nat0-nonzero, elaborated from tests/stdlib/numbers.proof
    Checked against a set.mm of 51,256 assertions, sha256
    0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
 
-$[ stdlib/proved.mm $]
+$[ stdlib/definitions.mm $]
 
 ${
   nat0nonz $p |- ( ( A e. NN0 /\ -. A = 0 ) -> A e. NN ) $=
-    ( cn0 wcel cc0 wceq wn wa wne cn simpl id syl simpr df-ne sylibr necom sylib jca gnn0ne0nn ) ABCZADEZFZGZTADHZGAICUCTUDUCTTTUBJTKLUCDAHZUDUCUDUEUCUBUDTUBMADNOADPQDAPQRASL $.
+    ( cn0 wcel cc0 wceq wn wa wne cn simpl id syl simpr df-ne sylibr necom sylib jca elnnne0 ) ABCZADEZFZGZTADHZGAICUCTUDUCTTTUBJTKLUCDAHZUDUCUDUEUCUBUDTUBMADNOADPQDAPQRASO $.
 $}

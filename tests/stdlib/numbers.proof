@@ -177,3 +177,12 @@ theorem nat0-nonzero
 
 1.  m ∈ ℕ
     thm:stdlib/numbers/nat0-nonzero, from H1, H2
+
+theorem integer-step
+  let m ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume m < n                                                        (H3)
+  then m + 1 ≤ n
+
+1.  m + 1 ≤ n
+    thm:stdlib/numbers/integer-step, from H1, H2, H3

@@ -157,9 +157,18 @@ theorem nat0-nonzero
   let m ∈ ℕ₀                                                          (H1)
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
-  metamath    elnnne0 read one way, which this corpus proves in
-              elaboration/stdlib/proved.mm
-  target      gnn0ne0nn
+  metamath    elnnne0
+  target      elnnne0
+
+theorem integer-step
+  let m ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume m < n                                                        (H3)
+  then        m + 1 ≤ n
+  metamath    zltp1le
+  target      zltp1le
+  note        Between whole numbers, less than is at least one less: no
+              whole number lies strictly between m and m + 1.
 
 theorem exponent-step
   let a ∈ ℝ                                                           (H1)

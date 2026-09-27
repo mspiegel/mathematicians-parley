@@ -1,0 +1,15 @@
+theorem or-left
+  let x ∈ ℝ                                                           (H1)
+  assume x = 0                                                        (H2)
+  then x = 0 or x = 1
+
+1.  x = 0 or x = 1
+    thm:stdlib/reasoning/or-left, from H2
+
+theorem or-right
+  let x ∈ ℝ                                                           (H1)
+  assume x = 1                                                        (H2)
+  then x = 0 or x = 1
+
+1.  x = 0 or x = 1
+    thm:stdlib/reasoning/or-right, from H2

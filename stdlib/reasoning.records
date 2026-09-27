@@ -53,3 +53,19 @@ theorem disjunctive-syllogism
   note        The √2 pilot asked whether a school reader can check this on
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.
+
+theorem or-left
+  assume P                                                            (H1)
+  then        P or Q
+  metamath    orc
+  target      orc
+  note        A claim that one of two things holds, from a line saying the
+              first does. Euclid's algorithm proves "b(k) = 0 or b(k) + k ≤
+              N" at each k, knowing one side or the other.
+
+theorem or-right
+  assume Q                                                            (H1)
+  then        P or Q
+  metamath    olc
+  target      olc
+  note        The same, from a line saying the second holds.

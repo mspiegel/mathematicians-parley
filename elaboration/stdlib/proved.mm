@@ -258,11 +258,7 @@ $d y z G $.
 $}
 
 ${
-$( Numbers: a nonzero member of NN0 is in NN, and a remainder is less
-   than its divisor. $)
-
-  gnn0ne0nn $p |- ( ( N e. NN0 /\ N =/= 0 ) -> N e. NN ) $=
-    ( cn wcel cn0 cc0 wne wa elnnne0 biimpri ) ABCADCAEFGAHI $.
+$( Numbers: a remainder is less than its divisor. $)
 
   gzmodlt $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( cz wcel cr crp cmo co clt wbr cn zre nnrp modlt syl2an )
