@@ -59,6 +59,7 @@ from parse import (
     proof_files,
     qualified,
     record_files,
+    written_text,
 )
 from sorts import (
     ELEMENT,
@@ -2330,20 +2331,6 @@ def check_definitions(report, theorems):
                     report.say(thm.path, no,
                                f'label {lab} is already a define\'s outside '
                                f'theorem {thm.name}')
-
-
-def written_text(thm):
-    """Everything a theorem's lines say, as one run of text."""
-    parts = [t for _k, t, _l, _n in thm.hypotheses] + [thm.conclusion]
-    parts += [t for _k, t, _l, _n in thm.defines]
-    for step in thm.steps:
-        parts += list(step.claim)
-        parts += [o[1] for o in step.openers]
-        parts += [text for text, _how, _line in step.requires]
-        if step.just:
-            parts.append(step.just.text)
-            parts += [text for text, _line in step.just.chain]
-    return ' '.join(parts)
 
 
 def check_imports(report, theorems):

@@ -55,6 +55,7 @@ from parse import (
     fmt,
     proved,
     qualified,
+    written_text,
 )
 from parse import index as full_names
 from provenance import ProofRules
@@ -101,23 +102,6 @@ BINDER_AT = {'cmpt': 0, 'ciun': 0, 'crab': 1, 'csu': 2}
 # A letter standing alone as a name, as `k` does in `Σ(k = 0 to m)`, and
 # not inside a word such as `calculation`.
 LETTER = re.compile(r'(?<![A-Za-z])[A-Za-z](?![A-Za-z])')
-
-
-def written(thm):
-    """Everything a theorem's lines say, as one run of text: the statement,
-    its defines, and every step's claim, openers, requires lines and
-    justification.
-    """
-    parts = [t for _k, t, _l, _n in thm.hypotheses] + [thm.conclusion]
-    parts += [t for _k, t, _l, _n in thm.defines]
-    for step in thm.steps:
-        parts += list(step.claim)
-        parts += [o[1] for o in step.openers]
-        parts += [text for text, _how, _line in step.requires]
-        if step.just:
-            parts.append(step.just.text)
-            parts += [text for text, _line in step.just.chain]
-    return ' '.join(parts)
 
 
 def label_of(name, taken=(), path='', line=0, ours=()):
@@ -177,7 +161,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # variable for two things.
         self.taken = {t for entries in self.terms.values()
                       for e in entries if e for t in e.split()}
-        self.taken |= {self.flabel[c] for c in LETTER.findall(written(thm))
+        self.taken |= {self.flabel[c] for c in LETTER.findall(written_text(thm))
                        if c in self.flabel}
         self.spare = [v for v in SPARE_VARS if v not in self.taken]
         self.commutes = targets.commuting(records)

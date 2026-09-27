@@ -476,6 +476,23 @@ class Theorem:
         return module_of(self.path)
 
 
+def written_text(thm):
+    """Everything a theorem's lines say, as one run of text: the statement,
+    its defines, and every step's claim, openers, requires lines and
+    justification.
+    """
+    parts = [t for _k, t, _l, _n in thm.hypotheses] + [thm.conclusion]
+    parts += [t for _k, t, _l, _n in thm.defines]
+    for step in thm.steps:
+        parts += list(step.claim)
+        parts += [o[1] for o in step.openers]
+        parts += [text for text, _how, _line in step.requires]
+        if step.just:
+            parts.append(step.just.text)
+            parts += [text for text, _line in step.just.chain]
+    return ' '.join(parts)
+
+
 THEOREM_FIELDS = ('metamath', 'note')
 
 
