@@ -43,7 +43,7 @@ from compress import labels as compress_labels
 from formula import Grammar
 from library import Signature
 from library import read as read_library
-from match import binding_context, instantiation, match
+from match import binding_context, equations, instantiation, match
 from match import names as names_in
 from matcher import Matcher
 from parse import (
@@ -168,6 +168,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # of the corpus among them, as `parse.index` gives them.
         self.thm, self.g, self.items = thm, grammar, items
         self.terms = targets.terms(records)
+        self.equations = equations(records)
         # A name the proof introduces becomes a variable of the kernel, and it
         # must not be one a notation's own target binds, nor a letter the
         # proof writes: a binder takes its own letter where it can
@@ -805,7 +806,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         for end in [*ends, *sides]:
             for said in self.said(step):
                 got = match(end, said, bound, variables, props, frozenset(),
-                            binders)
+                            binders, self.equations)
                 if got is not None:
                     bound = got
                     break
@@ -825,7 +826,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             for hyp in hyps:
                 for fact in given:
                     got = match(hyp, fact, bound, variables, props,
-                                frozenset(), binders)
+                                frozenset(), binders, self.equations)
                     if got is not None and len(got) > len(bound):
                         bound, learned = got, True
                         break

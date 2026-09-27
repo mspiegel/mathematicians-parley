@@ -111,18 +111,39 @@ def binding_sites(pattern, binders, props, bound=(), out=None):
     return out
 
 
-def match(pattern, ground, binding, variables, props, sites, binders):
+def equations(records):
+    """The notations that are equations, taken from what they target in the
+    kernel, `wceq`, rather than named here. An equation's two sides say the
+    same read either way round (`SYNTAX.md`).
+    """
+    return {r.name for r in records if r.kind == 'notation'
+            and re.match(r'wceq\b', r.fields.get('metamath', '').strip())}
+
+
+def orders(a, b, equations):
+    """The ways b's parts may stand against a's: as written, and turned
+    round where a is an equation.
+    """
+    if a.notation in equations and len(b.children) == 2:
+        return [b.children, b.children[::-1]]
+    return [b.children]
+
+
+def match(pattern, ground, binding, variables, props, sites, binders,
+          equations):
     """Bind the pattern's variables so that it becomes the ground tree.
 
     Returns the binding, or None. The binding is not modified on failure.
-    `props` and `binders` are `binding_context`'s. What a property stands
-    for is compared with the ground up to the letters it binds, and a
-    binder of the pattern's may take the ground's letter (`_bound_as`).
+    `props` and `binders` are `binding_context`'s, and `equations` the
+    notations `equations` gives. Two trees are compared up to the letters
+    they bind and the order of an equation's sides (`alike`), and a binder
+    of the pattern's may take the ground's letter (`_bound_as`).
     """
     if pattern.notation == 'name' and pattern.text in variables:
         seen = binding.get(pattern.text)
         if seen is not None:
-            return binding if seen.shape() == ground.shape() else None
+            return (binding if alike(seen, ground, binders, equations)
+                    else None)
         out = dict(binding)
         out[pattern.text] = ground
         return out
@@ -130,8 +151,10 @@ def match(pattern, ground, binding, variables, props, sites, binders):
             and pattern.children[0].notation == 'name'
             and pattern.children[0].text in variables):
         if props.get(pattern.notation) != 'function':
-            return _property(pattern, ground, binding, sites, binders)
-        decides, found = _family(pattern, ground, binding, sites, binders)
+            return _property(pattern, ground, binding, sites, binders,
+                             equations)
+        decides, found = _family(pattern, ground, binding, sites, binders,
+                                 equations)
         if decides:
             return found
     if pattern.notation != ground.notation or pattern.text != ground.text:
@@ -139,11 +162,16 @@ def match(pattern, ground, binding, variables, props, sites, binders):
     if len(pattern.children) != len(ground.children):
         return None
     pattern = _bound_as(pattern, ground, variables, binders)
-    for a, b in zip(pattern.children, ground.children, strict=True):
-        binding = match(a, b, binding, variables, props, sites, binders)
-        if binding is None:
-            return None
-    return binding
+    for children in orders(pattern, ground, equations):
+        found = binding
+        for a, b in zip(pattern.children, children, strict=True):
+            found = match(a, b, found, variables, props, sites, binders,
+                          equations)
+            if found is None:
+                break
+        if found is not None:
+            return found
+    return None
 
 
 def _bound_as(pattern, ground, variables, binders):
@@ -170,7 +198,7 @@ def _bound_as(pattern, ground, variables, binders):
                  for i, c in enumerate(pattern.children)], pattern.text)
 
 
-def alike(a, b, binders, ours=None, theirs=None):
+def alike(a, b, binders, equations, ours=None, theirs=None):
     """Whether two trees are one formula, spelt alike but for the letters
     they bind: `there is a ∈ G with Z = aH` and `there is b ∈ G with
     Z = bH` are one claim, and neither says anything of a or of b.
@@ -178,6 +206,7 @@ def alike(a, b, binders, ours=None, theirs=None):
     `binders` is `binding_context`'s. A letter one of them binds is paired
     with the letter the other binds in the same place, and a free letter
     must be the same letter on both sides, never one the other side binds.
+    An equation is alike either way round (`orders`).
     """
     ours, theirs = ours or {}, theirs or {}
     if a.notation == 'name' and b.notation == 'name':
@@ -189,20 +218,21 @@ def alike(a, b, binders, ours=None, theirs=None):
         return False
     shape = binders.get(a.notation)
     if shape is None:
-        return all(alike(x, y, binders, ours, theirs)
-                   for x, y in zip(a.children, b.children, strict=True))
+        return any(all(alike(x, y, binders, equations, ours, theirs)
+                       for x, y in zip(a.children, kids, strict=True))
+                   for kids in orders(a, b, equations))
     at, body = shape
     x, y = a.children[at], b.children[at]
     if x.notation != 'name' or y.notation != 'name':
         return a.shape() == b.shape()
     inner = ({**ours, x.text: y.text}, {**theirs, y.text: x.text})
-    return all(i == at or alike(p, q, binders,
+    return all(i == at or alike(p, q, binders, equations,
                                 *(inner if i in body else (ours, theirs)))
                for i, (p, q) in enumerate(zip(a.children, b.children,
                                               strict=True)))
 
 
-def _property(pattern, ground, binding, sites, binders):
+def _property(pattern, ground, binding, sites, binders, equations):
     """P applied to something, where P is one of the pattern's variables."""
     name, arg = pattern.children[0].text, _read_at(pattern.children[1],
                                                    binding)
@@ -216,7 +246,7 @@ def _property(pattern, ground, binding, sites, binders):
     if stands.notation != PROPERTY:
         return None
     filled = substitute_apart(stands.children[0], {stands.text: arg}, binders)
-    return binding if alike(filled, ground, binders) else None
+    return binding if alike(filled, ground, binders, equations) else None
 
 
 def _read_at(arg, binding):
@@ -231,7 +261,7 @@ def _read_at(arg, binding):
                             if t.notation != PROPERTY})
 
 
-def _family(pattern, ground, binding, sites, binders):
+def _family(pattern, ground, binding, sites, binders, equations):
     """t applied to something, where t is a function the pattern names.
 
     Under a binder that applies it to what it binds, t is whatever is summed
@@ -251,7 +281,8 @@ def _family(pattern, ground, binding, sites, binders):
     if stands is not None and stands.notation == PROPERTY:
         filled = substitute_apart(stands.children[0], {stands.text: arg},
                                   binders)
-        return True, (binding if alike(filled, ground, binders) else None)
+        return True, (binding if alike(filled, ground, binders, equations)
+                      else None)
     plain = (ground.notation == pattern.notation and len(ground.children) == 2
              and ground.children[1].shape() == arg.shape())
     if (stands is None and id(pattern) in sites and arg.notation == 'name'

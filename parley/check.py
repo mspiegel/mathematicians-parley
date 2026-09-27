@@ -25,6 +25,7 @@ from match import (
     PROPERTY,
     binding_context,
     binding_sites,
+    equations,
     expand,
     instantiation,
     match,
@@ -785,10 +786,11 @@ class Library:
         # from what they target in the kernel rather than named here. A
         # metamath field may say more after the target, as "wrex, and wrex
         # under wn" does, so the target is its first word.
-        self.exists, self.members, self.equals = set(), set(), set()
+        self.exists, self.members = set(), set()
         self.conj, self.bicond, self.impl = set(), set(), set()
+        self.equals = equations(records)
         targets = {'wrex': self.exists, 'wcel': self.members, 'wa': self.conj,
-                   'wb': self.bicond, 'wi': self.impl, 'wceq': self.equals}
+                   'wb': self.bicond, 'wi': self.impl}
         for r in records:
             if r.kind != 'notation':
                 continue
@@ -972,7 +974,7 @@ def supply(patterns, facts, binding, variables, library,
     for i, fact in enumerate(facts):
         for form, seen in forms:
             found = match(form, fact, binding, seen, library.props, sites,
-                          library.binders)
+                          library.binders, library.equals)
             if (found is None and form is first
                     and first.notation in library.exists
                     and len(first.children) == 2
@@ -980,7 +982,7 @@ def supply(patterns, facts, binding, variables, library,
                     and len(fact.children) == 2):
                 found = match(first.children[1], fact.children[1],
                               binding, variables, library.props, sites,
-                              library.binders)
+                              library.binders, library.equals)
             # A "for every" said of a set is said of every set inside it
             # (`SYNTAX.md`): line 1 of the triangular reciprocals, over ℕ,
             # answers `sum-termwise`'s hypothesis over {1, …, n}.
@@ -988,19 +990,8 @@ def supply(patterns, facts, binding, variables, library,
                 smaller = narrowed(first, fact, binding)
                 if smaller is not None:
                     found = match(form, smaller, binding, seen,
-                                  library.props, sites, library.binders)
-            # An equation says the same read from either side (`SYNTAX.md`),
-            # so a line saying b = a answers a hypothesis asking a = b, and
-            # names a witness for a "there is" whose body asks it: g·e = g
-            # puts g in gH, which asks g = g·h for some h ∈ H.
-            if (found is None
-                    and (form is first or form.notation in library.equals)
-                    and fact.notation in library.equals
-                    and len(fact.children) == 2):
-                turned = Node(fact.notation, fact.sort, fact.children[::-1],
-                              fact.text)
-                found = match(form, turned, binding, seen, library.props,
-                              sites, library.binders)
+                                  library.props, sites, library.binders,
+                                  library.equals)
             if found is None:
                 continue
             # A "there is" given by an instance is given only where the
@@ -1094,8 +1085,8 @@ def witnessed_in(exists, binding, facts, variables, library, sites):
         if not any(f.notation in library.members and len(f.children) == 2
                    and f.children[0].shape() == value.shape()
                    and match(domain, f.children[1], binding, variables,
-                             library.props, sites,
-                             library.binders) is not None
+                             library.props, sites, library.binders,
+                             library.equals) is not None
                    for f in facts):
             return False
     return True
@@ -1219,7 +1210,7 @@ def take(claims, candidates, binding, used, need, given, variables, library,
             if start is None:
                 continue
         found = match(cand, claims[0], start, variables, library.props, sites,
-                      library.binders)
+                      library.binders, library.equals)
         if found is None:
             continue
         seen = {u.shape() for u in used}
@@ -1431,7 +1422,8 @@ def family_asks(step, scope, library, sorts, defined):
                 for cand in conjuncts(target, library):
                     for claim in claims:
                         found = match(cand, claim, dict(seed), variables,
-                                      library.props, sites, library.binders)
+                                      library.props, sites, library.binders,
+                                      library.equals)
                         for value in (found or {}).values():
                             if value.notation == PROPERTY:
                                 held |= names(value.children[0]) - {value.text}
@@ -1694,7 +1686,7 @@ def derives(claim, groups, facts, library, depth=5):
         variables = set().union(*(names(t) for t in trees)) if trees else set()
         for concl in gives:
             binding = match(concl, claim, {}, variables, library.props,
-                            frozenset(), library.binders)
+                            frozenset(), library.binders, library.equals)
             if binding is None:
                 continue
             if all(derives(substitute(t, binding), groups, facts, library,
