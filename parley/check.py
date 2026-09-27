@@ -883,10 +883,9 @@ def check_contradiction(report, thm, g):
     method refuses, which is why this is reported rather than left to fail
     later with nothing to point at.
     """
-    sorts_in_scope(thm, g)
     wrappers = {n.folds for n in g.notations if n.folds}
-    defined = definitions_in_scope(thm, g)
     thm_sorts = sorts_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, thm_sorts)
 
     def read(text):
         g.sorts = thm_sorts
@@ -1231,7 +1230,7 @@ def check_conclusion(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
         if not just or not just.head.startswith(('def:', 'thm:')):
@@ -1278,7 +1277,7 @@ def check_define_citation(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     wrappers = {n.folds for n in g.notations if n.folds}
     for step in thm.steps:
         just = step.just
@@ -1351,7 +1350,7 @@ def check_obtained(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
         scope = statements_in_scope(thm, step)
@@ -1462,7 +1461,7 @@ def check_requires(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         scope = statements_in_scope(thm, step)
         for no, named in unconcluded(step, scope, library, sorts, defined):
@@ -1524,7 +1523,7 @@ def check_surplus(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     defines = {d[2] for d in thm.defines}
 
     def holds(step):
@@ -1713,7 +1712,7 @@ def check_hypotheses(report, thm, library):
     """
     g = library.g
     sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g)
+    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
         scope = statements_in_scope(thm, step)

@@ -121,8 +121,9 @@ def _introduced(body, known):
     return []
 
 
-def definitions_in_scope(thm, g):
-    """What each `define` line names, as a tree.
+def definitions_in_scope(thm, g, sorts):
+    """What each `define` line names, as a tree, read with the theorem's
+    `sorts` (`sorts_in_scope`).
 
     A define asserts nothing; it abbreviates. So the name and the term are one
     formula wherever two formulas are compared, and this is the table that says
@@ -134,10 +135,9 @@ def definitions_in_scope(thm, g):
         said = define_parts(text)
         if declined(said):
             continue
-        g.sorts = sorts_in_scope(thm, g)
+        g.sorts = sorts
         if said.param is not None:
-            g.sorts = {**g.sorts,
-                       said.param: element_sort(said.domain, g.sorts)}
+            g.sorts = {**sorts, said.param: element_sort(said.domain, sorts)}
         try:
             body = parse(said.body, g)
         except Problem:
