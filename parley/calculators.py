@@ -978,9 +978,7 @@ class Calculators:
         goal = self.to_term(term)
         given, where = [], []
         # What a cited membership implies — k ≥ 1 from k ∈ ℕ (`METHODS.md`,
-        # facts in) — is offered only where the facts as written do not
-        # decide the claim, so a proof that decides without it is the proof
-        # it was.
+        # facts in) — is offered with the facts as written.
         implied_given, implied_where = [], []
         for ref in refs:
             held = lines.get(ref)
@@ -1012,14 +1010,8 @@ class Calculators:
         closed = self.by_antisymmetry(goal, scope, facts)
         if closed is not None:
             return closed
+        given, where = [*given, *implied_given], [*where, *implied_where]
         found = linear.certificate([*given, linear.opposite(claim)])
-        if not isinstance(found, dict) and implied_given:
-            wider = linear.certificate([*given, *implied_given,
-                                        linear.opposite(claim)])
-            if isinstance(wider, dict):
-                given = [*given, *implied_given]
-                where = [*where, *implied_where]
-                found = wider
         if found is None:
             return Declined('the cited facts do not reach the claim')
         if not isinstance(found, dict):
