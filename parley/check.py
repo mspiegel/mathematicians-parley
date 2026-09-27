@@ -1597,20 +1597,12 @@ def obtains(groups, facts, seed, library):
             sites = set()
             binding_sites(concl, library.binders, library.props, (), sites)
             for target, extra in readings(concl, library):
+                # The "there is" is the reading's target or a part of it,
+                # and may be a property the definition applies, which the
+                # line the step cites decides: `part-builder` says u ⊆ X
+                # and P(u), and Y ∈ K makes P K's condition.
                 need = [x for e in extra for x in conjuncts(e, library)]
                 variables = set().union(*(names(t) for t in need))
-                if target.notation in library.exists:
-                    if not need:
-                        return True
-                    if supply(need, facts, dict(seed), variables, library,
-                              frozenset()) is not None:
-                        return True
-                    continue
-                # Or the "there is" is a property the definition applies,
-                # which the line the step cites decides: `part-builder`
-                # says u ⊆ X and P(u), and Y ∈ K makes P K's condition.
-                if not need:
-                    continue
                 found = supply(need, facts, dict(seed), variables, library,
                                sites)
                 if found is not None and any(
