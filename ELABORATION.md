@@ -230,6 +230,19 @@ cites `thm:proof/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and t
 the whole. The conclusion is read in the sorts the cited theorem's own
 hypotheses state, since `|x|` is absolute value only where x is a number.
 
+**A group is a structure the page never writes.** `let G be a finite group
+with operation · and identity e` is set.mm's `W e. Grp` for a class W, with
+`( Base ` W ) e. Fin` conjoined where the group is finite. G names
+`( Base ` W )` and e names `( 0g ` W )`. The notations that need the group's
+operation, inverse, subgroups or cosets write `@op`, `@inv`, `@subgroups` and
+`@lsm` in their targets, and `Reading.pattern` fills them from the names the
+`let` line gave, so `a·b` is `( a ( +g ` W ) b )` and `gH` is
+`( { g } ( LSSum ` W ) H )`. A notation that needs a group where no `let`
+line gives one is a defect at the line writing it. `assume H is a subgroup
+of G` introduces H as a `let` would, with a class variable of its own, and
+is a sort: a step may rest on it uncited, as a lemma asking that H be a set
+does.
+
 ## Scopes
 
 All four block forms widen the antecedent by what they assume and close with
@@ -363,6 +376,23 @@ antecedent, and the existential is discharged at the end. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 
+An `obtain` from a definition gives each letter the step writes its value,
+as a definition reaching an existence does: the coset is about u and says
+whose coset, `u := x, g := a`. The definition's left side is taken from the
+facts as written. Where the line the step cites says it otherwise — through a
+define's name, `b ∈ R` where the image definition asks `b ∈ f[C]`, or over
+another bound letter, `a ∈ C` where C's union binds one of its own — the
+existence is reached as a step claiming it would reach it (`one_unfolded`),
+and where nothing reaches it the step is a defect naming what it could not
+find. A lemma binding its letter on both sides, as `eliun` does in the union
+and in the existence, keeps the letter the step's term fixes, and `bridging`
+carries the existence to the obtain's own. A definition whose right side
+holds no "there is" of its own — `part-builder` and `set-builder`, where the
+existence is P, the proof's own define's condition — has its existence built
+from the step's claim (`existence_claimed`): `a ∈ G. Y = aH.` obtaining a is
+there is a ∈ G with Y = aH, each membership sentence giving a name's domain,
+and that is reached as above.
+
 **`substitute`** walks the path from the root of the claim to the occurrence
 being replaced and emits one congruence lemma per step of that path. The base
 of a power is the first argument of `^`, so `oveq1`; the exponent would be
@@ -373,7 +403,9 @@ rather than the only choice.
 
 A claim may hold its variable in several places at once, so the congruence
 machinery changes more than one operand at a time: `eqeq12d` and `oveq12d`
-where `eqeq1d` and `oveq1d` change one.
+where `eqeq1d` and `oveq1d` change one. A quantifier's domain and body may
+change together, as `for every x ∈ aH, xH ⊆ aH` does at a := b, and
+`raleqbidv` carries both.
 
 **`calculation`** folds a chain of n relations into n−1 transitivity steps.
 The lemma is chosen by the pair of relations either side of each join rather
@@ -398,7 +430,10 @@ over a letter nothing holds and renamed to the claim's own.
 
 Witnesses are recovered by matching the body against the cited line, taking
 all the marked places together, and the introduction is built from the
-innermost quantifier out. A witness is taken from the lines a step cites and
+innermost quantifier out. An equation names its witness read either way
+round, as `g·e = g` does for g = g·h. Where no cited line names the witness in
+the body, a line putting it in the domain does, and the body is then a term
+equal to itself, shown by `eqidd`: `there is a ∈ G with gH = aH` from g ∈ G. A witness is taken from the lines a step cites and
 never searched for among the facts in scope, so this runs only where a step is
 there to have cited one.
 
@@ -449,7 +484,11 @@ A definition is read whichever of three ways the claim asks for: it may reach
 an existence claim by supplying a witness, be read right to left from lines the
 step already holds, or be unfolded left to right and taken apart. Which one
 applies is settled by what the lemma states and what the step claims, not by
-how the readable right side is phrased. A definition's target may name more
+how the readable right side is phrased. A definition reaching its left side
+from a line that states the existence itself — `g ∈ ⋃(Y ∈ K) Y` from
+`there is Y ∈ K with g ∈ Y` — is read right to left as any other is
+(`witnessed_or_whole`); only one reached from lines naming the witness takes
+the witness route. A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
 theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
@@ -473,6 +512,13 @@ obtains a p and concludes that there is a p. Three places choose a variable and
 all three must agree: what an `obtain` introduces, what a `fix` fixes, and what
 a claim quantifies over. A binder's name may also be one set.mm declares as a
 class, as Cantor's `B` is, and then no letter will do.
+
+set.mm has 26 lettered setvars, and a letter the proof writes is never handed
+out as a spare. Lagrange's theorem writes fifteen, fixes some twenty names in
+its blocks, and takes one more for each `obtain` from an item, so
+`SPARE_VARS` goes on into set.mm's primed and double-primed setvars, a′, a″
+and the rest, which no reader writes. They come after every letter, so a
+proof that does not use up the letters never reaches them.
 
 Block scope is a snapshot. A block records the names before it opens anything
 and gives them back where it gives back its frames — in `close_block`, and in
@@ -709,6 +755,19 @@ fact one holds comes apart, `JOIN` how a goal one wants goes together, and
 The variables of a cited item are fixed by the lemma the target names rather
 than by the item's own letters, which is why a `requires` line needs no
 `v := t` of its own, though a few write one.
+
+A naming hypothesis fixes its variable from either side. `ralrnmpt` names a
+map and the claim fixes the map, so the map's parts are read out of it;
+`grplcan` names its operation, `.+ = ( +g ` G )`, and writes it only in the
+side of its biconditional the step supplies, so once G is fixed the
+hypothesis says what `.+` is (`read_off`). An antecedent's conjuncts are
+matched against the step's lines one at a time, and a bare `Z e. B` whose Z
+nothing has fixed is matched after the rest: any line putting anything in B
+answers it, and `grplcan`'s `( Z .+ X ) = ( Z .+ Y )` is what says which
+member Z is. A deduction's hypotheses may bind letters its conclusion never
+names, each hypothesis its own — `gpartcnt` binds one letter in the union it
+is told of and another in the sizes — and each is the letter the line cited
+for that hypothesis binds.
 
 **Every `requires` line is proved from its reason, once, when its step
 starts.** `step` proves them all before the step's method runs and offers them
