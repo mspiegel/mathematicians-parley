@@ -804,7 +804,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         hyps = [*hyps, *sides]
         for end in [*ends, *sides]:
             for said in self.said(step):
-                got = match(end, said, bound, variables, props)
+                got = match(end, said, bound, variables, props, frozenset(),
+                            binders)
                 if got is not None:
                     bound = got
                     break
@@ -823,7 +824,8 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             learned = False
             for hyp in hyps:
                 for fact in given:
-                    got = match(hyp, fact, bound, variables, props)
+                    got = match(hyp, fact, bound, variables, props,
+                                frozenset(), binders)
                     if got is not None and len(got) > len(bound):
                         bound, learned = got, True
                         break

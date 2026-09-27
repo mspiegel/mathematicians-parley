@@ -979,7 +979,8 @@ def supply(patterns, facts, binding, variables, library,
                     and fact.notation in library.members
                     and len(fact.children) == 2):
                 found = match(first.children[1], fact.children[1],
-                              binding, variables)
+                              binding, variables, library.props, sites,
+                              library.binders)
             # A "for every" said of a set is said of every set inside it
             # (`SYNTAX.md`): line 1 of the triangular reciprocals, over ℕ,
             # answers `sum-termwise`'s hypothesis over {1, …, n}.
@@ -1093,7 +1094,8 @@ def witnessed_in(exists, binding, facts, variables, library, sites):
         if not any(f.notation in library.members and len(f.children) == 2
                    and f.children[0].shape() == value.shape()
                    and match(domain, f.children[1], binding, variables,
-                             library.props, sites) is not None
+                             library.props, sites,
+                             library.binders) is not None
                    for f in facts):
             return False
     return True
@@ -1429,7 +1431,7 @@ def family_asks(step, scope, library, sorts, defined):
                 for cand in conjuncts(target, library):
                     for claim in claims:
                         found = match(cand, claim, dict(seed), variables,
-                                      library.props, sites)
+                                      library.props, sites, library.binders)
                         for value in (found or {}).values():
                             if value.notation == PROPERTY:
                                 held |= names(value.children[0]) - {value.text}
@@ -1700,7 +1702,7 @@ def derives(claim, groups, facts, library, depth=5):
         variables = set().union(*(names(t) for t in trees)) if trees else set()
         for concl in gives:
             binding = match(concl, claim, {}, variables, library.props,
-                            frozenset())
+                            frozenset(), library.binders)
             if binding is None:
                 continue
             if all(derives(substitute(t, binding), groups, facts, library,

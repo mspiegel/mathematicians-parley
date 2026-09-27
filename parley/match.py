@@ -111,13 +111,13 @@ def binding_sites(pattern, binders, props, bound=(), out=None):
     return out
 
 
-def match(pattern, ground, binding, variables, props=(), sites=frozenset(),
-          binders=None):
+def match(pattern, ground, binding, variables, props, sites, binders):
     """Bind the pattern's variables so that it becomes the ground tree.
 
     Returns the binding, or None. The binding is not modified on failure.
-    `binders` (`binding_context`), where given, lets what a property stands
-    for be compared with the ground up to the letters it binds.
+    `props` and `binders` are `binding_context`'s. What a property stands
+    for is compared with the ground up to the letters it binds, and a
+    binder of the pattern's may take the ground's letter (`_bound_as`).
     """
     if pattern.notation == 'name' and pattern.text in variables:
         seen = binding.get(pattern.text)
@@ -155,7 +155,7 @@ def _bound_as(pattern, ground, variables, binders):
     line saying the same thing may bind another: `there is b ∈ G with
     gH = bH` answers K's `there is g ∈ G with X = gH` at X := gH.
     """
-    shape = binders.get(pattern.notation) if binders else None
+    shape = binders.get(pattern.notation)
     if shape is None:
         return pattern
     at, body = shape
@@ -187,7 +187,7 @@ def alike(a, b, binders, ours=None, theirs=None):
     if (a.notation != b.notation or a.text != b.text
             or len(a.children) != len(b.children)):
         return False
-    shape = binders.get(a.notation) if binders else None
+    shape = binders.get(a.notation)
     if shape is None:
         return all(alike(x, y, binders, ours, theirs)
                    for x, y in zip(a.children, b.children, strict=True))
@@ -202,16 +202,7 @@ def alike(a, b, binders, ours=None, theirs=None):
                                               strict=True)))
 
 
-def _same(filled, ground, binders):
-    """What a property stands for, read at its argument, against the ground:
-    up to the letters it binds where the binders are known.
-    """
-    if binders is None:
-        return filled.shape() == ground.shape()
-    return alike(filled, ground, binders)
-
-
-def _property(pattern, ground, binding, sites, binders=None):
+def _property(pattern, ground, binding, sites, binders):
     """P applied to something, where P is one of the pattern's variables."""
     name, arg = pattern.children[0].text, _read_at(pattern.children[1],
                                                    binding)
@@ -225,7 +216,7 @@ def _property(pattern, ground, binding, sites, binders=None):
     if stands.notation != PROPERTY:
         return None
     filled = substitute_apart(stands.children[0], {stands.text: arg}, binders)
-    return binding if _same(filled, ground, binders) else None
+    return binding if alike(filled, ground, binders) else None
 
 
 def _read_at(arg, binding):
@@ -240,7 +231,7 @@ def _read_at(arg, binding):
                             if t.notation != PROPERTY})
 
 
-def _family(pattern, ground, binding, sites, binders=None):
+def _family(pattern, ground, binding, sites, binders):
     """t applied to something, where t is a function the pattern names.
 
     Under a binder that applies it to what it binds, t is whatever is summed
@@ -260,7 +251,7 @@ def _family(pattern, ground, binding, sites, binders=None):
     if stands is not None and stands.notation == PROPERTY:
         filled = substitute_apart(stands.children[0], {stands.text: arg},
                                   binders)
-        return True, (binding if _same(filled, ground, binders) else None)
+        return True, (binding if alike(filled, ground, binders) else None)
     plain = (ground.notation == pattern.notation and len(ground.children) == 2
              and ground.children[1].shape() == arg.shape())
     if (stands is None and id(pattern) in sites and arg.notation == 'name'
@@ -276,26 +267,6 @@ def names(node):
     if node.notation == 'name':
         return {node.text}
     return set().union(set(), *(names(c) for c in node.children))
-
-
-def match_all(patterns, facts, binding, variables):
-    """Match every pattern against a fact of its own, or return None.
-
-    Each fact is used once, because two hypotheses asking the same thing want
-    two lines saying it. The search backtracks, since an early pattern that
-    fits several facts can bind a name the wrong way.
-    """
-    if not patterns:
-        return binding
-    first, rest = patterns[0], patterns[1:]
-    for i, fact in enumerate(facts):
-        found = match(first, fact, binding, variables)
-        if found is None:
-            continue
-        done = match_all(rest, facts[:i] + facts[i + 1:], found, variables)
-        if done is not None:
-            return done
-    return None
 
 
 class Rule:
@@ -365,7 +336,7 @@ def substitute_apart(node, binding, binders):
     """
     if node.notation in ('name', 'numeral'):
         return binding.get(node.text, node)
-    shape = binders.get(node.notation) if binders else None
+    shape = binders.get(node.notation)
     if shape is None or node.children[shape[0]].notation != 'name':
         return Node(node.notation, node.sort,
                     [substitute_apart(c, binding, binders)
