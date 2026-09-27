@@ -8,7 +8,14 @@
 //! tested, that nothing is taken as stated unrecorded, and an external
 //! verifier over every proof.
 
+pub mod check;
+pub mod corpus;
+pub mod formula;
+pub mod kinds;
+pub mod matching;
 pub mod outcome;
+pub mod rules;
+pub mod sorts;
 pub mod source;
 pub mod text;
 

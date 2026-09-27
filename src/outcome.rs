@@ -28,19 +28,51 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Problem {
     pub path: String,
-    pub line: usize,
+    pub line: At,
     pub message: String,
+}
+
+/// Where in a file: a line, or the place just after one.
+///
+/// A theorem's conclusion is read after its last hypothesis and before the
+/// next line, so what is found there is placed half a line down, and said so.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct At {
+    pub line: usize,
+    pub half: bool,
+}
+
+impl At {
+    pub fn after(line: usize) -> At {
+        At { line, half: true }
+    }
+}
+
+impl From<usize> for At {
+    fn from(line: usize) -> At {
+        At { line, half: false }
+    }
+}
+
+impl fmt::Display for At {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.half {
+            write!(f, "{}.5", self.line)
+        } else {
+            write!(f, "{}", self.line)
+        }
+    }
 }
 
 impl Problem {
     pub fn new(
         path: impl Into<String>,
-        line: usize,
+        line: impl Into<At>,
         message: impl Into<String>,
     ) -> Self {
         Problem {
             path: path.into(),
-            line,
+            line: line.into(),
             message: message.into(),
         }
     }

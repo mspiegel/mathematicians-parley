@@ -1,0 +1,734 @@
+//! The elaborator's rule tables: which set.mm lemma does each job.
+//!
+//! This is data, not code. Given the shape of what is wanted, a table names
+//! the set.mm lemma that answers it: which lemma lifts an equation through
+//! each constructor, which carries a membership from one number system to
+//! another or through an operation, what a closed numeral is, and the
+//! spellings in which set.mm and the page say one thing two ways.
+//!
+//! Growth goes here first. A pilot that meets a new difference between the
+//! page and set.mm adds an entry, and the gate checks that every label here
+//! is one set.mm has (`every_label`).
+//!
+//! `MEMBERSHIP` says which set.mm lemmas an elaborator may lean on for what
+//! the readable layer never writes. That a sum of integers is an integer,
+//! that an integer is a real, that two integers may be multiplied either way
+//! round — these are facts about set.mm's library rather than about the
+//! readable corpus, and no field of a readable database is the place for
+//! them. They are one list tried by matching, because they are one question:
+//! what does set.mm already prove that says this?
+//!
+//! Where a table is looked up by key it is a slice searched in order, which
+//! is the order the reference implementation declares it in; where a table
+//! is walked, that order is what the walk sees.
+
+/// The digits and the constant set.mm names each by.
+pub const NUMERALS: [(&str, &str); 10] = [
+    ("0", "cc0"),
+    ("1", "c1"),
+    ("2", "c2"),
+    ("3", "c3"),
+    ("4", "c4"),
+    ("5", "c5"),
+    ("6", "c6"),
+    ("7", "c7"),
+    ("8", "c8"),
+    ("9", "c9"),
+];
+
+/// The constant set.mm names a digit by.
+pub fn numeral_label(digit: u32) -> Option<&'static str> {
+    NUMERALS.get(digit as usize).map(|(_, label)| *label)
+}
+
+/// The value of a digit's constant.
+pub fn digit_of(label: &str) -> Option<u32> {
+    NUMERALS
+        .iter()
+        .position(|(_, l)| *l == label)
+        .map(|at| at as u32)
+}
+
+// Which lemma rewrites a subterm, by what encloses it and which hole it sits
+// in. The tree decides; nothing is searched for. A claim may change in more
+// than one place at once — the claim of an induction holds its variable
+// several times — so the lemma is chosen by which operands change together
+// as well as by what encloses them.
+pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
+    ("co", &[0], "oveq1d"),
+    ("co", &[1], "oveq2d"),
+    ("co", &[0, 1], "oveq12d"),
+    ("wbr", &[0], "breq1d"),
+    ("wbr", &[1], "breq2d"),
+    ("wbr", &[0, 1], "breq12d"),
+    ("cfv", &[0], "fveq2d"),
+    // A pair, as the state of a define by recursion holds its values.
+    ("cop", &[0], "opeq1d"),
+    ("cop", &[1], "opeq2d"),
+    ("cop", &[0, 1], "opeq12d"),
+    ("wceq", &[0], "eqeq1d"),
+    ("wceq", &[1], "eqeq2d"),
+    ("wceq", &[0, 1], "eqeq12d"),
+    ("wcel", &[0], "eleq1d"),
+    ("wcel", &[1], "eleq2d"),
+    ("wcel", &[0, 1], "eleq12d"),
+    ("csu", &[0], "sumeq1d"),
+    ("cpw", &[0], "pweqd"),
+    ("csn", &[0], "sneqd"),
+    ("crn", &[0], "rneqd"),
+    ("cun", &[0], "uneq1d"),
+    ("cun", &[1], "uneq2d"),
+    ("cun", &[0, 1], "uneq12d"),
+    ("cdif", &[0], "difeq1d"),
+    ("cdif", &[1], "difeq2d"),
+    ("cdif", &[0, 1], "difeq12d"),
+    ("cin", &[0], "ineq1d"),
+    ("cin", &[1], "ineq2d"),
+    ("cin", &[0, 1], "ineq12d"),
+    ("wss", &[0], "sseq1d"),
+    ("wss", &[1], "sseq2d"),
+    ("wss", &[0, 1], "sseq12d"),
+    ("wa", &[0], "anbi1d"),
+    ("wa", &[1], "anbi2d"),
+    ("wa", &[0, 1], "anbi12d"),
+    ("w3a", &[0], "3anbi1d"),
+    ("w3a", &[1], "3anbi2d"),
+    ("w3a", &[2], "3anbi3d"),
+    ("w3a", &[0, 1, 2], "3anbi123d"),
+    ("wo", &[0], "orbi1d"),
+    ("wo", &[1], "orbi2d"),
+    ("wo", &[0, 1], "orbi12d"),
+    ("wb", &[0], "bibi1d"),
+    ("wb", &[1], "bibi2d"),
+    ("wb", &[0, 1], "bibi12d"),
+    ("wn", &[0], "notbid"),
+    // A universal over an `if ... then` changes both sides at once when the
+    // name it binds stands on each of them.
+    ("wi", &[0], "imbi1d"),
+    ("wi", &[1], "imbi2d"),
+    ("wi", &[0, 1], "imbi12d"),
+    ("wral", &[0], "ralbidv"),
+    ("wrex", &[0], "rexbidv"),
+    // Over a domain spelt another way, as a defined name read as the set it
+    // names; `congruence` takes these by name, since they order their
+    // variables apart from the rest.
+    ("wral", &[2], "raleqdv"),
+    ("wrex", &[2], "rexeqdv"),
+    ("wral", &[0, 2], "raleqbidv"),
+    ("wrex", &[0, 2], "rexeqbidv"),
+    ("crab", &[0], "rabbidva"),
+    ("cmpt", &[1], "mpteq1d"),
+    ("ciun", &[1], "iuneq1d"),
+    // A function against the map its define names, and a rule by cases in
+    // any of its three parts; given by name too.
+    ("wf", &[2], "feq1d"),
+    ("wf1", &[2], "f1eq1"),
+    // An image, in its function, its set, or both.
+    ("cima", &[0], "imaeq1d"),
+    ("cima", &[1], "imaeq2d"),
+    ("cima", &[0, 1], "imaeq12d"),
+    ("cif", &[0], "ifbieq12d"),
+    ("cif", &[1], "ifbieq12d"),
+    ("cif", &[2], "ifbieq12d"),
+    ("cif", &[0, 1], "ifbieq12d"),
+    ("cif", &[0, 2], "ifbieq12d"),
+    ("cif", &[1, 2], "ifbieq12d"),
+    ("cif", &[0, 1, 2], "ifbieq12d"),
+    // And the same over every set there is, which a `let X be a set`
+    // quantifies and the subsets proof inducts under.
+    ("wal", &[0], "albidv"),
+];
+
+pub fn congruence(label: &str, slots: &[usize]) -> Option<&'static str> {
+    CONGRUENCE
+        .iter()
+        .find(|(l, s, _)| *l == label && *s == slots)
+        .map(|(_, _, lemma)| *lemma)
+}
+
+/// The constructors that take a function, operation or relation as an
+/// operand.
+pub const WRAPS: [&str; 3] = ["co", "wbr", "cfv"];
+
+// Lifting a closed biconditional through one level of a term. The deduction
+// forms `congruence` uses take the scope as an antecedent; these take
+// nothing, which is what a renaming needs.
+pub const RENAMED: &[(&str, usize, &str)] = &[
+    ("wa", 0, "anbi1i"),
+    ("wa", 1, "anbi2i"),
+    ("wi", 0, "imbi1i"),
+    ("wi", 1, "imbi2i"),
+];
+
+pub fn renamed(label: &str, slot: usize) -> Option<&'static str> {
+    RENAMED
+        .iter()
+        .find(|(l, s, _)| *l == label && *s == slot)
+        .map(|(_, _, lemma)| *lemma)
+}
+
+// One binder: the lemma that changes what it binds over, and the one that
+// changes the name it binds. Both closed, and the `w` on the second is
+// set.mm's version that does not lean on ax-13.
+pub const BOUND: &[(&str, (&str, &str))] = &[
+    ("wrex", ("rexbii", "cbvrexvw")),
+    ("wral", ("ralbii", "cbvralvw")),
+    ("wal", ("albii", "cbvalvw")),
+];
+
+// A class that binds a name, and the lemma that changes the name; its
+// hypothesis says how the two bodies agree at x = y. None leans on ax-13. A
+// map in a theorem the subsets proof cites binds `o` where the define it is
+// compared with binds `l`, and those are one class; so are a defined sum's
+// rule over `i` and the same sum a line writes over `j`.
+pub const CLASS_BOUND: &[(&str, &str)] =
+    &[("cmpt", "cbvmptv"), ("crab", "cbvrabv"), ("csu", "cbvsumv")];
+
+// And the lemma that changes what such a class says of each member, its
+// letter kept, closed: where one binder sits inside another, the inner is
+// renamed first and carried up through the outer by this, and the outer
+// renamed after.
+pub const CLASS_BODY: &[(&str, &str)] = &[("cmpt", "mpteq2ia"), ("csu", "sumeq2i")];
+
+// Carrying an equality of two classes up through one place of a term,
+// closed, by the constructor and the place: what two terms spelling one
+// class with different bound letters inside are shown equal by. The places
+// are the kernel term's, in the order its constructor takes them.
+pub const CLASS_LIFT: &[(&str, usize, &str)] = &[
+    ("cdif", 0, "difeq1i"),
+    ("cdif", 1, "difeq2i"),
+    ("crn", 0, "rneqi"),
+    ("cfv", 0, "fveq2i"),
+    ("cfv", 1, "fveq1i"),
+    ("cun", 0, "uneq1i"),
+    ("cun", 1, "uneq2i"),
+    ("cin", 0, "ineq1i"),
+    ("cin", 1, "ineq2i"),
+    ("co", 0, "oveq1i"),
+    ("co", 1, "oveq2i"),
+    ("cpw", 0, "pweqi"),
+    ("csn", 0, "sneqi"),
+    ("cima", 0, "imaeq1i"),
+    ("cima", 1, "imaeq2i"),
+];
+
+// A binder's domain changed, its body kept, closed.
+pub const DOMAIN: &[(&str, &str)] =
+    &[("wral", "raleqi"), ("wrex", "rexeqi"), ("cmpt", "mpteq1i")];
+
+/// Look a label up in a table of pairs.
+pub fn lookup<V: Copy>(table: &[(&str, V)], key: &str) -> Option<V> {
+    table.iter().find(|(k, _)| *k == key).map(|(_, v)| *v)
+}
+
+/// How a biconditional was joined to what follows it: through an
+/// implication, through a biconditional, or through a biconditional a lemma
+/// states the other way round from the way a step reaches it.
+///
+/// The last is no label, so a statement built from it would not spell,
+/// which is what stops a second antecedent being folded past one read this
+/// way.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Join {
+    Implies,
+    Iff,
+    Turned,
+}
+
+// Which lemma discharges one thing a lemma asked, by how that thing was
+// joined to what follows it and whether the lemma is still bare. The first
+// is composed with the lemma itself; every later one is applied to what the
+// last already deduced.
+pub fn discharge(join: Join, bare: bool) -> &'static str {
+    match (join, bare) {
+        (Join::Implies, true) => "syl",
+        (Join::Implies, false) => "mpd",
+        (Join::Iff, true) => "sylib",
+        (Join::Iff, false) => "mpbid",
+        (Join::Turned, true) => "sylibr",
+        (Join::Turned, false) => "mpbird",
+    }
+}
+
+// A claim `P → Q` from a biconditional between P and Q: the lemma taking it
+// from left to right, then the one from right to left.
+pub const ONE_WAY: (&str, &str) = ("biimpd", "biimprd");
+
+// Instantiating a universal, by the binder: the lemma, the variable it names
+// the domain by, and the domain where the binder names none. A restricted
+// universal wants its term in the set it runs over, and an unrestricted one
+// wants it only to be a set.
+pub struct Instance {
+    pub lemma: &'static str,
+    pub domain_var: &'static str,
+    pub domain: Option<&'static str>,
+}
+
+pub const INSTANCES: &[(&str, Instance)] = &[
+    (
+        "wral",
+        Instance {
+            lemma: "rspcv",
+            domain_var: "B",
+            domain: None,
+        },
+    ),
+    (
+        "wal",
+        Instance {
+            lemma: "spcgv",
+            domain_var: "V",
+            domain: Some("cvv"),
+        },
+    ),
+];
+
+// Which transitivity folds one link of a calculation into the run above it,
+// by what each of the two claims is. Two relations in a row would want the
+// transitivity of that relation and no chain writes one.
+pub const FOLDING: &[((&str, &str), &str)] = &[
+    (("wceq", "wceq"), "eqtrd"),
+    (("wceq", "wbr"), "eqbrtrd"),
+    (("wbr", "wceq"), "breqtrd"),
+];
+
+pub fn folding(first: &str, second: &str) -> Option<&'static str> {
+    FOLDING
+        .iter()
+        .find(|((a, b), _)| *a == first && *b == second)
+        .map(|(_, lemma)| *lemma)
+}
+
+// A fact that conjoins several things says each of them, and the steps below
+// cite them one at a time: an `obtain` hands over one body saying that q is
+// positive, that x is p over q, and that nothing divides both.
+pub const SPLIT: &[(&str, &[&str])] = &[
+    ("wa", &["simpl", "simpr"]),
+    ("w3a", &["simp1", "simp2", "simp3"]),
+];
+// And the other direction: what conjoins a proof of each part into a proof
+// of the whole. `SPLIT` is read where a fact is taken apart and this where a
+// goal is put together, and both are asked by label so that a shape neither
+// names is left alone.
+pub const JOIN: &[(&str, &str)] = &[("wa", "jca"), ("w3a", "3jca")];
+
+// What closes an induction, by the set the name inducted on runs over, and
+// where that lemma starts. The two have the same six hypotheses in the same
+// order and differ only in the set and the base, so choosing between them is
+// choosing a label. Which one a proof wants is not the text's to say twice:
+// `let n ∈ ℕ₀` already says it, and `starting at` is checked against it.
+pub const INDUCTION: &[(&str, (&str, &str))] =
+    &[("cn", ("nnindd", "c1")), ("cn0", ("nn0indd", "cc0"))];
+
+// How set.mm names that a digit belongs to a number system, by the system.
+// The label is the digit and this suffix throughout — `2z`, `1nn`, `0re` —
+// so what a system needs here is how its name is spelt in that label and
+// nothing else.
+pub const SYSTEMS: &[(&str, &str)] = &[
+    ("cc", "cn"),
+    ("cr", "re"),
+    ("cz", "z"),
+    ("cn", "nn"),
+    ("cn0", "nn0"),
+    ("cq", "q"),
+];
+// The lemma that puts a sum, difference, product or power in a number system
+// from its parts being there, by operator and system; a power's exponent is
+// in ℕ₀ whatever the system. A compound's membership is built from its
+// atoms' this way, so an atom's is the step's own line where it wrote one.
+pub const CLOSED: &[((&str, &str), &str)] = &[
+    (("caddc", "cc"), "addcld"),
+    (("cmin", "cc"), "subcld"),
+    (("cmul", "cc"), "mulcld"),
+    (("cexp", "cc"), "expcld"),
+    (("caddc", "cr"), "readdcld"),
+    (("cmin", "cr"), "resubcld"),
+    (("cmul", "cr"), "remulcld"),
+    (("cexp", "cr"), "reexpcld"),
+    (("caddc", "cz"), "zaddcld"),
+    (("cmin", "cz"), "zsubcld"),
+    (("cmul", "cz"), "zmulcld"),
+    (("cexp", "cz"), "zexpcld"),
+    (("caddc", "cn"), "nnaddcld"),
+    (("cmul", "cn"), "nnmulcld"),
+    (("caddc", "cn0"), "nn0addcld"),
+    (("cmul", "cn0"), "nn0mulcld"),
+    (("cexp", "cn0"), "nn0expcld"),
+];
+
+pub fn closed(op: &str, system: &str) -> Option<&'static str> {
+    CLOSED
+        .iter()
+        .find(|((o, s), _)| *o == op && *s == system)
+        .map(|(_, lemma)| *lemma)
+}
+
+pub const NEGATED: &[(&str, &str)] =
+    &[("cc", "negcld"), ("cr", "renegcld"), ("cz", "znegcld")];
+// A quotient asks a third thing of its parts, that the divisor is not zero,
+// so it is closed only where the caller says how that is shown.
+pub const DIVIDED: &[(&str, &str)] = &[("cc", "divcld"), ("cr", "redivcld")];
+
+// Which number sets lie inside which, each with the lemma saying so of a
+// member (`SYNTAX.md`: a line said of every member of a set says it of every
+// member of a set inside that one). One table, read by the checker and the
+// elaborator alike, and declared rather than searched.
+pub const SYSTEM_OF: &[(&str, &str)] = &[
+    ("ℕ", "cn"),
+    ("ℕ₀", "cn0"),
+    ("ℤ", "cz"),
+    ("ℚ", "cq"),
+    ("ℝ", "cr"),
+    ("ℂ", "cc"),
+];
+
+pub fn system_of(sign: &str) -> Option<&'static str> {
+    lookup(SYSTEM_OF, sign)
+}
+
+pub const WITHIN: &[(&str, &[(&str, &str)])] = &[
+    (
+        "cn",
+        &[
+            ("cn0", "nnnn0"),
+            ("cz", "nnz"),
+            ("cq", "nnq"),
+            ("cr", "nnre"),
+            ("cc", "nncn"),
+        ],
+    ),
+    ("cn0", &[("cz", "nn0z"), ("cr", "nn0re"), ("cc", "nn0cn")]),
+    ("cz", &[("cq", "zq"), ("cr", "zre"), ("cc", "zcn")]),
+    ("cq", &[("cr", "qre"), ("cc", "qcn")]),
+    ("cr", &[("cc", "recn")]),
+];
+
+// What else a membership says of its term, as the page writes it with x for
+// the term, and the lemma that says it (`SYNTAX.md`, what a membership line
+// says).
+pub const IMPLIED: &[(&str, &[(&str, &str)])] = &[
+    ("cn", &[("x ≥ 1", "nnge1"), ("x ≠ 0", "nnne0")]),
+    ("cn0", &[("x ≥ 0", "nn0ge0")]),
+];
+
+pub fn implied(system: Option<&str>) -> &'static [(&'static str, &'static str)] {
+    system.and_then(|s| lookup(IMPLIED, s)).unwrap_or(&[])
+}
+
+// A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere:
+// the system, the numeral it must start at or None, the lemma.
+pub const RANGE_WITHIN: &[(&str, Option<&str>, &str)] = &[
+    ("cn", Some("c1"), "elfznn"),
+    ("cn0", Some("cc0"), "elfznn0"),
+    ("cz", None, "elfzelz"),
+];
+
+/// The lemmas carrying a member of `small` into `big`, by labels, in order;
+/// empty where the two are one; None where the table does not put `small`
+/// inside `big`. A direct entry is taken over a longer way: set.mm says
+/// ℕ ⊆ ℝ as `nnre`, and ℕ₀ ⊆ ℚ only by way of ℤ.
+///
+/// A system is None where the page wrote a set that is none of them, and two
+/// such are one as far as the table is concerned, as the reference
+/// implementation has them.
+pub fn within_path(
+    small: Option<&str>,
+    big: Option<&str>,
+) -> Option<Vec<&'static str>> {
+    if small == big {
+        return Some(Vec::new());
+    }
+    let row = small.and_then(|s| lookup(WITHIN, s)).unwrap_or(&[]);
+    if let Some(direct) = big.and_then(|b| lookup(row, b)) {
+        return Some(vec![direct]);
+    }
+    for (middle, lemma) in row {
+        if let Some(rest) = within_path(Some(middle), big) {
+            let mut out = vec![*lemma];
+            out.extend(rest);
+            return Some(out);
+        }
+    }
+    None
+}
+
+/// What a term built from numerals alone is spelt with: the digits, the
+/// decimal that joins them, and the operations `arithmetic` reads.
+pub fn numeric(label: &str) -> bool {
+    digit_of(label).is_some()
+        || matches!(
+            label,
+            "cdc" | "co" | "caddc" | "cmin" | "cmul" | "cdiv" | "cexp" | "cneg"
+        )
+}
+
+// A whole number set.mm writes in ℕ₀ is in these by the closed lemma each
+// names, which asks the number's own fact and not one in a scope.
+pub const FROM_NN0: &[(&str, Option<&str>)] = &[
+    ("cn0", None),
+    ("cz", Some("nn0zi")),
+    ("cr", Some("nn0rei")),
+    ("cc", Some("nn0cni")),
+];
+
+// The lemma that makes a term a set, in set.mm's sense of not a proper
+// class, by the constructor at its head; what it asks is its parts'
+// sethood, which the same table answers. A kernel variable is a set by
+// `vex`, and a class the statement introduced by its `let` line. This is
+// apparatus, and the page never writes it.
+pub const SETHOOD: &[(&str, &str)] = &[
+    ("cpw", "pwexg"),
+    ("cdif", "difexg"),
+    ("cun", "unexg"),
+    ("csn", "snex"),
+    ("crn", "rnexg"),
+    ("cmpt", "mptexg"),
+    ("crab", "rabexg"),
+    ("c0", "0ex"),
+    ("cv", "vex"),
+    ("co", "ovex"),
+    ("cfv", "fvex"),
+    ("cif", "ifexg"),
+    ("cn", "nnex"),
+    ("ciun", "iunexg"),
+    ("ccnv", "cnvexg"),
+    ("cn0", "nn0ex"),
+    ("csu", "sumex"),
+    ("cima", "imaexg"),
+    ("cop", "opex"),
+    ("cdc", "decex"),
+    // The numerals set.mm says are sets in one lemma; 4 to 9 it does not
+    // state so, and a term holding one is not settled here.
+    ("cc0", "c0ex"),
+    ("c1", "1ex"),
+    ("c2", "2ex"),
+    ("c3", "3ex"),
+];
+
+// That a term is a set with nothing assumed, where every part is one: the
+// step of a define by recursion is a set at every state it is given, which
+// is what makes it a function on every set. Each lemma's variables are its
+// constructor's operands in order, and what it asks is that some of them
+// are sets (`ifex`), which is asked of those parts the same way.
+pub const CLOSED_SETHOOD: &[(&str, &str)] = &[
+    ("co", "ovex"),
+    ("cfv", "fvex"),
+    ("cop", "opex"),
+    ("csn", "snex"),
+    ("cv", "vex"),
+    ("cif", "ifex"),
+    ("cdc", "decex"),
+    ("cc0", "c0ex"),
+    ("c1", "1ex"),
+    ("c2", "2ex"),
+    ("c3", "3ex"),
+];
+
+// Two differences against zero added, by which of the two is strictly below
+// it: the lemma that adds them and keeps the strictness.
+pub const ADDING: &[((bool, bool), &str)] = &[
+    ((true, false), "ltleadd"),
+    ((false, true), "leltadd"),
+    ((true, true), "lt2add"),
+];
+
+// A denied `<` or `≤` said the other way round, by the relation denied:
+// that relation's label, the one that holds instead, and the lemma saying
+// the two are the same.
+pub const DENIED: &[(&str, (&str, &str, &str))] = &[
+    ("<", ("clt", "cle", "lenlt")),
+    ("<=", ("cle", "clt", "ltnle")),
+];
+
+// What says a thing lies in a class, by where that class stands among its
+// parts: a membership, and a map's codomain. Where a map's values land is
+// the same kind of question as where a set lives, and set.mm asks it the
+// same way: `f1f1orn` wants a codomain and says nothing about it, because
+// being one-to-one into one class is being one-to-one into any that holds
+// the values. A class a lemma asks for here and nothing fixes is `_V`,
+// which holds them all.
+pub const HELD_IN: &[(&str, usize)] =
+    &[("wcel", 1), ("wf", 1), ("wf1", 1), ("wfo", 1), ("wf1o", 1)];
+
+// The operations a method combining atoms looks inside, and the connectives
+// and relations between the terms of the claim it proves.
+pub const ARITHMETIC: [&str; 4] = ["caddc", "cmin", "cmul", "cdiv"];
+pub const RELATIONS: [&str; 5] = ["wceq", "wne", "wbr", "wn", "wa"];
+
+/// A two-sided statement's sides, as children.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Side {
+    Left = 0,
+    Right = 1,
+}
+
+// The rules that put a statement in one standard form, so that what a lemma
+// says and what is wanted can be compared as they stand: each a set.mm
+// biconditional or equation, by which of its two sides is the standard one.
+// A rule rewrites only toward a side whose variables all appear on the
+// other, so rewriting ends and has one answer: `rexss` rewrites the page's
+// restriction in the body back to set.mm's restriction in the domain,
+// because the other way would have to invent the larger set. What a rule
+// asks — `rexss` a subset, `exp0` a complex number — is settled where it is
+// applied.
+pub const STANDARD: &[(&str, Side)] = &[
+    ("df-3or", Side::Right),
+    ("df-ne", Side::Right),
+    ("ralrp", Side::Right),
+    ("rexrp", Side::Right),
+    ("exp0", Side::Right),
+    ("nn0absid", Side::Right),
+    ("rexss", Side::Left),
+    ("rextru", Side::Right),
+];
+
+// The rules whose two sides are the same shape the other way round, which no
+// direction can orient: the two sides are put in a fixed order instead, the
+// one whose reverse Polish sorts first on the left. Inequalities are never
+// among them, since their sides are not interchangeable.
+pub const SYMMETRIC: [&str; 3] = ["eqcom", "addcom", "mulcom"];
+
+// Every lemma the elaborator may lean on for a fact the text does not
+// write, tried by matching its conclusion against what is wanted. A closed
+// one settles it outright, one with an antecedent leaves that antecedent to
+// settle in turn, and a biconditional is read whichever way reaches it.
+//
+// Saying it by statement rather than by shape is what lets one list answer
+// every side condition there is: `k e. CC` because k runs over a range of
+// integers, `( p ^ 2 ) e. ZZ` because p is one, `{ x e. A | ph } e. _V`
+// because A is a set. It is declared rather than searched for: an
+// elaborator that hunted through set.mm for anything that fitted would
+// settle side conditions by means the text never names. The comments on
+// each group are the reference implementation's, which says why each is
+// here.
+pub const MEMBERSHIP: &[&str] = &[
+    "ax-1cn",
+    "1re",
+    "1z",
+    "1nn",
+    "2cn",
+    "2re",
+    "2z",
+    "2nn",
+    "0cn",
+    "0re",
+    "0z",
+    "0nn0",
+    "3cn",
+    "3re",
+    "3z",
+    "4cn",
+    "4re",
+    "4z",
+    // A numeral of more than one digit is not among these: its membership is
+    // built from its digits, because `deccl` asks its parts as closed facts
+    // and a search proves everything under the step's scope.
+    "nnz",
+    "nnre",
+    "nncn",
+    "nnnn0",
+    "nn0z",
+    "nn0re",
+    "nn0cn",
+    "zre",
+    "zcn",
+    "recn",
+    "qre",
+    "qcn",
+    "elnnuz",
+    "eluz2",
+    "eluz2b1",
+    "eluz2b2",
+    "eluz2gt1",
+    // Where a restriction sits is not what a claim says, and set.mm states
+    // that in general: quantifying over a subset is quantifying over the set
+    // with membership of the subset in the body.
+    "rexss",
+    "prmssnn",
+    // A summation index runs over a range of integers, and what the summand
+    // asks of it is not always integrality.
+    "elfzelz",
+    "elfznn0",
+    "abscl",
+    "zaddcl",
+    "zsubcl",
+    "zmulcl",
+    "zsqcl",
+    // A sum asks that its range be finite and that each of its terms be a
+    // number, and a term is often a function's value at the index.
+    "fzfi",
+    "ffvelcdm",
+    "zexpcl",
+    // A binomial coefficient is a whole number at every integer, and a
+    // power's exponent n − k is a whole number when k is in 0 … n.
+    "bccl",
+    "fznn0sub",
+    // and an index of a sum to m is in the range to m + 1.
+    "fzelp1",
+    // An index of a sum from 1 is a natural number, where a power wants it.
+    "elfznn",
+    // set.mm says a coefficient is zero when k < 0 or n < k, as one
+    // disjunction, and a proof says which of the two holds.
+    "olc",
+    "orc",
+    "addcl",
+    "subcl",
+    "mulcl",
+    "sqcl",
+    "readdcl",
+    "remulcl",
+    "resqcl",
+    "renegcl",
+    "negcl",
+    "reexpcl",
+    "nn0expcl",
+    "2nn0",
+    "peano2nn0",
+    // and what a commuting pair asks, which `db/notation.records` declares
+    // by notation and this answers by statement
+    "mulcom",
+    "addcom",
+    // A singleton holds what it names, which `elpwg`'s users ask.
+    "snidg",
+    // A map sends no two things to the same place, and set.mm reaches
+    // equinumerosity from it through the map itself.
+    "f1f1orn",
+    "f1mpt",
+    // and finiteness, which the readable layer never says at all.
+    "hashvnfin",
+    "enfi",
+    // A claim that there is one of a thing and says nothing about it is
+    // nonemptiness.
+    "ne0i",
+    "n0",
+    "rextru",
+    // and what an order relation asks, which is the same kind of thing.
+    "ltle",
+    "ltnri",
+    "leid",
+    "nn0ge0",
+    "nngt0",
+    "nn0p1gt0",
+    // A lemma stated over the integers asks what a natural number being one
+    // does not say in those words.
+    "nnne0",
+    // The two equations in this list, and what a fact is rewritten by.
+    "nn0absid",
+    "exp0",
+    // A disequality is one fact in two orders and the corpus writes it as a
+    // negated equation, which set.mm names and then commutes.
+    "df-ne",
+    "necom",
+    // A continuous function's domain and codomain lie in ℂ.
+    "cncfrss",
+    "cncfrss2",
+    // And a pair that cannot both hold because one of them does not.
+    "intnanrt",
+    // A one-to-one function is a function.
+    "f1f",
+    // A function on a set is a set, which an image under it asks.
+    "fex",
+    // A part of a set is a member of its power set, and the other way.
+    "gsspw",
+    "elpwi",
+];

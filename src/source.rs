@@ -118,6 +118,67 @@ impl Source for Disk {
     }
 }
 
+/// Some directories of a tree, held in memory.
+///
+/// What a planted-defect test starts from: the corpus, read once, which each
+/// case then edits through an [`Overlay`] of its own.
+pub struct Memory {
+    root: PathBuf,
+    files: IndexMap<String, Vec<u8>>,
+}
+
+impl Memory {
+    /// The files under `dirs` of another source, as they are now.
+    pub fn copy(from: &dyn Source, dirs: &[&str]) -> io::Result<Memory> {
+        let mut files = IndexMap::new();
+        for rel in from.files() {
+            let top = rel.split('/').next().unwrap_or("");
+            if dirs.contains(&top) {
+                let bytes = from.read(&rel)?;
+                files.insert(rel, bytes);
+            }
+        }
+        Ok(Memory {
+            root: from.root().to_path_buf(),
+            files,
+        })
+    }
+}
+
+impl Source for Memory {
+    fn read(&self, rel: &str) -> io::Result<Vec<u8>> {
+        self.files
+            .get(rel)
+            .cloned()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, rel.to_string()))
+    }
+
+    fn files(&self) -> Vec<String> {
+        self.files.keys().cloned().collect()
+    }
+
+    fn exists(&self, rel: &str) -> bool {
+        self.files.contains_key(rel)
+    }
+
+    fn root(&self) -> &Path {
+        &self.root
+    }
+}
+
+/// Write every file of a source under a directory on disk, at its path from
+/// the root, for a program that reads a directory rather than a source.
+pub fn write_tree(source: &dyn Source, dir: &Path) -> io::Result<()> {
+    for rel in source.files() {
+        let path = dir.join(&rel);
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(path, source.read(&rel)?)?;
+    }
+    Ok(())
+}
+
 /// A tree with some files replaced or added in memory.
 pub struct Overlay<'a> {
     base: &'a dyn Source,
