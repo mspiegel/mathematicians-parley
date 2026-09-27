@@ -122,6 +122,14 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     say `there is a ∈ G with Z = aH` just after 15.2 had made a one
     particular element, and obtain the element as b. It now compares a
     definition's formula with a claim up to the letters each binds.
+13. **A definition read at a term keeps its letter apart from the term's.**
+    K is `{X ⊆ G : there is g ∈ G with X = gH}`, as a textbook writes the
+    cosets. Read at gH, the checker put gH in for X and let K's g catch the
+    g of gH, which said `there is g ∈ G with gH = gH`; so K first bound a.
+    The checker now spells the bound letter afresh where a value would be
+    caught, and step 12.2's `there is a ∈ G with gH = aH` is the reading.
+    The same comparison let the √2 proof say `there is r ∈ ℤ with p = 2r`
+    where it said k and obtained r.
 
 ---
 

@@ -138,11 +138,36 @@ def match(pattern, ground, binding, variables, props=(), sites=frozenset(),
         return None
     if len(pattern.children) != len(ground.children):
         return None
+    pattern = _bound_as(pattern, ground, variables, binders)
     for a, b in zip(pattern.children, ground.children, strict=True):
         binding = match(a, b, binding, variables, props, sites, binders)
         if binding is None:
             return None
     return binding
+
+
+def _bound_as(pattern, ground, variables, binders):
+    """The pattern with the letter it binds spelt as the ground spells it,
+    where the letter is no variable of the pattern's and the ground's
+    letter is free nowhere in it; the pattern as it is otherwise.
+
+    A definition's formula read at a term binds a letter of its own, and a
+    line saying the same thing may bind another: `there is b ∈ G with
+    gH = bH` answers K's `there is g ∈ G with X = gH` at X := gH.
+    """
+    shape = binders.get(pattern.notation) if binders else None
+    if shape is None:
+        return pattern
+    at, body = shape
+    ours, theirs = pattern.children[at], ground.children[at]
+    if (ours.notation != 'name' or theirs.notation != 'name'
+            or ours.text == theirs.text or ours.text in variables
+            or theirs.text in names(pattern)):
+        return pattern
+    return Node(pattern.notation, pattern.sort,
+                [theirs if i == at
+                 else substitute(c, {ours.text: theirs}) if i in body else c
+                 for i, c in enumerate(pattern.children)], pattern.text)
 
 
 def alike(a, b, binders, ours=None, theirs=None):
@@ -199,7 +224,7 @@ def _property(pattern, ground, binding, sites, binders=None):
     stands = binding[name]
     if stands.notation != PROPERTY:
         return None
-    filled = substitute(stands.children[0], {stands.text: arg})
+    filled = substitute_apart(stands.children[0], {stands.text: arg}, binders)
     return binding if _same(filled, ground, binders) else None
 
 
@@ -233,7 +258,8 @@ def _family(pattern, ground, binding, sites, binders=None):
                                                    binding)
     stands = binding.get(name)
     if stands is not None and stands.notation == PROPERTY:
-        filled = substitute(stands.children[0], {stands.text: arg})
+        filled = substitute_apart(stands.children[0], {stands.text: arg},
+                                  binders)
         return True, (binding if _same(filled, ground, binders) else None)
     plain = (ground.notation == pattern.notation and len(ground.children) == 2
              and ground.children[1].shape() == arg.shape())
@@ -322,3 +348,41 @@ def substitute(node, binding):
         return binding.get(node.text, node)
     return Node(node.notation, node.sort,
                 [substitute(c, binding) for c in node.children], node.text)
+
+
+# Letters a binder is renamed to, where a value put under it would be caught.
+FRESH = [*'abcdefghijklmnopqrstuvwxyz', *(f"{c}'" for c in
+                                          'abcdefghijklmnopqrstuvwxyz')]
+
+
+def substitute_apart(node, binding, binders):
+    """`substitute`, keeping what a binder binds apart from what is put
+    under it: K's `there is g ∈ G with X = gH` at X := gH is `there is
+    a ∈ G with gH = aH`, and never `there is g ∈ G with gH = gH`, which
+    catches the g of gH and says something else. A binder whose letter a
+    value mentions is spelt with a letter nothing there uses; one naming a
+    letter the binding replaces keeps it, as the letter is its own inside.
+    """
+    if node.notation in ('name', 'numeral'):
+        return binding.get(node.text, node)
+    shape = binders.get(node.notation) if binders else None
+    if shape is None or node.children[shape[0]].notation != 'name':
+        return Node(node.notation, node.sort,
+                    [substitute_apart(c, binding, binders)
+                     for c in node.children], node.text)
+    at, body = shape
+    var = node.children[at]
+    inner = {k: v for k, v in binding.items() if k != var.text}
+    caught = any(var.text in names(v) for v in inner.values())
+    if caught:
+        used = names(node).union(*(names(v) for v in binding.values()))
+        fresh = Node('name', var.sort, [], next(c for c in FRESH
+                                                if c not in used))
+        renamed = {**inner, var.text: fresh}
+    else:
+        fresh, renamed = var, inner
+    return Node(node.notation, node.sort,
+                [fresh if i == at
+                 else substitute_apart(c, renamed, binders) if i in body
+                 else substitute_apart(c, binding, binders)
+                 for i, c in enumerate(node.children)], node.text)

@@ -30,6 +30,7 @@ from match import (
     match,
     names,
     substitute,
+    substitute_apart,
 )
 from parse import (
     BLOCK_HEADS,
@@ -952,7 +953,8 @@ def supply(patterns, facts, binding, variables, library,
             arg = first.children[1]
             if arg.notation == 'name' and arg.text in binding:
                 arg = binding[arg.text]
-            first = substitute(stands.children[0], {stands.text: arg})
+            first = substitute_apart(stands.children[0], {stands.text: arg},
+                                     library.binders)
             # The formula a property stands for is the step's own, so a
             # name in it is the step's, even spelt as one of the item's:
             # Schröder–Bernstein's D binds X, and so does set-builder. Only
@@ -969,7 +971,8 @@ def supply(patterns, facts, binding, variables, library,
         forms.append((body, open_names | named))
     for i, fact in enumerate(facts):
         for form, seen in forms:
-            found = match(form, fact, binding, seen, library.props, sites)
+            found = match(form, fact, binding, seen, library.props, sites,
+                          library.binders)
             if (found is None and form is first
                     and first.notation in library.exists
                     and len(first.children) == 2
@@ -984,7 +987,7 @@ def supply(patterns, facts, binding, variables, library,
                 smaller = narrowed(first, fact, binding)
                 if smaller is not None:
                     found = match(form, smaller, binding, seen,
-                                  library.props, sites)
+                                  library.props, sites, library.binders)
             # An equation says the same read from either side (`SYNTAX.md`),
             # so a line saying b = a answers a hypothesis asking a = b, and
             # names a witness for a "there is" whose body asks it: g·e = g
@@ -996,7 +999,7 @@ def supply(patterns, facts, binding, variables, library,
                 turned = Node(fact.notation, fact.sort, fact.children[::-1],
                               fact.text)
                 found = match(form, turned, binding, seen, library.props,
-                              sites)
+                              sites, library.binders)
             if found is None:
                 continue
             # A "there is" given by an instance is given only where the

@@ -888,6 +888,16 @@ CASES = [
      'step 15.3 claims something that def:stdlib/sets/part-builder does not '
      'conclude'),
 
+    # K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
+    # of gH is not caught by K's. So the sentence written with it caught
+    # says something else, and does not put gH in K.
+    ('read a definition at a term its bound letter would catch',
+     'proof/lagrange.proof',
+     '    12.2. There is a ∈ G with gH = aH.\n',
+     '    12.2. There is g ∈ G with gH = gH.\n',
+     'step 12.3 claims something that def:stdlib/sets/part-builder does not '
+     'conclude'),
+
     # Counting by parts asks that two parts which meet be one part.
     ('count by parts without saying they do not overlap',
      'proof/lagrange.proof',

@@ -7,7 +7,7 @@ theorem lagrange
   assume H is a subgroup of G                                         (H2)
   then |H| divides |G|
 
-define K := {X ⊆ G : there is a ∈ G with X = aH}                    (D1)
+define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
        reads the cosets of H: the parts of G of the form gH
 
 1.  H ⊆ G
