@@ -963,30 +963,32 @@ CASES = [
 
     ('cite a step rule without saying the index is in ℕ₀',
      'proof/euclid.proof',
-     '3.1.4.2.2.  b(j + 1) = 0\n'
+     '3.1.9.2.2.  b(j + 1) = 0\n'
      '                                        D1, from C1\n'
-     '                                        requires j ∈ ℕ₀: from J1',
-     '3.1.4.2.2.  b(j + 1) = 0\n'
+     '                                        requires j ∈ ℕ₀: from J',
+     '3.1.9.2.2.  b(j + 1) = 0\n'
      '                                        D1, from C1',
      'no line it cites says the index is in ℕ₀'),
 
     ('claim the value of the other case',
      'proof/euclid.proof',
-     '4.1.4.3.1.  a(j + 1) = a(j)',
-     '4.1.4.3.1.  a(j + 1) = b(j)',
-     'step 4.1.4.3.1 cites D1 and claims a value it does not give'),
+     '3.1.9.2.1.  a(j + 1) = a(j)',
+     '3.1.9.2.1.  a(j + 1) = b(j)',
+     'step 3.1.9.2.1 cites D1 and claims a value it does not give'),
 
     ('cite a step rule by cases without saying which case',
      'proof/euclid.proof',
-     'D1, from C5',
-     'D1',
+     '3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n'
+     '                                        D1, from C2',
+     '3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n'
+     '                                        D1',
      'says whether a case\'s condition holds'),
 
     # A calculation's link cites the line that says it, and a line saying
     # a(0) = M does not say what substituting it inside a gcd gives.
     ('cite an equation for a link that substitutes it inside a term',
      'proof/euclid.proof',
-     '                    gcd(a(0), b(0)) = gcd(M, b(0))     4.1.1',
+     '                    gcd(a(0), b(0)) = gcd(M, b(0))     3.1.3',
      '                    gcd(a(0), b(0)) = gcd(M, b(0))     1',
      'cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))'),
 

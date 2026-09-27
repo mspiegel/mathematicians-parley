@@ -16,12 +16,14 @@ theorem euclid
 2.  b(0) = N
     D1
 
-3.  For every k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀.
+3.  For every k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
+    and (b(k) + k ≤ N or b(k) = 0).
     fix
-    let k ∈ ℕ₀                                                        (K1)
+    let k ∈ ℕ₀                                                        (K)
 
-    3.1.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
-          induction on k starting at 0, from K1
+    3.1.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
+          and (b(k) + k ≤ N or b(k) = 0)
+          induction on k starting at 0, from K
 
           base
           3.1.1.  a(0) ∈ ℕ₀
@@ -30,307 +32,211 @@ theorem euclid
           3.1.2.  b(0) ∈ ℕ₀
                   substitute b(0) = N (line 2) into H2
 
-          3.1.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
-                  join 3.1.1, 3.1.2
+          3.1.3.  gcd(a(0), b(0)) = gcd(M, b(0))
+                  substitute a(0) = M (line 1)
+
+          3.1.4.  gcd(M, b(0)) = gcd(M, N)
+                  substitute b(0) = N (line 2)
+
+          3.1.5.  gcd(a(0), b(0)) = gcd(M, N)
+                  calculation
+                    gcd(a(0), b(0)) = gcd(M, b(0))     3.1.3
+                                    = gcd(M, N)        3.1.4
+
+          3.1.6.  b(0) + 0 ≤ N
+                  inequalities, from 2
+                  requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
+                  requires b(0) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 3.1.2
+
+          3.1.7.  b(0) + 0 ≤ N or b(0) = 0
+                  thm:stdlib/reasoning/or-left, from 3.1.6
+
+          3.1.8.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀ and gcd(a(0), b(0)) = gcd(M, N)
+                  and (b(0) + 0 ≤ N or b(0) = 0)
+                  join 3.1.1, 3.1.2, 3.1.5, 3.1.7
 
           step
-          3.1.4.  For every j ∈ ℕ₀, if a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
-                  then a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀.
+          3.1.9.  For every j ∈ ℕ₀, if a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
+                  and gcd(a(j), b(j)) = gcd(M, N) and (b(j) + j ≤ N or b(j) = 0)
+                  then a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
+                  and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                  and (b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0).
                   fix
-                  let j ∈ ℕ₀                                          (J1)
-                  assume a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀                      (I1)
+                  let j ∈ ℕ₀                                          (J)
+                  assume a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀ and gcd(a(j), b(j)) = gcd(M, N) and (b(j) + j ≤ N or b(j) = 0)   (I)
 
-                  3.1.4.1.  b(j) = 0 or b(j) ≠ 0
+                  3.1.9.1.  b(j) = 0 or b(j) ≠ 0
                             thm:stdlib/reasoning/excluded-middle P := b(j) = 0
 
-                  3.1.4.2.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
-                            cases, from 3.1.4.1
+                  3.1.9.2.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
+                            and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                            and (b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0)
+                            cases, from 3.1.9.1
 
                             case
                             assume b(j) = 0                           (C1)
 
-                            3.1.4.2.1.  a(j + 1) = a(j)
+                            3.1.9.2.1.  a(j + 1) = a(j)
                                         D1, from C1
-                                        requires j ∈ ℕ₀: from J1
+                                        requires j ∈ ℕ₀: from J
 
-                            3.1.4.2.2.  b(j + 1) = 0
+                            3.1.9.2.2.  b(j + 1) = 0
                                         D1, from C1
-                                        requires j ∈ ℕ₀: from J1
+                                        requires j ∈ ℕ₀: from J
 
-                            3.1.4.2.3.  a(j + 1) ∈ ℕ₀
-                                        substitute a(j + 1) = a(j) (line 3.1.4.2.1) into I1
+                            3.1.9.2.3.  a(j + 1) ∈ ℕ₀
+                                        substitute a(j + 1) = a(j) (line 3.1.9.2.1) into I
 
-                            3.1.4.2.4.  0 ∈ ℕ₀
+                            3.1.9.2.4.  0 ∈ ℕ₀
                                         membership
 
-                            3.1.4.2.5.  b(j + 1) ∈ ℕ₀
-                                        substitute b(j + 1) = 0 (line 3.1.4.2.2) into line 3.1.4.2.4
+                            3.1.9.2.5.  b(j + 1) ∈ ℕ₀
+                                        substitute b(j + 1) = 0 (line 3.1.9.2.2) into line 3.1.9.2.4
 
-                            3.1.4.2.6.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
-                                        join 3.1.4.2.3, 3.1.4.2.5
+                            3.1.9.2.6.  gcd(a(j + 1), b(j + 1)) = gcd(a(j), b(j + 1))
+                                        substitute a(j + 1) = a(j) (line 3.1.9.2.1)
+
+                            3.1.9.2.7.  gcd(a(j), b(j + 1)) = gcd(a(j), 0)
+                                        substitute b(j + 1) = 0 (line 3.1.9.2.2)
+
+                            3.1.9.2.8.  gcd(a(j), 0) = gcd(a(j), b(j))
+                                        substitute b(j) = 0 (C1)
+
+                            3.1.9.2.9.  gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                                        calculation
+                                          gcd(a(j + 1), b(j + 1)) = gcd(a(j), b(j + 1))    3.1.9.2.6
+                                                                  = gcd(a(j), 0)           3.1.9.2.7
+                                                                  = gcd(a(j), b(j))        3.1.9.2.8
+                                                                  = gcd(M, N)              I
+
+                            3.1.9.2.10. b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
+                                        thm:stdlib/reasoning/or-right, from 3.1.9.2.2
+
+                            3.1.9.2.11. a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
+                                        and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                                        and (b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0)
+                                        join 3.1.9.2.3, 3.1.9.2.5, 3.1.9.2.9, 3.1.9.2.10
 
                             case
                             assume b(j) ≠ 0                           (C2)
 
-                            3.1.4.2.7.  a(j + 1) = b(j)
+                            3.1.9.2.12. a(j + 1) = b(j)
                                         D1, from C2
-                                        requires j ∈ ℕ₀: from J1
+                                        requires j ∈ ℕ₀: from J
 
-                            3.1.4.2.8.  b(j + 1) = a(j) mod b(j)
+                            3.1.9.2.13. b(j + 1) = a(j) mod b(j)
                                         D1, from C2
-                                        requires j ∈ ℕ₀: from J1
+                                        requires j ∈ ℕ₀: from J
 
-                            3.1.4.2.9.  b(j) ∈ ℕ
-                                        thm:stdlib/numbers/nat0-nonzero, from I1, C2
+                            3.1.9.2.14. b(j) ∈ ℕ
+                                        thm:stdlib/numbers/nat0-nonzero, from I, C2
 
-                            3.1.4.2.10. a(j) mod b(j) ∈ ℕ₀
-                                        thm:stdlib/divisibility/mod-natural, from 3.1.4.2.9
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I1
+                            3.1.9.2.15. a(j) mod b(j) ∈ ℕ₀
+                                        thm:stdlib/divisibility/mod-natural, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
 
-                            3.1.4.2.11. a(j + 1) ∈ ℕ₀
-                                        substitute a(j + 1) = b(j) (line 3.1.4.2.7) into I1
+                            3.1.9.2.16. a(j + 1) ∈ ℕ₀
+                                        substitute a(j + 1) = b(j) (line 3.1.9.2.12) into I
 
-                            3.1.4.2.12. b(j + 1) ∈ ℕ₀
-                                        substitute b(j + 1) = a(j) mod b(j) (line 3.1.4.2.8) into line 3.1.4.2.10
+                            3.1.9.2.17. b(j + 1) ∈ ℕ₀
+                                        substitute b(j + 1) = a(j) mod b(j) (line 3.1.9.2.13) into line 3.1.9.2.15
 
-                            3.1.4.2.13. a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
-                                        join 3.1.4.2.11, 3.1.4.2.12
+                            3.1.9.2.18. gcd(a(j) mod b(j), b(j)) = gcd(a(j), b(j))
+                                        thm:stdlib/divisibility/gcd-mod, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
 
-4.  For every k ∈ ℕ₀, gcd(a(k), b(k)) = gcd(M, N).
-    fix
-    let k ∈ ℕ₀                                                        (K2)
-
-    4.1.  gcd(a(k), b(k)) = gcd(M, N)
-          induction on k starting at 0, from K2
-
-          base
-          4.1.1.  gcd(a(0), b(0)) = gcd(M, b(0))
-                  substitute a(0) = M (line 1)
-
-          4.1.2.  gcd(M, b(0)) = gcd(M, N)
-                  substitute b(0) = N (line 2)
-
-          4.1.3.  gcd(a(0), b(0)) = gcd(M, N)
-                  calculation
-                    gcd(a(0), b(0)) = gcd(M, b(0))     4.1.1
-                                    = gcd(M, N)        4.1.2
-
-          step
-          4.1.4.  For every j ∈ ℕ₀, if gcd(a(j), b(j)) = gcd(M, N)
-                  then gcd(a(j + 1), b(j + 1)) = gcd(M, N).
-                  fix
-                  let j ∈ ℕ₀                                          (J2)
-                  assume gcd(a(j), b(j)) = gcd(M, N)                  (I2)
-
-                  4.1.4.1.  a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
-                            instantiate k := j in line 3, from J2
-
-                  4.1.4.2.  b(j) = 0 or b(j) ≠ 0
-                            thm:stdlib/reasoning/excluded-middle P := b(j) = 0
-
-                  4.1.4.3.  gcd(a(j + 1), b(j + 1)) = gcd(M, N)
-                            cases, from 4.1.4.2
-
-                            case
-                            assume b(j) = 0                           (C3)
-
-                            4.1.4.3.1.  a(j + 1) = a(j)
-                                        D1, from C3
-                                        requires j ∈ ℕ₀: from J2
-
-                            4.1.4.3.2.  b(j + 1) = 0
-                                        D1, from C3
-                                        requires j ∈ ℕ₀: from J2
-
-                            4.1.4.3.3.  gcd(a(j + 1), b(j + 1)) = gcd(a(j), b(j + 1))
-                                        substitute a(j + 1) = a(j) (line 4.1.4.3.1)
-
-                            4.1.4.3.4.  gcd(a(j), b(j + 1)) = gcd(a(j), 0)
-                                        substitute b(j + 1) = 0 (line 4.1.4.3.2)
-
-                            4.1.4.3.5.  gcd(a(j), 0) = gcd(a(j), b(j))
-                                        substitute b(j) = 0 (C3)
-
-                            4.1.4.3.6.  gcd(a(j + 1), b(j + 1)) = gcd(M, N)
-                                        calculation
-                                          gcd(a(j + 1), b(j + 1)) = gcd(a(j), b(j + 1))    4.1.4.3.3
-                                                                  = gcd(a(j), 0)           4.1.4.3.4
-                                                                  = gcd(a(j), b(j))        4.1.4.3.5
-                                                                  = gcd(M, N)              I2
-
-                            case
-                            assume b(j) ≠ 0                           (C4)
-
-                            4.1.4.3.7.  a(j + 1) = b(j)
-                                        D1, from C4
-                                        requires j ∈ ℕ₀: from J2
-
-                            4.1.4.3.8.  b(j + 1) = a(j) mod b(j)
-                                        D1, from C4
-                                        requires j ∈ ℕ₀: from J2
-
-                            4.1.4.3.9.  b(j) ∈ ℕ
-                                        thm:stdlib/numbers/nat0-nonzero, from 4.1.4.1, C4
-
-                            4.1.4.3.10. a(j) mod b(j) ∈ ℕ₀
-                                        thm:stdlib/divisibility/mod-natural, from 4.1.4.3.9
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 4.1.4.1
-
-                            4.1.4.3.11. gcd(a(j) mod b(j), b(j)) = gcd(a(j), b(j))
-                                        thm:stdlib/divisibility/gcd-mod, from 4.1.4.3.9
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 4.1.4.1
-
-                            4.1.4.3.12. gcd(b(j), a(j) mod b(j)) = gcd(a(j) mod b(j), b(j))
+                            3.1.9.2.19. gcd(b(j), a(j) mod b(j)) = gcd(a(j) mod b(j), b(j))
                                         thm:stdlib/divisibility/gcd-commutes
-                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 4.1.4.1
-                                        requires a(j) mod b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 4.1.4.3.10
+                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
+                                        requires a(j) mod b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 3.1.9.2.15
 
-                            4.1.4.3.13. gcd(a(j + 1), b(j + 1)) = gcd(b(j), b(j + 1))
-                                        substitute a(j + 1) = b(j) (line 4.1.4.3.7)
+                            3.1.9.2.20. gcd(a(j + 1), b(j + 1)) = gcd(b(j), b(j + 1))
+                                        substitute a(j + 1) = b(j) (line 3.1.9.2.12)
 
-                            4.1.4.3.14. gcd(b(j), b(j + 1)) = gcd(b(j), a(j) mod b(j))
-                                        substitute b(j + 1) = a(j) mod b(j) (line 4.1.4.3.8)
+                            3.1.9.2.21. gcd(b(j), b(j + 1)) = gcd(b(j), a(j) mod b(j))
+                                        substitute b(j + 1) = a(j) mod b(j) (line 3.1.9.2.13)
 
-                            4.1.4.3.15. gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                            3.1.9.2.22. gcd(a(j + 1), b(j + 1)) = gcd(M, N)
                                         calculation
-                                          gcd(a(j + 1), b(j + 1)) = gcd(b(j), b(j + 1))                4.1.4.3.13
-                                                                  = gcd(b(j), a(j) mod b(j))           4.1.4.3.14
-                                                                  = gcd(a(j) mod b(j), b(j))           4.1.4.3.12
-                                                                  = gcd(a(j), b(j))                    4.1.4.3.11
-                                                                  = gcd(M, N)                          I2
+                                          gcd(a(j + 1), b(j + 1)) = gcd(b(j), b(j + 1))                3.1.9.2.20
+                                                                  = gcd(b(j), a(j) mod b(j))           3.1.9.2.21
+                                                                  = gcd(a(j) mod b(j), b(j))           3.1.9.2.19
+                                                                  = gcd(a(j), b(j))                    3.1.9.2.18
+                                                                  = gcd(M, N)                          I
 
-5.  For every k ∈ ℕ₀, b(k) + k ≤ N or b(k) = 0.
-    fix
-    let k ∈ ℕ₀                                                        (K3)
+                            3.1.9.2.23. b(j) + j ≤ N
+                                        thm:stdlib/reasoning/disjunctive-syllogism, from I, C2
 
-    5.1.  b(k) + k ≤ N or b(k) = 0
-          induction on k starting at 0, from K3
+                            3.1.9.2.24. a(j) mod b(j) < b(j)
+                                        thm:stdlib/divisibility/mod-less, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
 
-          base
-          5.1.1.  b(0) ∈ ℕ₀
-                  substitute b(0) = N (line 2) into H2
+                            3.1.9.2.25. b(j + 1) < b(j)
+                                        substitute b(j + 1) = a(j) mod b(j) (line 3.1.9.2.13) into line 3.1.9.2.24
 
-          5.1.2.  b(0) + 0 ≤ N
-                  inequalities, from 2
-                  requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
-                  requires b(0) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 5.1.1
+                            3.1.9.2.26. b(j + 1) + 1 ≤ b(j)
+                                        thm:stdlib/numbers/integer-step, from 3.1.9.2.25
+                                        requires b(j + 1) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 3.1.9.2.17
+                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
 
-          5.1.3.  b(0) + 0 ≤ N or b(0) = 0
-                  thm:stdlib/reasoning/or-left, from 5.1.2
-
-          step
-          5.1.4.  For every j ∈ ℕ₀, if b(j) + j ≤ N or b(j) = 0
-                  then b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0.
-                  fix
-                  let j ∈ ℕ₀                                          (J3)
-                  assume b(j) + j ≤ N or b(j) = 0                     (I3)
-
-                  5.1.4.1.  a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
-                            instantiate k := j in line 3, from J3
-
-                  5.1.4.2.  b(j) = 0 or b(j) ≠ 0
-                            thm:stdlib/reasoning/excluded-middle P := b(j) = 0
-
-                  5.1.4.3.  b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
-                            cases, from 5.1.4.2
-
-                            case
-                            assume b(j) = 0                           (C5)
-
-                            5.1.4.3.1.  b(j + 1) = 0
-                                        D1, from C5
-                                        requires j ∈ ℕ₀: from J3
-
-                            5.1.4.3.2.  b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
-                                        thm:stdlib/reasoning/or-right, from 5.1.4.3.1
-
-                            case
-                            assume b(j) ≠ 0                           (C6)
-
-                            5.1.4.3.3.  b(j) + j ≤ N
-                                        thm:stdlib/reasoning/disjunctive-syllogism, from I3, C6
-
-                            5.1.4.3.4.  b(j) ∈ ℕ
-                                        thm:stdlib/numbers/nat0-nonzero, from 5.1.4.1, C6
-
-                            5.1.4.3.5.  b(j + 1) = a(j) mod b(j)
-                                        D1, from C6
-                                        requires j ∈ ℕ₀: from J3
-
-                            5.1.4.3.6.  a(j) mod b(j) < b(j)
-                                        thm:stdlib/divisibility/mod-less, from 5.1.4.3.4
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 5.1.4.1
-
-                            5.1.4.3.7.  b(j + 1) < b(j)
-                                        substitute b(j + 1) = a(j) mod b(j) (line 5.1.4.3.5) into line 5.1.4.3.6
-
-                            5.1.4.3.8.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
-                                        instantiate k := j + 1 in line 3
-                                        requires j + 1 ∈ ℕ₀: thm:stdlib/numbers/nat0-closure, from J3
-
-                            5.1.4.3.9.  b(j + 1) + 1 ≤ b(j)
-                                        thm:stdlib/numbers/integer-step, from 5.1.4.3.7
-                                        requires b(j + 1) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 5.1.4.3.8
-                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 5.1.4.1
-
-                            5.1.4.3.10. b(j + 1) + (j + 1) ≤ N
-                                        inequalities, from 5.1.4.3.9, 5.1.4.3.3
-                                        requires b(j + 1) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 5.1.4.3.8
-                                        requires b(j) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 5.1.4.1
-                                        requires j ∈ ℝ: thm:stdlib/numbers/nat0-real, from J3
+                            3.1.9.2.27. b(j + 1) + (j + 1) ≤ N
+                                        inequalities, from 3.1.9.2.26, 3.1.9.2.23
+                                        requires b(j + 1) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 3.1.9.2.17
+                                        requires b(j) ∈ ℝ: thm:stdlib/numbers/nat0-real, from I
+                                        requires j ∈ ℝ: thm:stdlib/numbers/nat0-real, from J
                                         requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
 
-                            5.1.4.3.11. b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
-                                        thm:stdlib/reasoning/or-left, from 5.1.4.3.10
+                            3.1.9.2.28. b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
+                                        thm:stdlib/reasoning/or-left, from 3.1.9.2.27
 
-6.  b(N) + N ≤ N or b(N) = 0
-    instantiate k := N in line 5, from H2
+                            3.1.9.2.29. a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
+                                        and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
+                                        and (b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0)
+                                        join 3.1.9.2.16, 3.1.9.2.17, 3.1.9.2.22, 3.1.9.2.28
 
-7.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
+4.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀ and gcd(a(N), b(N)) = gcd(M, N)
+    and (b(N) + N ≤ N or b(N) = 0)
     instantiate k := N in line 3, from H2
 
-8.  b(N) = 0 or b(N) ≠ 0
+5.  b(N) = 0 or b(N) ≠ 0
     thm:stdlib/reasoning/excluded-middle P := b(N) = 0
 
-9.  b(N) = 0
-    cases, from 8
+6.  b(N) = 0
+    cases, from 5
 
     case
-    assume b(N) = 0                                                   (C7)
+    assume b(N) = 0                                                   (C3)
 
-    9.1.  b(N) = 0
-          join C7
+    6.1.  b(N) = 0
+          join C3
 
     case
-    assume b(N) ≠ 0                                                   (C8)
+    assume b(N) ≠ 0                                                   (C4)
 
-    9.2.  b(N) + N ≤ N
-          thm:stdlib/reasoning/disjunctive-syllogism, from 6, C8
+    6.2.  b(N) + N ≤ N
+          thm:stdlib/reasoning/disjunctive-syllogism, from 4, C4
 
-    9.3.  b(N) ∈ ℕ
-          thm:stdlib/numbers/nat0-nonzero, from 7, C8
+    6.3.  b(N) ∈ ℕ
+          thm:stdlib/numbers/nat0-nonzero, from 4, C4
 
-    9.4.  not b(N) + N ≤ N
-          inequalities, from 9.3
+    6.4.  not b(N) + N ≤ N
+          inequalities, from 6.3
           requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
 
-    9.5.  b(N) + N ≤ N. not b(N) + N ≤ N.
-          join 9.2, 9.4
+    6.5.  b(N) + N ≤ N. not b(N) + N ≤ N.
+          join 6.2, 6.4
 
-    9.6.  b(N) = 0
-          thm:stdlib/reasoning/from-contradiction P := b(N) + N ≤ N, Q := b(N) = 0, from 9.5
+    6.6.  b(N) = 0
+          thm:stdlib/reasoning/from-contradiction P := b(N) + N ≤ N, Q := b(N) = 0, from 6.5
 
-10. gcd(a(N), 0) = a(N)
-    thm:stdlib/divisibility/gcd-zero, from 7
+7.  gcd(a(N), 0) = a(N)
+    thm:stdlib/divisibility/gcd-zero, from 4
 
-11. gcd(a(N), 0) = gcd(a(N), b(N))
-    substitute b(N) = 0 (line 9)
+8.  gcd(a(N), 0) = gcd(a(N), b(N))
+    substitute b(N) = 0 (line 6)
 
-12. gcd(a(N), b(N)) = gcd(M, N)
-    instantiate k := N in line 4, from H2
-
-13. a(N) = gcd(M, N)
+9.  a(N) = gcd(M, N)
     calculation
-      a(N) = gcd(a(N), 0)          10
-           = gcd(a(N), b(N))       11
-           = gcd(M, N)             12
+      a(N) = gcd(a(N), 0)          7
+           = gcd(a(N), b(N))       8
+           = gcd(M, N)             4

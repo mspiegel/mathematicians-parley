@@ -17,9 +17,9 @@ remainders, is part 3 here, said as a bound one induction can carry.
 The proof is `proof/euclid.proof`, one theorem. It elaborates to
 `elaboration/proof/euclid/euclid.mm`, assumes nothing, and verifies.
 
-Numbers: 81 numbered steps, 13 of them at the top. Steps 1 and 2 are the
-start, 3 to 5 are the three inductions, and 6 to 13 put them together at
-k = N.
+Numbers: 56 numbered steps, 9 of them at the top. Steps 1 and 2 are the
+start, 3 is one induction proving the four facts the algorithm keeps (a
+loop invariant), and 4 to 9 read them at k = N.
 
 ---
 
@@ -33,8 +33,8 @@ each k ∈ ℕ₀,
 
 **Theorem.** a(N) = gcd(M, N).
 
-*Proof.* Three things hold for every k, each by induction on k, each step
-split on whether b(k) is 0.
+*Proof.* Three things hold for every k, shown together by one induction on
+k, its step split on whether b(k) is 0.
 
 1. a(k) and b(k) are in ℕ₀. At 0 they are M and N. Where b(k) = 0 the next
    pair is a(k), 0; otherwise it is b(k), a(k) mod b(k), and a remainder on
@@ -100,6 +100,15 @@ b(N)) = gcd(M, N) by the second. ∎
 6. **set.mm says a numeral is a set only for 0 to 3** (`c0ex` to `3ex`) and
    for a decimal numeral (`decex`); a recursion starting at 4 would stop at
    "cannot settle 4 ∈ V".
+7. **One induction over the algorithm's invariant, not one per fact.** The
+   first version proved membership, the gcd and the bound by three
+   inductions, each with its own `fix`, case split, and citations of D1,
+   and put the membership back into the other two by instantiating it: 81
+   steps. Proved together, as a textbook proves a loop invariant, it is
+   56, with 18 `requires` lines where there were 26. What made it possible
+   is `join` of more than two lines, which `SYNTAX.md` always allowed and
+   the elaborator now builds, nesting the conjunction as the claim nests
+   it.
 
 ---
 

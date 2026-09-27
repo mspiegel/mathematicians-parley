@@ -1155,9 +1155,22 @@ class Scopes:
                                   'the joined line is not what the step '
                                   'claims')
             return held[wanted]
-        left, right = self.to_term(wanted).children
-        pair = [left.rpn(self.flabel), right.rpn(self.flabel)]
-        if not all(p in held for p in pair):
+        # Several lines joined are one conjunction, nested as the claim nests
+        # it: each side is a line joined, or itself lines joined.
+        def joined(term):
+            if term in held:
+                return held[term]
+            node = self.to_term(term)
+            if node.label != 'wa':
+                return None
+            pair = [c.rpn(self.flabel) for c in node.children]
+            proofs = [joined(p) for p in pair]
+            if any(p is None for p in proofs):
+                return None
+            return self.seq(scope, *pair, *proofs, 'jca')
+
+        made = joined(wanted)
+        if made is None:
             raise self.defect(step.line,
                               'the joined lines are not what the step claims')
-        return self.seq(scope, *pair, *(held[p] for p in pair), 'jca')
+        return made
