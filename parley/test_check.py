@@ -795,9 +795,9 @@ CASES = [
     # giving the condition or its negation, and claims that case's value.
     ('cite a define by cases for the other case\'s value',
      'proof/schroeder-bernstein.proof',
-     '    3.7.  h(t) = g⁻¹(t)\n',
-     '    3.7.  h(t) = f(t)\n',
-     'step 3.7 cites D2 and claims a value it does not give'),
+     '    3.6.  h(t) = g⁻¹(t)\n',
+     '    3.6.  h(t) = f(t)\n',
+     'step 3.6 cites D2 and claims a value it does not give'),
 
     ('cite a define by cases from no line saying the case',
      'proof/schroeder-bernstein.proof',
@@ -807,9 +807,9 @@ CASES = [
 
     ('cite a define for a claim that does not name it',
      'proof/schroeder-bernstein.proof',
-     '    3.7.  h(t) = g⁻¹(t)\n',
-     '    3.7.  g⁻¹(t) = g⁻¹(t)\n',
-     'step 3.7 cites D2 and its claim never names h'),
+     '    3.6.  h(t) = g⁻¹(t)\n',
+     '    3.6.  g⁻¹(t) = g⁻¹(t)\n',
+     'step 3.6 cites D2 and its claim never names h'),
 
     # A `let` names a function's type and nothing more, unless `be` says a
     # property of it; a property slipped in as the codomain went unasked.
@@ -822,9 +822,9 @@ CASES = [
     # What `be` says of a function is asked for, as a membership is.
     ('cite an item without the line saying its function is one-to-one',
      'proof/schroeder-bernstein.proof',
-     '          thm:stdlib/functions/inverse-value, from H4, 3.6\n',
-     '          thm:stdlib/functions/inverse-value, from 3.6\n',
-     'step 3.8 cites thm:stdlib/functions/inverse-value, which asks for'),
+     '          thm:stdlib/functions/inverse-value, from H4, 3.5\n',
+     '          thm:stdlib/functions/inverse-value, from 3.5\n',
+     'step 3.7 cites thm:stdlib/functions/inverse-value, which asks for'),
 
     # An image's points come from a part of the function's domain, and the
     # item asks the step to say it is one.

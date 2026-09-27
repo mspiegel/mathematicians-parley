@@ -74,16 +74,21 @@ PROVED = f'{STDLIB}/proved'
 # proof spelling them never draws: every lettered setvar set.mm has, since a
 # proof fixing capital letters, which set.mm keeps for classes, takes a spare
 # for each, and Schröder–Bernstein fixes seven. Last come set.mm's primed
-# setvars, a′ and the rest, which no reader writes: Lagrange's theorem
-# spells fifteen letters and fixes some twenty names in its blocks, and the
-# eleven letters left over do not reach.
+# and double-primed setvars, a′, a″ and the rest, which no reader writes:
+# Lagrange's theorem spells fifteen letters and fixes some twenty names in
+# its blocks, each `obtain` from an item takes one more, and the eleven
+# letters left over do not reach.
 SPARE_VARS = ['vm', 'vk', 'vj', 'vi', 'vp', 'vq', 'vr', 'vs', 'vt', 'vu',
               'vo', 'vl', 'vg', 'vh', 'vf', 'vw', 'vv',
               've', 'vd', 'vc', 'vb', 'va', 'vn', 'vz', 'vy', 'vx',
               'bnjvam', 'bnjvbm', 'bnjvcm', 'bnjvdm', 'bnjvem', 'bnjvfm',
               'bnjvgm', 'bnjvhm', 'bnjvim', 'bnjvjm', 'bnjvkm', 'bnjvlm',
               'bnjvmm', 'bnjvnm', 'bnjvpm', 'bnjvqm', 'bnjvrm', 'bnjvtm',
-              'bnjvum', 'bnjvwm', 'bnjvxm', 'bnjvym', 'bnjvzm']
+              'bnjvum', 'bnjvwm', 'bnjvxm', 'bnjvym', 'bnjvzm',
+              'bnjvan', 'bnjvbn', 'bnjvcn', 'bnjvdn', 'bnjven', 'bnjvfn',
+              'bnjvgn', 'bnjvhn', 'bnjvin', 'bnjvjn', 'bnjvkn', 'bnjvln',
+              'bnjvmn', 'bnjvnn', 'bnjvpn', 'bnjvqn', 'bnjvrn', 'bnjvtn',
+              'bnjvun', 'bnjvwn', 'bnjvxn', 'bnjvyn', 'bnjvzn']
 
 # Why a side of a step citing a define is not what the define names.
 NAMES_NO_DEFINE = 'this side names no define'

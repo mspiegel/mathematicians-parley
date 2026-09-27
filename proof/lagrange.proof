@@ -27,21 +27,18 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           fix
           let u ∈ gH                                                  (K2)
 
-          4.1.1.  There is h ∈ H with u = g·h.
-                  def:stdlib/groups/coset, from K1, K2
+          4.1.1.  h ∈ H. u = g·h.
+                  obtain h: def:stdlib/groups/coset u := u, from K1, K2
                   requires H ⊆ G: from 1
 
-          4.1.2.  h ∈ H. u = g·h.
-                  obtain h from line 4.1.1
+          4.1.2.  h ∈ G
+                  thm:stdlib/sets/in-subset, from 1, 4.1.1
 
-          4.1.3.  h ∈ G
-                  thm:stdlib/sets/in-subset, from 1, 4.1.2
+          4.1.3.  g·h ∈ G
+                  thm:stdlib/groups/group-closed a := g, b := h, from K1, 4.1.2
 
-          4.1.4.  g·h ∈ G
-                  thm:stdlib/groups/group-closed a := g, b := h, from K1, 4.1.3
-
-          4.1.5.  u ∈ G
-                  substitute u = g·h (line 4.1.2) into line 4.1.4
+          4.1.4.  u ∈ G
+                  substitute u = g·h (line 4.1.1) into line 4.1.3
 
     4.2.  gH ⊆ G
           def:stdlib/sets/subset, from 4.1
@@ -65,109 +62,100 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let a ∈ G                                                         (K4)
     let x ∈ aH                                                        (K5)
 
-    6.1.  There is h ∈ H with x = a·h.
-          def:stdlib/groups/coset, from K4, K5
+    6.1.  h ∈ H. x = a·h.
+          obtain h: def:stdlib/groups/coset u := x, g := a, from K4, K5
           requires H ⊆ G: from 1
 
-    6.2.  h ∈ H. x = a·h.
-          obtain h from line 6.1
-
-    6.3.  aH ⊆ G
+    6.2.  aH ⊆ G
           instantiate g := a in line 4, from K4
 
-    6.4.  x ∈ G
-          thm:stdlib/sets/in-subset, from 6.3, K5
+    6.3.  x ∈ G
+          thm:stdlib/sets/in-subset, from 6.2, K5
 
-    6.5.  h ∈ G
-          thm:stdlib/sets/in-subset, from 1, 6.2
+    6.4.  h ∈ G
+          thm:stdlib/sets/in-subset, from 1, 6.1
 
-    6.6.  For every u ∈ xH, u ∈ aH.
+    6.5.  For every u ∈ xH, u ∈ aH.
           fix
           let u ∈ xH                                                  (K6)
 
-          6.6.1.  There is c ∈ H with u = x·c.
-                  def:stdlib/groups/coset, from 6.4, K6
+          6.5.1.  c ∈ H. u = x·c.
+                  obtain c: def:stdlib/groups/coset u := u, g := x, from 6.3, K6
                   requires H ⊆ G: from 1
 
-          6.6.2.  c ∈ H. u = x·c.
-                  obtain c from line 6.6.1
+          6.5.2.  c ∈ G
+                  thm:stdlib/sets/in-subset, from 1, 6.5.1
 
-          6.6.3.  c ∈ G
-                  thm:stdlib/sets/in-subset, from 1, 6.6.2
+          6.5.3.  h·c ∈ H
+                  thm:stdlib/groups/subgroup-closed a := h, b := c, from H2, 6.1, 6.5.1
 
-          6.6.4.  h·c ∈ H
-                  thm:stdlib/groups/subgroup-closed a := h, b := c, from H2, 6.2, 6.6.2
+          6.5.4.  (a·h)·c = a·(h·c)
+                  thm:stdlib/groups/group-associative a := a, b := h, c := c, from K4, 6.4, 6.5.2
 
-          6.6.5.  (a·h)·c = a·(h·c)
-                  thm:stdlib/groups/group-associative a := a, b := h, c := c, from K4, 6.5, 6.6.3
+          6.5.5.  x·c = (a·h)·c
+                  substitute x = a·h (line 6.1)
 
-          6.6.6.  x·c = (a·h)·c
-                  substitute x = a·h (line 6.2)
-
-          6.6.7.  u = a·(h·c)
+          6.5.6.  u = a·(h·c)
                   calculation
-                    u = x·c              6.6.2
-                      = (a·h)·c          6.6.6
-                      = a·(h·c)          6.6.5
+                    u = x·c              6.5.1
+                      = (a·h)·c          6.5.5
+                      = a·(h·c)          6.5.4
 
-          6.6.8.  u ∈ aH
-                  def:stdlib/groups/coset u := u, g := a, from K4, 6.6.4, 6.6.7
+          6.5.7.  u ∈ aH
+                  def:stdlib/groups/coset u := u, g := a, from K4, 6.5.3, 6.5.6
                   requires H ⊆ G: from 1
 
-    6.7.  xH ⊆ aH
-          def:stdlib/sets/subset, from 6.6
+    6.6.  xH ⊆ aH
+          def:stdlib/sets/subset, from 6.5
 
 7.  For every a ∈ G, for every x ∈ aH, a ∈ xH.
     fix
     let a ∈ G                                                         (K7)
     let x ∈ aH                                                        (K8)
 
-    7.1.  There is h ∈ H with x = a·h.
-          def:stdlib/groups/coset, from K7, K8
+    7.1.  h ∈ H. x = a·h.
+          obtain h: def:stdlib/groups/coset u := x, g := a, from K7, K8
           requires H ⊆ G: from 1
 
-    7.2.  h ∈ H. x = a·h.
-          obtain h from line 7.1
+    7.2.  h ∈ G
+          thm:stdlib/sets/in-subset, from 1, 7.1
 
-    7.3.  h ∈ G
-          thm:stdlib/sets/in-subset, from 1, 7.2
+    7.3.  h⁻¹ ∈ H
+          thm:stdlib/groups/subgroup-inverse a := h, from H2, 7.1
 
-    7.4.  h⁻¹ ∈ H
-          thm:stdlib/groups/subgroup-inverse a := h, from H2, 7.2
+    7.4.  h⁻¹ ∈ G
+          thm:stdlib/groups/group-inverse-closed a := h, from 7.2
 
-    7.5.  h⁻¹ ∈ G
-          thm:stdlib/groups/group-inverse-closed a := h, from 7.3
+    7.5.  (a·h)·h⁻¹ = a·(h·h⁻¹)
+          thm:stdlib/groups/group-associative a := a, b := h, c := h⁻¹, from K7, 7.2, 7.4
 
-    7.6.  (a·h)·h⁻¹ = a·(h·h⁻¹)
-          thm:stdlib/groups/group-associative a := a, b := h, c := h⁻¹, from K7, 7.3, 7.5
+    7.6.  h·h⁻¹ = e
+          thm:stdlib/groups/group-inverse a := h, from 7.2
 
-    7.7.  h·h⁻¹ = e
-          thm:stdlib/groups/group-inverse a := h, from 7.3
+    7.7.  a·(h·h⁻¹) = a·e
+          substitute h·h⁻¹ = e (line 7.6)
 
-    7.8.  a·(h·h⁻¹) = a·e
-          substitute h·h⁻¹ = e (line 7.7)
-
-    7.9.  a·e = a
+    7.8.  a·e = a
           thm:stdlib/groups/group-identity a := a, from K7
 
-    7.10. x·h⁻¹ = (a·h)·h⁻¹
-          substitute x = a·h (line 7.2)
+    7.9.  x·h⁻¹ = (a·h)·h⁻¹
+          substitute x = a·h (line 7.1)
 
-    7.11. a = x·h⁻¹
+    7.10. a = x·h⁻¹
           calculation
-            a = a·e                  7.9
-              = a·(h·h⁻¹)            7.8
-              = (a·h)·h⁻¹            7.6
-              = x·h⁻¹                7.10
+            a = a·e                  7.8
+              = a·(h·h⁻¹)            7.7
+              = (a·h)·h⁻¹            7.5
+              = x·h⁻¹                7.9
 
-    7.12. aH ⊆ G
+    7.11. aH ⊆ G
           instantiate g := a in line 4, from K7
 
-    7.13. x ∈ G
-          thm:stdlib/sets/in-subset, from 7.12, K8
+    7.12. x ∈ G
+          thm:stdlib/sets/in-subset, from 7.11, K8
 
-    7.14. a ∈ xH
-          def:stdlib/groups/coset u := a, g := x, from 7.13, 7.4, 7.11
+    7.13. a ∈ xH
+          def:stdlib/groups/coset u := a, g := x, from 7.12, 7.3, 7.10
           requires H ⊆ G: from 1
 
 8.  For every b ∈ G, for every y ∈ bH, yH = bH.
@@ -248,23 +236,20 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           fix
           let u ∈ gH                                                  (K15)
 
-          9.5.1.  There is h ∈ H with u = g·h.
-                  def:stdlib/groups/coset, from K11, K15
+          9.5.1.  h ∈ H. u = g·h.
+                  obtain h: def:stdlib/groups/coset u := u, from K11, K15
                   requires H ⊆ G: from 1
 
-          9.5.2.  h ∈ H. u = g·h.
-                  obtain h from line 9.5.1
+          9.5.2.  t(h) = g·h
+                  D2, from 9.5.1
 
-          9.5.3.  t(h) = g·h
-                  D2, from 9.5.2
-
-          9.5.4.  u = t(h)
+          9.5.3.  u = t(h)
                   calculation
-                    u = g·h              9.5.2
-                      = t(h)             9.5.3
+                    u = g·h              9.5.1
+                      = t(h)             9.5.2
 
-          9.5.5.  There is h ∈ H with u = t(h).
-                  exhibit, from 9.5.2, 9.5.4
+          9.5.4.  There is h ∈ H with u = t(h).
+                  exhibit, from 9.5.1, 9.5.3
 
     9.6.  There is a bijection from H to gH.
           thm:stdlib/functions/onto-bijection, from 9.4, 9.5

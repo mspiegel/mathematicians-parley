@@ -70,21 +70,28 @@ text harder to read rather than easier, which is the opposite of the point.
 
 | write | not | today |
 |---|---|---|
-| `obtain a, b: item, from L` where a, b are the item's own letters | an existence step, then `obtain a, b from line L` | 10 of 14 obtains follow it |
-| an existence step, then `obtain a, b from line L` where the proof renames, or the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
+| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | 21 of 27 obtains follow it |
+| an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
 The obtain rule is the one with a reason beyond taste. In the one-line form
 the name appears in the claim, which is written above the justification that
 introduces it, and that is the only place in this language where a name is
-used before the line that names it. Where the item's own "there is" uses the
-same letter, the reader has met it there, and the line reads as a textbook's
-"choose N with …" does. Where the proof renames — `even` says "there is k",
-the proof obtains r — the reader would meet r before learning which of the
-item's letters it is, so the existence is stated first and the obtain names
-it on the next line. An existence that comes from a line rather than an item
-has no item to name, so it takes the second form whatever its letters.
+used before the line that names it. The claim says everything about the
+name it introduces — `r ∈ ℤ. p = 2r.` — so the reader meets r with what it
+is, as a textbook's "p = 2r for some integer r" or "choose N with …" does.
+Which letter the item happens to use is no part of it: the item is cited and
+its text is elsewhere, so `even`'s k never reaches the page, and stating
+"there is r ∈ ℤ with p = 2r" first only says the next line twice. An
+existence that comes from a line rather than an item has no item to name,
+so it takes the second form whatever its letters: the intermediate value
+proof obtains δ from a line an `instantiate` gave.
+
+Six obtains from an item keep two lines because the elaborator cannot yet
+write them in one: Lagrange's three and Bezout's one read a define's
+condition through `part-builder` or `set-builder`, and Schröder–Bernstein's
+two obtain from a set that is itself a define, C and R.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

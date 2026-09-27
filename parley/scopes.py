@@ -740,11 +740,9 @@ class Scopes:
         named = re.search(rf'\b((?:def|thm):{CITED})', step.just.text)
         if named is None:
             # The line already claims the existence, so there is no item to
-            # instantiate and nothing of its own to rename. `SYNTAX.md` says
-            # to prefer this form, because the other writes a name into a
-            # claim standing above the justification that introduces it,
-            # which is the one place in this language where a name is used
-            # before the line that names it.
+            # instantiate and nothing of its own to rename. `SYNTAX.md` has
+            # this form where the existence comes from a line, and the other
+            # where an item states it.
             where = step.just.refs[0] if step.just.refs else None
             held = lines.get(where) if where else None
             if held is None:
@@ -790,6 +788,11 @@ class Scopes:
             # for two different numbers.
             fresh = self.spare_var()
             with self.names_kept():
+                # As where a definition concludes (`conclude`): the coset
+                # is about u and says whose coset, and the step fills in
+                # both, `u := x, g := a`.
+                for name, value in instantiation(cites):
+                    self.names[name] = self.term(self.read(value))
                 lemma, var, kernel, _t, over, left = self.definition(
                     named.group(1), subject, var=fresh)
                 body = self.term(kernel)

@@ -15,7 +15,7 @@ has as many elements as H, so |G| is |H| times the number of parts.
 The proof is `proof/lagrange.proof`, one theorem. It elaborates to
 `elaboration/proof/lagrange/lagrange.mm`, assumes nothing, and verifies.
 
-Numbers: 109 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
+Numbers: 104 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
 coset facts (gH lies in G, g is in gH, a coset is fixed by any of its
 members), block 9 is the bijection from H to gH, and 10 to 22 count.
 
@@ -130,6 +130,17 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     caught, and step 12.2's `there is a ∈ G with gH = aH` is the reading.
     The same comparison let the √2 proof say `there is r ∈ ℤ with p = 2r`
     where it said k and obtained r.
+14. **An obtain from an item is one line, whatever the item's letters.**
+    `LINTER.md` had the proof state the existence first wherever it
+    renamed the item's letter, so that a reader met the item's letter
+    first; but the item is only cited, and its letters never reach the
+    page. The rule now turns on where the existence comes from: an item
+    gives one line, `h ∈ H. u = g·h.` by `obtain h: def:stdlib/groups/coset
+    u := u`, and a line gives two. Five pairs here became one line; the
+    three that read K's condition through `part-builder` stay two, since
+    the elaborator cannot yet obtain from them in one. An obtain from a
+    definition now takes every letter the step gives, as a definition
+    concluding does: `u := x, g := a`.
 
 ---
 

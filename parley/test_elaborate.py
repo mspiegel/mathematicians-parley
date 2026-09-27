@@ -599,7 +599,7 @@ CASES = [
      'proof/lagrange.proof',
      'def:stdlib/groups/coset u := g, from K3, 5.1, 5.2',
      'def:stdlib/groups/coset u := g, from K3, 5.1',
-     'proof/lagrange.proof:59  no cited line names a witness'),
+     'proof/lagrange.proof:56  no cited line names a witness'),
 ]
 
 

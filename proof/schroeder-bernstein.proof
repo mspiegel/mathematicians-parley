@@ -174,44 +174,41 @@ theorem schroeder-bernstein
     3.3.  t ∈ g[B ∖ R]
           thm:stdlib/sets/in-subset, from 3.2, K1
 
-    3.4.  There is y ∈ B ∖ R with t = g(y).
-          def:stdlib/functions/image f := g, u := t, from 3.3
+    3.4.  y ∈ B ∖ R. t = g(y).
+          obtain y: def:stdlib/functions/image f := g, u := t, Y := B ∖ R, from 3.3
           requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
 
-    3.5.  y ∈ B ∖ R. t = g(y).
-          obtain y from line 3.4
+    3.5.  y ∈ B
+          thm:stdlib/sets/difference-member, from 3.4
 
-    3.6.  y ∈ B
-          thm:stdlib/sets/difference-member, from 3.5
-
-    3.7.  h(t) = g⁻¹(t)
+    3.6.  h(t) = g⁻¹(t)
           D2, from 3.1
 
-    3.8.  g⁻¹(g(y)) = y
-          thm:stdlib/functions/inverse-value, from H4, 3.6
+    3.7.  g⁻¹(g(y)) = y
+          thm:stdlib/functions/inverse-value, from H4, 3.5
 
-    3.9.  g⁻¹(t) = g⁻¹(g(y))
-          substitute t = g(y) (line 3.5)
+    3.8.  g⁻¹(t) = g⁻¹(g(y))
+          substitute t = g(y) (line 3.4)
 
-    3.10. h(t) = y
+    3.9.  h(t) = y
           calculation
-            h(t) = g⁻¹(t)            3.7
-                 = g⁻¹(g(y))         3.9
-                 = y                 3.8
+            h(t) = g⁻¹(t)            3.6
+                 = g⁻¹(g(y))         3.8
+                 = y                 3.7
 
-    3.11. h(t) ∈ B ∖ R
-          substitute h(t) = y (line 3.10) into line 3.5
+    3.10. h(t) ∈ B ∖ R
+          substitute h(t) = y (line 3.9) into line 3.4
 
-    3.12. g(h(t)) = g(y)
-          substitute h(t) = y (line 3.10)
+    3.11. g(h(t)) = g(y)
+          substitute h(t) = y (line 3.9)
 
-    3.13. g(h(t)) = t
+    3.12. g(h(t)) = t
           calculation
-            g(h(t)) = g(y)           3.12
-                    = t              3.5
+            g(h(t)) = g(y)           3.11
+                    = t              3.4
 
-    3.14. h(t) ∈ B ∖ R. g(h(t)) = t.
-          join 3.11, 3.13
+    3.13. h(t) ∈ B ∖ R. g(h(t)) = t.
+          join 3.10, 3.12
 
 4.  For every u ∈ C, for every v ∈ A ∖ C, not h(u) = h(v).
     fix
