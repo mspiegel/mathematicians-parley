@@ -774,8 +774,8 @@ class Library:
     their full name.
     """
 
-    def __init__(self, records, known, g):
-        self.g = g
+    def __init__(self, records, record_sorts, known, g):
+        self.g, self.record_sorts = g, record_sorts
         self.items = {qualified(r): r for r in records
                       if r.kind in ('definition', 'theorem')}
         self.proved = {qualified(k.thm): k for k in known}
@@ -820,7 +820,7 @@ class Library:
         item = self.items.get(name)
         if item is None:
             return None
-        sorts = sorts_of_record(item, self.g)
+        sorts = self.record_sorts[id(item)]
         out = []
         for text, at in item.conclusions:
             lines = [(h[0], LABEL_AT_END.sub('', h[1]).strip())
@@ -1798,7 +1798,7 @@ def unsupplied(step, known, library):
     return missing
 
 
-def check_statements(report, records, g):
+def check_statements(report, records, g, record_sorts):
     """Every statement in the database parses, and parses one way.
 
     An item's statement is a formula in the same language as a claim, and the
@@ -1809,7 +1809,7 @@ def check_statements(report, records, g):
     for r in records:
         if r.kind not in ('definition', 'theorem'):
             continue
-        g.sorts = sorts_of_record(r, g)
+        g.sorts = record_sorts[id(r)]
         for kind, text, _, no in r.hypotheses:
             if kind != 'let':
                 continue
@@ -1827,7 +1827,7 @@ def check_statements(report, records, g):
                     report.say(r.path, no, f'{r.kind} {r.name}: {p.message}')
 
 
-def check_unsorted(report, records, g):
+def check_unsorted(report, records, g, record_sorts):
     """A name an item treats as a number, a `let` says is one.
 
     An item with no target is assumed exactly as it states itself, so a name
@@ -1871,7 +1871,7 @@ def check_unsorted(report, records, g):
             places += list(r.conclusions)
         for text, no in places:
             for sentence in sentences(LABEL_AT_END.sub('', text)):
-                g.sorts = sorts_of_record(r, g)
+                g.sorts = record_sorts[id(r)]
                 try:
                     tree = parse(sentence, g)
                 except Problem:
@@ -1943,7 +1943,7 @@ def check_symbols(report, records):
                        f'symbol it introduces cannot be reached')
 
 
-def statement_kinds(g, records, theorems, known):
+def statement_kinds(g, records, record_sorts, known):
     """What each item's and each proved theorem's names are, by its full name.
 
     A cited statement is read on its own, and each citation takes its own
@@ -1954,9 +1954,10 @@ def statement_kinds(g, records, theorems, known):
     for r in records:
         if r.kind not in ('definition', 'theorem'):
             continue
-        g.sorts = sorts_of_record(r, g)
+        g.sorts = record_sorts[id(r)]
         out[qualified(r)] = kinds.read_record(r, g)
-    for thm, k in zip(theorems, known, strict=True):
+    for k in known:
+        thm = k.thm
         g.sorts = k.sorts
         reader = kinds.Reader(g)
         for kind, text, _label, no in thm.hypotheses:
@@ -2490,14 +2491,19 @@ def main(root):
     except Problem as p:
         report.problems.append(p)
         return summary(report, theorems, items, methods)
-    check_statements(report, records, grammar)
-    check_unsorted(report, records, grammar)
+    # What each item's own lines say its names are, read once. Records are
+    # told apart by identity, as two may share a name (`check_database`
+    # reports that), and every record lives for the whole run.
+    record_sorts = {id(r): sorts_of_record(r, grammar) for r in records
+                    if r.kind in ('definition', 'theorem')}
+    check_statements(report, records, grammar, record_sorts)
+    check_unsorted(report, records, grammar, record_sorts)
     check_symbols(report, records)
 
     known = [Known(thm, grammar) for thm in theorems]
-    library = Library(records, known, grammar)
+    library = Library(records, record_sorts, known, grammar)
 
-    statements = statement_kinds(grammar, records, theorems, known)
+    statements = statement_kinds(grammar, records, record_sorts, known)
     check_item_kinds(report, statements, items)
     for thm, k in zip(theorems, known, strict=True):
         check_formulas(report, thm, grammar, k)
