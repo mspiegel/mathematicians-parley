@@ -3194,40 +3194,45 @@ impl Library {
         setmm: &std::path::Path,
         proved: Option<&std::path::Path>,
     ) -> Checked<Library> {
-        let bytes = std::fs::read(setmm).map_err(|e| {
+        let text = std::fs::read_to_string(setmm).map_err(|e| {
             Problem::new(
                 setmm.display().to_string(),
                 0,
                 format!("cannot read set.mm: {e}"),
             )
         })?;
+        let proved = match proved {
+            Some(p) => Some(std::fs::read_to_string(p).map_err(|e| {
+                Problem::new(p.display().to_string(), 0, e.to_string())
+            })?),
+            None => None,
+        };
+        Ok(Library::from_texts(&text, proved.as_deref()))
+    }
+
+    /// The library from set.mm's text and, where there is one, `proved.mm`'s.
+    pub fn from_texts(setmm: &str, proved: Option<&str>) -> Library {
         let digest = {
             use sha2::{Digest, Sha256};
-            Sha256::digest(&bytes)
+            Sha256::digest(setmm.as_bytes())
                 .iter()
                 .map(|b| format!("{b:02x}"))
                 .collect()
         };
         let provided: BTreeSet<String> = match proved {
-            Some(p) => crate::mm::read(&[p])
-                .map_err(|e| Problem::new(p.display().to_string(), 0, e.to_string()))?
-                .into_keys()
-                .collect(),
+            Some(p) => crate::mm::read_texts(&[p]).into_keys().collect(),
             None => BTreeSet::new(),
         };
-        let mut paths: Vec<&std::path::Path> = vec![setmm];
-        if let Some(p) = proved {
-            paths.push(p);
-        }
-        let sigs = crate::mm::read(&paths)
-            .map_err(|e| Problem::new(setmm.display().to_string(), 0, e.to_string()))?;
+        let mut texts = vec![setmm];
+        texts.extend(proved);
+        let sigs = crate::mm::read_texts(&texts);
         let size = sigs.len() - provided.len();
-        Ok(Library {
+        Library {
             sigs,
             provided,
             size,
             digest,
-        })
+        }
     }
 }
 

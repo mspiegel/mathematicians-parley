@@ -4,8 +4,10 @@
 
 pub mod assumed;
 pub mod build;
+pub mod gate;
 pub mod labels;
 pub mod tested;
+pub mod verify;
 
 /// Where a generated file goes: its name under `elaboration/`, with `.mm`.
 pub fn path_of(name: &str) -> String {

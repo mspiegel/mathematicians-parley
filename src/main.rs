@@ -38,27 +38,22 @@ fn main() -> ExitCode {
             let _ = std::io::stderr().write_all(outcome.complained.as_bytes());
             exit(outcome.status)
         }
-        Some("build") if args.len() > 1 => {
+        Some("build") => {
             let root = working_tree();
-            match parley::tools::build::build_one(
+            let outcome = parley::tools::build::run(
                 &root,
-                &args[1],
+                args.get(1).map(String::as_str),
                 args.get(2).map(String::as_str),
-            ) {
-                Ok(changed) => {
-                    println!("* {}", args[1]);
-                    println!("1 built, {} changed", usize::from(changed));
-                    ExitCode::SUCCESS
-                }
-                Err(problem) => {
-                    eprintln!("{problem}");
-                    ExitCode::from(1)
-                }
-            }
+            );
+            let _ = std::io::stdout().write_all(outcome.printed.as_bytes());
+            let _ = std::io::stderr().write_all(outcome.complained.as_bytes());
+            exit(outcome.status)
         }
-        Some("build") | Some("gate") => {
-            eprintln!("not yet written");
-            ExitCode::from(2)
+        Some("gate") => {
+            let outcome = parley::tools::gate::run(&working_tree());
+            let _ = std::io::stdout().write_all(outcome.printed.as_bytes());
+            let _ = std::io::stderr().write_all(outcome.complained.as_bytes());
+            exit(outcome.status)
         }
         _ => {
             eprintln!("{USAGE}");
