@@ -59,6 +59,9 @@ pub struct NodeData {
     pub sort: Sort,
     pub children: Vec<Node>,
     pub text: String,
+    /// For a node standing in for a term the elaborator already holds, the
+    /// term in reverse Polish.
+    pub literal: Option<Rc<str>>,
     shape: OnceCell<String>,
 }
 
@@ -94,6 +97,20 @@ impl Node {
             sort,
             children,
             text: text.to_string(),
+            literal: None,
+            shape: OnceCell::new(),
+        }))
+    }
+
+    /// A term already in kernel form, standing in a tree: notation
+    /// `literal`, no sort, no children and no text.
+    pub fn literal(rpn: &str) -> Node {
+        Node(Rc::new(NodeData {
+            notation: "literal".to_string(),
+            sort: Sort::none(),
+            children: Vec::new(),
+            text: String::new(),
+            literal: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
         }))
     }

@@ -251,14 +251,38 @@ pub fn term_of(rpn: &str, sigs: &Signatures) -> Term {
         .expect("reverse Polish that builds nothing")
 }
 
-pub fn match_term(
+/// A set of variable names a match may bind.
+pub trait VarSet {
+    fn has(&self, name: &str) -> bool;
+}
+
+impl VarSet for IndexSet<String> {
+    fn has(&self, name: &str) -> bool {
+        self.contains(name)
+    }
+}
+
+impl VarSet for BTreeSet<Rc<str>> {
+    fn has(&self, name: &str) -> bool {
+        self.contains(name)
+    }
+}
+
+impl VarSet for BTreeSet<String> {
+    fn has(&self, name: &str) -> bool {
+        self.contains(name)
+    }
+}
+
+/// Bind the pattern's variables so that it becomes the ground term.
+pub fn match_term<V: VarSet + ?Sized>(
     pattern: &Term,
     ground: &Term,
     binding: &IndexMap<String, Term>,
-    variables: &IndexSet<String>,
+    variables: &V,
 ) -> Option<IndexMap<String, Term>> {
     if let Some(v) = pattern.variable() {
-        if variables.contains(v) {
+        if variables.has(v) {
             if let Some(seen) = binding.get(v) {
                 return same(seen, ground).then(|| binding.clone());
             }

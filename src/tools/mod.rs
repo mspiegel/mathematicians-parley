@@ -3,6 +3,7 @@
 //! `ELABORATION.md` must record.
 
 pub mod assumed;
+pub mod build;
 pub mod labels;
 pub mod tested;
 

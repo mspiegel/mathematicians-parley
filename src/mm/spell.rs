@@ -243,7 +243,9 @@ struct Taking {
 pub struct Builder {
     pub sigs: Signatures,
     syntax: OnceCell<Syntax>,
-    pub flabel: FloatLabels,
+    /// Each variable's float, shared so that a caller may hold it while it
+    /// builds.
+    pub flabel: Rc<FloatLabels>,
     /// Where each label stands in the library, which is the order floats
     /// are pushed in.
     pub forder: IndexMap<String, usize>,
@@ -270,7 +272,7 @@ impl Builder {
         Builder {
             sigs,
             syntax: OnceCell::new(),
-            flabel: FloatLabels::new(flabel),
+            flabel: Rc::new(FloatLabels::new(flabel)),
             forder,
             arities: IndexMap::new(),
             arity_of: RefCell::new(IndexMap::new()),
