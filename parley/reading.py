@@ -21,6 +21,7 @@ from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import (
     FUNCTION_BEING,
     GROUP,
+    LABEL,
     PART,
     SUBGROUP,
     definition_sorts,
@@ -30,9 +31,6 @@ from sorts import (
     sorts_of_statement,
 )
 
-# A label stands apart from what it labels, so `M(X)` ending a line is M
-# applied to X and not a line labelled X.
-LABEL = re.compile(r'\s+\([A-Z]+[0-9]*\)\s*$')
 # `let A be a set` introduces a name the way `let n ∈ ℕ` does, and states
 # what `A is a set` states. The hypothesis line reads better as it is
 # written; the claim is the notation the database declares. Points are the

@@ -2260,7 +2260,7 @@ def check_introductions(report, thm, g):
         if kind != 'let':
             continue
         body = re.sub(r'^\s*let\s+', '', text)
-        body = re.sub(r'\s*\([A-Z]+[0-9]*\)\s*$', '', body).strip()
+        body = LABEL_AT_END.sub('', body).strip()
         said = introduction_problem(body, g)
         if said:
             report.say(thm.path, no, said)
