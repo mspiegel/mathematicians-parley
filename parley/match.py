@@ -181,7 +181,7 @@ def _bound_as(pattern, ground, variables, binders):
         ours, theirs = pattern.children[at], ground.children[at]
         if (ours.notation != 'name' or theirs.notation != 'name'
                 or ours.text == theirs.text or ours.text in variables
-                or theirs.text in names(pattern)):
+                or theirs.text in pattern.names()):
             continue
         pattern = Node(pattern.notation, pattern.sort,
                        [theirs if i == at
@@ -287,13 +287,6 @@ def _family(pattern, ground, binding, sites, binders, equations):
     return False, None
 
 
-def names(node):
-    """Every name the tree mentions."""
-    if node.notation == 'name':
-        return {node.text}
-    return set().union(set(), *(names(c) for c in node.children))
-
-
 class Rule:
     """What a define with an argument stands for: `define S(m) := …` is a
     function, and S(t) is its body with t for m.
@@ -368,11 +361,11 @@ def substitute_apart(node, binding, binders):
                      for c in node.children], node.text)
     own = {node.children[at].text for at in held}
     inner = {k: v for k, v in binding.items() if k not in own}
-    used = names(node).union(*(names(v) for v in binding.values()))
+    used = node.names().union(*(v.names() for v in binding.values()))
     spelt, renamed = {}, dict(inner)
     for at in held:
         var = node.children[at]
-        if any(var.text in names(v) for v in inner.values()):
+        if any(var.text in v.names() for v in inner.values()):
             fresh = Node('name', var.sort, [], next(c for c in FRESH
                                                     if c not in used))
             used.add(fresh.text)

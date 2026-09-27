@@ -29,7 +29,6 @@ from match import (
     expand,
     instantiation,
     match,
-    names,
     substitute,
     substitute_apart,
 )
@@ -510,7 +509,7 @@ def check_closed_arithmetic(report, thm, g, known):
 
     def closed(text):
         try:
-            return not names(parse(text, g))
+            return not parse(text, g).names()
         except Problem:
             return True               # `check_formulas` says it does not read
 
@@ -1375,7 +1374,7 @@ def concludes(groups, claims, facts, seed, library):
         for w in want:
             binding_sites(w[1], library.binders, library.props, (), sites)
         trees = gives + [t for _, t in want]
-        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        variables = set().union(*(t.names() for t in trees)) if trees else set()
         if take(claims, candidates, dict(seed), [], need, facts,
                 variables, library, sites):
             return True
@@ -1405,7 +1404,7 @@ def family_asks(step, known, library):
         sites = set()
         for t in trees:
             binding_sites(t, library.binders, library.props, (), sites)
-        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        variables = set().union(*(t.names() for t in trees)) if trees else set()
         for concl in gives:
             for target, _extra in readings(concl, library):
                 for cand in conjuncts(target, library):
@@ -1415,7 +1414,7 @@ def family_asks(step, known, library):
                                       library.equals)
                         for value in (found or {}).values():
                             if value.notation == PROPERTY:
-                                held |= names(value.children[0]) - {value.text}
+                                held |= value.children[0].names() - {value.text}
                                 values.append(value)
 
     def asks(fact):
@@ -1439,8 +1438,8 @@ def family_asks(step, known, library):
                        == body.children[0].shape() for v in values)
         return (node.notation == 'membership'
                 and node.children[1].notation == 'number-systems'
-                and bool(names(node.children[0]))
-                and names(node.children[0]) <= held)
+                and bool(node.children[0].names())
+                and node.children[0].names() <= held)
     return asks
 
 
@@ -1573,7 +1572,7 @@ def obtains(groups, facts, seed, library):
                 # line the step cites decides: `part-builder` says u ⊆ X
                 # and P(u), and Y ∈ K makes P K's condition.
                 need = [x for e in extra for x in conjuncts(e, library)]
-                variables = set().union(*(names(t) for t in need))
+                variables = set().union(*(t.names() for t in need))
                 found = supply(need, facts, dict(seed), variables, library,
                                sites)
                 if found is not None and any(
@@ -1668,7 +1667,7 @@ def derives(claim, groups, facts, library, depth=5):
         return True
     for want, gives in groups:
         trees = gives + [t for _, t in want]
-        variables = set().union(*(names(t) for t in trees)) if trees else set()
+        variables = set().union(*(t.names() for t in trees)) if trees else set()
         for concl in gives:
             binding = match(concl, claim, {}, variables, library.props,
                             frozenset(), library.binders, library.equals)
@@ -1759,7 +1758,7 @@ def unsupplied(step, known, library):
     for want, _ in groups:
         if not want:
             return None
-        variables = set().union(*(names(t) for _, t in want))
+        variables = set().union(*(t.names() for _, t in want))
         # Where a binder applies a function or a property to what it binds,
         # that is what decides it, here as in the conclusion: "for every
         # k ∈ ℕ₀, m divides t(k)" says what t is from the line supplying it.

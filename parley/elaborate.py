@@ -44,7 +44,6 @@ from formula import Grammar
 from library import Signature
 from library import read as read_library
 from match import binding_context, equations, instantiation, match
-from match import names as names_in
 from matcher import Matcher
 from parse import (
     STDLIB,
@@ -776,7 +775,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
             own.update(node.children[at].text for at in held
                        if node.children[at].notation == 'name')
             rest.extend(node.children)
-        variables = set().union(*(names_in(n) for n in [*ends, *hyps])) - own
+        variables = set().union(*(n.names() for n in [*ends, *hyps])) - own
         # A definition is a biconditional, and a step unfolding one claims
         # one side and cites the other: `def:stdlib/calculus/continuous-on` from "f is
         # continuous on [a, b]" is what says D is [a, b]. So each side is
