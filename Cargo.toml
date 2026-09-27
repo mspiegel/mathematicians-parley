@@ -1,0 +1,42 @@
+[package]
+name = "parley"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Checker and elaborator for the readable proof layer over Metamath"
+publish = false
+
+[lib]
+name = "parley"
+path = "src/lib.rs"
+
+[[bin]]
+name = "parley"
+path = "src/main.rs"
+
+[dependencies]
+fancy-regex = "0.17"
+indexmap = "2"
+num-bigint = "0.4"
+num-integer = "0.1"
+num-rational = "0.4"
+num-traits = "0.2"
+regex = "1"
+sha2 = "0.10"
+tempfile = "3"
+unicode-normalization = "0.1"
+unicode-properties = { version = "0.1", default-features = false, features = ["general-category"] }
+unicode_names2 = "1"
+
+[dev-dependencies]
+trybuild = "1"
+
+[profile.release]
+debug = 1
+
+[lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

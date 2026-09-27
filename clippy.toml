@@ -1,0 +1,9 @@
+# Output is compared byte for byte, and a search that takes the first lemma
+# that fits takes a different one when a map iterates in a different order.
+# A std hash map iterates in an order that changes from run to run, so none is
+# used: an insertion-ordered map where Python kept insertion order, a BTree
+# where the order is sorted.
+disallowed-types = [
+    { path = "std::collections::HashMap", reason = "iteration order changes between runs; use indexmap::IndexMap or BTreeMap" },
+    { path = "std::collections::HashSet", reason = "iteration order changes between runs; use indexmap::IndexSet or BTreeSet" },
+]
