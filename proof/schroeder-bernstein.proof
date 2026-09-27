@@ -1,6 +1,9 @@
 theorem fixed-part
   metamath    sbthlem3, which says it of the union set.mm builds, where this
               says there is such a part
+  note        C is a part of A such that g, applied to everything f misses
+              from C, lands exactly on the rest of A. On C the bijection
+              will be f; off C it is g run backwards.
   let A be a set                                                      (H1)
   let B be a set                                                      (H2)
   let f : A → B                                                       (H3)
@@ -8,11 +11,11 @@ theorem fixed-part
   then there is C ⊆ A with g[B ∖ f[C]] = A ∖ C
 
 define M(X) := g[B ∖ f[X]], for X ⊆ A                              (D1)
-       reads what g reaches from the part of B that f misses on X
+       reads take what f misses from X, and see where g sends it
 define D := {X ⊆ A : M(X) ∩ X = ∅}                                  (D2)
-       reads the parts of A that M keeps out of
+       reads the parts X of A that share nothing with M(X)
 define C := ⋃(X ∈ D) X                                               (D3)
-       reads everything in some such part
+       reads everything in at least one of them: the largest part of A that shares nothing with its M
 
 1.  For every X ⊆ A, M(X) ⊆ A.
     fix

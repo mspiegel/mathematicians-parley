@@ -22,7 +22,7 @@ finds C, and is set.mm's `sbthlem3` said as "there is such a part".
 Both elaborate, to `elaboration/proof/schroeder-bernstein/fixed-part.mm` and
 `schroeder-bernstein.mm`, assume nothing, and verify.
 
-Numbers: `fixed-part` has 43 numbered steps and `schroeder-bernstein` 79.
+Numbers: `fixed-part` has 36 numbered steps and `schroeder-bernstein` 78.
 The second is long because one-to-one takes four cases and onto two, each
 of which reads the value of h in its case.
 
@@ -32,20 +32,21 @@ of which reads the value of h in its case.
 
 Let A and B be sets, f : A → B and g : B → A, both one-to-one.
 
-For a part X of A, M(X) is what g reaches from the part of B that f misses
-on X: M(X) = {g(y) : y ∈ B ∖ {f(x) : x ∈ X}}. D is the parts of A that M
-keeps out of, and C is their union.
+For a part X of A, M(X) = g[B ∖ f[X]]: take what f misses from X, and see
+where g sends it. D is the parts X of A that share nothing with M(X), and C
+is everything in at least one of them.
 
-**Lemma (fixed-part).** M(C) = A ∖ C.
+**Lemma (fixed-part).** There is C ⊆ A with g[B ∖ f[C]] = A ∖ C.
 
-*Proof.* M reverses inclusion. Every member X of D has M(C) ⊆ M(X) ⊆ A ∖ X,
-so nothing of M(C) is in C, and M(C) ⊆ A ∖ C. Then C ⊆ A ∖ M(C), so
-M(A ∖ M(C)) ⊆ M(C) = A ∖ (A ∖ M(C)), which puts A ∖ M(C) in D and so
-inside C. That is A ∖ C ⊆ M(C).
+*Proof.* M reverses inclusion. Every member X of D has M(C) ⊆ M(X), and
+M(X) shares nothing with X, so M(C) shares nothing with X; hence nothing of
+M(C) is in C, and M(C) ⊆ A ∖ C. Then C ⊆ A ∖ M(C), so M(A ∖ M(C)) ⊆ M(C),
+which shares nothing with A ∖ M(C). That puts A ∖ M(C) in D and so inside
+C, which is A ∖ C ⊆ M(C).
 
 **Theorem.** There is a bijection from A to B.
 
-*Proof.* Take C from the lemma, R = {f(x) : x ∈ C}, and
+*Proof.* Take C from the lemma, R = f[C], and
 
   h(x) = f(x) if x ∈ C, g⁻¹(x) otherwise, for x ∈ A.
 
@@ -73,6 +74,14 @@ x ∈ C with f(x) = b; outside R, from g(b), which is off C. ∎
   has the rule.
 - **The inverse is `g⁻¹`** (`inverse`, `ccnv`), used only where g is
   one-to-one.
+- **A part of A is `X ⊆ A`**, never X ∈ 𝒫A: `there is C ⊆ A with`,
+  `for every X ⊆ A`, `{X ⊆ A : …}`, `let X ⊆ A` and `for X ⊆ A` on a
+  define each build the power-set formula, so the page has no 𝒫.
+- **D's condition is M(X) ∩ X = ∅**, read "shares nothing with", where the
+  first draft wrote M(X) ⊆ A ∖ X and left the reader to see a disjointness
+  in a complement.
+- **The lemma carries a `note`, and each define a plain reading**, so the
+  meaning stands beside each formula before a reader decodes it.
 
 ---
 
