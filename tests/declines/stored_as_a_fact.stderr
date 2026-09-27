@@ -1,0 +1,22 @@
+error[E0308]: mismatched types
+  --> tests/declines/stored_as_a_fact.rs:11:23
+   |
+11 |     facts.insert("k", fitted());
+   |           ------      ^^^^^^^^ expected `String`, found `Route<String>`
+   |           |
+   |           arguments to this method are incorrect
+   |
+   = note: expected struct `String`
+                found enum `Route<String>`
+help: the return type of this call is `Route<String>` due to the type of the argument passed
+  --> tests/declines/stored_as_a_fact.rs:11:5
+   |
+11 |     facts.insert("k", fitted());
+   |     ^^^^^^^^^^^^^^^^^^--------^
+   |                       |
+   |                       this argument influences the return type of `insert`
+note: method defined here
+  --> $CARGO/indexmap-$VERSION/src/map.rs
+   |
+   |     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+   |            ^^^^^^

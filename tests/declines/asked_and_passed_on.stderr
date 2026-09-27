@@ -1,0 +1,15 @@
+error[E0308]: mismatched types
+  --> tests/declines/asked_and_passed_on.rs:19:18
+   |
+19 |     let _ = join(made);
+   |             ---- ^^^^ expected `String`, found `Route<String>`
+   |             |
+   |             arguments to this function are incorrect
+   |
+   = note: expected struct `String`
+                found enum `Route<String>`
+note: function defined here
+  --> tests/declines/asked_and_passed_on.rs:10:4
+   |
+10 | fn join(proof: String) -> String {
+   |    ^^^^ -------------
