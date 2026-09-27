@@ -330,9 +330,16 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         binding = self.instanced(sig, binding)
         # A definition that introduces a name says which variable it takes;
         # one that does not leaves the lemma's own, which the match fixed.
+        # So does a lemma whose left side binds the letter too: `eliun`
+        # binds x in the union and in the existence, and the union the step
+        # names fixes it; `bridging` below carries the existence to the
+        # letter the step wants.
         binds = self.spelt(binding)
-        if var is not None and sig.bound() is not None:
-            binds[sig.bound()] = var
+        held = sig.bound()
+        if held is not None and held in reads.children[0].names():
+            held = None
+        if var is not None and held is not None:
+            binds[held] = var
         # A lemma may state a condition in full rather than ask for it:
         # `elpw` wants what it is about to be a set before it will say what
         # belongs to its power class. Both are settled against the binding as
@@ -347,7 +354,6 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # The lemma unfolds to its own wording, which need not be the text's:
         # `divides` writes the product the other way round. What it gives is
         # built first, and the text's wording is reached from it.
-        held = sig.bound()
         if held is not None and var is not None:
             binding[held] = kernel.Term(variable=self.sigs[var].statement[1])
         given = reads.children[1].substitute(binding).rpn(self.flabel)

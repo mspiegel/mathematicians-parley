@@ -847,9 +847,9 @@ CASES = [
     # the member is asked for: here a is dropped.
     ('keep a point out of a disjoint set without saying it is in the other',
      'proof/schroeder-bernstein.proof',
-     '                  thm:stdlib/sets/disjoint-member, from 7.2.3, K7\n',
-     '                  thm:stdlib/sets/disjoint-member, from 7.2.3\n',
-     'step 7.2.4 cites thm:stdlib/sets/disjoint-member, which asks for'),
+     '                  thm:stdlib/sets/disjoint-member, from 7.2.2, K7\n',
+     '                  thm:stdlib/sets/disjoint-member, from 7.2.2\n',
+     'step 7.2.3 cites thm:stdlib/sets/disjoint-member, which asks for'),
 
     # A group is let with its operation and its identity; one without the
     # identity is no introduction at all.

@@ -86,20 +86,17 @@ define C := ⋃(X ∈ D) X                                               (D3)
           contradiction
           suppose a ∈ C                                               (S1)
 
-          7.2.1.  There is X ∈ D with a ∈ X.
-                  def:stdlib/sets/indexed-union u := a, from S1
+          7.2.1.  X ∈ D. a ∈ X.
+                  obtain X: def:stdlib/sets/indexed-union u := a, from S1
 
-          7.2.2.  X ∈ D. a ∈ X.
-                  obtain X from line 7.2.1
+          7.2.2.  M(C) ∩ X = ∅
+                  instantiate X := X in line 6, from 7.2.1
 
-          7.2.3.  M(C) ∩ X = ∅
-                  instantiate X := X in line 6, from 7.2.2
+          7.2.3.  a ∉ X
+                  thm:stdlib/sets/disjoint-member, from 7.2.2, K7
 
-          7.2.4.  a ∉ X
-                  thm:stdlib/sets/disjoint-member, from 7.2.3, K7
-
-          7.2.5.  a ∈ X. a ∉ X.
-                  join 7.2.2, 7.2.4
+          7.2.4.  a ∈ X. a ∉ X.
+                  join 7.2.1, 7.2.3
 
     7.3.  a ∈ A ∖ C
           thm:stdlib/sets/difference-member, from 7.1, 7.2

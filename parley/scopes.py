@@ -802,22 +802,22 @@ class Scopes:
             if declined(made):
                 raise self.defect(step.line, f'{lemma} does not unfold '
                                              f'what this obtains from')
-            # The definition's left side is what a cited line says, and the
-            # line may say it with a define's name: Schröder–Bernstein's C9
-            # says b ∈ R where the image definition asks b ∈ f[C].
+            # The definition's left side is what a cited line says. Where
+            # the line says it otherwise — with a define's name, C9's b ∈ R
+            # where the image definition asks b ∈ f[C], or over another
+            # letter, S1's a ∈ C where C's union binds one of its own — the
+            # existence is reached as a step claiming it would reach it.
             shown = facts.get(left)
-            if shown is None:
-                held = {lines[ref].term: self.carried(ref, facts, lines)
-                        for ref in step.just.refs if ref in lines}
-                found = self.unfolds_from(self.to_term(left), held,
-                                          self.to_term(left).names(), scope,
-                                          facts)
-                if declined(found):
+            if shown is not None:
+                p_ex = self.seq(scope, left, ex, shown, made[0], 'mpbid')
+            else:
+                item = self.item_cited(named.group(1))
+                p_ex = self.trying(item, step, self.one_unfolded, ex, scope,
+                                   facts, lines)
+                if declined(p_ex):
                     raise self.defect(step.line,
                                       f'nothing step {number} cites says '
                                       f'{self.render(left)}')
-                shown = found[1]
-            p_ex = self.seq(scope, left, ex, shown, made[0], 'mpbid')
         else:
             cites = step.just.text.split(':', 1)[1].strip()
             item = self.item_cited(named.group(1))
