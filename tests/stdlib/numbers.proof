@@ -169,3 +169,11 @@ theorem nat0-as-int
 
 1.  n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
     thm:stdlib/numbers/nat0-as-int
+
+theorem nat0-nonzero
+  let m ∈ ℕ₀                                                          (H1)
+  assume m ≠ 0                                                        (H2)
+  then m ∈ ℕ
+
+1.  m ∈ ℕ
+    thm:stdlib/numbers/nat0-nonzero, from H1, H2

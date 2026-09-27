@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import proofs_functions
 import proofs_geometry
 import proofs_groups
+import proofs_numbers
 import proofs_series
 import proofs_sets
 from build import path_of
@@ -36,7 +37,7 @@ from spell import Builder
 # The groups, in the order they are written: a later group may take a label
 # an earlier one proved.
 GROUPS = [proofs_geometry, proofs_series, proofs_functions, proofs_sets,
-          proofs_groups]
+          proofs_groups, proofs_numbers]
 
 HEAD = """$( stdlib/proved, built by elaboration/stdlib/build-proved.py.
 
