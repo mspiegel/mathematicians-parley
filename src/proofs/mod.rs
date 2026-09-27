@@ -12,6 +12,7 @@
 //! notation set.mm writes it in, and never transcribed into stack order by
 //! hand.
 
+pub mod comparison;
 pub mod stdlib;
 
 use crate::mm::Proof;

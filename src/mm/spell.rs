@@ -135,78 +135,92 @@ pub fn seq(parts: &[&str]) -> String {
         .join(" ")
 }
 
-// Terms. `co` is Metamath's binary operation and most of the rest are it
-// with the operator filled in.
-pub fn co(a: &str, b: &str, f: &str) -> String {
-    seq(&[a, b, f, "co"])
+/// Tokens in order, skipping any that are empty, from any mix of `&str` and
+/// `String`: `seq!(claim, th, pf, "a1i")`.
+#[macro_export]
+macro_rules! seq {
+    ($($part:expr),* $(,)?) => {
+        $crate::mm::spell::seq(&[$(::std::convert::AsRef::<str>::as_ref(&$part)),*])
+    };
 }
-pub fn mul(a: &str, b: &str) -> String {
+
+// Terms. `co` is Metamath's binary operation and most of the rest are it
+// with the operator filled in. Each takes `&str` or `String` alike, so a
+// term built inline is passed as it is.
+pub fn co(a: impl AsRef<str>, b: impl AsRef<str>, f: impl AsRef<str>) -> String {
+    seq!(a, b, f, "co")
+}
+pub fn mul(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "cmul")
 }
-pub fn add(a: &str, b: &str) -> String {
+pub fn add(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "caddc")
 }
-pub fn sub(a: &str, b: &str) -> String {
+pub fn sub(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "cmin")
 }
-pub fn div(a: &str, b: &str) -> String {
+pub fn div(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "cdiv")
 }
-pub fn exp(a: &str, b: &str) -> String {
+pub fn exp(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "cexp")
 }
-pub fn fz(a: &str, b: &str) -> String {
+pub fn fz(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     co(a, b, "cfz")
 }
-pub fn neg(a: &str) -> String {
-    seq(&[a, "cneg"])
+pub fn neg(a: impl AsRef<str>) -> String {
+    seq!(a, "cneg")
 }
-pub fn summ(range: &str, body: &str, v: &str) -> String {
-    seq(&[range, body, v, "csu"])
+pub fn summ(
+    range: impl AsRef<str>,
+    body: impl AsRef<str>,
+    v: impl AsRef<str>,
+) -> String {
+    seq!(range, body, v, "csu")
 }
 
 // Formulas.
-pub fn cel(a: &str, b: &str) -> String {
-    seq(&[a, b, "wcel"])
+pub fn cel(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wcel")
 }
-pub fn br(a: &str, b: &str, r: &str) -> String {
-    seq(&[a, b, r, "wbr"])
+pub fn br(a: impl AsRef<str>, b: impl AsRef<str>, r: impl AsRef<str>) -> String {
+    seq!(a, b, r, "wbr")
 }
-pub fn lt(a: &str, b: &str) -> String {
+pub fn lt(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     br(a, b, "clt")
 }
-pub fn le(a: &str, b: &str) -> String {
+pub fn le(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     br(a, b, "cle")
 }
-pub fn dvds(a: &str, b: &str) -> String {
+pub fn dvds(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
     br(a, b, "cdvds")
 }
-pub fn eq(a: &str, b: &str) -> String {
-    seq(&[a, b, "wceq"])
+pub fn eq(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wceq")
 }
-pub fn ne(a: &str, b: &str) -> String {
-    seq(&[a, b, "wne"])
+pub fn ne(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wne")
 }
-pub fn wa(a: &str, b: &str) -> String {
-    seq(&[a, b, "wa"])
+pub fn wa(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wa")
 }
-pub fn wo(a: &str, b: &str) -> String {
-    seq(&[a, b, "wo"])
+pub fn wo(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wo")
 }
-pub fn wi(a: &str, b: &str) -> String {
-    seq(&[a, b, "wi"])
+pub fn wi(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wi")
 }
-pub fn wb(a: &str, b: &str) -> String {
-    seq(&[a, b, "wb"])
+pub fn wb(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+    seq!(a, b, "wb")
 }
-pub fn wn(a: &str) -> String {
-    seq(&[a, "wn"])
+pub fn wn(a: impl AsRef<str>) -> String {
+    seq!(a, "wn")
 }
-pub fn w3a(a: &str, b: &str, c: &str) -> String {
-    seq(&[a, b, c, "w3a"])
+pub fn w3a(a: impl AsRef<str>, b: impl AsRef<str>, c: impl AsRef<str>) -> String {
+    seq!(a, b, c, "w3a")
 }
-pub fn rex(body: &str, v: &str, over: &str) -> String {
-    seq(&[body, v, over, "wrex"])
+pub fn rex(body: impl AsRef<str>, v: impl AsRef<str>, over: impl AsRef<str>) -> String {
+    seq!(body, v, over, "wrex")
 }
 
 /// What a step binds each of its label's variables to, in reverse Polish.
