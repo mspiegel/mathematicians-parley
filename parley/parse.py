@@ -201,8 +201,8 @@ RECORD_KINDS = ('notation', 'method', 'definition', 'theorem', 'precedence')
 # record is not listed, because its fields are the levels it declares.
 FIELDS = {
     'notation': {'pattern', 'holes', 'yields', 'kinds', 'level', 'assoc',
-                 'commutes', 'negates', 'spells', 'binds', 'reads', 'target',
-                 'metamath', 'note'},
+                 'commutes', 'negates', 'spells', 'wraps', 'binds', 'reads',
+                 'target', 'metamath', 'note'},
     'method': {'form', 'block', 'parts', 'parts-repeat', 'part-opens',
                'checks', 'decides', 'hypotheses', 'specified-in', 'metamath',
                'note'},
@@ -308,7 +308,8 @@ class Step:
 
 DEFINED = re.compile(
     r'^define\s+(?P<name>[^\s(]+)(?:\((?P<param>[^\s()]+)\))?\s*:=\s*'
-    r'(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*∈\s*(?P<domain>.+))?$', re.S)
+    r'(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*(?P<how>[∈⊆])\s*'
+    r'(?P<domain>.+))?$', re.S)
 # One line of a define by cases: a value and the condition it is taken
 # under, or the last value, taken `otherwise`.
 CASE = re.compile(r'^(?P<value>.+?)\s+if\s+(?P<condition>.+)$', re.S)
@@ -380,8 +381,11 @@ def define_parts(text):
     if param is not None and over != param:
         return Declined(f'define {m.group("name")}({param}) gives the domain '
                         f'of {over}')
-    return Define(m.group('name'), body, param,
-                  ' '.join(m.group('domain').split()) if param else None)
+    # `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
+    domain = ' '.join(m.group('domain').split()) if param else None
+    if domain and m.group('how') == '⊆':
+        domain = f'𝒫{domain}' if ' ' not in domain else f'𝒫({domain})'
+    return Define(m.group('name'), body, param, domain)
 
 
 class FileScope:

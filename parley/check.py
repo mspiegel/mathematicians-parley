@@ -62,6 +62,7 @@ from sorts import (
     FUNCTION,
     FUNCTION_BEING,
     KIND,
+    PART,
     definitions_in_scope,
     file_definitions,
     let_formula,
@@ -838,7 +839,8 @@ class Library:
             # A function's type is declared, and what `be` says of the
             # function is a fact like any other, asked for as `let y ∈ Y`
             # is: `let g : Y → X be one-to-one` asks that g be one-to-one.
-            if kind == 'let' and FUNCTION_BEING.match(text):
+            if kind == 'let' and (FUNCTION_BEING.match(text)
+                                  or PART.match(text)):
                 text = let_formula(text)
             elif kind == 'let' and (KIND.match(text) or FUNCTION.match(text)
                                     or ELEMENT.match(text)):
@@ -1091,17 +1093,19 @@ def statements_in_scope(thm, step):
     sibling blocks may each fix a k under the same label, and what the label
     says is what the block around the citing step says.
     """
+    def said(kind, text):
+        body = LABEL_AT_END.sub('', text[len(kind):]).strip()
+        return let_formula(body) if kind == 'let' else body
+
     out = {fmt(s.number): ' '.join(s.claim) for s in thm.steps}
     for kind, text, label, _no in thm.hypotheses:
         if label:
-            out[label] = let_formula(
-                LABEL_AT_END.sub('', text[len(kind):]).strip())
+            out[label] = said(kind, text)
     visible = labels_in_scope(thm, step)
     for other in thm.steps:
         for kind, text, label, no, _part in other.openers:
             if label and visible.get(label) == ('block', no):
-                out[label] = let_formula(
-                    LABEL_AT_END.sub('', text[len(kind):]).strip())
+                out[label] = said(kind, text)
     return out
 
 
@@ -1486,8 +1490,15 @@ def domains_asked(thm, step):
             for end in range(start, len(claim)):
                 depth += {'(': 1, ')': -1}.get(claim[end], 0)
                 if depth == 0:
-                    out.add(' '.join(f'{claim[start + 1:end]} ∈ '
-                                     f'{said.domain}'.split()))
+                    arg = claim[start + 1:end]
+                    out.add(' '.join(f'{arg} ∈ {said.domain}'.split()))
+                    # A power set's member is a part, which the page may
+                    # say with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
+                    if said.domain.startswith('𝒫'):
+                        inner = said.domain[1:]
+                        if inner.startswith('(') and inner.endswith(')'):
+                            inner = inner[1:-1]
+                        out.add(' '.join(f'{arg} ⊆ {inner}'.split()))
                     break
             at += 1
     return out
@@ -1686,9 +1697,23 @@ def implied_facts(fact, g, sorts):
     """What a membership fact also says, by the table in `rules.py`.
 
     `k ∈ ℕ` also says k ∈ ℤ, k ∈ ℝ and the rest, and k ≥ 1 and k ≠ 0
-    (`SYNTAX.md`, what a membership line says). Anything else says only
-    itself.
+    (`SYNTAX.md`, what a membership line says). A part of a set is a member
+    of its power set and the other way round, so `C ⊆ A` also says
+    C ∈ 𝒫A, which is what `for every X ⊆ A` ranges over. Anything else says
+    only itself.
     """
+    both = len(fact.children) == 2
+    if both and (fact.notation == 'subset' or (
+            fact.notation == 'membership'
+            and fact.children[1].notation == 'powerset')):
+        part, whole = fact.children
+        if fact.notation == 'membership':
+            whole = whole.children[0]
+        g.sorts = {**sorts, 'x': 'set', 'S': 'set'}
+        said = 'x ∈ 𝒫S' if fact.notation == 'subset' else 'x ⊆ S'
+        out = [substitute(parse(said, g), {'x': part, 'S': whole})]
+        g.sorts = sorts
+        return out
     if (fact.notation != 'membership' or len(fact.children) != 2
             or fact.children[1].notation != 'number-systems'):
         return []
@@ -2104,7 +2129,8 @@ def check_sorts(report, thm):
             if not v:
                 continue
             n = re.escape(v)
-            stated = (re.search(rf'(?<![A-Za-z]){n}\s*∈', claim)
+            # A part of a set is stated by ⊆ as surely as by ∈ 𝒫.
+            stated = (re.search(rf'(?<![A-Za-z]){n}\s*[∈⊆]', claim)
                       or re.search(rf'(?<![A-Za-z]){n}\s+is a (set|point)', claim)
                       or re.search(rf'(?<![A-Za-z]){n}\s*:', claim))
             if not stated:
@@ -2122,6 +2148,7 @@ INTRODUCTIONS = (
     ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
     ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
     ('a function with a property', FUNCTION_BEING),
+    ('a part of a set',         re.compile(r'^\S+\s*⊆\s*\S')),
     ('a property',              re.compile(r'^\S+\s+be a property of the '
                                            r'elements of\s+\S+$')),
 )

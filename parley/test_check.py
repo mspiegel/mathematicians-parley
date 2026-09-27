@@ -318,8 +318,8 @@ CASES = [
     ('a let line that asserts instead of introducing',
      'proof/cantor.proof',
      '  let A be a set                                                      (H1)',
-     '  let A ⊆ B                                                           (H1)',
-     'none of the 8 introductions'),
+     '  let A = B                                                           (H1)',
+     'none of the 9 introductions'),
 
     # Renaming the isosceles points to a and n makes the distance |an| spell
     # the declared word `an`, which is what the capital-letter convention has
@@ -795,21 +795,21 @@ CASES = [
     # giving the condition or its negation, and claims that case's value.
     ('cite a define by cases for the other case\'s value',
      'proof/schroeder-bernstein.proof',
-     '    4.7.  h(t) = g⁻¹(t)\n',
-     '    4.7.  h(t) = f(t)\n',
-     'step 4.7 cites D2 and claims a value it does not give'),
+     '    3.7.  h(t) = g⁻¹(t)\n',
+     '    3.7.  h(t) = f(t)\n',
+     'step 3.7 cites D2 and claims a value it does not give'),
 
     ('cite a define by cases from no line saying the case',
      'proof/schroeder-bernstein.proof',
-     '          D2, from 4.1\n',
+     '          D2, from 3.1\n',
      '          D2, from K1\n',
      'no line it cites says whether a case\'s condition holds'),
 
     ('cite a define for a claim that does not name it',
      'proof/schroeder-bernstein.proof',
-     '    4.7.  h(t) = g⁻¹(t)\n',
-     '    4.7.  g⁻¹(t) = g⁻¹(t)\n',
-     'step 4.7 cites D2 and its claim never names h'),
+     '    3.7.  h(t) = g⁻¹(t)\n',
+     '    3.7.  g⁻¹(t) = g⁻¹(t)\n',
+     'step 3.7 cites D2 and its claim never names h'),
 
     # A `let` names a function's type and nothing more, unless `be` says a
     # property of it; a property slipped in as the codomain went unasked.
@@ -822,18 +822,26 @@ CASES = [
     # What `be` says of a function is asked for, as a membership is.
     ('cite an item without the line saying its function is one-to-one',
      'proof/schroeder-bernstein.proof',
-     '          thm:stdlib/functions/inverse-value, from H4, 4.6\n',
-     '          thm:stdlib/functions/inverse-value, from 4.6\n',
-     'step 4.8 cites thm:stdlib/functions/inverse-value, which asks for'),
+     '          thm:stdlib/functions/inverse-value, from H4, 3.6\n',
+     '          thm:stdlib/functions/inverse-value, from 3.6\n',
+     'step 3.8 cites thm:stdlib/functions/inverse-value, which asks for'),
 
     # An image's points come from a part of the function's domain, and the
     # item asks the step to say it is one.
     ('cite a value in an image with nothing saying the set is in the domain',
      'proof/schroeder-bernstein.proof',
      '                  thm:stdlib/functions/value-in-image, from K2\n'
-     '                  requires C ⊆ A: from 3\n',
+     '                  requires C ⊆ A: from 2\n',
      '                  thm:stdlib/functions/value-in-image, from K2\n',
-     'step 5.1.3 cites thm:stdlib/functions/value-in-image, which asks for'),
+     'step 4.1.3 cites thm:stdlib/functions/value-in-image, which asks for'),
+
+    # An obtain states what its name is, and ⊆ says it of a part as ∈ 𝒫
+    # would; with neither the name's sort is left to be inferred.
+    ('obtain a part without saying what it is a part of',
+     'proof/schroeder-bernstein.proof',
+     '2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.\n',
+     '2.  g[B ∖ f[C]] = A ∖ C.\n',
+     'step 2 obtains C without stating its sort'),
 ]
 
 

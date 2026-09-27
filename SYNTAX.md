@@ -55,7 +55,11 @@ theorem even-square
   formula. These are the theorem's hypotheses, and they map onto
   Metamath's floating and essential hypotheses; `let A be a set` is
   set.mm's `A e. _V`. They are part of the statement, not of the proof.
-  Those eight are all the forms a `let` line has. It carries an
+  `let X ⊆ A` introduces a part of A, which is a member of 𝒫A, and so
+  does `for every X ⊆ A`, `there is X ⊆ A with`, `{X ⊆ A : …}` and a
+  define ending `for X ⊆ A`: each is the power-set form written in the
+  words a school reader has, and builds the same formula.
+  Those nine are all the forms a `let` line has. It carries an
   introduction, which names something and says what it is, and never a
   formula; `assume` is the line that asserts. The one thing a `let`
   asserts is what `be` says of a function, "be" being how English says

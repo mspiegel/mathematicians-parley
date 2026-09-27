@@ -20,6 +20,7 @@ from match import Rule, substitute
 from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import (
     FUNCTION_BEING,
+    PART,
     definition_sorts,
     file_definitions,
     let_formula,
@@ -69,6 +70,8 @@ def hypothesis_body(kind, text):
         being = FUNCTION_BEING.match(said)
         if being:
             return f'{being.group(1)} and {let_formula(said)}'
+        if PART.match(said):
+            return let_formula(said)
         body = BE_A.sub(lambda m: f' is a {m.group(1)}', body)
     return body
 

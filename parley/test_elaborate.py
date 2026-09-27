@@ -577,9 +577,20 @@ CASES = [
     ('cite a define by cases from a line that does not say the case',
      'proof/schroeder-bernstein/schroeder-bernstein',
      'proof/schroeder-bernstein.proof',
-     '                  D2, from 9.2.2\n',
-     '                  D2, from 9.2.3\n',
+     '                  D2, from 8.2.2\n',
+     '                  D2, from 8.2.3\n',
      'no line the step cites says which case'),
+
+    # A part of A is asked of M's argument, and the line named must say it:
+    # line 3 says every member of D is one, which is not C.
+    ('a requires line for a part naming a line that does not say it',
+     'proof/schroeder-bernstein/fixed-part',
+     'proof/schroeder-bernstein.proof',
+     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 14\n'
+     '    requires C ⊆ A: from 4\n',
+     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 14\n'
+     '    requires C ⊆ A: from 3\n',
+     'from 3 does not reach'),
 ]
 
 

@@ -506,6 +506,20 @@ notation set-builder
   note        Told apart from set-image by what precedes the colon: a variable
               and its domain here, an expression there. See def:stdlib/sets/set-builder.
 
+notation set-builder-part
+  pattern     {_ ⊆ _ : _}
+  holes       variable, set, formula
+  yields      set
+  kinds       set of α, set of α, formula → set of set of α
+  binds       hole 1 over hole 3
+  spells      set-builder {∈:}
+  wraps       hole 2 in powerset
+  reads       the set of those parts of the second with the third
+  metamath    crab over a power set
+  target      _3 _1 _2 cpw crab
+  note        "The parts X of A with …", built as {X ∈ 𝒫A : …} exactly, as
+              `for-every-part` is.
+
 notation set-image
   pattern     {_ : _ ∈ _}
   holes       any, variable, set
@@ -734,6 +748,24 @@ notation for-every
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
 
+notation for-every-part
+  pattern     for every _ ⊆ _, _
+  holes       variable, set, formula
+  yields      formula
+  kinds       set of α, set of α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  wraps       hole 2 in powerset
+  reads       for every part of
+  metamath    wral over a power set
+  target      _3 _1 _2 cpw wral
+  note        "For every X ⊆ A" is "for every X ∈ 𝒫A" in words a school
+              reader has: every part of A. It builds that formula exactly,
+              so nothing downstream tells the two spellings apart. `spells`
+              comes last because its value ends in a comma, which would
+              carry it onto the line below.
+  spells      for-every forevery∈,
+
 notation for-every-with
   pattern     for every _ ∈ _ with _, _
   holes       variable, set, formula, formula
@@ -767,6 +799,21 @@ notation there-is
   reads       there is, there is no
   metamath    wrex, and wrex under wn
   target      _3 _1 _2 wrex, folded
+
+notation there-is-part
+  pattern     there is _ ⊆ _ with _
+  holes       variable, set, formula
+  yields      formula
+  kinds       set of α, set of α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  spells      there-is thereis∈with
+  wraps       hole 2 in powerset
+  reads       there is a part of, with
+  metamath    wrex over a power set
+  target      _3 _1 _2 cpw wrex
+  note        "There is C ⊆ A with …" is "there is C ∈ 𝒫A with …", built
+              as exactly that formula, as `for-every-part` is.
 
 notation there-is-some
   pattern     there is _ ∈ _

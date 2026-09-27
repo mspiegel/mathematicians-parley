@@ -365,6 +365,9 @@ class ProofRules:
                 more = self.implied(said, proof, scope)
                 if term in more:
                     return more[term]
+                part = self.as_part(said, proof, term, scope, facts)
+                if not declined(part):
+                    return part
             # The line with its own letters bound: a `fix` elsewhere took n,
             # so line 5 of the triangular reciprocals binds g where the
             # requires line citing it writes n. One claim, spelt apart.
@@ -380,6 +383,37 @@ class ProofRules:
             if found is not None and getattr(found, 'origin', None) == {ref}:
                 return found
         return Declined('no line this names says it')
+
+    def as_part(self, said, proof, term, scope, facts):
+        """`term` from a line saying `said`, where one says X ∈ 𝒫A and the
+        other X ⊆ A: a member of the power set is a part, and a part a
+        member (`elpw2g`, once A is a set). `let X ⊆ A` is read as the
+        membership, and a requires line may ask for the part.
+        """
+        one, other = self.to_term(said), self.to_term(term)
+        if {one.label, other.label} != {'wcel', 'wss'}:
+            return Declined('not a part and a membership of a power set')
+        member, part = (one, other) if one.label == 'wcel' else (other, one)
+        power = member.children[1]
+        if power.variable is not None or power.label != 'cpw' \
+                or member.children[0].rpn(self.flabel) \
+                != part.children[0].rpn(self.flabel) \
+                or power.children[0].rpn(self.flabel) \
+                != part.children[1].rpn(self.flabel):
+            return Declined('not a part and a membership of a power set')
+        x, whole = (c.rpn(self.flabel) for c in part.children)
+        is_set = self.settle(self.to_term(self.seq(whole, 'cvv', 'wcel')),
+                             scope, facts)
+        if declined(is_set):
+            return is_set
+        m, p = member.rpn(self.flabel), part.rpn(self.flabel)
+        same = self.seq(scope, self.seq(whole, 'cvv', 'wcel'),
+                        self.seq(m, p, 'wb'), is_set,
+                        self.ap('elpw2g', {'A': x, 'B': whole, 'V': 'cvv'}),
+                        'syl')
+        return (self.seq(scope, m, p, proof, same, 'mpbid')
+                if one.label == 'wcel'
+                else self.seq(scope, m, p, proof, same, 'mpbird'))
 
     def side(self, want, how, scope, facts, step=None):
         """A proof of what one `requires` line asks for.

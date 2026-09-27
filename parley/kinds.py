@@ -334,10 +334,11 @@ def introduce(reader, body, line, g):
         if declined(said):
             reader.clashes.append((line, m.group(2), str(said)))
         return
+    body = let_formula(body)
     m = re.match(r'^([^\s∈∉:]+)\s*(?:∈|∉|:)', body)
     if m:
         reader.env[m.group(1)] = Var()
-    claim_text(reader, let_formula(body), line, g)
+    claim_text(reader, body, line, g)
 
 
 def claim_text(reader, text, line, g):

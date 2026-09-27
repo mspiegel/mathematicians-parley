@@ -189,3 +189,21 @@ $d x S $.
 
 $}
 
+${
+$( Sets: the parts of a set with a property. $)
+$d x ps $.
+$d x A $.
+$d x B $.
+
+  gsspw $p |- ( ( B e. V /\ A C_ B ) -> A e. ~P B ) $=
+    ( wcel cpw wss elpw2g biimpar ) BCDABEDABFABCGH $.
+
+  ${
+    gelrabpw.1 $e |- ( x = A -> ( ph <-> ps ) ) $.
+  gelrabpw $p |- ( B e. V -> ( A e. { x e. ~P B | ph } <-> ( A C_ B /\ ps ) ) ) $=
+    ( cpw crab wcel wa wss elrab elpw2g anbi1d bitrid )
+    DACEHZIJDQJZBKEFJZDELZBKABCDQGMSRTBDEFNOP $.
+  $}
+
+$}
+

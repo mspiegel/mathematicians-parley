@@ -470,6 +470,7 @@ substitution in the corpus comes close.
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
                 | <name> `∉` <term>
+                | <name> `⊆` <term>
                 | <name> `be an element`
                 | <name> `be a set`
                 | <name> `be a point`
@@ -478,7 +479,7 @@ substitution in the corpus comes close.
                 | <name> `be a property of the elements of` <term>
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
-                  [ `,` `for` <name> `∈` <term> ] `(` <label> `)`
+                  [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
 <rule>        ::= <term>
                 | { <term> `if` <formula> <newline> } <term> `otherwise`
@@ -512,7 +513,10 @@ and that a note belongs to a block. `SYNTAX.md` says why they exist and why
 prose is allowed nowhere else.
 
 A `let` line carries an **introduction**, not a formula. It names something and
-says what it is, and the eight forms above are all of them. What it asserts
+says what it is, and the nine forms above are all of them. `⊆` introduces a
+part of a set, which is a member of its power set: `let X ⊆ A` is read as
+`X ∈ 𝒫A`, the name `for every X ⊆ A` quantifies over, and a line saying
+X ⊆ A or X ∈ 𝒫A answers for the other. What it asserts
 is only what `be` says of a function it names: `let g : Y → X be one-to-one`
 asserts `g : Y → X is one-to-one`, and an item stating it asks a citation for
 that line as it asks for a membership. The function's type is a declaration
@@ -773,7 +777,7 @@ Each kind has its own field names, and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `holes`, `yields`, `kinds`, `level`, `assoc`, `commutes`, `negates`, `spells`, `binds`, `reads`, `target`, `metamath`, `note` |
+| `notation` | `pattern`, `holes`, `yields`, `kinds`, `level`, `assoc`, `commutes`, `negates`, `spells`, `wraps`, `binds`, `reads`, `target`, `metamath`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `definition` | `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `theorem` | `metamath`, `target`, `open`, `note` |

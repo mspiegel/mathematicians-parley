@@ -29,6 +29,8 @@ KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
 # `let f : A → B be one-to-one`: a function's type, and a property of it.
 FUNCTION_BEING = re.compile(r'^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$')
+# `let X ⊆ A`: a part of a set.
+PART = re.compile(r'^(\S+)\s*⊆\s*(\S.*)$')
 
 
 def let_formula(body):
@@ -36,10 +38,18 @@ def let_formula(body):
 
     `let f : A → B be one-to-one` introduces f and says it is one-to-one,
     and the formula is `f : A → B is one-to-one`: "be" is how English says
-    "is" after "let". Every other body is read as it is written.
+    "is" after "let". `let X ⊆ A` introduces a part of A, which is a member
+    of its power set, and the formula is `X ∈ 𝒫A`, the one `for every X ⊆
+    A` quantifies over. Every other body is read as it is written.
     """
     m = FUNCTION_BEING.match(body)
-    return f'{m.group(1)} is {m.group(2)}' if m else body
+    if m:
+        return f'{m.group(1)} is {m.group(2)}'
+    m = PART.match(body)
+    if m:
+        whole = m.group(2).strip()
+        return f'{m.group(1)} ∈ 𝒫{whole if " " not in whole else f"({whole})"}'
+    return body
 PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+\S+$')
 SENTENCE = re.compile(r'(?<=[.])\s+')
 

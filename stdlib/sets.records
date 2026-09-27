@@ -40,6 +40,16 @@ definition set-builder
               one binds to the element and the bound one then has to be the
               element too.
 
+definition part-builder
+  let X be a set                                                      (H1)
+  let P be a property of the elements of 𝒫X                           (H2)
+  then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
+  metamath    elrab over the power set, and elpw2g, which this corpus
+              proves together in elaboration/stdlib/proved.mm
+  target      gelrabpw
+  note        The parts of X with a property: `def:stdlib/sets/set-builder`
+              over 𝒫X, with being in 𝒫X said as being a part of X.
+
 theorem set-builder-subset
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)

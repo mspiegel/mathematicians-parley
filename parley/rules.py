@@ -423,4 +423,8 @@ MEMBERSHIP = [
     'f1f',
     # A function on a set is a set, which an image under it asks (`imaexg`).
     'fex',
+    # A part of a set is a member of its power set, and the other way:
+    # `for every X ⊆ A` ranges over 𝒫A, and the line saying C ⊆ A is what
+    # puts C there (`gsspw`, proved.mm).
+    'gsspw', 'elpwi',
 ]

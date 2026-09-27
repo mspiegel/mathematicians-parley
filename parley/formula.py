@@ -103,10 +103,14 @@ class Notation:
     stands_under: str = ''     # the record's name, or another it spells
     fold_literal: str = ''     # the literal of the notation that wraps it
     kinds: str = None          # how its holes' kinds relate, as written
+    wrap: tuple = None         # (hole, notation, literal, yields) put round it
 
 
 NEGATES = re.compile(r'pattern\s+(\d+)\s+is\s+(\S+)\s+of\s+pattern\s+(\d+)')
 SPELLS = re.compile(r'^\s*(\S+)\s+(\S+)')
+# `wraps hole 2 in powerset`: the node built puts that hole's term inside
+# the named notation, so `for every X ⊆ A` is `for every X ∈ 𝒫A` exactly.
+WRAPS = re.compile(r'^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$')
 
 
 HOLE = object()
@@ -131,6 +135,7 @@ def compile_notations(records):
         # "not (n is odd)" are one formula wherever two are compared.
         folded = NEGATES.search(r.fields.get('negates', ''))
         spells = SPELLS.search(r.fields.get('spells', ''))
+        wraps = WRAPS.search(r.fields.get('wraps', ''))
         shapes = []
         for pat in re.split(r'\s{2,}', raw):
             parts = []
@@ -173,7 +178,9 @@ def compile_notations(records):
                 binds=r.fields.get('binds'),
                 folds=(folded.group(2) if folded
                        and int(folded.group(1)) == n + 1 else None),
-                kinds=r.fields.get('kinds')))
+                kinds=r.fields.get('kinds'),
+                wrap=((int(wraps.group(1)), wraps.group(2)) if wraps
+                      else None)))
     # A folded pattern builds the notation that wraps it, so it needs that
     # notation's literal too: `n is not odd` has to come out the same as
     # `not (n is odd)`, down to what stands in the outer node.
@@ -183,6 +190,15 @@ def compile_notations(records):
     for n in out:
         if n.folds:
             n.fold_literal = literals.get(n.folds, '')
+    # A wrapping notation's node carries its own literal and what it yields,
+    # as it would parsed where it is written.
+    yields = {}
+    for n in out:
+        yields.setdefault(n.stands_under or n.name, n.yields)
+    for n in out:
+        if n.wrap:
+            hole, name = n.wrap
+            n.wrap = (hole, name, literals.get(name, ''), yields.get(name, ''))
     # A symbol may be a prefix of another, so try the longest first.
     return out, words, sorted(symbols, key=len, reverse=True)
 
@@ -519,6 +535,10 @@ class _Parser:
         # pattern it stands for. Both are needed: ℝ and ℕ₀ are one record, and
         # so are `a < b` and `a ≥ b`, and nothing comparing two formulas could
         # otherwise tell either pair apart.
+        if n.wrap:
+            hole, name, literal, made = n.wrap
+            kids = list(kids)
+            kids[hole - 1] = Node(name, made, [kids[hole - 1]], literal)
         node = Node(n.stands_under or n.name, n.yields, kids, n.literal)
         # A pattern declared as the negation of another builds the other and
         # wraps it, so the folded spelling and the `not` spelling are one tree.
