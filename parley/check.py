@@ -494,11 +494,11 @@ def changed_closed(sides, g):
     return alike(one, other)
 
 
-def check_membership_claims(report, thm, g):
+def check_membership_claims(report, thm, g, known):
     """`membership` claims that a term is in a number system, and nothing
     else (`METHODS.md`), or that every member of a set has a term in one.
     """
-    sorts_in_scope(thm, g)
+    g.sorts = known.sorts
 
     def says_membership(node):
         if node.notation == 'for-every' and len(node.children) == 3:
@@ -521,7 +521,7 @@ def check_membership_claims(report, thm, g):
                            f'system')
 
 
-def check_closed_arithmetic(report, thm, g):
+def check_closed_arithmetic(report, thm, g, known):
     """`arithmetic` stands in for a line only where the fact is numerals alone.
 
     A `substitute` may take its equation from `arithmetic`, and a chain link
@@ -531,7 +531,7 @@ def check_closed_arithmetic(report, thm, g):
     terms have letters but change only where they have none uses a fact of
     numerals alone (`changed_closed`). `SYNTAX.md` has the rule.
     """
-    sorts_in_scope(thm, g)
+    g.sorts = known.sorts
 
     def closed(text):
         try:
@@ -774,11 +774,11 @@ class Library:
     their full name.
     """
 
-    def __init__(self, records, theorems, g):
+    def __init__(self, records, known, g):
         self.g = g
         self.items = {qualified(r): r for r in records
                       if r.kind in ('definition', 'theorem')}
-        self.proved = {qualified(t): t for t in theorems}
+        self.proved = {qualified(k.thm): k for k in known}
         self.cache = {}
         # Which notations are an existential and which a membership, taken
         # from what they target in the kernel rather than named here. A
@@ -804,9 +804,9 @@ class Library:
 
     def _read(self, name):
         """One (hypotheses, conclusion sentences) pair per `then` group."""
-        thm = self.proved.get(name)
-        if thm is not None:
-            sorts = sorts_in_scope(thm, self.g)
+        proved = self.proved.get(name)
+        if proved is not None:
+            thm, sorts = proved.thm, proved.sorts
             lines = [(k, LABEL_AT_END.sub('', t[len(k):]).strip())
                      for k, t, _, _ in thm.hypotheses]
             # A theorem's statement means what it meant in its own file: a
@@ -872,7 +872,7 @@ def negates(a, b, wrappers):
             and a.notation in wrappers and a.children[0].shape() == b.shape())
 
 
-def check_contradiction(report, thm, g):
+def check_contradiction(report, thm, g, known):
     """A contradiction block relates its supposition to its claim, and closes
     with a formula and that formula's negation.
 
@@ -884,13 +884,11 @@ def check_contradiction(report, thm, g):
     later with nothing to point at.
     """
     wrappers = {n.folds for n in g.notations if n.folds}
-    thm_sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, thm_sorts)
 
     def read(text):
-        g.sorts = thm_sorts
+        g.sorts = known.sorts
         try:
-            return expand(parse(text, g), defined)
+            return expand(parse(text, g), known.defined)
         except Problem:
             return None
     for step in thm.steps:
@@ -1157,6 +1155,40 @@ def citation_parts(step, just, scope, library, sorts, defined):
     return facts, claims, seed
 
 
+class Known:
+    """What a theorem's lines give every check of it, read once a run.
+
+    The sort of each name and what each `define` stands for depend on the
+    theorem alone, the lines a citation may name on its step, and what a
+    step's citation supplies on the step. Each is read the first time a
+    check asks and kept for the run; nothing that uses them changes them.
+
+    A step is kept beside what was read for it. `check_surplus` asks about
+    copies of a step with a line taken away, and a copy let go could leave
+    its id to the next, which would then be handed the first one's answer.
+    """
+
+    def __init__(self, thm, g):
+        self.thm = thm
+        self.sorts = sorts_in_scope(thm, g)
+        self.defined = definitions_in_scope(thm, g, self.sorts)
+        self._scopes, self._parts = {}, {}
+
+    def scope(self, step):
+        """`statements_in_scope` at `step`."""
+        if id(step) not in self._scopes:
+            self._scopes[id(step)] = (step, statements_in_scope(self.thm, step))
+        return self._scopes[id(step)][1]
+
+    def parts(self, step, library):
+        """`citation_parts` of `step`'s justification."""
+        if id(step) not in self._parts:
+            self._parts[id(step)] = (step, citation_parts(
+                step, step.just, self.scope(step), library, self.sorts,
+                self.defined))
+        return self._parts[id(step)][1]
+
+
 def conjuncts(node, library):
     """A conjunction taken apart. A claim may take one part of what it gets,
     and a fact may supply one part of what is asked, because a line is a
@@ -1224,23 +1256,18 @@ def walk(nodes):
         yield from walk(node.children)
 
 
-def check_conclusion(report, thm, library):
+def check_conclusion(report, thm, library, known):
     """A citation's claim is what the item concludes, under the binding its
     hypotheses fixed.
     """
-    g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
         if not just or not just.head.startswith(('def:', 'thm:')):
             continue
-        scope = statements_in_scope(thm, step)
         groups = library.groups(just.item(just.head))
         if groups is None:
             continue
-        facts, claims, seed = citation_parts(step, just, scope, library,
-                                             sorts, defined)
+        facts, claims, seed = known.parts(step, library)
         if not claims:
             continue
         if not concludes(groups, claims, facts, seed, library):
@@ -1265,7 +1292,7 @@ def define_named(thm, label):
     return None
 
 
-def check_define_citation(report, thm, library):
+def check_define_citation(report, thm, library, known):
     """A step citing a define claims what the define says the name is.
 
     The claim is an equation with the name on one side, applied or not, and
@@ -1276,8 +1303,6 @@ def check_define_citation(report, thm, library):
     line saying t ∉ C.
     """
     g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     wrappers = {n.folds for n in g.notations if n.folds}
     for step in thm.steps:
         just = step.just
@@ -1289,10 +1314,8 @@ def check_define_citation(report, thm, library):
             report.say(thm.path, just.line, f'{say}, which no define in '
                                             f'scope carries')
             continue
-        scope = statements_in_scope(thm, step)
-        facts, claims, _ = citation_parts(step, just, scope, library, sorts,
-                                          defined)
-        g.sorts = sorts
+        facts, claims, _ = known.parts(step, library)
+        g.sorts = known.sorts
         try:
             written = [parse(s, g) for s in sentences(' '.join(step.claim))]
         except Problem:
@@ -1340,7 +1363,7 @@ def case_taken(node, said, facts, wrappers):
     return node
 
 
-def check_obtained(report, thm, library):
+def check_obtained(report, thm, library, known):
     """An obtain reaches a "there is" of the item it names.
 
     What it claims is that existential's body, which `check_conclusion`
@@ -1348,20 +1371,15 @@ def check_obtained(report, thm, library):
     gives one only from a line saying n is odd, and an obtain that cites none
     has nothing to unfold.
     """
-    g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
-        scope = statements_in_scope(thm, step)
         item = cited_item(just)
         if item is None or just.head != 'obtain':
             continue
         groups = library.groups(just.item(item))
         if groups is None:
             continue
-        facts, _, seed = citation_parts(step, just, scope, library, sorts,
-                                        defined)
+        facts, _, seed = known.parts(step, library)
         if not obtains(groups, facts, seed, library):
             report.say(thm.path, just.line,
                        f'step {fmt(step.number)} obtains from {item}, which '
@@ -1389,7 +1407,7 @@ def concludes(groups, claims, facts, seed, library):
     return False
 
 
-def family_asks(step, scope, library, sorts, defined):
+def family_asks(step, known, library):
     """The requires lines a cited item's function hypotheses ask for.
 
     `let t : {a, …, b} → ℝ` in a sum item, where the step's summand is
@@ -1405,8 +1423,7 @@ def family_asks(step, scope, library, sorts, defined):
     """
     just = step.just
     groups = library.groups(just.item(cited_item(just)))
-    _facts, claims, seed = citation_parts(step, just, scope, library, sorts,
-                                          defined)
+    _facts, claims, seed = known.parts(step, library)
     held, values = set(), []
     for want, gives in groups:
         trees = gives + [t for _, t in want]
@@ -1427,7 +1444,7 @@ def family_asks(step, scope, library, sorts, defined):
                                 values.append(value)
 
     def asks(fact):
-        library.g.sorts = sorts
+        library.g.sorts = known.sorts
         try:
             node = parse(fact, library.g)
         except Problem:
@@ -1438,7 +1455,7 @@ def family_asks(step, scope, library, sorts, defined):
         # no name a membership could be asked of, so what is compared is
         # the value itself, read at the name the line binds.
         if node.notation == 'for-every' and len(node.children) == 3:
-            node = expand(node, defined)
+            node = expand(node, known.defined)
             bound, body = node.children[0], node.children[2]
             if (body.notation != 'membership'
                     or body.children[1].notation != 'number-systems'):
@@ -1452,19 +1469,15 @@ def family_asks(step, scope, library, sorts, defined):
     return asks
 
 
-def check_requires(report, thm, library):
+def check_requires(report, thm, library, known):
     """A requires line needs what the item it cites concludes.
 
     A step's citation is matched this way already. A requires line carries the
     same kind of pointer to the same kind of item, and was checked only for
     resolving, so an item that did not cover the fact went unnoticed.
     """
-    g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
-        scope = statements_in_scope(thm, step)
-        for no, named in unconcluded(step, scope, library, sorts, defined):
+        for no, named in unconcluded(step, known, library):
             report.say(thm.path, no,
                        f'the requires line of step {fmt(step.number)} '
                        f'needs something that {named} does not conclude')
@@ -1509,7 +1522,7 @@ def domains_asked(thm, step):
     return out
 
 
-def check_surplus(report, thm, library):
+def check_surplus(report, thm, library, known):
     """What an item citation names, it needs.
 
     `DATABASE.md` holds that a named thing doing no work is an error, the
@@ -1521,23 +1534,18 @@ def check_surplus(report, thm, library):
     is kept by the second check. A define is not asked about: citing one
     names what a symbol means and supplies no fact.
     """
-    g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     defines = {d[2] for d in thm.defines}
 
     def holds(step):
-        scope = statements_in_scope(thm, step)
-        if unsupplied(step, scope, library, sorts, defined) is not None \
-                or unconcluded(step, scope, library, sorts, defined):
+        if unsupplied(step, known, library) is not None \
+                or unconcluded(step, known, library):
             return False
         # What the step claims follows from what the item concludes and
         # what the step names: a definition read either way takes the other
         # side from a cited line, which asks for it as surely as a
         # hypothesis does.
         groups = library.groups(step.just.item(cited_item(step.just)))
-        facts, claims, seed = citation_parts(step, step.just, scope, library,
-                                             sorts, defined)
+        facts, claims, seed = known.parts(step, library)
         if step.just.head == 'obtain':
             return obtains(groups, facts, seed, library)
         return not claims or concludes(groups, claims, facts, seed, library)
@@ -1558,8 +1566,7 @@ def check_surplus(report, thm, library):
                 report.say(thm.path, just.line,
                            f'step {fmt(step.number)} cites {ref}, and '
                            f'{item} asks for nothing it says')
-        asks = family_asks(step, statements_in_scope(thm, step), library,
-                           sorts, defined)
+        asks = family_asks(step, known, library)
         in_domain = domains_asked(thm, step)
         for i, (fact, _how, no) in enumerate(step.requires):
             lighter = copy.copy(step)
@@ -1618,16 +1625,17 @@ def existential(part, binding, library):
     return part.notation in library.exists
 
 
-def unconcluded(step, scope, library, sorts, defined):
+def unconcluded(step, known, library):
     """The requires lines of a step whose item does not conclude them, as
     (line, item) pairs.
     """
     g = library.g
+    scope = known.scope(step)
 
     def read(text):
-        g.sorts = sorts
+        g.sorts = known.sorts
         try:
-            return expand(parse(text, g), defined)
+            return expand(parse(text, g), known.defined)
         except Problem:
             return None
 
@@ -1697,7 +1705,7 @@ def derives(claim, groups, facts, library, depth=5):
     return False
 
 
-def check_hypotheses(report, thm, library):
+def check_hypotheses(report, thm, library, known):
     """A citation supplies the hypotheses of what it cites.
 
     They come from the lines named in `from` and from the `requires` lines,
@@ -1710,13 +1718,9 @@ def check_hypotheses(report, thm, library):
     instantiation is written it seeds the binding, which makes it checked
     rather than taken on trust.
     """
-    g = library.g
-    sorts = sorts_in_scope(thm, g)
-    defined = definitions_in_scope(thm, g, sorts)
     for step in thm.steps:
         just = step.just
-        scope = statements_in_scope(thm, step)
-        missing = unsupplied(step, scope, library, sorts, defined)
+        missing = unsupplied(step, known, library)
         if missing is not None:
             report.say(thm.path, just.line,
                        f'step {fmt(step.number)} cites {cited_item(just)}, '
@@ -1764,7 +1768,7 @@ def implied_facts(fact, g, sorts):
     return out
 
 
-def unsupplied(step, scope, library, sorts, defined):
+def unsupplied(step, known, library):
     """The hypotheses of the item a step cites that nothing it names supplies,
     or None where they are supplied or the step cites no item.
     """
@@ -1775,8 +1779,7 @@ def unsupplied(step, scope, library, sorts, defined):
     groups = library.groups(just.item(item))
     if groups is None:
         return None                       # a pointer that resolves to nothing
-    facts, _, seed = citation_parts(step, just, scope, library, sorts,
-                                    defined)
+    facts, _, seed = known.parts(step, library)
     missing = None
     for want, _ in groups:
         if not want:
@@ -1940,7 +1943,7 @@ def check_symbols(report, records):
                        f'symbol it introduces cannot be reached')
 
 
-def statement_kinds(g, records, theorems):
+def statement_kinds(g, records, theorems, known):
     """What each item's and each proved theorem's names are, by its full name.
 
     A cited statement is read on its own, and each citation takes its own
@@ -1953,8 +1956,8 @@ def statement_kinds(g, records, theorems):
             continue
         g.sorts = sorts_of_record(r, g)
         out[qualified(r)] = kinds.read_record(r, g)
-    for thm in theorems:
-        sorts_in_scope(thm, g)
+    for thm, k in zip(theorems, known, strict=True):
+        g.sorts = k.sorts
         reader = kinds.Reader(g)
         for kind, text, _label, no in thm.hypotheses:
             body = LABEL_AT_END.sub('', text[len(kind):]).strip()
@@ -1974,7 +1977,7 @@ def check_item_kinds(report, statements, names):
             report.say(names[name].path, line, f'{name}: {what}: {why}')
 
 
-def check_kinds(report, thm, g, statements):
+def check_kinds(report, thm, g, statements, known):
     """What a proof's names are, read off how it uses them, fits.
 
     `READERS.md`: a set has the kind of what it holds, nobody writes it, and
@@ -1987,7 +1990,7 @@ def check_kinds(report, thm, g, statements):
     would narrow, which is what `let a be a set` in `add-element-bijection`
     did to `subsets-count`.
     """
-    sorts_in_scope(thm, g)
+    g.sorts = known.sorts
     reader = kinds.read_theorem(
         thm, g, cite=lambda r, step: _cited_kinds(r, step, g, statements))
     for line, what, why in reader.clashes:
@@ -2026,7 +2029,7 @@ def _cited_kinds(reader, step, g, statements):
                     (step.line, f'citing {name} with {v} := {t}', str(said)))
 
 
-def check_formulas(report, thm, g):
+def check_formulas(report, thm, g, known):
     """Every formula on the page parses, and parses one way.
 
     A claim, an `assume` or `suppose` line, the fact of a `requires` line and
@@ -2044,7 +2047,7 @@ def check_formulas(report, thm, g):
     stopped would hide the rest of what it was looking for behind the first
     defect.
     """
-    sorts_in_scope(thm, g)
+    g.sorts = known.sorts
     own = introduced(thm)
     places = [(s.line, f'step {fmt(s.number)}', ' '.join(s.claim))
               for s in thm.steps]
@@ -2229,13 +2232,13 @@ def introduction_problem(body, g):
     return None
 
 
-def check_introductions(report, thm, g):
+def check_introductions(report, thm, g, known):
     """A `let` line carries an introduction, not a formula. It names something
     and says what it is, and `INTRODUCTIONS` is every form one takes; what it
     asserts is only what `be` says of a function it names. `assume` takes a
     formula, because it does assert.
     """
-    g.sorts = sorts_in_scope(thm, g)
+    g.sorts = known.sorts
     lines = [(k, t, n) for k, t, _, n in thm.hypotheses]
     for s in thm.steps:
         lines += [(k, t, n) for k, t, _, n, _ in s.openers]
@@ -2491,26 +2494,27 @@ def main(root):
     check_unsorted(report, records, grammar)
     check_symbols(report, records)
 
-    library = Library(records, theorems, grammar)
+    known = [Known(thm, grammar) for thm in theorems]
+    library = Library(records, known, grammar)
 
-    statements = statement_kinds(grammar, records, theorems)
+    statements = statement_kinds(grammar, records, theorems, known)
     check_item_kinds(report, statements, items)
-    for thm in theorems:
-        check_formulas(report, thm, grammar)
+    for thm, k in zip(theorems, known, strict=True):
+        check_formulas(report, thm, grammar, k)
         check_defined_below(report, thm, grammar)
-        check_kinds(report, thm, grammar, statements)
-        check_contradiction(report, thm, grammar)
-        check_closed_arithmetic(report, thm, grammar)
-        check_membership_claims(report, thm, grammar)
-        check_hypotheses(report, thm, library)
-        check_conclusion(report, thm, library)
-        check_define_citation(report, thm, library)
-        check_obtained(report, thm, library)
-        check_requires(report, thm, library)
-        check_surplus(report, thm, library)
+        check_kinds(report, thm, grammar, statements, k)
+        check_contradiction(report, thm, grammar, k)
+        check_closed_arithmetic(report, thm, grammar, k)
+        check_membership_claims(report, thm, grammar, k)
+        check_hypotheses(report, thm, library, k)
+        check_conclusion(report, thm, library, k)
+        check_define_citation(report, thm, library, k)
+        check_obtained(report, thm, library, k)
+        check_requires(report, thm, library, k)
+        check_surplus(report, thm, library, k)
         check_last_step(report, thm)
         check_readings(report, thm)
-        check_introductions(report, thm, grammar)
+        check_introductions(report, thm, grammar, k)
         check_sorts(report, thm)
         check_capture(report, thm, claims_of(thm))
         check_run_together(report, thm, words)
