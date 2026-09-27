@@ -13,10 +13,14 @@ pub mod corpus;
 pub mod formula;
 pub mod kinds;
 pub mod matching;
+pub mod mm;
 pub mod outcome;
 pub mod rules;
+pub mod said;
 pub mod sorts;
 pub mod source;
+pub mod targets;
 pub mod text;
+pub mod tools;
 
 pub use outcome::{Built, Checked, Decline, Declined, Problem, Route};

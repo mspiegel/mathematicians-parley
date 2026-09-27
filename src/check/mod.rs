@@ -60,11 +60,7 @@ impl Report {
 }
 
 /// What the check printed, and the status it exits with.
-pub struct Outcome {
-    pub printed: String,
-    pub complained: String,
-    pub status: i32,
-}
+pub use crate::said::Said as Outcome;
 
 /// Check the corpus under the source's root.
 pub fn run(source: &dyn Source) -> Outcome {

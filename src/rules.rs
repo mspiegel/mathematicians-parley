@@ -732,3 +732,142 @@ pub const MEMBERSHIP: &[&str] = &[
     "gsspw",
     "elpwi",
 ];
+
+/// Every string the tables hold, with the table that holds it, the tables
+/// in the order of their names, keys before values. Most are labels; the
+/// gate keeps those that look like one and checks each against set.mm, so a
+/// label written from memory into a table is caught the day it is written.
+///
+/// `SYSTEMS` gives its keys alone, since each value is the suffix a digit's
+/// label ends with and not a label.
+pub fn every_label() -> Vec<(&'static str, &'static str)> {
+    let mut out: Vec<(&'static str, &'static str)> = Vec::new();
+    let mut put = |table: &'static str, items: &[&'static str]| {
+        out.extend(items.iter().map(|s| (table, *s)));
+    };
+    for (_, lemma) in ADDING {
+        put("ADDING", &[lemma]);
+    }
+    put("ARITHMETIC", &ARITHMETIC);
+    for (k, (a, b)) in BOUND {
+        put("BOUND", &[k, a, b]);
+    }
+    for (k, v) in CLASS_BODY {
+        put("CLASS_BODY", &[k, v]);
+    }
+    for (k, v) in CLASS_BOUND {
+        put("CLASS_BOUND", &[k, v]);
+    }
+    for (k, _, v) in CLASS_LIFT {
+        put("CLASS_LIFT", &[k, v]);
+    }
+    for ((op, system), v) in CLOSED {
+        put("CLOSED", &[op, system, v]);
+    }
+    for (k, v) in CLOSED_SETHOOD {
+        put("CLOSED_SETHOOD", &[k, v]);
+    }
+    for (k, _, v) in CONGRUENCE {
+        put("CONGRUENCE", &[k, v]);
+    }
+    for (k, (a, b, c)) in DENIED {
+        put("DENIED", &[k, a, b, c]);
+    }
+    for join in [Join::Implies, Join::Iff] {
+        let key = if join == Join::Implies { "wi" } else { "wb" };
+        put(
+            "DISCHARGE",
+            &[key, discharge(join, true), key, discharge(join, false)],
+        );
+    }
+    put(
+        "DISCHARGE",
+        &[
+            discharge(Join::Turned, true),
+            discharge(Join::Turned, false),
+        ],
+    );
+    for (k, v) in DIVIDED {
+        put("DIVIDED", &[k, v]);
+    }
+    for (k, v) in DOMAIN {
+        put("DOMAIN", &[k, v]);
+    }
+    for ((a, b), v) in FOLDING {
+        put("FOLDING", &[a, b, v]);
+    }
+    for (k, v) in FROM_NN0 {
+        put("FROM_NN0", &[k]);
+        if let Some(v) = v {
+            put("FROM_NN0", &[v]);
+        }
+    }
+    for (k, _) in HELD_IN {
+        put("HELD_IN", &[k]);
+    }
+    for (k, said) in IMPLIED {
+        put("IMPLIED", &[k]);
+        for (_, lemma) in *said {
+            put("IMPLIED", &[lemma]);
+        }
+    }
+    for (k, (a, b)) in INDUCTION {
+        put("INDUCTION", &[k, a, b]);
+    }
+    for (k, i) in INSTANCES {
+        put("INSTANCES", &[k, i.lemma]);
+        if let Some(d) = i.domain {
+            put("INSTANCES", &[d]);
+        }
+    }
+    for (k, v) in JOIN {
+        put("JOIN", &[k, v]);
+    }
+    put("MEMBERSHIP", MEMBERSHIP);
+    for (k, v) in NEGATED {
+        put("NEGATED", &[k, v]);
+    }
+    let numeric: Vec<&'static str> = NUMERALS
+        .iter()
+        .map(|(_, l)| *l)
+        .chain(["cdc", "co", "caddc", "cmin", "cmul", "cdiv", "cexp", "cneg"])
+        .collect();
+    put("NUMERIC", &numeric);
+    put("ONE_WAY", &[ONE_WAY.0, ONE_WAY.1]);
+    for (system, first, lemma) in RANGE_WITHIN {
+        put("RANGE_WITHIN", &[system]);
+        if let Some(first) = first {
+            put("RANGE_WITHIN", &[first]);
+        }
+        put("RANGE_WITHIN", &[lemma]);
+    }
+    put("RELATIONS", &RELATIONS);
+    for (k, _, v) in RENAMED {
+        put("RENAMED", &[k, v]);
+    }
+    for (k, v) in SETHOOD {
+        put("SETHOOD", &[k, v]);
+    }
+    for (k, v) in SPLIT {
+        put("SPLIT", &[k]);
+        put("SPLIT", v);
+    }
+    for (k, _) in STANDARD {
+        put("STANDARD", &[k]);
+    }
+    put("SYMMETRIC", &SYMMETRIC);
+    for (k, _) in SYSTEMS {
+        put("SYSTEMS", &[k]);
+    }
+    for (k, v) in SYSTEM_OF {
+        put("SYSTEM_OF", &[k, v]);
+    }
+    for (k, row) in WITHIN {
+        put("WITHIN", &[k]);
+        for (a, b) in *row {
+            put("WITHIN", &[a, b]);
+        }
+    }
+    put("WRAPS", &WRAPS);
+    out
+}
