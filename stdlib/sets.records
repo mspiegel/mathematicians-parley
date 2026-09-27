@@ -306,11 +306,24 @@ theorem equal-subset
   metamath    eqimss
   target      eqimss
 
-theorem difference-twice
-  assume Y ⊆ Z                                                        (H1)
-  then        Z ∖ (Z ∖ Y) = Y
-  metamath    dfss4
-  target      dfss4
+theorem disjoint-within
+  assume X ⊆ Y                                                        (H1)
+  assume Y ∩ Z = ∅                                                    (H2)
+  then        X ∩ Z = ∅
+  metamath    ssdisj
+  target      ssdisj
+
+theorem disjoint-member
+  assume Y ∩ Z = ∅                                                    (H1)
+  assume u ∈ Y                                                        (H2)
+  then        u ∉ Z
+  metamath    disjel
+  target      disjel
+
+theorem disjoint-difference
+  then        Y ∩ (Z ∖ Y) = ∅
+  metamath    disjdif
+  target      disjdif
 
 definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X

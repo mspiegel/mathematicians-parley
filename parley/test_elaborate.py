@@ -586,9 +586,9 @@ CASES = [
     ('a requires line for a part naming a line that does not say it',
      'proof/schroeder-bernstein/fixed-part',
      'proof/schroeder-bernstein.proof',
-     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 14\n'
+     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 13\n'
      '    requires C ⊆ A: from 4\n',
-     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 14\n'
+     '    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 13\n'
      '    requires C ⊆ A: from 3\n',
      'from 3 does not reach'),
 ]

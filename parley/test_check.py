@@ -842,6 +842,14 @@ CASES = [
      '2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.\n',
      '2.  g[B ∖ f[C]] = A ∖ C.\n',
      'step 2 obtains C without stating its sort'),
+
+    # Two sets sharing nothing keep a member of one out of the other, and
+    # the member is asked for: here a is dropped.
+    ('keep a point out of a disjoint set without saying it is in the other',
+     'proof/schroeder-bernstein.proof',
+     '                  thm:stdlib/sets/disjoint-member, from 7.2.3, K7\n',
+     '                  thm:stdlib/sets/disjoint-member, from 7.2.3\n',
+     'step 7.2.4 cites thm:stdlib/sets/disjoint-member, which asks for'),
 ]
 
 
