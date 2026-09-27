@@ -1147,10 +1147,12 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         """`(binding, proof of the left side at it)` from one of the things
         a cited line says; else a decline.
 
-        Each is matched as written first, so a line that fits as it stands
-        is taken as it always was. Then as the standard form reads it
-        (`fits_as`), where Cantor's `x ∈ B` is the `x ∈ {x ∈ A : φ}` that
-        `elrab` unfolds, and `same` carries the line to that.
+        Each is matched as written, with only defined names read, and as
+        the standard form reads it (`fits_as`); no one of the three covers
+        the others. Lagrange's coset, `isprm2` and `elpwg` fit only as
+        written; Schröder–Bernstein's `X ∈ D` only with D's name read;
+        Cantor's `x ∈ B` is the `x ∈ {x ∈ A : φ}` that `elrab` unfolds only
+        as the standard form reads it, and `same` carries the line there.
         """
         for said, shown in held.items():
             binding = kernel.match(left, self.to_term(said), {}, variables)

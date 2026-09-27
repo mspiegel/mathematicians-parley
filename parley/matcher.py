@@ -2672,10 +2672,13 @@ class Matcher:
         as written, or else with both read in standard form
         (`read_through`); None where neither fits.
 
-        As written first, so whatever fits today fits the same way. Where
-        only the reading fits, the lemma's instance is not the line as it
-        stands, and the caller joins the two with `same`: `elrab` speaks of
-        `{x ∈ A : φ}` and Cantor's line of the B that names it.
+        Neither reading covers the other. The pattern is read with its own
+        names kept (`named=False`) and the line with defined names read, so
+        a line can fit as written and not as read: Lagrange's coset,
+        `isprm2` and `elpwg` fit only as written. Where only the reading
+        fits, the lemma's instance is not the line as it stands, and the
+        caller joins the two with `same`: `elrab` speaks of `{x ∈ A : φ}`
+        and Cantor's line of the B that names it.
         """
         binding = kernel.match(pattern, term, dict(seed or {}), variables)
         if binding is not None:

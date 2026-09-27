@@ -1660,6 +1660,11 @@ def unconcluded(step, scope, library, sorts, defined):
             got = read(value)
             if got is not None:
                 seed[name] = got
+        # One use of the item, read as `concludes` reads it — one side of
+        # a biconditional, one conjunct of a definition, as the isosceles
+        # proof's triangle is asked — or the item applied as often as it
+        # takes (`derives`), which reads its conclusions only as they stand.
+        # Neither covers the other.
         if concludes(groups, claims, facts, seed, library):
             continue
         if all(derives(c, groups, facts, library) for c in claims):
