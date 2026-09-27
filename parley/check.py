@@ -60,6 +60,7 @@ from parse import (
     proof_files,
     qualified,
     record_files,
+    references,
     written_text,
 )
 from sorts import (
@@ -140,21 +141,6 @@ class Report:
 
 
 # ------------------------------------------------------------------ scope
-
-def requires_refs(text):
-    """What a requires line's justification cites."""
-    m = re.search(r'\bfrom\s+(.*)$', text)
-    if not m:
-        return [], None
-    out = []
-    for tok in m.group(1).split(','):
-        tok = tok.strip()
-        if re.fullmatch(REF, tok):
-            out.append(tok)
-        elif tok:
-            return out, tok
-    return out, None
-
 
 def in_scope(cited, here):
     """A step numbered `cited` is visible from the step numbered `here` when it
@@ -648,7 +634,7 @@ def check_citations(report, thm, items, methods, notation):
                     report.say(thm.path, no, unresolved(m.group(0)))
                 elif item.kind != ('definition' if m.group(1) == 'def' else 'theorem'):
                     report.say(thm.path, no, f'{m.group(0)} names a {item.kind}')
-            refs, bad = requires_refs(text)
+            refs, bad = references(text)
             if bad is not None:
                 report.say(thm.path, no,
                            f'`from` names {bad!r}, which is neither a line nor a label')
@@ -1639,7 +1625,7 @@ def unconcluded(step, known, library):
         claims = [x for x in map(read, sentences(fact)) if x is not None]
         if not claims:
             continue
-        refs, _bad = requires_refs(how)
+        refs, _bad = references(how)
         supplied = []
         for ref in refs:
             if ref in scope:

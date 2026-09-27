@@ -515,16 +515,18 @@ THEOREM_FIELDS = ('metamath', 'note')
 
 def citations(text):
     """The references a justification names, for a reader outside this file."""
-    return _refs(text)[0]
+    return references(text)[0]
 
 
 # A justification that cites a define: its label, and what says which case.
 DEFINE_CITED = re.compile(rf'^({LABEL})(?:\s*,\s*from\s+\S.*)?$')
 
 
-def _refs(text):
+def references(text):
     """References named by a justification, read from their syntactic position
-    and never by scanning for digits.
+    and never by scanning for digits, and the first `from` entry that is no
+    reference (None where there is none). A step's justification and a
+    requires line's are the same production, and both are read here.
     """
     out = []
     m = re.search(rf'\bfrom\s+line\s+({NUMBER})\b', text)
@@ -560,7 +562,7 @@ def parse_justification(path, line, defines=frozenset()):
     if label is not None:
         j = Justification(head='define', text=text, line=line.no,
                           module=module_of(path), defined=label)
-        j.refs, j.bad_ref = _refs(text)
+        j.refs, j.bad_ref = references(text)
         j.refs.insert(0, label)
         return j
     if head is None:
@@ -571,7 +573,7 @@ def parse_justification(path, line, defines=frozenset()):
     j = Justification(head=head, text=text, line=line.no, module=module_of(path))
     # A malformed justification is reported by the checker, not raised here: one
     # bad line must not cost the reader every later line in the file.
-    j.refs, j.bad_ref = _refs(text)
+    j.refs, j.bad_ref = references(text)
     # A substitute names its equation's source in brackets after it. Only
     # there: M(C) on any other line is a function applied to C, not a
     # citation of a label C.
