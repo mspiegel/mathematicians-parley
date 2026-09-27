@@ -115,7 +115,13 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     citing it, as on a `let`; a lemma asking that H be a set finds it there.
 11. **Bound letters bind once across an item's hypotheses.** The union and
     the two `for every` lines cited for partition-count are all written over
-    Y, and K's define binds `a` where the blocks obtain b.
+    Y.
+12. **A claim may bind its own letter where it reads a definition.** Step
+    15.3 says `there is b ∈ G with Z = bH` where K's define binds a. The
+    checker compared the two letter for letter, so the step first had to
+    say `there is a ∈ G with Z = aH` just after 15.2 had made a one
+    particular element, and obtain the element as b. It now compares a
+    definition's formula with a claim up to the letters each binds.
 
 ---
 

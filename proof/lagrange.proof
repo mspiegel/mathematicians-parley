@@ -322,7 +322,7 @@ define K := {X ⊆ G : there is a ∈ G with X = aH}                    (D1)
     15.2. a ∈ G. Y = aH.
           obtain a from line 15.1
 
-    15.3. There is a ∈ G with Z = aH.
+    15.3. There is b ∈ G with Z = bH.
           def:stdlib/sets/part-builder, from K19
 
     15.4. b ∈ G. Z = bH.

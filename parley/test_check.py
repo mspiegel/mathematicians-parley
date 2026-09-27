@@ -878,6 +878,16 @@ CASES = [
      'step 5.3 claims something that def:stdlib/groups/coset does not '
      'conclude'),
 
+    # A claim may bind another letter than the definition it reads, and says
+    # the same thing only where the letter it binds is the one it uses: with
+    # b bound and a free, Z = aH is a claim about a.
+    ('read a definition with a bound letter the claim does not use',
+     'proof/lagrange.proof',
+     '    15.3. There is b ∈ G with Z = bH.\n',
+     '    15.3. There is b ∈ G with Z = aH.\n',
+     'step 15.3 claims something that def:stdlib/sets/part-builder does not '
+     'conclude'),
+
     # Counting by parts asks that two parts which meet be one part.
     ('count by parts without saying they do not overlap',
      'proof/lagrange.proof',

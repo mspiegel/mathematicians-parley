@@ -1213,7 +1213,8 @@ def take(claims, candidates, binding, used, need, given, variables, library,
             start = supply(first, given, binding, variables, library, sites)
             if start is None:
                 continue
-        found = match(cand, claims[0], start, variables, library.props, sites)
+        found = match(cand, claims[0], start, variables, library.props, sites,
+                      library.binders)
         if found is None:
             continue
         seen = {u.shape() for u in used}
