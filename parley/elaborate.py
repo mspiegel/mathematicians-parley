@@ -1679,28 +1679,21 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # declares as a class, so the claim binds a setvar of its own.
         said = node.children[0].text
         stands = f'{self.binder_var(said)} cv'
+        # The witness stands where the claim's name does in a cited line,
+        # read against the whole of what the claim asks of it: that it is in
+        # the domain, and the body. A line may say either — g ∈ G names g
+        # for `there is a ∈ G with gH = aH`, whose body at g is a term equal
+        # to itself — and a defined function applied is read as its rule on
+        # both sides alike.
+        asked = self.applications_read(self.to_term(self.seq(
+            self.seq(stands, domain.rpn(self.flabel), 'wcel'),
+            body.rpn(self.flabel), 'wa')))
         witness = None
         for ref in step.just.refs:
-            witness = self.witness_in(body, self.to_term(lines[ref].term),
-                                      stands)
-            if witness:
-                break
-        # A cited line may write a defined function applied where the claim
-        # writes its rule, and is read with the rule in place.
-        for ref in step.just.refs if witness is None else ():
             witness = self.witness_in(
-                body, self.applications_read(self.to_term(lines[ref].term)),
+                asked, self.applications_read(self.to_term(lines[ref].term)),
                 stands)
             if witness:
-                break
-        # Or off a cited line putting it in the domain, where what the body
-        # says of it is an equation of a term with itself that no line
-        # writes: `there is a ∈ G with gH = aH` at a := g, from g ∈ G.
-        for ref in step.just.refs if witness is None else ():
-            held = self.to_term(lines[ref].term)
-            if held.label == 'wcel' and held.children[1].rpn(self.flabel) \
-                    == domain.rpn(self.flabel):
-                witness = held.children[0].rpn(self.flabel)
                 break
         if witness is None:
             raise self.defect(step.line, 'no cited line names a witness')

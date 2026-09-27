@@ -425,10 +425,12 @@ over a letter nothing holds and renamed to the claim's own.
 
 Witnesses are recovered by matching the body against the cited line, taking
 all the marked places together, and the introduction is built from the
-innermost quantifier out. An equation names its witness read either way
-round, as `g·e = g` does for g = g·h. Where no cited line names the witness in
-the body, a line putting it in the domain does, and the body is then a term
-equal to itself, shown by `eqidd`: `there is a ∈ G with gH = aH` from g ∈ G. A witness is taken from the lines a step cites and
+innermost quantifier out. The witness is read against the whole of what the
+claim asks of it, that it is in the domain and the body, with a defined
+function applied read as its rule on both sides alike, so a line saying
+either names it: `there is a ∈ G with gH = aH` takes g from g ∈ G, and its
+body at g, a term equal to itself, is `settle`'s by `eqidd`. An equation
+names its witness read either way round, as `g·e = g` does for g = g·h. A witness is taken from the lines a step cites and
 never searched for among the facts in scope, so this runs only where a step is
 there to have cited one.
 
