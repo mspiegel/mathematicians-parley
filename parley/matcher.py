@@ -1346,14 +1346,11 @@ class Matcher:
 
     def renamed_apart(self, one, other):
         """A closed proof that two statements differing in their bound
-        letters are one, by `renaming`, or by way of letters neither holds
-        where one letter is bound twice (`renaming_apart`); else None.
+        letters are one, by way of letters neither holds
+        (`renaming_apart`); else None.
         """
-        renamed = self.renaming(one, other)
-        if renamed is None:
-            renamed = self.renaming_apart(one.rpn(self.flabel),
-                                          other.rpn(self.flabel))
-        return renamed
+        return self.renaming_apart(one.rpn(self.flabel),
+                                   other.rpn(self.flabel))
 
     def alike_in_place(self, one, other):
         """Whether two parts come to one standard form, where the walk
@@ -2013,8 +2010,8 @@ class Matcher:
         statement is renamed from there, where nothing can be caught.
 
         The letters are only looked at, not taken. They stand in the middle
-        of one closed equivalence and nowhere else, and this is tried
-        wherever a plain renaming fails, which taking them each time would
+        of one closed equivalence and nowhere else, and every statement
+        renamed whole is renamed this way, which taking them each time would
         spend the proof's spare letters on.
         """
         held = ({t.split()[0] for t in self.names.values()
@@ -2071,9 +2068,7 @@ class Matcher:
             held = self.to_term(said)
             if held.label != wanted.label:
                 continue
-            across = self.renaming(held, wanted)
-            if across is None:
-                across = self.renaming_apart(said, want)
+            across = self.renaming_apart(said, want)
             if across is None:
                 # Or read the same in standard form: the line says X ∈ D
                 # where the lemma reads D's set-builder out.
