@@ -24,8 +24,16 @@ NUMBER_SYSTEMS = {'ℕ', 'ℕ₀', 'ℤ', 'ℚ', 'ℝ'}
 # A label stands apart from what it labels, so `M(X)` ending a line is M
 # applied to X and not a line labelled X.
 LABEL = re.compile(r'\s+\([A-Z]+[0-9]*\)\s*$')
-MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
+# `let x ∈ A` and `let a ∉ X`: a thing, and a set it is in or is not in.
+MEMBERSHIP = re.compile(r'^(\S+)\s*∈\s*\S')
+NOT_IN = re.compile(r'^(\S+)\s*∉\s*\S')
+# `n ∈ ℕ`: a membership whose set is one name, which may say the sort.
+NAMED_MEMBER = re.compile(r'^(\S+)\s*∈\s*(\S+)$')
 KIND = re.compile(r'^(\S+)\s+be a (set|point)$')
+# `let x be an element`: an element of nothing yet named.
+ELEMENT = re.compile(r'^(\S+)\s+be\s+an\s+element$')
+# `let P be a property of the elements of A`: the property, and its domain.
+PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+(\S+)$')
 FUNCTION = re.compile(r'^(\S+)\s*:\s*.+→.+$')
 # `let f : A → B be one-to-one`: a function's type, and a property of it.
 FUNCTION_BEING = re.compile(r'^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$')
@@ -63,7 +71,6 @@ def let_formula(body):
         whole = m.group(2).strip()
         return f'{m.group(1)} ∈ 𝒫{whole if " " not in whole else f"({whole})"}'
     return body
-PROPERTY = re.compile(r'^(\S+)\s+be a property of the elements of\s+\S+$')
 SENTENCE = re.compile(r'(?<=[.])\s+')
 
 
@@ -93,7 +100,7 @@ def _introduced(body, known):
     m = FUNCTION.match(body)
     if m:
         return [(m.group(1), 'function')]
-    m = MEMBER.match(body)
+    m = NAMED_MEMBER.match(body)
     if m and m.group(2).rstrip('.') in NUMBER_SYSTEMS:
         return [(m.group(1), 'number')]
     if m and known.get(m.group(2).rstrip('.')) == 'group-set':

@@ -19,9 +19,11 @@ from formula import Node, parse
 from match import Rule, substitute
 from parse import Theorem, cited_name, declined, define_parts, proved, resolve
 from sorts import (
+    ELEMENT,
     FUNCTION_BEING,
     GROUP,
     LABEL,
+    NOT_IN,
     PART,
     SUBGROUP,
     definition_sorts,
@@ -36,8 +38,6 @@ from sorts import (
 # written; the claim is the notation the database declares. Points are the
 # same shape, and every sort with a notation could be.
 BE_A = re.compile(r'\s+be\s+a\s+(set|point)\b')
-BE_AN_ELEMENT = re.compile(r'^(\S+)\s+be\s+an\s+element$')
-NOT_IN = re.compile(r'^(\S+)\s*∉\s*\S')
 CLASS_NAMES = ['cA', 'cB', 'cC', 'cD', 'cE', 'cF', 'cG', 'cH']
 
 
@@ -58,7 +58,7 @@ def hypothesis_body(kind, text):
     body = text[len(kind):] if text.startswith(kind) else text
     if kind == 'let':
         said = LABEL.sub('', body).strip()
-        element = BE_AN_ELEMENT.match(said)
+        element = ELEMENT.match(said)
         if element:
             return f'{element.group(1)} is a set'
         outside = NOT_IN.match(said)

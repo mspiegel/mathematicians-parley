@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import field
 import kinds
 import rules
-from formula import Grammar, Node, parse
+from formula import TERM_SORTS, Grammar, Node, parse
 from match import (
     PROPERTY,
     binding_context,
@@ -61,10 +61,13 @@ from parse import (
     record_files,
 )
 from sorts import (
+    ELEMENT,
     FUNCTION,
     FUNCTION_BEING,
     GROUP,
     KIND,
+    MEMBERSHIP,
+    NOT_IN,
     PART,
     definitions_in_scope,
     file_definitions,
@@ -75,6 +78,9 @@ from sorts import (
 )
 from sorts import (
     LABEL as LABEL_AT_END,
+)
+from sorts import (
+    PROPERTY as LET_PROPERTY,
 )
 
 # The productions of GRAMMAR.md, one per justification form.
@@ -251,10 +257,7 @@ def check_database(report, records):
                                f'not a part marker')
 
 
-TERM_SORTS = {'number', 'set', 'point', 'group-element', 'group-set',
-              'set-of-sets', 'any'}
-SORT_NAMES = {'number', 'set', 'point', 'group-element', 'group-set',
-              'set-of-sets', 'formula', 'function', 'property', 'variable', 'any'}
+SORT_NAMES = TERM_SORTS | {'formula', 'function', 'property', 'variable'}
 
 
 def check_notation(report, records):
@@ -678,7 +681,6 @@ def check_citations(report, thm, items, methods, notation):
             report.trust(thm.path, just.line, just.head, fmt(step.number))
 
 
-OBTAIN_NAMES = re.compile(r'^obtain\s+([^:]+?)(?::|\s+from)')
 # `for every` and `there is` open a scope. The corpus capitalises either at the
 # start of a sentence, so this is deliberately case-insensitive.
 BINDER = re.compile(r'(?:for every|there is(?: no)?)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈',
@@ -756,8 +758,6 @@ def check_capture(report, thm, claims):
 
 
 SENTENCES = re.compile(r'(?<=[.])\s+')
-# `let x be an element` declares a thing and claims nothing of its kind.
-ELEMENT = re.compile(r'^\S+\s+be an element$')
 
 
 class Library:
@@ -2154,7 +2154,7 @@ def check_sorts(report, thm):
     for s in thm.steps:
         if not s.just or s.just.head != 'obtain':
             continue
-        m = OBTAIN_NAMES.match(s.just.text)
+        m = kinds.OBTAINS.match(s.just.text)
         if not m:
             continue
         claim = ' '.join(s.claim)
@@ -2174,17 +2174,15 @@ def check_sorts(report, thm):
 
 
 INTRODUCTIONS = (
-    ('a membership',            re.compile(r'^\S+\s*∈\s*\S')),
-    ('a thing not in a set',    re.compile(r'^\S+\s*∉\s*\S')),
+    ('a membership',            MEMBERSHIP),
+    ('a thing not in a set',    NOT_IN),
     ('an arbitrary element',    ELEMENT),
-    ('an arbitrary set',        re.compile(r'^\S+\s+be a set$')),
-    ('an arbitrary point',      re.compile(r'^\S+\s+be a point$')),
-    ('a function',              re.compile(r'^\S+\s*:\s*.+→.+$')),
+    ('an arbitrary set or point', KIND),
+    ('a function',              FUNCTION),
     ('a function with a property', FUNCTION_BEING),
-    ('a part of a set',         re.compile(r'^\S+\s*⊆\s*\S')),
+    ('a part of a set',         PART),
     ('a group',                 GROUP),
-    ('a property',              re.compile(r'^\S+\s+be a property of the '
-                                           r'elements of\s+\S+$')),
+    ('a property',              LET_PROPERTY),
 )
 
 

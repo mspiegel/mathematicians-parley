@@ -26,8 +26,11 @@ from formula import parse
 from match import Rule
 from parse import Declined, Problem, declined, define_parts
 from sorts import (
+    ELEMENT,
     GROUP,
+    KIND,
     LABEL,
+    PROPERTY,
     SENTENCE,
     element_sort,
     file_definitions,
@@ -340,21 +343,20 @@ def introduce(reader, body, line, g):
         reader.env[m.group('group')] = ('set', GROUP_ELEMENT)
         reader.env[m.group('identity')] = GROUP_ELEMENT
         return
-    m = re.match(r'^(\S+)\s+be a set$', body)
-    if m:
+    m = KIND.match(body)
+    if m and m.group(2) == 'set':
         reader.env[m.group(1)] = ('set', Var(said=m.group(1)))
         reader.declared.append(m.group(1))
         return
-    m = re.match(r'^(\S+)\s+be an element$', body)
+    if m:
+        reader.env[m.group(1)] = POINT
+        return
+    m = ELEMENT.match(body)
     if m:
         reader.env[m.group(1)] = Var(said=m.group(1))
         reader.declared.append(m.group(1))
         return
-    m = re.match(r'^(\S+)\s+be a point$', body)
-    if m:
-        reader.env[m.group(1)] = POINT
-        return
-    m = re.match(r'^(\S+)\s+be a property of the elements of\s+(\S+)$', body)
+    m = PROPERTY.match(body)
     if m:
         of = Var()
         reader.env[m.group(1)] = ('property', of)
