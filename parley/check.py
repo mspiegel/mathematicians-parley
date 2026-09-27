@@ -687,7 +687,6 @@ BINDER = re.compile(r'(?:for every|there is(?: no)?)\s+([A-Za-zα-ω][₀-₉′
 # name, and a module that imports it and shadows it silently breaks every
 # check that builds a regex from it.
 VARNAME = re.compile(r'(?<![A-Za-zα-ω])([A-Za-zα-ω][₀-₉′]*)(?![A-Za-zα-ω])')
-PAIR = re.compile(r'([^\s,]+)\s*:=\s*([^,]+?)(?=,\s*[^\s,]+\s*:=|,\s*from|\s+in |$)')
 
 
 # Patterns whose holes sit next to each other with no token between them, so
@@ -742,8 +741,7 @@ def check_capture(report, thm, claims):
         bound = set(BINDER.findall(claims.get(m.group(1), '')))
         if not bound:
             continue
-        for v, value in PAIR.findall(s.just.text):
-            v, value = v.strip(), value.strip()
+        for v, value in instantiation(s.just.text):
             # Substituting a variable for itself changes nothing and cannot
             # capture. A term that merely mentions the bound name does: that
             # mention refers to an outer binding and would be swallowed.
