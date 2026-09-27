@@ -376,22 +376,17 @@ antecedent, and the existential is discharged at the end. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 
-An `obtain` from a definition gives each letter the step writes its value,
-as a definition reaching an existence does: the coset is about u and says
-whose coset, `u := x, g := a`. The definition's left side is taken from the
-facts as written. Where the line the step cites says it otherwise — through a
-define's name, `b ∈ R` where the image definition asks `b ∈ f[C]`, or over
-another bound letter, `a ∈ C` where C's union binds one of its own — the
-existence is reached as a step claiming it would reach it (`one_unfolded`),
-and where nothing reaches it the step is a defect naming what it could not
-find. A lemma binding its letter on both sides, as `eliun` does in the union
-and in the existence, keeps the letter the step's term fixes, and `bridging`
-carries the existence to the obtain's own. A definition whose right side
-holds no "there is" of its own — `part-builder` and `set-builder`, where the
-existence is P, the proof's own define's condition — has its existence built
-from the step's claim (`existence_claimed`): `a ∈ G. Y = aH.` obtaining a is
-there is a ∈ G with Y = aH, each membership sentence giving a name's domain,
-and that is reached as above.
+An `obtain` from a definition obtains the existence its claim states
+(`existence_claimed`): `a ∈ G. Y = aH.` obtaining a is there is a ∈ G with
+Y = aH, each membership sentence giving a name's domain, over letters
+nothing else holds. That is reached as a step claiming it would reach it
+(`one_unfolded`): the definition is read from the lines the step cites, a
+define's name read as what it names, whether the definition's right side is
+the "there is", as `even`'s is, or holds it inside, as `part-builder`'s P(u)
+does. Where nothing reaches it the step is a defect naming the existence. A
+lemma binding its letter on both sides, as `eliun` does in the union and in
+the existence, keeps the letter the step's term fixes, and `bridging`
+carries the existence to the obtain's own.
 
 **`substitute`** walks the path from the root of the claim to the occurrence
 being replaced and emits one congruence lemma per step of that path. The base

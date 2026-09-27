@@ -16,7 +16,6 @@ import re
 
 import kernel
 import rules
-import targets
 from match import instantiation
 from parse import CITED, Declined, declined, fmt
 from reading import hypothesis_body
@@ -778,12 +777,13 @@ class Scopes:
                            self.seq(self.seq(ex, fresh, 'wb'), scope, apart, 'a1i'),
                            'mpbid')
                 ex = fresh
-        elif (named.group(1).startswith('def:')
-              and not self.states_existence(named.group(1))):
-            # A definition whose right side holds no "there is" of its own:
-            # `part-builder` says u ⊆ X and P(u), and the "there is" is P,
-            # the proof's own define's condition. The existence is the one
-            # the step's claim states, reached as a step claiming it would.
+        elif named.group(1).startswith('def:'):
+            # The existence is the one the step's claim states, over names
+            # nothing else holds, reached as a step claiming it would reach
+            # it: the definition read from the lines the step cites, a
+            # define's name read as what it names. That holds whether the
+            # definition's right side is the "there is", as `even`'s is, or
+            # holds it inside, as `part-builder`'s P(u) does.
             item = self.item_cited(named.group(1))
             ex = self.renamed(self.existence_claimed(step, got), len(got))
             p_ex = self.trying(item, step, self.one_unfolded, ex, scope,
@@ -792,47 +792,6 @@ class Scopes:
                 raise self.defect(step.line,
                                   f'nothing step {number} cites says '
                                   f'{self.render(ex)}')
-        elif named.group(1).startswith('def:'):
-            cites = step.just.text.split(':', 1)[1].strip()
-            given = self.subject_given(named.group(1),
-                                       instantiation(cites), step.line)
-            subject = (self.names[given] if given in self.names
-                       else self.term(self.read(given)))
-            # A fresh name, not the lemma's own: `divides` binds `n`, and a
-            # proof that obtains from it twice would introduce one variable
-            # for two different numbers.
-            fresh = self.spare_var()
-            with self.names_kept():
-                # As where a definition concludes (`conclude`): the coset
-                # is about u and says whose coset, and the step fills in
-                # both, `u := x, g := a`.
-                for name, value in instantiation(cites):
-                    self.names[name] = self.term(self.read(value))
-                lemma, var, kernel, _t, over, left = self.definition(
-                    named.group(1), subject, var=fresh)
-                body = self.term(kernel)
-            ex = self.seq(body, var, over, 'wrex')
-            made = self.unfolding(step, lemma, left, ex, var, over, scope,
-                                  facts)
-            if declined(made):
-                raise self.defect(step.line, f'{lemma} does not unfold '
-                                             f'what this obtains from')
-            # The definition's left side is what a cited line says. Where
-            # the line says it otherwise — with a define's name, C9's b ∈ R
-            # where the image definition asks b ∈ f[C], or over another
-            # letter, S1's a ∈ C where C's union binds one of its own — the
-            # existence is reached as a step claiming it would reach it.
-            shown = facts.get(left)
-            if shown is not None:
-                p_ex = self.seq(scope, left, ex, shown, made[0], 'mpbid')
-            else:
-                item = self.item_cited(named.group(1))
-                p_ex = self.trying(item, step, self.one_unfolded, ex, scope,
-                                   facts, lines)
-                if declined(p_ex):
-                    raise self.defect(step.line,
-                                      f'nothing step {number} cites says '
-                                      f'{self.render(left)}')
         else:
             cites = step.just.text.split(':', 1)[1].strip()
             item = self.item_cited(named.group(1))
@@ -1024,18 +983,6 @@ class Scopes:
                 and len(set(pairs.values())) == len(pairs)
                 and all(mine == theirs or mine in binders
                         for mine, theirs in pairs.items()))
-
-    def states_existence(self, head):
-        """Whether a lemma the definition's target names has a "there is"
-        on its right side, as `reading` asks of it in `elaborate.py`.
-        """
-        for lemma in targets.clauses(self.item_cited(head)):
-            whole = self.syntax.statement(self.sigs[lemma])
-            while whole.label == 'wi':
-                whole = whole.children[1]
-            if whole.label == 'wb' and whole.children[1].label == 'wrex':
-                return True
-        return False
 
     def existence_claimed(self, step, got):
         """The "there is" an obtain's claim states: `a ∈ G. Y = aH.`
