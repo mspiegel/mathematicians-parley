@@ -18,9 +18,10 @@
 //! them. They are one list tried by matching, because they are one question:
 //! what does set.mm already prove that says this?
 //!
-//! Where a table is looked up by key it is a slice searched in order, which
-//! is the order the reference implementation declares it in; where a table
-//! is walked, that order is what the walk sees.
+//! Where a table is looked up by key it is a slice searched in order; where
+//! a table is walked, the order written is what the walk sees. Either way
+//! the order is part of what a proof comes out as, so an entry is not moved
+//! without a reason.
 
 /// The digits and the constant set.mm names each by.
 pub const NUMERALS: [(&str, &str); 10] = [
@@ -598,9 +599,8 @@ pub const SYMMETRIC: [&str; 3] = ["eqcom", "addcom", "mulcom"];
 // integers, `( p ^ 2 ) e. ZZ` because p is one, `{ x e. A | ph } e. _V`
 // because A is a set. It is declared rather than searched for: an
 // elaborator that hunted through set.mm for anything that fitted would
-// settle side conditions by means the text never names. The comments on
-// each group are the reference implementation's, which says why each is
-// here.
+// settle side conditions by means the text never names. The comment on
+// each group says why it is here.
 pub const MEMBERSHIP: &[&str] = &[
     "ax-1cn",
     "1re",

@@ -40,7 +40,7 @@ use super::verify::where_mmverify;
 use super::{assumed, labels, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
-const TABLES_AT: &str = "parley/rules.py";
+const TABLES_AT: &str = "src/rules.rs";
 
 /// Every artifact made afresh and compared with its file in the tree.
 fn as_built(root: &Path, setmm: Option<&Path>) -> Said {

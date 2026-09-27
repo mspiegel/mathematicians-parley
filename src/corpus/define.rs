@@ -68,8 +68,8 @@ impl DefineParts {
         }
     }
 
-    /// The name, as the reference implementation's `said.name` reads it: a
-    /// recursion has no one name, and none of its callers asks one of it.
+    /// The name, where there is one: a recursion has no one name, and none
+    /// of its callers asks one of it.
     pub fn name(&self) -> Option<&str> {
         self.one().map(|d| d.name.as_str())
     }

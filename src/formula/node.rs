@@ -9,8 +9,8 @@ use std::rc::Rc;
 /// database names sorts, or none at all.
 ///
 /// Sorts are the database's words, so they are text and not a closed list.
-/// "None" is kept apart from "unknown": the reference implementation carries
-/// both, and they are printed differently where a message names a sort.
+/// "None" is kept apart from "unknown": they are printed differently where a
+/// message names a sort.
 #[derive(Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Sort(Option<Rc<str>>);
 

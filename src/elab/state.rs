@@ -1,8 +1,9 @@
 //! What the elaborator holds while it works on one theorem.
 //!
-//! The reference implementation is one object built from seven parts that
-//! share some fifty fields. Here the fields are one struct, and each part is
-//! an `impl` block in a module of its own. What the whole corpus shares —
+//! The elaborator is seven parts that share some fifty fields. The fields
+//! are one struct, and each part is an `impl` block in a module of its own:
+//! reading, scopes, provenance, tables, the matcher, the calculators, and
+//! the step loop in `elaborate`. What the whole corpus shares —
 //! the grammar, the database, set.mm — is borrowed; what belongs to this
 //! theorem is owned, and goes when the theorem is written.
 

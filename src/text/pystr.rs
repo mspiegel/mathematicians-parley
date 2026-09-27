@@ -1,10 +1,11 @@
-//! Whitespace as the reference implementation's strings understand it.
+//! Whitespace as Python's `str.isspace` understands it.
 //!
-//! The Python tools strip and split with `str.strip()` and `str.split()`,
-//! whose idea of whitespace is `str.isspace`. Rust's `char::is_whitespace`
-//! agrees on every character but four: the ASCII information separators
-//! U+001C to U+001F, which Python counts as whitespace. A line holding one
-//! would be read differently, so the tools use this set and not Rust's.
+//! The corpus is read by stripping and splitting on this set, the one the
+//! checker's messages and every committed file were produced with. Rust's
+//! `char::is_whitespace` agrees on every character but four: the ASCII
+//! information separators U+001C to U+001F, which this set counts as
+//! whitespace. A line holding one would be read differently, so the tools
+//! use this set and not Rust's.
 
 /// Whether `c` is whitespace to Python's `str.isspace`.
 pub fn is_space(c: char) -> bool {

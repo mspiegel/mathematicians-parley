@@ -1,8 +1,8 @@
 //! A string written the way Python's `repr()` writes it.
 //!
 //! The checker's and the elaborator's messages quote text with `!r`, and the
-//! planted-defect tests look for those messages. So the quoting is the
-//! reference implementation's: single quotes, unless the text holds a single
+//! planted-defect tests look for those messages. So the quoting is `repr`'s:
+//! single quotes, unless the text holds a single
 //! quote and no double one; a backslash, the chosen quote, and the three
 //! common control characters escaped by name; any other character that is
 //! not printable escaped by its code; everything printable kept as it is,

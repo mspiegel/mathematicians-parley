@@ -7,15 +7,10 @@
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
 //! another's edit. The cases run one after another.
-//!
-//! While the reference implementation is still in the tree, setting
-//! `PARLEY_PARITY` also writes each edited corpus to a directory and runs
-//! `parley/check.py` over it, and requires that the two checkers print the
-//! same bytes: the substring a case expects is the least they must agree on.
 
 use std::path::Path;
 
-use parley::source::{write_tree, Disk, Memory, Overlay, Source};
+use parley::source::{Disk, Memory, Overlay, Source};
 
 /// A file that defines a function outside its theorems, for the cases below
 /// that import it, use it, or define its name again.
@@ -47,8 +42,7 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
     Edit { file, old, new }
 }
 
-/// The corpus as it stands, which the reference checker's own test copies:
-/// the database, the library, and every proof.
+/// The corpus as it stands: the database, the library, and every proof.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     Memory::copy(&Disk::new(root), &["db", "stdlib", "proof", "tests"]).unwrap()
@@ -76,19 +70,6 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
     Ok(tree)
 }
 
-/// What the reference checker prints over the same tree.
-fn reference(tree: &dyn Source) -> String {
-    let dir = tempfile::tempdir().unwrap();
-    write_tree(tree, dir.path()).unwrap();
-    let script = Path::new(env!("CARGO_MANIFEST_DIR")).join("parley/check.py");
-    let done = std::process::Command::new("python3")
-        .arg(script)
-        .arg(dir.path())
-        .output()
-        .expect("python3 runs");
-    String::from_utf8(done.stdout).unwrap()
-}
-
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
@@ -98,7 +79,6 @@ fn the_checker_catches_every_planted_defect() {
         "the corpus is not clean, so a planted defect proves nothing:\n{}",
         base.printed
     );
-    let parity = std::env::var_os("PARLEY_PARITY").is_some();
     let cases = cases();
     let mut said = Vec::new();
     let mut missed = 0;
@@ -112,17 +92,6 @@ fn the_checker_catches_every_planted_defect() {
             }
         };
         let out = parley::check::run(&tree).printed;
-        if parity {
-            let theirs = reference(&tree);
-            if theirs != out {
-                said.push(format!(
-                    "  DIFFERS       {}\n--- reference\n{theirs}--- this\n{out}",
-                    case.name
-                ));
-                missed += 1;
-                continue;
-            }
-        }
         if out.contains(case.expect) {
             said.push(format!("  caught        {}", case.name));
         } else {

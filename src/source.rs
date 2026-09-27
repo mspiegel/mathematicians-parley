@@ -55,7 +55,7 @@ pub trait Source {
     }
 }
 
-/// How the reference implementation sorts paths: part by part, so that
+/// How paths are sorted: part by part, so that
 /// `proof/a/x.proof` comes before `proof/a-b.proof`, which comparing the
 /// whole strings would put the other way round.
 pub fn path_order(a: &str, b: &str) -> Ordering {
@@ -164,19 +164,6 @@ impl Source for Memory {
     fn root(&self) -> &Path {
         &self.root
     }
-}
-
-/// Write every file of a source under a directory on disk, at its path from
-/// the root, for a program that reads a directory rather than a source.
-pub fn write_tree(source: &dyn Source, dir: &Path) -> io::Result<()> {
-    for rel in source.files() {
-        let path = dir.join(&rel);
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        std::fs::write(path, source.read(&rel)?)?;
-    }
-    Ok(())
 }
 
 /// A tree with some files replaced or added in memory.

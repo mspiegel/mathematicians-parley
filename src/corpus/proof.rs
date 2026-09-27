@@ -414,8 +414,8 @@ pub fn visible(
     for d in &scope.defines {
         if d.line < line {
             if let Built(said) = define_parts(&d.text) {
-                // A recursion is never written at file level; its name
-                // would be the reference implementation's error to raise.
+                // A recursion is never written at file level, and has no
+                // one name to be found by.
                 if let Some(name) = said.name() {
                     out.push((name.to_string(), d.clone(), id));
                 }
@@ -603,8 +603,8 @@ fn parse_justification(
                 },
                 cited: m[2].to_string(),
             },
-            // `def:` with no name after it: the reference implementation
-            // fails outright here, and no corpus line reaches it.
+            // `def:` with no name after it cites nothing, which is a defect
+            // in the line.
             None => {
                 return Err(Problem::new(
                     path,
