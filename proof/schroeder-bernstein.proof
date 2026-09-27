@@ -390,60 +390,57 @@ theorem schroeder-bernstein
           case
           assume b ∈ R                                                (C9)
 
-          8.2.1.  There is x ∈ C with b = f(x).
-                  def:stdlib/functions/image u := b, from C9
+          8.2.1.  x ∈ C. b = f(x).
+                  obtain x: def:stdlib/functions/image u := b, Y := C, from C9
                   requires C ⊆ A: from 2
 
-          8.2.2.  x ∈ C. b = f(x).
-                  obtain x from line 8.2.1
+          8.2.2.  x ∈ A
+                  thm:stdlib/sets/in-subset, from 2, 8.2.1
 
-          8.2.3.  x ∈ A
-                  thm:stdlib/sets/in-subset, from 2, 8.2.2
+          8.2.3.  h(x) = f(x)
+                  D2, from 8.2.1
+                  requires x ∈ A: from 8.2.2
 
-          8.2.4.  h(x) = f(x)
-                  D2, from 8.2.2
-                  requires x ∈ A: from 8.2.3
-
-          8.2.5.  b = h(x)
+          8.2.4.  b = h(x)
                   calculation
-                    b = f(x)         8.2.2
-                      = h(x)         8.2.4
+                    b = f(x)         8.2.1
+                      = h(x)         8.2.3
 
-          8.2.6.  There is s ∈ A with b = h(s).
-                  exhibit, from 8.2.3, 8.2.5
+          8.2.5.  There is s ∈ A with b = h(s).
+                  exhibit, from 8.2.2, 8.2.4
 
           case
           assume b ∉ R                                                (C10)
 
-          8.2.7.  b ∈ B ∖ R
+          8.2.6.  b ∈ B ∖ R
                   thm:stdlib/sets/difference-member, from K7, C10
 
-          8.2.8.  g(b) ∈ g[B ∖ R]
-                  thm:stdlib/functions/value-in-image f := g, from 8.2.7
+          8.2.7.  g(b) ∈ g[B ∖ R]
+                  thm:stdlib/functions/value-in-image f := g, from 8.2.6
                   requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
 
-          8.2.9.  g[B ∖ R] ⊆ A ∖ C
+          8.2.8.  g[B ∖ R] ⊆ A ∖ C
                   thm:stdlib/sets/equal-subset, from 2
 
-          8.2.10. g(b) ∈ A ∖ C
-                  thm:stdlib/sets/in-subset, from 8.2.9, 8.2.8
+          8.2.9.  g(b) ∈ A ∖ C
+                  thm:stdlib/sets/in-subset, from 8.2.8, 8.2.7
 
-          8.2.11. g(b) ∈ A. g(b) ∉ C.
-                  thm:stdlib/sets/difference-member, from 8.2.10
+          8.2.10. g(b) ∈ A. g(b) ∉ C.
+                  thm:stdlib/sets/difference-member, from 8.2.9
 
-          8.2.12. h(g(b)) = g⁻¹(g(b))
-                  D2, from 8.2.11
+          8.2.11. h(g(b)) = g⁻¹(g(b))
+                  D2, from 8.2.10
 
-          8.2.13. g⁻¹(g(b)) = b
+          8.2.12. g⁻¹(g(b)) = b
                   thm:stdlib/functions/inverse-value, from H4, K7
 
-          8.2.14. b = h(g(b))
+          8.2.13. b = h(g(b))
                   calculation
-                    b = g⁻¹(g(b))    8.2.13
-                      = h(g(b))      8.2.12
+                    b = g⁻¹(g(b))    8.2.12
+                      = h(g(b))      8.2.11
 
-          8.2.15. There is s ∈ A with b = h(s).
-                  exhibit, from 8.2.11, 8.2.14
+          8.2.14. There is s ∈ A with b = h(s).
+                  exhibit, from 8.2.10, 8.2.13
 
 9.  h : A → B is one-to-one
     def:stdlib/functions/one-to-one, from 6, 7

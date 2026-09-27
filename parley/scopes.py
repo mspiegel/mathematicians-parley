@@ -802,7 +802,22 @@ class Scopes:
             if declined(made):
                 raise self.defect(step.line, f'{lemma} does not unfold '
                                              f'what this obtains from')
-            p_ex = self.seq(scope, left, ex, facts[left], made[0], 'mpbid')
+            # The definition's left side is what a cited line says, and the
+            # line may say it with a define's name: Schröder–Bernstein's C9
+            # says b ∈ R where the image definition asks b ∈ f[C].
+            shown = facts.get(left)
+            if shown is None:
+                held = {lines[ref].term: self.carried(ref, facts, lines)
+                        for ref in step.just.refs if ref in lines}
+                found = self.unfolds_from(self.to_term(left), held,
+                                          self.to_term(left).names(), scope,
+                                          facts)
+                if declined(found):
+                    raise self.defect(step.line,
+                                      f'nothing step {number} cites says '
+                                      f'{self.render(left)}')
+                shown = found[1]
+            p_ex = self.seq(scope, left, ex, shown, made[0], 'mpbid')
         else:
             cites = step.just.text.split(':', 1)[1].strip()
             item = self.item_cited(named.group(1))

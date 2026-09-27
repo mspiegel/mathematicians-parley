@@ -577,9 +577,19 @@ CASES = [
     ('cite a define by cases from a line that does not say the case',
      'proof/schroeder-bernstein/schroeder-bernstein',
      'proof/schroeder-bernstein.proof',
+     '                  D2, from 8.2.1\n',
      '                  D2, from 8.2.2\n',
-     '                  D2, from 8.2.3\n',
      'no line the step cites says which case'),
+
+    # An obtain from a definition reads its left side off a line it cites,
+    # through a define's name where the line uses one: C9 says b ∈ R, and R
+    # is f[C]. K7 says only that b is in B.
+    ('obtain from a definition citing no line that says its left side',
+     'proof/schroeder-bernstein/schroeder-bernstein',
+     'proof/schroeder-bernstein.proof',
+     'obtain x: def:stdlib/functions/image u := b, Y := C, from C9',
+     'obtain x: def:stdlib/functions/image u := b, Y := C, from K7',
+     'nothing step 8.2.1 cites says'),
 
     # A part of A is asked of M's argument, and the line named must say it:
     # line 3 says every member of D is one, which is not C.

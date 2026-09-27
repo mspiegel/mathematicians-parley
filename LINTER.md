@@ -70,7 +70,7 @@ text harder to read rather than easier, which is the opposite of the point.
 
 | write | not | today |
 |---|---|---|
-| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | 21 of 27 obtains follow it |
+| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | 22 of 27 obtains follow it |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
@@ -88,10 +88,11 @@ existence that comes from a line rather than an item has no item to name,
 so it takes the second form whatever its letters: the intermediate value
 proof obtains δ from a line an `instantiate` gave.
 
-Six obtains from an item keep two lines because the elaborator cannot yet
+Five obtains from an item keep two lines because the elaborator cannot yet
 write them in one: Lagrange's three and Bezout's one read a define's
 condition through `part-builder` or `set-builder`, and Schröder–Bernstein's
-two obtain from a set that is itself a define, C and R.
+7.2.1 obtains from membership of C, a union over a define, which `eliun`
+does not unfold as the step names it.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a
