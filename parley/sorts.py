@@ -135,9 +135,7 @@ def definitions_in_scope(thm, g, sorts):
         said = define_parts(text)
         if declined(said):
             continue
-        g.sorts = sorts
-        if said.param is not None:
-            g.sorts = {**sorts, said.param: element_sort(said.domain, sorts)}
+        g.sorts = define_sorts(said, sorts)
         try:
             body = parse(said.body, g)
         except Problem:
@@ -185,9 +183,7 @@ def written_definition(d, src, g, seen):
         return None
     inner = written_definitions(src, d[3], g, seen)
     kept = g.sorts
-    g.sorts = definition_sorts(inner)
-    if said.param is not None:
-        g.sorts[said.param] = element_sort(said.domain)
+    g.sorts = define_sorts(said, definition_sorts(inner))
     try:
         body = parse(said.body, g)
     except Problem:
@@ -218,6 +214,15 @@ def element_sort(domain, sorts=None):
     if domain.strip() in NUMBER_SYSTEMS:
         return 'number'
     return HOLDS.get((sorts or {}).get(domain.strip()))
+
+
+def define_sorts(said, sorts):
+    """The sorts a define's rule is read with: `sorts`, and for a function
+    its parameter as what the domain holds.
+    """
+    if said.param is None:
+        return sorts
+    return {**sorts, said.param: element_sort(said.domain, sorts)}
 
 
 def sorts_of_record(record, g):

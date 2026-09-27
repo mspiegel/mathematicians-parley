@@ -31,7 +31,7 @@ from sorts import (
     KIND,
     LABEL,
     PROPERTY,
-    element_sort,
+    define_sorts,
     file_definitions,
     let_formula,
     sentences,
@@ -455,8 +455,7 @@ def read_theorem(thm, g, cite=None):
             # A function: what its domain holds goes in, what its rule gives
             # comes out, and the parameter is its rule's own name.
             kept = g.sorts
-            g.sorts = {**kept,
-                       said.param: element_sort(said.domain, kept)}
+            g.sorts = define_sorts(said, kept)
             try:
                 over = reader.kind(parse(said.domain, g), no)
                 taken = Var()
