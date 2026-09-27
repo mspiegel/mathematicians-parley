@@ -91,11 +91,12 @@ b(N)) = gcd(M, N) by the second. ∎
 3. **A hypothesis line can be substituted into,** as the checker already
    allowed: `substitute a(0) = M (line 1) into H1`.
 4. **`a mod b` is a notation,** beside the congruence's `(mod m)`.
-5. **The checker accepts a calculation link that rewrites inside a term**
-   (`gcd(a(0), b(0)) = gcd(M, b(0))` citing `a(0) = M`), where `SYNTAX.md`
-   asks for a cited line saying the link exactly and the elaborator holds
-   to that. The proof was written the way `SYNTAX.md` says; the checker's
-   leniency is left for its own change.
+5. **A calculation link cites the line that says it.** The first draft
+   wrote `gcd(a(0), b(0)) = gcd(M, b(0))` citing `a(0) = M`, a substitution
+   inside a term, which `SYNTAX.md` does not allow a link and the
+   elaborator refused. The checker had read only a link's form, so it
+   passed; it now reads each link against the line it cites
+   (`check_chain_links`), and the draft's link is a planted defect.
 6. **set.mm says a numeral is a set only for 0 to 3** (`c0ex` to `3ex`) and
    for a decimal numeral (`decex`); a recursion starting at 4 would stop at
    "cannot settle 4 ∈ V".

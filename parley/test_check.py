@@ -982,6 +982,14 @@ CASES = [
      'D1',
      'says whether a case\'s condition holds'),
 
+    # A calculation's link cites the line that says it, and a line saying
+    # a(0) = M does not say what substituting it inside a gcd gives.
+    ('cite an equation for a link that substitutes it inside a term',
+     'proof/euclid.proof',
+     '                    gcd(a(0), b(0)) = gcd(M, b(0))     4.1.1',
+     '                    gcd(a(0), b(0)) = gcd(M, b(0))     1',
+     'cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))'),
+
     ('define a sequence by recursion outside any theorem',
      'proof/euclid.proof',
      'theorem euclid',

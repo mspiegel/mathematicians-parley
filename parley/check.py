@@ -23,6 +23,7 @@ import rules
 from formula import TERM_SORTS, Grammar, Node, parse
 from match import (
     PROPERTY,
+    alike,
     binding_context,
     binding_sites,
     equations,
@@ -526,25 +527,7 @@ def check_closed_arithmetic(report, thm, g, known):
                            f'step {fmt(step.number)} takes {m.group(1)} from '
                            f'arithmetic, and it has a letter in it; a fact '
                            f'with a letter is a numbered step of its own')
-        if just.head != 'calculation' or not just.chain:
-            continue
-        previous = None
-        for text, no in just.chain:
-            body, _, cite = text.strip().rpartition(' ')
-            body = body.strip()
-            if previous is None:
-                words = body.split()
-                at = next((outermost(words, r) for r in RELATIONS
-                           if outermost(words, r) is not None), None)
-                claim = body
-                previous = ' '.join(words[at + 1:]) if at is not None else ''
-                sides = ((' '.join(words[:at]), previous) if at is not None
-                         else None)
-            else:
-                mark, _, added = body.partition(' ')
-                claim = f'{previous} {mark} {added.strip()}'
-                sides = (previous, added.strip())
-                previous = added.strip()
+        for claim, sides, cite, no in chain_links(just):
             if cite == 'arithmetic' and not closed(claim) \
                     and not changed_closed(sides, g):
                 report.say(thm.path, no,
@@ -554,6 +537,67 @@ def check_closed_arithmetic(report, thm, g, known):
                            f'where only pieces of numerals alone change, and '
                            f'any other cites the numbered step that states '
                            f'it')
+
+
+def chain_links(just):
+    """Each link of a calculation as (claim, sides, cite, line): the claim
+    the link makes, `previous rel t`, its two terms, and what it cites. The
+    first line is written whole; each later one writes its relation and
+    new term, and the previous term is the one before it.
+    """
+    if just is None or just.head != 'calculation':
+        return
+    previous = None
+    for text, no in just.chain:
+        body, _, cite = text.strip().rpartition(' ')
+        body = body.strip()
+        if previous is None:
+            words = body.split()
+            at = next((outermost(words, r) for r in RELATIONS
+                       if outermost(words, r) is not None), None)
+            claim = body
+            previous = ' '.join(words[at + 1:]) if at is not None else ''
+            sides = ((' '.join(words[:at]), previous) if at is not None
+                     else None)
+        else:
+            mark, _, added = body.partition(' ')
+            claim = f'{previous} {mark} {added.strip()}'
+            sides = (previous, added.strip())
+            previous = added.strip()
+        yield claim, sides, cite, no
+
+
+def check_chain_links(report, thm, library, known):
+    """Each link of a calculation cites a line that says it.
+
+    `SYNTAX.md`: a link `rel t  L` cites one line whose claim is exactly the
+    previous term rel t, read either way round where it is an equation. A
+    line saying `a(0) = M` does not say `gcd(a(0), b(0)) = gcd(M, b(0))`:
+    that is a substitution, a step of its own. A line of several sentences,
+    or a conjunction, says each of them. A link naming `arithmetic` is
+    `check_closed_arithmetic`'s, and one citing a define is the define's
+    reading of the name (`check_define_citation` has the same reading for a
+    step).
+    """
+    scope = thm.scope
+    defines = {d[2] for d in thm.defines} | (
+        {d[2] for d in scope.defines} | {i[4] for i in scope.imports}
+        if scope else set())
+    for step in thm.steps:
+        for claim, _sides, cite, no in chain_links(step.just):
+            if cite == 'arithmetic' or cite in defines \
+                    or cite not in known.scope(step):
+                continue
+            said = known.read(claim)
+            if said is None:
+                continue              # `check_formulas` says it does not read
+            if not any(alike(said, x, library.binders, library.equals)
+                       for x in known.lines_say(step, [cite], library)):
+                report.say(thm.path, no,
+                           f'a link of step {fmt(step.number)} cites {cite}, '
+                           f'which does not say {claim}; a link cites the line '
+                           f'that states it, and a substitution is a step of '
+                           f'its own')
 
 
 def claims_of(thm):
@@ -859,13 +903,7 @@ def check_contradiction(report, thm, g, known):
     later with nothing to point at.
     """
     wrappers = {n.folds for n in g.notations if n.folds}
-
-    def read(text):
-        g.sorts = known.sorts
-        try:
-            return expand(parse(text, g), known.defined)
-        except Problem:
-            return None
+    read = known.read
     for step in thm.steps:
         if not step.just or step.just.head != 'contradiction':
             continue
@@ -1085,27 +1123,20 @@ def statements_in_scope(thm, step):
     return out
 
 
-def citation_parts(step, just, scope, library, sorts, defined):
+def citation_parts(step, just, library, known):
     """What a citation supplies, what it claims, and what it says its
     variables stand for.
 
     A defined name and the term it names are one formula, so all three are
     expanded: the facts, the claim, and the written instantiation alike.
     """
-    g = library.g
+    g, sorts, read = library.g, known.sorts, known.read
+    scope = known.scope(step)
     supplied = []
     for ref in just.refs:
         if ref in scope:
             supplied += sentences(scope[ref])
     supplied += [fact for fact, _, _ in step.requires]
-
-    def read(text):
-        g.sorts = sorts
-        try:
-            return expand(parse(text, g), defined)
-        except Problem:
-            return None
-
     facts = [x for x in map(read, supplied) if x is not None]
     # A defined function standing alone stays its name, so an item whose
     # function letter the claim fills with it (`h : A → B` from every h(s)
@@ -1145,10 +1176,30 @@ class Known:
     """
 
     def __init__(self, thm, g):
-        self.thm = thm
+        self.thm, self.g = thm, g
         self.sorts = sorts_in_scope(thm, g)
         self.defined = definitions_in_scope(thm, g, self.sorts)
         self._scopes, self._parts = {}, {}
+
+    def read(self, text):
+        """A sentence as the theorem's checks compare it: parsed with its
+        sorts, each defined name written out; None where it does not read,
+        which `check_formulas` reports.
+        """
+        self.g.sorts = self.sorts
+        try:
+            return expand(parse(text, self.g), self.defined)
+        except Problem:
+            return None
+
+    def lines_say(self, step, refs, library):
+        """What the lines `refs` name at `step` say, each sentence read,
+        and each part of one that is a conjunction (`with_parts`).
+        """
+        scope = self.scope(step)
+        said = [self.read(s) for ref in refs if ref in scope
+                for s in sentences(scope[ref])]
+        return with_parts([x for x in said if x is not None], library)
 
     def scope(self, step):
         """`statements_in_scope` at `step`."""
@@ -1160,8 +1211,7 @@ class Known:
         """`citation_parts` of `step`'s justification."""
         if id(step) not in self._parts:
             self._parts[id(step)] = (step, citation_parts(
-                step, step.just, self.scope(step), library, self.sorts,
-                self.defined))
+                step, step.just, library, self))
         return self._parts[id(step)][1]
 
 
@@ -1774,16 +1824,8 @@ def unconcluded(step, known, library):
     """The requires lines of a step whose item does not conclude them, as
     (line, item) pairs.
     """
-    g = library.g
     scope = known.scope(step)
-
-    def read(text):
-        g.sorts = known.sorts
-        try:
-            return expand(parse(text, g), known.defined)
-        except Problem:
-            return None
-
+    read = known.read
     out = []
     for fact, how, no in step.requires:
         named = REQUIRES_ITEM.match(how)
@@ -2652,6 +2694,7 @@ def main(root):
         check_obtained(report, thm, library, k)
         check_requires(report, thm, library, k)
         check_surplus(report, thm, library, k)
+        check_chain_links(report, thm, library, k)
         check_last_step(report, thm)
         check_readings(report, thm)
         check_introductions(report, thm, grammar, k)
