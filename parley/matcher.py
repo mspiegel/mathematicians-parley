@@ -71,6 +71,13 @@ class Matcher:
         rpn = wanted.rpn(self.flabel)
         if rpn in facts:
             return facts[rpn]
+        # A term equals itself, which no line need write: `there is a ∈ G
+        # with gH = aH` at a := g asks gH = gH.
+        if wanted.label == 'wceq' and len(wanted.children) == 2 \
+                and wanted.children[0].rpn(self.flabel) \
+                == wanted.children[1].rpn(self.flabel):
+            return self.ap('eqidd', {'ph': scope,
+                                     'A': wanted.children[0].rpn(self.flabel)})
         # An equation says the same read from either side (`SYNTAX.md`), so
         # a line saying b = a answers a = b.
         if wanted.label == 'wceq' and len(wanted.children) == 2:

@@ -1739,13 +1739,7 @@ class Elaborator(Reading, Scopes, Matcher, TableReading, Calculators,
         # supply rather than another route's to try.
         shown = []
         for want in (member, here):
-            said = self.to_term(want)
-            if said.label == 'wceq' and said.children[0].rpn(self.flabel) \
-                    == said.children[1].rpn(self.flabel):
-                shown.append(self.ap('eqidd', {
-                    'ph': scope, 'A': said.children[0].rpn(self.flabel)}))
-                continue
-            one = self.settle(said, scope, known)
+            one = self.settle(self.to_term(want), scope, known)
             if declined(one):
                 raise self.defect(
                     step.line,
