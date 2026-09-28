@@ -7,7 +7,3 @@
 # The library is fetched, never committed. A stray copy is 51 MB and
 # arrives by `cp` following a symlink into a directory of elaborated proofs.
 set.mm
-
-# Measurements of set.mm made once by hand; what they found is in
-# SELECTION.md.
-stats.json
