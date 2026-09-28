@@ -207,6 +207,9 @@ pub struct NodeData {
     /// a tool that restates a part of what was written; none for a node
     /// built any other way.
     span: Cell<Option<(usize, usize)>>,
+    /// Whether the text wrote this node inside brackets, which closes it:
+    /// what follows extends the group whatever its level.
+    grouped: Cell<bool>,
 }
 
 /// A parsed formula: a notation, the sort of what it builds, its children,
@@ -244,7 +247,18 @@ impl Node {
             literal: None,
             shape: OnceCell::new(),
             span: Cell::new(None),
+            grouped: Cell::new(false),
         }))
+    }
+
+    /// Whether the text wrote this node inside brackets.
+    pub fn grouped(&self) -> bool {
+        self.grouped.get()
+    }
+
+    /// Say that the text wrote this node inside brackets.
+    pub fn set_grouped(&self) {
+        self.grouped.set(true);
     }
 
     /// Where in the sentence the parser read this node from, as character
@@ -276,6 +290,7 @@ impl Node {
             literal: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
             span: Cell::new(None),
+            grouped: Cell::new(false),
         }))
     }
 

@@ -113,12 +113,13 @@ precedence order
   unary-minus     tighter than additive
   additive        tighter than relational
   relational      tighter than negation, predicate
-  predicate       tighter than conjunction, disjunction
-  negation        tighter than conjunction, disjunction
+  predicate       tighter than conjunction, disjunction, trailing
+  negation        tighter than conjunction, disjunction, trailing
   conjunction     tighter than implication, biconditional
   disjunction     tighter than implication, biconditional
   implication     tighter than binder
   biconditional   tighter than binder
+  trailing        tighter than binder
   note        `predicate` is where a relation written as words sits, and it is
               deliberately unrelated to negation: `not n is odd` does not parse,
               because a reader cannot tell it from "(not n) is odd", and
@@ -785,6 +786,37 @@ notation for-every-with
               is delimited by the comma, so a condition that is itself a comma
               list would need brackets; none is written and none reads well.
 
+notation for-all-after
+  pattern     _ for all _ ∈ _
+  sort        formula, α, set of α → formula
+  level       trailing
+  assoc       left
+  binds       hole 2 over hole 1
+  reads       for all, written after what it says
+  metamath    wral
+  target      _1 _2 _3 wral
+  note        "f(x) ≠ B for all x ∈ A", the universal written after its
+              condition, as a textbook writes one inside "such that". The
+              same formula as "for every x ∈ A, f(x) ≠ B". The condition is a
+              single relation, predicate or negation: `trailing` is unrelated
+              to "and", "or", "if … then" and "if and only if", so "P and Q
+              for all x ∈ A" is refused rather than read one way, and the page
+              writes "(P and Q) for all x ∈ A" or the prefix form. Two in a
+              row, "P for all x ∈ A for all y ∈ B", are both over P.
+
+notation for-all-after-part
+  pattern     _ for all _ ⊆ _
+  sort        formula, set of α, set of α → formula
+  level       trailing
+  assoc       left
+  binds       hole 2 over hole 1
+  wraps       hole 3 in powerset
+  reads       for all parts of, written after what it says
+  metamath    wral over a power set
+  target      _1 _2 _3 cpw wral
+  note        "… for all X ⊆ A", built as `for-every-part` builds "for every
+              X ⊆ A, …".
+
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
   sort        α, set of α, formula → formula
@@ -807,6 +839,32 @@ notation there-is-part
   target      _3 _1 _2 cpw wrex
   note        "There is C ⊆ A with …" is "there is C ∈ 𝒫A with …", built
               as exactly that formula, as `for-every-part` is.
+
+notation there-exists
+  pattern     there exists _ ∈ _ such that _
+  sort        α, set of α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  reads       there exists, such that
+  metamath    wrex
+  target      folded
+  note        "There exists x ∈ S such that …" is "there is x ∈ S with …" in
+              the words a textbook states a theorem in, and builds the same
+              formula, so the page writes whichever reads better.
+  spells      there-is thereis∈with
+
+notation there-exists-part
+  pattern     there exists _ ⊆ _ such that _
+  sort        set of α, set of α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  spells      there-is thereis∈with
+  wraps       hole 2 in powerset
+  reads       there exists a part of, such that
+  metamath    wrex over a power set
+  target      _3 _1 _2 cpw wrex
+  note        "There exists C ⊆ A such that …", built as there-is-part builds
+              "there is C ⊆ A with …".
 
 notation there-is-some
   pattern     there is _ ∈ _

@@ -248,10 +248,22 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   and a final "and". The comma list is the declared notation
   `comma-conjunction`, which is the same connective as "and" and builds the
   same tree, so the final "and" is layout and carries no meaning of its own.
+- "there exists x ∈ S such that ..." is the same formula as "there is x ∈ S
+  with ...", in the words a theorem is often stated in, and so is "there
+  exists X ⊆ A such that ..." as "there is X ⊆ A with ...".
 - "for every x ∈ S, ..." is written for ∀, and a side condition on the
   variable goes in a "with" clause: "for every ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which
   is what the two phrases mean in English and what their two records target.
+- A universal may also be written after what it says, as a textbook writes
+  one inside "such that": "f(x) ≠ B for all x ∈ A" is "for every x ∈ A,
+  f(x) ≠ B", and "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" reads
+  as it would aloud. What it says is one relation, a word predicate or a
+  negation of one: "f(x) ≠ B and g(x) = 0 for all x ∈ A" does not parse,
+  since a reader cannot tell whether the "for all" covers both, and the page
+  writes "(f(x) ≠ B and g(x) = 0) for all x ∈ A" or the "for every" form.
+  Two in a row, "… for all x ∈ A for all y ∈ B", are both over what precedes
+  them. `LINTER.md` says which of the two forms to write where.
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or

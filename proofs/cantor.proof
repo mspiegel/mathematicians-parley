@@ -2,7 +2,7 @@ theorem cantor
   metamath    canth
   let A be a set                                                      (H1)
   let f : A → 𝒫A                                                      (H2)
-  then there is B ⊆ A with for every x ∈ A, f(x) ≠ B
+  then there exists B ⊆ A such that f(x) ≠ B for all x ∈ A
 
 define B := {x ∈ A : x ∉ f(x)}                                        (D1)
        reads the members of A that their own image leaves out
@@ -10,7 +10,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
 1.  B ⊆ A
     thm:stdlib/sets/set-builder-subset, from D1
 
-2.  For every x ∈ A, f(x) ≠ B.
+2.  f(x) ≠ B for all x ∈ A.
     fix
     let x ∈ A                                                         (K)
 
@@ -48,5 +48,5 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                   2.1.2.6.  x ∈ B. x ∉ B.
                             join 2.1.2.5, C2
 
-3.  There is B ⊆ A with for every x ∈ A, f(x) ≠ B.
+3.  There exists B ⊆ A such that f(x) ≠ B for all x ∈ A.
     exhibit, from 1, 2

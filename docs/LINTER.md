@@ -69,6 +69,20 @@ mirrors a claim", which is three clauses and hard to apply, or nothing. It is
 left open, because a rule that has to be argued about at each use makes the
 text harder to read rather than easier, which is the opposite of the point.
 
+### Where the universal stands is not settled
+
+A universal over one relation may be written before it or after it, "for
+every x ∈ A, f(x) ≠ B" or "f(x) ≠ B for all x ∈ A", and the two are one
+formula. The after form is what a textbook writes inside "such that", where
+the prefix form puts two connectives side by side ("with for every"); the
+before form is the only one for anything longer than one relation, and the
+one a block's claim has always been written in. On 71 lines the corpus writes
+"for every" and on 3 "for all", all three in Cantor's theorem, which states
+its conclusion as "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A". "There
+exists … such that" and "there is … with" are the same kind of choice, 2
+lines against 40. Both are left open until more of the corpus is written the
+new way, since a rule argued from one proof would be a rule about that proof.
+
 ## The shape of a step
 
 | write | not | today |

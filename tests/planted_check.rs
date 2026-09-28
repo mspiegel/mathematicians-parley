@@ -1169,5 +1169,22 @@ fn cases() -> Vec<Case> {
             ],
             "is written in the theorem that uses it",
         ),
+        // Levels the precedence order leaves unrelated need brackets whichever
+        // side each stands on: a trailing "for all" takes one relation, and
+        // "and" and "or" are not ordered against each other.
+        case(
+            "write a trailing for all over an and",
+            vec![
+                edit("proofs/cantor.proof", Some("2.  f(x) ≠ B for all x ∈ A.".to_string()), "2.  f(x) ≠ B and x ∈ A for all x ∈ A.".to_string()),
+            ],
+            "`and` and `for all` are not ordered against each other",
+        ),
+        case(
+            "mix and with or without brackets",
+            vec![
+                edit("proofs/cantor.proof", Some("          2.1.1.  x ∈ B or x ∉ B".to_string()), "          2.1.1.  x ∈ B or x ∉ B and x ∈ A".to_string()),
+            ],
+            "`or` and `and` are not ordered against each other",
+        ),
     ]
 }

@@ -416,12 +416,19 @@ comma after it must be free to end the clause it belongs to.
 A hole is filled by the longest parse that its notation's level permits. Where
 two notations meet, the tighter level nests inside the looser, and the order
 between levels is the one `precedence order` record. Where two levels are not
-related by that record, the expression is ambiguous and needs round brackets.
-Two pairs are unrelated on purpose. Conjunction against disjunction is the pair
-nobody agrees about, and no formula in the corpus writes it. Negation against a
-relation written as words is the pair a reader cannot see: `not n is odd` does
-not parse, because it reads as easily as "(not n) is odd", and the brackets in
-`not (n is odd)` say which was meant.
+related by that record, the expression is ambiguous and needs round brackets,
+whichever side each stands on: an operator extends what stands to its left
+only where that binds tighter, as it takes into its right hole only what
+binds tighter, and a bracketed group is closed and extends at any level.
+Three pairs are unrelated on purpose. Conjunction against disjunction is the
+pair nobody agrees about, and no formula in the corpus writes it. Negation
+against a relation written as words is the pair a reader cannot see: `not n
+is odd` does not parse, because it reads as easily as "(not n) is odd", and
+the brackets in `not (n is odd)` say which was meant. And a universal written
+after what it says, `trailing`, against the connectives: in "P and Q for all
+x ∈ A" a reader cannot tell whether the "for all" covers P, so the text
+brackets what it covers. A relation, a word predicate and a negation bind
+tighter than it, so "f(x) ≠ B for all x ∈ A" needs none.
 
 A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
 `summation`, sits between multiplication and addition: multiplication binds
@@ -438,9 +445,12 @@ sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is a
 pattern whose `C` is a literal, so a proof that writes the coefficient cannot
 also name a variable C.
 
-A pattern with holes at both edges can nest in itself, and its declared `assoc`
-says which way. Fifteen of the 80 patterns are in that position, across ten
-records, and the checker enforces that exactly those ten declare one.
+A pattern with holes at both edges that yields what those holes take can nest
+in itself, and its declared `assoc` says which way: `left` chains from the
+left, as `a − b − c` is (a − b) − c, and `right` nests in its own last hole,
+as `a^2^3` is a^(2^3). Twenty of the 100 patterns are in that position, across
+fifteen records, and the checker enforces that exactly those fifteen declare
+one.
 
 ### A folded negation
 

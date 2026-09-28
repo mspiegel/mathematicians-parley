@@ -317,6 +317,15 @@ impl Parser<'_> {
         }
     }
 
+    /// `refuse`, for two notations the precedence order leaves unrelated:
+    /// at the same point it is said over a sort refused inside one of the
+    /// readings tried, since it is about the text as written.
+    fn refuse_order(&mut self, at: usize, why: String) {
+        if self.refused.as_ref().is_none_or(|(was, _)| at >= *was) {
+            self.refused = Some((at, why));
+        }
+    }
+
     fn no(&mut self, message: String) -> Reading {
         let further = match &self.stopped {
             None => true,
@@ -377,6 +386,7 @@ impl Parser<'_> {
             // The brackets are part of what was written, and what extends
             // the group starts at the first of them.
             inner.set_span(tok.at, close.at + close.text.chars().count());
+            inner.set_grouped();
             return Ok(Some(inner));
         }
         // A notation may open with a literal that is also a name, as the two
@@ -413,6 +423,17 @@ impl Parser<'_> {
             return Ok(Some(leaf));
         }
         self.apply(&cands, None)
+    }
+
+    /// The precedence level of the notation a node was built by, where it
+    /// declares one; a name, a numeral and a closed pattern have none.
+    fn level_of(&self, node: &Node) -> Option<String> {
+        self.g
+            .notations
+            .iter()
+            .find(|n| n.name == node.notation)
+            .map(|n| n.level.clone())
+            .filter(|level| !level.is_empty())
     }
 
     /// Notations whose pattern opens with a hole, which `left` fills.
@@ -500,13 +521,63 @@ impl Parser<'_> {
             // `f(x)` and `|x|` do. A pattern that declares a level takes part
             // in precedence wherever it stands, even when a token closes it,
             // or `√2 is irrational` reads as the root of `2 is irrational`.
+            // A notation declared `assoc right` nests in its own last hole,
+            // so `a ^ b ^ c` is a ^ (b ^ c).
             if let Some(outer) = outer {
                 let competes =
                     n.parts[n.parts.len() - 1].is_hole() || !n.level.is_empty();
+                let nests = n.level == outer && n.assoc.as_deref() == Some("right");
                 if competes
+                    && !nests
                     && binds_tighter(&g.tighter, &n.level, outer) != Tighter::Yes
                 {
                     continue;
+                }
+            }
+            // What stands to the left is this notation's operand only where
+            // it binds tighter, or is the same level chained as `assoc left`
+            // says. Levels unrelated in the precedence order need brackets
+            // whichever side each stands on, so `P and Q or R` has no
+            // reading; a bracketed group is closed and extends at any level.
+            if !n.level.is_empty() && !left.grouped() {
+                if let Some(level) = self.level_of(left) {
+                    let chains = level == n.level && n.assoc.as_deref() == Some("left");
+                    if !chains
+                        && binds_tighter(&g.tighter, &level, &n.level) != Tighter::Yes
+                    {
+                        // The pattern's own tokens follow, so the text writes
+                        // it and only the order turns it away: say so.
+                        let run: Vec<&str> =
+                            n.parts[1..].iter().map_while(|p| p.literal()).collect();
+                        let written = !run.is_empty()
+                            && run.iter().enumerate().all(|(j, lit)| {
+                                self.t.get(self.i + j).is_some_and(|t| t.text == *lit)
+                            });
+                        if written {
+                            // Each is named by the words the text wrote for
+                            // it, which a pattern shares with its variants.
+                            let before = self
+                                .g
+                                .notations
+                                .iter()
+                                .find(|m| m.name == left.notation)
+                                .map(|m| {
+                                    m.parts
+                                        .iter()
+                                        .skip_while(|p| p.is_hole())
+                                        .map_while(|p| p.literal())
+                                        .collect::<Vec<_>>()
+                                        .join(" ")
+                                })
+                                .unwrap_or_else(|| left.notation.clone());
+                            let why = format!(
+                                "`{before}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
+                                run.join(" ")
+                            );
+                            self.refuse_order(self.i + run.len(), why);
+                        }
+                        continue;
+                    }
                 }
             }
             cands.push(n);
