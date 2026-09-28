@@ -44,8 +44,8 @@ theorem triangular-reciprocals
                                  = 2/1 − 2/(n + 1)                    2.2
                                  = 2 − 2/(n + 1)                      arithmetic
 
-3.  For all ε > 0, there is N ∈ ℕ with
-    for all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+3.  For all ε > 0, there exists N ∈ ℕ such that
+    |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N.
     fix
     let ε ∈ ℝ                                                         (K3)
     assume ε > 0                                                      (A1)
@@ -103,7 +103,7 @@ theorem triangular-reciprocals
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership
                   requires 2 ∈ ℝ: arithmetic
 
-    3.4.  There is N ∈ ℕ with for all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+    3.4.  There exists N ∈ ℕ such that |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N.
           exhibit, from 3.2, 3.3
 
 4.  Σ(k = 1 to n) 1/T(k) → 2 as n → ∞

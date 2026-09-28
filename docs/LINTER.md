@@ -74,15 +74,22 @@ text harder to read rather than easier, which is the opposite of the point.
 | write | not | today |
 |---|---|---|
 | `for all x ∈ A, f(x) ≠ B` as a claim | `f(x) ≠ B for all x ∈ A` | all 72 lines |
-| `… such that f(x) ≠ B for all x ∈ A` | `… such that for all x ∈ A, f(x) ≠ B` | 2 lines, both Cantor's |
+| `… such that f(x) ≠ B for all x ∈ A` | `… such that for all x ∈ A, f(x) ≠ B` | 9 lines |
+| `… such that \|x(n) − L\| < ε for all n ≥ N` | `… such that for all n ≥ N, \|x(n) − L\| < ε` | (among the 9) |
+| `… such that \|f(x) − f(c)\| < ε for all x ∈ D with \|x − c\| < δ` | `… such that for all x ∈ D, if \|x − c\| < δ then …` | (among the 9) |
 
 A universal over one relation may be written before it or after it, and the
 two are one formula. Before is the rule: it is the only form for anything
 longer than one relation, and it is how a block's claim is written. After is
 for the one place a textbook writes it, inside "such that", where the prefix
-form would put two connectives side by side ("such that for all"). Cantor's
-theorem states "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" and
-repeats it as its last step, and is the only use so far.
+form would put two connectives side by side ("such that for all"). It may
+carry a bound, "for all n ≥ N", or a condition of one relation, "for all
+x ∈ D with |x − c| < δ", which is how a textbook writes a limit and
+continuity. The nine: Cantor's statement and its last step; the
+definitions of tends-to and continuity; triangular-reciprocals' step 3 and
+its last step 3.4; and intermediate-value's step 16 and the two steps 17.4
+and 17.29 that instantiate it. Step 3.3, and 17.5 and 17.30, which restate
+an obtained universal as a claim of its own, keep the prefix form.
 
 ### Two universals over one set
 
@@ -113,8 +120,9 @@ three times and writes the set each time rather than add a line to say it.
 
 ### "There exists … such that" or "there is … with" is not settled
 
-The two are one formula, written on 8 lines against 34: four theorems state
-their conclusion the first way, and each repeats it as its last step. Which
+The two are one formula, written on 14 lines against 30: four theorems state
+their conclusion the first way, and each repeats it as its last step, and
+the analysis lines use it wherever a trailing universal follows. Which
 reads better elsewhere is left open until more of the corpus is written the
 new way, since a rule argued from a handful of proofs would be a rule about
 those proofs. The same holds for two names, "there exist x, y ∈ ℤ such that"

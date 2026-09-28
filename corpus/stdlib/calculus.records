@@ -35,8 +35,8 @@ definition continuous-on
   let f : D → ℝ                                                       (H2)
   ε, δ range over ℝ
   then        f is continuous on D ↔ for all c ∈ D, for all ε > 0, there
-              is δ > 0 with for all x ∈ D, if |x − c| < δ then
-              |f(x) − f(c)| < ε
+              exists δ > 0 such that |f(x) − f(c)| < ε for all x ∈ D with
+              |x − c| < δ
   metamath    elcncf2
   target      elcncf2
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε > 0 with ε
@@ -49,8 +49,8 @@ definition tends-to
   let L ∈ ℝ                                                           (H2)
   ε ranges over ℝ
   n ranges over ℕ
-  then        x(n) → L as n → ∞ ↔ for all ε > 0, there is N ∈ ℕ with
-              for all n ≥ N, |x(n) − L| < ε
+  then        x(n) → L as n → ∞ ↔ for all ε > 0, there exists N ∈ ℕ such
+              that |x(n) − L| < ε for all n ≥ N
   metamath    climnnre, which this corpus proves in
               elaboration/stdlib/proved.mm from clim2's neighbours
   target      climnnre
