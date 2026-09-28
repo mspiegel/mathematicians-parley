@@ -1,5 +1,8 @@
 //! Reading one sentence against the declared notations.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use indexmap::{IndexMap, IndexSet};
 
 use super::node::{Node, Sort};
@@ -14,13 +17,26 @@ use crate::text::repr;
 /// The sort of each name a text states one for.
 pub type Sorts = IndexMap<String, Sort>;
 
+/// A sentence and the sort of each name it holds, in the order the names
+/// first appear: everything a reading of it depends on besides the grammar.
+type ReadingKey = (String, Vec<Option<Sort>>);
+
 /// The declared notations, the words and symbols they are written with, and
 /// the precedence order between their levels.
+///
+/// It also keeps what it has read. One check reads the same sentence many
+/// times over (the kinds, the formulas, and every citation asking again with
+/// a line taken away), and a reading depends only on the grammar, the
+/// sentence, and the sorts of the names in it; so each is read once. Only a
+/// reading that succeeded is kept, since a failure names the place it was
+/// asked from.
 pub struct Grammar {
     pub notations: Vec<Notation>,
     pub words: IndexSet<String>,
     pub symbols: Vec<String>,
     pub tighter: IndexMap<String, IndexSet<String>>,
+    tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
+    readings: RefCell<IndexMap<ReadingKey, Node>>,
 }
 
 impl Grammar {
@@ -31,8 +47,35 @@ impl Grammar {
             words,
             symbols,
             tighter: compile_precedence(records),
+            tokens: RefCell::new(IndexMap::new()),
+            readings: RefCell::new(IndexMap::new()),
         })
     }
+
+    /// The sentence's tokens, read once.
+    fn tokens(&self, text: &str, path: &str, line: usize) -> Checked<Rc<Vec<Token>>> {
+        if let Some(found) = self.tokens.borrow().get(text) {
+            return Ok(Rc::clone(found));
+        }
+        let read = Rc::new(tokenise(text, &self.words, &self.symbols, path, line)?);
+        self.tokens
+            .borrow_mut()
+            .insert(text.to_string(), Rc::clone(&read));
+        Ok(read)
+    }
+}
+
+/// What a reading of these tokens depends on besides the grammar: the text,
+/// and the sort each name in it has, or that it has none.
+fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
+    let mut seen: IndexSet<&str> = IndexSet::new();
+    for t in tokens {
+        if t.kind == TokenKind::Name {
+            seen.insert(&t.text);
+        }
+    }
+    let said = seen.iter().map(|name| sorts.get(*name).cloned()).collect();
+    (text.to_string(), said)
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -103,13 +146,31 @@ pub fn parse(
     path: &str,
     line: usize,
 ) -> Checked<Node> {
-    let tokens = tokenise(text, &g.words, &g.symbols, path, line)?;
+    let tokens = g.tokens(text, path, line)?;
+    let key = reading(text, &tokens, sorts);
+    if let Some(found) = g.readings.borrow().get(&key) {
+        return Ok(found.clone());
+    }
+    let node = read(text, &tokens, g, sorts, path, line)?;
+    g.readings.borrow_mut().insert(key, node.clone());
+    Ok(node)
+}
+
+/// Read the sentence's tokens into one node, or say why there is none.
+fn read(
+    text: &str,
+    tokens: &[Token],
+    g: &Grammar,
+    sorts: &Sorts,
+    path: &str,
+    line: usize,
+) -> Checked<Node> {
     let mut local = sorts.clone();
-    for (k, v) in bound_sorts(&tokens, sorts) {
+    for (k, v) in bound_sorts(tokens, sorts) {
         local.insert(k, v);
     }
     let mut p = Parser {
-        t: &tokens,
+        t: tokens,
         g,
         sorts: &local,
         path,
