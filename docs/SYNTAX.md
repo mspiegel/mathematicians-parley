@@ -261,7 +261,9 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 - "for all x ∈ S, ..." is written for ∀, and a side condition on the
   variable goes in a "with" clause: "for all ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which
-  is what the two phrases mean in English and what their two records target.
+  is what the two phrases mean in English: "for all ε ∈ ℝ with ε > 0, P" is
+  "for all ε ∈ ℝ, if ε > 0 then P", the same formula, so either may be
+  written where the other is cited.
 - A bound may stand where the set would, as a textbook writes "for all
   ε > 0" and "there is δ > 0 with …", where the theorem's statement says
   what the letter ranges over, in a line beside its `let` and `assume`

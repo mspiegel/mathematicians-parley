@@ -72,6 +72,11 @@
 #               `, joined to hole 3 by conjunction` puts the condition in
 #               front of hole 3 instead, as "there is δ ∈ ℝ with δ > 0 and
 #               …" has it.
+#   joins       that the node holds two holes as one, another notation's
+#               node with the two in its holes: `joins hole 3 to hole 4 by
+#               conditional` makes "for all x ∈ S with A, B" the tree of
+#               "for all x ∈ S, if A then B". The joined node stands where
+#               the first hole did; `places` names it by that hole's number.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -819,20 +824,22 @@ notation for-all-with
   sort        α, set of α, formula, formula → formula
   level       binder
   binds       hole 1 over holes 3 and 4
+  joins       hole 3 to hole 4 by conditional
+  spells      for-all forall∈,
   reads       for all, with
   metamath    wral, with wi inside it
   target      _3 _4 wi _1 _2 wral
-  note        The restricted universal, "for all ε ∈ ℝ with ε > 0". Two uses,
-              the definition of continuity and step 16 of the pilot that needs
-              it. Writing it as "for all ε ∈ ℝ, if ε > 0 then ..." was the
-              alternative and reads worse in the definition, which is the place
-              a reader meets it first.
+  note        The restricted universal, "for all ε ∈ ℝ with ε > 0, …". It is
+              "for all ε ∈ ℝ, if ε > 0 then …" and builds exactly that tree:
+              `joins` holds the condition and the body as the `if … then`
+              node, and `spells` makes the whole a `for-all` node, so either
+              spelling meets the other.
 
               "with" means a conjunction after "there is" and an implication
               here, which is ordinary mathematical English and is why the two
-              are separate records with different targets. The side condition
-              is delimited by the comma, so a condition that is itself a comma
-              list would need brackets; none is written and none reads well.
+              join by different notations. The side condition is delimited by
+              the comma, so a condition that is itself a comma list would need
+              brackets; none is written and none reads well.
 
 notation for-all-after
   pattern     _ for all _ ∈ _
@@ -927,16 +934,17 @@ notation for-all-bounded
   sort        α, α, formula → formula
   level       binder
   binds       hole 1 over hole 3
-  bounds      hole 1 by hole 2
-  spells      for-all-with forall∈with,
+  bounds      hole 1 by hole 2, joined to hole 3 by conditional
+  spells      for-all forall∈,
   reads       for all, with a bound in place of the set
   metamath    wral, with wi inside it
   target      folded, folded, folded, folded, folded
   note        "For all ε > 0, …", as a textbook writes it, where the theorem
               says what ε ranges over: `ε ranges over ℝ` in its statement.
-              It builds exactly what "for all ε ∈ ℝ with ε > 0, …" builds,
-              the set being the declared one and the condition "ε > 0" read
-              as it is written, so either spelling meets the other. A name
+              It builds exactly what "for all ε ∈ ℝ, if ε > 0 then …" builds,
+              and so what "for all ε ∈ ℝ with ε > 0, …" does, the set being
+              the declared one and the condition "ε > 0" read as it is
+              written, so any of the three meets the others. A name
               no range line covers has no reading here, and the page writes
               the set. `∈` is no bound, or "for all x ∈ S, …" would read two
               ways.

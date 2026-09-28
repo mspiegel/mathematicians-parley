@@ -871,8 +871,29 @@ impl Parser<'_> {
                 .unwrap_or(w.hole - 1),
             None => w.hole - 1,
         });
+        // A spelling that holds two of its holes as one puts that node where
+        // the first stood, so "for all x ∈ S with A, B" is "for all x ∈ S, if
+        // A then B". `places` counts holes as written, and names the joined
+        // node by the first hole's number and the second by none.
+        let mut gone: Option<usize> = None;
+        if let Some(j) = &n.joins {
+            let (first, then) = (&kids[j.first - 1], &kids[j.then - 1]);
+            let joined = Node::new(
+                &j.by.name,
+                Sort::of(&j.by.yields),
+                vec![first.clone(), then.clone()],
+                &j.by.literal,
+            );
+            if let (Some(a), Some(b)) = (first.span(), then.span()) {
+                joined.set_span(a.0.min(b.0), a.1.max(b.1));
+            }
+            kids[j.first - 1] = joined;
+            gone = Some(j.then - 1);
+        }
         if let Some(places) = &n.places {
             kids = places.iter().map(|p| kids[p - 1].clone()).collect();
+        } else if let Some(gone) = gone {
+            kids.remove(gone);
         }
         // Where it was read from: its first token, or the value it extends,
         // to its last token.
@@ -930,13 +951,16 @@ impl Parser<'_> {
     /// the far left of the body's run of them, by the join that run itself
     /// uses there; a body that is no such run is joined by `join`. Put in
     /// front of the whole run instead, "δ > 0 and (A and B)", it would build
-    /// another tree than the long form does.
+    /// another tree than the long form does. A join that does not group to
+    /// the left has no run to go into, and takes the body whole: "if ε > 0
+    /// then if A then B".
     fn joined(&self, condition: Node, body: &Node, join: &Wrap) -> Node {
         let level = self
             .g
             .notations
             .iter()
             .find(|m| m.name == join.name)
+            .filter(|m| m.assoc.as_deref() == Some("left"))
             .map(|m| m.level.clone());
         let in_run = |node: &Node| {
             !node.grouped() && node.children.len() == 2 && self.level_of(node) == level

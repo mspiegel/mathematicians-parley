@@ -50,6 +50,17 @@ pub struct Bounds {
     pub join: Option<Wrap>,
 }
 
+/// A notation's `joins` line: two of its holes that the node it builds holds
+/// as one, joined by another notation, as "for all x ∈ S with A, B" holds A
+/// and B as "if A then B". The joined node stands in the first hole's place,
+/// and the second hole is gone from the node.
+#[derive(Clone, Debug)]
+pub struct Join {
+    pub first: usize,
+    pub then: usize,
+    pub by: Wrap,
+}
+
 /// A notation's `binds` line: the holes naming what a binder introduces, and
 /// the holes where those names are its own, counted from 0.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -93,6 +104,7 @@ pub struct Notation {
     /// pattern's last hole is the innermost body (`nests`).
     pub nests: Option<Vec<(usize, usize)>>,
     pub bounds: Option<Bounds>,
+    pub joins: Option<Join>,
 }
 
 impl Notation {
@@ -123,14 +135,35 @@ impl Notation {
                 body: (2..2 + after).collect(),
             });
         }
-        let Some(places) = &self.places else {
+        if self.places.is_none() && self.joins.is_none() {
             return Some(binds.clone());
+        }
+        // A joined pair is one hole, where the first of the two stood.
+        let at = |own: &usize| {
+            let own = match &self.joins {
+                Some(j) if own + 1 == j.then => j.first - 1,
+                _ => *own,
+            };
+            match (&self.places, &self.joins) {
+                (Some(places), _) => {
+                    places.iter().position(|p| *p == own + 1).unwrap_or(own)
+                }
+                (None, Some(j)) if own > j.then - 1 => own - 1,
+                _ => own,
+            }
         };
-        let at =
-            |own: &usize| places.iter().position(|p| *p == own + 1).unwrap_or(*own);
+        let mapped = |holes: &[usize]| {
+            let mut out: Vec<usize> = Vec::new();
+            for h in holes.iter().map(at) {
+                if !out.contains(&h) {
+                    out.push(h);
+                }
+            }
+            out
+        };
         Some(Binds {
-            held: binds.held.iter().map(at).collect(),
-            body: binds.body.iter().map(at).collect(),
+            held: mapped(&binds.held),
+            body: mapped(&binds.body),
         })
     }
 
@@ -152,6 +185,12 @@ regex!(SPELLS, r"^\s*(\S+)\s+(\S+)");
 // `wraps hole 2 in powerset`: the node built puts that hole's term inside
 // the named notation, so `for all X ⊆ A` is `for all X ∈ 𝒫A` exactly.
 regex!(WRAPS, r"^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$");
+// `joins hole 3 to hole 4 by conditional`: the node holds the two holes as
+// one, that notation's node with them in its holes.
+regex!(
+    JOINS,
+    r"^\s*hole\s+(\d+)\s+to\s+hole\s+(\d+)\s+by\s+(\S+)\s*$"
+);
 // `bounds hole 1 by hole 2, joined to hole 3 by conjunction`: the name in
 // hole 1 ranges over its declared set, holes 1 to 2 are the condition, and
 // the condition goes in front of hole 3 by the named notation.
@@ -329,6 +368,32 @@ pub fn compile_notations(
                 })
             }
         };
+        let joins: Option<Join> = match r.field("joins") {
+            None => None,
+            Some(said) => {
+                let Some(m) = JOINS.captures(said) else {
+                    return Err(Problem::new(
+                        &r.path,
+                        r.lines.get("joins").copied().unwrap_or(r.line),
+                        format!(
+                            "notation {}: `joins {}` is not `hole N to hole M by <notation>`",
+                            r.name,
+                            str::trim(said)
+                        ),
+                    ));
+                };
+                Some(Join {
+                    first: m[1].parse().unwrap(),
+                    then: m[2].parse().unwrap(),
+                    by: Wrap {
+                        hole: m[1].parse().unwrap(),
+                        name: m[3].to_string(),
+                        literal: String::new(),
+                        yields: String::new(),
+                    },
+                })
+            }
+        };
         let binds = binding(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
         let mut shapes: Vec<Vec<Part>> = Vec::new();
@@ -420,6 +485,7 @@ pub fn compile_notations(
                 places: places.clone(),
                 nests: nests.clone(),
                 bounds: bounds.clone(),
+                joins: joins.clone(),
             });
         }
     }
@@ -446,7 +512,9 @@ pub fn compile_notations(
             w.literal = literals.get(&w.name).cloned().unwrap_or_default();
             w.yields = yields.get(&w.name).cloned().unwrap_or_default();
         }
-        if let Some(w) = n.bounds.as_mut().and_then(|b| b.join.as_mut()) {
+        let joining = n.joins.as_mut().map(|j| &mut j.by);
+        let bounding = n.bounds.as_mut().and_then(|b| b.join.as_mut());
+        for w in joining.into_iter().chain(bounding) {
             w.literal = literals.get(&w.name).cloned().unwrap_or_default();
             w.yields = yields.get(&w.name).cloned().unwrap_or_default();
         }

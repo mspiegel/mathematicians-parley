@@ -54,6 +54,21 @@ fn each_short_form_builds_its_long_form() {
         ),
         // A negated bound is the negation the sign folds.
         ("for all ε ≠ 0, ε = ε", "for all ε ∈ ℝ with ε ≠ 0, ε = ε"),
+        // A universal's condition is the `if` of an `if … then`, whichever
+        // way it is written, and an `if … then` body is taken whole.
+        (
+            "for all ε ∈ ℝ with ε > 0, ε = ε",
+            "for all ε ∈ ℝ, if ε > 0 then ε = ε",
+        ),
+        ("for all ε > 0, ε = ε", "for all ε ∈ ℝ, if ε > 0 then ε = ε"),
+        (
+            "for all ε > 0, if ε < 1 then ε = ε",
+            "for all ε ∈ ℝ, if ε > 0 then if ε < 1 then ε = ε",
+        ),
+        (
+            "for all x ∈ ℤ with x > 0 and x < 3, x = x",
+            "for all x ∈ ℤ, if x > 0 and x < 3 then x = x",
+        ),
     ];
     for (short, long) in pairs {
         let a = parse_here(short, &g, &sorts).unwrap();
