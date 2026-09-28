@@ -15,8 +15,10 @@ name = "parley"
 path = "src/main.rs"
 
 [dependencies]
+annotate-snippets = "0.9"
 fancy-regex = "0.17"
 indexmap = "2"
+metamath-rs = { version = "0.3.8", default-features = false }
 nix = { version = "0.30", default-features = false, features = ["resource"] }
 num-bigint = "0.4"
 num-integer = "0.1"
@@ -24,7 +26,6 @@ num-rational = "0.4"
 num-traits = "0.2"
 regex = "1"
 sha2 = "0.10"
-tempfile = "3"
 unicode-normalization = "0.1"
 unicode-segmentation = "1"
 unicode-properties = { version = "0.1", default-features = false, features = ["general-category"] }

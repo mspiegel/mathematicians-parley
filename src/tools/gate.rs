@@ -10,7 +10,8 @@
 //! 3. every set.mm label the database names;
 //! 4. every library item cited by a proof or tested in `tests/stdlib/`;
 //! 5. no step taken as stated that `ELABORATION.md` does not record;
-//! 6. an external verifier over every proof the elaborator has written.
+//! 6. a verifier not written for this project (`metamath-rs`, the verifier
+//!    of metamath-knife) over every proof the elaborator has written.
 //!
 //! The last is the only one that is evidence the elaborator is right rather
 //! than consistent. The ones before it read the corpus against itself or
@@ -22,10 +23,9 @@
 //! two agree. The fifth is there because a step taken as stated verifies:
 //! the verifier reads it as an axiom, so the last stage cannot see one.
 //!
-//! Two stages need what this repository does not carry: set.mm, which
-//! belongs to metamath (say where it is with `SET_MM`, or leave a copy or a
-//! link at the root of the working tree), and `mmverify.py`, likewise, with
-//! `MMVERIFY`. A gate that skipped either would be saying green about a
+//! Three stages need set.mm, which belongs to metamath and is not committed:
+//! say where it is with `SET_MM`, or leave a copy or a link at the root of
+//! the working tree. A gate that skipped them would be saying green about a
 //! thing it had not looked at.
 
 use std::path::Path;
@@ -36,7 +36,6 @@ use crate::said::Said;
 use crate::source::Disk;
 
 use super::build::{artifacts, verified, waves, Artifact, Maker};
-use super::verify::where_mmverify;
 use super::{assumed, labels, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
@@ -123,7 +122,6 @@ pub fn run(root: &Path) -> Said {
     let source = Disk::new(root.to_path_buf());
     let setmm = where_set_mm(None, root);
     let setmm = setmm.as_deref();
-    let verifier = where_mmverify(root);
 
     type Stage<'s> = Box<dyn Fn() -> Said + 's>;
     let stages: Vec<(&str, Stage)> = vec![
@@ -147,7 +145,7 @@ pub fn run(root: &Path) -> Said {
         (
             "the proofs verify",
             Box::new(|| match verified_files(root) {
-                Ok(built) => verify::run(root, &built, setmm, verifier.as_deref()),
+                Ok(built) => verify::run(root, &built, setmm),
                 Err(said) => said,
             }),
         ),
