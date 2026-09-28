@@ -405,8 +405,8 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
 /// reading leaves open, or reads as a statement, has no sort.
 ///
 /// The checker's reading fits each citation as it goes and the elaborator's
-/// reads no citation, so a citation that fixed a name's sort would give the
-/// two different sorts. None does on the corpus or on any planted defect.
+/// reads no citation. The two settle the same sorts because a citation that
+/// settles a name's sort is a defect the checker reports (`cited_sorts`).
 pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
     for (name, term) in &reader.env {

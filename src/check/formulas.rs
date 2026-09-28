@@ -70,6 +70,13 @@ pub fn check_clashes(report: &mut Report, thm: &Theorem, clashes: &[infer::Clash
 /// Each written `v := t` of a step's citations, fitted to the cited
 /// statement. Each citation takes its own copy of what the statement says v
 /// is.
+///
+/// A citation checks what the proof's names are and does not say it. A name
+/// whose sort only fitting a citation settles is reported: the sort decides
+/// how a formula reads, the elaborator reads a proof's sorts from its own
+/// lines without its citations, and a proof read only with the statements it
+/// cites is one whose formulas change when a cited statement does, as the
+/// rule for `obtain` in `GRAMMAR.md` says.
 fn cited_sorts(
     reader: &mut Reader,
     store: &mut Store,
@@ -99,6 +106,19 @@ fn cited_sorts(
                 continue;
             };
             let got = reader.sort_of(&tree, step.line.into(), &IndexMap::new(), store);
+            let mut names: Vec<String> = Vec::new();
+            for n in tree.walk() {
+                if n.is_name()
+                    && reader.env.contains_key(&n.text)
+                    && !names.contains(&n.text)
+                {
+                    names.push(n.text.clone());
+                }
+            }
+            let before: Vec<Option<Sort>> = names
+                .iter()
+                .map(|n| infer::sort(store, &reader.env[n]))
+                .collect();
             let copied = store.copy(wanted, &mut seen);
             if let Declined(said) = store.unify(&got, &copied) {
                 reader.clashes.push(infer::Clash {
@@ -106,6 +126,21 @@ fn cited_sorts(
                     what: format!("citing {name} with {v} := {t}"),
                     why: said.reason(),
                 });
+                continue;
+            }
+            for (n, was) in names.iter().zip(before) {
+                let now = infer::sort(store, &reader.env[n]);
+                if now != was {
+                    let is =
+                        now.map_or_else(|| "settled".to_string(), |s| s.describe());
+                    reader.clashes.push(infer::Clash {
+                        line: step.line.into(),
+                        what: format!("citing {name} with {v} := {t}"),
+                        why: format!(
+                            "only the citation says {n} is {is}; say so where {n} is introduced"
+                        ),
+                    });
+                }
             }
         }
     }

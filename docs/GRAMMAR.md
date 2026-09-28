@@ -137,7 +137,10 @@ statement or its block's opening lines may still relate it, and is fixed where
 the proof under them begins; from there nothing may narrow it. The checker
 reports each clash where it is written, including a citation whose statement
 would narrow a set declared of any sort, and each cited statement is read on its
-own and copied fresh at each use.
+own and copied fresh at each use. A citation checks what a proof's names are and
+never says it: a name whose sort only fitting a citation settles is reported,
+`only the citation says c is a number; say so where c is introduced`, so a
+proof's sorts come from its own lines, as the elaborator reads them.
 
 The parser tells two readings apart by a coarser class than the sort, its
 **category**: a number, a point, a statement, a group element, a set, a set of

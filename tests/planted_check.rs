@@ -830,6 +830,16 @@ fn cases() -> Vec<Case> {
         // add-element-bijection's X a set of sets, and subsets-count, whose X
         // is a set of any sort, cites it: the counting proof would hold of
         // sets of sets only, and nothing would say so.
+        // A citation checks what a proof's names are and does not say it:
+        // the elaborator reads a proof's sorts from its own lines, so a name
+        // only a citation settles would read differently there.
+        case(
+            "leave a name's sort to a citation",
+            vec![
+                edit("proofs/cites.proof", None, "theorem only-cited\n  then c = c\n\n1.  c = c\n    thm:stdlib/numbers/int-real m := c\n".to_string()),
+            ],
+            "citing stdlib/numbers/int-real with m := c: only the citation says c is a number; say so where c is introduced",
+        ),
         case(
             "cite a statement that narrows a set of any sort",
             vec![
