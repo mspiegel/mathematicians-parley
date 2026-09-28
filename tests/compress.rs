@@ -18,11 +18,12 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
+use std::rc::Rc;
 
 use parley::mm::compress::{
     compress, compressed, expand, expand_steps, shapes, shapes_of,
 };
-use parley::mm::{read, where_set_mm, Builder, Kind, Signature, StepRef};
+use parley::mm::{read, where_set_mm, Builder, Kind, Layered, Signature, StepRef};
 use parley::source::{Disk, Source};
 
 /// The most labels a proof is also written out in normal format at.
@@ -71,8 +72,9 @@ fn every_compressed_proof_survives_a_round_trip() {
     let mut paths: Vec<std::path::PathBuf> = vec![setmm];
     paths.extend(built.iter().map(|p| root.join(p)));
     let refs: Vec<&Path> = paths.iter().map(|p| p.as_path()).collect();
-    let sigs = read(&refs).unwrap();
-    let spell = Builder::new(sigs.clone());
+    // Read once and shared: each proof layers its own hypotheses over it.
+    let sigs = Rc::new(read(&refs).unwrap());
+    let spell = Builder::new(Layered::new(Rc::clone(&sigs)));
 
     let (mut passed, mut stepped) = (0, 0);
     let mut failed: Vec<String> = Vec::new();
@@ -98,7 +100,7 @@ fn every_compressed_proof_survives_a_round_trip() {
                 .captures_iter(block)
                 .map(|c| (c[1].to_string(), c[2].to_string()))
                 .collect();
-            let mut local = sigs.clone();
+            let mut local = Layered::new(Rc::clone(&sigs));
             for (h, s) in &hyps {
                 local.insert(
                     h.clone(),
