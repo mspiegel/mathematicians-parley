@@ -16,6 +16,7 @@
 //! What is not expanded is stated at the head of the file it writes: a
 //! closure method, or an item the database gives no target for.
 
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -38,7 +39,7 @@ use crate::matching::{
     instantiation, match_tree, Binding as NodeBinding, Context, Defined,
 };
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
-use crate::mm::kernel::Term;
+use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
@@ -3190,7 +3191,19 @@ pub struct Library {
     pub size: usize,
     /// set.mm's SHA-256, which the file header says.
     pub digest: String,
+    /// The syntax the library gives with the corpus's constants declared,
+    /// and every statement it has read, shared by every theorem elaborated
+    /// against the same constants. A theorem reads the statements of the
+    /// labels it uses, and reading them afresh for each theorem measured at
+    /// four seconds of a ten-second build. Keyed by the constants, since a
+    /// syntax holds for
+    /// them alone and one library may serve corpora that declare others.
+    syntaxes: RefCell<IndexMap<Constants, Rc<Syntax>>>,
 }
+
+/// The labels a corpus declares on top of the library, with their
+/// statements, in the order they are declared.
+type Constants = Vec<(String, Vec<String>)>;
 
 impl Library {
     /// The library read from set.mm and, where it has been built, the
@@ -3237,7 +3250,28 @@ impl Library {
             provided,
             size,
             digest,
+            syntaxes: RefCell::new(IndexMap::new()),
         }
+    }
+
+    /// The syntax these signatures give, built once for each set of labels
+    /// the corpus adds on top of the library.
+    ///
+    /// Only what a theorem adds before it reads anything may be added here:
+    /// the corpus's constants. What it adds later (a step taken as stated, a
+    /// lemma or hypothesis a library proof states) is never a syntax axiom,
+    /// so the syntax built now is the one it would build itself.
+    fn syntax_for(&self, sigs: &Layered) -> Rc<Syntax> {
+        let key: Constants = sigs
+            .added()
+            .map(|(label, sig)| (label.clone(), sig.statement.clone()))
+            .collect();
+        if let Some(found) = self.syntaxes.borrow().get(&key) {
+            return Rc::clone(found);
+        }
+        let made = Rc::new(Syntax::new(sigs));
+        self.syntaxes.borrow_mut().insert(key, Rc::clone(&made));
+        made
     }
 }
 
@@ -3313,6 +3347,7 @@ pub fn elaborate(
     let sorts_now = sorts_in_scope(thm, env);
     let mut sigs = Layered::new(Rc::clone(&library.sigs));
     declare_constants(&mut sigs, &corpus.records)?;
+    let syntax = library.syntax_for(&sigs);
     let mut work = Elaborator::new(
         thm,
         g,
@@ -3323,6 +3358,7 @@ pub fn elaborate(
         sorts_now,
         statements,
     );
+    work.b.share_syntax(syntax);
     work.whole_scope = options.whole_scope_offered;
     let (goal, hypotheses, mut proof) = work.run()?;
     let mut antecedent = hypotheses.first().cloned();

@@ -256,7 +256,7 @@ struct Taking {
 /// Statements in set.mm's notation, proofs in stack order.
 pub struct Builder {
     pub sigs: Layered,
-    syntax: OnceCell<Syntax>,
+    syntax: OnceCell<Rc<Syntax>>,
     /// Each variable's float, shared so that a caller may hold it while it
     /// builds.
     pub flabel: Rc<FloatLabels>,
@@ -295,9 +295,18 @@ impl Builder {
         }
     }
 
-    /// set.mm's syntax axioms, built the first time one is parsed.
+    /// set.mm's syntax axioms, built the first time one is parsed unless
+    /// one has been handed over (`share_syntax`).
     pub fn syntax(&self) -> &Syntax {
-        self.syntax.get_or_init(|| Syntax::new(&self.sigs))
+        self.syntax.get_or_init(|| Rc::new(Syntax::new(&self.sigs)))
+    }
+
+    /// Parse with a syntax built once for many builders, and the statements
+    /// it has read already. It must be the syntax these signatures give,
+    /// which is the caller's to know; a builder that has parsed already
+    /// keeps its own.
+    pub fn share_syntax(&self, syntax: Rc<Syntax>) {
+        let _ = self.syntax.set(syntax);
     }
 
     /// Register a lemma this file proves, so a later one may apply it.

@@ -156,6 +156,11 @@ impl Layered {
         self.base.iter().chain(self.added.iter())
     }
 
+    /// The labels added on top of the library, in the order they were added.
+    pub fn added(&self) -> impl Iterator<Item = (&String, &Signature)> {
+        self.added.iter()
+    }
+
     /// Every label, library first.
     pub fn keys(&self) -> impl Iterator<Item = &String> {
         self.base.keys().chain(self.added.keys())
