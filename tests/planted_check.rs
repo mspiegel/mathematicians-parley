@@ -519,6 +519,20 @@ fn cases() -> Vec<Case> {
             "leaves a hole out",
         ),
         case(
+            "leave a notation without the kinds its holes take",
+            vec![
+                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  kinds       number → formula\n".to_string()), "  pattern     _ is prime\n".to_string()),
+            ],
+            "notation prime has no `kinds` saying what its holes take and what it yields",
+        ),
+        case(
+            "give a notation kinds for more holes than its pattern has",
+            vec![
+                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  kinds       number → formula\n".to_string()), "  pattern     _ is prime\n  kinds       number, number → formula\n".to_string()),
+            ],
+            "notation prime has kinds for 2 hole(s) but its pattern(s) have [1]",
+        ),
+        case(
             "write a binder whose binds line does not read",
             vec![
                 edit("corpus/db/notation.records", Some("  binds       hole 1 over nothing".to_string()), "  binds       hole 1 above nothing".to_string()),
@@ -810,7 +824,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n          requires s is a set: from K1\n".to_string()),
             ],
-            "s: a number where a set of things of a kind not yet fixed is wanted",
+            "the requires line of step 6.1: 's is a set' has 3 token(s) left over",
         ),
         // A set declared of any kind stays any kind. `let a be a set` made
         // add-element-bijection's X a set of sets, and subsets-count, whose X is

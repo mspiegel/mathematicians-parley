@@ -155,10 +155,10 @@ files it cites and the definitions it uses from other files; `parley check`
 checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
-for each hole, the sort each hole takes, what the pattern yields, how the kinds
-of its holes relate where a hole holds sets or functions (`kinds`, `α, set of α
-→ formula` for membership), its precedence level, its associativity where one
-is needed, and whether one of its patterns is the negation of another. There are two
+for each hole, the kind each hole takes and the kind the pattern produces
+(`kinds`, `α, set of α → formula` for membership), its precedence level, its
+associativity where one is needed, and whether one of its patterns is the
+negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
 a hole marked as binding. `corpus/db/notation.records` describes the fields, and one
 `precedence` record declares the order between levels as a partial order, so a
@@ -166,12 +166,10 @@ formula mixing two levels that convention does not relate is rejected rather
 than guessed at.
 
 Three things about a notation are then mechanical and the checker enforces all
-three: that the holes a record declares match the holes its patterns have, that
-a pattern declares an associativity exactly when it can nest in itself, meaning
-both edges are holes and what it yields fits those holes, and that a record
-with a set, function, property, variable or any hole or result says its
-`kinds`, readable and one per hole. Of the 57 records, ten meet the second
-condition and 27 the third.
+three: that every record says its `kinds`, readable; that it gives one kind
+per hole its patterns have; and that a pattern declares an associativity
+exactly when it can nest in itself, meaning both edges are holes and what it
+produces fits those holes.
 
 ## The character set
 

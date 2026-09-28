@@ -4,7 +4,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
-use crate::outcome::{Checked, Problem};
+use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
 
 /// One piece of a pattern: a hole a term fills, or a literal token.
@@ -131,6 +131,52 @@ fn binding(r: &Record) -> Checked<Option<Binds>> {
     }))
 }
 
+/// What a notation record's holes take and what it yields, as the parser
+/// reads them (`categories`). A `binds` line that does not read is a defect
+/// the grammar reports when it is built; here it binds nothing.
+pub fn categories_of(r: &Record) -> (Vec<String>, String) {
+    let raw = str::trim(r.field_or_empty("pattern"));
+    let binds = binding(r).ok().flatten();
+    categories(r, raw, binds.as_ref())
+}
+
+/// The category each hole takes and the category the notation yields, read
+/// off its `kinds`: the coarse class of each kind (`Signature::categories`),
+/// and `variable` for a hole its `binds` line says introduces a name.
+///
+/// A notation whose `kinds` is missing or does not read is a defect
+/// `check_notation` reports. Its holes, one per `_` of its first pattern,
+/// then take any term and it yields any term, so that the rest of the
+/// corpus is still read and every other defect still reported.
+fn categories(r: &Record, raw: &str, binds: Option<&Binds>) -> (Vec<String>, String) {
+    let said = r
+        .field("kinds")
+        .map(|k| crate::kinds::signature(str::trim(k)));
+    let (mut holes, yields) = match said {
+        Some(Built(sig)) => {
+            let (holes, yields) = sig.categories();
+            (
+                holes.into_iter().map(String::from).collect::<Vec<_>>(),
+                yields.to_string(),
+            )
+        }
+        _ => {
+            let count = patterns_of(raw)
+                .first()
+                .map_or(0, |p| p.matches('_').count());
+            (vec!["any".to_string(); count], "any".to_string())
+        }
+    };
+    if let Some(b) = binds {
+        for &i in &b.held {
+            if let Some(hole) = holes.get_mut(i) {
+                *hole = "variable".to_string();
+            }
+        }
+    }
+    (holes, yields)
+}
+
 /// Split a pattern field into its patterns: two spaces or more between.
 pub fn patterns_of(raw: &str) -> Vec<&str> {
     WIDE_SPACE.split(raw).collect()
@@ -152,16 +198,6 @@ pub fn compile_notations(
         if raw.is_empty() {
             continue;
         }
-        let mut holes: Vec<String> = r
-            .field_or_empty("holes")
-            .split(',')
-            .map(str::trim)
-            .filter(|h| !h.is_empty())
-            .map(String::from)
-            .collect();
-        if holes == ["none"] {
-            holes.clear();
-        }
         let levels: Vec<&str> = r
             .field_or_empty("level")
             .split(',')
@@ -179,6 +215,7 @@ pub fn compile_notations(
         let spells = SPELLS.captures(r.field_or_empty("spells"));
         let wraps = WRAPS.captures(r.field_or_empty("wraps"));
         let binds = binding(r)?;
+        let (holes, yields) = categories(r, raw, binds.as_ref());
         let mut shapes: Vec<Vec<Part>> = Vec::new();
         for pat in patterns_of(raw) {
             let mut parts = Vec::new();
@@ -243,7 +280,7 @@ pub fn compile_notations(
                 name: r.name.clone(),
                 parts: parts.clone(),
                 holes: holes.clone(),
-                yields: str::trim(r.field_or_empty("yields")).to_string(),
+                yields: yields.clone(),
                 level: str::trim(level).to_string(),
                 assoc: if assoc.is_empty() {
                     None

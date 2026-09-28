@@ -327,6 +327,27 @@ enum Template {
     Var(String),
 }
 
+impl Template {
+    /// The coarse class of a kind, as `sort_of` gives it for a kind that is
+    /// fixed, and `any` for one that is a variable.
+    fn category(&self) -> &'static str {
+        match self {
+            Template::Atom(Atom::Number) => "number",
+            Template::Atom(Atom::Point) => "point",
+            Template::Atom(Atom::Formula) => "formula",
+            Template::Atom(Atom::GroupElement) => "group-element",
+            Template::Set(inner) => match &**inner {
+                Template::Atom(Atom::GroupElement) => "group-set",
+                Template::Set(_) => "set-of-sets",
+                _ => "set",
+            },
+            Template::Property(_) => "property",
+            Template::Function(..) => "function",
+            Template::Var(_) => "any",
+        }
+    }
+}
+
 /// A `kinds` field: the kind of each hole and of what the notation produces,
 /// related by the variables they share.
 #[derive(Clone, Debug)]
@@ -338,6 +359,13 @@ pub struct Signature {
 impl Signature {
     pub fn holes(&self) -> usize {
         self.parts.len()
+    }
+
+    /// The category of each hole and of the result: the coarse class the
+    /// parser tells readings apart by.
+    pub fn categories(&self) -> (Vec<&'static str>, &'static str) {
+        let holes = self.parts.iter().map(Template::category).collect();
+        (holes, self.result.category())
     }
 
     /// Each (element, set) pair of holes the signature relates as a thing
@@ -602,7 +630,12 @@ impl Reader {
         let notations = Rc::clone(&self.notations);
         let (holes, out) = match notations.signatures.get(&node.notation) {
             Some(make) if make.holes() == node.children.len() => make.fresh(store),
-            _ => by_sort(node, store),
+            // A notation whose `kinds` is missing or does not read, which
+            // `check_notation` reports: nothing is known of its holes.
+            _ => {
+                let holes = node.children.iter().map(|_| store.var()).collect();
+                (holes, store.var())
+            }
         };
         let mut inner = local.clone();
         if let Some(indices) = notations.bound.get(&node.notation) {
@@ -647,24 +680,6 @@ impl Reader {
             }
         }
     }
-}
-
-fn by_sort(node: &Node, store: &mut Store) -> (Vec<Kind>, Kind) {
-    fn of(sort: &Sort, store: &mut Store) -> Kind {
-        match sort.name() {
-            Some("number") => NUMBER,
-            Some("point") => POINT,
-            Some("formula") => FORMULA,
-            Some("set") => Kind::set(store.var()),
-            Some("group-element") => GROUP_ELEMENT,
-            Some("group-set") => Kind::set(GROUP_ELEMENT),
-            Some("set-of-sets") => Kind::set(Kind::set(store.var())),
-            _ => store.var(),
-        }
-    }
-    let holes = node.children.iter().map(|c| of(&c.sort, store)).collect();
-    let out = of(&node.sort, store);
-    (holes, out)
 }
 
 regex!(INTRODUCED_NAME, r"^([^\s∈∉:]+)\s*(?:∈|∉|:)");

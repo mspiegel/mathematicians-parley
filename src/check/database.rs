@@ -9,7 +9,7 @@ use super::library::Known;
 use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
-use crate::formula::{parse_here, patterns_of, Node, Sorts, TERM_SORTS};
+use crate::formula::{categories_of, parse_here, patterns_of, Node, Sorts, TERM_SORTS};
 use crate::kinds;
 use crate::regex;
 use crate::sorts::{
@@ -152,8 +152,8 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
 regex!(TARGET_HOLE, r"_(\d+)");
 regex!(CONTEXT_TOKEN, r"@[a-z]+");
 
-/// A notation record declares a pattern, the sort of each hole, and what it
-/// yields. Two things follow mechanically and are checked here.
+/// A notation record declares a pattern and, in `kinds`, the sort of each
+/// hole and of what it yields. What follows mechanically is checked here.
 pub fn check_notation(report: &mut Report, records: &[Record]) {
     for r in records {
         if r.kind != RecordKind::Notation {
@@ -171,68 +171,49 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
             }
         };
         let patterns = patterns_of(str::trim(raw));
-        let holes: Vec<&str> = r
-            .field_or_empty("holes")
-            .split(',')
-            .map(str::trim)
-            .filter(|h| !h.is_empty())
-            .collect();
-        let yields = str::trim(r.field_or_empty("yields"));
+        let counts: BTreeSet<usize> =
+            patterns.iter().map(|p| p.matches('_').count()).collect();
 
-        // Where a hole or the result is a set, a function, a property, a
-        // variable or any term, what it holds is a kind the text reads off,
-        // and `kinds` says how the holes' kinds relate. One kind per hole.
-        let want = if holes == ["none"] { 0 } else { holes.len() };
-        let needs = holes.iter().any(|h| {
-            matches!(*h, "set" | "function" | "property" | "variable" | "any")
-        }) || matches!(yields, "set" | "function" | "any");
-        let said = r.field("kinds").filter(|s| !s.is_empty());
-        if needs && said.is_none() {
-            report.say(
+        // `kinds` is the one place a notation says what its holes take and
+        // what it yields, so every notation says it, one kind per hole. The
+        // parser's categories are read off it (`Signature::categories`).
+        let mut want = patterns.first().map_or(0, |p| p.matches('_').count());
+        match r.field("kinds").map(str::trim).filter(|s| !s.is_empty()) {
+            None => report.say(
                 &r.path,
                 r.line,
                 format!(
-                    "notation {} has a {yields} or set-like hole and no `kinds` saying what it holds",
+                    "notation {} has no `kinds` saying what its holes take and what it yields",
                     r.name
                 ),
-            );
-        }
-        if let Some(said) = said {
-            match kinds::signature(str::trim(said)) {
+            ),
+            Some(said) => match kinds::signature(said) {
                 crate::outcome::Declined(d) => report.say(
                     &r.path,
                     r.line,
                     format!("notation {}: kinds {}", r.name, d.reason()),
                 ),
-                crate::outcome::Built(made) if made.holes() != want => report.say(
-                    &r.path,
-                    r.line,
-                    format!(
-                        "notation {} declares {want} hole(s) and kinds for {}",
-                        r.name,
-                        made.holes()
-                    ),
-                ),
-                crate::outcome::Built(_) => {}
-            }
+                crate::outcome::Built(made) => want = made.holes(),
+            },
         }
 
         // Every pattern of one record takes the same holes, so they must
-        // agree on how many there are.
-        let counts: BTreeSet<usize> =
-            patterns.iter().map(|p| p.matches('_').count()).collect();
+        // agree on how many there are, and with its kinds.
         if counts.len() != 1 || !counts.contains(&want) {
             let shown: Vec<String> = counts.iter().map(|c| c.to_string()).collect();
             report.say(
                 &r.path,
                 r.line,
                 format!(
-                    "notation {} declares {want} hole(s) but its pattern(s) have [{}]",
+                    "notation {} has kinds for {want} hole(s) but its pattern(s) have [{}]",
                     r.name,
                     shown.join(", ")
                 ),
             );
         }
+        let (holes, yields) = categories_of(r);
+        let holes: Vec<&str> = holes.iter().map(String::as_str).collect();
+        let yields = yields.as_str();
 
         // A `target` says what each pattern builds, one entry per pattern, so
         // the two lists have to line up and every hole has to be used. What

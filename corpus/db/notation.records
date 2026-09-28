@@ -14,21 +14,20 @@
 #   pattern     the pattern, with _ for each hole. A record may carry several
 #               patterns when they differ only in symbol and set.mm target;
 #               the metamath list then matches the pattern list in order.
-#   holes       the sort each hole takes, in order. The sorts are number, set,
-#               point, formula, function, property, variable, and any. `none`
-#               if the pattern has no hole.
-#   yields      the sort the pattern produces.
-#   kinds       how the kinds of its holes relate, and the kind it produces:
-#               `α, set of α → formula` for membership. A kind is number,
-#               point, formula, `set of K`, `property of K`,
+#   kinds       the kind each hole takes, in order, and the kind the pattern
+#               produces: `α, set of α → formula` for membership, `→ set of
+#               number` for a pattern with no hole. A kind is number, point,
+#               formula, group-element, `set of K`, `property of K`,
 #               `function from K to K`, or a Greek letter standing for any
-#               kind, shared by every hole that names it. Required wherever a
-#               hole or the result is a set, function, property, variable or
-#               any; a notation of numbers, points and formulas alone takes
-#               its sorts. `GRAMMAR.md` says how kinds are read off a text.
+#               kind, shared by every hole that names it. Every notation has
+#               one, and it is the only place a notation says what its holes
+#               take: the parser tells readings apart by the coarse class of
+#               each (a number, a set, a set of sets, a function, …), and
+#               a hole the `binds` line says introduces a name takes a name.
+#               `GRAMMAR.md` says how kinds are read off a text.
 #   level       its precedence level, from the order declared below.
 #   assoc       left or right. Required exactly when both edges are holes and
-#               `yields` fits those holes, so the pattern can nest in itself;
+#               what the pattern produces fits those holes, so it can nest in itself;
 #               absent otherwise, since a token at an edge or a sort mismatch
 #               already settles the reading.
 #   commutes    that the pattern's two holes may be exchanged without changing
@@ -61,7 +60,7 @@
 #   target      the same thing said the way a program reads it: the term this
 #               pattern builds, in the reverse Polish the kernel uses, with
 #               `_1`, `_2`, `_3` standing for the pattern's holes in the order
-#               `holes` declares them. So `_ + _` targets `_1 _2 caddc co` and
+#               they are written. So `_ + _` targets `_1 _2 caddc co` and
 #               `_ divides _` targets `_1 _2 cdvds wbr`.
 #
 #               Three things this says that `metamath` cannot. A hole may be
@@ -134,8 +133,6 @@ precedence order
 
 notation number-systems
   pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ
-  holes       none
-  yields      set
   kinds       → set of number
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals
@@ -147,8 +144,6 @@ notation number-systems
 
 notation membership
   pattern     _ ∈ _        _ ∉ _
-  holes       any, set
-  yields      formula
   kinds       α, set of α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
@@ -160,8 +155,6 @@ notation membership
 
 notation equality
   pattern     _ = _        _ ≠ _
-  holes       any, any
-  yields      formula
   kinds       α, α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
@@ -171,8 +164,6 @@ notation equality
 
 notation order
   pattern     _ < _        _ > _        _ ≤ _        _ ≥ _
-  holes       number, number
-  yields      formula
   kinds       number, number → formula
   level       relational
   reads       is less than, is greater than, is at most, is at least
@@ -181,8 +172,6 @@ notation order
 
 notation additive
   pattern     _ + _        _ − _
-  holes       number, number
-  yields      number
   kinds       number, number → number
   level       additive
   assoc       left
@@ -196,8 +185,6 @@ notation additive
 
 notation multiplicative
   pattern     _ · _        _ / _
-  holes       number, number
-  yields      number
   kinds       number, number → number
   level       multiplicative
   assoc       left
@@ -208,8 +195,6 @@ notation multiplicative
 
 notation group-operation
   pattern     _ · _
-  holes       group-element, group-element
-  yields      group-element
   kinds       group-element, group-element → group-element
   level       multiplicative
   assoc       left
@@ -223,8 +208,6 @@ notation group-operation
 
 notation unary-minus
   pattern     −_
-  holes       number
-  yields      number
   kinds       number → number
   level       unary-minus
   reads       minus
@@ -236,8 +219,6 @@ notation unary-minus
 
 notation power
   pattern     _^_
-  holes       number, number
-  yields      number
   kinds       number, number → number
   level       power
   assoc       right
@@ -250,8 +231,6 @@ notation power
 
 notation square
   pattern     _²
-  holes       number
-  yields      number
   kinds       number → number
   level       power
   reads       squared
@@ -262,8 +241,6 @@ notation square
 
 notation square-root
   pattern     √_
-  holes       number
-  yields      number
   kinds       number → number
   level       power
   reads       the square root of
@@ -272,8 +249,6 @@ notation square-root
 
 notation logical-not
   pattern     not _
-  holes       formula
-  yields      formula
   kinds       formula → formula
   level       negation
   reads       not
@@ -283,8 +258,6 @@ notation logical-not
 
 notation conjunction
   pattern     _ and _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       conjunction
   assoc       left
@@ -296,8 +269,6 @@ notation conjunction
 
 notation comma-conjunction
   pattern     _, _        _, and _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       conjunction
   assoc       left
@@ -320,8 +291,6 @@ notation comma-conjunction
 
 notation disjunction
   pattern     _ or _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       disjunction
   assoc       left
@@ -331,8 +300,6 @@ notation disjunction
 
 notation implication
   pattern     _ → _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       implication
   assoc       right
@@ -342,8 +309,6 @@ notation implication
 
 notation biconditional
   pattern     _ ↔ _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       biconditional
   assoc       right
@@ -355,8 +320,6 @@ notation biconditional
 
 notation conditional
   pattern     if _ then _
-  holes       formula, formula
-  yields      formula
   kinds       formula, formula → formula
   level       implication
   reads       if, then
@@ -369,8 +332,6 @@ notation conditional
 
 notation absolute-value
   pattern     |_|
-  holes       number
-  yields      number
   kinds       number → number
   reads       the absolute value of
   metamath    cabs
@@ -381,8 +342,6 @@ notation absolute-value
 
 notation cardinality
   pattern     |_|
-  holes       set
-  yields      number
   kinds       set of α → number
   reads       the number of elements of
   metamath    chash
@@ -390,8 +349,6 @@ notation cardinality
 
 notation finite
   pattern     _ is finite
-  holes       set
-  yields      formula
   kinds       set of α → formula
   level       relational
   reads       has finitely many elements
@@ -400,8 +357,6 @@ notation finite
 
 notation distance
   pattern     |__|
-  holes       point, point
-  yields      number
   kinds       point, point → number
   reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
@@ -413,8 +368,6 @@ notation distance
 
 notation factorial
   pattern     _!
-  holes       number
-  yields      number
   kinds       number → number
   level       power
   reads       factorial
@@ -424,8 +377,6 @@ notation factorial
 
 notation gcd
   pattern     gcd(_, _)
-  holes       number, number
-  yields      number
   kinds       number, number → number
   reads       the greatest common divisor of
   metamath    cgcd
@@ -433,8 +384,6 @@ notation gcd
 
 notation mod
   pattern     _ mod _
-  holes       number, number
-  yields      number
   kinds       number, number → number
   level       multiplicative
   assoc       left
@@ -449,8 +398,6 @@ notation mod
 
 notation by-cases
   pattern     _ if _, _ otherwise
-  holes       any, formula, any
-  yields      any
   kinds       α, formula, α → α
   level       binder
   reads       the first if, and else the second
@@ -462,8 +409,6 @@ notation by-cases
 
 notation min
   pattern     min(_, _)
-  holes       number, number
-  yields      number
   kinds       number, number → number
   reads       the smaller of
   metamath    cif, cle
@@ -474,8 +419,6 @@ notation min
 
 notation max
   pattern     max(_, _)
-  holes       number, number
-  yields      number
   kinds       number, number → number
   reads       the larger of
   metamath    cif, cle
@@ -485,8 +428,6 @@ notation max
 
 notation binomial
   pattern     C(_, _)
-  holes       number, number
-  yields      number
   kinds       number, number → number
   reads       choose
   metamath    cbc
@@ -498,8 +439,6 @@ notation binomial
 
 notation subset
   pattern     _ ⊆ _
-  holes       set, set
-  yields      formula
   kinds       set of α, set of α → formula
   level       relational
   reads       is a subset of
@@ -508,8 +447,6 @@ notation subset
 
 notation empty-set
   pattern     ∅
-  holes       none
-  yields      set
   kinds       → set of α
   reads       the empty set
   metamath    c0
@@ -517,8 +454,6 @@ notation empty-set
 
 notation singleton
   pattern     {_}
-  holes       any
-  yields      set
   kinds       α → set of α
   reads       the set whose only element is
   metamath    csn
@@ -526,8 +461,6 @@ notation singleton
 
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _
-  holes       set, set
-  yields      set
   kinds       set of α, set of α → set of α
   level       additive
   assoc       left
@@ -539,8 +472,6 @@ notation set-operations
 
 notation powerset
   pattern     𝒫_
-  holes       set
-  yields      set
   kinds       set of α → set of set of α
   level       power
   reads       the power set of
@@ -550,8 +481,6 @@ notation powerset
 
 notation supremum
   pattern     sup _
-  holes       set
-  yields      number
   kinds       set of number → number
   level       power
   reads       the least upper bound of
@@ -564,8 +493,6 @@ notation supremum
 
 notation set-builder
   pattern     {_ ∈ _ : _}
-  holes       variable, set, formula
-  yields      set
   kinds       α, set of α, formula → set of α
   binds       hole 1 over hole 3
   reads       the set of those in the second with the third
@@ -576,8 +503,6 @@ notation set-builder
 
 notation set-builder-part
   pattern     {_ ⊆ _ : _}
-  holes       variable, set, formula
-  yields      set
   kinds       set of α, set of α, formula → set of set of α
   binds       hole 1 over hole 3
   spells      set-builder {∈:}
@@ -590,8 +515,6 @@ notation set-builder-part
 
 notation set-image
   pattern     {_ : _ ∈ _}
-  holes       any, variable, set
-  yields      set
   kinds       β, α, set of α → set of β
   binds       hole 2 over hole 1
   reads       the set of the first as the second runs over the third
@@ -602,8 +525,6 @@ notation set-image
 
 notation indexed-union
   pattern     ⋃(_ ∈ _) _
-  holes       variable, set, set
-  yields      set
   kinds       α, set of α, set of β → set of β
   level       summation
   binds       hole 1 over hole 3
@@ -616,8 +537,6 @@ notation indexed-union
 
 notation map
   pattern     the map sending _ ∈ _ to _
-  holes       variable, set, any
-  yields      function
   kinds       α, set of α, β → function from α to β
   level       binder
   binds       hole 1 over hole 3
@@ -637,8 +556,6 @@ notation map
 
 notation function-type
   pattern     _ : _ → _
-  holes       function, set, set
-  yields      formula
   kinds       function from α to β, set of α, set of β → formula
   level       relational
   reads       is a function from, to
@@ -647,8 +564,6 @@ notation function-type
 
 notation one-to-one
   pattern     _ : _ → _ is one-to-one
-  holes       function, set, set
-  yields      formula
   kinds       function from α to β, set of α, set of β → formula
   level       relational
   reads       is a one-to-one function from, to
@@ -660,8 +575,6 @@ notation one-to-one
 
 notation application
   pattern     _(_)
-  holes       function, any
-  yields      any
   kinds       function from α to β, α → β
   reads       applied to
   metamath    cfv
@@ -673,8 +586,6 @@ notation application
 
 notation inverse
   pattern     _⁻¹
-  holes       function
-  yields      function
   kinds       function from α to β → function from β to α
   level       power
   reads       the inverse of
@@ -686,8 +597,6 @@ notation inverse
 
 notation group-inverse
   pattern     _⁻¹
-  holes       group-element
-  yields      group-element
   kinds       group-element → group-element
   level       power
   reads       the inverse in the group of
@@ -698,8 +607,6 @@ notation group-inverse
 
 notation subgroup
   pattern     _ is a subgroup of _
-  holes       group-set, group-set
-  yields      formula
   kinds       set of group-element, set of group-element → formula
   level       relational
   reads       is a subgroup of
@@ -710,8 +617,6 @@ notation subgroup
 
 notation coset
   pattern     __
-  holes       group-element, group-set
-  yields      group-set
   kinds       group-element, set of group-element → set of group-element
   level       multiplicative
   assoc       right
@@ -724,8 +629,6 @@ notation coset
 
 notation image
   pattern     _[_]
-  holes       function, set
-  yields      set
   kinds       function from α to β, set of α → set of β
   reads       the image under the first of the second
   metamath    cima
@@ -737,8 +640,6 @@ notation image
 
 notation holds-of
   pattern     _(_)
-  holes       property, any
-  yields      formula
   kinds       property of α, α → formula
   reads       holds of
   metamath    substitution into a wff, which set.mm writes by naming the
@@ -756,8 +657,6 @@ notation holds-of
 
 notation closed-interval
   pattern     [_, _]
-  holes       number, number
-  yields      set
   kinds       number, number → set of number
   reads       the closed interval from, to
   metamath    cicc
@@ -765,8 +664,6 @@ notation closed-interval
 
 notation integer-range
   pattern     {_, …, _}
-  holes       number, number
-  yields      set
   kinds       number, number → set of number
   reads       the whole numbers from, to
   metamath    cfz
@@ -779,8 +676,6 @@ notation integer-range
 
 notation juxtaposition
   pattern     __
-  holes       number, number
-  yields      number
   kinds       number, number → number
   level       multiplicative
   assoc       left
@@ -803,8 +698,6 @@ notation juxtaposition
 
 notation angle
   pattern     ∠___
-  holes       point, point, point
-  yields      number
   kinds       point, point, point → number
   reads       the angle at the second from the first to the third
   metamath    the absolute value of ang applied to the two differences
@@ -816,8 +709,6 @@ notation angle
 
 notation congruent
   pattern     triangle ___ ≅ triangle ___
-  holes       point, point, point, point, point, point
-  yields      formula
   kinds       point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
@@ -837,8 +728,6 @@ notation congruent
 
 notation for-every
   pattern     for every _ ∈ _, _
-  holes       variable, set, formula
-  yields      formula
   kinds       α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
@@ -850,8 +739,6 @@ notation for-every
 
 notation for-every-part
   pattern     for every _ ⊆ _, _
-  holes       variable, set, formula
-  yields      formula
   kinds       set of α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
@@ -868,8 +755,6 @@ notation for-every-part
 
 notation for-every-with
   pattern     for every _ ∈ _ with _, _
-  holes       variable, set, formula, formula
-  yields      formula
   kinds       α, set of α, formula, formula → formula
   level       binder
   binds       hole 1 over holes 3 and 4
@@ -890,8 +775,6 @@ notation for-every-with
 
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
-  holes       variable, set, formula
-  yields      formula
   kinds       α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
@@ -902,8 +785,6 @@ notation there-is
 
 notation there-is-part
   pattern     there is _ ⊆ _ with _
-  holes       variable, set, formula
-  yields      formula
   kinds       set of α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
@@ -917,8 +798,6 @@ notation there-is-part
 
 notation there-is-some
   pattern     there is _ ∈ _
-  holes       variable, set
-  yields      formula
   kinds       α, set of α → formula
   level       binder
   binds       hole 1 over nothing
@@ -938,8 +817,6 @@ notation there-is-some
 
 notation there-are
   pattern     there are _ ∈ _ and _ ∈ _ with _
-  holes       variable, set, variable, set, formula
-  yields      formula
   kinds       α, set of α, β, set of β, formula → formula
   level       binder
   binds       holes 1 and 3 over hole 5
@@ -955,8 +832,6 @@ notation there-are
 
 notation for-every-set
   pattern     for every set _, _
-  holes       variable, formula
-  yields      formula
   kinds       set of α, formula → formula
   level       binder
   binds       hole 1 over hole 2
@@ -978,8 +853,6 @@ notation for-every-set
 
 notation divides
   pattern     _ divides _
-  holes       number, number
-  yields      formula
   kinds       number, number → formula
   level       predicate
   reads       divides
@@ -989,8 +862,6 @@ notation divides
 
 notation congruent-mod
   pattern     _ ≡ _ (mod _)
-  holes       number, number, number
-  yields      formula
   kinds       number, number, number → formula
   level       relational
   reads       is congruent to, modulo
@@ -1003,8 +874,6 @@ notation congruent-mod
 
 notation sum
   pattern     Σ(_ = _ to _) _
-  holes       variable, number, number, number
-  yields      number
   kinds       number, number, number, number → number
   level       summation
   binds       hole 1 over hole 4
@@ -1018,8 +887,6 @@ notation sum
 
 notation series
   pattern     Σ(_ = _ to ∞) _
-  holes       variable, number, number
-  yields      number
   kinds       number, number, number → number
   level       summation
   binds       hole 1 over hole 3
@@ -1033,8 +900,6 @@ notation series
 
 notation tends-to
   pattern     _ → _ as _ → ∞
-  holes       number, number, variable
-  yields      formula
   kinds       number, number, number → formula
   level       relational
   binds       hole 3 over hole 1
@@ -1050,8 +915,6 @@ notation tends-to
 
 notation parity
   pattern     _ is even        _ is odd        _ is not odd
-  holes       number
-  yields      formula
   kinds       number → formula
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
@@ -1065,8 +928,6 @@ notation parity
 
 notation prime
   pattern     _ is prime
-  holes       number
-  yields      formula
   kinds       number → formula
   level       predicate
   reads       is prime
@@ -1075,8 +936,6 @@ notation prime
 
 notation irrational
   pattern     _ is irrational
-  holes       number
-  yields      formula
   kinds       number → formula
   level       predicate
   reads       is irrational
@@ -1085,8 +944,6 @@ notation irrational
 
 notation is-a-point
   pattern     _ is a point
-  holes       any
-  yields      formula
   kinds       point → formula
   level       predicate
   reads       is a point
@@ -1099,8 +956,6 @@ notation is-a-point
 
 notation is-a-set
   pattern     _ is a set
-  holes       any
-  yields      formula
   kinds       set of α → formula
   level       predicate
   reads       is a set
@@ -1115,8 +970,6 @@ notation is-a-set
 
 notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _
-  holes       number, set
-  yields      formula
   kinds       number, set of number → formula
   level       predicate
   reads       is an upper bound of, is a least upper bound of
@@ -1135,8 +988,6 @@ notation bound
 
 notation continuous
   pattern     _ is continuous on _
-  holes       function, set
-  yields      formula
   kinds       function from number to number, set of number → formula
   level       predicate
   reads       is continuous on
@@ -1152,8 +1003,6 @@ notation continuous
 
 notation collinear
   pattern     _, _, _ are collinear
-  holes       point, point, point
-  yields      formula
   kinds       point, point, point → formula
   level       predicate
   reads       are collinear
@@ -1167,8 +1016,6 @@ notation collinear
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
-  holes       point, point, point
-  yields      formula
   kinds       point, point, point → formula
   level       predicate
   reads       form a triangle
@@ -1178,8 +1025,6 @@ notation forms-a-triangle
 
 notation bijection
   pattern     there is a bijection from _ to _
-  holes       set, set
-  yields      formula
   kinds       set of α, set of β → formula
   level       predicate
   reads       there is a bijection from, to

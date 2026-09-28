@@ -12,4 +12,6 @@ pub mod token;
 
 pub use grammar::{fits, holds, parse, parse_here, Grammar, Sorts, TERM_SORTS};
 pub use node::{walk, Node, NodeId, Sort};
-pub use notation::{binds_tighter, patterns_of, Binds, Notation, Part, Tighter};
+pub use notation::{
+    binds_tighter, categories_of, patterns_of, Binds, Notation, Part, Tighter,
+};
