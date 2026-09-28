@@ -153,7 +153,7 @@ still untested, and a reindexed sum, a congruence and an injection-built
 bijection are among them.
 
 1. **Divisibility by 3.** Written: `proof/divisibility-by-three.proof`, with
-   its design record in `pilot/divisibility-by-three.md`, and both of its
+   its design record in `docs/pilot/divisibility-by-three.md`, and both of its
    theorems elaborate with nothing assumed. The first congruence in the
    corpus: 10ᵏ leaves
    remainder 1 on division by 3, so a number and its digit sum leave the
@@ -162,12 +162,12 @@ bijection are among them.
    statement itself is the first thing to settle. Its 122 steps are what
    the up direction would hide; the readable proof is a few lines.
 2. **Binomial theorem.** Written: `proof/binomial.proof`, with its design
-   record in `pilot/binomial.md`, and both of its theorems elaborate with
+   record in `docs/pilot/binomial.md`, and both of its theorems elaborate with
    nothing assumed. Induction again, but the step shifts a sum's index,
    extends two sums by a zero term and applies Pascal's rule, where the
    geometric series only adds a term at the end (`fsump1`).
 3. **Triangular reciprocals.** Written: `proof/triangular-reciprocals.proof`,
-   with its design record in `pilot/triangular-reciprocals.md`, and it
+   with its design record in `docs/pilot/triangular-reciprocals.md`, and it
    elaborates with nothing assumed. No class variables and nothing to hide in
    the statement. The first limit of a sequence and the first sum over all
    of ℕ: the partial sums telescope to 2 − 2/(n + 1), and the ε-style
@@ -229,7 +229,7 @@ gains notation for a pair, or a `define` may state two sequences together.
 
 Settled for the second: the page writes the two sequences, and the pairs
 are the elaborator's, since set.mm's storage is not what a reader should
-have to read (`pilot/euclid.md`). The informal source was checked against
+have to read (`docs/pilot/euclid.md`). The informal source was checked against
 ProofWiki's Euclidean algorithm before the pilot: the same update, the same
 three facts (the remainder is below the divisor, gcd(a, b) = gcd(b, r),
 gcd(r, 0) = r), and the same termination by falling remainders.

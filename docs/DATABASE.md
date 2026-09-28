@@ -12,7 +12,8 @@ db/methods.records       the justification vocabulary
 stdlib/*.records         the standard library: definitions and theorems
 proof/*.proof            the proof skeletons, one file per pilot
 tests/stdlib/*.proof     a test for each library item no proof cites
-pilot/*.md               the design commentary for each pilot
+docs/*.md                the design documents, this one among them
+docs/pilot/*.md          the design commentary for each pilot
 ```
 
 ## Names and the standard library
@@ -70,7 +71,7 @@ directory the tools know by name, and a module anywhere else is a proof file.
 
 A `.proof` file holds only the skeleton. `SYNTAX.md` says the stored text is
 every line a field the elaborator reads and nothing else, so the commentary that
-used to surround these proofs in markdown stays in `pilot/`, which now points at
+used to surround these proofs in markdown stays in `docs/pilot/`, which now points at
 the proof file rather than containing it.
 
 Getting out of markdown also repaired the database. Inside a markdown table a

@@ -353,7 +353,7 @@ considered, are in `SELECTION.md`.
 All ten are written. The proof skeletons are in `proof/`, the definitions,
 theorems, notation and methods they cite are in `db/`, and `DATABASE.md`
 describes both formats and records what merging the ten pilots' item tables
-decided. `pilot/` keeps the design commentary for each, which is the record
+decided. `docs/pilot/` keeps the design commentary for each, which is the record
 of why each syntax decision was taken.
 
 ## Open questions

@@ -68,10 +68,11 @@ fn taken(source: &dyn Source) -> BTreeSet<(String, String)> {
 }
 
 pub fn run(source: &dyn Source) -> Said {
-    let text = source.read_text("ELABORATION.md").unwrap_or_default();
+    let text = source.read_text("docs/ELABORATION.md").unwrap_or_default();
     let Some(written) = recorded(&text) else {
         return Said {
-            printed: "ELABORATION.md has no section \"Steps taken as stated\"\n".into(),
+            printed: "docs/ELABORATION.md has no section \"Steps taken as stated\"\n"
+                .into(),
             complained: String::new(),
             status: 1,
         };
