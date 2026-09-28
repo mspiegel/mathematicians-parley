@@ -77,9 +77,9 @@ theorem bezout
   metamath    bezout
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
-  then there are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b)
+  then there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)
 
-define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}   (D1)
+define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
        reads the positive whole numbers that a and b can be combined into
 
 1.  a = a·1 + b·0
@@ -178,5 +178,5 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
       a·x₀ + b·y₀ = d               7
                   = gcd(a, b)       18
 
-20. There are x ∈ ℤ and y ∈ ℤ with a·x + b·y = gcd(a, b).
+20. There exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b).
     exhibit, from 7, 19

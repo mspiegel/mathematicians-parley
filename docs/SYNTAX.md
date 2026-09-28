@@ -255,6 +255,9 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   over one set, as a textbook writes "for all a, b ∈ ℝ": the set is each
   name's. It is the same formula as the long form, so either may be written
   where the other is cited, and "for all X, Y ⊆ A" is its twin for parts.
+- "there are x ∈ S and y ∈ T with ..." names two at once. Over one set it is
+  written "there are x, y ∈ S with ...", or in a theorem's words "there exist
+  x, y ∈ S such that ...", and all three build the same formula.
 - "for all x ∈ S, ..." is written for ∀, and a side condition on the
   variable goes in a "with" clause: "for all ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which

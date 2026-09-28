@@ -103,7 +103,20 @@ The two are one formula, written on 8 lines against 34: four theorems state
 their conclusion the first way, and each repeats it as its last step. Which
 reads better elsewhere is left open until more of the corpus is written the
 new way, since a rule argued from a handful of proofs would be a rule about
-those proofs.
+those proofs. The same holds for two names, "there exist x, y ∈ ℤ such that"
+against "there are x, y ∈ ℤ with": three theorems state their conclusion the
+first way, and Bezout's define line is written the second.
+
+One case is settled:
+
+| write | not | today |
+|---|---|---|
+| `{t ∈ ℕ : there are m, n ∈ ℤ with …}` | `{t ∈ ℕ : there exist m, n ∈ ℤ such that …}` | the one set-builder with an existence inside |
+
+The colon of a set-builder is read "such that", so the textbook words inside
+one say "such that" twice in a row: "the t in ℕ such that there exist m and n
+such that …". Inside a set-builder, or anywhere a "such that" is already being
+read, the existence is written with "with".
 
 ## The shape of a step
 

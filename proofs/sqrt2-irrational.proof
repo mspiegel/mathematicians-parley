@@ -63,7 +63,7 @@ theorem lowest-terms
               set.mm has it as elq2, which says lowest terms with a gcd where
               a reader says it with divisors, and that step is the proof.
   let x ∈ ℚ                                                           (H1)
-  then there are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q,
+  then there exist p, q ∈ ℤ such that q > 0, x = p/q,
        and there is no d ∈ ℤ with d > 1, d divides p, and d divides q
 
 1.  p ∈ ℤ. q ∈ ℕ. x = p/q. gcd(p, q) = 1.
@@ -103,7 +103,7 @@ theorem lowest-terms
     3.8.  d = 1. d ≠ 1.
           join 3.6, 3.7
 
-4.  There are p ∈ ℤ and q ∈ ℤ with q > 0, x = p/q,
+4.  There exist p, q ∈ ℤ such that q > 0, x = p/q,
     and there is no d ∈ ℤ with d > 1, d divides p, and d divides q.
     exhibit, from 1, 2, 3
 

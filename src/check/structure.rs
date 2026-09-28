@@ -544,12 +544,13 @@ pub fn check_citations(
     }
 }
 
-// `for all`, `there is` and `there exists` open a scope, over one name or a
-// list of them, `for all x, y ∈ ℤ`. The corpus capitalises each at the start
-// of a sentence, so this is deliberately case-insensitive.
+// `for all`, `there is`, `there are`, `there exists` and `there exist` open
+// a scope, over one name or a list of them, `for all x, y ∈ ℤ`. The corpus
+// capitalises each at the start of a sentence, so this is deliberately
+// case-insensitive.
 regex!(
     BINDER,
-    r"(?i)(?:for all|there is(?: no)?|there exists)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*∈"
+    r"(?i)(?:for all|there is(?: no)?|there are|there exists?)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*∈"
 );
 fancy!(
     VARNAME,
@@ -1038,7 +1039,7 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
 // to …`.
 regex!(
     BOUND_HERE,
-    r"(?:for all|there (?:is|are|exists)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=)"
+    r"(?:for all|there (?:is|are|exists?)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=)"
 );
 
 /// The names in a list a binder writes, `x` or `x, y`.

@@ -81,7 +81,7 @@ theorem divides-gcd
 theorem division-algorithm
   let n ∈ ℕ                                                           (H1)
   let d ∈ ℕ                                                           (H2)
-  then        there are q ∈ ℤ and r ∈ ℤ with n = q·d + r, 0 ≤ r, and r < d
+  then        there exist q, r ∈ ℤ such that n = q·d + r, 0 ≤ r, and r < d
   metamath    divalg
   target      divalg with N := n, D := d
   note        divalg says exactly one remainder, quantified the other way
