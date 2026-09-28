@@ -296,7 +296,7 @@ fn cases() -> Vec<Case> {
         case(
             "number a step under a parent that does not exist",
             vec![
-                edit("proofs/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.9.4.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()),
+                edit("proofs/cantor.proof", Some("1.  B ⊆ A\n    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "1.9.4.  B ⊆ A\n    thm:stdlib/sets/set-builder-subset, from D1".to_string()),
             ],
             "does not exist",
         ),
@@ -622,7 +622,7 @@ fn cases() -> Vec<Case> {
         case(
             "note a step that opens no block",
             vec![
-                edit("proofs/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1\n    note this is where B becomes a member".to_string()),
+                edit("proofs/cantor.proof", Some("1.  B ⊆ A\n    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "1.  B ⊆ A\n    thm:stdlib/sets/set-builder-subset, from D1\n    note this is where B becomes a part".to_string()),
             ],
             "opens no block",
         ),

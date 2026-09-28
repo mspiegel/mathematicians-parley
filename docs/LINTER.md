@@ -41,9 +41,9 @@ free, and free is what a linter is for.
 
 | write | not | today |
 |---|---|---|
-| `x ∉ B` | `not x ∈ B` | 14 with the sign, none with the word |
-| `n is not odd` | `not (n is odd)` | 4 with the word, none with `not` |
-| `there is no d ∈ ℤ with …` | `not there is d ∈ ℤ with …` | 3 with the word, none with `not` |
+| `x ∉ B` | `not x ∈ B` | 39 lines with the sign, none with the word |
+| `n is not odd` | `not (n is odd)` | 3 lines with the word, none with `not` |
+| `there is no d ∈ ℤ with …` | `not there is d ∈ ℤ with …` | 2 lines with the word, none with `not` |
 
 The sign wins for membership because it is the notation a school reader meets
 first and the alternative is three words. The word wins for the other two
@@ -53,13 +53,16 @@ used and making the rest agree.
 
 ### The negated equality is not settled
 
-`x ≠ y` and `not x = y` are both written, 12 places against 10, and which one a
-reader gets more easily depends on where it stands. A plain negated equality is
-easier as `x ≠ y`. Two places write a doubled negation, `not not f(x) = B`,
-where the sign would give `not f(x) ≠ B`, a double negative that takes longer
-to read rather than less. Two more write the closing pair of a contradiction
-block, `p = 1. not p = 1.`, where the word form mirrors the claim above it and
-the sign breaks the mirror.
+`x ≠ y` and `not x = y` are both written, on 28 lines against 9, and which
+one a reader gets more easily depends on where it stands. A plain negated
+equality is easier as `x ≠ y`. One place writes a doubled negation, the
+intermediate value proof's supposition `not not c = b`, where the sign would
+give `not c ≠ b`, a double negative that takes longer to read rather than
+less. One writes the closing pair of a contradiction block, `p = 1. not p =
+1.` in the proof that there are infinitely many primes, where the word form
+mirrors the claim above it and the sign breaks the mirror. The rest of the
+word forms are plain negated equalities: Bezout's supposition `not r = 0`,
+and four lines of Schröder–Bernstein saying `not h(u) = h(v)` and the like.
 
 So the rule is either "the sign, except where the negation is doubled or
 mirrors a claim", which is three clauses and hard to apply, or nothing. It is
@@ -70,7 +73,7 @@ text harder to read rather than easier, which is the opposite of the point.
 
 | write | not | today |
 |---|---|---|
-| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it |
+| `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |

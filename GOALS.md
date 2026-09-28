@@ -419,8 +419,8 @@ answer later would invalidate work already done.
 
 6. **Strength of the initial methods.** How much "by algebra" must do, and how
    large its expansions may be before verification time matters. The first half
-   is answered. `CLOSURE.md` measures what the corpus asks of the four closure
-   methods and `METHODS.md` specifies each: `inequalities` is linear arithmetic
+   is answered. `METHODS.md` specifies the four closure methods from what the
+   corpus asks of them: `inequalities` is linear arithmetic
    over an ordered field and carries the most; `algebra` is equality of
    rational expressions over a field; `arithmetic` is closed numeral facts and
    is where the dull-fact recursion stops; and `join` infers nothing at all,

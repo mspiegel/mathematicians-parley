@@ -19,6 +19,14 @@ The expansion language of open question 4 in `GOALS.md` is not designed, so
 part 6 names the set.mm lemma families rather than giving the expansion.
 Everything else is fixed here.
 
+Six methods are specified below: the four closure methods (`inequalities`,
+`algebra`, `arithmetic`, `membership`), `join`, and `contradiction`. The rest
+are not yet: the citation form, the block methods `fix`, `cases` and
+`induction`, and `substitute`, `instantiate`, `obtain` and `exhibit`. None is
+a decision procedure, so each should be shorter than the closure methods
+were. What each does is in `SYNTAX.md`, and what the elaborator builds for it
+in `ELABORATION.md`.
+
 ## Two rules every expansion obeys
 
 Decision 6 of `GOALS.md` wants independent elaborators to agree, ideally byte
@@ -289,8 +297,7 @@ coefficients are not constants.
 For a disequality `e ≠ 0`, the claim holds when `e` is a nonzero rational
 multiple of some cited `d ≠ 0` after normalisation. Step 1 of the geometric
 series is the only use: `1 − a` is `−1` times `a − 1`, and the cited fact is
-`a ≠ 1`. **This answers the open item in `CLOSURE.md`: `algebra` may prove a
-disequality, but only this narrowly.** It may not, for instance, conclude
+`a ≠ 1`. **`algebra` may prove a disequality, but only this narrowly.** It may not, for instance, conclude
 `a² ≠ 0` from `a ≠ 0`, which needs a field to have no zero divisors and is a
 fact about the field rather than an identity.
 
