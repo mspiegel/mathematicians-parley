@@ -37,6 +37,19 @@ pub struct Wrap {
     pub yields: String,
 }
 
+/// A notation's `bounds` line: a binder written with a bound where its set
+/// stands, "for all ε > 0". The name in hole 1 belongs to the set its
+/// theorem declares for it (`Sorts::ranges`), and holes 1 to `to`, with the
+/// tokens between them, are read as the condition. Without `join` the
+/// condition takes a hole of its own after the set, as "for all ε ∈ ℝ with
+/// ε > 0, …" has it; with one it is put in front of the body by that
+/// notation, as "there is δ ∈ ℝ with δ > 0 and …" has it.
+#[derive(Clone, Debug)]
+pub struct Bounds {
+    pub to: usize,
+    pub join: Option<Wrap>,
+}
+
 /// A notation's `binds` line: the holes naming what a binder introduces, and
 /// the holes where those names are its own, counted from 0.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -79,6 +92,7 @@ pub struct Notation {
     /// the (name, domain) holes of each binder, outermost first; the
     /// pattern's last hole is the innermost body (`nests`).
     pub nests: Option<Vec<(usize, usize)>>,
+    pub bounds: Option<Bounds>,
 }
 
 impl Notation {
@@ -94,6 +108,19 @@ impl Notation {
             return Some(Binds {
                 held: vec![0],
                 body: vec![2],
+            });
+        }
+        // A bounded spelling's node has its name, its set and then either the
+        // condition and the body or the two joined, and binds the name over
+        // what follows the set.
+        if let Some(b) = &self.bounds {
+            let after = match &b.join {
+                Some(_) => 1,
+                None => 1 + self.parts.iter().filter(|p| p.is_hole()).count() - b.to,
+            };
+            return Some(Binds {
+                held: vec![0],
+                body: (2..2 + after).collect(),
             });
         }
         let Some(places) = &self.places else {
@@ -125,6 +152,13 @@ regex!(SPELLS, r"^\s*(\S+)\s+(\S+)");
 // `wraps hole 2 in powerset`: the node built puts that hole's term inside
 // the named notation, so `for all X ⊆ A` is `for all X ∈ 𝒫A` exactly.
 regex!(WRAPS, r"^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$");
+// `bounds hole 1 by hole 2, joined to hole 3 by conjunction`: the name in
+// hole 1 ranges over its declared set, holes 1 to 2 are the condition, and
+// the condition goes in front of hole 3 by the named notation.
+regex!(
+    BOUNDS,
+    r"^\s*hole\s+1\s+by\s+hole\s+(\d+)(?:,\s*joined\s+to\s+hole\s+(\d+)\s+by\s+(\S+))?\s*$"
+);
 // `binds holes 1 and 3 over hole 5`: the holes naming what a binder
 // introduces, and the holes where those names are its own.
 const HOLE_LIST: &str = r"holes?\s+\d+(?:\s+and\s+\d+)*";
@@ -270,6 +304,31 @@ pub fn compile_notations(
                 })
                 .collect()
         });
+        let bounds: Option<Bounds> = match r.field("bounds") {
+            None => None,
+            Some(said) => {
+                let Some(m) = BOUNDS.captures(said) else {
+                    return Err(Problem::new(
+                        &r.path,
+                        r.lines.get("bounds").copied().unwrap_or(r.line),
+                        format!(
+                            "notation {}: `bounds {}` is not `hole 1 by hole N`, with `, joined to hole M by <notation>` or without",
+                            r.name,
+                            str::trim(said)
+                        ),
+                    ));
+                };
+                Some(Bounds {
+                    to: m[1].parse().unwrap(),
+                    join: m.get(2).map(|hole| Wrap {
+                        hole: hole.as_str().parse().unwrap(),
+                        name: m[3].to_string(),
+                        literal: String::new(),
+                        yields: String::new(),
+                    }),
+                })
+            }
+        };
         let binds = binding(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
         let mut shapes: Vec<Vec<Part>> = Vec::new();
@@ -360,6 +419,7 @@ pub fn compile_notations(
                 }),
                 places: places.clone(),
                 nests: nests.clone(),
+                bounds: bounds.clone(),
             });
         }
     }
@@ -383,6 +443,10 @@ pub fn compile_notations(
         // A wrapping notation's node carries its own literal and what it
         // yields, as it would parsed where it is written.
         if let Some(w) = &mut n.wrap {
+            w.literal = literals.get(&w.name).cloned().unwrap_or_default();
+            w.yields = yields.get(&w.name).cloned().unwrap_or_default();
+        }
+        if let Some(w) = n.bounds.as_mut().and_then(|b| b.join.as_mut()) {
             w.literal = literals.get(&w.name).cloned().unwrap_or_default();
             w.yields = yields.get(&w.name).cloned().unwrap_or_default();
         }

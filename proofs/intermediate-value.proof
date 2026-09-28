@@ -9,6 +9,7 @@ theorem intermediate-value
   assume f is continuous on [a, b]                                    (H5)
   assume f(a) < 0                                                     (H6)
   assume 0 < f(b)                                                     (H7)
+  ε, δ range over ℝ
   then there exists c ∈ [a, b] such that f(c) = 0
 
 define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
@@ -70,8 +71,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 15. f(c) < 0 or f(c) = 0 or 0 < f(c)
     thm:stdlib/numbers/trichotomy x := f(c), from 14
 
-16. For all c′ ∈ [a, b], for all ε ∈ ℝ with ε > 0,
-    there is δ ∈ ℝ with δ > 0 and
+16. For all c′ ∈ [a, b], for all ε > 0, there is δ > 0 with
     for all x ∈ [a, b], if |x − c′| < δ then |f(x) − f(c′)| < ε.
     def:stdlib/calculus/continuous-on, from H5
     requires [a, b] ⊆ ℝ: thm:stdlib/calculus/interval-real, from H1, H2
@@ -116,7 +116,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            inequalities, from C1
            requires f(c) ∈ ℝ: from 14
 
-    17.4.  There is δ ∈ ℝ with δ > 0 and
+    17.4.  There is δ > 0 with
            for all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
            instantiate c′ := c, ε := −f(c) in line 16, from 13, 14, 17.3
 
@@ -223,7 +223,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     case
     assume 0 < f(c)                                                   (C3)
 
-    17.29. There is δ ∈ ℝ with δ > 0 and
+    17.29. There is δ > 0 with
            for all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
            instantiate c′ := c, ε := f(c) in line 16, from 13, 14, C3
 

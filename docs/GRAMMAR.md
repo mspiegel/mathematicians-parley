@@ -835,7 +835,7 @@ Each kind has its own field names, and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `wraps`, `binds`, `reads`, `target`, `metamath`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `wraps`, `binds`, `reads`, `target`, `metamath`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `definition` | `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `theorem` | `metamath`, `target`, `open`, `note` |

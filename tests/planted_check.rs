@@ -1194,5 +1194,49 @@ fn cases() -> Vec<Case> {
             ],
             "`or` and `and` are not ordered against each other",
         ),
+        // A quantifier may write a bound where its set stands, "for all ε >
+        // 0", only where the statement says what the letter ranges over.
+        case(
+            "write a bound in place of a set nothing declares",
+            vec![
+                edit("proofs/triangular-reciprocals.proof", Some("  ε ranges over ℝ\n".to_string()), String::new()),
+            ],
+            "nothing says what set ε belongs to",
+        ),
+        case(
+            "write a bound in place of a set in an item that declares none",
+            vec![
+                edit("corpus/stdlib/calculus.records", Some("  ε, δ range over ℝ\n".to_string()), String::new()),
+            ],
+            "nothing says what set δ belongs to",
+        ),
+        case(
+            "let a declared letter be in another set",
+            vec![
+                edit("proofs/triangular-reciprocals.proof", Some("    let ε ∈ ℝ ".to_string()), "    let ε ∈ ℚ ".to_string()),
+            ],
+            "the statement says ε ranges over ℝ, and this line puts it in ℚ",
+        ),
+        case(
+            "declare a letter's range twice",
+            vec![
+                edit("proofs/triangular-reciprocals.proof", Some("  n ranges over ℕ\n".to_string()), "  n ranges over ℕ\n  n ranges over ℤ\n".to_string()),
+            ],
+            "the statement already says what n ranges over",
+        ),
+        case(
+            "declare a range no quantifier leans on",
+            vec![
+                edit("proofs/triangular-reciprocals.proof", Some("  n ranges over ℕ\n".to_string()), "  n ranges over ℕ\n  x ranges over ℝ\n".to_string()),
+            ],
+            "the statement says what x ranges over, and no quantifier leaves x's set out",
+        ),
+        case(
+            "declare a range over something that is not a set",
+            vec![
+                edit("proofs/triangular-reciprocals.proof", Some("  ε ranges over ℝ\n".to_string()), "  ε ranges over 2\n".to_string()),
+            ],
+            "'2' is not a set, so nothing can range over it",
+        ),
     ]
 }

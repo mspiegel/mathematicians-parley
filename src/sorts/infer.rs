@@ -541,6 +541,20 @@ pub struct Reader {
     /// Names declared of any sort, not yet fixed.
     declared: Vec<String>,
     notations: Rc<NotationSorts>,
+    /// What the statement's `ε, δ range over ℝ` lines say, which a line is
+    /// parsed with as it is with the sorts.
+    pub ranges: IndexMap<String, String>,
+}
+
+/// Each letter a statement's range lines name, with the set it belongs to.
+pub fn ranges_of(ranges: &[crate::corpus::Range]) -> IndexMap<String, String> {
+    let mut out = IndexMap::new();
+    for r in ranges {
+        for name in &r.names {
+            out.entry(name.clone()).or_insert_with(|| r.set.clone());
+        }
+    }
+    out
 }
 
 /// What every notation says about sorts: the signature its `sort` field
@@ -597,6 +611,7 @@ impl Reader {
             clashes: Vec::new(),
             declared: Vec::new(),
             notations: env.g.notation_sorts(),
+            ranges: IndexMap::new(),
         }
     }
 
@@ -783,6 +798,7 @@ pub fn claim_text(
 /// proof line keeps it in the text, and has no steps.
 pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
+    reader.ranges = ranges_of(&record.ranges);
     for h in &record.hypotheses {
         if h.kind == Intro::Let {
             introduce(&mut reader, &h.text, h.line.into(), env, store);
@@ -806,6 +822,7 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
 /// stay related and nothing one citation fixes reaches another.
 pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
+    reader.ranges = ranges_of(&thm.ranges);
     for h in &thm.hypotheses {
         let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
         if h.kind == Intro::Let {
@@ -822,6 +839,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
 /// declares, before its assumptions and conclusions use anything.
 pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
+    reader.ranges = ranges_of(&record.ranges);
     for h in record.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
         introduce(&mut reader, &h.text, h.line.into(), env, store);
     }
@@ -883,6 +901,7 @@ pub fn read_theorem(
     mut cite: Option<Cite>,
 ) -> Reader {
     let mut reader = Reader::new(env);
+    reader.ranges = ranges_of(&thm.ranges);
     // What the theorem sees from outside it has its sort before its first
     // line, read from the rule written out where it was defined.
     for (name, made) in file_definitions(thm, env) {

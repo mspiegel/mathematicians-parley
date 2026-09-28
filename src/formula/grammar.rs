@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::node::{describe_category, Node, Sort};
 use super::notation::{
-    binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter,
+    binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter, Wrap,
 };
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
@@ -15,12 +15,59 @@ use crate::outcome::{Checked, Problem};
 use crate::sorts::infer::NotationSorts;
 use crate::text::repr;
 
-/// The sort of each name a text states one for.
-pub type Sorts = IndexMap<String, Sort>;
+/// The sort of each name a text states one for, and the set each letter its
+/// theorem declares a range for belongs to (`ε, δ range over ℝ`).
+///
+/// It reads as the map of sorts, which is what nearly every use wants. The
+/// ranges ride along with it because a theorem's sorts go everywhere its
+/// text is read, and a short form, "for all ε > 0", reads only where its
+/// range is known.
+#[derive(Clone, Debug, Default)]
+pub struct Sorts {
+    names: IndexMap<String, Sort>,
+    pub ranges: IndexMap<String, String>,
+}
 
-/// A sentence and the sort of each name it holds, in the order the names
-/// first appear: everything a reading of it depends on besides the grammar.
-type ReadingKey = (String, Vec<Option<Sort>>);
+impl Sorts {
+    pub fn new() -> Sorts {
+        Sorts::default()
+    }
+}
+
+impl std::ops::Deref for Sorts {
+    type Target = IndexMap<String, Sort>;
+    fn deref(&self) -> &IndexMap<String, Sort> {
+        &self.names
+    }
+}
+
+impl std::ops::DerefMut for Sorts {
+    fn deref_mut(&mut self) -> &mut IndexMap<String, Sort> {
+        &mut self.names
+    }
+}
+
+impl FromIterator<(String, Sort)> for Sorts {
+    fn from_iter<I: IntoIterator<Item = (String, Sort)>>(iter: I) -> Sorts {
+        Sorts {
+            names: iter.into_iter().collect(),
+            ranges: IndexMap::new(),
+        }
+    }
+}
+
+impl<'a> IntoIterator for &'a Sorts {
+    type Item = (&'a String, &'a Sort);
+    type IntoIter = indexmap::map::Iter<'a, String, Sort>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.names.iter()
+    }
+}
+
+/// A sentence, the sort of each name it holds in the order the names first
+/// appear, and the range declared for each: everything a reading of it
+/// depends on besides the grammar.
+type ReadingKey = (String, Vec<Option<Sort>>, Vec<Option<String>>);
 
 /// The declared notations, the words and symbols they are written with, and
 /// the precedence order between their levels.
@@ -87,7 +134,11 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         }
     }
     let said = seen.iter().map(|name| sorts.get(*name).cloned()).collect();
-    (text.to_string(), said)
+    let ranges = seen
+        .iter()
+        .map(|name| sorts.ranges.get(*name).cloned())
+        .collect();
+    (text.to_string(), said, ranges)
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -759,6 +810,57 @@ impl Parser<'_> {
             kids[w.hole - 1] =
                 Node::new(&w.name, Sort::of(&w.yields), vec![inner], &w.literal);
         }
+        // A binder written with a bound where its set stands, "for all ε >
+        // 0", builds the node its long form builds, "for all ε ∈ ℝ with ε >
+        // 0": the set is the one its theorem declares for the name, and the
+        // condition is what the text wrote from the name to the bound, read
+        // as it would be read anywhere else.
+        if let Some(b) = &n.bounds {
+            let name = kids[0].text.clone();
+            let Some(set) = self.sorts.ranges.get(&name).cloned() else {
+                let why = format!(
+                    "nothing says what set {name} belongs to: write `{name} ∈` a set before the bound, or say what {name} ranges over in the theorem's statement"
+                );
+                self.refuse(self.i, why.clone());
+                return self.no(why);
+            };
+            let set =
+                parse(&set, self.g, self.sorts, self.path, self.line)?.unwritten();
+            let (Some(Some((from, _))), Some(Some((_, to)))) =
+                (took.first().copied(), took.get(b.to - 1).copied())
+            else {
+                return self.no(format!("`{}` has no condition to read", n.pattern));
+            };
+            let mut sub = Parser {
+                t: &self.t[..to],
+                g: self.g,
+                sorts: self.sorts,
+                path: self.path,
+                line: self.line,
+                src: self.src,
+                i: from,
+                stopped: None,
+                refused: None,
+                refused_order: false,
+            };
+            let condition = match sub.expression(None, None)? {
+                Some(c) if sub.i == to => c,
+                _ => {
+                    return self.no(format!(
+                        "{} does not read as a condition",
+                        repr(&self.written(from, to))
+                    ))
+                }
+            };
+            let rest: Vec<Node> = kids[b.to..].to_vec();
+            kids = match &b.join {
+                None => [vec![kids[0].clone(), set, condition], rest].concat(),
+                Some(w) => {
+                    let body = self.joined(condition, &kids[w.hole - 1], w);
+                    vec![kids[0].clone(), set, body]
+                }
+            };
+        }
         // A spelling that writes the other notation's holes in another order
         // puts them back in that notation's order, so the two build one tree:
         // "f(x) ≠ B for all x ∈ A" is "for all x ∈ A, f(x) ≠ B".
@@ -821,6 +923,68 @@ impl Parser<'_> {
                 Ok(Some(folded))
             }
         }
+    }
+
+    /// `condition` put in front of `body` as the long form writes it there,
+    /// "δ > 0 and A and B". Conjunctions group to the left, so it goes at
+    /// the far left of the body's run of them, by the join that run itself
+    /// uses there; a body that is no such run is joined by `join`. Put in
+    /// front of the whole run instead, "δ > 0 and (A and B)", it would build
+    /// another tree than the long form does.
+    fn joined(&self, condition: Node, body: &Node, join: &Wrap) -> Node {
+        let level = self
+            .g
+            .notations
+            .iter()
+            .find(|m| m.name == join.name)
+            .map(|m| m.level.clone());
+        let in_run = |node: &Node| {
+            !node.grouped() && node.children.len() == 2 && self.level_of(node) == level
+        };
+        let from = condition.span().map(|s| s.0);
+        let spanned = |node: Node, over: &Node| {
+            if let (Some(from), Some((_, to))) = (from, over.span()) {
+                node.set_span(from, to);
+            }
+            node
+        };
+        if level.is_none() || !in_run(body) {
+            let node = Node::new(
+                &join.name,
+                Sort::of(&join.yields),
+                vec![condition, body.clone()],
+                &join.literal,
+            );
+            return spanned(node, body);
+        }
+        let first = &body.children[0];
+        let first = if in_run(first) {
+            self.joined(condition, first, join)
+        } else {
+            // The new join is never a list's last, so it takes the run's
+            // first pattern: "d > 1, A, and B" joins d > 1 to A by `_, _`,
+            // and only B by `_, and _`.
+            let literal = self
+                .g
+                .notations
+                .iter()
+                .find(|m| m.name == body.notation)
+                .map_or(body.text.as_str(), |m| m.literal.as_str());
+            let node = Node::new(
+                &body.notation,
+                body.sort.clone(),
+                vec![condition, first.clone()],
+                literal,
+            );
+            spanned(node, first)
+        };
+        let node = Node::new(
+            &body.notation,
+            body.sort.clone(),
+            vec![first, body.children[1].clone()],
+            &body.text,
+        );
+        spanned(node, body)
     }
 
     /// A `variable` hole takes a bare name; any other takes an expression,

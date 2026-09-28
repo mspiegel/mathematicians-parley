@@ -1,0 +1,86 @@
+//! A quantifier written with a bound where its set stands builds exactly
+//! the tree its long form builds, so a line written one way meets an item
+//! written the other.
+
+use std::path::Path;
+
+use parley::corpus::parse_database;
+use parley::formula::{parse_here, Grammar, Sorts};
+
+fn grammar() -> Grammar {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
+    let text = std::fs::read_to_string(&path).unwrap();
+    let records = parse_database("corpus/db/notation.records", &text).unwrap();
+    Grammar::load(&records).unwrap()
+}
+
+/// Sorts in which ε and δ range over ℝ and d over ℤ.
+fn declared() -> Sorts {
+    let mut sorts = Sorts::new();
+    for (name, set) in [("ε", "ℝ"), ("δ", "ℝ"), ("d", "ℤ")] {
+        sorts.ranges.insert(name.to_string(), set.to_string());
+    }
+    sorts
+}
+
+#[test]
+fn each_short_form_builds_its_long_form() {
+    let g = grammar();
+    let sorts = declared();
+    let pairs = [
+        ("for all ε > 0, ε = ε", "for all ε ∈ ℝ with ε > 0, ε = ε"),
+        (
+            "there is δ > 0 with δ = δ",
+            "there is δ ∈ ℝ with δ > 0 and δ = δ",
+        ),
+        (
+            "there exists δ > 0 such that δ = δ",
+            "there is δ ∈ ℝ with δ > 0 and δ = δ",
+        ),
+        // The condition goes at the far left of a run of conjunctions,
+        // which group to the left, by the join the run uses there.
+        (
+            "there is δ > 0 with δ = δ and δ < 1 and δ ≠ 2",
+            "there is δ ∈ ℝ with δ > 0 and δ = δ and δ < 1 and δ ≠ 2",
+        ),
+        (
+            "there is d > 1 with d divides 4, and d divides 6",
+            "there is d ∈ ℤ with d > 1, d divides 4, and d divides 6",
+        ),
+        // A bracketed body is closed, and the condition stands before it.
+        (
+            "there is δ > 0 with (δ = δ and δ < 1)",
+            "there is δ ∈ ℝ with δ > 0 and (δ = δ and δ < 1)",
+        ),
+        // A negated bound is the negation the sign folds.
+        ("for all ε ≠ 0, ε = ε", "for all ε ∈ ℝ with ε ≠ 0, ε = ε"),
+    ];
+    for (short, long) in pairs {
+        let a = parse_here(short, &g, &sorts).unwrap();
+        let b = parse_here(long, &g, &sorts).unwrap();
+        assert_eq!(a.shape(), b.shape(), "{short:?} against {long:?}");
+    }
+}
+
+#[test]
+fn a_member_is_no_bound() {
+    // "for all x ∈ S, …" has its one reading, whatever the ranges say.
+    let g = grammar();
+    let mut sorts = declared();
+    sorts.ranges.insert("x".into(), "ℝ".into());
+    let tree = parse_here("there is x ∈ ℤ with x = x", &g, &sorts).unwrap();
+    assert!(tree.shape().starts_with("there-is:"), "{}", tree.shape());
+}
+
+#[test]
+fn an_undeclared_letter_has_no_reading() {
+    let g = grammar();
+    let problem = parse_here("for all η > 0, η = η", &g, &declared()).unwrap_err();
+    assert!(
+        problem
+            .message
+            .contains("nothing says what set η belongs to"),
+        "{}",
+        problem.message
+    );
+}

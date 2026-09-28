@@ -255,6 +255,9 @@ pub fn restatements(
             for h in &r.hypotheses {
                 text.push_str(&format!("  {} {}\n", h.kind.as_str(), h.text));
             }
+            for range in &r.ranges {
+                text.push_str(&format!("  {}\n", range.text));
+            }
             let mut from = from.clone();
             let mut steps: Vec<String> = Vec::new();
             if let Some(side) = assumed {

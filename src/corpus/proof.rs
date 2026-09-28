@@ -56,6 +56,36 @@ pub struct Hypothesis {
     pub line: usize,
 }
 
+/// A statement's `ε, δ range over ℝ`: the set each of those letters belongs
+/// to wherever a quantifier in the theorem writes a bound in place of the
+/// set, "for all ε > 0". It introduces nothing and is not a hypothesis.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Range {
+    pub names: Vec<String>,
+    pub set: String,
+    /// The line as written, for a restatement to copy.
+    pub text: String,
+    pub line: usize,
+}
+
+regex!(
+    RANGE_LINE,
+    r"^([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s+ranges?\s+over\s+(\S.*?)\s*$"
+);
+
+impl Range {
+    /// The line read as a range, or None where it is some other line.
+    pub fn read(text: &str, line: usize) -> Option<Range> {
+        let m = RANGE_LINE.captures(text)?;
+        Some(Range {
+            names: m[1].split(',').map(|n| str::trim(n).to_string()).collect(),
+            set: m[2].to_string(),
+            text: text.to_string(),
+            line,
+        })
+    }
+}
+
 /// A line opening a block: `suppose`, `let` or `assume`, with its label and
 /// the part of the block it opens, where the block has parts.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -430,6 +460,7 @@ pub fn visible(
 pub struct Theorem {
     pub name: String,
     pub hypotheses: Vec<Hypothesis>,
+    pub ranges: Vec<Range>,
     pub conclusion: String,
     pub defines: Vec<DefineLine>,
     /// A define's label, and what its `reads` line says.
@@ -954,6 +985,7 @@ pub fn parse_proof(
                 thm: Theorem {
                     name,
                     hypotheses: Vec::new(),
+                    ranges: Vec::new(),
                     conclusion: String::new(),
                     defines: Vec::new(),
                     readings: IndexMap::new(),
@@ -1123,6 +1155,12 @@ pub fn parse_proof(
             continue;
         }
 
+        if step.is_none() {
+            if let Some(range) = Range::read(&t, line.no) {
+                draft.thm.ranges.push(range);
+                continue;
+            }
+        }
         let intro = Intro::parse(&head);
         if matches!(intro, Some(Intro::Let | Intro::Assume)) && step.is_none() {
             draft.thm.hypotheses.push(Hypothesis {

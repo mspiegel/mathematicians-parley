@@ -262,6 +262,20 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   variable goes in a "with" clause: "for all ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which
   is what the two phrases mean in English and what their two records target.
+- A bound may stand where the set would, as a textbook writes "for all
+  ε > 0" and "there is δ > 0 with …", where the theorem's statement says
+  what the letter ranges over, in a line beside its `let` and `assume`
+  lines: `ε, δ range over ℝ`. "for all ε > 0, …" is then "for all ε ∈ ℝ
+  with ε > 0, …", and "there is δ > 0 with …" is "there is δ ∈ ℝ with δ > 0
+  and …", the same formulas, so either may be written where the other is
+  cited. The bound is `>`, `≥`, `<`, `≤` or `≠` with the letter on its left.
+  The line introduces nothing and cannot be cited: it covers the statement
+  and every line of the proof, and no other theorem, since a statement is
+  read wherever it is cited and carries everything it depends on. It is
+  refused where no quantifier leaves the letter's set out, where it names a
+  letter twice or something that is not a set, and where a `let` puts the
+  letter in another set; a short form whose letter has no range line has no
+  reading.
 - A universal may also be written after what it says, as a textbook writes
   one inside "such that": "f(x) ≠ B for all x ∈ A" is "for all x ∈ A,
   f(x) ≠ B", and "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" reads

@@ -4,14 +4,16 @@
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
+use regex::Regex;
 
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::{requires_item, starts_with_head, visible};
 use crate::corpus::{
     cited_items, define_parts, fmt, full, in_stdlib, references, written_text,
-    FileScope, Head, Intro, Item, Justification, Method, Record, RecordKind, Step,
-    StepNo, Theorem, LABEL, NUMBER, REF,
+    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
+    Step, StepNo, Theorem, LABEL, NUMBER, REF,
 };
+use crate::formula::{holds, parse_here, Sorts};
 use crate::matching::instantiation;
 use crate::outcome::Built;
 use crate::sorts::infer::obtains;
@@ -545,12 +547,13 @@ pub fn check_citations(
 }
 
 // `for all`, `there is`, `there are`, `there exists` and `there exist` open
-// a scope, over one name or a list of them, `for all x, y ∈ ℤ`. The corpus
+// a scope, over one name or a list of them, `for all x, y ∈ ℤ`, or over a
+// name with a bound in place of its set, `for all ε > 0`. The corpus
 // capitalises each at the start of a sentence, so this is deliberately
 // case-insensitive.
 regex!(
     BINDER,
-    r"(?i)(?:for all|there is(?: no)?|there are|there exists?)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*∈"
+    r"(?i)(?:for all|there is(?: no)?|there are|there exists?)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|>|≥|<|≤|≠)"
 );
 fancy!(
     VARNAME,
@@ -664,6 +667,88 @@ pub fn check_capture(
                     ),
                 );
             }
+        }
+    }
+}
+
+// A `let` putting one name in a set: `let ε ∈ ℚ`.
+regex!(
+    LET_IN,
+    r"^(?:let\s+)?([A-Za-zα-ω][₀-₉′]*)\s*∈\s*(\S.*?)\s*$"
+);
+
+/// A statement's range lines say what a short form leans on and nothing
+/// more: each letter once, over a set, never against a `let` putting the
+/// letter in another set, and only where some quantifier in the theorem
+/// writes a bound in place of the letter's set. A line nothing leans on is
+/// one a reader reads and then has no use for.
+#[allow(clippy::too_many_arguments)]
+pub fn check_ranges(
+    report: &mut Report,
+    path: &str,
+    ranges: &[Range],
+    lets: &[(&str, usize)],
+    text: &str,
+    env: crate::sorts::Env,
+    sorts: &Sorts,
+) {
+    let mut said: IndexMap<&str, &Range> = IndexMap::new();
+    for range in ranges {
+        match parse_here(&range.set, env.g, sorts) {
+            Err(p) => report.say(path, range.line, p.message),
+            Ok(set) if holds(&set.sort).is_none() && !set.sort.is("set") => report.say(
+                path,
+                range.line,
+                format!(
+                    "{} is not a set, so nothing can range over it",
+                    repr(&range.set)
+                ),
+            ),
+            Ok(_) => {}
+        }
+        for name in &range.names {
+            if said.contains_key(name.as_str()) {
+                report.say(
+                    path,
+                    range.line,
+                    format!("the statement already says what {name} ranges over"),
+                );
+                continue;
+            }
+            said.insert(name, range);
+            let short = Regex::new(&format!(
+                r"(?i)(?:for all|there is|there exists)\s+{}\s*(?:>|≥|<|≤|≠)",
+                regex::escape(name)
+            ))
+            .unwrap();
+            if !short.is_match(text) {
+                report.say(
+                    path,
+                    range.line,
+                    format!(
+                        "the statement says what {name} ranges over, and no quantifier leaves {name}'s set out"
+                    ),
+                );
+            }
+        }
+    }
+    for (line, no) in lets {
+        let body = crate::sorts::unlabel(line);
+        let Some(m) = LET_IN.captures(str::trim(&body)) else {
+            continue;
+        };
+        let Some(range) = said.get(&m[1]) else {
+            continue;
+        };
+        if m[2].split_whitespace().ne(range.set.split_whitespace()) {
+            report.say(
+                path,
+                *no,
+                format!(
+                    "the statement says {} ranges over {}, and this line puts it in {}",
+                    &m[1], range.set, &m[2]
+                ),
+            );
         }
     }
 }
@@ -1035,11 +1120,11 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
 }
 
 // A name a formula binds for itself: `for all c ∈ ℕ`, `for all c, d ∈ ℕ`,
-// `there is c ∈ A`, `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the map sending c ∈ A
-// to …`.
+// `for all c > 0`, `there is c ∈ A`, `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the
+// map sending c ∈ A to …`.
 regex!(
     BOUND_HERE,
-    r"(?:for all|there (?:is|are|exists?)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=)"
+    r"(?:for all|there (?:is|are|exists?)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=|>|≥|<|≤|≠)"
 );
 
 /// The names in a list a binder writes, `x` or `x, y`.

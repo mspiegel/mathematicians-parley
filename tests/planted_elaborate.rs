@@ -336,14 +336,14 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "if |x − c′| < δ then |f(x) − f(c′)| < ε.",
             "if |x − c′| < δ then |f(x) − f(c′)| < δ.",
-            "proofs/intermediate-value.proof:73  no method owns this step: elcncf2 does not say",
+            "proofs/intermediate-value.proof:74  no method owns this step: elcncf2 does not say",
         ),
         case(
             "unfold continuity with a weaker bound than it gives",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
-            "there is δ ∈ ℝ with δ > 0 and",
-            "there is δ ∈ ℝ with δ ≥ 0 and",
+            "there is δ > 0 with",
+            "there is δ ≥ 0 with",
             "elcncf2 does not say",
         ),
         // The least upper bound is the supremum, which is a number only of a
@@ -355,7 +355,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7",
             "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:47  no cited line names a witness for E. x e. RR",
+            "proofs/intermediate-value.proof:48  no cited line names a witness for E. x e. RR",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -535,7 +535,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "    def:stdlib/calculus/continuous-on, from H5",
             "    def:stdlib/calculus/continuous-on",
-            "proofs/intermediate-value.proof:73  no method owns this step: no cited line is what elcncf2 unfolds",
+            "proofs/intermediate-value.proof:74  no method owns this step: no cited line is what elcncf2 unfolds",
         ),
         // An item's target asks a side condition the page never writes, and
         // `rewritten` answers it through the equation the step cites: `0 < |X|`

@@ -97,6 +97,20 @@ the rule is only about which reads better. Lagrange's "for all Y, Z ∈ K, for
 all x ∈ Y ∩ Z, Y = Z" keeps its third universal apart, since x ranges over
 another set.
 
+### A bound in place of the set
+
+| write | not | today |
+|---|---|---|
+| `for all ε > 0, …` where the statement says `ε ranges over ℝ` | `for all ε ∈ ℝ with ε > 0, …` | every quantifier over a declared letter, in the four theorems that declare one |
+| `there is d ∈ ℤ with d > 1, …` where nothing declares d | a range line for three uses | sqrt2-irrational's three |
+
+In a theorem that says what a letter ranges over, every quantifier over the
+letter writes the bound, as a textbook does: the set is said once, above,
+and "ε ∈ ℝ with ε > 0" says it again. The two are one formula, so this is
+only about reading. A range line is worth writing where a letter is
+quantified often, as ε and δ are in analysis; sqrt2-irrational quantifies d
+three times and writes the set each time rather than add a line to say it.
+
 ### "There exists … such that" or "there is … with" is not settled
 
 The two are one formula, written on 8 lines against 34: four theorems state

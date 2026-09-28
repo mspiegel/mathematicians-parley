@@ -91,8 +91,9 @@ spaces, one field per line, the field name then its value, continuation lines
 indented further. A line beginning with `#` is a comment.
 
 An item's statement is written in the theorem form of `SYNTAX.md`: labelled
-`let` and `assume` lines, then a `then` line. The database and the proof files
-therefore share one grammar, and one parser reads both.
+`let` and `assume` lines, any `ε, δ range over ℝ` lines its quantifiers lean
+on, then a `then` line. The database and the proof files therefore share one
+grammar, and one parser reads both.
 
 Every item in the standard library carries a field saying where it comes from:
 

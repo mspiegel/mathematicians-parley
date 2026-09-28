@@ -3,7 +3,7 @@
 use indexmap::IndexMap;
 
 use super::lines::read_lines;
-use super::proof::{Hypothesis, Intro};
+use super::proof::{Hypothesis, Intro, Range};
 use super::{full, module_of};
 use crate::outcome::{Checked, Problem};
 use crate::regex;
@@ -70,7 +70,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 4] = [
         RecordKind::Notation,
         &[
             "pattern", "sort", "level", "assoc", "commutes", "negates", "spells",
-            "places", "nests", "wraps", "binds", "reads", "target", "metamath", "note",
+            "places", "nests", "bounds", "wraps", "binds", "reads", "target",
+            "metamath", "note",
         ],
     ),
     (
@@ -104,6 +105,8 @@ pub struct Record {
     pub fields: IndexMap<String, String>,
     /// Each `let` or `assume`, its text without the keyword.
     pub hypotheses: Vec<Hypothesis>,
+    /// Each `ε, δ range over ℝ` of its statement.
+    pub ranges: Vec<Range>,
     /// Each `then`, with the line it is on.
     pub conclusions: Vec<(String, usize)>,
     /// A field said twice, and the line of the second.
@@ -179,6 +182,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                 name: name.to_string(),
                 fields: IndexMap::new(),
                 hypotheses: Vec::new(),
+                ranges: Vec::new(),
                 conclusions: Vec::new(),
                 repeats: Vec::new(),
                 lines: IndexMap::new(),
@@ -230,7 +234,10 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
             Some(_) => {}
         }
         let (key, value) = (word, rest);
-        if key == "let" || key == "assume" {
+        if let Some(range) = Range::read(said, line.no) {
+            last = None;
+            cur.ranges.push(range);
+        } else if key == "let" || key == "assume" {
             last = Some(Last::Hypothesis);
             let label = LABEL_AT_END.captures(&line.text).map(|c| c[1].to_string());
             cur.hypotheses.push(Hypothesis {

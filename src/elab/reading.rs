@@ -161,12 +161,14 @@ impl<'a> Elaborator<'a> {
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
         let mut sorts = kept.clone();
-        for (k, v) in definition_sorts(&written) {
-            sorts.insert(k, v);
+        for (k, v) in &definition_sorts(&written) {
+            sorts.insert(k.clone(), v.clone());
         }
-        for (k, v) in own {
-            sorts.insert(k, v);
+        for (k, v) in &own {
+            sorts.insert(k.clone(), v.clone());
         }
+        // An item's ranges are its own statement's, as its names are.
+        sorts.ranges = own.ranges;
         self.sorts_now = sorts;
         self.from_outside = written;
         let out = f(self);

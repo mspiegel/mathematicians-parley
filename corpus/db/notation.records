@@ -64,6 +64,14 @@
 #               last hole being the innermost body: `nests 1 3, 2 3` makes
 #               "for all x, y ∈ ℤ, P" the tree of "for all x ∈ ℤ, for all
 #               y ∈ ℤ, P".
+#   bounds      for a spelling of a binder with a bound where its set stands,
+#               "for all ε > 0": `bounds hole 1 by hole 2` says the name in
+#               hole 1 belongs to the set the theorem's statement declares
+#               for it (`ε ranges over ℝ`), and holes 1 to 2 are read as the
+#               condition, which takes a hole of its own after the set.
+#               `, joined to hole 3 by conjunction` puts the condition in
+#               front of hole 3 instead, as "there is δ ∈ ℝ with δ > 0 and
+#               …" has it.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -913,6 +921,53 @@ notation there-exists-part
   target      _3 _1 _2 cpw wrex
   note        "There exists C ⊆ A such that …", built as there-is-part builds
               "there is C ⊆ A with …".
+
+notation for-all-bounded
+  pattern     for all _ > _, _        for all _ ≥ _, _        for all _ < _, _        for all _ ≤ _, _        for all _ ≠ _, _
+  sort        α, α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  bounds      hole 1 by hole 2
+  spells      for-all-with forall∈with,
+  reads       for all, with a bound in place of the set
+  metamath    wral, with wi inside it
+  target      folded, folded, folded, folded, folded
+  note        "For all ε > 0, …", as a textbook writes it, where the theorem
+              says what ε ranges over: `ε ranges over ℝ` in its statement.
+              It builds exactly what "for all ε ∈ ℝ with ε > 0, …" builds,
+              the set being the declared one and the condition "ε > 0" read
+              as it is written, so either spelling meets the other. A name
+              no range line covers has no reading here, and the page writes
+              the set. `∈` is no bound, or "for all x ∈ S, …" would read two
+              ways.
+
+notation there-is-bounded
+  pattern     there is _ > _ with _        there is _ ≥ _ with _        there is _ < _ with _        there is _ ≤ _ with _        there is _ ≠ _ with _
+  sort        α, α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  bounds      hole 1 by hole 2, joined to hole 3 by conjunction
+  spells      there-is thereis∈with
+  reads       there is, with a bound in place of the set
+  metamath    wrex
+  target      folded, folded, folded, folded, folded
+  note        "There is δ > 0 with …", where the theorem says what δ ranges
+              over. It builds what "there is δ ∈ ℝ with δ > 0 and …" builds:
+              the condition goes in front of what follows "with", at the far
+              left of a run of conjunctions, as the long form writes it.
+
+notation there-exists-bounded
+  pattern     there exists _ > _ such that _        there exists _ ≥ _ such that _        there exists _ < _ such that _        there exists _ ≤ _ such that _        there exists _ ≠ _ such that _
+  sort        α, α, formula → formula
+  level       binder
+  binds       hole 1 over hole 3
+  bounds      hole 1 by hole 2, joined to hole 3 by conjunction
+  spells      there-is thereis∈with
+  reads       there exists, with a bound in place of the set, such that
+  metamath    wrex
+  target      folded, folded, folded, folded, folded
+  note        "There exists δ > 0 such that …", the words a textbook states a
+              theorem in, built as "there is δ > 0 with …" builds it.
 
 notation there-is-some
   pattern     there is _ ∈ _

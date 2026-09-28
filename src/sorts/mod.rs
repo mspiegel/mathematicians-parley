@@ -387,7 +387,7 @@ pub fn named_by_hypotheses(thm: &Theorem) -> BTreeSet<String> {
             set_default(&mut out, name, Sort::of(sort));
         }
     }
-    out.into_keys().collect()
+    out.keys().cloned().collect()
 }
 
 /// The sort of every name a proved theorem's statement settles: what a
@@ -421,6 +421,7 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
 /// settles a name's sort is a defect the checker reports (`cited_sorts`).
 pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
+    out.ranges = reader.ranges.clone();
     for (name, term) in &reader.env {
         if let Some(sort) = infer::sort(store, term) {
             out.insert(name.clone(), sort);

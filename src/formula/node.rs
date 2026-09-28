@@ -279,6 +279,22 @@ impl Node {
         Some(sentence.chars().skip(from).take(to - from).collect())
     }
 
+    /// The same tree read from no sentence: for a node standing where the
+    /// text wrote nothing, as the declared set does in "for all ε > 0", so
+    /// that nothing cuts text for it from a sentence it was not read from.
+    pub fn unwritten(&self) -> Node {
+        Node(Rc::new(NodeData {
+            notation: self.notation.clone(),
+            sort: self.sort.clone(),
+            children: self.children.iter().map(Node::unwritten).collect(),
+            text: self.text.clone(),
+            literal: self.literal.clone(),
+            shape: OnceCell::new(),
+            span: Cell::new(None),
+            grouped: Cell::new(self.grouped()),
+        }))
+    }
+
     /// A term already in kernel form, standing in a tree: notation
     /// `literal`, no sort, no children and no text.
     pub fn literal(rpn: &str) -> Node {

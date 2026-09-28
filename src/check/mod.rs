@@ -16,7 +16,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{
     index, link_definitions, parse_database, parse_proof, proof_files, record_files,
-    FileScope, Record, RecordKind, Theorem,
+    written_text, FileScope, Intro, Record, RecordKind, Theorem,
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
@@ -182,6 +182,30 @@ pub fn run(source: &dyn Source) -> Outcome {
         record_sorts.insert(i, settled(&reader, &store));
         statements.insert(r.qualified(), reader);
     }
+    for (i, r) in records
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| !r.ranges.is_empty())
+    {
+        let lets: Vec<(&str, usize)> = r
+            .hypotheses
+            .iter()
+            .filter(|h| h.kind == Intro::Let)
+            .map(|h| (h.text.as_str(), h.line))
+            .collect();
+        let mut text: Vec<&str> =
+            r.hypotheses.iter().map(|h| h.text.as_str()).collect();
+        text.extend(r.conclusions.iter().map(|(c, _)| c.as_str()));
+        structure::check_ranges(
+            &mut report,
+            &r.path,
+            &r.ranges,
+            &lets,
+            &text.join(" "),
+            env,
+            &record_sorts[&i],
+        );
+    }
     database::check_statements(&mut report, &records, env, &record_sorts);
     database::check_unsorted(&mut report, &records, env, &record_sorts);
     database::check_symbols(&mut report, &records);
@@ -223,6 +247,27 @@ pub fn run(source: &dyn Source) -> Outcome {
         database::check_introductions(&mut report, thm, env, k);
         formulas::check_recursions(&mut report, thm, env, k);
         structure::check_sorts(&mut report, thm);
+        let lets: Vec<(&str, usize)> = thm
+            .hypotheses
+            .iter()
+            .filter(|h| h.kind == Intro::Let)
+            .map(|h| (h.text.as_str(), h.line))
+            .chain(thm.steps.iter().flat_map(|s| {
+                s.openers
+                    .iter()
+                    .filter(|o| o.kind == Intro::Let)
+                    .map(|o| (o.text.as_str(), o.line))
+            }))
+            .collect();
+        structure::check_ranges(
+            &mut report,
+            &thm.path,
+            &thm.ranges,
+            &lets,
+            &written_text(thm),
+            env,
+            &k.sorts,
+        );
         structure::check_capture(&mut report, thm, &structure::claims_of(thm));
         structure::check_run_together(&mut report, thm, &words);
         structure::check_numbering(&mut report, thm);

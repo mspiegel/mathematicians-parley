@@ -3,6 +3,8 @@ define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
 
 theorem triangular-reciprocals
   metamath    trirecip
+  ε ranges over ℝ
+  n ranges over ℕ
   then Σ(k = 1 to ∞) 1/T(k) = 2
 
 1.  For all k ∈ ℕ, 1/T(k) = 2/k − 2/(k + 1).
@@ -42,8 +44,8 @@ theorem triangular-reciprocals
                                  = 2/1 − 2/(n + 1)                    2.2
                                  = 2 − 2/(n + 1)                      arithmetic
 
-3.  For all ε ∈ ℝ with ε > 0, there is N ∈ ℕ with
-    for all n ∈ ℕ with n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+3.  For all ε > 0, there is N ∈ ℕ with
+    for all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
     fix
     let ε ∈ ℝ                                                         (K3)
     assume ε > 0                                                      (A1)
@@ -56,7 +58,7 @@ theorem triangular-reciprocals
           obtain N: thm:stdlib/numbers/archimedean x := ε/2, from 3.1
           requires ε/2 ∈ ℝ: membership, from K3
 
-    3.3.  For all n ∈ ℕ with n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+    3.3.  For all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
           fix
           let n ∈ ℕ                                                   (K4)
           assume n ≥ N                                                (A2)
@@ -101,8 +103,7 @@ theorem triangular-reciprocals
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership
                   requires 2 ∈ ℝ: arithmetic
 
-    3.4.  There is N ∈ ℕ with for all n ∈ ℕ with n ≥ N,
-          |Σ(k = 1 to n) 1/T(k) − 2| < ε.
+    3.4.  There is N ∈ ℕ with for all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
           exhibit, from 3.2, 3.3
 
 4.  Σ(k = 1 to n) 1/T(k) → 2 as n → ∞
