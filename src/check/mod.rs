@@ -180,7 +180,7 @@ pub fn run(source: &dyn Source) -> Outcome {
     for (i, r) in records.iter().enumerate().filter(|(_, r)| r.kind.is_item()) {
         let stated = stated_record_sorts(r);
         let reader = kinds::read_record(r, env, &stated, &mut store);
-        record_sorts.insert(i, settled(stated, &reader, &store));
+        record_sorts.insert(i, settled(&reader, &store));
         statements.insert(r.qualified(), reader);
     }
     database::check_statements(&mut report, &records, env, &record_sorts);
@@ -199,7 +199,7 @@ pub fn run(source: &dyn Source) -> Outcome {
     let mut clashes: Vec<Vec<kinds::Clash>> = Vec::new();
     for (thm, sorts) in theorems.iter().zip(stated) {
         let reader = formulas::read_kinds(thm, env, &sorts, &statements, &mut store);
-        known.push(Known::new(thm, env, settled(sorts, &reader, &store)));
+        known.push(Known::new(thm, env, settled(&reader, &store)));
         clashes.push(reader.clashes);
     }
     let library = Library::new(&records, &record_sorts, &known, env);

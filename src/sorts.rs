@@ -353,23 +353,22 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
     out
 }
 
-/// The sort of every name an item's own lines state one for.
+/// The sort of every name an item's own lines settle.
 ///
 /// A record keeps the keyword of a hypothesis in the field name where a
 /// proof line keeps it in the text, and a record has no steps and no
-/// `define`. That is the whole difference from `sorts_in_scope`, and what
-/// the lines leave unknown the kinds settle here as they do there: `let k ∈
+/// `define`. That is the whole difference from `sorts_in_scope`: `let k ∈
 /// {a, …, n}` names no number system, and k is a number because the range
 /// holds numbers.
 pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
     let stated = stated_record_sorts(record);
     let mut store = kinds::Store::default();
     let reader = kinds::read_record(record, env, &stated, &mut store);
-    settled(stated, &reader, &store)
+    settled(&reader, &store)
 }
 
-/// The sort of every name an item's own lines state one for, before the
-/// kinds settle anything.
+/// What an item's lines say its names are in so many words, which its
+/// formulas are parsed with while they are read (`kinds::read_record`).
 pub fn stated_record_sorts(record: &Record) -> Sorts {
     let mut out = Sorts::new();
     for h in &record.hypotheses {
@@ -394,37 +393,39 @@ pub fn sorts_of_statement(thm: &Theorem) -> Sorts {
     out
 }
 
-/// The sort of every name the theorem states one for, or its kinds settle,
-/// read without its citations: what the elaborator reads a theorem with.
-/// The checker reads each theorem once, citations and all, and settles the
-/// same way (`check::run`).
+/// The sort of every name the theorem's lines settle, read without its
+/// citations: what the elaborator reads a theorem with. The checker reads
+/// each theorem once, citations and all, and settles the same way
+/// (`check::run`).
 pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
     let stated = stated_sorts(thm, env);
     let mut store = kinds::Store::default();
     let reader = kinds::read_theorem(thm, env, &stated, &mut store, None);
-    settled(stated, &reader, &store)
+    settled(&reader, &store)
 }
 
-/// The sorts the lines state, and what the kinds a reading of those lines
-/// settle where the lines state none.
+/// The sort of every name a reading of the lines settles.
 ///
-/// `let S ∈ 𝒫X` names no number system, and S is a set because what 𝒫X holds
-/// is sets. The reading was made with `stated`, so this is where it adds to
-/// them.
+/// What the lines state is a fact of the reading as much as what their
+/// formulas imply: `let n ∈ ℕ` makes n a number through the membership, and
+/// `let S ∈ 𝒫X` makes S a set because what 𝒫X holds is sets. A name the
+/// reading leaves open, or reads as a statement, has no sort.
 ///
 /// The checker's reading fits each citation as it goes and the elaborator's
 /// reads no citation, so a citation that fixed a name's kind would give the
 /// two different sorts. None does on the corpus or on any planted defect.
-pub fn settled(stated: Sorts, reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
-    let mut out = stated;
+pub fn settled(reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
+    let mut out = Sorts::new();
     for (name, kind) in &reader.env {
-        settle(&mut out, name, kinds::sort_of(store, kind));
+        if let Some(sort) = kinds::sort_of(store, kind) {
+            out.insert(name.clone(), Sort::of(sort));
+        }
     }
     out
 }
 
-/// The sort of every name the theorem's lines state one for, before the
-/// kinds settle anything.
+/// What a theorem's lines say its names are in so many words, which its
+/// formulas are parsed with while they are read (`kinds::read_theorem`).
 ///
 /// The lines are read in the order they are written, because a `define`
 /// takes its sort from its right-hand side and that side may name something
@@ -495,19 +496,4 @@ pub fn stated_sorts(thm: &Theorem, env: Env) -> Sorts {
         }
     }
     out
-}
-
-/// Put the sort the kinds settle for `name` into `out`, where the lines found
-/// none, or found only `set` and the kinds say what the set holds: `let K be
-/// a set` with K's members read as sets makes `|Y|`, for Y in K, a size.
-fn settle(out: &mut Sorts, name: &str, settled: Option<&'static str>) {
-    let Some(settled) = settled else {
-        return;
-    };
-    let is_holder = settled == "group-set" || settled == "set-of-sets";
-    if out.get(name).is_some_and(|s| s.is("set")) && is_holder {
-        out.insert(name.to_string(), Sort::of(settled));
-    }
-    out.entry(name.to_string())
-        .or_insert_with(|| Sort::of(settled));
 }

@@ -585,7 +585,7 @@ pub fn check_unsorted(
             probe.env = lets.env.clone();
             put_in_numbers(tree, &notations, &mut probe, &mut store, *no, &mut members);
         }
-        let declared = settled(stated, &lets, &store);
+        let declared = settled(&lets, &store);
         for (no, tree) in &trees {
             let mut spoken: BTreeSet<String> = declared.keys().cloned().collect();
             spoken.extend(members.iter().cloned());
