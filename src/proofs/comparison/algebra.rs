@@ -1,4 +1,4 @@
-//! Step 3 of thm:proof/bezout/least-combination-divides as a Metamath proof.
+//! Step 3 of thm:proofs/bezout/least-combination-divides as a Metamath proof.
 //!
 //! It is the one `algebra` step in the corpus whose coefficients are not
 //! constants. The step combines three cited equations with coefficients -1,
@@ -349,8 +349,8 @@ pub fn text() -> String {
     let out_txt = "R = ( ( A x. ( U - ( Q x. X ) ) ) + ( B x. ( V - ( Q x. Y ) ) ) )";
 
     format!(
-        r#"$( Step 3 of thm:proof/bezout/least-combination-divides, from
-   proof/bezout.proof, as a Metamath proof.
+        r#"$( Step 3 of thm:proofs/bezout/least-combination-divides, from
+   proofs/bezout.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

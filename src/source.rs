@@ -56,7 +56,7 @@ pub trait Source {
 }
 
 /// How paths are sorted: part by part, so that
-/// `proof/a/x.proof` comes before `proof/a-b.proof`, which comparing the
+/// `proofs/a/x.proof` comes before `proofs/a-b.proof`, which comparing the
 /// whole strings would put the other way round.
 pub fn path_order(a: &str, b: &str) -> Ordering {
     a.split('/').cmp(b.split('/'))
@@ -221,11 +221,11 @@ mod tests {
 
     #[test]
     fn paths_sort_part_by_part() {
-        let mut paths = vec!["proof/a-b.proof", "proof/a/x.proof", "db/n.records"];
+        let mut paths = vec!["proofs/a-b.proof", "proofs/a/x.proof", "db/n.records"];
         paths.sort_by(|a, b| path_order(a, b));
         assert_eq!(
             paths,
-            vec!["db/n.records", "proof/a/x.proof", "proof/a-b.proof"]
+            vec!["db/n.records", "proofs/a/x.proof", "proofs/a-b.proof"]
         );
     }
 }

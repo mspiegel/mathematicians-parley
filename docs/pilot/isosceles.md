@@ -19,7 +19,7 @@ Provisional forms, listed in the batch report: `let A be a point`;
 
 ## Theorem isosceles
 
-The skeleton is `proof/isosceles.proof`. The items it cites are in `db/`.
+The skeleton is `proofs/isosceles.proof`. The items it cites are in `db/`.
 
 The draft's chain cited a theorem on its last line instead of a step, which
 the calculation rule forbids. A three-line chain with one cited theorem is
@@ -33,7 +33,7 @@ mechanical rather than a matter of taste. The conforming form is a step
 
 This pilot introduced `def:stdlib/geometry/point`, `def:stdlib/geometry/triangle`, `def:stdlib/geometry/congruent`,
 `thm:stdlib/geometry/distance-symmetric`, `thm:stdlib/geometry/angle-symmetric`, `thm:triangle-permute`,
-`thm:stdlib/geometry/side-angle-side` and `thm:proof/isosceles/isosceles` in the database, and the point,
+`thm:stdlib/geometry/side-angle-side` and `thm:proofs/isosceles/isosceles` in the database, and the point,
 distance, angle and congruence rows in `db/notation.records`. The table that used
 to stand here was merged into those files.
 

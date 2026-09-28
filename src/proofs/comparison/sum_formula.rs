@@ -1,4 +1,4 @@
-//! thm:proof/sum-formula/sum-formula as a Metamath proof.
+//! thm:proofs/sum-formula/sum-formula as a Metamath proof.
 //!
 //! It is the first proof here with an `induction` and the first with a
 //! `fix`, and the first whose definition is recursive. set.mm proves the
@@ -388,7 +388,7 @@ pub fn text() -> String {
     );
 
     format!(
-        r#"$( thm:proof/sum-formula/sum-formula, from proof/sum-formula.proof, as a
+        r#"$( thm:proofs/sum-formula/sum-formula, from proofs/sum-formula.proof, as a
    Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:

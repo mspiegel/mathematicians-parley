@@ -14,8 +14,8 @@ remainders, is part 3 here, said as a bound one induction can carry.
 
 ## Theorem euclid
 
-The proof is `proof/euclid.proof`, one theorem. It elaborates to
-`elaboration/proof/euclid/euclid.mm`, assumes nothing, and verifies.
+The proof is `proofs/euclid.proof`, one theorem. It elaborates to
+`elaboration/proofs/euclid/euclid.mm`, assumes nothing, and verifies.
 
 Numbers: 56 numbered steps, 9 of them at the top. Steps 1 and 2 are the
 start, 3 is one induction proving the four facts the algorithm keeps (a

@@ -23,7 +23,7 @@ pointers, and the pilot does not prove them.
 
 ## Theorem prime-above
 
-The skeleton is `proof/infinitely-many-primes.proof`. The items it cites are
+The skeleton is `proofs/infinitely-many-primes.proof`. The items it cites are
 in `db/`.
 
 ---
@@ -112,7 +112,7 @@ natural number p with p prime and p > n.
 This pilot introduced `def:stdlib/counting/factorial`, `def:stdlib/divisibility/prime`, `thm:stdlib/counting/factorial-nat`,
 `thm:stdlib/numbers/nat-closure`, `thm:stdlib/numbers/nat-ge-1`, `thm:stdlib/numbers/nat-int`, `thm:stdlib/divisibility/prime-factor`,
 `thm:stdlib/counting/factorial-divisible`, `thm:stdlib/divisibility/divides-difference`, `thm:stdlib/divisibility/divides-one` and
-`thm:proof/infinitely-many-primes/prime-above` in the database, and the factorial row in
+`thm:proofs/infinitely-many-primes/prime-above` in the database, and the factorial row in
 `db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 

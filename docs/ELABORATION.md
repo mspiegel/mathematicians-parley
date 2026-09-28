@@ -12,17 +12,17 @@ writes every generated file under the working tree `<dir>`, or the one named,
 and says which changed. Every command takes the tree it works on as `--root`,
 and none looks for one. A
 theorem is named in full, by its proof file and its own name:
-`proof/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
+`proofs/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
 its second stage builds everything afresh in memory and compares it with the
 files in the tree, so an elaborator broken while the built files are left
 alone fails the gate.
 
-Every theorem in `proof/` elaborates, and `parley build` writes one artifact
+Every theorem in `proofs/` elaborates, and `parley build` writes one artifact
 for each, one for the definitions, one for the library's own proofs, and one
 for each proof worked out by hand: 99 in all. Nothing lists them: the build
 reads the theorems off the proof files, and a file's path under
-`elaboration/` is its name. `elaboration/proof/bezout/bezout.mm` is the
-theorem `proof/bezout/bezout`, and a file citing it includes it by that path.
+`elaboration/` is its name. `elaboration/proofs/bezout/bezout.mm` is the
+theorem `proofs/bezout/bezout`, and a file citing it includes it by that path.
 `elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
 elaborator writes, and `proved.mm`, written from `src/proofs/stdlib/`, one
 module per group of proofs (`geometry.rs`), and the only statement of what it
@@ -201,7 +201,7 @@ rather than searching the declared equivalences for it. The largest grew by
 
 ## The statement a theorem becomes
 
-Hypotheses are conjoined into an antecedent. `thm:proof/sqrt2-irrational/odd-square` —
+Hypotheses are conjoined into an antecedent. `thm:proofs/sqrt2-irrational/odd-square` —
 
 ```
 theorem odd-square
@@ -229,7 +229,7 @@ itself cannot know. Every theorem gets the same one.
 A step citing a theorem this corpus proves conjoins what the step supplies for
 its hypotheses and applies it with `syl` to its whole conclusion. A step may
 claim one sentence of a conclusion that says several — `intermediate-value`
-cites `thm:proof/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
+cites `thm:proofs/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
 the whole. The conclusion is read in the sorts the cited theorem's own
 hypotheses state, since `|x|` is absolute value only where x is a number.
 
@@ -350,7 +350,7 @@ part of what it says, so:
   (`under_member`).
 
 `tests/elaborator/bound-names.proof` holds a proof of each shape but the
-last three, which `proof/schroeder-bernstein.proof` is the proof of.
+last three, which `proofs/schroeder-bernstein.proof` is the proof of.
 
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
@@ -771,7 +771,7 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proof/isosceles.proof:43  def:stdlib/geometry/triangle, from 6 does not reach -. C = A,
+proofs/isosceles.proof:43  def:stdlib/geometry/triangle, from 6 does not reach -. C = A,
                           which this line claims it supplies
 ```
 
@@ -1083,8 +1083,8 @@ is read this way, and only a term built from others is replaced, never a
 name, whose value a `substitute` line puts in its place where a reader can
 see it.
 
-`thm:proof/subsets/powerset-split` has no set.mm label, and is proved in
-`proof/subsets.proof` the way a reader proves two sets equal: each inside
+`thm:proofs/subsets/powerset-split` has no set.mm label, and is proved in
+`proofs/subsets.proof` the way a reader proves two sets equal: each inside
 the other. A subset of X either leaves a out, and is a subset of X ∖ {a},
 or holds a, and is a subset of X ∖ {a} with a put back; each subset of
 X ∖ {a}, with or without a, is a subset of X. Every step cites an item one
@@ -1093,7 +1093,7 @@ set.mm lemma states. Putting a subset with a put back into the image is
 hypotheses, so the map is read back out of the naming, and where it is read
 comes from the line the step cites.
 
-`thm:proof/subsets/powerset-split-disjoint` is proved in `proof/subsets.proof`. Its step
+`thm:proofs/subsets/powerset-split-disjoint` is proved in `proofs/subsets.proof`. Its step
 `a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only
 because it is an element of X: in set.mm everything is a set, numbers and
 points included, so `elex` gives it from `a ∈ X`. A reader told `let a ∈ X`,
@@ -1109,12 +1109,12 @@ only named.
 `GOALS.md` decision 17: what the elaborator cannot build is a defect, or it is
 recorded here, and a list in a file's header is not a record. The gate's
 "taken as stated" stage (`src/tools/assumed.rs`) reads every elaborated proof
-under `elaboration/proof/`
+under `elaboration/proofs/`
 and every library test under `elaboration/tests/`, and is red for any
 statement one takes as stated that this list does not name, and for any this
 list names that no file states any longer. A record is one entry:
 
-    - `elaboration/proof/<theorem>/<file>.mm` `<label>`: why it is not built,
+    - `elaboration/proofs/<theorem>/<file>.mm` `<label>`: why it is not built,
       and what would build it.
 
 Definitions are not steps, and the constants and definitions
@@ -1129,9 +1129,9 @@ whose antecedent is the whole scope, and in normal format that antecedent is
 written out in full at every use — three nested scopes make it about ninety
 tokens, written perhaps two hundred times. So size is driven by copying the
 context and grows with steps times scope depth, and the compressed format
-disposes of it. The 27 elaborated proofs under `elaboration/proof/` come to
+disposes of it. The 27 elaborated proofs under `elaboration/proofs/` come to
 371 KB and the largest,
-`thm:proof/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
+`thm:proofs/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
 orders of magnitude, since nothing about the proof changes and only the
 repetition is written down differently.
 
@@ -1307,7 +1307,7 @@ thing: `hypothesis_body` reads each as the thing being a set as well, which
 the page never writes. The elaborator proves a term a set from its structure
 and from those facts, and never asks the page for it; the checker's kinds
 report a page that claims an element of a set of numbers is a set. See *What a
-file states rather than proves* for the proof this let back into `proof/`.
+file states rather than proves* for the proof this let back into `proofs/`.
 
 ## Geometry
 

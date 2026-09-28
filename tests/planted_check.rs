@@ -46,7 +46,7 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
 /// The corpus as it stands: the database, the library, and every proof.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    Memory::copy(&Disk::new(root), &["db", "stdlib", "proof", "tests"]).unwrap()
+    Memory::copy(&Disk::new(root), &["db", "stdlib", "proofs", "tests"]).unwrap()
 }
 
 /// Plant one case's edits, or say why they could not be planted.
@@ -153,23 +153,23 @@ fn cases() -> Vec<Case> {
         case(
             "import a definition from a file that is not there",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proof/nonesuch/W (D8)\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/nonesuch/W (D8)\n\ntheorem cantor\n".to_string()),
             ],
             "names no proof file",
         ),
         case(
             "import a definition the file does not define",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proof/tri/W (D8)\n\ntheorem cantor\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/W (D8)\n\ntheorem cantor\n".to_string()),
             ],
             "defines no W outside its theorems",
         ),
         case(
             "import a definition and never use it",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proof/tri/T (D8)\n\ntheorem cantor\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T (D8)\n\ntheorem cantor\n".to_string()),
             ],
             "imports definition T and never uses it",
         ),
@@ -177,45 +177,45 @@ fn cases() -> Vec<Case> {
         case(
             "import a definition without a label",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proof/tri/T\n\ntheorem cantor\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T\n\ntheorem cantor\n".to_string()),
             ],
-            "import definition proof/tri/T carries no label",
+            "import definition proofs/tri/T carries no label",
         ),
         case(
             "label an imported definition as a theorem labels a line",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/tri-use.proof", None, "import proof proof/tri\nimport definition proof/tri/T (H1)\n\ntheorem use-one\n  let n ∈ ℕ                                                           (H1)\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proof/tri/tri-one\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/tri-use.proof", None, "import proof proofs/tri\nimport definition proofs/tri/T (H1)\n\ntheorem use-one\n  let n ∈ ℕ                                                           (H1)\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proofs/tri/tri-one\n".to_string()),
             ],
             "label H1 is already a define's outside theorem use-one",
         ),
         case(
             "define one name twice outside the theorems",
             vec![
-                edit("proof/tri.proof", None, format!("{TRI}{}", "\ndefine T(k) := k, for k ∈ ℕ                                          (D2)\n       reads k itself\n")),
+                edit("proofs/tri.proof", None, format!("{TRI}{}", "\ndefine T(k) := k, for k ∈ ℕ                                          (D2)\n       reads k itself\n")),
             ],
             "T is already defined at line",
         ),
         case(
             "define a name the file also imports",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/tri-use.proof", None, "import proof proof/tri\nimport definition proof/tri/T (D2)\n\ndefine T(k) := k, for k ∈ ℕ                                          (D1)\n       reads k itself\n\ntheorem use-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proof/tri/tri-one\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/tri-use.proof", None, "import proof proofs/tri\nimport definition proofs/tri/T (D2)\n\ndefine T(k) := k, for k ∈ ℕ                                          (D1)\n       reads k itself\n\ntheorem use-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proofs/tri/tri-one\n".to_string()),
             ],
             "T is already defined at line",
         ),
         case(
             "define inside a proof a name the file defines outside it",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "define B := {1}                                                    (D9)\n       reads the set holding 1\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "define B := {1}                                                    (D9)\n       reads the set holding 1\n\ntheorem cantor\n".to_string()),
             ],
             "B is already defined outside theorem cantor",
         ),
         case(
             "use a definition above the line that defines it",
             vec![
-                edit("proof/tri.proof", None, "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1 + U(0)\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n\ndefine U(k) := k, for k ∈ ℕ                                          (D2)\n       reads k itself\n".to_string()),
+                edit("proofs/tri.proof", None, "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1 + U(0)\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n\ndefine U(k) := k, for k ∈ ℕ                                          (D2)\n       reads k itself\n".to_string()),
             ],
             "U is defined at line 12, below theorem tri-one; a definition is used only below where it is written",
         ),
@@ -223,7 +223,7 @@ fn cases() -> Vec<Case> {
         case(
             "use a plain definition above the line that defines it",
             vec![
-                edit("proof/early.proof", None, "theorem early-use\n  then c = 5\n\n1.  c = 5\n    arithmetic\n\ndefine c := 5                                                         (D1)\n       reads five\n".to_string()),
+                edit("proofs/early.proof", None, "theorem early-use\n  then c = 5\n\n1.  c = 5\n    arithmetic\n\ndefine c := 5                                                         (D1)\n       reads five\n".to_string()),
             ],
             "c is defined at line 7, below theorem early-use",
         ),
@@ -232,92 +232,92 @@ fn cases() -> Vec<Case> {
         case(
             "cite a theorem about another file's T as one about the file's own",
             vec![
-                edit("proof/tri.proof", None, TRI.to_string()),
-                edit("proof/tri-own.proof", None, "import proof proof/tri\n\ndefine T(k) := k·k, for k ∈ ℕ                                         (D1)\n       reads the square of k\n\ntheorem own-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proof/tri/tri-one\n".to_string()),
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/tri-own.proof", None, "import proof proofs/tri\n\ndefine T(k) := k·k, for k ∈ ℕ                                         (D1)\n       reads the square of k\n\ntheorem own-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:proofs/tri/tri-one\n".to_string()),
             ],
             "does not conclude",
         ),
         case(
             "cite a line inside a block that has closed",
             vec![
-                edit("proof/intermediate-value.proof", Some("    17.2.  c < b\n           inequalities, from 12, 17.1".to_string()), "    17.2.  c < b\n           inequalities, from 12, 17.1.1".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    17.2.  c < b\n           inequalities, from 12, 17.1".to_string()), "    17.2.  c < b\n           inequalities, from 12, 17.1.1".to_string()),
             ],
             "inside a block that has closed",
         ),
         case(
             "cite a line that does not exist",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.4".to_string()), "    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.99".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.4".to_string()), "    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.99".to_string()),
             ],
             "does not exist",
         ),
         case(
             "cite the assumption of another case",
             vec![
-                edit("proof/triangle-inequality.proof", Some("    2.6.  −x ≤ |x|\n          inequalities, from 2.5".to_string()), "    2.6.  −x ≤ |x|\n          inequalities, from 2.5, C1".to_string()),
+                edit("proofs/triangle-inequality.proof", Some("    2.6.  −x ≤ |x|\n          inequalities, from 2.5".to_string()), "    2.6.  −x ≤ |x|\n          inequalities, from 2.5, C1".to_string()),
             ],
             "not in scope",
         ),
         case(
             "a justification that matches no production",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("3.  (2k + 1)² = 4k² + 4k + 1\n    algebra".to_string()), "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra from 1 and 2".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("3.  (2k + 1)² = 4k² + 4k + 1\n    algebra".to_string()), "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra from 1 and 2".to_string()),
             ],
             "matches no production",
         ),
         case(
             "point at an item that is not in the database",
             vec![
-                edit("proof/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:stdlib/sets/set-builder-nonesuch, from D1".to_string()),
+                edit("proofs/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:stdlib/sets/set-builder-nonesuch, from D1".to_string()),
             ],
             "resolves to no item",
         ),
         case(
             "point at a library file that does not exist",
             vec![
-                edit("proof/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:stdlib/nonesuch/set-builder-subset, from D1".to_string()),
+                edit("proofs/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:stdlib/nonesuch/set-builder-subset, from D1".to_string()),
             ],
             "resolves to no item",
         ),
         case(
             "cite an item of another file by its bare name",
             vec![
-                edit("proof/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:set-builder-subset, from D1".to_string()),
+                edit("proofs/cantor.proof", Some("    thm:stdlib/sets/set-builder-subset, from D1".to_string()), "    thm:set-builder-subset, from D1".to_string()),
             ],
             "names no theorem of this file",
         ),
         case(
             "use def: for something that is a theorem",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("          requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1".to_string()), "          requires n² ∈ ℤ: def:stdlib/numbers/int-closure, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("          requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1".to_string()), "          requires n² ∈ ℤ: def:stdlib/numbers/int-closure, from H1".to_string()),
             ],
             "names a theorem",
         ),
         case(
             "number a step under a parent that does not exist",
             vec![
-                edit("proof/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.9.4.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()),
+                edit("proofs/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.9.4.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()),
             ],
             "does not exist",
         ),
         case(
             "use a part marker the method does not declare",
             vec![
-                edit("proof/triangle-inequality.proof", Some("    case\n    assume x ≥ 0".to_string()), "    base\n    assume x ≥ 0".to_string()),
+                edit("proofs/triangle-inequality.proof", Some("    case\n    assume x ≥ 0".to_string()), "    base\n    assume x ≥ 0".to_string()),
             ],
             "is not one of the parts",
         ),
         case(
             "instantiate an item instead of a line",
             vec![
-                edit("proof/intermediate-value.proof", Some("    instantiate u := b in line 9, from H2, 7".to_string()), "    instantiate u := b in def:stdlib/calculus/least-upper-bound, from H2, 7".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    instantiate u := b in line 9, from H2, 7".to_string()), "    instantiate u := b in def:stdlib/calculus/least-upper-bound, from H2, 7".to_string()),
             ],
             "never an item",
         ),
         case(
             "a character that is in no notation record",
             vec![
-                edit("proof/sum-formula.proof", Some("= 1(1 + 1)/2            arithmetic".to_string()), "= 1(1 ⊕ 1)/2            arithmetic".to_string()),
+                edit("proofs/sum-formula.proof", Some("= 1(1 + 1)/2            arithmetic".to_string()), "= 1(1 ⊕ 1)/2            arithmetic".to_string()),
             ],
             "is in no record",
         ),
@@ -326,7 +326,7 @@ fn cases() -> Vec<Case> {
         case(
             "text that is not in Normalisation Form C",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("3.  √2 ∉ ℚ".to_string()), "3.  √2 ∈\u{0338} ℚ".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("3.  √2 ∉ ℚ".to_string()), "3.  √2 ∈\u{0338} ℚ".to_string()),
             ],
             "Normalisation Form C",
         ),
@@ -340,78 +340,78 @@ fn cases() -> Vec<Case> {
         case(
             "a block whose method takes none",
             vec![
-                edit("proof/sum-formula.proof", Some("                  requires k ∈ ℝ: from K\n".to_string()), "                  requires k ∈ ℝ: from K\n\n                  1.3.3.1.  k = k\n                            algebra\n".to_string()),
+                edit("proofs/sum-formula.proof", Some("                  requires k ∈ ℝ: from K\n".to_string()), "                  requires k ∈ ℝ: from K\n\n                  1.3.3.1.  k = k\n                            algebra\n".to_string()),
             ],
             "takes no block",
         ),
         case(
             "a contradiction whose block does not suppose anything",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("    contradiction\n    suppose √2 ∈ ℚ                                                    (S)".to_string()), "    contradiction".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    contradiction\n    suppose √2 ∈ ℚ                                                    (S)".to_string()), "    contradiction".to_string()),
             ],
             "does not open with `suppose`",
         ),
         case(
             "cite another proof file without importing it",
             vec![
-                edit("proof/intermediate-value.proof", Some("import proof proof/triangle-inequality\n".to_string()), "".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import proof proofs/triangle-inequality\n".to_string()), "".to_string()),
             ],
-            "proof/triangle-inequality is not imported",
+            "proofs/triangle-inequality is not imported",
         ),
         // An import says what it brings in, a proof file or a definition.
         case(
             "import without saying what is imported",
             vec![
-                edit("proof/intermediate-value.proof", Some("import proof proof/triangle-inequality\n".to_string()), "import proof/triangle-inequality\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import proof proofs/triangle-inequality\n".to_string()), "import proofs/triangle-inequality\n".to_string()),
             ],
             "an import says `import proof <file>`",
         ),
         case(
             "import a proof file and cite nothing from it",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proof/bezout\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proofs/bezout\n\ntheorem cantor\n".to_string()),
             ],
-            "imports proof/bezout and cites nothing from it",
+            "imports proofs/bezout and cites nothing from it",
         ),
         case(
             "import the standard library",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import proof stdlib/sets\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import proof stdlib/sets\n\ntheorem cantor\n".to_string()),
             ],
             "the standard library is never imported",
         ),
         case(
             "import a file that is not there",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proof/nonesuch\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proofs/nonesuch\n\ntheorem cantor\n".to_string()),
             ],
-            "import proof/nonesuch names no proof file",
+            "import proofs/nonesuch names no proof file",
         ),
         case(
             "import the same file twice",
             vec![
-                edit("proof/intermediate-value.proof", Some("import proof proof/triangle-inequality\n".to_string()), "import proof proof/triangle-inequality\nimport proof proof/triangle-inequality\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import proof proofs/triangle-inequality\n".to_string()), "import proof proofs/triangle-inequality\nimport proof proofs/triangle-inequality\n".to_string()),
             ],
-            "proof/triangle-inequality is imported twice",
+            "proofs/triangle-inequality is imported twice",
         ),
         case(
             "a proof file that imports itself",
             vec![
-                edit("proof/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proof/cantor\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import proof proofs/cantor\n\ntheorem cantor\n".to_string()),
             ],
-            "proof/cantor imports itself",
+            "proofs/cantor imports itself",
         ),
         case(
             "two proof files that import each other",
             vec![
-                edit("proof/triangle-inequality.proof", Some("theorem abs-bounds\n".to_string()), "import proof proof/intermediate-value\n\ntheorem abs-bounds\n".to_string()),
+                edit("proofs/triangle-inequality.proof", Some("theorem abs-bounds\n".to_string()), "import proof proofs/intermediate-value\n\ntheorem abs-bounds\n".to_string()),
             ],
             "closes a cycle",
         ),
         case(
             "two theorems of one name in one file",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "theorem odd-square\n".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "theorem odd-square\n".to_string()),
             ],
             "theorem odd-square is already proved",
         ),
@@ -432,14 +432,14 @@ fn cases() -> Vec<Case> {
         case(
             "a theorem field said twice",
             vec![
-                edit("proof/cantor.proof", Some("  metamath    canth\n".to_string()), "  metamath    canth\n  metamath    canth\n".to_string()),
+                edit("proofs/cantor.proof", Some("  metamath    canth\n".to_string()), "  metamath    canth\n  metamath    canth\n".to_string()),
             ],
             "says metamath twice",
         ),
         case(
             "a let line that asserts instead of introducing",
             vec![
-                edit("proof/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
+                edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
             ],
             "none of the 9 introductions",
         ),
@@ -449,7 +449,7 @@ fn cases() -> Vec<Case> {
         case(
             "two names run together into a declared word",
             vec![
-                edit("proof/isosceles.proof", Some("1.  |AC| = |CA|".to_string()), "1.  |an| = |CA|".to_string()),
+                edit("proofs/isosceles.proof", Some("1.  |AC| = |CA|".to_string()), "1.  |an| = |CA|".to_string()),
             ],
             "run together",
         ),
@@ -457,7 +457,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term that captures a bound variable",
             vec![
-                edit("proof/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := a·x + b·s in line 4, from 8.2".to_string()),
+                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := a·x + b·s in line 4, from 8.2".to_string()),
             ],
             "may not capture",
         ),
@@ -465,42 +465,42 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term with a comma that captures a bound variable",
             vec![
-                edit("proof/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := gcd(s, b) in line 4, from 8.2".to_string()),
+                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := gcd(s, b) in line 4, from 8.2".to_string()),
             ],
             "may not capture",
         ),
         case(
             "obtain a name without stating its sort",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()), "1.  n = 2k + 1.\n    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()), "1.  n = 2k + 1.\n    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()),
             ],
             "without stating its sort",
         ),
         case(
             "write a claim in a notation nobody declared",
             vec![
-                edit("proof/infinitely-many-primes.proof", Some("5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()), "5.  p exceeds 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()), "5.  p exceeds 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()),
             ],
             "token(s) left over",
         ),
         case(
             "write a formula the sorts cannot read one way",
             vec![
-                edit("proof/subsets.proof", Some("1.2.1.5.  |T| = 2^k".to_string()), "1.2.1.5.  |W| = 2^k".to_string()),
+                edit("proofs/subsets.proof", Some("1.2.1.5.  |T| = 2^k".to_string()), "1.2.1.5.  |W| = 2^k".to_string()),
             ],
             "the sorts do not separate them",
         ),
         case(
             "drop a line a citation needs for a hypothesis",
             vec![
-                edit("proof/intermediate-value.proof", Some("    def:stdlib/calculus/interval x := a, from H1, H2".to_string()), "    def:stdlib/calculus/interval x := a, from H1".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    def:stdlib/calculus/interval x := a, from H1, H2".to_string()), "    def:stdlib/calculus/interval x := a, from H1".to_string()),
             ],
             "does not supply them",
         ),
         case(
             "supply a hypothesis with the wrong number system",
             vec![
-                edit("proof/geometric-series.proof", Some("thm:stdlib/numbers/exponent-zero a := a, from H1".to_string()), "thm:stdlib/numbers/exponent-zero a := a, from H3".to_string()),
+                edit("proofs/geometric-series.proof", Some("thm:stdlib/numbers/exponent-zero a := a, from H1".to_string()), "thm:stdlib/numbers/exponent-zero a := a, from H3".to_string()),
             ],
             "does not supply them",
         ),
@@ -535,21 +535,21 @@ fn cases() -> Vec<Case> {
         case(
             "point a requires line at an item that does not cover it",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("    requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1".to_string()), "    requires n² ∈ ℤ: thm:stdlib/numbers/int-real, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    requires n² ∈ ℤ: thm:stdlib/numbers/int-closure, from H1".to_string()), "    requires n² ∈ ℤ: thm:stdlib/numbers/int-real, from H1".to_string()),
             ],
             "does not conclude",
         ),
         case(
             "drop the dull fact a requires line leans on",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("    requires 2 ∈ ℤ: arithmetic\n".to_string()), "".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    requires 2 ∈ ℤ: arithmetic\n".to_string()), "".to_string()),
             ],
             "does not conclude",
         ),
         case(
             "claim something the cited item does not conclude",
             vec![
-                edit("proof/infinitely-many-primes.proof", Some("5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()), "5.  p > 2\n    def:stdlib/divisibility/prime p := p, from 4".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("5.  p > 1\n    def:stdlib/divisibility/prime p := p, from 4".to_string()), "5.  p > 2\n    def:stdlib/divisibility/prime p := p, from 4".to_string()),
             ],
             "does not conclude",
         ),
@@ -579,7 +579,7 @@ fn cases() -> Vec<Case> {
         case(
             "define a function and give no domain",
             vec![
-                edit("proof/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B(y) := {x ∈ A : x ∉ f(x)}".to_string()),
+                edit("proofs/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B(y) := {x ∈ A : x ∉ f(x)}".to_string()),
             ],
             "says no domain",
         ),
@@ -587,28 +587,28 @@ fn cases() -> Vec<Case> {
         case(
             "apply a defined function outside its domain's kind",
             vec![
-                edit("proof/sum-formula.proof", Some("1.  S(n) = n(n + 1)/2".to_string()), "1.  S({n}) = n(n + 1)/2".to_string()),
+                edit("proofs/sum-formula.proof", Some("1.  S(n) = n(n + 1)/2".to_string()), "1.  S({n}) = n(n + 1)/2".to_string()),
             ],
             "a set of numbers where a number is wanted",
         ),
         case(
             "give a domain to a define that takes no argument",
             vec![
-                edit("proof/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B := {x ∈ A : x ∉ f(x)}, for y ∈ A".to_string()),
+                edit("proofs/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B := {x ∈ A : x ∉ f(x)}, for y ∈ A".to_string()),
             ],
             "gives a domain and takes no argument",
         ),
         case(
             "define a name and never say what it means",
             vec![
-                edit("proof/cantor.proof", Some("       reads the members of A that their own image leaves out\n".to_string()), "".to_string()),
+                edit("proofs/cantor.proof", Some("       reads the members of A that their own image leaves out\n".to_string()), "".to_string()),
             ],
             "carries no `reads` line",
         ),
         case(
             "note a step that opens no block",
             vec![
-                edit("proof/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1\n    note this is where B becomes a member".to_string()),
+                edit("proofs/cantor.proof", Some("2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1".to_string()), "2.  B ∈ 𝒫A\n    def:stdlib/sets/powerset S := B, from 1\n    note this is where B becomes a member".to_string()),
             ],
             "opens no block",
         ),
@@ -617,14 +617,14 @@ fn cases() -> Vec<Case> {
         case(
             "sum over a range the item does not conclude",
             vec![
-                edit("proof/divisibility-by-three.proof", Some("2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))".to_string()), "2.  3 divides Σ(k = 1 to n) (d(k)·10^k − d(k))".to_string()),
+                edit("proofs/divisibility-by-three.proof", Some("2.  3 divides Σ(k = 0 to n) (d(k)·10^k − d(k))".to_string()), "2.  3 divides Σ(k = 1 to n) (d(k)·10^k − d(k))".to_string()),
             ],
             "step 2 claims something that thm:stdlib/sums/sum-divisible does not conclude",
         ),
         case(
             "read an item's summand two ways",
             vec![
-                edit("proof/divisibility-by-three.proof", Some("= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n    thm:stdlib/sums/sum-difference".to_string()), "= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n    thm:stdlib/sums/sum-difference".to_string()),
+                edit("proofs/divisibility-by-three.proof", Some("= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n    thm:stdlib/sums/sum-difference".to_string()), "= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n    thm:stdlib/sums/sum-difference".to_string()),
             ],
             "step 3 claims something that thm:stdlib/sums/sum-difference does not conclude",
         ),
@@ -633,35 +633,35 @@ fn cases() -> Vec<Case> {
         case(
             "turn a congruence round",
             vec![
-                edit("proof/divisibility-by-three.proof", Some("    1.1.  10^k ≡ 1 (mod 3)\n          thm:ten-power-congruent".to_string()), "    1.1.  1 ≡ 10^k (mod 3)\n          thm:ten-power-congruent".to_string()),
+                edit("proofs/divisibility-by-three.proof", Some("    1.1.  10^k ≡ 1 (mod 3)\n          thm:ten-power-congruent".to_string()), "    1.1.  1 ≡ 10^k (mod 3)\n          thm:ten-power-congruent".to_string()),
             ],
             "step 1.1 claims something that thm:ten-power-congruent does not conclude",
         ),
         case(
             "note a case part after its assumption",
             vec![
-                edit("proof/subsets.proof", Some("          note V is a subset without a, with a put back\n          assume a ∈ V                                                (C1)".to_string()), "          assume a ∈ V                                                (C1)\n          note V is a subset without a, with a put back".to_string()),
+                edit("proofs/subsets.proof", Some("          note V is a subset without a, with a put back\n          assume a ∈ V                                                (C1)".to_string()), "          assume a ∈ V                                                (C1)\n          note V is a subset without a, with a put back".to_string()),
             ],
             "directly under its marker",
         ),
         case(
             "note a case part twice",
             vec![
-                edit("proof/subsets.proof", Some("          note V is a subset without a, with a put back\n".to_string()), "          note V is a subset without a, with a put back\n          note V holds a\n".to_string()),
+                edit("proofs/subsets.proof", Some("          note V is a subset without a, with a put back\n".to_string()), "          note V is a subset without a, with a put back\n          note V holds a\n".to_string()),
             ],
             "already carries a note",
         ),
         case(
             "suppose something unrelated to the claim",
             vec![
-                edit("proof/bezout.proof", Some("3.  r = 0\n    contradiction\n    suppose not r = 0".to_string()), "3.  r = 0\n    contradiction\n    suppose not r ≤ 0".to_string()),
+                edit("proofs/bezout.proof", Some("3.  r = 0\n    contradiction\n    suppose not r = 0".to_string()), "3.  r = 0\n    contradiction\n    suppose not r ≤ 0".to_string()),
             ],
             "neither expansion of `contradiction` applies",
         ),
         case(
             "end a contradiction block without a contradiction",
             vec![
-                edit("proof/infinitely-many-primes.proof", Some("    6.8.  p = 1. not p = 1.".to_string()), "    6.8.  p = 1. p = 1.".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("    6.8.  p = 1. not p = 1.".to_string()), "    6.8.  p = 1. p = 1.".to_string()),
             ],
             "does not state a formula and that formula negated",
         ),
@@ -744,7 +744,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line the cited item asks nothing of",
             vec![
-                edit("proof/triangle-inequality.proof", Some("    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1\n".to_string()), "    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1, H1\n".to_string()),
+                edit("proofs/triangle-inequality.proof", Some("    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1\n".to_string()), "    thm:stdlib/numbers/nonneg-or-neg x := a + b, from 1, H1\n".to_string()),
             ],
             "step 2 cites H1, and thm:stdlib/numbers/nonneg-or-neg asks for nothing it says",
         ),
@@ -754,7 +754,7 @@ fn cases() -> Vec<Case> {
         case(
             "exhibit a witness without saying it is in the domain",
             vec![
-                edit("proof/bezout.proof", Some("    def:stdlib/sets/set-builder u := a, from H1, 1\n    requires 1 ∈ ℤ: arithmetic\n".to_string()), "    def:stdlib/sets/set-builder u := a, from H1, 1\n".to_string()),
+                edit("proofs/bezout.proof", Some("    def:stdlib/sets/set-builder u := a, from H1, 1\n    requires 1 ∈ ℤ: arithmetic\n".to_string()), "    def:stdlib/sets/set-builder u := a, from H1, 1\n".to_string()),
             ],
             "step 2 claims something that def:stdlib/sets/set-builder does not conclude",
         ),
@@ -764,7 +764,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite the line that says what kind of thing a name is",
             vec![
-                edit("proof/isosceles.proof", Some("    thm:stdlib/geometry/distance-symmetric P := A, Q := C\n".to_string()), "    thm:stdlib/geometry/distance-symmetric P := A, Q := C, from H1\n".to_string()),
+                edit("proofs/isosceles.proof", Some("    thm:stdlib/geometry/distance-symmetric P := A, Q := C\n".to_string()), "    thm:stdlib/geometry/distance-symmetric P := A, Q := C, from H1\n".to_string()),
             ],
             "step 1 cites H1, and thm:stdlib/geometry/distance-symmetric asks for nothing it says",
         ),
@@ -774,14 +774,14 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from an item without what it asks for",
             vec![
-                edit("proof/intermediate-value.proof", Some("    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7".to_string()), "    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 7".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7".to_string()), "    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 7".to_string()),
             ],
             "step 8 cites thm:stdlib/calculus/completeness, which asks for",
         ),
         case(
             "obtain from an item and cite a line it does not ask for",
             vec![
-                edit("proof/intermediate-value.proof", Some("    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7".to_string()), "    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7, H3".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7".to_string()), "    obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7, H3".to_string()),
             ],
             "step 8 cites H3, and thm:stdlib/calculus/completeness asks for nothing it says",
         ),
@@ -801,14 +801,14 @@ fn cases() -> Vec<Case> {
         case(
             "put a set of numbers inside a set of sets of numbers",
             vec![
-                edit("proof/intermediate-value.proof", Some("3.  S ⊆ [a, b]\n".to_string()), "3.  S ⊆ 𝒫[a, b]\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("3.  S ⊆ [a, b]\n".to_string()), "3.  S ⊆ 𝒫[a, b]\n".to_string()),
             ],
             "𝒫: a set of sets of numbers where a set of numbers is wanted",
         ),
         case(
             "say an element of a set of numbers is a set",
             vec![
-                edit("proof/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n          requires s is a set: from K1\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n          requires s is a set: from K1\n".to_string()),
             ],
             "s: a number where a set of things of a kind not yet fixed is wanted",
         ),
@@ -819,14 +819,14 @@ fn cases() -> Vec<Case> {
         case(
             "cite a statement that narrows a set of any kind",
             vec![
-                edit("proof/subsets.proof", Some("  let a ∉ X                                                           (H2)\n".to_string()), "  let a ∉ X                                                           (H2)\n  let a be a set                                                      (H3)\n".to_string()),
+                edit("proofs/subsets.proof", Some("  let a ∉ X                                                           (H2)\n".to_string()), "  let a ∉ X                                                           (H2)\n  let a be a set                                                      (H3)\n".to_string()),
             ],
-            "citing proof/subsets/add-element-bijection with X := X ∖ {a}: a set of things of any kind (X)",
+            "citing proofs/subsets/add-element-bijection with X := X ∖ {a}: a set of things of any kind (X)",
         ),
         case(
             "obtain from a definition without the line it unfolds",
             vec![
-                edit("proof/sqrt2-irrational.proof", Some("    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()), "    obtain k: def:stdlib/divisibility/odd n := n, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    obtain k: def:stdlib/divisibility/odd n := n, from H1, H2".to_string()), "    obtain k: def:stdlib/divisibility/odd n := n, from H1".to_string()),
             ],
             "step 1 obtains from def:stdlib/divisibility/odd, which says there is one only from",
         ),
@@ -835,7 +835,7 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proof/binomial.proof", Some("    44.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    44.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/binomial.proof", Some("    44.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    44.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
             "step 44.5 claims something that thm:stdlib/counting/pascal does not conclude",
         ),
@@ -843,7 +843,7 @@ fn cases() -> Vec<Case> {
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proof/binomial.proof", Some("24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/binomial.proof", Some("24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
             ],
             "step 24 claims something that thm:stdlib/sums/sum-shift does not conclude",
         ),
@@ -852,7 +852,7 @@ fn cases() -> Vec<Case> {
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proof/binomial.proof", Some("    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 44\n".to_string()), "    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 5\n".to_string()),
+                edit("proofs/binomial.proof", Some("    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 44\n".to_string()), "    thm:stdlib/sums/sum-termwise a := 0, b := m + 1, from 5\n".to_string()),
             ],
             "step 45 cites thm:stdlib/sums/sum-termwise, which asks for",
         ),
@@ -860,7 +860,7 @@ fn cases() -> Vec<Case> {
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proof/binomial.proof", Some("    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 1, 7".to_string()), "    thm:stdlib/counting/binomial-above n := m + 1, k := m + 1, from H3, 1, 7".to_string()),
+                edit("proofs/binomial.proof", Some("    thm:stdlib/counting/binomial-above n := m, k := m + 1, from H3, 1, 7".to_string()), "    thm:stdlib/counting/binomial-above n := m + 1, k := m + 1, from H3, 1, 7".to_string()),
             ],
             "step 8 cites thm:stdlib/counting/binomial-above, which asks for",
         ),
@@ -870,7 +870,7 @@ fn cases() -> Vec<Case> {
         case(
             "a label read as a sibling block's",
             vec![
-                edit("proof/binomial.proof", Some("thm:stdlib/sums/range-integer a := 1, b := m + 1, from J\n           requires 1 ∈ ℤ: arithmetic\n".to_string()), "thm:stdlib/sums/range-integer a := 0, b := m + 1, from J\n           requires 0 ∈ ℤ: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("thm:stdlib/sums/range-integer a := 1, b := m + 1, from J\n           requires 1 ∈ ℤ: arithmetic\n".to_string()), "thm:stdlib/sums/range-integer a := 0, b := m + 1, from J\n           requires 0 ∈ ℤ: arithmetic\n".to_string()),
             ],
             "step 26.1 cites thm:stdlib/sums/range-integer, which asks for",
         ),
@@ -880,14 +880,14 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proof/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 31)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
+                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 31)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
             ],
             "takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it",
         ),
         case(
             "a chain link with a letter in it naming arithmetic",
             vec![
-                edit("proof/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       1.3.4".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
+                edit("proofs/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       1.3.4".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
             ],
             "names arithmetic for",
         ),
@@ -896,7 +896,7 @@ fn cases() -> Vec<Case> {
         case(
             "a gap in the numbering",
             vec![
-                edit("proof/infinitely-many-primes.proof", Some("7.  There is p ∈ ℕ with p is prime and p > n.".to_string()), "8.  There is p ∈ ℕ with p is prime and p > n.".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("7.  There is p ∈ ℕ with p is prime and p > n.".to_string()), "8.  There is p ∈ ℕ with p is prime and p > n.".to_string()),
             ],
             "numbers run on without gaps",
         ),
@@ -904,7 +904,7 @@ fn cases() -> Vec<Case> {
         case(
             "membership named for a claim that is no membership",
             vec![
-                edit("proof/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          membership, from 1\n".to_string()),
+                edit("proofs/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          membership, from 1\n".to_string()),
             ],
             "names membership for",
         ),
@@ -914,7 +914,7 @@ fn cases() -> Vec<Case> {
         case(
             "a for-every line over a set that does not hold the range",
             vec![
-                edit("proof/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 0, b := n, from 1\n".to_string()),
+                edit("proofs/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n          thm:stdlib/sums/sum-termwise a := 0, b := n, from 1\n".to_string()),
             ],
             "step 2.1 cites thm:stdlib/sums/sum-termwise, which asks for",
         ),
@@ -923,7 +923,7 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proof/binomial.proof", Some("    thm:stdlib/sums/sum-real a := 0, b := m\n    requires 0 ∈ ℤ: arithmetic\n".to_string()), "    thm:stdlib/sums/sum-real a := 0, b := m\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("    thm:stdlib/sums/sum-real a := 0, b := m\n    requires 0 ∈ ℤ: arithmetic\n".to_string()), "    thm:stdlib/sums/sum-real a := 0, b := m\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n".to_string()),
             ],
             "says 1 ∈ ℤ, and neither thm:stdlib/sums/sum-real nor",
         ),
@@ -933,7 +933,7 @@ fn cases() -> Vec<Case> {
         case(
             "answer an equation with one that says it neither way round",
             vec![
-                edit("proof/isosceles.proof", Some("      from 5, 6, 3, 4, H5\n".to_string()), "      from 5, 6, 3, 4, 2\n".to_string()),
+                edit("proofs/isosceles.proof", Some("      from 5, 6, 3, 4, H5\n".to_string()), "      from 5, 6, 3, 4, 2\n".to_string()),
             ],
             "step 7 cites thm:stdlib/geometry/side-angle-side, which asks for",
         ),
@@ -942,21 +942,21 @@ fn cases() -> Vec<Case> {
         case(
             "cite a define by cases for the other case's value",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("    3.6.  h(t) = g⁻¹(t)\n".to_string()), "    3.6.  h(t) = f(t)\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("    3.6.  h(t) = g⁻¹(t)\n".to_string()), "    3.6.  h(t) = f(t)\n".to_string()),
             ],
             "step 3.6 cites D2 and claims a value it does not give",
         ),
         case(
             "cite a define by cases from no line saying the case",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("          D2, from 3.1\n".to_string()), "          D2, from K1\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("          D2, from 3.1\n".to_string()), "          D2, from K1\n".to_string()),
             ],
             "no line it cites says whether a case's condition holds",
         ),
         case(
             "cite a define for a claim that does not name it",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("    3.6.  h(t) = g⁻¹(t)\n".to_string()), "    3.6.  g⁻¹(t) = g⁻¹(t)\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("    3.6.  h(t) = g⁻¹(t)\n".to_string()), "    3.6.  g⁻¹(t) = g⁻¹(t)\n".to_string()),
             ],
             "step 3.6 cites D2 and its claim never names h",
         ),
@@ -973,7 +973,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite an item without the line saying its function is one-to-one",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("          thm:stdlib/functions/inverse-value, from H4, 3.5\n".to_string()), "          thm:stdlib/functions/inverse-value, from 3.5\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("          thm:stdlib/functions/inverse-value, from H4, 3.5\n".to_string()), "          thm:stdlib/functions/inverse-value, from 3.5\n".to_string()),
             ],
             "step 3.7 cites thm:stdlib/functions/inverse-value, which asks for",
         ),
@@ -982,7 +982,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a value in an image with nothing saying the set is in the domain",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("                  thm:stdlib/functions/value-in-image, from K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  thm:stdlib/functions/value-in-image, from K2\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("                  thm:stdlib/functions/value-in-image, from K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  thm:stdlib/functions/value-in-image, from K2\n".to_string()),
             ],
             "step 4.1.3 cites thm:stdlib/functions/value-in-image, which asks for",
         ),
@@ -991,7 +991,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain a part without saying what it is a part of",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.\n".to_string()), "2.  g[B ∖ f[C]] = A ∖ C.\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.\n".to_string()), "2.  g[B ∖ f[C]] = A ∖ C.\n".to_string()),
             ],
             "step 2 obtains C without stating its sort",
         ),
@@ -1000,7 +1000,7 @@ fn cases() -> Vec<Case> {
         case(
             "keep a point out of a disjoint set without saying it is in the other",
             vec![
-                edit("proof/schroeder-bernstein.proof", Some("                  thm:stdlib/sets/disjoint-member, from 7.2.2, K7\n".to_string()), "                  thm:stdlib/sets/disjoint-member, from 7.2.2\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("                  thm:stdlib/sets/disjoint-member, from 7.2.2, K7\n".to_string()), "                  thm:stdlib/sets/disjoint-member, from 7.2.2\n".to_string()),
             ],
             "step 7.2.3 cites thm:stdlib/sets/disjoint-member, which asks for",
         ),
@@ -1009,7 +1009,7 @@ fn cases() -> Vec<Case> {
         case(
             "let a group without naming its identity",
             vec![
-                edit("proof/lagrange.proof", Some("let G be a finite group with operation · and identity e".to_string()), "let G be a finite group with operation ·".to_string()),
+                edit("proofs/lagrange.proof", Some("let G be a finite group with operation · and identity e".to_string()), "let G be a finite group with operation ·".to_string()),
             ],
             "is none of the 9 introductions",
         ),
@@ -1018,7 +1018,7 @@ fn cases() -> Vec<Case> {
         case(
             "read a coset without saying H lies in G",
             vec![
-                edit("proof/lagrange.proof", Some("          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n          requires H ⊆ G: from 1\n".to_string()), "          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n".to_string()),
+                edit("proofs/lagrange.proof", Some("          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n          requires H ⊆ G: from 1\n".to_string()), "          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2\n".to_string()),
             ],
             "step 5.3 cites def:stdlib/groups/coset, which asks for H ⊆ G",
         ),
@@ -1028,7 +1028,7 @@ fn cases() -> Vec<Case> {
         case(
             "name a coset witness by an equation that does not fit either way",
             vec![
-                edit("proof/lagrange.proof", Some("    5.2.  g·e = g\n".to_string()), "    5.2.  e·g = g\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    5.2.  g·e = g\n".to_string()), "    5.2.  e·g = g\n".to_string()),
             ],
             "step 5.3 claims something that def:stdlib/groups/coset does not conclude",
         ),
@@ -1039,7 +1039,7 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition with a bound letter the claim does not use",
             vec![
-                edit("proof/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is b ∈ G with gH = aH.\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is b ∈ G with gH = aH.\n".to_string()),
             ],
             "step 12.3 claims something that def:stdlib/sets/part-builder does not conclude",
         ),
@@ -1049,7 +1049,7 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition at a term its bound letter would catch",
             vec![
-                edit("proof/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is g ∈ G with gH = gH.\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is g ∈ G with gH = gH.\n".to_string()),
             ],
             "step 12.3 claims something that def:stdlib/sets/part-builder does not conclude",
         ),
@@ -1058,7 +1058,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from part-builder citing no line that puts the set in it",
             vec![
-                edit("proof/lagrange.proof", Some("obtain a: def:stdlib/sets/part-builder, from K18".to_string()), "obtain a: def:stdlib/sets/part-builder, from K20".to_string()),
+                edit("proofs/lagrange.proof", Some("obtain a: def:stdlib/sets/part-builder, from K18".to_string()), "obtain a: def:stdlib/sets/part-builder, from K20".to_string()),
             ],
             "step 15.1 obtains from def:stdlib/sets/part-builder, which says there is one only from something the step does not cite",
         ),
@@ -1066,7 +1066,7 @@ fn cases() -> Vec<Case> {
         case(
             "count by parts without saying they do not overlap",
             vec![
-                edit("proof/lagrange.proof", Some("from H1, 14, 15, 16, 3".to_string()), "from H1, 14, 16, 3".to_string()),
+                edit("proofs/lagrange.proof", Some("from H1, 14, 15, 16, 3".to_string()), "from H1, 14, 16, 3".to_string()),
             ],
             "step 17 cites thm:stdlib/counting/partition-count, which asks for",
         ),
@@ -1076,56 +1076,56 @@ fn cases() -> Vec<Case> {
         case(
             "define a sequence with no value at 0",
             vec![
-                edit("proof/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,".to_string()),
+                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,".to_string()),
             ],
             "b has no value at 0",
         ),
         case(
             "give a sequence its first value at 1",
             vec![
-                edit("proof/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,  b(1) := N,".to_string()),
+                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,  b(1) := N,".to_string()),
             ],
             "b(1) is neither b(0) nor b(k + 1)",
         ),
         case(
             "write a step rule that names the value it defines",
             vec![
-                edit("proof/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k + 1)         if b(k) = 0".to_string()),
+                edit("proofs/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k + 1)         if b(k) = 0".to_string()),
             ],
             "names a at a place other than k",
         ),
         case(
             "write a step rule that names the index itself",
             vec![
-                edit("proof/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k) + k         if b(k) = 0".to_string()),
+                edit("proofs/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k) + k         if b(k) = 0".to_string()),
             ],
             "names k outside a value at k",
         ),
         case(
             "give a first value in terms of a sequence",
             vec![
-                edit("proof/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := b(0),  b(0) := N,".to_string()),
+                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := b(0),  b(0) := N,".to_string()),
             ],
             "names b, which has no value before 0",
         ),
         case(
             "cite a step rule without saying the index is in ℕ₀",
             vec![
-                edit("proof/euclid.proof", Some("3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1\n                                        requires j ∈ ℕ₀: from J".to_string()), "3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1".to_string()),
+                edit("proofs/euclid.proof", Some("3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1\n                                        requires j ∈ ℕ₀: from J".to_string()), "3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1".to_string()),
             ],
             "no line it cites says the index is in ℕ₀",
         ),
         case(
             "claim the value of the other case",
             vec![
-                edit("proof/euclid.proof", Some("3.1.9.2.1.  a(j + 1) = a(j)".to_string()), "3.1.9.2.1.  a(j + 1) = b(j)".to_string()),
+                edit("proofs/euclid.proof", Some("3.1.9.2.1.  a(j + 1) = a(j)".to_string()), "3.1.9.2.1.  a(j + 1) = b(j)".to_string()),
             ],
             "step 3.1.9.2.1 cites D1 and claims a value it does not give",
         ),
         case(
             "cite a step rule by cases without saying which case",
             vec![
-                edit("proof/euclid.proof", Some("3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1, from C2".to_string()), "3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1".to_string()),
+                edit("proofs/euclid.proof", Some("3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1, from C2".to_string()), "3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1".to_string()),
             ],
             "says whether a case's condition holds",
         ),
@@ -1134,14 +1134,14 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation for a link that substitutes it inside a term",
             vec![
-                edit("proof/euclid.proof", Some("                    gcd(a(0), b(0)) = gcd(M, b(0))     3.1.3".to_string()), "                    gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
+                edit("proofs/euclid.proof", Some("                    gcd(a(0), b(0)) = gcd(M, b(0))     3.1.3".to_string()), "                    gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
             ],
             "cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))",
         ),
         case(
             "define a sequence by recursion outside any theorem",
             vec![
-                edit("proof/euclid.proof", Some("theorem euclid".to_string()), "define c(0) := 1, c(k + 1) := c(k), for k ∈ ℕ₀                     (D9)\n       reads a constant sequence\n\ntheorem euclid".to_string()),
+                edit("proofs/euclid.proof", Some("theorem euclid".to_string()), "define c(0) := 1, c(k + 1) := c(k), for k ∈ ℕ₀                     (D9)\n       reads a constant sequence\n\ntheorem euclid".to_string()),
             ],
             "is written in the theorem that uses it",
         ),

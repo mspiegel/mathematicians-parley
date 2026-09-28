@@ -1,6 +1,6 @@
-//! Two theorems of proof/sqrt2-irrational as Metamath proofs:
-//! thm:proof/sqrt2-irrational/odd-square and
-//! thm:proof/sqrt2-irrational/even-square.
+//! Two theorems of proofs/sqrt2-irrational as Metamath proofs:
+//! thm:proofs/sqrt2-irrational/odd-square and
+//! thm:proofs/sqrt2-irrational/even-square.
 //!
 //! A readable theorem's hypotheses become the antecedent of an implication
 //! rather than Metamath essential hypotheses. Even-square cites odd-square
@@ -446,8 +446,8 @@ pub fn text() -> String {
     );
 
     format!(
-        r#"$( thm:proof/sqrt2-irrational/odd-square and
-   thm:proof/sqrt2-irrational/even-square, from proof/sqrt2-irrational.proof,
+        r#"$( thm:proofs/sqrt2-irrational/odd-square and
+   thm:proofs/sqrt2-irrational/even-square, from proofs/sqrt2-irrational.proof,
    as Metamath proofs.
 
    Verify with any Metamath verifier, with set.mm in the same directory:

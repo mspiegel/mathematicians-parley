@@ -10,7 +10,7 @@ the merge of the ten pilots' item tables decided.
 db/notation.records      symbols a claim may use
 db/methods.records       the justification vocabulary
 stdlib/*.records         the standard library: definitions and theorems
-proof/*.proof            the proof skeletons, one file per pilot
+proofs/*.proof            the proof skeletons, one file per pilot
 tests/stdlib/*.proof     a test for each library item no proof cites
 docs/*.md                the design documents, this one among them
 docs/pilot/*.md          the design commentary for each pilot
@@ -20,9 +20,9 @@ docs/pilot/*.md          the design commentary for each pilot
 
 A definition or theorem is named by the file that holds it and then its own
 name, and a citation writes both: `def:stdlib/divisibility/odd`,
-`thm:stdlib/numbers/int-real`, `thm:proof/triangle-inequality/abs-bounds`. The
+`thm:stdlib/numbers/int-real`, `thm:proofs/triangle-inequality/abs-bounds`. The
 file is its path without the extension, so the name says where to look. A
-theorem of the citing file is written bare, `thm:proof/sqrt2-irrational/odd-square`, and that is the
+theorem of the citing file is written bare, `thm:proofs/sqrt2-irrational/odd-square`, and that is the
 only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
 `import proof` line a proof file writes for each other proof file it cites
 and the `import definition` line for each definition it uses from one.
@@ -197,7 +197,7 @@ already have. Neither proof changes.
 
 **Five statements were cross-references.** `def:stdlib/sets/set-builder` and
 `thm:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
-once. `thm:proof/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
+once. `thm:proofs/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
 
 **Theorems are stored in dependency order.** A pointer must resolve to something
@@ -205,7 +205,7 @@ earlier, as `READERS.md` requires. Only the √2 file needed reordering: it now
 runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 
-**Six items had no row anywhere.** `thm:proof/sqrt2-irrational/sqrt2-irrational` was the only pilot's
+**Six items had no row anywhere.** `thm:proofs/sqrt2-irrational/sqrt2-irrational` was the only pilot's
 main theorem missing from its own table. `def:stdlib/functions/set-image` is named in `SYNTAX.md`
 and was in no table. `def:stdlib/geometry/angle` appears only in the isosceles findings, though
 the ∠ notation needs it. Notation for ℕ₀, for the general power `^` and for
@@ -301,15 +301,15 @@ repaired.
 ## Eight open items
 
 `def:stdlib/geometry/collinear`, `def:stdlib/geometry/congruent`, `def:stdlib/functions/function`, `def:stdlib/geometry/point`, `def:stdlib/geometry/triangle`,
-`thm:proof/subsets/add-element-bijection`, `thm:proof/subsets/powerset-split`,
-`thm:proof/subsets/powerset-split-disjoint`.
+`thm:proofs/subsets/add-element-bijection`, `thm:proofs/subsets/powerset-split`,
+`thm:proofs/subsets/powerset-split-disjoint`.
 
 Four of the eight are geometry, which is what the isosceles pilot predicted:
 the proof is trivial and the database is not. Three are the counting lemmas the
 subsets pilot leaned on, and one is what `def:stdlib/functions/function` would
 have to say about a map.
 
-Six more were open and are not. `thm:proof/intermediate-value/point-right`
+Six more were open and are not. `thm:proofs/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
 proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
 `thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in

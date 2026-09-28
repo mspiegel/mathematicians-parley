@@ -18,7 +18,7 @@ the viewer pulls in at each point of use.
 
 ## Theorem sqrt2-irrational
 
-The skeleton is in `proof/sqrt2-irrational.proof`, which holds all three
+The skeleton is in `proofs/sqrt2-irrational.proof`, which holds all three
 theorems of this pilot. They are stored in dependency order, odd-square then
 even-square then sqrt2-irrational, so that every pointer resolves to
 something earlier; this file presents them the other way round, main theorem
@@ -28,13 +28,13 @@ first.
 
 ## Theorem odd-square
 
-In `proof/sqrt2-irrational.proof`, first of the three.
+In `proofs/sqrt2-irrational.proof`, first of the three.
 
 ---
 
 ## Theorem even-square
 
-In `proof/sqrt2-irrational.proof`, second of the three. The rendered view
+In `proofs/sqrt2-irrational.proof`, second of the three. The rendered view
 below is of this theorem.
 
 ---
@@ -93,8 +93,8 @@ question and not a property of the text.
 
 This pilot introduced most of the database. In the database: `def:stdlib/numbers/sqrt`,
 `def:stdlib/numbers/rational`, `def:stdlib/numbers/irrational`, `def:stdlib/divisibility/even`, `def:stdlib/divisibility/odd`, `def:stdlib/divisibility/divides`,
-`thm:proof/sqrt2-irrational/lowest-terms`, `thm:stdlib/numbers/int-closure`, `thm:stdlib/divisibility/even-or-odd`, `thm:stdlib/divisibility/not-both`,
-`thm:proof/sqrt2-irrational/odd-square`, `thm:proof/sqrt2-irrational/even-square` and `thm:proof/sqrt2-irrational/sqrt2-irrational`. In
+`thm:proofs/sqrt2-irrational/lowest-terms`, `thm:stdlib/numbers/int-closure`, `thm:stdlib/divisibility/even-or-odd`, `thm:stdlib/divisibility/not-both`,
+`thm:proofs/sqrt2-irrational/odd-square`, `thm:proofs/sqrt2-irrational/even-square` and `thm:proofs/sqrt2-irrational/sqrt2-irrational`. In
 `db/notation.records`: the number systems, the relations, the arithmetic
 operations and the logical symbols. In `db/methods.records`: `arithmetic`,
 `algebra`, `inequalities`, `substitute`, `join`, `obtain`, `exhibit`,
@@ -102,7 +102,7 @@ operations and the logical symbols. In `db/methods.records`: `arithmetic`,
 to stand here were merged into those files; `DATABASE.md` records what the
 merge decided.
 
-`thm:proof/sqrt2-irrational/sqrt2-irrational` was not in the table. It was the only pilot's main
+`thm:proofs/sqrt2-irrational/sqrt2-irrational` was not in the table. It was the only pilot's main
 theorem missing a row of its own, and the merge added it.
 
 ---

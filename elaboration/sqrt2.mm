@@ -1,5 +1,5 @@
-$( thm:proof/sqrt2-irrational/sqrt2-irrational, from
-   proof/sqrt2-irrational.proof, as a Metamath proof.
+$( thm:proofs/sqrt2-irrational/sqrt2-irrational, from
+   proofs/sqrt2-irrational.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with parity.mm and set.mm in the same
    directory:
@@ -10,14 +10,14 @@ $( thm:proof/sqrt2-irrational/sqrt2-irrational, from
    copy of that file truncated after oddm1even, which is the last statement it
    uses.
 
-   thm:proof/sqrt2-irrational/lowest-terms and the proof's three `algebra`
+   thm:proofs/sqrt2-irrational/lowest-terms and the proof's three `algebra`
    steps are axioms here. Everything else uses set.mm's own theorems, or
-   thm:proof/sqrt2-irrational/even-square, which parity.mm proves.
+   thm:proofs/sqrt2-irrational/even-square, which parity.mm proves.
 $)
 
 $[ parity.mm $]
 
-$( thm:proof/sqrt2-irrational/lowest-terms, stated as its readable form
+$( thm:proofs/sqrt2-irrational/lowest-terms, stated as its readable form
    states it. set.mm's nearest statement is qredeu, which gives a unique
    pair in ( ZZ X. NN ) whose gcd is 1; the shapes do not match, and closing
    the gap is a proof of its own. $)

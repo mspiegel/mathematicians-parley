@@ -1,4 +1,4 @@
-$( thm:proof/sum-formula/sum-formula, from proof/sum-formula.proof, as a
+$( thm:proofs/sum-formula/sum-formula, from proofs/sum-formula.proof, as a
    Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:

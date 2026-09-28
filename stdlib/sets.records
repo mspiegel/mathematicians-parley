@@ -133,7 +133,7 @@ theorem not-in-difference
   then        a ∉ X ∖ {a}
   metamath    neldifsn
   target      neldifsn
-  note        Added because thm:proof/subsets/add-element-bijection assumes the element it
+  note        Added because thm:proofs/subsets/add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
 

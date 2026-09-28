@@ -66,7 +66,7 @@ So in `f(x₁) − f(c) ≤ |f(x₁) − f(c)|` the atoms are `f(x₁)`, `f(c)` 
 inside contains the first two. The method never looks inside an atom and knows
 nothing about what it means. That `|y|` is at least `y` is not available to it;
 that fact reaches a step as a cited line, which is what
-`thm:proof/triangle-inequality/abs-bounds` is for.
+`thm:proofs/triangle-inequality/abs-bounds` is for.
 
 ### Facts in
 
@@ -330,7 +330,7 @@ with coefficients of degree at most one.
 
 Six steps are written out in `elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 3 of
-`thm:proof/bezout/least-combination-divides`, the only step in the corpus whose
+`thm:proofs/bezout/least-combination-divides`, the only step in the corpus whose
 coefficients are not constants, and it is in `elaboration/algebra.mm`.
 
 Each follows one order — carry the atoms into ℂ, apply the structural lemma

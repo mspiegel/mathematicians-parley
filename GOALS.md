@@ -350,7 +350,7 @@ Metamath 100 page lists which of the hundred set.mm proves and under which
 labels. The chosen ten, with the measurements and the alternatives
 considered, are in `SELECTION.md`.
 
-All ten are written. The proof skeletons are in `proof/`, the definitions,
+All ten are written. The proof skeletons are in `proofs/`, the definitions,
 theorems, notation and methods they cite are in `db/`, and `DATABASE.md`
 describes both formats and records what merging the ten pilots' item tables
 decided. `docs/pilot/` keeps the design commentary for each, which is the record
@@ -400,7 +400,7 @@ answer later would invalidate work already done.
    it.
 
    The second half has an answer. `parley build` elaborates
-   `thm:proof/sqrt2-irrational/odd-square` from the readable text, and its proof verifies and is not
+   `thm:proofs/sqrt2-irrational/odd-square` from the readable text, and its proof verifies and is not
    the one written by hand: 2,067 proof tokens against 1,617, differing in
    which facts it keeps rather than only in length. So two elaborators
    following these requirements agree on what verifies and not on what they
@@ -429,7 +429,7 @@ answer later would invalidate work already done.
 
    The second half now has a measurement. Six `algebra` steps are written out
    in `elaboration/` and verify, including step 3 of
-   `thm:proof/bezout/least-combination-divides`, which is the only step in the corpus whose
+   `thm:proofs/bezout/least-combination-divides`, which is the only step in the corpus whose
    coefficients are not constants and so the one that would have forced a
    search. It did not: all six follow one order, and `ELABORATION.md` measures
    them at 229 to 1,564 bytes of compressed proof. Verification time is not the

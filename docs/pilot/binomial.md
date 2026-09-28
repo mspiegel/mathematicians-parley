@@ -32,7 +32,7 @@ Equation (3.3), which it gives for 1 ≤ k ≤ n.
 
 ## Theorems binomial-step and binomial
 
-The skeleton is `proof/binomial.proof`. `binomial-step` is the induction
+The skeleton is `proofs/binomial.proof`. `binomial-step` is the induction
 step's algebra: the sum for m, times x + y, is the sum for m + 1.
 `binomial` is the induction, whose base case is the one-term sum at 0 and
 whose step cites `binomial-step` after (x + y)^(m + 1) = (x + y)^m·(x + y)
@@ -57,7 +57,7 @@ This pilot introduced, in the database, `def:stdlib/counting/binomial-coefficien
 `thm:stdlib/sums/sum-add`, `thm:stdlib/sums/sum-termwise` and `thm:stdlib/sums/sum-real`, the range items
 `thm:stdlib/sums/range-difference`, `thm:stdlib/sums/range-integer` and `thm:stdlib/sums/range-nat0`, and
 `thm:stdlib/numbers/exponent-zero`, `thm:stdlib/numbers/nat0-int` and `thm:stdlib/numbers/below-successor`, with
-`thm:proof/binomial/binomial-step` and `thm:proof/binomial/binomial` proved here. In `db/notation.records`
+`thm:proofs/binomial/binomial-step` and `thm:proofs/binomial/binomial` proved here. In `db/notation.records`
 it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
 
 ---

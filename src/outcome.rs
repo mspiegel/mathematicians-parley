@@ -209,8 +209,8 @@ mod tests {
 
     #[test]
     fn a_problem_says_where() {
-        let p = Problem::new("proof/a.proof", 12, "no justification");
-        assert_eq!(p.to_string(), "proof/a.proof:12  no justification");
+        let p = Problem::new("proofs/a.proof", 12, "no justification");
+        assert_eq!(p.to_string(), "proofs/a.proof:12  no justification");
     }
 
     #[test]

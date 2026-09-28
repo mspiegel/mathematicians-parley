@@ -3,7 +3,7 @@
 `SYNTAX.md` says what a step must contain and why each form was chosen.
 `DATABASE.md` says where things are stored. This document says how the stored
 text is read: the line kinds, the justification forms, what a formula is, and
-the rules a parser applies. It is written from the proofs in `proof/`, the
+the rules a parser applies. It is written from the proofs in `proofs/`, the
 standard library in `stdlib/` and the notation and methods in `db/`, and every
 rule below holds on all of them.
 
@@ -44,7 +44,7 @@ listed in the checker instead.
   capital is there for the name a `define` gives a function, `S` in
   `define S(m) := …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
-  corpus without its extension: `stdlib/numbers`, `proof/bezout`.
+  corpus without its extension: `stdlib/numbers`, `proofs/bezout`.
 - `<cited>` is `[ <module> / ] <name>`, what follows `def:` or `thm:`. With
   its module it is a full name, `stdlib/numbers/int-real`; without one it is a
   theorem of the citing file. "Names" below says how one is resolved.
@@ -560,7 +560,7 @@ it holds of, because that name comes from the notation that binds it: in
 `{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
 Three of those, `be an element`, `be a set` and `be a point`, are not notations
 and never appear inside a formula. `assume` does take a formula, because it
-does assert. `thm:proof/subsets/add-element-bijection` introduces its `a` by `∉`, and
+does assert. `thm:proofs/subsets/add-element-bijection` introduces its `a` by `∉`, and
 `thm:stdlib/counting/card-singleton` and eight other items introduce theirs by `be an
 element`. The kernel reads either as the thing being a set as well, since
 `{a}` of a proper class is empty; that sethood is apparatus the page never
@@ -577,13 +577,13 @@ declared none of them matched anything.
 A definition or theorem is named by the file that holds it and its own name:
 its full name is the file's path from the root without the extension, `/`, and
 the name on its `theorem` or record line. `stdlib/numbers.records` holds
-`stdlib/numbers/int-real`; `proof/triangle-inequality.proof` holds
-`proof/triangle-inequality/abs-bounds`. A name need only be unique within its
+`stdlib/numbers/int-real`; `proofs/triangle-inequality.proof` holds
+`proofs/triangle-inequality/abs-bounds`. A name need only be unique within its
 file.
 
 A citation writes the full name, `thm:stdlib/numbers/int-real`, so each line
 says where what it cites comes from. The one shorter form is a theorem of the
-citing file, which is written bare: `thm:proof/sqrt2-irrational/odd-square` in the file that proves
+citing file, which is written bare: `thm:proofs/sqrt2-irrational/odd-square` in the file that proves
 it. A bare name that is no theorem of the file is a defect, and so is a full
 name that resolves to nothing.
 
@@ -596,15 +596,15 @@ An import says what it brings in. A proof file imports each other proof file
 it cites, and only those:
 
 ```
-import proof proof/triangle-inequality
+import proof proofs/triangle-inequality
 ```
 
 and each definition it uses from another file, one at a time, under its own
 name or under the name after `as`, with a label:
 
 ```
-import definition proof/series/T (D1)
-import definition proof/series/U as V (D2)
+import definition proofs/series/T (D1)
+import definition proofs/series/U as V (D2)
 ```
 
 The label is cited as a define's is: a calculation link writing `T(3)` out

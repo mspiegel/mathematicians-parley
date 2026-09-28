@@ -18,7 +18,7 @@ first and is itself by cases.
 
 ## Theorems abs-bounds and triangle-inequality
 
-Both skeletons are in `proof/triangle-inequality.proof`, abs-bounds first.
+Both skeletons are in `proofs/triangle-inequality.proof`, abs-bounds first.
 The items they cite are in `db/`.
 
 ---
@@ -88,7 +88,7 @@ The items they cite are in `db/`.
 ## Database items
 
 This pilot introduced `def:stdlib/numbers/abs`, `thm:stdlib/numbers/nonneg-or-neg`, `thm:stdlib/numbers/real-closure`,
-`thm:proof/triangle-inequality/abs-bounds` and `thm:proof/triangle-inequality/triangle-inequality` in the database, the absolute
+`thm:proofs/triangle-inequality/abs-bounds` and `thm:proofs/triangle-inequality/triangle-inequality` in the database, the absolute
 value and negation rows in `db/notation.records`, and the `cases` method in
 `db/methods.records`. It also settled the mixed = and ≤ chain, which is part of
 the `calculation` record rather than a method of its own. The table that used

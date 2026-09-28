@@ -6,7 +6,7 @@
 //! the elaborator applies the lemma, and the result verifies. An item
 //! nothing cites has never been asked, and it can say anything.
 //!
-//! So each item is cited by a proof under `proof/`, or by its test under
+//! So each item is cited by a proof under `proofs/`, or by its test under
 //! `tests/stdlib/`: a theorem whose one step cites it. A test takes the
 //! item's hypotheses as its own and claims the item's conclusion, or for a
 //! definition the right side of it from the left. One direction is enough:

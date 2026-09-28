@@ -19,7 +19,7 @@ is closed by the theorem that a contradiction implies anything.
 
 ## Theorem intermediate-value
 
-The skeleton is `proof/intermediate-value.proof`. The items it cites are in
+The skeleton is `proofs/intermediate-value.proof`. The items it cites are in
 `db/`.
 
 The merge renamed three of its citations. Steps 14, 17.13 and 17.25.5.5 cited
@@ -35,8 +35,8 @@ same name for a definition of what `f : A → B` means. The fact is now
 This pilot introduced `def:stdlib/calculus/interval`, `thm:stdlib/calculus/interval-real`,
 `thm:stdlib/sets/subset-transitive`, `thm:stdlib/functions/function-value`, `def:stdlib/calculus/continuous-on`,
 `def:stdlib/calculus/upper-bound`, `def:stdlib/calculus/least-upper-bound`, `thm:stdlib/calculus/completeness`,
-`thm:stdlib/numbers/trichotomy`, `thm:stdlib/reasoning/from-contradiction`, `thm:proof/intermediate-value/point-right`,
-`thm:stdlib/numbers/abs-difference-lt` and `thm:proof/intermediate-value/intermediate-value` in the database, and
+`thm:stdlib/numbers/trichotomy`, `thm:stdlib/reasoning/from-contradiction`, `thm:proofs/intermediate-value/point-right`,
+`thm:stdlib/numbers/abs-difference-lt` and `thm:proofs/intermediate-value/intermediate-value` in the database, and
 the closed interval row in `db/notation.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
@@ -46,10 +46,10 @@ derived fact, not a definition, and collided with the Cantor pilot's
 definition of that name; it is now `thm:stdlib/functions/function-value`, and the three steps
 citing it name it. `thm:stdlib/numbers/real-closure` was stated here with two sentences and
 in the triangle inequality pilot with one; the merged item carries both.
-`thm:proof/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
+`thm:proofs/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 recorded as proved in that pilot's proof file.
 
-`thm:proof/intermediate-value/point-right` is one of the twelve open items, and the only one that
+`thm:proofs/intermediate-value/point-right` is one of the twelve open items, and the only one that
 exists purely because the language has no `min` notation.
 
 ---
@@ -100,7 +100,7 @@ exists purely because the language has no `min` notation.
    statement, both readable. Whether the *proof* of completeness is ever
    in the corpus is a question about the foundation, since in set.mm it
    is an axiom of the real numbers, ax-pre-sup.
-7. **A lemma that exists only to avoid min.** thm:proof/intermediate-value/point-right is cited to
+7. **A lemma that exists only to avoid min.** thm:proofs/intermediate-value/point-right is cited to
    get a point x₁ just right of c, within δ and not past b. Textbooks
    write "take x₁ = min(b, c + δ/2)". Without a min notation and its
    case split, the lemma is the honest form; it is one more item the

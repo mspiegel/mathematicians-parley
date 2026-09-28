@@ -18,7 +18,7 @@ a chosen element.
 
 ## Theorem subsets-count
 
-The skeleton is `proof/subsets.proof`. The items it cites are in `db/`.
+The skeleton is `proofs/subsets.proof`. The items it cites are in `db/`.
 
 ---
 
@@ -26,16 +26,16 @@ The skeleton is `proof/subsets.proof`. The items it cites are in `db/`.
 
 This pilot introduced `def:stdlib/counting/card`, `thm:stdlib/counting/card-zero`, `thm:stdlib/sets/powerset-empty`,
 `thm:stdlib/counting/card-singleton`, `thm:stdlib/counting/card-nonempty`, `thm:stdlib/counting/card-remove`,
-`thm:stdlib/sets/difference-set`, `thm:proof/subsets/add-element-bijection`, `thm:stdlib/counting/card-bijection`,
-`thm:proof/subsets/powerset-split`, `thm:proof/subsets/powerset-split-disjoint`,
-`thm:stdlib/counting/card-disjoint-union` and `thm:proof/subsets/subsets-count` in the database, and the
+`thm:stdlib/sets/difference-set`, `thm:proofs/subsets/add-element-bijection`, `thm:stdlib/counting/card-bijection`,
+`thm:proofs/subsets/powerset-split`, `thm:proofs/subsets/powerset-split-disjoint`,
+`thm:stdlib/counting/card-disjoint-union` and `thm:proofs/subsets/subsets-count` in the database, and the
 cardinality, set-operation and set-image rows in `db/notation.records`. The table
 that used to stand here was merged into those files; `DATABASE.md` records
 what the merge decided.
 
 Three of these are open items, as finding 4 below says. Two of the three had
-rows that were not statements: `thm:proof/subsets/add-element-bijection`'s row trailed off
-mid-sentence and `thm:proof/subsets/powerset-split-disjoint`'s read only "the two parts
+rows that were not statements: `thm:proofs/subsets/add-element-bijection`'s row trailed off
+mid-sentence and `thm:proofs/subsets/powerset-split-disjoint`'s read only "the two parts
 above are disjoint". The proof file carries the merge's reading of each, which
 should be checked before either is proved.
 

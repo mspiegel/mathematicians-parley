@@ -1,6 +1,6 @@
 # Which geometry this project should stand on
 
-`proof/isosceles.proof` is the corpus's one geometry proof. What it stands on
+`proofs/isosceles.proof` is the corpus's one geometry proof. What it stands on
 is a question about foundations rather than about tools, and seven answers
 have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
 SMSG, and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
@@ -14,7 +14,7 @@ the complex plane, and the proof elaborates to a file that assumes nothing.
 **1. The backend adds no mathematical axioms.** `GOALS.md`, on what is kept
 from Metamath: *"No mathematical axioms in the kernel. The foundation is a
 library."* The corresponding measure in practice is the list at the head of
-an elaborated file. Every proof in `elaboration/proof/` states what it assumed
+an elaborated file. Every proof in `elaboration/proofs/` states what it assumed
 and why, and the work of the last eight proofs has been to shorten those
 lists; `cantor.mm` assumes nothing. A backend that enters as an axiom system
 makes the corpus's geometry permanently assumed, which is the opposite

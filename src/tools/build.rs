@@ -5,7 +5,7 @@
 //! the proofs below the readable layer are written first; and the
 //! hand-written comparison proofs are written beside them. A file's path
 //! under `elaboration/` is its name with `.mm`, so the theorem
-//! `proof/bezout/bezout` is written to `elaboration/proof/bezout/bezout.mm`,
+//! `proofs/bezout/bezout` is written to `elaboration/proofs/bezout/bezout.mm`,
 //! and a file including it says so.
 //!
 //! Which artifact has to exist before which is a real constraint, and

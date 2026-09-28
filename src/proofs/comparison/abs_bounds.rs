@@ -1,4 +1,4 @@
-//! thm:proof/triangle-inequality/abs-bounds as a Metamath proof.
+//! thm:proofs/triangle-inequality/abs-bounds as a Metamath proof.
 //!
 //! It is the first proof here with a `cases` block, which completes the four
 //! block forms, and the first with any `inequalities` step expanded.
@@ -229,8 +229,8 @@ pub fn text() -> String {
     );
 
     format!(
-        r#"$( thm:proof/triangle-inequality/abs-bounds, from
-   proof/triangle-inequality.proof, as a Metamath proof.
+        r#"$( thm:proofs/triangle-inequality/abs-bounds, from
+   proofs/triangle-inequality.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

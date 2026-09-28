@@ -16,10 +16,10 @@ landing in C. On C the bijection is f, off C it is the way back along g.
 
 ## Theorems fixed-part and schroeder-bernstein
 
-The proof is `proof/schroeder-bernstein.proof`, two theorems. `fixed-part`
+The proof is `proofs/schroeder-bernstein.proof`, two theorems. `fixed-part`
 finds C, and is set.mm's `sbthlem3` said as "there is such a part".
 `schroeder-bernstein` defines the bijection by cases and shows it is one.
-Both elaborate, to `elaboration/proof/schroeder-bernstein/fixed-part.mm` and
+Both elaborate, to `elaboration/proofs/schroeder-bernstein/fixed-part.mm` and
 `schroeder-bernstein.mm`, assume nothing, and verify.
 
 Numbers: `fixed-part` has 35 numbered steps and `schroeder-bernstein` 76.

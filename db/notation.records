@@ -932,7 +932,7 @@ notation there-are
   target      _5 _3 _4 wrex _1 _2 wrex
   note        The two-variable form. Six uses: Bezout's statement and its
               step 19, the set-builder body of its define line, and the
-              statements of def:stdlib/numbers/rational, thm:proof/sqrt2-irrational/lowest-terms and
+              statements of def:stdlib/numbers/rational, thm:proofs/sqrt2-irrational/lowest-terms and
               thm:stdlib/divisibility/division-algorithm. Writing it as two nested `there is`
               phrases was the alternative and reads far worse, which is why
               every one of the six is written this way.

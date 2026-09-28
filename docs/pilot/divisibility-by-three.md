@@ -20,7 +20,7 @@ congruent modulo n if n | (a − b)"), and its induction chapter asks for
 
 ## Theorems ten-power-congruent and divisibility-by-three
 
-The skeleton is `proof/divisibility-by-three.proof`. `ten-power-congruent`
+The skeleton is `proofs/divisibility-by-three.proof`. `ten-power-congruent`
 says 10^k ≡ 1 (mod 3) for every k ∈ ℕ₀, by induction from 0, since
 10^(k + 1) − 1 = (10^k − 1)·10 + (10 − 1). `divisibility-by-three` then
 shows each term d(k)·10^k − d(k) divisible by 3, so the sum of them, which
@@ -34,8 +34,8 @@ together.
 This pilot introduced, in the database, `def:stdlib/divisibility/congruent-mod`,
 `thm:stdlib/divisibility/divides-multiple`, `thm:stdlib/divisibility/congruent-divides`, `thm:stdlib/numbers/power-integer`,
 `thm:stdlib/numbers/ten-minus-one`, `thm:stdlib/sums/sum-divisible`, `thm:stdlib/sums/sum-integer`,
-`thm:stdlib/sums/sum-difference`, `thm:proof/divisibility-by-three/ten-power-congruent` and
-`thm:proof/divisibility-by-three/divisibility-by-three`, and widened `thm:stdlib/functions/function-value` from functions
+`thm:stdlib/sums/sum-difference`, `thm:proofs/divisibility-by-three/ten-power-congruent` and
+`thm:proofs/divisibility-by-three/divisibility-by-three`, and widened `thm:stdlib/functions/function-value` from functions
 into ℝ to functions into any set. In `db/notation.records` it added `sum` and
 `congruent-mod`, and a precedence level, `summation`.
 

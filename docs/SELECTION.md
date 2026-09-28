@@ -152,7 +152,7 @@ another theorem for the same feature. The question now is which features are
 still untested, and a reindexed sum, a congruence and an injection-built
 bijection are among them.
 
-1. **Divisibility by 3.** Written: `proof/divisibility-by-three.proof`, with
+1. **Divisibility by 3.** Written: `proofs/divisibility-by-three.proof`, with
    its design record in `docs/pilot/divisibility-by-three.md`, and both of its
    theorems elaborate with nothing assumed. The first congruence in the
    corpus: 10ᵏ leaves
@@ -161,12 +161,12 @@ bijection are among them.
    and the readable statement is about the digits of a number, so the
    statement itself is the first thing to settle. Its 122 steps are what
    the up direction would hide; the readable proof is a few lines.
-2. **Binomial theorem.** Written: `proof/binomial.proof`, with its design
+2. **Binomial theorem.** Written: `proofs/binomial.proof`, with its design
    record in `docs/pilot/binomial.md`, and both of its theorems elaborate with
    nothing assumed. Induction again, but the step shifts a sum's index,
    extends two sums by a zero term and applies Pascal's rule, where the
    geometric series only adds a term at the end (`fsump1`).
-3. **Triangular reciprocals.** Written: `proof/triangular-reciprocals.proof`,
+3. **Triangular reciprocals.** Written: `proofs/triangular-reciprocals.proof`,
    with its design record in `docs/pilot/triangular-reciprocals.md`, and it
    elaborates with nothing assumed. No class variables and nothing to hide in
    the statement. The first limit of a sequence and the first sum over all

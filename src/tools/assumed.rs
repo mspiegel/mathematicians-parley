@@ -7,7 +7,7 @@
 //! file's header says what the file assumes, and is not a record: nothing
 //! makes anyone read it.
 //!
-//! So every `$a` in a file under `elaboration/proof/` or
+//! So every `$a` in a file under `elaboration/proofs/` or
 //! `elaboration/tests/` must be named in the section "Steps taken as stated"
 //! of `ELABORATION.md`, and every statement named there must still be one a
 //! file takes. The second keeps the record from outliving what it records.
@@ -51,7 +51,7 @@ fn recorded(text: &str) -> Option<BTreeSet<(String, String)>> {
 fn taken(source: &dyn Source) -> BTreeSet<(String, String)> {
     let mut out = BTreeSet::new();
     for rel in source.found(".mm") {
-        let read = ["elaboration/proof/", "elaboration/tests/"]
+        let read = ["elaboration/proofs/", "elaboration/tests/"]
             .iter()
             .any(|p| rel.starts_with(p));
         if !read {

@@ -12,8 +12,8 @@ has as many elements as H, so |G| is |H| times the number of parts.
 
 ## Theorem lagrange
 
-The proof is `proof/lagrange.proof`, one theorem. It elaborates to
-`elaboration/proof/lagrange/lagrange.mm`, assumes nothing, and verifies.
+The proof is `proofs/lagrange.proof`, one theorem. It elaborates to
+`elaboration/proofs/lagrange/lagrange.mm`, assumes nothing, and verifies.
 
 Numbers: 101 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
 coset facts (gH lies in G, g is in gH, a coset is fixed by any of its

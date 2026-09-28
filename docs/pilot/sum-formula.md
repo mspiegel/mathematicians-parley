@@ -21,7 +21,7 @@ stated about S.
 
 ## Theorem sum-formula
 
-The skeleton is `proof/sum-formula.proof`. The items it cites are in `db/`.
+The skeleton is `proofs/sum-formula.proof`. The items it cites are in `db/`.
 
 ---
 
@@ -77,7 +77,7 @@ The skeleton is `proof/sum-formula.proof`. The items it cites are in `db/`.
 
 ## Database items
 
-This pilot introduced `def:stdlib/sums/S` and `thm:proof/sum-formula/sum-formula` in the database, the ℕ
+This pilot introduced `def:stdlib/sums/S` and `thm:proofs/sum-formula/sum-formula` in the database, the ℕ
 and S rows in `db/notation.records`, and the `induction` and `fix` methods in
 `db/methods.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.

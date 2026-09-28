@@ -1,5 +1,5 @@
-$( Step 3 of thm:proof/bezout/least-combination-divides, from
-   proof/bezout.proof, as a Metamath proof.
+$( Step 3 of thm:proofs/bezout/least-combination-divides, from
+   proofs/bezout.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 
