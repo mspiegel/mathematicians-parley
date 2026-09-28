@@ -487,15 +487,25 @@ pub struct Reader {
     pub clashes: Vec<Clash>,
     /// Names declared of any kind, not yet fixed.
     declared: Vec<String>,
+    notations: Rc<NotationKinds>,
+}
+
+/// What every notation says about kinds: the signature its `kinds` field
+/// declares, and which of its holes bind a variable.
+///
+/// It depends on the grammar alone, so it is read once per grammar
+/// (`Grammar::notation_kinds`) and every reader shares it; each use of a
+/// signature takes fresh variables of its own (`Signature::fresh`).
+pub struct NotationKinds {
     signatures: IndexMap<String, Rc<Signature>>,
     bound: IndexMap<String, IndexSet<usize>>,
 }
 
-impl Reader {
-    pub fn new(env: Env) -> Reader {
+impl NotationKinds {
+    pub fn read(g: &crate::formula::Grammar) -> NotationKinds {
         let mut signatures: IndexMap<String, Rc<Signature>> = IndexMap::new();
         let mut bound: IndexMap<String, IndexSet<usize>> = IndexMap::new();
-        for n in &env.g.notations {
+        for n in &g.notations {
             let key = n.key().to_string();
             let Some(kinds) = &n.kinds else { continue };
             if kinds.is_empty() {
@@ -518,12 +528,17 @@ impl Reader {
                 }
             }
         }
+        NotationKinds { signatures, bound }
+    }
+}
+
+impl Reader {
+    pub fn new(env: Env) -> Reader {
         Reader {
             env: IndexMap::new(),
             clashes: Vec::new(),
             declared: Vec::new(),
-            signatures,
-            bound,
+            notations: env.g.notation_kinds(),
         }
     }
 
@@ -561,13 +576,14 @@ impl Reader {
         if node.notation == "numeral" {
             return NUMBER;
         }
-        let (holes, out) = match self.signatures.get(&node.notation).cloned() {
+        let notations = Rc::clone(&self.notations);
+        let (holes, out) = match notations.signatures.get(&node.notation) {
             Some(make) if make.holes() == node.children.len() => make.fresh(store),
             _ => by_sort(node, store),
         };
         let mut inner = local.clone();
-        if let Some(indices) = self.bound.get(&node.notation).cloned() {
-            for i in indices {
+        if let Some(indices) = notations.bound.get(&node.notation) {
+            for &i in indices {
                 if i < node.children.len() && node.children[i].is_name() {
                     let v = store.var();
                     inner.insert(node.children[i].text.clone(), v);

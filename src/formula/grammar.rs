@@ -1,6 +1,6 @@
 //! Reading one sentence against the declared notations.
 
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
@@ -11,6 +11,7 @@ use super::notation::{
 };
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
+use crate::kinds::NotationKinds;
 use crate::outcome::{Checked, Problem};
 use crate::text::repr;
 
@@ -37,6 +38,7 @@ pub struct Grammar {
     pub tighter: IndexMap<String, IndexSet<String>>,
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
     readings: RefCell<IndexMap<ReadingKey, Node>>,
+    kinds: OnceCell<Rc<NotationKinds>>,
 }
 
 impl Grammar {
@@ -49,7 +51,17 @@ impl Grammar {
             tighter: compile_precedence(records),
             tokens: RefCell::new(IndexMap::new()),
             readings: RefCell::new(IndexMap::new()),
+            kinds: OnceCell::new(),
         })
+    }
+
+    /// What the notations say about kinds, read the first time a kinds
+    /// reader asks and shared by every one after.
+    pub fn notation_kinds(&self) -> Rc<NotationKinds> {
+        Rc::clone(
+            self.kinds
+                .get_or_init(|| Rc::new(NotationKinds::read(self))),
+        )
     }
 
     /// The sentence's tokens, read once.
