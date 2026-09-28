@@ -173,6 +173,7 @@ notation order
   pattern     _ < _        _ > _        _ ≤ _        _ ≥ _
   holes       number, number
   yields      formula
+  kinds       number, number → formula
   level       relational
   reads       is less than, is greater than, is at most, is at least
   metamath    clt, cle
@@ -182,6 +183,7 @@ notation additive
   pattern     _ + _        _ − _
   holes       number, number
   yields      number
+  kinds       number, number → number
   level       additive
   assoc       left
   reads       plus, minus
@@ -196,6 +198,7 @@ notation multiplicative
   pattern     _ · _        _ / _
   holes       number, number
   yields      number
+  kinds       number, number → number
   level       multiplicative
   assoc       left
   commutes    yes, no
@@ -222,6 +225,7 @@ notation unary-minus
   pattern     −_
   holes       number
   yields      number
+  kinds       number → number
   level       unary-minus
   reads       minus
   metamath    cneg
@@ -234,6 +238,7 @@ notation power
   pattern     _^_
   holes       number, number
   yields      number
+  kinds       number, number → number
   level       power
   assoc       right
   reads       to the power
@@ -247,6 +252,7 @@ notation square
   pattern     _²
   holes       number
   yields      number
+  kinds       number → number
   level       power
   reads       squared
   metamath    cexp with the numeral 2
@@ -258,6 +264,7 @@ notation square-root
   pattern     √_
   holes       number
   yields      number
+  kinds       number → number
   level       power
   reads       the square root of
   metamath    csqrt
@@ -267,6 +274,7 @@ notation logical-not
   pattern     not _
   holes       formula
   yields      formula
+  kinds       formula → formula
   level       negation
   reads       not
   metamath    wn
@@ -277,6 +285,7 @@ notation conjunction
   pattern     _ and _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       conjunction
   assoc       left
   reads       and
@@ -289,6 +298,7 @@ notation comma-conjunction
   pattern     _, _        _, and _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       conjunction
   assoc       left
   reads       and
@@ -312,6 +322,7 @@ notation disjunction
   pattern     _ or _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       disjunction
   assoc       left
   reads       or
@@ -322,6 +333,7 @@ notation implication
   pattern     _ → _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       implication
   assoc       right
   reads       implies
@@ -332,6 +344,7 @@ notation biconditional
   pattern     _ ↔ _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       biconditional
   assoc       right
   reads       if and only if
@@ -344,6 +357,7 @@ notation conditional
   pattern     if _ then _
   holes       formula, formula
   yields      formula
+  kinds       formula, formula → formula
   level       implication
   reads       if, then
   metamath    wi
@@ -357,6 +371,7 @@ notation absolute-value
   pattern     |_|
   holes       number
   yields      number
+  kinds       number → number
   reads       the absolute value of
   metamath    cabs
   target      _1 cabs cfv
@@ -387,6 +402,7 @@ notation distance
   pattern     |__|
   holes       point, point
   yields      number
+  kinds       point, point → number
   reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
   target      _1 _2 cmin co cabs cfv
@@ -399,6 +415,7 @@ notation factorial
   pattern     _!
   holes       number
   yields      number
+  kinds       number → number
   level       power
   reads       factorial
   metamath    cfa
@@ -409,6 +426,7 @@ notation gcd
   pattern     gcd(_, _)
   holes       number, number
   yields      number
+  kinds       number, number → number
   reads       the greatest common divisor of
   metamath    cgcd
   target      _1 _2 cgcd co
@@ -417,6 +435,7 @@ notation mod
   pattern     _ mod _
   holes       number, number
   yields      number
+  kinds       number, number → number
   level       multiplicative
   assoc       left
   reads       the remainder on dividing by
@@ -445,6 +464,7 @@ notation min
   pattern     min(_, _)
   holes       number, number
   yields      number
+  kinds       number, number → number
   reads       the smaller of
   metamath    cif, cle
   target      _1 _2 cle wbr _1 _2 cif
@@ -456,6 +476,7 @@ notation max
   pattern     max(_, _)
   holes       number, number
   yields      number
+  kinds       number, number → number
   reads       the larger of
   metamath    cif, cle
   target      _1 _2 cle wbr _2 _1 cif
@@ -466,6 +487,7 @@ notation binomial
   pattern     C(_, _)
   holes       number, number
   yields      number
+  kinds       number, number → number
   reads       choose
   metamath    cbc
   target      _1 _2 cbc co
@@ -759,6 +781,7 @@ notation juxtaposition
   pattern     __
   holes       number, number
   yields      number
+  kinds       number, number → number
   level       multiplicative
   assoc       left
   spells      multiplicative ·
@@ -791,6 +814,7 @@ notation angle
   pattern     ∠___
   holes       point, point, point
   yields      number
+  kinds       point, point, point → number
   reads       the angle at the second from the first to the third
   metamath    the absolute value of ang applied to the two differences
   target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
@@ -803,6 +827,7 @@ notation congruent
   pattern     triangle ___ ≅ triangle ___
   holes       point, point, point, point, point, point
   yields      formula
+  kinds       point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
   metamath    the three sides and the three angles equal, as def:stdlib/geometry/congruent
@@ -964,6 +989,7 @@ notation divides
   pattern     _ divides _
   holes       number, number
   yields      formula
+  kinds       number, number → formula
   level       predicate
   reads       divides
   metamath    wbr with cdvds
@@ -974,6 +1000,7 @@ notation congruent-mod
   pattern     _ ≡ _ (mod _)
   holes       number, number, number
   yields      formula
+  kinds       number, number, number → formula
   level       relational
   reads       is congruent to, modulo
   metamath    wbr with cdvds, of a difference
@@ -1034,6 +1061,7 @@ notation parity
   pattern     _ is even        _ is odd        _ is not odd
   holes       number
   yields      formula
+  kinds       number → formula
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
@@ -1048,6 +1076,7 @@ notation prime
   pattern     _ is prime
   holes       number
   yields      formula
+  kinds       number → formula
   level       predicate
   reads       is prime
   metamath    wcel with cprime
@@ -1057,6 +1086,7 @@ notation irrational
   pattern     _ is irrational
   holes       number
   yields      formula
+  kinds       number → formula
   level       predicate
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
@@ -1133,6 +1163,7 @@ notation collinear
   pattern     _, _, _ are collinear
   holes       point, point, point
   yields      formula
+  kinds       point, point, point → formula
   level       predicate
   reads       are collinear
   metamath    the ratio of the two differences is real
@@ -1147,6 +1178,7 @@ notation forms-a-triangle
   pattern     _, _, _ form a triangle
   holes       point, point, point
   yields      formula
+  kinds       point, point, point → formula
   level       predicate
   reads       form a triangle
   metamath    the three vertices distinct and not on one line

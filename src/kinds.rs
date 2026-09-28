@@ -340,6 +340,24 @@ impl Signature {
         self.parts.len()
     }
 
+    /// Each (element, set) pair of holes the signature relates as a thing
+    /// and a set holding things of its kind: `α` and `set of α`, as a
+    /// membership's are.
+    pub fn members(&self) -> Vec<(usize, usize)> {
+        let mut out = Vec::new();
+        for (i, a) in self.parts.iter().enumerate() {
+            let Template::Var(x) = a else { continue };
+            for (j, b) in self.parts.iter().enumerate() {
+                if let Template::Set(inner) = b {
+                    if matches!(&**inner, Template::Var(y) if y == x) {
+                        out.push((i, j));
+                    }
+                }
+            }
+        }
+        out
+    }
+
     /// Fresh hole kinds and result kind, with fresh variables.
     pub fn fresh(&self, store: &mut Store) -> (Vec<Kind>, Kind) {
         let mut names: IndexMap<String, Kind> = IndexMap::new();
@@ -529,6 +547,11 @@ impl NotationKinds {
             }
         }
         NotationKinds { signatures, bound }
+    }
+
+    /// The signature a node of this notation reads by, where it has one.
+    pub fn signature(&self, notation: &str) -> Option<&Signature> {
+        self.signatures.get(notation).map(|s| &**s)
     }
 }
 
@@ -749,6 +772,21 @@ pub fn read_record(
     }
     for (text, no) in &record.conclusions {
         claim_text(&mut reader, text, (*no).into(), env, sorts, store);
+    }
+    reader
+}
+
+/// An item's kinds as its `let` lines alone say them: what the item
+/// declares, before its assumptions and conclusions use anything.
+pub fn read_lets(
+    record: &Record,
+    env: Env,
+    sorts: &Sorts,
+    store: &mut Store,
+) -> Reader {
+    let mut reader = Reader::new(env);
+    for h in record.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
+        introduce(&mut reader, &h.text, h.line.into(), env, sorts, store);
     }
     reader
 }

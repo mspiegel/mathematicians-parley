@@ -136,6 +136,19 @@ two are indistinguishable — same file, same assumption count, no message — s
 a wrong target could sit in this file for as long as nobody happened to probe
 it by hand.
 
+**Nothing compares an item's hypotheses with its target's.** A citation is
+built from the set.mm theorem the target names, with that theorem's own
+hypotheses, so a record whose `let` lines say less than the theorem asks
+still builds and every proof citing it verifies: `thm:stdlib/counting/card-nonempty`
+with `let k ∈ ℤ` in place of `let k ∈ ℕ₀`, where `hashgt0elex` asks k ∈ ℕ₀,
+passes every stage of the gate. The proofs are sound and the record misstates
+the lemma. An item with no target is worse off, since it is assumed as it
+states itself and a hypothesis too weak for its conclusion is a false axiom.
+The checker reports a name the item says nothing of where a number goes
+(`check_unsorted`), not a name it says too little of. Closing this means
+reading each target's hypotheses from set.mm and requiring the item's to
+imply them.
+
 Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
 kind of the item it names, and every proof file imports exactly the proof
 files it cites and the definitions it uses from other files; `parley check`

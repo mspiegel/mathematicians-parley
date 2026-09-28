@@ -14,7 +14,8 @@ use crate::kinds;
 use crate::regex;
 use crate::sorts::{
     element_re, function_being_re, function_re, group_re, kind_re, let_formula,
-    membership_re, not_in_re, part_re, property_re, sentences, unlabel, Env,
+    membership_re, not_in_re, part_re, property_re, sentences, settled,
+    stated_record_sorts, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -464,15 +465,25 @@ pub fn check_statements(
     }
 }
 
-/// A name an item treats as a number, a `let` says is one.
+/// A name an item treats as a number, a line of the item says what it is.
 ///
 /// An item with no target is assumed exactly as it states itself, so a name
 /// it leaves open is read as anything at all. An item that said `assume |X|
 /// = k + 1` and never what k was held its hypotheses at k = −1 and X = ∅ and
-/// not its conclusion, and the kernel accepted the axiom. A name of no known
-/// sort standing where the notation wants a number is that shape. One a
-/// binder introduces is spoken for, and so is the name a definition's
-/// conclusion defines over, which is true of every value.
+/// not its conclusion, and the kernel accepted the axiom. A name standing
+/// where the notation wants a number, which nothing says anything of, is
+/// that shape.
+///
+/// This asks what the lines say, not what the name's sort is: `k + 1` makes
+/// k a number, and that is the use being asked about, not an answer to it.
+/// A name is spoken for where a `let` says what it is, where a binder
+/// introduces it, or where a line puts it in a set said to hold numbers, as
+/// `n ∈ ℕ₀` does in `nat0-as-int`, a statement true of every n. The set
+/// must say so itself, through a notation or a `let`: a set read as holding
+/// numbers only because its elements are added tells the kernel nothing.
+///
+/// It asks whether anything is said, not whether enough is: `let k ∈ ℤ`
+/// where the statement needs `k ∈ ℕ₀` passes here.
 pub fn check_unsorted(
     report: &mut Report,
     records: &[Record],
@@ -513,7 +524,6 @@ pub fn check_unsorted(
         for (i, kid) in node.children.iter().enumerate() {
             let w = wanted(node, i);
             if kid.is_name()
-                && kid.sort.is_unknown()
                 && !spoken.contains(&kid.text)
                 && w.len() == 1
                 && w.contains("number")
@@ -524,6 +534,43 @@ pub fn check_unsorted(
         }
     }
 
+    /// Each name a membership in `node` puts in a set of numbers, the set's
+    /// kind read with what the `let` lines say (`probe`).
+    fn put_in_numbers(
+        node: &Node,
+        notations: &kinds::NotationKinds,
+        probe: &mut kinds::Reader,
+        store: &mut kinds::Store,
+        line: usize,
+        out: &mut BTreeSet<String>,
+    ) {
+        if let Some(sig) = notations.signature(&node.notation) {
+            if sig.holes() == node.children.len() {
+                for (element, set) in sig.members() {
+                    let named = &node.children[element];
+                    if !named.is_name() {
+                        continue;
+                    }
+                    let held = probe.kind(
+                        &node.children[set],
+                        line.into(),
+                        &IndexMap::new(),
+                        store,
+                    );
+                    if let kinds::Kind::Set(inner) = store.find(&held) {
+                        if store.find(&inner) == kinds::NUMBER {
+                            out.insert(named.text.clone());
+                        }
+                    }
+                }
+            }
+        }
+        for kid in &node.children {
+            put_in_numbers(kid, notations, probe, store, line, out);
+        }
+    }
+
+    let notations = env.g.notation_kinds();
     for (i, r) in records.iter().enumerate() {
         if !r.kind.is_item() {
             continue;
@@ -537,27 +584,44 @@ pub fn check_unsorted(
         if r.kind == RecordKind::Theorem {
             places.extend(r.conclusions.iter().map(|(t, n)| (t.as_str(), *n)));
         }
+        let mut trees: Vec<(usize, Node)> = Vec::new();
         for (text, no) in places {
             for sentence in sentences(&unlabel(text)) {
                 let Ok(tree) = parse_here(&sentence, env.g, &record_sorts[&i]) else {
                     continue; // check_statements says so
                 };
-                let mut spoken = BTreeSet::new();
-                bound(&tree, &wanted, &mut spoken);
-                let mut found = Vec::new();
-                open_numbers(&tree, &spoken, &wanted, &mut found);
-                let mut said: IndexSet<String> = IndexSet::new();
-                for name in found {
-                    if said.insert(name.clone()) {
-                        report.say(
-                            &r.path,
-                            no,
-                            format!(
-                                "{} {}: {name} stands where a number goes, and no let says what {name} is",
-                                r.kind, r.name
-                            ),
-                        );
-                    }
+                trees.push((no, tree));
+            }
+        }
+        // What the `let` lines say, and every name a line puts in a set
+        // they or a notation say holds numbers.
+        let stated = stated_record_sorts(r);
+        let mut store = kinds::Store::default();
+        let lets = kinds::read_lets(r, env, &stated, &mut store);
+        let mut members: BTreeSet<String> = BTreeSet::new();
+        for (no, tree) in &trees {
+            let mut probe = kinds::Reader::new(env);
+            probe.env = lets.env.clone();
+            put_in_numbers(tree, &notations, &mut probe, &mut store, *no, &mut members);
+        }
+        let declared = settled(stated, &lets, &store);
+        for (no, tree) in &trees {
+            let mut spoken: BTreeSet<String> = declared.keys().cloned().collect();
+            spoken.extend(members.iter().cloned());
+            bound(tree, &wanted, &mut spoken);
+            let mut found = Vec::new();
+            open_numbers(tree, &spoken, &wanted, &mut found);
+            let mut said: IndexSet<String> = IndexSet::new();
+            for name in found {
+                if said.insert(name.clone()) {
+                    report.say(
+                        &r.path,
+                        *no,
+                        format!(
+                            "{} {}: {name} stands where a number goes, and no line says what {name} is",
+                            r.kind, r.name
+                        ),
+                    );
                 }
             }
         }
