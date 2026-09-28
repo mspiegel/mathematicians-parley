@@ -5,10 +5,12 @@ elaborator in `src/elab/` does, and everything in this repository rests on it
 working.
 
 ```
-parley build [<name>] [<set.mm>]
+parley build --root <dir> [<name>] [<set.mm>]
 ```
 
-writes every generated file, or the one named, and says which changed. A
+writes every generated file under the working tree `<dir>`, or the one named,
+and says which changed. Every command takes the tree it works on as `--root`,
+and none looks for one. A
 theorem is named in full, by its proof file and its own name:
 `proof/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
 its second stage builds everything afresh in memory and compares it with the
