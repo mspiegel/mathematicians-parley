@@ -114,7 +114,7 @@ pub fn unlabel(text: &str) -> String {
 /// `let f : A → B be one-to-one` introduces f and says it is one-to-one, and
 /// the formula is `f : A → B is one-to-one`: "be" is how English says "is"
 /// after "let". `let X ⊆ A` introduces a part of A, which is a member of its
-/// power set, and the formula is `X ∈ 𝒫A`, the one `for every X ⊆ A`
+/// power set, and the formula is `X ∈ 𝒫A`, the one `for all X ⊆ A`
 /// quantifies over. `let E be a function on X` says E is a function on X, a
 /// fact a proof citing the line supplies. `let G be a finite group …` says G
 /// is finite; the rest of it names things and asserts nothing a proof cites.

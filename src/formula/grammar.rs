@@ -142,7 +142,7 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
 /// defect, and that is raised wherever it is found.
 ///
 /// A letter the sentence binds has no sort of its own, but what it ranges
-/// over may say one: in `for every g ∈ G, …` with G a group's set, g is a
+/// over may say one: in `for all g ∈ G, …` with G a group's set, g is a
 /// group element, and `g·h` is the group's operation and not a product of
 /// numbers. So each `x ∈ S` the sentence writes gives an x of no sort what S
 /// holds, for this sentence only (`bound_sorts`).
@@ -359,7 +359,7 @@ impl Parser<'_> {
     /// can fill, so long as that notation binds tighter than `outer`.
     ///
     /// `stop` is the literal that closes an interior hole. Without it the hole
-    /// runs past its own delimiter: the set in `for every s ∈ S, d ≤ s` would
+    /// runs past its own delimiter: the set in `for all s ∈ S, d ≤ s` would
     /// swallow the comma and try to be the first point of a triangle.
     fn expression(&mut self, outer: Option<&str>, stop: Option<&str>) -> Reading {
         let Some(mut left) = self.primary()? else {
@@ -761,7 +761,7 @@ impl Parser<'_> {
         }
         // A spelling that writes the other notation's holes in another order
         // puts them back in that notation's order, so the two build one tree:
-        // "f(x) ≠ B for all x ∈ A" is "for every x ∈ A, f(x) ≠ B".
+        // "f(x) ≠ B for all x ∈ A" is "for all x ∈ A, f(x) ≠ B".
         let wrapped_at = n.wrap.as_ref().map(|w| match &n.places {
             Some(places) => places
                 .iter()

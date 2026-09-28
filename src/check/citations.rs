@@ -167,7 +167,7 @@ fn search(
                     ctx,
                 );
             }
-            // A "for every" said of a set is said of every set inside it
+            // A "for all" said of a set is said of every set inside it
             // (`SYNTAX.md`).
             if found.is_none() && is_first {
                 if let Some(smaller) = narrowed(&first, fact, binding) {
@@ -278,11 +278,11 @@ fn set_within(inner: &Node, outer: &Node) -> bool {
     false
 }
 
-/// A "for every" fact read over the smaller domain a pattern asks for, or
+/// A "for all" fact read over the smaller domain a pattern asks for, or
 /// None where the table does not put that domain inside the fact's.
 fn narrowed(pattern: &Node, fact: &Node, binding: &Binding) -> Option<Node> {
-    if pattern.notation != "for-every"
-        || fact.notation != "for-every"
+    if pattern.notation != "for-all"
+        || fact.notation != "for-all"
         || pattern.children.len() != 3
         || fact.children.len() != 3
     {
@@ -926,7 +926,7 @@ impl FamilyAsks {
         // asks that every partial sum be real. T is a defined function and
         // no name a membership could be asked of, so what is compared is the
         // value itself, read at the name the line binds.
-        if node.notation == "for-every" && node.children.len() == 3 {
+        if node.notation == "for-all" && node.children.len() == 3 {
             let node = expand(&node, &known.defined);
             let (bound, body) = (&node.children[0], &node.children[2]);
             if body.notation != "membership"

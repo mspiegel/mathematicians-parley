@@ -61,7 +61,7 @@ theorem even-square
   Metamath's floating and essential hypotheses; `let A be a set` is
   set.mm's `A e. _V`. They are part of the statement, not of the proof.
   `let X ⊆ A` introduces a part of A, which is a member of 𝒫A, and so
-  does `for every X ⊆ A`, `there is X ⊆ A with`, `{X ⊆ A : …}` and a
+  does `for all X ⊆ A`, `there is X ⊆ A with`, `{X ⊆ A : …}` and a
   define ending `for X ⊆ A`: each is the power-set form written in the
   words a school reader has, and builds the same formula.
   Those ten are all the forms a `let` line has. It carries an
@@ -86,8 +86,8 @@ theorem even-square
   function applied to an argument; the `holds-of` record says why.
   Three of the ten, `be an element`, `be a set` and `be a point`, are
   therefore not notations and never appear inside a formula. Quantifying over an arbitrary set
-  inside a formula is the separate `for every set X, ...`, a binder with no
-  domain, which is to `let X be a set` what `for every n ∈ ℕ, ...` is to
+  inside a formula is the separate `for all sets X, ...`, a binder with no
+  domain, which is to `let X be a set` what `for all n ∈ ℕ, ...` is to
   `let n ∈ ℕ`.
   The uniform alternative, `let A ∈ Set` with a named universe for
   everything, was rejected: it attaches a type to the thing, and names
@@ -95,7 +95,7 @@ theorem even-square
 - The `then` line is the conclusion.
 - Each hypothesis carries a label in parentheses. The proof cites it by
   label wherever it would cite a line number.
-- The one-sentence form "for every integer n, if n² is even then n is even"
+- The one-sentence form "for all integers n, if n² is even then n is even"
   is the same statement read aloud. No step converts one form into the
   other, and no method is involved in opening or closing the hypotheses.
 
@@ -161,7 +161,7 @@ fixed by the method's definition. Induction has `base` and `step`:
     1.1.  S(1) = 1(1 + 1)/2
           ...
     step
-    1.2.  For every k ∈ ℕ, if S(k) = k(k + 1)/2 then S(k + 1) = ...
+    1.2.  For all k ∈ ℕ, if S(k) = k(k + 1)/2 then S(k + 1) = ...
           fix
           ...
 ```
@@ -214,7 +214,7 @@ form. A viewer may fold the second application to its claim, or render it
 as "similarly", since "the same theorem applied again" is a mechanical
 criterion.
 
-A step whose claim is "for every x ∈ S, if A then B" is proved by a block
+A step whose claim is "for all x ∈ S, if A then B" is proved by a block
 that opens with the claim's own `let` and `assume` lines, labelled, and ends
 with B. The method is `fix`. The hypotheses are therefore written twice,
 once in the claim and once as lines, and the reader checks that they match.
@@ -251,17 +251,17 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 - "there exists x ∈ S such that ..." is the same formula as "there is x ∈ S
   with ...", in the words a theorem is often stated in, and so is "there
   exists X ⊆ A such that ..." as "there is X ⊆ A with ...".
-- "for every x ∈ S, ..." is written for ∀, and a side condition on the
-  variable goes in a "with" clause: "for every ε ∈ ℝ with ε > 0, ...". The
+- "for all x ∈ S, ..." is written for ∀, and a side condition on the
+  variable goes in a "with" clause: "for all ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which
   is what the two phrases mean in English and what their two records target.
 - A universal may also be written after what it says, as a textbook writes
-  one inside "such that": "f(x) ≠ B for all x ∈ A" is "for every x ∈ A,
+  one inside "such that": "f(x) ≠ B for all x ∈ A" is "for all x ∈ A,
   f(x) ≠ B", and "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" reads
   as it would aloud. What it says is one relation, a word predicate or a
   negation of one: "f(x) ≠ B and g(x) = 0 for all x ∈ A" does not parse,
   since a reader cannot tell whether the "for all" covers both, and the page
-  writes "(f(x) ≠ B and g(x) = 0) for all x ∈ A" or the "for every" form.
+  writes "(f(x) ≠ B and g(x) = 0) for all x ∈ A" or the prefix form.
   Two in a row, "… for all x ∈ A for all y ∈ B", are both over what precedes
   them. `LINTER.md` says which of the two forms to write where.
 - A claim that is a conjunction is written as separate sentences, so that a
@@ -294,14 +294,14 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:stdlib/divisibility/even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
-| `instantiate v := t in line L, from L2` | line L claims "for every v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for every" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
+| `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the rules for inequalities, starting from L |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step states some P and also not P. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
-| `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for every x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
-| `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for every k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
+| `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
+| `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for all k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
 
@@ -315,8 +315,8 @@ in `into line 2.3` and `in line 4`, it carries the word "line"; in a
 never carry the word.
 
 **A line said of every member of a set says it of every member of a set
-inside that one.** A hypothesis asking "for every k ∈ {1, …, n}, P(k)" is
-answered by a cited line "for every k ∈ ℕ, P(k)", since every k from 1 to n
+inside that one.** A hypothesis asking "for all k ∈ {1, …, n}, P(k)" is
+answered by a cited line "for all k ∈ ℕ, P(k)", since every k from 1 to n
 is a natural number. Which sets lie inside which is a declared table, not a
 search: ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ, {1, …, b} ⊆ ℕ, {0, …, b} ⊆ ℕ₀ and {a, …, b} ⊆ ℤ,
 each by the set.mm lemma that says so of a member. The table is in
@@ -401,7 +401,7 @@ into its rule: a step that needs a value writes it and cites the define.
 `a(0) = M` cites `D1`; `b(k + 1) = a(k) mod b(k)` cites `D1, from` a line
 saying b(k) ≠ 0, the case being taken as for a define by cases, with a
 `requires` line saying k ∈ ℕ₀. What holds of every value is proved by
-induction on k, as anything true for every k ∈ ℕ₀ is.
+induction on k, as anything true for all k ∈ ℕ₀ is.
 
 **A step may cite a define** by its label alone, `D1`, or with the lines it
 uses, `D1, from 3`. Its claim is an equation with the name on one side,

@@ -69,22 +69,28 @@ mirrors a claim", which is three clauses and hard to apply, or nothing. It is
 left open, because a rule that has to be argued about at each use makes the
 text harder to read rather than easier, which is the opposite of the point.
 
-### Where the universal stands is not settled
+### Where the universal stands
 
-A universal over one relation may be written before it or after it, "for
-every x ∈ A, f(x) ≠ B" or "f(x) ≠ B for all x ∈ A", and the two are one
-formula. The after form is what a textbook writes inside "such that", where
-the prefix form puts two connectives side by side ("with for every"); the
-before form is the only one for anything longer than one relation, and the
-one a block's claim has always been written in. On 72 lines the corpus writes
-"for every" and on 2 "for all", both in Cantor's theorem, which states its
-conclusion as "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" and
-repeats it as its last step. A step's own claim is written "for every". "There
-exists … such that" and "there is … with" are the same kind of choice, 8 lines
-against 34: four theorems state their conclusion the first way, and each
-repeats it as its last step. Both are left open until more of the corpus is
-written the new way, since a rule argued from a handful of proofs would be a
-rule about those proofs.
+| write | not | today |
+|---|---|---|
+| `for all x ∈ A, f(x) ≠ B` as a claim | `f(x) ≠ B for all x ∈ A` | all 72 lines |
+| `… such that f(x) ≠ B for all x ∈ A` | `… such that for all x ∈ A, f(x) ≠ B` | 2 lines, both Cantor's |
+
+A universal over one relation may be written before it or after it, and the
+two are one formula. Before is the rule: it is the only form for anything
+longer than one relation, and it is how a block's claim is written. After is
+for the one place a textbook writes it, inside "such that", where the prefix
+form would put two connectives side by side ("such that for all"). Cantor's
+theorem states "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" and
+repeats it as its last step, and is the only use so far.
+
+### "There exists … such that" or "there is … with" is not settled
+
+The two are one formula, written on 8 lines against 34: four theorems state
+their conclusion the first way, and each repeats it as its last step. Which
+reads better elsewhere is left open until more of the corpus is written the
+new way, since a rule argued from a handful of proofs would be a rule about
+those proofs.
 
 ## The shape of a step
 

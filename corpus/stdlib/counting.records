@@ -174,7 +174,7 @@ theorem card-nat0
 
 theorem parts-finite
   assume A is finite                                                  (H1)
-  assume for every Y ∈ K, Y ⊆ A                                       (H2)
+  assume for all Y ∈ K, Y ⊆ A                                         (H2)
   then        K is finite
   metamath    pwfi and ssfi, which this corpus proves together in
               elaboration/stdlib/proved.mm
@@ -198,8 +198,8 @@ theorem partition-count
   let m ∈ ℕ₀                                                          (H3)
   assume A is finite                                                  (H4)
   assume ⋃(Y ∈ K) Y = A                                               (H5)
-  assume for every Y ∈ K, for every Z ∈ K, for every x ∈ Y ∩ Z, Y = Z  (H6)
-  assume for every Y ∈ K, |Y| = m                                     (H7)
+  assume for all Y ∈ K, for all Z ∈ K, for all x ∈ Y ∩ Z, Y = Z       (H6)
+  assume for all Y ∈ K, |Y| = m                                       (H7)
   then        |A| = |K| · m
   metamath    hashiun and fsumconst, which this corpus proves together in
               elaboration/stdlib/proved.mm

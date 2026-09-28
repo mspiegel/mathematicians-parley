@@ -480,7 +480,7 @@ pub fn check_membership_claims(
     known: &Known,
 ) {
     fn says_membership(node: &Node) -> bool {
-        if node.notation == "for-every" && node.children.len() == 3 {
+        if node.notation == "for-all" && node.children.len() == 3 {
             return says_membership(&node.children[2]);
         }
         node.notation == "membership"

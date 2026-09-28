@@ -1179,6 +1179,14 @@ fn cases() -> Vec<Case> {
             ],
             "`and` and `for all` are not ordered against each other",
         ),
+        // The universal is written "for all"; "for every" is no spelling of it.
+        case(
+            "write for every where for all is meant",
+            vec![
+                edit("proofs/cantor.proof", Some("2.  For all x ∈ A, f(x) ≠ B.".to_string()), "2.  For every x ∈ A, f(x) ≠ B.".to_string()),
+            ],
+            "for-all does not fit",
+        ),
         case(
             "mix and with or without brackets",
             vec![

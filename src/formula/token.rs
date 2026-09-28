@@ -49,7 +49,7 @@ pub fn is_digit(c: char) -> bool {
 /// declining.
 ///
 /// At the start of a sentence a declared word also matches with its first
-/// letter capitalised, which is how the corpus writes `For every` and `There
+/// letter capitalised, which is how the corpus writes `For all` and `There
 /// is`. The allowance is deliberately that narrow: matching case anywhere
 /// would let the name `s` match the declared word `S`.
 pub fn tokenise(

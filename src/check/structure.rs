@@ -544,11 +544,12 @@ pub fn check_citations(
     }
 }
 
-// `for every` and `there is` open a scope. The corpus capitalises either at
-// the start of a sentence, so this is deliberately case-insensitive.
+// `for all`, `there is` and `there exists` open a scope. The corpus
+// capitalises each at the start of a sentence, so this is deliberately
+// case-insensitive.
 regex!(
     BINDER,
-    r"(?i)(?:for every|there is(?: no)?)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈"
+    r"(?i)(?:for all|there is(?: no)?|there exists)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈"
 );
 fancy!(
     VARNAME,
@@ -1032,11 +1033,11 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
     }
 }
 
-// A name a formula binds for itself: `for every c ∈ ℕ`, `there is c ∈ A`,
+// A name a formula binds for itself: `for all c ∈ ℕ`, `there is c ∈ A`,
 // `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the map sending c ∈ A to …`.
 regex!(
     BOUND_HERE,
-    r"(?:for every|there (?:is|are)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|=)"
+    r"(?:for all|there (?:is|are|exists)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|=)"
 );
 regex!(LET_NAME, r"^let\s+([^\s∈∉:]+)");
 

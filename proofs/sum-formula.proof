@@ -21,7 +21,7 @@ define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
                  = 1(1 + 1)/2            arithmetic
 
     step
-    1.3.  For every k ∈ ℕ, if S(k) = k(k + 1)/2
+    1.3.  For all k ∈ ℕ, if S(k) = k(k + 1)/2
           then S(k + 1) = (k + 1)((k + 1) + 1)/2.
           fix
           let k ∈ ℕ                                                   (K)

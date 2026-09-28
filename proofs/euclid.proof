@@ -16,7 +16,7 @@ theorem euclid
 2.  b(0) = N
     D1
 
-3.  For every k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
+3.  For all k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
     and (b(k) + k ≤ N or b(k) = 0).
     fix
     let k ∈ ℕ₀                                                        (K)
@@ -56,7 +56,7 @@ theorem euclid
                   join 3.1.1, 3.1.2, 3.1.5, 3.1.7
 
           step
-          3.1.9.  For every j ∈ ℕ₀, if a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
+          3.1.9.  For all j ∈ ℕ₀, if a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀
                   and gcd(a(j), b(j)) = gcd(M, N) and (b(j) + j ≤ N or b(j) = 0)
                   then a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
                   and gcd(a(j + 1), b(j + 1)) = gcd(M, N)

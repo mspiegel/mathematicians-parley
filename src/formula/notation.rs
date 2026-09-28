@@ -81,7 +81,7 @@ impl Notation {
     /// What the node it builds binds, counted in that node's holes: a
     /// spelling that puts its holes in another notation's order (`places`)
     /// binds the same holes where they end up, so "x" in "f(x) ≠ B for all
-    /// x ∈ A" is bound as it is in "for every x ∈ A, f(x) ≠ B".
+    /// x ∈ A" is bound as it is in "for all x ∈ A, f(x) ≠ B".
     pub fn node_binds(&self) -> Option<Binds> {
         let binds = self.binds.as_ref()?;
         let Some(places) = &self.places else {
@@ -111,7 +111,7 @@ regex!(
 );
 regex!(SPELLS, r"^\s*(\S+)\s+(\S+)");
 // `wraps hole 2 in powerset`: the node built puts that hole's term inside
-// the named notation, so `for every X ⊆ A` is `for every X ∈ 𝒫A` exactly.
+// the named notation, so `for all X ⊆ A` is `for all X ∈ 𝒫A` exactly.
 regex!(WRAPS, r"^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$");
 // `binds holes 1 and 3 over hole 5`: the holes naming what a binder
 // introduces, and the holes where those names are its own.

@@ -1158,7 +1158,7 @@ impl<'a> Elaborator<'a> {
                 format!("instantiate names no line or label {}", repr(&where_)),
             ));
         };
-        // A line may say several things at once, and the `for every` is
+        // A line may say several things at once, and the `for all` is
         // rarely the first of them. Taken apart on its own.
         let known = Facts::new();
         known.set(held.term.clone(), self.carried(&where_, facts, lines));

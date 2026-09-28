@@ -31,8 +31,8 @@ definition set-image
 theorem added-elements-are-new
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
-  assume for every s ∈ Y, s ∪ {a} ∉ Y                                 (H3)
-  then        for every u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
+  assume for all s ∈ Y, s ∪ {a} ∉ Y                                   (H3)
+  then        for all u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
   metamath    ralrnmpt
   target      ralrnmpt
   note        Running over the sets with a added is running over the sets and
@@ -62,7 +62,7 @@ theorem function-value
 theorem image-of-injection
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
-  assume for every S ∈ Y, for every T ∈ Y, if S ∪ {a} = T ∪ {a}
+  assume for all S ∈ Y, for all T ∈ Y, if S ∪ {a} = T ∪ {a}
          then S = T                                                   (H3)
   then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
   metamath    f1oeng, over the map f1mpt and f1f1orn show is one-to-one
@@ -87,7 +87,7 @@ theorem added-element-in-image
 theorem added-elements-stay-inside
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
-  assume for every s ∈ Y, s ∪ {a} ∈ Z                                 (H3)
+  assume for all s ∈ Y, s ∪ {a} ∈ Z                                   (H3)
   then        {s ∪ {a} : s ∈ Y} ⊆ Z
   metamath    rnmptss
   target      rnmptss
@@ -121,7 +121,7 @@ theorem image-monotone
 
 theorem function-into
   let E be a function on X                                            (H1)
-  assume for every x ∈ X, E(x) ∈ Y                                    (H2)
+  assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
   metamath    ffnfv
   target      ffnfv
@@ -137,8 +137,8 @@ theorem value-in-image
 
 definition one-to-one
   let f : X → Y                                                       (H1)
-  then        f : X → Y is one-to-one ↔ f : X → Y and for every s ∈ X,
-              for every t ∈ X, if f(s) = f(t) then s = t
+  then        f : X → Y is one-to-one ↔ f : X → Y and for all s ∈ X,
+              for all t ∈ X, if f(s) = f(t) then s = t
   metamath    dff13
   target      dff13
 
@@ -153,7 +153,7 @@ theorem inverse-value
 theorem onto-bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)
-  assume for every y ∈ Y, there is x ∈ X with y = f(x)                (H3)
+  assume for all y ∈ Y, there is x ∈ X with y = f(x)                  (H3)
   then        there is a bijection from X to Y
   metamath    f1f, dffo3, df-f1o and f1oeng, which this corpus proves
               together in elaboration/stdlib/proved.mm

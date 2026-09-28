@@ -33,8 +33,8 @@ theorem interval-real
 definition continuous-on
   let D ⊆ ℝ                                                           (H1)
   let f : D → ℝ                                                       (H2)
-  then        f is continuous on D ↔ for every c ∈ D, for every ε ∈ ℝ with
-              ε > 0, there is δ ∈ ℝ with δ > 0 and for every x ∈ D, if
+  then        f is continuous on D ↔ for all c ∈ D, for all ε ∈ ℝ with
+              ε > 0, there is δ ∈ ℝ with δ > 0 and for all x ∈ D, if
               |x − c| < δ then |f(x) − f(c)| < ε
   metamath    elcncf2
   target      elcncf2
@@ -46,8 +46,8 @@ definition continuous-on
 definition tends-to
   let x : ℕ → ℝ                                                       (H1)
   let L ∈ ℝ                                                           (H2)
-  then        x(n) → L as n → ∞ ↔ for every ε ∈ ℝ with ε > 0, there is
-              N ∈ ℕ with for every n ∈ ℕ with n ≥ N, |x(n) − L| < ε
+  then        x(n) → L as n → ∞ ↔ for all ε ∈ ℝ with ε > 0, there is
+              N ∈ ℕ with for all n ∈ ℕ with n ≥ N, |x(n) − L| < ε
   metamath    climnnre, which this corpus proves in
               elaboration/stdlib/proved.mm from clim2's neighbours
   target      climnnre
@@ -72,12 +72,12 @@ theorem series-value
               proved below the readable layer from `isumclim3` and `climuni`.
 
 definition upper-bound
-  then        u is an upper bound of S ↔ for every s ∈ S, s ≤ u
+  then        u is an upper bound of S ↔ for all s ∈ S, s ≤ u
   metamath    ub as in df-sup
 
 definition least-upper-bound
   then        c is a least upper bound of S ↔ c is an upper bound of S, and for
-              every u ∈ ℝ, if u is an upper bound of S then c ≤ u
+              all u ∈ ℝ, if u is an upper bound of S then c ≤ u
   metamath    df-sup, suprub, suprleub
 
 theorem completeness

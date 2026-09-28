@@ -4,14 +4,14 @@ theorem series-under-its-own-letters
 
 1.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
     thm:stdlib/calculus/series-value L := 1, from H1
-    requires for every k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
+    requires for all k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
     requires 1 ∈ ℝ: arithmetic
 
 theorem citation-under-a-bound-name
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
-  assume for every e ∈ ℕ, e ≤ e                                       (H3)
-  then for every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b)
+  assume for all e ∈ ℕ, e ≤ e                                         (H3)
+  then for all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b)
 
-1.  For every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
+1.  For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
     def:stdlib/divisibility/gcd, from H1, H2

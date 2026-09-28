@@ -461,7 +461,7 @@ fn template(said: &str, env: Env, sorts: &Sorts) -> Node {
 /// `k ∈ ℕ` also says k ∈ ℤ, k ∈ ℝ and the rest, and k ≥ 1 and k ≠ 0
 /// (`SYNTAX.md`, what a membership line says). A part of a set is a member
 /// of its power set and the other way round, so `C ⊆ A` also says C ∈ 𝒫A,
-/// which is what `for every X ⊆ A` ranges over. Anything else says only
+/// which is what `for all X ⊆ A` ranges over. Anything else says only
 /// itself.
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     let both = fact.children.len() == 2;

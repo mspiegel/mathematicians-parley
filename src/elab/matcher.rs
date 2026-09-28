@@ -3418,7 +3418,7 @@ impl<'a> Elaborator<'a> {
         seed: Option<&Binding>,
     ) -> Checked<Route<Proof>> {
         if goal.label() != Some("wral") {
-            return Ok(Route::no("the claim is not \"for every\""));
+            return Ok(Route::no("the claim is not \"for all\""));
         }
         let (body, variable, over) = (
             goal.children()[0].clone(),

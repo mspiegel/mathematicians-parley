@@ -164,7 +164,7 @@ rest come from 244 set.mm lemmas in nine families (the one lemma added,
 | facts about particular numerals | 5.3% | 31 |
 | the `algebra` calculator | 2.6% | 38 |
 | the `inequalities` calculator | 0.3% | 23 |
-| using and proving "for every" and "there is" | 0.2% | 10 |
+| using and proving "for all" and "there is" | 0.2% | 10 |
 | induction and cases | under 0.1% | 9 |
 | spellings between set.mm and the page | under 0.1% | 14 |
 
@@ -322,7 +322,7 @@ saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own 
 and `sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
 apart from any scope it is used under; `gpartsfin`, which
 `thm:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
-that may itself say "for every Y ∈ K", binding the same letter. So:
+that may itself say "for all Y ∈ K", binding the same letter. So:
 
 - every letter the lemma binds and keeps apart from its scope, and the claim
   does not fix, is given one nothing in the proof holds, whether or not a
@@ -333,7 +333,7 @@ that may itself say "for every Y ∈ K", binding the same letter. So:
   own letter nothing spells still takes a fresh one, so no step depends on
   which letter a line happened to bind;
 - a fact answers a claim that says the same over other bound letters,
-  whatever the binder — a "for every", a "there is", a union, a map, a
+  whatever the binder — a "for all", a "there is", a union, a map, a
   set-builder or a sum — and however deep it stands. Every letter the fact
   binds is moved to one nothing holds, and renamed from there to the
   claim's (`renaming_apart`), so no letter is caught on the way; a renamed
@@ -353,7 +353,7 @@ that may itself say "for every Y ∈ K", binding the same letter. So:
   nothing holds: both sides' letter is moved there, closed, the change
   carried, and the result moved back (`over_spare_letter`), since the lemma
   that carries it keeps its letter apart from the scope;
-- a "for every" the elaborator generalises itself is proved over a spare
+- a "for all" the elaborator generalises itself is proved over a spare
   letter where the scope spells its own, and `cbvralvw` renames it back
   (`for_every`);
 - the hypothesis the lemma then asks for, spelt over the new letters, is the
@@ -371,7 +371,7 @@ that may itself say "for every Y ∈ K", binding the same letter. So:
   binder of one of its own letters, is put back as the line writes it
   (`refolded`), so `A ∖ M(C) ∈ D` is taken into D's condition with M(C)
   folded;
-- a "for every" whose body changes only for a member of its domain, as
+- a "for all" whose body changes only for a member of its domain, as
   h(e) is h's rule only for e ∈ A, is carried with the member in scope
   (`ralbidva`), over a spare where the scope spells its letter
   (`under_member`).
@@ -429,7 +429,7 @@ rather than the only choice.
 A claim may hold its variable in several places at once, so the congruence
 machinery changes more than one operand at a time: `eqeq12d` and `oveq12d`
 where `eqeq1d` and `oveq1d` change one. A quantifier's domain and body may
-change together, as `for every x ∈ aH, xH ⊆ aH` does at a := b, and
+change together, as `for all x ∈ aH, xH ⊆ aH` does at a := b, and
 `raleqbidv` carries both.
 
 **`calculation`** folds a chain of n relations into n−1 transitivity steps.
@@ -989,7 +989,7 @@ table in `rules.rs` (`set_within`).
 
 A line said of every index answers a lemma's hypothesis about each index
 whether the step cites it or writes it as a requires line: `climnnre` asks
-each partial sum to be real, and the triangular reciprocals write "for every
+each partial sum to be real, and the triangular reciprocals write "for all
 n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ" on the step. Where the line binds the
 index's own letter, its body at the index is its body, and `rsp` reads it
 there; `rspcv` would keep the letter apart from what it substitutes.
@@ -1007,7 +1007,7 @@ The rest of the search is bounded by how many lemmas one chain applies on top
 of one another, and three is the deepest chain the corpus needs: step 2.1 of
 the geometric series needs `A^0 ∈ ℂ`, by `recn` from `A^0 ∈ ℝ`, by `reexpcl`
 asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
-spends none of it; nor does going under a "for every". What a lemma asks of
+spends none of it; nor does going under a "for all". What a lemma asks of
 a sum's index is the one place a chain of four is allowed, as above.
 
 ## What a file states rather than proves
@@ -1100,7 +1100,7 @@ claim.
 The limit of a sequence is `climnnre`, which this corpus proves in
 `corpus/elaboration/stdlib/proved.mm`, because set.mm's `clim2` names its index apart
 from the map it reads, and a sequence the page writes as a rule in n is a map
-binding n. `climnnre` states the limit as the page does — for every ε ∈ ℝ with
+binding n. `climnnre` states the limit as the page does — for all ε ∈ ℝ with
 ε > 0 a natural number N past which every term is within ε — from
 `rlimclim`, `rlim2`, `ralrp` and `rexuzre`. The value of a series is
 `sersumlim`, proved there from `isumclim3` and `climuni`. Both are in
@@ -1397,7 +1397,7 @@ proved (`discharged_by`).
     not write that, and the elaborator builds it from those memberships as
     it builds a compound's from its atoms'. Where the value holds no name a
     membership could be asked of — 1/T(k), with T a defined function — the
-    hypothesis is said whole, as a requires line "for every k ∈ ℕ, 1/T(k) ∈
+    hypothesis is said whole, as a requires line "for all k ∈ ℕ, 1/T(k) ∈
     ℝ", and that line is at work when its body, with defined names written
     out, is the value read at the name it binds. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there

@@ -287,7 +287,7 @@ impl<'a> Elaborator<'a> {
                 &[&made],
             )));
         }
-        // A "for every" or "there is" whose domain changes, its letter and
+        // A "for all" or "there is" whose domain changes, its letter and
         // its body kept.
         if (label == "wral" || label == "wrex")
             && g[0] == w[0]
@@ -465,7 +465,7 @@ impl<'a> Elaborator<'a> {
             match one {
                 Built(p) => proofs.push(p),
                 Declined(d) => {
-                    // The body of a "for every" may change only for a member
+                    // The body of a "for all" may change only for a member
                     // of its domain, so it is carried again under that
                     // membership, as a "there is" is.
                     if label == "wral" && slots == [0] {

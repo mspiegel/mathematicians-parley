@@ -21,7 +21,7 @@ theorem sum-divisible
   let n ∈ ℕ₀                                                          (H1)
   let m ∈ ℤ                                                           (H2)
   let t : ℕ₀ → ℤ                                                      (H3)
-  assume for every k ∈ ℕ₀, m divides t(k)                             (H4)
+  assume for all k ∈ ℕ₀, m divides t(k)                               (H4)
   then        m divides Σ(k = 0 to n) t(k)
   metamath    fsumdvds
   target      fsumdvds
@@ -124,7 +124,7 @@ theorem sum-termwise
   let b ∈ ℤ                                                           (H2)
   let t : {a, …, b} → ℝ                                               (H3)
   let u : {a, …, b} → ℝ                                               (H4)
-  assume for every k ∈ {a, …, b}, t(k) = u(k)                          (H5)
+  assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
   metamath    sumeq2dv
   target      sumeq2dv

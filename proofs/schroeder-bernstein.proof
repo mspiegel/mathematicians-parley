@@ -17,7 +17,7 @@ define D := {X ⊆ A : M(X) ∩ X = ∅}                                  (D2)
 define C := ⋃(X ∈ D) X                                               (D3)
        reads everything in at least one of them: the largest part of A that shares nothing with its M
 
-1.  For every X ⊆ A, M(X) ⊆ A.
+1.  For all X ⊆ A, M(X) ⊆ A.
     fix
     let X ⊆ A                                                         (K1)
 
@@ -25,7 +25,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           thm:stdlib/functions/image-within f := g
           requires X ⊆ A: from K1
 
-2.  For every X ⊆ A, for every Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
+2.  For all X ⊆ A, for all Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
     fix
     let X ⊆ A                                                         (K3)
     let Y ⊆ A                                                         (K4)
@@ -42,7 +42,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           requires X ⊆ A: from K3
           requires Y ⊆ A: from K4
 
-3.  For every X ∈ D, X ⊆ A.
+3.  For all X ∈ D, X ⊆ A.
     fix
     let X ∈ D                                                         (K5)
 
@@ -55,7 +55,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
 5.  M(C) ⊆ A
     instantiate X := C in line 1, from 4
 
-6.  For every X ∈ D, M(C) ∩ X = ∅.
+6.  For all X ∈ D, M(C) ∩ X = ∅.
     fix
     let X ∈ D                                                         (K6)
 
@@ -75,7 +75,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     6.5.  M(C) ∩ X = ∅
           thm:stdlib/sets/disjoint-within, from 6.4, 6.2
 
-7.  For every a ∈ M(C), a ∈ A ∖ C.
+7.  For all a ∈ M(C), a ∈ A ∖ C.
     fix
     let a ∈ M(C)                                                      (K7)
 
@@ -146,7 +146,7 @@ theorem schroeder-bernstein
   let g : B → A be one-to-one                                         (H4)
   then there is a bijection from A to B
 
-1.  For every s ∈ A, for every t ∈ A, if f(s) = f(t) then s = t.
+1.  For all s ∈ A, for all t ∈ A, if f(s) = f(t) then s = t.
     def:stdlib/functions/one-to-one, from H3
 
 2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.
@@ -158,7 +158,7 @@ theorem schroeder-bernstein
                    g⁻¹(x)    otherwise,  for x ∈ A                    (D2)
            reads f on C, and the way back along g on the rest of A
 
-3.  For every t ∈ A ∖ C, h(t) ∈ B ∖ R and g(h(t)) = t.
+3.  For all t ∈ A ∖ C, h(t) ∈ B ∖ R and g(h(t)) = t.
     fix
     let t ∈ A ∖ C                                                     (K1)
 
@@ -207,7 +207,7 @@ theorem schroeder-bernstein
     3.13. h(t) ∈ B ∖ R. g(h(t)) = t.
           join 3.10, 3.12
 
-4.  For every u ∈ C, for every v ∈ A ∖ C, not h(u) = h(v).
+4.  For all u ∈ C, for all v ∈ A ∖ C, not h(u) = h(v).
     fix
     let u ∈ C                                                         (K2)
     let v ∈ A ∖ C                                                     (K3)
@@ -244,7 +244,7 @@ theorem schroeder-bernstein
           4.1.8.  h(v) ∈ R. h(v) ∉ R.
                   join 4.1.5, 4.1.7
 
-5.  For every s ∈ A, h(s) ∈ B.
+5.  For all s ∈ A, h(s) ∈ B.
     fix
     let s ∈ A                                                         (K4)
 
@@ -283,7 +283,7 @@ theorem schroeder-bernstein
     thm:stdlib/functions/function-into, from 5
     requires h is a function on A: from D2
 
-7.  For every s ∈ A, for every t ∈ A, if h(s) = h(t) then s = t.
+7.  For all s ∈ A, for all t ∈ A, if h(s) = h(t) then s = t.
     fix
     let s ∈ A                                                         (K5)
     let t ∈ A                                                         (K6)
@@ -375,7 +375,7 @@ theorem schroeder-bernstein
                                 = g(h(t))      7.3.4.5
                                 = t            7.3.4.4
 
-8.  For every b ∈ B, there is s ∈ A with b = h(s).
+8.  For all b ∈ B, there is s ∈ A with b = h(s).
     fix
     let b ∈ B                                                         (K7)
 

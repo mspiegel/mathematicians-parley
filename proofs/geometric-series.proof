@@ -56,7 +56,7 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
                  = (1 − a^(0 + 1))/(1 − a)        2.8
 
     step
-    2.10. For every k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
+    2.10. For all k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
           then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).
           fix
           let k ∈ ℕ₀                                                  (K)

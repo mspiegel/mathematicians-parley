@@ -116,7 +116,7 @@ A few consequences, each a decision of 2026-09-23:
   and a point, has no sort.
 - `∅` has whichever sort its place gives it, so the empty set of points is not
   compared with the empty set of numbers.
-- Inside a proof, "for every set X" ranges over sets of the one sort the proof
+- Inside a proof, "for all sets X" ranges over sets of the one sort the proof
   is about. A theorem is general in its sorts when it is cited, so each citing
   step takes the sort it needs; a lemma a proof needs at two sorts is stated as
   its own theorem.
@@ -166,7 +166,7 @@ step whose name came from a `define` and an item that never said its Y was a
 set.
 
 **A value of no known sort fits any hole.** Most such values are names a
-quantifier binds: `for every s ∈ S, d ≤ s`, `there are m ∈ ℤ and n ∈ ℤ with
+quantifier binds: `for all s ∈ S, d ≤ s`, `there are m ∈ ℤ and n ∈ ℤ with
 d = a·m + b·n`. What such a name is, is what its domain holds. A theorem's sorts
 are a name's for the whole theorem, and a bound name is not one, since the same
 letter may be bound over a set of numbers in one sentence and a set of sets in
@@ -250,8 +250,8 @@ The categories are `number`, `set`, `point`, `formula`, `function`, `property`,
 `group-element`, `group-set` and `set-of-sets`; a hole may also take `variable`,
 a name its notation binds, or `any`, any term and never a formula, for a hole
 whose sort is a variable. The three categories of a set fit where a set is
-wanted, and a set's sort says what its members are: `for every g ∈ G, g ∈ gH`
-reads g as the group's element, and `for every Y ∈ K, |Y| = m` reads |Y| as a
+wanted, and a set's sort says what its members are: `for all g ∈ G, g ∈ gH`
+reads g as the group's element, and `for all Y ∈ K, |Y| = m` reads |Y| as a
 size where K's members are sets.
 
 A hole whose category is `group-element` takes nothing of unknown sort: `k·m`
@@ -373,8 +373,8 @@ a lone letter with no bracket or neighbouring word to anchor it, such as a
 declared `_ x _`, which is a notation worth forbidding anyway.
 
 At the start of a sentence a declared word also matches with its first letter
-capitalised, which is how the corpus writes `For every` and `There is`, 28 times
-between them. That allowance is deliberately narrow: matching case anywhere
+capitalised, which is how the corpus writes `For all`, `There is` and `There
+exists`, 85 times between them. That allowance is deliberately narrow: matching case anywhere
 would let the name `s` match the declared word `S`.
 
 ### Applying a notation
@@ -435,12 +435,12 @@ A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
 tighter, so `Σ(k = 0 to n) d(k)·10^k` sums the product, and addition looser,
 so `Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)` is one sum less another.
 A sum of a sum or a difference writes its brackets, `Σ(k = 0 to n) (t(k) −
-u(k))`, as a reader expects. It is a binder, like `for every`: the `k` it
+u(k))`, as a reader expects. It is a binder, like `for all`: the `k` it
 names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
 and its brackets are part of its pattern, not a grouping.
 
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
-something of every index in it: "for every k ∈ {0, …, m}, …" is the line a
+something of every index in it: "for all k ∈ {0, …, m}, …" is the line a
 sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is a
 pattern whose `C` is a literal, so a proof that writes the coefficient cannot
 also name a variable C.
@@ -572,7 +572,7 @@ prose is allowed nowhere else.
 A `let` line carries an **introduction**, not a formula. It names something and
 says what it is, and the ten forms above are all of them. `⊆` introduces a
 part of a set, which is a member of its power set: `let X ⊆ A` is read as
-`X ∈ 𝒫A`, the name `for every X ⊆ A` quantifies over, and a line saying
+`X ∈ 𝒫A`, the name `for all X ⊆ A` quantifies over, and a line saying
 X ⊆ A or X ∈ 𝒫A answers for the other. What it asserts
 is only what `be` says of a function it names: `let g : Y → X be one-to-one`
 asserts `g : Y → X is one-to-one`, and an item stating it asks a citation for
@@ -594,9 +594,9 @@ element`. The kernel reads either as the thing being a set as well, since
 writes.
 
 Quantifying over an arbitrary set is the formula-position counterpart, and it is
-a notation: `for every set X, ...`, declared in `corpus/db/notation.records` as a binder
+a notation: `for all sets X, ...`, declared in `corpus/db/notation.records` as a binder
 with no domain. Ten lines in the corpus use one of these arbitrary forms, four
-`be a set`, three `be a point` and three `for every set`, and until they were
+`be a set`, three `be a point` and three `for all sets`, and until they were
 declared none of them matched anything.
 
 ## Names

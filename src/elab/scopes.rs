@@ -65,7 +65,7 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// ( scope -> for every variable ∈ over, body ), from one member.
+    /// ( scope -> for all variable ∈ over, body ), from one member.
     ///
     /// The member is fixed, what its membership says laid beside the facts
     /// (and, where `implied`, what that membership implies), the body proved

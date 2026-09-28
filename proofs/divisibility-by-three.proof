@@ -20,7 +20,7 @@ theorem ten-power-congruent
           requires 1 ∈ ℤ: arithmetic
 
     step
-    1.3.  For every m ∈ ℕ₀, if 10^m ≡ 1 (mod 3) then 10^(m + 1) ≡ 1 (mod 3).
+    1.3.  For all m ∈ ℕ₀, if 10^m ≡ 1 (mod 3) then 10^(m + 1) ≡ 1 (mod 3).
           fix
           let m ∈ ℕ₀                                                  (K)
           assume 10^m ≡ 1 (mod 3)                                     (IH)
@@ -94,7 +94,7 @@ theorem divisibility-by-three
   let d : ℕ₀ → ℤ                                                      (H2)
   then 3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
 
-1.  For every k ∈ ℕ₀, 3 divides d(k)·10^k − d(k).
+1.  For all k ∈ ℕ₀, 3 divides d(k)·10^k − d(k).
     fix
     note each term differs from its digit by a multiple of 10^k − 1
     let k ∈ ℕ₀                                                        (K)

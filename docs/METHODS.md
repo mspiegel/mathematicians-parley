@@ -453,7 +453,7 @@ family is what would prove such facts, and is not yet used.
 
 ## membership
 
-`requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: membership` — a term is in a number
+`requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership` — a term is in a number
 system because its parts are. The method states as a step's claim what `algebra` and
 `inequalities` already work out for every atom they touch, and it exists so
 that a dull fact of this kind is one line rather than a climb up the term one
@@ -468,7 +468,7 @@ is not cited for it.
 
 ### Fact out
 
-`t ∈ S`, with S a number system; or "for every k ∈ X, t ∈ S", which is
+`t ∈ S`, with S a number system; or "for all k ∈ X, t ∈ S", which is
 proved as a `fix` block would prove it: k is taken in X, what that
 membership says is laid beside the other facts in, and t ∈ S is proved of
 it.

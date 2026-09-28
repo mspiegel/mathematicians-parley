@@ -17,7 +17,7 @@
 
 
 definition subset
-  then        X ⊆ Y ↔ for every t ∈ X, t ∈ Y
+  then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath    df-ss, ssel
   target      dfss3
 
@@ -117,7 +117,7 @@ theorem in-union-singleton
   target      elun2
 
 theorem disjoint-empty
-  assume for every s ∈ Z, s ∉ Y                                       (H1)
+  assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅
   metamath    disjr
   target      disjr
@@ -341,7 +341,7 @@ theorem union-contains-member
               equal.
 
 theorem union-within
-  assume for every X ∈ D, X ⊆ Z                                       (H1)
+  assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
   metamath    iunss
   target      iunss

@@ -323,8 +323,8 @@ fn cases() -> Vec<Case> {
             "unfold a definition taken as stated into what it does not say",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
-            "10. For every s ∈ S, s ≤ c.",
-            "10. For every s ∈ S, s < c.",
+            "10. For all s ∈ S, s ≤ c.",
+            "10. For all s ∈ S, s < c.",
             "def:stdlib/calculus/upper-bound is taken as stated and states",
         ),
         // `elcncf2` is read in the page's words, which is a reading and not a
@@ -471,8 +471,8 @@ fn cases() -> Vec<Case> {
             "membership said of every integer where a divisor may be zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "requires for every k ∈ ℕ, 1/T(k) ∈ ℝ: membership",
-            "requires for every k ∈ ℤ, 1/T(k) ∈ ℝ: membership",
+            "requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership",
+            "requires for all k ∈ ℤ, 1/T(k) ∈ ℝ: membership",
             "is not built from what the requires line cites",
         ),
         // A membership line says what the table in `rules` says it does and
@@ -506,7 +506,7 @@ fn cases() -> Vec<Case> {
             "which is false",
         ),
         // `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
-        // says it for every k ∈ ℕ₀. Without line 1 cited nothing says it.
+        // says it for all k ∈ ℕ₀. Without line 1 cited nothing says it.
         case(
             "sum what no cited line says each term of is divisible",
             "proofs/divisibility-by-three/divisibility-by-three",
@@ -581,7 +581,7 @@ fn cases() -> Vec<Case> {
             "proofs/binomial/binomial",
             "proofs/binomial.proof",
             "          1.8.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.4\n",
-            "          1.8.4.  m ∈ ℤ\n                  thm:stdlib/numbers/nat0-int, from K\n\n          1.8.5.  For every k ∈ {0, …, m}, k + 0 = k.\n                  fix\n                  let k ∈ {0, …, m}                                   (J)\n\n                  1.8.5.1.  k ∈ ℤ\n                            thm:stdlib/sums/range-integer a := 0, b := m, from J\n                            requires 0 ∈ ℤ: arithmetic\n                            requires m ∈ ℤ: from 1.8.4\n\n                  1.8.5.2.  k ∈ ℝ\n                            thm:stdlib/numbers/int-real, from 1.8.5.1\n\n                  1.8.5.3.  k + 0 = k\n                            algebra\n                            requires k ∈ ℝ: from 1.8.5.2\n\n          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n                  thm:stdlib/sums/sum-termwise a := 0, b := m, from 1.8.5\n                  requires 0 ∈ ℤ: arithmetic\n                  requires m ∈ ℤ: from 1.8.4\n\n          1.8.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.7\n",
+            "          1.8.4.  m ∈ ℤ\n                  thm:stdlib/numbers/nat0-int, from K\n\n          1.8.5.  For all k ∈ {0, …, m}, k + 0 = k.\n                  fix\n                  let k ∈ {0, …, m}                                   (J)\n\n                  1.8.5.1.  k ∈ ℤ\n                            thm:stdlib/sums/range-integer a := 0, b := m, from J\n                            requires 0 ∈ ℤ: arithmetic\n                            requires m ∈ ℤ: from 1.8.4\n\n                  1.8.5.2.  k ∈ ℝ\n                            thm:stdlib/numbers/int-real, from 1.8.5.1\n\n                  1.8.5.3.  k + 0 = k\n                            algebra\n                            requires k ∈ ℝ: from 1.8.5.2\n\n          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n                  thm:stdlib/sums/sum-termwise a := 0, b := m, from 1.8.5\n                  requires 0 ∈ ℤ: arithmetic\n                  requires m ∈ ℤ: from 1.8.4\n\n          1.8.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.7\n",
             "no clause of thm:stdlib/sums/sum-termwise reaches what step 1.8.6 claims",
         ),
         // A closed exponent's membership of ℕ₀ is placed through the digit it

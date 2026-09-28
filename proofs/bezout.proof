@@ -9,7 +9,7 @@ theorem least-combination-divides
   let y₀ ∈ ℤ                                                          (H8)
   assume c = a·u + b·v                                                (H9)
   assume d = a·x₀ + b·y₀                                              (H10)
-  assume for every x ∈ ℤ, for every y ∈ ℤ,
+  assume for all x ∈ ℤ, for all y ∈ ℤ,
          if a·x + b·y ∈ ℕ then d ≤ a·x + b·y                          (H11)
   then d divides c
 
@@ -96,10 +96,10 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 3.  S ⊆ ℕ
     thm:stdlib/sets/set-builder-subset, from D1
 
-4.  d ∈ S. For every s ∈ S, d ≤ s.
+4.  d ∈ S. For all s ∈ S, d ≤ s.
     obtain d: thm:stdlib/numbers/well-ordering S := S, from 3, 2
 
-5.  For every t ∈ S, t ∈ ℕ
+5.  For all t ∈ S, t ∈ ℕ
     def:stdlib/sets/subset, from 3
 
 6.  d ∈ ℕ
@@ -108,7 +108,7 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
     obtain x₀, y₀: def:stdlib/sets/set-builder u := d, from 4
 
-8.  For every x ∈ ℤ, for every y ∈ ℤ,
+8.  For all x ∈ ℤ, for all y ∈ ℤ,
     if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     fix
     let x ∈ ℤ                                                         (K1)
@@ -153,7 +153,7 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
     requires 1 ∈ ℤ: arithmetic
 
 13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-    For every e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
+    For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
     def:stdlib/divisibility/gcd a := a, b := b, from H1, H2
 
 14. d ≤ gcd(a, b)

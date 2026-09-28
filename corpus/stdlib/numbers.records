@@ -251,7 +251,7 @@ theorem rational-coprime
 theorem well-ordering
   assume S ⊆ ℕ                                                        (H1)
   assume there is s ∈ S                                               (H2)
-  then        there is d ∈ S with for every s ∈ S, d ≤ s
+  then        there is d ∈ S with for all s ∈ S, d ≤ s
   metamath    nnwo
   target      nnwo
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.

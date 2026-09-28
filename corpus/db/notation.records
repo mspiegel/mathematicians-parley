@@ -57,7 +57,7 @@
 #   places      for a spelling that writes the other notation's holes in
 #               another order, which of this record's holes fills each hole of
 #               the other's, in order: `places 2 3 1` puts the condition of
-#               "f(x) ≠ B for all x ∈ A" last, where "for every x ∈ A, …" has
+#               "f(x) ≠ B for all x ∈ A" last, where "for all x ∈ A, …" has
 #               it. `binds` counts this record's holes as written.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
@@ -517,7 +517,7 @@ notation set-builder-part
   metamath    crab over a power set
   target      _3 _1 _2 cpw crab
   note        "The parts X of A with …", built as {X ∈ 𝒫A : …} exactly, as
-              `for-every-part` is.
+              `for-all-part` is.
 
 notation set-image
   pattern     {_ : _ ∈ _}
@@ -688,7 +688,7 @@ notation integer-range
   target      _1 _2 cfz co
   note        The range a sum runs over, written as a set so that a line can
               say something of every index in it. A sum over {0, …, m} and a
-              line "for every k ∈ {0, …, m}" name one set, which is how a
+              line "for all k ∈ {0, …, m}" name one set, which is how a
               line read at a sum's index is found. The ellipsis is what tells
               it from the singleton {_}.
 
@@ -744,44 +744,44 @@ notation congruent
 # Binders. A hole marked by `binds` introduces a variable that scopes over
 # another hole. SYNTAX.md writes these as words rather than as ∀ and ∃.
 
-notation for-every
-  pattern     for every _ ∈ _, _
+notation for-all
+  pattern     for all _ ∈ _, _
   sort        α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
-  reads       for every
+  reads       for all
   metamath    wral
   target      _3 _1 _2 wral
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
 
-notation for-every-part
-  pattern     for every _ ⊆ _, _
+notation for-all-part
+  pattern     for all _ ⊆ _, _
   sort        set of α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   wraps       hole 2 in powerset
-  reads       for every part of
+  reads       for all parts of
   metamath    wral over a power set
   target      _3 _1 _2 cpw wral
-  note        "For every X ⊆ A" is "for every X ∈ 𝒫A" in words a school
-              reader has: every part of A. It builds that formula exactly,
-              so nothing downstream tells the two spellings apart. `spells`
-              comes last because its value ends in a comma, which would
-              carry it onto the line below.
-  spells      for-every forevery∈,
+  note        "For all X ⊆ A" is "for all X ∈ 𝒫A" in words a school reader
+              has: all parts of A. It builds that formula exactly, so nothing
+              downstream tells the two spellings apart. `spells` comes last
+              because its value ends in a comma, which would carry it onto
+              the line below.
+  spells      for-all forall∈,
 
-notation for-every-with
-  pattern     for every _ ∈ _ with _, _
+notation for-all-with
+  pattern     for all _ ∈ _ with _, _
   sort        α, set of α, formula, formula → formula
   level       binder
   binds       hole 1 over holes 3 and 4
-  reads       for every, with
+  reads       for all, with
   metamath    wral, with wi inside it
   target      _3 _4 wi _1 _2 wral
-  note        The restricted universal, "for every ε ∈ ℝ with ε > 0". Two uses,
+  note        The restricted universal, "for all ε ∈ ℝ with ε > 0". Two uses,
               the definition of continuity and step 16 of the pilot that needs
-              it. Writing it as "for every ε ∈ ℝ, if ε > 0 then ..." was the
+              it. Writing it as "for all ε ∈ ℝ, if ε > 0 then ..." was the
               alternative and reads worse in the definition, which is the place
               a reader meets it first.
 
@@ -802,18 +802,18 @@ notation for-all-after
   target      _1 _2 _3 wral
   note        "f(x) ≠ B for all x ∈ A", the universal written after its
               condition, as a textbook writes one inside "such that". The
-              same formula as "for every x ∈ A, f(x) ≠ B". The condition is a
+              same formula as "for all x ∈ A, f(x) ≠ B". The condition is a
               single relation, predicate or negation: `trailing` is unrelated
               to "and", "or", "if … then" and "if and only if", so "P and Q
               for all x ∈ A" is refused rather than read one way, and the page
               writes "(P and Q) for all x ∈ A" or the prefix form. Two in a
               row, "P for all x ∈ A for all y ∈ B", are both over P.
 
-              It builds `for-every`'s node, its holes put in that notation's
+              It builds `for-all`'s node, its holes put in that notation's
               order by `places`, so a claim written either way meets an item
               written the other.
   places      2 3 1
-  spells      for-every forevery∈,
+  spells      for-all forall∈,
 
 notation for-all-after-part
   pattern     _ for all _ ⊆ _
@@ -825,10 +825,10 @@ notation for-all-after-part
   reads       for all parts of, written after what it says
   metamath    wral over a power set
   target      _1 _2 _3 cpw wral
-  note        "… for all X ⊆ A", built as `for-every-part` builds "for every
-              X ⊆ A, …".
+  note        "… for all X ⊆ A", built as `for-all-part` builds "for all X ⊆
+              A, …".
   places      2 3 1
-  spells      for-every forevery∈,
+  spells      for-all forall∈,
 
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
@@ -851,7 +851,7 @@ notation there-is-part
   metamath    wrex over a power set
   target      _3 _1 _2 cpw wrex
   note        "There is C ⊆ A with …" is "there is C ∈ 𝒫A with …", built
-              as exactly that formula, as `for-every-part` is.
+              as exactly that formula, as `for-all-part` is.
 
 notation there-exists
   pattern     there exists _ ∈ _ such that _
@@ -913,18 +913,18 @@ notation there-are
               phrases was the alternative and reads far worse, which is why
               every one of the six is written this way.
 
-notation for-every-set
-  pattern     for every set _, _
+notation for-all-sets
+  pattern     for all sets _, _
   sort        set of α, formula → formula
   level       binder
   binds       hole 1 over hole 2
-  reads       for every set
+  reads       for all sets
   metamath    wal, with no restricting domain
   target      _2 _1 wal
   note        The domain-free binder, quantifying over an arbitrary set rather
               than over the elements of a named one. It is the formula-position
               counterpart of the hypothesis line `let X be a set`, exactly as
-              for-every is of `let n ∈ ℕ`. Three uses, all in the subsets proof,
+              for-all is of `let n ∈ ℕ`. Three uses, all in the subsets proof,
               whose induction is over a statement universally quantified across
               sets. A sibling for points or functions would be a new record here
               and nothing else; the corpus wants neither yet.
@@ -1048,7 +1048,7 @@ notation is-a-set
               set.mm writes as membership of _V. One use, thm:stdlib/sets/difference-set;
               a proof does not write that a set built from sets is a set
               (`READERS.md`). It is the formula-position counterpart of the
-              `let X be a set` introduction, as for-every-set is of the same
+              `let X be a set` introduction, as for-all-sets is of the same
               line in a binder.
 
 notation bound

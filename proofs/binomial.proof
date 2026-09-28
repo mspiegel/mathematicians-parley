@@ -33,7 +33,7 @@ theorem binomial-step
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-5.  For every k ∈ {0, …, m}, x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k.
+5.  For all k ∈ {0, …, m}, x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k.
     fix
     note each of x and y times the sum gains a zero term, so both run from 0 to m + 1
     let k ∈ {0, …, m}                                                 (J)
@@ -153,7 +153,7 @@ theorem binomial-step
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-22. For every k ∈ {0, …, m}, y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1).
+22. For all k ∈ {0, …, m}, y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1).
     fix
     let k ∈ {0, …, m}                                                 (J)
 
@@ -206,7 +206,7 @@ theorem binomial-step
 25. Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
     substitute 0 + 1 = 1 (arithmetic)
 
-26. For every k ∈ {1, …, m + 1}, C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k.
+26. For all k ∈ {1, …, m + 1}, C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k.
     fix
     let k ∈ {1, …, m + 1}                                             (J)
 
@@ -317,7 +317,7 @@ theorem binomial-step
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
 
-44. For every k ∈ {0, …, m + 1}, C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k.
+44. For all k ∈ {0, …, m + 1}, C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k.
     fix
     note then the two sums add term by term, and Pascal's rule joins the coefficients
     let k ∈ {0, …, m + 1}                                             (J)
@@ -424,7 +424,7 @@ theorem binomial
                       = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k      1.1
 
     step
-    1.8.  For every m ∈ ℕ₀, if (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k
+    1.8.  For all m ∈ ℕ₀, if (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k
           then (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k.
           fix
           let m ∈ ℕ₀                                                  (K)

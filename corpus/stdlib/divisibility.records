@@ -94,7 +94,7 @@ theorem division-algorithm
 
 definition prime
   let p ∈ ℕ                                                           (H1)
-  then        p is prime ↔ p > 1 and for every d ∈ ℕ, if d divides p then
+  then        p is prime ↔ p > 1 and for all d ∈ ℕ, if d divides p then
               d = 1 or d = p
   metamath    isprm2, whose first conjunct is membership of ℤ≥2
   target      isprm2
@@ -108,7 +108,7 @@ definition gcd
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-              For every e ∈ ℕ, if e divides a and e divides b then
+              For all e ∈ ℕ, if e divides a and e divides b then
               e ≤ gcd(a, b).
   metamath    gcdnncl, gcddvds, dvdslegcd
   target      gcdnncl, gcddvds, dvdslegcd

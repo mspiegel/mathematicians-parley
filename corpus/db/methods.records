@@ -62,10 +62,10 @@ method substitute
 method instantiate
   form        instantiate v := t in line L, from L2
   block       none
-  checks      line L claims "for every v ∈ X, B". The claim is B with t in place
+  checks      line L claims "for all v ∈ X, B". The claim is B with t in place
               of v, and L2 supplies t ∈ X. Several variables may be given at
               once. L may also be a hypothesis or supposition label, or a
-              definition whose sentence is a "for every".
+              definition whose sentence is a "for all".
   metamath    rspcv, rspccva
 
 method algebra
@@ -174,7 +174,7 @@ method fix
   form        fix
   block       required
   part-opens  let x ∈ S (K), one or more of them, and assume A (H)
-  checks      the claim is "for every x ∈ S, ..., if A then B", one "for every"
+  checks      the claim is "for all x ∈ S, ..., if A then B", one "for all"
               per let line and in that order. The block opens with the claim's
               let and assume lines, each labelled, and its last step is B.
   metamath    ralrimiva, ex, alrimiv
@@ -193,8 +193,8 @@ method induction
   parts       base, step
   checks      the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above
               the set's first element, n ≥ m. The base part's last step claims
-              P(m). The step part's last step claims "for every k ∈ ℤ with
-              k ≥ m, if P(k) then P(k + 1)", with P read off the claim.
+              P(m). The step part's last step claims "for all k ∈ ℤ with k ≥
+              m, if P(k) then P(k + 1)", with P read off the claim.
   metamath    nnind, nn0ind, uzind
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need

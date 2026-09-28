@@ -125,7 +125,7 @@ text does not link stays independent, so a bijection may relate a set of
 numbers to a set of points. Whatever joins two sorts that differ is reported
 where it is written, and so is a set that would hold two sorts at once:
 `{3, P}`, for a number and a point, has no sort. `∅` has whichever sort its
-place gives it. Inside a proof, "for every set X" ranges over sets of the one
+place gives it. Inside a proof, "for all sets X" ranges over sets of the one
 sort the proof is about; a theorem is general in its sorts when it is cited,
 and a lemma needed at two sorts is stated as its own theorem.
 

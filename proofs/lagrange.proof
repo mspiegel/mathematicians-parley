@@ -19,11 +19,11 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 3.  |H| ∈ ℕ₀
     thm:stdlib/counting/card-nat0, from 2
 
-4.  For every g ∈ G, gH ⊆ G.
+4.  For all g ∈ G, gH ⊆ G.
     fix
     let g ∈ G                                                         (K1)
 
-    4.1.  For every u ∈ gH, u ∈ G.
+    4.1.  For all u ∈ gH, u ∈ G.
           fix
           let u ∈ gH                                                  (K2)
 
@@ -43,7 +43,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     4.2.  gH ⊆ G
           def:stdlib/sets/subset, from 4.1
 
-5.  For every g ∈ G, g ∈ gH.
+5.  For all g ∈ G, g ∈ gH.
     fix
     let g ∈ G                                                         (K3)
 
@@ -57,7 +57,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           def:stdlib/groups/coset u := g, from K3, 5.1, 5.2
           requires H ⊆ G: from 1
 
-6.  For every a ∈ G, for every x ∈ aH, xH ⊆ aH.
+6.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
     fix
     let a ∈ G                                                         (K4)
     let x ∈ aH                                                        (K5)
@@ -75,7 +75,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     6.4.  h ∈ G
           thm:stdlib/sets/in-subset, from 1, 6.1
 
-    6.5.  For every u ∈ xH, u ∈ aH.
+    6.5.  For all u ∈ xH, u ∈ aH.
           fix
           let u ∈ xH                                                  (K6)
 
@@ -108,7 +108,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     6.6.  xH ⊆ aH
           def:stdlib/sets/subset, from 6.5
 
-7.  For every a ∈ G, for every x ∈ aH, a ∈ xH.
+7.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
     fix
     let a ∈ G                                                         (K7)
     let x ∈ aH                                                        (K8)
@@ -158,7 +158,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           def:stdlib/groups/coset u := a, g := x, from 7.12, 7.3, 7.10
           requires H ⊆ G: from 1
 
-8.  For every b ∈ G, for every y ∈ bH, yH = bH.
+8.  For all b ∈ G, for all y ∈ bH, yH = bH.
     fix
     let b ∈ G                                                         (K9)
     let y ∈ bH                                                        (K10)
@@ -181,14 +181,14 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     8.6.  yH = bH
           thm:stdlib/sets/subset-antisymmetric, from 8.1, 8.5
 
-9.  For every g ∈ G, |gH| = |H|.
+9.  For all g ∈ G, |gH| = |H|.
     fix
     let g ∈ G                                                         (K11)
 
     define t(c) := g·c, for c ∈ H                                     (D2)
            reads g times c
 
-    9.1.  For every h ∈ H, t(h) ∈ gH.
+    9.1.  For all h ∈ H, t(h) ∈ gH.
           fix
           let h ∈ H                                                   (K12)
 
@@ -203,7 +203,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           thm:stdlib/functions/function-into, from 9.1
           requires t is a function on H: from D2
 
-    9.3.  For every s ∈ H, for every r ∈ H, if t(s) = t(r) then s = r.
+    9.3.  For all s ∈ H, for all r ∈ H, if t(s) = t(r) then s = r.
           fix
           let s ∈ H                                                   (K13)
           let r ∈ H                                                   (K14)
@@ -233,7 +233,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     9.4.  t : H → gH is one-to-one
           def:stdlib/functions/one-to-one, from 9.2, 9.3
 
-    9.5.  For every u ∈ gH, there is h ∈ H with u = t(h).
+    9.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
           fix
           let u ∈ gH                                                  (K15)
 
@@ -258,7 +258,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     9.7.  |H| = |gH|
           thm:stdlib/counting/card-equal X := H, Y := gH, from 2, 9.6
 
-10. For every Y ∈ K, Y ⊆ G.
+10. For all Y ∈ K, Y ⊆ G.
     fix
     let Y ∈ K                                                         (K16)
 
@@ -268,7 +268,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 11. ⋃(Y ∈ K) Y ⊆ G
     thm:stdlib/sets/union-within, from 10
 
-12. For every g ∈ G, g ∈ ⋃(Y ∈ K) Y.
+12. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
     fix
     let g ∈ G                                                         (K17)
 
@@ -296,7 +296,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 14. ⋃(Y ∈ K) Y = G
     thm:stdlib/sets/subset-antisymmetric, from 11, 13
 
-15. For every Y ∈ K, for every Z ∈ K, for every x ∈ Y ∩ Z, Y = Z.
+15. For all Y ∈ K, for all Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     fix
     let Y ∈ K                                                         (K18)
     let Z ∈ K                                                         (K19)
@@ -330,7 +330,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
               = bH                  15.7
               = Z                   15.2
 
-16. For every Y ∈ K, |Y| = |H|.
+16. For all Y ∈ K, |Y| = |H|.
     fix
     let Y ∈ K                                                         (K21)
 
