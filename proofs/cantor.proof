@@ -10,7 +10,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
 1.  B ⊆ A
     thm:stdlib/sets/set-builder-subset, from D1
 
-2.  f(x) ≠ B for all x ∈ A.
+2.  For every x ∈ A, f(x) ≠ B.
     fix
     let x ∈ A                                                         (K)
 

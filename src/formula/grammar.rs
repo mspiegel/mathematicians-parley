@@ -186,6 +186,7 @@ fn read(
         i: 0,
         stopped: None,
         refused: None,
+        refused_order: false,
     };
     let Some(node) = p.expression(None, None)? else {
         return Err(Problem::new(path, line, p.why()));
@@ -282,6 +283,8 @@ struct Parser<'a> {
     i: usize,
     stopped: Option<(usize, String)>,
     refused: Option<(usize, String)>,
+    /// Whether what `refused` says is about the precedence order.
+    refused_order: bool,
 }
 
 /// A reading, no reading, or two readings.
@@ -314,15 +317,22 @@ impl Parser<'_> {
     fn refuse(&mut self, at: usize, why: String) {
         if self.refused.as_ref().is_none_or(|(was, _)| at > *was) {
             self.refused = Some((at, why));
+            self.refused_order = false;
         }
     }
 
     /// `refuse`, for two notations the precedence order leaves unrelated:
     /// at the same point it is said over a sort refused inside one of the
-    /// readings tried, since it is about the text as written.
+    /// readings tried, since it is about the text as written, and not over
+    /// another such, since the first found is the innermost pair.
     fn refuse_order(&mut self, at: usize, why: String) {
-        if self.refused.as_ref().is_none_or(|(was, _)| at >= *was) {
+        let over = match &self.refused {
+            None => true,
+            Some((was, _)) => at > *was || (at == *was && !self.refused_order),
+        };
+        if over {
             self.refused = Some((at, why));
+            self.refused_order = true;
         }
     }
 
@@ -749,6 +759,19 @@ impl Parser<'_> {
             kids[w.hole - 1] =
                 Node::new(&w.name, Sort::of(&w.yields), vec![inner], &w.literal);
         }
+        // A spelling that writes the other notation's holes in another order
+        // puts them back in that notation's order, so the two build one tree:
+        // "f(x) ≠ B for all x ∈ A" is "for every x ∈ A, f(x) ≠ B".
+        let wrapped_at = n.wrap.as_ref().map(|w| match &n.places {
+            Some(places) => places
+                .iter()
+                .position(|p| *p == w.hole)
+                .unwrap_or(w.hole - 1),
+            None => w.hole - 1,
+        });
+        if let Some(places) = &n.places {
+            kids = places.iter().map(|p| kids[p - 1].clone()).collect();
+        }
         let node = Node::new(n.key(), Sort::of(&n.yields), kids, &n.literal);
         // Where it was read from: its first token, or the value it extends,
         // to its last token.
@@ -759,9 +782,9 @@ impl Parser<'_> {
             .map(|t| t.at + t.text.chars().count());
         if let (Some(from), Some(to)) = (begin, end) {
             node.set_span(from, to);
-            if let Some(w) = &n.wrap {
-                if let Some(span) = node.children[w.hole - 1].children[0].span() {
-                    node.children[w.hole - 1].set_span(span.0, span.1);
+            if let Some(at) = wrapped_at {
+                if let Some(span) = node.children[at].children[0].span() {
+                    node.children[at].set_span(span.0, span.1);
                 }
             }
         }

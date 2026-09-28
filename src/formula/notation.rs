@@ -71,9 +71,30 @@ pub struct Notation {
     /// produces.
     pub sort: Option<String>,
     pub wrap: Option<Wrap>,
+    /// For a pattern that spells another whose holes stand in another
+    /// order, which of this pattern's holes, counted from 1, fills each hole
+    /// of the node it builds (`places`).
+    pub places: Option<Vec<usize>>,
 }
 
 impl Notation {
+    /// What the node it builds binds, counted in that node's holes: a
+    /// spelling that puts its holes in another notation's order (`places`)
+    /// binds the same holes where they end up, so "x" in "f(x) ≠ B for all
+    /// x ∈ A" is bound as it is in "for every x ∈ A, f(x) ≠ B".
+    pub fn node_binds(&self) -> Option<Binds> {
+        let binds = self.binds.as_ref()?;
+        let Some(places) = &self.places else {
+            return Some(binds.clone());
+        };
+        let at =
+            |own: &usize| places.iter().position(|p| *p == own + 1).unwrap_or(*own);
+        Some(Binds {
+            held: binds.held.iter().map(at).collect(),
+            body: binds.body.iter().map(at).collect(),
+        })
+    }
+
     /// The name the node it builds carries.
     pub fn key(&self) -> &str {
         if self.stands_under.is_empty() {
@@ -218,6 +239,11 @@ pub fn compile_notations(
         let folded = NEGATES.captures(r.field_or_empty("negates"));
         let spells = SPELLS.captures(r.field_or_empty("spells"));
         let wraps = WRAPS.captures(r.field_or_empty("wraps"));
+        let places: Option<Vec<usize>> = r.field("places").map(|p| {
+            p.split_whitespace()
+                .filter_map(|n| n.parse::<usize>().ok())
+                .collect()
+        });
         let binds = binding(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
         let mut shapes: Vec<Vec<Part>> = Vec::new();
@@ -306,6 +332,7 @@ pub fn compile_notations(
                     literal: String::new(),
                     yields: String::new(),
                 }),
+                places: places.clone(),
             });
         }
     }

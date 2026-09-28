@@ -9,7 +9,7 @@ theorem intermediate-value
   assume f is continuous on [a, b]                                    (H5)
   assume f(a) < 0                                                     (H6)
   assume 0 < f(b)                                                     (H7)
-  then there is c ∈ [a, b] with f(c) = 0
+  then there exists c ∈ [a, b] such that f(c) = 0
 
 define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
        reads the points of the interval where f is still below zero
@@ -311,5 +311,5 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     17.36. f(c) = 0
            thm:stdlib/reasoning/from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.35
 
-18. There is c ∈ [a, b] with f(c) = 0.
+18. There exists c ∈ [a, b] such that f(c) = 0.
     exhibit, from 13, 17

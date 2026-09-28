@@ -920,7 +920,7 @@ fn cases() -> Vec<Case> {
         case(
             "a gap in the numbering",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("7.  There is p ∈ ℕ with p is prime and p > n.".to_string()), "8.  There is p ∈ ℕ with p is prime and p > n.".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("7.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()), "8.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()),
             ],
             "numbers run on without gaps",
         ),
@@ -1175,7 +1175,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a trailing for all over an and",
             vec![
-                edit("proofs/cantor.proof", Some("2.  f(x) ≠ B for all x ∈ A.".to_string()), "2.  f(x) ≠ B and x ∈ A for all x ∈ A.".to_string()),
+                edit("proofs/cantor.proof", Some("3.  There exists B ⊆ A such that f(x) ≠ B for all x ∈ A.".to_string()), "3.  There exists B ⊆ A such that f(x) ≠ B and x ∈ A for all x ∈ A.".to_string()),
             ],
             "`and` and `for all` are not ordered against each other",
         ),

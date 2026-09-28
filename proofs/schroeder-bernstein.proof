@@ -8,7 +8,7 @@ theorem fixed-part
   let B be a set                                                      (H2)
   let f : A → B                                                       (H3)
   let g : B → A                                                       (H4)
-  then there is C ⊆ A with g[B ∖ f[C]] = A ∖ C
+  then there exists C ⊆ A such that g[B ∖ f[C]] = A ∖ C
 
 define M(X) := g[B ∖ f[X]], for X ⊆ A                              (D1)
        reads take what f misses from X, and see where g sends it
@@ -133,7 +133,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
 17. M(C) = A ∖ C
     thm:stdlib/sets/subset-antisymmetric, from 8, 16
 
-18. There is C ⊆ A with g[B ∖ f[C]] = A ∖ C.
+18. There exists C ⊆ A such that g[B ∖ f[C]] = A ∖ C.
     exhibit, from 4, 17
 
 

@@ -1,7 +1,7 @@
 theorem prime-above
   metamath    infpn
   let n ∈ ℕ                                                           (H1)
-  then there is p ∈ ℕ with p is prime and p > n
+  then there exists p ∈ ℕ such that p is prime and p > n
 
 1.  n! ∈ ℕ
     thm:stdlib/counting/factorial-nat n := n, from H1
@@ -54,5 +54,5 @@ theorem prime-above
     6.8.  p = 1. not p = 1.
           join 6.6, 6.7
 
-7.  There is p ∈ ℕ with p is prime and p > n.
+7.  There exists p ∈ ℕ such that p is prime and p > n.
     exhibit, from 4, 6

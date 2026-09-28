@@ -76,12 +76,15 @@ every x ∈ A, f(x) ≠ B" or "f(x) ≠ B for all x ∈ A", and the two are one
 formula. The after form is what a textbook writes inside "such that", where
 the prefix form puts two connectives side by side ("with for every"); the
 before form is the only one for anything longer than one relation, and the
-one a block's claim has always been written in. On 71 lines the corpus writes
-"for every" and on 3 "for all", all three in Cantor's theorem, which states
-its conclusion as "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A". "There
-exists … such that" and "there is … with" are the same kind of choice, 2
-lines against 40. Both are left open until more of the corpus is written the
-new way, since a rule argued from one proof would be a rule about that proof.
+one a block's claim has always been written in. On 72 lines the corpus writes
+"for every" and on 2 "for all", both in Cantor's theorem, which states its
+conclusion as "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" and
+repeats it as its last step. A step's own claim is written "for every". "There
+exists … such that" and "there is … with" are the same kind of choice, 8 lines
+against 34: four theorems state their conclusion the first way, and each
+repeats it as its last step. Both are left open until more of the corpus is
+written the new way, since a rule argued from a handful of proofs would be a
+rule about those proofs.
 
 ## The shape of a step
 

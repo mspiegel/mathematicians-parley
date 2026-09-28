@@ -54,6 +54,11 @@
 #               is the product written without its dot. Both build the same
 #               tree, so the two spellings are one formula wherever two are
 #               compared, and the page writes whichever reads better.
+#   places      for a spelling that writes the other notation's holes in
+#               another order, which of this record's holes fills each hole of
+#               the other's, in order: `places 2 3 1` puts the condition of
+#               "f(x) ≠ B for all x ∈ A" last, where "for every x ∈ A, …" has
+#               it. `binds` counts this record's holes as written.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -804,6 +809,12 @@ notation for-all-after
               writes "(P and Q) for all x ∈ A" or the prefix form. Two in a
               row, "P for all x ∈ A for all y ∈ B", are both over P.
 
+              It builds `for-every`'s node, its holes put in that notation's
+              order by `places`, so a claim written either way meets an item
+              written the other.
+  places      2 3 1
+  spells      for-every forevery∈,
+
 notation for-all-after-part
   pattern     _ for all _ ⊆ _
   sort        formula, set of α, set of α → formula
@@ -816,6 +827,8 @@ notation for-all-after-part
   target      _1 _2 _3 cpw wral
   note        "… for all X ⊆ A", built as `for-every-part` builds "for every
               X ⊆ A, …".
+  places      2 3 1
+  spells      for-every forevery∈,
 
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _

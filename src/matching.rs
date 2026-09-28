@@ -134,8 +134,8 @@ pub fn binding_context(
                 props.insert(n.key().to_string(), first.clone());
             }
         }
-        if let Some(b) = &n.binds {
-            binders.insert(n.key().to_string(), b.clone());
+        if let Some(b) = n.node_binds() {
+            binders.insert(n.key().to_string(), b);
         }
     }
     (binders, props)
