@@ -6,7 +6,8 @@
 //!
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
-//! another's edit. The cases run one after another.
+//! another's edit. The cases run on as many threads as the machine has, and
+//! are reported in the order they are written. The tool itself runs on one.
 
 use std::path::Path;
 
@@ -70,6 +71,60 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
     Ok(tree)
 }
 
+/// What one case says, and whether it missed: its edit could not be planted,
+/// or the checker did not report it.
+fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
+    let tree = match plant(case, clean) {
+        Ok(tree) => tree,
+        Err(why) => return (why, true),
+    };
+    let out = parley::check::run(&tree).printed;
+    if out.contains(case.expect) {
+        return (format!("  caught        {}", case.name), false);
+    }
+    let lines: Vec<&str> = out
+        .lines()
+        .filter(|l| !l.is_empty() && !l.starts_with(|c: char| c.is_ascii_digit()))
+        .collect();
+    let got: String = lines.join(" | ").chars().take(200).collect();
+    (
+        format!(
+            "  NOT CAUGHT    {}\n      expected a report containing {:?}\n      got: {got}",
+            case.name, case.expect
+        ),
+        true,
+    )
+}
+
+/// `run` over every case, several at once, given back in the cases' order.
+///
+/// A case reads the clean corpus and writes only its own overlay, and the
+/// checker it runs is its own, so the cases share nothing that changes. Each
+/// thread takes the next case not yet taken, which keeps them all busy when
+/// some cases cost far more than others.
+fn in_parallel<T: Send>(cases: &[Case], run: impl Fn(&Case) -> T + Sync) -> Vec<T> {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Mutex;
+    let next = AtomicUsize::new(0);
+    let done: Mutex<Vec<Option<T>>> = Mutex::new(cases.iter().map(|_| None).collect());
+    let workers = std::thread::available_parallelism().map_or(1, |n| n.get());
+    std::thread::scope(|scope| {
+        for _ in 0..workers.min(cases.len()) {
+            scope.spawn(|| loop {
+                let i = next.fetch_add(1, Ordering::Relaxed);
+                let Some(case) = cases.get(i) else { break };
+                let result = run(case);
+                done.lock().unwrap()[i] = Some(result);
+            });
+        }
+    });
+    done.into_inner()
+        .unwrap()
+        .into_iter()
+        .map(|r| r.expect("every case was run"))
+        .collect()
+}
+
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
@@ -80,35 +135,9 @@ fn the_checker_catches_every_planted_defect() {
         base.printed
     );
     let cases = cases();
-    let mut said = Vec::new();
-    let mut missed = 0;
-    for case in &cases {
-        let tree = match plant(case, &clean) {
-            Ok(tree) => tree,
-            Err(why) => {
-                said.push(why);
-                missed += 1;
-                continue;
-            }
-        };
-        let out = parley::check::run(&tree).printed;
-        if out.contains(case.expect) {
-            said.push(format!("  caught        {}", case.name));
-        } else {
-            let lines: Vec<&str> = out
-                .lines()
-                .filter(|l| {
-                    !l.is_empty() && !l.starts_with(|c: char| c.is_ascii_digit())
-                })
-                .collect();
-            let got: String = lines.join(" | ").chars().take(200).collect();
-            said.push(format!(
-                "  NOT CAUGHT    {}\n      expected a report containing {:?}\n      got: {got}",
-                case.name, case.expect
-            ));
-            missed += 1;
-        }
-    }
+    let results = in_parallel(&cases, |case| outcome(case, &clean));
+    let missed = results.iter().filter(|(_, missed)| *missed).count();
+    let said: Vec<&str> = results.iter().map(|(line, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
     println!(
         "\n{} caught, {missed} missed, of {} planted defects",
