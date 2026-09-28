@@ -143,7 +143,7 @@ The addition is one notation, in the shape `number-systems` already uses:
 ```
 notation plane
   pattern     𝔼²
-  kinds       → set of point
+  sort        → set of point
   reads       the Euclidean plane
   metamath    cc, the complex numbers read as the plane
   target      cc

@@ -14,17 +14,17 @@
 #   pattern     the pattern, with _ for each hole. A record may carry several
 #               patterns when they differ only in symbol and set.mm target;
 #               the metamath list then matches the pattern list in order.
-#   kinds       the kind each hole takes, in order, and the kind the pattern
+#   sort        the sort each hole takes, in order, and the sort the pattern
 #               produces: `α, set of α → formula` for membership, `→ set of
-#               number` for a pattern with no hole. A kind is number, point,
-#               formula, group-element, `set of K`, `property of K`,
-#               `function from K to K`, or a Greek letter standing for any
-#               kind, shared by every hole that names it. Every notation has
+#               number` for a pattern with no hole. A sort is number, point,
+#               formula, group-element, `set of S`, `property of S`,
+#               `function from S to S`, or a Greek letter standing for any
+#               sort, shared by every hole that names it. Every notation has
 #               one, and it is the only place a notation says what its holes
-#               take: the parser tells readings apart by the coarse class of
-#               each (a number, a set, a set of sets, a function, …), and
-#               a hole the `binds` line says introduces a name takes a name.
-#               `GRAMMAR.md` says how kinds are read off a text.
+#               take: the parser tells readings apart by each sort's category
+#               (a number, a set, a set of sets, a function, …), and a hole
+#               the `binds` line says introduces a name takes a name.
+#               `GRAMMAR.md` says how sorts are read off a text.
 #   level       its precedence level, from the order declared below.
 #   assoc       left or right. Required exactly when both edges are holes and
 #               what the pattern produces fits those holes, so it can nest in itself;
@@ -133,7 +133,7 @@ precedence order
 
 notation number-systems
   pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ
-  kinds       → set of number
+  sort        → set of number
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals
   metamath    cn, cn0, cz, cq, cr
@@ -144,7 +144,7 @@ notation number-systems
 
 notation membership
   pattern     _ ∈ _        _ ∉ _
-  kinds       α, set of α → formula
+  sort        α, set of α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       is in, is not in
@@ -155,7 +155,7 @@ notation membership
 
 notation equality
   pattern     _ = _        _ ≠ _
-  kinds       α, α → formula
+  sort        α, α → formula
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       equals, is not equal to
@@ -164,7 +164,7 @@ notation equality
 
 notation order
   pattern     _ < _        _ > _        _ ≤ _        _ ≥ _
-  kinds       number, number → formula
+  sort        number, number → formula
   level       relational
   reads       is less than, is greater than, is at most, is at least
   metamath    clt, cle
@@ -172,7 +172,7 @@ notation order
 
 notation additive
   pattern     _ + _        _ − _
-  kinds       number, number → number
+  sort        number, number → number
   level       additive
   assoc       left
   reads       plus, minus
@@ -185,7 +185,7 @@ notation additive
 
 notation multiplicative
   pattern     _ · _        _ / _
-  kinds       number, number → number
+  sort        number, number → number
   level       multiplicative
   assoc       left
   commutes    yes, no
@@ -195,7 +195,7 @@ notation multiplicative
 
 notation group-operation
   pattern     _ · _
-  kinds       group-element, group-element → group-element
+  sort        group-element, group-element → group-element
   level       multiplicative
   assoc       left
   reads       combined by the group's operation with
@@ -208,7 +208,7 @@ notation group-operation
 
 notation unary-minus
   pattern     −_
-  kinds       number → number
+  sort        number → number
   level       unary-minus
   reads       minus
   metamath    cneg
@@ -219,7 +219,7 @@ notation unary-minus
 
 notation power
   pattern     _^_
-  kinds       number, number → number
+  sort        number, number → number
   level       power
   assoc       right
   reads       to the power
@@ -231,7 +231,7 @@ notation power
 
 notation square
   pattern     _²
-  kinds       number → number
+  sort        number → number
   level       power
   reads       squared
   metamath    cexp with the numeral 2
@@ -241,7 +241,7 @@ notation square
 
 notation square-root
   pattern     √_
-  kinds       number → number
+  sort        number → number
   level       power
   reads       the square root of
   metamath    csqrt
@@ -249,7 +249,7 @@ notation square-root
 
 notation logical-not
   pattern     not _
-  kinds       formula → formula
+  sort        formula → formula
   level       negation
   reads       not
   metamath    wn
@@ -258,7 +258,7 @@ notation logical-not
 
 notation conjunction
   pattern     _ and _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       conjunction
   assoc       left
   reads       and
@@ -269,7 +269,7 @@ notation conjunction
 
 notation comma-conjunction
   pattern     _, _        _, and _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       conjunction
   assoc       left
   reads       and
@@ -291,7 +291,7 @@ notation comma-conjunction
 
 notation disjunction
   pattern     _ or _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       disjunction
   assoc       left
   reads       or
@@ -300,7 +300,7 @@ notation disjunction
 
 notation implication
   pattern     _ → _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       implication
   assoc       right
   reads       implies
@@ -309,7 +309,7 @@ notation implication
 
 notation biconditional
   pattern     _ ↔ _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       biconditional
   assoc       right
   reads       if and only if
@@ -320,7 +320,7 @@ notation biconditional
 
 notation conditional
   pattern     if _ then _
-  kinds       formula, formula → formula
+  sort        formula, formula → formula
   level       implication
   reads       if, then
   metamath    wi
@@ -332,7 +332,7 @@ notation conditional
 
 notation absolute-value
   pattern     |_|
-  kinds       number → number
+  sort        number → number
   reads       the absolute value of
   metamath    cabs
   target      _1 cabs cfv
@@ -342,14 +342,14 @@ notation absolute-value
 
 notation cardinality
   pattern     |_|
-  kinds       set of α → number
+  sort        set of α → number
   reads       the number of elements of
   metamath    chash
   target      _1 chash cfv
 
 notation finite
   pattern     _ is finite
-  kinds       set of α → formula
+  sort        set of α → formula
   level       relational
   reads       has finitely many elements
   metamath    Fin
@@ -357,7 +357,7 @@ notation finite
 
 notation distance
   pattern     |__|
-  kinds       point, point → number
+  sort        point, point → number
   reads       the distance from the first to the second
   metamath    ( abs ` ( P − Q ) )
   target      _1 _2 cmin co cabs cfv
@@ -368,7 +368,7 @@ notation distance
 
 notation factorial
   pattern     _!
-  kinds       number → number
+  sort        number → number
   level       power
   reads       factorial
   metamath    cfa
@@ -377,14 +377,14 @@ notation factorial
 
 notation gcd
   pattern     gcd(_, _)
-  kinds       number, number → number
+  sort        number, number → number
   reads       the greatest common divisor of
   metamath    cgcd
   target      _1 _2 cgcd co
 
 notation mod
   pattern     _ mod _
-  kinds       number, number → number
+  sort        number, number → number
   level       multiplicative
   assoc       left
   reads       the remainder on dividing by
@@ -398,7 +398,7 @@ notation mod
 
 notation by-cases
   pattern     _ if _, _ otherwise
-  kinds       α, formula, α → α
+  sort        α, formula, α → α
   level       binder
   reads       the first if, and else the second
   metamath    cif
@@ -409,7 +409,7 @@ notation by-cases
 
 notation min
   pattern     min(_, _)
-  kinds       number, number → number
+  sort        number, number → number
   reads       the smaller of
   metamath    cif, cle
   target      _1 _2 cle wbr _1 _2 cif
@@ -419,7 +419,7 @@ notation min
 
 notation max
   pattern     max(_, _)
-  kinds       number, number → number
+  sort        number, number → number
   reads       the larger of
   metamath    cif, cle
   target      _1 _2 cle wbr _2 _1 cif
@@ -428,7 +428,7 @@ notation max
 
 notation binomial
   pattern     C(_, _)
-  kinds       number, number → number
+  sort        number, number → number
   reads       choose
   metamath    cbc
   target      _1 _2 cbc co
@@ -439,7 +439,7 @@ notation binomial
 
 notation subset
   pattern     _ ⊆ _
-  kinds       set of α, set of α → formula
+  sort        set of α, set of α → formula
   level       relational
   reads       is a subset of
   metamath    wss
@@ -447,21 +447,21 @@ notation subset
 
 notation empty-set
   pattern     ∅
-  kinds       → set of α
+  sort        → set of α
   reads       the empty set
   metamath    c0
   target      c0
 
 notation singleton
   pattern     {_}
-  kinds       α → set of α
+  sort        α → set of α
   reads       the set whose only element is
   metamath    csn
   target      _1 csn
 
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _
-  kinds       set of α, set of α → set of α
+  sort        set of α, set of α → set of α
   level       additive
   assoc       left
   reads       union, difference, intersection
@@ -472,7 +472,7 @@ notation set-operations
 
 notation powerset
   pattern     𝒫_
-  kinds       set of α → set of set of α
+  sort        set of α → set of set of α
   level       power
   reads       the power set of
   metamath    cpw
@@ -481,7 +481,7 @@ notation powerset
 
 notation supremum
   pattern     sup _
-  kinds       set of number → number
+  sort        set of number → number
   level       power
   reads       the least upper bound of
   metamath    df-sup
@@ -493,7 +493,7 @@ notation supremum
 
 notation set-builder
   pattern     {_ ∈ _ : _}
-  kinds       α, set of α, formula → set of α
+  sort        α, set of α, formula → set of α
   binds       hole 1 over hole 3
   reads       the set of those in the second with the third
   metamath    crab
@@ -503,7 +503,7 @@ notation set-builder
 
 notation set-builder-part
   pattern     {_ ⊆ _ : _}
-  kinds       set of α, set of α, formula → set of set of α
+  sort        set of α, set of α, formula → set of set of α
   binds       hole 1 over hole 3
   spells      set-builder {∈:}
   wraps       hole 2 in powerset
@@ -515,7 +515,7 @@ notation set-builder-part
 
 notation set-image
   pattern     {_ : _ ∈ _}
-  kinds       β, α, set of α → set of β
+  sort        β, α, set of α → set of β
   binds       hole 2 over hole 1
   reads       the set of the first as the second runs over the third
   metamath    the range of a cmpt, which is what elrnmpt speaks of
@@ -525,7 +525,7 @@ notation set-image
 
 notation indexed-union
   pattern     ⋃(_ ∈ _) _
-  kinds       α, set of α, set of β → set of β
+  sort        α, set of α, set of β → set of β
   level       summation
   binds       hole 1 over hole 3
   reads       the union, as the first runs over the second, of the third
@@ -537,7 +537,7 @@ notation indexed-union
 
 notation map
   pattern     the map sending _ ∈ _ to _
-  kinds       α, set of α, β → function from α to β
+  sort        α, set of α, β → function from α to β
   level       binder
   binds       hole 1 over hole 3
   reads       the map sending each of the first in the second to the third
@@ -556,7 +556,7 @@ notation map
 
 notation function-type
   pattern     _ : _ → _
-  kinds       function from α to β, set of α, set of β → formula
+  sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a function from, to
   metamath    wf
@@ -564,7 +564,7 @@ notation function-type
 
 notation one-to-one
   pattern     _ : _ → _ is one-to-one
-  kinds       function from α to β, set of α, set of β → formula
+  sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a one-to-one function from, to
   metamath    wf1
@@ -575,7 +575,7 @@ notation one-to-one
 
 notation application
   pattern     _(_)
-  kinds       function from α to β, α → β
+  sort        function from α to β, α → β
   reads       applied to
   metamath    cfv
   target      _2 _1 cfv
@@ -586,7 +586,7 @@ notation application
 
 notation inverse
   pattern     _⁻¹
-  kinds       function from α to β → function from β to α
+  sort        function from α to β → function from β to α
   level       power
   reads       the inverse of
   metamath    ccnv
@@ -597,7 +597,7 @@ notation inverse
 
 notation group-inverse
   pattern     _⁻¹
-  kinds       group-element → group-element
+  sort        group-element → group-element
   level       power
   reads       the inverse in the group of
   metamath    the group's invg
@@ -607,7 +607,7 @@ notation group-inverse
 
 notation subgroup
   pattern     _ is a subgroup of _
-  kinds       set of group-element, set of group-element → formula
+  sort        set of group-element, set of group-element → formula
   level       relational
   reads       is a subgroup of
   metamath    SubGrp of the group its `let` line names
@@ -617,7 +617,7 @@ notation subgroup
 
 notation coset
   pattern     __
-  kinds       group-element, set of group-element → set of group-element
+  sort        group-element, set of group-element → set of group-element
   level       multiplicative
   assoc       right
   reads       the coset of the second by the first
@@ -629,7 +629,7 @@ notation coset
 
 notation image
   pattern     _[_]
-  kinds       function from α to β, set of α → set of β
+  sort        function from α to β, set of α → set of β
   reads       the image under the first of the second
   metamath    cima
   target      _1 _2 cima
@@ -640,7 +640,7 @@ notation image
 
 notation holds-of
   pattern     _(_)
-  kinds       property of α, α → formula
+  sort        property of α, α → formula
   reads       holds of
   metamath    substitution into a wff, which set.mm writes by naming the
               variable rather than with a constructor
@@ -657,14 +657,14 @@ notation holds-of
 
 notation closed-interval
   pattern     [_, _]
-  kinds       number, number → set of number
+  sort        number, number → set of number
   reads       the closed interval from, to
   metamath    cicc
   target      _1 _2 cicc co
 
 notation integer-range
   pattern     {_, …, _}
-  kinds       number, number → set of number
+  sort        number, number → set of number
   reads       the whole numbers from, to
   metamath    cfz
   target      _1 _2 cfz co
@@ -676,7 +676,7 @@ notation integer-range
 
 notation juxtaposition
   pattern     __
-  kinds       number, number → number
+  sort        number, number → number
   level       multiplicative
   assoc       left
   spells      multiplicative ·
@@ -698,7 +698,7 @@ notation juxtaposition
 
 notation angle
   pattern     ∠___
-  kinds       point, point, point → number
+  sort        point, point, point → number
   reads       the angle at the second from the first to the third
   metamath    the absolute value of ang applied to the two differences
   target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
@@ -709,7 +709,7 @@ notation angle
 
 notation congruent
   pattern     triangle ___ ≅ triangle ___
-  kinds       point, point, point, point, point, point → formula
+  sort        point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
   metamath    the three sides and the three angles equal, as def:stdlib/geometry/congruent
@@ -728,7 +728,7 @@ notation congruent
 
 notation for-every
   pattern     for every _ ∈ _, _
-  kinds       α, set of α, formula → formula
+  sort        α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   reads       for every
@@ -739,7 +739,7 @@ notation for-every
 
 notation for-every-part
   pattern     for every _ ⊆ _, _
-  kinds       set of α, set of α, formula → formula
+  sort        set of α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   wraps       hole 2 in powerset
@@ -755,7 +755,7 @@ notation for-every-part
 
 notation for-every-with
   pattern     for every _ ∈ _ with _, _
-  kinds       α, set of α, formula, formula → formula
+  sort        α, set of α, formula, formula → formula
   level       binder
   binds       hole 1 over holes 3 and 4
   reads       for every, with
@@ -775,7 +775,7 @@ notation for-every-with
 
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
-  kinds       α, set of α, formula → formula
+  sort        α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   negates     pattern 2 is logical-not of pattern 1
@@ -785,7 +785,7 @@ notation there-is
 
 notation there-is-part
   pattern     there is _ ⊆ _ with _
-  kinds       set of α, set of α, formula → formula
+  sort        set of α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
   spells      there-is thereis∈with
@@ -798,7 +798,7 @@ notation there-is-part
 
 notation there-is-some
   pattern     there is _ ∈ _
-  kinds       α, set of α → formula
+  sort        α, set of α → formula
   level       binder
   binds       hole 1 over nothing
   reads       there is
@@ -817,7 +817,7 @@ notation there-is-some
 
 notation there-are
   pattern     there are _ ∈ _ and _ ∈ _ with _
-  kinds       α, set of α, β, set of β, formula → formula
+  sort        α, set of α, β, set of β, formula → formula
   level       binder
   binds       holes 1 and 3 over hole 5
   reads       there are, and, with
@@ -832,7 +832,7 @@ notation there-are
 
 notation for-every-set
   pattern     for every set _, _
-  kinds       set of α, formula → formula
+  sort        set of α, formula → formula
   level       binder
   binds       hole 1 over hole 2
   reads       for every set
@@ -853,7 +853,7 @@ notation for-every-set
 
 notation divides
   pattern     _ divides _
-  kinds       number, number → formula
+  sort        number, number → formula
   level       predicate
   reads       divides
   metamath    wbr with cdvds
@@ -862,7 +862,7 @@ notation divides
 
 notation congruent-mod
   pattern     _ ≡ _ (mod _)
-  kinds       number, number, number → formula
+  sort        number, number, number → formula
   level       relational
   reads       is congruent to, modulo
   metamath    wbr with cdvds, of a difference
@@ -874,7 +874,7 @@ notation congruent-mod
 
 notation sum
   pattern     Σ(_ = _ to _) _
-  kinds       number, number, number, number → number
+  sort        number, number, number, number → number
   level       summation
   binds       hole 1 over hole 4
   reads       the sum, from, to, of
@@ -887,7 +887,7 @@ notation sum
 
 notation series
   pattern     Σ(_ = _ to ∞) _
-  kinds       number, number, number → number
+  sort        number, number, number → number
   level       summation
   binds       hole 1 over hole 3
   reads       the sum, from, without end, of
@@ -900,7 +900,7 @@ notation series
 
 notation tends-to
   pattern     _ → _ as _ → ∞
-  kinds       number, number, number → formula
+  sort        number, number, number → formula
   level       relational
   binds       hole 3 over hole 1
   reads       tends to, as, grows without end
@@ -915,7 +915,7 @@ notation tends-to
 
 notation parity
   pattern     _ is even        _ is odd        _ is not odd
-  kinds       number → formula
+  sort        number → formula
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
@@ -928,7 +928,7 @@ notation parity
 
 notation prime
   pattern     _ is prime
-  kinds       number → formula
+  sort        number → formula
   level       predicate
   reads       is prime
   metamath    wcel with cprime
@@ -936,7 +936,7 @@ notation prime
 
 notation irrational
   pattern     _ is irrational
-  kinds       number → formula
+  sort        number → formula
   level       predicate
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
@@ -944,7 +944,7 @@ notation irrational
 
 notation is-a-point
   pattern     _ is a point
-  kinds       point → formula
+  sort        point → formula
   level       predicate
   reads       is a point
   metamath    wcel with ℂ, the plane
@@ -956,7 +956,7 @@ notation is-a-point
 
 notation is-a-set
   pattern     _ is a set
-  kinds       set of α → formula
+  sort        set of α → formula
   level       predicate
   reads       is a set
   metamath    wcel with _V, as difexg states it
@@ -970,7 +970,7 @@ notation is-a-set
 
 notation bound
   pattern     _ is an upper bound of _        _ is a least upper bound of _
-  kinds       number, set of number → formula
+  sort        number, set of number → formula
   level       predicate
   reads       is an upper bound of, is a least upper bound of
   metamath    see def:stdlib/calculus/upper-bound and def:stdlib/calculus/least-upper-bound
@@ -988,7 +988,7 @@ notation bound
 
 notation continuous
   pattern     _ is continuous on _
-  kinds       function from number to number, set of number → formula
+  sort        function from number to number, set of number → formula
   level       predicate
   reads       is continuous on
   metamath    ccncf
@@ -1003,7 +1003,7 @@ notation continuous
 
 notation collinear
   pattern     _, _, _ are collinear
-  kinds       point, point, point → formula
+  sort        point, point, point → formula
   level       predicate
   reads       are collinear
   metamath    the ratio of the two differences is real
@@ -1016,7 +1016,7 @@ notation collinear
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
-  kinds       point, point, point → formula
+  sort        point, point, point → formula
   level       predicate
   reads       form a triangle
   metamath    the three vertices distinct and not on one line
@@ -1025,7 +1025,7 @@ notation forms-a-triangle
 
 notation bijection
   pattern     there is a bijection from _ to _
-  kinds       set of α, set of β → formula
+  sort        set of α, set of β → formula
   level       predicate
   reads       there is a bijection from, to
   metamath    wbr with cen

@@ -151,7 +151,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
 regex!(TARGET_HOLE, r"_(\d+)");
 regex!(CONTEXT_TOKEN, r"@[a-z]+");
 
-/// A notation record declares a pattern and, in `kinds`, the sort of each
+/// A notation record declares a pattern and, in `sort`, the sort of each
 /// hole and of what it yields. What follows mechanically is checked here.
 pub fn check_notation(report: &mut Report, records: &[Record]) {
     for r in records {
@@ -173,16 +173,16 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
         let counts: BTreeSet<usize> =
             patterns.iter().map(|p| p.matches('_').count()).collect();
 
-        // `kinds` is the one place a notation says what its holes take and
-        // what it yields, so every notation says it, one kind per hole. The
+        // `sort` is the one place a notation says what its holes take and
+        // what it yields, so every notation says it, one sort per hole. The
         // parser's categories are read off it (`Signature::categories`).
         let mut want = patterns.first().map_or(0, |p| p.matches('_').count());
-        match r.field("kinds").map(str::trim).filter(|s| !s.is_empty()) {
+        match r.field("sort").map(str::trim).filter(|s| !s.is_empty()) {
             None => report.say(
                 &r.path,
                 r.line,
                 format!(
-                    "notation {} has no `kinds` saying what its holes take and what it yields",
+                    "notation {} has no `sort` saying what its holes take and what it yields",
                     r.name
                 ),
             ),
@@ -190,21 +190,21 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                 crate::outcome::Declined(d) => report.say(
                     &r.path,
                     r.line,
-                    format!("notation {}: kinds {}", r.name, d.reason()),
+                    format!("notation {}: sort {}", r.name, d.reason()),
                 ),
                 crate::outcome::Built(made) => want = made.holes(),
             },
         }
 
         // Every pattern of one record takes the same holes, so they must
-        // agree on how many there are, and with its kinds.
+        // agree on how many there are, and with its sort.
         if counts.len() != 1 || !counts.contains(&want) {
             let shown: Vec<String> = counts.iter().map(|c| c.to_string()).collect();
             report.say(
                 &r.path,
                 r.line,
                 format!(
-                    "notation {} has kinds for {want} hole(s) but its pattern(s) have [{}]",
+                    "notation {} has a sort for {want} hole(s) but its pattern(s) have [{}]",
                     r.name,
                     shown.join(", ")
                 ),

@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::node::{Node, Sort};
+use super::node::{describe_category, Node, Sort};
 use super::notation::{
     binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter,
 };
@@ -185,11 +185,20 @@ fn read(
         src: text,
         i: 0,
         stopped: None,
+        refused: None,
     };
     let Some(node) = p.expression(None, None)? else {
         return Err(Problem::new(path, line, p.why()));
     };
     if p.i != tokens.len() {
+        // A reading that went further than the one that stopped here, and
+        // was turned away, says why the rest does not read: in `s is a set`
+        // with s a number, `s` reads and `_ is a set` does not take it.
+        if let Some((at, why)) = &p.refused {
+            if *at > p.i {
+                return Err(Problem::new(path, line, format!("{}: {why}", repr(text))));
+            }
+        }
         return Err(Problem::new(
             path,
             line,
@@ -202,6 +211,16 @@ fn read(
         ));
     }
     Ok(node)
+}
+
+/// `a or as b`, `a, as b or as c`: the readings a sentence has, for a
+/// message saying it has more than one.
+fn one_of(readings: &[String]) -> String {
+    match readings {
+        [] => String::new(),
+        [one] => one.clone(),
+        [rest @ .., last] => format!("{} or as {last}", rest.join(", as ")),
+    }
 }
 
 /// Parse with nowhere to point: a sentence no file holds.
@@ -250,7 +269,9 @@ fn bound_sorts(tokens: &[Token], sorts: &Sorts) -> Vec<(String, Sort)> {
 ///
 /// `stopped` keeps the furthest any reading reached and what stood in its
 /// way there, which is the reading that got closest to working and the one
-/// worth telling a reader about.
+/// worth telling a reader about. `refused` keeps the furthest a notation the
+/// text writes was turned away by the sort of what stood in one of its
+/// holes, which is what to say when a shorter reading leaves tokens over.
 struct Parser<'a> {
     t: &'a [Token],
     g: &'a Grammar,
@@ -260,6 +281,7 @@ struct Parser<'a> {
     src: &'a str,
     i: usize,
     stopped: Option<(usize, String)>,
+    refused: Option<(usize, String)>,
 }
 
 /// A reading, no reading, or two readings.
@@ -271,6 +293,30 @@ impl Parser<'_> {
     }
 
     /// No reading here, and why.
+    /// The sentence's text from token `from` up to token `to`, as written.
+    fn written(&self, from: usize, to: usize) -> String {
+        let (Some(first), Some(last)) = (
+            self.t.get(from),
+            to.checked_sub(1).and_then(|l| self.t.get(l)),
+        ) else {
+            return String::new();
+        };
+        let end = last.at + last.text.chars().count();
+        self.src
+            .chars()
+            .skip(first.at)
+            .take(end.saturating_sub(first.at))
+            .collect()
+    }
+
+    /// Keep the furthest place a notation the text writes was turned away by
+    /// the sort of what stood in a hole, and why.
+    fn refuse(&mut self, at: usize, why: String) {
+        if self.refused.as_ref().is_none_or(|(was, _)| at > *was) {
+            self.refused = Some((at, why));
+        }
+    }
+
     fn no(&mut self, message: String) -> Reading {
         let further = match &self.stopped {
             None => true,
@@ -416,7 +462,31 @@ impl Parser<'_> {
                     }
                 }
             }
-            if !fits(n.holes.first().map_or("", String::as_str), &left.sort) {
+            let want = n.holes.first().map_or("", String::as_str);
+            if !fits(want, &left.sort) {
+                // The tokens after it are the pattern's own, so the text
+                // writes this notation and only the sort of what stands
+                // before it turns it away: say so, in case nothing reads.
+                let run: Vec<&str> =
+                    n.parts[1..].iter().map_while(|p| p.literal()).collect();
+                let written = !run.is_empty()
+                    && run.iter().enumerate().all(|(j, lit)| {
+                        self.t.get(self.i + j).is_some_and(|t| t.text == *lit)
+                    });
+                if written {
+                    let what = if left.is_name() {
+                        left.text.clone()
+                    } else {
+                        format!("what stands before `{}`", n.pattern)
+                    };
+                    let why = format!(
+                        "{what} is {}, and `{}` wants {}",
+                        left.sort.describe(),
+                        n.pattern,
+                        describe_category(want)
+                    );
+                    self.refuse(self.i + run.len(), why);
+                }
                 continue;
             }
             // A pattern that ends in a token and declares no level is closed:
@@ -477,16 +547,37 @@ impl Parser<'_> {
         let winners: Vec<&(Node, usize)> =
             results.iter().filter(|r| r.1 == best).collect();
         if winners.len() > 1 {
-            let names: std::collections::BTreeSet<&str> =
+            let readings: std::collections::BTreeSet<&str> =
                 winners.iter().map(|w| w.0.notation.as_str()).collect();
-            let names: Vec<&str> = names.into_iter().collect();
+            let readings: Vec<String> =
+                readings.into_iter().map(String::from).collect();
+            // What would tell the readings apart is the sort of a name in
+            // them that nothing has given one.
+            let mut open: Vec<String> = Vec::new();
+            for (w, _) in &winners {
+                for node in w.walk() {
+                    if node.is_name()
+                        && node.sort.is_unknown()
+                        && !open.contains(&node.text)
+                    {
+                        open.push(node.text.clone());
+                    }
+                }
+            }
+            let undecided = match open.as_slice() {
+                [] => "nothing tells them apart".to_string(),
+                [one] => format!("nothing says what {one} is"),
+                [rest @ .., last] => {
+                    format!("nothing says what {} and {last} are", rest.join(", "))
+                }
+            };
             return Err(Problem::new(
                 self.path,
                 self.line,
                 format!(
-                    "{} fits {} and the sorts do not separate them",
+                    "{} reads as {}, and {undecided}",
                     repr(self.src),
-                    names.join(", ")
+                    one_of(&readings)
                 ),
             ));
         }
@@ -501,12 +592,16 @@ impl Parser<'_> {
     /// a barrier, since only there can a looser notation swallow the rest.
     fn match_pattern(&mut self, n: &Notation, left: Option<&Node>) -> Reading {
         let mut kids: Vec<Node> = Vec::new();
+        // The tokens each hole took, for a message to quote; the value to
+        // the left of an extension was read before it, and took none here.
+        let mut took: Vec<Option<(usize, usize)>> = Vec::new();
         for (k, part) in n.parts.iter().enumerate() {
             match part {
                 Part::Hole => {
                     let want = n.holes.get(kids.len()).map_or("any", String::as_str);
                     if let (0, Some(left)) = (k, left) {
                         kids.push(left.clone());
+                        took.push(None);
                     } else {
                         let at_edge = k == n.parts.len() - 1;
                         let after = if at_edge {
@@ -519,10 +614,12 @@ impl Parser<'_> {
                         } else {
                             None
                         };
+                        let from = self.i;
                         let Some(kid) = self.hole(want, barrier, after)? else {
                             return Ok(None);
                         };
                         kids.push(kid);
+                        took.push(Some((from, self.i)));
                     }
                 }
                 Part::Lit(lit) => {
@@ -545,10 +642,21 @@ impl Parser<'_> {
         }
         // A pattern may name fewer hole sorts than it has holes, which the
         // record check reports; here the extra holes simply go unchecked.
-        for (kid, want) in kids.iter().zip(n.holes.iter()) {
+        for ((kid, want), span) in kids.iter().zip(n.holes.iter()).zip(&took) {
             if !fits(want, &kid.sort) {
-                return self
-                    .no(format!("{} wants {} and got {}", n.name, want, kid.sort));
+                let what = match span {
+                    _ if kid.is_name() => kid.text.clone(),
+                    Some((from, to)) => repr(&self.written(*from, *to)),
+                    None => format!("what stands before `{}`", n.pattern),
+                };
+                let why = format!(
+                    "{what} is {}, and `{}` wants {}",
+                    kid.sort.describe(),
+                    n.pattern,
+                    describe_category(want)
+                );
+                self.refuse(self.i, why.clone());
+                return self.no(why);
             }
         }
         // The node is named by the record and carries the literal of the

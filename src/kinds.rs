@@ -136,12 +136,12 @@ impl Store {
                 let d = &self.vars[v];
                 if d.rigid {
                     if d.said.is_empty() {
-                        "any kind".to_string()
+                        "any sort".to_string()
                     } else {
-                        format!("any kind ({})", d.said)
+                        format!("any sort ({})", d.said)
                     }
                 } else {
-                    "a kind not yet fixed".to_string()
+                    "a sort not yet settled".to_string()
                 }
             }
             Kind::Atom(Atom::Number) => "a number".into(),
@@ -215,7 +215,7 @@ impl Store {
                 (&b, &a)
             };
             return Route::no(format!(
-                "{} is declared of any kind, and here it would have to be {}",
+                "{} is declared of any sort, and here it would have to be {}",
                 self.show(rigid),
                 self.show(other)
             ));
@@ -455,7 +455,7 @@ pub fn signature(text: &str) -> Route<Signature> {
 fn read_template(text: &str) -> Route<Template> {
     let tokens: Vec<&str> = TOKEN.find_iter(text).map(|m| m.as_str()).collect();
     if tokens.concat().replace(' ', "") != text.replace(' ', "") {
-        return Route::no(format!("{} is not a kind", repr(text)));
+        return Route::no(format!("{} is not a sort", repr(text)));
     }
     let (tree, rest) = match term(&tokens) {
         Built(got) => got,
@@ -473,7 +473,7 @@ fn read_template(text: &str) -> Route<Template> {
 
 fn term<'t>(tokens: &'t [&'t str]) -> Route<(Template, &'t [&'t str])> {
     let Some((&head, rest)) = tokens.split_first() else {
-        return Route::no("a kind is missing");
+        return Route::no("a sort is missing");
     };
     if let Some(atom) = Atom::parse(head) {
         return Built((Template::Atom(atom), rest));
@@ -550,7 +550,7 @@ impl NotationKinds {
         let mut bound: IndexMap<String, IndexSet<usize>> = IndexMap::new();
         for n in &g.notations {
             let key = n.key().to_string();
-            let Some(kinds) = &n.kinds else { continue };
+            let Some(kinds) = &n.sort else { continue };
             if kinds.is_empty() {
                 continue;
             }

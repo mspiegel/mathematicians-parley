@@ -155,8 +155,8 @@ files it cites and the definitions it uses from other files; `parley check`
 checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
-for each hole, the kind each hole takes and the kind the pattern produces
-(`kinds`, `α, set of α → formula` for membership), its precedence level, its
+for each hole, the sort each hole takes and the sort the pattern produces
+(`sort`, `α, set of α → formula` for membership), its precedence level, its
 associativity where one is needed, and whether one of its patterns is the
 negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
@@ -166,7 +166,7 @@ formula mixing two levels that convention does not relate is rejected rather
 than guessed at.
 
 Three things about a notation are then mechanical and the checker enforces all
-three: that every record says its `kinds`, readable; that it gives one kind
+three: that every record says its `sort`, readable; that it gives one sort
 per hole its patterns have; and that a pattern declares an associativity
 exactly when it can nest in itself, meaning both edges are holes and what it
 produces fits those holes.

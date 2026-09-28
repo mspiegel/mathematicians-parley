@@ -484,11 +484,11 @@ fn cases() -> Vec<Case> {
             "token(s) left over",
         ),
         case(
-            "write a formula the sorts cannot read one way",
+            "write a formula that reads two ways because nothing says what a name is",
             vec![
                 edit("proofs/subsets.proof", Some("1.2.1.5.  |T| = 2^k".to_string()), "1.2.1.5.  |W| = 2^k".to_string()),
             ],
-            "the sorts do not separate them",
+            "'|W| = 2^k' reads as absolute-value or as cardinality, and nothing says what W is",
         ),
         case(
             "drop a line a citation needs for a hypothesis",
@@ -519,18 +519,18 @@ fn cases() -> Vec<Case> {
             "leaves a hole out",
         ),
         case(
-            "leave a notation without the kinds its holes take",
+            "leave a notation without the sort its holes take",
             vec![
-                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  kinds       number → formula\n".to_string()), "  pattern     _ is prime\n".to_string()),
+                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  sort        number → formula\n".to_string()), "  pattern     _ is prime\n".to_string()),
             ],
-            "notation prime has no `kinds` saying what its holes take and what it yields",
+            "notation prime has no `sort` saying what its holes take and what it yields",
         ),
         case(
-            "give a notation kinds for more holes than its pattern has",
+            "give a notation a sort for more holes than its pattern has",
             vec![
-                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  kinds       number → formula\n".to_string()), "  pattern     _ is prime\n  kinds       number, number → formula\n".to_string()),
+                edit("corpus/db/notation.records", Some("  pattern     _ is prime\n  sort        number → formula\n".to_string()), "  pattern     _ is prime\n  sort        number, number → formula\n".to_string()),
             ],
-            "notation prime has kinds for 2 hole(s) but its pattern(s) have [1]",
+            "notation prime has a sort for 2 hole(s) but its pattern(s) have [1]",
         ),
         case(
             "write a binder whose binds line does not read",
@@ -599,7 +599,7 @@ fn cases() -> Vec<Case> {
         ),
         // S is defined on ℕ, so what it is applied to is a number.
         case(
-            "apply a defined function outside its domain's kind",
+            "apply a defined function outside its domain's sort",
             vec![
                 edit("proofs/sum-formula.proof", Some("1.  S(n) = n(n + 1)/2".to_string()), "1.  S({n}) = n(n + 1)/2".to_string()),
             ],
@@ -684,7 +684,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("corpus/stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),
             ],
-            "token(s) left over",
+            "P is a point, and `_, _` wants a statement",
         ),
         case(
             "state an item in a notation nobody declared",
@@ -776,7 +776,7 @@ fn cases() -> Vec<Case> {
         // it to rely on it (`READERS.md`): citing one names a line that does no
         // work.
         case(
-            "cite the line that says what kind of thing a name is",
+            "cite the line that says what sort of thing a name is",
             vec![
                 edit("proofs/isosceles.proof", Some("    thm:stdlib/geometry/distance-symmetric P := A, Q := C\n".to_string()), "    thm:stdlib/geometry/distance-symmetric P := A, Q := C, from H1\n".to_string()),
             ],
@@ -809,9 +809,9 @@ fn cases() -> Vec<Case> {
             ],
             "theorem card-nonempty: k stands where a number goes",
         ),
-        // A set has the kind of what it holds, and the page never writes it
-        // (`READERS.md`); the checker reads it off the text. Flat sorts saw none
-        // of the three below: to them a set was a set.
+        // A set's sort says what it holds, and the page never writes it
+        // (`READERS.md`); the checker reads it off the text. A sort that said
+        // only "a set" would see none of the three below.
         case(
             "put a set of numbers inside a set of sets of numbers",
             vec![
@@ -824,18 +824,18 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          def:stdlib/sets/set-builder, from K1\n          requires s is a set: from K1\n".to_string()),
             ],
-            "the requires line of step 6.1: 's is a set' has 3 token(s) left over",
+            "the requires line of step 6.1: 's is a set': s is a number, and `_ is a set` wants a set",
         ),
-        // A set declared of any kind stays any kind. `let a be a set` made
-        // add-element-bijection's X a set of sets, and subsets-count, whose X is
-        // a set of any kind, cited it: the counting proof would hold of sets of
-        // sets only, and nothing said so.
+        // A set declared of any sort stays of any sort. `let a be a set` makes
+        // add-element-bijection's X a set of sets, and subsets-count, whose X
+        // is a set of any sort, cites it: the counting proof would hold of
+        // sets of sets only, and nothing would say so.
         case(
-            "cite a statement that narrows a set of any kind",
+            "cite a statement that narrows a set of any sort",
             vec![
                 edit("proofs/subsets.proof", Some("  let a ∉ X                                                           (H2)\n".to_string()), "  let a ∉ X                                                           (H2)\n  let a be a set                                                      (H3)\n".to_string()),
             ],
-            "citing proofs/subsets/add-element-bijection with X := X ∖ {a}: a set of things of any kind (X)",
+            "citing proofs/subsets/add-element-bijection with X := X ∖ {a}: a set of things of any sort (X)",
         ),
         case(
             "obtain from a definition without the line it unfolds",

@@ -37,6 +37,24 @@ pub enum Whole {
 }
 
 impl Whole {
+    /// The sort as a reader would say it: `a set of numbers`.
+    pub fn describe(&self) -> String {
+        match self {
+            Whole::Number => "a number".into(),
+            Whole::Point => "a point".into(),
+            Whole::Formula => "a statement".into(),
+            Whole::GroupElement => "a group element".into(),
+            Whole::Set(k) => format!("a set of {}", plural(&k.describe())),
+            Whole::Property(k) => format!("a property of {}", plural(&k.describe())),
+            Whole::Function(a, b) => format!(
+                "a function from {} to {}",
+                plural(&a.describe()),
+                plural(&b.describe())
+            ),
+            Whole::Open => "a thing of a sort not yet settled".into(),
+        }
+    }
+
     /// The coarse class the parser tells readings apart by, or None for a
     /// sort that has none: a statement, or one left open.
     pub fn category(&self) -> Option<&'static str> {
@@ -56,7 +74,57 @@ impl Whole {
     }
 }
 
+/// `a number` as `numbers`, `a set of X` as `sets of X`: the phrase for many
+/// of what `one` names one of.
+pub fn plural(one: &str) -> String {
+    for (a, many) in [
+        ("a number", "numbers"),
+        ("a point", "points"),
+        ("a group element", "group elements"),
+        ("a statement", "statements"),
+        ("a set of", "sets of"),
+        ("a property of", "properties of"),
+        ("a function from", "functions from"),
+        ("a thing of", "things of"),
+        ("a name", "names"),
+        ("a term", "terms"),
+    ] {
+        if let Some(rest) = one.strip_prefix(a) {
+            return format!("{many}{rest}");
+        }
+    }
+    format!("things that are {one}")
+}
+
+/// A category as a reader would say it: what a hole wants.
+pub fn describe_category(category: &str) -> String {
+    match category {
+        "number" => "a number",
+        "point" => "a point",
+        "formula" => "a statement",
+        "group-element" => "a group element",
+        "set" => "a set",
+        "group-set" => "a set of group elements",
+        "set-of-sets" => "a set of sets",
+        "function" => "a function",
+        "property" => "a property",
+        "variable" => "a name",
+        _ => "a term",
+    }
+    .to_string()
+}
+
 impl Sort {
+    /// The sort as a reader would say it, in full where the reading of the
+    /// lines settled it and by its category otherwise.
+    pub fn describe(&self) -> String {
+        match (&self.whole, self.name()) {
+            (Some(whole), _) => whole.describe(),
+            (None, None) | (None, Some("unknown")) => "of no sort yet".into(),
+            (None, Some(category)) => describe_category(category),
+        }
+    }
+
     pub fn none() -> Sort {
         Sort::default()
     }

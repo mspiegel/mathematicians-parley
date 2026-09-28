@@ -49,8 +49,11 @@ pub struct Binds {
 #[derive(Clone, Debug)]
 pub struct Notation {
     pub name: String,
+    /// The pattern as its record writes it, `_ is a set`, for a message to
+    /// quote.
+    pub pattern: String,
     pub parts: Vec<Part>,
-    /// The declared sort of each hole.
+    /// The category each hole takes (`categories`).
     pub holes: Vec<String>,
     pub yields: String,
     pub level: String,
@@ -64,8 +67,9 @@ pub struct Notation {
     pub stands_under: String,
     /// The literal of the notation that wraps it.
     pub fold_literal: String,
-    /// How its holes' kinds relate, as written.
-    pub kinds: Option<String>,
+    /// Its `sort` field as written: the sort of each hole and of what it
+    /// produces.
+    pub sort: Option<String>,
     pub wrap: Option<Wrap>,
 }
 
@@ -141,16 +145,16 @@ pub fn categories_of(r: &Record) -> (Vec<String>, String) {
 }
 
 /// The category each hole takes and the category the notation yields, read
-/// off its `kinds`: the coarse class of each kind (`Signature::categories`),
+/// off its `sort` field: the category of each sort (`Signature::categories`),
 /// and `variable` for a hole its `binds` line says introduces a name.
 ///
-/// A notation whose `kinds` is missing or does not read is a defect
+/// A notation whose `sort` is missing or does not read is a defect
 /// `check_notation` reports. Its holes, one per `_` of its first pattern,
 /// then take any term and it yields any term, so that the rest of the
 /// corpus is still read and every other defect still reported.
 fn categories(r: &Record, raw: &str, binds: Option<&Binds>) -> (Vec<String>, String) {
     let said = r
-        .field("kinds")
+        .field("sort")
         .map(|k| crate::kinds::signature(str::trim(k)));
     let (mut holes, yields) = match said {
         Some(Built(sig)) => {
@@ -278,6 +282,7 @@ pub fn compile_notations(
                 literal: stands,
                 stands_under: under,
                 name: r.name.clone(),
+                pattern: patterns_of(raw)[n].to_string(),
                 parts: parts.clone(),
                 holes: holes.clone(),
                 yields: yields.clone(),
@@ -294,7 +299,7 @@ pub fn compile_notations(
                     None
                 },
                 fold_literal: String::new(),
-                kinds: r.field("kinds").map(String::from),
+                sort: r.field("sort").map(String::from),
                 wrap: wraps.as_ref().map(|w| Wrap {
                     hole: w[1].parse().unwrap(),
                     name: w[2].to_string(),
