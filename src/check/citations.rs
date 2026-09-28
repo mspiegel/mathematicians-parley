@@ -1,5 +1,6 @@
 //! A citation supplies what the item asks, and claims what it concludes.
 
+use std::borrow::Cow;
 use std::collections::BTreeSet;
 
 use indexmap::IndexSet;
@@ -46,6 +47,29 @@ pub fn supply(
     sites: &Sites,
     reuse: bool,
 ) -> Option<Binding> {
+    let mut used = vec![false; facts.len()];
+    search(
+        patterns, facts, &mut used, binding, variables, library, sites, reuse,
+    )
+}
+
+/// `supply` over one list of facts, leaving out those `used` marks.
+///
+/// A fact taken by one hypothesis is marked for the hypotheses after it and
+/// unmarked when the search backs out, so the facts are never copied: the
+/// search is most of what a check costs, and copying the list at every step
+/// of it was a large part of the search.
+#[allow(clippy::too_many_arguments)]
+fn search(
+    patterns: &[Node],
+    facts: &[Node],
+    used: &mut Vec<bool>,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+    reuse: bool,
+) -> Option<Binding> {
     let Some((first, rest)) = patterns.split_first() else {
         return Some(binding.clone());
     };
@@ -55,7 +79,7 @@ pub fn supply(
     // facts is that formula rather than the application. Filling it in first
     // is what lets the rules below see it: `P(a)` may turn out to be a
     // "there is", and then a fact giving an instance of it supplies it.
-    let mut open_names = variables.clone();
+    let mut open_names: Cow<BTreeSet<String>> = Cow::Borrowed(variables);
     if ctx.props.contains_key(&first.notation)
         && first.children.len() == 2
         && first.children[0].is_name()
@@ -74,31 +98,40 @@ pub fn supply(
                 // The formula a property stands for is the step's own, so a
                 // name in it is the step's, even spelt as one of the item's.
                 // Only an argument still to be matched is the item's to fill.
-                open_names = if arg.is_name() && variables.contains(&arg.text) {
-                    [arg.text.clone()].into_iter().collect()
-                } else {
-                    BTreeSet::new()
-                };
+                open_names =
+                    Cow::Owned(if arg.is_name() && variables.contains(&arg.text) {
+                        [arg.text.clone()].into_iter().collect()
+                    } else {
+                        BTreeSet::new()
+                    });
             }
         }
     }
-    let mut forms: Vec<(Node, BTreeSet<String>)> =
-        vec![(first.clone(), open_names.clone())];
+    let mut body_form: Option<(Node, BTreeSet<String>)> = None;
     if library.exists.contains(&first.notation) && first.children.len() > 2 {
         // A "there is" pattern holds its body last and names its variables
         // before it, one name and one domain at a time, so the two-variable
         // form is read the same way as the one-variable form.
         let body = first.children[first.children.len() - 1].clone();
-        let mut seen = open_names.clone();
+        let mut seen = open_names.as_ref().clone();
         for c in &first.children[..first.children.len() - 1] {
             if c.is_name() {
                 seen.insert(c.text.clone());
             }
         }
-        forms.push((body, seen));
+        body_form = Some((body, seen));
     }
-    for (i, fact) in facts.iter().enumerate() {
-        for (which, (form, seen)) in forms.iter().enumerate() {
+    let forms = std::iter::once((&first, open_names.as_ref()))
+        .chain(body_form.iter().map(|(n, s)| (n, s)));
+    // Whether every variable of the hypothesis is already bound, which is
+    // the same for every fact tried here, so asked at most once.
+    let mut pinned: Option<bool> = None;
+    for i in 0..facts.len() {
+        if used[i] {
+            continue;
+        }
+        let fact = &facts[i];
+        for (which, (form, seen)) in forms.clone().enumerate() {
             let is_first = which == 0;
             let mut found = match_tree(form, fact, binding, seen, sites, ctx);
             if found.is_none()
@@ -129,8 +162,16 @@ pub fn supply(
             // instance is in the domain: the step's requires lines are where
             // `SYNTAX.md` has a witness named. Matching the body alone took
             // any value at all.
-            if !is_first && !witnessed_in(&first, &found, facts, seen, library, sites) {
-                continue;
+            if !is_first {
+                let remaining: Vec<Node> = facts
+                    .iter()
+                    .zip(used.iter())
+                    .filter(|(_, u)| !**u)
+                    .map(|(f, _)| f.clone())
+                    .collect();
+                if !witnessed_in(&first, &found, &remaining, seen, library, sites) {
+                    continue;
+                }
             }
             // A fact is used once when nothing has pinned the binding yet, or
             // a variable free in two hypotheses binds to whatever made the
@@ -139,29 +180,36 @@ pub fn supply(
             // legitimately answer two requirements. A hypothesis whose every
             // variable the binding already fixed is a closed claim, and what
             // goes wrong above cannot: nothing is left for the line to bind.
-            let pinned = first
-                .walk()
-                .iter()
-                .filter(|n| n.is_name() && variables.contains(&n.text))
-                .all(|n| binding.contains_key(&n.text));
-            let rest_facts: Vec<Node> = if reuse || pinned {
-                facts.to_vec()
-            } else {
-                facts
-                    .iter()
-                    .enumerate()
-                    .filter(|(j, _)| *j != i)
-                    .map(|(_, f)| f.clone())
-                    .collect()
-            };
-            if let Some(done) =
-                supply(rest, &rest_facts, &found, variables, library, sites, reuse)
-            {
-                return Some(done);
+            let pinned =
+                *pinned.get_or_insert_with(|| all_bound(&first, variables, binding));
+            let takes = !(reuse || pinned);
+            if takes {
+                used[i] = true;
+            }
+            let done =
+                search(rest, facts, used, &found, variables, library, sites, reuse);
+            if takes {
+                used[i] = false;
+            }
+            if done.is_some() {
+                return done;
             }
         }
     }
     None
+}
+
+/// Every one of the variables the tree names is bound already.
+fn all_bound(tree: &Node, variables: &BTreeSet<String>, binding: &Binding) -> bool {
+    if tree.is_name()
+        && variables.contains(&tree.text)
+        && !binding.contains_key(&tree.text)
+    {
+        return false;
+    }
+    tree.children
+        .iter()
+        .all(|c| all_bound(c, variables, binding))
 }
 
 /// Whether the declared table puts the set `inner` inside `outer`.
