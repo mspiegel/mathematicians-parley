@@ -79,6 +79,16 @@ fn each_short_form_builds_its_long_form() {
             "there exists δ > 0 such that δ < ε for all ε > δ",
             "there is δ ∈ ℝ with δ > 0 and for all ε ∈ ℝ with ε > δ, δ < ε",
         ),
+        // Written after what it says with a condition, the universal is the
+        // `if … then` it always is.
+        (
+            "x = x for all x ∈ ℤ with x > 0",
+            "for all x ∈ ℤ, if x > 0 then x = x",
+        ),
+        (
+            "there exists δ > 0 such that x < 1 for all x ∈ ℤ with x − 1 < δ",
+            "there is δ ∈ ℝ with δ > 0 and for all x ∈ ℤ, if x − 1 < δ then x < 1",
+        ),
     ];
     for (short, long) in pairs {
         let a = parse_here(short, &g, &sorts).unwrap();
@@ -118,6 +128,19 @@ fn a_trailing_bound_over_an_and_has_no_reading() {
     let g = grammar();
     let problem =
         parse_here("ε = ε and ε < 2 for all ε > 0", &g, &declared()).unwrap_err();
+    assert!(
+        problem.message.contains("not ordered"),
+        "{}",
+        problem.message
+    );
+}
+
+#[test]
+fn a_trailing_condition_over_an_and_has_no_reading() {
+    // The condition stands at the right edge and is one relation.
+    let g = grammar();
+    let text = "x = x for all x ∈ ℤ with x > 0 and x < 3";
+    let problem = parse_here(text, &g, &declared()).unwrap_err();
     assert!(
         problem.message.contains("not ordered"),
         "{}",

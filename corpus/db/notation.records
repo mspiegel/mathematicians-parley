@@ -897,6 +897,27 @@ notation for-all-after-bounded
               "for all n ≥ N, …" and "for all n ∈ ℕ with n ≥ N, …". What it
               says is one relation, as for any trailing universal.
 
+notation for-all-after-with
+  pattern     _ for all _ ∈ _ with _
+  sort        formula, α, set of α, formula → formula
+  level       trailing
+  assoc       left
+  binds       hole 2 over holes 1 and 4
+  joins       hole 4 to hole 1 by conditional
+  places      2 3 4
+  spells      for-all forall∈,
+  reads       for all, with, written after what it says
+  metamath    wral, with wi inside it
+  target      _4 _1 wi _2 _3 wral
+  note        "|f(x) − f(c)| < ε for all x ∈ D with |x − c| < δ", as a
+              textbook writes continuity. It builds what "for all x ∈ D, if
+              |x − c| < δ then |f(x) − f(c)| < ε" builds: `joins` holds the
+              condition and what precedes as the `if … then` node, where the
+              condition stood, and `places` puts the name, the set and that
+              node in `for-all`'s order. What it says and the condition are
+              each one relation: the condition stands at the right edge,
+              where a looser connective would swallow what follows.
+
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
   sort        α, set of α, formula → formula

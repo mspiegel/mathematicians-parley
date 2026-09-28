@@ -287,7 +287,10 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   writes "(f(x) ≠ B and g(x) = 0) for all x ∈ A" or the prefix form.
   Two in a row, "… for all x ∈ A for all y ∈ B", are both over what precedes
   them. The bound of a declared letter may stand for the set here too:
-  "|x(n) − L| < ε for all n ≥ N" is "for all n ≥ N, |x(n) − L| < ε".
+  "|x(n) − L| < ε for all n ≥ N" is "for all n ≥ N, |x(n) − L| < ε". And
+  it may carry a condition, as a textbook writes continuity:
+  "|f(x) − f(c)| < ε for all x ∈ D with |x − c| < δ" is "for all x ∈ D, if
+  |x − c| < δ then |f(x) − f(c)| < ε". The condition is one relation too.
   `LINTER.md` says which of the two forms to write where.
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
