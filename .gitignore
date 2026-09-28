@@ -1,22 +1,13 @@
-__pycache__/
-*.pyc
-stats.json
-
 # What cargo builds.
 /target/
 # What trybuild writes when a compile-fail case's message changes, until the
 # change is looked at and moved into place.
 /wip/
 
-# A local one-off that reads a set.mm on disk and writes stats.json. Kept out
-# of the repository on purpose; the measurements it produced are in
-# SELECTION.md.
-parley/mmstats.py
-
 # The library is fetched, never committed. A stray copy is 51 MB and
 # arrives by `cp` following a symlink into a directory of elaborated proofs.
 set.mm
 
-# The verifier belongs to metamath and is fetched the same way, so that what
-# checks these proofs is not a copy this project maintains.
-mmverify.py
+# Measurements of set.mm made once by hand; what they found is in
+# SELECTION.md.
+stats.json
