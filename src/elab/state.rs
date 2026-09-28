@@ -18,7 +18,7 @@ use crate::fancy;
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{binding_context, equations, Defined};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
-use crate::mm::library::{render, Signature, Signatures};
+use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Checked, Decline, Problem, Route};
 use crate::targets::{self, Commuting};
@@ -260,7 +260,7 @@ impl<'a> Elaborator<'a> {
         thm: &'a Theorem,
         g: &'a Grammar,
         items: &'a IndexMap<String, Item<'a>>,
-        sigs: Signatures,
+        sigs: Layered,
         records: &'a [Record],
         scopes: &'a [FileScope],
         sorts_now: Sorts,

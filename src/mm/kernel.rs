@@ -23,7 +23,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::library::{Kind, Signature, Signatures};
+use super::library::{Kind, Lookup, Signature};
 use crate::outcome::{Checked, Problem};
 use crate::text::repr;
 
@@ -232,7 +232,7 @@ pub fn same(a: &Term, b: &Term) -> bool {
 
 /// Bind the pattern's variables so that it becomes the ground term.
 /// The tree a run of reverse Polish builds.
-pub fn term_of(rpn: &str, sigs: &Signatures) -> Term {
+pub fn term_of(rpn: &str, sigs: &dyn Lookup) -> Term {
     let mut stack: Vec<Term> = Vec::new();
     for token in rpn.split_whitespace() {
         let sig = sigs
@@ -325,7 +325,7 @@ pub struct Syntax {
 }
 
 impl Syntax {
-    pub fn new(signatures: &Signatures) -> Syntax {
+    pub fn new(signatures: &dyn Lookup) -> Syntax {
         let mut typecode = IndexMap::new();
         let mut floats = IndexMap::new();
         for sig in signatures.values() {

@@ -276,7 +276,7 @@ impl<'a> Elaborator<'a> {
         if self.lemma_heads.is_none() {
             let mut index = IndexMap::new();
             for label in rules::MEMBERSHIP {
-                if let Some(sig) = self.b.sigs.get(*label) {
+                if let Some(sig) = self.b.sigs.get(label) {
                     let sig = sig.clone();
                     index
                         .insert(label.to_string(), (self.heads(&sig), self.role(&sig)));
@@ -1338,7 +1338,7 @@ impl<'a> Elaborator<'a> {
             let mut plain = Vec::new();
             let mut asking = Vec::new();
             for (label, side) in rules::STANDARD {
-                if !self.b.sigs.contains_key(*label) {
+                if !self.b.sigs.contains_key(label) {
                     continue;
                 }
                 let says = self.statement(label);

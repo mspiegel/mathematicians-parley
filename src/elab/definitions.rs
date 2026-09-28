@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 use crate::corpus::{Record, RecordKind};
 use crate::mm::kernel::term_of;
 use crate::mm::library::{render, thousands};
-use crate::mm::{Kind, Signatures};
+use crate::mm::{Kind, Lookup, Signatures};
 use crate::outcome::{Checked, Problem};
 use crate::text::{repr, squash};
 
@@ -34,7 +34,7 @@ pub struct Introduced {
 /// over its own variables. A definition introducing a symbol the library
 /// already has would not be a definition, and one whose term had a free
 /// variable would not be eliminable.
-pub fn definitions(records: &[Record], sigs: &Signatures) -> Checked<Vec<Introduced>> {
+pub fn definitions(records: &[Record], sigs: &dyn Lookup) -> Checked<Vec<Introduced>> {
     let mut labels = indexmap::IndexMap::new();
     for s in sigs.values() {
         if s.kind == Kind::Float {
@@ -63,7 +63,7 @@ pub fn definitions(records: &[Record], sigs: &Signatures) -> Checked<Vec<Introdu
         let free: Vec<String> = term
             .names()
             .iter()
-            .filter(|v| sigs[&labels[&***v]].statement[0] != "setvar")
+            .filter(|v| sigs.sig(&labels[&***v]).statement[0] != "setvar")
             .map(|v| v.to_string())
             .collect();
         if !free.is_empty() {

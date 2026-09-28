@@ -70,6 +70,122 @@ impl Signature {
 /// them.
 pub type Signatures = IndexMap<String, Signature>;
 
+/// Where a label's signature is looked up: one table read from files, or a
+/// [`Layered`] one. What only reads takes this, and either will do.
+pub trait Lookup {
+    fn get(&self, label: &str) -> Option<&Signature>;
+
+    /// Every signature, in the order the labels were declared.
+    fn values(&self) -> Box<dyn Iterator<Item = &Signature> + '_>;
+
+    fn contains_key(&self, label: &str) -> bool {
+        self.get(label).is_some()
+    }
+
+    /// The signature of a label that must be there.
+    fn sig(&self, label: &str) -> &Signature {
+        self.get(label)
+            .unwrap_or_else(|| panic!("no signature for {label}"))
+    }
+}
+
+impl Lookup for Signatures {
+    fn get(&self, label: &str) -> Option<&Signature> {
+        IndexMap::get(self, label)
+    }
+
+    fn values(&self) -> Box<dyn Iterator<Item = &Signature> + '_> {
+        Box::new(IndexMap::values(self))
+    }
+}
+
+/// The library shared by a whole build, with what one theorem adds on top.
+///
+/// Elaborating a theorem adds labels (the corpus's constants, a step taken
+/// as stated, a lemma a library proof states) and never changes one it did
+/// not add. So the library is held once, behind an `Rc`, and each theorem
+/// writes only to its own small table. A copy of set.mm's 51,000 signatures
+/// for each theorem measured at seven of a build's seventeen seconds, most
+/// of it allocation. A label is looked up in what was added
+/// first, then in the library; and the labels are walked library first, then
+/// what was added, which is the order one table holding both would give.
+#[derive(Clone, Debug)]
+pub struct Layered {
+    base: std::rc::Rc<Signatures>,
+    added: Signatures,
+}
+
+impl Layered {
+    pub fn new(base: std::rc::Rc<Signatures>) -> Layered {
+        Layered {
+            base,
+            added: Signatures::new(),
+        }
+    }
+
+    /// Add a label. One the library already has is refused: nothing here
+    /// redefines the library, and a layer that did would be read one way
+    /// by a lookup and another by a walk.
+    pub fn insert(&mut self, label: String, sig: Signature) {
+        assert!(
+            !self.base.contains_key(&label),
+            "{label} is the library's, and a theorem only adds labels"
+        );
+        self.added.insert(label, sig);
+    }
+
+    /// A label's signature, from what was added first, then the library.
+    pub fn get(&self, label: &str) -> Option<&Signature> {
+        self.added.get(label).or_else(|| self.base.get(label))
+    }
+
+    pub fn contains_key(&self, label: &str) -> bool {
+        self.get(label).is_some()
+    }
+
+    pub fn len(&self) -> usize {
+        self.base.len() + self.added.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Every label with its signature, library first.
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &Signature)> {
+        self.base.iter().chain(self.added.iter())
+    }
+
+    /// Every label, library first.
+    pub fn keys(&self) -> impl Iterator<Item = &String> {
+        self.base.keys().chain(self.added.keys())
+    }
+}
+
+impl Lookup for Layered {
+    fn get(&self, label: &str) -> Option<&Signature> {
+        Layered::get(self, label)
+    }
+
+    fn values(&self) -> Box<dyn Iterator<Item = &Signature> + '_> {
+        Box::new(self.base.values().chain(self.added.values()))
+    }
+}
+
+impl From<Signatures> for Layered {
+    fn from(sigs: Signatures) -> Layered {
+        Layered::new(std::rc::Rc::new(sigs))
+    }
+}
+
+impl<Q: AsRef<str> + ?Sized> std::ops::Index<&Q> for Layered {
+    type Output = Signature;
+
+    fn index(&self, label: &Q) -> &Signature {
+        self.sig(label.as_ref())
+    }
+}
+
 /// The library, said on the command line, in the environment, or at the root
 /// of the working tree.
 pub fn where_set_mm(said: Option<&str>, root: &Path) -> Option<PathBuf> {
@@ -267,7 +383,7 @@ fn assertion(stack: &[Scope], kind: Kind, label: &str, body: Vec<String>) -> Sig
 /// A proof is reverse Polish because that is what the kernel reads, and a
 /// `$a` states its claim in full, so anything written out has to come back
 /// the other way.
-pub fn render(rpn: &str, sigs: &Signatures) -> String {
+pub fn render(rpn: &str, sigs: &dyn Lookup) -> String {
     let mut stack: Vec<String> = Vec::new();
     for token in rpn.split_whitespace() {
         let sig = sigs
@@ -314,5 +430,40 @@ mod tests {
         assert_eq!(ax.push(), vec!["ps", "ph"]);
         assert!(ax.disjoint.contains(&("ph".to_string(), "ps".to_string())));
         assert_eq!(sigs["wph"].kind, Kind::Float);
+    }
+
+    fn axiom(label: &str) -> Signature {
+        Signature {
+            label: label.to_string(),
+            kind: Kind::Axiom,
+            statement: vec!["|-".to_string(), label.to_string()],
+            floats: Vec::new(),
+            essentials: Vec::new(),
+            disjoint: BTreeSet::new(),
+        }
+    }
+
+    #[test]
+    fn a_layer_reads_and_walks_as_one_table_would() {
+        let base =
+            read_texts(&["$c wff |- $. $v ph $. wph $f wff ph $. ax $a |- ph $."]);
+        let shared = std::rc::Rc::new(base);
+        let mut one = Layered::new(std::rc::Rc::clone(&shared));
+        one.insert("itm1".to_string(), axiom("itm1"));
+        assert!(one.contains_key("ax") && one.contains_key("itm1"));
+        assert_eq!(one.len(), 3);
+        let walked: Vec<&String> = one.keys().collect();
+        assert_eq!(walked, ["wph", "ax", "itm1"]);
+        // What one theorem adds, another sharing the library does not see.
+        let other = Layered::new(shared);
+        assert!(!other.contains_key("itm1"));
+    }
+
+    #[test]
+    #[should_panic(expected = "the library's")]
+    fn a_layer_never_redefines_the_library() {
+        let base = read_texts(&["$c |- $. ax $a |- $."]);
+        let mut one = Layered::from(base);
+        one.insert("ax".to_string(), axiom("ax"));
     }
 }

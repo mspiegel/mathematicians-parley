@@ -1045,7 +1045,7 @@ impl<'a> Elaborator<'a> {
                     .filter(|t| {
                         self.b
                             .sigs
-                            .get(*t)
+                            .get(t)
                             .is_some_and(|s| s.kind == crate::mm::Kind::Float)
                     })
                     .map(String::from)

@@ -28,7 +28,7 @@ use std::rc::Rc;
 use indexmap::IndexMap;
 
 use super::kernel::{FloatLabels, Syntax};
-use super::library::{Kind, Signature, Signatures};
+use super::library::{Kind, Layered, Signature};
 use crate::outcome::Checked;
 
 /// One label applied to the steps it takes, and what kind of thing that
@@ -255,7 +255,7 @@ struct Taking {
 
 /// Statements in set.mm's notation, proofs in stack order.
 pub struct Builder {
-    pub sigs: Signatures,
+    pub sigs: Layered,
     syntax: OnceCell<Syntax>,
     /// Each variable's float, shared so that a caller may hold it while it
     /// builds.
@@ -271,9 +271,10 @@ pub struct Builder {
 }
 
 impl Builder {
-    pub fn new(sigs: Signatures) -> Builder {
+    pub fn new(sigs: impl Into<Layered>) -> Builder {
+        let sigs: Layered = sigs.into();
         let mut flabel = IndexMap::new();
-        for (label, s) in &sigs {
+        for (label, s) in sigs.iter() {
             if s.kind == Kind::Float {
                 flabel.insert(s.statement[1].clone(), label.clone());
             }

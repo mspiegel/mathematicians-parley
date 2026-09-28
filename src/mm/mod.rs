@@ -8,5 +8,7 @@ pub mod library;
 pub mod spell;
 
 pub use kernel::{FloatLabels, Syntax, Term};
-pub use library::{read, read_texts, where_set_mm, Kind, Signature, Signatures};
+pub use library::{
+    read, read_texts, where_set_mm, Kind, Layered, Lookup, Signature, Signatures,
+};
 pub use spell::{Builder, Part, Proof, Step, StepRef};

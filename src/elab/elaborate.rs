@@ -17,6 +17,7 @@
 //! closure method, or an item the database gives no target for.
 
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use indexmap::IndexMap;
 
@@ -40,7 +41,7 @@ use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::Term;
 use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
-use crate::mm::{Kind, Signature, Signatures};
+use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::{file_definitions, sorts_in_scope, unlabel};
@@ -88,7 +89,7 @@ pub enum Way {
 /// label a theorem lands on then depends only on set.mm and the corpus.
 pub fn label_of(
     name: &str,
-    taken: &Signatures,
+    taken: &dyn Lookup,
     path: &str,
     line: usize,
     ours: &BTreeSet<String>,
@@ -431,7 +432,7 @@ impl<'a> Elaborator<'a> {
             .filter(|t| {
                 self.b
                     .sigs
-                    .get(*t)
+                    .get(t)
                     .is_some_and(|s| s.statement[0] == "setvar")
             })
             .map(String::from)
@@ -3180,8 +3181,9 @@ fn function_fixed(piece: &Term, binding: &Binding) -> bool {
 
 /// set.mm and the corpus's library, as every theorem of a build reads them.
 pub struct Library {
-    /// set.mm and `proved.mm` together, with the corpus's own constants.
-    pub sigs: Signatures,
+    /// set.mm and `proved.mm` together, held once and shared by every
+    /// theorem, each of which adds its own labels in a [`Layered`] table.
+    pub sigs: Rc<Signatures>,
     /// The labels `proved.mm` holds.
     pub provided: BTreeSet<String>,
     /// How many assertions set.mm holds, which the file header says.
@@ -3231,7 +3233,7 @@ impl Library {
         let sigs = crate::mm::read_texts(&texts);
         let size = sigs.len() - provided.len();
         Library {
-            sigs,
+            sigs: Rc::new(sigs),
             provided,
             size,
             digest,
@@ -3243,7 +3245,7 @@ impl Library {
 /// not in it, so a notation that reaches one needs them declared before it is
 /// read. They are the statements `definitions.mm` writes, built here rather
 /// than read back from it.
-fn declare_constants(sigs: &mut Signatures, records: &[Record]) -> Checked<()> {
+fn declare_constants(sigs: &mut Layered, records: &[Record]) -> Checked<()> {
     for one in super::definitions::definitions(records, sigs)? {
         let rendered = crate::mm::library::render(&one.body, sigs);
         sigs.insert(
@@ -3309,7 +3311,7 @@ pub fn elaborate(
         scopes: &corpus.scopes,
     };
     let sorts_now = sorts_in_scope(thm, env);
-    let mut sigs = library.sigs.clone();
+    let mut sigs = Layered::new(Rc::clone(&library.sigs));
     declare_constants(&mut sigs, &corpus.records)?;
     let mut work = Elaborator::new(
         thm,
@@ -3386,7 +3388,7 @@ pub fn elaborate(
     let held: Vec<&str> = used
         .iter()
         .map(|l| &**l)
-        .filter(|t| sigs.get(*t).is_some_and(|s| s.kind == Kind::Float))
+        .filter(|t| sigs.get(t).is_some_and(|s| s.kind == Kind::Float))
         .collect();
     let mut bound: Vec<String> = held
         .iter()

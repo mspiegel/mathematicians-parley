@@ -26,7 +26,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::library::Signatures;
+use super::library::Lookup;
 use super::spell::{Step, StepRef};
 
 /// 0 to 19: the last digit of an index.
@@ -54,7 +54,7 @@ pub type Shape = (Rc<str>, Vec<usize>);
 /// Every subproof of a proof in normal format, numbered so that two alike
 /// share a number: the root's number, and the subproofs in the order each
 /// is first finished.
-pub fn shapes(proof: &str, sigs: &Signatures) -> Result<(usize, Vec<Shape>), String> {
+pub fn shapes(proof: &str, sigs: &dyn Lookup) -> Result<(usize, Vec<Shape>), String> {
     let mut seen: IndexMap<Shape, usize> = IndexMap::new();
     let mut kinds: Vec<Shape> = Vec::new();
     let mut stack: Vec<usize> = Vec::new();
@@ -141,7 +141,7 @@ fn standing(root: usize, kinds: &[Shape]) -> Vec<u8> {
 pub fn compress(
     proof: &str,
     mandatory: &[String],
-    sigs: &Signatures,
+    sigs: &dyn Lookup,
 ) -> Result<String, String> {
     let (root, kinds) = shapes(proof, sigs)?;
     Ok(compressed(root, &kinds, mandatory))
@@ -234,7 +234,7 @@ fn block(said: &str, mandatory: &[String]) -> (Vec<String>, String) {
 pub fn expand_steps(
     said: &str,
     mandatory: &[String],
-    sigs: &Signatures,
+    sigs: &dyn Lookup,
 ) -> Vec<StepRef> {
     let (block, rest) = block(said, mandatory);
     let mut stack: Vec<StepRef> = Vec::new();
@@ -249,7 +249,7 @@ pub fn expand_steps(
             continue;
         }
         let label = &block[number];
-        let sig = &sigs[label.as_str()];
+        let sig = sigs.sig(label);
         let count = sig.floats.len() + sig.essentials.len();
         let kids = stack.split_off(stack.len() - count);
         stack.push(Rc::new(Step {
@@ -263,7 +263,7 @@ pub fn expand_steps(
 
 /// A compressed proof read back in normal format, for checking that it
 /// says the same. Nothing in the build needs this.
-pub fn expand(said: &str, mandatory: &[String], sigs: &Signatures) -> String {
+pub fn expand(said: &str, mandatory: &[String], sigs: &dyn Lookup) -> String {
     let (block, rest) = block(said, mandatory);
     let mut stack: Vec<String> = Vec::new();
     let mut saved: Vec<String> = Vec::new();
@@ -272,7 +272,7 @@ pub fn expand(said: &str, mandatory: &[String], sigs: &Signatures) -> String {
             None => saved.push(stack[stack.len() - 1].clone()),
             Some(n) if n < block.len() => {
                 let label = &block[n];
-                let sig = &sigs[label.as_str()];
+                let sig = sigs.sig(label);
                 let count = sig.floats.len() + sig.essentials.len();
                 let mut args = stack.split_off(stack.len() - count);
                 args.push(label.clone());
