@@ -38,14 +38,15 @@ pub struct Wrap {
 }
 
 /// A notation's `bounds` line: a binder written with a bound where its set
-/// stands, "for all ε > 0". The name in hole 1 belongs to the set its
-/// theorem declares for it (`Sorts::ranges`), and holes 1 to `to`, with the
-/// tokens between them, are read as the condition. Without `join` the
-/// condition takes a hole of its own after the set, as "for all ε ∈ ℝ with
-/// ε > 0, …" has it; with one it is put in front of the body by that
-/// notation, as "there is δ ∈ ℝ with δ > 0 and …" has it.
+/// stands, "for all ε > 0". The name in hole `name` belongs to the set its
+/// theorem declares for it (`Sorts::ranges`), and holes `name` to `to`, with
+/// the tokens between them, are read as the condition. The node has the
+/// name, the set, and then the condition and the other holes in the order
+/// written; with `join` the condition is instead put in front of that hole
+/// by that notation, as "there is δ ∈ ℝ with δ > 0 and …" has it.
 #[derive(Clone, Debug)]
 pub struct Bounds {
+    pub name: usize,
     pub to: usize,
     pub join: Option<Wrap>,
 }
@@ -128,7 +129,10 @@ impl Notation {
         if let Some(b) = &self.bounds {
             let after = match &b.join {
                 Some(_) => 1,
-                None => 1 + self.parts.iter().filter(|p| p.is_hole()).count() - b.to,
+                None => {
+                    1 + self.parts.iter().filter(|p| p.is_hole()).count()
+                        - (b.to - b.name + 1)
+                }
             };
             return Some(Binds {
                 held: vec![0],
@@ -196,7 +200,7 @@ regex!(
 // the condition goes in front of hole 3 by the named notation.
 regex!(
     BOUNDS,
-    r"^\s*hole\s+1\s+by\s+hole\s+(\d+)(?:,\s*joined\s+to\s+hole\s+(\d+)\s+by\s+(\S+))?\s*$"
+    r"^\s*hole\s+(\d+)\s+by\s+hole\s+(\d+)(?:,\s*joined\s+to\s+hole\s+(\d+)\s+by\s+(\S+))?\s*$"
 );
 // `binds holes 1 and 3 over hole 5`: the holes naming what a binder
 // introduces, and the holes where those names are its own.
@@ -351,17 +355,18 @@ pub fn compile_notations(
                         &r.path,
                         r.lines.get("bounds").copied().unwrap_or(r.line),
                         format!(
-                            "notation {}: `bounds {}` is not `hole 1 by hole N`, with `, joined to hole M by <notation>` or without",
+                            "notation {}: `bounds {}` is not `hole N by hole M`, with `, joined to hole K by <notation>` or without",
                             r.name,
                             str::trim(said)
                         ),
                     ));
                 };
                 Some(Bounds {
-                    to: m[1].parse().unwrap(),
-                    join: m.get(2).map(|hole| Wrap {
+                    name: m[1].parse().unwrap(),
+                    to: m[2].parse().unwrap(),
+                    join: m.get(3).map(|hole| Wrap {
                         hole: hole.as_str().parse().unwrap(),
-                        name: m[3].to_string(),
+                        name: m[4].to_string(),
                         literal: String::new(),
                         yields: String::new(),
                     }),

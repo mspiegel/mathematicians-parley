@@ -286,7 +286,9 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   since a reader cannot tell whether the "for all" covers both, and the page
   writes "(f(x) ≠ B and g(x) = 0) for all x ∈ A" or the prefix form.
   Two in a row, "… for all x ∈ A for all y ∈ B", are both over what precedes
-  them. `LINTER.md` says which of the two forms to write where.
+  them. The bound of a declared letter may stand for the set here too:
+  "|x(n) − L| < ε for all n ≥ N" is "for all n ≥ N, |x(n) − L| < ε".
+  `LINTER.md` says which of the two forms to write where.
 - A claim that is a conjunction is written as separate sentences, so that a
   long "and" is never written: "p ∈ ℤ. q ∈ ℤ. q > 0."
 - → and ↔ remain symbols. Where a defined word exists, such as "is even" or

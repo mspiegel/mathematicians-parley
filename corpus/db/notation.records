@@ -880,6 +880,23 @@ notation for-all-after-part
   places      2 3 1
   spells      for-all forall∈,
 
+notation for-all-after-bounded
+  pattern     _ for all _ > _        _ for all _ ≥ _        _ for all _ < _        _ for all _ ≤ _        _ for all _ ≠ _
+  sort        formula, α, α → formula
+  level       trailing
+  assoc       left
+  binds       hole 2 over hole 1
+  bounds      hole 2 by hole 3, joined to hole 1 by conditional
+  spells      for-all forall∈,
+  reads       for all, written after what it says, with a bound in place of the set
+  metamath    wral, with wi inside it
+  target      folded, folded, folded, folded, folded
+  note        "… < ε for all n ≥ N", as a textbook writes it inside "such
+              that", where the theorem says what n ranges over. It builds
+              what "for all n ∈ ℕ, if n ≥ N then …" builds, so it meets
+              "for all n ≥ N, …" and "for all n ∈ ℕ with n ≥ N, …". What it
+              says is one relation, as for any trailing universal.
+
 notation there-is
   pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
   sort        α, set of α, formula → formula

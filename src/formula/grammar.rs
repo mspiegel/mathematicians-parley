@@ -816,7 +816,8 @@ impl Parser<'_> {
         // condition is what the text wrote from the name to the bound, read
         // as it would be read anywhere else.
         if let Some(b) = &n.bounds {
-            let name = kids[0].text.clone();
+            let held = kids[b.name - 1].clone();
+            let name = held.text.clone();
             let Some(set) = self.sorts.ranges.get(&name).cloned() else {
                 let why = format!(
                     "nothing says what set {name} belongs to: write `{name} ∈` a set before the bound, or say what {name} ranges over in the theorem's statement"
@@ -827,7 +828,7 @@ impl Parser<'_> {
             let set =
                 parse(&set, self.g, self.sorts, self.path, self.line)?.unwritten();
             let (Some(Some((from, _))), Some(Some((_, to)))) =
-                (took.first().copied(), took.get(b.to - 1).copied())
+                (took.get(b.name - 1).copied(), took.get(b.to - 1).copied())
             else {
                 return self.no(format!("`{}` has no condition to read", n.pattern));
             };
@@ -852,12 +853,19 @@ impl Parser<'_> {
                     ))
                 }
             };
-            let rest: Vec<Node> = kids[b.to..].to_vec();
+            // The holes outside the condition, in the order written: the body
+            // after "for all ε > 0,", or before "for all n ≥ N".
+            let rest: Vec<Node> = kids
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| *i + 1 < b.name || *i + 1 > b.to)
+                .map(|(_, k)| k.clone())
+                .collect();
             kids = match &b.join {
-                None => [vec![kids[0].clone(), set, condition], rest].concat(),
+                None => [vec![held, set, condition], rest].concat(),
                 Some(w) => {
                     let body = self.joined(condition, &kids[w.hole - 1], w);
-                    vec![kids[0].clone(), set, body]
+                    vec![held, set, body]
                 }
             };
         }
