@@ -1347,8 +1347,9 @@ What checks these proofs is not code this project wrote. The verify stage
 (`src/tools/verify.rs`) runs `metamath-rs`, the verifier of metamath-knife,
 which the Metamath project maintains, as a library inside `parley`. It is
 handed set.mm and every built file in memory, each under the name the others
-include it by, and verifies every proof — the elaborated theorems and
-`proved.mm`'s lemmas — in about three seconds, most of it reading set.mm.
+include it by, and verifies every proof — the elaborated theorems,
+`proved.mm`'s lemmas, and the hand elaborations kept for comparison — in
+about three seconds, most of it reading set.mm.
 Which files the joined one includes is read off the `$[ ... $]` lines rather
 than listed: a proof nothing else includes is a root. A list written down
 would leave the gate green on the day a proof was added and not read.

@@ -65,14 +65,12 @@ pub enum Recipe {
     ByHand(fn() -> String),
 }
 
-/// One generated file: what makes it, whether a verifier is given it, and
-/// the artifacts whose files it reads.
+/// One generated file: what makes it, and the artifacts whose files it
+/// reads.
 pub struct Artifact {
     /// Its path under `corpus/elaboration/`, without `.mm`.
     pub name: String,
     pub recipe: Recipe,
-    /// One of the files the verifier checks.
-    pub verified: bool,
     pub needs: Vec<String>,
 }
 
@@ -96,13 +94,11 @@ pub fn artifacts(found: &Corpus) -> Vec<Artifact> {
         Artifact {
             name: DEFINITIONS.to_string(),
             recipe: Recipe::Definitions,
-            verified: true,
             needs: Vec::new(),
         },
         Artifact {
             name: PROVED.to_string(),
             recipe: Recipe::Proved,
-            verified: true,
             needs: vec![DEFINITIONS.to_string()],
         },
     ];
@@ -129,7 +125,6 @@ pub fn artifacts(found: &Corpus) -> Vec<Artifact> {
         out.push(Artifact {
             name,
             recipe: Recipe::Theorem,
-            verified: true,
             needs,
         });
     }
@@ -137,21 +132,17 @@ pub fn artifacts(found: &Corpus) -> Vec<Artifact> {
         out.push(Artifact {
             name: c.name.to_string(),
             recipe: Recipe::ByHand(c.text),
-            verified: false,
             needs: Vec::new(),
         });
     }
     out
 }
 
-/// The files the verifier is given: every artifact but the hand-written
-/// comparisons, which sit beside them and are not among them.
+/// The files the verifier is given: every artifact, the hand-written
+/// comparisons among them, since a comparison that did not verify would be
+/// no comparison.
 pub fn verified(found: &Corpus) -> Vec<String> {
-    artifacts(found)
-        .iter()
-        .filter(|a| a.verified)
-        .map(Artifact::path)
-        .collect()
+    artifacts(found).iter().map(Artifact::path).collect()
 }
 
 /// The artifacts in the order they are made: groups in which none reads

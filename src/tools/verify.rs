@@ -9,10 +9,10 @@
 //! the verifier of metamath-knife, which the Metamath project maintains and
 //! runs over set.mm itself.
 //!
-//! Which files there are comes from the build, which is what finds every
-//! generated file. Reading the directory instead would be simpler and wrong:
-//! the hand-written comparisons sit in it beside them and are not among
-//! them. Each file is handed to the verifier under the name the others
+//! Which files there are comes from the build, which is what knows every
+//! generated file, the hand-written comparisons among them; a file left in
+//! the directory that the build does not make is not one of them. Each file
+//! is handed to the verifier under the name the others
 //! include it by, its path under `corpus/elaboration/`, and set.mm under its own,
 //! so an inclusion never reaches past what is handed over.
 //!
