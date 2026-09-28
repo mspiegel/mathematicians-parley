@@ -1302,8 +1302,8 @@ decides it — the kernel's sethood of an element is hidden apparatus — and
 `let a ∉ X` and `let x be an element` are how a statement introduces such a
 thing: `hypothesis_body` reads each as the thing being a set as well, which
 the page never writes. The elaborator proves a term a set from its structure
-and from those facts, and never asks the page for it; the checker's kinds
-report a page that claims an element of a set of numbers is a set. See *What a
+and from those facts, and never asks the page for it; the checker's reading
+of sorts reports a page that claims an element of a set of numbers is a set. See *What a
 file states rather than proves* for the proof this let back into `proofs/`.
 
 ## Geometry

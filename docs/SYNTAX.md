@@ -41,8 +41,8 @@ theorem even-square
 ```
 
 - A `let` line introduces a variable and says what it is: `let n ∈ ℕ` for
-  an element of a named set, `let a ∉ X` for a thing of the kind X holds
-  that is not in X, `let x be an element` for a thing whose kind the text
+  an element of a named set, `let a ∉ X` for a thing of the sort X holds
+  that is not in X, `let x be an element` for a thing whose sort the text
   decides, `let A be a set` for an arbitrary set, `let
   A be a point` for a point of the plane, `let f : A → B` for a
   function with its domain and codomain, `let f : A → B be one-to-one` for
@@ -50,7 +50,7 @@ theorem even-square
   identity e` for a group, and `let P be a property of the
   elements of X` for a property that a statement can be written about.
   Neither `∉` nor `be an element` claims the thing is a set, which `be a
-  set` does (`READERS.md`, on kinds); the kernel still has it be one, and
+  set` does (`READERS.md`, on sorts); the kernel still has it be one, and
   that is apparatus the page never writes.
   An `assume` line states a
   formula. These are the theorem's hypotheses, and they map onto
