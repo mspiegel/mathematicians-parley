@@ -1,25 +1,23 @@
 //! Where a name's sort comes from.
 //!
-//! `GRAMMAR.md`'s "Sorts" section is the specification. A declaration is
-//! written on the page, so this module first reads what the text states: a
-//! `let` line, the claim of the `obtain` step that introduces a name, the
-//! right-hand side of a `define`, or any numbered step claiming a membership.
-//! A membership gives a sort there only when it names a number system, which
-//! is why the five number systems are named below: it is the one place the
-//! tools know a notation by its text, and it is here rather than in the
-//! parser because the rule is about what a membership states, not about how a
-//! formula reads.
-//!
-//! What those leave unknown, the kinds may settle (`kinds`): a set has the
-//! kind of what it holds, so `let S ∈ 𝒫X` makes S a set though no number
-//! system is named. A name neither reaches has no sort, which every hole
+//! `GRAMMAR.md`'s "Sorts" section is the specification. A name's sort is
+//! what one reading of its lines settles (`kinds`), in the order they are
+//! written: each line is parsed with what the lines above it settled, and
+//! what it says is added. A `let` line, a membership, a `define` and the way
+//! a formula uses a name are all facts of that one reading, so `let n ∈ ℕ`
+//! and `let S ∈ 𝒫X` settle n and S the same way, through what the set they
+//! are in holds. A name the reading leaves open has no sort, which every hole
 //! accepts.
+//!
+//! This module turns a reading into sorts, and holds what the text says in
+//! so many words where a question is about the text and not the sort: which
+//! names a theorem introduces, and what a `define`'s domain holds.
 
 use std::collections::BTreeSet;
 
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
+    define_parts, DefineLine, DefineParts, FileScope, Record, ScopeId, Theorem,
 };
 use crate::formula::{holds, parse_here, Grammar, Sort, Sorts};
 use crate::kinds;
@@ -361,36 +359,34 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
 /// {a, …, n}` names no number system, and k is a number because the range
 /// holds numbers.
 pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
-    let stated = stated_record_sorts(record);
     let mut store = kinds::Store::default();
-    let reader = kinds::read_record(record, env, &stated, &mut store);
+    let reader = kinds::read_record(record, env, &mut store);
     settled(&reader, &store)
 }
 
-/// What an item's lines say its names are in so many words, which its
-/// formulas are parsed with while they are read (`kinds::read_record`).
-pub fn stated_record_sorts(record: &Record) -> Sorts {
-    let mut out = Sorts::new();
-    for h in &record.hypotheses {
-        for (name, sort) in introduced(str::trim(&unlabel(&h.text)), &out) {
-            set_default(&mut out, name, Sort::of(sort));
-        }
-    }
-    out
-}
-
-/// The sort of every name a proved theorem's hypotheses state one for.
+/// The names a theorem's hypotheses introduce in so many words: `n ∈ ℕ`, a
+/// group and its identity, a set, a point, a property or a function.
 ///
-/// What a citation of it reads: the statement, not the proof beneath. A
-/// proof line keeps its keyword in the text, which a record does not.
-pub fn sorts_of_statement(thm: &Theorem) -> Sorts {
+/// Which names a theorem introduces itself is a question about its text,
+/// and `check_defined_below` asks it; what their sorts are is the reading's
+/// (`sorts_of_statement`), which also reaches a name the file defines.
+pub fn named_by_hypotheses(thm: &Theorem) -> BTreeSet<String> {
     let mut out = Sorts::new();
     for h in &thm.hypotheses {
         for (name, sort) in introduced(&body_of(&h.text, h.kind.as_str()), &out) {
             set_default(&mut out, name, Sort::of(sort));
         }
     }
-    out
+    out.into_keys().collect()
+}
+
+/// The sort of every name a proved theorem's statement settles: what a
+/// citation of it reads, the statement and not the proof beneath
+/// (`kinds::read_statement`).
+pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
+    let mut store = kinds::Store::default();
+    let reader = kinds::read_statement(thm, env, &mut store);
+    settled(&reader, &store)
 }
 
 /// The sort of every name the theorem's lines settle, read without its
@@ -398,9 +394,8 @@ pub fn sorts_of_statement(thm: &Theorem) -> Sorts {
 /// each theorem once, citations and all, and settles the same way
 /// (`check::run`).
 pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
-    let stated = stated_sorts(thm, env);
     let mut store = kinds::Store::default();
-    let reader = kinds::read_theorem(thm, env, &stated, &mut store, None);
+    let reader = kinds::read_theorem(thm, env, &mut store, None);
     settled(&reader, &store)
 }
 
@@ -419,80 +414,6 @@ pub fn settled(reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
     for (name, kind) in &reader.env {
         if let Some(sort) = kinds::sort_of(store, kind) {
             out.insert(name.clone(), Sort::of(sort));
-        }
-    }
-    out
-}
-
-/// What a theorem's lines say its names are in so many words, which its
-/// formulas are parsed with while they are read (`kinds::read_theorem`).
-///
-/// The lines are read in the order they are written, because a `define`
-/// takes its sort from its right-hand side and that side may name something
-/// an earlier line introduced.
-pub fn stated_sorts(thm: &Theorem, env: Env) -> Sorts {
-    enum Event<'t> {
-        Intro(Intro, &'t str),
-        Claim(String),
-        Define(&'t str),
-    }
-    let mut events: Vec<(usize, Event)> = Vec::new();
-    for h in &thm.hypotheses {
-        events.push((h.line, Event::Intro(h.kind, &h.text)));
-    }
-    for step in &thm.steps {
-        for o in &step.openers {
-            events.push((o.line, Event::Intro(o.kind, &o.text)));
-        }
-        events.push((step.line, Event::Claim(step.claim_text())));
-    }
-    for d in &thm.defines {
-        events.push((d.line, Event::Define(&d.text)));
-    }
-    events.sort_by_key(|e| e.0);
-
-    // What the theorem sees from outside it is there before its first line.
-    let mut out = definition_sorts(&file_definitions(thm, env));
-    for (_, event) in &events {
-        match event {
-            Event::Intro(kind, text) => {
-                for (name, sort) in introduced(&body_of(text, kind.as_str()), &out) {
-                    set_default(&mut out, name, Sort::of(sort));
-                }
-            }
-            Event::Define(text) => {
-                let Built(said) = define_parts(text) else {
-                    continue;
-                };
-                // A define with an argument is a function, whatever its rule
-                // gives, and `S(n)` is then S applied to n and not S times
-                // n. A sequence defined by recursion is one too.
-                match said {
-                    DefineParts::Recursion(r) => {
-                        for name in r.names {
-                            set_default(&mut out, name, Sort::of("function"));
-                        }
-                    }
-                    DefineParts::One(d) if d.param.is_some() => {
-                        set_default(&mut out, d.name, Sort::of("function"));
-                    }
-                    DefineParts::One(d) => {
-                        let Ok(body) = parse_here(&d.body, env.g, &out) else {
-                            continue;
-                        };
-                        if !body.sort.is_unsorted() {
-                            set_default(&mut out, d.name, body.sort.clone());
-                        }
-                    }
-                }
-            }
-            Event::Claim(text) => {
-                for sentence in sentences(text) {
-                    for (name, sort) in introduced(&sentence, &out) {
-                        set_default(&mut out, name, Sort::of(sort));
-                    }
-                }
-            }
         }
     }
     out

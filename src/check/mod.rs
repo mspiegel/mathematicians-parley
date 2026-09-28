@@ -22,7 +22,7 @@ use crate::formula::Grammar;
 use crate::formula::Sorts;
 use crate::kinds;
 use crate::outcome::{At, Problem};
-use crate::sorts::{settled, stated_record_sorts, stated_sorts, Env};
+use crate::sorts::{settled, Env};
 use crate::source::Source;
 use crate::text::check_encoding;
 
@@ -178,8 +178,7 @@ pub fn run(source: &dyn Source) -> Outcome {
     let mut statements: IndexMap<String, kinds::Reader> = IndexMap::new();
     let mut record_sorts: IndexMap<usize, Sorts> = IndexMap::new();
     for (i, r) in records.iter().enumerate().filter(|(_, r)| r.kind.is_item()) {
-        let stated = stated_record_sorts(r);
-        let reader = kinds::read_record(r, env, &stated, &mut store);
+        let reader = kinds::read_record(r, env, &mut store);
         record_sorts.insert(i, settled(&reader, &store));
         statements.insert(r.qualified(), reader);
     }
@@ -188,17 +187,13 @@ pub fn run(source: &dyn Source) -> Outcome {
     database::check_symbols(&mut report, &records);
 
     // Each theorem's lines, read once, after every statement it may cite.
-    let stated: Vec<Sorts> = theorems.iter().map(|t| stated_sorts(t, env)).collect();
-    for (thm, sorts) in theorems.iter().zip(&stated) {
-        statements.insert(
-            thm.qualified(),
-            formulas::statement_kinds(thm, env, sorts, &mut store),
-        );
+    for thm in &theorems {
+        statements.insert(thm.qualified(), kinds::read_statement(thm, env, &mut store));
     }
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<kinds::Clash>> = Vec::new();
-    for (thm, sorts) in theorems.iter().zip(stated) {
-        let reader = formulas::read_kinds(thm, env, &sorts, &statements, &mut store);
+    for thm in &theorems {
+        let reader = formulas::read_kinds(thm, env, &statements, &mut store);
         known.push(Known::new(thm, env, settled(&reader, &store)));
         clashes.push(reader.clashes);
     }

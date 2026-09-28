@@ -15,7 +15,7 @@ use crate::corpus::{
 use crate::kinds::obtains;
 use crate::matching::instantiation;
 use crate::outcome::Built;
-use crate::sorts::sorts_of_statement;
+use crate::sorts::named_by_hypotheses;
 use crate::text::{prefix, repr};
 use crate::{fancy, regex};
 
@@ -1044,7 +1044,7 @@ regex!(LET_NAME, r"^let\s+([^\s∈∉:]+)");
 /// what its `obtain` steps obtain. Not every name it gives a sort: `c = 5`
 /// gives c one, and introduces nothing.
 pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
-    let mut out: BTreeSet<String> = sorts_of_statement(thm).keys().cloned().collect();
+    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
     for h in &thm.hypotheses {
         if let Some(m) = LET_NAME.captures(&h.text) {
             out.insert(m[1].to_string());

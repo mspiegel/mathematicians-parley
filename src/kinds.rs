@@ -593,6 +593,12 @@ impl Reader {
         }
     }
 
+    /// The sort of every name the lines read so far settle: what the next
+    /// line is parsed with.
+    pub fn sorts(&self, store: &Store) -> Sorts {
+        crate::sorts::settled(self, store)
+    }
+
     fn of_name(&mut self, name: &str, store: &mut Store) -> Kind {
         if let Some(k) = self.env.get(name) {
             return k.clone();
@@ -697,7 +703,6 @@ pub fn introduce(
     body: &str,
     line: At,
     env: Env,
-    sorts: &Sorts,
     store: &mut Store,
 ) {
     let body = str::trim(&unlabel(body)).to_string();
@@ -743,7 +748,7 @@ pub fn introduce(
         let v = store.var();
         reader.env.insert(m[1].to_string(), v);
     }
-    claim_text(reader, &body, line, env, sorts, store);
+    claim_text(reader, &body, line, env, store);
 }
 
 /// Every sentence of a line, read as a claim.
@@ -755,11 +760,10 @@ pub fn claim_text(
     text: &str,
     line: At,
     env: Env,
-    sorts: &Sorts,
     store: &mut Store,
 ) {
     for sentence in sentences(text) {
-        let Ok(node) = parse_here(&sentence, env.g, sorts) else {
+        let Ok(node) = parse_here(&sentence, env.g, &reader.sorts(store)) else {
             continue;
         };
         reader.claim(&node, line, store);
@@ -770,38 +774,49 @@ pub fn claim_text(
 ///
 /// A record keeps the keyword of a hypothesis in the field name where a
 /// proof line keeps it in the text, and has no steps.
-pub fn read_record(
-    record: &Record,
-    env: Env,
-    sorts: &Sorts,
-    store: &mut Store,
-) -> Reader {
+pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
     for h in &record.hypotheses {
         if h.kind == Intro::Let {
-            introduce(&mut reader, &h.text, h.line.into(), env, sorts, store);
+            introduce(&mut reader, &h.text, h.line.into(), env, store);
         } else {
             let text = str::trim(&unlabel(&h.text)).to_string();
-            claim_text(&mut reader, &text, h.line.into(), env, sorts, store);
+            claim_text(&mut reader, &text, h.line.into(), env, store);
         }
     }
     for (text, no) in &record.conclusions {
-        claim_text(&mut reader, text, (*no).into(), env, sorts, store);
+        claim_text(&mut reader, text, (*no).into(), env, store);
     }
+    reader
+}
+
+/// What a proved theorem's statement says its names are: its hypotheses and
+/// its conclusion, without the proof beneath, which is what a citation of it
+/// reads.
+///
+/// A cited statement is read on its own, and each citation takes its own
+/// copy of what it says (`Store::copy`), so the kinds a statement relates
+/// stay related and nothing one citation fixes reaches another.
+pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
+    let mut reader = Reader::new(env);
+    for h in &thm.hypotheses {
+        let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
+        if h.kind == Intro::Let {
+            introduce(&mut reader, &body, h.line.into(), env, store);
+        } else {
+            claim_text(&mut reader, &body, h.line.into(), env, store);
+        }
+    }
+    claim_text(&mut reader, &thm.conclusion, thm.line.into(), env, store);
     reader
 }
 
 /// An item's kinds as its `let` lines alone say them: what the item
 /// declares, before its assumptions and conclusions use anything.
-pub fn read_lets(
-    record: &Record,
-    env: Env,
-    sorts: &Sorts,
-    store: &mut Store,
-) -> Reader {
+pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
     for h in record.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
-        introduce(&mut reader, &h.text, h.line.into(), env, sorts, store);
+        introduce(&mut reader, &h.text, h.line.into(), env, store);
     }
     reader
 }
@@ -815,7 +830,6 @@ fn recursion_kinds(
     said: &crate::corpus::Recursion,
     line: At,
     env: Env,
-    sorts: &Sorts,
     store: &mut Store,
 ) {
     let mut gives: IndexMap<String, Kind> = IndexMap::new();
@@ -828,7 +842,7 @@ fn recursion_kinds(
             Kind::Function(Box::new(NUMBER), Box::new(gives[name].clone())),
         );
     }
-    let mut local_sorts = sorts.clone();
+    let mut local_sorts = reader.sorts(store);
     local_sorts.insert(said.index.clone(), Sort::of("number"));
     let mut at_step = IndexMap::new();
     at_step.insert(said.index.clone(), NUMBER);
@@ -858,7 +872,6 @@ pub type Cite<'c> = &'c mut dyn FnMut(&mut Reader, &mut Store, &Step);
 pub fn read_theorem(
     thm: &Theorem,
     env: Env,
-    sorts: &Sorts,
     store: &mut Store,
     mut cite: Option<Cite>,
 ) -> Reader {
@@ -937,21 +950,22 @@ pub fn read_theorem(
             reader.fix_declared(store);
         }
         match event {
-            Event::Let(text) => introduce(&mut reader, text, no, env, sorts, store),
-            Event::Said(text) => claim_text(&mut reader, text, no, env, sorts, store),
+            Event::Let(text) => introduce(&mut reader, text, no, env, store),
+            Event::Said(text) => claim_text(&mut reader, text, no, env, store),
             Event::Define(text) => {
                 let Built(said) = define_parts(text) else {
                     continue;
                 };
                 let said = match said {
                     DefineParts::Recursion(r) => {
-                        recursion_kinds(&mut reader, &r, no, env, sorts, store);
+                        recursion_kinds(&mut reader, &r, no, env, store);
                         continue;
                     }
                     DefineParts::One(d) => d,
                 };
+                let sorts = reader.sorts(store);
                 let Some(param) = &said.param else {
-                    let Ok(tree) = parse_here(&said.body, env.g, sorts) else {
+                    let Ok(tree) = parse_here(&said.body, env.g, &sorts) else {
                         continue;
                     };
                     let k = reader.kind(&tree, no, &IndexMap::new(), store);
@@ -960,7 +974,7 @@ pub fn read_theorem(
                 };
                 // A function: what its domain holds goes in, what its rule
                 // gives comes out, and the parameter is its rule's own name.
-                let local_sorts = define_sorts(&said, sorts);
+                let local_sorts = define_sorts(&said, &sorts);
                 let domain = said.domain.clone().unwrap_or_default();
                 let Ok(over_tree) = parse_here(&domain, env.g, &local_sorts) else {
                     continue;
@@ -994,7 +1008,7 @@ pub fn read_theorem(
                         reader.env.insert(name.to_string(), v);
                     }
                 }
-                claim_text(&mut reader, &step.claim_text(), no, env, sorts, store);
+                claim_text(&mut reader, &step.claim_text(), no, env, store);
                 if let Some(cite) = cite.as_mut() {
                     cite(&mut reader, store, step);
                 }

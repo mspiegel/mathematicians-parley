@@ -131,9 +131,10 @@ impl<'a> Elaborator<'a> {
         let kept = self.sorts_now.clone();
         let kept_written = self.from_outside.clone();
         let (written, own) = match item {
-            Item::Theorem(t) => {
-                (file_definitions(t, self.env()), sorts_of_statement(t))
-            }
+            Item::Theorem(t) => (
+                file_definitions(t, self.env()),
+                sorts_of_statement(t, self.env()),
+            ),
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
         let mut sorts = kept.clone();

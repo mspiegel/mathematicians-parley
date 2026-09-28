@@ -14,8 +14,7 @@ use crate::kinds;
 use crate::regex;
 use crate::sorts::{
     element_re, function_being_re, function_re, group_re, kind_re, let_formula,
-    membership_re, not_in_re, part_re, property_re, sentences, settled,
-    stated_record_sorts, unlabel, Env,
+    membership_re, not_in_re, part_re, property_re, sentences, settled, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -576,9 +575,8 @@ pub fn check_unsorted(
         }
         // What the `let` lines say, and every name a line puts in a set
         // they or a notation say holds numbers.
-        let stated = stated_record_sorts(r);
         let mut store = kinds::Store::default();
-        let lets = kinds::read_lets(r, env, &stated, &mut store);
+        let lets = kinds::read_lets(r, env, &mut store);
         let mut members: BTreeSet<String> = BTreeSet::new();
         for (no, tree) in &trees {
             let mut probe = kinds::Reader::new(env);

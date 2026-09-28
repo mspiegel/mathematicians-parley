@@ -21,39 +21,6 @@ use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::{sentences, unlabel, Env};
 
-/// What a proved theorem's statement says its names are: its hypotheses and
-/// its conclusion, without the proof beneath, which is what a citation of it
-/// reads.
-///
-/// A cited statement is read on its own, and each citation takes its own
-/// copy of what it says (`Store::copy`), so the kinds a statement relates
-/// stay related and nothing one citation fixes reaches another.
-pub fn statement_kinds(
-    thm: &Theorem,
-    env: Env,
-    sorts: &Sorts,
-    store: &mut Store,
-) -> Reader {
-    let mut reader = Reader::new(env);
-    for h in &thm.hypotheses {
-        let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
-        if h.kind == Intro::Let {
-            kinds::introduce(&mut reader, &body, h.line.into(), env, sorts, store);
-        } else {
-            kinds::claim_text(&mut reader, &body, h.line.into(), env, sorts, store);
-        }
-    }
-    kinds::claim_text(
-        &mut reader,
-        &thm.conclusion,
-        thm.line.into(),
-        env,
-        sorts,
-        store,
-    );
-    reader
-}
-
 /// An item's statement is one kind throughout where it says so.
 pub fn check_item_kinds(
     report: &mut Report,
@@ -74,20 +41,19 @@ pub fn check_item_kinds(
 /// a set of any kind stays any kind. Each line is read in the order it is
 /// written — a `let` shadows an earlier name, since blocks reuse letters —
 /// and each citation's written `v := t` is fitted to a fresh copy of what
-/// the cited statement says v is. `sorts` is what the lines state; what the
-/// reading settles besides is the theorem's sorts (`sorts::settled`), and
-/// what does not fit is `check_kinds`'s to report.
+/// the cited statement says v is. What the reading settles is the theorem's
+/// sorts (`sorts::settled`), and what does not fit is `check_kinds`'s to
+/// report.
 pub fn read_kinds(
     thm: &Theorem,
     env: Env,
-    sorts: &Sorts,
     statements: &IndexMap<String, Reader>,
     store: &mut Store,
 ) -> Reader {
     let mut cite = |reader: &mut Reader, store: &mut Store, step: &Step| {
-        cited_kinds(reader, store, step, env, sorts, statements);
+        cited_kinds(reader, store, step, env, statements);
     };
-    kinds::read_theorem(thm, env, sorts, store, Some(&mut cite))
+    kinds::read_theorem(thm, env, store, Some(&mut cite))
 }
 
 /// What a proof's names are fits, as its reading found (`read_kinds`).
@@ -109,7 +75,6 @@ fn cited_kinds(
     store: &mut Store,
     step: &Step,
     env: Env,
-    sorts: &Sorts,
     statements: &IndexMap<String, Reader>,
 ) {
     let mut cites: Vec<(String, &str)> = Vec::new();
@@ -130,7 +95,7 @@ fn cited_kinds(
             let Some(wanted) = stated.env.get(&v) else {
                 continue;
             };
-            let Ok(tree) = parse_here(&t, env.g, sorts) else {
+            let Ok(tree) = parse_here(&t, env.g, &reader.sorts(store)) else {
                 continue;
             };
             let got = reader.kind(&tree, step.line.into(), &IndexMap::new(), store);
