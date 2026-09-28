@@ -1352,7 +1352,13 @@ impl<'a> Elaborator<'a> {
         where_.extend(implied_where);
         let mut all = given.clone();
         all.push(linear::opposite(&claim));
-        let Some(found) = linear::certificate(&all) else {
+        // Which cited line each fact came from; the claim denied is none.
+        let mut line_of: Vec<Option<usize>> = where_
+            .iter()
+            .map(|(r, _)| refs.iter().position(|one| one == r))
+            .collect();
+        line_of.push(None);
+        let Some(found) = linear::certificate(&all, &line_of) else {
             return Ok(Route::no("the cited facts do not reach the claim"));
         };
         let found = match found {

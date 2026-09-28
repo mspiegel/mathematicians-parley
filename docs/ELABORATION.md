@@ -1183,7 +1183,72 @@ list's.
 
 None: every step of every proof and every library test is built.
 
-## The output format
+## The order things are tried in
+
+Where more than one proof would do, the one written is the first a search
+reaches, so the order of each search is part of what a proof comes out as.
+The orders follow five rules, and each search below is one of them applied.
+
+1. **What the step names comes before what the scope holds.** The facts a
+   lemma is answered from (`with_cited`) are, in order: each line the step
+   cites, in the order the justification writes them, whole and then its
+   conjuncts, left to right; then each `requires` line in the order written;
+   then the scope's facts in the order they were established. A theorem's
+   hypotheses come in statement order, and then the conjuncts of each; a
+   block's opener comes after what held outside it; a proved step comes
+   after everything before it. A lemma's open antecedent takes the first
+   fact that fits. A witness (`witnessed`) is read from the cited lines and
+   then the `requires` lines, and never from the scope. An inequality's
+   certificate (`linear::certificate`) eliminates atoms in the order the
+   cited facts first name them, and of the combinations that contradict
+   takes the one resting on the most cited lines, since every line a step
+   cites must do work (R3), then the first of those.
+2. **As written comes before read another way.** A lemma is matched as it
+   is written before it is read backwards (`settle`: every declared lemma
+   forwards, then every one backwards, so that a biconditional turned round
+   never stands in for one that says what is wanted outright); a line
+   matched as it stands before as the standard form reads it (`opened`,
+   `unfolds_from`); an equation facing the way it is written before turned
+   round (`witnessed`, `substitute`); a seed as the target writes it before
+   read through (`in_other_words`).
+3. **The nearer reading comes before the deeper one.** `apply_lemma` fits
+   the claim to a lemma's conclusion at each level before peeling another
+   antecedent, so a match at an outer level beats one further in; at one
+   level the forward read beats the near side of a biconditional turned.
+   `allowed` takes the innermost scope a lemma's disjointness conditions
+   permit.
+4. **The cheaper route comes before the costlier.** Where the routes for a
+   claim are alternatives, they are tried in a fixed sequence, and the first
+   that builds is the proof:
+   - `settle`: a fact exactly; an equation of a term with itself, or one held
+     turned round; a numeral's membership worked out from its digits; a set
+     from its structure; a membership a `requires` line wrote in another
+     system (`bridged`); a compound's membership from its parts; the claim
+     over other bound letters; and, with depth left, its conjuncts, a
+     witness, a universal generalised, the declared lemmas, a fact in other
+     words (`said_otherwise`), and last a rewrite by an equation in hand.
+   - `apply_lemma`, where the conclusion does not fit as written: through an
+     existential, at the seed the target gives, through a conjunct, a
+     universal generalised, and last in other words.
+   - `prove_field`: the two sides as one polynomial, then a cited line
+     scaled, crossed, or summed.
+   - a `requires` line (`by_its_reason`): read from the lines it cites before
+     the scope is asked, since the scope may hold the same claim for another
+     reason.
+5. **A table is walked in the order it is written.** `rules.rs` says so for
+   every table (an entry is not moved without a reason), and where a table
+   is walked the order decides: `rules::MEMBERSHIP` for the declared lemmas
+   (`lemma_index` keeps it), where the lemmas carrying a membership to a
+   wider system run from the narrowest system a thing is known in, ℕ ⊂ ℕ₀ ⊂
+   ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ, so the most precise fact is the one a membership rests
+   on; `rules::STANDARD` for the standard form (rules
+   that ask nothing before rules that ask something), `WITHIN`, `SYSTEM_OF`,
+   `IMPLIED` and `RANGE_WITHIN` for what a membership says. An item's
+   `target` is tried clause by clause in the order the record writes it
+   (`targets::clauses`), which is the database's order to decide.
+
+A lookup by key, an exact fact, and a loop that needs every candidate
+depend on no order, and are not listed.
 
 Proofs are written compressed. In deduction form every line is an implication
 whose antecedent is the whole scope, and in normal format that antecedent is

@@ -205,8 +205,8 @@ pub struct Elaborator<'a> {
     pub rewrite_rules: Option<[Vec<super::matcher::Rewrite>; 2]>,
     /// Letters `same` reads as blanks.
     pub binding: Vars,
-    /// The lines what is being proved cites.
-    pub citing: BTreeSet<String>,
+    /// The lines what is being proved cites, in the order it writes them.
+    pub citing: IndexSet<String>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
     /// By step line, what its method combined.
@@ -328,7 +328,7 @@ impl<'a> Elaborator<'a> {
             standards: IndexMap::new(),
             rewrite_rules: None,
             binding: Vars::new(),
-            citing: BTreeSet::new(),
+            citing: IndexSet::new(),
             resting: None,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),

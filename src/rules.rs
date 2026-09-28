@@ -654,6 +654,10 @@ pub const MEMBERSHIP: &[&str] = &[
     // A numeral of more than one digit is not among these: its membership is
     // built from its digits, because `deccl` asks its parts as closed facts
     // and a search proves everything under the step's scope.
+    //
+    // A thing's membership of a wider system, from the narrowest system it
+    // is known in first, ℕ ⊂ ℕ₀ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ: the most precise fact is
+    // the one a membership rests on.
     "nnz",
     "nnre",
     "nncn",
@@ -663,9 +667,9 @@ pub const MEMBERSHIP: &[&str] = &[
     "nn0cn",
     "zre",
     "zcn",
-    "recn",
     "qre",
     "qcn",
+    "recn",
     "elnnuz",
     "eluz2",
     "eluz2b1",

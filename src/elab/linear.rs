@@ -22,7 +22,7 @@
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use num_traits::{Signed, Zero};
 
 use super::field::{q, ADD, DIV, MUL, NEG, Q, SUB};
@@ -294,7 +294,18 @@ pub enum Certificate {
 
 /// Whether these facts have no solution over an ordered field.
 pub fn refutes(facts: &[Fact]) -> bool {
-    certificate(facts).is_some()
+    certificate(facts, &vec![None; facts.len()]).is_some()
+}
+
+/// How many of the page's lines a combination rests on: the distinct lines
+/// among the facts it gives a weight.
+fn lines_used(weights: &Weights, line_of: &[Option<usize>]) -> usize {
+    weights
+        .iter()
+        .filter(|(_, w)| !w.is_zero())
+        .filter_map(|(i, _)| line_of.get(*i).copied().flatten())
+        .collect::<BTreeSet<usize>>()
+        .len()
 }
 
 /// The multipliers that make these facts contradict, or None.
@@ -308,17 +319,27 @@ pub fn refutes(facts: &[Fact]) -> bool {
 /// by anything, which is why its two halves carry opposite signs. A proof of
 /// the step is built from the combination, so it is kept rather than
 /// discarded.
-pub fn certificate(facts: &[Fact]) -> Option<Certificate> {
+///
+/// `line_of` says which of the page's lines each fact came from, None for
+/// one the method adds, as the claim denied. Every step's cited line must do
+/// work (`ELABORATION.md`, R3), so of the combinations that contradict, the
+/// one resting on the most lines is taken, and of those the first. Atoms
+/// are eliminated in the order the facts first name them, which is the
+/// order the page writes them, so which combination is first is the page's.
+pub fn certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certificate> {
     for (i, one) in facts.iter().enumerate() {
         if one.how == How::Ne {
             let mut rest: Vec<Fact> = facts[..i].to_vec();
             rest.extend(facts[i + 1..].iter().cloned());
+            let mut lines: Vec<Option<usize>> = line_of[..i].to_vec();
+            lines.extend(line_of[i + 1..].iter().copied());
+            lines.push(line_of[i]);
             let mut first = rest.clone();
             first.push(Fact::new(one.side.clone(), How::Lt));
-            let below = certificate(&first)?;
+            let below = certificate(&first, &lines)?;
             let mut second = rest;
             second.push(Fact::new(one.side.scaled(&q(-1)), How::Lt));
-            let above = certificate(&second)?;
+            let above = certificate(&second, &lines)?;
             return Some(Certificate::Either {
                 at: i,
                 below: Box::new(below),
@@ -352,7 +373,14 @@ pub fn certificate(facts: &[Fact]) -> Option<Certificate> {
             });
         }
     }
-    let atoms: BTreeSet<Rc<str>> = open.iter().flat_map(|f| f.side.atoms()).collect();
+    let mut atoms: IndexSet<Rc<str>> = IndexSet::new();
+    for one in &open {
+        for (atom, weight) in &one.side.weight {
+            if !weight.is_zero() {
+                atoms.insert(atom.clone());
+            }
+        }
+    }
     for atom in &atoms {
         let (mut under, mut over, mut rest) = (Vec::new(), Vec::new(), Vec::new());
         for one in open {
@@ -389,6 +417,7 @@ pub fn certificate(facts: &[Fact]) -> Option<Certificate> {
             return None; // past anything the corpus has
         }
     }
+    let mut best: Option<(usize, Weights)> = None;
     for one in open {
         if !one.side.constant_only() {
             continue;
@@ -397,10 +426,13 @@ pub fn certificate(facts: &[Fact]) -> Option<Certificate> {
         if (one.how == How::Lt && !c.is_negative())
             || (one.how == How::Le && c.is_positive())
         {
-            return Some(Certificate::Farkas(one.weights));
+            let used = lines_used(&one.weights, line_of);
+            if best.as_ref().is_none_or(|(most, _)| used > *most) {
+                best = Some((used, one.weights));
+            }
         }
     }
-    None
+    best.map(|(_, weights)| Certificate::Farkas(weights))
 }
 
 /// Whether the claim follows from the given facts.
@@ -448,7 +480,7 @@ mod tests {
         let mut all = given.to_vec();
         all.push(opposite(&claim));
         assert!(matches!(
-            certificate(&all),
+            certificate(&all, &vec![None; all.len()]),
             Some(Certificate::Either { .. })
         ));
     }
