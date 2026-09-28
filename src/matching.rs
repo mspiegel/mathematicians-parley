@@ -219,48 +219,98 @@ pub fn match_tree(
     sites: &IndexSet<NodeId>,
     ctx: &Context,
 ) -> Option<Binding> {
-    if pattern.is_name() && variables.contains(&pattern.text) {
-        if let Some(seen) = binding.get(&pattern.text) {
-            return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new())
-                .then(|| binding.clone());
-        }
-        let mut out = binding.clone();
-        out.insert(pattern.text.clone(), ground.clone());
-        return Some(out);
+    // Most matches are refused at the root, by a notation that differs, and
+    // the binding is copied only for one that is not.
+    if refused_at_root(pattern, ground, variables, ctx) {
+        return None;
     }
-    if ctx.props.contains_key(&pattern.notation)
+    let mut out = binding.clone();
+    fit(pattern, ground, &mut out, variables, sites, ctx).then_some(out)
+}
+
+/// The pattern is one of the variables being bound.
+fn is_variable(pattern: &Node, variables: &BTreeSet<String>) -> bool {
+    pattern.is_name() && variables.contains(&pattern.text)
+}
+
+/// The pattern applies a property or function that is one of the variables.
+fn applies_variable(
+    pattern: &Node,
+    variables: &BTreeSet<String>,
+    ctx: &Context,
+) -> bool {
+    ctx.props.contains_key(&pattern.notation)
         && pattern.children.len() == 2
         && pattern.children[0].is_name()
         && variables.contains(&pattern.children[0].text)
-    {
+}
+
+/// The two nodes differ in what they are, so no binding makes one the other.
+fn differs(pattern: &Node, ground: &Node) -> bool {
+    pattern.notation != ground.notation
+        || pattern.text != ground.text
+        || pattern.children.len() != ground.children.len()
+}
+
+/// `fit` would give back false at the root without looking at the binding.
+fn refused_at_root(
+    pattern: &Node,
+    ground: &Node,
+    variables: &BTreeSet<String>,
+    ctx: &Context,
+) -> bool {
+    !is_variable(pattern, variables)
+        && !applies_variable(pattern, variables, ctx)
+        && differs(pattern, ground)
+}
+
+/// `match_tree` into one binding, growing it in place.
+///
+/// Matching only ever adds a variable the binding does not have, and adds it
+/// at the end, so an attempt that fails is undone by cutting the binding
+/// back to the length it had before. Copying the binding at every node of
+/// every attempt instead measured at a quarter of a check. When this gives
+/// back false, the binding is as it was.
+fn fit(
+    pattern: &Node,
+    ground: &Node,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+) -> bool {
+    if is_variable(pattern, variables) {
+        if let Some(seen) = binding.get(&pattern.text) {
+            return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new());
+        }
+        binding.insert(pattern.text.clone(), ground.clone());
+        return true;
+    }
+    if applies_variable(pattern, variables, ctx) {
         if ctx.props.get(&pattern.notation).map(String::as_str) != Some("function") {
             return property(pattern, ground, binding, sites, ctx);
         }
-        let (decides, found) = family(pattern, ground, binding, sites, ctx);
-        if decides {
-            return found;
+        if let Some(fits) = family(pattern, ground, binding, sites, ctx) {
+            return fits;
         }
     }
-    if pattern.notation != ground.notation || pattern.text != ground.text {
-        return None;
-    }
-    if pattern.children.len() != ground.children.len() {
-        return None;
+    if differs(pattern, ground) {
+        return false;
     }
     let pattern = bound_as(pattern, ground, variables, ctx);
+    let before = binding.len();
     for children in orders(&pattern, ground, &ctx.equations) {
-        let mut found = Some(binding.clone());
-        for (a, b) in pattern.children.iter().zip(children.iter()) {
-            found = match_tree(a, b, found.as_ref().unwrap(), variables, sites, ctx);
-            if found.is_none() {
-                break;
-            }
+        let all = pattern
+            .children
+            .iter()
+            .zip(children.iter())
+            .all(|(a, b)| fit(a, b, binding, variables, sites, ctx));
+        if all {
+            return true;
         }
-        if found.is_some() {
-            return found;
-        }
+        binding.truncate(before);
     }
-    None
+    false
 }
 
 /// The pattern with the letter it binds spelt as the ground spells it,
@@ -392,18 +442,17 @@ pub fn alike_top(a: &Node, b: &Node, ctx: &Context) -> bool {
 fn property(
     pattern: &Node,
     ground: &Node,
-    binding: &Binding,
+    binding: &mut Binding,
     sites: &IndexSet<NodeId>,
     ctx: &Context,
-) -> Option<Binding> {
+) -> bool {
     let name = &pattern.children[0].text;
     let arg = read_at(&pattern.children[1], binding);
     let Some(stands) = binding.get(name) else {
         if !sites.contains(&pattern.id()) || !arg.is_name() {
-            return None; // only the inside occurrence decides
+            return false; // only the inside occurrence decides
         }
-        let mut out = binding.clone();
-        out.insert(
+        binding.insert(
             name.clone(),
             Node::new(
                 PROPERTY,
@@ -412,15 +461,15 @@ fn property(
                 &arg.text,
             ),
         );
-        return Some(out);
+        return true;
     };
     if stands.notation != PROPERTY {
-        return None;
+        return false;
     }
     let mut at = Binding::new();
     at.insert(stands.text.clone(), arg);
     let filled = substitute_apart(&stands.children[0], &at, ctx);
-    alike_top(&filled, ground, ctx).then(|| binding.clone())
+    alike_top(&filled, ground, ctx)
 }
 
 /// What a property or a function is applied to, in the ground's terms.
@@ -447,16 +496,16 @@ fn read_at(arg: &Node, binding: &Binding) -> Node {
 /// applied to the variable, since there t is simply that function, and the
 /// item's other mentions of t, which are not applications, still name it.
 ///
-/// Gives back whether this decides the match, and the binding it decides on
-/// or None where it refuses. Where it does not decide, the application is
-/// matched as it stands.
+/// Gives back whether the match fits, where this decides it, growing the
+/// binding where it fits; None where it does not decide, and the
+/// application is matched as it stands.
 fn family(
     pattern: &Node,
     ground: &Node,
-    binding: &Binding,
+    binding: &mut Binding,
     sites: &IndexSet<NodeId>,
     ctx: &Context,
-) -> (bool, Option<Binding>) {
+) -> Option<bool> {
     let name = &pattern.children[0].text;
     let arg = read_at(&pattern.children[1], binding);
     let stands = binding.get(name);
@@ -465,18 +514,14 @@ fn family(
             let mut at = Binding::new();
             at.insert(stands.text.clone(), arg);
             let filled = substitute_apart(&stands.children[0], &at, ctx);
-            return (
-                true,
-                alike_top(&filled, ground, ctx).then(|| binding.clone()),
-            );
+            return Some(alike_top(&filled, ground, ctx));
         }
     }
     let plain = ground.notation == pattern.notation
         && ground.children.len() == 2
         && ground.children[1].shape() == arg.shape();
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
-        let mut out = binding.clone();
-        out.insert(
+        binding.insert(
             name.clone(),
             Node::new(
                 PROPERTY,
@@ -485,9 +530,9 @@ fn family(
                 &arg.text,
             ),
         );
-        return (true, Some(out));
+        return Some(true);
     }
-    (false, None)
+    None
 }
 
 /// What a define with an argument stands for: `define S(m) := …` is a
