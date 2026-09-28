@@ -544,12 +544,12 @@ pub fn check_citations(
     }
 }
 
-// `for all`, `there is` and `there exists` open a scope. The corpus
-// capitalises each at the start of a sentence, so this is deliberately
-// case-insensitive.
+// `for all`, `there is` and `there exists` open a scope, over one name or a
+// list of them, `for all x, y ∈ ℤ`. The corpus capitalises each at the start
+// of a sentence, so this is deliberately case-insensitive.
 regex!(
     BINDER,
-    r"(?i)(?:for all|there is(?: no)?|there exists)\s+([A-Za-zα-ω][₀-₉′]*)\s*∈"
+    r"(?i)(?:for all|there is(?: no)?|there exists)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*∈"
 );
 fancy!(
     VARNAME,
@@ -633,7 +633,7 @@ pub fn check_capture(
         let landing = claims.get(&m[1]).map(String::as_str).unwrap_or("");
         let bound: BTreeSet<String> = BINDER
             .captures_iter(landing)
-            .map(|c| c[1].to_string())
+            .flat_map(|c| names_listed(&c[1]))
             .collect();
         if bound.is_empty() {
             continue;
@@ -1033,12 +1033,18 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
     }
 }
 
-// A name a formula binds for itself: `for all c ∈ ℕ`, `there is c ∈ A`,
-// `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the map sending c ∈ A to …`.
+// A name a formula binds for itself: `for all c ∈ ℕ`, `for all c, d ∈ ℕ`,
+// `there is c ∈ A`, `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the map sending c ∈ A
+// to …`.
 regex!(
     BOUND_HERE,
-    r"(?:for all|there (?:is|are|exists)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*)\s*(?:∈|=)"
+    r"(?:for all|there (?:is|are|exists)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=)"
 );
+
+/// The names in a list a binder writes, `x` or `x, y`.
+fn names_listed(list: &str) -> Vec<String> {
+    list.split(',').map(|n| str::trim(n).to_string()).collect()
+}
 regex!(LET_NAME, r"^let\s+([^\s∈∉:]+)");
 
 /// The names a theorem introduces itself: its `let` lines, a block's, and
@@ -1082,7 +1088,11 @@ pub fn defined_below(
         .map(|(n, _, _)| n)
         .collect();
     seen.extend(own.iter().cloned());
-    seen.extend(BOUND_HERE.captures_iter(text).map(|c| c[1].to_string()));
+    seen.extend(
+        BOUND_HERE
+            .captures_iter(text)
+            .flat_map(|c| names_listed(&c[1])),
+    );
     let mut out = Vec::new();
     for d in &scopes[thm.scope].defines {
         let Built(said) = define_parts(&d.text) else {

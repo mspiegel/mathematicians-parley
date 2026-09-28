@@ -84,6 +84,19 @@ form would put two connectives side by side ("such that for all"). Cantor's
 theorem states "there exists B ⊆ A such that f(x) ≠ B for all x ∈ A" and
 repeats it as its last step, and is the only use so far.
 
+### Two universals over one set
+
+| write | not | today |
+|---|---|---|
+| `for all s, t ∈ A, …` | `for all s ∈ A, for all t ∈ A, …` | all 12 places, 8 of them in proofs |
+
+Where two universals in a row range over the same set, the names are listed
+under one "for all", as a textbook writes "for all a, b ∈ ℝ". The two are one
+formula, so a line written either way meets an item written the other, and
+the rule is only about which reads better. Lagrange's "for all Y, Z ∈ K, for
+all x ∈ Y ∩ Z, Y = Z" keeps its third universal apart, since x ranges over
+another set.
+
 ### "There exists … such that" or "there is … with" is not settled
 
 The two are one formula, written on 8 lines against 34: four theorems state

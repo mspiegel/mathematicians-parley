@@ -59,6 +59,11 @@
 #               the other's, in order: `places 2 3 1` puts the condition of
 #               "f(x) ≠ B for all x ∈ A" last, where "for all x ∈ A, …" has
 #               it. `binds` counts this record's holes as written.
+#   nests       for a spelling of a binder over several names, the name and
+#               domain holes of each binder it builds, outermost first, the
+#               last hole being the innermost body: `nests 1 3, 2 3` makes
+#               "for all x, y ∈ ℤ, P" the tree of "for all x ∈ ℤ, for all
+#               y ∈ ℤ, P".
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -754,6 +759,36 @@ notation for-all
   target      _3 _1 _2 wral
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
+
+notation for-all-two
+  pattern     for all _, _ ∈ _, _
+  sort        α, α, set of α, formula → formula
+  level       binder
+  binds       holes 1 and 2 over hole 4
+  reads       for all, of each
+  metamath    wral twice
+  target      _4 _2 _3 wral _1 _3 wral
+  note        "For all x, y ∈ ℤ, …", two names over one set, as a textbook
+              writes "for all a, b ∈ ℝ": the set is each name's. It is "for
+              all x ∈ ℤ, for all y ∈ ℤ, …" abbreviated, and builds exactly
+              that: `nests` makes one `for-all` node for each name, the
+              first outermost, so either spelling meets the other.
+  nests       1 3, 2 3
+  spells      for-all forall∈,
+
+notation for-all-two-part
+  pattern     for all _, _ ⊆ _, _
+  sort        set of α, set of α, set of α, formula → formula
+  level       binder
+  binds       holes 1 and 2 over hole 4
+  wraps       hole 3 in powerset
+  reads       for all parts of, of each
+  metamath    wral twice over a power set
+  target      _4 _2 _3 cpw wral _1 _3 cpw wral
+  note        "For all X, Y ⊆ A, …", built as "for all X ⊆ A, for all Y ⊆ A,
+              …" is.
+  nests       1 3, 2 3
+  spells      for-all forall∈,
 
 notation for-all-part
   pattern     for all _ ⊆ _, _

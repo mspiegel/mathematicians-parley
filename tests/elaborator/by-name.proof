@@ -2,7 +2,7 @@ theorem values-by-name
   let a ∈ ℤ                                                           (H1)
   let c ∈ ℤ                                                           (H2)
   assume c = a·2                                                      (H3)
-  assume for all x ∈ ℤ, for all y ∈ ℤ, x + y ∈ ℤ                      (H4)
+  assume for all x, y ∈ ℤ, x + y ∈ ℤ                                  (H4)
   then a divides c and a + 1 ∈ ℤ
 
 1.  a divides c

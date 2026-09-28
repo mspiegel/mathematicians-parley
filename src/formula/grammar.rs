@@ -772,7 +772,6 @@ impl Parser<'_> {
         if let Some(places) = &n.places {
             kids = places.iter().map(|p| kids[p - 1].clone()).collect();
         }
-        let node = Node::new(n.key(), Sort::of(&n.yields), kids, &n.literal);
         // Where it was read from: its first token, or the value it extends,
         // to its last token.
         let end = self
@@ -780,6 +779,26 @@ impl Parser<'_> {
             .checked_sub(1)
             .and_then(|last| self.t.get(last))
             .map(|t| t.at + t.text.chars().count());
+        // A spelling for several names builds the binder it spells once for
+        // each, innermost last, so "for all x, y ∈ ℤ, P" is "for all x ∈ ℤ,
+        // for all y ∈ ℤ, P".
+        if let Some(levels) = &n.nests {
+            let mut body = kids[kids.len() - 1].clone();
+            for (name, domain) in levels.iter().rev() {
+                let level = Node::new(
+                    n.key(),
+                    Sort::of(&n.yields),
+                    vec![kids[name - 1].clone(), kids[domain - 1].clone(), body],
+                    &n.literal,
+                );
+                if let (Some(from), Some(to)) = (begin, end) {
+                    level.set_span(from, to);
+                }
+                body = level;
+            }
+            return Ok(Some(body));
+        }
+        let node = Node::new(n.key(), Sort::of(&n.yields), kids, &n.literal);
         if let (Some(from), Some(to)) = (begin, end) {
             node.set_span(from, to);
             if let Some(at) = wrapped_at {

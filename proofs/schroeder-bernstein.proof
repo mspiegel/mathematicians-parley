@@ -25,7 +25,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           thm:stdlib/functions/image-within f := g
           requires X ⊆ A: from K1
 
-2.  For all X ⊆ A, for all Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
+2.  For all X, Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
     fix
     let X ⊆ A                                                         (K3)
     let Y ⊆ A                                                         (K4)
@@ -146,7 +146,7 @@ theorem schroeder-bernstein
   let g : B → A be one-to-one                                         (H4)
   then there is a bijection from A to B
 
-1.  For all s ∈ A, for all t ∈ A, if f(s) = f(t) then s = t.
+1.  For all s, t ∈ A, if f(s) = f(t) then s = t.
     def:stdlib/functions/one-to-one, from H3
 
 2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.
@@ -283,7 +283,7 @@ theorem schroeder-bernstein
     thm:stdlib/functions/function-into, from 5
     requires h is a function on A: from D2
 
-7.  For all s ∈ A, for all t ∈ A, if h(s) = h(t) then s = t.
+7.  For all s, t ∈ A, if h(s) = h(t) then s = t.
     fix
     let s ∈ A                                                         (K5)
     let t ∈ A                                                         (K6)

@@ -6,7 +6,7 @@ theorem add-element-bijection
   let a ∉ X                                                           (H2)
   then there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
 
-1.  For all S ∈ 𝒫X, for all T ∈ 𝒫X, if S ∪ {a} = T ∪ {a} then S = T.
+1.  For all S, T ∈ 𝒫X, if S ∪ {a} = T ∪ {a} then S = T.
     fix
     note adding a can be undone by taking it away, so nothing is sent twice
     let S ∈ 𝒫X                                                        (K1)

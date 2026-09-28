@@ -9,8 +9,7 @@ theorem least-combination-divides
   let y₀ ∈ ℤ                                                          (H8)
   assume c = a·u + b·v                                                (H9)
   assume d = a·x₀ + b·y₀                                              (H10)
-  assume for all x ∈ ℤ, for all y ∈ ℤ,
-         if a·x + b·y ∈ ℕ then d ≤ a·x + b·y                          (H11)
+  assume for all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y        (H11)
   then d divides c
 
 1.  q ∈ ℤ. r ∈ ℤ. c = q·d + r. 0 ≤ r. r < d.
@@ -108,8 +107,7 @@ define S := {t ∈ ℕ : there are m ∈ ℤ and n ∈ ℤ with t = a·m + b·n}
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
     obtain x₀, y₀: def:stdlib/sets/set-builder u := d, from 4
 
-8.  For all x ∈ ℤ, for all y ∈ ℤ,
-    if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
+8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     fix
     let x ∈ ℤ                                                         (K1)
     let y ∈ ℤ                                                         (K2)

@@ -62,8 +62,7 @@ theorem function-value
 theorem image-of-injection
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
-  assume for all S ∈ Y, for all T ∈ Y, if S ∪ {a} = T ∪ {a}
-         then S = T                                                   (H3)
+  assume for all S, T ∈ Y, if S ∪ {a} = T ∪ {a} then S = T            (H3)
   then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
   metamath    f1oeng, over the map f1mpt and f1f1orn show is one-to-one
   target      f1oeng with F := the map sending S ∈ Y to S ∪ {a}
@@ -137,8 +136,8 @@ theorem value-in-image
 
 definition one-to-one
   let f : X → Y                                                       (H1)
-  then        f : X → Y is one-to-one ↔ f : X → Y and for all s ∈ X,
-              for all t ∈ X, if f(s) = f(t) then s = t
+  then        f : X → Y is one-to-one ↔ f : X → Y and for all s, t ∈ X,
+              if f(s) = f(t) then s = t
   metamath    dff13
   target      dff13
 

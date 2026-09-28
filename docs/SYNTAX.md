@@ -251,6 +251,10 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 - "there exists x ∈ S such that ..." is the same formula as "there is x ∈ S
   with ...", in the words a theorem is often stated in, and so is "there
   exists X ⊆ A such that ..." as "there is X ⊆ A with ...".
+- "for all x, y ∈ S, ..." is "for all x ∈ S, for all y ∈ S, ...", two names
+  over one set, as a textbook writes "for all a, b ∈ ℝ": the set is each
+  name's. It is the same formula as the long form, so either may be written
+  where the other is cited, and "for all X, Y ⊆ A" is its twin for parts.
 - "for all x ∈ S, ..." is written for ∀, and a side condition on the
   variable goes in a "with" clause: "for all ε ∈ ℝ with ε > 0, ...". The
   "with" means a conjunction after "there is" and an implication here, which

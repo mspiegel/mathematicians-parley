@@ -75,6 +75,10 @@ pub struct Notation {
     /// order, which of this pattern's holes, counted from 1, fills each hole
     /// of the node it builds (`places`).
     pub places: Option<Vec<usize>>,
+    /// For a pattern that spells a binder once for each of several names,
+    /// the (name, domain) holes of each binder, outermost first; the
+    /// pattern's last hole is the innermost body (`nests`).
+    pub nests: Option<Vec<(usize, usize)>>,
 }
 
 impl Notation {
@@ -84,6 +88,14 @@ impl Notation {
     /// x ∈ A" is bound as it is in "for all x ∈ A, f(x) ≠ B".
     pub fn node_binds(&self) -> Option<Binds> {
         let binds = self.binds.as_ref()?;
+        // Each node a nesting spelling builds has its name first, its
+        // domain second and its body third, and binds the one over the other.
+        if self.nests.is_some() {
+            return Some(Binds {
+                held: vec![0],
+                body: vec![2],
+            });
+        }
         let Some(places) = &self.places else {
             return Some(binds.clone());
         };
@@ -244,6 +256,20 @@ pub fn compile_notations(
                 .filter_map(|n| n.parse::<usize>().ok())
                 .collect()
         });
+        let nests: Option<Vec<(usize, usize)>> = r.field("nests").map(|p| {
+            p.split(',')
+                .filter_map(|level| {
+                    let holes: Vec<usize> = level
+                        .split_whitespace()
+                        .filter_map(|n| n.parse::<usize>().ok())
+                        .collect();
+                    match holes.as_slice() {
+                        [name, domain] => Some((*name, *domain)),
+                        _ => None,
+                    }
+                })
+                .collect()
+        });
         let binds = binding(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
         let mut shapes: Vec<Vec<Part>> = Vec::new();
@@ -333,6 +359,7 @@ pub fn compile_notations(
                     yields: String::new(),
                 }),
                 places: places.clone(),
+                nests: nests.clone(),
             });
         }
     }

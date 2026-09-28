@@ -203,7 +203,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           thm:stdlib/functions/function-into, from 9.1
           requires t is a function on H: from D2
 
-    9.3.  For all s ∈ H, for all r ∈ H, if t(s) = t(r) then s = r.
+    9.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
           fix
           let s ∈ H                                                   (K13)
           let r ∈ H                                                   (K14)
@@ -296,7 +296,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 14. ⋃(Y ∈ K) Y = G
     thm:stdlib/sets/subset-antisymmetric, from 11, 13
 
-15. For all Y ∈ K, for all Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
+15. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     fix
     let Y ∈ K                                                         (K18)
     let Z ∈ K                                                         (K19)
