@@ -101,14 +101,9 @@ pub const TERM_SORTS: [&str; 7] = [
     "any",
 ];
 
-/// What a set of each sort holds, where the sort says: a group's set holds
-/// its elements, and a set of sets holds sets.
-pub fn holds(sort: &Sort) -> Option<&'static str> {
-    match sort.name() {
-        Some("group-set") => Some("group-element"),
-        Some("set-of-sets") => Some("set"),
-        _ => None,
-    }
+/// What a set of each sort holds, where the sort says (`Sort::held`).
+pub fn holds(sort: &Sort) -> Option<Sort> {
+    sort.held()
 }
 
 /// A value fits a hole when the sorts agree, when the hole takes any term,
@@ -238,7 +233,7 @@ fn bound_sorts(tokens: &[Token], sorts: &Sorts) -> Vec<(String, Sort)> {
             held = holds(&sort_of(&tokens[i + 3].text));
         }
         if let Some(held) = held {
-            out.entry(x.text.clone()).or_insert_with(|| Sort::of(held));
+            out.entry(x.text.clone()).or_insert(held);
         }
     }
     out.into_iter().collect()

@@ -5,31 +5,103 @@ use std::collections::BTreeSet;
 use std::fmt;
 use std::rc::Rc;
 
-/// The sort of a node: what kind of thing its term is, as the notation
-/// database names sorts, or none at all.
+/// The sort of a node: what kind of thing its term is, or none at all.
 ///
-/// Sorts are the database's words, so they are text and not a closed list.
+/// Sorts nest: a number, a set of numbers and a set of sets of numbers are
+/// three sorts, and a set of things of a sort not settled is a fourth. Where
+/// the reading of the lines settled a name's sort it is here whole. The
+/// parser tells readings apart by a coarser class, the sort's category (a
+/// number, a set, a set of sets, a function, …), which is all a notation's
+/// hole asks for and all a parse tree's node knows of what it yields.
+///
 /// "None" is kept apart from "unknown": they are printed differently where a
 /// message names a sort.
 #[derive(Clone, PartialEq, Eq, Hash, Debug, Default)]
-pub struct Sort(Option<Rc<str>>);
+pub struct Sort {
+    category: Option<Rc<str>>,
+    whole: Option<Rc<Whole>>,
+}
+
+/// A sort in full, as the reading of the lines settles it.
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum Whole {
+    Number,
+    Point,
+    Formula,
+    GroupElement,
+    Set(Rc<Whole>),
+    Property(Rc<Whole>),
+    Function(Rc<Whole>, Rc<Whole>),
+    /// A sort the lines leave open.
+    Open,
+}
+
+impl Whole {
+    /// The coarse class the parser tells readings apart by, or None for a
+    /// sort that has none: a statement, or one left open.
+    pub fn category(&self) -> Option<&'static str> {
+        Some(match self {
+            Whole::Number => "number",
+            Whole::Point => "point",
+            Whole::GroupElement => "group-element",
+            Whole::Set(inner) => match &**inner {
+                Whole::GroupElement => "group-set",
+                Whole::Set(_) => "set-of-sets",
+                _ => "set",
+            },
+            Whole::Property(_) => "property",
+            Whole::Function(..) => "function",
+            Whole::Formula | Whole::Open => return None,
+        })
+    }
+}
 
 impl Sort {
     pub fn none() -> Sort {
-        Sort(None)
+        Sort::default()
     }
 
+    /// A sort known only by its category, as a notation says what it yields.
     pub fn of(name: &str) -> Sort {
-        Sort(Some(Rc::from(name)))
+        Sort {
+            category: Some(Rc::from(name)),
+            whole: None,
+        }
+    }
+
+    /// A sort in full, or None where it has no category.
+    pub fn whole(whole: Whole) -> Option<Sort> {
+        let category = whole.category()?;
+        Some(Sort {
+            category: Some(Rc::from(category)),
+            whole: Some(Rc::new(whole)),
+        })
     }
 
     pub fn unknown() -> Sort {
         Sort::of("unknown")
     }
 
-    /// The sort's name, or None for no sort.
+    /// The sort's category, or None for no sort.
     pub fn name(&self) -> Option<&str> {
-        self.0.as_deref()
+        self.category.as_deref()
+    }
+
+    /// The sort of what a set of this sort holds, where it says: a set of
+    /// numbers holds numbers, a group's set its elements, and a set of sets
+    /// sets.
+    pub fn held(&self) -> Option<Sort> {
+        if let Some(whole) = &self.whole {
+            return match &**whole {
+                Whole::Set(inner) => Sort::whole((**inner).clone()),
+                _ => None,
+            };
+        }
+        match self.name() {
+            Some("group-set") => Some(Sort::of("group-element")),
+            Some("set-of-sets") => Some(Sort::of("set")),
+            _ => None,
+        }
     }
 
     pub fn is(&self, name: &str) -> bool {

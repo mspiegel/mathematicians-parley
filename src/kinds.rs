@@ -25,7 +25,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{define_parts, DefineParts, Intro, Method, Record, Step, Theorem};
-use crate::formula::{parse_here, Node, Sort, Sorts};
+use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
 use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
@@ -292,27 +292,24 @@ impl Store {
     }
 }
 
-/// The flat sort a kind settles, or None where it settles none.
-pub fn sort_of(store: &Store, k: &Kind) -> Option<&'static str> {
-    match store.find(k) {
-        Kind::Var(_) => None,
-        Kind::Set(inner) => {
-            // A set of a group's elements is a group's set, which says what
-            // it holds; a set of sets says what it holds too: `|Y|` for Y in
-            // it is a size.
-            match store.find(&inner) {
-                Kind::Atom(Atom::GroupElement) => Some("group-set"),
-                Kind::Set(_) => Some("set-of-sets"),
-                _ => Some("set"),
+/// The sort a kind settles, in full, or None where it settles none: a
+/// statement, or a kind left open.
+pub fn sort(store: &Store, k: &Kind) -> Option<Sort> {
+    fn whole(store: &Store, k: &Kind) -> Whole {
+        match store.find(k) {
+            Kind::Var(_) => Whole::Open,
+            Kind::Atom(Atom::Number) => Whole::Number,
+            Kind::Atom(Atom::Point) => Whole::Point,
+            Kind::Atom(Atom::Formula) => Whole::Formula,
+            Kind::Atom(Atom::GroupElement) => Whole::GroupElement,
+            Kind::Set(c) => Whole::Set(Rc::new(whole(store, &c))),
+            Kind::Property(c) => Whole::Property(Rc::new(whole(store, &c))),
+            Kind::Function(a, b) => {
+                Whole::Function(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
             }
         }
-        Kind::Atom(Atom::Number) => Some("number"),
-        Kind::Atom(Atom::Point) => Some("point"),
-        Kind::Atom(Atom::GroupElement) => Some("group-element"),
-        Kind::Atom(Atom::Formula) => None,
-        Kind::Function(..) => Some("function"),
-        Kind::Property(_) => Some("property"),
     }
+    Sort::whole(whole(store, k))
 }
 
 // ------------------------------------------------------------ the field
@@ -328,8 +325,8 @@ enum Template {
 }
 
 impl Template {
-    /// The coarse class of a kind, as `sort_of` gives it for a kind that is
-    /// fixed, and `any` for one that is a variable.
+    /// The coarse class of a kind, as `Whole::category` gives it for a kind
+    /// that is fixed, and `any` for one that is a variable.
     fn category(&self) -> &'static str {
         match self {
             Template::Atom(Atom::Number) => "number",

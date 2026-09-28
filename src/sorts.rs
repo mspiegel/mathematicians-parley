@@ -333,10 +333,7 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
     if NUMBER_SYSTEMS.contains(&domain) {
         return Sort::of("number");
     }
-    match sorts.get(domain).and_then(holds) {
-        Some(held) => Sort::of(held),
-        None => Sort::none(),
-    }
+    sorts.get(domain).and_then(holds).unwrap_or_default()
 }
 
 /// The sorts a define's rule is read with: `sorts`, and for a function its
@@ -412,8 +409,8 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
 pub fn settled(reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
     let mut out = Sorts::new();
     for (name, kind) in &reader.env {
-        if let Some(sort) = kinds::sort_of(store, kind) {
-            out.insert(name.clone(), Sort::of(sort));
+        if let Some(sort) = kinds::sort(store, kind) {
+            out.insert(name.clone(), sort);
         }
     }
     out
