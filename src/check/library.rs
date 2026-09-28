@@ -16,7 +16,7 @@ use crate::regex;
 use crate::rules;
 use crate::sorts::{
     definitions_in_scope, element_re, file_definitions, function_being_re, function_re,
-    group_re, kind_re, let_formula, part_re, sentences, sorts_in_scope, unlabel, Env,
+    group_re, kind_re, let_formula, part_re, sentences, unlabel, Env,
 };
 
 /// One `then` group of an item: its facts, each with the text it was read
@@ -238,8 +238,8 @@ pub struct Known<'a> {
 }
 
 impl<'a> Known<'a> {
-    pub fn new(thm: &'a Theorem, env: Env<'a>) -> Known<'a> {
-        let sorts = sorts_in_scope(thm, env);
+    /// `sorts` is what the theorem's one reading settled (`check::run`).
+    pub fn new(thm: &'a Theorem, env: Env<'a>, sorts: Sorts) -> Known<'a> {
         let defined = definitions_in_scope(thm, env, &sorts);
         Known {
             thm,

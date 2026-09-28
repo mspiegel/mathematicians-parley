@@ -362,17 +362,20 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
 /// {a, …, n}` names no number system, and k is a number because the range
 /// holds numbers.
 pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
+    let stated = stated_record_sorts(record);
+    let mut store = kinds::Store::default();
+    let reader = kinds::read_record(record, env, &stated, &mut store);
+    settled(stated, &reader, &store)
+}
+
+/// The sort of every name an item's own lines state one for, before the
+/// kinds settle anything.
+pub fn stated_record_sorts(record: &Record) -> Sorts {
     let mut out = Sorts::new();
     for h in &record.hypotheses {
         for (name, sort) in introduced(str::trim(&unlabel(&h.text)), &out) {
             set_default(&mut out, name, Sort::of(sort));
         }
-    }
-    let mut store = kinds::Store::default();
-    let reader = kinds::read_record(record, env, &out, &mut store);
-    for (name, kind) in &reader.env {
-        let settled = kinds::sort_of(&store, kind);
-        settle(&mut out, name, settled);
     }
     out
 }
@@ -391,12 +394,42 @@ pub fn sorts_of_statement(thm: &Theorem) -> Sorts {
     out
 }
 
-/// The sort of every name the theorem states one for.
+/// The sort of every name the theorem states one for, or its kinds settle,
+/// read without its citations: what the elaborator reads a theorem with.
+/// The checker reads each theorem once, citations and all, and settles the
+/// same way (`check::run`).
+pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
+    let stated = stated_sorts(thm, env);
+    let mut store = kinds::Store::default();
+    let reader = kinds::read_theorem(thm, env, &stated, &mut store, None);
+    settled(stated, &reader, &store)
+}
+
+/// The sorts the lines state, and what the kinds a reading of those lines
+/// settle where the lines state none.
+///
+/// `let S ∈ 𝒫X` names no number system, and S is a set because what 𝒫X holds
+/// is sets. The reading was made with `stated`, so this is where it adds to
+/// them.
+///
+/// The checker's reading fits each citation as it goes and the elaborator's
+/// reads no citation, so a citation that fixed a name's kind would give the
+/// two different sorts. None does on the corpus or on any planted defect.
+pub fn settled(stated: Sorts, reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
+    let mut out = stated;
+    for (name, kind) in &reader.env {
+        settle(&mut out, name, kinds::sort_of(store, kind));
+    }
+    out
+}
+
+/// The sort of every name the theorem's lines state one for, before the
+/// kinds settle anything.
 ///
 /// The lines are read in the order they are written, because a `define`
 /// takes its sort from its right-hand side and that side may name something
 /// an earlier line introduced.
-pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
+pub fn stated_sorts(thm: &Theorem, env: Env) -> Sorts {
     enum Event<'t> {
         Intro(Intro, &'t str),
         Claim(String),
@@ -460,15 +493,6 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
                 }
             }
         }
-    }
-    // What the lines above leave unknown, the kinds may settle: `let S ∈ 𝒫X`
-    // names no number system, and S is a set because what 𝒫X holds is sets.
-    // Read with the sorts found so far, and only where they found none.
-    let mut store = kinds::Store::default();
-    let reader = kinds::read_theorem(thm, env, &out, &mut store, None);
-    for (name, kind) in &reader.env {
-        let settled = kinds::sort_of(&store, kind);
-        settle(&mut out, name, settled);
     }
     out
 }

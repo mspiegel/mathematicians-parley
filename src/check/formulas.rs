@@ -12,7 +12,7 @@ use super::{Report, RELATIONS};
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
     cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,
-    Justification, Method, Record, Recursion, Step, Theorem,
+    Justification, Method, Recursion, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
 use crate::kinds::{self, Reader, Store};
@@ -21,65 +21,37 @@ use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::{sentences, unlabel, Env};
 
-/// What each item's and each proved theorem's names are, by its full name.
+/// What a proved theorem's statement says its names are: its hypotheses and
+/// its conclusion, without the proof beneath, which is what a citation of it
+/// reads.
 ///
 /// A cited statement is read on its own, and each citation takes its own
 /// copy of what it says (`Store::copy`), so the kinds a statement relates
 /// stay related and nothing one citation fixes reaches another.
 pub fn statement_kinds(
+    thm: &Theorem,
     env: Env,
-    records: &[Record],
-    record_sorts: &IndexMap<usize, Sorts>,
-    known: &[Known],
+    sorts: &Sorts,
     store: &mut Store,
-) -> IndexMap<String, Reader> {
-    let mut out = IndexMap::new();
-    for (i, r) in records.iter().enumerate() {
-        if !r.kind.is_item() {
-            continue;
+) -> Reader {
+    let mut reader = Reader::new(env);
+    for h in &thm.hypotheses {
+        let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
+        if h.kind == Intro::Let {
+            kinds::introduce(&mut reader, &body, h.line.into(), env, sorts, store);
+        } else {
+            kinds::claim_text(&mut reader, &body, h.line.into(), env, sorts, store);
         }
-        out.insert(
-            r.qualified(),
-            kinds::read_record(r, env, &record_sorts[&i], store),
-        );
     }
-    for k in known {
-        let thm = k.thm;
-        let mut reader = Reader::new(env);
-        for h in &thm.hypotheses {
-            let body =
-                str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
-            if h.kind == Intro::Let {
-                kinds::introduce(
-                    &mut reader,
-                    &body,
-                    h.line.into(),
-                    env,
-                    &k.sorts,
-                    store,
-                );
-            } else {
-                kinds::claim_text(
-                    &mut reader,
-                    &body,
-                    h.line.into(),
-                    env,
-                    &k.sorts,
-                    store,
-                );
-            }
-        }
-        kinds::claim_text(
-            &mut reader,
-            &thm.conclusion,
-            thm.line.into(),
-            env,
-            &k.sorts,
-            store,
-        );
-        out.insert(thm.qualified(), reader);
-    }
-    out
+    kinds::claim_text(
+        &mut reader,
+        &thm.conclusion,
+        thm.line.into(),
+        env,
+        sorts,
+        store,
+    );
+    reader
 }
 
 /// An item's statement is one kind throughout where it says so.
@@ -96,29 +68,35 @@ pub fn check_item_kinds(
     }
 }
 
-/// What a proof's names are, read off how it uses them, fits.
+/// A proof's names, read off how it uses them: the theorem's one reading.
 ///
 /// `READERS.md`: a set has the kind of what it holds, nobody writes it, and
 /// a set of any kind stays any kind. Each line is read in the order it is
 /// written — a `let` shadows an earlier name, since blocks reuse letters —
 /// and each citation's written `v := t` is fitted to a fresh copy of what
-/// the cited statement says v is. What does not fit is reported where it is:
-/// two kinds joined where one is wanted, an element of a set of numbers said
-/// to be a set, and a set declared of any kind that a citation would narrow.
-pub fn check_kinds(
-    report: &mut Report,
+/// the cited statement says v is. `sorts` is what the lines state; what the
+/// reading settles besides is the theorem's sorts (`sorts::settled`), and
+/// what does not fit is `check_kinds`'s to report.
+pub fn read_kinds(
     thm: &Theorem,
     env: Env,
+    sorts: &Sorts,
     statements: &IndexMap<String, Reader>,
-    known: &Known,
     store: &mut Store,
-) {
-    let sorts = &known.sorts;
+) -> Reader {
     let mut cite = |reader: &mut Reader, store: &mut Store, step: &Step| {
         cited_kinds(reader, store, step, env, sorts, statements);
     };
-    let reader = kinds::read_theorem(thm, env, sorts, store, Some(&mut cite));
-    for c in &reader.clashes {
+    kinds::read_theorem(thm, env, sorts, store, Some(&mut cite))
+}
+
+/// What a proof's names are fits, as its reading found (`read_kinds`).
+///
+/// What does not fit is reported where it is: two kinds joined where one is
+/// wanted, an element of a set of numbers said to be a set, and a set
+/// declared of any kind that a citation would narrow.
+pub fn check_kinds(report: &mut Report, thm: &Theorem, clashes: &[kinds::Clash]) {
+    for c in clashes {
         report.say(&thm.path, c.line, format!("{}: {}", c.what, c.why));
     }
 }
