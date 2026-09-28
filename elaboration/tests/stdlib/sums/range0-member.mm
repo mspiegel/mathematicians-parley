@@ -1,4 +1,4 @@
-$( tests/stdlib/sums/range0-member, elaborated from tests/stdlib/sums.proof by parley/elaborate.py.
+$( tests/stdlib/sums/range0-member, elaborated from tests/stdlib/sums.proof by parley build.
    Nothing here is assumed.
    Checked against a set.mm of 51,256 assertions, sha256
    0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)

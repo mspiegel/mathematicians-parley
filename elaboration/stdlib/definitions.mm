@@ -1,4 +1,4 @@
-$( stdlib/definitions, from the stdlib/*.records files by parley/elaborate.py.
+$( stdlib/definitions, from the stdlib/*.records files by parley build.
    Each introduces one constant the library does not have,
    and stands for a term that closes over its own names.
    Checked against a set.mm of 51,256 assertions, sha256

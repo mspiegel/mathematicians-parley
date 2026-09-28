@@ -1,4 +1,4 @@
-$( stdlib/proved, built by elaboration/stdlib/build-proved.py.
+$( stdlib/proved, built by parley build.
 
    What the library proves below the readable layer: facts this corpus
    needs, set.mm does not state, and the readable layer cannot. Each group

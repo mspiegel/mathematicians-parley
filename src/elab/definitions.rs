@@ -120,7 +120,7 @@ pub fn write_definitions(
 ) -> Checked<String> {
     let said = definitions(records, sigs)?;
     let mut out = String::from(
-        "$( stdlib/definitions, from the stdlib/*.records files by parley/elaborate.py.\n",
+        "$( stdlib/definitions, from the stdlib/*.records files by parley build.\n",
     );
     if said.is_empty() {
         out.push_str("   The corpus introduces none.\n");

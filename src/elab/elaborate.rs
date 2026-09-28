@@ -3377,7 +3377,7 @@ pub fn elaborate(
     let used = compress_labels(&kinds);
     let mut out = String::new();
     out.push_str(&format!(
-        "$( {}, elaborated from {} by parley/elaborate.py.\n",
+        "$( {}, elaborated from {} by parley build.\n",
         thm.qualified(),
         thm.path
     ));
