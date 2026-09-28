@@ -20,8 +20,8 @@ use crate::corpus::{
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
-use crate::kinds;
 use crate::outcome::{At, Problem};
+use crate::sorts::infer;
 use crate::sorts::{settled, Env};
 use crate::source::Source;
 use crate::text::check_encoding;
@@ -174,11 +174,11 @@ pub fn run(source: &dyn Source) -> Outcome {
     // where they stand, as two may share a name (`check_database` reports
     // that). One store holds every kind, since a citation copies the kinds
     // of what it cites into the reading of the proof citing it.
-    let mut store = kinds::Store::default();
-    let mut statements: IndexMap<String, kinds::Reader> = IndexMap::new();
+    let mut store = infer::Store::default();
+    let mut statements: IndexMap<String, infer::Reader> = IndexMap::new();
     let mut record_sorts: IndexMap<usize, Sorts> = IndexMap::new();
     for (i, r) in records.iter().enumerate().filter(|(_, r)| r.kind.is_item()) {
-        let reader = kinds::read_record(r, env, &mut store);
+        let reader = infer::read_record(r, env, &mut store);
         record_sorts.insert(i, settled(&reader, &store));
         statements.insert(r.qualified(), reader);
     }
@@ -188,18 +188,18 @@ pub fn run(source: &dyn Source) -> Outcome {
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in &theorems {
-        statements.insert(thm.qualified(), kinds::read_statement(thm, env, &mut store));
+        statements.insert(thm.qualified(), infer::read_statement(thm, env, &mut store));
     }
     let mut known: Vec<Known> = Vec::new();
-    let mut clashes: Vec<Vec<kinds::Clash>> = Vec::new();
+    let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
     for thm in &theorems {
-        let reader = formulas::read_kinds(thm, env, &statements, &mut store);
+        let reader = formulas::read_with_citations(thm, env, &statements, &mut store);
         known.push(Known::new(thm, env, settled(&reader, &store)));
         clashes.push(reader.clashes);
     }
     let library = Library::new(&records, &record_sorts, &known, env);
 
-    formulas::check_item_kinds(&mut report, &statements, &items);
+    formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods
         .iter()
         .map(|(name, &i)| (name.clone(), &records[i]))
@@ -207,7 +207,7 @@ pub fn run(source: &dyn Source) -> Outcome {
     for ((thm, k), clashes) in theorems.iter().zip(known.iter()).zip(&clashes) {
         formulas::check_formulas(&mut report, thm, env, k);
         structure::check_defined_below(&mut report, thm, &scopes);
-        formulas::check_kinds(&mut report, thm, clashes);
+        formulas::check_clashes(&mut report, thm, clashes);
         formulas::check_contradiction(&mut report, thm, env, k);
         formulas::check_closed_arithmetic(&mut report, thm, env, k);
         formulas::check_membership_claims(&mut report, thm, env, k);

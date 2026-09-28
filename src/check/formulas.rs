@@ -1,4 +1,4 @@
-//! What the formulas on the page say: that each reads, that their kinds
+//! What the formulas on the page say: that each reads, that their sorts
 //! fit, and that the methods which relate formulas are given the shapes
 //! they need.
 
@@ -15,14 +15,14 @@ use crate::corpus::{
     Justification, Method, Recursion, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
-use crate::kinds::{self, Reader, Store};
 use crate::matching::{alike_top, instantiation, substitute, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
+use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::{sentences, unlabel, Env};
 
-/// An item's statement is one kind throughout where it says so.
-pub fn check_item_kinds(
+/// The sorts an item's statement relates fit, as its reading found.
+pub fn check_item_clashes(
     report: &mut Report,
     statements: &IndexMap<String, Reader>,
     names: &IndexMap<String, Item>,
@@ -37,31 +37,31 @@ pub fn check_item_kinds(
 
 /// A proof's names, read off how it uses them: the theorem's one reading.
 ///
-/// `READERS.md`: a set has the kind of what it holds, nobody writes it, and
-/// a set of any kind stays any kind. Each line is read in the order it is
+/// `READERS.md`: a set's sort says what it holds, nobody writes it, and a
+/// set of any sort stays of any sort. Each line is read in the order it is
 /// written — a `let` shadows an earlier name, since blocks reuse letters —
 /// and each citation's written `v := t` is fitted to a fresh copy of what
 /// the cited statement says v is. What the reading settles is the theorem's
-/// sorts (`sorts::settled`), and what does not fit is `check_kinds`'s to
+/// sorts (`sorts::settled`), and what does not fit is `check_clashes`'s to
 /// report.
-pub fn read_kinds(
+pub fn read_with_citations(
     thm: &Theorem,
     env: Env,
     statements: &IndexMap<String, Reader>,
     store: &mut Store,
 ) -> Reader {
     let mut cite = |reader: &mut Reader, store: &mut Store, step: &Step| {
-        cited_kinds(reader, store, step, env, statements);
+        cited_sorts(reader, store, step, env, statements);
     };
-    kinds::read_theorem(thm, env, store, Some(&mut cite))
+    infer::read_theorem(thm, env, store, Some(&mut cite))
 }
 
-/// What a proof's names are fits, as its reading found (`read_kinds`).
+/// What a proof's names are fits, as its reading found (`read_with_citations`).
 ///
-/// What does not fit is reported where it is: two kinds joined where one is
+/// What does not fit is reported where it is: two sorts joined where one is
 /// wanted, an element of a set of numbers said to be a set, and a set
-/// declared of any kind that a citation would narrow.
-pub fn check_kinds(report: &mut Report, thm: &Theorem, clashes: &[kinds::Clash]) {
+/// declared of any sort that a citation would narrow.
+pub fn check_clashes(report: &mut Report, thm: &Theorem, clashes: &[infer::Clash]) {
     for c in clashes {
         report.say(&thm.path, c.line, format!("{}: {}", c.what, c.why));
     }
@@ -70,7 +70,7 @@ pub fn check_kinds(report: &mut Report, thm: &Theorem, clashes: &[kinds::Clash])
 /// Each written `v := t` of a step's citations, fitted to the cited
 /// statement. Each citation takes its own copy of what the statement says v
 /// is.
-fn cited_kinds(
+fn cited_sorts(
     reader: &mut Reader,
     store: &mut Store,
     step: &Step,
@@ -98,10 +98,10 @@ fn cited_kinds(
             let Ok(tree) = parse_here(&t, env.g, &reader.sorts(store)) else {
                 continue;
             };
-            let got = reader.kind(&tree, step.line.into(), &IndexMap::new(), store);
+            let got = reader.sort_of(&tree, step.line.into(), &IndexMap::new(), store);
             let copied = store.copy(wanted, &mut seen);
             if let Declined(said) = store.unify(&got, &copied) {
-                reader.clashes.push(kinds::Clash {
+                reader.clashes.push(infer::Clash {
                     line: step.line.into(),
                     what: format!("citing {name} with {v} := {t}"),
                     why: said.reason(),

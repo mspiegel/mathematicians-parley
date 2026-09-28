@@ -11,8 +11,8 @@ use super::notation::{
 };
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
-use crate::kinds::NotationKinds;
 use crate::outcome::{Checked, Problem};
+use crate::sorts::infer::NotationSorts;
 use crate::text::repr;
 
 /// The sort of each name a text states one for.
@@ -26,7 +26,7 @@ type ReadingKey = (String, Vec<Option<Sort>>);
 /// the precedence order between their levels.
 ///
 /// It also keeps what it has read. One check reads the same sentence many
-/// times over (the kinds, the formulas, and every citation asking again with
+/// times over (the sorts, the formulas, and every citation asking again with
 /// a line taken away), and a reading depends only on the grammar, the
 /// sentence, and the sorts of the names in it; so each is read once. Only a
 /// reading that succeeded is kept, since a failure names the place it was
@@ -38,7 +38,7 @@ pub struct Grammar {
     pub tighter: IndexMap<String, IndexSet<String>>,
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
     readings: RefCell<IndexMap<ReadingKey, Node>>,
-    kinds: OnceCell<Rc<NotationKinds>>,
+    notation_sorts: OnceCell<Rc<NotationSorts>>,
 }
 
 impl Grammar {
@@ -51,16 +51,16 @@ impl Grammar {
             tighter: compile_precedence(records),
             tokens: RefCell::new(IndexMap::new()),
             readings: RefCell::new(IndexMap::new()),
-            kinds: OnceCell::new(),
+            notation_sorts: OnceCell::new(),
         })
     }
 
-    /// What the notations say about kinds, read the first time a kinds
-    /// reader asks and shared by every one after.
-    pub fn notation_kinds(&self) -> Rc<NotationKinds> {
+    /// What the notations say about sorts, read the first time a reading
+    /// asks and shared by every one after.
+    pub fn notation_sorts(&self) -> Rc<NotationSorts> {
         Rc::clone(
-            self.kinds
-                .get_or_init(|| Rc::new(NotationKinds::read(self))),
+            self.notation_sorts
+                .get_or_init(|| Rc::new(NotationSorts::read(self))),
         )
     }
 

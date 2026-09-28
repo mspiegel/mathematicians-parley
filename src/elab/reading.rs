@@ -43,7 +43,7 @@ pub fn is_subgroup(text: &str) -> bool {
 ///
 /// `let A be a set` and `let P be a point` introduce a name and state what
 /// the sort means, and the notation that states it is what the database
-/// declares. `let a ∉ X` and `let x be an element` claim no kind on the
+/// declares. `let a ∉ X` and `let x be an element` claim no sort on the
 /// page, and the kernel still wants the thing to be a set, not a proper
 /// class; that sethood is apparatus (`READERS.md`, hidden entirely), so it is
 /// added here and never written.

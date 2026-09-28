@@ -1,7 +1,7 @@
 //! Where a name's sort comes from.
 //!
 //! `GRAMMAR.md`'s "Sorts" section is the specification. A name's sort is
-//! what one reading of its lines settles (`kinds`), in the order they are
+//! what one reading of its lines settles (`infer`), in the order they are
 //! written: each line is parsed with what the lines above it settled, and
 //! what it says is added. A `let` line, a membership, a `define` and the way
 //! a formula uses a name are all facts of that one reading, so `let n ∈ ℕ`
@@ -19,8 +19,9 @@ use crate::corpus::proof::visible;
 use crate::corpus::{
     define_parts, DefineLine, DefineParts, FileScope, Record, ScopeId, Theorem,
 };
+pub mod infer;
+
 use crate::formula::{holds, parse_here, Grammar, Sort, Sorts};
-use crate::kinds;
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::Built;
 use crate::regex;
@@ -44,7 +45,7 @@ regex!(MEMBERSHIP, r"^(\S+)\s*∈\s*\S");
 regex!(NOT_IN, r"^(\S+)\s*∉\s*\S");
 // `n ∈ ℕ`: a membership whose set is one name, which may say the sort.
 regex!(NAMED_MEMBER, r"^(\S+)\s*∈\s*(\S+)$");
-regex!(KIND, r"^(\S+)\s+be a (set|point)$");
+regex!(SET_OR_POINT, r"^(\S+)\s+be a (set|point)$");
 // `let x be an element`: an element of nothing yet named.
 regex!(ELEMENT, r"^(\S+)\s+be\s+an\s+element$");
 // `let P be a property of the elements of A`: the property, and its domain.
@@ -76,8 +77,8 @@ pub fn membership_re() -> &'static regex::Regex {
 pub fn not_in_re() -> &'static regex::Regex {
     &NOT_IN
 }
-pub fn kind_re() -> &'static regex::Regex {
-    &KIND
+pub fn set_or_point_re() -> &'static regex::Regex {
+    &SET_OR_POINT
 }
 pub fn element_re() -> &'static regex::Regex {
     &ELEMENT
@@ -189,7 +190,7 @@ fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
     if let Some(m) = SUBGROUP.captures(body) {
         return vec![(m[1].to_string(), "group-set")];
     }
-    if let Some(m) = KIND.captures(body) {
+    if let Some(m) = SET_OR_POINT.captures(body) {
         let sort = if &m[2] == "set" { "set" } else { "point" };
         return vec![(m[1].to_string(), sort)];
     }
@@ -356,8 +357,8 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
 /// {a, …, n}` names no number system, and k is a number because the range
 /// holds numbers.
 pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
-    let mut store = kinds::Store::default();
-    let reader = kinds::read_record(record, env, &mut store);
+    let mut store = infer::Store::default();
+    let reader = infer::read_record(record, env, &mut store);
     settled(&reader, &store)
 }
 
@@ -379,10 +380,10 @@ pub fn named_by_hypotheses(thm: &Theorem) -> BTreeSet<String> {
 
 /// The sort of every name a proved theorem's statement settles: what a
 /// citation of it reads, the statement and not the proof beneath
-/// (`kinds::read_statement`).
+/// (`infer::read_statement`).
 pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
-    let mut store = kinds::Store::default();
-    let reader = kinds::read_statement(thm, env, &mut store);
+    let mut store = infer::Store::default();
+    let reader = infer::read_statement(thm, env, &mut store);
     settled(&reader, &store)
 }
 
@@ -391,8 +392,8 @@ pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
 /// each theorem once, citations and all, and settles the same way
 /// (`check::run`).
 pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
-    let mut store = kinds::Store::default();
-    let reader = kinds::read_theorem(thm, env, &mut store, None);
+    let mut store = infer::Store::default();
+    let reader = infer::read_theorem(thm, env, &mut store, None);
     settled(&reader, &store)
 }
 
@@ -404,12 +405,12 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
 /// reading leaves open, or reads as a statement, has no sort.
 ///
 /// The checker's reading fits each citation as it goes and the elaborator's
-/// reads no citation, so a citation that fixed a name's kind would give the
+/// reads no citation, so a citation that fixed a name's sort would give the
 /// two different sorts. None does on the corpus or on any planted defect.
-pub fn settled(reader: &kinds::Reader, store: &kinds::Store) -> Sorts {
+pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
-    for (name, kind) in &reader.env {
-        if let Some(sort) = kinds::sort(store, kind) {
+    for (name, term) in &reader.env {
+        if let Some(sort) = infer::sort(store, term) {
             out.insert(name.clone(), sort);
         }
     }

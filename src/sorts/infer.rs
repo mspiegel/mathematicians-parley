@@ -1,22 +1,23 @@
-//! Kinds: what a set holds, read off how a text uses its names.
+//! The one reading of a text's lines that says what sort each name is.
 //!
-//! `READERS.md` says a set has the kind of what it holds and the page never
-//! writes it, and `GRAMMAR.md` says how it is read: each notation's `kinds`
-//! field in `corpus/db/notation.records` relates the kinds of its holes, and a name
-//! takes the most general kind the text allows. This module is that reading:
-//! kind terms, the one field's syntax, unification, and inference over a
-//! parse tree. The checker decides what to read and reports what does not
-//! fit.
+//! `READERS.md` says a set's sort says what it holds and the page never
+//! writes it, and `GRAMMAR.md` says how it is read: each notation's `sort`
+//! field in `corpus/db/notation.records` relates the sorts of its holes, and
+//! a name takes the most general sort the text allows. This module is that
+//! reading: sort terms, the one field's syntax, unification, and inference
+//! over a parse tree, a line at a time. The checker decides what to read and
+//! reports what does not fit.
 //!
-//! A kind is `number`, `point`, `formula`, `set of K`, `property of K`,
-//! `function from K to K`, or a variable. A variable is *flexible* when the
-//! text may still say what it is, and *rigid* when it stands for "any kind"
-//! a statement declared — `let X be a set` makes X a set of a rigid kind,
-//! which its own statement and proof may not narrow, since the statement is
-//! claimed of every kind. A cited statement's kinds are copied flexible at
-//! each use, so each citing step takes the kind it needs.
+//! A sort term is `number`, `point`, `formula`, `group-element`, `set of S`,
+//! `property of S`, `function from S to S`, or a variable. A variable is
+//! *flexible* when the text may still say what it is, and *rigid* when it
+//! stands for "any sort" a statement declared — `let X be a set` makes X a
+//! set of a rigid sort, which its own statement and proof may not narrow,
+//! since the statement is claimed of every sort. A cited statement's sorts
+//! are copied flexible at each use, so each citing step takes the sort it
+//! needs.
 //!
-//! Unifying two kinds that do not fit gives back a decline saying why. That
+//! Unifying two sorts that do not fit gives back a decline saying why. That
 //! is a value: the checker reports it, and nothing tries another reading
 //! after it.
 
@@ -30,8 +31,8 @@ use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
 use crate::sorts::{
-    define_sorts, element_re, file_definitions, group_re, kind_re, let_formula,
-    property_re, sentences, unlabel, Env,
+    define_sorts, element_re, file_definitions, group_re, let_formula, property_re,
+    sentences, set_or_point_re, unlabel, Env,
 };
 use crate::text::repr;
 
@@ -43,7 +44,7 @@ pub fn obtains(text: &str) -> Option<String> {
     OBTAINS_RE.captures(text).map(|m| m[1].to_string())
 }
 
-/// A kind that is not a set of something.
+/// A sort that is not a set, property or function of something.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Atom {
     Number,
@@ -66,61 +67,62 @@ impl Atom {
 
 pub type VarId = usize;
 
-/// A kind: an atom, a set, property or function of kinds, or a variable.
+/// A sort as the reading holds it: an atom, a set, property or function of
+/// sorts, or a variable the text may still settle.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Kind {
+pub enum SortTerm {
     Atom(Atom),
-    Set(Box<Kind>),
-    Property(Box<Kind>),
-    Function(Box<Kind>, Box<Kind>),
+    Set(Box<SortTerm>),
+    Property(Box<SortTerm>),
+    Function(Box<SortTerm>, Box<SortTerm>),
     Var(VarId),
 }
 
-impl Kind {
-    fn set(k: Kind) -> Kind {
-        Kind::Set(Box::new(k))
+impl SortTerm {
+    fn set(k: SortTerm) -> SortTerm {
+        SortTerm::Set(Box::new(k))
     }
 }
 
-pub const NUMBER: Kind = Kind::Atom(Atom::Number);
-pub const POINT: Kind = Kind::Atom(Atom::Point);
-pub const FORMULA: Kind = Kind::Atom(Atom::Formula);
-pub const GROUP_ELEMENT: Kind = Kind::Atom(Atom::GroupElement);
+pub const NUMBER: SortTerm = SortTerm::Atom(Atom::Number);
+pub const POINT: SortTerm = SortTerm::Atom(Atom::Point);
+pub const FORMULA: SortTerm = SortTerm::Atom(Atom::Formula);
+pub const GROUP_ELEMENT: SortTerm = SortTerm::Atom(Atom::GroupElement);
 
 struct VarData {
-    bound: Option<Kind>,
+    bound: Option<SortTerm>,
     rigid: bool,
     said: String,
 }
 
-/// Every kind variable of a run, and what each has been fixed to.
+/// Every sort variable of a run, and what each has been fixed to.
 ///
 /// One store serves every reader that may share variables: a cited
-/// statement's kinds are copied into the reader of the proof citing it.
+/// statement's sorts are copied into the reader of the proof citing it.
 #[derive(Default)]
 pub struct Store {
     vars: Vec<VarData>,
 }
 
 impl Store {
-    /// A kind not yet known.
-    pub fn var(&mut self) -> Kind {
+    /// A sort not yet known.
+    pub fn var(&mut self) -> SortTerm {
         self.var_said(false, "")
     }
 
-    fn var_said(&mut self, rigid: bool, said: &str) -> Kind {
+    fn var_said(&mut self, rigid: bool, said: &str) -> SortTerm {
         self.vars.push(VarData {
             bound: None,
             rigid,
             said: said.to_string(),
         });
-        Kind::Var(self.vars.len() - 1)
+        SortTerm::Var(self.vars.len() - 1)
     }
 
-    /// The kind with every fixed variable at its head followed.
-    pub fn find(&self, k: &Kind) -> Kind {
+    /// The sort with every fixed variable at its head followed.
+    pub fn find(&self, k: &SortTerm) -> SortTerm {
         let mut k = k.clone();
-        while let Kind::Var(v) = k {
+        while let SortTerm::Var(v) = k {
             match &self.vars[v].bound {
                 Some(next) => k = next.clone(),
                 None => break,
@@ -129,10 +131,10 @@ impl Store {
         k
     }
 
-    /// A kind as a reader would say it.
-    pub fn show(&self, k: &Kind) -> String {
+    /// A sort as a reader would say it.
+    pub fn show(&self, k: &SortTerm) -> String {
         match self.find(k) {
-            Kind::Var(v) => {
+            SortTerm::Var(v) => {
                 let d = &self.vars[v];
                 if d.rigid {
                     if d.said.is_empty() {
@@ -144,19 +146,19 @@ impl Store {
                     "a sort not yet settled".to_string()
                 }
             }
-            Kind::Atom(Atom::Number) => "a number".into(),
-            Kind::Atom(Atom::Point) => "a point".into(),
-            Kind::Atom(Atom::Formula) => "a statement".into(),
-            Kind::Atom(Atom::GroupElement) => "a group element".into(),
-            Kind::Set(k) => format!("a set of {}", self.plural(&k)),
-            Kind::Property(k) => format!("a property of {}", self.plural(&k)),
-            Kind::Function(a, b) => {
+            SortTerm::Atom(Atom::Number) => "a number".into(),
+            SortTerm::Atom(Atom::Point) => "a point".into(),
+            SortTerm::Atom(Atom::Formula) => "a statement".into(),
+            SortTerm::Atom(Atom::GroupElement) => "a group element".into(),
+            SortTerm::Set(k) => format!("a set of {}", self.plural(&k)),
+            SortTerm::Property(k) => format!("a property of {}", self.plural(&k)),
+            SortTerm::Function(a, b) => {
                 format!("a function from {} to {}", self.plural(&a), self.plural(&b))
             }
         }
     }
 
-    fn plural(&self, k: &Kind) -> String {
+    fn plural(&self, k: &SortTerm) -> String {
         let said = self.show(k);
         for (one, many) in [
             ("a number", "numbers"),
@@ -174,24 +176,24 @@ impl Store {
         format!("things of {said}")
     }
 
-    fn occurs(&self, v: VarId, k: &Kind) -> bool {
+    fn occurs(&self, v: VarId, k: &SortTerm) -> bool {
         match self.find(k) {
-            Kind::Var(w) => w == v,
-            Kind::Atom(_) => false,
-            Kind::Set(c) | Kind::Property(c) => self.occurs(v, &c),
-            Kind::Function(a, b) => self.occurs(v, &a) || self.occurs(v, &b),
+            SortTerm::Var(w) => w == v,
+            SortTerm::Atom(_) => false,
+            SortTerm::Set(c) | SortTerm::Property(c) => self.occurs(v, &c),
+            SortTerm::Function(a, b) => self.occurs(v, &a) || self.occurs(v, &b),
         }
     }
 
-    /// Make the two kinds one, or decline saying why they cannot be.
-    pub fn unify(&mut self, a: &Kind, b: &Kind) -> Route<()> {
+    /// Make the two sorts one, or decline saying why they cannot be.
+    pub fn unify(&mut self, a: &SortTerm, b: &SortTerm) -> Route<()> {
         let (a, b) = (self.find(a), self.find(b));
-        if let (Kind::Var(x), Kind::Var(y)) = (&a, &b) {
+        if let (SortTerm::Var(x), SortTerm::Var(y)) = (&a, &b) {
             if x == y {
                 return Built(());
             }
         }
-        if let Kind::Var(v) = a {
+        if let SortTerm::Var(v) = a {
             if !self.vars[v].rigid {
                 if self.occurs(v, &b) {
                     return Route::no(format!(
@@ -203,13 +205,13 @@ impl Store {
                 return Built(());
             }
         }
-        if let Kind::Var(v) = b {
+        if let SortTerm::Var(v) = b {
             if !self.vars[v].rigid {
                 return self.unify(&b, &a);
             }
         }
-        if matches!(a, Kind::Var(_)) || matches!(b, Kind::Var(_)) {
-            let (rigid, other) = if matches!(a, Kind::Var(_)) {
+        if matches!(a, SortTerm::Var(_)) || matches!(b, SortTerm::Var(_)) {
+            let (rigid, other) = if matches!(a, SortTerm::Var(_)) {
                 (&a, &b)
             } else {
                 (&b, &a)
@@ -220,12 +222,13 @@ impl Store {
                 self.show(other)
             ));
         }
-        let pairs: Vec<(Kind, Kind)> = match (&a, &b) {
-            (Kind::Atom(x), Kind::Atom(y)) if x == y => Vec::new(),
-            (Kind::Set(x), Kind::Set(y)) | (Kind::Property(x), Kind::Property(y)) => {
+        let pairs: Vec<(SortTerm, SortTerm)> = match (&a, &b) {
+            (SortTerm::Atom(x), SortTerm::Atom(y)) if x == y => Vec::new(),
+            (SortTerm::Set(x), SortTerm::Set(y))
+            | (SortTerm::Property(x), SortTerm::Property(y)) => {
                 vec![((**x).clone(), (**y).clone())]
             }
-            (Kind::Function(x1, x2), Kind::Function(y1, y2)) => vec![
+            (SortTerm::Function(x1, x2), SortTerm::Function(y1, y2)) => vec![
                 ((**x1).clone(), (**y1).clone()),
                 ((**x2).clone(), (**y2).clone()),
             ],
@@ -249,13 +252,17 @@ impl Store {
         Built(())
     }
 
-    /// A kind with its variables replaced by fresh flexible ones.
+    /// A sort with its variables replaced by fresh flexible ones.
     ///
     /// The same fresh one stands wherever the same variable stood, so what a
     /// cited statement relates stays related in the copy.
-    pub fn copy(&mut self, k: &Kind, seen: &mut IndexMap<VarId, Kind>) -> Kind {
+    pub fn copy(
+        &mut self,
+        k: &SortTerm,
+        seen: &mut IndexMap<VarId, SortTerm>,
+    ) -> SortTerm {
         match self.find(k) {
-            Kind::Var(v) => {
+            SortTerm::Var(v) => {
                 if let Some(fresh) = seen.get(&v) {
                     return fresh.clone();
                 }
@@ -263,28 +270,28 @@ impl Store {
                 seen.insert(v, fresh.clone());
                 fresh
             }
-            Kind::Atom(a) => Kind::Atom(a),
-            Kind::Set(c) => Kind::set(self.copy(&c, seen)),
-            Kind::Property(c) => Kind::Property(Box::new(self.copy(&c, seen))),
-            Kind::Function(a, b) => {
+            SortTerm::Atom(a) => SortTerm::Atom(a),
+            SortTerm::Set(c) => SortTerm::set(self.copy(&c, seen)),
+            SortTerm::Property(c) => SortTerm::Property(Box::new(self.copy(&c, seen))),
+            SortTerm::Function(a, b) => {
                 let a = self.copy(&a, seen);
                 let b = self.copy(&b, seen);
-                Kind::Function(Box::new(a), Box::new(b))
+                SortTerm::Function(Box::new(a), Box::new(b))
             }
         }
     }
 
-    fn make_rigid(&mut self, k: &Kind, name: &str) {
+    fn make_rigid(&mut self, k: &SortTerm, name: &str) {
         match self.find(k) {
-            Kind::Var(v) => {
+            SortTerm::Var(v) => {
                 self.vars[v].rigid = true;
                 if self.vars[v].said.is_empty() {
                     self.vars[v].said = name.to_string();
                 }
             }
-            Kind::Atom(_) => {}
-            Kind::Set(c) | Kind::Property(c) => self.make_rigid(&c, name),
-            Kind::Function(a, b) => {
+            SortTerm::Atom(_) => {}
+            SortTerm::Set(c) | SortTerm::Property(c) => self.make_rigid(&c, name),
+            SortTerm::Function(a, b) => {
                 self.make_rigid(&a, name);
                 self.make_rigid(&b, name);
             }
@@ -292,19 +299,19 @@ impl Store {
     }
 }
 
-/// The sort a kind settles, in full, or None where it settles none: a
-/// statement, or a kind left open.
-pub fn sort(store: &Store, k: &Kind) -> Option<Sort> {
-    fn whole(store: &Store, k: &Kind) -> Whole {
+/// A sort term as the sort it settles, in full, or None where it settles
+/// none: a statement, or a sort left open.
+pub fn sort(store: &Store, k: &SortTerm) -> Option<Sort> {
+    fn whole(store: &Store, k: &SortTerm) -> Whole {
         match store.find(k) {
-            Kind::Var(_) => Whole::Open,
-            Kind::Atom(Atom::Number) => Whole::Number,
-            Kind::Atom(Atom::Point) => Whole::Point,
-            Kind::Atom(Atom::Formula) => Whole::Formula,
-            Kind::Atom(Atom::GroupElement) => Whole::GroupElement,
-            Kind::Set(c) => Whole::Set(Rc::new(whole(store, &c))),
-            Kind::Property(c) => Whole::Property(Rc::new(whole(store, &c))),
-            Kind::Function(a, b) => {
+            SortTerm::Var(_) => Whole::Open,
+            SortTerm::Atom(Atom::Number) => Whole::Number,
+            SortTerm::Atom(Atom::Point) => Whole::Point,
+            SortTerm::Atom(Atom::Formula) => Whole::Formula,
+            SortTerm::Atom(Atom::GroupElement) => Whole::GroupElement,
+            SortTerm::Set(c) => Whole::Set(Rc::new(whole(store, &c))),
+            SortTerm::Property(c) => Whole::Property(Rc::new(whole(store, &c))),
+            SortTerm::Function(a, b) => {
                 Whole::Function(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
             }
         }
@@ -314,7 +321,8 @@ pub fn sort(store: &Store, k: &Kind) -> Option<Sort> {
 
 // ------------------------------------------------------------ the field
 
-/// A kind as a `kinds` field writes it, with its variables still named.
+/// A sort as a notation's `sort` field writes it, with its variables still
+/// named.
 #[derive(Clone, Debug)]
 enum Template {
     Atom(Atom),
@@ -325,7 +333,7 @@ enum Template {
 }
 
 impl Template {
-    /// The coarse class of a kind, as `Whole::category` gives it for a kind
+    /// The coarse class of a sort, as `Whole::category` gives it for a sort
     /// that is fixed, and `any` for one that is a variable.
     fn category(&self) -> &'static str {
         match self {
@@ -345,7 +353,7 @@ impl Template {
     }
 }
 
-/// A `kinds` field: the kind of each hole and of what the notation produces,
+/// A `sort` field: the sort of each hole and of what the notation produces,
 /// related by the variables they share.
 #[derive(Clone, Debug)]
 pub struct Signature {
@@ -366,7 +374,7 @@ impl Signature {
     }
 
     /// Each (element, set) pair of holes the signature relates as a thing
-    /// and a set holding things of its kind: `α` and `set of α`, as a
+    /// and a set holding things of its sort: `α` and `set of α`, as a
     /// membership's are.
     pub fn members(&self) -> Vec<(usize, usize)> {
         let mut out = Vec::new();
@@ -383,9 +391,9 @@ impl Signature {
         out
     }
 
-    /// Fresh hole kinds and result kind, with fresh variables.
-    pub fn fresh(&self, store: &mut Store) -> (Vec<Kind>, Kind) {
-        let mut names: IndexMap<String, Kind> = IndexMap::new();
+    /// Fresh hole sorts and result sort, with fresh variables.
+    pub fn fresh(&self, store: &mut Store) -> (Vec<SortTerm>, SortTerm) {
+        let mut names: IndexMap<String, SortTerm> = IndexMap::new();
         let holes = self
             .parts
             .iter()
@@ -398,11 +406,11 @@ impl Signature {
 
 fn instance(
     t: &Template,
-    names: &mut IndexMap<String, Kind>,
+    names: &mut IndexMap<String, SortTerm>,
     store: &mut Store,
-) -> Kind {
+) -> SortTerm {
     match t {
-        Template::Atom(a) => Kind::Atom(*a),
+        Template::Atom(a) => SortTerm::Atom(*a),
         Template::Var(name) => {
             if let Some(k) = names.get(name) {
                 return k.clone();
@@ -411,12 +419,14 @@ fn instance(
             names.insert(name.clone(), k.clone());
             k
         }
-        Template::Set(c) => Kind::set(instance(c, names, store)),
-        Template::Property(c) => Kind::Property(Box::new(instance(c, names, store))),
+        Template::Set(c) => SortTerm::set(instance(c, names, store)),
+        Template::Property(c) => {
+            SortTerm::Property(Box::new(instance(c, names, store)))
+        }
         Template::Function(a, b) => {
             let a = instance(a, names, store);
             let b = instance(b, names, store);
-            Kind::Function(Box::new(a), Box::new(b))
+            SortTerm::Function(Box::new(a), Box::new(b))
         }
     }
 }
@@ -426,7 +436,7 @@ regex!(
     r"group-element|set of|property of|function from|to|number|point|formula|[α-ω]"
 );
 
-/// A `kinds` field, or a decline saying what in it does not read.
+/// A `sort` field, or a decline saying what in it does not read.
 /// `check_notation` reports that; everything else skips a notation whose
 /// field is one.
 pub fn signature(text: &str) -> Route<Signature> {
@@ -520,41 +530,41 @@ pub struct Clash {
     pub why: String,
 }
 
-/// Kinds over one statement or proof, read in the order it is written.
+/// The sorts of one statement or proof, read in the order it is written.
 ///
-/// `env` maps a name to its kind; a `let` shadows what came before, since a
+/// `env` maps a name to its sort; a `let` shadows what came before, since a
 /// block may use a letter an earlier one did. What does not fit is kept in
 /// `clashes`.
 pub struct Reader {
-    pub env: IndexMap<String, Kind>,
+    pub env: IndexMap<String, SortTerm>,
     pub clashes: Vec<Clash>,
-    /// Names declared of any kind, not yet fixed.
+    /// Names declared of any sort, not yet fixed.
     declared: Vec<String>,
-    notations: Rc<NotationKinds>,
+    notations: Rc<NotationSorts>,
 }
 
-/// What every notation says about kinds: the signature its `kinds` field
+/// What every notation says about sorts: the signature its `sort` field
 /// declares, and which of its holes bind a variable.
 ///
 /// It depends on the grammar alone, so it is read once per grammar
-/// (`Grammar::notation_kinds`) and every reader shares it; each use of a
+/// (`Grammar::notation_sorts`) and every reader shares it; each use of a
 /// signature takes fresh variables of its own (`Signature::fresh`).
-pub struct NotationKinds {
+pub struct NotationSorts {
     signatures: IndexMap<String, Rc<Signature>>,
     bound: IndexMap<String, IndexSet<usize>>,
 }
 
-impl NotationKinds {
-    pub fn read(g: &crate::formula::Grammar) -> NotationKinds {
+impl NotationSorts {
+    pub fn read(g: &crate::formula::Grammar) -> NotationSorts {
         let mut signatures: IndexMap<String, Rc<Signature>> = IndexMap::new();
         let mut bound: IndexMap<String, IndexSet<usize>> = IndexMap::new();
         for n in &g.notations {
             let key = n.key().to_string();
-            let Some(kinds) = &n.sort else { continue };
-            if kinds.is_empty() {
+            let Some(said) = &n.sort else { continue };
+            if said.is_empty() {
                 continue;
             }
-            let Built(made) = signature(kinds) else {
+            let Built(made) = signature(said) else {
                 continue;
             };
             let made = Rc::new(made);
@@ -571,7 +581,7 @@ impl NotationKinds {
                 }
             }
         }
-        NotationKinds { signatures, bound }
+        NotationSorts { signatures, bound }
     }
 
     /// The signature a node of this notation reads by, where it has one.
@@ -586,7 +596,7 @@ impl Reader {
             env: IndexMap::new(),
             clashes: Vec::new(),
             declared: Vec::new(),
-            notations: env.g.notation_kinds(),
+            notations: env.g.notation_sorts(),
         }
     }
 
@@ -596,7 +606,7 @@ impl Reader {
         crate::sorts::settled(self, store)
     }
 
-    fn of_name(&mut self, name: &str, store: &mut Store) -> Kind {
+    fn of_name(&mut self, name: &str, store: &mut Store) -> SortTerm {
         if let Some(k) = self.env.get(name) {
             return k.clone();
         }
@@ -613,14 +623,14 @@ impl Reader {
         });
     }
 
-    /// The kind of a parse tree, noting every clash inside it.
-    pub fn kind(
+    /// The sort of a parse tree, noting every clash inside it.
+    pub fn sort_of(
         &mut self,
         node: &Node,
         line: At,
-        local: &IndexMap<String, Kind>,
+        local: &IndexMap<String, SortTerm>,
         store: &mut Store,
-    ) -> Kind {
+    ) -> SortTerm {
         if node.is_name() {
             if let Some(k) = local.get(&node.text) {
                 return k.clone();
@@ -633,7 +643,7 @@ impl Reader {
         let notations = Rc::clone(&self.notations);
         let (holes, out) = match notations.signatures.get(&node.notation) {
             Some(make) if make.holes() == node.children.len() => make.fresh(store),
-            // A notation whose `kinds` is missing or does not read, which
+            // A notation whose `sort` is missing or does not read, which
             // `check_notation` reports: nothing is known of its holes.
             _ => {
                 let holes = node.children.iter().map(|_| store.var()).collect();
@@ -650,7 +660,7 @@ impl Reader {
             }
         }
         for (child, want) in node.children.iter().zip(holes.iter()) {
-            let got = self.kind(child, line, &inner, store);
+            let got = self.sort_of(child, line, &inner, store);
             if let Declined(said) = store.unify(&got, want) {
                 let what = if child.text.is_empty() {
                     child.notation.clone()
@@ -664,17 +674,17 @@ impl Reader {
     }
 
     pub fn claim(&mut self, node: &Node, line: At, store: &mut Store) {
-        let k = self.kind(node, line, &IndexMap::new(), store);
+        let k = self.sort_of(node, line, &IndexMap::new(), store);
         if let Declined(said) = store.unify(&k, &FORMULA) {
             self.clash(line, "the line", &said);
         }
     }
 
-    /// Make what the declared names' kinds still leave open rigid.
+    /// Make what the declared names' sorts still leave open rigid.
     ///
     /// Called once the lines declaring them are read: the statement's
     /// hypotheses and conclusion, or a block's opening lines. What they
-    /// related is related; what they left open is "any kind" from here on,
+    /// related is related; what they left open is "any sort" from here on,
     /// and a proof that narrows it is proving less than it claims.
     pub fn fix_declared(&mut self, store: &mut Store) {
         for name in std::mem::take(&mut self.declared) {
@@ -687,13 +697,13 @@ impl Reader {
 
 regex!(INTRODUCED_NAME, r"^([^\s∈∉:]+)\s*(?:∈|∉|:)");
 
-/// What a `let` line says a name is, into the reader's kinds.
+/// What a `let` line says a name is, into the reader's sorts.
 ///
-/// `be a set` and `be an element` declare a thing of any kind. The lines
-/// declaring it may still relate it to another — `X ∖ {a}` makes a the kind
-/// of what X holds — so the kind is left free here and noted in `declared`,
+/// `be a set` and `be an element` declare a thing of any sort. The lines
+/// declaring it may still relate it to another — `X ∖ {a}` makes a the sort
+/// of what X holds — so the sort is left free here and noted in `declared`,
 /// and `fix_declared` fixes it once the statement or the block's opening
-/// lines are read. The rest name a thing whose kind the text fixes, and the
+/// lines are read. The rest name a thing whose sort the text fixes, and the
 /// line is read as a claim.
 pub fn introduce(
     reader: &mut Reader,
@@ -707,15 +717,15 @@ pub fn introduce(
     if let Some(m) = group_re().captures(&body) {
         reader
             .env
-            .insert(m["group"].to_string(), Kind::set(GROUP_ELEMENT));
+            .insert(m["group"].to_string(), SortTerm::set(GROUP_ELEMENT));
         reader.env.insert(m["identity"].to_string(), GROUP_ELEMENT);
         return;
     }
-    if let Some(m) = kind_re().captures(&body) {
+    if let Some(m) = set_or_point_re().captures(&body) {
         let name = m[1].to_string();
         if &m[2] == "set" {
             let v = store.var_said(false, &name);
-            reader.env.insert(name.clone(), Kind::set(v));
+            reader.env.insert(name.clone(), SortTerm::set(v));
             reader.declared.push(name);
         } else {
             reader.env.insert(name, POINT);
@@ -733,9 +743,9 @@ pub fn introduce(
         let of = store.var();
         reader
             .env
-            .insert(m[1].to_string(), Kind::Property(Box::new(of.clone())));
+            .insert(m[1].to_string(), SortTerm::Property(Box::new(of.clone())));
         let domain = reader.of_name(&m[2], store);
-        if let Declined(said) = store.unify(&domain, &Kind::set(of)) {
+        if let Declined(said) = store.unify(&domain, &SortTerm::set(of)) {
             reader.clash(line, &m[2], &said);
         }
         return;
@@ -767,7 +777,7 @@ pub fn claim_text(
     }
 }
 
-/// An item's kinds, read from its own lines in the order they are written.
+/// An item's sorts, read from its own lines in the order they are written.
 ///
 /// A record keeps the keyword of a hypothesis in the field name where a
 /// proof line keeps it in the text, and has no steps.
@@ -792,7 +802,7 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
 /// reads.
 ///
 /// A cited statement is read on its own, and each citation takes its own
-/// copy of what it says (`Store::copy`), so the kinds a statement relates
+/// copy of what it says (`Store::copy`), so the sorts a statement relates
 /// stay related and nothing one citation fixes reaches another.
 pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
@@ -808,7 +818,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     reader
 }
 
-/// An item's kinds as its `let` lines alone say them: what the item
+/// An item's sorts as its `let` lines alone say them: what the item
 /// declares, before its assumptions and conclusions use anything.
 pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
@@ -818,25 +828,25 @@ pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     reader
 }
 
-/// The kinds of the sequences a define by recursion gives: each takes a
+/// The sorts of the sequences a define by recursion gives: each takes a
 /// number, the index, and gives what its value at 0 is, which each rule at
 /// k + 1 must give too. Every name is in scope in every rule, since a rule
 /// may name any of the sequences at k.
-fn recursion_kinds(
+fn recursion_sorts(
     reader: &mut Reader,
     said: &crate::corpus::Recursion,
     line: At,
     env: Env,
     store: &mut Store,
 ) {
-    let mut gives: IndexMap<String, Kind> = IndexMap::new();
+    let mut gives: IndexMap<String, SortTerm> = IndexMap::new();
     for name in &said.names {
         gives.insert(name.clone(), store.var());
     }
     for name in &said.names {
         reader.env.insert(
             name.clone(),
-            Kind::Function(Box::new(NUMBER), Box::new(gives[name].clone())),
+            SortTerm::Function(Box::new(NUMBER), Box::new(gives[name].clone())),
         );
     }
     let mut local_sorts = reader.sorts(store);
@@ -848,7 +858,7 @@ fn recursion_kinds(
             let Ok(tree) = parse_here(rule, env.g, &local_sorts) else {
                 continue; // `check_formulas` says it does not read
             };
-            let got = reader.kind(&tree, line, &local, store);
+            let got = reader.sort_of(&tree, line, &local, store);
             if let Declined(fits) = store.unify(&got, &gives[name]) {
                 reader.clash(line, name, &fits);
             }
@@ -860,10 +870,10 @@ fn recursion_kinds(
 /// read.
 pub type Cite<'c> = &'c mut dyn FnMut(&mut Reader, &mut Store, &Step);
 
-/// A theorem's kinds, read in the order its lines are written.
+/// A theorem's sorts, read in the order its lines are written.
 ///
 /// A `let` shadows an earlier name, since blocks reuse letters. What the
-/// statement or a block's opening lines declared of any kind is fixed where
+/// statement or a block's opening lines declared of any sort is fixed where
 /// the proof under them begins. `cite` is called after each step's claim is
 /// read, for whoever fits its citations.
 pub fn read_theorem(
@@ -873,22 +883,22 @@ pub fn read_theorem(
     mut cite: Option<Cite>,
 ) -> Reader {
     let mut reader = Reader::new(env);
-    // What the theorem sees from outside it has its kind before its first
+    // What the theorem sees from outside it has its sort before its first
     // line, read from the rule written out where it was defined.
     for (name, made) in file_definitions(thm, env) {
-        let kind = match made {
+        let term = match made {
             Defined::Rule(rule) => {
                 let taken = store.var();
                 let mut local = IndexMap::new();
                 local.insert(rule.param.clone(), taken.clone());
-                let gives = reader.kind(&rule.body, thm.line.into(), &local, store);
-                Kind::Function(Box::new(taken), Box::new(gives))
+                let gives = reader.sort_of(&rule.body, thm.line.into(), &local, store);
+                SortTerm::Function(Box::new(taken), Box::new(gives))
             }
             Defined::Term(t) => {
-                reader.kind(&t, thm.line.into(), &IndexMap::new(), store)
+                reader.sort_of(&t, thm.line.into(), &IndexMap::new(), store)
             }
         };
-        reader.env.insert(name, kind);
+        reader.env.insert(name, term);
     }
     enum Event<'t> {
         Let(&'t str),
@@ -897,12 +907,12 @@ pub fn read_theorem(
         Claim(&'t Step),
     }
     // Each line, where it stands, and whether reading it first fixes what
-    // was declared of any kind: a define, a claim and a requires line do,
+    // was declared of any sort: a define, a claim and a requires line do,
     // since the proof has begun by then.
     let mut events: Vec<(At, bool, Event)> = Vec::new();
-    fn opening(kind: Intro, text: &str) -> Event<'_> {
-        let rest = &text[kind.as_str().len()..];
-        if kind == Intro::Let {
+    fn opening(intro: Intro, text: &str) -> Event<'_> {
+        let rest = &text[intro.as_str().len()..];
+        if intro == Intro::Let {
             Event::Let(rest)
         } else {
             Event::Said(str::trim(&unlabel(rest)).to_string())
@@ -912,7 +922,7 @@ pub fn read_theorem(
         events.push((h.line.into(), false, opening(h.kind, &h.text)));
     }
     // The conclusion is the statement's last line, so it may still relate
-    // what the hypotheses declared of any kind.
+    // what the hypotheses declared of any sort.
     let after = thm
         .hypotheses
         .iter()
@@ -955,7 +965,7 @@ pub fn read_theorem(
                 };
                 let said = match said {
                     DefineParts::Recursion(r) => {
-                        recursion_kinds(&mut reader, &r, no, env, store);
+                        recursion_sorts(&mut reader, &r, no, env, store);
                         continue;
                     }
                     DefineParts::One(d) => d,
@@ -965,7 +975,7 @@ pub fn read_theorem(
                     let Ok(tree) = parse_here(&said.body, env.g, &sorts) else {
                         continue;
                     };
-                    let k = reader.kind(&tree, no, &IndexMap::new(), store);
+                    let k = reader.sort_of(&tree, no, &IndexMap::new(), store);
                     reader.env.insert(said.name.clone(), k);
                     continue;
                 };
@@ -976,9 +986,10 @@ pub fn read_theorem(
                 let Ok(over_tree) = parse_here(&domain, env.g, &local_sorts) else {
                     continue;
                 };
-                let over = reader.kind(&over_tree, no, &IndexMap::new(), store);
+                let over = reader.sort_of(&over_tree, no, &IndexMap::new(), store);
                 let taken = store.var();
-                if let Declined(said_of) = store.unify(&over, &Kind::set(taken.clone()))
+                if let Declined(said_of) =
+                    store.unify(&over, &SortTerm::set(taken.clone()))
                 {
                     reader.clash(no, domain.clone(), &said_of);
                 }
@@ -987,10 +998,10 @@ pub fn read_theorem(
                 };
                 let mut local = IndexMap::new();
                 local.insert(param.clone(), taken.clone());
-                let gives = reader.kind(&body_tree, no, &local, store);
+                let gives = reader.sort_of(&body_tree, no, &local, store);
                 reader.env.insert(
                     said.name.clone(),
-                    Kind::Function(Box::new(taken), Box::new(gives)),
+                    SortTerm::Function(Box::new(taken), Box::new(gives)),
                 );
             }
             Event::Claim(step) => {

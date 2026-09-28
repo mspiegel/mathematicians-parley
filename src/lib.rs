@@ -12,7 +12,6 @@ pub mod check;
 pub mod corpus;
 pub mod elab;
 pub mod formula;
-pub mod kinds;
 pub mod matching;
 pub mod mm;
 pub mod outcome;

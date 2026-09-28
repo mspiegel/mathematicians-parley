@@ -16,7 +16,7 @@ use crate::regex;
 use crate::rules;
 use crate::sorts::{
     definitions_in_scope, element_re, file_definitions, function_being_re, function_re,
-    group_re, kind_re, let_formula, part_re, sentences, unlabel, Env,
+    group_re, let_formula, part_re, sentences, set_or_point_re, unlabel, Env,
 };
 
 /// One `then` group of an item: its facts, each with the text it was read
@@ -190,7 +190,7 @@ impl<'a> Library<'a> {
             {
                 text = let_formula(&text);
             } else if *kind == Intro::Let
-                && (kind_re().is_match(&text)
+                && (set_or_point_re().is_match(&text)
                     || function_re().is_match(&text)
                     || element_re().is_match(&text)
                     || group_re().is_match(&text))

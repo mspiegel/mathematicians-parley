@@ -10,11 +10,11 @@ use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
 use crate::formula::{categories_of, parse_here, patterns_of, Node, Sorts, TERM_SORTS};
-use crate::kinds;
 use crate::regex;
+use crate::sorts::infer;
 use crate::sorts::{
-    element_re, function_being_re, function_re, group_re, kind_re, let_formula,
-    membership_re, not_in_re, part_re, property_re, sentences, settled, unlabel, Env,
+    element_re, function_being_re, function_re, group_re, let_formula, membership_re,
+    not_in_re, part_re, property_re, sentences, set_or_point_re, settled, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -186,7 +186,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                     r.name
                 ),
             ),
-            Some(said) => match kinds::signature(said) {
+            Some(said) => match infer::signature(said) {
                 crate::outcome::Declined(d) => report.say(
                     &r.path,
                     r.line,
@@ -515,12 +515,12 @@ pub fn check_unsorted(
     }
 
     /// Each name a membership in `node` puts in a set of numbers, the set's
-    /// kind read with what the `let` lines say (`probe`).
+    /// sort read with what the `let` lines say (`probe`).
     fn put_in_numbers(
         node: &Node,
-        notations: &kinds::NotationKinds,
-        probe: &mut kinds::Reader,
-        store: &mut kinds::Store,
+        notations: &infer::NotationSorts,
+        probe: &mut infer::Reader,
+        store: &mut infer::Store,
         line: usize,
         out: &mut BTreeSet<String>,
     ) {
@@ -531,14 +531,14 @@ pub fn check_unsorted(
                     if !named.is_name() {
                         continue;
                     }
-                    let held = probe.kind(
+                    let held = probe.sort_of(
                         &node.children[set],
                         line.into(),
                         &IndexMap::new(),
                         store,
                     );
-                    if let kinds::Kind::Set(inner) = store.find(&held) {
-                        if store.find(&inner) == kinds::NUMBER {
+                    if let infer::SortTerm::Set(inner) = store.find(&held) {
+                        if store.find(&inner) == infer::NUMBER {
                             out.insert(named.text.clone());
                         }
                     }
@@ -550,7 +550,7 @@ pub fn check_unsorted(
         }
     }
 
-    let notations = env.g.notation_kinds();
+    let notations = env.g.notation_sorts();
     for (i, r) in records.iter().enumerate() {
         if !r.kind.is_item() {
             continue;
@@ -575,11 +575,11 @@ pub fn check_unsorted(
         }
         // What the `let` lines say, and every name a line puts in a set
         // they or a notation say holds numbers.
-        let mut store = kinds::Store::default();
-        let lets = kinds::read_lets(r, env, &mut store);
+        let mut store = infer::Store::default();
+        let lets = infer::read_lets(r, env, &mut store);
         let mut members: BTreeSet<String> = BTreeSet::new();
         for (no, tree) in &trees {
-            let mut probe = kinds::Reader::new(env);
+            let mut probe = infer::Reader::new(env);
             probe.env = lets.env.clone();
             put_in_numbers(tree, &notations, &mut probe, &mut store, *no, &mut members);
         }
@@ -613,7 +613,7 @@ fn introductions() -> [(&'static str, &'static regex::Regex); 9] {
         ("a membership", membership_re()),
         ("a thing not in a set", not_in_re()),
         ("an arbitrary element", element_re()),
-        ("an arbitrary set or point", kind_re()),
+        ("an arbitrary set or point", set_or_point_re()),
         ("a function", function_re()),
         ("a function with a property", function_being_re()),
         ("a part of a set", part_re()),

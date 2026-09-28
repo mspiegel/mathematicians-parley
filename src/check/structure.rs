@@ -12,9 +12,9 @@ use crate::corpus::{
     FileScope, Head, Intro, Item, Justification, Method, Record, RecordKind, Step,
     StepNo, Theorem, LABEL, NUMBER, REF,
 };
-use crate::kinds::obtains;
 use crate::matching::instantiation;
 use crate::outcome::Built;
+use crate::sorts::infer::obtains;
 use crate::sorts::named_by_hypotheses;
 use crate::text::{prefix, repr};
 use crate::{fancy, regex};

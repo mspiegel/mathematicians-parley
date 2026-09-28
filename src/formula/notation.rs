@@ -155,7 +155,7 @@ pub fn categories_of(r: &Record) -> (Vec<String>, String) {
 fn categories(r: &Record, raw: &str, binds: Option<&Binds>) -> (Vec<String>, String) {
     let said = r
         .field("sort")
-        .map(|k| crate::kinds::signature(str::trim(k)));
+        .map(|k| crate::sorts::infer::signature(str::trim(k)));
     let (mut holes, yields) = match said {
         Some(Built(sig)) => {
             let (holes, yields) = sig.categories();
