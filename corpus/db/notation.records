@@ -801,15 +801,6 @@ notation juxtaposition
               Nineteen numeral-then-name uses and three name-then-parenthesis
               uses in the corpus, and no name-then-name use.
 
-notation point
-  pattern     point
-  holes       none
-  yields      sort
-  reads       a point of the plane
-  metamath    an element of ℂ
-  note        A sort name rather than a notation: it appears in `let A be a
-              point`, which is a hypothesis line, not inside a formula.
-
 notation angle
   pattern     ∠___
   holes       point, point, point

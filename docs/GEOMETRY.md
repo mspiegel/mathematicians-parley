@@ -208,7 +208,7 @@ finished rather than a starting point — `lawcos`, `pythag`, `isosctr`,
 | entry | becomes |
 | --- | --- |
 | `notation plane` | new: `𝔼²`, `target cc` |
-| `notation point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
+| `notation is-a-point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
 | `notation distance` | `target` the absolute value of a difference |
 | `notation angle` | `target` the absolute value of `ang` |
 | `def:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
