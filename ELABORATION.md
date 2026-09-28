@@ -1,32 +1,31 @@
 # Elaborating the corpus
 
-A readable proof becomes a Metamath proof that verifies. That is what
-`parley/elaborate.py` does, and everything in this repository rests on it
+A readable proof becomes a Metamath proof that verifies. That is what the
+elaborator in `src/elab/` does, and everything in this repository rests on it
 working.
 
 ```
-parley/elaborate.py <theorem> <set.mm>
+parley build [<name>] [<set.mm>]
 ```
 
-writes one proof to standard output. The theorem is named in full, by its proof
-file and its own name: `proof/sqrt2-irrational/odd-square`. `parley/build.py` runs it over the whole
-corpus and puts each result where it belongs; `parley/gate.py` checks what was
-built. **Build first, every time** — the gate never runs the elaborator over
-the corpus, so breaking the elaborator and leaving the built files alone
-passes every stage.
+writes every generated file, or the one named, and says which changed. A
+theorem is named in full, by its proof file and its own name:
+`proof/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
+its second stage builds everything afresh in memory and compares it with the
+files in the tree, so an elaborator broken while the built files are left
+alone fails the gate.
 
-Every theorem in `proof/` elaborates, and `build.py` writes one artifact for
-each, one for the definitions, one for the geometry, and one for each proof
-worked out by hand. Nothing lists them: `build.py` reads the theorems off the
-proof files and the hand-written builders off their names, and a file's path
-under `elaboration/` is its name. `elaboration/proof/bezout/bezout.mm` is the
+Every theorem in `proof/` elaborates, and `parley build` writes one artifact
+for each, one for the definitions, one for the library's own proofs, and one
+for each proof worked out by hand: 99 in all. Nothing lists them: the build
+reads the theorems off the proof files, and a file's path under
+`elaboration/` is its name. `elaboration/proof/bezout/bezout.mm` is the
 theorem `proof/bezout/bezout`, and a file citing it includes it by that path.
 `elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
-elaborator writes, and `proved.mm`, written by `build-proved.py` beside it from
-one module per group of proofs (`proofs_geometry.py`), and the only statement
-of what it proves. The `build-<name>.py` scripts in
-`elaboration/` itself write the hand elaborations kept for comparison, each
-to `<name>.mm` beside it.
+elaborator writes, and `proved.mm`, written from `src/proofs/stdlib/`, one
+module per group of proofs (`geometry.rs`), and the only statement of what it
+proves. `src/proofs/comparison/` holds the hand elaborations kept for
+comparison, each written to `elaboration/<name>.mm`.
 
 Two things shape the whole design. A step is elaborated in deduction form, so
 every line is an implication whose antecedent is the scope it sits in, and a
@@ -54,8 +53,8 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    left to discharge. It matches modulo declared rules, each a set.mm
    theorem, as decision 5 of `GOALS.md` asks, and each application a step of
    the proof. Two things written differently are the same claim when they
-   reach one standard form (`same` in `parley/matcher.py`):
-   - a one-way rule (`rules.STANDARD`) rewrites toward the side whose
+   reach one standard form (`same` in `src/elab/matcher.rs`):
+   - a one-way rule (`rules::STANDARD`) rewrites toward the side whose
      variables all appear on the other, which is what makes rewriting end
      and have one answer: `df-3or`, `df-ne`, the ℝ⁺ spellings, `rextru`;
    - a symmetric one (`rules.SYMMETRIC`: `eqcom`, and the commuting pairs)
@@ -101,27 +100,27 @@ Twenty-three proofs are too few to know how many kinds of translation there
 are. Each family is one table, so the next one is added in one place, and each
 pilot is the test of whether the list still holds.
 
-**What is true of the code today.** Each part is a module, and
-`Elaborator` in `parley/elaborate.py` inherits a class from each:
+**What is true of the code today.** Each part is a module, and each is an
+`impl` block on the one `Elaborator` in `src/elab/state.rs` (517 lines),
+which holds the state they share:
 
 | part | module | lines |
 |---|---|---|
-| reading | `parley/reading.py` | 505 |
-| scopes | `parley/scopes.py` | 964 |
-| the matcher | `parley/matcher.py` | 2,486 |
-| rule tables, as data | `parley/rules.py` | 329 |
-| rule tables, read | `parley/tables.py` | 508 |
-| the calculators | `parley/calculators.py`, deciding in `parley/field.py`, `parley/normal.py`, `parley/linear.py` | 1,957 |
-| the proof rules | `parley/provenance.py` | 557 |
+| reading | `src/elab/reading.rs` | 768 |
+| scopes | `src/elab/scopes.rs` | 1,837 |
+| the matcher | `src/elab/matcher.rs` | 4,525 |
+| rule tables, as data | `src/rules.rs` | 873 |
+| rule tables, read | `src/elab/tables.rs` | 1,345 |
+| the calculators | `src/elab/calculators.rs`, deciding in `field.rs`, `normal.rs`, `linear.rs` | 7,223 |
+| the proof rules | `src/elab/provenance.rs` | 878 |
 
-What `parley/elaborate.py` keeps (2,039 lines) is the step loop, the handler
+What `src/elab/elaborate.rs` keeps (3,483 lines) is the step loop, the handler
 for each kind of step, citing an item or a corpus theorem, the definition
-readings, and the command line. The parts share their state on the one
-object, and each part changes it only through its own methods: the frames
-through the scopes (`frames_kept`, `open_outermost`), what names stand for
-through reading (`names_kept`), what a step's lines wrote through the tables
-(`writing`), and a step's proof through the proof rules (`check_step`). Every
-table is in `parley/rules.py`.
+readings, and writing the file. Each part changes the shared state only
+through its own methods: the frames through the scopes (`frames_kept`,
+`open_outermost`), what names stand for through reading (`names_kept`), what
+a step's lines wrote through the tables (`writing`), and a step's proof
+through the proof rules (`check_step`). Every table is in `src/rules.rs`.
 
 The matcher compares through one standard form (above). What it keeps as
 named operations, because none is a rewrite of one statement into another,
@@ -133,9 +132,9 @@ conjunction (`as_conjunct`), a lemma said of every such name
 re-indexing a sum (`letters_apart`). `settle`'s search for side conditions
 reads the declared lemmas through an index built from their statements.
 
-Measured on 2026-09-25, every proof, the definitions and the planted cases
-between them run 1,271 of the 1,445 executable lines of
-`parley/calculators.py`. What none runs is a route declining, a refusal no
+Measured on 2026-09-25, on the Python implementation the Rust one was ported
+from line for line, every proof, the definitions and the planted cases
+between them ran 1,271 of the 1,445 executable lines of its calculators. What none runs is a route declining, a refusal no
 planted case reaches, a case of a method no proof has needed yet (`3 ≤ 3`),
 and `assume` with `stated`: no step in the corpus is taken as stated any
 longer, and the two stay, because taking a decided step as stated and
@@ -146,8 +145,10 @@ written.
 
 Measured again on 2026-09-25, after the refactor, over the 23 theorems and
 the 37 planted elaborator cases, by recording each line of the eight modules
-as it first runs, what each route returns, and every lemma in the expanded
-proofs.
+of the Python implementation as it first runs, what each route returns, and
+every lemma in the expanded proofs. What the proofs are made of is a property
+of the output, which the Rust implementation matched byte for byte; the line
+counts are the Python modules'.
 
 **The proofs are almost all translation.** The 23 proofs expand to 958,486
 logical steps. 17,133 of them, under 2%, apply a lemma the page names. The
@@ -352,7 +353,7 @@ last three, which `proof/schroeder-bernstein.proof` is the proof of.
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
 
-**What a scope owns, in the code.** `parley/scopes.py` keeps the frames, and
+**What a scope owns, in the code.** `src/elab/scopes.rs` keeps the frames, and
 nothing outside it pushes or drops one: a route that widens the scope for a
 moment — a binder's membership while `settle` proves a universal, each side of
 an `inequalities` split — opens it inside `frames_kept`, which gives the frames
@@ -628,7 +629,7 @@ same.
 
 **`algebra` has a normal form and a fixed order**: carry the atoms into ℂ,
 apply the one structural lemma the shape calls for, then reduce the numerals.
-Nothing is searched. `field.py` decides a step and `normal.py` proves it, and
+Nothing is searched. `field.rs` decides a step and `normal.rs` proves it, and
 a numeral exponent is expanded while any other leaves the whole power an atom.
 
 What the method may do with a disequality is one thing: a *rescaled denial*.
@@ -756,7 +757,7 @@ is proved by the reason that line gives, or the elaborator says it cannot.
 
 A line the page cites says what it states and what a membership among its
 sentences implies (`SYNTAX.md`): `let k ∈ ℕ` gives `k ∈ ℝ` by `nnre`,
-`k ≥ 1` by `nnge1` and `k ≠ 0` by `nnne0`, from the table in `rules.py`
+`k ≥ 1` by `nnge1` and `k ≠ 0` by `nnne0`, from the table in `rules.rs`
 (`implied`). An `obtain`'s names count as their line's: the scope holds
 `N ∈ ℕ` with line 5.3 as its origin, and `requires N ≠ 0: from 5.3` reads it
 there (`stated_by`). `inequalities` is offered the bounds, with the facts as
@@ -822,7 +823,7 @@ It is one list tried by matching, because putting a sum of integers in ℤ and
 putting a summation index in ℂ are one question asked twice.
 
 The list is read through an index the matcher builds from each lemma's own
-statement (`declared` in `parley/matcher.py`): what each reading of it can
+statement (`declared` in `src/elab/matcher.rs`): what each reading of it can
 conclude, and a membership's class where it fixes one. `settle` tries, in the
 declared order, only the lemmas that could conclude what is wanted, which is
 every lemma that would have matched. The same reading gives each lemma its
@@ -942,7 +943,7 @@ The line may be said of a larger set than the range, as `SYNTAX.md` allows:
 the triangular reciprocals' `sum-termwise` step cites line 1, said of every
 k ∈ ℕ, for a hypothesis over {1, …, n}, and the index is in ℕ by `elfznn`
 once it is in the range. The checker reads the same inclusion from the
-table in `rules.py` (`set_within`).
+table in `rules.rs` (`set_within`).
 
 A line said of every index answers a lemma's hypothesis about each index
 whether the step cites it or writes it as a requires line: `climnnre` asks
@@ -1009,7 +1010,7 @@ both statements.
 Stated as it says, an item is only as true as what it says, and a name it
 leaves open is read as anything at all. `thm:stdlib/counting/card-nonempty` said `assume
 |X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
-false. So `check.py` refuses a name of no known sort standing where a notation
+false. So `parley check` refuses a name of no known sort standing where a notation
 wants a number, in any item's assumptions and any theorem's conclusion; a
 bound name is spoken for, and so is the name a definition defines over.
 Nothing checks that an item's statement is true beyond that. The list at the
@@ -1104,8 +1105,9 @@ only named.
 ### Steps taken as stated
 
 `GOALS.md` decision 17: what the elaborator cannot build is a defect, or it is
-recorded here, and a list in a file's header is not a record. The gate stage
-`parley/assumed.py` reads every elaborated proof under `elaboration/proof/`
+recorded here, and a list in a file's header is not a record. The gate's
+"taken as stated" stage (`src/tools/assumed.rs`) reads every elaborated proof
+under `elaboration/proof/`
 and every library test under `elaboration/tests/`, and is red for any
 statement one takes as stated that this list does not name, and for any this
 list names that no file states any longer. A record is one entry:
@@ -1125,24 +1127,26 @@ whose antecedent is the whole scope, and in normal format that antecedent is
 written out in full at every use — three nested scopes make it about ninety
 tokens, written perhaps two hundred times. So size is driven by copying the
 context and grows with steps times scope depth, and the compressed format
-disposes of it. The elaborated corpus is 144 KB and its largest proof,
-`thm:proof/bezout/least-combination-divides`, is 26 KB; in normal format each is larger by
+disposes of it. The 27 elaborated proofs under `elaboration/proof/` come to
+371 KB and the largest,
+`thm:proof/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
 orders of magnitude, since nothing about the proof changes and only the
 repetition is written down differently.
 
 The elaborator never writes normal format. A proof is built as steps
-(`spell.Step`), each a label applied to the steps it takes and sharing them
+(`spell::Step`), each a label applied to the steps it takes and sharing them
 rather than copying them, and the compressed file is written from those
-(`compress.shapes_of`). So what a proof costs to build follows its distinct
+(`compress::shapes_of`). So what a proof costs to build follows its distinct
 parts: the intermediate value theorem is 63 million labels written out and
-3,030 distinct subproofs, and it elaborates in 3.5 seconds and 0.56GB. As a
+3,030 distinct subproofs, and `parley build` makes it in 1.7 seconds and
+0.5GB, reading set.mm included. As a
 step is built, each part is checked against the kind its label takes, so a
 proof handed where a class belongs fails at the call that made it rather
 than in the verifier.
 
 It verifies faster too, because a step that was kept is not checked again.
 What makes it safe is that the proof written is the proof that was given:
-`compress.expand` reads one back, and `parley/test_compress.py` asks that of
+`compress::expand` reads one back, and `tests/compress.rs` asks that of
 every proof in the corpus.
 
 It does not make the expansions smaller. There are still six hundred and
@@ -1160,41 +1164,44 @@ an elaborator can be held to.
 
 ## What the tools check
 
-`parley/gate.py` runs eleven stages: the lint settings, that no caller hands
-on a decline without asking whether it has one, the planted shapes that prove
-that stage still finds them, the checker over the whole corpus, the planted
-defects that prove the checker still catches things, the planted defects that
-prove the elaborator still reports things, every set.mm label the database
-names, that every library item is cited by a proof or tested in
-`tests/stdlib/` (`DATABASE.md`), that a compressed proof is the proof it was
-made from, that no elaborated proof or test takes a step as stated unless
-"Steps taken as stated" above records it, and a verifier over every proof the
-elaborator has written.
+What checks the tool and what checks the corpus are kept apart. `cargo test`
+is whether the tool is right: the planted defects the checker must catch
+(`tests/planted_check.rs`), the planted defects the elaborator must report
+(`tests/planted_elaborate.rs`), that a compressed proof is the proof it was
+made from (`tests/compress.rs`), that the hand elaborations write their files
+(`tests/comparison.rs`), and that a decline nobody asks about does not compile
+(`tests/declines.rs`). `parley gate` is whether the corpus is right, in six
+stages: the checker over the whole corpus; every artifact built afresh and
+compared with the file in the tree; every set.mm label the database names;
+that every library item is cited by a proof or tested in `tests/stdlib/`
+(`DATABASE.md`); that no elaborated proof or test takes a step as stated
+unless "Steps taken as stated" above records it; and a verifier over every
+proof the elaborator has written. `scripts/precommit.sh` runs both.
 
-`parley/declines.py` reads the tools' own source. A `Declined` is what a route
-gives back when it does not apply, and a caller that uses one without asking
-`declined()` has a proof that is not one. It reports a decline passed to a
-call, bound to a name and then passed on, stored in a dictionary, written into
-an f-string, unpacked as a tuple, or spread with `*`, in a function that never
-asks about it; asking `is None` is not asking. A function declines if it gives
-one back, and the set is closed across files, so `work.normalize` in
-`elaborate.py` is `normal.py`'s. Running out of kernel variables is raised, not
-declined: it is the tool at its limit, and never happens on a run where nothing
-is wrong.
+A route gives back `Route::Declined` when it does not apply, and a caller that
+used one as though it were what the route builds would have a proof that is
+not one. The compiler is what refuses that: a `Route` is not a term or a
+proof, and it is `#[must_use]`. `tests/declines.rs` holds one program for each
+way it could be misused (passed to a call, bound to a name and passed on,
+stored in a table, written into text, unpacked, spread into a call, handed
+back after asking, reached from another module or through `self`), and each
+must fail to compile; the ways of asking that are right must compile. Running
+out of kernel variables is a `Problem`, not a decline: it is the tool at its
+limit, and never happens on a run where nothing is wrong.
 
-The last is the only one that is evidence the elaborator is right rather than
-consistent. The others read the corpus against itself or against a list of
+The verifier is the only stage that is evidence the elaborator is right rather
+than consistent. The others read the corpus against itself or against a list of
 names, and a proof that assumes nothing and proves the wrong thing passes all
 of them — which has happened: an `arithmetic` step emitted `1 = 1` for a claim
 about `( 1 x. ( 1 + 1 ) ) / 2`, and the assumption count reported it as a win.
 
-`parley/test_elaborate.py` is there because nothing else watches what the
+`tests/planted_elaborate.rs` is there because nothing else watches what the
 elaborator does with a defect. Taking a step as stated is right where it has no
 method for it and wrong where the text is wrong, and the difference is what
-`Problem` and `Declined` are for: a defect is raised and nothing carries on past
-it, a route declining is returned and asked about. Each case copies the corpus,
-makes one edit, and requires that elaborating fails with a message naming
-where. A case that elaborates cleanly is the failure it is looking for.
+`Problem` and `Route::Declined` are for: a defect is passed up and nothing
+carries on past it, a route declining is returned and asked about. Each case
+reads the corpus through an overlay, makes one edit, and requires that
+elaborating fails with a message naming where. A case that elaborates cleanly is the failure it is looking for.
 
 ### Provenance: what each proof rests on
 
@@ -1226,7 +1233,7 @@ deduction-form lemma is stated in, and uses nothing.
 
 Three rules follow, each a defect naming the line, checked where the proof is
 sealed. A step's proof, a block's, and an obtain's source all pass through
-one `check_step` in `parley/provenance.py`, which applies R1 and then R3 and
+one `check_step` in `src/elab/provenance.rs`, which applies R1 and then R3 and
 then seals; what it allows is `named`, the same set `resting_on` offers the
 search while the step is built. A requires line is checked by R2 where it is
 proved (`discharged_by`).
@@ -1236,7 +1243,7 @@ proved (`discharged_by`).
   assumes, and what a `join` closing it names (requirement 8). *step 3 rests
   on 1, which it does not name.*
 - **R2 — a requires line rests only on its reason**: the lines its reason
-  cites, and the step's other requires lines, which `check.py` also lets one
+  cites, and the step's other requires lines, which `parley check` also lets one
   line discharge from another. *the requires line rests on 1, which it does not
   name.*
 - **R3 — everything a step names does work.** Divided by who can see it:
@@ -1271,21 +1278,21 @@ What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines is a dull fact by `READERS.md`'s
 definition — `geometric-sum`'s line 1, `1 − a ≠ 0`, is the one in the corpus.
 
-`test_elaborate.py` and `test_check.py` plant one case of each rule, and each
+`tests/planted_elaborate.rs` and `tests/planted_check.rs` plant one case of each rule, and each
 is confirmed to have elaborated or checked cleanly before its rule existed.
 
 R1 and R2 are enforced twice, and the planted cases above reach only the
 first: `settle` is offered what the step names and nothing else, so a
 plant that breaks either rule is caught by the search finding nothing. The
 rule checked where the proof is sealed is what catches a route that reads
-the scope without asking `settle`, and `test_elaborate.py`'s `NETS` plant
+the scope without asking `settle`, and the nets in `tests/planted_elaborate.rs` plant
 one case of each with the search offered the whole scope. Each builds
 silently with its rule taken away as well, so the rule is the only thing
 catching it.
 
 ### What they do not check
 
-**Method steps, in the checker.** It accepts 63 steps resting on a closure
+**Method steps, in the checker.** It accepts 103 steps resting on a closure
 method without checking them; what a method decides, and what it demands, is
 the elaborator's.
 
@@ -1320,9 +1327,10 @@ C form a triangle" once and is done.
 
 ## Keeping set.mm where the tools can see it
 
-`parley/labels.py` reads 278 labels — every token of a `target` or a `defines`,
-which are machine-read and so name nothing else, plus what
-`rules.MEMBERSHIP` lists — and asks set.mm whether it has them.
+The gate's labels stage (`src/tools/labels.rs`) reads 609 labels — every token
+of a `target` or a `defines`, which are machine-read and so name nothing else,
+plus what the rule tables in `src/rules.rs` list — and asks set.mm whether it
+has them.
 
 `metamath` is prose meant for a person and names its labels in a sentence, so
 it is read only as far as it is certainly naming them: the leading entries that
@@ -1334,19 +1342,18 @@ optional — the one error the check has ever found was a `dvds` that meant
 
 set.mm is 51 MB and belongs to metamath, so it is not committed: say where it
 is with `SET_MM`, or leave a copy or a link at the root of the working tree.
-`mmverify.py` is not vendored either — `MMVERIFY`, or a copy or link at the
-root — because what checks these proofs should not be a copy this project
-maintains. Missing, the stage says so and the gate is not green, the way it
-goes for ruff: a gate that skipped either would be saying green about a thing
-it had not looked at.
+Missing, the stages that need it say so and the gate is not green: a gate
+that skipped them would be saying green about a thing it had not looked at.
 
-`parley/verify.py` runs `mmverify.py` over every proof — the elaborated
-theorems and `proved.mm`'s lemmas — in about nineteen seconds,
-nearly all of which is reading set.mm. Given a file whose whole contents are
-`$[ set.mm $]` it takes 17.8 seconds, and the proofs add a tenth of one.
-Which files that one includes is read off the `$[ ... $]` lines rather than
-listed: a proof nothing else includes is a root. A list written down would
-leave the gate green on the day a proof was added and not read.
+What checks these proofs is not code this project wrote. The verify stage
+(`src/tools/verify.rs`) runs `metamath-rs`, the verifier of metamath-knife,
+which the Metamath project maintains, as a library inside `parley`. It is
+handed set.mm and every built file in memory, each under the name the others
+include it by, and verifies every proof — the elaborated theorems and
+`proved.mm`'s lemmas — in about three seconds, most of it reading set.mm.
+Which files the joined one includes is read off the `$[ ... $]` lines rather
+than listed: a proof nothing else includes is a root. A list written down
+would leave the gate green on the day a proof was added and not read.
 
 ## What the expansion language has to have
 

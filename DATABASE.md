@@ -36,7 +36,7 @@ every item is cited by a proof, or by its test in `tests/stdlib/<subject>.proof`
 a theorem whose one step cites it: the item's hypotheses, and its conclusion,
 or for a definition its right side from its left. One direction is enough,
 since the lemma applied either way has the whole statement to match. The
-gate's `parley/tested.py` is red for an item neither cites; an `open` item
+gate's cited-or-tested stage is red for an item neither cites; an `open` item
 has no lemma and is not asked. An item may be added before a proof needs it,
 and its test is what checks it until one does.
 
@@ -132,7 +132,7 @@ it by hand.
 
 Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
 kind of the item it names, and every proof file imports exactly the proof
-files it cites and the definitions it uses from other files; `check.py`
+files it cites and the definitions it uses from other files; `parley check`
 checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
@@ -254,27 +254,22 @@ repaired.
   line cited a theorem where the rule allows only a cited line. It was the
   checker's first true positive and is repaired: the theorem is now step 2 and
   the chain cites that number.
-- **`parley/build.py` and then `parley/gate.py` is what must be green before a
-  commit.** Build first, every time: no stage of the gate runs the elaborator
-  over the corpus, and the last one verifies the files it *has written*, so
-  those files have to have been written from the corpus as it stands. Break
-  the elaborator and leave the built files alone and the gate passes while
-  nothing elaborates. Eleven stages: ruff over the tools, that no caller hands
-  on a decline without asking whether it has one, the planted shapes that
-  prove that stage still finds them, the checker over the corpus, the planted
-  defects that prove the checker still catches things, the planted defects
-  that prove the elaborator still reports things, every set.mm label the
-  database names, that every library item is cited by a proof or has a test,
-  that a compressed proof is the proof it was made from, that
-  no elaborated proof takes a step as stated that `ELABORATION.md` does not
-  record, and a verifier over every proof the elaborator has written. The lint settings
-  are in `ruff.toml`, which turns off the ambiguous-character rules because
-  this corpus is written in the characters they object to. Nothing the gate
-  leans on is vendored: ruff is looked for on PATH, and set.mm and mmverify.py
-  belong to metamath and are found by `SET_MM` and `MMVERIFY` or by a copy or
-  link at the root. Each missing one fails the gate and says how to supply it,
-  because a gate that skipped a stage would be saying green about something it
-  had not looked at.
+- **`scripts/precommit.sh` is what must be green before a commit.** It runs
+  `cargo fmt --check`, clippy, `cargo test`, `parley build` and `parley gate`.
+  `cargo test` is whether the tool is right: the planted defects the checker
+  must catch, the planted defects the elaborator must report, that a
+  compressed proof is the proof it was made from, and that a decline nobody
+  asks about does not compile. `parley gate` is whether the corpus is right,
+  in six stages: the checker over the corpus; every artifact built afresh and
+  compared with the file in the tree, so that a broken elaborator with its old
+  files left in place fails here; every set.mm label the database names; that
+  every library item is cited by a proof or has a test; that no elaborated
+  proof takes a step as stated that `ELABORATION.md` does not record; and a
+  verifier not written for this project, `metamath-rs`, over every proof the
+  elaborator has written. set.mm belongs to metamath and is not vendored: it
+  is found by `SET_MM` or by a copy or link at the root, and without it the
+  gate fails and says how to supply it, because a gate that skipped a stage
+  would be saying green about something it had not looked at.
 - **The hypotheses of `algebra` and `inequalities` are written.** Each method
   record carries a `hypotheses` field — `algebra`'s reads "every atom is a real
   number, and every denominator is nonzero" — and `SYNTAX.md` has moved the

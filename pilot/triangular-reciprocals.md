@@ -60,7 +60,7 @@ shorter, and the proof as it stands cites neither.
 In `db/methods.records`: the method `membership`.
 
 In `elaboration/stdlib/proved.mm`, proved below the readable layer by
-`elaboration/stdlib/proofs_series.py`: `climnnre`, the target of
+`src/proofs/stdlib/series.rs`: `climnnre`, the target of
 `tends-to`, and `sersumlim`, the target of `series-value`.
 
 ---

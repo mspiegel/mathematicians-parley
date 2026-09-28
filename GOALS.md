@@ -170,6 +170,10 @@ The mathematical content lives in the long tail. That is what a reader should se
     implementation works in Unicode scalar values and UTF-16 is not used, for
     the reason given in `DATABASE.md`.
 
+    The Python program has been thrown away. `parley` is one Rust executable,
+    in `src/`, whose output matched the Python's byte for byte before the
+    Python was deleted.
+
 14. **A tool says correct, or a defect, or a style difference, and nothing
     else.** The checker and the elaborator report something wrong and stop, or
     they report nothing. A style difference is a judgement about two correct
@@ -395,7 +399,7 @@ answer later would invalidate work already done.
    before any enriched proof is written, since every enriched proof depends on
    it.
 
-   The second half has an answer. `parley/elaborate.py` elaborates
+   The second half has an answer. `parley build` elaborates
    `thm:proof/sqrt2-irrational/odd-square` from the readable text, and its proof verifies and is not
    the one written by hand: 2,067 proof tokens against 1,617, differing in
    which facts it keeps rather than only in length. So two elaborators

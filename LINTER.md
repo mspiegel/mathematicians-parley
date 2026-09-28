@@ -103,7 +103,7 @@ and would be cheap; the obtain rule is a justification head and is cheaper
 still. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 
-If a linter is written it belongs in the gate beside ruff and the checker, and
+If a linter is written it belongs in the gate beside the checker, and
 its findings are suggestions rather than problems. A problem means the corpus
 says something it should not, and the gate is red until it is fixed. A
 suggestion here means the corpus says the right thing in what we took to be the

@@ -396,14 +396,15 @@ non-negative, and in ℚ and ℝ always.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
   arithmetic, and the corpus does not treat it as such; it cites `def:stdlib/numbers/sqrt`.
   Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
-  is taken, because a fractional power in Python is a float, and a float
-  may be inexact, infinite or zero without saying so. Every value is an
-  exact fraction.
+  is taken, because a fractional power is in general irrational and could
+  only be held as a float, and a float may be inexact, infinite or zero
+  without saying so. Every value is an exact fraction.
 - **A division by zero,** `3/0` or `0^(−1)`. set.mm gives `A / 0` a
   meaning, a class nobody writes, and a claim about it is not one a reader
   can check.
-- **A number too large to work out.** Python's integers do not overflow, so
-  a claim like `9^(9^9)` would take time and memory without end. The size
+- **A number too large to work out.** The arithmetic is on integers of any
+  size, which do not overflow, so a claim like `9^(9^9)` would take time and
+  memory without end. The size
   of a power is estimated before it is computed, and anything past ten
   thousand bits is refused.
 - **Anything false.** The claim is worked out before a proof is attempted,

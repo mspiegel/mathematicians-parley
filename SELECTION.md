@@ -133,8 +133,8 @@ for the existence-by-construction feature.
 The ten are written and every theorem the corpus proves elaborates from
 set.mm with nothing assumed. The next five are chosen by the same coverage
 rule, now asking what none of the ten exercises. All five are on Wiedijk's
-list and in set.mm's main body, not a mathbox. Measured with
-`parley/mmstats.py` on the same set.mm.
+list and in set.mm's main body, not a mathbox. Measured on the same set.mm
+with a one-off script that is not kept.
 
 | # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
 |---|---|---|---|---|---|---|---|---|---|

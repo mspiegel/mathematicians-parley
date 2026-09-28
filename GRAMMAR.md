@@ -126,7 +126,7 @@ its declaration `s ∈ S`, where `S` is a set-builder over `[a, b]`; with flat
 sorts it waited for step 17.25.3 to say `s ∈ ℝ`.
 
 **How the tools do it.** Each notation's `kinds` field in `db/notation.records`
-relates its holes' kinds, and `parley/kinds.py` reads a statement or a proof in
+relates its holes' kinds, and `src/kinds.rs` reads a statement or a proof in
 the order it is written, unifying as it goes. A name declared of any kind — `be
 a set`, `be an element` — stays free while its statement or its block's opening
 lines may still relate it, and is fixed where the proof under them begins; from

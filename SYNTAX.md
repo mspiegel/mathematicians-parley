@@ -304,7 +304,7 @@ answered by a cited line "for every k ∈ ℕ, P(k)", since every k from 1 to n
 is a natural number. Which sets lie inside which is a declared table, not a
 search: ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ, {1, …, b} ⊆ ℕ, {0, …, b} ⊆ ℕ₀ and {a, …, b} ⊆ ℤ,
 each by the set.mm lemma that says so of a member. The table is in
-`parley/rules.py`, and the checker and the elaborator read the same one.
+`src/rules.rs`, and the checker and the elaborator read the same one.
 
 **A line saying a term is in a number system says what that implies.**
 `let k ∈ ℕ (K1)` also says k ∈ ℕ₀, k ∈ ℤ, k ∈ ℚ and k ∈ ℝ, by the table
