@@ -1,8 +1,0 @@
-error[E0308]: mismatched types
- --> tests/declines/proof_as_text.rs:9:22
-  |
-9 |     let _ = b.term(&[&proof, "eqid"]);
-  |                      ^^^^^^ expected `&str`, found `&Proof`
-  |
-  = note: expected reference `&str`
-             found reference `&parley::mm::Proof`

@@ -31,9 +31,6 @@ unicode-segmentation = "1"
 unicode-properties = { version = "0.1", default-features = false, features = ["general-category"] }
 unicode_names2 = "1"
 
-[dev-dependencies]
-trybuild = "1"
-
 [profile.dev]
 opt-level = 1
 

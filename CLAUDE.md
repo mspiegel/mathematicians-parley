@@ -28,8 +28,7 @@ means "absent" across the elaborator, so one more meaning moves the double duty
 rather than ends it; and `spell::seq` drops empty parts, so a decline arriving
 there as an empty string would shorten a proof and say nothing whatever. A
 `Route` is neither: it cannot be passed where a term or a proof is wanted, and
-it is `#[must_use]`, so a caller who forgot to look does not compile
-(`tests/declines`).
+it is `#[must_use]`, so a caller who forgot to look does not compile.
 
 The test is whether the error can happen on a run where nothing is wrong. If it
 fires hundreds of times in a green build, it is branching and it is spelt wrong.

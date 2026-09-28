@@ -1,8 +1,5 @@
 # What cargo builds.
 /target/
-# What trybuild writes when a compile-fail case's message changes, until the
-# change is looked at and moved into place.
-/wip/
 
 # The library is fetched, never committed. A stray copy is 51 MB and
 # arrives by `cp` following a symlink into a directory of elaborated proofs.

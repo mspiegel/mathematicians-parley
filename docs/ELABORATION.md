@@ -1170,9 +1170,8 @@ What checks the tool and what checks the corpus are kept apart. `cargo test`
 is whether the tool is right: the planted defects the checker must catch
 (`tests/planted_check.rs`), the planted defects the elaborator must report
 (`tests/planted_elaborate.rs`), that a compressed proof is the proof it was
-made from (`tests/compress.rs`), that the hand elaborations write their files
-(`tests/comparison.rs`), and that a decline nobody asks about does not compile
-(`tests/declines.rs`). `parley gate` is whether the corpus is right, in six
+made from (`tests/compress.rs`), and that the hand elaborations write their
+files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in six
 stages: the checker over the whole corpus; every artifact built afresh and
 compared with the file in the tree; every set.mm label the database names;
 that every library item is cited by a proof or tested in `tests/stdlib/`
@@ -1182,12 +1181,9 @@ proof the elaborator has written. `scripts/precommit.sh` runs both.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is
-not one. The compiler is what refuses that: a `Route` is not a term or a
-proof, and it is `#[must_use]`. `tests/declines.rs` holds one program for each
-way it could be misused (passed to a call, bound to a name and passed on,
-stored in a table, written into text, unpacked, spread into a call, handed
-back after asking, reached from another module or through `self`), and each
-must fail to compile; the ways of asking that are right must compile. Running
+not one. The compiler is what refuses that, the way it refuses an `Option`
+used as the value it may hold: a `Route` is not a term or a proof, and it is
+`#[must_use]`. Running
 out of kernel variables is a `Problem`, not a decline: it is the tool at its
 limit, and never happens on a run where nothing is wrong.
 
