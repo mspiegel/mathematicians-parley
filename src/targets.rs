@@ -1,6 +1,6 @@
 //! Where the readable layer's words land in set.mm.
 //!
-//! `db/notation.records` and the `stdlib/*.records` files carry a `target`
+//! `corpus/db/notation.records` and the `corpus/stdlib/*.records` files carry a `target`
 //! field beside `metamath`, and this reads it. `metamath` says in words
 //! which set.mm construct a pattern or an item corresponds to, which is what
 //! a person checking the database wants; `target` says the same thing as a

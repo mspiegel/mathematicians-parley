@@ -6,7 +6,7 @@
 //! so the correspondence between the proof text and the expansion stays
 //! visible. They read nothing: every term is built here with the
 //! constructors in `mm::spell`, and each file is written to
-//! `elaboration/<name>.mm`.
+//! `corpus/elaboration/<name>.mm`.
 
 pub mod abs_bounds;
 pub mod algebra;

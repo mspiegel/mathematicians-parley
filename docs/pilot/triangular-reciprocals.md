@@ -15,7 +15,7 @@ where the input approaches no point and δ becomes a threshold N.
 ## Theorem triangular-reciprocals
 
 The proof is `proofs/triangular-reciprocals.proof`. It elaborates to
-`elaboration/proofs/triangular-reciprocals/triangular-reciprocals.mm`, which
+`corpus/elaboration/proofs/triangular-reciprocals/triangular-reciprocals.mm`, which
 assumes nothing and verifies.
 
 ---
@@ -48,18 +48,18 @@ ask, is written on them as requires lines rather than as steps.
 
 ## Database items
 
-In `db/notation.records`: `series`, Σ(k = a to ∞), and `tends-to`,
+In `corpus/db/notation.records`: `series`, Σ(k = a to ∞), and `tends-to`,
 "x(n) → L as n → ∞", a relation rather than an operator — set.mm's `~~>`.
 
-In `stdlib/`: `definition tends-to` and `theorem series-value` (calculus);
+In `corpus/stdlib/`: `definition tends-to` and `theorem series-value` (calculus);
 `archimedean`, `quotient-real`, `reciprocal-positive` and `reciprocal-order`
 (numbers); `sum-telescopes` and `range-nat` (sums). `quotient-real` and
 `range-nat` were cited by drafts of the proof that the rules below made
 shorter, and the proof as it stands cites neither.
 
-In `db/methods.records`: the method `membership`.
+In `corpus/db/methods.records`: the method `membership`.
 
-In `elaboration/stdlib/proved.mm`, proved below the readable layer by
+In `corpus/elaboration/stdlib/proved.mm`, proved below the readable layer by
 `src/proofs/stdlib/series.rs`: `climnnre`, the target of
 `tends-to`, and `sersumlim`, the target of `series-value`.
 

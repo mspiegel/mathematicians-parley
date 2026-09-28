@@ -7,8 +7,8 @@
 //! file's header says what the file assumes, and is not a record: nothing
 //! makes anyone read it.
 //!
-//! So every `$a` in a file under `elaboration/proofs/` or
-//! `elaboration/tests/` must be named in the section "Steps taken as stated"
+//! So every `$a` in a file under `corpus/elaboration/proofs/` or
+//! `corpus/elaboration/tests/` must be named in the section "Steps taken as stated"
 //! of `ELABORATION.md`, and every statement named there must still be one a
 //! file takes. The second keeps the record from outliving what it records.
 //! The tests are read because a library item's test is where an item no
@@ -25,7 +25,7 @@ regex!(AXIOM, r"(?m)^\s*(\S+)\s+\$a\s");
 // its example, not a record.
 regex!(
     RECORD,
-    r"(?m)^- `(elaboration/(?:proof|tests)/[^`]+\.mm)` `([^`]+)`:"
+    r"(?m)^- `(corpus/elaboration/(?:proofs|tests)/[^`]+\.mm)` `([^`]+)`:"
 );
 regex!(NEXT_SECTION, r"(?m)^#{2,3} ");
 
@@ -51,9 +51,11 @@ fn recorded(text: &str) -> Option<BTreeSet<(String, String)>> {
 fn taken(source: &dyn Source) -> BTreeSet<(String, String)> {
     let mut out = BTreeSet::new();
     for rel in source.found(".mm") {
-        let read = ["elaboration/proofs/", "elaboration/tests/"]
-            .iter()
-            .any(|p| rel.starts_with(p));
+        let read = ["proofs/", "tests/"].iter().any(|p| {
+            rel.strip_prefix(super::ELABORATION)
+                .and_then(|r| r.strip_prefix('/'))
+                .is_some_and(|r| r.starts_with(p))
+        });
         if !read {
             continue;
         }

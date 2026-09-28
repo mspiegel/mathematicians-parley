@@ -48,14 +48,24 @@ pub const CITED: &str = r"(?:[A-Za-z][A-Za-z0-9-]*/)*[A-Za-z][A-Za-z0-9-]*";
 /// The standard library, the one module root that is not a proof file: it is
 /// never imported, and every proof may cite it.
 pub const STDLIB: &str = "stdlib";
+/// Where the database, the library and what is built from them are kept,
+/// under the working tree. Names are read from inside it, so the directory's
+/// own name is in no name: `corpus/stdlib/numbers.records` is the module
+/// `stdlib/numbers`.
+pub const CORPUS: &str = "corpus";
 pub const LABEL: &str = r"[A-Z]+[0-9]*";
 pub const NUMBER: &str = r"\d+(?:\.\d+)*";
 pub const REF: &str = r"(?:\d+(?:\.\d+)*|[A-Z]+[0-9]*)";
 
 pub const PART_MARKERS: [&str; 3] = ["base", "step", "case"];
 
-/// The module a file is: its path from the root without the extension.
+/// The module a file is: its path from the root without the extension, and
+/// without `corpus/` for a file kept there.
 pub fn module_of(path: &str) -> &str {
+    let path = path
+        .strip_prefix(CORPUS)
+        .and_then(|rest| rest.strip_prefix('/'))
+        .unwrap_or(path);
     match path.rfind('.') {
         Some(at) => &path[..at],
         None => path,

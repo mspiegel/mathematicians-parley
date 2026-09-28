@@ -46,7 +46,7 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
 /// The corpus as it stands: the database, the library, and every proof.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    Memory::copy(&Disk::new(root), &["db", "stdlib", "proofs", "tests"]).unwrap()
+    Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap()
 }
 
 /// Plant one case's edits, or say why they could not be planted.
@@ -333,7 +333,7 @@ fn cases() -> Vec<Case> {
         case(
             "an item that says nothing about where it comes from",
             vec![
-                edit("stdlib/sets.records", Some("theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath    pw0".to_string()), "theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
+                edit("corpus/stdlib/sets.records", Some("theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath    pw0".to_string()), "theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
             ],
             "neither which set.mm label",
         ),
@@ -418,14 +418,14 @@ fn cases() -> Vec<Case> {
         case(
             "two items of one name in one library file",
             vec![
-                edit("stdlib/sets.records", Some("theorem powerset-empty\n".to_string()), "theorem powerset-monotone\n".to_string()),
+                edit("corpus/stdlib/sets.records", Some("theorem powerset-empty\n".to_string()), "theorem powerset-monotone\n".to_string()),
             ],
             "theorem powerset-monotone is already defined",
         ),
         case(
             "an item stated outside the standard library",
             vec![
-                edit("db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath    exmid\n\nmethod algebra\n".to_string()),
+                edit("corpus/db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath    exmid\n\nmethod algebra\n".to_string()),
             ],
             "stray is outside stdlib/",
         ),
@@ -507,28 +507,28 @@ fn cases() -> Vec<Case> {
         case(
             "stop declaring which pattern is a negation of which",
             vec![
-                edit("db/notation.records", Some("  level       predicate\n  negates     pattern 3 is logical-not of pattern 2".to_string()), "  level       predicate".to_string()),
+                edit("corpus/db/notation.records", Some("  level       predicate\n  negates     pattern 3 is logical-not of pattern 2".to_string()), "  level       predicate".to_string()),
             ],
             "does not supply them",
         ),
         case(
             "drop a hole from the term a notation builds",
             vec![
-                edit("db/notation.records", Some("  target      _1 _2 caddc co, _1 _2 cmin co".to_string()), "  target      _1 _1 caddc co, _1 _2 cmin co".to_string()),
+                edit("corpus/db/notation.records", Some("  target      _1 _2 caddc co, _1 _2 cmin co".to_string()), "  target      _1 _1 caddc co, _1 _2 cmin co".to_string()),
             ],
             "leaves a hole out",
         ),
         case(
             "write a binder whose binds line does not read",
             vec![
-                edit("db/notation.records", Some("  binds       hole 1 over nothing".to_string()), "  binds       hole 1 above nothing".to_string()),
+                edit("corpus/db/notation.records", Some("  binds       hole 1 over nothing".to_string()), "  binds       hole 1 above nothing".to_string()),
             ],
             "is not `hole N over hole M`",
         ),
         case(
             "give a notation fewer targets than it has patterns",
             vec![
-                edit("db/notation.records", Some("  target      _1 _2 cmul co, _1 _2 cdiv co".to_string()), "  target      _1 _2 cmul co".to_string()),
+                edit("corpus/db/notation.records", Some("  target      _1 _2 cmul co, _1 _2 cdiv co".to_string()), "  target      _1 _2 cmul co".to_string()),
             ],
             "target entr",
         ),
@@ -556,21 +556,21 @@ fn cases() -> Vec<Case> {
         case(
             "stop declaring that juxtaposition is the product",
             vec![
-                edit("db/notation.records", Some("  assoc       left\n  spells      multiplicative ·".to_string()), "  assoc       left".to_string()),
+                edit("corpus/db/notation.records", Some("  assoc       left\n  spells      multiplicative ·".to_string()), "  assoc       left".to_string()),
             ],
             "does not conclude",
         ),
         case(
             "stop saying which variable the braces bind",
             vec![
-                edit("stdlib/sets.records", Some("  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)".to_string()), "  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)".to_string()),
+                edit("corpus/stdlib/sets.records", Some("  then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)".to_string()), "  then        t ∈ {t ∈ X : P(t)} ↔ t ∈ X and P(t)".to_string()),
             ],
             "does not conclude",
         ),
         case(
             "say a property is a function into a formula",
             vec![
-                edit("stdlib/sets.records", Some("theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P be a property of the elements of X                            (H2)".to_string()), "theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P : X → formula                                                 (H2)".to_string()),
+                edit("corpus/stdlib/sets.records", Some("theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P be a property of the elements of X                            (H2)".to_string()), "theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P : X → formula                                                 (H2)".to_string()),
             ],
             "which is a sort and not a set",
         ),
@@ -668,63 +668,63 @@ fn cases() -> Vec<Case> {
         case(
             "write a word predicate under a bare not",
             vec![
-                edit("stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),
+                edit("corpus/stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),
             ],
             "token(s) left over",
         ),
         case(
             "state an item in a notation nobody declared",
             vec![
-                edit("stdlib/sets.records", Some("theorem subset-transitive\n  assume X ⊆ Y".to_string()), "theorem subset-transitive\n  assume X is within Y".to_string()),
+                edit("corpus/stdlib/sets.records", Some("theorem subset-transitive\n  assume X ⊆ Y".to_string()), "theorem subset-transitive\n  assume X is within Y".to_string()),
             ],
             "theorem subset-transitive",
         ),
         case(
             "leave the name in an item statement with no sort",
             vec![
-                edit("stdlib/sets.records", Some("theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P be a property of the elements of X                            (H2)".to_string()), "theorem set-builder-subset\n  let X be a set                                                      (H1)".to_string()),
+                edit("corpus/stdlib/sets.records", Some("theorem set-builder-subset\n  let X be a set                                                      (H1)\n  let P be a property of the elements of X                            (H2)".to_string()), "theorem set-builder-subset\n  let X be a set                                                      (H1)".to_string()),
             ],
             "theorem set-builder-subset",
         ),
         case(
             "introduce a symbol and say nothing it stands for",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  then        x is irrational".to_string()),
             ],
             "says nothing it stands for",
         ),
         case(
             "define a term and name no symbol for it",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "names no symbol for it",
         ),
         case(
             "introduce a symbol nothing writes",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "cannot be reached",
         ),
         case(
             "introduce a symbol in more than one token",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr ational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr ational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "is not one token",
         ),
         case(
             "introduce one symbol from two definitions",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()), "definition irrational\n  symbol      dup\n  defines     cr\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ\n\ndefinition twice\n  symbol      dup\n  defines     cq\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()), "definition irrational\n  symbol      dup\n  defines     cr\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ\n\ndefinition twice\n  symbol      dup\n  defines     cq\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()),
             ],
             "is already introduced by",
         ),
         case(
             "state a field twice, which reads as one field joined",
             vec![
-                edit("stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  target      eldif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  target      eldif\n  then        x is irrational".to_string()),
             ],
             "a second time",
         ),
@@ -734,7 +734,7 @@ fn cases() -> Vec<Case> {
         case(
             "misspell a field name",
             vec![
-                edit("stdlib/numbers.records", Some("  target      nnrecl\n".to_string()), "  taget       nnrecl\n".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("  target      nnrecl\n".to_string()), "  taget       nnrecl\n".to_string()),
             ],
             "theorem archimedean has a field 'taget', which a theorem record does not have",
         ),
@@ -791,7 +791,7 @@ fn cases() -> Vec<Case> {
         case(
             "leave open a name an item uses as a number",
             vec![
-                edit("stdlib/counting.records", Some("theorem card-nonempty\n  let X be a set                                                      (H1)\n  let k ∈ ℕ₀                                                          (H2)\n".to_string()), "theorem card-nonempty\n  let X be a set                                                      (H1)\n".to_string()),
+                edit("corpus/stdlib/counting.records", Some("theorem card-nonempty\n  let X be a set                                                      (H1)\n  let k ∈ ℕ₀                                                          (H2)\n".to_string()), "theorem card-nonempty\n  let X be a set                                                      (H1)\n".to_string()),
             ],
             "theorem card-nonempty: k stands where a number goes",
         ),
@@ -965,7 +965,7 @@ fn cases() -> Vec<Case> {
         case(
             "state a property in a let line as the codomain",
             vec![
-                edit("stdlib/functions.records", Some("  let g : Y → X be one-to-one ".to_string()), "  let g : Y → X is one-to-one ".to_string()),
+                edit("corpus/stdlib/functions.records", Some("  let g : Y → X be one-to-one ".to_string()), "  let g : Y → X is one-to-one ".to_string()),
             ],
             "says more than a function's type",
         ),

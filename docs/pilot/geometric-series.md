@@ -17,14 +17,14 @@ rather than absorbed into `algebra`.
 ## Theorem geometric-sum
 
 The skeleton is `proofs/geometric-series.proof`. The items it cites are in
-`db/`.
+`corpus/db/`.
 
 ---
 
 ## Database items
 
 This pilot introduced `def:stdlib/sums/G`, `thm:stdlib/numbers/exponent-step`, `thm:stdlib/numbers/nat0-closure` and
-`thm:proofs/geometric-series/geometric-sum` in the database, and the G row in `db/notation.records`. The
+`thm:proofs/geometric-series/geometric-sum` in the database, and the G row in `corpus/db/notation.records`. The
 table that used to stand here was merged into those files; `DATABASE.md`
 records what the merge decided.
 

@@ -13,7 +13,7 @@ has as many elements as H, so |G| is |H| times the number of parts.
 ## Theorem lagrange
 
 The proof is `proofs/lagrange.proof`, one theorem. It elaborates to
-`elaboration/proofs/lagrange/lagrange.mm`, assumes nothing, and verifies.
+`corpus/elaboration/proofs/lagrange/lagrange.mm`, assumes nothing, and verifies.
 
 Numbers: 101 numbered steps, 22 of them at the top. Blocks 4 to 8 are the
 coset facts (gH lies in G, g is in gH, a coset is fixed by any of its
@@ -71,7 +71,7 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
    group's `let` line gives G, e and the operation their terms, and the
    notations that need the group's operation, inverse, subgroups or cosets
    name them by a word beginning `@` in their `target`, filled from that
-   line (`db/notation.records`). A proof that lets no group and writes `a·b`
+   line (`corpus/db/notation.records`). A proof that lets no group and writes `a·b`
    of group elements is a defect, reported where it is written.
 2. **Letters take the sort of what they range over.** `for every g ∈ G,
    g ∈ gH` has no `let` for g; the sentence says what g ranges over, and G
@@ -91,7 +91,7 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
    setvars. The spare list now ends with set.mm's primed setvars, a′ and the
    rest, which no reader writes and which no other proof reaches.
 6. **Three counting lemmas were proved below the page**, in
-   `elaboration/stdlib/proved.mm`: counting by equal parts (`gpartcnt`),
+   `corpus/elaboration/stdlib/proved.mm`: counting by equal parts (`gpartcnt`),
    a set of parts of a finite set being finite (`gpartsfin`), and a
    bijection from a finite set giving equal sizes (`gcardeq`, since this
    set.mm's `hashen` asks both sets finite). `gpartcnt`'s hypotheses each

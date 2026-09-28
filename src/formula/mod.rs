@@ -1,4 +1,4 @@
-//! Formulas, parsed from the notations declared in `db/notation.records`.
+//! Formulas, parsed from the notations declared in `corpus/db/notation.records`.
 //!
 //! `GRAMMAR.md`'s "Formulas" section is the specification. Nothing here knows
 //! any notation by name: the patterns, their hole sorts, their precedence

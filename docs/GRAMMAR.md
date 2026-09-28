@@ -4,12 +4,12 @@
 `DATABASE.md` says where things are stored. This document says how the stored
 text is read: the line kinds, the justification forms, what a formula is, and
 the rules a parser applies. It is written from the proofs in `proofs/`, the
-standard library in `stdlib/` and the notation and methods in `db/`, and every
+standard library in `corpus/stdlib/` and the notation and methods in `corpus/db/`, and every
 rule below holds on all of them.
 
 It has two halves. The **skeleton** is the text around a formula, and its
 productions are written out here. A **formula** is not: it is parsed from the
-notations declared in `db/notation.records`, and the section on formulas says how
+notations declared in `corpus/db/notation.records`, and the section on formulas says how
 those declarations become a parse rather than listing them again. Adding a
 notation is a database entry and never a change to this document.
 
@@ -25,7 +25,7 @@ Notation used below: `<x>` a named part, `[x]` optional, `{x}` zero or more,
 
 Files are UTF-8 in Normalisation Form C. An implementation works in Unicode
 scalar values; UTF-16 is used nowhere, for the reason in `DATABASE.md`. Every
-non-ASCII character in a claim must appear in `db/notation.records`, which doubles
+non-ASCII character in a claim must appear in `corpus/db/notation.records`, which doubles
 as a whitelist, with one addition: a variable may be a Greek letter and may
 carry a subscript or a prime, as δ, ε, x₀ and P′ do. Those are how a name is
 spelled rather than notation, so they have no record of their own and are
@@ -49,7 +49,7 @@ listed in the checker instead.
   its module it is a full name, `stdlib/numbers/int-real`; without one it is a
   theorem of the citing file. "Names" below says how one is resolved.
 - `<term>` and `<formula>` are given by the notations declared in
-  `db/notation.records`, under "Formulas" below. The skeleton rules here delimit
+  `corpus/db/notation.records`, under "Formulas" below. The skeleton rules here delimit
   them; they do not describe what is inside.
 
 Horizontal whitespace is not significant and carries no structure. Indentation
@@ -59,7 +59,7 @@ chain line, noted below.
 
 ## Sorts
 
-`db/notation.records` declares the sort of each hole of each notation, and sorts are
+`corpus/db/notation.records` declares the sort of each hole of each notation, and sorts are
 what tell two notations sharing a pattern apart. So a parser has to know the
 sort of every name before it can read a formula: `|x|` is an absolute value or
 a cardinality according to what `x` is.
@@ -125,7 +125,7 @@ bare variable. With kinds, `s` in the intermediate value proof is a number from
 its declaration `s ∈ S`, where `S` is a set-builder over `[a, b]`; with flat
 sorts it waited for step 17.25.3 to say `s ∈ ℝ`.
 
-**How the tools do it.** Each notation's `kinds` field in `db/notation.records`
+**How the tools do it.** Each notation's `kinds` field in `corpus/db/notation.records`
 relates its holes' kinds, and `src/kinds.rs` reads a statement or a proof in
 the order it is written, unifying as it goes. A name declared of any kind — `be
 a set`, `be an element` — stays free while its statement or its block's opening
@@ -324,7 +324,7 @@ run-together that spells a declared word instead of relying on the convention.
 ## Formulas
 
 A formula is not parsed from productions written here. It is parsed from the
-notations declared in `db/notation.records`, so adding a notation is a database entry
+notations declared in `corpus/db/notation.records`, so adding a notation is a database entry
 and never a change to this document. What follows is how those declarations
 become a parse.
 
@@ -517,7 +517,7 @@ the statement, and the conclusion may use the names it gives.
 
 A define continues until the line carrying its label. Written over several
 lines whose last ends `otherwise`, it is a function by cases, one case to a
-line, and the lines are the term `_ if _, _ otherwise` (`db/notation.records`,
+line, and the lines are the term `_ if _, _ otherwise` (`corpus/db/notation.records`,
 `by-cases`) nested from the right; set.mm's `if ( P , a , b )` is what it
 reads into. Otherwise the lines are one term wrapped.
 
@@ -567,7 +567,7 @@ element`. The kernel reads either as the thing being a set as well, since
 writes.
 
 Quantifying over an arbitrary set is the formula-position counterpart, and it is
-a notation: `for every set X, ...`, declared in `db/notation.records` as a binder
+a notation: `for every set X, ...`, declared in `corpus/db/notation.records` as a binder
 with no domain. Ten lines in the corpus use one of these arbitrary forms, four
 `be a set`, three `be a point` and three `for every set`, and until they were
 declared none of them matched anything.
@@ -576,7 +576,8 @@ declared none of them matched anything.
 
 A definition or theorem is named by the file that holds it and its own name:
 its full name is the file's path from the root without the extension, `/`, and
-the name on its `theorem` or record line. `stdlib/numbers.records` holds
+the name on its `theorem` or record line; a record's path is read from inside
+`corpus/`. `corpus/stdlib/numbers.records` holds
 `stdlib/numbers/int-real`; `proofs/triangle-inequality.proof` holds
 `proofs/triangle-inequality/abs-bounds`. A name need only be unique within its
 file.
@@ -752,7 +753,7 @@ opening line or part markers as the method requires.
 
 A part marker is a bare word on its own line. Which markers a block may carry,
 in which order, and whether a part opens with an assumption, are read from that
-method's record in `db/methods.records`, not hard-coded: induction declares `base,
+method's record in `corpus/db/methods.records`, not hard-coded: induction declares `base,
 step`, and cases declares a repeating `case` whose parts open with `assume`.
 
 ## Calculation chains

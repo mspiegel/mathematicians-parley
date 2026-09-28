@@ -460,7 +460,10 @@ pub fn check_citations(
                     report.say(
                         &thm.path,
                         just.line,
-                        format!("{} is in no record of db/methods.records", m.as_str()),
+                        format!(
+                            "{} is in no record of corpus/db/methods.records",
+                            m.as_str()
+                        ),
                     );
                 }
             }

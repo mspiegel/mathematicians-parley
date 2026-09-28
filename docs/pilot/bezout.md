@@ -41,15 +41,15 @@ This pilot introduced `def:stdlib/sets/set-builder`, `def:stdlib/sets/subset`,
 `thm:stdlib/sets/set-builder-subset`, `def:stdlib/divisibility/gcd`, `thm:stdlib/numbers/well-ordering`,
 `thm:stdlib/divisibility/division-algorithm`, `thm:stdlib/numbers/pos-int-nat`, `thm:stdlib/divisibility/divides-combination`,
 `thm:stdlib/divisibility/divides-le`, `thm:proofs/bezout/least-combination-divides` and `thm:proofs/bezout/bezout` in
-the database, the set-builder, subset and gcd rows in `db/notation.records`, and
-the `instantiate` method in `db/methods.records`. The table that used to stand
+the database, the set-builder, subset and gcd rows in `corpus/db/notation.records`, and
+the `instantiate` method in `corpus/db/methods.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
 
 `define` was listed here as a provisional method. It is not one: `SYNTAX.md`
 makes it the third kind of unnumbered line beside `let` and `assume`, so it
 belongs to the grammar and not to the justification vocabulary. It is
-described in `DATABASE.md` rather than in `db/methods.records`.
+described in `DATABASE.md` rather than in `corpus/db/methods.records`.
 
 `thm:stdlib/numbers/well-ordering` is stated with `assume S ⊆ ℕ` and no `let S be a set`,
 because that is what this table said and what step 4 discharges. Whether a

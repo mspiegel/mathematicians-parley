@@ -9,7 +9,11 @@ pub mod labels;
 pub mod tested;
 pub mod verify;
 
-/// Where a generated file goes: its name under `elaboration/`, with `.mm`.
+/// Where the generated files go, under the working tree.
+pub const ELABORATION: &str = "corpus/elaboration";
+
+/// Where a generated file goes: its name under `corpus/elaboration/`, with
+/// `.mm`.
 pub fn path_of(name: &str) -> String {
-    format!("elaboration/{name}.mm")
+    format!("{ELABORATION}/{name}.mm")
 }

@@ -684,7 +684,7 @@ pub const MEMBERSHIP: &[&str] = &[
     "nn0expcl",
     "2nn0",
     "peano2nn0",
-    // and what a commuting pair asks, which `db/notation.records` declares
+    // and what a commuting pair asks, which `corpus/db/notation.records` declares
     // by notation and this answers by statement
     "mulcom",
     "addcom",

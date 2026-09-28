@@ -57,11 +57,7 @@ fn case(
 /// theorem citing another reads for the order of what it pushes.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    Memory::copy(
-        &Disk::new(root),
-        &["db", "stdlib", "proofs", "tests", "elaboration"],
-    )
-    .unwrap()
+    Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap()
 }
 
 /// What elaborating says, or None where it says nothing and builds.
@@ -175,7 +171,7 @@ fn cases() -> Vec<Case> {
         case(
             "take away a target the corpus writes",
             "proofs/cantor/cantor",
-            "db/notation.records",
+            "corpus/db/notation.records",
             "  target      _1 cpw",
             "  metamath    cpw-without-a-target",
             "notation 'powerset' has no target field",
@@ -186,7 +182,7 @@ fn cases() -> Vec<Case> {
         case(
             "name the wrong clause in a definition target",
             "proofs/triangle-inequality/abs-bounds",
-            "stdlib/numbers.records",
+            "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
             "proofs/triangle-inequality.proof:34  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
@@ -314,7 +310,7 @@ fn cases() -> Vec<Case> {
         case(
             "claim what an item taken as stated does not state",
             "proofs/subsets/subsets-count",
-            "stdlib/counting.records",
+            "corpus/stdlib/counting.records",
             "  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n",
             "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n",
             "thm:stdlib/counting/card-remove is taken as stated and states",
@@ -367,7 +363,7 @@ fn cases() -> Vec<Case> {
         case(
             "leave out the lemma saying the supremum is least",
             "proofs/intermediate-value/intermediate-value",
-            "stdlib/calculus.records",
+            "corpus/stdlib/calculus.records",
             "  target      suprcl, suprub, suprleub with c := sup S",
             "  target      suprcl, suprub with c := sup S",
             "thm:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
@@ -569,7 +565,7 @@ fn cases() -> Vec<Case> {
         case(
             "bind a target variable to the wrong name",
             "proofs/subsets/subsets-count",
-            "stdlib/counting.records",
+            "corpus/stdlib/counting.records",
             "  target      hashdifsnp1 with V := X, N := a, Y := k",
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
             "no clause of thm:stdlib/counting/card-remove reaches what step 1.2.1.2 claims",

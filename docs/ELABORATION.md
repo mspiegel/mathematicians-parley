@@ -5,12 +5,11 @@ elaborator in `src/elab/` does, and everything in this repository rests on it
 working.
 
 ```
-parley build --root <dir> [<name>] [<set.mm>]
+parley build [<name>] [<set.mm>]
 ```
 
-writes every generated file under the working tree `<dir>`, or the one named,
-and says which changed. Every command takes the tree it works on as `--root`,
-and none looks for one. A
+run from the working tree, writes every generated file, or the one named,
+and says which changed. A
 theorem is named in full, by its proof file and its own name:
 `proofs/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
 its second stage builds everything afresh in memory and compares it with the
@@ -21,13 +20,13 @@ Every theorem in `proofs/` elaborates, and `parley build` writes one artifact
 for each, one for the definitions, one for the library's own proofs, and one
 for each proof worked out by hand: 99 in all. Nothing lists them: the build
 reads the theorems off the proof files, and a file's path under
-`elaboration/` is its name. `elaboration/proofs/bezout/bezout.mm` is the
+`corpus/elaboration/` is its name. `corpus/elaboration/proofs/bezout/bezout.mm` is the
 theorem `proofs/bezout/bezout`, and a file citing it includes it by that path.
-`elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
+`corpus/elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
 elaborator writes, and `proved.mm`, written from `src/proofs/stdlib/`, one
 module per group of proofs (`geometry.rs`), and the only statement of what it
 proves. `src/proofs/comparison/` holds the hand elaborations kept for
-comparison, each written to `elaboration/<name>.mm`.
+comparison, each written to `corpus/elaboration/<name>.mm`.
 
 Two things shape the whole design. A step is elaborated in deduction form, so
 every line is an implication whose antecedent is the scope it sits in, and a
@@ -1058,7 +1057,7 @@ Spellings are read in one direction, of what a lemma says, and never of a
 claim.
 
 The limit of a sequence is `climnnre`, which this corpus proves in
-`elaboration/stdlib/proved.mm`, because set.mm's `clim2` names its index apart
+`corpus/elaboration/stdlib/proved.mm`, because set.mm's `clim2` names its index apart
 from the map it reads, and a sequence the page writes as a rule in n is a map
 binding n. `climnnre` states the limit as the page does — for every ε ∈ ℝ with
 ε > 0 a natural number N past which every term is within ε — from
@@ -1109,16 +1108,17 @@ only named.
 `GOALS.md` decision 17: what the elaborator cannot build is a defect, or it is
 recorded here, and a list in a file's header is not a record. The gate's
 "taken as stated" stage (`src/tools/assumed.rs`) reads every elaborated proof
-under `elaboration/proofs/`
-and every library test under `elaboration/tests/`, and is red for any
+under `corpus/elaboration/proofs/`
+and every library test under `corpus/elaboration/tests/`, and is red for any
 statement one takes as stated that this list does not name, and for any this
 list names that no file states any longer. A record is one entry:
 
-    - `elaboration/proofs/<theorem>/<file>.mm` `<label>`: why it is not built,
+    - `corpus/elaboration/proofs/<theorem>/<file>.mm` `<label>`: why it is not built,
       and what would build it.
 
 Definitions are not steps, and the constants and definitions
-`stdlib/definitions.mm` declares are decision 12's, not this list's.
+`corpus/elaboration/stdlib/definitions.mm` declares are decision 12's, not this
+list's.
 
 None: every step of every proof and every library test is built.
 
@@ -1129,7 +1129,7 @@ whose antecedent is the whole scope, and in normal format that antecedent is
 written out in full at every use — three nested scopes make it about ninety
 tokens, written perhaps two hundred times. So size is driven by copying the
 context and grows with steps times scope depth, and the compressed format
-disposes of it. The 27 elaborated proofs under `elaboration/proofs/` come to
+disposes of it. The 27 elaborated proofs under `corpus/elaboration/proofs/` come to
 371 KB and the largest,
 `thm:proofs/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
 orders of magnitude, since nothing about the proof changes and only the
@@ -1320,7 +1320,7 @@ signed.
 `GEOMETRY.md` weighs the seven candidates and takes the complex plane with the
 angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `definitions.mm` — and the four items set.mm does not state are proved in
-`elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
+`corpus/elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
 `ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
@@ -1425,7 +1425,7 @@ would leave the gate green on the day a proof was added and not read.
     settled by whether the block is a part of something.
 
 20. **The corpus and set.mm may state one fact as two formulas.** Four kinds. A
-    *rearrangement* is the same operators permuted, and `db/notation.records`
+    *rearrangement* is the same operators permuted, and `corpus/db/notation.records`
     names it with `commutes`. A *named equivalence* is two constructs set.mm
     proves equal, and something has to point at the theorem that does. A
     *rebuilt quantifier* is neither and needs a proof, which is why

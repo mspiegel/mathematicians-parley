@@ -18,7 +18,7 @@ a chosen element.
 
 ## Theorem subsets-count
 
-The skeleton is `proofs/subsets.proof`. The items it cites are in `db/`.
+The skeleton is `proofs/subsets.proof`. The items it cites are in `corpus/db/`.
 
 ---
 
@@ -29,7 +29,7 @@ This pilot introduced `def:stdlib/counting/card`, `thm:stdlib/counting/card-zero
 `thm:stdlib/sets/difference-set`, `thm:proofs/subsets/add-element-bijection`, `thm:stdlib/counting/card-bijection`,
 `thm:proofs/subsets/powerset-split`, `thm:proofs/subsets/powerset-split-disjoint`,
 `thm:stdlib/counting/card-disjoint-union` and `thm:proofs/subsets/subsets-count` in the database, and the
-cardinality, set-operation and set-image rows in `db/notation.records`. The table
+cardinality, set-operation and set-image rows in `corpus/db/notation.records`. The table
 that used to stand here was merged into those files; `DATABASE.md` records
 what the merge decided.
 

@@ -13,7 +13,7 @@
 //! generated file. Reading the directory instead would be simpler and wrong:
 //! the hand-written comparisons sit in it beside them and are not among
 //! them. Each file is handed to the verifier under the name the others
-//! include it by, its path under `elaboration/`, and set.mm under its own,
+//! include it by, its path under `corpus/elaboration/`, and set.mm under its own,
 //! so an inclusion never reaches past what is handed over.
 //!
 //! Which of them to include is read off the inclusions rather than listed: a
@@ -43,9 +43,12 @@ static PROVES: LazyLock<Regex> =
 /// The file the verifier starts from, which includes every root.
 const JOINED: &str = "everything.mm";
 
-/// How a file including this one names it: its path under `elaboration/`.
+/// How a file including this one names it: its path under
+/// `corpus/elaboration/`.
 fn included_as(path: &str) -> &str {
-    path.strip_prefix("elaboration/").unwrap_or(path)
+    path.strip_prefix(super::ELABORATION)
+        .and_then(|rest| rest.strip_prefix('/'))
+        .unwrap_or(path)
 }
 
 /// The files nothing else includes, which reach everything between them.

@@ -253,7 +253,7 @@ impl<'a> Elaborator<'a> {
 
     /// The `target` entry of the pattern this node was built from.
     ///
-    /// A notation with no target is a gap in `db/notation.records` and so a
+    /// A notation with no target is a gap in `corpus/db/notation.records` and so a
     /// person's to fix, at the line that wrote the notation.
     pub fn pattern(&self, node: &Node) -> Checked<String> {
         let Some(entries) = self.terms.get(&node.notation) else {

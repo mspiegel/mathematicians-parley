@@ -7,14 +7,19 @@ the merge of the ten pilots' item tables decided.
 ## Layout
 
 ```
-db/notation.records      symbols a claim may use
-db/methods.records       the justification vocabulary
-stdlib/*.records         the standard library: definitions and theorems
-proofs/*.proof            the proof skeletons, one file per pilot
-tests/stdlib/*.proof     a test for each library item no proof cites
-docs/*.md                the design documents, this one among them
-docs/pilot/*.md          the design commentary for each pilot
+corpus/db/notation.records   symbols a claim may use
+corpus/db/methods.records    the justification vocabulary
+corpus/stdlib/*.records      the standard library: definitions and theorems
+corpus/elaboration/          what parley build writes from all of it
+proofs/*.proof               the proof skeletons, one file per pilot
+tests/stdlib/*.proof         a test for each library item no proof cites
+docs/*.md                    the design documents, this one among them
+docs/pilot/*.md              the design commentary for each pilot
 ```
+
+Everything is read from the directory `parley` is run in. A name is read from
+inside `corpus/`, so that directory's name is in none: the records of
+`corpus/stdlib/numbers.records` are the module `stdlib/numbers`.
 
 ## Names and the standard library
 
@@ -55,16 +60,16 @@ has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
-| `stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
-| `stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
-| `stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
-| `stdlib/sums.records` | sums over a range, and the ranges | 22 |
-| `stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 50 |
-| `stdlib/functions.records` | functions, their values, images, and inverses | 15 |
-| `stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 22 |
-| `stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
-| `stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
-| `stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
+| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges | 22 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 50 |
+| `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 15 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 22 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
+| `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
+| `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
 
 The library is never imported: every proof may cite it. It is the one
 directory the tools know by name, and a module anywhere else is a proof file.
@@ -112,7 +117,7 @@ definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where u
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
-`then` line, which `odd2np1` and `divides` both do. `db/notation.records`
+`then` line, which `odd2np1` and `divides` both do. `corpus/db/notation.records`
 documents the same field on the notation side.
 
 A target may end `with v := t, …`, saying what the lemma's variables stand
@@ -142,7 +147,7 @@ of its holes relate where a hole holds sets or functions (`kinds`, `α, set of �
 → formula` for membership), its precedence level, its associativity where one
 is needed, and whether one of its patterns is the negation of another. There are two
 shapes only, a mixfix pattern and juxtaposition, and a binder is a mixfix with
-a hole marked as binding. `db/notation.records` describes the fields, and one
+a hole marked as binding. `corpus/db/notation.records` describes the fields, and one
 `precedence` record declares the order between levels as a partial order, so a
 formula mixing two levels that convention does not relate is rejected rather
 than guessed at.
@@ -313,7 +318,7 @@ Six more were open and are not. `thm:proofs/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
 proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
 `thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in
-`elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
+`corpus/elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.
 `def:stdlib/geometry/angle` closed differently — it carries a `symbol` and a `defines` now,

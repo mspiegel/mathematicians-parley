@@ -351,7 +351,7 @@ labels. The chosen ten, with the measurements and the alternatives
 considered, are in `SELECTION.md`.
 
 All ten are written. The proof skeletons are in `proofs/`, the definitions,
-theorems, notation and methods they cite are in `db/`, and `DATABASE.md`
+theorems, notation and methods they cite are in `corpus/db/`, and `DATABASE.md`
 describes both formats and records what merging the ten pilots' item tables
 decided. `docs/pilot/` keeps the design commentary for each, which is the record
 of why each syntax decision was taken.
@@ -428,7 +428,7 @@ answer later would invalidate work already done.
    the renderer.
 
    The second half now has a measurement. Six `algebra` steps are written out
-   in `elaboration/` and verify, including step 3 of
+   in `corpus/elaboration/` and verify, including step 3 of
    `thm:proofs/bezout/least-combination-divides`, which is the only step in the corpus whose
    coefficients are not constants and so the one that would have forced a
    search. It did not: all six follow one order, and `ELABORATION.md` measures

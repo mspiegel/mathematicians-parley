@@ -378,7 +378,7 @@ pub fn equation(term: &Term, labels: &FloatLabels) -> Option<Poly> {
 /// The polynomial a disequality says does not vanish, or None.
 ///
 /// The corpus writes `a ≠ 1` as a negated equation, which the `negates` line
-/// of `db/notation.records` folds into one tree, so what arrives here is a
+/// of `corpus/db/notation.records` folds into one tree, so what arrives here is a
 /// `wn` around the equation and the polynomial is the equation's.
 pub fn denied(term: &Term, labels: &FloatLabels) -> Option<Poly> {
     if term.variable().is_some() || term.label() != Some("wn") {

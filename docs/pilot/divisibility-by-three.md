@@ -36,7 +36,7 @@ This pilot introduced, in the database, `def:stdlib/divisibility/congruent-mod`,
 `thm:stdlib/numbers/ten-minus-one`, `thm:stdlib/sums/sum-divisible`, `thm:stdlib/sums/sum-integer`,
 `thm:stdlib/sums/sum-difference`, `thm:proofs/divisibility-by-three/ten-power-congruent` and
 `thm:proofs/divisibility-by-three/divisibility-by-three`, and widened `thm:stdlib/functions/function-value` from functions
-into ℝ to functions into any set. In `db/notation.records` it added `sum` and
+into ℝ to functions into any set. In `corpus/db/notation.records` it added `sum` and
 `congruent-mod`, and a precedence level, `summation`.
 
 ---

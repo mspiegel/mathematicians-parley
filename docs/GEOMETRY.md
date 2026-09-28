@@ -14,7 +14,7 @@ the complex plane, and the proof elaborates to a file that assumes nothing.
 **1. The backend adds no mathematical axioms.** `GOALS.md`, on what is kept
 from Metamath: *"No mathematical axioms in the kernel. The foundation is a
 library."* The corresponding measure in practice is the list at the head of
-an elaborated file. Every proof in `elaboration/proofs/` states what it assumed
+an elaborated file. Every proof in `corpus/elaboration/proofs/` states what it assumed
 and why, and the work of the last eight proofs has been to shorten those
 lists; `cantor.mm` assumes nothing. A backend that enters as an axiom system
 makes the corpus's geometry permanently assumed, which is the opposite
@@ -242,7 +242,7 @@ way, it would not have.
 Four items needed theorems set.mm does not have and the readable layer cannot
 state, since saying what they say means dividing one point by another and
 naming the branch cut of the complex logarithm. They are proved below the
-readable layer, in `elaboration/stdlib/proved.mm`, which is a third way to supply
+readable layer, in `corpus/elaboration/stdlib/proved.mm`, which is a third way to supply
 an item alongside a set.mm label and a proof file:
 
 | lemma | carries |

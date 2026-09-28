@@ -36,7 +36,7 @@ pub fn check_characters(
                 path,
                 at + 1,
                 format!(
-                    "character {} (U+{:04X}, {name}) is in no record of db/notation.records",
+                    "character {} (U+{:04X}, {name}) is in no record of corpus/db/notation.records",
                     repr(&ch.to_string()),
                     ch as u32
                 ),

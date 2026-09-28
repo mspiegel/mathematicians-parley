@@ -67,7 +67,7 @@ fn every_compressed_proof_survives_a_round_trip() {
     let built: Vec<String> = disk
         .found(".mm")
         .into_iter()
-        .filter(|p| p.starts_with("elaboration/"))
+        .filter(|p| p.starts_with("corpus/elaboration/"))
         .collect();
     let mut paths: Vec<std::path::PathBuf> = vec![setmm];
     paths.extend(built.iter().map(|p| root.join(p)));

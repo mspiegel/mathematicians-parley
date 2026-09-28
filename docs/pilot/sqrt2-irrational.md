@@ -95,8 +95,8 @@ This pilot introduced most of the database. In the database: `def:stdlib/numbers
 `def:stdlib/numbers/rational`, `def:stdlib/numbers/irrational`, `def:stdlib/divisibility/even`, `def:stdlib/divisibility/odd`, `def:stdlib/divisibility/divides`,
 `thm:proofs/sqrt2-irrational/lowest-terms`, `thm:stdlib/numbers/int-closure`, `thm:stdlib/divisibility/even-or-odd`, `thm:stdlib/divisibility/not-both`,
 `thm:proofs/sqrt2-irrational/odd-square`, `thm:proofs/sqrt2-irrational/even-square` and `thm:proofs/sqrt2-irrational/sqrt2-irrational`. In
-`db/notation.records`: the number systems, the relations, the arithmetic
-operations and the logical symbols. In `db/methods.records`: `arithmetic`,
+`corpus/db/notation.records`: the number systems, the relations, the arithmetic
+operations and the logical symbols. In `corpus/db/methods.records`: `arithmetic`,
 `algebra`, `inequalities`, `substitute`, `join`, `obtain`, `exhibit`,
 `contradiction` and `calculation`, nine of the fourteen. The tables that used
 to stand here were merged into those files; `DATABASE.md` records what the

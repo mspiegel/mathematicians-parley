@@ -2,7 +2,7 @@
 //!
 //! `READERS.md` says a set has the kind of what it holds and the page never
 //! writes it, and `GRAMMAR.md` says how it is read: each notation's `kinds`
-//! field in `db/notation.records` relates the kinds of its holes, and a name
+//! field in `corpus/db/notation.records` relates the kinds of its holes, and a name
 //! takes the most general kind the text allows. This module is that reading:
 //! kind terms, the one field's syntax, unification, and inference over a
 //! parse tree. The checker decides what to read and reports what does not

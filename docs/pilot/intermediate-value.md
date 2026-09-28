@@ -20,7 +20,7 @@ is closed by the theorem that a contradiction implies anything.
 ## Theorem intermediate-value
 
 The skeleton is `proofs/intermediate-value.proof`. The items it cites are in
-`db/`.
+`corpus/db/`.
 
 The merge renamed three of its citations. Steps 14, 17.13 and 17.25.5.5 cited
 `def:stdlib/functions/function` for the fact that f(x) is real, while the Cantor pilot used the
@@ -37,7 +37,7 @@ This pilot introduced `def:stdlib/calculus/interval`, `thm:stdlib/calculus/inter
 `def:stdlib/calculus/upper-bound`, `def:stdlib/calculus/least-upper-bound`, `thm:stdlib/calculus/completeness`,
 `thm:stdlib/numbers/trichotomy`, `thm:stdlib/reasoning/from-contradiction`, `thm:proofs/intermediate-value/point-right`,
 `thm:stdlib/numbers/abs-difference-lt` and `thm:proofs/intermediate-value/intermediate-value` in the database, and
-the closed interval row in `db/notation.records`. The table that used to stand
+the closed interval row in `corpus/db/notation.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge
 decided.
 

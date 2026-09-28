@@ -1,4 +1,4 @@
-//! Records of `db/*.records` and `stdlib/*.records`.
+//! Records of `corpus/db/*.records` and `corpus/stdlib/*.records`.
 
 use indexmap::IndexMap;
 

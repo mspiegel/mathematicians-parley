@@ -4,9 +4,10 @@
 //! theorem of a `.proof` file is elaborated; the library's definitions and
 //! the proofs below the readable layer are written first; and the
 //! hand-written comparison proofs are written beside them. A file's path
-//! under `elaboration/` is its name with `.mm`, so the theorem
-//! `proofs/bezout/bezout` is written to `elaboration/proofs/bezout/bezout.mm`,
-//! and a file including it says so.
+//! under `corpus/elaboration/` is its name with `.mm`, so the theorem
+//! `proofs/bezout/bezout` is written to
+//! `corpus/elaboration/proofs/bezout/bezout.mm`, and a file including it says
+//! so.
 //!
 //! Which artifact has to exist before which is a real constraint, and
 //! `needs` is where it is written. `stdlib/definitions` comes before
@@ -67,7 +68,7 @@ pub enum Recipe {
 /// One generated file: what makes it, whether a verifier is given it, and
 /// the artifacts whose files it reads.
 pub struct Artifact {
-    /// Its path under `elaboration/`, without `.mm`.
+    /// Its path under `corpus/elaboration/`, without `.mm`.
     pub name: String,
     pub recipe: Recipe,
     /// One of the files the verifier checks.

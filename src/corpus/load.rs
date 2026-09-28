@@ -8,10 +8,12 @@ use crate::outcome::{Checked, Problem};
 use crate::source::Source;
 use crate::text::check_encoding;
 
-/// The database: notation and methods in db/, items in the library.
+/// The database: notation and methods in corpus/db/, items in the library.
 pub fn record_files(source: &dyn Source) -> Vec<String> {
-    let mut out = source.listed("db", ".records");
-    out.extend(source.listed(super::STDLIB, ".records"));
+    let mut out = source.listed(&format!("{}/db", super::CORPUS), ".records");
+    out.extend(
+        source.listed(&format!("{}/{}", super::CORPUS, super::STDLIB), ".records"),
+    );
     out
 }
 

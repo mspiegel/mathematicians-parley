@@ -1,6 +1,6 @@
 # Specifications of the methods
 
-`db/methods.records` says what a reader checks when a step cites a method.
+`corpus/db/methods.records` says what a reader checks when a step cites a method.
 `SYNTAX.md` says how the step is written. This document says what the method
 decides: which claims it accepts, from which facts, and what it refuses.
 
@@ -229,7 +229,7 @@ which decision 5 of `GOALS.md` requires. Its size grows with the number of
 atoms and cited facts, both of which are small: the largest step in the corpus
 has four atoms and two cited facts.
 
-Four steps are written out, in `elaboration/abs-bounds.mm`, and all four are
+Four steps are written out, in `corpus/elaboration/abs-bounds.mm`, and all four are
 easy. Two turn an equation into a non-strict inequality with `leid` and
 `breqtrd`; two chain through zero with `le0neg1` or `le0neg2`, then `letrd`,
 then `breqtrd`. They follow the same order `algebra` does — atoms into ℝ, the
@@ -328,10 +328,10 @@ total. A Gröbner basis is the general method; the corpus never needs it, since
 every step is either a normalisation with no cited equation or a combination
 with coefficients of degree at most one.
 
-Six steps are written out in `elaboration/`, and `ELABORATION.md` measures
+Six steps are written out in `corpus/elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 3 of
 `thm:proofs/bezout/least-combination-divides`, the only step in the corpus whose
-coefficients are not constants, and it is in `elaboration/algebra.mm`.
+coefficients are not constants, and it is in `corpus/elaboration/algebra.mm`.
 
 Each follows one order — carry the atoms into ℂ, apply the structural lemma
 the shape calls for, then reduce the numerals — and none of them searched,
@@ -634,7 +634,7 @@ five are reductio and two prove a negation directly.
 
 ### Why the method accepts two shapes
 
-`db/methods.records` used to say the block assumes "not C" written literally, and
+`corpus/db/methods.records` used to say the block assumes "not C" written literally, and
 five of the seven blocks do exactly that, two of them writing a doubled
 negation and stripping it with `thm:stdlib/reasoning/double-negation` in the next line. The
 other two suppose the thing the claim negates.

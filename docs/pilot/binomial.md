@@ -57,7 +57,7 @@ This pilot introduced, in the database, `def:stdlib/counting/binomial-coefficien
 `thm:stdlib/sums/sum-add`, `thm:stdlib/sums/sum-termwise` and `thm:stdlib/sums/sum-real`, the range items
 `thm:stdlib/sums/range-difference`, `thm:stdlib/sums/range-integer` and `thm:stdlib/sums/range-nat0`, and
 `thm:stdlib/numbers/exponent-zero`, `thm:stdlib/numbers/nat0-int` and `thm:stdlib/numbers/below-successor`, with
-`thm:proofs/binomial/binomial-step` and `thm:proofs/binomial/binomial` proved here. In `db/notation.records`
+`thm:proofs/binomial/binomial-step` and `thm:proofs/binomial/binomial` proved here. In `corpus/db/notation.records`
 it added `binomial`, C(n, k), and `integer-range`, {a, …, b}.
 
 ---

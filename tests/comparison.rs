@@ -6,7 +6,7 @@ use parley::proofs::comparison::COMPARISONS;
 
 #[test]
 fn every_comparison_writes_its_committed_file() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("elaboration");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/elaboration");
     let mut differ = Vec::new();
     for c in &COMPARISONS {
         let path = root.join(format!("{}.mm", c.name));
