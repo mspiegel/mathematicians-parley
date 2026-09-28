@@ -506,11 +506,13 @@ substitution in the corpus comes close.
                 | <name> `be an element`
                 | <name> `be a set`
                 | <name> `be a point`
+                | <name> `be a function on` <term>
                 | <name> `:` <term> `→` <term>
                 | <name> `:` <term> `→` <term> `be` <property>
                 | <name> `be a` [ `finite` ] `group with operation` `·`
                   `and identity` <name>
                 | <name> `be a property of the elements of` <term>
+                  (a library item's only: `SYNTAX.md`)
 <conclusion>  ::= `then` <formula>
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
@@ -550,7 +552,7 @@ earlier. A theorem field says what a record's field of the same name says: a
 `metamath` line names set.mm's counterpart of the theorem, which is checked to
 be a label set.mm has, and a `note` is prose for a person. Each is said at most
 once, between the `theorem` line and the statement, and continues on lines
-indented further than it. A `define` line claims nothing and is cited by its label, and the
+indented further than it. A `define` line states what its name is and is cited by its label, and the
 `reads` line under it says in words what the name means. Both `reads` and the
 `note` a block opener may carry are one line each, are the only prose a proof
 holds, and are read by no tool: what is checked is that a define has a reading

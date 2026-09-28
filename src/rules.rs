@@ -159,6 +159,11 @@ pub const RENAMED: &[(&str, usize, &str)] = &[
     ("wa", 1, "anbi2i"),
     ("wi", 0, "imbi1i"),
     ("wi", 1, "imbi2i"),
+    ("wb", 0, "bibi1i"),
+    ("wb", 1, "bibi2i"),
+    ("wo", 0, "orbi1i"),
+    ("wo", 1, "orbi2i"),
+    ("wn", 0, "notbii"),
 ];
 
 pub fn renamed(label: &str, slot: usize) -> Option<&'static str> {
@@ -182,14 +187,37 @@ pub const BOUND: &[(&str, (&str, &str))] = &[
 // map in a theorem the subsets proof cites binds `o` where the define it is
 // compared with binds `l`, and those are one class; so are a defined sum's
 // rule over `i` and the same sum a line writes over `j`.
-pub const CLASS_BOUND: &[(&str, &str)] =
-    &[("cmpt", "cbvmptv"), ("crab", "cbvrabv"), ("csu", "cbvsumv")];
+pub const CLASS_BOUND: &[(&str, &str)] = &[
+    ("cmpt", "cbvmptv"),
+    ("crab", "cbvrabv"),
+    ("csu", "cbvsumv"),
+    ("ciun", "cbviunv"),
+];
 
 // And the lemma that changes what such a class says of each member, its
 // letter kept, closed: where one binder sits inside another, the inner is
 // renamed first and carried up through the outer by this, and the outer
 // renamed after.
-pub const CLASS_BODY: &[(&str, &str)] = &[("cmpt", "mpteq2ia"), ("csu", "sumeq2i")];
+pub const CLASS_BODY: &[(&str, &str)] = &[
+    ("cmpt", "mpteq2ia"),
+    ("csu", "sumeq2i"),
+    ("ciun", "iuneq2i"),
+];
+
+// A statement about classes carried across one class spelt with other bound
+// letters, closed, by the predicate and the place: `eqeq1i` makes `A = B`
+// into ( A = C <-> B = C ). What a renaming of the letters a class binds
+// inside a statement is lifted through.
+pub const PREDICATE_LIFT: &[(&str, usize, &str)] = &[
+    ("wceq", 0, "eqeq1i"),
+    ("wceq", 1, "eqeq2i"),
+    ("wcel", 0, "eleq1i"),
+    ("wcel", 1, "eleq2i"),
+    ("wss", 0, "sseq1i"),
+    ("wss", 1, "sseq2i"),
+    ("wbr", 0, "breq1i"),
+    ("wbr", 1, "breq2i"),
+];
 
 // Carrying an equality of two classes up through one place of a term,
 // closed, by the constructor and the place: what two terms spelling one
@@ -581,6 +609,9 @@ pub const STANDARD: &[(&str, Side)] = &[
     ("nn0absid", Side::Right),
     ("rexss", Side::Left),
     ("rextru", Side::Right),
+    // A member of a power set is a part of the set, as the page writes it:
+    // `let X ⊆ A` holds X ∈ 𝒫A, and a lemma asks X ⊆ A.
+    ("elpwg", Side::Right),
 ];
 
 // The rules whose two sides are the same shape the other way round, which no
@@ -722,6 +753,13 @@ pub const MEMBERSHIP: &[&str] = &[
     // A continuous function's domain and codomain lie in ℂ.
     "cncfrss",
     "cncfrss2",
+    // A range from a to a holds a, which a sum of one term asks of its
+    // term's argument.
+    "elfz3",
+    // and a part of ℝ is a part of ℂ, which continuity asks of a domain the
+    // page says is real.
+    "sstr",
+    "ax-resscn",
     // And a pair that cannot both hold because one of them does not.
     "intnanrt",
     // A one-to-one function is a function.

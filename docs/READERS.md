@@ -217,8 +217,8 @@ The first two are about a step. They are answered by reading that step and
 what it points to, in any order, and a proof passes them one step at a time.
 The third is about the proof, and is answered only by reading it from the top.
 That is why it is the clause a correct and fully pointed proof can still fail:
-a definition asserts nothing, so nothing in the first two rules has anything
-to check about it, and a construction can arrive with no indication of what it
+a definition states only what its name is, so nothing in the first two rules
+has anything to check about it, and a construction can arrive with no indication of what it
 is for.
 
 A step that fails the third test is repaired by naming, not by splitting. The

@@ -1,7 +1,7 @@
 //! Everything about the corpus that must be green before a commit.
 //!
 //! Whether the tool itself is right is `cargo test`; this is whether the
-//! corpus is. Six stages, in the order they are printed:
+//! corpus is. Seven stages, in the order they are printed:
 //!
 //! 1. the checker over the whole corpus;
 //! 2. every artifact built afresh in memory and compared with the file in
@@ -11,10 +11,13 @@
 //! 4. every library item cited by a proof or tested in `tests/stdlib/`;
 //! 5. no step taken as stated that `ELABORATION.md` does not record;
 //! 6. a verifier not written for this project (`metamath-rs`, the verifier
-//!    of metamath-knife) over every proof the elaborator has written.
+//!    of metamath-knife) over every proof the elaborator has written;
+//! 7. every library item with a target restated as a theorem citing it,
+//!    built and verified the same way (`restated`), and each item it cannot
+//!    restate listed in `ELABORATION.md`.
 //!
-//! The last is the only one that is evidence the elaborator is right rather
-//! than consistent. The ones before it read the corpus against itself or
+//! The verifier stages are the only evidence the elaborator is right rather
+//! than consistent. The others read the corpus against itself or
 //! against a list of names; a proof that assumes nothing and proves the
 //! wrong thing would pass all of them.
 //!
@@ -36,7 +39,7 @@ use crate::said::Said;
 use crate::source::{Disk, Source};
 
 use super::build::{artifacts, verified, waves, Artifact, Maker};
-use super::{assumed, labels, tested, verify};
+use super::{assumed, labels, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
 const TABLES_AT: &str = "src/rules.rs";
@@ -143,6 +146,10 @@ pub fn run(root: &Path) -> Said {
             Box::new(|| assumed::run(&source)),
         ),
         ("the proofs verify", Box::new(|| verifies(&source, setmm))),
+        (
+            "every library item gives its target what it asks",
+            Box::new(|| restated::run(&source, setmm)),
+        ),
     ];
 
     let mut out = Said::default();

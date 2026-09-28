@@ -83,7 +83,9 @@ pub enum Way {
 /// What this elaborator calls a theorem it has written out.
 ///
 /// set.mm proves some of what this corpus proves and has its own names for
-/// them, so the label is moved off any that is already in use. The corpus's
+/// them, so the label is moved off any that is already in use, and off any
+/// math symbol set.mm declares, which Metamath forbids a label to be: a
+/// theorem named `abs` would otherwise take `abs`. The corpus's
 /// own theorems can share a stem as well, so `ours`, the full names of every
 /// theorem the corpus proves, are given labels one at a time in order of
 /// full name, each moved off what set.mm and the ones before it hold. Which
@@ -91,6 +93,7 @@ pub enum Way {
 pub fn label_of(
     name: &str,
     taken: &dyn Lookup,
+    syntax: &Syntax,
     path: &str,
     line: usize,
     ours: &BTreeSet<String>,
@@ -105,9 +108,9 @@ pub fn label_of(
         let held: BTreeSet<&String> = given.values().collect();
         let mut candidates = vec![stem.clone()];
         candidates.extend((1..10).map(|d| format!("{head}{d}")));
-        let free = candidates
-            .into_iter()
-            .find(|s| !taken.contains_key(s) && !held.contains(s));
+        let free = candidates.into_iter().find(|s| {
+            !taken.contains_key(s) && !syntax.is_symbol(s) && !held.contains(s)
+        });
         let Some(free) = free else {
             return Err(Problem::new(
                 path,
@@ -188,15 +191,13 @@ impl<'a> Elaborator<'a> {
             return Ok(self.no(format!("{lemma} does not unfold {{}}"), &[left]));
         };
         // A lemma in deduction form assumes a formula it says nothing else
-        // about, and that formula is the step's scope.
-        let deduced = match asks.first().and_then(|a| a.variable().map(String::from)) {
-            Some(v) => {
-                binding.insert(v, self.to_term(scope));
-                asks.remove(0);
-                true
-            }
-            None => false,
-        };
+        // about, and that formula is a scope: which one is chosen below,
+        // once the lemma's other variables are fixed.
+        let deduced = asks.first().and_then(|a| a.variable().map(String::from));
+        if let Some(v) = &deduced {
+            binding.insert(v.clone(), self.to_term(scope));
+            asks.remove(0);
+        }
         // A lemma's left side need not fix everything it mentions, so what
         // the caller can say of the right side fixes the rest.
         if let Some(offered) = hint.or(ex) {
@@ -236,6 +237,56 @@ impl<'a> Elaborator<'a> {
             }
         }
         let mut binding = self.instanced(&sig, binding);
+        // The scope is the innermost one the lemma's disjointness conditions
+        // allow, as for any lemma applied (`allowed`), and what it gives is
+        // carried in to the step's.
+        // Where no scope allows it, the letters it keeps apart from its scope
+        // and the scope spells are moved to letters nothing holds, as a
+        // claim's are (`over_other_letters`), and the side the step holds is
+        // renamed to them below.
+        let (mut at, mut frame) = (scope.to_string(), None);
+        let mut moved = Binding::new();
+        if let Some(v) = &deduced {
+            let mut open = binding.clone();
+            open.shift_remove(v);
+            let (mut where_, mut index) = self.allowed(&sig, &open);
+            if where_.is_declined() {
+                let spelt: BTreeSet<&str> = scope.split_whitespace().collect();
+                let letters: Vec<String> = sig
+                    .disjoint
+                    .iter()
+                    .flat_map(|(a, b)| [(a, b), (b, a)])
+                    .filter(|(_, other)| *other == v)
+                    .filter_map(|(one, _)| open.get(one.as_str()))
+                    .filter_map(|t| t.variable().map(String::from))
+                    .filter(|l| spelt.contains(self.float_of(l).as_str()))
+                    .collect::<BTreeSet<_>>()
+                    .into_iter()
+                    .collect();
+                let avoid: Vec<Term> = [self.to_term(scope), whole.clone()]
+                    .into_iter()
+                    .chain(open.values().cloned())
+                    .collect();
+                if let Some(m) =
+                    self.unheld_for(letters, &avoid.iter().collect::<Vec<_>>())
+                {
+                    moved = m;
+                    open = open
+                        .into_iter()
+                        .map(|(k, t)| (k, t.substitute(&moved)))
+                        .collect();
+                    (where_, index) = self.allowed(&sig, &open);
+                }
+            }
+            at = take!(where_);
+            frame = index;
+            binding = open;
+            binding.insert(v.clone(), self.to_term(&at));
+        }
+        let at_facts = match frame {
+            Some(f) => self.frames_facts(f, facts),
+            None => facts.clone(),
+        };
         // A definition that introduces a name says which variable it takes;
         // one that does not leaves the lemma's own, which the match fixed.
         let mut binds = self.spelt(&binding);
@@ -253,13 +304,13 @@ impl<'a> Elaborator<'a> {
         let mut conditions = Vec::new();
         for e in &sig.essentials {
             let asked = self.essential(e).substitute(&binding);
-            conditions.push(self.prove_essential(&asked, scope, facts)?);
+            conditions.push(self.prove_essential(&asked, &at, &at_facts)?);
         }
         let mut proofs = Vec::new();
         for one in conditions {
             proofs.push(take!(one));
         }
-        let applied = self.b.ap(lemma, &binds, &proofs.iter().collect::<Vec<_>>());
+        let mut applied = self.b.ap(lemma, &binds, &proofs.iter().collect::<Vec<_>>());
         // The lemma unfolds to its own wording, which need not be the
         // text's: what it gives is built first, and the text's wording is
         // reached from it.
@@ -267,9 +318,18 @@ impl<'a> Elaborator<'a> {
             let var_term = self.var_of(v);
             binding.insert(h.clone(), var_term);
         }
+        if let (Some(_), Some(f)) = (&deduced, frame) {
+            let gives = self.rpn(&whole.children()[1].substitute(&binding));
+            applied = self.carry(applied, &gives, f);
+        }
         let given = self.rpn(&reads.children()[1].substitute(&binding));
-        let says = t!(left, given, "wb");
-        let proof = if deduced && asks.is_empty() {
+        let near = if moved.is_empty() {
+            left.to_string()
+        } else {
+            self.rpn(&reads.children()[0].substitute(&binding))
+        };
+        let says = t!(near, given, "wb");
+        let proof = if deduced.is_some() && asks.is_empty() {
             applied
         } else if asks.is_empty() {
             pf!(self.b; says, scope, applied, "a1i")
@@ -283,6 +343,24 @@ impl<'a> Elaborator<'a> {
                 holds = t!(holds, extra, "wa");
             }
             pf!(self.b; scope, holds, says, proof, applied, "syl")
+        };
+        // The side the step holds, renamed to the letters the lemma was
+        // applied over, closed.
+        let proof = if near == left {
+            proof
+        } else {
+            let (was, now) = (self.to_term(left), self.to_term(&near));
+            let Some(renamed) = self.renaming(&was, &now)? else {
+                return Ok(Route::no("the side the step holds is not renamed apart"));
+            };
+            let first = pf!(self.b; t!(left, near, "wb"), scope, renamed, "a1i");
+            self.chained(
+                scope,
+                &[
+                    (was, now.clone(), first),
+                    (now, self.to_term(&given), proof),
+                ],
+            )
         };
         let Some(ex) = ex.filter(|ex| **ex != given) else {
             return Ok(Built((proof, given)));
@@ -802,7 +880,7 @@ impl<'a> Elaborator<'a> {
                     |me| -> Checked<(Vec<String>, Vec<String>)> {
                         let mut asks = Vec::new();
                         for h in &item.hypotheses {
-                            let body = hypothesis_body(h.kind.as_str(), &h.text);
+                            let body = me.hypothesis_formula(h.kind.as_str(), &h.text);
                             let node = me.read(&body)?;
                             asks.push(me.term(&node)?);
                         }
@@ -982,7 +1060,9 @@ impl<'a> Elaborator<'a> {
                 }
                 let mut hyps = Vec::new();
                 for h in &item.hypotheses {
-                    hyps.push(me.read(&hypothesis_body(h.kind.as_str(), &h.text))?);
+                    hyps.push(
+                        me.read(&me.hypothesis_formula(h.kind.as_str(), &h.text))?,
+                    );
                 }
                 Ok((ends, hyps))
             },
@@ -1036,7 +1116,9 @@ impl<'a> Elaborator<'a> {
         // Only what the step cites: a sort line fixes nothing.
         for h in &self.thm.hypotheses {
             if h.label.as_ref().is_some_and(|l| step.just.refs.contains(l)) {
-                given.push(self.read(&hypothesis_body(h.kind.as_str(), &h.text))?);
+                given.push(
+                    self.read(&self.hypothesis_formula(h.kind.as_str(), &h.text))?,
+                );
             }
         }
         let mut learned = true;
@@ -1453,19 +1535,6 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// The same two-sided claim with its sides the other way round.
-    fn turned(&self, rpn: &str) -> Option<String> {
-        let node = self.to_term(rpn);
-        if node.children().len() != 2 {
-            return None;
-        }
-        Some(t!(
-            self.rpn(&node.children()[1]),
-            self.rpn(&node.children()[0]),
-            node.label().unwrap_or("")
-        ))
-    }
-
     /// `(binding, proof of the left side at it)` from one of the things a
     /// cited line says: matched as written, with only defined names read,
     /// and as the standard form reads it; no one of the three covers the
@@ -1830,6 +1899,7 @@ impl<'a> Elaborator<'a> {
         label_of(
             &self.thm.qualified(),
             &self.b.sigs,
+            self.b.syntax(),
             &self.thm.path,
             self.thm.line,
             &proved_here(self.items),
@@ -2043,6 +2113,11 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let whole = self.to_term(term);
+        if whole.label() == Some("wfn") {
+            let supplied = self.supplied(Some(step), scope, facts)?;
+            let held = self.with_cited(Some(step), scope, &supplied, None);
+            return self.define_on(&whole, scope, &held);
+        }
         if whole.label() != Some("wceq") {
             return Err(self.defect(
                 step.line,
@@ -2100,6 +2175,60 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
+    /// ( scope -> t Fn A ) for a function a define gives on A: the map is a
+    /// function on its domain where each value its rule gives is a set
+    /// (`mptfng`), and the define's equation carries that to its name
+    /// (`fneq1d`), for a step citing the define and for a `requires` line
+    /// resting on it. `ELABORATION.md`, "A defined function is a map".
+    pub fn define_on(
+        &mut self,
+        whole: &Term,
+        scope: &str,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let (name, domain) = (whole.children()[0].clone(), whole.children()[1].clone());
+        let (map, is_map) = take!(self.define_value(&name, scope, held)?);
+        if map.label() != Some("cmpt") || map.children().len() != 3 {
+            return Ok(Route::no(
+                "what is claimed a function is no function a define gives",
+            ));
+        }
+        let (letter, over, rule) = (
+            self.rpn(&map.children()[0]),
+            self.rpn(&map.children()[1]),
+            self.rpn(&map.children()[2]),
+        );
+        if over != self.rpn(&domain) {
+            return Ok(Route::no("the define gives its function on another set"));
+        }
+        let every = t!(t!(rule, "cvv", "wcel"), letter, over, "wral");
+        let sets =
+            take!(self.settle(&self.to_term(&every), scope, held, 3, None, None)?);
+        let map_rpn = self.rpn(&map);
+        let on = self.b.ap(
+            "mptfng",
+            &binds! {"F" => &map_rpn, "x" => &letter, "A" => &over, "B" => &rule},
+            &[&self.b.ap("eqid", &binds! {"A" => &map_rpn}, &[])],
+        );
+        let map_on = t!(map_rpn, over, "wfn");
+        let mapped = self.b.ap(
+            "sylib",
+            &binds! {"ph" => scope, "ps" => &every, "ch" => &map_on},
+            &[&sets, &on],
+        );
+        let name_rpn = self.rpn(&name);
+        let carried = self.b.ap(
+            "fneq1d",
+            &binds! {"ph" => scope, "F" => &name_rpn, "G" => &map_rpn, "A" => &over},
+            &[&is_map],
+        );
+        Ok(Built(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => t!(name_rpn, over, "wfn"), "ch" => &map_on},
+            &[&mapped, &carried],
+        )))
+    }
+
     /// (value, ( scope -> one = value )) where `one` is a defined name or a
     /// defined function applied, read once and taken into the case the facts
     /// say; a decline otherwise.
@@ -2109,8 +2238,8 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         held: &Facts,
     ) -> Checked<Route<(Term, Proof)>> {
-        let kept =
-            std::mem::replace(&mut self.binding, super::matcher::letters_bound(one));
+        let letters = self.letters_bound(one);
+        let kept = std::mem::replace(&mut self.binding, letters);
         let head = self.standard_step(one);
         self.binding = kept;
         let Some((how, value)) = head.filter(|(h, _)| {
@@ -2625,9 +2754,28 @@ impl<'a> Elaborator<'a> {
             .all(|(a, b)| self.aligned(a, b, marks, found, &inner))
     }
 
-    /// A definition used the other way: to conclude an existence claim, the
-    /// witness read off the cited line by walking the shape the definition
-    /// states against it.
+    /// An existence claim with the equation under its quantifiers turned
+    /// round, where a definition's lemma writes it the other way from the
+    /// page (`targets::unfolding`).
+    fn body_turned(term: &Term) -> Term {
+        if term.label() == Some("wrex") {
+            let mut kids = term.children().to_vec();
+            kids[0] = Self::body_turned(&kids[0]);
+            return Term::apply("wrex", kids);
+        }
+        if term.label() == Some("wceq") && term.children().len() == 2 {
+            return Term::apply(
+                "wceq",
+                vec![term.children()[1].clone(), term.children()[0].clone()],
+            );
+        }
+        term.clone()
+    }
+
+    /// A definition used the other way: its right side, an existence claim
+    /// with as many witnesses as it quantifies over, is proved from the lines
+    /// the step names as `exhibit` proves one (`witnessed`), and the
+    /// definition folds it into the claim.
     fn conclude(
         &mut self,
         step: &Step,
@@ -2641,112 +2789,68 @@ impl<'a> Elaborator<'a> {
         let given = self.subject_given(&head, &named, step.line)?;
         let subject_node = self.read(&given)?;
         let subject = self.term(&subject_node)?;
-        let var = self.spare_var()?;
-        let (lemma, var, kernel, over) =
-            self.names_kept(|me| -> Checked<(String, String, Node, String)> {
+        let (lemma, flipped, right) =
+            self.names_kept(|me| -> Checked<(String, bool, String)> {
                 // A definition may name more than the thing it is about.
                 for (name, value) in instantiation(&step.just.text) {
                     let node = me.read(&value)?;
                     let term = me.term(&node)?;
                     me.names.insert(name, term);
                 }
-                let (lemma, var, kernel, _w, over, _left) =
-                    me.definition(&head, &subject, Some(var))?;
-                let kernel = me.freeze(&kernel)?;
-                Ok((lemma, var, kernel, over))
+                let Item::Record(item) = me.item_cited(&head) else {
+                    panic!("{head} is a definition of the database");
+                };
+                let (lemma, flipped) = targets::unfolding(item);
+                let Some(lemma) = lemma else {
+                    return Err(me.defect(me.at, format!("{head} has no target field")));
+                };
+                let node = me.read(&item.conclusions[0].0)?;
+                let (left, right) =
+                    (node.children[0].clone(), node.children[1].clone());
+                me.names
+                    .insert(subject_of(&left).text.clone(), subject.clone());
+                // Each name the right side binds is a letter nothing in the
+                // proof holds and the subject does not spell (`unheld_for`, as
+                // the renaming rule gives one), given for this reading only.
+                let mut bound = Vec::new();
+                let mut rest = vec![right.clone()];
+                while let Some(node) = rest.pop() {
+                    if let Some(held) = me.binders.get(&node.notation) {
+                        for &at in held {
+                            if node.children[at].is_name() {
+                                bound.push(node.children[at].text.clone());
+                            }
+                        }
+                    }
+                    rest.extend(node.children.iter().cloned());
+                }
+                let Some(letters) = me.unheld_for(bound, &[&me.to_term(&subject)])
+                else {
+                    return Err(me.defect(
+                        step.line,
+                        "no letter left to read the definition by",
+                    ));
+                };
+                let kept = me.bound_as.clone();
+                for (name, letter) in &letters {
+                    me.bound_as.insert(name.clone(), me.rpn(letter));
+                }
+                let read = me.term(&right);
+                me.bound_as = kept;
+                Ok((lemma, flipped, read?))
             })?;
-        // A step cites the lines it leans on, and only one of them says what
-        // the witness is: the one whose claim is what the definition would say
-        // of the witness it names, facing either way.
-        let body = self.term(&kernel)?;
-        let mark = format!("{var} cv");
-        enum Source {
-            Line(String),
-            Known(String),
+        // Its equation faces the way the lemma writes it.
+        let mut whole = self.to_term(&right);
+        if flipped {
+            whole = Self::body_turned(&whole);
         }
-        let mut candidates: Vec<(String, Source)> = step
-            .just
-            .refs
-            .iter()
-            .map(|r| {
-                let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-                (line.term, Source::Line(r.clone()))
-            })
-            .collect();
-        let mut known = Facts::new();
-        if !step.requires.is_empty() {
-            known = self.supplied(Some(step), scope, facts)?;
-            for r in &step.requires {
-                let said = self.claim_of(&r.fact)?;
-                if known.has(&said) {
-                    candidates.push((said.clone(), Source::Known(said)));
-                }
-            }
-        }
-        let mut chosen = None;
-        for (said, source) in &candidates {
-            let held = self.to_term(said);
-            let mut witness = None;
-            for shape in [Some(body.clone()), self.turned(&body)] {
-                if let Some(shape) = shape {
-                    witness = self.witness_in(&self.to_term(&shape), &held, &mark);
-                }
-                if witness.is_some() {
-                    break;
-                }
-            }
-            let Some(witness) = witness else {
-                continue;
-            };
-            let substituted = self.substituted(&kernel, &mark, &witness)?;
-            let here = self.term(&substituted)?;
-            if *said == here || Some(said.clone()) == self.turned(&here) {
-                chosen = Some((said.clone(), source, witness, here));
-                break;
-            }
-        }
-        let Some((said, source, witness, here)) = chosen else {
-            return Err(self.defect(step.line, "no cited line names a witness"));
-        };
-        let at = t!(format!("{var} cv"), witness, "wceq");
-        let identity = pf!(self.b; at, "id");
-        let instance = match self.rewrite(
-            &kernel,
-            &format!("{var} cv"),
-            &witness,
-            &at,
-            &identity,
-        )? {
-            Built((_built, instance)) => instance,
-            Declined(d) => {
-                return Err(self.defect(
-                    step.line,
-                    format!(
-                        "the witness stands nowhere in the claim: {}",
-                        self.say(&d)
-                    ),
-                ));
-            }
-        };
-        let ex = t!(body, var, over, "wrex");
-        let member = t!(witness, over, "wcel");
-        let p_member = self.required(step, &member, scope, facts)?;
-        // A line proved before a block opened holds inside it too, and the
-        // scope's own copy is what says so where the step sits.
-        let mut p_cited = match source {
-            Source::Line(r) => {
-                let line = lines.get(r).unwrap();
-                facts.get(&line.term).unwrap_or(line.proof)
-            }
-            Source::Known(said) => known.get(said).unwrap(),
-        };
-        if said != here {
-            let was = self.to_term(&said);
-            let (a, b) = (self.rpn(&was.children()[0]), self.rpn(&was.children()[1]));
-            p_cited = pf!(self.b; scope, a, b, p_cited, "eqcomd");
-        }
-        let both = pf!(self.b; scope, member, here, p_member, p_cited, "jca");
-        let p_ex = pf!(self.b; scope, t!(member, here, "wa"), ex, both, body, here, var, witness, over, instance, "rspcev", "syl");
+        let ex = self.rpn(&whole);
+        let (var, over) = (
+            self.rpn(&whole.children()[1]),
+            self.rpn(&whole.children()[2]),
+        );
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let p_ex = take!(self.witnessed(step, &whole, scope, &supplied, lines)?);
         let (made, _) = take!(self.unfolding(
             step,
             &lemma,
@@ -2981,7 +3085,8 @@ impl<'a> Elaborator<'a> {
                 let saved = me.names.clone();
                 let mut binds: IndexMap<String, String> = IndexMap::new();
                 for h in &other.hypotheses {
-                    let node = me.read(&hypothesis_body(h.kind.as_str(), &h.text))?;
+                    let node =
+                        me.read(&me.hypothesis_formula(h.kind.as_str(), &h.text))?;
                     // `let X be a set` names a class as surely as `let n ∈ ℕ`
                     // does, and the name is in the same place.
                     if h.kind == Intro::Let
@@ -3013,8 +3118,9 @@ impl<'a> Elaborator<'a> {
                     |me| -> Checked<Vec<String>> {
                         let mut out = Vec::new();
                         for h in &other.hypotheses {
-                            let node =
-                                me.read(&hypothesis_body(h.kind.as_str(), &h.text))?;
+                            let node = me.read(
+                                &me.hypothesis_formula(h.kind.as_str(), &h.text),
+                            )?;
                             out.push(me.term(&node)?);
                         }
                         Ok(out)
@@ -3084,6 +3190,7 @@ impl<'a> Elaborator<'a> {
         let cited = label_of(
             &full,
             &self.b.sigs,
+            self.b.syntax(),
             &self.thm.path,
             self.thm.line,
             &proved_here(self.items),

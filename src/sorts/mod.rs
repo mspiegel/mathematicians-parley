@@ -58,6 +58,8 @@ regex!(FUNCTION, r"^(\S+)\s*:\s*.+→.+$");
 regex!(FUNCTION_BEING, r"^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$");
 // `let X ⊆ A`: a part of a set.
 regex!(PART, r"^(\S+)\s*⊆\s*(\S.*)$");
+// `let E be a function on X`: a function, and the set it is on.
+regex!(FUNCTION_ON, r"^(\S+)\s+be\s+a\s+function\s+on\s+(\S.*)$");
 // `let G be a finite group with operation · and identity e`: a set whose
 // members are group elements, its operation, and its identity, which is one
 // of them.
@@ -92,6 +94,9 @@ pub fn function_re() -> &'static regex::Regex {
 pub fn function_being_re() -> &'static regex::Regex {
     &FUNCTION_BEING
 }
+pub fn function_on_re() -> &'static regex::Regex {
+    &FUNCTION_ON
+}
 pub fn part_re() -> &'static regex::Regex {
     &PART
 }
@@ -110,14 +115,18 @@ pub fn unlabel(text: &str) -> String {
 /// the formula is `f : A → B is one-to-one`: "be" is how English says "is"
 /// after "let". `let X ⊆ A` introduces a part of A, which is a member of its
 /// power set, and the formula is `X ∈ 𝒫A`, the one `for every X ⊆ A`
-/// quantifies over. `let G be a finite group …` says G is finite; the rest
-/// of it names things and asserts nothing a proof cites. Every other body is
-/// read as it is written.
+/// quantifies over. `let E be a function on X` says E is a function on X, a
+/// fact a proof citing the line supplies. `let G be a finite group …` says G
+/// is finite; the rest of it names things and asserts nothing a proof cites.
+/// Every other body is read as it is written.
 pub fn let_formula(body: &str) -> String {
     if let Some(m) = GROUP.captures(body) {
         if m.name("finite").is_some() {
             return format!("{} is finite", &m["group"]);
         }
+    }
+    if let Some(m) = FUNCTION_ON.captures(body) {
+        return format!("{} is a function on {}", &m[1], str::trim(&m[2]));
     }
     if let Some(m) = FUNCTION_BEING.captures(body) {
         return format!("{} is {}", &m[1], &m[2]);
@@ -197,7 +206,10 @@ fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
     if let Some(m) = PROPERTY.captures(body) {
         return vec![(m[1].to_string(), "property")];
     }
-    if let Some(m) = FUNCTION.captures(body) {
+    if let Some(m) = FUNCTION
+        .captures(body)
+        .or_else(|| FUNCTION_ON.captures(body))
+    {
         return vec![(m[1].to_string(), "function")];
     }
     if let Some(m) = NAMED_MEMBER.captures(body) {

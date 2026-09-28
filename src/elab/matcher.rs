@@ -23,7 +23,9 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::provenance::item_clauses;
-use super::state::{fit, names_of, Binding, Elaborator, HeadKey, Role, Shape, Vars};
+use super::state::{
+    fit, fit_respelt, names_of, Binding, Elaborator, HeadKey, Role, Shape, Vars,
+};
 use super::tables::{Leaf, Row};
 use super::{Facts, Lines};
 use crate::binds;
@@ -183,6 +185,22 @@ impl<'a> Elaborator<'a> {
                 if let Some(spelt) = self.respelt(&proof, &said, &rpn, scope)? {
                     return Ok(Built(spelt));
                 }
+            }
+        }
+        // A line may say the claim over other bound letters, under any
+        // binder and at any depth: the two are one claim, and
+        // `renaming_apart` says so, closed, by way of letters nothing holds
+        // so that no letter is caught on the way. A lemma given letters of
+        // its own (`letters_unheld`) asks its facts this way.
+        for (said, proof) in facts.entries() {
+            if said == rpn || !self.rebound(&said, &rpn) {
+                continue;
+            }
+            if let Some(across) = self.renaming_apart(&said, &rpn)? {
+                let turned = pf!(self.b; t!(said, rpn, "wb"), scope, across, "a1i");
+                return Ok(Built(
+                    pf!(self.b; scope, said, rpn, proof, turned, "mpbid"),
+                ));
             }
         }
         if depth > 0 {
@@ -637,9 +655,12 @@ impl<'a> Elaborator<'a> {
     ///
     /// A conjunct asking where to look for something rather than anything of
     /// it is left to `sethood`, which reads it so, and is not matched. Every
-    /// antecedent is matched whole before any is taken apart.
+    /// antecedent is matched whole before any is taken apart. Both are read
+    /// through the standard form's one-way rules first, so that a fact
+    /// answers a slot however either is spelt: `X ∈ 𝒫A` in hand fills the
+    /// A of a slot asking `X ⊆ A`.
     fn opened(
-        &self,
+        &mut self,
         antecedents: &[Term],
         binding: Binding,
         facts: &Facts,
@@ -647,23 +668,29 @@ impl<'a> Elaborator<'a> {
     ) -> Binding {
         let mut binding = binding;
         let mut whole = Vec::new();
-        let keys = facts.keys();
+        let keys: Vec<Term> = facts
+            .keys()
+            .iter()
+            .map(|held| {
+                let held = self.to_term(held);
+                self.read_through(&held, false, None)
+            })
+            .collect();
         for slot in antecedents {
             if slot.names().iter().all(|n| binding.contains_key(&**n)) {
                 continue;
             }
+            let slot = self.read_through(slot, false, None);
             let mut filled_any = false;
             for held in &keys {
-                if let Some(filled) =
-                    fit(slot, &self.to_term(held), &binding, variables)
-                {
+                if let Some(filled) = fit(&slot, held, &binding, variables) {
                     binding = filled;
                     filled_any = true;
                     break;
                 }
             }
             if !filled_any {
-                whole.push(slot.clone());
+                whole.push(slot);
             }
         }
         for slot in &whole {
@@ -679,9 +706,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
                 for held in &keys {
-                    if let Some(filled) =
-                        fit(&piece, &self.to_term(held), &binding, variables)
-                    {
+                    if let Some(filled) = fit(&piece, held, &binding, variables) {
                         binding = filled;
                         break;
                     }
@@ -1133,8 +1158,8 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
-        let mut letters = letters_bound(given);
-        letters.extend(letters_bound(want));
+        let mut letters = self.letters_bound(given);
+        letters.extend(self.letters_bound(want));
         let kept = std::mem::replace(&mut self.binding, letters);
         let out = self.congruence(
             given,
@@ -1145,6 +1170,32 @@ impl<'a> Elaborator<'a> {
             &Leaf::Rows(vec![Row::Standard]),
         );
         self.binding = kept;
+        out
+    }
+
+    /// The variables a term binds: each set variable standing directly under
+    /// a constructor other than `cv`, as `rebound` reads them. A set variable
+    /// stands only where a binder puts it or under `cv`; a class variable
+    /// under a constructor is a term the statement is about, and is bound by
+    /// nothing.
+    pub fn letters_bound(&self, term: &Term) -> Vars {
+        let mut out = Vars::new();
+        let mut rest = vec![term.clone()];
+        while let Some(node) = rest.pop() {
+            if node.variable().is_some() {
+                continue;
+            }
+            if node.label() != Some("cv") {
+                out.extend(
+                    node.children()
+                        .iter()
+                        .filter_map(|c| c.variable())
+                        .filter(|v| self.is_setvar(&self.float_of(v)))
+                        .map(Rc::from),
+                );
+            }
+            rest.extend(node.children().iter().cloned());
+        }
         out
     }
 
@@ -1276,10 +1327,13 @@ impl<'a> Elaborator<'a> {
         spelt.extend(self.rpn(&through).split_whitespace().map(String::from));
         let own = bound.variable().unwrap_or("").to_string();
         let meets = |me: &Self, one: &Term| {
-            letters_bound(one).iter().filter(|v| ***v != *own).any(|v| {
-                let label = me.float_of(v);
-                spelt.contains(&label) && me.is_setvar(&label)
-            })
+            me.letters_bound(one)
+                .iter()
+                .filter(|v| ***v != *own)
+                .any(|v| {
+                    let label = me.float_of(v);
+                    spelt.contains(&label) && me.is_setvar(&label)
+                })
         };
         let mut rule = rule;
         if meets(self, &rule) {
@@ -1302,7 +1356,8 @@ impl<'a> Elaborator<'a> {
         }
         let (bound, mut rule) = (f.children()[0].clone(), f.children()[2].clone());
         let own = bound.variable().unwrap_or("").to_string();
-        let mut letters: Vec<Rc<str>> = letters_bound(&rule)
+        let mut letters: Vec<Rc<str>> = self
+            .letters_bound(&rule)
             .into_iter()
             .filter(|v| **v != *own)
             .collect();
@@ -2204,12 +2259,16 @@ impl<'a> Elaborator<'a> {
         Some(out)
     }
 
-    /// A restricted existential, from the line a step cites for it.
+    /// A restricted existential, with as many witnesses as it quantifies
+    /// over, from the lines a step names for it: what `exhibit` proves, and
+    /// the right side a definition concludes from (`conclude`).
     ///
     /// The text never writes the witness as a witness: it writes a line that
-    /// happens to name one. Taken from the lines the step cites and never
-    /// searched for among the facts in scope. Built from the innermost
-    /// quantifier out, which is the order the witnesses go in.
+    /// happens to name one. Taken from the lines the step cites and its
+    /// `requires` lines, in that order, and never searched for among the
+    /// facts in scope. Each sentence of a line is read, and an equation
+    /// facing either way. Built from the innermost quantifier out, which is
+    /// the order the witnesses go in.
     pub fn witnessed(
         &mut self,
         step: &Step,
@@ -2227,22 +2286,52 @@ impl<'a> Elaborator<'a> {
         }
         let marks: BTreeSet<String> =
             layers.iter().map(|(_, v, _)| format!("{v} cv")).collect();
-        let mut chosen = None;
-        for r in &step.just.refs {
-            let Some(cited) = lines.get(r) else {
-                continue;
-            };
-            let mut found =
-                self.witnesses_in(&rest, &self.to_term(&cited.term), &marks);
-            if found.is_none() && layers.len() == 1 {
-                found = self.member_named(&cited.term, &layers[0]);
-            }
-            if let Some(found) = found.filter(|f| !f.is_empty()) {
-                chosen = Some((cited, found));
-                break;
+        // A line proved before a block opened holds inside it too, and the
+        // scope's own copy is what says so where the step sits.
+        let mut sources: Vec<(String, Proof)> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| lines.get(r))
+            .map(|cited| {
+                let proof = facts.get(&cited.term).unwrap_or(cited.proof.clone());
+                (cited.term, proof)
+            })
+            .collect();
+        for r in &step.requires {
+            let said = self.claim_of(&r.fact)?;
+            if let Some(proof) = facts.get(&said) {
+                sources.push((said, proof));
             }
         }
-        let Some((cited, found)) = chosen else {
+        let shapes: Vec<Term> = std::iter::once(rest.clone())
+            .chain(turned_equation(&rest))
+            .collect();
+        // A body saying nothing of its one variable takes any member of the
+        // domain a line names; one that says something takes what it says.
+        let silent = layers.len() == 1
+            && !self.rpn(&rest).split_whitespace().any(|t| t == layers[0].1);
+        let mut chosen = None;
+        'sources: for (said, proof) in &sources {
+            for part in self.parts(said) {
+                let held = self.to_term(&part);
+                for shape in &shapes {
+                    let found = self.witnesses_in(shape, &held, &marks);
+                    if let Some(found) = found.filter(|f| !f.is_empty()) {
+                        chosen =
+                            Some((part.clone(), said.clone(), proof.clone(), found));
+                        break 'sources;
+                    }
+                }
+            }
+            if silent {
+                if let Some(found) = self.member_named(said, &layers[0]) {
+                    chosen = Some((said.clone(), said.clone(), proof.clone(), found));
+                    break;
+                }
+            }
+        }
+        let Some((part, said, whole, found)) = chosen else {
             return Err(self.defect(
                 step.line,
                 format!(
@@ -2252,19 +2341,26 @@ impl<'a> Elaborator<'a> {
             ));
         };
         // Where the line naming the witnesses is all the claim says of them,
-        // its own proof is taken.
-        let mut proof = facts.get(&cited.term).unwrap_or(cited.proof.clone());
+        // its own proof is taken, turned where it faces the other way.
+        let mut proof = whole;
         let mut innermost = layers[layers.len() - 1].0.clone();
         for (_, v, _) in &layers {
             let mark = format!("{v} cv");
             innermost = self.restated(&innermost, &mark, &found[&mark]);
         }
         let inner_rpn = self.rpn(&innermost);
+        let turned = turned_equation(&innermost).map(|t| self.rpn(&t));
         if inner_rpn == "wtru" {
             // A body that says nothing of its variable holds outright, by
             // the one lemma that states truth.
             proof = pf!(self.b; "wtru", scope, "tru", "a1i");
-        } else if inner_rpn != cited.term {
+        } else if part == said && turned.as_deref() == Some(said.as_str()) {
+            let (a, b) = (
+                self.rpn(&innermost.children()[0]),
+                self.rpn(&innermost.children()[1]),
+            );
+            proof = pf!(self.b; scope, b, a, proof, "eqcomd");
+        } else if inner_rpn != said {
             proof = take!(self.settle(
                 &innermost,
                 scope,
@@ -2603,26 +2699,43 @@ impl<'a> Elaborator<'a> {
         let start = t!(spelt.join(" "), label);
         let mut proof: Option<Proof> = None;
         for slot in (0..spelt.len()).filter(|&i| spelt[i] != other[i]) {
-            let Some(lemma) = rules::renamed(&label, slot) else {
-                return Ok(None);
-            };
-            let Some(inner) =
-                self.renaming(&given.children()[slot], &want.children()[slot])?
-            else {
-                return Ok(None);
-            };
-            let rest = if slot == 0 {
-                here[1].clone()
+            // A connective carries a renamed statement, and a predicate over
+            // classes a class renamed inside it (`class_alpha`); either
+            // lemma is applied by matching what it states to the claim
+            // before and after, whatever else the constructor takes.
+            let (lemma, inner) = if let Some(lemma) = rules::renamed(&label, slot) {
+                (
+                    lemma,
+                    self.renaming(&given.children()[slot], &want.children()[slot])?,
+                )
+            } else if let Some(lemma) = rules::PREDICATE_LIFT
+                .iter()
+                .find(|(l, s, _)| *l == label && *s == slot)
+                .map(|(_, _, lemma)| *lemma)
+            {
+                (
+                    lemma,
+                    self.class_alpha(&given.children()[slot], &want.children()[slot])?,
+                )
             } else {
-                here[0].clone()
+                return Ok(None);
             };
-            let step = self.b.ap(
-                lemma,
-                &binds! {"ph" => &here[slot], "ps" => &other[slot], "ch" => &rest},
-                &[&inner],
-            );
+            let Some(inner) = inner else {
+                return Ok(None);
+            };
             let was = t!(here.join(" "), label);
-            here[slot] = other[slot].clone();
+            let mut next = here.clone();
+            next[slot] = other[slot].clone();
+            let now = t!(next.join(" "), label);
+            let Some(step) = self.by_lemma(
+                lemma,
+                &self.to_term(&was),
+                &self.to_term(&now),
+                &[&inner],
+            ) else {
+                return Ok(None);
+            };
+            here = next;
             proof = Some(match proof {
                 None => step,
                 Some(p) => self.b.ap(
@@ -2662,44 +2775,43 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `renaming` by way of letters neither statement holds: every letter
-    /// the first statement binds is moved to one nothing holds, and the
-    /// statement is renamed from there, where nothing can be caught. The
-    /// letters are only looked at, not taken.
+    /// the first statement binds, under a statement's binder or a class's,
+    /// is moved to one nothing holds, and the statement is renamed from
+    /// there, where nothing can be caught. The letters are only looked at,
+    /// not taken.
     pub fn renaming_apart(&mut self, said: &str, want: &str) -> Checked<Option<Proof>> {
-        let mut held = self.names_held();
-        held.extend(self.reserved.iter().cloned());
-        held.extend(self.bound_as.values().cloned());
-        held.extend(said.split_whitespace().map(String::from));
-        held.extend(want.split_whitespace().map(String::from));
-        let mut free = self
-            .spare
-            .iter()
-            .filter(|v| !held.contains(*v))
-            .cloned()
-            .collect::<Vec<_>>()
-            .into_iter();
-        let mut moved = Binding::new();
+        let mut letters: Vec<String> = Vec::new();
         let mut rest = vec![self.to_term(said)];
         while let Some(node) = rest.pop() {
-            if node
-                .label()
-                .is_some_and(|l| lookup(rules::BOUND, l).is_some())
-                && node.children().len() >= 2
-            {
-                if let Some(letter) = node.children()[1].variable() {
-                    if !moved.contains_key(letter) {
-                        let Some(fresh) = free.next() else {
-                            return Ok(None);
-                        };
-                        moved.insert(letter.to_string(), self.var_of(&fresh));
+            // What a binder binds is the set variable it takes as an
+            // operand, wherever the binder puts it.
+            let binder = node.label().is_some_and(|l| {
+                lookup(rules::BOUND, l).is_some()
+                    || lookup(rules::CLASS_BOUND, l).is_some()
+            });
+            if binder {
+                for kid in node.children() {
+                    let Some(letter) = kid.variable() else {
+                        continue;
+                    };
+                    if self.typecode(&self.rpn(kid)) != "setvar"
+                        || letters.iter().any(|l| l == letter)
+                    {
+                        continue;
                     }
+                    letters.push(letter.to_string());
                 }
             }
             rest.extend(node.children().iter().cloned());
         }
-        if moved.is_empty() {
-            return Ok(None);
+        if letters.is_empty() {
+            return Ok(None); // it binds nothing, so it is not the other respelt
         }
+        let Some(moved) =
+            self.unheld_for(letters, &[&self.to_term(said), &self.to_term(want)])
+        else {
+            return Ok(None);
+        };
         let middle = self.to_term(said).substitute(&moved);
         let there = self.renaming(&self.to_term(said), &middle)?;
         let back = self.renaming(&middle, &self.to_term(want))?;
@@ -2724,6 +2836,26 @@ impl<'a> Elaborator<'a> {
         }
         let free = self.spare.iter().find(|v| !held.contains(*v))?;
         Some(self.var_of(free))
+    }
+
+    /// Each of `letters` with a letter of its own from `unheld`: none that
+    /// `terms` spells or that another of them was given. None when too few
+    /// are left. Looked at, not taken.
+    pub fn unheld_for(
+        &self,
+        letters: impl IntoIterator<Item = String>,
+        terms: &[&Term],
+    ) -> Option<Binding> {
+        let mut moved = Binding::new();
+        for letter in letters {
+            let fresh = {
+                let mut seen: Vec<&Term> = terms.to_vec();
+                seen.extend(moved.values());
+                self.unheld(&seen)?
+            };
+            moved.insert(letter, fresh);
+        }
+        Some(moved)
     }
 
     /// ( scope -> wanted ) from a fact saying it over other bound letters,
@@ -2769,9 +2901,11 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
-    /// `binding` with a letter the frames spell given another, for each set
+    /// `binding` with a letter nothing in the proof holds, for each set
     /// variable the lemma keeps apart from its scope and the claim did not
-    /// fix.
+    /// fix: always, and not only where the frames spell the lemma's own, so
+    /// that which letter a line happened to bind decides nothing
+    /// (`ELABORATION.md`, "Where a step is proved").
     fn letters_unheld(&self, sig: &Signature, binding: Binding) -> Binding {
         let kinds: IndexMap<&str, &str> = sig
             .floats
@@ -2789,19 +2923,18 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let spelt = self.frames_spell();
         let mut out = binding;
-        for var in apart {
-            if out.contains_key(&var) || !spelt.contains(&self.float_of(&var)) {
-                continue;
-            }
+        let open: Vec<String> =
+            apart.into_iter().filter(|v| !out.contains_key(v)).collect();
+        let moved = {
             let frames: Vec<Term> =
                 self.frames.iter().map(|f| self.to_term(&f.scope)).collect();
             let mut terms: Vec<&Term> = frames.iter().collect();
             terms.extend(out.values());
-            if let Some(fresh) = self.unheld(&terms) {
-                out.insert(var, fresh);
-            }
+            self.unheld_for(open, &terms)
+        };
+        if let Some(moved) = moved {
+            out.extend(moved);
         }
         out
     }
@@ -2840,18 +2973,13 @@ impl<'a> Elaborator<'a> {
         if letters.is_empty() {
             return Ok(Declined(why));
         }
-        let mut moved = Binding::new();
         let frames: Vec<Term> =
             self.frames.iter().map(|f| self.to_term(&f.scope)).collect();
-        for letter in letters {
-            let mut terms: Vec<&Term> = vec![goal];
-            terms.extend(frames.iter());
-            terms.extend(moved.values());
-            let Some(fresh) = self.unheld(&terms) else {
-                return Ok(Declined(why));
-            };
-            moved.insert(letter, fresh);
-        }
+        let mut terms: Vec<&Term> = vec![goal];
+        terms.extend(frames.iter());
+        let Some(moved) = self.unheld_for(letters, &terms) else {
+            return Ok(Declined(why));
+        };
         let other = goal.substitute(&moved);
         let proof =
             take!(self.apply_lemma(label, &other, scope, facts, step, crossing, seed)?);
@@ -2887,14 +3015,9 @@ impl<'a> Elaborator<'a> {
             right.children()[1].clone(),
             right.children()[2].clone(),
         );
-        let mut held = self.names_held();
-        held.extend(self.reserved.iter().cloned());
-        held.extend(self.bound_as.values().cloned());
-        held.extend(self.rpn(goal).split_whitespace().map(String::from));
-        let Some(free) = self.spare.iter().find(|v| !held.contains(*v)).cloned() else {
+        let Some(letter) = self.unheld(&[goal]) else {
             return Ok(Route::no("no letter left to rename a sum with"));
         };
-        let letter = self.var_of(&free);
         let mut put = Binding::new();
         put.insert(index.variable().unwrap_or("").to_string(), letter.clone());
         let moved = summand.substitute(&put);
@@ -3601,7 +3724,8 @@ impl<'a> Elaborator<'a> {
         // stands for.
         let mut binds: IndexMap<String, BTreeSet<String>> = IndexMap::new();
         for (name, value) in &binding {
-            let mut out: BTreeSet<String> = letters_bound(value)
+            let mut out: BTreeSet<String> = self
+                .letters_bound(value)
                 .iter()
                 .map(|v| self.float_of(v))
                 .filter(|l| self.is_setvar(l))
@@ -3654,7 +3778,7 @@ impl<'a> Elaborator<'a> {
         let letters = match letters {
             Some(l) => l,
             None => {
-                owned = letters_bound(term);
+                owned = self.letters_bound(term);
                 &owned
             }
         };
@@ -3702,7 +3826,7 @@ impl<'a> Elaborator<'a> {
         let letters = match letters {
             Some(l) => l,
             None => {
-                owned = letters_bound(term);
+                owned = self.letters_bound(term);
                 &owned
             }
         };
@@ -3877,6 +4001,18 @@ impl<'a> Elaborator<'a> {
         }) {
             return self.letters_apart(label, goal, scope, facts, step, crossing, seed);
         }
+        // A letter the lemma binds and keeps apart from its scope, which the
+        // claim never fixes, is given one nothing holds before anything else
+        // could lend it one. What the lemma's other variables stand for is
+        // still read off the facts, whose letters are their own
+        // (`fit_respelt`).
+        let before = binding.clone();
+        binding = self.letters_unheld(&sig, binding);
+        let fresh: Binding = binding
+            .iter()
+            .filter(|(k, _)| !before.contains_key(*k))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
         // A deduction's hypothesis may bind letters its conclusion never
         // names, each its own: each is the letter the line the step cites for
         // that hypothesis binds.
@@ -3902,16 +4038,13 @@ impl<'a> Elaborator<'a> {
             let mut vars = variables.clone();
             vars.extend(said.names().iter().cloned());
             for held in &cited {
-                if let Some(filled) = fit(&said, held, &binding, &vars) {
+                if let Some(filled) = fit_respelt(&said, held, &binding, &vars, &fresh)
+                {
                     binding = filled;
                     break;
                 }
             }
         }
-        // A letter the lemma binds inside itself and the claim never fixes
-        // stands as its own name, which a hypothesis may bind too; where the
-        // frames spell it, it is given one they do not.
-        binding = self.letters_unheld(&sig, binding);
         // The scope is where a lemma's disjointness conditions can forbid it,
         // so it is chosen before anything is built.
         let (mut where_, mut frame) = self.allowed(&sig, &binding);
@@ -3928,9 +4061,13 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
                 for held in &keys {
-                    if let Some(filled) =
-                        fit(slot, &self.to_term(held), &binding, &variables)
-                    {
+                    if let Some(filled) = fit_respelt(
+                        slot,
+                        &self.to_term(held),
+                        &binding,
+                        &variables,
+                        &fresh,
+                    ) {
                         binding = filled;
                         break;
                     }
@@ -3995,9 +4132,13 @@ impl<'a> Elaborator<'a> {
                 }
                 let mut filled_any = false;
                 for held in &known_keys {
-                    if let Some(filled) =
-                        fit(piece, &self.to_term(held), &binding, &variables)
-                    {
+                    if let Some(filled) = fit_respelt(
+                        piece,
+                        &self.to_term(held),
+                        &binding,
+                        &variables,
+                        &fresh,
+                    ) {
                         binding = filled;
                         filled_any = true;
                         break;
@@ -4048,12 +4189,17 @@ impl<'a> Elaborator<'a> {
         for (i, slot) in antecedents.iter().enumerate() {
             let asks = slot.substitute(&binding);
             let asks_rpn = self.rpn(&asks);
-            if asks_rpn == where_ {
+            let is_scope = asks_rpn == where_;
+            // A variable slot is the context a deduction-form lemma is stated
+            // in, and uses nothing; a formula the scope happens to be is what
+            // the lemma asks, and uses all of it.
+            stood_under = stood_under || (is_scope && slot.variable().is_none());
+            // Only a first slot the lemma implies from is the scope's own
+            // place, so that the lemma then reads `scope -> claim` as it
+            // stands; one it states a biconditional with, or asks after
+            // another, is discharged as any is, by the scope itself (`id`).
+            if is_scope && i == 0 && joins[i] == Join::Implies {
                 carried = true;
-                // A variable slot is the context a deduction-form lemma is
-                // stated in, and uses nothing; a formula the scope happens to
-                // be is what the lemma asks, and uses all of it.
-                stood_under = stood_under || slot.variable().is_none();
                 continue; // the deduction slot
             }
             let mut rest = goal_rpn.clone();
@@ -4084,7 +4230,9 @@ impl<'a> Elaborator<'a> {
                 .parts(&asks_rpn)
                 .iter()
                 .any(|p| self.to_term(p).label() == Some("wrex"));
-            let under = if instanced && step.is_some() {
+            let under = if is_scope {
+                Built(pf!(self.b; where_, "id"))
+            } else if instanced && step.is_some() {
                 let lines = self.lines.clone();
                 self.settle(&asks, &where_, &known, 3, step, Some(&lines))?
             } else {
@@ -4159,6 +4307,20 @@ impl<'a> Elaborator<'a> {
         let under = self.rpn(left);
         if under == self.rpn(right) {
             return Ok(Built(pf!(self.b; under, "id")));
+        }
+        // Two sides alike say one thing whatever is assumed: a renaming whose
+        // body does not hold the letter it renames asks this.
+        let sides = right.children();
+        if sides.len() == 2 && self.rpn(&sides[0]) == self.rpn(&sides[1]) {
+            let one = self.rpn(&sides[0]);
+            let alike = match right.label() {
+                Some("wb") => Some(self.b.ap("biid", &binds! {"ph" => &one}, &[])),
+                Some("wceq") => Some(self.b.ap("eqid", &binds! {"A" => &one}, &[])),
+                _ => None,
+            };
+            if let Some(alike) = alike {
+                return Ok(Built(pf!(self.b; self.rpn(right), under, alike, "a1i")));
+            }
         }
         // A lemma may state its instance rather than ask for it, and wants
         // the body before and after tied together: the walk between them is
@@ -4393,25 +4555,16 @@ fn spell(tree: &Shape, holes: &[String]) -> String {
     }
 }
 
-/// The variables a term binds: each one standing directly under a
-/// constructor other than `cv`, as `rebound` reads them.
-pub fn letters_bound(term: &Term) -> Vars {
-    let mut out = Vars::new();
-    let mut rest = vec![term.clone()];
-    while let Some(node) = rest.pop() {
-        if node.variable().is_some() {
-            continue;
-        }
-        if node.label() != Some("cv") {
-            out.extend(
-                node.children()
-                    .iter()
-                    .filter_map(|c| c.variable().map(Rc::from)),
-            );
-        }
-        rest.extend(node.children().iter().cloned());
+/// The same equation with its sides the other way round; None for anything
+/// that is not an equation, whose sides are not interchangeable.
+fn turned_equation(term: &Term) -> Option<Term> {
+    if term.label() != Some("wceq") || term.children().len() != 2 {
+        return None;
     }
-    out
+    Some(Term::apply(
+        "wceq",
+        vec![term.children()[1].clone(), term.children()[0].clone()],
+    ))
 }
 
 /// Whether `piece` says what a function the binding fixes maps between: `F

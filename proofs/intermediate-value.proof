@@ -74,6 +74,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     there is δ ∈ ℝ with δ > 0 and
     for every x ∈ [a, b], if |x − c′| < δ then |f(x) − f(c′)| < ε.
     def:stdlib/calculus/continuous-on, from H5
+    requires [a, b] ⊆ ℝ: thm:stdlib/calculus/interval-real, from H1, H2
 
 17. f(c) = 0
     cases, from 15

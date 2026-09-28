@@ -368,10 +368,15 @@ impl Parser<'_> {
             let Some(inner) = self.expression(None, None)? else {
                 return Ok(None);
             };
-            if self.peek().is_none_or(|t| t.kind != TokenKind::Close) {
+            let Some(close) =
+                self.peek().filter(|t| t.kind == TokenKind::Close).cloned()
+            else {
                 return self.no(format!("unclosed bracket in {}", repr(self.src)));
-            }
+            };
             self.i += 1;
+            // The brackets are part of what was written, and what extends
+            // the group starts at the first of them.
+            inner.set_span(tok.at, close.at + close.text.chars().count());
             return Ok(Some(inner));
         }
         // A notation may open with a literal that is also a name, as the two
@@ -396,6 +401,7 @@ impl Parser<'_> {
             } else {
                 Node::leaf("numeral", Sort::of("number"), &tok.text)
             };
+            leaf.set_span(tok.at, tok.at + tok.text.chars().count());
             if cands.is_empty() {
                 self.i += 1;
                 return Ok(Some(leaf));
@@ -591,6 +597,10 @@ impl Parser<'_> {
     /// expression. Only a hole at the right edge needs the pattern's level as
     /// a barrier, since only there can a looser notation swallow the rest.
     fn match_pattern(&mut self, n: &Notation, left: Option<&Node>) -> Reading {
+        let begin = match left {
+            Some(l) => l.span().map(|s| s.0),
+            None => self.t.get(self.i).map(|t| t.at),
+        };
         let mut kids: Vec<Node> = Vec::new();
         // The tokens each hole took, for a message to quote; the value to
         // the left of an extension was read before it, and took none here.
@@ -669,17 +679,34 @@ impl Parser<'_> {
                 Node::new(&w.name, Sort::of(&w.yields), vec![inner], &w.literal);
         }
         let node = Node::new(n.key(), Sort::of(&n.yields), kids, &n.literal);
+        // Where it was read from: its first token, or the value it extends,
+        // to its last token.
+        let end = self
+            .i
+            .checked_sub(1)
+            .and_then(|last| self.t.get(last))
+            .map(|t| t.at + t.text.chars().count());
+        if let (Some(from), Some(to)) = (begin, end) {
+            node.set_span(from, to);
+            if let Some(w) = &n.wrap {
+                if let Some(span) = node.children[w.hole - 1].children[0].span() {
+                    node.children[w.hole - 1].set_span(span.0, span.1);
+                }
+            }
+        }
         // A pattern declared as the negation of another builds the other and
         // wraps it, so the folded spelling and the `not` spelling are one
         // tree. The wrapper is named by the record, not known here.
         match &n.folds {
             None => Ok(Some(node)),
-            Some(folds) => Ok(Some(Node::new(
-                folds,
-                Sort::of("formula"),
-                vec![node],
-                &n.fold_literal,
-            ))),
+            Some(folds) => {
+                let folded =
+                    Node::new(folds, Sort::of("formula"), vec![node], &n.fold_literal);
+                if let (Some(from), Some(to)) = (begin, end) {
+                    folded.set_span(from, to);
+                }
+                Ok(Some(folded))
+            }
         }
     }
 
@@ -700,7 +727,9 @@ impl Parser<'_> {
                 return self.no("a binder wants a name".into());
             }
             self.i += 1;
-            return Ok(Some(Node::leaf("name", Sort::of("variable"), &tok.text)));
+            let leaf = Node::leaf("name", Sort::of("variable"), &tok.text);
+            leaf.set_span(tok.at, tok.at + tok.text.chars().count());
+            return Ok(Some(leaf));
         }
         self.expression(barrier, stop)
     }

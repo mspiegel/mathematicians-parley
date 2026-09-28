@@ -126,48 +126,66 @@ impl<'a> Elaborator<'a> {
         self.settle(&wanted, scope, facts, depth, None, None)
     }
 
-    /// ( scope -> given = want ), two classes binding a letter the scope
-    /// spells, by way of the same classes over a spare: renamed to it by
-    /// `class_alpha`, walked there, and renamed back.
+    /// ( scope -> given = want ), or `<->` for statements, where the walk
+    /// would go under a binder whose letter the scope spells: the lemma that
+    /// carries a change under a binder keeps its letter apart from the
+    /// scope. Each side's letter at `place` is moved to one nothing holds,
+    /// closed (`renaming` for a statement, `class_alpha` for a class), the
+    /// two are walked there, and the result is moved back.
+    #[allow(clippy::too_many_arguments)]
     fn over_spare_letter(
         &mut self,
         given: &Term,
         want: &Term,
+        place: usize,
         scope: &str,
         facts: &Facts,
         step: Option<&Step>,
         leaf: &Leaf,
     ) -> Checked<Route<Proof>> {
-        let letter = given.children()[1].clone();
-        // Looked at, not taken: the letter stands inside this one equation
+        // Looked at, not taken: the letter stands inside this one statement
         // and nowhere else.
         let Some(fresh) = self.unheld(&[&self.to_term(scope), given, want]) else {
-            return Ok(Route::no("no letter left to rename a class with"));
+            return Ok(Route::no("no letter left to walk under this binder by"));
         };
-        let mut put = Binding::new();
-        put.insert(letter.variable().unwrap_or("").to_string(), fresh);
-        let moved = given.substitute(&put);
-        let moved_want = want.substitute(&put);
+        let moved_to = |term: &Term| {
+            let mut put = Binding::new();
+            put.insert(
+                term.children()[place].variable().unwrap_or("").to_string(),
+                fresh.clone(),
+            );
+            term.substitute(&put)
+        };
+        let (moved, moved_want) = (moved_to(given), moved_to(want));
         let walked =
             take!(self.congruence(&moved, &moved_want, scope, facts, step, leaf)?);
-        let there = self.class_alpha(given, &moved)?;
-        let back = self.class_alpha(&moved_want, want)?;
-        let (Some(there), Some(back)) = (there, back) else {
-            return Ok(Route::no("the class is not renamed apart from the scope"));
+        let wff = self.is_wff(given);
+        let (there, back) = if wff {
+            (
+                self.renaming(given, &moved)?,
+                self.renaming(&moved_want, want)?,
+            )
+        } else {
+            (
+                self.class_alpha(given, &moved)?,
+                self.class_alpha(&moved_want, want)?,
+            )
         };
+        let (Some(there), Some(back)) = (there, back) else {
+            return Ok(Route::no("the binder is not renamed apart from the scope"));
+        };
+        let join = if wff { "wb" } else { "wceq" };
         let (a, b) = (self.rpn(given), self.rpn(&moved));
         let (c, d) = (self.rpn(&moved_want), self.rpn(want));
-        let first = pf!(self.b; t!(a, b, "wceq"), scope, there, "a1i");
-        let last = pf!(self.b; t!(c, d, "wceq"), scope, back, "a1i");
-        let middle = self.b.ap(
-            "eqtrd",
-            &binds! {"ph" => scope, "A" => &a, "B" => &b, "C" => &c},
-            &[&first, &walked],
-        );
-        Ok(Built(self.b.ap(
-            "eqtrd",
-            &binds! {"ph" => scope, "A" => &a, "B" => &c, "C" => &d},
-            &[&middle, &last],
+        let first = pf!(self.b; t!(a, b, join), scope, there, "a1i");
+        let last = pf!(self.b; t!(c, d, join), scope, back, "a1i");
+        Ok(Built(self.chained(
+            scope,
+            &[
+                (given.clone(), moved.clone(), first),
+                (moved, moved_want.clone(), walked),
+                (moved_want, want.clone(), last),
+            ],
         )))
     }
 
@@ -209,7 +227,8 @@ impl<'a> Elaborator<'a> {
             let (body, name, runs) = (&kids[0], g[1].clone(), g[2].clone());
             // `rexbidva` keeps its letter apart from the scope it carries.
             if words.contains(&name.as_str()) {
-                return Ok(Route::no("the scope mentions the letter this binds"));
+                return self
+                    .over_spare_letter(given, want, 1, scope, facts, step, leaf);
             }
             let member = t!(format!("{name} cv"), runs, "wcel");
             let other = want.children()[0].clone();
@@ -227,7 +246,8 @@ impl<'a> Elaborator<'a> {
             let kids = given.children();
             let (runs, body, name) = (g[0].clone(), &kids[1], g[2].clone());
             if words.contains(&name.as_str()) {
-                return Ok(Route::no("the scope mentions the letter this binds"));
+                return self
+                    .over_spare_letter(given, want, 2, scope, facts, step, leaf);
             }
             let member = t!(format!("{name} cv"), runs, "wcel");
             let other = want.children()[1].clone();
@@ -251,7 +271,8 @@ impl<'a> Elaborator<'a> {
                 // The scope holds D's own equation, which binds this letter,
                 // so the condition is carried over a spare the scope does not
                 // spell and the builder renamed to it and back.
-                return self.over_spare_letter(given, want, scope, facts, step, leaf);
+                return self
+                    .over_spare_letter(given, want, 1, scope, facts, step, leaf);
             }
             let member = t!(format!("{name} cv"), runs, "wcel");
             let other = want.children()[0].clone();
@@ -298,7 +319,8 @@ impl<'a> Elaborator<'a> {
         {
             let kids = given.children().to_vec();
             if words.contains(&g[1].as_str()) {
-                return Ok(Route::no("the scope mentions the letter this binds"));
+                return self
+                    .over_spare_letter(given, want, 1, scope, facts, step, leaf);
             }
             let over = take!(self.congruence(
                 &kids[2],
@@ -419,7 +441,7 @@ impl<'a> Elaborator<'a> {
             && g.len() >= 2
             && words.contains(&g[1].as_str())
         {
-            return Ok(Route::no("the scope mentions the letter this binds"));
+            return self.over_spare_letter(given, want, 1, scope, facts, step, leaf);
         }
         let moved: Vec<&String> =
             slots.iter().flat_map(|&i| [&spelt[i], &other[i]]).collect();

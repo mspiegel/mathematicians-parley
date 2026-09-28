@@ -31,7 +31,8 @@ theorem interval-real
   target      iccssre
 
 definition continuous-on
-  let f : D → ℝ                                                       (H1)
+  let D ⊆ ℝ                                                           (H1)
+  let f : D → ℝ                                                       (H2)
   then        f is continuous on D ↔ for every c ∈ D, for every ε ∈ ℝ with
               ε > 0, there is δ ∈ ℝ with δ > 0 and for every x ∈ D, if
               |x − c| < δ then |f(x) − f(c)| < ε

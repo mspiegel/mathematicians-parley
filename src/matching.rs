@@ -92,6 +92,8 @@ pub struct Context {
     /// `function`.
     pub props: IndexMap<String, String>,
     pub equations: IndexSet<String>,
+    /// The notations saying a function is a function on a set (`wfn`).
+    pub functions_on: IndexSet<String>,
 }
 
 impl Context {
@@ -101,6 +103,7 @@ impl Context {
             binders,
             props,
             equations: equations(records),
+            functions_on: functions_on(records),
         }
     }
 
@@ -189,6 +192,19 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
         .filter(|r| {
             r.kind == RecordKind::Notation
                 && WCEQ.is_match(str::trim(r.field_or_empty("metamath")))
+        })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// The notations whose `metamath` is set.mm's `Fn`: what a define with a
+/// parameter says of its function.
+pub fn functions_on(records: &[Record]) -> IndexSet<String> {
+    records
+        .iter()
+        .filter(|r| {
+            r.kind == RecordKind::Notation
+                && str::trim(r.field_or_empty("metamath")) == "wfn"
         })
         .map(|r| r.name.clone())
         .collect()

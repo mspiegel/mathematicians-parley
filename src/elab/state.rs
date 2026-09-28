@@ -488,6 +488,34 @@ pub fn fit<V: VarSet + ?Sized>(
     match_term(pattern, ground, binding, variables)
 }
 
+/// `fit` up to the letters a lemma was given of its own: `fresh` stands for
+/// the lemma's bound variables as the lemma is applied, and a fact binds its
+/// own letters there, so the pattern is fitted with those left open, what it
+/// says of every other variable is kept, and the fresh letters stay.
+pub fn fit_respelt<V: VarSet + ?Sized>(
+    pattern: &Term,
+    ground: &Term,
+    binding: &Binding,
+    variables: &V,
+    fresh: &Binding,
+) -> Option<Binding> {
+    if fresh.is_empty() {
+        return fit(pattern, ground, binding, variables);
+    }
+    let mut open = binding.clone();
+    for k in fresh.keys() {
+        open.shift_remove(k);
+    }
+    let filled = fit(pattern, ground, &open, variables)?;
+    let mut out = binding.clone();
+    for (k, v) in filled {
+        if !fresh.contains_key(&k) {
+            out.entry(k).or_insert(v);
+        }
+    }
+    Some(out)
+}
+
 /// The variables a term mentions, as a set a match may bind.
 pub fn names_of(term: &Term) -> Vars {
     (*term.names()).clone()

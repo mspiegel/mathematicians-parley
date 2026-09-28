@@ -201,6 +201,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 
     9.2.  t : H → gH
           thm:stdlib/functions/function-into, from 9.1
+          requires t is a function on H: from D2
 
     9.3.  For every s ∈ H, for every r ∈ H, if t(s) = t(r) then s = r.
           fix

@@ -18,7 +18,7 @@ use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::gate::{as_built, verifies};
-use parley::tools::{assumed, labels, tested};
+use parley::tools::{assumed, labels, restated, tested};
 
 /// One of the gate's stages, run over a tree with set.mm where it is.
 type Stage = fn(&dyn Source, &Path) -> Said;
@@ -43,12 +43,17 @@ fn verify_stage(tree: &dyn Source, setmm: &Path) -> Said {
     verifies(tree, Some(setmm))
 }
 
-const STAGES: [(&str, Stage); 5] = [
+fn restated_stage(tree: &dyn Source, setmm: &Path) -> Said {
+    restated::run(tree, Some(setmm))
+}
+
+const STAGES: [(&str, Stage); 6] = [
     ("set.mm labels", labels_stage),
     ("cited or tested", tested_stage),
     ("taken as stated", assumed_stage),
     ("a fresh build", as_built_stage),
     ("the proofs verify", verify_stage),
+    ("items restated", restated_stage),
 ];
 
 /// One planted defect: the stage that must catch it, the file, the text
@@ -118,6 +123,22 @@ fn cases() -> Vec<Case> {
             old: CANTOR_SAYS,
             new: CANTOR_WRONG,
             expect: "rejected the proofs",
+        },
+        Case {
+            name: "an item no proof restates that ELABORATION.md does not list",
+            stage: restated_stage,
+            file: "docs/ELABORATION.md",
+            old: "`stdlib/reasoning/or-right`",
+            new: "or-right",
+            expect: "stdlib/reasoning/or-right states a schema no proof restates, and ELABORATION.md does not list it",
+        },
+        Case {
+            name: "an item listed as not restated that is restated",
+            stage: restated_stage,
+            file: "docs/ELABORATION.md",
+            old: "`stdlib/sets/set-builder-subset`.",
+            new: "`stdlib/sets/set-builder-subset`, `stdlib/sets/union-self`.",
+            expect: "ELABORATION.md lists stdlib/sets/union-self as not restated, and it is restated",
         },
     ]
 }

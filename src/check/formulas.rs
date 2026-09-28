@@ -892,6 +892,22 @@ pub fn check_define_citation(
         let Ok(written) = written else {
             continue;
         };
+        // A define with a parameter says what its function is on, as well as
+        // what its name is equal to (`ELABORATION.md`).
+        if parts.claims.len() == 1
+            && written.len() == 1
+            && library.ctx.functions_on.contains(&parts.claims[0].notation)
+        {
+            let subject = &parts.claims[0].children[0];
+            if !(subject.is_name() && subject.text == name) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!("{say} and claims that something other than {name} is a function on a set"),
+                );
+            }
+            continue;
+        }
         if parts.claims.len() != 1
             || written.len() != 1
             || !library.ctx.equations.contains(&parts.claims[0].notation)
@@ -899,7 +915,7 @@ pub fn check_define_citation(
             report.say(
                 &thm.path,
                 just.line,
-                format!("{say} and claims no one equation; a define says what its name is equal to"),
+                format!("{say} and claims no one equation; a define says what its name is equal to, and a define with a parameter what its function is on"),
             );
             continue;
         }

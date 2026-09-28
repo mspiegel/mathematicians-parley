@@ -6,6 +6,7 @@ pub mod assumed;
 pub mod build;
 pub mod gate;
 pub mod labels;
+pub mod restated;
 pub mod tested;
 pub mod verify;
 

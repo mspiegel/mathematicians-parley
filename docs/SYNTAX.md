@@ -44,11 +44,15 @@ theorem even-square
   an element of a named set, `let a ∉ X` for a thing of the sort X holds
   that is not in X, `let x be an element` for a thing whose sort the text
   decides, `let A be a set` for an arbitrary set, `let
-  A be a point` for a point of the plane, `let f : A → B` for a
+  A be a point` for a point of the plane, `let f be a function on A` for a
+  function known by its domain alone, `let f : A → B` for a
   function with its domain and codomain, `let f : A → B be one-to-one` for
-  such a function with a property, `let G be a group with operation · and
-  identity e` for a group, and `let P be a property of the
-  elements of X` for a property that a statement can be written about.
+  such a function with a property, and `let G be a group with operation ·
+  and identity e` for a group. A library item may also write `let P be a
+  property of the elements of X`, for a property a statement can be
+  written about; a theorem in a proof may not, because the elaborator
+  cannot state a theorem over a property (`ELABORATION.md`, "Library items
+  no proof restates").
   Neither `∉` nor `be an element` claims the thing is a set, which `be a
   set` does (`READERS.md`, on sorts); the kernel still has it be one, and
   that is apparatus the page never writes.
@@ -318,13 +322,14 @@ for what it plainly says. Nothing past the table is read: that an integer
 above 0 is a natural number is the item `pos-int-nat`.
 
 A `define` line names an object: `define S := E (D1)` is an unnumbered,
-labelled line placed where S is first needed, claiming nothing, and cited
-by its label wherever a step needs to know what S stands for. It is the
+labelled line placed where S is first needed. It introduces S and states one
+fact, that S is E, as a textbook's "let x₁ = min(b, c + δ/2)" does, and it is
+cited by its label wherever a step needs to know what S stands for. It is the
 third kind of unnumbered line beside `let` and `assume`.
 
-**A defined name and the term it names are one formula.** A define abbreviates
-and asserts nothing, so wherever two formulas are compared the name is expanded
-first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing with
+**A defined name and the term it names are one formula.** A define states
+that the name is the term and nothing more, so wherever two formulas are
+compared the name is expanded first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing with
 both sets written out say the same thing, and the citation is checked as such.
 Expansion repeats, since a define may be written in terms of an earlier one.
 
@@ -393,6 +398,13 @@ applied or not, and on the other what the define says the name is: `M(C) =
 This is the reading a calculation link citing the define makes, as a step
 of its own.
 
+**A define with a parameter also states what its function is on**, since the
+domain is written beside the rule: `define t(c) := g·c, for c ∈ H (D2)`
+gives `t is a function on H`, cited `D2` as a step or `from D2` in a
+`requires` line. It states nothing about where the values lie: `t : H → gH`
+is proved, from a line saying each value is in gH, as Lagrange's step 9.2
+does.
+
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let
 Tₖ = k(k + 1)/2" once and then states results about Tₖ:
@@ -420,7 +432,8 @@ was introduced to avoid.
 
 **A define is followed by a `reads` line** giving, in words, what the name
 means: one line, directly under the define, required on every one. Because a
-define asserts nothing, the acceptance test has nothing to check about it, and
+define states only what its name is, the acceptance test has nothing to check
+about it, and
 a reader can meet a construction with no idea why it is there. The subsets
 proof is where this was noticed: it named one half of a split and wrote the
 other half out in full, so the two halves did not look like two halves.

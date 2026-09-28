@@ -562,6 +562,18 @@ notation function-type
   metamath    wf
   target      _2 _3 _1 wf
 
+notation function-on
+  pattern     _ is a function on _
+  sort        function from α to β, set of α → formula
+  level       predicate
+  reads       is a function on
+  metamath    wfn
+  target      _1 _2 wfn
+  note        A function known by its domain alone: what a `define` with a
+              parameter gives, before anything says where its values lie.
+              The formula-position counterpart of `let E be a function on
+              X`, as is-a-set is of `let X be a set`.
+
 notation one-to-one
   pattern     _ : _ → _ is one-to-one
   sort        function from α to β, set of α, set of β → formula

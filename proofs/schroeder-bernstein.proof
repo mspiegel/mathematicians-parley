@@ -281,6 +281,7 @@ theorem schroeder-bernstein
 
 6.  h : A → B
     thm:stdlib/functions/function-into, from 5
+    requires h is a function on A: from D2
 
 7.  For every s ∈ A, for every t ∈ A, if h(s) = h(t) then s = t.
     fix

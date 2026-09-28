@@ -15,7 +15,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
-use super::reading::{hypothesis_body, subject_of};
+use super::reading::subject_of;
 use super::state::{
     fit, number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame,
     ObtainCloser, Vars,
@@ -335,7 +335,8 @@ impl<'a> Elaborator<'a> {
         match head.as_str() {
             "contradiction" => {
                 let o = &step.openers[0];
-                let node = self.read(&hypothesis_body(o.kind.as_str(), &o.text))?;
+                let node =
+                    self.read(&self.hypothesis_formula(o.kind.as_str(), &o.text))?;
                 let supposed = self.term(&node)?;
                 let origin = assumption(&block, &o.label);
                 let (inner, lifted) =
@@ -360,7 +361,7 @@ impl<'a> Elaborator<'a> {
             }
             "fix" => {
                 for o in &step.openers {
-                    let body = hypothesis_body(o.kind.as_str(), &o.text);
+                    let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
                     if o.kind == Intro::Let {
                         // A fixed name is a variable of the kernel, not a
                         // class, and it must avoid whatever the notations
@@ -409,7 +410,7 @@ impl<'a> Elaborator<'a> {
                 // `cases` opens one per part, so nothing is widened here and
                 // the part is entered when its first child arrives.
                 for o in &step.openers {
-                    let body = hypothesis_body(o.kind.as_str(), &o.text);
+                    let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
                     let node = self.read(&body)?;
                     block
                         .assumed

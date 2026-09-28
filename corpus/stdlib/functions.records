@@ -120,15 +120,11 @@ theorem image-monotone
   target      imass2
 
 theorem function-into
-  let E : X → W                                                       (H1)
+  let E be a function on X                                            (H1)
   assume for every x ∈ X, E(x) ∈ Y                                    (H2)
   then        E : X → Y
-  metamath    fmpt, over the map itself, which this corpus proves in
-              elaboration/stdlib/proved.mm
-  target      gfmpt
-  note        Narrowed to a function a `define` gives, which is a map: set.mm
-              says it of the map and the page of the name the define gave
-              it, and the elaborator reads the one as the other.
+  metamath    ffnfv
+  target      ffnfv
 
 theorem value-in-image
   let f : X → W                                                       (H1)

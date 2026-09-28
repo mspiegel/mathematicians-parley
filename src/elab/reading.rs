@@ -14,15 +14,15 @@ use indexmap::IndexMap;
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{cited_name, resolve, DefineLine, Item, Recursion, ScopeId, Step};
-use crate::formula::{parse, Node, Sort};
+use crate::formula::{fits, parse, Node, Sort};
 use crate::matching::{substitute, Binding as NodeBinding, Defined, Definitions};
 use crate::outcome::Checked;
 use crate::regex;
 use crate::rules::NUMERALS;
 use crate::sorts::{
-    definition_sorts, element_re, file_definitions, function_being_re, group_re,
-    let_formula, not_in_re, part_re, sentences, sorts_of_record, sorts_of_statement,
-    unlabel, Env,
+    definition_sorts, element_re, file_definitions, function_being_re, function_on_re,
+    group_re, let_formula, not_in_re, part_re, sentences, sorts_of_record,
+    sorts_of_statement, unlabel, Env,
 };
 use crate::t;
 use crate::targets;
@@ -63,7 +63,7 @@ pub fn hypothesis_body(kind: &str, text: &str) -> String {
         if let Some(m) = function_being_re().captures(&said) {
             return format!("{} and {}", &m[1], let_formula(&said));
         }
-        if part_re().is_match(&said) {
+        if part_re().is_match(&said) || function_on_re().is_match(&said) {
             return let_formula(&said);
         }
         return BE_A
@@ -88,6 +88,29 @@ pub fn subject_of(node: &Node) -> Node {
 }
 
 impl<'a> Elaborator<'a> {
+    /// What a hypothesis line says, as `hypothesis_body` gives it, read where
+    /// the elaborator has got to.
+    ///
+    /// `let x be an element` says x is a set because the kernel's element of
+    /// a set is one, and that is apparatus the page never writes. A name the
+    /// text uses as a number, a point or a group element is not something
+    /// `_ is a set` takes, and the line then says nothing of it: `x = x`,
+    /// which introduces x as a hypothesis line does and claims nothing.
+    pub fn hypothesis_formula(&self, kind: &str, text: &str) -> String {
+        let body = hypothesis_body(kind, text);
+        if kind == "let" {
+            let said = str::trim(&unlabel(text.strip_prefix(kind).unwrap_or(text)))
+                .to_string();
+            if let Some(m) = element_re().captures(&said) {
+                let name = &m[1];
+                if self.sorts_now.get(name).is_some_and(|s| !fits("set", s)) {
+                    return format!("{name} = {name}");
+                }
+            }
+        }
+        body
+    }
+
     pub fn env(&self) -> Env<'a> {
         Env {
             g: self.g,
@@ -437,7 +460,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
             }
-            let node = self.read(&hypothesis_body(kind, &h.text))?;
+            let node = self.read(&self.hypothesis_formula(kind, &h.text))?;
             // `assume H is a subgroup of G` introduces H as a `let` would.
             let subgroup = kind == "assume" && SUBGROUP.is_match(&rest);
             if kind == "let" || subgroup {

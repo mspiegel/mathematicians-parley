@@ -315,16 +315,44 @@ hypothesis in scope names the sum's index. The readable order is still
 correct — the reader needs the step where it stands — so what moves is the
 elaborator's order and not the author's.
 
-Where no frame is permitted, the letters move instead. A hypothesis saying
-Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope, and
-`sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
-apart from any scope it is used under. Which letter a statement binds is no
-part of what it says, so:
+Which letter a statement binds is no part of what it says, and a lemma's
+disjointness conditions are about letters, so the letters a lemma keeps apart
+from its scope are chosen by one rule rather than searched for. A hypothesis
+saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
+and `sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
+apart from any scope it is used under; `gpartsfin`, which
+`thm:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
+that may itself say "for every Y ∈ K", binding the same letter. So:
 
-- a letter the lemma binds and the claim does not fix, `sersumlim`'s n, is
-  given one no frame spells (`letters_unheld`);
+- every letter the lemma binds and keeps apart from its scope, and the claim
+  does not fix, is given one nothing in the proof holds, whether or not a
+  frame spells the lemma's own, and never the one a cited line happens to
+  bind (`letters_unheld`). What the lemma's other variables stand for is
+  still read off the lines, fitted with the fresh letters left open
+  (`fit_respelt`). The rule applies where it is redundant too: a lemma whose
+  own letter nothing spells still takes a fresh one, so no step depends on
+  which letter a line happened to bind;
+- a fact answers a claim that says the same over other bound letters,
+  whatever the binder — a "for every", a "there is", a union, a map, a
+  set-builder or a sum — and however deep it stands. Every letter the fact
+  binds is moved to one nothing holds, and renamed from there to the
+  claim's (`renaming_apart`), so no letter is caught on the way; a renamed
+  part is carried up through each constructor above it by the closed lemma
+  for that place (`rules::RENAMED`, `rules::PREDICATE_LIFT`), and a class
+  renamed by the lemma for its binder (`rules::CLASS_BOUND`);
 - the claim's own bound letters are moved to such letters, the claim proved
   over them, and `respelt` carries it back (`over_other_letters`);
+- a definition's lemma in deduction form is unfolded at the innermost scope
+  its disjointness conditions allow (`allowed`, as for any lemma applied)
+  and carried in; where none does, the letters it keeps apart from its scope
+  and the scope spells are moved to letters nothing holds, the lemma applied
+  over them, and the side the step holds renamed to them, closed
+  (`unfolding`);
+- a change carried under a binder whose letter the scope spells — a "for
+  every", a "there is", a set-builder or a sum — is carried over a letter
+  nothing holds: both sides' letter is moved there, closed, the change
+  carried, and the result moved back (`over_spare_letter`), since the lemma
+  that carries it keeps its letter apart from the scope;
 - a "for every" the elaborator generalises itself is proved over a spare
   letter where the scope spells its own, and `cbvralvw` renames it back
   (`for_every`);
@@ -425,9 +453,14 @@ The membership those lines carry is exactly `rspcev`'s side condition.
 from a line binding the same name is that letter; the claim is then exhibited
 over a letter nothing holds and renamed to the claim's own.
 
-Witnesses are recovered by matching the body against the cited line, taking
-all the marked places together, and the introduction is built from the
-innermost quantifier out. The witness is read against the whole of what the
+One reader recovers the witnesses for both (`witnessed`), however many the
+claim quantifies over: a definition concluded is its right side proved as
+`exhibit` proves one and folded, its bound names given letters nothing holds
+and the subject does not spell (`unheld`) before it is read. The body is
+matched against each sentence of the lines the step cites and then of its
+`requires` lines, taking all the marked places together, and a body that
+says nothing of its one variable takes a member of the domain a line names.
+The introduction is built from the innermost quantifier out. The witness is read against the whole of what the
 claim asks of it, that it is in the domain and the body, with a defined
 function applied read as its rule on both sides alike, so a line saying
 either names it: `there is a ∈ G with gH = aH` takes g from g ∈ G, and its
@@ -538,6 +571,14 @@ carried to its map by `fveq1d`. `fvmptd` would take the define's equation at
 once, but it forbids the map's letter in the scope, and the scope holds that
 very equation. What the rule asks, that n is in the domain, is the step's to
 supply in a `requires` line.
+
+A define with a parameter also says what its function is on: `define t(c) :=
+g·c, for c ∈ H` cited for `t is a function on H` is read as the map being a
+function on its domain, which it is where each value its rule gives is a set
+(`mptfng`), settled as any sethood is, and carried from the map to the name
+by the define's equation (`fneq1d`). A `requires` line resting `from` the
+define alone is proved the same way (`define_on`). The domain is the one the
+define gives; a claim naming another is not what the define says.
 
 **A definition from outside the theorem is written out in the statement and
 a name in the proof.** What a theorem sees from outside it, a define its
@@ -1067,10 +1108,30 @@ deduction form, as set.mm's series lemmas are, and a definition lemma in
 deduction form assumes a formula it says nothing else about: that formula is
 the step's scope, and the lemma's hypotheses are asked under it.
 
-A requires line may state a cited line with other bound letters: a `fix`
-elsewhere took n, so the line saying every partial sum is real binds another
-letter, and the requires line citing it writes n. The two are one claim, and
-`same` says so.
+**What a requires line takes from the line it cites** is the fact as that
+line writes it, one of its sentences or what the line unfolds to where its
+reason is a definition the notation folds away (`unfolded_at`). Four things
+count as the line writing it besides:
+
+- the kernel's sethood of what a let introduces: `let x be an element` and
+  `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the
+  page;
+- what a membership implies by one lemma: `let k ∈ ℕ` gives k ∈ ℝ and k ≠ 0;
+- the same claim over other bound letters: a `fix` elsewhere took n, so the
+  line saying every partial sum is real binds another letter, and the
+  requires line citing it writes n. The two are one claim, and `same` says
+  so (the renaming rule);
+- a part: `let X ⊆ A` is read as X ∈ 𝒫A, since set.mm quantifies over the
+  set of parts, and the page writes it X ⊆ A, so a requires line writing
+  X ⊆ A takes it from that let.
+
+Anything else the line gives only in other words does not count: an
+equation or an inequation with its sides turned round, ℝ⁺ for "ℝ with
+0 <", and every other rewording the standard form makes. The requires line
+names the line that writes the fact, or a step of its own writes the
+rewording. Isosceles's lines 5 and 6 are the triangle in two orders, and a
+requires line for A ≠ B names line 5, which writes it, not line 6, which
+writes B ≠ A.
 
 `thm:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
 as k + 1, so nothing asks that X be finite. `thm:stdlib/counting/card-nonempty` is
@@ -1172,13 +1233,15 @@ is whether the tool is right: the planted defects the checker must catch
 (`tests/planted_elaborate.rs`), the planted defects each of the gate's other
 stages must catch (`tests/planted_gate.rs`), that a compressed proof is the
 proof it was made from (`tests/compress.rs`), and that the hand elaborations
-write their files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in six
+write their files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in seven
 stages: the checker over the whole corpus; every artifact built afresh and
 compared with the file in the tree; every set.mm label the database names;
 that every library item is cited by a proof or tested in `tests/stdlib/`
 (`DATABASE.md`); that no elaborated proof or test takes a step as stated
-unless "Steps taken as stated" above records it; and a verifier over every
-proof the elaborator has written. `scripts/precommit.sh` runs both.
+unless "Steps taken as stated" above records it; a verifier over every
+proof the elaborator has written; and that every library item with a target
+gives its target what it asks, by a theorem restating the item and citing
+it from its own lines, built and verified (`src/tools/restated.rs`). `scripts/precommit.sh` runs both.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is
@@ -1228,7 +1291,11 @@ lemma whose antecedent *is* the scope — `readdcl` asks `( A ∈ ℝ ∧ B ∈ 
 the triangle inequality's scope is exactly that — uses the hypotheses by
 standing under them and looks none up, so such a proof rests on everything the
 scope says. A variable antecedent bound to the scope is the context a
-deduction-form lemma is stated in, and uses nothing.
+deduction-form lemma is stated in, and uses nothing. Only a first antecedent
+the lemma implies from stands in the scope's place, so that the lemma then
+reads `scope → claim` as it stands; one it states a biconditional with, as
+`elnnz` does with `( N ∈ ℤ ∧ 0 < N )`, or asks after another, is discharged
+as any antecedent is, by `id`.
 
 Three rules follow, each a defect naming the line, checked where the proof is
 sealed. A step's proof, a block's, and an obtain's source all pass through
@@ -1305,6 +1372,30 @@ the page never writes. The elaborator proves a term a set from its structure
 and from those facts, and never asks the page for it; the checker's reading
 of sorts reports a page that claims an element of a set of numbers is a set. See *What a
 file states rather than proves* for the proof this let back into `proofs/`.
+
+**Library items no proof restates.** The last stage restates each library
+item with a target as a theorem of its own, and nine it cannot, because a
+letter in each stands for something a proof cannot introduce. Each is cited
+by a proof or tested, at a formula of that proof's own, so what it says is
+used and verified there; only the restatement is missing.
+
+- A statement: `stdlib/reasoning/excluded-middle` (P or not P),
+  `stdlib/reasoning/from-contradiction`, `stdlib/reasoning/double-negation`,
+  `stdlib/reasoning/disjunctive-syllogism`, `stdlib/reasoning/or-left` and
+  `stdlib/reasoning/or-right`. A proof introduces things and never a
+  statement, and has no `let` for one.
+- A property: `stdlib/sets/set-builder`, `stdlib/sets/part-builder` and
+  `stdlib/sets/set-builder-subset`. A library item may write `let P be a
+  property of the elements of X`, and the elaborator cites these at a
+  concrete property, as Cantor's proof does. It cannot state a theorem over
+  one: set.mm writes a property as a statement variable with its letter
+  free, and each application elsewhere as a second one tied to it by an
+  implicit-substitution hypothesis (`elrab.1`, `( x = A -> ( ph <-> ps ) )`),
+  which a theorem of the corpus would carry as a `$e` the page never writes.
+  So `SYNTAX.md` keeps the form to library items.
+
+The stage lists what it skips against this paragraph, and an item skipped
+for either reason that is not named here is a defect.
 
 ## Geometry
 

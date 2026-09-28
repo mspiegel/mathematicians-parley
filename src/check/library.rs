@@ -15,8 +15,9 @@ use crate::matching::{
 use crate::regex;
 use crate::rules;
 use crate::sorts::{
-    definitions_in_scope, element_re, file_definitions, function_being_re, function_re,
-    group_re, let_formula, part_re, sentences, set_or_point_re, unlabel, Env,
+    definitions_in_scope, element_re, file_definitions, function_being_re,
+    function_on_re, function_re, group_re, let_formula, part_re, sentences,
+    set_or_point_re, unlabel, Env,
 };
 
 /// One `then` group of an item: its facts, each with the text it was read
@@ -186,7 +187,9 @@ impl<'a> Library<'a> {
             // function is a fact like any other, asked for as `let y ∈ Y`
             // is: `let g : Y → X be one-to-one` asks that g be one-to-one.
             if *kind == Intro::Let
-                && (function_being_re().is_match(&text) || part_re().is_match(&text))
+                && (function_being_re().is_match(&text)
+                    || function_on_re().is_match(&text)
+                    || part_re().is_match(&text))
             {
                 text = let_formula(&text);
             } else if *kind == Intro::Let

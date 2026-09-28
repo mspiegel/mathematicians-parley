@@ -1,6 +1,6 @@
 //! A parsed formula.
 
-use std::cell::OnceCell;
+use std::cell::{Cell, OnceCell};
 use std::collections::BTreeSet;
 use std::fmt;
 use std::rc::Rc;
@@ -203,6 +203,10 @@ pub struct NodeData {
     /// term in reverse Polish.
     pub literal: Option<Rc<str>>,
     shape: OnceCell<String>,
+    /// The characters of the sentence the parser read this node from, for
+    /// a tool that restates a part of what was written; none for a node
+    /// built any other way.
+    span: Cell<Option<(usize, usize)>>,
 }
 
 /// A parsed formula: a notation, the sort of what it builds, its children,
@@ -239,7 +243,26 @@ impl Node {
             text: text.to_string(),
             literal: None,
             shape: OnceCell::new(),
+            span: Cell::new(None),
         }))
+    }
+
+    /// Where in the sentence the parser read this node from, as character
+    /// offsets, end exclusive.
+    pub fn span(&self) -> Option<(usize, usize)> {
+        self.span.get()
+    }
+
+    /// Say where the parser read this node from.
+    pub fn set_span(&self, from: usize, to: usize) {
+        self.span.set(Some((from, to)));
+    }
+
+    /// The text the parser read this node from, cut from the sentence it
+    /// read; None for a node it did not read.
+    pub fn written(&self, sentence: &str) -> Option<String> {
+        let (from, to) = self.span()?;
+        Some(sentence.chars().skip(from).take(to - from).collect())
     }
 
     /// A term already in kernel form, standing in a tree: notation
@@ -252,6 +275,7 @@ impl Node {
             text: String::new(),
             literal: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
+            span: Cell::new(None),
         }))
     }
 

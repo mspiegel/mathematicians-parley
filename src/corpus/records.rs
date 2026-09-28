@@ -213,6 +213,11 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                         let h = cur.hypotheses.last_mut().unwrap();
                         let joined = format!("{} {}", h.text, line.text);
                         h.text = str::trim(&joined).to_string();
+                        // A wrapped hypothesis carries its label at the end
+                        // of its last line.
+                        if let Some(c) = LABEL_AT_END.captures(&line.text) {
+                            h.label = Some(c[1].to_string());
+                        }
                     }
                     Some(Last::Conclusion) => {
                         let c = cur.conclusions.last_mut().unwrap();

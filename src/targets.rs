@@ -195,8 +195,12 @@ pub fn clauses(record: &Record) -> Vec<String> {
     } else {
         value.to_string()
     };
+    // `equation reversed` says how the lemmas write their equation, and is
+    // not one of them: a route that reached it would ask set.mm for a label
+    // it does not have.
     split_entries(&listed)
         .into_iter()
+        .filter(|e| !is_marker(e))
         .map(String::from)
         .collect()
 }

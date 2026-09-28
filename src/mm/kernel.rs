@@ -322,6 +322,10 @@ pub struct Syntax {
     pub typecode: IndexMap<String, String>,
     pub label: FloatLabels,
     spelt: RefCell<IndexMap<(Vec<String>, String), Term>>,
+    /// Every math symbol the library declares: its variables, and each
+    /// constant a syntax axiom spells, typecodes and `|-` among them. A
+    /// label may be none of these (the Metamath specification, 4.2.1).
+    symbols: IndexSet<String>,
 }
 
 impl Syntax {
@@ -377,13 +381,30 @@ impl Syntax {
                 order,
             });
         }
+        let mut symbols: IndexSet<String> = typecode.keys().cloned().collect();
+        symbols.extend(TYPECODES.iter().map(|t| t.to_string()));
+        symbols.insert("|-".to_string());
+        for rule in &rules {
+            for symbol in &rule.symbols {
+                if let Symbol::Token(token) = symbol {
+                    symbols.insert(token.clone());
+                }
+            }
+        }
         Syntax {
             rules,
             by_yield,
             typecode,
             label,
             spelt: RefCell::new(IndexMap::new()),
+            symbols,
         }
+    }
+
+    /// Whether `token` is a math symbol of the library, which no label may
+    /// be.
+    pub fn is_symbol(&self, token: &str) -> bool {
+        self.symbols.contains(token)
     }
 
     fn build(&self, rule: usize, parts: &[Term]) -> Term {

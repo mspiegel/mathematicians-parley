@@ -441,7 +441,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
             ],
-            "none of the 9 introductions",
+            "none of the 10 introductions",
         ),
         // Renaming the isosceles points to a and n makes the distance |an| spell
         // the declared word `an`, which is what the capital-letter convention has
@@ -1035,7 +1035,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/lagrange.proof", Some("let G be a finite group with operation · and identity e".to_string()), "let G be a finite group with operation ·".to_string()),
             ],
-            "is none of the 9 introductions",
+            "is none of the 10 introductions",
         ),
         // gH is read as the coset only of a part of the group, and the step
         // says H is one.

@@ -23,7 +23,7 @@ use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::targets;
-use crate::{pf, t, take};
+use crate::{pf, t};
 
 pub const REQUIRES: &str = "requires@";
 
@@ -490,6 +490,24 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// A sentence as the page writes it: a membership of a power set is the
+    /// part `let X ⊆ A` writes, and every other sentence is written as it is
+    /// read.
+    fn as_written(&self, said: &str) -> String {
+        let node = self.to_term(said);
+        if node.label() == Some("wcel") && node.children().len() == 2 {
+            let power = &node.children()[1];
+            if power.label() == Some("cpw") && power.children().len() == 1 {
+                return t!(
+                    self.rpn(&node.children()[0]),
+                    self.rpn(&power.children()[0]),
+                    "wss"
+                );
+            }
+        }
+        said.to_string()
+    }
+
     /// What a line a `requires` line names says, taken apart: a definition
     /// the database gives no target for is one the notation folds away, so
     /// the unfolding is the line itself, and a `from H1` reason asks the same
@@ -505,6 +523,18 @@ impl<'a> Elaborator<'a> {
             let Some(line) = self.lines.get(r) else {
                 continue;
             };
+            // The line states the fact where one of its sentences, as the
+            // page writes it, is the fact; how the kernel spells the two is
+            // then the elaborator's to bridge. A line keeps each sentence as
+            // the page writes it, but for a let, which keeps the formula it
+            // is read as, and `let X ⊆ A` is read as X ∈ 𝒫A.
+            let mut says_it = false;
+            for s in &line.sentences {
+                let said = self.term(s)?;
+                if self.as_written(&said) == term {
+                    says_it = true;
+                }
+            }
             let held = Facts::new();
             held.set(line.term.clone(), self.carried(r, facts, &self.lines));
             let whole = held.get(&line.term).unwrap();
@@ -525,8 +555,14 @@ impl<'a> Elaborator<'a> {
                 if let Some(p) = more.get(term) {
                     return Ok(Built(p.clone()));
                 }
-                if let Built(p) = self.as_part(&said, &proof, term, scope, facts)? {
-                    return Ok(Built(p));
+                if !says_it {
+                    continue;
+                }
+                let (was, now) = (self.to_term(&said), self.to_term(term));
+                if let Built(across) = self.same(&was, &now, scope, facts, None)? {
+                    return Ok(Built(
+                        pf!(self.b; scope, said, term, proof, across, "mpbid"),
+                    ));
                 }
             }
             // The line with its own letters bound: one claim, spelt apart.
@@ -546,59 +582,6 @@ impl<'a> Elaborator<'a> {
             }
         }
         Ok(Route::no("no line this names says it"))
-    }
-
-    /// `term` from a line saying `said`, where one says X ∈ 𝒫A and the other
-    /// X ⊆ A: a member of the power set is a part, and a part a member
-    /// (`elpw2g`, once A is a set).
-    fn as_part(
-        &mut self,
-        said: &str,
-        proof: &Proof,
-        term: &str,
-        scope: &str,
-        facts: &Facts,
-    ) -> Checked<Route<Proof>> {
-        let (one, other) = (self.to_term(said), self.to_term(term));
-        let labels: BTreeSet<&str> =
-            [one.label().unwrap_or(""), other.label().unwrap_or("")].into();
-        if labels != ["wcel", "wss"].into() {
-            return Ok(Route::no("not a part and a membership of a power set"));
-        }
-        let (member, part) = if one.label() == Some("wcel") {
-            (one.clone(), other.clone())
-        } else {
-            (other.clone(), one.clone())
-        };
-        let power = member.children()[1].clone();
-        if power.variable().is_some()
-            || power.label() != Some("cpw")
-            || self.rpn(&member.children()[0]) != self.rpn(&part.children()[0])
-            || self.rpn(&power.children()[0]) != self.rpn(&part.children()[1])
-        {
-            return Ok(Route::no("not a part and a membership of a power set"));
-        }
-        let (x, whole) = (self.rpn(&part.children()[0]), self.rpn(&part.children()[1]));
-        let is_set = take!(self.settle(
-            &self.to_term(&t!(whole, "cvv", "wcel")),
-            scope,
-            facts,
-            3,
-            None,
-            None
-        )?);
-        let (m, p) = (self.rpn(&member), self.rpn(&part));
-        let lemma = self.b.ap(
-            "elpw2g",
-            &crate::binds! {"A" => &x, "B" => &whole, "V" => "cvv"},
-            &[],
-        );
-        let same = pf!(self.b; scope, t!(whole, "cvv", "wcel"), t!(m, p, "wb"), is_set, lemma, "syl");
-        Ok(Built(if one.label() == Some("wcel") {
-            pf!(self.b; scope, m, p, proof, same, "mpbid")
-        } else {
-            pf!(self.b; scope, m, p, proof, same, "mpbird")
-        }))
     }
 
     /// A proof of what one `requires` line asks for.
@@ -634,6 +617,27 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let term = self.term(want)?;
         let refs = citations(how);
+        // A define gives its function on the domain it names, which is proved
+        // as it is for a step citing the define.
+        let whole = self.to_term(&term);
+        let defines = || {
+            refs.iter()
+                .all(|r| self.thm.defines.iter().any(|d| &d.label == r))
+        };
+        if whole.label() == Some("wfn") && refs.len() == 1 && defines() {
+            return match self.define_on(&whole, scope, facts)? {
+                Built(p) => Ok(Built(p)),
+                Declined(d) => Err(self.defect(
+                    self.at,
+                    format!(
+                        "{} does not give {}: {}",
+                        str::trim(how),
+                        self.render(&term),
+                        self.say(&d)
+                    ),
+                )),
+            };
+        }
         // Read from the lines it cites before the scope is asked, since the
         // scope may hold the same claim for another reason.
         if self.rests_on_lines(how) {
