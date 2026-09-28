@@ -15,10 +15,13 @@ name = "parley"
 path = "src/main.rs"
 
 [dependencies]
-annotate-snippets = "0.9"
+annotate-snippets = "0.11"
 fancy-regex = "0.17"
 indexmap = "2"
-metamath-rs = { version = "0.3.8", default-features = false }
+# From the repository, because the v0.3.9 tag has the fix for a slice index
+# out of bounds in its verifier (metamath-knife #159) and crates.io has only
+# 0.3.8, from before it.
+metamath-rs = { git = "https://github.com/metamath/metamath-knife", tag = "v0.3.9", default-features = false }
 nix = { version = "0.30", default-features = false, features = ["resource"] }
 num-bigint = "0.4"
 num-integer = "0.1"

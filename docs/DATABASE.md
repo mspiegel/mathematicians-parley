@@ -263,8 +263,9 @@ repaired.
 - **`scripts/precommit.sh` is what must be green before a commit.** It runs
   `cargo fmt --check`, clippy, `cargo test`, `parley build` and `parley gate`.
   `cargo test` is whether the tool is right: the planted defects the checker
-  must catch, the planted defects the elaborator must report, and that a
-  compressed proof is the proof it was made from. `parley gate` is whether
+  must catch, the planted defects the elaborator must report, the planted
+  defects each of the gate's other stages must catch, and that a compressed
+  proof is the proof it was made from. `parley gate` is whether
   the corpus is right,
   in six stages: the checker over the corpus; every artifact built afresh and
   compared with the file in the tree, so that a broken elaborator with its old

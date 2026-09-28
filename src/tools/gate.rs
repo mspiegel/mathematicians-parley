@@ -33,7 +33,7 @@ use std::path::Path;
 use crate::corpus::corpus;
 use crate::mm::library::where_set_mm;
 use crate::said::Said;
-use crate::source::Disk;
+use crate::source::{Disk, Source};
 
 use super::build::{artifacts, verified, waves, Artifact, Maker};
 use super::{assumed, labels, tested, verify};
@@ -42,10 +42,9 @@ use super::{assumed, labels, tested, verify};
 const TABLES_AT: &str = "src/rules.rs";
 
 /// Every artifact made afresh and compared with its file in the tree.
-fn as_built(root: &Path, setmm: Option<&Path>) -> Said {
+pub fn as_built(source: &dyn Source, setmm: Option<&Path>) -> Said {
     let mut said = Said::default();
-    let source = Disk::new(root.to_path_buf());
-    let found = match corpus(&source) {
+    let found = match corpus(source) {
         Ok(found) => found,
         Err(problem) => {
             said.complained = format!("{problem}\n");
@@ -62,7 +61,7 @@ fn as_built(root: &Path, setmm: Option<&Path>) -> Said {
         return said;
     };
     let every = artifacts(&found);
-    let mut maker = match Maker::new(&source, &found, setmm) {
+    let mut maker = match Maker::new(source, &found, setmm) {
         Ok(maker) => maker,
         Err(problem) => {
             said.complained = format!("{problem}\n");
@@ -76,7 +75,7 @@ fn as_built(root: &Path, setmm: Option<&Path>) -> Said {
         for artifact in wave {
             let path = artifact.path();
             match maker.make(artifact) {
-                Ok(made) => match std::fs::read_to_string(root.join(&path)) {
+                Ok(made) => match source.read_text(&path) {
                     Ok(there) if there == made => {}
                     Ok(_) => {
                         said.printed +=
@@ -106,14 +105,15 @@ fn as_built(root: &Path, setmm: Option<&Path>) -> Said {
     said
 }
 
-fn verified_files(root: &Path) -> Result<Vec<String>, Said> {
-    match corpus(&Disk::new(root.to_path_buf())) {
-        Ok(found) => Ok(verified(&found)),
-        Err(problem) => Err(Said {
+/// Every artifact the tree holds, given to the verifier.
+pub fn verifies(source: &dyn Source, setmm: Option<&Path>) -> Said {
+    match corpus(source) {
+        Ok(found) => verify::run(source, &verified(&found), setmm),
+        Err(problem) => Said {
             printed: String::new(),
             complained: format!("{problem}\n"),
             status: 2,
-        }),
+        },
     }
 }
 
@@ -128,7 +128,7 @@ pub fn run(root: &Path) -> Said {
         ("checker", Box::new(|| crate::check::run(&source))),
         (
             "every artifact is what a fresh build makes",
-            Box::new(|| as_built(root, setmm)),
+            Box::new(|| as_built(&source, setmm)),
         ),
         (
             "set.mm labels",
@@ -142,13 +142,7 @@ pub fn run(root: &Path) -> Said {
             "nothing is taken as stated unrecorded",
             Box::new(|| assumed::run(&source)),
         ),
-        (
-            "the proofs verify",
-            Box::new(|| match verified_files(root) {
-                Ok(built) => verify::run(root, &built, setmm),
-                Err(said) => said,
-            }),
-        ),
+        ("the proofs verify", Box::new(|| verifies(&source, setmm))),
     ];
 
     let mut out = Said::default();

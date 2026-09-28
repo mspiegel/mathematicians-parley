@@ -1169,9 +1169,10 @@ an elaborator can be held to.
 What checks the tool and what checks the corpus are kept apart. `cargo test`
 is whether the tool is right: the planted defects the checker must catch
 (`tests/planted_check.rs`), the planted defects the elaborator must report
-(`tests/planted_elaborate.rs`), that a compressed proof is the proof it was
-made from (`tests/compress.rs`), and that the hand elaborations write their
-files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in six
+(`tests/planted_elaborate.rs`), the planted defects each of the gate's other
+stages must catch (`tests/planted_gate.rs`), that a compressed proof is the
+proof it was made from (`tests/compress.rs`), and that the hand elaborations
+write their files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in six
 stages: the checker over the whole corpus; every artifact built afresh and
 compared with the file in the tree; every set.mm label the database names;
 that every library item is cited by a proof or tested in `tests/stdlib/`

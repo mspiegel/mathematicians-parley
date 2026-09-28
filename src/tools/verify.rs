@@ -27,12 +27,13 @@ use std::path::Path;
 use std::sync::LazyLock;
 use std::time::Instant;
 
-use annotate_snippets::display_list::DisplayList;
+use annotate_snippets::Renderer;
 use metamath_rs::database::DbOptions;
 use metamath_rs::Database;
 use regex::Regex;
 
 use crate::said::Said;
+use crate::source::Source;
 
 static INCLUDE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\$\[\s*(\S+)\s*\$\]").expect("a valid pattern"));
@@ -70,9 +71,9 @@ fn roots(built: &[(String, String)]) -> Vec<String> {
     here.difference(&included).map(|s| s.to_string()).collect()
 }
 
-/// Verify the files at `built`, paths from `root`, against the library at
+/// Verify the files at `built`, paths in `source`, against the library at
 /// `setmm`.
-pub fn run(root: &Path, built: &[String], setmm: Option<&Path>) -> Said {
+pub fn run(source: &dyn Source, built: &[String], setmm: Option<&Path>) -> Said {
     let mut said = Said::default();
     let Some(library) = setmm else {
         said.printed =
@@ -82,8 +83,7 @@ pub fn run(root: &Path, built: &[String], setmm: Option<&Path>) -> Said {
         said.status = 2;
         return said;
     };
-    let missing: Vec<&String> =
-        built.iter().filter(|p| !root.join(p).exists()).collect();
+    let missing: Vec<&String> = built.iter().filter(|p| !source.exists(p)).collect();
     if !missing.is_empty() {
         for path in missing {
             said.printed += &format!("not built: {path}\n");
@@ -94,7 +94,7 @@ pub fn run(root: &Path, built: &[String], setmm: Option<&Path>) -> Said {
     }
     let mut texts = Vec::new();
     for path in built {
-        match std::fs::read_to_string(root.join(path)) {
+        match source.read_text(path) {
             Ok(text) => texts.push((path.clone(), text)),
             Err(e) => {
                 said.printed += &format!("{path}: {e}\n");
@@ -156,9 +156,8 @@ fn verified(files: Vec<(String, Vec<u8>)>) -> Vec<String> {
     db.parse(JOINED.to_string(), files);
     db.verify_pass();
     let diags = db.diag_notations();
-    db.render_diags(diags, |mut snippet| {
-        // The library asks for colour; the gate's report is read as text.
-        snippet.opt.color = false;
-        DisplayList::from(snippet).to_string()
+    // Plain, without colour: the gate's report is read as text.
+    db.render_diags(diags, |message| {
+        Renderer::plain().render(message).to_string()
     })
 }
