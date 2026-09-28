@@ -3,7 +3,7 @@
 use std::borrow::Cow;
 use std::collections::BTreeSet;
 
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 
 use super::library::{conjuncts, readings, with_parts, Group, Known, Library};
 use super::Report;
@@ -49,8 +49,16 @@ pub fn supply(
 ) -> Option<Binding> {
     let mut used = vec![false; facts.len()];
     search(
-        patterns, facts, &mut used, binding, variables, library, sites, reuse,
+        patterns, facts, &mut used, binding, variables, library, sites, reuse, None,
     )
+}
+
+/// A search asked for every way the facts supply the hypotheses, rather
+/// than the first: the facts the attempt in hand has taken, by index, and
+/// what to do with each way once it is complete.
+struct Ways<'v> {
+    path: Vec<usize>,
+    found: &'v mut dyn FnMut(&[usize]),
 }
 
 /// `supply` over one list of facts, leaving out those `used` marks.
@@ -59,6 +67,10 @@ pub fn supply(
 /// unmarked when the search backs out, so the facts are never copied: the
 /// search is most of what a check costs, and copying the list at every step
 /// of it was a large part of the search.
+///
+/// Given `ways`, it does not stop at the first way that works: each is
+/// handed to `ways.found` with the facts it took, and the search goes on, so
+/// it gives back None having tried everything.
 #[allow(clippy::too_many_arguments)]
 fn search(
     patterns: &[Node],
@@ -69,8 +81,13 @@ fn search(
     library: &Library,
     sites: &Sites,
     reuse: bool,
+    mut ways: Option<&mut Ways>,
 ) -> Option<Binding> {
     let Some((first, rest)) = patterns.split_first() else {
+        if let Some(ways) = ways {
+            (ways.found)(&ways.path);
+            return None;
+        }
         return Some(binding.clone());
     };
     let ctx = &library.ctx;
@@ -186,8 +203,25 @@ fn search(
             if takes {
                 used[i] = true;
             }
-            let done =
-                search(rest, facts, used, &found, variables, library, sites, reuse);
+            // A fact that supplies a hypothesis is one the way uses, taken
+            // for the hypotheses after it or not.
+            if let Some(ways) = ways.as_deref_mut() {
+                ways.path.push(i);
+            }
+            let done = search(
+                rest,
+                facts,
+                used,
+                &found,
+                variables,
+                library,
+                sites,
+                reuse,
+                ways.as_deref_mut(),
+            );
+            if let Some(ways) = ways.as_deref_mut() {
+                ways.path.pop();
+            }
             if takes {
                 used[i] = false;
             }
@@ -629,6 +663,69 @@ fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<Strin
     missing
 }
 
+/// Every way the step's facts supply the hypotheses of the item it cites, as
+/// the facts each way uses; None where that cannot be said, because the step
+/// cites nothing that has hypotheses to supply.
+///
+/// This is `unsupplied` searched to the end rather than to the first way.
+fn ways_supplied(
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> Option<Vec<Vec<Node>>> {
+    let item = cited_item(&step.just)?;
+    let groups = library.groups(&step.just.item(&item))?;
+    let parts = known.parts(step, library);
+    let mut out: Vec<Vec<Node>> = Vec::new();
+    for (want, _) in groups.iter() {
+        if want.is_empty() {
+            return None;
+        }
+        let trees: Vec<Node> = want.iter().map(|(_, t)| t.clone()).collect();
+        let variables = names_of(&trees);
+        let mut sites = Sites::new();
+        for t in &trees {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        let mut record = |taken: &[usize]| {
+            out.push(taken.iter().map(|&i| parts.facts[i].clone()).collect());
+        };
+        let mut ways = Ways {
+            path: Vec::new(),
+            found: &mut record,
+        };
+        let mut used = vec![false; parts.facts.len()];
+        let _ = search(
+            &trees,
+            &parts.facts,
+            &mut used,
+            &parts.seed,
+            &variables,
+            library,
+            &sites,
+            false,
+            Some(&mut ways),
+        );
+    }
+    Some(out)
+}
+
+/// Every fact of `some` is among `all`, as many times as it is in `some`,
+/// facts being the same when they are spelt the same.
+fn within(some: &[Node], all: &[Node]) -> bool {
+    let mut left: IndexMap<&str, usize> = IndexMap::new();
+    for f in all {
+        *left.entry(f.shape()).or_default() += 1;
+    }
+    some.iter().all(|f| match left.get_mut(f.shape()) {
+        Some(n) if *n > 0 => {
+            *n -= 1;
+            true
+        }
+        _ => false,
+    })
+}
+
 /// A citation supplies the hypotheses of what it cites.
 ///
 /// They come from the lines named in `from` and from the `requires` lines,
@@ -976,12 +1073,29 @@ pub fn check_surplus(
         }
         let mut refs: IndexSet<&String> = IndexSet::new();
         refs.extend(just.refs.iter());
+        // Taking a line away leaves a step whose facts are some of these, so
+        // a way that step could supply the item is one of the ways these do.
+        // Where no way these supply it fits in what is left, the step without
+        // the line is not supplied, and asking again would only say so; the
+        // one search here takes the place of a search for each line, each
+        // of which had to try everything to find nothing.
+        let ways = ways_supplied(step, known, library);
+        let facts = known.parts(step, library);
         for r in refs {
             if defines.contains(r.as_str()) {
                 continue;
             }
             let mut lighter = step.clone();
             lighter.just.refs = just.refs.iter().filter(|x| *x != r).cloned().collect();
+            if let Some(ways) = &ways {
+                let left = known.parts(&lighter, library);
+                // What the argument above rests on, asked rather than assumed.
+                if within(&left.facts, &facts.facts)
+                    && !ways.iter().any(|way| within(way, &left.facts))
+                {
+                    continue;
+                }
+            }
             if holds(&lighter) {
                 report.say(
                     &thm.path,
