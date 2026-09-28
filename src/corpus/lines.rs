@@ -1,7 +1,6 @@
 //! Physical lines joined into logical ones.
 
 use crate::regex;
-use crate::text::pystr;
 
 /// One logical line: a physical line plus any continuations of it.
 #[derive(Clone, Debug)]
@@ -30,14 +29,15 @@ pub fn read_lines(text: &str) -> Vec<Line> {
     let mut pending: Option<Line> = None;
     for (at, raw) in text.split('\n').enumerate() {
         let no = at + 1;
-        if pystr::strip(raw).is_empty() || pystr::lstrip(raw).starts_with('#') {
+        let stripped = raw.trim();
+        if stripped.is_empty() || stripped.starts_with('#') {
             if let Some(line) = pending.take() {
                 out.push(line);
             }
             continue;
         }
-        let stripped = pystr::strip(raw);
-        let indent = raw.chars().count() - pystr::lstrip(raw).chars().count();
+        // Indentation is counted in characters of leading whitespace.
+        let indent = raw.chars().count() - raw.trim_start().chars().count();
         if let Some(line) = pending.as_mut() {
             let defining = line.text.starts_with("define ");
             line.text.push(if defining { '\n' } else { ' ' });

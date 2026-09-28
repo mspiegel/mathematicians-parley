@@ -16,7 +16,7 @@ use crate::kinds::obtains;
 use crate::matching::instantiation;
 use crate::outcome::Built;
 use crate::sorts::sorts_of_statement;
-use crate::text::{pystr, repr};
+use crate::text::{prefix, repr};
 use crate::{fancy, regex};
 
 /// A step numbered `cited` is visible from the step numbered `here` when it
@@ -138,7 +138,7 @@ pub fn check_justification_form(
             just.line,
             format!(
                 "justification matches no production in GRAMMAR.md: {}",
-                repr(pystr::prefix(&just.text, 64))
+                repr(prefix(&just.text, 64))
             ),
         );
         return false;
@@ -187,8 +187,8 @@ fn declared_parts(method: &Record) -> Vec<String> {
     match method.field("parts") {
         Some(parts) => PARTS_SPLIT
             .split(parts)
-            .filter(|p| !pystr::strip(p).is_empty())
-            .map(|p| pystr::split(pystr::strip(p))[0].to_string())
+            .filter_map(|p| p.split_whitespace().next())
+            .map(String::from)
             .collect(),
         None => Vec::new(),
     }
@@ -332,7 +332,7 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
             );
         }
         let related = RELATIONS.iter().any(|r| {
-            pystr::lstrip(text).starts_with(r) || text.contains(&format!(" {r} "))
+            text.trim_start().starts_with(r) || text.contains(&format!(" {r} "))
         });
         if !related {
             report.say(&thm.path, *no, "chain line carries no relation");
@@ -474,7 +474,7 @@ pub fn check_citations(
                     no,
                     format!(
                         "requires line justified by {}, which is neither a method, an item, nor a line",
-                        repr(pystr::prefix(text, 40))
+                        repr(prefix(text, 40))
                     ),
                 );
             }
@@ -679,7 +679,7 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem) {
             continue;
         };
         let claim = s.claim_text();
-        for v in names.split(',').map(pystr::strip) {
+        for v in names.split(',').map(str::trim) {
             if v.is_empty() {
                 continue;
             }
@@ -1057,7 +1057,7 @@ pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
         }
         if s.just.head.is(Method::Obtain) {
             if let Some(names) = obtains(&s.just.text) {
-                out.extend(names.split(',').map(|n| pystr::strip(n).to_string()));
+                out.extend(names.split(',').map(|n| str::trim(n).to_string()));
             }
         }
     }

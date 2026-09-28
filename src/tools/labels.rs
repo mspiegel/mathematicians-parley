@@ -22,7 +22,6 @@ use crate::rules;
 use crate::said::Said;
 use crate::source::Source;
 use crate::targets;
-use crate::text::pystr;
 
 // What a set.mm label looks like, strictly enough that no word of a
 // sentence is mistaken for one: lower case, and hyphenated only as `df-`
@@ -74,7 +73,7 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
                 if targets::is_marker(entry) {
                     continue;
                 }
-                for token in pystr::split(entry) {
+                for token in entry.split_whitespace() {
                     if targets::is_hole(token) || targets::is_context(token) {
                         continue;
                     }
@@ -110,7 +109,7 @@ fn supplied(
     let mut out = IndexSet::new();
     for r in records {
         if let Some(symbol) = r.field("symbol") {
-            let token = pystr::strip(symbol);
+            let token = str::trim(symbol);
             out.insert(format!("c{token}"));
             out.insert(format!("df-{token}"));
         }

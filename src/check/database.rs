@@ -16,7 +16,7 @@ use crate::sorts::{
     element_re, function_being_re, function_re, group_re, kind_re, let_formula,
     membership_re, not_in_re, part_re, property_re, sentences, unlabel, Env,
 };
-use crate::text::{pystr, repr};
+use crate::text::{prefix, repr};
 
 pub fn check_characters(
     report: &mut Report,
@@ -130,12 +130,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
         if r.kind == RecordKind::Method {
             if let Some(parts) = r.field("parts") {
                 for part in PART_SPLIT.split(parts) {
-                    let stripped = pystr::strip(part);
-                    let word = if stripped.is_empty() {
-                        ""
-                    } else {
-                        pystr::split(stripped)[0]
-                    };
+                    let word = part.split_whitespace().next().unwrap_or("");
                     if !word.is_empty() && !PART_MARKERS.contains(&word) {
                         report.say(
                             &r.path,
@@ -174,14 +169,14 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                 continue;
             }
         };
-        let patterns = patterns_of(pystr::strip(raw));
+        let patterns = patterns_of(str::trim(raw));
         let holes: Vec<&str> = r
             .field_or_empty("holes")
             .split(',')
-            .map(pystr::strip)
+            .map(str::trim)
             .filter(|h| !h.is_empty())
             .collect();
-        let yields = pystr::strip(r.field_or_empty("yields"));
+        let yields = str::trim(r.field_or_empty("yields"));
 
         // Where a hole or the result is a set, a function, a property, a
         // variable or any term, what it holds is a kind the text reads off,
@@ -202,7 +197,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
             );
         }
         if let Some(said) = said {
-            match kinds::signature(pystr::strip(said)) {
+            match kinds::signature(str::trim(said)) {
                 crate::outcome::Declined(d) => report.say(
                     &r.path,
                     r.line,
@@ -244,7 +239,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
         if let Some(target) = r.field("target") {
             let entries: Vec<&str> = target
                 .split(',')
-                .map(pystr::strip)
+                .map(str::trim)
                 .filter(|e| !e.is_empty())
                 .collect();
             if entries.len() != patterns.len() {
@@ -349,8 +344,8 @@ pub fn check_symbols(report: &mut Report, records: &[Record]) {
         if r.kind != RecordKind::Definition {
             continue;
         }
-        let token = pystr::strip(r.field_or_empty("symbol"));
-        let body = pystr::strip(r.field_or_empty("defines"));
+        let token = str::trim(r.field_or_empty("symbol"));
+        let body = str::trim(r.field_or_empty("defines"));
         if !token.is_empty() && body.is_empty() {
             report.say(
                 &r.path,
@@ -375,7 +370,7 @@ pub fn check_symbols(report: &mut Report, records: &[Record]) {
         if token.is_empty() {
             continue;
         }
-        if pystr::split(token).len() != 1 {
+        if token.split_whitespace().count() != 1 {
             report.say(
                 &r.path,
                 r.line,
@@ -404,7 +399,7 @@ pub fn check_symbols(report: &mut Report, records: &[Record]) {
     let mut reached: IndexSet<&str> = IndexSet::new();
     for r in records {
         if r.kind == RecordKind::Notation {
-            reached.extend(pystr::split(r.field_or_empty("target")));
+            reached.extend(r.field_or_empty("target").split_whitespace());
         }
     }
     for (token, r) in &claimed {
@@ -443,7 +438,7 @@ pub fn check_statements(
             if h.kind != Intro::Let {
                 continue;
             }
-            let body = pystr::strip(&unlabel(&h.text)).to_string();
+            let body = str::trim(&unlabel(&h.text)).to_string();
             if let Some(said) = introduction_problem(&body, env, sorts) {
                 report.say(&r.path, h.line, format!("{} {}: {said}", r.kind, r.name));
             }
@@ -599,7 +594,7 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
         let names: Vec<&str> = forms.iter().map(|(n, _)| *n).collect();
         return Some(format!(
             "`let {}` is none of the {} introductions: {}",
-            pystr::prefix(body, 40),
+            prefix(body, 40),
             forms.len(),
             names.join(", ")
         ));
@@ -613,7 +608,7 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
             if node.notation != "function-type" {
                 return Some(format!(
                     "`let {}` says more than a function's type; a property of it follows `be`, as `let f : A → B be one-to-one`",
-                    pystr::prefix(body, 40)
+                    prefix(body, 40)
                 ));
             }
         }
@@ -623,7 +618,7 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
     {
         return Some(format!(
             "`let {}` says the function is something no notation says a function is",
-            pystr::prefix(body, 40)
+            prefix(body, 40)
         ));
     }
     // A function's codomain is a set. A sort is a label for what kind of
@@ -633,7 +628,7 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
         if sort_name(&arrow[1]) {
             return Some(format!(
                 "`let {}` sends a function into {}, which is a sort and not a set; a property is introduced with `be a property of the elements of`",
-                pystr::prefix(body, 40),
+                prefix(body, 40),
                 repr(&arrow[1])
             ));
         }
@@ -666,7 +661,7 @@ pub fn check_introductions(
             continue;
         }
         let body = LET_KEYWORD.replace(text, "");
-        let body = pystr::strip(&unlabel(&body)).to_string();
+        let body = str::trim(&unlabel(&body)).to_string();
         if let Some(said) = introduction_problem(&body, env, &known.sorts) {
             report.say(&thm.path, no, said);
         }

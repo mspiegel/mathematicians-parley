@@ -14,7 +14,6 @@ use indexmap::IndexMap;
 
 use crate::corpus::{Record, RecordKind};
 use crate::regex;
-use crate::text::pystr;
 
 regex!(HOLE, r"_(\d+)");
 regex!(HOLE_WHOLE, r"^_(\d+)$");
@@ -53,7 +52,7 @@ pub fn contexts(pattern: &str) -> Vec<&str> {
 pub fn split_entries(value: &str) -> Vec<&str> {
     value
         .split(',')
-        .map(pystr::strip)
+        .map(str::trim)
         .filter(|p| !p.is_empty())
         .collect()
 }
@@ -112,20 +111,20 @@ pub fn lemma(record: &Record) -> (Option<String>, IndexMap<String, String>) {
         return (None, IndexMap::new());
     };
     let Some((head, rest)) = value.split_once(" with ") else {
-        return (Some(pystr::strip(value).to_string()), IndexMap::new());
+        return (Some(str::trim(value).to_string()), IndexMap::new());
     };
     let mut fills = IndexMap::new();
     for piece in split_entries(rest) {
         if let Some((name, formula)) = piece.split_once(":=") {
             if !formula.is_empty() {
                 fills.insert(
-                    pystr::strip(name).to_string(),
-                    pystr::strip(formula).to_string(),
+                    str::trim(name).to_string(),
+                    str::trim(formula).to_string(),
                 );
             }
         }
     }
-    (Some(pystr::strip(head).to_string()), fills)
+    (Some(str::trim(head).to_string()), fills)
 }
 
 /// A pair of exchangeable operands: the constructor, the two positions the
@@ -159,7 +158,7 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
             if *yes != "yes" || *pattern == FOLDED || places.len() != 2 {
                 continue;
             }
-            let tokens: Vec<&str> = pystr::split(pattern);
+            let tokens: Vec<&str> = pattern.split_whitespace().collect();
             let mut sorted: Vec<usize> = places.values().copied().collect();
             sorted.sort();
             let fixed = tokens[..tokens.len() - 1]
@@ -214,7 +213,7 @@ pub fn fill(pattern: &str, holes: &[String]) -> String {
 /// Which operand position each hole occupies, by hole number from 0.
 pub fn slots(pattern: &str) -> IndexMap<usize, usize> {
     let mut places = IndexMap::new();
-    for (i, token) in pystr::split(pattern).iter().enumerate() {
+    for (i, token) in pattern.split_whitespace().enumerate() {
         if let Some(found) = HOLE.captures(token) {
             if found.get(0).unwrap().start() == 0 {
                 places.insert(found[1].parse::<usize>().unwrap() - 1, i);

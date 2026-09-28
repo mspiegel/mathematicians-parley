@@ -26,7 +26,6 @@ use crate::kinds;
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::Built;
 use crate::regex;
-use crate::text::pystr;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
@@ -125,7 +124,7 @@ pub fn let_formula(body: &str) -> String {
         return format!("{} is {}", &m[1], &m[2]);
     }
     if let Some(m) = PART.captures(body) {
-        let whole = pystr::strip(&m[2]);
+        let whole = str::trim(&m[2]);
         let whole = if whole.contains(' ') {
             format!("({whole})")
         } else {
@@ -142,16 +141,16 @@ pub fn let_formula(body: &str) -> String {
 /// included, so a claim written across two lines splits where it would
 /// written on one.
 pub fn sentences(text: &str) -> Vec<String> {
-    let text = pystr::strip(text);
+    let text = str::trim(text);
     let chars: Vec<(usize, char)> = text.char_indices().collect();
     let mut pieces: Vec<&str> = Vec::new();
     let mut start = 0;
     let mut i = 0;
     while i < chars.len() {
         let (at, c) = chars[i];
-        if pystr::is_space(c) && i > 0 && chars[i - 1].1 == '.' {
+        if c.is_whitespace() && i > 0 && chars[i - 1].1 == '.' {
             let mut j = i;
-            while j < chars.len() && pystr::is_space(chars[j].1) {
+            while j < chars.len() && chars[j].1.is_whitespace() {
                 j += 1;
             }
             pieces.push(&text[start..at]);
@@ -168,15 +167,15 @@ pub fn sentences(text: &str) -> Vec<String> {
     pieces.push(&text[start..]);
     pieces
         .into_iter()
-        .map(|p| pystr::strip(pystr::strip(p).trim_end_matches('.')).to_string())
+        .map(|p| str::trim(str::trim(p).trim_end_matches('.')).to_string())
         .filter(|p| !p.is_empty())
         .collect()
 }
 
 /// A line without its keyword and without its trailing label.
 pub fn body_of(text: &str, head: &str) -> String {
-    let rest = pystr::strip(&text[head.len().min(text.len())..]);
-    pystr::strip(&unlabel(rest)).to_string()
+    let rest = str::trim(&text[head.len().min(text.len())..]);
+    str::trim(&unlabel(rest)).to_string()
 }
 
 /// The (name, sort) pairs a `let` body or a sentence states: none, one, or,
@@ -332,7 +331,7 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
 /// number system, what a name's sort says it holds where it says (a group's
 /// elements for a group's set), and otherwise none.
 pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
-    let domain = pystr::strip(domain);
+    let domain = str::trim(domain);
     if NUMBER_SYSTEMS.contains(&domain) {
         return Sort::of("number");
     }
@@ -365,7 +364,7 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
 pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
     let mut out = Sorts::new();
     for h in &record.hypotheses {
-        for (name, sort) in introduced(pystr::strip(&unlabel(&h.text)), &out) {
+        for (name, sort) in introduced(str::trim(&unlabel(&h.text)), &out) {
             set_default(&mut out, name, Sort::of(sort));
         }
     }

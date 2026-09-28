@@ -271,7 +271,7 @@ impl<'a> Elaborator<'a> {
         let mut taken: IndexSet<String> = IndexSet::new();
         for entries in terms.values() {
             for e in entries.iter().flatten() {
-                for t in crate::text::pystr::split(e) {
+                for t in e.split_whitespace() {
                     taken.insert(t.to_string());
                 }
             }

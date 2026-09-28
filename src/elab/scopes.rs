@@ -30,7 +30,6 @@ use crate::mm::Signature;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::file_definitions;
-use crate::text::pystr;
 use crate::{pf, regex, t, take};
 
 regex!(OBTAINED, r"obtain\s+(.+?)(?::|\s+from\b)");
@@ -87,7 +86,7 @@ impl<'a> Elaborator<'a> {
         implied: bool,
     ) -> Checked<Route<Proof>> {
         let name = self.rpn(variable);
-        if !pystr::split(scope).contains(&name.as_str()) {
+        if !scope.split_whitespace().any(|t| t == name.as_str()) {
             return self.generalised(scope, facts, body, &name, over, prove, implied);
         }
         let where_ = self.rpn(over);
@@ -1017,11 +1016,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<(String, Facts, Vec<Closer>)> {
         let got: Vec<String> = OBTAINED
             .captures(&step.just.text)
-            .map(|m| {
-                m[1].split(',')
-                    .map(|n| pystr::strip(n).to_string())
-                    .collect()
-            })
+            .map(|m| m[1].split(',').map(|n| str::trim(n).to_string()).collect())
             .expect("an obtain names what it obtains");
         let named = OBTAIN_ITEM
             .captures(&step.just.text)
@@ -1045,8 +1040,8 @@ impl<'a> Elaborator<'a> {
                 // scope, and the lemma that does it forbids that name in what
                 // the scope already says. So the claim is respelt first, over
                 // names nothing else holds.
-                let standing: std::collections::BTreeSet<String> = pystr::split(scope)
-                    .into_iter()
+                let standing: std::collections::BTreeSet<String> = scope
+                    .split_whitespace()
                     .filter(|t| {
                         self.b
                             .sigs
@@ -1109,7 +1104,7 @@ impl<'a> Elaborator<'a> {
                 };
             }
             Some(item_name) => {
-                let cites = pystr::strip(
+                let cites = str::trim(
                     step.just.text.split_once(':').map(|(_, r)| r).unwrap_or(""),
                 )
                 .to_string();
@@ -1225,7 +1220,7 @@ impl<'a> Elaborator<'a> {
             Closer::Define(c) => {
                 // The claim discharged here was read before the define was,
                 // so it cannot name the variable; `exlimdv` forbids it.
-                if pystr::split(goal).contains(&c.var.as_str()) {
+                if goal.split_whitespace().any(|t| t == c.var.as_str()) {
                     return Err(self.defect(
                         c.line,
                         format!(
@@ -1265,7 +1260,7 @@ impl<'a> Elaborator<'a> {
         proof: Proof,
         goal: &str,
     ) -> Checked<Proof> {
-        let words = pystr::split(goal);
+        let words: Vec<&str> = goal.split_whitespace().collect();
         let caught: Vec<&String> = c
             .layers
             .iter()
@@ -1673,7 +1668,7 @@ impl<'a> Elaborator<'a> {
         }
         for index in (0..self.frames.len()).rev() {
             let term = &self.frames[index].scope;
-            if !pystr::split(term).iter().any(|t| forbidden.contains(*t)) {
+            if !term.split_whitespace().any(|t| forbidden.contains(t)) {
                 return (Built(term.clone()), Some(index));
             }
         }

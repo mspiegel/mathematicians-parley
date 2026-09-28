@@ -7,7 +7,7 @@ use super::proof::{Hypothesis, Intro};
 use super::{full, module_of};
 use crate::outcome::{Checked, Problem};
 use crate::regex;
-use crate::text::{pystr, repr};
+use crate::text::repr;
 
 /// What a record is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -153,16 +153,22 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
     let mut field_indent: Option<usize> = None;
     let mut last: Option<Last> = None;
     for line in read_lines(text) {
-        let head = pystr::split_once_space(&line.text);
+        // The first word, and the rest after it: a record's kind and name, or
+        // a field's key and value.
+        let said = line.text.trim();
+        let (word, rest) = said
+            .split_once(char::is_whitespace)
+            .map_or((said, ""), |(w, r)| (w, r.trim()));
         if line.indent == 0 {
-            let Some(kind) = RecordKind::parse(head[0]) else {
+            let name = rest;
+            let Some(kind) = RecordKind::parse(word) else {
                 return Err(Problem::new(
                     path,
                     line.no,
-                    format!("unknown record kind {}", repr(head[0])),
+                    format!("unknown record kind {}", repr(word)),
                 ));
             };
-            if head.len() < 2 || !full(&RECORD_NAME, pystr::strip(head[1])) {
+            if !full(&RECORD_NAME, name) {
                 return Err(Problem::new(
                     path,
                     line.no,
@@ -171,7 +177,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
             }
             records.push(Record {
                 kind,
-                name: pystr::strip(head[1]).to_string(),
+                name: name.to_string(),
                 fields: IndexMap::new(),
                 hypotheses: Vec::new(),
                 conclusions: Vec::new(),
@@ -202,29 +208,24 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                         let before = cur.fields.get(key).cloned().unwrap_or_default();
                         let joined = format!("{before} {}", line.text);
                         cur.fields
-                            .insert(key.clone(), pystr::strip(&joined).to_string());
+                            .insert(key.clone(), str::trim(&joined).to_string());
                     }
                     Some(Last::Hypothesis) => {
                         let h = cur.hypotheses.last_mut().unwrap();
                         let joined = format!("{} {}", h.text, line.text);
-                        h.text = pystr::strip(&joined).to_string();
+                        h.text = str::trim(&joined).to_string();
                     }
                     Some(Last::Conclusion) => {
                         let c = cur.conclusions.last_mut().unwrap();
                         let joined = format!("{} {}", c.0, line.text);
-                        c.0 = pystr::strip(&joined).to_string();
+                        c.0 = str::trim(&joined).to_string();
                     }
                 }
                 continue;
             }
             Some(_) => {}
         }
-        let key = head[0];
-        let value = if head.len() > 1 {
-            pystr::strip(head[1])
-        } else {
-            ""
-        };
+        let (key, value) = (word, rest);
         if key == "let" || key == "assume" {
             last = Some(Last::Hypothesis);
             let label = LABEL_AT_END.captures(&line.text).map(|c| c[1].to_string());

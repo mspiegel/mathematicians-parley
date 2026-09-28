@@ -20,7 +20,6 @@ use crate::matching::{alike_top, instantiation, substitute, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::{sentences, unlabel, Env};
-use crate::text::pystr;
 
 /// What each item's and each proved theorem's names are, by its full name.
 ///
@@ -49,7 +48,7 @@ pub fn statement_kinds(
         let mut reader = Reader::new(env);
         for h in &thm.hypotheses {
             let body =
-                pystr::strip(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
+                str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
             if h.kind == Intro::Let {
                 kinds::introduce(
                     &mut reader,
@@ -211,7 +210,7 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             places.push((
                 n,
                 format!("the `{k}` line"),
-                pystr::strip(&unlabel(&t[k.as_str().len()..])).to_string(),
+                str::trim(&unlabel(&t[k.as_str().len()..])).to_string(),
             ));
         }
     }
@@ -282,7 +281,7 @@ pub fn check_contradiction(
             continue; // already reported as a missing suppose
         };
         let rest = &opener.text[opener.kind.as_str().len()..];
-        let supposed = known.read(pystr::strip(&unlabel(rest)));
+        let supposed = known.read(str::trim(&unlabel(rest)));
         let claimed = known.read(&step.claim_text());
         let (Some(supposed), Some(claimed)) = (supposed, claimed) else {
             continue; // already reported as unreadable
@@ -353,16 +352,16 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
     }
     let mut previous: Option<String> = None;
     for (text, no) in &just.chain {
-        let whole = pystr::strip(text);
+        let whole = str::trim(text);
         let (body, cite) = match whole.rfind(' ') {
             Some(at) => (&whole[..at], &whole[at + 1..]),
             None => ("", whole),
         };
-        let body = pystr::strip(body);
+        let body = str::trim(body);
         let (claim, sides);
         match &previous {
             None => {
-                let words = pystr::split(body);
+                let words: Vec<&str> = body.split_whitespace().collect();
                 let at = RELATIONS.iter().find_map(|r| outermost(&words, r));
                 claim = body.to_string();
                 let before = match at {
@@ -377,7 +376,7 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
                     Some(at) => (&body[..at], &body[at + 1..]),
                     None => (body, ""),
                 };
-                let added = pystr::strip(added).to_string();
+                let added = str::trim(added).to_string();
                 claim = format!("{prev} {mark} {added}");
                 sides = Some((prev.clone(), added.clone()));
                 previous = Some(added);

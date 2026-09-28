@@ -26,7 +26,7 @@ use crate::sorts::{
 };
 use crate::t;
 use crate::targets;
-use crate::text::{pystr, repr};
+use crate::text::repr;
 
 regex!(BE_A, r"\s+be\s+a\s+(set|point)\b");
 regex!(SUBGROUP, r"^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$");
@@ -50,7 +50,7 @@ pub fn is_subgroup(text: &str) -> bool {
 pub fn hypothesis_body(kind: &str, text: &str) -> String {
     let body = text.strip_prefix(kind).unwrap_or(text);
     if kind == "let" {
-        let said = pystr::strip(&unlabel(body)).to_string();
+        let said = str::trim(&unlabel(body)).to_string();
         if let Some(m) = element_re().captures(&said) {
             return format!("{} is a set", &m[1]);
         }
@@ -156,7 +156,7 @@ impl<'a> Elaborator<'a> {
     /// wants somewhere to point.
     pub fn read(&self, text: &str) -> Checked<Node> {
         parse(
-            pystr::strip(&unlabel(text)),
+            str::trim(&unlabel(text)),
             self.g,
             &self.sorts_now,
             &self.thm.path,
@@ -427,7 +427,7 @@ impl<'a> Elaborator<'a> {
         for h in &self.thm.hypotheses {
             let kind = h.kind.as_str();
             let rest =
-                pystr::strip(&unlabel(h.text.strip_prefix(kind).unwrap_or(&h.text)))
+                str::trim(&unlabel(h.text.strip_prefix(kind).unwrap_or(&h.text)))
                     .to_string();
             if kind == "let" {
                 if let Some(group) = group_re().captures(&rest) {
@@ -665,7 +665,7 @@ impl<'a> Elaborator<'a> {
     /// the two have to agree; a spare otherwise.
     pub fn fixed_var(&mut self, name: &str, scope: &str) -> Checked<String> {
         let mut held = self.names_held();
-        for t in pystr::split(scope) {
+        for t in scope.split_whitespace() {
             if self
                 .b
                 .sigs

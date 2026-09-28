@@ -33,7 +33,6 @@ use crate::mm::spell::{Builder, Proof};
 use crate::mm::{Kind, Signature};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::text::pystr;
 use crate::{pf, t, take};
 
 /// What an emitter asks of the elaborator: the scope, the facts a
@@ -542,7 +541,7 @@ impl<'a> Elaborator<'a> {
         let mut w = Work::plain(scope, facts);
         let labels = self.b.flabel.clone();
         for (fact, proof) in facts.entries() {
-            let tail = pystr::split(&fact).last().copied().unwrap_or("");
+            let tail = fact.split_whitespace().last().unwrap_or("");
             if tail != "wne" && tail != "wn" {
                 continue;
             }
@@ -2961,7 +2960,7 @@ impl<'a> Elaborator<'a> {
             Signature {
                 label: label.clone(),
                 kind: Kind::Axiom,
-                statement: pystr::split(text).into_iter().map(String::from).collect(),
+                statement: text.split_whitespace().map(String::from).collect(),
                 floats,
                 essentials: Vec::new(),
                 disjoint: std::collections::BTreeSet::new(),
@@ -2977,8 +2976,8 @@ impl<'a> Elaborator<'a> {
     /// The variables a statement mentions, in the order the database
     /// declares their floats.
     pub fn free_floats(&self, text: &str) -> Vec<String> {
-        let mut free: Vec<String> = pystr::split(text)
-            .into_iter()
+        let mut free: Vec<String> = text
+            .split_whitespace()
             .filter(|t| self.b.flabel.contains(t))
             .map(String::from)
             .collect::<BTreeSet<String>>()

@@ -7,7 +7,7 @@ use crate::mm::kernel::term_of;
 use crate::mm::library::{render, thousands};
 use crate::mm::{Kind, Signatures};
 use crate::outcome::{Checked, Problem};
-use crate::text::{pystr, repr};
+use crate::text::{repr, squash};
 
 /// One constant: its token, the definition's name, and the term it stands
 /// for in reverse Polish.
@@ -43,7 +43,7 @@ pub fn definitions(records: &[Record], sigs: &Signatures) -> Checked<Vec<Introdu
     }
     let mut said = Vec::new();
     for r in records {
-        let token = pystr::strip(r.field_or_empty("symbol"));
+        let token = str::trim(r.field_or_empty("symbol"));
         if r.kind != RecordKind::Definition || token.is_empty() {
             continue;
         }
@@ -58,7 +58,7 @@ pub fn definitions(records: &[Record], sigs: &Signatures) -> Checked<Vec<Introdu
                 ),
             ));
         }
-        let body = pystr::squash(r.field_or_empty("defines"));
+        let body = squash(r.field_or_empty("defines"));
         let term = term_of(&body, sigs);
         let free: Vec<String> = term
             .names()

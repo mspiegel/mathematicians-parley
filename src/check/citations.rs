@@ -18,7 +18,7 @@ use crate::matching::{
 use crate::outcome::Built;
 use crate::rules;
 use crate::sorts::sentences;
-use crate::text::pystr;
+use crate::text::squash;
 
 type Sites = IndexSet<NodeId>;
 
@@ -854,7 +854,7 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
                 };
                 if depth == 0 {
                     let arg: String = claim[start + 1..end].iter().collect();
-                    out.insert(pystr::squash(&format!("{arg} ∈ {domain}")));
+                    out.insert(squash(&format!("{arg} ∈ {domain}")));
                     // A power set's member is a part, which the page may say
                     // with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
                     if let Some(inner) = domain.strip_prefix('𝒫') {
@@ -866,7 +866,7 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
                         } else {
                             inner
                         };
-                        out.insert(pystr::squash(&format!("{arg} ⊆ {inner}")));
+                        out.insert(squash(&format!("{arg} ⊆ {inner}")));
                     }
                     break;
                 }
@@ -952,7 +952,7 @@ pub fn check_surplus(
             lighter.requires.remove(i);
             if holds(&lighter)
                 && !asks.asks(&req.fact, known, library)
-                && !in_domain.contains(&pystr::squash(&req.fact))
+                && !in_domain.contains(&squash(&req.fact))
             {
                 report.say(
                     &thm.path,

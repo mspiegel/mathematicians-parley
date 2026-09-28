@@ -4,7 +4,7 @@ use indexmap::IndexSet;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 use crate::outcome::{Checked, Problem};
-use crate::text::{pystr, repr};
+use crate::text::repr;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TokenKind {
@@ -73,8 +73,8 @@ pub fn tokenise(
     };
     while i < chars.len() {
         let c = chars[i];
-        if pystr::is_space(c) {
-            while i < chars.len() && pystr::is_space(chars[i]) {
+        if c.is_whitespace() {
+            while i < chars.len() && chars[i].is_whitespace() {
                 i += 1;
             }
             continue;

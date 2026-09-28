@@ -23,7 +23,6 @@ use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::targets;
-use crate::text::pystr;
 use crate::{pf, t, take};
 
 pub const REQUIRES: &str = "requires@";
@@ -201,7 +200,7 @@ impl<'a> Elaborator<'a> {
                     r.line,
                     format!(
                         "the requires line of step {number} says {}, and the step neither uses nor asks for it",
-                        pystr::strip(&r.fact)
+                        str::trim(&r.fact)
                     ),
                 ));
             }
@@ -470,7 +469,7 @@ impl<'a> Elaborator<'a> {
     /// is, and so is a definition the database gives no target for, which the
     /// notation folds into the line it is unfolded at.
     pub fn rests_on_lines(&self, how: &str) -> bool {
-        let reason = pystr::strip(how.split(',').next().unwrap_or("")).to_string();
+        let reason = str::trim(how.split(',').next().unwrap_or("")).to_string();
         if reason.starts_with("from ") {
             return true;
         }
@@ -478,10 +477,10 @@ impl<'a> Elaborator<'a> {
             Some((k, n)) => (k, n),
             None => (reason.as_str(), ""),
         };
-        if kind != "def" || pystr::strip(name).is_empty() {
+        if kind != "def" || str::trim(name).is_empty() {
             return false;
         }
-        let first = pystr::split(name).first().copied().unwrap_or("");
+        let first = name.split_whitespace().next().unwrap_or("");
         let full = resolve(first, self.thm.module());
         match self.items.get(&full) {
             Some(Item::Record(r)) => {
@@ -644,7 +643,7 @@ impl<'a> Elaborator<'a> {
                     self.at,
                     format!(
                         "{} does not reach {}, which this line claims it supplies",
-                        pystr::strip(how),
+                        str::trim(how),
                         self.render(&term)
                     ),
                 )),
@@ -653,7 +652,7 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = facts.get(&term) {
             return Ok(Built(p));
         }
-        let closure = pystr::strip(how.split(',').next().unwrap_or("")).to_string();
+        let closure = str::trim(how.split(',').next().unwrap_or("")).to_string();
         // `membership` builds the fact from its parts, as a step naming it
         // does, from the lines this one cites.
         if closure == "membership" {
@@ -686,7 +685,7 @@ impl<'a> Elaborator<'a> {
                 (Some(w), Some(step)) => format!(
                     "the requires line of step {} claims {}",
                     fmt(&step.number),
-                    pystr::strip(w)
+                    str::trim(w)
                 ),
                 _ => format!("the requires line {}", self.render(&term)),
             };
@@ -702,7 +701,7 @@ impl<'a> Elaborator<'a> {
         if let Some(step) = step {
             if let Some((kind, name)) = closure.split_once(':') {
                 if kind == "thm" || kind == "def" {
-                    let first = pystr::split(name).first().copied().unwrap_or("");
+                    let first = name.split_whitespace().next().unwrap_or("");
                     let full = resolve(first, self.thm.module());
                     if let Some(item) = self.items.get(&full).copied() {
                         if !item_clauses(item).is_empty() {
@@ -780,7 +779,7 @@ impl<'a> Elaborator<'a> {
             self.at,
             format!(
                 "{} does not reach {}, which this line claims it supplies",
-                pystr::strip(how),
+                str::trim(how),
                 self.render(&term)
             ),
         ))

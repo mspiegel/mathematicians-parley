@@ -33,7 +33,7 @@ use crate::sorts::{
     define_sorts, element_re, file_definitions, group_re, kind_re, let_formula,
     property_re, sentences, unlabel, Env,
 };
-use crate::text::{pystr, repr};
+use crate::text::repr;
 
 regex!(OBTAINS_RE, r"^obtain\s+([^:]+?)(?::|\s+from)");
 
@@ -392,11 +392,11 @@ pub fn signature(text: &str) -> Route<Signature> {
     };
     let holes: Vec<&str> = holes_text
         .split(',')
-        .map(pystr::strip)
+        .map(str::trim)
         .filter(|h| !h.is_empty())
         .collect();
     let mut templates = Vec::new();
-    for h in holes.iter().copied().chain([pystr::strip(result_text)]) {
+    for h in holes.iter().copied().chain([str::trim(result_text)]) {
         match read_template(h) {
             Built(t) => templates.push(t),
             Declined(d) => return Declined(d),
@@ -646,7 +646,7 @@ pub fn introduce(
     sorts: &Sorts,
     store: &mut Store,
 ) {
-    let body = pystr::strip(&unlabel(body)).to_string();
+    let body = str::trim(&unlabel(body)).to_string();
     // A group is a set of group elements, and its identity is one of them.
     if let Some(m) = group_re().captures(&body) {
         reader
@@ -727,7 +727,7 @@ pub fn read_record(
         if h.kind == Intro::Let {
             introduce(&mut reader, &h.text, h.line.into(), env, sorts, store);
         } else {
-            let text = pystr::strip(&unlabel(&h.text)).to_string();
+            let text = str::trim(&unlabel(&h.text)).to_string();
             claim_text(&mut reader, &text, h.line.into(), env, sorts, store);
         }
     }
@@ -826,7 +826,7 @@ pub fn read_theorem(
         if kind == Intro::Let {
             Event::Let(rest)
         } else {
-            Event::Said(pystr::strip(&unlabel(rest)).to_string())
+            Event::Said(str::trim(&unlabel(rest)).to_string())
         }
     }
     for h in &thm.hypotheses {
@@ -843,7 +843,7 @@ pub fn read_theorem(
     events.push((
         At::after(after),
         false,
-        Event::Said(pystr::strip(&unlabel(&thm.conclusion)).to_string()),
+        Event::Said(str::trim(&unlabel(&thm.conclusion)).to_string()),
     ));
     for d in &thm.defines {
         events.push((d.line.into(), true, Event::Define(&d.text)));
@@ -857,7 +857,7 @@ pub fn read_theorem(
             events.push((
                 r.line.into(),
                 true,
-                Event::Said(pystr::strip(&unlabel(&r.fact)).to_string()),
+                Event::Said(str::trim(&unlabel(&r.fact)).to_string()),
             ));
         }
     }
@@ -920,7 +920,7 @@ pub fn read_theorem(
                     None
                 };
                 if let Some(names) = obtained {
-                    for name in split_names(pystr::strip(&names)) {
+                    for name in split_names(str::trim(&names)) {
                         let v = store.var();
                         reader.env.insert(name.to_string(), v);
                     }

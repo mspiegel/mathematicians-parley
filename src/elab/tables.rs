@@ -201,7 +201,7 @@ impl<'a> Elaborator<'a> {
         let label = given.label().unwrap_or("").to_string();
         let g: Vec<String> = given.children().iter().map(|c| self.rpn(c)).collect();
         let w: Vec<String> = want.children().iter().map(|c| self.rpn(c)).collect();
-        let words: Vec<&str> = crate::text::pystr::split(scope);
+        let words: Vec<&str> = scope.split_whitespace().collect();
         // Only the body is carried under the binder here; a domain that
         // changes with the body kept is the branch for domains below.
         if label == "wrex" && w[1..] == g[1..] {
@@ -483,7 +483,7 @@ impl<'a> Elaborator<'a> {
         let kids: Vec<String> = given.children().iter().map(|c| self.rpn(c)).collect();
         let (letter, over, rule) = (&kids[0], &kids[1], &kids[2]);
         let new = self.rpn(&want.children()[1]);
-        let spells = |t: &str| crate::text::pystr::split(t).contains(&letter.as_str());
+        let spells = |t: &str| t.split_whitespace().any(|w| w == letter.as_str());
         if !spells(over) && !spells(&new) {
             return None;
         }
@@ -513,7 +513,7 @@ impl<'a> Elaborator<'a> {
         let kids = given.children().to_vec();
         let (body, variable, over) = (&kids[0], &kids[1], &kids[2]);
         let (name, runs) = (self.rpn(variable), self.rpn(over));
-        if crate::text::pystr::split(scope).contains(&name.as_str()) {
+        if scope.split_whitespace().any(|w| w == name.as_str()) {
             // `ralbidva` keeps its letter apart from the scope, so where the
             // scope spells it the two are carried over a spare and renamed
             // back.
@@ -582,10 +582,7 @@ impl<'a> Elaborator<'a> {
             return Ok(named);
         }
         let said = self.rpn(&goal.children()[0]);
-        if crate::text::pystr::split(&said)
-            .iter()
-            .any(|t| !rules::numeric(t))
-        {
+        if said.split_whitespace().any(|t| !rules::numeric(t)) {
             return Ok(named);
         }
         // One level deeper than `settle`'s default. Nothing in it is a

@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 
 use crate::outcome::{Built, Declined, Route};
 use crate::regex;
-use crate::text::{pystr, repr};
+use crate::text::{repr, squash};
 
 /// What a `define` line says: a name, and the term it stands for.
 ///
@@ -93,7 +93,7 @@ fn by_cases(lines: &[&str]) -> Route<String> {
             "the last line of a define by cases is its value `otherwise`",
         );
     };
-    let mut term = pystr::strip(&last["value"]).to_string();
+    let mut term = str::trim(&last["value"]).to_string();
     let mut nested = false;
     for line in lines[..lines.len() - 1].iter().rev() {
         let Some(case) = CASE.captures(line) else {
@@ -105,8 +105,8 @@ fn by_cases(lines: &[&str]) -> Route<String> {
         let rest = if nested { format!("({term})") } else { term };
         term = format!(
             "{} if {}, {rest} otherwise",
-            pystr::strip(&case["value"]),
-            pystr::strip(&case["condition"])
+            str::trim(&case["value"]),
+            str::trim(&case["condition"])
         );
         nested = true;
     }
@@ -130,8 +130,8 @@ regex!(
 /// One rule's text as a term: its lines joined, or folded by cases where its
 /// last line is taken `otherwise`.
 fn rule_term(text: &str) -> Route<String> {
-    let trimmed = pystr::strip(text).trim_end_matches(',');
-    let pieces: Vec<&str> = trimmed.split('\n').map(pystr::strip).collect();
+    let trimmed = str::trim(text).trim_end_matches(',');
+    let pieces: Vec<&str> = trimmed.split('\n').map(str::trim).collect();
     if pieces.len() > 1 && OTHERWISE.is_match(pieces[pieces.len() - 1]) {
         return by_cases(&pieces);
     }
@@ -160,7 +160,7 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
     let mut step: IndexMap<String, String> = IndexMap::new();
     for (i, head) in heads.iter().enumerate() {
         let name = head["name"].to_string();
-        let at = pystr::squash(&head["at"]);
+        let at = squash(&head["at"]);
         let end = heads.get(i + 1).map(|after| after.get(0).unwrap().start());
         let from = head.get(0).unwrap().end();
         let text = match end {
@@ -216,21 +216,21 @@ regex!(
 /// a recursion; any other is one name.
 pub fn define_parts(text: &str) -> Route<DefineParts> {
     let unlabelled = TRAILING_LABEL.replace(text, "");
-    let said = pystr::strip(&unlabelled);
+    let said = str::trim(&unlabelled);
     if RECURSION_START.is_match(said) {
         return recursion_parts(said);
     }
     let m = match DEFINED.captures(said) {
-        Some(m) if !pystr::strip(&m["body"]).is_empty() => m,
+        Some(m) if !str::trim(&m["body"]).is_empty() => m,
         _ => return Route::no("a define says `define <name> := <term>`"),
     };
     let name = m["name"].to_string();
     let param = m.name("param").map(|p| p.as_str().to_string());
     let over = m.name("over").map(|o| o.as_str().to_string());
-    let body = pystr::strip(&m["body"]);
+    let body = str::trim(&m["body"]);
     // A define over several lines is either one term wrapped by the comma
     // rule, or a function by cases, one case to a line.
-    let pieces: Vec<&str> = body.split('\n').map(pystr::strip).collect();
+    let pieces: Vec<&str> = body.split('\n').map(str::trim).collect();
     let body = if pieces.len() > 1 && OTHERWISE.is_match(pieces[pieces.len() - 1]) {
         match by_cases(&pieces) {
             Built(term) => term,
@@ -259,7 +259,7 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     }
     // `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
     let domain = param.as_ref().map(|_| {
-        let domain = pystr::squash(&m["domain"]);
+        let domain = squash(&m["domain"]);
         if !domain.is_empty() && &m["how"] == "⊆" {
             if domain.contains(' ') {
                 format!("𝒫({domain})")

@@ -18,7 +18,6 @@ use crate::sorts::{
     definitions_in_scope, element_re, file_definitions, function_being_re, function_re,
     group_re, kind_re, let_formula, part_re, sentences, sorts_in_scope, unlabel, Env,
 };
-use crate::text::pystr;
 
 /// One `then` group of an item: its facts, each with the text it was read
 /// from, and the sentences it concludes.
@@ -92,8 +91,7 @@ impl<'a> Library<'a> {
             if r.kind != RecordKind::Notation {
                 continue;
             }
-            let Some(first) =
-                FIRST_WORD.find(pystr::strip(r.field_or_empty("metamath")))
+            let Some(first) = FIRST_WORD.find(str::trim(r.field_or_empty("metamath")))
             else {
                 continue;
             };
@@ -132,7 +130,7 @@ impl<'a> Library<'a> {
                 .iter()
                 .map(|h| {
                     let rest = &h.text[h.kind.as_str().len()..];
-                    (h.kind, pystr::strip(&unlabel(rest)).to_string())
+                    (h.kind, str::trim(&unlabel(rest)).to_string())
                 })
                 .collect();
             // A theorem's statement means what it meant in its own file: a
@@ -160,7 +158,7 @@ impl<'a> Library<'a> {
                 .hypotheses
                 .iter()
                 .filter(|h| h.line < *at)
-                .map(|h| (h.kind, pystr::strip(&unlabel(&h.text)).to_string()))
+                .map(|h| (h.kind, str::trim(&unlabel(&h.text)).to_string()))
                 .collect();
             out.push((
                 self.facts(&lines, sorts),
@@ -319,7 +317,7 @@ fn statements_in_scope(
     env: Env,
 ) -> IndexMap<String, String> {
     fn said(kind: Intro, text: &str) -> String {
-        let body = pystr::strip(&unlabel(&text[kind.as_str().len()..])).to_string();
+        let body = str::trim(&unlabel(&text[kind.as_str().len()..])).to_string();
         if kind == Intro::Let {
             let_formula(&body)
         } else {

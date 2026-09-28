@@ -45,7 +45,7 @@ use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::{file_definitions, sorts_in_scope, unlabel};
 use crate::targets;
-use crate::text::{pystr, repr};
+use crate::text::repr;
 use crate::{pf, regex, t, take};
 
 /// Why a side of a step citing a define is not what the define names.
@@ -337,7 +337,7 @@ impl<'a> Elaborator<'a> {
         for (kind, text, label) in &lets {
             if *kind == Intro::Assume
                 && !label.is_empty()
-                && is_subgroup(pystr::strip(&unlabel(&hypothesis_body(
+                && is_subgroup(str::trim(&unlabel(&hypothesis_body(
                     kind.as_str(),
                     text,
                 ))))
@@ -426,8 +426,8 @@ impl<'a> Elaborator<'a> {
         self.from_outside = IndexMap::new();
         // What the conclusion quantifies over is spoken for before anything
         // else takes a variable.
-        self.reserved = pystr::split(&goal)
-            .into_iter()
+        self.reserved = goal
+            .split_whitespace()
             .filter(|t| {
                 self.b
                     .sigs
@@ -872,7 +872,7 @@ impl<'a> Elaborator<'a> {
             Signature {
                 label: label.clone(),
                 kind: Kind::Axiom,
-                statement: pystr::split(&text).into_iter().map(String::from).collect(),
+                statement: text.split_whitespace().map(String::from).collect(),
                 floats,
                 essentials: Vec::new(),
                 disjoint: BTreeSet::new(),
@@ -1237,7 +1237,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let text = pystr::strip(&step.just.text).to_string();
+        let text = str::trim(&step.just.text).to_string();
         let Some(said) = SUBSTITUTE.captures(&text) else {
             return Err(self.defect(step.line, "a substitute that names no equation"));
         };
@@ -1248,11 +1248,11 @@ impl<'a> Elaborator<'a> {
         // Which way the equation faces in the kernel is the lemma's choice,
         // not the text's, so either is accepted and turned if it has to be.
         let mut facing = facts.get(&t!(old, new, "wceq"));
-        if pystr::strip(&said[2]) == "arithmetic" {
+        if str::trim(&said[2]) == "arithmetic" {
             let what = format!(
                 "step {} substitutes {}",
                 fmt(&step.number),
-                pystr::strip(&said[1])
+                str::trim(&said[1])
             );
             facing = Some(self.closed_fact(
                 &t!(old, new, "wceq"),
@@ -1304,9 +1304,9 @@ impl<'a> Elaborator<'a> {
             }
             return Err(self.defect(step.line, "the substitution misses the claim"));
         };
-        let where_ = pystr::split(&into_text)
+        let where_ = into_text
+            .split_whitespace()
             .last()
-            .copied()
             .unwrap_or("")
             .to_string();
         let into = lines
@@ -1847,10 +1847,10 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let mut links: Vec<(String, String)> = Vec::new();
         for (text, _line) in &step.just.chain {
-            let stripped = pystr::rstrip(text);
-            let at = stripped.rfind(pystr::is_space).unwrap_or(0);
-            let (body, cite) = (&stripped[..at], pystr::strip(&stripped[at..]));
-            links.push((pystr::strip(body).to_string(), cite.to_string()));
+            let stripped = text.trim_end();
+            let at = stripped.rfind(char::is_whitespace).unwrap_or(0);
+            let (body, cite) = (&stripped[..at], str::trim(&stripped[at..]));
+            links.push((str::trim(body).to_string(), cite.to_string()));
         }
         let mut defines: BTreeSet<String> =
             self.thm.defines.iter().map(|d| d.label.clone()).collect();
@@ -1861,7 +1861,7 @@ impl<'a> Elaborator<'a> {
         if first.text.is_empty() {
             return Err(self.defect(step.line, "a chain starts with no relation"));
         }
-        let words: Vec<&str> = pystr::split(&links[0].0);
+        let words: Vec<&str> = links[0].0.split_whitespace().collect();
         let Some(at) = outermost(&words, &first.text) else {
             return Err(self.defect(
                 step.line,
@@ -1893,11 +1893,14 @@ impl<'a> Elaborator<'a> {
             &defines,
         )?;
         for (body, cite) in &links[1..] {
-            let split = pystr::split_once_space(body);
-            let (mark, added) = (
-                split[0].to_string(),
-                split.get(1).copied().unwrap_or("").to_string(),
-            );
+            // The relation, and what follows it. `body` was trimmed when
+            // it was read.
+            let (mark, added) = match body.split_once(char::is_whitespace) {
+                Some((mark, added)) => {
+                    (mark.to_string(), added.trim_start().to_string())
+                }
+                None => (body.clone(), String::new()),
+            };
             let written = format!("{rest} {mark} {added}");
             let node = self.read(&written)?;
             let joined_term = self.term(&node)?;
@@ -2451,7 +2454,7 @@ impl<'a> Elaborator<'a> {
         let binder = self.binder_var(&said)?;
         let mut apart = None;
         let mut renamed = None;
-        if pystr::split(&witness).contains(&binder.as_str()) {
+        if witness.split_whitespace().any(|t| t == binder.as_str()) {
             let Some(letter) = self.unheld(&[&whole, &self.to_term(&witness)]) else {
                 return Err(
                     self.defect(step.line, "no letter left to exhibit the witness by")
@@ -2921,7 +2924,7 @@ impl<'a> Elaborator<'a> {
     ) -> Option<Vec<String>> {
         let said = (self.statements)(name)?;
         let mut theirs: Vec<String> = Vec::new();
-        for token in pystr::split(&said) {
+        for token in said.split_whitespace() {
             if let Some(label) = self.b.flabel.get(token) {
                 if !theirs.contains(label) {
                     theirs.push(label.clone());
@@ -3255,7 +3258,7 @@ fn declare_constants(sigs: &mut Signatures, records: &[Record]) -> Checked<()> {
             },
         );
         let mut statement = vec!["|-".to_string(), one.token.clone(), "=".to_string()];
-        statement.extend(pystr::split(&rendered).into_iter().map(String::from));
+        statement.extend(rendered.split_whitespace().map(String::from));
         sigs.insert(
             format!("df-{}", one.token),
             Signature {
@@ -3411,8 +3414,8 @@ pub fn elaborate(
         Some(a) => format!("( {} -> {} )", work.render(a), work.render(&goal)),
         None => work.render(&goal),
     };
-    let mut mandatory: Vec<String> = pystr::split(&says)
-        .into_iter()
+    let mut mandatory: Vec<String> = says
+        .split_whitespace()
         .filter_map(|t| work.b.flabel.get(t).cloned())
         .collect::<BTreeSet<String>>()
         .into_iter()

@@ -18,7 +18,6 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{Record, RecordKind};
 use crate::formula::{Binds, Node, NodeId, Notation};
 use crate::regex;
-use crate::text::pystr;
 
 // An instantiation value may itself contain a comma, as `e := gcd(a, b)`
 // does, so the list is split at the commas that sit outside brackets rather
@@ -47,11 +46,8 @@ pub fn instantiation(text: &str) -> Vec<(String, String)> {
     }
     let mut out = Vec::new();
     for piece in split_commas(body) {
-        if let Some(m) = ASSIGN.captures(pystr::strip(piece)) {
-            out.push((
-                pystr::strip(&m[1]).to_string(),
-                pystr::strip(&m[2]).to_string(),
-            ));
+        if let Some(m) = ASSIGN.captures(str::trim(piece)) {
+            out.push((str::trim(&m[1]).to_string(), str::trim(&m[2]).to_string()));
         }
     }
     out
@@ -75,7 +71,7 @@ pub fn split_commas(text: &str) -> Vec<&str> {
     }
     out.push(&text[start..]);
     out.into_iter()
-        .filter(|p| !pystr::strip(p).is_empty())
+        .filter(|p| !str::trim(p).is_empty())
         .collect()
 }
 
@@ -192,7 +188,7 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
         .iter()
         .filter(|r| {
             r.kind == RecordKind::Notation
-                && WCEQ.is_match(pystr::strip(r.field_or_empty("metamath")))
+                && WCEQ.is_match(str::trim(r.field_or_empty("metamath")))
         })
         .map(|r| r.name.clone())
         .collect()

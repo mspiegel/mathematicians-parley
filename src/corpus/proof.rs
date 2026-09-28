@@ -9,7 +9,7 @@ use super::lines::{read_lines, Line};
 use super::{cited_name, full, module_of, resolve};
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
-use crate::text::{pystr, repr};
+use crate::text::{prefix, repr};
 
 /// How a line introduces what it introduces.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -504,7 +504,7 @@ pub fn references(text: &str) -> (Vec<String>, Option<String>) {
         out.push(m[1].to_string());
     } else if let Some(m) = FROM_ANY.captures(text) {
         for tok in m[1].split(',') {
-            let tok = pystr::strip(tok);
+            let tok = str::trim(tok);
             if full(&REF_RE, tok) {
                 out.push(tok.to_string());
             } else if !tok.is_empty() {
@@ -590,7 +590,7 @@ fn parse_justification(
         return Err(Problem::new(
             path,
             line.no,
-            format!("no justification head in {}", repr(pystr::prefix(text, 40))),
+            format!("no justification head in {}", repr(prefix(text, 40))),
         ));
     }
     let head = if text.starts_with("def:") || text.starts_with("thm:") {
@@ -609,10 +609,7 @@ fn parse_justification(
                 return Err(Problem::new(
                     path,
                     line.no,
-                    format!(
-                        "no justification head in {}",
-                        repr(pystr::prefix(text, 40))
-                    ),
+                    format!("no justification head in {}", repr(prefix(text, 40))),
                 ))
             }
         }
@@ -656,7 +653,7 @@ fn parse_justification(
     }
     if head.is(Method::Join) {
         for tok in text["join".len()..].split(',') {
-            let tok = pystr::strip(tok);
+            let tok = str::trim(tok);
             if full(&REF_RE, tok) {
                 refs.push(tok.to_string());
             }
@@ -760,7 +757,7 @@ enum Imported {
 /// the name after `as`. Said on the line, a file and a definition never have
 /// to be told apart by what happens to exist.
 fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
-    let Some(m) = IMPORTED.captures(pystr::strip(text)) else {
+    let Some(m) = IMPORTED.captures(str::trim(text)) else {
         return Err(Problem::new(
             path,
             no,
@@ -945,7 +942,7 @@ pub fn parse_proof(
         if t.starts_with("theorem ") && line.indent == 0 {
             close_step(path, &thm, &mut step)?;
             settle(thm.take(), &mut scope, &mut theorems);
-            let name = pystr::strip(&t["theorem ".len()..]).to_string();
+            let name = str::trim(&t["theorem ".len()..]).to_string();
             if !full(&THEOREM_NAME, &name) {
                 return Err(Problem::new(
                     path,
@@ -1027,7 +1024,7 @@ pub fn parse_proof(
             if let (Some(rest), Some(d)) = (t.strip_prefix("reads"), &previous) {
                 scope
                     .readings
-                    .insert(d.label.clone(), (pystr::strip(rest).to_string(), line.no));
+                    .insert(d.label.clone(), (str::trim(rest).to_string(), line.no));
                 continue;
             }
             return Err(Problem::new(
@@ -1037,7 +1034,7 @@ pub fn parse_proof(
             ));
         };
 
-        let head = pystr::split(&t)[0].to_string();
+        let head = t.split_whitespace().next().unwrap_or_default().to_string();
         if header && THEOREM_FIELDS.contains(&head.as_str()) {
             if draft.thm.fields.contains_key(&head) {
                 return Err(Problem::new(
@@ -1049,7 +1046,7 @@ pub fn parse_proof(
             draft
                 .thm
                 .fields
-                .insert(head.clone(), pystr::strip(&t[head.len()..]).to_string());
+                .insert(head.clone(), str::trim(&t[head.len()..]).to_string());
             last_field = Some((head, line.indent));
             continue;
         }
@@ -1137,7 +1134,7 @@ pub fn parse_proof(
             continue;
         }
         if head == "then" && step.is_none() {
-            draft.thm.conclusion = pystr::strip(&t["then".len()..]).to_string();
+            draft.thm.conclusion = str::trim(&t["then".len()..]).to_string();
             continue;
         }
         if head == "define" {
@@ -1171,12 +1168,12 @@ pub fn parse_proof(
             };
             draft.thm.readings.insert(
                 d.label.clone(),
-                (pystr::strip(&t["reads".len()..]).to_string(), line.no),
+                (str::trim(&t["reads".len()..]).to_string(), line.no),
             );
             continue;
         }
         if head == "note" {
-            let said = (pystr::strip(&t["note".len()..]).to_string(), line.no);
+            let said = (str::trim(&t["note".len()..]).to_string(), line.no);
             // Under a part marker, the note says what that part does; the
             // marker is still held, because the step owning it is found only
             // when the part's first step arrives.
@@ -1238,7 +1235,7 @@ pub fn parse_proof(
                     "requires line outside a step",
                 ));
             };
-            let body = pystr::strip(&t["requires".len()..]);
+            let body = str::trim(&t["requires".len()..]);
             let Some((fact, how)) = body.split_once(':') else {
                 return Err(Problem::new(
                     path,
@@ -1247,8 +1244,8 @@ pub fn parse_proof(
                 ));
             };
             draft.steps[at].step.requires.push(Requires {
-                fact: pystr::strip(fact).to_string(),
-                how: pystr::strip(how).to_string(),
+                fact: str::trim(fact).to_string(),
+                how: str::trim(how).to_string(),
                 line: line.no,
             });
             continue;
@@ -1287,14 +1284,14 @@ pub fn parse_proof(
                 line.no,
                 format!(
                     "unexpected line after a justification: {}",
-                    repr(pystr::prefix(&t, 48))
+                    repr(prefix(&t, 48))
                 ),
             ));
         }
         return Err(Problem::new(
             path,
             line.no,
-            format!("unexpected line {}", repr(pystr::prefix(&t, 48))),
+            format!("unexpected line {}", repr(prefix(&t, 48))),
         ));
     }
     close_step(path, &thm, &mut step)?;

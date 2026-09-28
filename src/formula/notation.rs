@@ -6,7 +6,6 @@ use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Checked, Problem};
 use crate::regex;
-use crate::text::pystr;
 
 /// One piece of a pattern: a hole a term fills, or a literal token.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -116,7 +115,7 @@ fn binding(r: &Record) -> Checked<Option<Binds>> {
             format!(
                 "notation {}: `binds {}` is not `hole N over hole M` or `hole N over nothing`",
                 r.name,
-                pystr::strip(said)
+                str::trim(said)
             ),
         ));
     };
@@ -149,14 +148,14 @@ pub fn compile_notations(
         if r.kind != RecordKind::Notation {
             continue;
         }
-        let raw = pystr::strip(r.field_or_empty("pattern"));
+        let raw = str::trim(r.field_or_empty("pattern"));
         if raw.is_empty() {
             continue;
         }
         let mut holes: Vec<String> = r
             .field_or_empty("holes")
             .split(',')
-            .map(pystr::strip)
+            .map(str::trim)
             .filter(|h| !h.is_empty())
             .map(String::from)
             .collect();
@@ -166,12 +165,12 @@ pub fn compile_notations(
         let levels: Vec<&str> = r
             .field_or_empty("level")
             .split(',')
-            .map(pystr::strip)
+            .map(str::trim)
             .collect();
         let assocs: Vec<&str> = r
             .field_or_empty("assoc")
             .split(',')
-            .map(pystr::strip)
+            .map(str::trim)
             .collect();
         // A record may declare that one of its patterns is the negation of
         // another. Both then build the same tree, so "n is not odd" and
@@ -244,8 +243,8 @@ pub fn compile_notations(
                 name: r.name.clone(),
                 parts: parts.clone(),
                 holes: holes.clone(),
-                yields: pystr::strip(r.field_or_empty("yields")).to_string(),
-                level: pystr::strip(level).to_string(),
+                yields: str::trim(r.field_or_empty("yields")).to_string(),
+                level: str::trim(level).to_string(),
                 assoc: if assoc.is_empty() {
                     None
                 } else {
@@ -318,11 +317,11 @@ pub fn compile_precedence(records: &[Record]) -> IndexMap<String, IndexSet<Strin
             if key == "note" {
                 continue;
             }
-            if let Some(m) = TIGHTER_THAN.captures(pystr::strip(value)) {
+            if let Some(m) = TIGHTER_THAN.captures(str::trim(value)) {
                 direct.insert(
                     key.clone(),
                     m[1].split(',')
-                        .map(|x| pystr::strip(x).trim_end_matches('.').to_string())
+                        .map(|x| str::trim(x).trim_end_matches('.').to_string())
                         .collect(),
                 );
             }

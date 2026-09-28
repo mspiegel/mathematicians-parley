@@ -34,7 +34,6 @@ use crate::mm::spell::Proof;
 use crate::mm::Signature;
 use crate::outcome::{Built, Checked, Decline, Declined, Route};
 use crate::rules::{self, discharge, lookup, Join, Side};
-use crate::text::pystr;
 use crate::{pf, t, take};
 
 /// One rule of the standard form: its label, the side it rewrites, the side
@@ -135,9 +134,7 @@ impl<'a> Elaborator<'a> {
             && kids[1]
                 .label()
                 .is_some_and(|l| lookup(rules::SYSTEMS, l).is_some())
-            && pystr::split(&self.rpn(&kids[0]))
-                .iter()
-                .all(|t| rules::numeric(t))
+            && self.rpn(&kids[0]).split_whitespace().all(rules::numeric)
         {
             // Inside the search that works out one number, the numbers it is
             // built from are looked up and not searched for again.
@@ -422,7 +419,7 @@ impl<'a> Elaborator<'a> {
                 let (was, now) = (self.rpn(old), self.rpn(new));
                 // A numeral is a constant however set.mm spells it, and so is
                 // a sum of them.
-                if pystr::split(&was).iter().all(|t| rules::numeric(t)) {
+                if was.split_whitespace().all(rules::numeric) {
                     continue;
                 }
                 let put = self.replaced(wanted, &was, new);
@@ -779,7 +776,7 @@ impl<'a> Elaborator<'a> {
             return found.clone();
         }
         let mut stack: Vec<Shape> = Vec::new();
-        for token in pystr::split(pattern) {
+        for token in pattern.split_whitespace() {
             if let Some(n) = token.strip_prefix('_') {
                 stack.push(Shape::Hole(n.parse::<usize>().unwrap() - 1));
                 continue;
@@ -985,7 +982,7 @@ impl<'a> Elaborator<'a> {
         proofs: &IndexMap<usize, Proof>,
     ) -> Route<Proof> {
         let (limits, summand, index) = (&was[0], &was[1], &was[2]);
-        if pystr::split(scope).contains(&index.as_str()) {
+        if scope.split_whitespace().any(|t| t == index.as_str()) {
             return Route::no("the scope mentions the index the sum binds");
         }
         let rewritten = self.b.ap(
@@ -1273,16 +1270,10 @@ impl<'a> Elaborator<'a> {
         let f = self.applied_map(term)?;
         let at = term.children()[0].clone();
         let (bound, rule) = (f.children()[0].clone(), f.children()[2].clone());
-        let mut spelt: BTreeSet<String> = pystr::split(&self.rpn(&at))
-            .into_iter()
-            .map(String::from)
-            .collect();
+        let mut spelt: BTreeSet<String> =
+            self.rpn(&at).split_whitespace().map(String::from).collect();
         let through = self.read_through(&at, true, None);
-        spelt.extend(
-            pystr::split(&self.rpn(&through))
-                .into_iter()
-                .map(String::from),
-        );
+        spelt.extend(self.rpn(&through).split_whitespace().map(String::from));
         let own = bound.variable().unwrap_or("").to_string();
         let meets = |me: &Self, one: &Term| {
             letters_bound(one).iter().filter(|v| ***v != *own).any(|v| {
@@ -2678,8 +2669,8 @@ impl<'a> Elaborator<'a> {
         let mut held = self.names_held();
         held.extend(self.reserved.iter().cloned());
         held.extend(self.bound_as.values().cloned());
-        held.extend(pystr::split(said).into_iter().map(String::from));
-        held.extend(pystr::split(want).into_iter().map(String::from));
+        held.extend(said.split_whitespace().map(String::from));
+        held.extend(want.split_whitespace().map(String::from));
         let mut free = self
             .spare
             .iter()
@@ -2729,7 +2720,7 @@ impl<'a> Elaborator<'a> {
         held.extend(self.reserved.iter().cloned());
         held.extend(self.bound_as.values().cloned());
         for t in terms {
-            held.extend(pystr::split(&self.rpn(t)).into_iter().map(String::from));
+            held.extend(self.rpn(t).split_whitespace().map(String::from));
         }
         let free = self.spare.iter().find(|v| !held.contains(*v))?;
         Some(self.var_of(free))
@@ -2770,8 +2761,8 @@ impl<'a> Elaborator<'a> {
         self.frames
             .iter()
             .flat_map(|f| {
-                pystr::split(&f.scope)
-                    .into_iter()
+                f.scope
+                    .split_whitespace()
                     .map(String::from)
                     .collect::<Vec<_>>()
             })
@@ -2899,7 +2890,7 @@ impl<'a> Elaborator<'a> {
         let mut held = self.names_held();
         held.extend(self.reserved.iter().cloned());
         held.extend(self.bound_as.values().cloned());
-        held.extend(pystr::split(&self.rpn(goal)).into_iter().map(String::from));
+        held.extend(self.rpn(goal).split_whitespace().map(String::from));
         let Some(free) = self.spare.iter().find(|v| !held.contains(*v)).cloned() else {
             return Ok(Route::no("no letter left to rename a sum with"));
         };
@@ -3637,9 +3628,9 @@ impl<'a> Elaborator<'a> {
                 .flat_map(|(_, b)| b.iter())
                 .collect();
             if let Some(w) = written.get(&said) {
-                if pystr::split(&said)
-                    .iter()
-                    .any(|t| others.iter().any(|o| o.as_str() == *t))
+                if said
+                    .split_whitespace()
+                    .any(|t| others.iter().any(|o| o.as_str() == t))
                     && self.rpn(w) != said
                 {
                     out.insert(name.clone(), w.clone());
