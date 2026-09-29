@@ -1,3 +1,5 @@
+import proof stdlib/divisibility
+
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

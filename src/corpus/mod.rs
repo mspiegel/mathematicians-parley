@@ -45,8 +45,9 @@ pub const NAME: &str = r"[A-Za-z][A-Za-z0-9-]*";
 /// What follows `def:` or `thm:`: an item's name, spelt with the path of the
 /// file that holds it, or bare for a theorem of the file citing it.
 pub const CITED: &str = r"(?:[A-Za-z][A-Za-z0-9-]*/)*[A-Za-z][A-Za-z0-9-]*";
-/// The standard library, the one module root that is not a proof file: it is
-/// never imported, and every proof may cite it.
+/// The standard library, the one module root that is not a proof file: its
+/// files are records, and a proof imports each one it cites as it imports a
+/// proof file.
 pub const STDLIB: &str = "stdlib";
 /// Where the database, the library and what is built from them are kept,
 /// under the working tree. Names are read from inside it, so the directory's

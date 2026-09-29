@@ -1,3 +1,9 @@
+import proof stdlib/counting
+import proof stdlib/functions
+import proof stdlib/numbers
+import proof stdlib/reasoning
+import proof stdlib/sets
+
 theorem add-element-bijection
   note        The pilot's row was itself incomplete, reading "Let X be a set, a
               with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The

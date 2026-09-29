@@ -1,3 +1,6 @@
+import proof stdlib/numbers
+import proof stdlib/sums
+
 theorem sum-formula
   metamath    arisum
   let n ∈ ℕ                                                           (H1)

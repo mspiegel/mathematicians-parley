@@ -182,7 +182,11 @@ pub fn restatements(
         }
         let free = free_names(r, g);
         let file = r.module().rsplit('/').next().unwrap_or("");
-        let text = files.entry(format!("{RESTATED}/{file}.proof")).or_default();
+        // Each file restates the items of one library file, and cites them,
+        // so it imports that file as any proof citing it does.
+        let text = files
+            .entry(format!("{RESTATED}/{file}.proof"))
+            .or_insert_with(|| format!("import proof {}\n\n", r.module()));
         let prefix = if r.kind == RecordKind::Definition {
             "def"
         } else {

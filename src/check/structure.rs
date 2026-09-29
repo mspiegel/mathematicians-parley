@@ -1093,18 +1093,25 @@ pub fn check_definitions(
     }
 }
 
-/// A proof file imports exactly the other proof files it cites.
+/// A proof file imports exactly the other files it cites: proof files, and
+/// the library files whose items it cites, `import proof stdlib/numbers`.
 ///
-/// The standard library is never imported: every proof may cite it. The
-/// imports have no cycle, because the theorems a file imports are built
-/// before its own.
-pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileScope]) {
+/// The imports have no cycle, because the theorems a file imports are built
+/// before its own. A library file imports nothing and is no part of that
+/// order.
+pub fn check_imports(
+    report: &mut Report,
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    library: &IndexSet<String>,
+) {
     let files = by_file(theorems);
     let mut graph: IndexMap<&str, IndexMap<String, usize>> = IndexMap::new();
     for (module, thms) in &files {
         let path = &thms[0].path;
         let scope = &scopes[thms[0].scope];
         let mut said: IndexMap<String, usize> = IndexMap::new();
+        let mut said_library: IndexMap<String, usize> = IndexMap::new();
         let mut seen: IndexSet<&str> = IndexSet::new();
         for (name, no) in &scope.proof_imports {
             if seen.contains(name.as_str()) {
@@ -1113,13 +1120,15 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
             }
             seen.insert(name);
             if name == crate::corpus::STDLIB || in_stdlib(name) {
-                report.say(
-                    path,
-                    *no,
-                    format!(
-                        "import {name}: the standard library is never imported, and every proof may cite it"
-                    ),
-                );
+                if library.contains(name) {
+                    said_library.insert(name.clone(), *no);
+                } else {
+                    report.say(
+                        path,
+                        *no,
+                        format!("import {name} names no library file"),
+                    );
+                }
             } else if name == module {
                 report.say(path, *no, format!("{name} imports itself"));
             } else if !files.contains_key(name.as_str()) {
@@ -1135,13 +1144,14 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
                     Some(at) => full_name[..at].to_string(),
                     None => full_name.clone(),
                 };
-                if other != *module && !in_stdlib(&full_name) {
+                if other != *module {
                     cited.entry(other).or_insert((full_name, no));
                 }
             }
         }
         for (other, (full_name, no)) in &cited {
-            if files.contains_key(other.as_str()) && !seen.contains(other.as_str()) {
+            let a_file = files.contains_key(other.as_str()) || library.contains(other);
+            if a_file && !seen.contains(other.as_str()) {
                 report.say(
                     path,
                     *no,
@@ -1149,7 +1159,7 @@ pub fn check_imports(report: &mut Report, theorems: &[Theorem], scopes: &[FileSc
                 );
             }
         }
-        for (name, no) in &said {
+        for (name, no) in said.iter().chain(&said_library) {
             if !cited.contains_key(name) {
                 report.say(
                     path,

@@ -1,3 +1,5 @@
+import proof stdlib/functions
+
 theorem set-image
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)

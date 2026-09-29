@@ -1,3 +1,5 @@
+import proof stdlib/numbers
+
 theorem rational
   let x ∈ ℝ                                                           (H1)
   assume x ∈ ℚ                                                        (H2)

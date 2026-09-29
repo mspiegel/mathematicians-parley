@@ -1,3 +1,9 @@
+import proof stdlib/counting
+import proof stdlib/divisibility
+import proof stdlib/functions
+import proof stdlib/groups
+import proof stdlib/sets
+
 theorem lagrange
   metamath    lagsubg, which says it of the index set.mm builds from the
               relation of being in one coset, where this counts the cosets

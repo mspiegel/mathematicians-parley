@@ -1,3 +1,6 @@
+import proof stdlib/reasoning
+import proof stdlib/sets
+
 theorem cantor
   metamath    canth
   let A be a set                                                      (H1)

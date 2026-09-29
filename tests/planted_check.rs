@@ -428,11 +428,25 @@ fn cases() -> Vec<Case> {
             "imports proofs/bezout and cites nothing from it",
         ),
         case(
-            "import the standard library",
+            "cite a library file without importing it",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import proof stdlib/sets\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("import proof stdlib/reasoning\n".to_string()), String::new()),
             ],
-            "the standard library is never imported",
+            "and stdlib/reasoning is not imported",
+        ),
+        case(
+            "import a library file nothing cites",
+            vec![
+                edit("proofs/cantor.proof", Some("import proof stdlib/sets\n".to_string()), "import proof stdlib/sets\nimport proof stdlib/geometry\n".to_string()),
+            ],
+            "imports stdlib/geometry and cites nothing from it",
+        ),
+        case(
+            "import a library file that is not there",
+            vec![
+                edit("proofs/cantor.proof", Some("import proof stdlib/sets\n".to_string()), "import proof stdlib/sets\nimport proof stdlib/nonesuch\n".to_string()),
+            ],
+            "import stdlib/nonesuch names no library file",
         ),
         case(
             "import a file that is not there",

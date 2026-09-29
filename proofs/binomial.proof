@@ -1,3 +1,7 @@
+import proof stdlib/counting
+import proof stdlib/numbers
+import proof stdlib/sums
+
 theorem binomial-step
   note        The induction step's algebra, stated apart from the induction.
               Inside the step the hypothesis is in scope and names the sum's

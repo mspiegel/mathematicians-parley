@@ -1,3 +1,5 @@
+import proof stdlib/geometry
+
 theorem angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

@@ -621,15 +621,16 @@ citing file, which is written bare: `thm:proofs/sqrt2-irrational/odd-square` in 
 it. A bare name that is no theorem of the file is a defect, and so is a full
 name that resolves to nothing.
 
-`stdlib` is the one directory the rules name, because the standard library is
-treated differently: it is never imported, and every proof may cite it. Any
-other module names a proof file, `<module>.proof`, wherever under the root that
-file is kept.
+`stdlib` is the one directory the rules name, because its modules are the
+library's records files, `corpus/stdlib/<module>.records`, and hold items
+rather than proofs. Any other module names a proof file, `<module>.proof`,
+wherever under the root that file is kept.
 
-An import says what it brings in. A proof file imports each other proof file
-it cites, and only those:
+An import says what it brings in. A proof file imports each file it cites, a
+proof file or a library file, and only those:
 
 ```
+import proof stdlib/numbers
 import proof proofs/triangle-inequality
 ```
 
@@ -652,12 +653,13 @@ its full name; a definition is imported by name because a formula writes it
 bare, and the import is what says where that name comes from.
 
 The imports come before the first theorem and any define outside a theorem.
-Citing a proof file that is not imported, importing one that nothing cites,
-importing a file twice, importing the file itself or the standard library,
-and importing a file that does not exist are each a defect; so are importing
-a definition the file does not define outside its theorems, and importing
-one that nothing uses. The imports, of files and of definitions, have no
-cycle, since what a file imports is read before it.
+Citing a file that is not imported, importing one that nothing cites,
+importing a file twice, importing the file itself, and importing a file that
+does not exist are each a defect; so are importing a definition the file does
+not define outside its theorems, and importing one that nothing uses. The
+imports of proof files and of their definitions have no cycle, since what a
+file imports is read before it; a library file imports nothing, and is read
+before every proof.
 
 A `define` may stand outside any theorem: before the first, or after a
 theorem's last step, where that theorem could never use it. It belongs to

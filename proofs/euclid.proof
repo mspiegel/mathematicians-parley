@@ -1,3 +1,7 @@
+import proof stdlib/divisibility
+import proof stdlib/numbers
+import proof stdlib/reasoning
+
 theorem euclid
   metamath    eucalg
   let M ∈ ℕ₀                                                          (H1)

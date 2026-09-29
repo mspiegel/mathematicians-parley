@@ -1,3 +1,8 @@
+import proof stdlib/divisibility
+import proof stdlib/functions
+import proof stdlib/numbers
+import proof stdlib/sums
+
 theorem ten-power-congruent
   let k ∈ ℕ₀                                                          (H1)
   then 10^k ≡ 1 (mod 3)

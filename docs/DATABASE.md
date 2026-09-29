@@ -29,8 +29,9 @@ name, and a citation writes both: `def:stdlib/divisibility/odd`,
 file is its path without the extension, so the name says where to look. A
 theorem of the citing file is written bare, `thm:proofs/sqrt2-irrational/odd-square`, and that is the
 only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
-`import proof` line a proof file writes for each other proof file it cites
-and the `import definition` line for each definition it uses from one.
+`import proof` line a proof file writes for each other proof file and each
+library file it cites, and the `import definition` line for each definition
+it uses from a proof file and each library function it applies.
 
 The standard library is every item a set.mm label supplies or that is still
 open: what a proof cites, or may, and this corpus does not prove.
@@ -71,8 +72,11 @@ has, and a subject is one file:
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
 
-The library is never imported: every proof may cite it. It is the one
-directory the tools know by name, and a module anywhere else is a proof file.
+A proof imports each library file it cites, `import proof stdlib/numbers`, as
+it imports each proof file it cites, so its head says where everything it
+cites comes from. The library is the one directory the tools know by name,
+and a module anywhere else is a proof file. The library's own records import
+nothing: they cite no item, and every library function is in scope in them.
 
 A `.proof` file holds only the skeleton. `SYNTAX.md` says the stored text is
 every line a field the elaborator reads and nothing else, so the commentary that

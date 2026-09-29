@@ -1,3 +1,7 @@
+import proof stdlib/divisibility
+import proof stdlib/numbers
+import proof stdlib/reasoning
+
 theorem odd-square
   metamath    zesq covers it
   let n ∈ ℤ                                                           (H1)

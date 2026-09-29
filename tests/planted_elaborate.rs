@@ -153,7 +153,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "                  requires a ∈ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
             "                  requires a ¿ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
-            "proofs/geometric-series.proof:86",
+            "proofs/geometric-series.proof:89",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -185,7 +185,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "proofs/triangle-inequality.proof:34  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:36  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
         ),
         // The same report reached from the other side: the target is right and
         // the step claims something the definition does not say. It is a
@@ -197,7 +197,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangle-inequality.proof",
             "    2.5.  |x| = −x",
             "    2.5.  |x| = x",
-            "proofs/triangle-inequality.proof:34  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:36  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here line 5 does not say `C ≠ A` and line 6 does; taking
@@ -232,7 +232,7 @@ fn cases() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n",
-            "proofs/sqrt2-irrational.proof:13  nothing says m e. CC, which this step needs",
+            "proofs/sqrt2-irrational.proof:17  nothing says m e. CC, which this step needs",
         ),
         // A requires line rests only on its reason. Line 2 does not say k is an
         // integer, and `thm:stdlib/numbers/int-real` asks it; the scope has it
@@ -244,7 +244,7 @@ fn cases() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n",
-            "proofs/sqrt2-irrational.proof:13  thm:stdlib/numbers/int-real targets zre, and none of them reaches m e. RR",
+            "proofs/sqrt2-irrational.proof:17  thm:stdlib/numbers/int-real targets zre, and none of them reaches m e. RR",
         ),
         // Everything a step names does work. 2 is a numeral, not an atom, so
         // `algebra` asks nothing about its being real, and the kernel has it
@@ -336,7 +336,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "|f(x) − f(c′)| < ε for all x",
             "|f(x) − f(c′)| < δ for all x",
-            "proofs/intermediate-value.proof:74  no method owns this step: elcncf2 does not say",
+            "proofs/intermediate-value.proof:79  no method owns this step: elcncf2 does not say",
         ),
         case(
             "unfold continuity with a weaker bound than it gives",
@@ -355,7 +355,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7",
             "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:48  no cited line names a witness for E. x e. RR",
+            "proofs/intermediate-value.proof:53  no cited line names a witness for E. x e. RR",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -535,7 +535,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "    def:stdlib/calculus/continuous-on, from H5",
             "    def:stdlib/calculus/continuous-on",
-            "proofs/intermediate-value.proof:74  no method owns this step: no cited line is what elcncf2 unfolds",
+            "proofs/intermediate-value.proof:79  no method owns this step: no cited line is what elcncf2 unfolds",
         ),
         // An item's target asks a side condition the page never writes, and
         // `rewritten` answers it through the equation the step cites: `0 < |X|`
@@ -649,7 +649,7 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "    15.1. a ∈ G. Y = aH.\n",
             "    15.1. a ∈ G. Z = aH.\n",
-            "proofs/lagrange.proof:305  nothing step 15.1 cites says",
+            "proofs/lagrange.proof:311  nothing step 15.1 cites says",
         ),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R
@@ -680,7 +680,7 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "def:stdlib/groups/coset u := g, from K3, 5.1, 5.2",
             "def:stdlib/groups/coset u := g, from K3, 5.1",
-            "proofs/lagrange.proof:56  no cited line names a witness",
+            "proofs/lagrange.proof:62  no cited line names a witness",
         ),
     ]
 }
@@ -709,7 +709,7 @@ fn nets() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "    requires k ∈ ℝ: from 1\n\n4.",
             "    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n\n4.",
-            "proofs/sqrt2-irrational.proof:15  the requires line rests on 1, which it does not name",
+            "proofs/sqrt2-irrational.proof:19  the requires line rests on 1, which it does not name",
         ),
     ]
 }

@@ -150,7 +150,13 @@ pub fn run(source: &dyn Source) -> Outcome {
     for (path, no, message) in link_definitions(&theorems, &mut scopes) {
         report.say(&path, no, message);
     }
-    structure::check_imports(&mut report, &theorems, &scopes);
+    // The library files a proof may import: those whose items it may cite.
+    let library: IndexSet<String> = records
+        .iter()
+        .filter(|r| r.kind.is_item())
+        .map(|r| r.module().to_string())
+        .collect();
+    structure::check_imports(&mut report, &theorems, &scopes, &library);
     structure::check_definitions(&mut report, &theorems, &scopes);
 
     let steps: usize = theorems.iter().map(|t| t.steps.len()).sum();

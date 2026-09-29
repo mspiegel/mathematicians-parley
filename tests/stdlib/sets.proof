@@ -1,3 +1,5 @@
+import proof stdlib/sets
+
 theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)

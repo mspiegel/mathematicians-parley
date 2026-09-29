@@ -1,3 +1,7 @@
+import proof stdlib/functions
+import proof stdlib/reasoning
+import proof stdlib/sets
+
 theorem fixed-part
   metamath    sbthlem3, which says it of the union set.mm builds, where this
               says there is such a part

@@ -1,3 +1,7 @@
+import proof stdlib/counting
+import proof stdlib/divisibility
+import proof stdlib/numbers
+
 theorem prime-above
   metamath    infpn
   let n ∈ ℕ                                                           (H1)

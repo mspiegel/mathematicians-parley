@@ -1,3 +1,7 @@
+import proof stdlib/calculus
+import proof stdlib/numbers
+import proof stdlib/sums
+
 define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
        reads the k-th triangular number
 

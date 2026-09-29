@@ -1,3 +1,7 @@
+import proof stdlib/divisibility
+import proof stdlib/numbers
+import proof stdlib/sets
+
 theorem least-combination-divides
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
