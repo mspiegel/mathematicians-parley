@@ -40,9 +40,14 @@ pub fn is_digit(c: char) -> bool {
     c.general_category() == GeneralCategory::DecimalNumber
 }
 
-/// A run of letters is a declared word if one matches by longest match, and
-/// otherwise a single name. A numeral is a maximal run of digits. Round
-/// brackets belong to the grammar rather than to any notation.
+/// A run of letters is a declared word if one matches by longest match, a
+/// library function's name of several letters if one of those matches
+/// further, and otherwise a single name. A numeral is a maximal run of
+/// digits. Round brackets belong to the grammar rather than to any notation.
+///
+/// The words come from the notation records and the long names from the
+/// library's definitions, both read before any proof, so how a line lexes
+/// never depends on what a proof defines.
 ///
 /// The position is carried because text that does not lex is a defect with
 /// somewhere to point, and a defect with nowhere to point reads like a route
@@ -55,6 +60,7 @@ pub fn is_digit(c: char) -> bool {
 pub fn tokenise(
     text: &str,
     words: &IndexSet<String>,
+    long_names: &IndexSet<String>,
     symbols: &[String],
     path: &str,
     line: usize,
@@ -124,6 +130,18 @@ pub fn tokenise(
                     .map(|n| cand[..n].iter().collect::<String>())
                     .find(|w| words.contains(w))
             });
+            // A library function's name is read as written, never lowered at
+            // the start of a sentence, since a name keeps its case everywhere.
+            let name = (2..=run.len())
+                .rev()
+                .map(|n| run[..n].iter().collect::<String>())
+                .find(|w| long_names.contains(w));
+            let letters =
+                |s: &Option<String>| s.as_ref().map_or(0, |s| s.chars().count());
+            if letters(&name) > letters(&hit) {
+                i = take(&mut out, TokenKind::Name, name.unwrap(), i);
+                continue;
+            }
             if let Some(word) = hit {
                 i = take(&mut out, TokenKind::Word, word, i);
                 continue;

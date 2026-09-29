@@ -103,6 +103,10 @@
 #               A function a proof needs of its own, such as the sum of the
 #               first m numbers, is a `define` in that proof and not a
 #               notation here: `define S(m) := …, for m ∈ ℕ` (`GRAMMAR.md`).
+#               A function the library offers every proof, such as gcd, is a
+#               `function` line on its definition in `corpus/stdlib`, and not
+#               a notation here either: gcd(a, b) is read as the name gcd
+#               applied to a and b, through `application-to-two`.
 #
 #               One entry per pattern, in pattern order. A record with no
 #               `target` is one whose term is not a constructor applied to its
@@ -399,13 +403,6 @@ notation factorial
   target      _1 cfa cfv
   note        No assoc: only the left edge is a hole, so n!! reads one way.
 
-notation gcd
-  pattern     gcd(_, _)
-  sort        number, number → number
-  reads       the greatest common divisor of
-  metamath    cgcd
-  target      _1 _2 cgcd co
-
 notation mod
   pattern     _ mod _
   sort        number, number → number
@@ -619,6 +616,21 @@ notation application
               and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
               `holds-of` is the third reading of this pattern.
+
+notation application-to-two
+  pattern     _(_, _)
+  sort        function from α to function from β to γ, α, β → γ
+  reads       applied to, and
+  metamath    co
+  target      _2 _3 _1 co
+  note        A function of two arguments applied to both, as gcd(a, b) is
+              the library's gcd applied to a and b. Its sort takes the
+              arguments one at a time, a function from the first to a
+              function from the second to the value, so a function of two
+              needs no sort of its own. set.mm writes an operation's value
+              ( a F b ), which is the target; a library function's `builds`
+              line says what an application of it stands for instead
+              (`corpus/stdlib`, `function`).
 
 notation inverse
   pattern     _⁻¹

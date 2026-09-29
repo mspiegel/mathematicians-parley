@@ -95,6 +95,13 @@ An item's statement is written in the theorem form of `SYNTAX.md`: labelled
 on, then a `then` line. The database and the proof files therefore share one
 grammar, and one parser reads both.
 
+A definition that introduces a function every proof may apply says so in a
+`function` line, the name applied to one hole for each argument, `gcd(_, _)`,
+with a `sort` line, a `builds` line giving the set.mm term an application
+stands for, and a `reads` line. The name is then read wherever a proof applies
+it, as a proof's own `T(k)` is; nothing about it is notation (`GRAMMAR.md`,
+"Database records").
+
 Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |

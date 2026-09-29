@@ -92,7 +92,10 @@ pub const FIELDS: [(RecordKind, &[&str]); 4] = [
     ),
     (
         RecordKind::Definition,
-        &["metamath", "target", "open", "symbol", "defines", "note"],
+        &[
+            "function", "sort", "builds", "reads", "metamath", "target", "open",
+            "symbol", "defines", "note",
+        ],
     ),
     (RecordKind::Theorem, &["metamath", "target", "open", "note"]),
 ];

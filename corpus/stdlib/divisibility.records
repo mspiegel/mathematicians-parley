@@ -105,6 +105,10 @@ definition prime
               lean on. `target` still names the unfolding and nothing else.
 
 definition gcd
+  function    gcd(_, _)
+  sort        number, number → number
+  builds      _1 _2 cgcd co
+  reads       the greatest common divisor of
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.

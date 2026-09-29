@@ -363,10 +363,13 @@ fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
                 .filter(|n| n.is_name() && n.sort.is("variable"))
                 .map(|n| n.text.as_str())
                 .collect();
+            // A library function's name is the library's, and free in no
+            // item that applies it.
             for n in &nodes {
                 if n.is_name()
                     && !bound.contains(n.text.as_str())
                     && !introduced.contains(&n.text)
+                    && !g.functions.contains_key(&n.text)
                     && !out.contains(&n.text)
                 {
                     out.push(n.text.clone());

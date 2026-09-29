@@ -9,7 +9,9 @@ use super::library::Known;
 use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
-use crate::formula::{categories_of, parse_here, patterns_of, Node, Sorts, TERM_SORTS};
+use crate::formula::{
+    categories_of, parse_here, patterns_of, Grammar, Node, Sorts, TERM_SORTS,
+};
 use crate::regex;
 use crate::sorts::infer;
 use crate::sorts::{
@@ -301,6 +303,25 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                     ),
                 );
             }
+        }
+    }
+}
+
+/// A library function's name is not a word a notation writes.
+///
+/// A run of letters that is both would lex one way or the other by which list
+/// the tokeniser tried first, and a reader could not tell which was meant.
+pub fn check_functions(report: &mut Report, g: &Grammar) {
+    for f in g.functions.values() {
+        if g.words.contains(&f.name) {
+            report.say(
+                &f.path,
+                f.line,
+                format!(
+                    "{} is a word a notation writes, so it cannot also name a function",
+                    repr(&f.name)
+                ),
+            );
         }
     }
 }

@@ -462,6 +462,39 @@ pub fn signature(text: &str) -> Route<Signature> {
     })
 }
 
+/// A library function's `sort` line, `number, number → number`, as the one
+/// sort the reading gives a function: a function from its first argument to
+/// a function from the next, and so on to its value, which is how the
+/// application patterns take their arguments. It has no holes of its own.
+pub fn function_signature(text: &str) -> Route<Signature> {
+    let said = match signature(text) {
+        Built(said) => said,
+        Declined(d) => return Declined(d),
+    };
+    let result = said
+        .parts
+        .into_iter()
+        .rev()
+        .fold(said.result, |value, argument| {
+            Template::Function(Box::new(argument), Box::new(value))
+        });
+    Built(Signature {
+        parts: Vec::new(),
+        result,
+    })
+}
+
+/// The sort a library function's name has in a formula, read off its `sort`
+/// line; None where the line does not read.
+pub fn function_sort(text: &str) -> Option<Sort> {
+    let Built(said) = function_signature(text) else {
+        return None;
+    };
+    let mut store = Store::default();
+    let (_, value) = said.fresh(&mut store);
+    sort(&store, &value)
+}
+
 fn read_template(text: &str) -> Route<Template> {
     let tokens: Vec<&str> = TOKEN.find_iter(text).map(|m| m.as_str()).collect();
     if tokens.concat().replace(' ', "") != text.replace(' ', "") {
@@ -566,6 +599,8 @@ pub fn ranges_of(ranges: &[crate::corpus::Range]) -> IndexMap<String, String> {
 pub struct NotationSorts {
     signatures: IndexMap<String, Rc<Signature>>,
     bound: IndexMap<String, IndexSet<usize>>,
+    /// The sort of each function the library declares, by its name.
+    functions: IndexMap<String, Rc<Signature>>,
 }
 
 impl NotationSorts {
@@ -595,7 +630,17 @@ impl NotationSorts {
                 }
             }
         }
-        NotationSorts { signatures, bound }
+        let mut functions: IndexMap<String, Rc<Signature>> = IndexMap::new();
+        for (name, f) in &g.functions {
+            if let Built(said) = function_signature(&f.sort) {
+                functions.insert(name.clone(), Rc::new(said));
+            }
+        }
+        NotationSorts {
+            signatures,
+            bound,
+            functions,
+        }
     }
 
     /// The signature a node of this notation reads by, where it has one.
@@ -625,7 +670,13 @@ impl Reader {
         if let Some(k) = self.env.get(name) {
             return k.clone();
         }
-        let k = store.var();
+        // A name the lines never gave a sort, which the library declares as a
+        // function, has the library's sort, in a copy of its own as a
+        // notation's signature is.
+        let k = match self.notations.functions.get(name) {
+            Some(said) => said.fresh(store).1,
+            None => store.var(),
+        };
         self.env.insert(name.to_string(), k.clone());
         k
     }

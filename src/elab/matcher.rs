@@ -845,6 +845,13 @@ impl<'a> Elaborator<'a> {
         if self.term(node)? == old {
             return Ok(Built((new.to_string(), eqproof.clone())));
         }
+        // A library function's application fills what its definition builds
+        // with its arguments; its name fills no slot.
+        let library = self.library_application(node);
+        let children: &[Node] = match &library {
+            Some((_, arguments)) => arguments,
+            None => &node.children,
+        };
         // A binder's variable fills its slot as itself, and nothing rewrites
         // it; the body speaks of what the binder introduces.
         let bound = self
@@ -859,7 +866,7 @@ impl<'a> Elaborator<'a> {
                 me.names.insert(said, format!("{var} cv"));
             }
             let mut holes = Vec::new();
-            for (i, c) in node.children.iter().enumerate() {
+            for (i, c) in children.iter().enumerate() {
                 holes.push(if bound.contains(&i) {
                     me.binder_var(&c.text)?
                 } else {
@@ -868,7 +875,7 @@ impl<'a> Elaborator<'a> {
             }
             let mut after = holes.clone();
             let mut proofs = IndexMap::new();
-            for (i, child) in node.children.iter().enumerate() {
+            for (i, child) in children.iter().enumerate() {
                 if bound.contains(&i) || !me.term(child)?.contains(old) {
                     continue;
                 }
@@ -884,7 +891,10 @@ impl<'a> Elaborator<'a> {
             let said = self.term(node)?;
             return Ok(Route::no(format!("nothing to rewrite in {said}")));
         }
-        let pattern = self.pattern(node)?;
+        let pattern = match library {
+            Some((builds, _)) => builds,
+            None => self.pattern(node)?,
+        };
         let tree = self.shape(&pattern);
         Ok(self.descend(&tree, &holes, &after, &proofs, scope))
     }

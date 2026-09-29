@@ -13,9 +13,10 @@ use crate::corpus::{
     FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
     Step, StepNo, Theorem, LABEL, NUMBER, REF,
 };
+use crate::formula::library::Function;
 use crate::formula::{holds, parse_here, Sorts};
 use crate::matching::instantiation;
-use crate::outcome::Built;
+use crate::outcome::{Built, Declined};
 use crate::sorts::infer::obtains;
 use crate::sorts::named_by_hypotheses;
 use crate::text::{prefix, repr};
@@ -870,6 +871,95 @@ fn word_bounded(name: &str) -> fancy_regex::Regex {
 /// A definition imported and never used is a defect, as an import cited
 /// from nowhere is. A define outside a theorem carries a reading like any
 /// other, and its label is not one a theorem below it also uses.
+/// The functions a define gives: a define with an argument, and the
+/// sequences of a recursion. A define of a set or a number gives none.
+fn functions_defined(text: &str) -> Vec<String> {
+    match define_parts(text) {
+        Built(said) => match said.one() {
+            Some(d) if d.param.is_none() => Vec::new(),
+            _ => said.names(),
+        },
+        Declined(_) => Vec::new(),
+    }
+}
+
+/// A proof's own function does not take a library function's name.
+///
+/// `C(n, k)` is the binomial coefficient wherever it is written, so a reader
+/// never has to ask which C a line means. A define with an argument, a
+/// sequence, a `let f : A → B` or a `let f be a function on X`, and a
+/// definition imported under the name, are each a function of the proof's;
+/// a set or a number with that letter is not, and may be written.
+pub fn check_function_names(
+    report: &mut Report,
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    functions: &IndexMap<String, Function>,
+) {
+    let mut say = |path: &str, no: usize, name: &str| {
+        if let Some(f) = functions.get(name) {
+            report.say(
+                path,
+                no,
+                format!(
+                    "{name} is the library's function, def:{}; name this function something else",
+                    f.item
+                ),
+            );
+        }
+    };
+    for scope in scopes {
+        for d in &scope.defines {
+            for name in functions_defined(&d.text) {
+                say(&scope.path, d.line, &name);
+            }
+        }
+        for (alias, (_, d)) in &scope.linked {
+            if !functions_defined(&d.text).is_empty() {
+                let no = scope
+                    .imports
+                    .iter()
+                    .find(|i| &i.alias == alias)
+                    .map_or(0, |i| i.line);
+                say(&scope.path, no, alias);
+            }
+        }
+    }
+    for thm in theorems {
+        for d in &thm.defines {
+            for name in functions_defined(&d.text) {
+                say(&thm.path, d.line, &name);
+            }
+        }
+        let lets = thm
+            .hypotheses
+            .iter()
+            .filter(|h| h.kind == Intro::Let)
+            .map(|h| (h.text.as_str(), h.line))
+            .chain(thm.steps.iter().flat_map(|s| {
+                s.openers
+                    .iter()
+                    .filter(|o| o.kind == Intro::Let)
+                    .map(|o| (o.text.as_str(), o.line))
+            }));
+        for (text, no) in lets {
+            let body = crate::sorts::unlabel(text);
+            let body = str::trim(body.trim_start_matches("let"));
+            let named = [
+                crate::sorts::function_re(),
+                crate::sorts::function_being_re(),
+                crate::sorts::function_on_re(),
+            ]
+            .iter()
+            .find_map(|re| re.captures(body).map(|m| m[1].to_string()));
+            if let Some(name) = named {
+                let name = name.split(':').next().map(str::trim).unwrap_or("");
+                say(&thm.path, no, name);
+            }
+        }
+    }
+}
+
 pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],

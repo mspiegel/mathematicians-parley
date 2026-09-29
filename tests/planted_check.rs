@@ -190,6 +190,29 @@ fn cases() -> Vec<Case> {
             ],
             "label H1 is already a define's outside theorem use-one",
         ),
+        // A library function is declared on its definition, and nowhere else:
+        // take the declaration away and the name is three letters again.
+        case(
+            "write gcd where the library declares no such function",
+            vec![
+                edit("corpus/stdlib/divisibility.records", Some("  function    gcd(_, _)\n".to_string()), String::new()),
+            ],
+            "'d divides gcd(a, b)' has 7 token(s) left over, starting at 'c'",
+        ),
+        case(
+            "let a function of the proof's take a library function's name",
+            vec![
+                edit("proofs/bezout.proof", Some("  metamath    bezout\n".to_string()), "  metamath    bezout\n  let gcd : ℕ → ℕ                                                     (H9)\n".to_string()),
+            ],
+            "gcd is the library's function, def:stdlib/divisibility/gcd; name this function something else",
+        ),
+        case(
+            "name a library function with a word a notation writes",
+            vec![
+                edit("corpus/stdlib/divisibility.records", Some("  function    gcd(_, _)\n".to_string()), "  function    divides(_, _)\n".to_string()),
+            ],
+            "'divides' is a word a notation writes, so it cannot also name a function",
+        ),
         // Every name on the page is a letter, so a longer name is several.
         case(
             "define a function with a name of several letters",

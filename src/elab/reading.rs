@@ -190,6 +190,29 @@ impl<'a> Elaborator<'a> {
         )
     }
 
+    /// A library function applied to its arguments, where the proof gives the
+    /// name no meaning of its own: what its definition builds, `_1` for the
+    /// first argument, and the arguments (`formula::library`). The name itself
+    /// stands for no term; only the application does.
+    pub fn library_application<'n>(
+        &self,
+        node: &'n Node,
+    ) -> Option<(String, &'n [Node])> {
+        let applied =
+            matches!(node.notation.as_str(), "application" | "application-to-two")
+                && node.children.first().is_some_and(Node::is_name);
+        if !applied {
+            return None;
+        }
+        let head = &node.children[0].text;
+        let f = self.g.functions.get(head)?;
+        let own = self.names.contains_key(head) || self.from_outside.contains_key(head);
+        if own || f.arity + 1 != node.children.len() {
+            return None;
+        }
+        Some((f.builds.clone(), &node.children[1..]))
+    }
+
     /// A tree as the kernel term it stands for.
     pub fn term(&mut self, node: &Node) -> Checked<String> {
         if let Some(rpn) = &node.literal {
@@ -217,6 +240,13 @@ impl<'a> Elaborator<'a> {
                 let body = substitute(&rule.body, &put);
                 return self.term(&body);
             }
+        }
+        if let Some((builds, arguments)) = self.library_application(node) {
+            let mut terms = Vec::new();
+            for a in arguments {
+                terms.push(self.term(a)?);
+            }
+            return Ok(targets::fill(&builds, &terms));
         }
         if node.is_name() {
             if let Some(Defined::Term(t)) = self.from_outside.get(&node.text) {
@@ -744,6 +774,19 @@ impl<'a> Elaborator<'a> {
             let said = self.term(node)?;
             return Ok(literal(&said));
         }
+        // A library function's name stands for no term, and stays as written.
+        if self.library_application(node).is_some() {
+            let mut kids = vec![node.children[0].clone()];
+            for c in &node.children[1..] {
+                kids.push(self.freeze(c)?);
+            }
+            return Ok(Node::new(
+                &node.notation,
+                node.sort.clone(),
+                kids,
+                &node.text,
+            ));
+        }
         let bound = self
             .binders
             .get(&node.notation)
@@ -780,9 +823,15 @@ impl<'a> Elaborator<'a> {
         if node.children.is_empty() {
             return Ok(node.clone());
         }
+        // A library function's name stands for no term, and nothing replaces it.
+        let named = self.library_application(node).is_some();
         let mut kids = Vec::new();
-        for c in &node.children {
-            kids.push(self.substituted(c, old, new)?);
+        for (i, c) in node.children.iter().enumerate() {
+            kids.push(if named && i == 0 {
+                c.clone()
+            } else {
+                self.substituted(c, old, new)?
+            });
         }
         Ok(Node::new(
             &node.notation,

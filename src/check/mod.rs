@@ -169,6 +169,23 @@ pub fn run(source: &dyn Source) -> Outcome {
         g: &grammar,
         scopes: &scopes,
     };
+    structure::check_function_names(
+        &mut report,
+        &theorems,
+        &scopes,
+        &grammar.functions,
+    );
+    database::check_functions(&mut report, &grammar);
+    // A library function's name of several letters reads as one, as a word
+    // does, so two names run together into it are caught as into a word.
+    let mut words = words;
+    words.extend(
+        grammar
+            .functions
+            .keys()
+            .filter(|n| n.chars().count() > 1)
+            .cloned(),
+    );
     // Each item's own lines, read once: what they say its names are, and
     // what its statement says to a step citing it. Records are told apart by
     // where they stand, as two may share a name (`check_database` reports

@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
+use super::library::{library_functions, Function};
 use super::node::{describe_category, Node, Sort};
 use super::notation::{
     binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter, Wrap,
@@ -12,7 +13,7 @@ use super::notation::{
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Checked, Problem};
-use crate::sorts::infer::NotationSorts;
+use crate::sorts::infer::{function_sort, NotationSorts};
 use crate::text::repr;
 
 /// The sort of each name a text states one for, and the set each letter its
@@ -83,6 +84,13 @@ pub struct Grammar {
     pub words: IndexSet<String>,
     pub symbols: Vec<String>,
     pub tighter: IndexMap<String, IndexSet<String>>,
+    /// The functions the library declares, by name (`library_functions`).
+    pub functions: IndexMap<String, Function>,
+    /// Their names of two letters or more, which the tokeniser reads as one
+    /// name each where it would otherwise read one letter at a time.
+    long_names: IndexSet<String>,
+    /// The sort each library function's name has in a formula.
+    function_sorts: IndexMap<String, Sort>,
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
     readings: RefCell<IndexMap<ReadingKey, Node>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
@@ -91,10 +99,23 @@ pub struct Grammar {
 impl Grammar {
     pub fn load(records: &[Record]) -> Checked<Grammar> {
         let (notations, words, symbols) = compile_notations(records)?;
+        let functions = library_functions(records)?;
+        let long_names = functions
+            .keys()
+            .filter(|name| name.chars().count() > 1)
+            .cloned()
+            .collect();
+        let function_sorts = functions
+            .iter()
+            .filter_map(|(name, f)| Some((name.clone(), function_sort(&f.sort)?)))
+            .collect();
         Ok(Grammar {
             notations,
             words,
             symbols,
+            functions,
+            long_names,
+            function_sorts,
             tighter: compile_precedence(records),
             tokens: RefCell::new(IndexMap::new()),
             readings: RefCell::new(IndexMap::new()),
@@ -116,7 +137,14 @@ impl Grammar {
         if let Some(found) = self.tokens.borrow().get(text) {
             return Ok(Rc::clone(found));
         }
-        let read = Rc::new(tokenise(text, &self.words, &self.symbols, path, line)?);
+        let read = Rc::new(tokenise(
+            text,
+            &self.words,
+            &self.long_names,
+            &self.symbols,
+            path,
+            line,
+        )?);
         self.tokens
             .borrow_mut()
             .insert(text.to_string(), Rc::clone(&read));
@@ -463,9 +491,13 @@ impl Parser<'_> {
             .collect();
         if tok.kind == TokenKind::Name || tok.kind == TokenKind::Numeral {
             let leaf = if tok.kind == TokenKind::Name {
+                // A name the theorem gives no sort that the library declares as
+                // a function has the library's sort; one the theorem gives a
+                // sort of its own, as C a point, is the theorem's.
                 let sort = self
                     .sorts
                     .get(&tok.text)
+                    .or_else(|| self.g.function_sorts.get(&tok.text))
                     .cloned()
                     .unwrap_or_else(Sort::unknown);
                 Node::leaf("name", sort, &tok.text)

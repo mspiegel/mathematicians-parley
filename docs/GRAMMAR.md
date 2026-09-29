@@ -842,7 +842,7 @@ Each kind has its own field names, and a field outside them is refused:
 |---|---|
 | `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `binds`, `reads`, `target`, `metamath`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
-| `definition` | `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
+| `definition` | `function`, `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `theorem` | `metamath`, `target`, `open`, `note` |
 | `precedence` | the levels it declares |
 
@@ -861,6 +861,38 @@ recursive definition's base sentence takes no hypothesis and its step sentence
 takes one: `def:stdlib/counting/factorial`. A function a single proof needs of
 its own, such as the sum of the first m numbers, is not a library item but a
 `define` in that proof.
+
+A function the library offers every proof is declared on its definition, by
+name and not by notation:
+
+```
+definition gcd
+  function    gcd(_, _)
+  sort        number, number → number
+  builds      _1 _2 cgcd co
+  reads       the greatest common divisor of
+  let a ∈ ℕ                                                           (H1)
+  …
+```
+
+`function` is the name applied to one hole for each argument and nothing
+else, which is what keeps it from being notation; `sort` says what the
+arguments and the value are; `builds` is the set.mm term an application stands
+for, `_1` for the first argument, since `target` already names the theorem a
+definition's statement is. A proof then writes `gcd(a, b)`, and the parser
+reads the name gcd applied to a and b through the application patterns
+`corpus/db/notation.records` declares for every function, `_(_)` and
+`_(_, _)`, as it reads a proof's `T(k)`. The name's sort comes from the
+definition wherever the theorem gives the name none of its own, so a proof
+may still call a point C.
+
+A name of several letters is read as one because the tokeniser takes the
+library's function names as a second list beside the notations' words, both
+read before any proof; a name that is also such a word is refused. A proof's
+own function, a define with an argument, a sequence, a `let f : A → B` or a
+definition imported under a name, may not take a library function's name, so a
+reader never asks which gcd a line means; a set or a number with that letter
+is no function and may.
 
 ## Not decided here
 
