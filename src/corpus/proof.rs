@@ -819,10 +819,21 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             format!("import definition {whole} carries no label"),
         ));
     };
+    let alias = m.name("alias").map_or(name, |a| a.as_str());
+    if !super::define::is_one_name(alias) {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "a definition is imported under one letter, perhaps with a subscript or a prime, and {} is not one",
+                repr(alias)
+            ),
+        ));
+    }
     Ok(Imported::Definition(Import {
         module: module.to_string(),
         name: name.to_string(),
-        alias: m.name("alias").map_or(name, |a| a.as_str()).to_string(),
+        alias: alias.to_string(),
         line: no,
         label: label.as_str().to_string(),
     }))

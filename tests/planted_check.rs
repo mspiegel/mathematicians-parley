@@ -190,6 +190,22 @@ fn cases() -> Vec<Case> {
             ],
             "label H1 is already a define's outside theorem use-one",
         ),
+        // Every name on the page is a letter, so a longer name is several.
+        case(
+            "define a function with a name of several letters",
+            vec![
+                edit("proofs/tri.proof", None, TRI.replacen("define T(k)", "define tri(k)", 1)),
+            ],
+            "a define names one letter, perhaps with a subscript or a prime, and 'tri' is not one",
+        ),
+        case(
+            "import a definition under a name of several letters",
+            vec![
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T as tri (D8)\n\ntheorem cantor\n".to_string()),
+            ],
+            "a definition is imported under one letter, perhaps with a subscript or a prime, and 'tri' is not one",
+        ),
         case(
             "define one name twice outside the theorems",
             vec![

@@ -557,6 +557,11 @@ S applied to n. The checker reads it as the rule with n for m wherever it
 compares two formulas, and a line whose sides agree read that way cites the
 define's label.
 
+What a define names is one letter, perhaps with a subscript or a prime, as
+every name in a formula is: the tokeniser reads `avg(x)` as three names, so a
+define called `avg` could never be written after it, and it is refused at its
+line. The same holds for the name an `import definition … as` gives.
+
 Theorems appear in dependency order, so every pointer resolves to something
 earlier. A theorem field says what a record's field of the same name says: a
 `metamath` line names set.mm's counterpart of the theorem, which is checked to

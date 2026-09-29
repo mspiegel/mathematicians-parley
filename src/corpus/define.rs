@@ -206,6 +206,15 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
 }
 
 regex!(TRAILING_LABEL, r"\s*\([A-Z]+[0-9]*\)\s*$");
+// What a define may be called: one name as the lexer reads one, a letter
+// with perhaps a subscript or a prime. A longer name is read as several.
+regex!(ONE_NAME, format!(r"^{SEQUENCE_NAME}$"));
+
+/// Whether a define, or a definition imported under another name, may be
+/// called this.
+pub fn is_one_name(name: &str) -> bool {
+    ONE_NAME.is_match(name)
+}
 regex!(
     RECURSION_START,
     format!(r"^define\s+{SEQUENCE_NAME}\(0\)\s*:=")
@@ -225,6 +234,14 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
         _ => return Route::no("a define says `define <name> := <term>`"),
     };
     let name = m["name"].to_string();
+    // Every name on the page is a letter, so `avg(x)` is three names and never
+    // the function a define called `avg` would give.
+    if !is_one_name(&name) {
+        return Route::no(format!(
+            "a define names one letter, perhaps with a subscript or a prime, and {} is not one",
+            repr(&name)
+        ));
+    }
     let param = m.name("param").map(|p| p.as_str().to_string());
     let over = m.name("over").map(|o| o.as_str().to_string());
     let body = str::trim(&m["body"]);
