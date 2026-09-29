@@ -100,6 +100,10 @@ theorem card-disjoint-union
   target      hashun with A := X, B := Y
 
 definition binomial-coefficient
+  function    C(_, _)
+  sort        number, number → number
+  builds      _1 _2 cbc co
+  reads       choose
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ {0, …, n}                                                   (H2)
   then        C(n, k) = n!/((n − k)!·k!)

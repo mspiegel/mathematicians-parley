@@ -207,6 +207,21 @@ fn cases() -> Vec<Case> {
             "gcd is the library's function, def:stdlib/divisibility/gcd; name this function something else",
         ),
         case(
+            "define a function of the proof's with a library function's name",
+            vec![
+                edit("proofs/tri.proof", None, TRI.replacen("define T(k)", "define C(k)", 1)),
+            ],
+            "C is the library's function, def:stdlib/counting/binomial-coefficient; name this function something else",
+        ),
+        case(
+            "import a function under a library function's name",
+            vec![
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T as C (D8)\n\ntheorem cantor\n".to_string()),
+            ],
+            "C is the library's function, def:stdlib/counting/binomial-coefficient; name this function something else",
+        ),
+        case(
             "name a library function with a word a notation writes",
             vec![
                 edit("corpus/stdlib/divisibility.records", Some("  function    gcd(_, _)\n".to_string()), "  function    divides(_, _)\n".to_string()),

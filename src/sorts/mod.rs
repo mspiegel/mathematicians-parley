@@ -423,8 +423,13 @@ pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
     out.ranges = reader.ranges.clone();
     for (name, term) in &reader.env {
-        if let Some(sort) = infer::sort(store, term) {
-            out.insert(name.clone(), sort);
+        match infer::sort(store, term) {
+            Some(sort) => {
+                out.insert(name.clone(), sort);
+            }
+            None => {
+                out.unsettled.insert(name.clone());
+            }
         }
     }
     out

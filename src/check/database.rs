@@ -122,10 +122,13 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             }
             // A definition that introduces a symbol says what it stands for
             // in `defines`, and that is its statement: what follows from it
-            // is a theorem of its own.
+            // is a theorem of its own. One that declares a function says what
+            // an application of it `builds`, which is its statement in the
+            // same way, as min's is where set.mm has no minimum of its own.
             if r.conclusions.is_empty()
                 && !r.fields.contains_key("open")
                 && !r.fields.contains_key("defines")
+                && !r.fields.contains_key("function")
             {
                 report.say(&r.path, r.line, format!("{} has no `then` line", r.name));
             }

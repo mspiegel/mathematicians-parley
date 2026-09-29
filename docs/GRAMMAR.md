@@ -358,17 +358,17 @@ is decidable because juxtaposition never joins two bare names. Round brackets
 are the one piece of notation the grammar owns rather than the database: they
 group, they take no sort of their own, and `(e)` parses exactly as `e` does.
 
-**A word is at least two letters, and a single letter is always a name.** Three
-declared literals are one letter: `a`, from `_, _, _ form a triangle` and
-`there is a bijection from _ to _`, and `S` and `G` naming the two sum
-functions. All three are also variables in the corpus and `a` is among the
-commonest, so longest match without this rule turns every variable `a` into the
+**A word is at least two letters, and a single letter is always a name.** One
+declared literal is one letter: `a`, from `_, _, _ form a triangle` and
+`there is a bijection from _ to _`. It is also among the commonest variables in
+the corpus, so longest match without this rule turns every variable `a` into the
 article, which it did to 99 sentences before the rule existed.
 
 It costs nothing, because a pattern matches a token by its text and not by the
 category the tokeniser filed it under. In `A, B, C form a triangle` the pattern
-asks for the text `a` and finds a name spelled `a`; in `C(n, k)` it asks for
-`C` then `(`. What the rule forbids is a notation whose only distinguishing mark is
+asks for the text `a` and finds a name spelled `a`. The binomial coefficient's
+`C(n, k)` is no literal at all: it is the library function C applied to n and k
+("Database records"). What the rule forbids is a notation whose only distinguishing mark is
 a lone letter with no bracket or neighbouring word to anchor it, such as a
 declared `_ x _`, which is a notation worth forbidding anyway.
 
@@ -441,9 +441,10 @@ and its brackets are part of its pattern, not a grouping.
 
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
 something of every index in it: "for all k ∈ {0, …, m}, …" is the line a
-sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is a
-pattern whose `C` is a literal, so a proof that writes the coefficient cannot
-also name a variable C.
+sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is the
+library function C applied to n and k, and a theorem that calls a point or a
+set C means its own C, since the library's sort for a name applies only where
+the theorem introduces no name of that letter.
 
 A pattern with holes at both edges that yields what those holes take can nest
 in itself, and its declared `assoc` says which way: `left` chains from the

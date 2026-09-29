@@ -285,6 +285,27 @@ theorem abs-difference-lt
   metamath    absdiflt, abslt
   target      absdiflt
 
+definition min
+  function    min(_, _)
+  sort        number, number → number
+  builds      _1 _2 cle wbr _1 _2 cif
+  reads       the smaller of
+  metamath    set.mm writes the smaller of x and y inline, as
+              if ( x <_ y , x , y )
+  note        set.mm has no minimum of its own, so this definition states
+              nothing but what min(x, y) builds; what the page needs of it
+              is min-real, min-le and lt-min, from ifcl, min1, min2 and ltmin.
+
+definition max
+  function    max(_, _)
+  sort        number, number → number
+  builds      _1 _2 cle wbr _2 _1 cif
+  reads       the larger of
+  metamath    set.mm writes the larger of x and y inline, as
+              if ( x <_ y , y , x )
+  note        As min: max-real, le-max and max-le say what the page needs,
+              from ifcl, max1, max2 and maxle.
+
 theorem min-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

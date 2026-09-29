@@ -27,6 +27,17 @@ use crate::text::repr;
 pub struct Sorts {
     names: IndexMap<String, Sort>,
     pub ranges: IndexMap<String, String>,
+    /// Names the lines introduce whose sort the reading has not settled, as
+    /// a set defined from what it has not read yet. They are the theorem's
+    /// all the same, so a library function of the same name is not meant.
+    pub unsettled: IndexSet<String>,
+}
+
+impl Sorts {
+    /// Whether the name is one the lines introduce, with a sort or without.
+    pub fn introduces(&self, name: &str) -> bool {
+        self.names.contains_key(name) || self.unsettled.contains(name)
+    }
 }
 
 impl Sorts {
@@ -53,6 +64,7 @@ impl FromIterator<(String, Sort)> for Sorts {
         Sorts {
             names: iter.into_iter().collect(),
             ranges: IndexMap::new(),
+            unsettled: IndexSet::new(),
         }
     }
 }
@@ -68,7 +80,7 @@ impl<'a> IntoIterator for &'a Sorts {
 /// A sentence, the sort of each name it holds in the order the names first
 /// appear, and the range declared for each: everything a reading of it
 /// depends on besides the grammar.
-type ReadingKey = (String, Vec<Option<Sort>>, Vec<Option<String>>);
+type ReadingKey = (String, Vec<Option<Sort>>, Vec<Option<String>>, Vec<bool>);
 
 /// The declared notations, the words and symbols they are written with, and
 /// the precedence order between their levels.
@@ -166,7 +178,11 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         .iter()
         .map(|name| sorts.ranges.get(*name).cloned())
         .collect();
-    (text.to_string(), said, ranges)
+    let unsettled = seen
+        .iter()
+        .map(|name| sorts.unsettled.contains(*name))
+        .collect();
+    (text.to_string(), said, ranges, unsettled)
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -491,13 +507,19 @@ impl Parser<'_> {
             .collect();
         if tok.kind == TokenKind::Name || tok.kind == TokenKind::Numeral {
             let leaf = if tok.kind == TokenKind::Name {
-                // A name the theorem gives no sort that the library declares as
-                // a function has the library's sort; one the theorem gives a
-                // sort of its own, as C a point, is the theorem's.
+                // A name the theorem does not introduce that the library
+                // declares as a function has the library's sort; one the
+                // theorem introduces, as C a point or a set, is the theorem's,
+                // whether its sort is settled or not.
+                let library = || {
+                    (!self.sorts.introduces(&tok.text))
+                        .then(|| self.g.function_sorts.get(&tok.text))
+                        .flatten()
+                };
                 let sort = self
                     .sorts
                     .get(&tok.text)
-                    .or_else(|| self.g.function_sorts.get(&tok.text))
+                    .or_else(library)
                     .cloned()
                     .unwrap_or_else(Sort::unknown);
                 Node::leaf("name", sort, &tok.text)

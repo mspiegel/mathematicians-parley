@@ -117,13 +117,12 @@ pub fn tokenise(
                 lowered.extend_from_slice(&run[1..]);
                 candidates.push(lowered);
             }
-            // Only a word of two letters or more is lexed as a word. Three
-            // declared literals are a single letter, `a` in "form a triangle"
-            // and in "there is a bijection", and `S` and `G` naming the two
-            // sum functions. All three are also variable names in the corpus,
-            // and `a` is one of the commonest. A single letter is therefore
-            // always a name, and a pattern's single-letter literal still
-            // matches it, because a pattern matches a token by its text.
+            // Only a word of two letters or more is lexed as a word. One
+            // declared literal is a single letter, `a` in "form a triangle"
+            // and in "there is a bijection", and it is also one of the
+            // commonest variable names. A single letter is therefore always a
+            // name, and a pattern's single-letter literal still matches it,
+            // because a pattern matches a token by its text.
             let hit = candidates.iter().find_map(|cand| {
                 (2..=cand.len())
                     .rev()
