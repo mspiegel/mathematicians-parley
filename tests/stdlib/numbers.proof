@@ -1,4 +1,5 @@
 import proof stdlib/numbers
+import definition stdlib/numbers/max
 
 theorem rational
   let x ∈ ℝ                                                           (H1)

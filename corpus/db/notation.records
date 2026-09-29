@@ -103,10 +103,11 @@
 #               A function a proof needs of its own, such as the sum of the
 #               first m numbers, is a `define` in that proof and not a
 #               notation here: `define S(m) := …, for m ∈ ℕ` (`GRAMMAR.md`).
-#               A function the library offers every proof, such as gcd, is a
-#               `function` line on its definition in `corpus/stdlib`, and not
-#               a notation here either: gcd(a, b) is read as the name gcd
-#               applied to a and b, through `application-to-two`.
+#               A function the library offers, such as gcd, is a `function`
+#               line on its definition in `corpus/stdlib`, and not a notation
+#               here either: a proof file imports it by name, and gcd(a, b) is
+#               read as the name gcd applied to a and b, through
+#               `application-to-two`.
 #
 #               One entry per pattern, in pattern order. A record with no
 #               `target` is one whose term is not a constructor applied to its

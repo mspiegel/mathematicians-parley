@@ -422,6 +422,7 @@ pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
 pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
     out.ranges = reader.ranges.clone();
+    out.imported = reader.imported.clone();
     for (name, term) in &reader.env {
         match infer::sort(store, term) {
             Some(sort) => {

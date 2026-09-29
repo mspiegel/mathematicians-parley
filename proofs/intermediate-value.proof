@@ -4,6 +4,7 @@ import proof stdlib/numbers
 import proof stdlib/reasoning
 import proof stdlib/sets
 import proof proofs/triangle-inequality
+import definition stdlib/numbers/min
 
 theorem intermediate-value
   metamath    ivth, the general form

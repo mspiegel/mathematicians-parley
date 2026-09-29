@@ -883,35 +883,98 @@ fn functions_defined(text: &str) -> Vec<String> {
     }
 }
 
-/// A proof's own function does not take a library function's name.
+/// A file imports each library function it applies, from the library file
+/// that declares it, and applies each one it imports.
+pub fn check_function_imports(
+    report: &mut Report,
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    functions: &IndexMap<String, Function>,
+) {
+    for (id, scope) in scopes.iter().enumerate() {
+        let mut text: Vec<String> = theorems
+            .iter()
+            .filter(|t| t.scope == id)
+            .map(written_text)
+            .collect();
+        text.extend(scope.defines.iter().map(|d| d.text.clone()));
+        let text = text.join(" ");
+        let mut seen: IndexSet<&str> = IndexSet::new();
+        for fi in &scope.functions {
+            let (path, no, name) = (&scope.path, fi.line, fi.name.as_str());
+            if !seen.insert(name) {
+                report.say(path, no, format!("{name} is imported twice"));
+                continue;
+            }
+            let declared = functions
+                .get(name)
+                .map(|f| f.item.rsplit_once('/').map_or("", |(m, _)| m));
+            match declared {
+                None => report.say(
+                    path,
+                    no,
+                    format!("{} declares no function {name}", fi.module),
+                ),
+                Some(module) if module != fi.module => report.say(
+                    path,
+                    no,
+                    format!(
+                        "{} declares no function {name}; it is declared in {module}",
+                        fi.module
+                    ),
+                ),
+                Some(_) => {
+                    let applied = Regex::new(&format!(
+                        r"(?:^|[^A-Za-zα-ω]){}\(",
+                        regex::escape(name)
+                    ))
+                    .unwrap();
+                    if !applied.is_match(&text) {
+                        report.say(
+                            path,
+                            no,
+                            format!("imports {name} and never applies it"),
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// A proof's own function does not take the name of a library function its
+/// file imports.
 ///
-/// `C(n, k)` is the binomial coefficient wherever it is written, so a reader
-/// never has to ask which C a line means. A define with an argument, a
-/// sequence, a `let f : A → B` or a `let f be a function on X`, and a
-/// definition imported under the name, are each a function of the proof's;
-/// a set or a number with that letter is not, and may be written.
+/// Where the file imports C, `C(n, k)` is the binomial coefficient on every
+/// line of it, so a reader never has to ask which C a line means. A define
+/// with an argument, a sequence, a `let f : A → B` or a `let f be a function
+/// on X`, and a definition imported under the name, are each a function of
+/// the proof's; a set or a number with that letter is not, and may be
+/// written. A file that does not import C may give the letter to a function
+/// of its own.
 pub fn check_function_names(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
     functions: &IndexMap<String, Function>,
 ) {
-    let mut say = |path: &str, no: usize, name: &str| {
-        if let Some(f) = functions.get(name) {
+    let mut say = |path: &str, no: usize, name: &str, imported: &IndexSet<String>| {
+        if let Some(f) = functions.get(name).filter(|_| imported.contains(name)) {
             report.say(
                 path,
                 no,
                 format!(
-                    "{name} is the library's function, def:{}; name this function something else",
+                    "{name} is the library's function, def:{}, which this file imports; name this function something else",
                     f.item
                 ),
             );
         }
     };
     for scope in scopes {
+        let imported = scope.function_names();
         for d in &scope.defines {
             for name in functions_defined(&d.text) {
-                say(&scope.path, d.line, &name);
+                say(&scope.path, d.line, &name, &imported);
             }
         }
         for (alias, (_, d)) in &scope.linked {
@@ -921,14 +984,15 @@ pub fn check_function_names(
                     .iter()
                     .find(|i| &i.alias == alias)
                     .map_or(0, |i| i.line);
-                say(&scope.path, no, alias);
+                say(&scope.path, no, alias, &imported);
             }
         }
     }
     for thm in theorems {
+        let imported = scopes[thm.scope].function_names();
         for d in &thm.defines {
             for name in functions_defined(&d.text) {
-                say(&thm.path, d.line, &name);
+                say(&thm.path, d.line, &name, &imported);
             }
         }
         let lets = thm
@@ -954,7 +1018,7 @@ pub fn check_function_names(
             .find_map(|re| re.captures(body).map(|m| m[1].to_string()));
             if let Some(name) = named {
                 let name = name.split(':').next().map(str::trim).unwrap_or("");
-                say(&thm.path, no, name);
+                say(&thm.path, no, name, &imported);
             }
         }
     }

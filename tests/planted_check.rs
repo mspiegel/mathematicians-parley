@@ -125,6 +125,29 @@ fn in_parallel<T: Send>(cases: &[Case], run: impl Fn(&Case) -> T + Sync) -> Vec<
         .collect()
 }
 
+/// A file that does not import the library's C may give the letter to a
+/// function of its own: the library function is in scope only where it is
+/// imported.
+#[test]
+fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
+    let clean = clean();
+    let case = case(
+        "import a function as C where the library's C is not imported",
+        vec![
+            edit("proofs/tri.proof", None, TRI.to_string()),
+            edit(
+                "proofs/tri-use.proof",
+                None,
+                "import proof proofs/tri\nimport definition proofs/tri/T as C (D1)\n\ntheorem use-one\n  then C(1) = 1\n\n1.  C(1) = 1\n    thm:proofs/tri/tri-one\n".to_string(),
+            ),
+        ],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::check::run(&tree).printed;
+    assert!(out.contains("\n0 problem(s)\n"), "{out}");
+}
+
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
@@ -204,22 +227,54 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/bezout.proof", Some("  metamath    bezout\n".to_string()), "  metamath    bezout\n  let gcd : ℕ → ℕ                                                     (H9)\n".to_string()),
             ],
-            "gcd is the library's function, def:stdlib/divisibility/gcd; name this function something else",
+            "gcd is the library's function, def:stdlib/divisibility/gcd, which this file imports; name this function something else",
         ),
+        // A file that imports a library function may not give its name to a
+        // function of its own; one that does not import it may.
         case(
-            "define a function of the proof's with a library function's name",
+            "define a function of the proof's with an imported library function's name",
             vec![
-                edit("proofs/tri.proof", None, TRI.replacen("define T(k)", "define C(k)", 1)),
+                edit("proofs/tri.proof", None, format!("import definition stdlib/counting/C\n\n{}", TRI.replacen("define T(k)", "define C(k)", 1))),
             ],
-            "C is the library's function, def:stdlib/counting/binomial-coefficient; name this function something else",
+            "C is the library's function, def:stdlib/counting/binomial-coefficient, which this file imports; name this function something else",
         ),
         case(
-            "import a function under a library function's name",
+            "import a function under the name of an imported library function",
             vec![
                 edit("proofs/tri.proof", None, TRI.to_string()),
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T as C (D8)\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition stdlib/counting/C\nimport definition proofs/tri/T as C (D8)\n\ntheorem cantor\n".to_string()),
             ],
-            "C is the library's function, def:stdlib/counting/binomial-coefficient; name this function something else",
+            "C is the library's function, def:stdlib/counting/binomial-coefficient, which this file imports; name this function something else",
+        ),
+        // A library function is in scope where it is imported, by its name,
+        // from the library file that declares it.
+        case(
+            "apply a library function the file does not import",
+            vec![
+                edit("proofs/bezout.proof", Some("import definition stdlib/divisibility/gcd\n".to_string()), String::new()),
+            ],
+            "gcd is the library's function def:stdlib/divisibility/gcd, and this file does not import it: write `import definition stdlib/divisibility/gcd`",
+        ),
+        case(
+            "import a library function from a file that does not declare it",
+            vec![
+                edit("proofs/bezout.proof", Some("import definition stdlib/divisibility/gcd\n".to_string()), "import definition stdlib/numbers/gcd\n".to_string()),
+            ],
+            "stdlib/numbers declares no function gcd; it is declared in stdlib/divisibility",
+        ),
+        case(
+            "import a library function the file never applies",
+            vec![
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition stdlib/numbers/max\n\ntheorem cantor\n".to_string()),
+            ],
+            "imports max and never applies it",
+        ),
+        case(
+            "import a library function with a label",
+            vec![
+                edit("proofs/bezout.proof", Some("import definition stdlib/divisibility/gcd\n".to_string()), "import definition stdlib/divisibility/gcd (D9)\n".to_string()),
+            ],
+            "a library function is imported by its name alone, with no `as` and no label",
         ),
         case(
             "name a library function with a word a notation writes",

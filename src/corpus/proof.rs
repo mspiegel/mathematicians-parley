@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 
 use super::define::{define_parts, DefineParts};
 use super::lines::{read_lines, Line};
@@ -113,6 +113,17 @@ pub struct Import {
     pub alias: String,
     pub line: usize,
     pub label: String,
+}
+
+/// An `import definition stdlib/<file>/<name>` line: a library function the
+/// file applies, by its name, from the library file that declares it. It
+/// carries no label, since nothing cites a function, and no `as`, since the
+/// library's name for it is the one every file writes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FunctionImport {
+    pub module: String,
+    pub name: String,
+    pub line: usize,
 }
 
 /// A `requires` line: the fact, and how it is justified.
@@ -393,6 +404,9 @@ pub struct FileScope {
     /// Each definition import, by its alias, and the define it names in the
     /// scope that wrote it (`link_definitions`).
     pub linked: IndexMap<String, (ScopeId, DefineLine)>,
+    /// The library functions it imports, which are in scope in it and in no
+    /// file that does not import them.
+    pub functions: Vec<FunctionImport>,
 }
 
 impl FileScope {
@@ -404,7 +418,13 @@ impl FileScope {
             imports: Vec::new(),
             proof_imports: Vec::new(),
             linked: IndexMap::new(),
+            functions: Vec::new(),
         }
+    }
+
+    /// The names of the library functions it imports.
+    pub fn function_names(&self) -> IndexSet<String> {
+        self.functions.iter().map(|f| f.name.clone()).collect()
     }
 
     pub fn module(&self) -> &str {
@@ -778,6 +798,7 @@ regex!(
 enum Imported {
     Proof(String, usize),
     Definition(Import),
+    Function(FunctionImport),
 }
 
 /// One `import` line.
@@ -809,6 +830,24 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             no,
             format!("import definition {whole} names no file"),
         ));
+    }
+    // A library function is imported by the name the library gives it, and
+    // nothing cites it by a label.
+    if super::in_stdlib(whole) {
+        if m.name("label").is_some() || m.name("alias").is_some() {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "import definition {whole}: a library function is imported by its name alone, with no `as` and no label"
+                ),
+            ));
+        }
+        return Ok(Imported::Function(FunctionImport {
+            module: module.to_string(),
+            name: name.to_string(),
+            line: no,
+        }));
     }
     // A definition a file imports is cited by its label, as one it defines
     // is: a calculation link writing S(k + 1) out cites the equation.
@@ -1030,6 +1069,7 @@ pub fn parse_proof(
                         scope.proof_imports.push((module, no))
                     }
                     Imported::Definition(import) => scope.imports.push(import),
+                    Imported::Function(import) => scope.functions.push(import),
                 }
                 continue;
             }

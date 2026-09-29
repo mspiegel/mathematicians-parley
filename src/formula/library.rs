@@ -7,7 +7,9 @@
 //! Nothing here is notation: `gcd(a, b)` is read as the name gcd applied to a
 //! and b, through the application patterns `corpus/db/notation.records`
 //! declares for every function, as a proof's `T(k)` is. What the library
-//! adds is the name, its sort, and what it builds.
+//! adds is the name, its sort, and what it builds. A proof file has the name
+//! in scope where it imports it, `import definition stdlib/divisibility/gcd`;
+//! the library's own records have every one.
 
 use indexmap::IndexMap;
 

@@ -577,6 +577,23 @@ pub struct Reader {
     /// What the statement's `ε, δ range over ℝ` lines say, which a line is
     /// parsed with as it is with the sorts.
     pub ranges: IndexMap<String, String>,
+    /// The library functions in scope: those the file imports, or every one
+    /// in a library record.
+    pub imported: IndexSet<String>,
+}
+
+/// The library functions in scope in a theorem: those its file imports.
+fn imported_in(thm: &Theorem, env: Env) -> IndexSet<String> {
+    env.scopes
+        .get(thm.scope)
+        .map(|s| s.function_names())
+        .unwrap_or_default()
+}
+
+/// The library functions in scope in a library record: every one, since the
+/// library sees itself.
+fn every_function(env: Env) -> IndexSet<String> {
+    env.g.functions.keys().cloned().collect()
 }
 
 /// Each letter a statement's range lines name, with the set it belongs to.
@@ -657,6 +674,7 @@ impl Reader {
             declared: Vec::new(),
             notations: env.g.notation_sorts(),
             ranges: IndexMap::new(),
+            imported: IndexSet::new(),
         }
     }
 
@@ -673,7 +691,12 @@ impl Reader {
         // A name the lines never gave a sort, which the library declares as a
         // function, has the library's sort, in a copy of its own as a
         // notation's signature is.
-        let k = match self.notations.functions.get(name) {
+        let library = self
+            .imported
+            .contains(name)
+            .then(|| self.notations.functions.get(name))
+            .flatten();
+        let k = match library {
             Some(said) => said.fresh(store).1,
             None => store.var(),
         };
@@ -850,6 +873,7 @@ pub fn claim_text(
 pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
     reader.ranges = ranges_of(&record.ranges);
+    reader.imported = every_function(env);
     for h in &record.hypotheses {
         if h.kind == Intro::Let {
             introduce(&mut reader, &h.text, h.line.into(), env, store);
@@ -874,6 +898,7 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
 pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
     reader.ranges = ranges_of(&thm.ranges);
+    reader.imported = imported_in(thm, env);
     for h in &thm.hypotheses {
         let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
         if h.kind == Intro::Let {
@@ -891,6 +916,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
 pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env);
     reader.ranges = ranges_of(&record.ranges);
+    reader.imported = every_function(env);
     for h in record.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
         introduce(&mut reader, &h.text, h.line.into(), env, store);
     }
@@ -953,6 +979,7 @@ pub fn read_theorem(
 ) -> Reader {
     let mut reader = Reader::new(env);
     reader.ranges = ranges_of(&thm.ranges);
+    reader.imported = imported_in(thm, env);
     // What the theorem sees from outside it has its sort before its first
     // line, read from the rule written out where it was defined.
     for (name, made) in file_definitions(thm, env) {

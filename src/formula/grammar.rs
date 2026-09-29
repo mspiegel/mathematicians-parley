@@ -31,6 +31,9 @@ pub struct Sorts {
     /// a set defined from what it has not read yet. They are the theorem's
     /// all the same, so a library function of the same name is not meant.
     pub unsettled: IndexSet<String>,
+    /// The library functions in scope: those the file imports, or every one
+    /// in the library's own records.
+    pub imported: IndexSet<String>,
 }
 
 impl Sorts {
@@ -65,6 +68,7 @@ impl FromIterator<(String, Sort)> for Sorts {
             names: iter.into_iter().collect(),
             ranges: IndexMap::new(),
             unsettled: IndexSet::new(),
+            imported: IndexSet::new(),
         }
     }
 }
@@ -80,7 +84,13 @@ impl<'a> IntoIterator for &'a Sorts {
 /// A sentence, the sort of each name it holds in the order the names first
 /// appear, and the range declared for each: everything a reading of it
 /// depends on besides the grammar.
-type ReadingKey = (String, Vec<Option<Sort>>, Vec<Option<String>>, Vec<bool>);
+type ReadingKey = (
+    String,
+    Vec<Option<Sort>>,
+    Vec<Option<String>>,
+    Vec<bool>,
+    Vec<bool>,
+);
 
 /// The declared notations, the words and symbols they are written with, and
 /// the precedence order between their levels.
@@ -182,7 +192,11 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         .iter()
         .map(|name| sorts.unsettled.contains(*name))
         .collect();
-    (text.to_string(), said, ranges, unsettled)
+    let imported = seen
+        .iter()
+        .map(|name| sorts.imported.contains(*name))
+        .collect();
+    (text.to_string(), said, ranges, unsettled, imported)
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -507,15 +521,35 @@ impl Parser<'_> {
             .collect();
         if tok.kind == TokenKind::Name || tok.kind == TokenKind::Numeral {
             let leaf = if tok.kind == TokenKind::Name {
-                // A name the theorem does not introduce that the library
-                // declares as a function has the library's sort; one the
+                // A name the theorem does not introduce that its file imports
+                // from the library has the library function's sort; one the
                 // theorem introduces, as C a point or a set, is the theorem's,
                 // whether its sort is settled or not.
+                let own = self.sorts.introduces(&tok.text);
                 let library = || {
-                    (!self.sorts.introduces(&tok.text))
+                    (!own && self.sorts.imported.contains(&tok.text))
                         .then(|| self.g.function_sorts.get(&tok.text))
                         .flatten()
                 };
+                // Applied without the import, it is a defect of the file's,
+                // however else the letters might be read.
+                let applied = self
+                    .t
+                    .get(self.i + 1)
+                    .is_some_and(|t| t.kind == TokenKind::Open);
+                if let Some(f) = self.g.functions.get(&tok.text) {
+                    if applied && !own && !self.sorts.imported.contains(&tok.text) {
+                        let module = f.item.rsplit_once('/').map_or("", |(m, _)| m);
+                        return Err(Problem::new(
+                            self.path,
+                            self.line,
+                            format!(
+                                "{} is the library's function def:{}, and this file does not import it: write `import definition {module}/{}`",
+                                tok.text, f.item, tok.text
+                            ),
+                        ));
+                    }
+                }
                 let sort = self
                     .sorts
                     .get(&tok.text)

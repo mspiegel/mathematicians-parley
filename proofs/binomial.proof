@@ -1,6 +1,7 @@
 import proof stdlib/counting
 import proof stdlib/numbers
 import proof stdlib/sums
+import definition stdlib/counting/C
 
 theorem binomial-step
   note        The induction step's algebra, stated apart from the induction.

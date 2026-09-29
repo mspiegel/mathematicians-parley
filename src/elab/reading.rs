@@ -169,6 +169,7 @@ impl<'a> Elaborator<'a> {
         }
         // An item's ranges are its own statement's, as its names are.
         sorts.ranges = own.ranges;
+        sorts.imported = own.imported;
         self.sorts_now = sorts;
         self.from_outside = written;
         let out = f(self);
@@ -207,7 +208,8 @@ impl<'a> Elaborator<'a> {
         let head = &node.children[0].text;
         let f = self.g.functions.get(head)?;
         let own = self.names.contains_key(head) || self.from_outside.contains_key(head);
-        if own || f.arity + 1 != node.children.len() {
+        let in_scope = self.sorts_now.imported.contains(head);
+        if own || !in_scope || f.arity + 1 != node.children.len() {
             return None;
         }
         Some((f.builds.clone(), &node.children[1..]))

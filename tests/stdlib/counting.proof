@@ -1,4 +1,5 @@
 import proof stdlib/counting
+import definition stdlib/counting/C
 
 theorem factorial-base
   then 1! = 1

@@ -19,7 +19,7 @@ use crate::matching::{alike_top, instantiation, substitute, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
-use crate::sorts::{sentences, unlabel, Env};
+use crate::sorts::{define_sorts, sentences, unlabel, Env};
 
 /// The sorts an item's statement relates fit, as its reading found.
 pub fn check_item_clashes(
@@ -208,6 +208,22 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
                     report.say(&thm.path, line, format!("{what}: {}", p.message));
                 }
             }
+        }
+    }
+    // A define's rule is a formula too, read with its argument's sort; one
+    // that does not read would otherwise be passed over by everything that
+    // gathers what the defines say, and surface only as citations that fail.
+    for d in &thm.defines {
+        let Built(DefineParts::One(said)) = define_parts(&d.text) else {
+            continue;
+        };
+        let local = define_sorts(&said, &known.sorts);
+        if let Err(p) = parse_here(&said.body, env.g, &local) {
+            report.say(
+                &thm.path,
+                d.line,
+                format!("define {}: {}", d.label, p.message),
+            );
         }
     }
 }

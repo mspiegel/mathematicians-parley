@@ -181,6 +181,12 @@ pub fn run(source: &dyn Source) -> Outcome {
         &scopes,
         &grammar.functions,
     );
+    structure::check_function_imports(
+        &mut report,
+        &theorems,
+        &scopes,
+        &grammar.functions,
+    );
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
     // does, so two names run together into it are caught as into a word.

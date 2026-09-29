@@ -19,7 +19,7 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{corpus, parse_proof, Corpus, Intro, Record, RecordKind};
 use crate::formula::{parse_here, Grammar, Node, Sorts};
@@ -170,6 +170,9 @@ pub fn restatements(
     g: &Grammar,
 ) -> (Vec<(String, String)>, Vec<String>) {
     let mut files: IndexMap<String, String> = IndexMap::new();
+    // What each file imports: the library file its items come from, and the
+    // library functions they apply.
+    let mut heads: IndexMap<String, (String, IndexSet<String>)> = IndexMap::new();
     let mut schemas: Vec<String> = Vec::new();
     let shapes = Shapes::new(records, g);
     for r in records {
@@ -183,10 +186,15 @@ pub fn restatements(
         let free = free_names(r, g);
         let file = r.module().rsplit('/').next().unwrap_or("");
         // Each file restates the items of one library file, and cites them,
-        // so it imports that file as any proof citing it does.
-        let text = files
-            .entry(format!("{RESTATED}/{file}.proof"))
-            .or_insert_with(|| format!("import proof {}\n\n", r.module()));
+        // so it imports that file as any proof citing it does, and each
+        // library function its statements apply.
+        let key = format!("{RESTATED}/{file}.proof");
+        heads
+            .entry(key.clone())
+            .or_insert_with(|| (r.module().to_string(), IndexSet::new()))
+            .1
+            .extend(applied_functions(r, g));
+        let text = files.entry(key).or_default();
         let prefix = if r.kind == RecordKind::Definition {
             "def"
         } else {
@@ -307,7 +315,22 @@ pub fn restatements(
             text.push('\n');
         }
     }
-    (files.into_iter().collect(), schemas)
+    let files = files
+        .into_iter()
+        .map(|(key, body)| {
+            let (module, applied) = &heads[&key];
+            let mut head = format!("import proof {module}\n");
+            for name in applied {
+                let from = g.functions[name]
+                    .item
+                    .rsplit_once('/')
+                    .map_or("", |(m, _)| m);
+                head.push_str(&format!("import definition {from}/{name}\n"));
+            }
+            (key, format!("{head}\n{body}"))
+        })
+        .collect();
+    (files, schemas)
 }
 
 /// Whether the reading of a record's lines makes one of its names a
@@ -339,6 +362,22 @@ fn let_names(r: &Record) -> Vec<String> {
         }
     }
     out
+}
+
+/// The library functions a record's statement applies, which a proof
+/// restating it imports.
+fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
+    let mut texts: Vec<&str> = r.hypotheses.iter().map(|h| h.text.as_str()).collect();
+    texts.extend(r.conclusions.iter().map(|(t, _)| t.as_str()));
+    let text = texts.join(" ");
+    g.functions
+        .keys()
+        .filter(|name| {
+            regex::Regex::new(&format!(r"(?:^|[^A-Za-zα-ω]){}\(", regex::escape(name)))
+                .is_ok_and(|applied| applied.is_match(&text))
+        })
+        .cloned()
+        .collect()
 }
 
 /// The names a record's formulas use that none of its `let` lines

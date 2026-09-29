@@ -1,6 +1,7 @@
 import proof stdlib/divisibility
 import proof stdlib/numbers
 import proof stdlib/reasoning
+import definition stdlib/divisibility/gcd
 
 theorem odd-square
   metamath    zesq covers it

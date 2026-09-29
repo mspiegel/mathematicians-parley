@@ -1,6 +1,7 @@
 import proof stdlib/divisibility
 import proof stdlib/numbers
 import proof stdlib/sets
+import definition stdlib/divisibility/gcd
 
 theorem least-combination-divides
   let a ∈ ℕ                                                           (H1)

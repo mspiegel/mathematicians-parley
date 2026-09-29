@@ -1,5 +1,6 @@
 import proof stdlib/calculus
 import proof stdlib/divisibility
+import definition stdlib/divisibility/gcd
 
 theorem series-under-its-own-letters
   assume Σ(k = 1 to n) 1/(k·(k + 1)) → 1 as n → ∞                    (H1)

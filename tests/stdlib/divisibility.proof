@@ -1,4 +1,5 @@
 import proof stdlib/divisibility
+import definition stdlib/divisibility/gcd
 
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)

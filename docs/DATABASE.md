@@ -99,12 +99,13 @@ An item's statement is written in the theorem form of `SYNTAX.md`: labelled
 on, then a `then` line. The database and the proof files therefore share one
 grammar, and one parser reads both.
 
-A definition that introduces a function every proof may apply says so in a
+A definition that introduces a function a proof may apply says so in a
 `function` line, the name applied to one hole for each argument, `gcd(_, _)`,
 with a `sort` line, a `builds` line giving the set.mm term an application
-stands for, and a `reads` line. The name is then read wherever a proof applies
-it, as a proof's own `T(k)` is; nothing about it is notation (`GRAMMAR.md`,
-"Database records").
+stands for, and a `reads` line. A proof file that applies it imports it,
+`import definition stdlib/divisibility/gcd`, and the name is then read
+wherever the file applies it, as a proof's own `T(k)` is; nothing about it is
+notation (`GRAMMAR.md`, "Database records").
 
 Every item in the standard library carries a field saying where it comes from:
 
@@ -162,9 +163,9 @@ reading each target's hypotheses from set.mm and requiring the item's to
 imply them.
 
 Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
-kind of the item it names, and every proof file imports exactly the proof
-files it cites and the definitions it uses from other files; `parley check`
-checks all three.
+kind of the item it names, and every proof file imports exactly the files it
+cites, the definitions it uses from other proof files and the library
+functions it applies; `parley check` checks all three.
 
 A notation record declares how its notation parses: the mixfix pattern with `_`
 for each hole, the sort each hole takes and the sort the pattern produces

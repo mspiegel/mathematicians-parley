@@ -865,8 +865,8 @@ takes one: `def:stdlib/counting/factorial`. A function a single proof needs of
 its own, such as the sum of the first m numbers, is not a library item but a
 `define` in that proof.
 
-A function the library offers every proof is declared on its definition, by
-name and not by notation:
+A function the library offers is declared on its definition, by name and not
+by notation:
 
 ```
 definition gcd
@@ -882,20 +882,31 @@ definition gcd
 else, which is what keeps it from being notation; `sort` says what the
 arguments and the value are; `builds` is the set.mm term an application stands
 for, `_1` for the first argument, since `target` already names the theorem a
-definition's statement is. A proof then writes `gcd(a, b)`, and the parser
-reads the name gcd applied to a and b through the application patterns
-`corpus/db/notation.records` declares for every function, `_(_)` and
-`_(_, _)`, as it reads a proof's `T(k)`. The name's sort comes from the
-definition wherever the theorem gives the name none of its own, so a proof
-may still call a point C.
+definition's statement is. A proof file that applies it imports it by its
+name, from the library file that declares it, with no label and no `as`:
+
+```
+import definition stdlib/divisibility/gcd
+```
+
+and then writes `gcd(a, b)`, which the parser reads as the name gcd applied to
+a and b through the application patterns `corpus/db/notation.records`
+declares for every function, `_(_)` and `_(_, _)`, as it reads a proof's
+`T(k)`. The name's sort comes from the definition wherever the file imports it
+and the theorem gives the name none of its own, so a proof may still call a
+point C. Applied without the import it is a defect, which the message says
+how to mend; imported from a file that does not declare it, imported twice,
+or imported and never applied, it is one too. The library's own records
+import nothing, and every library function is in scope in them.
 
 A name of several letters is read as one because the tokeniser takes the
 library's function names as a second list beside the notations' words, both
 read before any proof; a name that is also such a word is refused. A proof's
 own function, a define with an argument, a sequence, a `let f : A → B` or a
-definition imported under a name, may not take a library function's name, so a
-reader never asks which gcd a line means; a set or a number with that letter
-is no function and may.
+definition imported under a name, may not take the name of a library function
+its file imports, so a reader never asks which gcd a line means; a file that
+imports no C may call a function of its own C, and a set or a number with
+that letter is no function and may be written anywhere.
 
 ## Not decided here
 
