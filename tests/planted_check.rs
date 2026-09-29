@@ -262,6 +262,23 @@ fn cases() -> Vec<Case> {
             ],
             "stdlib/numbers declares no function gcd; it is declared in stdlib/divisibility",
         ),
+        // The name imported is the one a formula writes, which may be a Greek
+        // letter or carry a subscript, where a file's path is item names.
+        case(
+            "import a library function by a Greek name no library file declares",
+            vec![
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition stdlib/numbers/σ\n\ntheorem cantor\n".to_string()),
+            ],
+            "stdlib/numbers declares no function σ",
+        ),
+        case(
+            "import a definition by a subscripted name the file does not define",
+            vec![
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition proofs/tri/T₁ (D8)\n\ntheorem cantor\n".to_string()),
+            ],
+            "defines no T₁ outside its theorems",
+        ),
         case(
             "import a library function the file never applies",
             vec![

@@ -786,11 +786,19 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     out
 }
 
+// A definition is imported by the name a formula writes, which is not an
+// item's name: a proof's define is one letter, perhaps with a subscript or a
+// prime, and a library function's name may be a Greek letter, as σ. So the
+// last part of the path takes those, where a module's parts are item names.
+const DEFINED_NAME: &str = r"[A-Za-zα-ω][A-Za-zα-ω0-9₀-₉′-]*";
+
 regex!(
     IMPORTED,
     format!(
-        r"^import\s+(?:(?P<proof>proof)\s+(?P<module>{c})|(?P<definition>definition)\s+(?P<full>{c})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?)\s*$",
+        r"^import\s+(?:(?P<proof>proof)\s+(?P<module>{c})|(?P<definition>definition)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?)\s*$",
         c = super::CITED,
+        n = super::NAME,
+        d = DEFINED_NAME,
         l = super::LABEL
     )
 );
