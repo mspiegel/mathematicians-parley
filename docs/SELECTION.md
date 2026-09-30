@@ -1,6 +1,6 @@
-# Selection of the ten theorems
+# Selection of the theorems
 
-The ten theorems for the example corpus, chosen by the coverage rule in
+The theorems for the example corpus, chosen by the coverage rule in
 `GOALS.md`: each stresses one thing the readable layer has to handle. All
 candidates are on Wiedijk's list of 100 theorems, all are proved in
 set.mm, and all have Mizar and Isabelle versions, so those criteria did
@@ -240,3 +240,63 @@ defines a derangement by counting permutations and the recurrence
 (#77), which goes through Bernoulli polynomials; Pell's equation (#39),
 where recursion describes the solutions but the proof is number theory; and
 the principle of induction (#74), a method the corpus already has.
+
+## The next four
+
+The sixteen are written and elaborate with nothing assumed. The next four
+are chosen by the same coverage rule, asking what none of the sixteen
+exercises. All four are on Wiedijk's list and in set.mm's main body.
+Measured on the same set.mm with a one-off script that is not kept; it
+reproduces every count in the tables above except ivth's disjoint pairs,
+which it makes 11, so that column may read low.
+
+| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
+|---|---|---|---|---|---|---|---|---|---|
+| 17 | Euclid–Euler theorem (perfect numbers) | a function defined by a sum over a set given by a condition, σ; multiplicativity | perfect (Euclid's half: perfect1) | 98 (perfect1: 75) | no | N | none | 1 | Wiedijk #70; ProofWiki |
+| 18 | De Moivre's formula | complex numbers and the trigonometric functions | demoivre | 20 | no | A, N | none | 0 | Wiedijk #17; ProofWiki |
+| 19 | mean value theorem | the derivative; a function the proof defines to cite a theorem at | mvth, citing rolle | 108 (rolle: 259) | yes | A, B, F | none | 3 | Wiedijk #75; ProofWiki |
+| 20 | ℚ is countable | countability; a proof built mostly on the corpus's own theorems | qnnen | 39 | no | none | none | 0 | Wiedijk #3; Hammack ch. 14 (verify) |
+
+17. **Perfect numbers.** The first function a proof reads as a sum over a
+    set picked out by a condition: σ(n), the sum of the divisors of n. The
+    library needs σ and its multiplicativity, and the divisors of a prime
+    power written as a set, 1, 2, …, 2ᵏ, whose sum is a geometric series the
+    corpus already proves. `perfect` is the full equivalence; Euclid's half,
+    `perfect1`, that 2ᵖ⁻¹(2ᵖ − 1) is perfect when 2ᵖ − 1 is prime, tests the
+    same feature at three quarters of the size, and Euler's half adds a
+    longer argument about the odd part rather than anything new.
+18. **De Moivre's formula.** The first complex numbers on the page, and the
+    first cos and sin: (cos x + i sin x)ⁿ = cos nx + i sin nx. set.mm proves
+    it through the exponential function for every integer n; the textbook
+    proof is induction on n with the angle-addition formulas, so like √2 it
+    elaborates to a proof other than set.mm's, and the readable statement
+    is for n ∈ ℕ₀, citing the stronger item. Smallest of the four.
+19. **Mean value theorem.** The first derivative. It was set aside when the
+    ten were chosen as the last of a chain of three large proofs, Rolle's
+    theorem on the extreme value theorem. Taken instead as a library item
+    with a pointer, as completeness is for the intermediate value theorem,
+    `rolle` leaves a short readable proof: g(x) = f(x) − (f(b) − f(a))/(b −
+    a)·(x − a) has g(a) = g(b), and Rolle's theorem applied to g gives the
+    point. Deduction form, as the intermediate value theorem is, and it
+    needs notation for the derivative and a function the proof defines.
+20. **ℚ is countable.** Set aside when the ten were chosen because set.mm's
+    pairing function is far from Hammack's grid argument. The corpus now
+    proves Schröder–Bernstein and that a rational is p/q in lowest terms,
+    so a readable proof can inject ℕ into ℚ, inject ℚ into ℕ, and cite
+    both: the first theorem built mainly on the corpus's own results. What
+    injects ℚ into ℕ is to be settled first, through unique factorisation
+    or a pairing.
+
+Order: 17 and 18 first, since each adds one object to machinery the corpus
+has (sums over a range, induction); then 19, which extends the analysis;
+then 20, once its injection is settled. Before each pilot, its informal
+source is checked and the entry marked "verify" confirmed or replaced.
+
+Considered for these four and not chosen: Wilson's theorem (#51), a pairing
+argument mod p close to divisibility by 3 and Lagrange; the factor theorem
+(#89), where set.mm's `Poly` encoding would have to be hidden as groups
+were; the inequality of arithmetic and geometric means (#38), stated
+through `gsum` in the multiplicative monoid; the fundamental theorem of
+arithmetic (#80), still stated through a function into prime-count
+sequences; and the sum of the angles of a triangle (#27), which set.mm's
+signed angles make π or −π rather than 180°.
