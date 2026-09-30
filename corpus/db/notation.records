@@ -480,7 +480,7 @@ notation supremum
   target      _1 cr clt csup
   note        set.mm's supremum is taken in an order and over a set of numbers,
               and the page's is always the reals under <, which is what the
-              target writes. Only `thm:stdlib/calculus/completeness`'s target writes it so far:
+              target writes. Only `axi:stdlib/calculus/completeness`'s target writes it so far:
               the least upper bound the theorem promises is this one.
 
 notation set-builder
@@ -1007,12 +1007,12 @@ notation there-is-some
   metamath    wrex over a true body; set.mm states it as ≠ ∅
   target      wtru _1 _2 wrex
   note        Nonemptiness, with a name for the element and nothing said about
-              it. Three uses: the statement of thm:stdlib/counting/card-nonempty and a
-              hypothesis each of thm:stdlib/numbers/well-ordering and thm:stdlib/calculus/completeness.
+              it. Three uses: the statement of mun:stdlib/counting/card-nonempty and a
+              hypothesis each of axi:stdlib/numbers/well-ordering and axi:stdlib/calculus/completeness.
 
               The name binds over nothing, which no other binder does. Writing
               X ≠ ∅ instead would need no record and is what set.mm states, but
-              the subsets proof reads "obtain a: thm:stdlib/counting/card-nonempty", and an
+              the subsets proof reads "obtain a: mun:stdlib/counting/card-nonempty", and an
               obtain takes its name from an existence claim that names one. So
               the conclusion has to name an element, and the two hypotheses are
               written the same way rather than two ways.
@@ -1126,7 +1126,7 @@ notation series
   metamath    csu over ( ZZ>= ` M )
   target      _2 cuz cfv _3 _1 csu
   note        The sum of the third hole for every whole number from the second
-              on: the value of the series, which thm:stdlib/calculus/series-value
+              on: the value of the series, which mun:stdlib/calculus/series-value
               says is the limit of its partial sums. set.mm sums over the
               upper integers from M, and ℕ is those from 1.
 
@@ -1156,7 +1156,7 @@ notation parity
   note        "is not odd" keeps the word inside the phrase, which is how the
               corpus reads best, and the `negates` line is what makes it the
               same formula as "not (n is odd)". Without it the √2 proof could
-              not cite thm:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
+              not cite mun:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
 
 notation prime
   pattern     _ is prime
@@ -1194,7 +1194,7 @@ notation is-a-set
   metamath    wcel with _V, as difexg states it
   target      _1 cvv wcel
   note        Sethood, which ZF distinguishes from being a proper class and
-              set.mm writes as membership of _V. One use, thm:stdlib/sets/difference-set;
+              set.mm writes as membership of _V. One use, mun:stdlib/sets/difference-set;
               a proof does not write that a set built from sets is a set
               (`READERS.md`). It is the formula-position counterpart of the
               `let X be a set` introduction, as for-all-sets is of the same

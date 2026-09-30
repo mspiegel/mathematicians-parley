@@ -45,9 +45,9 @@ listed in the checker instead.
   `define S(m) := …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
   corpus without its extension: `stdlib/numbers`, `proofs/bezout`.
-- `<cited>` is `[ <module> / ] <name>`, what follows `def:` or `thm:`. With
-  its module it is a full name, `stdlib/numbers/int-real`; without one it is a
-  theorem of the citing file. "Names" below says how one is resolved.
+- `<cited>` is a `<name>`, what follows an item's prefix, `thm:` or another:
+  the name the file imports the item under, or a theorem of the citing file.
+  "Names" below says how one is resolved.
 - `<term>` and `<formula>` are given by the notations declared in
   `corpus/db/notation.records`, under "Formulas" below. The skeleton rules here delimit
   them; they do not describe what is inside.
@@ -501,9 +501,9 @@ substitution in the corpus comes close.
 
 ```
 <proof file>  ::= { <import> } { <theorem> | <define> }
-<import>      ::= `import` `proof` <module>
-                | `import` `definition` <module> `/` <name> [ `as` <name> ]
-                  `(` <label> `)`
+<import>      ::= `import` <kind> <module> `/` <name> [ `as` <name> ]
+                  [ `(` <label> `)` ]
+<kind>        ::= `axiom` | `theorem` | `mundane` | `definition` | `function`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
                   { <hypothesis> | <define> }
@@ -561,7 +561,8 @@ define's label.
 What a define names is one letter, perhaps with a subscript or a prime, as
 every name in a formula is: the tokeniser reads `avg(x)` as three names, so a
 define called `avg` could never be written after it, and it is refused at its
-line. The same holds for the name an `import definition … as` gives.
+line. The same holds for the name an import of a define gives it, its own or
+the one after `as`.
 
 Theorems appear in dependency order, so every pointer resolves to something
 earlier. A theorem field says what a record's field of the same name says: a
@@ -594,7 +595,7 @@ it holds of, because that name comes from the notation that binds it: in
 Three of those, `be an element`, `be a set` and `be a point`, are not notations
 and never appear inside a formula. `assume` does take a formula, because it
 does assert. `thm:proofs/subsets/add-element-bijection` introduces its `a` by `∉`, and
-`thm:stdlib/counting/card-singleton` and eight other items introduce theirs by `be an
+`mun:stdlib/counting/card-singleton` and eight other items introduce theirs by `be an
 element`. The kernel reads either as the thing being a set as well, since
 `{a}` of a proper class is empty; that sethood is apparatus the page never
 writes.
@@ -607,57 +608,89 @@ declared none of them matched anything.
 
 ## Names
 
-A definition or theorem is named by the file that holds it and its own name:
-its full name is the file's path from the root without the extension, `/`, and
-the name on its `theorem` or record line; a record's path is read from inside
-`corpus/`. `corpus/stdlib/numbers.records` holds
-`stdlib/numbers/int-real`; `proofs/triangle-inequality.proof` holds
+An item is named by the file that holds it and its own name: its full name is
+the file's path from the root without the extension, `/`, and the name on its
+`theorem` or record line; a record's path is read from inside `corpus/`.
+`corpus/stdlib/numbers.records` holds `stdlib/numbers/int-real`;
+`proofs/triangle-inequality.proof` holds
 `proofs/triangle-inequality/abs-bounds`. A name need only be unique within its
 file.
-
-A citation writes the full name, `thm:stdlib/numbers/int-real`, so each line
-says where what it cites comes from. The one shorter form is a theorem of the
-citing file, which is written bare: `thm:proofs/sqrt2-irrational/odd-square` in the file that proves
-it. A bare name that is no theorem of the file is a defect, and so is a full
-name that resolves to nothing.
 
 `stdlib` is the one directory the rules name, because its modules are the
 library's records files, `corpus/stdlib/<module>.records`, and hold items
 rather than proofs. Any other module names a proof file, `<module>.proof`,
 wherever under the root that file is kept.
 
-An import says what it brings in. A proof file imports each file it cites, a
-proof file or a library file, and only those:
+**An import names one item, and its keyword is the kind of that item.** A
+proof file imports each item it uses from another file, one to a line, by its
+full name:
 
 ```
-import proof stdlib/numbers
-import proof proofs/triangle-inequality
+import theorem    stdlib/divisibility/prime-factor
+import axiom      stdlib/calculus/completeness
+import mundane    stdlib/numbers/int-closure
+import definition stdlib/divisibility/divides
+import function   stdlib/divisibility/gcd
+import theorem    proofs/triangle-inequality/abs-bounds as abs-sum
+import function   proofs/tri/T (D1)
+import definition proofs/tri/B (D2)
 ```
 
-and each definition it uses from another file, one at a time, under its own
-name or under the name after `as`, with a label:
+The keyword is what the item is where it lives. For the library it is the
+record's kind (`DATABASE.md`, "Record kinds"). For a proof file it is `theorem`
+for a theorem, and for a define outside the theorems `function` when the
+define has a parameter and `definition` when it has none. So the head of a
+file says what the file rests on, and which of it is mundane, without the
+reader opening another file. There is no import of a whole file, and a bare
+`import` is a defect. The path is the full one from the root, so moving or
+renaming a directory changes the imports and nothing else about them.
 
-```
-import definition proofs/series/T (D1)
-import definition proofs/series/U as V (D2)
-```
+**A citation writes the kind's prefix and the item's name, not its path.** The
+import says where an item comes from, so the step does not say it again:
 
-The label is cited as a define's is: a calculation link writing `T(3)` out
-cites `D1`. Like every label a file gives outside its theorems, it is used
-once in the file, and no theorem below reuses it.
+| kind | prefix | citation |
+|---|---|---|
+| theorem | `thm:` | `obtain p: thm:prime-factor m := n! + 1, from 2, 3` |
+| axiom | `axi:` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
+| mundane | `mun:` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
+| definition | `def:` | `def:divides, from 3` |
+| function | `fun:` | `fun:gcd, from H1, H2` |
 
-The path is the full one from the root in both, so moving or renaming a
-directory changes the imports and nothing else about them. A bare `import`
-is a defect. A theorem is imported with its file because a citation writes
-its full name; a definition is imported by name because a formula writes it
-bare, and the import is what says where that name comes from.
+The prefix stays because it says on the line what kind of thing the step rests
+on, which is what a viewer collapses by, and because it keeps an item's name
+apart from a method's: `thm:induction` is a theorem and `induction` is the
+method. A theorem of the citing file is cited the same way, `thm:even-square`,
+and has no import. A notation, a method and the defines of a cited theorem are
+imported by nothing.
+
+A define imported from a proof file is cited by the label its import gives,
+`D1`, as every define is cited by its label: a calculation link writing `T(3)`
+out cites `D1`. Like every label a file gives outside its theorems, it is used
+once in the file, and no theorem below reuses it. A library function is applied
+bare in a formula, `gcd(a, b)`, and a step that unfolds it cites `fun:gcd`.
+
+**`as` gives an imported item a name of the file's own.** Every name a file
+cites or applies is distinct within it: its own theorems, and each import under
+its name or the name after `as`. Where two would share a name, an import takes
+`as`, as the tests of the library do, whose theorems take the names of the
+items they test: `import mundane stdlib/numbers/abs-one as numbers-abs-one`. An
+imported define is written inside formulas, so the name it is imported under,
+its own or the one `as` gives, is one letter, as a define's is. A library
+function is imported by its own name and takes no `as`: a formula reads the
+library's name for it wherever it is imported. A library theorem, axiom,
+mundane item or definition, and a proof's theorem, are written only in a
+justification, and the name `as` gives one may be any name.
+
+**Each of these is a defect:** an item cited or applied and not imported; an
+import that nothing cites or applies; an item imported twice; an import whose
+keyword is not the kind of the item it names; a citation whose prefix is not
+the kind of the item it names; a citation written with a path; an import of a
+path that names no file; an import of a name the file does not hold, or holds
+only inside a theorem; an import of a theorem of the importing file; and two
+names alike, among the file's theorems and its imports.
 
 The imports come before the first theorem and any define outside a theorem.
-Citing a file that is not imported, importing one that nothing cites,
-importing a file twice, importing the file itself, and importing a file that
-does not exist are each a defect; so are importing a definition the file does
-not define outside its theorems, and importing one that nothing uses. The
-imports of proof files and of their definitions have no cycle, since what a
+The imports of proof files' theorems and defines have no cycle, since what a
 file imports is read before it; a library file imports nothing, and is read
 before every proof.
 
@@ -721,8 +754,8 @@ The sixteen heads and the slots each admits:
 
 ```
 <justification> ::=
-    ( `def:` | `thm:` ) <cited> [ <instantiation> ] [ `,` <from> ]
-  | `obtain` <names> ( `def:` | `thm:` ) <cited> [ <instantiation> ] [ `,` <from> ]
+    <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
+  | `obtain` <names> <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
   | `obtain` <name> `from` `line` <number>
   | `exhibit` `,` <from>
   | `substitute` <formula> <source> [ <destination> ]
@@ -738,6 +771,7 @@ The sixteen heads and the slots each admits:
   | `cases` `,` <from>
   | `calculation`
   | <label> [ `,` <from> ]                         -- a define's label
+<prefix> ::= `axi:` | `thm:` | `mun:` | `def:` | `fun:`
 ```
 
 `join` takes its references directly and never the word `from`.
@@ -753,7 +787,7 @@ on the page. An item's sentences reach a proof by being claimed in a numbered
 step that cites the item, and later steps cite that number.
 
 `obtain` has two forms. With an item it names its objects with a colon, as in
-`obtain q, r: thm:stdlib/divisibility/division-algorithm n := c, d := d, from H3, H4`. Without one
+`obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4`. Without one
 it takes a line, as in `obtain q, r from line 1`, carrying no colon: there is
 no item to separate the names from, and no hypothesis list to introduce.
 
@@ -835,7 +869,8 @@ a parsed justification, never by pattern.
 
 ```
 <record> ::= <kind> <name> { <field> }
-<kind>   ::= `notation` | `method` | `definition` | `theorem` | `precedence`
+<kind>   ::= `notation` | `method` | `axiom` | `theorem` | `mundane`
+           | `definition` | `function` | `precedence`
 <field>  ::= <field name> <value>
 ```
 
@@ -845,9 +880,13 @@ Each kind has its own field names, and a field outside them is refused:
 |---|---|
 | `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `binds`, `reads`, `target`, `metamath`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
-| `definition` | `function`, `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
-| `theorem` | `metamath`, `target`, `open`, `note` |
+| `axiom`, `theorem`, `mundane` | `metamath`, `target`, `open`, `note` |
+| `definition` | `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
+| `function` | `sort`, `builds`, `reads`, `metamath`, `target`, `note` |
 | `precedence` | the levels it declares |
+
+The five kinds from `axiom` to `function` are the library's items, and
+`DATABASE.md`, "Record kinds", says what each is to a reader.
 
 The tools read a field by its name, so a misspelt one is not that field: an
 item whose `target` is spelt `taget` has no target, and every citation of it
@@ -865,12 +904,11 @@ takes one: `def:stdlib/counting/factorial`. A function a single proof needs of
 its own, such as the sum of the first m numbers, is not a library item but a
 `define` in that proof.
 
-A function the library offers is declared on its definition, by name and not
-by notation:
+A function the library offers is declared by a function record, by name and
+not by notation:
 
 ```
-definition gcd
-  function    gcd(_, _)
+function gcd
   sort        number, number → number
   builds      _1 _2 cgcd co
   reads       the greatest common divisor of
@@ -878,106 +916,45 @@ definition gcd
   …
 ```
 
-`function` is the name applied to one hole for each argument and nothing
-else, which is what keeps it from being notation; `sort` says what the
-arguments and the value are; `builds` is the set.mm term an application stands
-for, `_1` for the first argument, since `target` already names the theorem a
-definition's statement is. A proof file that applies it imports it by its
-name, from the library file that declares it, with no label and no `as`:
+The record's name is the function's, and is letters only, since a formula
+writes it. `sort` says what the arguments and the value are, and the number of
+places before its arrow is the number of arguments, so `function gcd` with
+`sort number, number → number` is applied as `gcd(_, _)`: a name applied to one
+hole for each argument and nothing else, which is what keeps it from being
+notation. `builds` is the set.mm term an application stands for, `_1` for the
+first argument, since `target` already names the theorem the record's statement
+is. A `then` line is optional: `min` and `max` have none, and what a proof
+needs of them is in items of their own. A proof file that applies a function
+imports it by its name, from the library file that declares it, with no label
+and no `as`:
 
 ```
-import definition stdlib/divisibility/gcd
+import function stdlib/divisibility/gcd
 ```
 
 and then writes `gcd(a, b)`, which the parser reads as the name gcd applied to
 a and b through the application patterns `corpus/db/notation.records`
 declares for every function, `_(_)` and `_(_, _)`, as it reads a proof's
-`T(k)`. The name's sort comes from the definition wherever the file imports it
+`T(k)`. The name's sort comes from the record wherever the file imports it
 and the theorem gives the name none of its own, so a proof may still call a
 point C. Applied without the import it is a defect, which the message says
 how to mend; imported from a file that does not declare it, imported twice,
 or imported and never applied, it is one too. The library's own records
 import nothing, and every library function is in scope in them.
 
+A function's syntax is in its record and a notation's is in
+`corpus/db/notation.records`. That is why a proof imports one and not the
+other: a function's name is a letter or word a proof might give something of
+its own, and a notation's tokens are not.
+
 A name of several letters is read as one because the tokeniser takes the
 library's function names as a second list beside the notations' words, both
 read before any proof; a name that is also such a word is refused. A proof's
 own function, a define with an argument, a sequence, a `let f : A → B` or a
-definition imported under a name, may not take the name of a library function
+define imported under a name, may not take the name of a library function
 its file imports, so a reader never asks which gcd a line means; a file that
 imports no C may call a function of its own C, and a set or a number with
 that letter is no function and may be written anywhere.
-
-## Imports and citations by kind (proposed)
-
-This section is a proposal under review and is not in force: `parley check`
-enforces "Names" and "Database records" above. It changes how a proof file
-says what it uses and how a step cites it. `DATABASE.md`, "Record kinds
-(proposed)", gives the record kinds it rests on.
-
-**An import names one item, and its keyword is the kind of that item.** A
-proof file imports each item it uses from another file, one to a line:
-
-```
-import theorem    stdlib/divisibility/prime-factor
-import axiom      stdlib/calculus/completeness
-import mundane    stdlib/numbers/int-closure
-import definition stdlib/divisibility/divides
-import function   stdlib/divisibility/gcd
-import theorem    proofs/triangle-inequality/abs-bounds as abs-sum
-import function   proofs/tri/T (D1)
-import definition proofs/tri/B (D2)
-```
-
-The keyword is what the item is where it lives. For the library it is the
-record's kind. For a proof file it is `theorem` for a theorem, and for a define
-outside the theorems `function` when the define has a parameter and
-`definition` when it has none. So the head of a file says what the file rests
-on, and which of it is mundane, without the reader opening another file. There
-is no import of a whole file: `import proof` is not a form, and a bare `import`
-is a defect.
-
-**A citation writes the kind's prefix and the item's name, not its path.** The
-import says where an item comes from, so the step does not say it again:
-
-| kind | prefix | citation |
-|---|---|---|
-| theorem | `thm:` | `obtain p: thm:prime-factor m := n! + 1, from 2, 3` |
-| axiom | `axi:` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
-| mundane | `mun:` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
-| definition | `def:` | `def:divides, from 3` |
-| function | `fun:` | `fun:gcd, from H1, H2` |
-
-The prefix stays because it says on the line what kind of thing the step rests
-on, which is what a viewer collapses by, and because it keeps an item's name
-apart from a method's: `thm:induction` is a theorem and `induction` is the
-method. A theorem of the citing file is cited the same way, `thm:even-square`,
-and has no import. A notation, a method and the defines of a cited theorem are
-imported by nothing.
-
-A define imported from a proof file is cited by the label its import gives,
-`D1`, as every define is cited by its label. A library function is applied bare
-in a formula, `gcd(a, b)`, and a step that unfolds it cites `fun:gcd`.
-
-**`as` gives an imported item a name of the file's own.** Every name a file
-cites or applies is distinct within it: its own theorems, and each import under
-its name or the name after `as`. Where two imports would share a name, one of
-them takes `as`. An imported define and a library function are written inside
-formulas, so the name each is imported under, its own or the one `as` gives, is
-one the tokeniser reads as a single name: one letter, as a define's is, or for
-a library function a word on the library's list of function names. A library
-theorem, axiom, mundane or definition is written only in a justification, and
-the name `as` gives it may be any name.
-
-**The checks move from the file to the item.** Each of these is a defect: an
-item cited or applied and not imported; an import that nothing cites or
-applies; an item imported twice; an import whose keyword is not the kind of the
-item it names; a citation whose prefix is not the kind of its import; a path
-that names no file; and a name the file does not hold, or holds only inside a
-theorem.
-
-What this replaces: the `import proof` and `import definition` rules of
-"Names", and the import of a library function in "Database records".
 
 ## Not decided here
 

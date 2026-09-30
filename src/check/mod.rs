@@ -156,7 +156,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         .filter(|r| r.kind.is_item())
         .map(|r| r.module().to_string())
         .collect();
-    structure::check_imports(&mut report, &theorems, &scopes, &library);
+    structure::check_imports(&mut report, &theorems, &scopes, &items, &library);
     structure::check_definitions(&mut report, &theorems, &scopes);
 
     let steps: usize = theorems.iter().map(|t| t.steps.len()).sum();

@@ -79,9 +79,8 @@ mechanically. That is a viewer setting and changes nothing in the text.
 **Dull facts and mundane items are two tests of one idea: what a human proof
 leaves unsaid.** The dull-fact test decides where a line is written. It
 classifies a step by its role in the proof at hand, mechanically, and a step it
-picks out goes in a `requires` line. The mundane kind, a proposal in
-`DATABASE.md` ("Record kinds (proposed)"), decides whether a reader needs to see
-a line. It classifies a library item once, for every proof that cites it, by
+picks out goes in a `requires` line. The mundane kind (`DATABASE.md`, "Record
+kinds") decides whether a reader needs to see a line. It classifies a library item once, for every proof that cites it, by
 whether a human proof takes the item for granted without naming it; that is a
 judgment made when the item is reviewed, not something the elaborator works
 out. A numbered step whose justification is a mundane item is a mundane step,

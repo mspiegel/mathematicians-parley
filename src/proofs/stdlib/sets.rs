@@ -8,11 +8,11 @@
 //!   and `elpw2g` reading a member of the power set as a part, for
 //!   `def:stdlib/sets/part-builder`;
 //! - a finite set split into parts of one size m has (number of parts) · m
-//!   elements, for `thm:stdlib/counting/partition-count`;
+//!   elements, for `mun:stdlib/counting/partition-count`;
 //! - a set of parts of a finite set is finite, for
-//!   `thm:stdlib/counting/parts-finite`;
+//!   `mun:stdlib/counting/parts-finite`;
 //! - a finite set and one in bijection with it have one size, for
-//!   `thm:stdlib/counting/card-equal`.
+//!   `mun:stdlib/counting/card-equal`.
 
 use crate::binds;
 use crate::mm::Builder;

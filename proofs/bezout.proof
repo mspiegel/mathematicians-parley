@@ -1,7 +1,14 @@
-import proof stdlib/divisibility
-import proof stdlib/numbers
-import proof stdlib/sets
-import definition stdlib/divisibility/gcd
+import axiom      stdlib/numbers/well-ordering
+import theorem    stdlib/divisibility/division-algorithm
+import mundane    stdlib/divisibility/divides-combination
+import mundane    stdlib/divisibility/divides-le
+import mundane    stdlib/numbers/int-closure
+import mundane    stdlib/numbers/pos-int-nat
+import mundane    stdlib/sets/set-builder-subset
+import definition stdlib/divisibility/divides
+import definition stdlib/sets/set-builder
+import definition stdlib/sets/subset
+import function   stdlib/divisibility/gcd
 
 theorem least-combination-divides
   let a ∈ ℕ                                                           (H1)
@@ -18,7 +25,7 @@ theorem least-combination-divides
   then d divides c
 
 1.  q ∈ ℤ. r ∈ ℤ. c = q·d + r. 0 ≤ r. r < d.
-    obtain q, r: thm:stdlib/divisibility/division-algorithm n := c, d := d, from H3, H4
+    obtain q, r: thm:division-algorithm n := c, d := d, from H3, H4
 
 2.  r = a·(u − q·x₀) + b·(v − q·y₀)
     algebra, from 1, H9, H10
@@ -42,15 +49,15 @@ theorem least-combination-divides
           requires r ∈ ℝ: from 1
 
     3.2.  r ∈ ℕ
-          thm:stdlib/numbers/pos-int-nat m := r, from 1, 3.1
+          mun:pos-int-nat m := r, from 1, 3.1
 
     3.3.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
           substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.2
 
     3.4.  d ≤ a·(u − q·x₀) + b·(v − q·y₀)
           instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.3
-          requires u − q·x₀ ∈ ℤ: thm:stdlib/numbers/int-closure, from H5, 1, H7
-          requires v − q·y₀ ∈ ℤ: thm:stdlib/numbers/int-closure, from H6, 1, H8
+          requires u − q·x₀ ∈ ℤ: mun:int-closure, from H5, 1, H7
+          requires v − q·y₀ ∈ ℤ: mun:int-closure, from H6, 1, H8
 
     3.5.  d ≤ r
           substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.4
@@ -73,7 +80,7 @@ theorem least-combination-divides
     requires q ∈ ℝ: from 1
 
 6.  d divides c
-    def:stdlib/divisibility/divides d := d, n := c, from 1, 5
+    def:divides d := d, n := c, from 1, 5
     requires d ∈ ℤ: from H4
     requires c ∈ ℤ: from H3
 
@@ -93,24 +100,24 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     requires b ∈ ℝ: from H2
 
 2.  a ∈ S
-    def:stdlib/sets/set-builder u := a, from H1, 1
+    def:set-builder u := a, from H1, 1
     requires 1 ∈ ℤ: arithmetic
     requires 0 ∈ ℤ: arithmetic
 
 3.  S ⊆ ℕ
-    thm:stdlib/sets/set-builder-subset, from D1
+    mun:set-builder-subset, from D1
 
 4.  d ∈ S. For all s ∈ S, d ≤ s.
-    obtain d: thm:stdlib/numbers/well-ordering S := S, from 3, 2
+    obtain d: axi:well-ordering S := S, from 3, 2
 
 5.  For all t ∈ S, t ∈ ℕ
-    def:stdlib/sets/subset, from 3
+    def:subset, from 3
 
 6.  d ∈ ℕ
     instantiate t := d in line 5, from 4
 
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
-    obtain x₀, y₀: def:stdlib/sets/set-builder u := d, from 4
+    obtain x₀, y₀: def:set-builder u := d, from 4
 
 8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     fix
@@ -126,7 +133,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
           requires y ∈ ℝ: from K2
 
     8.2.  a·x + b·y ∈ S
-          def:stdlib/sets/set-builder u := a·x + b·y, from K3, 8.1
+          def:set-builder u := a·x + b·y, from K3, 8.1
           requires x ∈ ℤ: from K1
           requires y ∈ ℤ: from K2
 
@@ -157,13 +164,13 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
 
 13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    def:stdlib/divisibility/gcd a := a, b := b, from H1, H2
+    fun:gcd a := a, b := b, from H1, H2
 
 14. d ≤ gcd(a, b)
     instantiate e := d in line 13, from 6, 10, 12
 
 15. gcd(a, b) divides a·x₀ + b·y₀
-    thm:stdlib/divisibility/divides-combination e := gcd(a, b), x := x₀, y := y₀, from 13, 7
+    mun:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 13, 7
     requires a ∈ ℤ: from H1
     requires b ∈ ℤ: from H2
 
@@ -171,7 +178,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     substitute d = a·x₀ + b·y₀ (line 7) into line 15
 
 17. gcd(a, b) ≤ d
-    thm:stdlib/divisibility/divides-le e := gcd(a, b), m := d, from 13, 6, 16
+    mun:divides-le e := gcd(a, b), m := d, from 13, 6, 16
 
 18. d = gcd(a, b)
     inequalities, from 14, 17

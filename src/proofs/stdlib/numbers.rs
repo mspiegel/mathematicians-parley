@@ -3,7 +3,7 @@
 //! What Euclid's algorithm asks of whole numbers that set.mm says only of a
 //! wider system: a remainder on dividing an integer by a natural number is
 //! less than the divisor. `modlt` says it of a real and a positive real, and
-//! `zre` and `nnrp` reach those, for `thm:stdlib/divisibility/mod-less`.
+//! `zre` and `nnrp` reach those, for `mun:stdlib/divisibility/mod-less`.
 
 use crate::binds;
 use crate::mm::Builder;

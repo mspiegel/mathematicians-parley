@@ -2,9 +2,10 @@
 #
 # A group, its laws, its subgroups, and cosets.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/groups/<name> or thm:stdlib/groups/<name>, and
-# the prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind and name:
+# axiom, theorem, mundane, definition or function. A proof imports each item
+# it cites, `import <kind> stdlib/groups/<name>`, where the keyword is
+# the item's kind. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line. A group is let as
@@ -18,7 +19,7 @@
 # Other fields: target, note.
 
 
-theorem group-closed
+axiom group-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -26,7 +27,7 @@ theorem group-closed
   metamath    grpcl
   target      grpcl
 
-theorem group-associative
+axiom group-associative
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -35,21 +36,21 @@ theorem group-associative
   metamath    grpass
   target      grpass
 
-theorem group-identity
+axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
   metamath    grprid
   target      grprid
 
-theorem group-inverse
+axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
   metamath    grprinv
   target      grprinv
 
-theorem group-inverse-closed
+axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
@@ -66,21 +67,21 @@ theorem group-cancel
   metamath    grplcan
   target      grplcan
 
-theorem subgroup-within
+mundane subgroup-within
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        H ⊆ G
   metamath    subgss
   target      subgss
 
-theorem subgroup-identity
+mundane subgroup-identity
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        e ∈ H
   metamath    subg0cl
   target      subg0cl
 
-theorem subgroup-closed
+mundane subgroup-closed
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)
@@ -89,7 +90,7 @@ theorem subgroup-closed
   metamath    subgcl
   target      subgcl
 
-theorem subgroup-inverse
+mundane subgroup-inverse
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)

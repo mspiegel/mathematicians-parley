@@ -1,7 +1,7 @@
 //! Matching an item's hypothesis against the fact a step supplies for it.
 //!
 //! The match is one-way: the item is a pattern whose names stand for
-//! anything, and the fact is ground. `thm:stdlib/sets/subset-transitive`
+//! anything, and the fact is ground. `mun:stdlib/sets/subset-transitive`
 //! assumes X ⊆ Y and Y ⊆ Z, and a step citing it from two lines claiming
 //! S ⊆ [a, b] and [a, b] ⊆ ℝ supplies them with X, Y, Z standing for S,
 //! [a, b] and ℝ. A name that appears twice must stand for the same thing
@@ -25,11 +25,17 @@ use crate::regex;
 regex!(ASSIGN, r"^([^\s,]+)\s*:=\s*(.+)");
 regex!(
     INSTANTIATION_END,
-    r",\s*from\b|\s+in\s+(?:line\b|def:|[A-Z]+[0-9]*\b)"
+    format!(
+        r",\s*from\b|\s+in\s+(?:line\b|{}|[A-Z]+[0-9]*\b)",
+        crate::corpus::ITEM_PREFIX
+    )
 );
 regex!(
     INSTANTIATION_HEAD,
-    r"^(?:(?:def|thm):[^\s]+\s*|instantiate\s+)"
+    format!(
+        r"^(?:{}[^\s]+\s*|instantiate\s+)",
+        crate::corpus::ITEM_PREFIX
+    )
 );
 
 /// The `v := t` pairs of a justification, in order.

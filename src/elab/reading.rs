@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
-use crate::corpus::{cited_name, resolve, DefineLine, Item, Recursion, ScopeId, Step};
+use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
 use crate::formula::{fits, parse, Node, Sort};
 use crate::matching::{substitute, Binding as NodeBinding, Defined, Definitions};
 use crate::outcome::Checked;
@@ -361,10 +361,10 @@ impl<'a> Elaborator<'a> {
         Ok(found)
     }
 
-    /// The item a citation in this theorem's file names: `def:x` or `thm:x`,
-    /// spelt with its file's path, or bare for a theorem of this file.
+    /// The item a citation in this theorem's file names, `thm:x`: one the
+    /// file imports under that name, or a theorem of this file.
     pub fn item_cited(&self, cited: &str) -> Item<'a> {
-        let name = resolve(cited_name(cited), self.thm.module());
+        let name = self.thm.names.full(cited);
         *self
             .items
             .get(&name)

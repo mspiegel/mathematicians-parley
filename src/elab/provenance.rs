@@ -17,7 +17,7 @@ use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
 use crate::corpus::proof::references;
-use crate::corpus::{fmt, resolve, Item, Step};
+use crate::corpus::{fmt, item_prefix, Item, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -131,8 +131,7 @@ impl<'a> Elaborator<'a> {
         number: &str,
         proof: &Proof,
     ) -> Checked<()> {
-        let head = step.just.head.to_string();
-        if head.starts_with("def:") || head.starts_with("thm:") {
+        if step.just.head.is_item() {
             return Ok(());
         }
         let mut used: BTreeSet<String> = proof.origin.clone();
@@ -473,19 +472,19 @@ impl<'a> Elaborator<'a> {
         if reason.starts_with("from ") {
             return true;
         }
-        let (kind, name) = match reason.split_once(':') {
-            Some((k, n)) => (k, n),
-            None => (reason.as_str(), ""),
+        let name = match reason.split_once(':') {
+            Some((_, n)) => n,
+            None => "",
         };
-        if kind != "def" || str::trim(name).is_empty() {
+        if !item_prefix(&reason).is_some_and(|k| k.unfolds())
+            || str::trim(name).is_empty()
+        {
             return false;
         }
         let first = name.split_whitespace().next().unwrap_or("");
-        let full = resolve(first, self.thm.module());
+        let full = self.thm.names.full(first);
         match self.items.get(&full) {
-            Some(Item::Record(r)) => {
-                r.kind.as_str() == "definition" && targets::clauses(r).is_empty()
-            }
+            Some(Item::Record(r)) => r.kind.unfolds() && targets::clauses(r).is_empty(),
             _ => false,
         }
     }
@@ -703,10 +702,10 @@ impl<'a> Elaborator<'a> {
         // assuming it. The name ends at the first space, because what follows
         // it is the instantiation.
         if let Some(step) = step {
-            if let Some((kind, name)) = closure.split_once(':') {
-                if kind == "thm" || kind == "def" {
+            if let Some((_, name)) = closure.split_once(':') {
+                if item_prefix(&closure).is_some() {
                     let first = name.split_whitespace().next().unwrap_or("");
-                    let full = resolve(first, self.thm.module());
+                    let full = self.thm.names.full(first);
                     if let Some(item) = self.items.get(&full).copied() {
                         if !item_clauses(item).is_empty() {
                             // What the line cites is taken apart as a step's

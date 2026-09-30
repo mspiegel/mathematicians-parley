@@ -9,7 +9,8 @@ the merge of the ten pilots' item tables decided.
 ```
 corpus/db/notation.records   symbols a claim may use
 corpus/db/methods.records    the justification vocabulary
-corpus/stdlib/*.records      the standard library: definitions and theorems
+corpus/stdlib/*.records      the standard library: axioms, theorems, mundane
+                             items, definitions and functions
 corpus/elaboration/          what parley build writes from all of it
 proofs/*.proof               the proof skeletons, one file per pilot
 tests/stdlib/*.proof         a test for each library item no proof cites
@@ -23,15 +24,17 @@ inside `corpus/`, so that directory's name is in none: the records of
 
 ## Names and the standard library
 
-A definition or theorem is named by the file that holds it and then its own
-name, and a citation writes both: `def:stdlib/divisibility/odd`,
-`thm:stdlib/numbers/int-real`, `thm:proofs/triangle-inequality/abs-bounds`. The
-file is its path without the extension, so the name says where to look. A
-theorem of the citing file is written bare, `thm:proofs/sqrt2-irrational/odd-square`, and that is the
-only shorter form. `GRAMMAR.md` gives the rules under "Names", with the
-`import proof` line a proof file writes for each other proof file and each
-library file it cites, and the `import definition` line for each definition
-it uses from a proof file and each library function it applies.
+An item is named by the file that holds it and then its own name:
+`stdlib/divisibility/odd`, `stdlib/numbers/int-real`,
+`proofs/triangle-inequality/abs-bounds`. The file is its path without the
+extension, so the full name says where to look. A proof file imports each item
+it cites from another file by that full name, one to a line, with the item's
+kind as the keyword, `import mundane stdlib/numbers/int-real`; a step then
+cites it by the kind's prefix and its name, `mun:int-real`. A theorem of the
+citing file is cited the same way, `thm:odd-square`, and has no import.
+`GRAMMAR.md` gives the rules under "Names". Prose outside a proof, as in this
+document and the records' notes, names an item by its prefix and full name,
+`def:stdlib/divisibility/odd`, since it has no imports to say where to look.
 
 The standard library is every item a set.mm label supplies or that is still
 open: what a proof cites, or may, and this corpus does not prove.
@@ -72,11 +75,12 @@ has, and a subject is one file:
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
 
-A proof imports each library file it cites, `import proof stdlib/numbers`, as
-it imports each proof file it cites, so its head says where everything it
-cites comes from. The library is the one directory the tools know by name,
-and a module anywhere else is a proof file. The library's own records import
-nothing: they cite no item, and every library function is in scope in them.
+A proof imports each library item it cites, as it imports each theorem of
+another proof file it cites, so its head says where everything it cites comes
+from and of what kind it is. The library is the one directory the tools know
+by name, and a module anywhere else is a proof file. The library's own records
+import nothing: they cite no item, and every library function is in scope in
+them.
 
 A `.proof` file holds only the skeleton. `SYNTAX.md` says the stored text is
 every line a field the elaborator reads and nothing else, so the commentary that
@@ -99,11 +103,11 @@ An item's statement is written in the theorem form of `SYNTAX.md`: labelled
 on, then a `then` line. The database and the proof files therefore share one
 grammar, and one parser reads both.
 
-A definition that introduces a function a proof may apply says so in a
-`function` line, the name applied to one hole for each argument, `gcd(_, _)`,
-with a `sort` line, a `builds` line giving the set.mm term an application
-stands for, and a `reads` line. A proof file that applies it imports it,
-`import definition stdlib/divisibility/gcd`, and the name is then read
+A function a proof may apply is a function record: its name is the
+function's, its `sort` line gives one place before the arrow for each
+argument, its `builds` line gives the set.mm term an application stands for,
+and its `reads` line says it in words. A proof file that applies it imports
+it, `import function stdlib/divisibility/gcd`, and the name is then read
 wherever the file applies it, as a proof's own `T(k)` is; nothing about it is
 notation (`GRAMMAR.md`, "Database records").
 
@@ -136,7 +140,7 @@ documents the same field on the notation side.
 A target may end `with v := t, …`, saying what the lemma's variables stand
 for where the claim does not fix them: `divalg with N := n, D := d`. A name
 there that is none of the lemmas' variables is the claim's own binder, and
-what it is given is the witness: `thm:stdlib/calculus/completeness` targets `suprcl,
+what it is given is the witness: `axi:stdlib/calculus/completeness` targets `suprcl,
 suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
 
@@ -152,7 +156,7 @@ it by hand.
 **Nothing compares an item's hypotheses with its target's.** A citation is
 built from the set.mm theorem the target names, with that theorem's own
 hypotheses, so a record whose `let` lines say less than the theorem asks
-still builds and every proof citing it verifies: `thm:stdlib/counting/card-nonempty`
+still builds and every proof citing it verifies: `mun:stdlib/counting/card-nonempty`
 with `let k ∈ ℤ` in place of `let k ∈ ℕ₀`, where `hashgt0elex` asks k ∈ ℕ₀,
 passes every stage of the gate. The proofs are sound and the record misstates
 the lemma. An item with no target is worse off, since it is assumed as it
@@ -214,18 +218,18 @@ three rather than trusting them.
 **`def:stdlib/functions/function` was two items under one name.** The Cantor pilot stated it as a
 biconditional defining `f : A → B`; the intermediate value pilot stated it as
 the derived fact that a function's values land in its codomain, and cited it
-three times for exactly that. The fact is now `thm:stdlib/functions/function-value` and those
+three times for exactly that. The fact is now `mun:stdlib/functions/function-value` and those
 three citations are renamed. `def:stdlib/functions/function` keeps the name for the definition,
 which is `open` because the Cantor pilot's row is truncated and no proof cites
 it.
 
-**`thm:stdlib/numbers/real-closure` had two statements.** The triangle inequality pilot gave
+**`mun:stdlib/numbers/real-closure` had two statements.** The triangle inequality pilot gave
 addition, the intermediate value pilot gave addition and subtraction. Merged to
-both sentences, which is the shape `thm:stdlib/numbers/int-closure` and `thm:stdlib/numbers/nat-closure`
+both sentences, which is the shape `mun:stdlib/numbers/int-closure` and `mun:stdlib/numbers/nat-closure`
 already have. Neither proof changes.
 
 **Five statements were cross-references.** `def:stdlib/sets/set-builder` and
-`thm:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
+`mun:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
 once. `thm:proofs/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
 
@@ -265,19 +269,19 @@ repaired.
   sum of the first powers of a were written that way too, as S and G with a
   notation each; they are functions their proofs define now (`define S(m) :=
   …, for m ∈ ℕ`), which took two global letters out of the notation file.
-- **`thm:stdlib/geometry/side-angle-side` and its one citation disagree on variable names.** The
+- **`axi:stdlib/geometry/side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,
   C, A′, B′, C′. One of the two must change. Settled since: the proof changed,
   because every other geometry item names its points P, Q and R.
 - **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
-  Q, R forms a triangle" is replaced by `thm:stdlib/geometry/triangle-swap` and
-  `thm:stdlib/geometry/triangle-rotate`, which generate all six orderings and are the two the
+  Q, R forms a triangle" is replaced by `mun:stdlib/geometry/triangle-swap` and
+  `mun:stdlib/geometry/triangle-rotate`, which generate all six orderings and are the two the
   isosceles proof cites.
-- **Set-existence hypotheses are inconsistent.** `thm:stdlib/numbers/well-ordering` and
-  `thm:stdlib/calculus/completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
+- **Set-existence hypotheses are inconsistent.** `axi:stdlib/numbers/well-ordering` and
+  `axi:stdlib/calculus/completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
   because that is what the pilot tables said and what the proofs discharge.
   Whether the set-existence hypothesis belongs there is open.
-  `thm:stdlib/counting/card-bijection` and `thm:stdlib/counting/card-disjoint-union` were the same and now
+  `mun:stdlib/counting/card-bijection` and `mun:stdlib/counting/card-disjoint-union` were the same and now
   carry the `let` lines, because without them their statements could not be
   read: `|Y| = m` fits both cardinality and absolute value.
 - **The isosceles proof had one step that broke the calculation rule.** A chain
@@ -326,7 +330,7 @@ repaired.
   line that types their parameter, Bezout's step 14 missing two integer
   memberships, a disjunctive syllogism whose two spellings of one negation did
   not match, and a bijection that adds an element without saying it was absent.
-  The last needed a new item, `thm:stdlib/sets/not-in-difference`.
+  The last needed a new item, `mun:stdlib/sets/not-in-difference`.
 
 ## Eight open items
 
@@ -341,8 +345,8 @@ have to say about a map.
 
 Six more were open and are not. `thm:proofs/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
-proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `thm:stdlib/geometry/angle-symmetric`, `thm:stdlib/geometry/side-angle-side`,
-`thm:stdlib/geometry/triangle-swap` and `thm:stdlib/geometry/triangle-rotate` are proved in
+proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `mun:stdlib/geometry/angle-symmetric`, `axi:stdlib/geometry/side-angle-side`,
+`mun:stdlib/geometry/triangle-swap` and `mun:stdlib/geometry/triangle-rotate` are proved in
 `corpus/elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.
@@ -369,11 +373,10 @@ numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of
 collinearity elaborates; what has no readable statement is the equivalence.
 
-## Record kinds (proposed)
+## Record kinds
 
-This section is a proposal under review and is not in force: the library still
-holds `definition` and `theorem` records only. `GRAMMAR.md`, "Imports and
-citations by kind (proposed)", gives the imports and citations that go with it.
+`GRAMMAR.md`, "Names", gives the imports and citations that go with the kinds
+this section sets out.
 
 **A library record is one of five kinds, and the kind says what a reader is to
 take the item to be.**
@@ -386,8 +389,8 @@ take the item to be.**
 | `definition` | what a word or a symbol means | 30 |
 | `function` | a name a formula applies, `gcd(a, b)` | 4 |
 
-Every item is still supplied by a set.mm label or is `open`, as now, and the
-ten axioms are supplied the way every other item is: by a lemma set.mm proves,
+Every item is supplied by a set.mm label or is `open`, and the ten axioms are
+supplied the way every other item is: by a lemma set.mm proves,
 or for `side-angle-side` by one `corpus/elaboration/stdlib/proved.mm` proves.
 So an axiom's kind is the reader's view of it and not the kernel's. Notation
 and methods keep their own records in `corpus/db/`.
@@ -399,11 +402,10 @@ part of it, however close to it the fact stands: C(n, k) = 0 for n < k follows
 from the definition of C in one step and is mundane.
 
 **A function record declares a name that a formula applies.** The four are
-`gcd`, `C`, `min` and `max`, and `binomial-coefficient` is renamed `C`. They
-take the fields a definition takes for this purpose, `sort`, `builds` and
-`reads`, with `metamath`, `target` and `note`, and a `then` line is optional:
-`min` and `max` have none, and what a proof needs of them is in theorems of
-their own. There is no field for the applied form. The name is the record's
+`gcd`, `C`, `min` and `max`. They take `sort`, `builds` and `reads`, with
+`metamath`, `target` and `note`, and a `then` line is optional: `min` and
+`max` have none, and what a proof needs of them is in items of their own.
+There is no field for the applied form. The name is the record's
 and the number of holes is the number of places `sort` gives before its arrow,
 so `function gcd` with `sort number, number → number` is applied as
 `gcd(_, _)`, and a function record's name is therefore one a formula can
@@ -445,7 +447,7 @@ The classification, reviewed item by item:
 |---|---|
 | axiom | `calculus/completeness`, `numbers/trichotomy`, `numbers/well-ordering`, `geometry/side-angle-side`, `reasoning/excluded-middle`, `groups/group-associative`, `groups/group-closed`, `groups/group-identity`, `groups/group-inverse`, `groups/group-inverse-closed` |
 | theorem | `counting/pascal`, `divisibility/division-algorithm`, `divisibility/prime-factor`, `divisibility/gcd-mod`, `divisibility/divides-gcd`, `groups/group-cancel`, `numbers/archimedean`, `sums/sum-telescopes` |
-| mundane | every other theorem record |
+| mundane | every other item that states a fact |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or

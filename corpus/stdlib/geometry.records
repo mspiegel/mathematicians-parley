@@ -2,9 +2,10 @@
 #
 # Points, distances and angles in the plane, triangles, and congruence.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/geometry/<name> or thm:stdlib/geometry/<name>,
-# and the prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind and name:
+# axiom, theorem, mundane, definition or function. A proof imports each item
+# it cites, `import <kind> stdlib/geometry/<name>`, where the keyword is
+# the item's kind. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -33,7 +34,7 @@ definition angle
               never names it, so the corpus declares the constant
   note        The angle the corpus writes is unsigned: ∠PQR is the absolute
               value of ang applied to the two differences, which lands in
-              0 to π and makes thm:stdlib/geometry/angle-symmetric true. ang itself is
+              0 to π and makes mun:stdlib/geometry/angle-symmetric true. ang itself is
               signed, in −π to π, as set.mm has it. GEOMETRY.md weighs the
               seven candidate geometries and takes this one.
 
@@ -41,9 +42,9 @@ definition angle
               symbol; every other names a word for something set.mm already
               has. See GOALS.md decision 12. Its statement is `defines`, what
               the symbol stands for, and what follows from that is
-              thm:stdlib/geometry/angle-real.
+              mun:stdlib/geometry/angle-real.
 
-theorem angle-real
+mundane angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -91,14 +92,14 @@ definition congruent
               ∠RPQ = ∠R′P′Q′
   open        six equations; no set.mm item
 
-theorem distance-symmetric
+mundane distance-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| = |QP|
   metamath    abssub
   target      abssub
 
-theorem angle-symmetric
+mundane angle-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -113,7 +114,7 @@ theorem angle-symmetric
               and the absolute values agree either way.
   target      gangsym3
 
-theorem triangle-swap
+mundane triangle-swap
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -123,7 +124,7 @@ theorem triangle-swap
               set.mm states nothing about a triangle, having no notion of one
   target      gtriswap
 
-theorem triangle-rotate
+mundane triangle-rotate
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -141,7 +142,7 @@ theorem triangle-rotate
               Stating one theorem per ordering was the alternative and is five
               items for two uses.
 
-theorem side-angle-side
+axiom side-angle-side
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)

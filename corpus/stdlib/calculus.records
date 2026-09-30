@@ -2,9 +2,10 @@
 #
 # Intervals of the real line, upper bounds and completeness, and continuity.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/calculus/<name> or thm:stdlib/calculus/<name>,
-# and the prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind and name:
+# axiom, theorem, mundane, definition or function. A proof imports each item
+# it cites, `import <kind> stdlib/calculus/<name>`, where the keyword is
+# the item's kind. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -23,7 +24,7 @@ definition interval
   metamath    elicc2
   target      elicc2
 
-theorem interval-real
+mundane interval-real
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        [a, b] ⊆ ℝ
@@ -61,7 +62,7 @@ definition tends-to
               cannot read a sequence the page writes as a rule in n.
               `climnnre` says it as the page does.
 
-theorem series-value
+mundane series-value
   let t : ℕ → ℝ                                                       (H1)
   let L ∈ ℝ                                                           (H2)
   assume Σ(k = 1 to n) t(k) → L as n → ∞                              (H3)
@@ -83,7 +84,7 @@ definition least-upper-bound
               all u ∈ ℝ, if u is an upper bound of S then c ≤ u
   metamath    df-sup, suprub, suprleub
 
-theorem completeness
+axiom completeness
   assume S ⊆ ℝ                                                        (H1)
   assume there is s ∈ S                                               (H2)
   assume there is u ∈ ℝ with u is an upper bound of S                 (H3)

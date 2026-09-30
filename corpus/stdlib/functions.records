@@ -2,10 +2,10 @@
 #
 # Functions, their values, and the set of values a function takes.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/functions/<name> or
-# thm:stdlib/functions/<name>, and the prefix must match the kind. Format is
-# described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind and name:
+# axiom, theorem, mundane, definition or function. A proof imports each item
+# it cites, `import <kind> stdlib/functions/<name>`, where the keyword is
+# the item's kind. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -28,7 +28,7 @@ definition set-image
               elrnmptg says what is in that range where every E(s) is a set,
               which a function's value always is (`fvex`).
 
-theorem added-elements-are-new
+mundane added-elements-are-new
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∉ Y                                   (H3)
@@ -49,7 +49,7 @@ definition function
   note        set.mm's df-f is the target. The Cantor proof needs f only for the
               elaborator, since no step cites it; see that pilot's findings.
 
-theorem function-value
+mundane function-value
   let f : D → E                                                       (H1)
   let x ∈ D                                                           (H2)
   then        f(x) ∈ E
@@ -59,7 +59,7 @@ theorem function-value
               with the Cantor pilot's definition of the same name. Renamed by the
               merge; that proof's three citations are renamed with it.
 
-theorem image-of-injection
+mundane image-of-injection
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all S, T ∈ Y, if S ∪ {a} = T ∪ {a} then S = T            (H3)
@@ -68,12 +68,12 @@ theorem image-of-injection
   target      f1oeng with F := the map sending S ∈ Y to S ∪ {a}
   note        A map that sends no two things to the same place pairs its
               domain off against what comes out of it. Narrowed to the one
-              map the corpus builds, as `thm:stdlib/functions/added-elements-are-new` is: the
+              map the corpus builds, as `mun:stdlib/functions/added-elements-are-new` is: the
               readable layer states the property and the `target` names the
               map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
               and does not name a function to say it.
 
-theorem added-element-in-image
+mundane added-element-in-image
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let s ∈ Y                                                           (H3)
@@ -81,9 +81,9 @@ theorem added-element-in-image
   metamath    elrnmpt1s
   target      elrnmpt1s
   note        Narrowed to the one map the corpus writes, as
-              `thm:stdlib/functions/added-elements-are-new` is.
+              `mun:stdlib/functions/added-elements-are-new` is.
 
-theorem added-elements-stay-inside
+mundane added-elements-stay-inside
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∈ Z                                   (H3)
@@ -91,7 +91,7 @@ theorem added-elements-stay-inside
   metamath    rnmptss
   target      rnmptss
   note        Narrowed to the one map the corpus writes, as
-              `thm:stdlib/functions/added-elements-are-new` is.
+              `mun:stdlib/functions/added-elements-are-new` is.
 
 definition image
   let f : X → W                                                       (H1)
@@ -105,27 +105,27 @@ definition image
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
 
-theorem image-within
+mundane image-within
   let f : X → W                                                       (H1)
   then        f[Y] ⊆ W
   metamath    fimass
   target      fimass
 
-theorem image-monotone
+mundane image-monotone
   let f : X → W                                                       (H1)
   assume Y ⊆ Z                                                        (H2)
   then        f[Y] ⊆ f[Z]
   metamath    imass2
   target      imass2
 
-theorem function-into
+mundane function-into
   let E be a function on X                                            (H1)
   assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
   metamath    ffnfv
   target      ffnfv
 
-theorem value-in-image
+mundane value-in-image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   let s ∈ Y                                                           (H3)
@@ -141,7 +141,7 @@ definition one-to-one
   metamath    dff13
   target      dff13
 
-theorem inverse-value
+mundane inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
@@ -149,7 +149,7 @@ theorem inverse-value
               elaboration/stdlib/proved.mm
   target      gf1cnvfv1
 
-theorem onto-bijection
+mundane onto-bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)
   assume for all y ∈ Y, there is x ∈ X with y = f(x)                  (H3)

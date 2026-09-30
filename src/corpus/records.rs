@@ -10,12 +10,21 @@ use crate::regex;
 use crate::text::repr;
 
 /// What a record is.
+///
+/// An item of the library is one of five kinds, and the kind says what a
+/// reader is to take it to be (`DATABASE.md`, "Record kinds"): an axiom is
+/// given, a theorem is named where it is used, a mundane item is taken for
+/// granted without being named, a definition is what a word or a symbol
+/// means, and a function is a name a formula applies.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum RecordKind {
     Notation,
     Method,
-    Definition,
+    Axiom,
     Theorem,
+    Mundane,
+    Definition,
+    Function,
     Precedence,
 }
 
@@ -24,8 +33,11 @@ impl RecordKind {
         Some(match word {
             "notation" => RecordKind::Notation,
             "method" => RecordKind::Method,
-            "definition" => RecordKind::Definition,
+            "axiom" => RecordKind::Axiom,
             "theorem" => RecordKind::Theorem,
+            "mundane" => RecordKind::Mundane,
+            "definition" => RecordKind::Definition,
+            "function" => RecordKind::Function,
             "precedence" => RecordKind::Precedence,
             _ => return None,
         })
@@ -35,15 +47,31 @@ impl RecordKind {
         match self {
             RecordKind::Notation => "notation",
             RecordKind::Method => "method",
-            RecordKind::Definition => "definition",
+            RecordKind::Axiom => "axiom",
             RecordKind::Theorem => "theorem",
+            RecordKind::Mundane => "mundane",
+            RecordKind::Definition => "definition",
+            RecordKind::Function => "function",
             RecordKind::Precedence => "precedence",
         }
     }
 
-    /// A definition or a theorem: an item a proof may cite.
+    /// An item a proof may cite: every kind of the library's.
     pub fn is_item(self) -> bool {
-        matches!(self, RecordKind::Definition | RecordKind::Theorem)
+        self.is_fact() || self.unfolds()
+    }
+
+    /// An axiom, a theorem or a mundane item: a statement a step applies.
+    pub fn is_fact(self) -> bool {
+        matches!(
+            self,
+            RecordKind::Axiom | RecordKind::Theorem | RecordKind::Mundane
+        )
+    }
+
+    /// A definition or a function: what a step citing it unfolds.
+    pub fn unfolds(self) -> bool {
+        matches!(self, RecordKind::Definition | RecordKind::Function)
     }
 }
 
@@ -65,7 +93,7 @@ pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
         .map(|(_, fields)| *fields)
 }
 
-pub const FIELDS: [(RecordKind, &[&str]); 4] = [
+pub const FIELDS: [(RecordKind, &[&str]); 7] = [
     (
         RecordKind::Notation,
         &[
@@ -92,12 +120,15 @@ pub const FIELDS: [(RecordKind, &[&str]); 4] = [
     ),
     (
         RecordKind::Definition,
-        &[
-            "function", "sort", "builds", "reads", "metamath", "target", "open",
-            "symbol", "defines", "note",
-        ],
+        &["metamath", "target", "open", "symbol", "defines", "note"],
     ),
+    (
+        RecordKind::Function,
+        &["sort", "builds", "reads", "metamath", "target", "note"],
+    ),
+    (RecordKind::Axiom, &["metamath", "target", "open", "note"]),
     (RecordKind::Theorem, &["metamath", "target", "open", "note"]),
+    (RecordKind::Mundane, &["metamath", "target", "open", "note"]),
 ];
 
 /// One record of a database file.

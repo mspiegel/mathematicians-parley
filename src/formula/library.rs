@@ -1,15 +1,16 @@
 //! The functions the library declares.
 //!
-//! A library definition may say that it introduces a function: its
-//! `function` line writes the name applied to one hole for each argument,
-//! `gcd(_, _)`, its `sort` line says what the arguments and the value are,
-//! and its `builds` line is the set.mm term an application of it stands for.
-//! Nothing here is notation: `gcd(a, b)` is read as the name gcd applied to a
-//! and b, through the application patterns `corpus/db/notation.records`
-//! declares for every function, as a proof's `T(k)` is. What the library
-//! adds is the name, its sort, and what it builds. A proof file has the name
-//! in scope where it imports it, `import definition stdlib/divisibility/gcd`;
-//! the library's own records have every one.
+//! A function record declares a name a formula applies: the record's name is
+//! the function's, its `sort` line says what the arguments and the value
+//! are, one argument for each place before the arrow, and its `builds` line
+//! is the set.mm term an application of it stands for. So `function gcd`
+//! with `sort number, number → number` is applied as `gcd(_, _)`. Nothing
+//! here is notation: `gcd(a, b)` is read as the name gcd applied to a and b,
+//! through the application patterns `corpus/db/notation.records` declares
+//! for every function, as a proof's `T(k)` is. What the library adds is the
+//! name, its sort, and what it builds. A proof file has the name in scope
+//! where it imports it, `import function stdlib/divisibility/gcd`; the
+//! library's own records have every one.
 
 use indexmap::IndexMap;
 
@@ -18,7 +19,7 @@ use crate::outcome::{Checked, Problem};
 use crate::regex;
 use crate::text::repr;
 
-/// One function a library definition declares.
+/// One function a function record declares.
 #[derive(Clone, Debug)]
 pub struct Function {
     pub name: String,
@@ -27,58 +28,67 @@ pub struct Function {
     pub sort: String,
     /// Its `builds` line: the set.mm term, `_1` for the first argument.
     pub builds: String,
-    /// The definition that declares it, as a citation names it.
+    /// The record that declares it, by its full name.
     pub item: String,
     pub path: String,
     pub line: usize,
 }
 
-// A name applied to one hole for each argument, and nothing else: that is
-// what keeps a function from being notation.
-regex!(FUNCTION, r"^([A-Za-zα-ω]+)\(\s*(_(?:\s*,\s*_)*)\s*\)$");
+// A function's name is letters and nothing else, so that a formula reads it
+// as one name: a digit or a hyphen would not be part of it there.
+regex!(FUNCTION_NAME, r"^[A-Za-zα-ω]+$");
+// A sort line: the places, then the arrow and the value.
+regex!(FUNCTION_SORT, r"^([^→]+)→\s*\S+$");
 
-/// Every function the library's definitions declare, by name. A `function`
-/// line that does not read, one without its `sort` or `builds`, and a name
-/// declared twice are defects in the database, and end the reading as a
+/// Every function the library's function records declare, by name. A name a
+/// formula cannot write, a record without its `sort` or `builds`, and a sort
+/// with no arrow are defects in the database, and end the reading as a
 /// notation that does not read does.
 pub fn library_functions(records: &[Record]) -> Checked<IndexMap<String, Function>> {
     let mut out: IndexMap<String, Function> = IndexMap::new();
     for r in records {
-        if r.kind != RecordKind::Definition {
+        if r.kind != RecordKind::Function {
             continue;
         }
-        let Some(said) = r.field("function") else {
-            continue;
-        };
-        let line = r.lines.get("function").copied().unwrap_or(r.line);
-        let Some(m) = FUNCTION.captures(str::trim(said)) else {
+        let line = r.line;
+        if !FUNCTION_NAME.is_match(&r.name) {
             return Err(Problem::new(
                 &r.path,
                 line,
                 format!(
-                    "definition {}: `function {}` is not a name applied to holes, as `gcd(_, _)` is",
-                    r.name,
-                    str::trim(said)
+                    "function {}: a function's name is letters only, since a formula writes it",
+                    r.name
                 ),
             ));
-        };
+        }
         let (Some(sort), Some(builds)) = (r.field("sort"), r.field("builds")) else {
             return Err(Problem::new(
                 &r.path,
                 line,
                 format!(
-                    "definition {} declares a function and does not say its `sort` and what it `builds`",
+                    "function {} does not say its `sort` and what it `builds`",
                     r.name
                 ),
             ));
         };
-        let name = m[1].to_string();
+        let Some(places) = FUNCTION_SORT.captures(str::trim(sort)) else {
+            return Err(Problem::new(
+                &r.path,
+                r.lines.get("sort").copied().unwrap_or(line),
+                format!(
+                    "function {}: `sort {}` gives no places before an arrow, as `number, number → number` does",
+                    r.name,
+                    str::trim(sort)
+                ),
+            ));
+        };
+        let name = r.name.clone();
         if let Some(was) = out.get(&name) {
             return Err(Problem::new(
                 &r.path,
                 line,
                 format!(
-                    "{} is already the function def:{} declares",
+                    "{} is already the function {} declares",
                     repr(&name),
                     was.item
                 ),
@@ -88,7 +98,7 @@ pub fn library_functions(records: &[Record]) -> Checked<IndexMap<String, Functio
             name.clone(),
             Function {
                 name,
-                arity: m[2].matches('_').count(),
+                arity: places[1].split(',').count(),
                 sort: str::trim(sort).to_string(),
                 builds: str::trim(builds).to_string(),
                 item: r.qualified(),

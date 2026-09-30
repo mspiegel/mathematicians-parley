@@ -2,9 +2,10 @@
 
 use indexmap::IndexMap;
 
-use super::proof::{parse_proof, FileScope, ScopeId, Theorem};
+use super::define::define_parts;
+use super::proof::{parse_proof, FileScope, ItemKind, ScopeId, Theorem};
 use super::records::{parse_database, Record, RecordKind};
-use crate::outcome::{Checked, Problem};
+use crate::outcome::{Built, Checked, Problem};
 use crate::source::Source;
 use crate::text::check_encoding;
 
@@ -72,12 +73,13 @@ pub fn link_definitions(
     for &id in by_module.values() {
         let mut linked = IndexMap::new();
         for import in scopes[id].imports.clone() {
+            let keyword = import.kind.record_kind();
             let Some(&src) = by_module.get(&import.module) else {
                 problems.push((
                     scopes[id].path.clone(),
                     import.line,
                     format!(
-                        "import definition {}/{} names no proof file",
+                        "import {keyword} {}/{} names no proof file",
                         import.module, import.name
                     ),
                 ));
@@ -88,12 +90,37 @@ pub fn link_definitions(
                     scopes[id].path.clone(),
                     import.line,
                     format!(
-                        "import definition {}/{}: {} defines no {} outside its theorems",
+                        "import {keyword} {}/{}: {} defines no {} outside its theorems",
                         import.module, import.name, import.module, import.name
                     ),
                 ));
                 continue;
             };
+            // A define with an argument is a function and one without is a
+            // definition, and the keyword says which.
+            let takes = matches!(
+                define_parts(&d.text),
+                Built(said) if said.one().is_some_and(|one| one.param.is_some())
+            );
+            let is = if takes {
+                ItemKind::Function
+            } else {
+                ItemKind::Definition
+            };
+            if import.kind != is {
+                problems.push((
+                    scopes[id].path.clone(),
+                    import.line,
+                    format!(
+                        "import {keyword} {}/{}: {} is a {}, since it takes {}",
+                        import.module,
+                        import.name,
+                        import.name,
+                        is.record_kind(),
+                        if takes { "an argument" } else { "no argument" }
+                    ),
+                ));
+            }
             linked.insert(import.alias.clone(), (src, d));
         }
         scopes[id].linked = linked;
@@ -101,8 +128,8 @@ pub fn link_definitions(
     problems
 }
 
-/// A definition or theorem a proof may cite: a record of the library, or a
-/// theorem a proof of this corpus proves.
+/// An item a proof may cite: a record of the library, or a theorem a proof
+/// of this corpus proves.
 #[derive(Clone, Copy, Debug)]
 pub enum Item<'a> {
     Record(&'a Record),

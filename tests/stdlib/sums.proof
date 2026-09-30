@@ -1,4 +1,9 @@
-import proof stdlib/sums
+import mundane    stdlib/sums/range-empty as sums-range-empty
+import mundane    stdlib/sums/range-member as sums-range-member
+import mundane    stdlib/sums/range-nat as sums-range-nat
+import mundane    stdlib/sums/range-single as sums-range-single
+import mundane    stdlib/sums/range-split as sums-range-split
+import mundane    stdlib/sums/range0-member as sums-range0-member
 
 theorem range-nat
   let n ∈ ℤ                                                           (H1)
@@ -6,7 +11,7 @@ theorem range-nat
   then k ∈ ℕ
 
 1.  k ∈ ℕ
-    thm:stdlib/sums/range-nat, from H1, H2
+    mun:sums-range-nat, from H1, H2
 
 theorem range-member
   let n ∈ ℤ                                                           (H1)
@@ -14,7 +19,7 @@ theorem range-member
   then k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
 
 1.  k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
-    thm:stdlib/sums/range-member, from H1
+    mun:sums-range-member, from H1
 
 theorem range0-member
   let n ∈ ℕ₀                                                          (H1)
@@ -22,20 +27,20 @@ theorem range0-member
   then k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
 
 1.  k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
-    thm:stdlib/sums/range0-member, from H1
+    mun:sums-range0-member, from H1
 
 theorem range-single
   let m ∈ ℤ                                                           (H1)
   then {m, …, m} = {m}
 
 1.  {m, …, m} = {m}
-    thm:stdlib/sums/range-single, from H1
+    mun:sums-range-single, from H1
 
 theorem range-empty
   then {1, …, 0} = ∅
 
 1.  {1, …, 0} = ∅
-    thm:stdlib/sums/range-empty
+    mun:sums-range-empty
 
 theorem range-split
   let m ∈ ℤ                                                           (H1)
@@ -44,4 +49,4 @@ theorem range-split
   then {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
 
 1.  {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
-    thm:stdlib/sums/range-split, from H3
+    mun:sums-range-split, from H3

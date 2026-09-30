@@ -4,9 +4,10 @@
 # under addition and multiplication, order, powers, square roots and absolute
 # value.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/numbers/<name> or thm:stdlib/numbers/<name>, and
-# the prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind and name:
+# axiom, theorem, mundane, definition or function. A proof imports each item
+# it cites, `import <kind> stdlib/numbers/<name>`, where the keyword is
+# the item's kind. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -37,7 +38,7 @@ definition sqrt
   metamath    df-sqrt, resqrtcl, sqrtge0, resqrtth
   target      resqrtcl, sqrtge0, resqrtth
 
-theorem int-closure
+mundane int-closure
   let a ∈ ℤ                                                           (H1)
   then        a² ∈ ℤ
   let b ∈ ℤ                                                           (H2)
@@ -50,14 +51,14 @@ theorem int-closure
               one `let` above it is how the database says so. See DATABASE.md
               on groups.
 
-theorem nat-closure
+mundane nat-closure
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a + b ∈ ℕ. a·b ∈ ℕ.
   metamath    nnaddcl, nnmulcl
   target      nnaddcl, nnmulcl
 
-theorem real-closure
+mundane real-closure
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x + y ∈ ℝ. x − y ∈ ℝ.
@@ -67,13 +68,13 @@ theorem real-closure
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
 
-theorem half-real
+mundane half-real
   let x ∈ ℝ                                                           (H1)
   then        x/2 ∈ ℝ
   metamath    rehalfcl
   target      rehalfcl
 
-theorem half-positive
+mundane half-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        x/2 > 0
@@ -84,13 +85,13 @@ theorem half-positive
               the intermediate value and triangular reciprocals proofs use the
               method.
 
-theorem nat0-closure
+mundane nat0-closure
   let k ∈ ℕ₀                                                          (H1)
   then        k + 1 ∈ ℕ₀
   metamath    peano2nn0
   target      peano2nn0
 
-theorem nat-int
+mundane nat-int
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℤ
   metamath    nnz
@@ -98,7 +99,7 @@ theorem nat-int
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℤ as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
 
-theorem int-real
+mundane int-real
   let m ∈ ℤ                                                           (H1)
   then        m ∈ ℝ
   metamath    zre
@@ -106,7 +107,7 @@ theorem int-real
   note        `algebra` and `inequalities` work over a field, so a step
               reasoning about integers carries its atoms into ℝ first.
 
-theorem nat-real
+mundane nat-real
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℝ
   metamath    nnre
@@ -115,7 +116,7 @@ theorem nat-real
               (`SYNTAX.md`, what a membership line says), by this lemma
               directly rather than through ℤ.
 
-theorem nat0-real
+mundane nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℝ
   metamath    nn0re
@@ -123,7 +124,7 @@ theorem nat0-real
   note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
               this lemma, as `nat-real`'s note says of ℕ.
 
-theorem below-successor
+mundane below-successor
   let a ∈ ℝ                                                           (H1)
   then        a < a + 1
   metamath    ltp1
@@ -132,13 +133,13 @@ theorem below-successor
               cited, with 1 > 0 as the closed numeral fact left over, and the
               binomial theorem's step 10 uses the method.
 
-theorem nat0-int
+mundane nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℤ
   metamath    nn0z
   target      nn0z
 
-theorem nat-ge-1
+mundane nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then        m ≥ 1
   metamath    nnge1
@@ -146,21 +147,21 @@ theorem nat-ge-1
   note        No proof cites it: a line saying m ∈ ℕ says m ≥ 1 as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
 
-theorem pos-int-nat
+mundane pos-int-nat
   let m ∈ ℤ                                                           (H1)
   assume 0 < m                                                        (H2)
   then        m ∈ ℕ
   metamath    elnnz
   target      elnnz
 
-theorem nat0-nonzero
+mundane nat0-nonzero
   let m ∈ ℕ₀                                                          (H1)
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
   metamath    elnnne0
   target      elnnne0
 
-theorem integer-step
+mundane integer-step
   let m ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   assume m < n                                                        (H3)
@@ -170,14 +171,14 @@ theorem integer-step
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
 
-theorem exponent-step
+mundane exponent-step
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
   metamath    expp1
   target      expp1
 
-theorem ten-minus-one
+mundane ten-minus-one
   then        10 − 1 = 9
   metamath    10m1e9
   target      10m1e9
@@ -186,14 +187,14 @@ theorem ten-minus-one
               one digit as a number they know nothing about, so what depends
               on 10 being ten is cited, and this is where it comes from.
 
-theorem power-integer
+mundane power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℤ
   metamath    zexpcl
   target      zexpcl
 
-theorem power-real
+mundane power-real
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℝ
@@ -203,7 +204,7 @@ theorem power-real
               so it has to be known real in its own right rather than through
               its base.
 
-theorem power-nat0
+mundane power-nat0
   let a ∈ ℕ₀                                                          (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℕ₀
@@ -212,7 +213,7 @@ theorem power-nat0
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
 
-theorem exponent-one
+mundane exponent-one
   let a ∈ ℝ                                                           (H1)
   then        a^1 = a
   metamath    exp1
@@ -221,25 +222,25 @@ theorem exponent-one
               arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
               exponent laws are theorems rather than closure methods.
 
-theorem exponent-zero
+mundane exponent-zero
   let a ∈ ℝ                                                           (H1)
   then        a^0 = 1
   metamath    exp0
   target      exp0
 
-theorem trichotomy
+axiom trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x
   metamath    lttri4, 0re
   target      lttri4 with B := 0
 
-theorem nonneg-or-neg
+mundane nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
   then        x ≥ 0 or x < 0
   metamath    0re, lelttric
   target      lelttric
 
-theorem rational-coprime
+mundane rational-coprime
   let x ∈ ℚ                                                           (H1)
   then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
   metamath    elq2
@@ -248,7 +249,7 @@ theorem rational-coprime
               def:stdlib/numbers/rational. An implication and not a biconditional: it says a
               rational can be written one way, not what one is.
 
-theorem well-ordering
+axiom well-ordering
   assume S ⊆ ℕ                                                        (H1)
   assume there is s ∈ S                                               (H2)
   then        there is d ∈ S with for all s ∈ S, d ≤ s
@@ -266,7 +267,7 @@ definition abs
               definition. It is still called def:stdlib/numbers/abs because that is what it is
               to Reader A.
 
-theorem abs-real
+mundane abs-real
   let x ∈ ℝ                                                           (H1)
   then        |x| ∈ ℝ
   metamath    recn, abscl
@@ -277,7 +278,7 @@ theorem abs-real
               intermediate value proofs will need it. set.mm defines abs on ℂ
               by df-abs, so the real case goes through recn. See METHODS.md.
 
-theorem abs-difference-lt
+mundane abs-difference-lt
   let x ∈ ℝ                                                           (H1)
   let c ∈ ℝ                                                           (H2)
   let δ ∈ ℝ                                                           (H3)
@@ -285,8 +286,7 @@ theorem abs-difference-lt
   metamath    absdiflt, abslt
   target      absdiflt
 
-definition min
-  function    min(_, _)
+function min
   sort        number, number → number
   builds      _1 _2 cle wbr _1 _2 cif
   reads       the smaller of
@@ -296,8 +296,7 @@ definition min
               nothing but what min(x, y) builds; what the page needs of it
               is min-real, min-le and lt-min, from ifcl, min1, min2 and ltmin.
 
-definition max
-  function    max(_, _)
+function max
   sort        number, number → number
   builds      _1 _2 cle wbr _2 _1 cif
   reads       the larger of
@@ -306,21 +305,21 @@ definition max
   note        As min: max-real, le-max and max-le say what the page needs,
               from ifcl, max1, max2 and maxle.
 
-theorem min-real
+mundane min-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ∈ ℝ
   metamath    ifcl
   target      ifcl
 
-theorem min-le
+mundane min-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ≤ x. min(x, y) ≤ y.
   metamath    min1, min2
   target      min1, min2
 
-theorem lt-min
+mundane lt-min
   let z ∈ ℝ                                                           (H1)
   let x ∈ ℝ                                                           (H2)
   let y ∈ ℝ                                                           (H3)
@@ -328,7 +327,7 @@ theorem lt-min
   metamath    ltmin
   target      ltmin
 
-theorem max-real
+mundane max-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        max(x, y) ∈ ℝ
@@ -337,7 +336,7 @@ theorem max-real
   note        No proof cites it yet; it is here beside `min-real`, which
               the intermediate value proof cites.
 
-theorem le-max
+mundane le-max
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x ≤ max(x, y). y ≤ max(x, y).
@@ -345,7 +344,7 @@ theorem le-max
   target      max1, max2
   note        No proof cites it yet.
 
-theorem max-le
+mundane max-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let z ∈ ℝ                                                           (H3)
@@ -354,7 +353,7 @@ theorem max-le
   target      maxle
   note        No proof cites it yet.
 
-theorem quotient-real
+mundane quotient-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
@@ -365,14 +364,14 @@ theorem quotient-real
               membership from its parts. `half-real` is the case y = 2, which
               needs no hypothesis on y.
 
-theorem reciprocal-positive
+mundane reciprocal-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        1/x > 0
   metamath    recgt0
   target      recgt0
 
-theorem reciprocal-order
+mundane reciprocal-order
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
@@ -394,14 +393,14 @@ theorem archimedean
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
 
-theorem abs-product
+mundane abs-product
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        |x·y| = |x|·|y|
   metamath    absmul
   target      absmul
 
-theorem abs-quotient
+mundane abs-quotient
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
@@ -409,41 +408,41 @@ theorem abs-quotient
   metamath    absdiv
   target      absdiv
 
-theorem abs-negative
+mundane abs-negative
   let x ∈ ℝ                                                           (H1)
   then        |−x| = |x|
   metamath    absneg
   target      absneg
 
-theorem abs-zero
+mundane abs-zero
   then        |0| = 0
   metamath    abs0
   target      abs0
 
-theorem abs-one
+mundane abs-one
   then        |1| = 1
   metamath    abs1
   target      abs1
 
-theorem abs-square
+mundane abs-square
   let x ∈ ℝ                                                           (H1)
   then        |x|² = x²
   metamath    absresq
   target      absresq
 
-theorem abs-power
+mundane abs-power
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   then        |x^n| = |x|^n
   metamath    absexp
   target      absexp
 
-theorem nat0-member
+mundane nat0-member
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
   metamath    elnn0
   target      elnn0
 
-theorem nat0-as-int
+mundane nat0-as-int
   then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
   metamath    elnn0z
   target      elnn0z

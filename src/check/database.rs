@@ -105,7 +105,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                     &r.path,
                     r.line,
                     format!(
-                        "{} {} is outside stdlib/; a definition or theorem the database states lives in the standard library",
+                        "{} {} is outside stdlib/; an item the database states lives in the standard library",
                         r.kind, r.name
                     ),
                 );
@@ -122,13 +122,13 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             }
             // A definition that introduces a symbol says what it stands for
             // in `defines`, and that is its statement: what follows from it
-            // is a theorem of its own. One that declares a function says what
-            // an application of it `builds`, which is its statement in the
-            // same way, as min's is where set.mm has no minimum of its own.
+            // is a theorem of its own. A function says what an application of
+            // it `builds`, which is its statement in the same way, as min's is
+            // where set.mm has no minimum of its own.
             if r.conclusions.is_empty()
                 && !r.fields.contains_key("open")
                 && !r.fields.contains_key("defines")
-                && !r.fields.contains_key("function")
+                && r.kind != RecordKind::Function
             {
                 report.say(&r.path, r.line, format!("{} has no `then` line", r.name));
             }
@@ -586,7 +586,7 @@ pub fn check_unsorted(
             .filter(|h| h.kind == Intro::Assume)
             .map(|h| (h.text.as_str(), h.line))
             .collect();
-        if r.kind == RecordKind::Theorem {
+        if r.kind.is_fact() {
             places.extend(r.conclusions.iter().map(|(t, n)| (t.as_str(), *n)));
         }
         let mut trees: Vec<(usize, Node)> = Vec::new();

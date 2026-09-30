@@ -544,7 +544,7 @@ impl Parser<'_> {
                             self.path,
                             self.line,
                             format!(
-                                "{} is the library's function def:{}, and this file does not import it: write `import definition {module}/{}`",
+                                "{} is the library's function fun:{}, and this file does not import it: write `import function {module}/{}`",
                                 tok.text, f.item, tok.text
                             ),
                         ));

@@ -7,16 +7,16 @@
 //!   reads off f : A → B, with its equation turned by `eqcom` to the page's
 //!   u = f(s), for `def:stdlib/functions/image`;
 //! - a value lies in the image of a set holding its point: `fnfvima`, with
-//!   `ffn` the same way, for `thm:stdlib/functions/value-in-image`;
+//!   `ffn` the same way, for `mun:stdlib/functions/value-in-image`;
 //! - a one-to-one function's inverse undoes it: `f1f1orn` makes it a
 //!   bijection onto its range, where `f1ocnvfv1` applies, for
-//!   `thm:stdlib/functions/inverse-value`;
+//!   `mun:stdlib/functions/inverse-value`;
 //! - a function that is one-to-one and reaches every point is a bijection:
 //!   `dffo3` reads the reaching as onto, `df-f1o` puts the two together, and
-//!   `f1oeng` gives the bijection, for `thm:stdlib/functions/onto-bijection`;
+//!   `f1oeng` gives the bijection, for `mun:stdlib/functions/onto-bijection`;
 //! - a map sends its domain into a set exactly when each value lies there:
 //!   `fmpt` says it of a name for the map, and `eqid` names the map itself,
-//!   for `thm:stdlib/functions/function-into`.
+//!   for `mun:stdlib/functions/function-into`.
 
 use crate::binds;
 use crate::mm::Builder;

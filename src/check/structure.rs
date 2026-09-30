@@ -9,9 +9,9 @@ use regex::Regex;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::{requires_item, starts_with_head, visible};
 use crate::corpus::{
-    cited_items, define_parts, fmt, full, in_stdlib, references, written_text,
-    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Step, StepNo, Theorem, LABEL, NUMBER, REF,
+    cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
+    written_text, FileScope, Head, Intro, Item, Justification, Method, Range, Record,
+    RecordKind, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
 };
 use crate::formula::library::Function;
 use crate::formula::{holds, parse_here, Sorts};
@@ -103,8 +103,8 @@ fn productions() -> Vec<regex::Regex> {
     let cited = crate::corpus::CITED;
     let (inst, from) = (inst(), from());
     [
-        format!(r"^(?:def|thm):{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
         format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+(?:line\s+{NUMBER}|{LABEL})$"),
         format!(r"^exhibit,\s*{from}$"),
         format!(r"^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$"),
@@ -310,7 +310,7 @@ pub fn check_blocks(
     }
 }
 
-regex!(CHAIN_ITEM, r"\b(?:def|thm):");
+regex!(CHAIN_ITEM, format!(r"\b{ITEM_PREFIX}"));
 
 /// A calculation only joins. Every line cites a numbered step or a label and
 /// carries no reasoning of its own, so a line that names an item or
@@ -363,14 +363,24 @@ pub fn claims_of(thm: &Theorem) -> IndexMap<String, String> {
     out
 }
 
+/// A kind of item with its article: a theorem, an axiom.
+fn a_kind(kind: &str) -> String {
+    let article = if kind.starts_with(['a', 'e', 'i', 'o', 'u']) {
+        "an"
+    } else {
+        "a"
+    };
+    format!("{article} {kind}")
+}
+
 /// What to say of a citation that names nothing.
 fn unresolved(cited: &str) -> String {
-    if !cited.contains('/') {
+    if cited.contains('/') {
         return format!(
-            "{cited} names no theorem of this file; an item of another file is cited by its full name"
+            "{cited} is cited by its path; an item is imported, and cited by the name its import gives it"
         );
     }
-    format!("{cited} resolves to no item")
+    format!("{cited} is neither imported nor a theorem of this file")
 }
 
 regex!(LABEL_RE, LABEL);
@@ -433,7 +443,7 @@ pub fn check_citations(
             }
         }
         if let Some(target) = &just.target {
-            if target.starts_with("def:") {
+            if item_prefix(target).is_some() {
                 report.say(
                     &thm.path,
                     just.line,
@@ -444,31 +454,30 @@ pub fn check_citations(
                 );
             }
         }
-        match &just.head {
-            Head::Item { kind, .. } => {
-                let head = just.head.to_string();
-                match items.get(&just.item(&head)) {
-                    None => report.say(&thm.path, just.line, unresolved(&head)),
-                    Some(item) if item.kind() != kind.record_kind() => report.say(
-                        &thm.path,
-                        just.line,
-                        format!("{head} names a {}", item.kind()),
+        if let Head::Method(m) = &just.head {
+            if !methods.contains_key(m.as_str()) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "{} is in no record of corpus/db/methods.records",
+                        m.as_str()
                     ),
-                    Some(_) => {}
-                }
+                );
             }
-            Head::Define => {}
-            Head::Method(m) => {
-                if !methods.contains_key(m.as_str()) {
-                    report.say(
-                        &thm.path,
-                        just.line,
-                        format!(
-                            "{} is in no record of corpus/db/methods.records",
-                            m.as_str()
-                        ),
-                    );
-                }
+        }
+        // The item a step cites, as its head or as what it obtains from,
+        // resolves, and its prefix is its kind.
+        if let Some(cited) = cited_item(just) {
+            let kind = item_prefix(&cited).expect("a citation opens with a prefix");
+            match items.get(&just.item(&cited)) {
+                None => report.say(&thm.path, just.line, unresolved(&cited)),
+                Some(item) if item.kind() != kind.record_kind() => report.say(
+                    &thm.path,
+                    just.line,
+                    format!("{cited} names {}", a_kind(item.kind())),
+                ),
+                Some(_) => {}
             }
         }
         for req in &step.requires {
@@ -492,7 +501,7 @@ pub fn check_citations(
                     Some(item) if item.kind() != kind.record_kind() => report.say(
                         &thm.path,
                         no,
-                        format!("{cited} names a {}", item.kind()),
+                        format!("{cited} names {}", a_kind(item.kind())),
                     ),
                     Some(_) => {}
                 }
@@ -964,7 +973,7 @@ pub fn check_function_names(
                 path,
                 no,
                 format!(
-                    "{name} is the library's function, def:{}, which this file imports; name this function something else",
+                    "{name} is the library's function, fun:{}, which this file imports; name this function something else",
                     f.item
                 ),
             );
@@ -1157,16 +1166,19 @@ pub fn check_definitions(
     }
 }
 
-/// A proof file imports exactly the other files it cites: proof files, and
-/// the library files whose items it cites, `import proof stdlib/numbers`.
+/// A proof file imports each item it cites from another file, one to a
+/// line, with the item's kind as the keyword, and cites each item it
+/// imports.
 ///
-/// The imports have no cycle, because the theorems a file imports are built
-/// before its own. A library file imports nothing and is no part of that
-/// order.
+/// Every name the file cites is distinct within it: its own theorems, and
+/// each import under the name it gives. The imports have no cycle, because
+/// the theorems a file imports are built before its own. A library file
+/// imports nothing and is no part of that order.
 pub fn check_imports(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
+    items: &IndexMap<String, Item>,
     library: &IndexSet<String>,
 ) {
     let files = by_file(theorems);
@@ -1174,67 +1186,98 @@ pub fn check_imports(
     for (module, thms) in &files {
         let path = &thms[0].path;
         let scope = &scopes[thms[0].scope];
-        let mut said: IndexMap<String, usize> = IndexMap::new();
-        let mut said_library: IndexMap<String, usize> = IndexMap::new();
-        let mut seen: IndexSet<&str> = IndexSet::new();
-        for (name, no) in &scope.proof_imports {
-            if seen.contains(name.as_str()) {
-                report.say(path, *no, format!("{name} is imported twice"));
+        // Each name the file gives, and what gives it.
+        let mut given: IndexMap<&str, String> = IndexMap::new();
+        for thm in thms {
+            given
+                .entry(thm.name.as_str())
+                .or_insert_with(|| format!("theorem {} of this file", thm.name));
+        }
+        for i in &scope.imports {
+            given
+                .entry(i.alias.as_str())
+                .or_insert_with(|| format!("the import at line {}", i.line));
+        }
+        for f in &scope.functions {
+            given
+                .entry(f.name.as_str())
+                .or_insert_with(|| format!("the import at line {}", f.line));
+        }
+        let mut imported: IndexSet<String> = IndexSet::new();
+        let mut edges: IndexMap<String, usize> = IndexMap::new();
+        for i in &scope.items {
+            let (no, full_name) = (i.line, i.full());
+            let keyword = i.kind.record_kind();
+            if !imported.insert(full_name.clone()) {
+                report.say(path, no, format!("{full_name} is imported twice"));
                 continue;
             }
-            seen.insert(name);
-            if name == crate::corpus::STDLIB || in_stdlib(name) {
-                if library.contains(name) {
-                    said_library.insert(name.clone(), *no);
-                } else {
-                    report.say(
-                        path,
-                        *no,
-                        format!("import {name} names no library file"),
-                    );
-                }
-            } else if name == module {
-                report.say(path, *no, format!("{name} imports itself"));
-            } else if !files.contains_key(name.as_str()) {
-                report.say(path, *no, format!("import {name} names no proof file"));
-            } else {
-                said.insert(name.clone(), *no);
-            }
-        }
-        let mut cited: IndexMap<String, (String, usize)> = IndexMap::new();
-        for thm in thms {
-            for (full_name, no) in cited_items(thm) {
-                let other = match full_name.rfind('/') {
-                    Some(at) => full_name[..at].to_string(),
-                    None => full_name.clone(),
-                };
-                if other != *module {
-                    cited.entry(other).or_insert((full_name, no));
-                }
-            }
-        }
-        for (other, (full_name, no)) in &cited {
-            let a_file = files.contains_key(other.as_str()) || library.contains(other);
-            if a_file && !seen.contains(other.as_str()) {
+            if let Some(other) = given.get(i.alias.as_str()) {
                 report.say(
                     path,
-                    *no,
-                    format!("{full_name} is cited and {other} is not imported"),
+                    no,
+                    format!(
+                        "{} is already the name of {other}; import one of them under another name with `as`",
+                        i.alias
+                    ),
                 );
+            } else {
+                given.insert(&i.alias, format!("the import at line {no}"));
             }
-        }
-        for (name, no) in said.iter().chain(&said_library) {
-            if !cited.contains_key(name) {
+            if i.module == *module {
                 report.say(
                     path,
-                    *no,
-                    format!("imports {name} and cites nothing from it"),
+                    no,
+                    format!("{full_name} is a theorem of this file, which is cited with no import"),
+                );
+                continue;
+            }
+            if !library.contains(&i.module) && !files.contains_key(i.module.as_str()) {
+                report.say(
+                    path,
+                    no,
+                    format!("import {keyword} {full_name}: {} is no file", i.module),
+                );
+                continue;
+            }
+            match items.get(&full_name) {
+                None => report.say(
+                    path,
+                    no,
+                    format!(
+                        "import {keyword} {full_name}: {} holds no item {}",
+                        i.module, i.name
+                    ),
+                ),
+                Some(item) if item.kind() != keyword => report.say(
+                    path,
+                    no,
+                    format!(
+                        "import {keyword} {full_name}: {full_name} is {}",
+                        a_kind(item.kind())
+                    ),
+                ),
+                Some(_) => {}
+            }
+            if files.contains_key(i.module.as_str()) {
+                edges.entry(i.module.clone()).or_insert(no);
+            }
+        }
+        let cited: IndexSet<String> = thms
+            .iter()
+            .flat_map(|thm| cited_items(thm).into_iter().map(|(name, _)| name))
+            .collect();
+        for i in &scope.items {
+            if !cited.contains(&i.full()) {
+                report.say(
+                    path,
+                    i.line,
+                    format!("imports {} and cites nothing by it", i.alias),
                 );
             }
         }
         // A definition imported is a file read before this one, as a proof
         // file cited is, so it is an edge of the same graph.
-        let mut edges = said.clone();
         for i in &scope.imports {
             if files.contains_key(i.module.as_str()) && i.module != *module {
                 edges.entry(i.module.clone()).or_insert(i.line);

@@ -319,9 +319,9 @@ Which letter a statement binds is no part of what it says, and a lemma's
 disjointness conditions are about letters, so the letters a lemma keeps apart
 from its scope are chosen by one rule rather than searched for. A hypothesis
 saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
-and `sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
+and `sersumlim`, which `mun:stdlib/calculus/series-value` targets, keeps both
 apart from any scope it is used under; `gpartsfin`, which
-`thm:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
+`mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
 
 - every letter the lemma binds and keeps apart from its scope, and the claim
@@ -811,14 +811,14 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proofs/isosceles.proof:43  def:stdlib/geometry/triangle, from 6 does not reach -. C = A,
+proofs/isosceles.proof:48  def:triangle, from 5 does not reach -. C = A,
                           which this line claims it supplies
 ```
 
 The item branch is guarded on the `target` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name
 ends at the first space, since what follows it is the instantiation:
-`thm:stdlib/numbers/abs-real x := a, from H1` names `abs-real`.
+`mun:abs-real x := a, from H1` names `abs-real`.
 
 A lemma may ask its side conditions as one conjunction where the text writes a
 line each — `divides` is `( ( M e. ZZ /\ N e. ZZ ) -> ... )` — so a conjunction
@@ -1042,7 +1042,7 @@ An item becomes an axiom claiming what the item states, under its hypotheses,
 and the step owes those hypotheses like any others. What the item states and
 what the step claims must be one statement up to the letters they bind, or one
 side of it where the item states a biconditional; then the other side is what
-the step cites. `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
+the step cites. `mun:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
 c − δ < x and x < c + δ, and step 17.11 of `intermediate-value` claims the
 first from lines saying the second. Stated with the step's claim under the
 item's hypotheses, the axiom would say that every |x − c| is below every δ,
@@ -1050,7 +1050,7 @@ and the kernel accepts whatever is assumed. Anything else is a defect naming
 both statements.
 
 Stated as it says, an item is only as true as what it says, and a name it
-leaves open is read as anything at all. `thm:stdlib/counting/card-nonempty` said `assume
+leaves open is read as anything at all. `mun:stdlib/counting/card-nonempty` said `assume
 |X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
 false. So `parley check` refuses a name of no known sort standing where a notation
 wants a number, in any item's assumptions and any theorem's conclusion; a
@@ -1066,7 +1066,7 @@ Every written file but one assumes nothing. What is left:
 
 Completeness is not one lemma away. set.mm's `sup3` says its witness is
 never exceeded and that anything below it is exceeded, where
-`thm:stdlib/calculus/completeness` says its witness is an upper bound and at most every
+`axi:stdlib/calculus/completeness` says its witness is an upper bound and at most every
 other; between the two is a contrapositive and trichotomy, which is logic
 and not a spelling. set.mm also names the witness, the supremum, and says
 each thing the page asks of it in a lemma of its own: `suprcl` that it is
@@ -1133,8 +1133,8 @@ rewording. Isosceles's lines 5 and 6 are the triangle in two orders, and a
 requires line for A ≠ B names line 5, which writes it, not line 6, which
 writes B ≠ A.
 
-`thm:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
-as k + 1, so nothing asks that X be finite. `thm:stdlib/counting/card-nonempty` is
+`mun:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
+as k + 1, so nothing asks that X be finite. `mun:stdlib/counting/card-nonempty` is
 `hashgt0elex`, which asks that the size be positive. The page never says so,
 and it follows from the line the step cites, `|X| = k + 1`: `settle` reads
 `0 < |X|` through that equation as `0 < k + 1`, which `nn0p1gt0` gives from

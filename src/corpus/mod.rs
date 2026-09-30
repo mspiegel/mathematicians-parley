@@ -16,9 +16,10 @@ pub use load::{
     corpus, index, link_definitions, proof_files, record_files, Corpus, Item,
 };
 pub use proof::{
-    cited_item, cited_items, cites_define, fmt, outermost, parse_proof, references,
-    written_text, DefineLine, FileScope, Head, Hypothesis, Import, Intro, ItemKind,
-    Justification, Method, Opener, Range, Requires, ScopeId, Step, StepNo, Theorem,
+    cited_item, cited_items, cites_define, fmt, item_prefix, outermost, parse_proof,
+    references, written_text, DefineLine, FileScope, Head, Hypothesis, Import, Intro,
+    ItemImport, ItemKind, Justification, Method, Names, Opener, Range, Requires,
+    ScopeId, Step, StepNo, Theorem,
 };
 pub use records::{parse_database, Record, RecordKind, FIELDS};
 
@@ -42,12 +43,14 @@ macro_rules! fancy {
 
 /// An item's name, or a theorem's.
 pub const NAME: &str = r"[A-Za-z][A-Za-z0-9-]*";
-/// What follows `def:` or `thm:`: an item's name, spelt with the path of the
-/// file that holds it, or bare for a theorem of the file citing it.
+/// What follows an item's prefix: the name its import gives it, or a theorem
+/// of the file citing it. A path is read here too, so that a citation
+/// written by its path is said to be one rather than left unread.
 pub const CITED: &str = r"(?:[A-Za-z][A-Za-z0-9-]*/)*[A-Za-z][A-Za-z0-9-]*";
+/// The prefix of a citation of any item, `thm:` and the rest.
+pub const ITEM_PREFIX: &str = r"(?:thm|axi|mun|def|fun):";
 /// The standard library, the one module root that is not a proof file: its
-/// files are records, and a proof imports each one it cites as it imports a
-/// proof file.
+/// files are records.
 pub const STDLIB: &str = "stdlib";
 /// Where the database, the library and what is built from them are kept,
 /// under the working tree. Names are read from inside it, so the directory's
@@ -73,19 +76,7 @@ pub fn module_of(path: &str) -> &str {
     }
 }
 
-/// The full name a citation means, cited from a file of `module`.
-///
-/// A spelt name is taken as written; a bare one is a theorem of the citing
-/// file. Whether anything has that name is the caller's to ask.
-pub fn resolve(cited: &str, module: &str) -> String {
-    if cited.contains('/') {
-        cited.to_string()
-    } else {
-        format!("{module}/{cited}")
-    }
-}
-
-/// The name a `def:` or `thm:` head cites, without its prefix.
+/// The name a citation such as `thm:x` cites, without its prefix.
 pub fn cited_name(head: &str) -> &str {
     match head.split_once(':') {
         Some((_, name)) => name,

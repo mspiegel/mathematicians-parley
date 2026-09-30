@@ -22,7 +22,9 @@ use super::state::{
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::corpus::{define_parts, fmt, DefineParts, Intro, Step, CITED};
+use crate::corpus::{
+    define_parts, fmt, item_prefix, DefineParts, Intro, Step, CITED, ITEM_PREFIX,
+};
 use crate::matching::instantiation;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -33,7 +35,7 @@ use crate::sorts::file_definitions;
 use crate::{pf, regex, t, take};
 
 regex!(OBTAINED, r"obtain\s+(.+?)(?::|\s+from\b)");
-regex!(OBTAIN_ITEM, format!(r"\b((?:def|thm):{CITED})"));
+regex!(OBTAIN_ITEM, format!(r"\b({ITEM_PREFIX}{CITED})"));
 regex!(INDUCTION_ON, r"induction on (\S+)");
 regex!(STARTING_AT, r"starting at ([^\s,]+)");
 regex!(MEMBER_OF, r"^(\S+)\s*∈\s*(.+)$");
@@ -1075,7 +1077,7 @@ impl<'a> Elaborator<'a> {
                     ex = fresh;
                 }
             }
-            Some(item_name) if item_name.starts_with("def:") => {
+            Some(item_name) if item_prefix(item_name).is_some_and(|k| k.unfolds()) => {
                 // The existence is the one the step's claim states, over
                 // names nothing else holds, reached as a step claiming it
                 // would reach it.

@@ -1576,7 +1576,7 @@ fn angle_size(b: &mut Builder, out: &mut Vec<Lemma>) {
 
 /// The unsigned angle on three points is real and at least 0.
 ///
-/// What `thm:stdlib/geometry/angle-real` says, stated as the corpus states an
+/// What `mun:stdlib/geometry/angle-real` says, stated as the corpus states an
 /// angle: at B, between the two differences, B apart from the other two. It
 /// is the first two of the three things `gangrange` says, read off the
 /// closed interval by `elicc2`.

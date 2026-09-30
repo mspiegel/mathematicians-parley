@@ -1,4 +1,17 @@
-import proof stdlib/sets
+import mundane    stdlib/sets/difference-empty as sets-difference-empty
+import mundane    stdlib/sets/difference-self as sets-difference-self
+import mundane    stdlib/sets/difference-set as sets-difference-set
+import mundane    stdlib/sets/intersection-commutes as sets-intersection-commutes
+import mundane    stdlib/sets/intersection-distributes as sets-intersection-distributes
+import mundane    stdlib/sets/intersection-empty as sets-intersection-empty
+import mundane    stdlib/sets/intersection-member as sets-intersection-member
+import mundane    stdlib/sets/intersection-self as sets-intersection-self
+import mundane    stdlib/sets/remove-member as sets-remove-member
+import mundane    stdlib/sets/subset-empty as sets-subset-empty
+import mundane    stdlib/sets/union-commutes as sets-union-commutes
+import mundane    stdlib/sets/union-empty as sets-union-empty
+import mundane    stdlib/sets/union-member as sets-union-member
+import mundane    stdlib/sets/union-self as sets-union-self
 
 theorem difference-set
   let X be a set                                                      (H1)
@@ -6,7 +19,7 @@ theorem difference-set
   then X ∖ {a} is a set
 
 1.  X ∖ {a} is a set
-    thm:stdlib/sets/difference-set
+    mun:sets-difference-set
 
 theorem intersection-member
   let Y be a set                                                      (H1)
@@ -15,7 +28,7 @@ theorem intersection-member
   then u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
 
 1.  u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
-    thm:stdlib/sets/intersection-member
+    mun:sets-intersection-member
 
 theorem union-member
   let Y be a set                                                      (H1)
@@ -24,7 +37,7 @@ theorem union-member
   then u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
 
 1.  u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
-    thm:stdlib/sets/union-member
+    mun:sets-union-member
 
 theorem remove-member
   let Y be a set                                                      (H1)
@@ -33,7 +46,7 @@ theorem remove-member
   then u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
 
 1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
-    thm:stdlib/sets/remove-member
+    mun:sets-remove-member
 
 theorem intersection-commutes
   let Y be a set                                                      (H1)
@@ -41,7 +54,7 @@ theorem intersection-commutes
   then Y ∩ Z = Z ∩ Y
 
 1.  Y ∩ Z = Z ∩ Y
-    thm:stdlib/sets/intersection-commutes
+    mun:sets-intersection-commutes
 
 theorem union-commutes
   let Y be a set                                                      (H1)
@@ -49,49 +62,49 @@ theorem union-commutes
   then Y ∪ Z = Z ∪ Y
 
 1.  Y ∪ Z = Z ∪ Y
-    thm:stdlib/sets/union-commutes
+    mun:sets-union-commutes
 
 theorem intersection-self
   let Y be a set                                                      (H1)
   then Y ∩ Y = Y
 
 1.  Y ∩ Y = Y
-    thm:stdlib/sets/intersection-self
+    mun:sets-intersection-self
 
 theorem union-self
   let Y be a set                                                      (H1)
   then Y ∪ Y = Y
 
 1.  Y ∪ Y = Y
-    thm:stdlib/sets/union-self
+    mun:sets-union-self
 
 theorem union-empty
   let Y be a set                                                      (H1)
   then Y ∪ ∅ = Y
 
 1.  Y ∪ ∅ = Y
-    thm:stdlib/sets/union-empty
+    mun:sets-union-empty
 
 theorem intersection-empty
   let Y be a set                                                      (H1)
   then Y ∩ ∅ = ∅
 
 1.  Y ∩ ∅ = ∅
-    thm:stdlib/sets/intersection-empty
+    mun:sets-intersection-empty
 
 theorem difference-self
   let Y be a set                                                      (H1)
   then Y ∖ Y = ∅
 
 1.  Y ∖ Y = ∅
-    thm:stdlib/sets/difference-self
+    mun:sets-difference-self
 
 theorem difference-empty
   let Y be a set                                                      (H1)
   then Y ∖ ∅ = Y
 
 1.  Y ∖ ∅ = Y
-    thm:stdlib/sets/difference-empty
+    mun:sets-difference-empty
 
 theorem intersection-distributes
   let X be a set                                                      (H1)
@@ -100,11 +113,11 @@ theorem intersection-distributes
   then X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
 
 1.  X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
-    thm:stdlib/sets/intersection-distributes
+    mun:sets-intersection-distributes
 
 theorem subset-empty
   let Y be a set                                                      (H1)
   then Y ⊆ ∅ ↔ Y = ∅
 
 1.  Y ⊆ ∅ ↔ Y = ∅
-    thm:stdlib/sets/subset-empty
+    mun:sets-subset-empty
