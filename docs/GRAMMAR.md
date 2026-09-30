@@ -908,6 +908,77 @@ its file imports, so a reader never asks which gcd a line means; a file that
 imports no C may call a function of its own C, and a set or a number with
 that letter is no function and may be written anywhere.
 
+## Imports and citations by kind (proposed)
+
+This section is a proposal under review and is not in force: `parley check`
+enforces "Names" and "Database records" above. It changes how a proof file
+says what it uses and how a step cites it. `DATABASE.md`, "Record kinds
+(proposed)", gives the record kinds it rests on.
+
+**An import names one item, and its keyword is the kind of that item.** A
+proof file imports each item it uses from another file, one to a line:
+
+```
+import theorem    stdlib/divisibility/prime-factor
+import axiom      stdlib/calculus/completeness
+import mundane    stdlib/numbers/int-closure
+import definition stdlib/divisibility/divides
+import function   stdlib/divisibility/gcd
+import theorem    proofs/triangle-inequality/abs-bounds as abs-sum
+import function   proofs/tri/T (D1)
+import definition proofs/tri/B (D2)
+```
+
+The keyword is what the item is where it lives. For the library it is the
+record's kind. For a proof file it is `theorem` for a theorem, and for a define
+outside the theorems `function` when the define has a parameter and
+`definition` when it has none. So the head of a file says what the file rests
+on, and which of it is mundane, without the reader opening another file. There
+is no import of a whole file: `import proof` is not a form, and a bare `import`
+is a defect.
+
+**A citation writes the kind's prefix and the item's name, not its path.** The
+import says where an item comes from, so the step does not say it again:
+
+| kind | prefix | citation |
+|---|---|---|
+| theorem | `thm:` | `obtain p: thm:prime-factor m := n! + 1, from 2, 3` |
+| axiom | `axi:` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
+| mundane | `mun:` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
+| definition | `def:` | `def:divides, from 3` |
+| function | `fun:` | `fun:gcd, from H1, H2` |
+
+The prefix stays because it says on the line what kind of thing the step rests
+on, which is what a viewer collapses by, and because it keeps an item's name
+apart from a method's: `thm:induction` is a theorem and `induction` is the
+method. A theorem of the citing file is cited the same way, `thm:even-square`,
+and has no import. A notation, a method and the defines of a cited theorem are
+imported by nothing.
+
+A define imported from a proof file is cited by the label its import gives,
+`D1`, as every define is cited by its label. A library function is applied bare
+in a formula, `gcd(a, b)`, and a step that unfolds it cites `fun:gcd`.
+
+**`as` gives an imported item a name of the file's own.** Every name a file
+cites or applies is distinct within it: its own theorems, and each import under
+its name or the name after `as`. Where two imports would share a name, one of
+them takes `as`. An imported define and a library function are written inside
+formulas, so the name each is imported under, its own or the one `as` gives, is
+one the tokeniser reads as a single name: one letter, as a define's is, or for
+a library function a word on the library's list of function names. A library
+theorem, axiom, mundane or definition is written only in a justification, and
+the name `as` gives it may be any name.
+
+**The checks move from the file to the item.** Each of these is a defect: an
+item cited or applied and not imported; an import that nothing cites or
+applies; an item imported twice; an import whose keyword is not the kind of the
+item it names; a citation whose prefix is not the kind of its import; a path
+that names no file; and a name the file does not hold, or holds only inside a
+theorem.
+
+What this replaces: the `import proof` and `import definition` rules of
+"Names", and the import of a library function in "Database records".
+
 ## Not decided here
 
 - **Whether a claim of several formulas can be cited one formula at a time.**

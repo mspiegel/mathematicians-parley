@@ -76,6 +76,30 @@ that each line has one role.
 The viewer may collapse dull facts by default, since it can tell them apart
 mechanically. That is a viewer setting and changes nothing in the text.
 
+**Dull facts and mundane items are two tests of one idea: what a human proof
+leaves unsaid.** The dull-fact test decides where a line is written. It
+classifies a step by its role in the proof at hand, mechanically, and a step it
+picks out goes in a `requires` line. The mundane kind, a proposal in
+`DATABASE.md` ("Record kinds (proposed)"), decides whether a reader needs to see
+a line. It classifies a library item once, for every proof that cites it, by
+whether a human proof takes the item for granted without naming it; that is a
+judgment made when the item is reviewed, not something the elaborator works
+out. A numbered step whose justification is a mundane item is a mundane step,
+and what a proof leaves unsaid is its dull facts and its mundane steps. The
+viewer may collapse mundane steps as it collapses dull facts, since the kind of
+what a step cites is written on the line.
+
+The two tests mostly agree, and they differ in two places. A dull fact may rest
+on no item at all: a requires line justified by `arithmetic`, or by a line that
+already says the fact, is dull by its role alone, and most requires lines are
+of this kind. A mundane step may be one the argument uses, which makes it no
+dull fact, so it stays a numbered step and is still taken for granted. In the
+corpus every requires line that cites a library item cites a mundane one, 57
+lines over 14 items, and 220 of the 247 numbered steps that cite a library item
+cite a mundane one. No requires line rests on a theorem or an axiom; one that
+did would still be written as a requires line, and would be one the reader
+needs to see.
+
 **Membership in a number system is a dull fact and merits no exception.**
 That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
 or method requires it. Exempting it was tempting: such a fact never fails, the

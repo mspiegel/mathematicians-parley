@@ -368,3 +368,111 @@ the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of
 collinearity elaborates; what has no readable statement is the equivalence.
+
+## Record kinds (proposed)
+
+This section is a proposal under review and is not in force: the library still
+holds `definition` and `theorem` records only. `GRAMMAR.md`, "Imports and
+citations by kind (proposed)", gives the imports and citations that go with it.
+
+**A library record is one of five kinds, and the kind says what a reader is to
+take the item to be.**
+
+| kind | a reader takes it as | items |
+|---|---|---|
+| `axiom` | given, not proved | 10 |
+| `theorem` | a result a proof names where it uses it | 8 |
+| `mundane` | true, and taken for granted without being named | 171 |
+| `definition` | what a word or a symbol means | 30 |
+| `function` | a name a formula applies, `gcd(a, b)` | 4 |
+
+Every item is still supplied by a set.mm label or is `open`, as now, and the
+ten axioms are supplied the way every other item is: by a lemma set.mm proves,
+or for `side-angle-side` by one `corpus/elaboration/stdlib/proved.mm` proves.
+So an axiom's kind is the reader's view of it and not the kernel's. Notation
+and methods keep their own records in `corpus/db/`.
+
+**A definition is what a `define` is: its two sides may be put for each
+other.** Its `then` line is an iff or an equation, and a step that unfolds it
+puts one side where the other stood. A fact proved from a definition is not
+part of it, however close to it the fact stands: C(n, k) = 0 for n < k follows
+from the definition of C in one step and is mundane.
+
+**A function record declares a name that a formula applies.** The four are
+`gcd`, `C`, `min` and `max`, and `binomial-coefficient` is renamed `C`. They
+take the fields a definition takes for this purpose, `sort`, `builds` and
+`reads`, with `metamath`, `target` and `note`, and a `then` line is optional:
+`min` and `max` have none, and what a proof needs of them is in theorems of
+their own. There is no field for the applied form. The name is the record's
+and the number of holes is the number of places `sort` gives before its arrow,
+so `function gcd` with `sort number, number → number` is applied as
+`gcd(_, _)`, and a function record's name is therefore one a formula can
+write. A function's syntax is in its record and a notation's is in
+`corpus/db/notation.records`. That is why a proof imports one and not the
+other: a function's name is a letter or word a proof might give something of
+its own, and a notation's tokens are not.
+
+**Axiom, theorem and mundane are told apart by how a human proof treats the
+item.**
+
+- An **axiom** is what Reader A (`READERS.md`) takes as given rather than
+  proved. Where an item is taken as given and is also used without a word, it
+  is an axiom: trichotomy is never mentioned in a proof, and it is one of the
+  order axioms of ℝ. Several laws of logic can be proved from one another, so
+  one is chosen: excluded middle is the axiom, as textbooks present it, and the
+  laws proved from it are mundane.
+- A **theorem** is a result a human proof names where it uses it: "by Pascal's
+  rule", "by the division algorithm".
+- **Mundane** is the rest: what a human proof takes for granted without naming.
+  That covers membership and closure, symmetry, the bookkeeping of sets and of
+  logic, rearranging a sum, and counting by a bijection or by disjoint parts.
+  What such a proof states is the fact the mundane item is applied to, the
+  bijection or the disjointness, and not the item.
+
+**Mundane is the dull-fact idea of `READERS.md` applied to an item.** Both pick
+out what a human proof leaves unsaid. The dull-fact test does it by a step's
+role in one proof, and decides whether the step is written as a `requires`
+line. The kind does it by the item, once for every proof that cites it, and
+decides whether a reader needs to see the step. `READERS.md`, after its
+paragraphs on dull facts, says how the two relate and where they differ: every
+requires line in the corpus that cites a library item cites a mundane one, and
+a numbered step that cites a mundane item may be one the argument uses, which
+no dull fact is.
+
+The classification, reviewed item by item:
+
+| kind | items |
+|---|---|
+| axiom | `calculus/completeness`, `numbers/trichotomy`, `numbers/well-ordering`, `geometry/side-angle-side`, `reasoning/excluded-middle`, `groups/group-associative`, `groups/group-closed`, `groups/group-identity`, `groups/group-inverse`, `groups/group-inverse-closed` |
+| theorem | `counting/pascal`, `divisibility/division-algorithm`, `divisibility/prime-factor`, `divisibility/gcd-mod`, `divisibility/divides-gcd`, `groups/group-cancel`, `numbers/archimedean`, `sums/sum-telescopes` |
+| mundane | every other theorem record |
+
+`divides-gcd` is a theorem because the definition of gcd says a common divisor
+is at most the gcd, and that it divides the gcd takes Bézout's identity or
+Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
+some presentations, and are axioms here because Reader A meets them as the
+Well-Ordering Principle and the SAS postulate.
+
+### Follow-ups
+
+1. **Notation, and facts that are the definition of a thing applied, are
+   classed mundane for now, and that is to be settled.** 𝒫∅ = {∅}
+   (`powerset-empty`), C(n, k) = 0 outside 0 … n (`binomial-above`,
+   `binomial-below`), a map that is one-to-one and onto giving a bijection
+   (`onto-bijection`), a series being the limit of its partial sums
+   (`series-value`), and P giving P or Q (`or-left`, `or-right`) are each what
+   a reader calls "by definition". None of them is a substitution, so none is a
+   definition. Whether they stay mundane or stand beside the definition they
+   come from is open.
+2. **`binomial-above` states its k over a larger set than it can be in.** It
+   says `let k ∈ ℤ`, and n ∈ ℕ₀ with n < k makes k a natural number, so the
+   reader expects `let k ∈ ℕ₀`. The binomial proof loses nothing by the change,
+   since the line it cites for k already says m + 1 ∈ ℕ₀. A build is to confirm
+   that the elaborator carries k ∈ ℕ₀ to the K ∈ ℤ of `bcval4`, and the other
+   records are to be read for hypotheses of the same kind.
+3. **"Bijection" has no definition.** `notation bijection` reads "there is a
+   bijection from X to Y" as set.mm's equinumerosity, "onto" has no word, and
+   `onto-bijection` is what joins one-to-one and onto to the phrase. A
+   definition, that there is a bijection from X to Y exactly when some
+   f : X → Y is one-to-one and onto, would make that theorem unneeded, if the
+   formula language can say "there is f : X → Y".
