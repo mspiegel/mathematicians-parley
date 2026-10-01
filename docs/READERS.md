@@ -105,9 +105,11 @@ the mundane mark (proposed)", makes taken-for-granted a mark any axiom,
 theorem, definition or method may carry, and a step citing a marked item
 writes `mun:` whatever the item's kind. Trichotomy, excluded middle and the
 group axioms are then mundane axioms, and the unfolding of set difference is a
-mundane definition. Counted that way, 237 of the 335 numbered steps that cite a
-library item cite a mundane one; the 87 that cite one of the thirty
-definitions not yet reviewed are counted as named. A mundane definition is
+mundane definition. Counted that way, 319 of the 335 numbered steps that cite a
+library item cite a mundane one. The sixteen others cite the eight named
+theorems, three named axioms (completeness, well-ordering and side-angle-side)
+and five named definitions (continuity, limits, congruent triangles, and C's
+two zero clauses). A mundane definition is
 still written out and is still an unfolding: what "every unfolding of a
 definition, marked as such" asks is met by the record the citation points to,
 which says `definition`, and not by the line, which says `mun:`.

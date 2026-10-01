@@ -563,18 +563,33 @@ every step that cites it, asking whether a textbook would name it there.
 | `powerset-empty`, `or-left`, `or-right` | `mundane theorem` | the definition applied, not the definition |
 
 The eight theorems of "Record kinds" stay `theorem`, and every other mundane
-item there becomes a `mundane theorem`. The thirty definitions not in the
-table are not yet reviewed, and stay named until they are.
+item there becomes a `mundane theorem`.
+
+The other definitions were read the same way, at every step that cites them.
+Three are named:
+
+| definition | where it is used |
+|---|---|
+| `continuous-on` | "by the continuity of f at c", intermediate-value step 16 |
+| `tends-to` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
+| `congruent` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
+
+The rest are `mundane definition`: `divides`, `even`, `odd`, `prime`,
+`congruent-mod`, `abs`, `sqrt`, `irrational`, `one-to-one`, `image`,
+`upper-bound`, `least-upper-bound`, `interval`, `triangle`, `subset`,
+`set-builder`, `part-builder`, `powerset`, `indexed-union`, `coset`, and
+`factorial`, `set-image`, `function`, `point`, `angle` and `collinear`, which
+no proof cites. A textbook writes "so p = 2r for some integer r" and "since p
+is prime, p > 1" without naming the definition; the word is the reason. So
+`def:` is rare: five steps in sixteen proofs cite a named definition, these
+three and C's two clauses.
 
 ### Follow-ups of the proposal
 
-1. **The thirty definitions are to be read, as the table's items were, for
-   whether a proof names them.** Some look mundane at sight, set-builder and
-   interval membership among them, and some named, prime and even.
-2. **Symbols with no definition are to get one where a proof needs it:** ∅,
+1. **Symbols with no definition are to get one where a proof needs it:** ∅,
    {x}, |X| and "is finite". Their honest definitions are harder than what
    Reader A brings, |X| = n meaning there is a bijection from X to {1, …, n},
    and no proof unfolds them yet.
-3. **"Every unfolding of a definition, marked as such"** (`READERS.md`) is
+2. **"Every unfolding of a definition, marked as such"** (`READERS.md`) is
    met by the pointer and not by the line for a mundane definition: the line
    writes `mun:difference`, and it is the record that says `definition`.
