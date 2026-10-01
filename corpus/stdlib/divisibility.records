@@ -53,10 +53,10 @@ mundane theorem even-or-odd
   then        n is even or n is odd
   metamath    exmid
   target      exmid
-  note        def:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
+  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
               statement is excluded middle, ( ph or not ph ), and the
               expansion never uses H1. zeo says the same thing for an encoding
-              where "odd" means n - 1 is even, which is not the one def:stdlib/divisibility/odd
+              where "odd" means n - 1 is even, which is not the one mun:stdlib/divisibility/odd
               chose.
 
 mundane theorem not-both
@@ -65,7 +65,7 @@ mundane theorem not-both
   then        n is not odd
   metamath    notnot
   target      notnot
-  note        def:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
+  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
               double negation introduction, ( ph -> not not ph ), and the
               expansion never uses H1.
 

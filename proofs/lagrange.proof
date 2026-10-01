@@ -5,9 +5,9 @@ import mundane    stdlib/counting/finite-part
 import mundane    stdlib/counting/partition-count
 import mundane    stdlib/counting/parts-finite
 import mundane    stdlib/divisibility/divides
+import mundane    stdlib/functions/bijection
 import mundane    stdlib/functions/function-into
 import mundane    stdlib/functions/one-to-one
-import mundane    stdlib/functions/onto-bijection
 import mundane    stdlib/groups/coset
 import mundane    stdlib/groups/group-associative
 import mundane    stdlib/groups/group-closed
@@ -20,7 +20,7 @@ import mundane    stdlib/groups/subgroup-inverse
 import mundane    stdlib/groups/subgroup-within
 import mundane    stdlib/sets/in-subset
 import mundane    stdlib/sets/indexed-union
-import mundane    stdlib/sets/intersection-member
+import mundane    stdlib/sets/intersection
 import mundane    stdlib/sets/part-builder
 import mundane    stdlib/sets/subset
 import mundane    stdlib/sets/subset-antisymmetric
@@ -281,7 +281,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                   exhibit, from 9.5.1, 9.5.3
 
     9.6.  There is a bijection from H to gH.
-          mun:onto-bijection, from 9.4, 9.5
+          mun:bijection, from 9.4, 9.5
 
     9.7.  |H| = |gH|
           mun:card-equal X := H, Y := gH, from 2, 9.6
@@ -337,7 +337,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           obtain b: mun:part-builder, from K19
 
     15.3. x ∈ Y. x ∈ Z.
-          mun:intersection-member, from K20
+          mun:intersection, from K20
 
     15.4. x ∈ aH
           substitute Y = aH (line 15.1) into line 15.3

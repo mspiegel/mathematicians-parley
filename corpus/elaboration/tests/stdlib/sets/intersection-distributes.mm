@@ -6,6 +6,6 @@ $( tests/stdlib/sets/intersection-distributes, elaborated from tests/stdlib/sets
 $[ stdlib/definitions.mm $]
 
 ${
-  interse1 $p |- ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) -> ( A i^i ( B u. C ) ) = ( ( A i^i B ) u. ( A i^i C ) ) ) $=
+  interse2 $p |- ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) -> ( A i^i ( B u. C ) ) = ( ( A i^i B ) u. ( A i^i C ) ) ) $=
     ( cun cin wceq cvv wcel wa indi a1i ) ABCDEABEACEDFAGHBGHICGHIABCJK $.
 $}

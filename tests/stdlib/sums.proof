@@ -1,9 +1,9 @@
+import mundane    stdlib/sums/range as sums-range
 import mundane    stdlib/sums/range-empty as sums-range-empty
-import mundane    stdlib/sums/range-member as sums-range-member
 import mundane    stdlib/sums/range-nat as sums-range-nat
 import mundane    stdlib/sums/range-single as sums-range-single
 import mundane    stdlib/sums/range-split as sums-range-split
-import mundane    stdlib/sums/range0-member as sums-range0-member
+import mundane    stdlib/sums/range0 as sums-range0
 
 theorem range-nat
   let n ∈ ℤ                                                           (H1)
@@ -13,21 +13,23 @@ theorem range-nat
 1.  k ∈ ℕ
     mun:sums-range-nat, from H1, H2
 
-theorem range-member
+theorem range
   let n ∈ ℤ                                                           (H1)
   let k ∈ ℝ                                                           (H2)
-  then k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
+  assume k ∈ {1, …, n}                                                (H3)
+  then k ∈ ℕ and k ≤ n
 
-1.  k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
-    mun:sums-range-member, from H1
+1.  k ∈ ℕ and k ≤ n
+    mun:sums-range, from H1, H3
 
-theorem range0-member
+theorem range0
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℝ                                                           (H2)
-  then k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
+  assume k ∈ {0, …, n}                                                (H3)
+  then k ∈ ℕ₀ and k ≤ n
 
-1.  k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
-    mun:sums-range0-member, from H1
+1.  k ∈ ℕ₀ and k ≤ n
+    mun:sums-range0, from H1, H3
 
 theorem range-single
   let m ∈ ℤ                                                           (H1)

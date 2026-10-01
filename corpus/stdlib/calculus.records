@@ -63,7 +63,7 @@ definition tends-to
               cannot read a sequence the page writes as a rule in n.
               `climnnre` says it as the page does.
 
-mundane theorem series-value
+mundane definition series-sum
   let t : ℕ → ℝ                                                       (H1)
   let L ∈ ℝ                                                           (H2)
   assume Σ(k = 1 to n) t(k) → L as n → ∞                              (H3)

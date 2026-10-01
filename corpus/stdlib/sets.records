@@ -35,7 +35,7 @@ mundane definition set-builder
               `holds-of` notation for why this is not a function applied to an
               argument.
 
-              The element is u and the braces bind t, as def:stdlib/functions/set-image writes
+              The element is u and the braces bind t, as mun:stdlib/functions/set-image writes
               them. Both were t until the conclusion check went in, and a
               statement that uses one letter for a free name and for the name
               the braces bind cannot be matched against a use of it: the free
@@ -49,7 +49,7 @@ mundane definition part-builder
   metamath    elrab over the power set, and elpw2g, which this corpus
               proves together in elaboration/stdlib/proved.mm
   target      gelrabpw
-  note        The parts of X with a property: `def:stdlib/sets/set-builder`
+  note        The parts of X with a property: `mun:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
 
 mundane theorem set-builder-subset
@@ -204,12 +204,12 @@ mundane theorem powerset-monotone
   metamath    sspw
   target      sspw
 
-mundane theorem intersection-member
+mundane definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
   metamath    elin
   target      elin
 
-mundane theorem union-member
+mundane definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
   metamath    elun
   target      elun
@@ -272,7 +272,7 @@ mundane theorem subset-empty
   metamath    ss0b
   target      ss0b
 
-mundane theorem difference-member
+mundane definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
   metamath    eldif
   target      eldif

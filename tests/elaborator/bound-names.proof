@@ -1,4 +1,4 @@
-import mundane    stdlib/calculus/series-value
+import mundane    stdlib/calculus/series-sum
 import mundane    stdlib/divisibility/gcd
 
 theorem series-under-its-own-letters
@@ -6,7 +6,7 @@ theorem series-under-its-own-letters
   then Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
 
 1.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
-    mun:series-value L := 1, from H1
+    mun:series-sum L := 1, from H1
     requires for all k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
     requires 1 ∈ ℝ: arithmetic
 

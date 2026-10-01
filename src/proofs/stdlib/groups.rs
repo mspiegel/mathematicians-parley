@@ -4,7 +4,7 @@
 //! steps: what is in a coset gH. set.mm's coset is the sum of the subsets
 //! {g} and H (`LSSum`), and `lsmelvalx` says its members are the y·z with
 //! y ∈ {g} and z ∈ H, which `rexsng` reads as the g·z with z ∈ H, for
-//! `def:stdlib/groups/coset`.
+//! `mun:stdlib/groups/coset`.
 
 use crate::binds;
 use crate::mm::Builder;

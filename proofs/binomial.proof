@@ -1,6 +1,4 @@
 import theorem    stdlib/counting/pascal
-import mundane    stdlib/counting/binomial-above
-import mundane    stdlib/counting/binomial-below
 import mundane    stdlib/counting/binomial-nat0
 import mundane    stdlib/counting/binomial-zero-index
 import mundane    stdlib/numbers/exponent-step
@@ -116,7 +114,7 @@ theorem binomial-step
     requires m ∈ ℝ: from H3
 
 8.  C(m, m + 1) = 0
-    mun:binomial-above n := m, k := m + 1, from H3, 1, 7
+    def:C n := m, k := m + 1, from H3, 1, 7
 
 9.  (m + 1) − (m + 1) = 0
     algebra
@@ -264,7 +262,7 @@ theorem binomial-step
     requires m + 1 ∈ ℤ: from 1
 
 28. C(m, −1) = 0
-    mun:binomial-below n := m, from H3
+    def:C n := m, from H3
 
 29. C(m, 0 − 1) = C(m, −1)
     substitute 0 − 1 = −1 (arithmetic)

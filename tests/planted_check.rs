@@ -1167,9 +1167,9 @@ fn cases() -> Vec<Case> {
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:binomial-above n := m, k := m + 1, from H3, 1, 7".to_string()), "    mun:binomial-above n := m + 1, k := m + 1, from H3, 1, 7".to_string()),
+                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from H3, 1, 7".to_string()), "    def:C n := m + 1, k := m + 1, from H3, 1, 7".to_string()),
             ],
-            "step 8 cites mun:binomial-above, which asks for",
+            "step 8 claims something that def:C does not conclude",
         ),
         // Four blocks of binomial-step each fix k under the label J, and J means
         // what the block around the citing step says: here k runs from 1. Read

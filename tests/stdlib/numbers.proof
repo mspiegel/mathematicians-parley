@@ -16,9 +16,9 @@ import mundane    stdlib/numbers/max-real as numbers-max-real
 import mundane    stdlib/numbers/nat-ge-1 as numbers-nat-ge-1
 import mundane    stdlib/numbers/nat-int as numbers-nat-int
 import mundane    stdlib/numbers/nat-real as numbers-nat-real
+import mundane    stdlib/numbers/nat0 as numbers-nat0
 import mundane    stdlib/numbers/nat0-as-int as numbers-nat0-as-int
 import mundane    stdlib/numbers/nat0-int as numbers-nat0-int
-import mundane    stdlib/numbers/nat0-member as numbers-nat0-member
 import mundane    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
 import mundane    stdlib/numbers/nat0-real as numbers-nat0-real
 import mundane    stdlib/numbers/quotient-real as numbers-quotient-real
@@ -182,12 +182,13 @@ theorem abs-power
 1.  |x^n| = |x|^n
     mun:numbers-abs-power, from H1, H2
 
-theorem nat0-member
+theorem nat0
   let n ∈ ℝ                                                           (H1)
-  then n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
+  assume n ∈ ℕ₀                                                       (H2)
+  then n ∈ ℕ or n = 0
 
-1.  n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
-    mun:numbers-nat0-member
+1.  n ∈ ℕ or n = 0
+    mun:numbers-nat0, from H2
 
 theorem nat0-as-int
   let n ∈ ℝ                                                           (H1)

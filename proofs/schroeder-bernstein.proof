@@ -1,3 +1,4 @@
+import mundane    stdlib/functions/bijection
 import mundane    stdlib/functions/function-into
 import mundane    stdlib/functions/function-value
 import mundane    stdlib/functions/image
@@ -5,13 +6,12 @@ import mundane    stdlib/functions/image-monotone
 import mundane    stdlib/functions/image-within
 import mundane    stdlib/functions/inverse-value
 import mundane    stdlib/functions/one-to-one
-import mundane    stdlib/functions/onto-bijection
 import mundane    stdlib/functions/value-in-image
 import mundane    stdlib/reasoning/excluded-middle
 import mundane    stdlib/reasoning/from-contradiction
 import mundane    stdlib/sets/complement-swap
 import mundane    stdlib/sets/complement-swap-outside
-import mundane    stdlib/sets/difference-member
+import mundane    stdlib/sets/difference
 import mundane    stdlib/sets/difference-reverses
 import mundane    stdlib/sets/difference-subset
 import mundane    stdlib/sets/disjoint-difference
@@ -127,7 +127,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
                   join 7.2.1, 7.2.3
 
     7.3.  a ∈ A ∖ C
-          mun:difference-member, from 7.1, 7.2
+          mun:difference, from 7.1, 7.2
 
 8.  M(C) ⊆ A ∖ C
     mun:subset, from 7
@@ -191,7 +191,7 @@ theorem schroeder-bernstein
     let t ∈ A ∖ C                                                     (K1)
 
     3.1.  t ∈ A. t ∉ C.
-          mun:difference-member, from K1
+          mun:difference, from K1
 
     3.2.  A ∖ C ⊆ g[B ∖ R]
           mun:equal-subset, from 2
@@ -204,7 +204,7 @@ theorem schroeder-bernstein
           requires B ∖ R ⊆ B: mun:difference-subset
 
     3.5.  y ∈ B
-          mun:difference-member, from 3.4
+          mun:difference, from 3.4
 
     3.6.  h(t) = g⁻¹(t)
           D2, from 3.1
@@ -267,7 +267,7 @@ theorem schroeder-bernstein
                   instantiate t := v in line 3, from K3
 
           4.1.7.  h(v) ∉ R
-                  mun:difference-member, from 4.1.6
+                  mun:difference, from 4.1.6
 
           4.1.8.  h(v) ∈ R. h(v) ∉ R.
                   join 4.1.5, 4.1.7
@@ -299,13 +299,13 @@ theorem schroeder-bernstein
           assume s ∉ C                                                (C2)
 
           5.2.4.  s ∈ A ∖ C
-                  mun:difference-member, from K4, C2
+                  mun:difference, from K4, C2
 
           5.2.5.  h(s) ∈ B ∖ R. g(h(s)) = s.
                   instantiate t := s in line 3, from 5.2.4
 
           5.2.6.  h(s) ∈ B
-                  mun:difference-member, from 5.2.5
+                  mun:difference, from 5.2.5
 
 6.  h : A → B
     mun:function-into, from 5
@@ -356,7 +356,7 @@ theorem schroeder-bernstein
                   assume t ∉ C                                        (C5)
 
                   7.3.1.5.  t ∈ A ∖ C
-                            mun:difference-member, from K6, C5
+                            mun:difference, from K6, C5
 
                   7.3.1.6.  not h(s) = h(t)
                             instantiate u := s, v := t in line 4, from C3, 7.3.1.5
@@ -368,7 +368,7 @@ theorem schroeder-bernstein
           assume s ∉ C                                                (C6)
 
           7.3.2.  s ∈ A ∖ C
-                  mun:difference-member, from K5, C6
+                  mun:difference, from K5, C6
 
           7.3.3.  h(s) ∈ B ∖ R. g(h(s)) = s.
                   instantiate t := s in line 3, from 7.3.2
@@ -389,7 +389,7 @@ theorem schroeder-bernstein
                   assume t ∉ C                                        (C8)
 
                   7.3.4.3.  t ∈ A ∖ C
-                            mun:difference-member, from K6, C8
+                            mun:difference, from K6, C8
 
                   7.3.4.4.  h(t) ∈ B ∖ R. g(h(t)) = t.
                             instantiate t := t in line 3, from 7.3.4.3
@@ -439,7 +439,7 @@ theorem schroeder-bernstein
           assume b ∉ R                                                (C10)
 
           8.2.6.  b ∈ B ∖ R
-                  mun:difference-member, from K7, C10
+                  mun:difference, from K7, C10
 
           8.2.7.  g(b) ∈ g[B ∖ R]
                   mun:value-in-image f := g, from 8.2.6
@@ -452,7 +452,7 @@ theorem schroeder-bernstein
                   mun:in-subset, from 8.2.8, 8.2.7
 
           8.2.10. g(b) ∈ A. g(b) ∉ C.
-                  mun:difference-member, from 8.2.9
+                  mun:difference, from 8.2.9
 
           8.2.11. h(g(b)) = g⁻¹(g(b))
                   D2, from 8.2.10
@@ -472,4 +472,4 @@ theorem schroeder-bernstein
     mun:one-to-one, from 6, 7
 
 10. There is a bijection from A to B.
-    mun:onto-bijection, from 9, 8
+    mun:bijection, from 9, 8

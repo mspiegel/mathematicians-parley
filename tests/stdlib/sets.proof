@@ -1,16 +1,16 @@
 import mundane    stdlib/sets/difference-empty as sets-difference-empty
 import mundane    stdlib/sets/difference-self as sets-difference-self
 import mundane    stdlib/sets/difference-set as sets-difference-set
+import mundane    stdlib/sets/intersection as sets-intersection
 import mundane    stdlib/sets/intersection-commutes as sets-intersection-commutes
 import mundane    stdlib/sets/intersection-distributes as sets-intersection-distributes
 import mundane    stdlib/sets/intersection-empty as sets-intersection-empty
-import mundane    stdlib/sets/intersection-member as sets-intersection-member
 import mundane    stdlib/sets/intersection-self as sets-intersection-self
 import mundane    stdlib/sets/remove-member as sets-remove-member
 import mundane    stdlib/sets/subset-empty as sets-subset-empty
+import mundane    stdlib/sets/union as sets-union
 import mundane    stdlib/sets/union-commutes as sets-union-commutes
 import mundane    stdlib/sets/union-empty as sets-union-empty
-import mundane    stdlib/sets/union-member as sets-union-member
 import mundane    stdlib/sets/union-self as sets-union-self
 
 theorem difference-set
@@ -21,23 +21,25 @@ theorem difference-set
 1.  X ∖ {a} is a set
     mun:sets-difference-set
 
-theorem intersection-member
+theorem intersection
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)
   let u be an element                                                 (H3)
-  then u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
+  assume u ∈ Y ∩ Z                                                    (H4)
+  then u ∈ Y and u ∈ Z
 
-1.  u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
-    mun:sets-intersection-member
+1.  u ∈ Y and u ∈ Z
+    mun:sets-intersection, from H4
 
-theorem union-member
+theorem union
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)
   let u be an element                                                 (H3)
-  then u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
+  assume u ∈ Y ∪ Z                                                    (H4)
+  then u ∈ Y or u ∈ Z
 
-1.  u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
-    mun:sets-union-member
+1.  u ∈ Y or u ∈ Z
+    mun:sets-union, from H4
 
 theorem remove-member
   let Y be a set                                                      (H1)

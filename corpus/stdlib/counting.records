@@ -106,14 +106,18 @@ definition C
   builds      _1 _2 cbc co
   reads       choose
   let n ∈ ℕ₀                                                          (H1)
-  let k ∈ {0, …, n}                                                   (H2)
-  then        C(n, k) = n!/((n − k)!·k!)
-  metamath    bcval2
-  target      bcval2
+  then        C(n, −1) = 0
+  let k ∈ ℤ                                                           (H2)
+  then        if k ∈ {0, …, n} then C(n, k) = n!/((n − k)!·k!).
+              if n < k then C(n, k) = 0.
+  metamath    bcneg1, bcval2, bcval4
+  target      bcneg1, bcval2, bcval4
   note        set.mm defines C(n, k) for every integer k, as 0 outside
-              0 … n, and the formula is its value inside. The binomial proof
-              does not unfold this: it rests on Pascal's rule and on the
-              values at the edges, which are set.mm theorems proved from it.
+              0 … n, and the formula is its value inside. That it is 0 above
+              n and at −1 is a convention a writer chooses, so both are
+              clauses of the definition and not theorems about it. set.mm
+              states the two ways a coefficient is zero as one disjunction,
+              k < 0 or n < k, and `bcval4` gives the second.
 
 theorem pascal
   let n ∈ ℕ₀                                                          (H1)
@@ -129,23 +133,6 @@ mundane theorem binomial-zero-index
   then        C(n, 0) = 1
   metamath    bcn0
   target      bcn0
-
-mundane theorem binomial-above
-  let n ∈ ℕ₀                                                          (H1)
-  let k ∈ ℤ                                                           (H2)
-  assume n < k                                                        (H3)
-  then        C(n, k) = 0
-  metamath    bcval4
-  target      bcval4
-  note        set.mm states the two ways a coefficient is zero as one
-              disjunction, k < 0 or n < k. This is the second of them, and the
-              disjunction is apparatus `olc` supplies from it.
-
-mundane theorem binomial-below
-  let n ∈ ℕ₀                                                          (H1)
-  then        C(n, −1) = 0
-  metamath    bcneg1
-  target      bcneg1
 
 mundane theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)

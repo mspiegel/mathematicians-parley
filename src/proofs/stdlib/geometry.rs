@@ -20,7 +20,7 @@ use crate::binds;
 use crate::mm::{Builder, Proof};
 use crate::proofs::Lemma;
 
-/// What `def:stdlib/geometry/triangle` says of three points, as set.mm
+/// What `mun:stdlib/geometry/triangle` says of three points, as set.mm
 /// writes it.
 ///
 /// Three distinct points that are not collinear, and in the plane the three

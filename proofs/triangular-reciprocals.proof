@@ -1,6 +1,6 @@
 import theorem    stdlib/numbers/archimedean
 import theorem    stdlib/sums/sum-telescopes
-import mundane    stdlib/calculus/series-value
+import mundane    stdlib/calculus/series-sum
 import mundane    stdlib/numbers/abs-difference-lt
 import mundane    stdlib/numbers/reciprocal-order
 import mundane    stdlib/numbers/reciprocal-positive
@@ -121,6 +121,6 @@ theorem triangular-reciprocals
     requires 2 ∈ ℝ: arithmetic
 
 5.  Σ(k = 1 to ∞) 1/T(k) = 2
-    mun:series-value L := 2, from 4
+    mun:series-sum L := 2, from 4
     requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership
     requires 2 ∈ ℝ: arithmetic

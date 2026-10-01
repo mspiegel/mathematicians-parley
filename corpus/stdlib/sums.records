@@ -179,13 +179,13 @@ mundane theorem range-nat
               well, and a line said of every k ∈ ℕ answers a hypothesis over
               the range (`SYNTAX.md`), both by this lemma.
 
-mundane theorem range-member
+mundane definition range
   let n ∈ ℤ                                                           (H1)
   then        k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
   metamath    fznn
   target      fznn
 
-mundane theorem range0-member
+mundane definition range0
   let n ∈ ℕ₀                                                          (H1)
   then        k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
   metamath    fznn0

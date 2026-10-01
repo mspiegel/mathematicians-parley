@@ -491,7 +491,7 @@ notation set-builder
   metamath    crab
   target      _3 _1 _2 crab
   note        Told apart from set-image by what precedes the colon: a variable
-              and its domain here, an expression there. See def:stdlib/sets/set-builder.
+              and its domain here, an expression there. See mun:stdlib/sets/set-builder.
 
 notation set-builder-part
   pattern     {_ ⊆ _ : _}
@@ -513,7 +513,7 @@ notation set-image
   metamath    the range of a cmpt, which is what elrnmpt speaks of
   target      _2 _3 _1 cmpt crn
   note        The binding hole is not the first one, which is why `binds` names
-              the holes rather than assuming an order. See def:stdlib/functions/set-image.
+              the holes rather than assuming an order. See mun:stdlib/functions/set-image.
 
 notation indexed-union
   pattern     ⋃(_ ∈ _) _
@@ -653,7 +653,7 @@ notation image
   metamath    cima
   target      _1 _2 cima
   note        f[X] is everything f sends X to, {f(x) : x ∈ X}, which
-              def:stdlib/functions/image says. Square brackets and not f(X):
+              mun:stdlib/functions/image says. Square brackets and not f(X):
               f(X) is f applied to one thing, and M(C) beside f[C] in
               Schröder–Bernstein would be the two meanings side by side.
 
@@ -704,7 +704,7 @@ notation juxtaposition
   target      folded
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
-              it the √2 proof could not cite def:stdlib/divisibility/divides, whose statement says
+              it the √2 proof could not cite mun:stdlib/divisibility/divides, whose statement says
               n = d·k while the proof offers p = 2r.
 
               The one shape with no token, covering 2k and k(k + 1). It never
@@ -723,7 +723,7 @@ notation angle
   target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
   note        Three juxtaposed holes after a token. set.mm's angle function is
               signed and it never names it, so `ang` is the one constant this
-              corpus introduces; see def:stdlib/geometry/angle. The absolute value is what
+              corpus introduces; see mun:stdlib/geometry/angle. The absolute value is what
               makes ∠PQR = ∠RQP true, which the signed function does not.
 
 notation congruent
@@ -1026,7 +1026,7 @@ notation there-are
   metamath    wrex nested twice, one for each variable
   target      _5 _3 _4 wrex _1 _2 wrex
   note        The two-variable form, for two names over two sets, as
-              def:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
+              mun:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
               two nested `there is` phrases reads far worse. Two names over
               one set are written "there are p, q ∈ ℤ with …", which builds
               this node.
@@ -1090,7 +1090,7 @@ notation divides
   reads       divides
   metamath    wbr with cdvds
   target      _1 _2 cdvds wbr
-  note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
+  note        Seventeen uses, the commonest word predicate. See mun:stdlib/divisibility/divides.
 
 notation congruent-mod
   pattern     _ ≡ _ (mod _)
@@ -1126,7 +1126,7 @@ notation series
   metamath    csu over ( ZZ>= ` M )
   target      _2 cuz cfv _3 _1 csu
   note        The sum of the third hole for every whole number from the second
-              on: the value of the series, which mun:stdlib/calculus/series-value
+              on: the value of the series, which mun:stdlib/calculus/series-sum
               says is the limit of its partial sums. set.mm sums over the
               upper integers from M, and ℕ is those from 1.
 
@@ -1205,14 +1205,14 @@ notation bound
   sort        number, set of number → formula
   level       predicate
   reads       is an upper bound of, is a least upper bound of
-  metamath    see def:stdlib/calculus/upper-bound and def:stdlib/calculus/least-upper-bound
+  metamath    see mun:stdlib/calculus/upper-bound and mun:stdlib/calculus/least-upper-bound
   target      vs cv _1 cle wbr vs _2 wral,
               vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
               _1 vt cv cle wbr wi vt cr wral wa
   note        set.mm has no upper bound of its own: `df-sup` builds the idea
               inside a class abstraction and nothing names it. So each entry
-              is the quantified formula `def:stdlib/calculus/upper-bound` and
-              `def:stdlib/calculus/least-upper-bound` state, which is what those two say the
+              is the quantified formula `mun:stdlib/calculus/upper-bound` and
+              `mun:stdlib/calculus/least-upper-bound` state, which is what those two say the
               notation means. `s` ranges over the set and `t` over the reals
               the second pattern compares against; neither is a hole, and
               reserving them is what stops a proof that fixes an `s` of its
@@ -1240,11 +1240,11 @@ notation collinear
   reads       are collinear
   metamath    the ratio of the two differences is real
   target      _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
-  note        Three points on one line, which def:stdlib/geometry/triangle needs to say that a
-              triangle's are not. Its definition is open, as def:stdlib/geometry/angle is while
+  note        Three points on one line, which mun:stdlib/geometry/triangle needs to say that a
+              triangle's are not. Its definition is open, as mun:stdlib/geometry/angle is while
               the ∠ notation stands declared: incidence is a primitive of the
               geometry, and what it means in set.mm's plane is the same
-              question def:stdlib/geometry/point leaves open.
+              question mun:stdlib/geometry/point leaves open.
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle

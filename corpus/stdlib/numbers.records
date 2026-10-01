@@ -247,7 +247,7 @@ mundane theorem rational-coprime
   metamath    elq2
   target      elq2 with Q := x
   note        set.mm's second reading of being rational, beside elq, which is
-              def:stdlib/numbers/rational. An implication and not a biconditional: it says a
+              mun:stdlib/numbers/rational. An implication and not a biconditional: it says a
               rational can be written one way, not what one is.
 
 axiom well-ordering
@@ -265,7 +265,7 @@ mundane definition abs
   target      absid, absnid
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
               the real case. So this elaborates to a pair of theorems, not to a
-              definition. It is still called def:stdlib/numbers/abs because that is what it is
+              definition. It is still called mun:stdlib/numbers/abs because that is what it is
               to Reader A.
 
 mundane theorem abs-real
@@ -438,7 +438,7 @@ mundane theorem abs-power
   metamath    absexp
   target      absexp
 
-mundane theorem nat0-member
+mundane definition nat0
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
   metamath    elnn0
   target      elnn0

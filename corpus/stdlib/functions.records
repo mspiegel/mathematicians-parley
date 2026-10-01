@@ -56,7 +56,7 @@ mundane theorem function-value
   then        f(x) ∈ E
   metamath    ffvelcdm
   target      ffvelcdm
-  note        The intermediate value pilot called this def:stdlib/functions/function, colliding
+  note        The intermediate value pilot called this mun:stdlib/functions/function, colliding
               with the Cantor pilot's definition of the same name. Renamed by the
               merge; that proof's three citations are renamed with it.
 
@@ -102,7 +102,7 @@ mundane definition image
               together in elaboration/stdlib/proved.mm
   target      gfvelima
   note        f[Y] is everything f sends Y to, {f(s) : s ∈ Y}. It is the same
-              set as `def:stdlib/functions/set-image` speaks of for a map
+              set as `mun:stdlib/functions/set-image` speaks of for a map
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
 
@@ -150,7 +150,7 @@ mundane theorem inverse-value
               elaboration/stdlib/proved.mm
   target      gf1cnvfv1
 
-mundane theorem onto-bijection
+mundane definition bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)
   assume for all y ∈ Y, there is x ∈ X with y = f(x)                  (H3)

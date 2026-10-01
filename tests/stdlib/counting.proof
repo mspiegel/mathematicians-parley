@@ -18,11 +18,12 @@ theorem factorial-step
 
 theorem binomial-coefficient
   let n ∈ ℕ₀                                                          (H1)
-  let k ∈ {0, …, n}                                                   (H2)
+  let k ∈ ℤ                                                           (H2)
+  assume k ∈ {0, …, n}                                                (H3)
   then C(n, k) = n!/((n − k)!·k!)
 
 1.  C(n, k) = n!/((n − k)!·k!)
-    def:C, from H1, H2
+    def:C, from H1, H2, H3
 
 theorem card-empty
   then |∅| = 0
