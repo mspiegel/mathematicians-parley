@@ -32,3 +32,21 @@ it is `#[must_use]`, so a caller who forgot to look does not compile.
 
 The test is whether the error can happen on a run where nothing is wrong. If it
 fires hundreds of times in a green build, it is branching and it is spelt wrong.
+
+## The design documents
+
+Read the one that governs a change before making it.
+
+- `docs/SYNTAX.md`, `docs/GRAMMAR.md`: how a proof is written and read.
+  Before writing or changing a proof, a notation, or an import.
+- `docs/DATABASE.md`: records, kinds and the mundane mark.
+  Before adding or changing a library record.
+- `docs/ELABORATION.md`: what the elaborator does, renaming of bound
+  letters included. Before changing the elaborator, or proposing a lemma
+  or rule to close a gap it may already close.
+- `docs/METHODS.md`: what each method expands to.
+- `docs/READERS.md`: who the text is for, dull facts and mundane steps.
+  Before deciding whether something is named or mundane.
+- `docs/SELECTION.md` and `docs/pilot/`: which theorems come next and how
+  each pilot was done. Before starting a theorem.
+- `docs/GEOMETRY.md`, `docs/LINTER.md`: the geometry encoding and the linter.
