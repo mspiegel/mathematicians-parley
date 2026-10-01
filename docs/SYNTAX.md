@@ -308,15 +308,15 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   colon. With a variable and its domain, {t ∈ X : P(t)}, membership is
   t ∈ X and P(t). With an expression, {E(s) : s ∈ Y}, membership of u is
   "there is s ∈ Y with u = E(s)". Each is a definition with a pointer,
-  def:stdlib/sets/set-builder and def:stdlib/functions/set-image, used in both directions by the ↔
+  mun:stdlib/sets/set-builder and mun:stdlib/functions/set-image, used in both directions by the ↔
   convention. Both are kept because a school reader has met both.
 
 ## Justification forms
 
 | form | meaning |
 |---|---|
-| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the name the file imports the definition under, as `def:odd` after `import definition stdlib/divisibility/odd` |
-| `thm:X v := t, from L` | the same for a theorem, and `axi:X`, `mun:X` and `fun:X` for an axiom, a mundane item and a function: the prefix is the item's kind. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line with its kind as the keyword, `import mundane stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
+| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the name the file imports the definition under, as `def:C` after `import definition stdlib/counting/C`. A definition a proof takes for granted is applied the same way and cited `mun:X`, as `mun:odd` after `import mundane stdlib/divisibility/odd` |
+| `thm:X v := t, from L` | the same for a theorem, and `axi:X` for an axiom; `mun:X` for any item a proof takes for granted, whatever its kind. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line with `mundane` or its kind as the keyword, `import mundane stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
 | `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Use the first form where the existence comes from an item**, and the second, after a step stating the existence, where it comes from a line. In the first form the name arrives in a claim written above the justification that introduces it, and the claim says all there is of it, so the one line reads as "p = 2r for some integer r" or "choose N with …" does, whatever letter the item uses: the item's text is elsewhere, and its letters never reach the page. `LINTER.md` keeps the rule |
 | `D, from L` | D is a define's label; the claim equates the name it gives, applied or not, with what it names, and for a define by cases L says which case |
 | `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
@@ -457,11 +457,12 @@ theorem tri-one
   then T(1) = 1
 ```
 
-Another file uses it by importing it, `import function proofs/tri/T (D1)`,
-or under a name of its own, `import function proofs/tri/T as U (D1)`, and
-cites the import's label where a step writes T out. The keyword is `function`
-because T takes an argument; a define that takes none is imported as a
-`definition`. What the statement says in set.mm writes the rule out, so a
+Another file uses it by importing it, `import definition proofs/tri/T`, or
+under a name of its own, `import definition proofs/tri/T as U`. Where a step
+writes T out, the import gives a label and the step cites it,
+`import definition proofs/tri/T (D1)`; an import gives no label that nothing
+cites. Every define is imported as a `definition`, whether or not it takes an
+argument. What the statement says in set.mm writes the rule out, so a
 theorem citing `tri-one` needs nothing of T imported and its own T, if it has
 one, is a different thing.
 

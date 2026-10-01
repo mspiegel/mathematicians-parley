@@ -188,7 +188,7 @@ were a fact already in hand and 22.0% came from structure (a conjunction
 split, a membership carried between number systems or through an operation, a
 digit, sethood). The search through declared lemmas answered 4.2%, with 45
 pairings of what was wanted and which lemma gave it, from 36 lemmas. Of the
-items whose target names several lemmas, only `def:stdlib/sets/set-builder`
+items whose target names several lemmas, only `mun:stdlib/sets/set-builder`
 names two, and `elrab` fitted all ten times.
 
 **What comparing through one standard form changed.** Four of the thirty
@@ -319,7 +319,7 @@ Which letter a statement binds is no part of what it says, and a lemma's
 disjointness conditions are about letters, so the letters a lemma keeps apart
 from its scope are chosen by one rule rather than searched for. A hypothesis
 saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
-and `sersumlim`, which `mun:stdlib/calculus/series-value` targets, keeps both
+and `sersumlim`, which `mun:stdlib/calculus/series-sum` targets, keeps both
 apart from any scope it is used under; `gpartsfin`, which
 `mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
@@ -508,7 +508,7 @@ cases, each case is taken by `iftrue` where `settle` finds its condition among
 what the step names, or by `iffalse` where it finds the negation. `same`
 carries what is left to the other side, and `eqtrd` joins them.
 
-**A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
+**A definition is a theorem, not a replacement.** `mun:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.
 
@@ -524,7 +524,7 @@ the two is decided once, by whether a cited line states the existence
 (`reading`). A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
-theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
+theorem per clause, as `mun:stdlib/numbers/abs` names `absid, absnid`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
@@ -846,7 +846,7 @@ for that hypothesis binds.
 **Every `requires` line is proved from its reason, once, when its step
 starts.** `step` proves them all before the step's method runs and offers them
 to the whole of the step as `written`, so a membership wanted while turning
-`def:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
+`mun:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
 Where the step opens a narrower scope inside itself, a line is carried in by
 `lifted_to` — one `simpl` and `syl` per assumption, the way `widen` carries
 every fact. `supplied` runs more than once for a step and passes on what each
@@ -1402,7 +1402,7 @@ proved (`discharged_by`).
     out, is the value read at the name it binds. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
-    one from what the step names: `def:stdlib/divisibility/odd` gives one only from a line saying
+    one from what the step names: `mun:stdlib/divisibility/odd` gives one only from a line saying
     n is odd.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
@@ -1476,7 +1476,7 @@ angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `corpus/elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
-`ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
+`ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to
 a conjunction taken apart at nearly every step. Synthetic geometry says "A, B,
 C form a triangle" once and is done.
 

@@ -401,7 +401,7 @@ non-negative, and in ℚ and ℝ always.
   refusing it exposed that the claim smuggled in an exponent law. The geometric
   series now pays four steps for that one fact.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
-  arithmetic, and the corpus does not treat it as such; it cites `def:stdlib/numbers/sqrt`.
+  arithmetic, and the corpus does not treat it as such; it cites `mun:stdlib/numbers/sqrt`.
   Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
   is taken, because a fractional power is in general irrational and could
   only be held as a float, and a float may be inexact, infinite or zero
@@ -569,7 +569,7 @@ pilot had already asked for it to be tested on a real reader rather than
 assumed.
 
 That criterion also accounts for the two logical items the database already
-had, `axi:stdlib/reasoning/excluded-middle` and `mun:stdlib/reasoning/from-contradiction`, which is the sign that
+had, `mun:stdlib/reasoning/excluded-middle` and `mun:stdlib/reasoning/from-contradiction`, which is the sign that
 it was the rule operating implicitly all along. The three moves that left
 `join` are now `mun:stdlib/reasoning/double-negation`, cited twice, and
 `mun:stdlib/reasoning/disjunctive-syllogism`, cited once.

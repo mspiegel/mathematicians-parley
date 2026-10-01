@@ -151,9 +151,9 @@ notation plane
 
 `𝔼²` is the established notation for the Euclidean plane as a geometric
 object, distinguished from ℝ² or ℂ as algebraic ones, which is the
-distinction being drawn. `def:stdlib/geometry/point` then states `A is a point ↔ A ∈ 𝔼²`,
+distinction being drawn. `mun:stdlib/geometry/point` then states `A is a point ↔ A ∈ 𝔼²`,
 every dull fact reads `requires A ∈ 𝔼²`, and ℂ appears nowhere above the
-`target` field. `def:stdlib/numbers/irrational` is the precedent one level up: it names a
+`target` field. `mun:stdlib/numbers/irrational` is the precedent one level up: it names a
 word for `ℝ ∖ ℚ` rather than introducing a symbol.
 
 One thing to watch. `𝔼²` and `ℂ` are the same object in the kernel, so
@@ -210,9 +210,9 @@ finished rather than a starting point — `lawcos`, `pythag`, `isosctr`,
 | `notation is-a-point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
 | `notation distance` | `target` the absolute value of a difference |
 | `notation angle` | `target` the absolute value of `ang` |
-| `def:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
-| `def:stdlib/geometry/angle` | the unsigned angle, and why it is unsigned |
-| `def:stdlib/geometry/triangle` | the three disequalities |
+| `mun:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
+| `mun:stdlib/geometry/angle` | the unsigned angle, and why it is unsigned |
+| `mun:stdlib/geometry/triangle` | the three disequalities |
 | `def:stdlib/geometry/congruent` | three sides and three angles, as it already reads |
 | `mun:stdlib/geometry/distance-symmetric` | `abssub` |
 | `mun:stdlib/geometry/angle-symmetric` | provable from `arginv`, with the cut as a case |
@@ -225,7 +225,7 @@ Six `open` markers cleared.
 
 ## What it took
 
-`def:stdlib/geometry/angle` is the first definition in this corpus that introduces a symbol,
+`mun:stdlib/geometry/angle` is the first definition in this corpus that introduces a symbol,
 and the corpus emits it: `definitions.mm` declares `ang` and `df-ang`, which
 is decision 12 of `GOALS.md` exercised for the first time. Inlining the
 function instead would have worked and would have left the one definition

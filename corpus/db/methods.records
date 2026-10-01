@@ -91,7 +91,7 @@ method algebra
               is an atom. Anything about what an atom means is a cited theorem
               in a step of its own.
 
-method arithmetic
+mundane method arithmetic
   form        arithmetic
   block       none
   checks      a fact about closed numerals: value, order, disequality, or
@@ -105,6 +105,9 @@ method arithmetic
               families for longer numerals
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
+              It is the one method marked mundane: a proof never says it is
+              using it, and it never justifies a numbered step. The mark is
+              for the reader and changes nothing a tool does.
 
 method membership
   form        membership, from L
