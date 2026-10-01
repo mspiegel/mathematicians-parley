@@ -400,10 +400,10 @@ mundane definition difference
 |---|---|
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
-| `theorem` | 11 |
-| `mundane theorem` | 167 |
+| `theorem` | 13 |
+| `mundane theorem` | 172 |
 | `definition` | 6 |
-| `mundane definition` | 38 |
+| `mundane definition` | 41 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -517,6 +517,7 @@ this table is mundane.
 | side-angle-side | `axiom` | "by SAS", isosceles step 7 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
+| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
@@ -532,6 +533,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | difference, intersection, union, range, range0, nat0, rational | `mundane definition` | the meaning of ∖, ∩, ∪, {1, …, n}, {0, …, n}, ℕ₀ and ℚ, each the membership statement the library held as a theorem |
 | bijection, series-sum | `mundane definition` | "so it is a bijection", lagrange 9.6; the sum of a series as the limit of its partial sums, triangular-reciprocals step 5 |
 | gcd, min, max | `mundane definition` | functions, applied and seldom unfolded: "g = gcd(a, b) divides a and b", bezout step 13 |
+| cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
@@ -540,19 +542,20 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 331 of the 351 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: six steps in seventeen proofs cite a named
+Counted this way, 341 of the 363 numbered steps that cite a library item cite
+a mundane one. `def:` is rare: six steps in eighteen proofs cite a named
 definition.
 
 ### Follow-ups
 
 1. **Symbols with no definition are to get one where a proof needs it:** ∅,
-   {x}, |X|, "is finite", ℕ and ℤ. No proof unfolds any of them: a proof
+   {x}, |X|, "is finite", ℕ, ℤ and ℂ. No proof unfolds any of them: a proof
    about ℕ argues by `induction`, which set.mm proves from ℕ's definition
-   below the readable layer. Their honest definitions are harder than what
-   Reader A brings. |X| = n means there is a bijection from X to {1, …, n}.
-   set.mm's ℕ (`dfnn3`) is the intersection of every set of reals that holds
-   1 and is closed under adding 1, which needs a notation for the
+   below the readable layer, and a proof about ℂ asks of it only that i·i =
+   −1 and that ℝ lies inside it. Their honest definitions are harder than
+   what Reader A brings. |X| = n means there is a bijection from X to
+   {1, …, n}. set.mm's ℕ (`dfnn3`) is the intersection of every set of reals
+   that holds 1 and is closed under adding 1, which needs a notation for the
    intersection of a set of sets, and ℤ (`elz`) is defined from ℕ.
 2. **"Every unfolding of a definition, marked as such"** (`READERS.md`) is
    met by the pointer and not by the line for a mundane definition: the line

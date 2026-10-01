@@ -497,10 +497,8 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     }
     let term = fact.children[0].clone();
     let system = rules::system_of(&fact.children[1].text);
-    // ℂ has no symbol on the page, so nothing a page writes asks for it.
     let mut templates: Vec<String> = rules::SYSTEM_OF
         .iter()
-        .filter(|(_, label)| *label != "cc")
         .filter(|(_, big)| {
             Some(*big) != system && rules::within_path(system, Some(big)).is_some()
         })

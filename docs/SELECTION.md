@@ -297,6 +297,12 @@ nothing assumed: `proofs/perfect-numbers.proof`, with
 `docs/pilot/perfect-numbers.md`. ProofWiki's proof matched set.mm's step
 for step.
 
+Theorem 18 is written and elaborates with nothing assumed:
+`proofs/de-moivre.proof`, with `docs/pilot/de-moivre.md`. ProofWiki proves a
+form with a modulus r, from n = 1, through the product of complex numbers in
+polar form; the corpus proves the textbook form planned above, for
+n ∈ ℕ₀ by induction with the angle-addition formulas.
+
 Considered for these four and not chosen: Wilson's theorem (#51), a pairing
 argument mod p close to divisibility by 3 and Lagrange; the factor theorem
 (#89), where set.mm's `Poly` encoding would have to be hidden as groups

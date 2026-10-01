@@ -25,6 +25,18 @@ mundane definition rational
   metamath    elq
   target      elq
 
+mundane definition i
+  then        i·i = −1
+  metamath    ixi
+  target      ixi
+  note        What a reader knows of i, and all a proof asks of it. set.mm
+              builds ℂ first and finds i in it; a reader meets i by this.
+
+mundane theorem i-complex
+  then        i ∈ ℂ
+  metamath    ax-icn
+  target      ax-icn
+
 mundane definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
   metamath    ℝ ∖ ℚ, as in sqrt2irr0
@@ -173,7 +185,7 @@ mundane theorem integer-step
               whole number lies strictly between m and m + 1.
 
 mundane theorem exponent-step
-  let a ∈ ℝ                                                           (H1)
+  let a ∈ ℂ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
   metamath    expp1
@@ -237,7 +249,7 @@ mundane theorem exponent-one
               exponent laws are theorems rather than closure methods.
 
 mundane theorem exponent-zero
-  let a ∈ ℝ                                                           (H1)
+  let a ∈ ℂ                                                           (H1)
   then        a^0 = 1
   metamath    exp0
   target      exp0

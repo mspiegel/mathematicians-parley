@@ -1,0 +1,72 @@
+# Standard library: trigonometry
+#
+# The cosine and sine, their values at 0, and the angle-addition formulas.
+#
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/trigonometry/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, note, and for a function, sort, builds and reads.
+
+
+mundane definition cos
+  sort        number → number
+  builds      _1 ccos cfv
+  reads       the cosine of
+  metamath    df-cos, by the exponential function
+  note        A reader knows the cosine from school, and set.mm's definition of
+              it by the exponential is not what that reader means by it, so
+              this definition states nothing but what cos(x) builds; what a
+              proof needs of it is in items of its own, as for min and max.
+
+mundane definition sin
+  sort        number → number
+  builds      _1 csin cfv
+  reads       the sine of
+  metamath    df-sin, by the exponential function
+  note        As for cos.
+
+theorem cos-add
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  then        cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
+  metamath    cosadd
+  target      cosadd
+
+theorem sin-add
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  then        sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
+  metamath    sinadd
+  target      sinadd
+
+mundane theorem cos-zero
+  then        cos(0) = 1
+  metamath    cos0
+  target      cos0
+
+mundane theorem sin-zero
+  then        sin(0) = 0
+  metamath    sin0
+  target      sin0
+
+mundane theorem cos-real
+  let a ∈ ℝ                                                           (H1)
+  then        cos(a) ∈ ℝ
+  metamath    recoscl
+  target      recoscl
+
+mundane theorem sin-real
+  let a ∈ ℝ                                                           (H1)
+  then        sin(a) ∈ ℝ
+  metamath    resincl
+  target      resincl

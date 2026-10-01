@@ -161,12 +161,12 @@ precedence order
               them. If one ever does, it writes a parenthesis.
 
 notation number-systems
-  pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ
+  pattern     ℕ   ℕ₀   ℤ   ℚ   ℝ   ℂ
   sort        → set of number
   reads       the natural numbers, the natural numbers with zero, the integers,
-              the rationals, the reals
-  metamath    cn, cn0, cz, cq, cr
-  target      cn, cn0, cz, cq, cr
+              the rationals, the reals, the complex numbers
+  metamath    cn, cn0, cz, cq, cr, cc
+  target      cn, cn0, cz, cq, cr, cc
   note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader
               taught that the natural numbers begin at 0 needs this pointer to
               say so. Nothing in any text assumes either convention beyond it.
@@ -436,6 +436,17 @@ notation subset
   reads       is a subset of
   metamath    wss
   target      _1 _2 wss
+
+notation imaginary-unit
+  pattern     i
+  sort        → number
+  reads       i
+  metamath    ci
+  target      ci
+  note        The square root of −1, mun:stdlib/numbers/i. A proof gives no
+              name of its own the letter i, so that i·i = −1 on any line means
+              the one thing. Geometry keeps ℂ off the page (GEOMETRY.md), and
+              no geometry proof writes i.
 
 notation empty-set
   pattern     ∅

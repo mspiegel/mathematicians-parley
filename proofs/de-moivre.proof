@@ -1,0 +1,146 @@
+import theorem    stdlib/trigonometry/cos-add
+import theorem    stdlib/trigonometry/sin-add
+import mundane    stdlib/numbers/exponent-step
+import mundane    stdlib/numbers/exponent-zero
+import mundane    stdlib/numbers/i
+import mundane    stdlib/numbers/i-complex
+import mundane    stdlib/trigonometry/cos
+import mundane    stdlib/trigonometry/cos-real
+import mundane    stdlib/trigonometry/cos-zero
+import mundane    stdlib/trigonometry/sin
+import mundane    stdlib/trigonometry/sin-real
+import mundane    stdlib/trigonometry/sin-zero
+
+theorem de-moivre
+  metamath    demoivre
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  then (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
+
+1.  cos(x) ∈ ℝ
+    mun:cos-real a := x, from H1
+
+2.  sin(x) ∈ ℝ
+    mun:sin-real a := x, from H1
+
+3.  i ∈ ℂ
+    mun:i-complex
+
+4.  i·i = −1
+    mun:i
+
+5.  cos(x) + i·sin(x) ∈ ℂ
+    membership, from 1, 2, 3
+
+6.  (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
+    induction on n starting at 0, from H2
+
+    base
+    6.1.  (cos(x) + i·sin(x))^0 = 1
+          mun:exponent-zero a := cos(x) + i·sin(x), from 5
+
+    6.2.  0·x = 0
+          algebra
+          requires x ∈ ℝ: from H1
+
+    6.3.  cos(0·x) + i·sin(0·x) = cos(0) + i·sin(0)
+          substitute 0·x = 0 (line 6.2)
+
+    6.4.  cos(0) = 1
+          mun:cos-zero
+
+    6.5.  sin(0) = 0
+          mun:sin-zero
+
+    6.6.  cos(0) + i·sin(0) = 1 + i·sin(0)
+          substitute cos(0) = 1 (line 6.4)
+
+    6.7.  1 + i·sin(0) = 1 + i·0
+          substitute sin(0) = 0 (line 6.5)
+
+    6.8.  1 + i·0 = 1
+          algebra
+          requires i ∈ ℂ: from 3
+
+    6.9.  (cos(x) + i·sin(x))^0 = cos(0·x) + i·sin(0·x)
+          calculation
+            (cos(x) + i·sin(x))^0 = 1                         6.1
+                                  = 1 + i·0                   6.8
+                                  = 1 + i·sin(0)              6.7
+                                  = cos(0) + i·sin(0)         6.6
+                                  = cos(0·x) + i·sin(0·x)     6.3
+
+    step
+    6.10. For all k ∈ ℕ₀, if (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x)
+          then (cos(x) + i·sin(x))^(k + 1) = cos((k + 1)·x) + i·sin((k + 1)·x).
+          fix
+          let k ∈ ℕ₀                                                  (K)
+          assume (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x)        (IH)
+
+          6.10.1. (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))
+                  mun:exponent-step a := cos(x) + i·sin(x), m := k, from 5, K
+
+          6.10.2. (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x)) = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))
+                  substitute (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x) (IH)
+
+          6.10.3. cos(k·x) ∈ ℝ
+                  mun:cos-real a := k·x
+                  requires k·x ∈ ℝ: membership, from K, H1
+
+          6.10.4. sin(k·x) ∈ ℝ
+                  mun:sin-real a := k·x
+                  requires k·x ∈ ℝ: membership, from K, H1
+
+          6.10.5. (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))
+                  algebra
+                  requires cos(k·x) ∈ ℝ: from 6.10.3
+                  requires sin(k·x) ∈ ℝ: from 6.10.4
+                  requires cos(x) ∈ ℝ: from 1
+                  requires sin(x) ∈ ℝ: from 2
+                  requires i ∈ ℂ: from 3
+
+          6.10.6. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))
+                  substitute i·i = −1 (line 4)
+
+          6.10.7. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x)) = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
+                  algebra
+                  requires cos(k·x) ∈ ℝ: from 6.10.3
+                  requires sin(k·x) ∈ ℝ: from 6.10.4
+                  requires cos(x) ∈ ℝ: from 1
+                  requires sin(x) ∈ ℝ: from 2
+                  requires i ∈ ℂ: from 3
+
+          6.10.8. cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x)
+                  thm:cos-add a := k·x, b := x
+                  requires k·x ∈ ℂ: membership, from K, H1
+                  requires x ∈ ℂ: from H1
+
+          6.10.9. sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x)
+                  thm:sin-add a := k·x, b := x
+                  requires k·x ∈ ℂ: membership, from K, H1
+                  requires x ∈ ℂ: from H1
+
+          6.10.10. k·x + x = (k + 1)·x
+                   algebra
+                   requires k ∈ ℝ: from K
+                   requires x ∈ ℝ: from H1
+
+          6.10.11. (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
+                   substitute cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x) (line 6.10.8)
+
+          6.10.12. cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) = cos(k·x + x) + i·sin(k·x + x)
+                   substitute sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x) (line 6.10.9)
+
+          6.10.13. cos(k·x + x) + i·sin(k·x + x) = cos((k + 1)·x) + i·sin((k + 1)·x)
+                   substitute k·x + x = (k + 1)·x (line 6.10.10)
+
+          6.10.14. (cos(x) + i·sin(x))^(k + 1) = cos((k + 1)·x) + i·sin((k + 1)·x)
+                   calculation
+                     (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))                  6.10.1
+                         = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))                                        6.10.2
+                         = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))  6.10.5
+                         = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))   6.10.6
+                         = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))      6.10.7
+                         = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))                              6.10.11
+                         = cos(k·x + x) + i·sin(k·x + x)                                                      6.10.12
+                         = cos((k + 1)·x) + i·sin((k + 1)·x)                                                  6.10.13
