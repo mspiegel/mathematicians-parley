@@ -1139,9 +1139,22 @@ notation sum-over
   metamath    csu over a finite set
   target      _2 _3 _1 csu
   note        The sum of the third hole for each member of the second, which is
-              finite: σ(n) is Σ(d ∈ {e ∈ ℕ : e divides n}) d, the sum of the
-              divisors of n. Σ(k = a to b) is this sum over {a, …, b}, and is
-              kept because a reader writes a range that way.
+              finite. Σ(k = a to b) is this sum over {a, …, b}, and is kept
+              because a reader writes a range that way.
+
+notation sum-over-condition
+  pattern     Σ(_ ∈ _ : _) _
+  sort        number, set of number, formula, number → number
+  level       summation
+  binds       hole 1 over holes 3 and 4
+  reads       the sum, as the first runs over those in the second with the third, of the fourth
+  metamath    csu over crab, one letter binding both
+  target      _3 _1 _2 crab _4 _1 csu
+  note        The sum over the members of a set that meet a condition, with one
+              letter for both, as a reader writes it: σ(n) is
+              Σ(d ∈ ℕ : d divides n) d, the sum of the divisors of n. It is
+              the sum over a set built by `{_ ∈ _ : _}`, written without
+              naming the set.
 
 notation tends-to
   pattern     _ → _ as _ → ∞

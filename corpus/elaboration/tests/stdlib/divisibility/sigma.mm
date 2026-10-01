@@ -6,8 +6,8 @@ $( tests/stdlib/divisibility/sigma, elaborated from tests/stdlib/divisibility.pr
 $[ stdlib/proved.mm $]
 
 ${
-  $d d e $.
-  $d A d e $.
-  sigma1 $p |- ( A e. NN -> ( 1 sigma A ) = sum_ d e. { e e. NN | e || A } d ) $=
-    ( g1sgmval ) ACBD $.
+  $d d m $.
+  $d A d m $.
+  sigma1 $p |- ( A e. NN -> ( 1 sigma A ) = sum_ d e. { d e. NN | d || A } d ) $=
+    ( cn wcel c1 csgm co cv cdvds wbr crab vm csu g1sgmval wceq id cbvsumv a1i eqtrd ) ACDZEAFGBHZAIJZBCKZLHZLMZUCUABMZALBNUEUFOTUCUDUALBUDUAOPQRS $.
 $}

@@ -50,10 +50,12 @@ and 2^(p − 1)·q is perfect, by definition. ∎
 
 ## Decisions made with the reader
 
-1. **σ is a definition, by a sum over a set:** σ(n) = Σ(d ∈ {e ∈ ℕ : e
-   divides n}) d. The theorem was chosen to test exactly this, a function
-   defined by a sum over a set given by a condition, so the sum over a set
-   is a notation, `Σ(_ ∈ _) _`, and not only facts about σ.
+1. **σ is a definition, by a sum over a set given by a condition:**
+   σ(n) = Σ(d ∈ ℕ : d divides n) d, one letter for the sum and the
+   condition, as a reader writes it. The theorem was chosen to test exactly
+   this feature, so it is a notation, `Σ(_ ∈ _ : _) _`, and not only facts
+   about σ. A notation for divisors alone, `Σ(d divides n) d`, was weighed
+   and not taken: it would serve one condition.
 2. **σ is named, not mundane.** Reader A has not met σ, so a proof using it
    names it. Its three facts, multiplicativity, its value at a prime and at
    a prime's power, are named theorems, as ProofWiki names them.
@@ -74,8 +76,10 @@ and 2^(p − 1)·q is perfect, by definition. ∎
 ## What the pilot reveals
 
 1. **A sum over a set is a notation,** `Σ(_ ∈ _) _`, built to set.mm's
-   `csu`. Σ(k = a to b) stays as it is, the same sum over {a, …, b}
-   written the way a reader writes a range.
+   `csu`, and so is a sum over those members of a set that meet a
+   condition, `Σ(_ ∈ _ : _) _`, built to `csu` over `crab` with one letter
+   binding both. Σ(k = a to b) stays as it is, the same sum over
+   {a, …, b} written the way a reader writes a range.
 2. **An item's name may open with a Greek letter,** so σ's record is
    `definition σ`, a step cites `def:σ` and a proof imports
    `stdlib/divisibility/σ`. Metamath reads ASCII only, in labels, file
@@ -89,9 +93,12 @@ and 2^(p − 1)·q is perfect, by definition. ∎
    in, k^1 and P^c 1. Two lemmas in `proved.mm` write the power away,
    `g1sgmval` and `g1sgmppw` (`src/proofs/stdlib/divisors.rs`).
    Multiplicativity needs none: `sgmmul with A := 1`.
-4. **A definition's letters keep set.mm's apart.** `sgmval2` keeps its two
-   bound letters distinct, so σ's definition binds d in the sum and e in
-   the set, {e ∈ ℕ : e divides n}, and not d in both.
+4. **One letter where set.mm's lemma has two.** `sgmval2`, and so
+   `g1sgmval`, keeps its two bound letters distinct, k in the sum and p in
+   the set, where σ's definition binds d in both. No lemma is changed for
+   it: the elaborator's renaming of bound letters (`ELABORATION.md`, the
+   renaming apart) applies `g1sgmval` with a fresh letter for the sum and
+   renames it to d with `cbvsumv`.
 5. **`membership` does not give n − 1 ∈ ℕ₀ from n ∈ ℕ,** so the library has
    `nat-minus-one` (`nnm1nn0`). The other new mundane items are what the
    proof cites in passing: `power-nat`, `prime-nat`, `two-prime`,

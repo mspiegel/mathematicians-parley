@@ -10,9 +10,9 @@ import definition stdlib/divisibility/σ
 
 theorem sigma
   let n ∈ ℕ                                                           (H1)
-  then σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+  then σ(n) = Σ(d ∈ ℕ : d divides n) d
 
-1.  σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+1.  σ(n) = Σ(d ∈ ℕ : d divides n) d
     def:σ n := n, from H1
 
 theorem gcd-commutes

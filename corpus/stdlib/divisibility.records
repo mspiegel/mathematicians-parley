@@ -286,7 +286,7 @@ definition σ
   builds      c1 _1 csgm co
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
-  then        σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+  then        σ(n) = Σ(d ∈ ℕ : d divides n) d
   metamath    sgmval2 with its power 1 written away, which this corpus proves
               in elaboration/stdlib/proved.mm
   target      g1sgmval
