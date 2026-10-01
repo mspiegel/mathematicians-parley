@@ -80,7 +80,8 @@ mechanically. That is a viewer setting and changes nothing in the text.
 leaves unsaid.** The dull-fact test decides where a line is written. It
 classifies a step by its role in the proof at hand, mechanically, and a step it
 picks out goes in a `requires` line. The mundane kind (`DATABASE.md`, "Record
-kinds") decides whether a reader needs to see a line. It classifies a library item once, for every proof that cites it, by
+kinds") decides whether a reader needs to see a line. It classifies a library
+item once, for every proof that cites it, by
 whether a human proof takes the item for granted without naming it; that is a
 judgment made when the item is reviewed, not something the elaborator works
 out. A numbered step whose justification is a mundane item is a mundane step,
@@ -98,6 +99,18 @@ lines over 14 items, and 220 of the 247 numbered steps that cite a library item
 cite a mundane one. No requires line rests on a theorem or an axiom; one that
 did would still be written as a requires line, and would be one the reader
 needs to see.
+
+**Proposed: mundane is a mark, not a kind.** `DATABASE.md`, "Definitions and
+the mundane mark (proposed)", makes taken-for-granted a mark any axiom,
+theorem, definition or method may carry, and a step citing a marked item
+writes `mun:` whatever the item's kind. Trichotomy, excluded middle and the
+group axioms are then mundane axioms, and the unfolding of set difference is a
+mundane definition. Counted that way, 237 of the 335 numbered steps that cite a
+library item cite a mundane one; the 87 that cite one of the thirty
+definitions not yet reviewed are counted as named. A mundane definition is
+still written out and is still an unfolding: what "every unfolding of a
+definition, marked as such" asks is met by the record the citation points to,
+which says `definition`, and not by the line, which says `mun:`.
 
 **Membership in a number system is a dull fact and merits no exception.**
 That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item

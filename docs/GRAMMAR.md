@@ -956,6 +956,88 @@ its file imports, so a reader never asks which gcd a line means; a file that
 imports no C may call a function of its own C, and a set or a number with
 that letter is no function and may be written anywhere.
 
+## Imports and citations by mark (proposed)
+
+This section is a proposal under review and is not in force: `parley check`
+enforces "Names" and "Database records" above. `DATABASE.md`, "Definitions and
+the mundane mark (proposed)", gives the records it rests on.
+
+**A record's header says its kind and whether it is taken for granted:**
+
+```
+<record>  ::= [ `mundane` ] <kind> <name> { <field> }
+<kind>    ::= `notation` | `method` | `axiom` | `theorem` | `definition`
+            | `precedence`
+```
+
+`mundane` stands before `axiom`, `theorem`, `definition` and `method`, and
+before nothing else. The `function` kind is gone, and its fields `sort`,
+`builds` and `reads` move to `definition`, where a definition with `sort` and
+`builds` declares a function.
+
+**A citation writes `mun:` for any item taken for granted, and its kind's
+prefix otherwise:**
+
+| record | citation |
+|---|---|
+| `axiom completeness` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
+| `mundane axiom trichotomy` | `mun:trichotomy x := f(c), from 14` |
+| `theorem prime-factor` | `obtain p: thm:prime-factor m := n! + 1, from 2, 3` |
+| `mundane theorem int-closure` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
+| `definition C` | `def:C` |
+| `mundane definition gcd` | `mun:gcd a := a, b := b, from H1, H2` |
+
+So the line says whether a reader needs to see the step, which is what the
+viewer collapses by, and the record says what the item is, which is what the
+elaborator reads to decide whether to unfold it or cite it. `fun:` is gone.
+
+**An import's keyword is the prefix's word:** `axiom`, `theorem`,
+`definition`, or `mundane` for any item taken for granted. The head of a file
+then says what it rests on and which of it is mundane, as before.
+
+```
+import axiom      stdlib/calculus/completeness
+import mundane    stdlib/numbers/trichotomy
+import mundane    stdlib/divisibility/gcd
+import definition proofs/tri/T as U (D1)
+import definition proofs/cantor/B
+```
+
+**Every define is imported as `definition`,** whether or not it takes an
+argument, since a reader calls both "the definition of T" and "the definition
+of B"; the define's own line shows its argument. A proof's define is never
+mundane: it is where the proof gives a name its meaning, and a reader meets it
+there.
+
+**An imported define carries a label only where the file cites it.** The
+name, `U` after `as` or the define's own, is what formulas write. The label,
+`(D1)`, is what a line cites when it writes the define out, as a calculation
+link does:
+
+```
+U(3) = 3(3 + 1)/2        D1
+     = 6                 arithmetic
+```
+
+A chain line cites only a step number, a label or `arithmetic`, and a name of
+one capital letter would read as a label there, so the define is cited by a
+label of the file's own and not by its name. A file that only writes `B` in
+its formulas, and never writes B out, has nothing to cite and gives no label.
+A label given and never cited is a defect, as is a citation of an imported
+define whose import gives no label; the message for the second says to add
+one. A label is used once in the file, like every label a file gives outside
+its theorems. A library definition that declares a function is imported by its own
+name and takes no `as`, as a `function` import does now, and the one import
+serves both applying it, `gcd(a, b)`, and citing it, `mun:gcd`.
+
+**What changes among the defects:** an import's keyword or a citation's prefix
+is a defect when it is not `mundane` or `mun:` for an item taken for granted,
+or not the item's kind for one that is not. A record headed `mundane` alone,
+or `mundane` before `notation` or `precedence`, is a defect. An imported
+define with no label is no longer a defect; its label is required only where
+the file cites it, and refused where it does not. The rest of
+"Names" stands.
+
 ## Not decided here
 
 - **Whether a claim of several formulas can be cited one formula at a time.**

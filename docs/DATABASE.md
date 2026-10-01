@@ -478,3 +478,103 @@ Well-Ordering Principle and the SAS postulate.
    definition, that there is a bijection from X to Y exactly when some
    f : X → Y is one-to-one and onto, would make that theorem unneeded, if the
    formula language can say "there is f : X → Y".
+
+## Definitions and the mundane mark (proposed)
+
+This section is a proposal under review and is not in force: the library
+holds the records "Record kinds" describes, and `parley check` enforces those.
+`GRAMMAR.md`, "Imports and citations by mark (proposed)", gives the imports and
+citations that go with it. It settles follow-up 1 above and part of follow-up
+3.
+
+**A definition is where a word or symbol gets its meaning,** which is what
+Reader A means by "by definition". It is not a statement whose two sides may
+be put for each other. It may be an iff, `n is even ↔ there is k ∈ ℤ with n =
+2k`; an equation; a set of cases, as `abs` and `C` are; or a description, as
+`sqrt` is, the number that is at least 0 and whose square is x. A statement is
+a clause of a definition when the definition could have said otherwise. C(n,
+k) = 0 for k > n is a convention a writer chooses, so it is a clause of C's
+definition. 𝒫∅ = {∅} is forced once 𝒫 is defined, so it is a theorem, though
+it takes one step.
+
+**A record answers two questions, and its header says both.** What the item
+is: an `axiom`, given and not proved; a `theorem`, proved; or a `definition`.
+And whether a human proof takes it for granted, using it without naming it: if
+it does, the header opens with `mundane`.
+
+```
+theorem pascal
+mundane theorem int-closure
+axiom completeness
+mundane axiom trichotomy
+definition C
+mundane definition difference
+```
+
+The two are independent, so no rule is needed to say which wins:
+trichotomy is an axiom and is taken for granted, and its header says both.
+`mundane` is not a kind, and a bare `mundane int-closure` is a defect. A
+mundane definition is still written out where it is used and is still an
+unfolding; the mark says only that a human proof would not name it, so that
+the viewer may collapse the step.
+
+**There is no `function` kind.** A definition with `sort` and `builds` lines
+declares a function a formula applies, `gcd(a, b)`, as `function` records do
+now. Whether a name reaches a formula through such a definition or through a
+notation is the parser's concern, and a reader sees a definition either way.
+
+**A method may be mundane too,** `mundane method membership`, since a human
+proof never says it is using membership or arithmetic, and always says it is
+arguing by induction or by cases. A notation and the precedence table are
+never cited, so they carry no mark.
+
+**Every symbol a proof writes is primitive or has one definition.** The
+primitive symbols are the logical words (not, and, or, if … then, ↔, for all,
+there is), = and ∈, ℝ with + − · / < ≤, and the numerals. ℝ has no definition:
+its axioms, completeness and trichotomy with the field and order laws
+`algebra` and `inequalities` apply, are what a textbook defines it by. Every
+other symbol has exactly one definition, and where the library states its
+meaning more than once, one statement is chosen and the others are theorems.
+A notation record says how a symbol is written and what set.mm term it
+builds; its meaning is in the definition.
+
+**Named or mundane, checked against the proofs.** Each item below was read at
+every step that cites it, asking whether a textbook would name it there.
+
+| item | proposed header | where it is used |
+|---|---|---|
+| completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
+| well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
+| side-angle-side | `axiom` | "by SAS", isosceles step 7 |
+| trichotomy | `mundane axiom` | a split into three cases, intermediate-value step 15 |
+| excluded-middle | `mundane axiom` | "x ∈ B or x ∉ B", eight steps in four proofs |
+| the five group axioms | `mundane axiom` | the chain a·h·h⁻¹ = a in lagrange, seven steps |
+| C, with `binomial-above` and `binomial-below` as clauses | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
+| bijection, from `onto-bijection` | `mundane definition` | "so it is a bijection", lagrange 9.6, schroeder-bernstein 10 |
+| gcd | `mundane definition` | "g = gcd(a, b) divides a and b", bezout step 13 |
+| the sum of a series, from `series-value` | `mundane definition` | triangular-reciprocals step 5 |
+| ∖, from `difference-member` | `mundane definition` | eleven steps in schroeder-bernstein |
+| ∩, from `intersection-member` | `mundane definition` | lagrange step 15.3 |
+| ∪, {1, …, n}, {0, …, n}, from `union-member`, `range-member`, `range0-member` | `mundane definition` | no proof cites them |
+| ℕ₀, from `nat0-member` | `mundane definition` | no proof cites it; `nat0-as-int` stays a theorem |
+| ℚ, from `rational` | `mundane definition` | no proof cites it |
+| ℕ (`dfnn3`) and ℤ (`elz`) | `mundane definition` | new records |
+| min, max | `mundane definition` | applied, never unfolded |
+| `powerset-empty`, `or-left`, `or-right` | `mundane theorem` | the definition applied, not the definition |
+
+The eight theorems of "Record kinds" stay `theorem`, and every other mundane
+item there becomes a `mundane theorem`. The thirty definitions not in the
+table are not yet reviewed, and stay named until they are.
+
+### Follow-ups of the proposal
+
+1. **The thirty definitions are to be read, as the table's items were, for
+   whether a proof names them.** Some look mundane at sight, set-builder and
+   interval membership among them, and some named, prime and even.
+2. **Symbols with no definition are to get one where a proof needs it:** ∅,
+   {x}, |X| and "is finite". Their honest definitions are harder than what
+   Reader A brings, |X| = n meaning there is a bijection from X to {1, …, n},
+   and no proof unfolds them yet.
+3. **"Every unfolding of a definition, marked as such"** (`READERS.md`) is
+   met by the pointer and not by the line for a mundane definition: the line
+   writes `mun:difference`, and it is the record that says `definition`.
