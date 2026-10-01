@@ -7,6 +7,7 @@
 //! holds apart (`$d`) holds nothing apart in another. A label is global all
 //! the same, and a proof file that cites any of them includes this one file.
 
+pub mod divisors;
 pub mod functions;
 pub mod geometry;
 pub mod groups;
@@ -27,7 +28,7 @@ struct Group {
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved.
-const GROUPS: [Group; 6] = [
+const GROUPS: [Group; 7] = [
     Group {
         head: geometry::HEAD,
         proofs: geometry::proofs,
@@ -51,6 +52,10 @@ const GROUPS: [Group; 6] = [
     Group {
         head: numbers::HEAD,
         proofs: numbers::proofs,
+    },
+    Group {
+        head: divisors::HEAD,
+        proofs: divisors::proofs,
     },
 ];
 

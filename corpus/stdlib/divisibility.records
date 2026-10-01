@@ -251,3 +251,79 @@ mundane theorem zero-divides
   then        0 divides n ↔ n = 0
   metamath    0dvds
   target      0dvds
+
+mundane theorem divides-self
+  let n ∈ ℤ                                                           (H1)
+  then        n divides n
+  metamath    iddvds
+  target      iddvds
+
+mundane theorem prime-nat
+  let p ∈ ℤ                                                           (H1)
+  assume p is prime                                                   (H2)
+  then        p ∈ ℕ
+  metamath    prmnn
+  target      prmnn
+
+mundane theorem two-prime
+  then        2 is prime
+  metamath    2prm
+  target      2prm
+
+mundane theorem prime-coprime
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℤ                                                           (H3)
+  assume not (p divides a)                                            (H4)
+  then        gcd(p, a) = 1
+  metamath    coprm, read left to right
+  target      coprm
+  note        A prime shares a factor with a only by dividing it, since its
+              only divisors are 1 and itself.
+
+definition σ
+  sort        number → number
+  builds      c1 _1 csgm co
+  reads       the sum of the divisors of
+  let n ∈ ℕ                                                           (H1)
+  then        σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+  metamath    sgmval2 with its power 1 written away, which this corpus proves
+              in elaboration/stdlib/proved.mm
+  target      g1sgmval
+  note        set.mm's sigma takes a power first, A sigma n being the sum of
+              the A-th powers of the divisors of n, and σ is 1 sigma n.
+
+definition perfect
+  let n ∈ ℕ                                                           (H1)
+  then        n is perfect ↔ σ(n) = 2n
+  metamath    the notation's own target, σ(n) = 2n
+  note        The two sides are one formula in the kernel, as for
+              mun:stdlib/divisibility/congruent-mod, so unfolding it says the
+              same thing the other way. A proof names it: "so n is perfect,
+              by definition".
+
+theorem sigma-multiplicative
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume gcd(m, n) = 1                                                (H3)
+  then        σ(m·n) = σ(m)·σ(n)
+  metamath    sgmmul
+  target      sgmmul with A := 1
+
+theorem sigma-prime
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  then        σ(p) = p + 1
+  metamath    1sgmprm
+  target      1sgmprm
+
+theorem sigma-prime-power
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  then        σ(p^k) = Σ(j = 0 to k) p^j
+  metamath    sgmppw with its power 1 written away, which this corpus proves
+              in elaboration/stdlib/proved.mm
+  target      g1sgmppw
+  note        The divisors of p^k are 1, p, …, p^k, so their sum is a
+              geometric series.

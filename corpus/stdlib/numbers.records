@@ -214,6 +214,19 @@ mundane theorem power-nat0
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
 
+mundane theorem nat-minus-one
+  let n ∈ ℕ                                                           (H1)
+  then        n − 1 ∈ ℕ₀
+  metamath    nnm1nn0
+  target      nnm1nn0
+
+mundane theorem power-nat
+  let a ∈ ℕ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then        a^m ∈ ℕ
+  metamath    nnexpcl
+  target      nnexpcl
+
 mundane theorem exponent-one
   let a ∈ ℝ                                                           (H1)
   then        a^1 = a

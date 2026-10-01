@@ -1130,6 +1130,19 @@ notation series
               says is the limit of its partial sums. set.mm sums over the
               upper integers from M, and ℕ is those from 1.
 
+notation sum-over
+  pattern     Σ(_ ∈ _) _
+  sort        number, set of number, number → number
+  level       summation
+  binds       hole 1 over hole 3
+  reads       the sum, as the first runs over the second, of the third
+  metamath    csu over a finite set
+  target      _2 _3 _1 csu
+  note        The sum of the third hole for each member of the second, which is
+              finite: σ(n) is Σ(d ∈ {e ∈ ℕ : e divides n}) d, the sum of the
+              divisors of n. Σ(k = a to b) is this sum over {a, …, b}, and is
+              kept because a reader writes a range that way.
+
 notation tends-to
   pattern     _ → _ as _ → ∞
   sort        number, number, number → formula
@@ -1165,6 +1178,17 @@ notation prime
   reads       is prime
   metamath    wcel with cprime
   target      _1 cprime wcel
+
+notation perfect
+  pattern     _ is perfect
+  sort        number → formula
+  level       predicate
+  reads       is perfect
+  metamath    σ(n) = 2n, which set.mm writes and never names
+  target      c1 _1 csgm co c2 _1 cmul co wceq
+  note        A number is perfect when the sum of its divisors is twice it, which
+              is what the target writes, so the word and the equation are one
+              formula; def:stdlib/divisibility/perfect says so for the reader.
 
 notation irrational
   pattern     _ is irrational

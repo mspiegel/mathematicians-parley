@@ -400,9 +400,9 @@ mundane definition difference
 |---|---|
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
-| `theorem` | 8 |
-| `mundane theorem` | 161 |
-| `definition` | 4 |
+| `theorem` | 11 |
+| `mundane theorem` | 167 |
+| `definition` | 6 |
 | `mundane definition` | 38 |
 
 The two questions are independent, so no rule is needed to say which wins:
@@ -516,10 +516,13 @@ this table is mundane.
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
 | side-angle-side | `axiom` | "by SAS", isosceles step 7 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
+| sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
 | C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
+| σ | `definition` | a word Reader A has not met, the sum of the divisors |
+| perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 25 |
 
 Some mundane items are worth a word, since a reader might expect otherwise:
 
@@ -537,8 +540,8 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 319 of the 335 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: five steps in sixteen proofs cite a named
+Counted this way, 331 of the 351 numbered steps that cite a library item cite
+a mundane one. `def:` is rare: six steps in seventeen proofs cite a named
 definition.
 
 ### Follow-ups

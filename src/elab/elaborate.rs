@@ -90,6 +90,8 @@ pub enum Way {
 /// theorem the corpus proves, are given labels one at a time in order of
 /// full name, each moved off what set.mm and the ones before it hold. Which
 /// label a theorem lands on then depends only on set.mm and the corpus.
+/// A label is ASCII, as Metamath asks, so a Greek letter in a name is spelt
+/// by its English name: a theorem named σ is labelled from `sigma`.
 pub fn label_of(
     name: &str,
     taken: &dyn Lookup,
@@ -103,7 +105,10 @@ pub fn label_of(
     let mut given: IndexMap<String, String> = IndexMap::new();
     for one in &all {
         let last = one.rsplit('/').next().unwrap_or(one);
-        let stem: String = last.replace('-', "").chars().take(8).collect();
+        let stem: String = crate::text::spelt_in_ascii(&last.replace('-', ""))
+            .chars()
+            .take(8)
+            .collect();
         let head: String = stem.chars().take(7).collect();
         let held: BTreeSet<&String> = given.values().collect();
         let mut candidates = vec![stem.clone()];
@@ -3485,7 +3490,7 @@ pub fn elaborate(
     let mut out = String::new();
     out.push_str(&format!(
         "$( {}, elaborated from {} by parley build.\n",
-        thm.qualified(),
+        crate::text::spelt_in_ascii(&thm.qualified()),
         thm.path
     ));
     if work.axioms.is_empty() {
@@ -3505,7 +3510,7 @@ pub fn elaborate(
     // A theorem this corpus proves is cited as one label, so the file that
     // elaborated it is read first and the rest comes in through it.
     for name in &work.cited {
-        out.push_str(&format!("$[ {name}.mm $]\n"));
+        out.push_str(&format!("$[ {}.mm $]\n", crate::text::spelt_in_ascii(name)));
     }
     if work.cited.is_empty() {
         // proved.mm includes the definitions, so a proof that reaches one of

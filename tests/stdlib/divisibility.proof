@@ -6,6 +6,14 @@ import mundane    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
 import mundane    stdlib/divisibility/mod-less as divisibility-mod-less
 import mundane    stdlib/divisibility/mod-natural as divisibility-mod-natural
 import mundane    stdlib/divisibility/zero-divides as divisibility-zero-divides
+import definition stdlib/divisibility/σ
+
+theorem sigma
+  let n ∈ ℕ                                                           (H1)
+  then σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+
+1.  σ(n) = Σ(d ∈ {e ∈ ℕ : e divides n}) d
+    def:σ n := n, from H1
 
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)

@@ -42,12 +42,13 @@ macro_rules! fancy {
     };
 }
 
-/// An item's name, or a theorem's.
-pub const NAME: &str = r"[A-Za-z][A-Za-z0-9-]*";
+/// An item's name, or a theorem's. It may open with a Greek letter, since a
+/// library function is named by its record and a formula writes it, as σ.
+pub const NAME: &str = r"[A-Za-zα-ω][A-Za-z0-9-]*";
 /// What follows an item's prefix: the name its import gives it, or a theorem
 /// of the file citing it. A path is read here too, so that a citation
 /// written by its path is said to be one rather than left unread.
-pub const CITED: &str = r"(?:[A-Za-z][A-Za-z0-9-]*/)*[A-Za-z][A-Za-z0-9-]*";
+pub const CITED: &str = r"(?:[A-Za-zα-ω][A-Za-z0-9-]*/)*[A-Za-zα-ω][A-Za-z0-9-]*";
 /// The prefix of a citation of any item, `thm:` and the rest.
 pub const ITEM_PREFIX: &str = r"(?:thm|axi|mun|def):";
 /// The standard library, the one module root that is not a proof file: its

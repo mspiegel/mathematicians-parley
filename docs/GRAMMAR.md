@@ -950,7 +950,9 @@ mundane definition gcd
 ```
 
 The record's name is the function's, and is letters only, since a formula
-writes it. `sort` says what the arguments and the value are, and the number of
+writes it; it may be a Greek letter, as `definition σ` is, and wherever the
+elaborator writes the name into a Metamath file it spells the letter in
+ASCII, `sigma`. `sort` says what the arguments and the value are, and the number of
 places before its arrow is the number of arguments, so `definition gcd` with
 `sort number, number → number` is applied as `gcd(_, _)`: a name applied to one
 hole for each argument and nothing else, which is what keeps it from being

@@ -266,3 +266,21 @@ $( Numbers: a remainder is less than its divisor. $)
 
 $}
 
+${
+$( Divisors: the sum of the divisors of a number, and of a prime's powers. $)
+$d k p B $.
+$d k N $.
+$d k P $.
+
+  g1sgmval $p |- ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k ) $=
+    ( cn wcel c1 csgm co cv cdvds wbr crab cexp csu cz wceq 1z sgmval2 mpan
+    wa cc simpr elrabi syl nncn exp1 sumeq2dv eqtrd )
+    ADEZFAGHZCIZAJKZCDLZBIZFMHZBNZUMUNBNFOEUIUJUPPQFABCRSUIUMUOUNBUIUNUMEZTZUNUAEZUOUNPURUNDEZUSURUQUTUIUQUBULCUNDUCUDUNUEUDUNUFUDUGUH $.
+
+  g1sgmppw $p |- ( ( P e. Prime /\ N e. NN0 ) -> ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N ) ( P ^ k ) ) $=
+    ( cprime wcel cn0 wa c1 cexp co csgm cc0 cfz ccxp cv csu cc wceq ax-1cn
+    sgmppw mp3an1 cn simpl prmnn syl nncn cxp1 oveq1d adantr sumeq2dv eqtrd )
+    ADEZCFEZGZHACIJZKJZLCMJZAHNJZBOZIJZBPZUQAUSIJZBPHQEULUMUPVARSHABCTUAUNUQUTVBBUNUTVBRUSUQEUNURAUSIUNAQEZURARUNAUBEZVCUNULVDULUMUCAUDUEAUFUEAUGUEUHUIUJUK $.
+
+$}
+

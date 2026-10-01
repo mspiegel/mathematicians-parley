@@ -14,7 +14,7 @@ pub mod verify;
 pub const ELABORATION: &str = "corpus/elaboration";
 
 /// Where a generated file goes: its name under `corpus/elaboration/`, with
-/// `.mm`.
+/// `.mm`, spelt in ASCII since a Metamath file includes it by that name.
 pub fn path_of(name: &str) -> String {
-    format!("{ELABORATION}/{name}.mm")
+    format!("{ELABORATION}/{}.mm", crate::text::spelt_in_ascii(name))
 }

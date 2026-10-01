@@ -8,6 +8,45 @@ pub use pyrepr::repr;
 
 use unicode_segmentation::UnicodeSegmentation;
 
+/// A name with each Greek letter written as its English name, for what
+/// Metamath reads, which is ASCII: a label, and the name of a file it
+/// includes. A theorem named σ is labelled from `sigma` and written to
+/// `sigma.mm`.
+pub fn spelt_in_ascii(name: &str) -> String {
+    const GREEK: [(char, &str); 24] = [
+        ('α', "alpha"),
+        ('β', "beta"),
+        ('γ', "gamma"),
+        ('δ', "delta"),
+        ('ε', "epsilon"),
+        ('ζ', "zeta"),
+        ('η', "eta"),
+        ('θ', "theta"),
+        ('ι', "iota"),
+        ('κ', "kappa"),
+        ('λ', "lambda"),
+        ('μ', "mu"),
+        ('ν', "nu"),
+        ('ξ', "xi"),
+        ('ο', "omicron"),
+        ('π', "pi"),
+        ('ρ', "rho"),
+        ('σ', "sigma"),
+        ('τ', "tau"),
+        ('υ', "upsilon"),
+        ('φ', "phi"),
+        ('χ', "chi"),
+        ('ψ', "psi"),
+        ('ω', "omega"),
+    ];
+    name.chars()
+        .map(|c| match GREEK.iter().find(|(g, _)| *g == c) {
+            Some((_, spelt)) => spelt.to_string(),
+            None => c.to_string(),
+        })
+        .collect()
+}
+
 /// The first `n` characters of `s`, as a reader counts them: by grapheme
 /// cluster, so a quoted excerpt never keeps a letter and drops the accent
 /// written after it, as `x̄` in the library's notes would lose its bar.

@@ -292,6 +292,11 @@ has (sums over a range, induction); then 19, which extends the analysis;
 then 20, once its injection is settled. Before each pilot, its informal
 source is checked and the entry marked "verify" confirmed or replaced.
 
+Theorem 17 is written, as Euclid's half (`perfect1`), and elaborates with
+nothing assumed: `proofs/perfect-numbers.proof`, with
+`docs/pilot/perfect-numbers.md`. ProofWiki's proof matched set.mm's step
+for step.
+
 Considered for these four and not chosen: Wilson's theorem (#51), a pairing
 argument mod p close to divisibility by 3 and Lagrange; the factor theorem
 (#89), where set.mm's `Poly` encoding would have to be hidden as groups

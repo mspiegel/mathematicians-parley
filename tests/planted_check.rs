@@ -290,15 +290,21 @@ fn cases() -> Vec<Case> {
             ],
             "import definition stdlib/divisibility/gcd: stdlib/divisibility/gcd is a mundane definition; import it as `import mundane stdlib/divisibility/gcd`",
         ),
-        // The name imported is the one a formula writes, which for a proof's
-        // define may be a Greek letter or carry a subscript; a library item's
-        // name is an item name.
+        // An item's name may open with a Greek letter, as σ's does, and is
+        // imported from the file that holds it like any other.
         case(
-            "import a library item by a Greek name",
+            "import a Greek-named item from a file that does not hold it",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/numbers/σ\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import definition stdlib/numbers/σ\n\ntheorem cantor\n".to_string()),
             ],
-            "import mundane stdlib/numbers/σ: 'σ' is not an item's name",
+            "import definition stdlib/numbers/σ: stdlib/numbers holds no item σ",
+        ),
+        case(
+            "import a name that is no item's name",
+            vec![
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/numbers/σ₁\n\ntheorem cantor\n".to_string()),
+            ],
+            "import mundane stdlib/numbers/σ₁: 'σ₁' is not an item's name",
         ),
         case(
             "import a definition by a subscripted name the file does not define",
