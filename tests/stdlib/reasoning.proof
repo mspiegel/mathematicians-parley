@@ -1,4 +1,5 @@
-import proof stdlib/reasoning
+import mundane    stdlib/reasoning/or-left as reasoning-or-left
+import mundane    stdlib/reasoning/or-right as reasoning-or-right
 
 theorem or-left
   let x ∈ ℝ                                                           (H1)
@@ -6,7 +7,7 @@ theorem or-left
   then x = 0 or x = 1
 
 1.  x = 0 or x = 1
-    thm:stdlib/reasoning/or-left, from H2
+    mun:reasoning-or-left, from H2
 
 theorem or-right
   let x ∈ ℝ                                                           (H1)
@@ -14,4 +15,4 @@ theorem or-right
   then x = 0 or x = 1
 
 1.  x = 0 or x = 1
-    thm:stdlib/reasoning/or-right, from H2
+    mun:reasoning-or-right, from H2

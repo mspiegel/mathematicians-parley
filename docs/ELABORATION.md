@@ -188,7 +188,7 @@ were a fact already in hand and 22.0% came from structure (a conjunction
 split, a membership carried between number systems or through an operation, a
 digit, sethood). The search through declared lemmas answered 4.2%, with 45
 pairings of what was wanted and which lemma gave it, from 36 lemmas. Of the
-items whose target names several lemmas, only `def:stdlib/sets/set-builder`
+items whose target names several lemmas, only `mun:stdlib/sets/set-builder`
 names two, and `elrab` fitted all ten times.
 
 **What comparing through one standard form changed.** Four of the thirty
@@ -319,9 +319,9 @@ Which letter a statement binds is no part of what it says, and a lemma's
 disjointness conditions are about letters, so the letters a lemma keeps apart
 from its scope are chosen by one rule rather than searched for. A hypothesis
 saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
-and `sersumlim`, which `thm:stdlib/calculus/series-value` targets, keeps both
+and `sersumlim`, which `mun:stdlib/calculus/series-sum` targets, keeps both
 apart from any scope it is used under; `gpartsfin`, which
-`thm:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
+`mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
 
 - every letter the lemma binds and keeps apart from its scope, and the claim
@@ -508,7 +508,7 @@ cases, each case is taken by `iftrue` where `settle` finds its condition among
 what the step names, or by `iffalse` where it finds the negation. `same`
 carries what is left to the other side, and `eqtrd` joins them.
 
-**A `def:` is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
+**A definition is a theorem, not a replacement.** `mun:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.
 
@@ -524,7 +524,7 @@ the two is decided once, by whether a cited line states the existence
 (`reading`). A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
-theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
+theorem per clause, as `mun:stdlib/numbers/abs` names `absid, absnid`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
@@ -811,14 +811,14 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proofs/isosceles.proof:43  def:stdlib/geometry/triangle, from 6 does not reach -. C = A,
+proofs/isosceles.proof:48  def:triangle, from 5 does not reach -. C = A,
                           which this line claims it supplies
 ```
 
 The item branch is guarded on the `target` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name
 ends at the first space, since what follows it is the instantiation:
-`thm:stdlib/numbers/abs-real x := a, from H1` names `abs-real`.
+`mun:abs-real x := a, from H1` names `abs-real`.
 
 A lemma may ask its side conditions as one conjunction where the text writes a
 line each — `divides` is `( ( M e. ZZ /\ N e. ZZ ) -> ... )` — so a conjunction
@@ -846,7 +846,7 @@ for that hypothesis binds.
 **Every `requires` line is proved from its reason, once, when its step
 starts.** `step` proves them all before the step's method runs and offers them
 to the whole of the step as `written`, so a membership wanted while turning
-`def:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
+`mun:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
 Where the step opens a narrower scope inside itself, a line is carried in by
 `lifted_to` — one `simpl` and `syl` per assumption, the way `widen` carries
 every fact. `supplied` runs more than once for a step and passes on what each
@@ -1042,7 +1042,7 @@ An item becomes an axiom claiming what the item states, under its hypotheses,
 and the step owes those hypotheses like any others. What the item states and
 what the step claims must be one statement up to the letters they bind, or one
 side of it where the item states a biconditional; then the other side is what
-the step cites. `thm:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
+the step cites. `mun:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
 c − δ < x and x < c + δ, and step 17.11 of `intermediate-value` claims the
 first from lines saying the second. Stated with the step's claim under the
 item's hypotheses, the axiom would say that every |x − c| is below every δ,
@@ -1050,7 +1050,7 @@ and the kernel accepts whatever is assumed. Anything else is a defect naming
 both statements.
 
 Stated as it says, an item is only as true as what it says, and a name it
-leaves open is read as anything at all. `thm:stdlib/counting/card-nonempty` said `assume
+leaves open is read as anything at all. `mun:stdlib/counting/card-nonempty` said `assume
 |X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
 false. So `parley check` refuses a name of no known sort standing where a notation
 wants a number, in any item's assumptions and any theorem's conclusion; a
@@ -1066,7 +1066,7 @@ Every written file but one assumes nothing. What is left:
 
 Completeness is not one lemma away. set.mm's `sup3` says its witness is
 never exceeded and that anything below it is exceeded, where
-`thm:stdlib/calculus/completeness` says its witness is an upper bound and at most every
+`axi:stdlib/calculus/completeness` says its witness is an upper bound and at most every
 other; between the two is a contrapositive and trichotomy, which is logic
 and not a spelling. set.mm also names the witness, the supremum, and says
 each thing the page asks of it in a lemma of its own: `suprcl` that it is
@@ -1133,8 +1133,8 @@ rewording. Isosceles's lines 5 and 6 are the triangle in two orders, and a
 requires line for A ≠ B names line 5, which writes it, not line 6, which
 writes B ≠ A.
 
-`thm:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
-as k + 1, so nothing asks that X be finite. `thm:stdlib/counting/card-nonempty` is
+`mun:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
+as k + 1, so nothing asks that X be finite. `mun:stdlib/counting/card-nonempty` is
 `hashgt0elex`, which asks that the size be positive. The page never says so,
 and it follows from the line the step cites, `|X| = k + 1`: `settle` reads
 `0 < |X|` through that equation as `0 < k + 1`, which `nn0p1gt0` gives from
@@ -1402,7 +1402,7 @@ proved (`discharged_by`).
     out, is the value read at the name it binds. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
-    one from what the step names: `def:stdlib/divisibility/odd` gives one only from a line saying
+    one from what the step names: `mun:stdlib/divisibility/odd` gives one only from a line saying
     n is odd.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
@@ -1476,7 +1476,7 @@ angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `corpus/elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
-`ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
+`ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to
 a conjunction taken apart at nearly every step. Synthetic geometry says "A, B,
 C form a triangle" once and is done.
 

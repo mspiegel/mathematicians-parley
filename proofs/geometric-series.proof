@@ -1,5 +1,10 @@
-import proof stdlib/numbers
-import proof stdlib/sums
+import mundane    stdlib/numbers/exponent-one
+import mundane    stdlib/numbers/exponent-step
+import mundane    stdlib/numbers/exponent-zero
+import mundane    stdlib/numbers/nat0-closure
+import mundane    stdlib/numbers/power-real
+import mundane    stdlib/sums/sum-last
+import mundane    stdlib/sums/sum-single
 
 theorem geometric-sum
   metamath    geoser
@@ -20,12 +25,12 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
 
     base
     2.1.  Σ(j = 0 to 0) a^j = a^0
-          thm:stdlib/sums/sum-single a := 0
+          mun:sum-single a := 0
           requires 0 ∈ ℤ: arithmetic
           requires a ∈ ℝ: from H1
 
     2.2.  a^0 = 1
-          thm:stdlib/numbers/exponent-zero a := a, from H1
+          mun:exponent-zero a := a, from H1
 
     2.3.  G(0) = 1
           calculation
@@ -37,7 +42,7 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
           substitute 0 + 1 = 1 (arithmetic)
 
     2.5.  a^1 = a
-          thm:stdlib/numbers/exponent-one a := a, from H1
+          mun:exponent-one a := a, from H1
 
     2.6.  a^(0 + 1) = a
           calculation
@@ -66,10 +71,10 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
           assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
 
           2.10.1. k + 1 ∈ ℕ₀
-                  thm:stdlib/numbers/nat0-closure, from K
+                  mun:nat0-closure, from K
 
           2.10.2. Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
-                  thm:stdlib/sums/sum-last n := k, from K
+                  mun:sum-last n := k, from K
                   requires a ∈ ℝ: from H1
 
           2.10.3. G(k + 1) = G(k) + a^(k + 1)
@@ -84,13 +89,13 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
                   substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
 
           2.10.5. a^((k + 1) + 1) = a^(k + 1)·a
-                  thm:stdlib/numbers/exponent-step m := k + 1, from H1, 2.10.1
+                  mun:exponent-step m := k + 1, from H1, 2.10.1
 
           2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
                   algebra
                   requires 1 − a ≠ 0: from 1
                   requires a ∈ ℝ: from H1
-                  requires a^(k + 1) ∈ ℝ: thm:stdlib/numbers/power-real m := k + 1, from H1, 2.10.1
+                  requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1, from H1, 2.10.1
 
           2.10.7. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
                   substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.10.5)

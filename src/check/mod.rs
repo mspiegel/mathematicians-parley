@@ -15,8 +15,8 @@ mod structure;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{
-    index, link_definitions, parse_database, parse_proof, proof_files, record_files,
-    written_text, FileScope, Intro, Record, RecordKind, Theorem,
+    index, link_definitions, link_functions, parse_database, parse_proof, proof_files,
+    record_files, written_text, FileScope, Intro, Record, RecordKind, Theorem,
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
@@ -147,7 +147,10 @@ pub fn run(source: &dyn Source) -> Outcome {
         }
         seen.entry(name).or_insert(thm.line);
     }
-    for (path, no, message) in link_definitions(&theorems, &mut scopes) {
+    for (path, no, message) in link_functions(&records, &mut scopes)
+        .into_iter()
+        .chain(link_definitions(&theorems, &mut scopes))
+    {
         report.say(&path, no, message);
     }
     // The library files a proof may import: those whose items it may cite.
@@ -156,7 +159,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         .filter(|r| r.kind.is_item())
         .map(|r| r.module().to_string())
         .collect();
-    structure::check_imports(&mut report, &theorems, &scopes, &library);
+    structure::check_imports(&mut report, &theorems, &scopes, &items, &library);
     structure::check_definitions(&mut report, &theorems, &scopes);
 
     let steps: usize = theorems.iter().map(|t| t.steps.len()).sum();
@@ -181,12 +184,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         &scopes,
         &grammar.functions,
     );
-    structure::check_function_imports(
-        &mut report,
-        &theorems,
-        &scopes,
-        &grammar.functions,
-    );
+    structure::check_function_imports(&mut report, &theorems, &scopes);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
     // does, so two names run together into it are caught as into a word.

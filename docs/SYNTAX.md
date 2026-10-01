@@ -194,7 +194,7 @@ The disjunction being split is a cited line, here line 2, and the reader
 checks that the case assumptions are its disjuncts in order. A case that
 is impossible still ends by claiming the common formula: it reaches some
 P and not P, and then claims the formula by the theorem "if P and not P
-then Q", thm:stdlib/reasoning/from-contradiction. Two alternatives were rejected for the
+then Q", mun:stdlib/reasoning/from-contradiction. Two alternatives were rejected for the
 impossible-case problem: refuting each case in its own contradiction
 block outside any cases block, which loses the case-split narrative, and
 letting a cases step have no claim when each case ends in its own
@@ -308,18 +308,18 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   colon. With a variable and its domain, {t ∈ X : P(t)}, membership is
   t ∈ X and P(t). With an expression, {E(s) : s ∈ Y}, membership of u is
   "there is s ∈ Y with u = E(s)". Each is a definition with a pointer,
-  def:stdlib/sets/set-builder and def:stdlib/functions/set-image, used in both directions by the ↔
+  mun:stdlib/sets/set-builder and mun:stdlib/functions/set-image, used in both directions by the ↔
   convention. Both are kept because a school reader has met both.
 
 ## Justification forms
 
 | form | meaning |
 |---|---|
-| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the definition's full name, the file that holds it and then its own name, as `def:stdlib/divisibility/odd` |
-| `thm:X v := t, from L` | the same for a theorem. A theorem of this proof file is written by its name alone, `thm:proofs/sqrt2-irrational/odd-square`; any other by its full name, `thm:stdlib/numbers/int-real` or `thm:proofs/triangle-inequality/abs-bounds`, and each file cited, a library file or a proof file, is imported at the head of the file, `import proof stdlib/numbers`. `GRAMMAR.md` gives the rules under "Names" |
+| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the name the file imports the definition under, as `def:C` after `import definition stdlib/counting/C`. A definition a proof takes for granted is applied the same way and cited `mun:X`, as `mun:odd` after `import mundane stdlib/divisibility/odd` |
+| `thm:X v := t, from L` | the same for a theorem, and `axi:X` for an axiom; `mun:X` for any item a proof takes for granted, whatever its kind. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line with `mundane` or its kind as the keyword, `import mundane stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
 | `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Use the first form where the existence comes from an item**, and the second, after a step stating the existence, where it comes from a line. In the first form the name arrives in a claim written above the justification that introduces it, and the claim says all there is of it, so the one line reads as "p = 2r for some integer r" or "choose N with …" does, whatever letter the item uses: the item's text is elsewhere, and its letters never reach the page. `LINTER.md` keeps the rule |
 | `D, from L` | D is a define's label; the claim equates the name it gives, applied or not, with what it names, and for a define by cases L says which case |
-| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:stdlib/divisibility/even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
+| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
@@ -457,11 +457,14 @@ theorem tri-one
   then T(1) = 1
 ```
 
-Another file uses it by importing it, `import definition proofs/tri/T (D1)`,
-or under a name of its own, `import definition proofs/tri/T as t (D1)`, and
-cites the import's label where a step writes T out. What the
-statement says in set.mm writes the rule out, so a theorem citing `tri-one`
-needs nothing imported and its own T, if it has one, is a different thing.
+Another file uses it by importing it, `import definition proofs/tri/T`, or
+under a name of its own, `import definition proofs/tri/T as U`. Where a step
+writes T out, the import gives a label and the step cites it,
+`import definition proofs/tri/T (D1)`; an import gives no label that nothing
+cites. Every define is imported as a `definition`, whether or not it takes an
+argument. What the statement says in set.mm writes the rule out, so a
+theorem citing `tri-one` needs nothing of T imported and its own T, if it has
+one, is a different thing.
 
 The alternative was to make the name opaque and require a `substitute` step at
 every crossing, which is what this document's rule about unfolding a definition
@@ -524,7 +527,7 @@ it; each is worked out as a closed fact is. A change touching a letter,
 
 ```
 5.4.  |a + b| = −(a + b)
-      def:stdlib/numbers/abs x := a + b, from 1, C2
+      def:abs x := a + b, from 1, C2
 
 5.5.  −(a + b) = −a + −b
       algebra
@@ -541,7 +544,7 @@ it; each is worked out as a closed fact is. A change touching a letter,
 
 **A substitution names its variable, and its place in the list says
 nothing.** Each `v := t` gives the value of the variable v, found by its
-name: `def:stdlib/divisibility/divides n := c, d := d` and `d := d, n := c`
+name: `def:divides n := c, d := d` and `d := d, n := c`
 are one citation, and so are `instantiate x := 1, y := 2` and
 `instantiate y := 2, x := 1`. This holds wherever `:=` is written: citing a
 definition or a theorem, obtaining from one, and `instantiate`. Matching by

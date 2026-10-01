@@ -31,8 +31,8 @@ use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{
-    define_parts, fmt, outermost, Corpus, DefineParts, Intro, Item, Record, Step,
-    Theorem,
+    define_parts, fmt, item_prefix, outermost, Corpus, DefineParts, Intro, Item,
+    Record, Step, Theorem,
 };
 use crate::formula::{Grammar, Node};
 use crate::matching::{
@@ -140,12 +140,9 @@ fn qualified(item: Item) -> String {
     }
 }
 
+/// The prefix a citation of the item writes.
 fn item_kind(item: Item) -> &'static str {
-    if item.kind() == "definition" {
-        "def"
-    } else {
-        "thm"
-    }
+    item.cited_as().prefix()
 }
 
 impl<'a> Elaborator<'a> {
@@ -671,7 +668,10 @@ impl<'a> Elaborator<'a> {
         let mut how: Option<Method> = known_methods
             .contains(&head.as_str())
             .then(|| Method::Named(head.clone()));
-        if how.is_none() && head.starts_with("def:") {
+        // Whether a step unfolds what it cites is read from the record: a
+        // mundane definition is cited `mun:` and is unfolded all the same.
+        let cited = item_prefix(&head);
+        if how.is_none() && cited.is_some() && self.item_cited(&head).unfolds() {
             let Item::Record(item) = self.item_cited(&head) else {
                 panic!("{head} is a definition of the database");
             };
@@ -686,7 +686,7 @@ impl<'a> Elaborator<'a> {
                 Method::UnfoldEquation
             });
         }
-        if how.is_none() && head.starts_with("thm:") {
+        if how.is_none() && cited.is_some() {
             how = Some(Method::Cite);
         }
         let Some(how) = how else {

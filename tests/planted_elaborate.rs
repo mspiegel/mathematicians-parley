@@ -30,6 +30,9 @@ struct Case {
     name: &'static str,
     theorem: &'static str,
     file: &'static str,
+    /// An import line the edit needs, put at the head of the file: an edit
+    /// citing an item the file does not import cites it by name.
+    import: Option<&'static str>,
     old: &'static str,
     new: &'static str,
     expect: &'static str,
@@ -47,9 +50,27 @@ fn case(
         name,
         theorem,
         file,
+        import: None,
         old,
         new,
         expect,
+    }
+}
+
+/// A case whose edit cites an item the file does not import, with the
+/// import line that brings it in.
+fn case_importing(
+    name: &'static str,
+    theorem: &'static str,
+    file: &'static str,
+    import: &'static str,
+    old: &'static str,
+    new: &'static str,
+    expect: &'static str,
+) -> Case {
+    Case {
+        import: Some(import),
+        ..case(name, theorem, file, old, new, expect)
     }
 }
 
@@ -111,7 +132,12 @@ fn the_elaborator_reports_every_planted_defect() {
             missed += 1;
             continue;
         }
-        tree.write(case.file, text.replacen(case.old, case.new, 1).into_bytes());
+        let edited = text.replacen(case.old, case.new, 1);
+        let edited = match case.import {
+            Some(line) => format!("{line}\n{edited}"),
+            None => edited,
+        };
+        tree.write(case.file, edited.into_bytes());
         match run(&tree, case.theorem, &library, *net) {
             None => {
                 said.push(format!(
@@ -153,7 +179,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "                  requires a ∈ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
             "                  requires a ¿ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
-            "proofs/geometric-series.proof:89",
+            "proofs/geometric-series.proof:94",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -185,7 +211,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "proofs/triangle-inequality.proof:36  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
         ),
         // The same report reached from the other side: the target is right and
         // the step claims something the definition does not say. It is a
@@ -197,7 +223,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangle-inequality.proof",
             "    2.5.  |x| = −x",
             "    2.5.  |x| = x",
-            "proofs/triangle-inequality.proof:36  no clause of def:stdlib/numbers/abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here line 5 does not say `C ≠ A` and line 6 does; taking
@@ -207,9 +233,9 @@ fn cases() -> Vec<Case> {
             "name a line that does not state the side condition",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires C ≠ A: def:stdlib/geometry/triangle, from 6",
-            "    requires C ≠ A: def:stdlib/geometry/triangle, from 5",
-            "def:stdlib/geometry/triangle, from 5 does not reach",
+            "    requires C ≠ A: mun:triangle, from 6",
+            "    requires C ≠ A: mun:triangle, from 5",
+            "mun:triangle, from 5 does not reach",
         ),
         // The same, where the scope already holds the claim for another reason:
         // the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
@@ -218,9 +244,9 @@ fn cases() -> Vec<Case> {
             "name a line that does not state a claim the scope already holds",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires A ≠ B: def:stdlib/geometry/triangle, from 5",
-            "    requires A ≠ B: def:stdlib/geometry/triangle, from 6",
-            "def:stdlib/geometry/triangle, from 6 does not reach",
+            "    requires A ≠ B: mun:triangle, from 5",
+            "    requires A ≠ B: mun:triangle, from 6",
+            "mun:triangle, from 6 does not reach",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
         // Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
@@ -232,19 +258,20 @@ fn cases() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n",
-            "proofs/sqrt2-irrational.proof:18  nothing says m e. CC, which this step needs",
+            "proofs/sqrt2-irrational.proof:28  nothing says m e. CC, which this step needs",
         ),
         // A requires line rests only on its reason. Line 2 does not say k is an
-        // integer, and `thm:stdlib/numbers/int-real` asks it; the scope has it
-        // from line 1, which the line does not cite, so the item it names
-        // reaches nothing.
-        case(
+        // integer, and `mun:int-real` asks it; the scope has it from line 1,
+        // which the line does not cite, so the item it names reaches nothing.
+        // The import puts the step one line lower.
+        case_importing(
             "give a requires line a reason that is not where its proof comes from",
             "proofs/sqrt2-irrational/odd-square",
             "proofs/sqrt2-irrational.proof",
+            "import mundane stdlib/numbers/int-real",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
-            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n",
-            "proofs/sqrt2-irrational.proof:18  thm:stdlib/numbers/int-real targets zre, and none of them reaches m e. RR",
+            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: mun:int-real, from 2\n",
+            "proofs/sqrt2-irrational.proof:29  mun:stdlib/numbers/int-real targets zre, and none of them reaches m e. RR",
         ),
         // Everything a step names does work. 2 is a numeral, not an atom, so
         // `algebra` asks nothing about its being real, and the kernel has it
@@ -299,7 +326,7 @@ fn cases() -> Vec<Case> {
             "proofs/subsets.proof",
             "n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6",
             "n := 2^k, from 1.2.1.3, 1.2.1.6",
-            "no clause of thm:stdlib/counting/card-disjoint-union reaches what step 1.2.1.8 claims",
+            "no clause of mun:card-disjoint-union reaches what step 1.2.1.8 claims",
         ),
         // An item taken as stated is stated as the item says it. Stating the
         // step's claim under the item's hypotheses instead would assume whatever
@@ -313,7 +340,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/counting.records",
             "  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n",
             "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n",
-            "thm:stdlib/counting/card-remove is taken as stated and states",
+            "mun:stdlib/counting/card-remove is taken as stated and states",
         ),
         // A definition with no target is stated as the definition says it and
         // the claim read off one side. Stating the claim under the cited lines
@@ -325,7 +352,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "10. For all s ∈ S, s ≤ c.",
             "10. For all s ∈ S, s < c.",
-            "def:stdlib/calculus/upper-bound is taken as stated and states",
+            "mun:stdlib/calculus/upper-bound is taken as stated and states",
         ),
         // `elcncf2` is read in the page's words, which is a reading and not a
         // licence: continuity with δ where ε belongs, or with δ ≥ 0 where the
@@ -336,7 +363,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "|f(x) − f(c′)| < ε for all x",
             "|f(x) − f(c′)| < δ for all x",
-            "proofs/intermediate-value.proof:80  no method owns this step: elcncf2 does not say",
+            "proofs/intermediate-value.proof:95  no method owns this step: elcncf2 does not say",
         ),
         case(
             "unfold continuity with a weaker bound than it gives",
@@ -353,9 +380,9 @@ fn cases() -> Vec<Case> {
             "obtain the least upper bound without the line bounding the set",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
-            "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2, 7",
-            "obtain c: thm:stdlib/calculus/completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:54  no cited line names a witness for E. x e. RR",
+            "obtain c: axi:completeness S := S, from 5, 2, 7",
+            "obtain c: axi:completeness S := S, from 5, 2",
+            "proofs/intermediate-value.proof:69  no cited line names a witness for E. x e. RR",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -366,7 +393,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/calculus.records",
             "  target      suprcl, suprub, suprleub with c := sup S",
             "  target      suprcl, suprub with c := sup S",
-            "thm:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
+            "axi:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
         ),
         // `arithmetic` works a closed claim out before proving it, and takes
         // nothing as stated: a false one is reported, whether it holds a number
@@ -394,7 +421,7 @@ fn cases() -> Vec<Case> {
             "ask arithmetic for a true fact it cannot show",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "10 − 1 = 9\n                  thm:stdlib/numbers/ten-minus-one",
+            "10 − 1 = 9\n                  mun:ten-minus-one",
             "10 − 1 = 9\n                  arithmetic",
             "step 1.3.4 claims 10 − 1 = 9, which is true, and arithmetic cannot show it yet",
         ),
@@ -511,9 +538,9 @@ fn cases() -> Vec<Case> {
             "sum what no cited line says each term of is divisible",
             "proofs/divisibility-by-three/divisibility-by-three",
             "proofs/divisibility-by-three.proof",
-            "thm:stdlib/sums/sum-divisible m := 3, from H1, 1",
-            "thm:stdlib/sums/sum-divisible m := 3, from H1",
-            "no clause of thm:stdlib/sums/sum-divisible reaches what step 2 claims",
+            "mun:sum-divisible m := 3, from H1, 1",
+            "mun:sum-divisible m := 3, from H1",
+            "no clause of mun:sum-divisible reaches what step 2 claims",
         ),
         // A link of a calculation is what the line it cites says, and a line
         // saying something else is not taken for it: its proof would be of the
@@ -533,9 +560,9 @@ fn cases() -> Vec<Case> {
             "unfold continuity without the line saying f is continuous",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
-            "    def:stdlib/calculus/continuous-on, from H5",
-            "    def:stdlib/calculus/continuous-on",
-            "proofs/intermediate-value.proof:80  no method owns this step: no cited line is what elcncf2 unfolds",
+            "    def:continuous-on, from H5",
+            "    def:continuous-on",
+            "proofs/intermediate-value.proof:95  no method owns this step: no cited line is what elcncf2 unfolds",
         ),
         // An item's target asks a side condition the page never writes, and
         // `rewritten` answers it through the equation the step cites: `0 < |X|`
@@ -545,9 +572,9 @@ fn cases() -> Vec<Case> {
             "answer a side condition by an equation the step does not cite",
             "proofs/subsets/subsets-count",
             "proofs/subsets.proof",
-            "obtain a: thm:stdlib/counting/card-nonempty, from K2, C2",
-            "obtain a: thm:stdlib/counting/card-nonempty, from K2",
-            "thm:stdlib/counting/card-nonempty targets hashgt0elex, and none of them reaches",
+            "obtain a: mun:card-nonempty, from K2, C2",
+            "obtain a: mun:card-nonempty, from K2",
+            "mun:stdlib/counting/card-nonempty targets hashgt0elex, and none of them reaches",
         ),
         // `elrnmpt1s` reads its map at a term only a cited line supplies. With
         // the line gone nothing says where the map is read, and the body must
@@ -558,7 +585,7 @@ fn cases() -> Vec<Case> {
             "proofs/subsets.proof",
             "s := V ∖ {a},\n                    from 1.3.2",
             "s := V ∖ {a}",
-            "no clause of thm:stdlib/functions/added-element-in-image reaches what step 1.3.3 claims",
+            "no clause of mun:added-element-in-image reaches what step 1.3.3 claims",
         ),
         // A target is where the claim lands, and a variable bound to the wrong
         // name makes it land somewhere else. That is reported, not assumed.
@@ -568,7 +595,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/counting.records",
             "  target      hashdifsnp1 with V := X, N := a, Y := k",
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
-            "no clause of thm:stdlib/counting/card-remove reaches what step 1.2.1.2 claims",
+            "no clause of mun:card-remove reaches what step 1.2.1.2 claims",
         ),
         // `sumeq2dv` forbids the sum's index in the scope, and the induction
         // hypothesis names it, so the lemma is proved one frame out. The line it
@@ -576,13 +603,14 @@ fn cases() -> Vec<Case> {
         // would be a proof of another statement, which only the verifier would
         // refuse. An outer frame is offered only the lines it holds, and the
         // step is reported.
-        case(
+        case_importing(
             "rewrite a sum term by term under a hypothesis naming its index",
             "proofs/binomial/binomial",
             "proofs/binomial.proof",
+            "import mundane stdlib/numbers/int-real\nimport mundane stdlib/numbers/nat0-int",
             "          1.8.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.4\n",
-            "          1.8.4.  m ∈ ℤ\n                  thm:stdlib/numbers/nat0-int, from K\n\n          1.8.5.  For all k ∈ {0, …, m}, k + 0 = k.\n                  fix\n                  let k ∈ {0, …, m}                                   (J)\n\n                  1.8.5.1.  k ∈ ℤ\n                            thm:stdlib/sums/range-integer a := 0, b := m, from J\n                            requires 0 ∈ ℤ: arithmetic\n                            requires m ∈ ℤ: from 1.8.4\n\n                  1.8.5.2.  k ∈ ℝ\n                            thm:stdlib/numbers/int-real, from 1.8.5.1\n\n                  1.8.5.3.  k + 0 = k\n                            algebra\n                            requires k ∈ ℝ: from 1.8.5.2\n\n          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n                  thm:stdlib/sums/sum-termwise a := 0, b := m, from 1.8.5\n                  requires 0 ∈ ℤ: arithmetic\n                  requires m ∈ ℤ: from 1.8.4\n\n          1.8.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.7\n",
-            "no clause of thm:stdlib/sums/sum-termwise reaches what step 1.8.6 claims",
+            "          1.8.4.  m ∈ ℤ\n                  mun:nat0-int, from K\n\n          1.8.5.  For all k ∈ {0, …, m}, k + 0 = k.\n                  fix\n                  let k ∈ {0, …, m}                                   (J)\n\n                  1.8.5.1.  k ∈ ℤ\n                            mun:range-integer a := 0, b := m, from J\n                            requires 0 ∈ ℤ: arithmetic\n                            requires m ∈ ℤ: from 1.8.4\n\n                  1.8.5.2.  k ∈ ℝ\n                            mun:int-real, from 1.8.5.1\n\n                  1.8.5.3.  k + 0 = k\n                            algebra\n                            requires k ∈ ℝ: from 1.8.5.2\n\n          1.8.6.  Σ(k = 0 to m) (k + 0) = Σ(k = 0 to m) k\n                  mun:sum-termwise a := 0, b := m, from 1.8.5\n                  requires 0 ∈ ℤ: arithmetic\n                  requires m ∈ ℤ: from 1.8.4\n\n          1.8.7.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  thm:binomial-step m := m, from H1, H2, K\n\n          1.8.8.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k\n                  calculation\n                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2\n                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3\n                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.7\n",
+            "no clause of mun:sum-termwise reaches what step 1.8.6 claims",
         ),
         // A closed exponent's membership of ℕ₀ is placed through the digit it
         // comes to (`by_value`), and (0 − 1) − 0 comes to −1, which is no
@@ -594,7 +622,7 @@ fn cases() -> Vec<Case> {
             "proofs/binomial.proof",
             "    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^(0 − 0)·y^0\n",
             "    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = C(0, 0)·x^((0 − 1) − 0)·y^0\n",
-            "no clause of thm:stdlib/sums/sum-single reaches what step 1.1 claims",
+            "no clause of mun:sum-single reaches what step 1.1 claims",
         ),
         // A definition concluded of a value names that value: line 5 says what
         // n² is, and the step says n² is odd only by writing n := n². The pair
@@ -603,8 +631,8 @@ fn cases() -> Vec<Case> {
             "leave out the value a definition is concluded of",
             "proofs/sqrt2-irrational/odd-square",
             "proofs/sqrt2-irrational.proof",
-            "    def:stdlib/divisibility/odd n := n², from 5",
-            "    def:stdlib/divisibility/odd, from 5",
+            "    mun:odd n := n², from 5",
+            "    mun:odd, from 5",
             "is about n, and the step gives n no value",
         ),
         // A link reads its cited equation from either side, and nothing on the
@@ -628,7 +656,7 @@ fn cases() -> Vec<Case> {
             "tests/stdlib/sets.proof",
             "then u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n\n1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n",
             "then u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n\n1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n",
-            "no clause of thm:stdlib/sets/remove-member reaches what step 1 claims",
+            "no clause of mun:sets-remove-member reaches what step 1 claims",
         ),
         // A step citing a define by cases takes the case from a line it cites.
         // Here the only line cited says x ∈ A, which is h's domain and no case.
@@ -649,7 +677,7 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "    15.1. a ∈ G. Y = aH.\n",
             "    15.1. a ∈ G. Z = aH.\n",
-            "proofs/lagrange.proof:311  nothing step 15.1 cites says",
+            "proofs/lagrange.proof:333  nothing step 15.1 cites says",
         ),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R
@@ -658,8 +686,8 @@ fn cases() -> Vec<Case> {
             "obtain from a definition citing no line that says its left side",
             "proofs/schroeder-bernstein/schroeder-bernstein",
             "proofs/schroeder-bernstein.proof",
-            "obtain x: def:stdlib/functions/image u := b, Y := C, from C9",
-            "obtain x: def:stdlib/functions/image u := b, Y := C, from K7",
+            "obtain x: mun:image u := b, Y := C, from C9",
+            "obtain x: mun:image u := b, Y := C, from K7",
             "nothing step 8.2.1 cites says",
         ),
         // A part of A is asked of M's argument, and the line named must say it:
@@ -668,8 +696,8 @@ fn cases() -> Vec<Case> {
             "a requires line for a part naming a line that does not say it",
             "proofs/schroeder-bernstein/fixed-part",
             "proofs/schroeder-bernstein.proof",
-            "    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 4\n",
-            "    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 3\n",
+            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 4\n",
+            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 3\n",
             "from 3 does not reach",
         ),
         // g ∈ gH is shown by the member of H that g is g times, and the line
@@ -678,9 +706,9 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             "proofs/lagrange/lagrange",
             "proofs/lagrange.proof",
-            "def:stdlib/groups/coset u := g, from K3, 5.1, 5.2",
-            "def:stdlib/groups/coset u := g, from K3, 5.1",
-            "proofs/lagrange.proof:62  no cited line names a witness",
+            "mun:coset u := g, from K3, 5.1, 5.2",
+            "mun:coset u := g, from K3, 5.1",
+            "proofs/lagrange.proof:84  no cited line names a witness",
         ),
     ]
 }
@@ -700,16 +728,17 @@ fn nets() -> Vec<Case> {
             "n := 2^k, from 1.2.1.3, 1.2.1.6",
             "step 1.2.1.8 rests on 1.2.1.5, which it does not name",
         ),
-        // The requires line's reason cites line 2, and
-        // `thm:stdlib/numbers/int-real` asks k an integer, which line 1 says.
-        // With R2 taken away the step would elaborate.
-        case(
+        // The requires line's reason cites line 2, and `mun:int-real` asks k
+        // an integer, which line 1 says. With R2 taken away the step would
+        // elaborate. The import puts the line one lower.
+        case_importing(
             "give a requires line a reason that is not where its proof comes from, with nothing to stop the search",
             "proofs/sqrt2-irrational/odd-square",
             "proofs/sqrt2-irrational.proof",
+            "import mundane stdlib/numbers/int-real",
             "    requires k ∈ ℝ: from 1\n\n4.",
-            "    requires k ∈ ℝ: thm:stdlib/numbers/int-real, from 2\n\n4.",
-            "proofs/sqrt2-irrational.proof:20  the requires line rests on 1, which it does not name",
+            "    requires k ∈ ℝ: mun:int-real, from 2\n\n4.",
+            "proofs/sqrt2-irrational.proof:31  the requires line rests on 1, which it does not name",
         ),
     ]
 }

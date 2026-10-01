@@ -1,5 +1,6 @@
-import proof stdlib/reasoning
-import proof stdlib/sets
+import mundane    stdlib/reasoning/excluded-middle
+import mundane    stdlib/sets/set-builder
+import mundane    stdlib/sets/set-builder-subset
 
 theorem cantor
   metamath    canth
@@ -11,7 +12,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
        reads the members of A that their own image leaves out
 
 1.  B ⊆ A
-    thm:stdlib/sets/set-builder-subset, from D1
+    mun:set-builder-subset, from D1
 
 2.  For all x ∈ A, f(x) ≠ B.
     fix
@@ -22,7 +23,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
           suppose f(x) = B                                            (S)
 
           2.1.1.  x ∈ B or x ∉ B
-                  thm:stdlib/reasoning/excluded-middle P := x ∈ B
+                  mun:excluded-middle P := x ∈ B
 
           2.1.2.  x ∈ B. x ∉ B.
                   cases, from 2.1.1
@@ -31,7 +32,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                   assume x ∈ B                                        (C1)
 
                   2.1.2.1.  x ∉ f(x)
-                            def:stdlib/sets/set-builder, from C1
+                            mun:set-builder, from C1
 
                   2.1.2.2.  x ∉ B
                             substitute f(x) = B (S) into line 2.1.2.1
@@ -46,7 +47,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                             substitute f(x) = B (S) into C2
 
                   2.1.2.5.  x ∈ B
-                            def:stdlib/sets/set-builder, from K, 2.1.2.4
+                            mun:set-builder, from K, 2.1.2.4
 
                   2.1.2.6.  x ∈ B. x ∉ B.
                             join 2.1.2.5, C2

@@ -2,9 +2,11 @@
 #
 # Subsets, sets built from a property, unions, differences and the power set.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/sets/<name> or thm:stdlib/sets/<name>, and the
-# prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/sets/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -16,12 +18,12 @@
 # Other fields: target, note.
 
 
-definition subset
+mundane definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath    df-ss, ssel
   target      dfss3
 
-definition set-builder
+mundane definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
@@ -33,56 +35,56 @@ definition set-builder
               `holds-of` notation for why this is not a function applied to an
               argument.
 
-              The element is u and the braces bind t, as def:stdlib/functions/set-image writes
+              The element is u and the braces bind t, as mun:stdlib/functions/set-image writes
               them. Both were t until the conclusion check went in, and a
               statement that uses one letter for a free name and for the name
               the braces bind cannot be matched against a use of it: the free
               one binds to the element and the bound one then has to be the
               element too.
 
-definition part-builder
+mundane definition part-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
   metamath    elrab over the power set, and elpw2g, which this corpus
               proves together in elaboration/stdlib/proved.mm
   target      gelrabpw
-  note        The parts of X with a property: `def:stdlib/sets/set-builder`
+  note        The parts of X with a property: `mun:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
 
-theorem set-builder-subset
+mundane theorem set-builder-subset
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
   target      ssrab2
 
-theorem subset-transitive
+mundane theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z
   metamath    sstr
   target      sstr
 
-definition powerset
+mundane definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
   metamath    elpw, elpwg
   target      elpwg
 
-theorem powerset-empty
+mundane theorem powerset-empty
   then        𝒫∅ = {∅}
   metamath    pw0
   target      pw0
 
-theorem difference-set
+mundane theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        X ∖ {a} is a set
   metamath    difexg
   target      difexg
 
-theorem subset-of-difference
+mundane theorem subset-of-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X ∖ {a}                                                  (H2)
   then        a ∉ Y
@@ -91,32 +93,32 @@ theorem subset-of-difference
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
 
-theorem difference-of-union
+mundane theorem difference-of-union
   let a be an element                                                 (H1)
   then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
   metamath    difun2
   target      difun2
 
-theorem difference-absent
+mundane theorem difference-absent
   let a ∉ Y                                                           (H1)
   then        Y ∖ {a} = Y
   metamath    difsn
   target      difsn
 
-theorem not-in-subset
+mundane theorem not-in-subset
   let a ∉ Z                                                           (H1)
   assume Y ⊆ Z                                                        (H2)
   then        a ∉ Y
   metamath    ssneld
   target      ssneld
 
-theorem in-union-singleton
+mundane theorem in-union-singleton
   let a be an element                                                 (H1)
   then        a ∈ Y ∪ {a}
   metamath    elun2, over the singleton snidg puts a in
   target      elun2
 
-theorem disjoint-empty
+mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅
   metamath    disjr
@@ -127,7 +129,7 @@ theorem disjoint-empty
               one the subsets proof has: what it can run over is the part it
               built, not the part it split off.
 
-theorem not-in-difference
+mundane theorem not-in-difference
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        a ∉ X ∖ {a}
@@ -137,82 +139,82 @@ theorem not-in-difference
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
 
-theorem subset-antisymmetric
+mundane theorem subset-antisymmetric
   assume X ⊆ Y                                                        (H1)
   assume Y ⊆ X                                                        (H2)
   then        X = Y
   metamath    eqss
   target      eqss
 
-theorem union-subset
+mundane theorem union-subset
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ∪ Y ⊆ Z
   metamath    unss
   target      unss
 
-theorem in-union-left
+mundane theorem in-union-left
   assume u ∈ Y                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath    elun1
   target      elun1
 
-theorem in-union-right
+mundane theorem in-union-right
   assume u ∈ Z                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath    elun2
   target      elun2
 
-theorem difference-subset
+mundane theorem difference-subset
   then        X ∖ Y ⊆ X
   metamath    difss
   target      difss
 
-theorem difference-shrinks
+mundane theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
   then        Y ∖ Z ⊆ X ∖ Z
   metamath    ssdif
   target      ssdif
 
-theorem subset-into-difference
+mundane theorem subset-into-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X                                                        (H2)
   assume a ∉ Y                                                        (H3)
   then        Y ⊆ X ∖ {a}
   metamath    ssdifsn
   target      ssdifsn
-  note        The other half of `ssdifsn` from `thm:stdlib/sets/subset-of-difference`:
+  note        The other half of `ssdifsn` from `mun:stdlib/sets/subset-of-difference`:
               inside X and without a is inside X ∖ {a}.
 
-theorem remove-and-restore
+mundane theorem remove-and-restore
   let a ∈ Y                                                           (H1)
   then        (Y ∖ {a}) ∪ {a} = Y
   metamath    difsnid
   target      difsnid
 
-theorem singleton-subset
+mundane theorem singleton-subset
   let a ∈ X                                                           (H1)
   then        {a} ⊆ X
   metamath    snssi
   target      snssi
 
-theorem powerset-monotone
+mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X
   metamath    sspw
   target      sspw
 
-theorem intersection-member
+mundane definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
   metamath    elin
   target      elin
 
-theorem union-member
+mundane definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
   metamath    elun
   target      elun
 
-theorem remove-member
+mundane theorem remove-member
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let u be an element                                                 (H3)
@@ -220,117 +222,117 @@ theorem remove-member
   metamath    eldifsn
   target      eldifsn
 
-theorem intersection-commutes
+mundane theorem intersection-commutes
   then        Y ∩ Z = Z ∩ Y
   metamath    incom
   target      incom
 
-theorem union-commutes
+mundane theorem union-commutes
   then        Y ∪ Z = Z ∪ Y
   metamath    uncom
   target      uncom
 
-theorem intersection-self
+mundane theorem intersection-self
   then        Y ∩ Y = Y
   metamath    inidm
   target      inidm
 
-theorem union-self
+mundane theorem union-self
   then        Y ∪ Y = Y
   metamath    unidm
   target      unidm
 
-theorem union-empty
+mundane theorem union-empty
   then        Y ∪ ∅ = Y
   metamath    un0
   target      un0
 
-theorem intersection-empty
+mundane theorem intersection-empty
   then        Y ∩ ∅ = ∅
   metamath    in0
   target      in0
 
-theorem difference-self
+mundane theorem difference-self
   then        Y ∖ Y = ∅
   metamath    difid
   target      difid
 
-theorem difference-empty
+mundane theorem difference-empty
   then        Y ∖ ∅ = Y
   metamath    dif0
   target      dif0
 
-theorem intersection-distributes
+mundane theorem intersection-distributes
   then        X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
   metamath    indi
   target      indi
 
-theorem subset-empty
+mundane theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
   metamath    ss0b
   target      ss0b
 
-theorem difference-member
+mundane definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
   metamath    eldif
   target      eldif
 
-theorem in-subset
+mundane theorem in-subset
   assume X ⊆ Y                                                        (H1)
   assume u ∈ X                                                        (H2)
   then        u ∈ Y
   metamath    ssel2
   target      ssel2
 
-theorem difference-reverses
+mundane theorem difference-reverses
   assume X ⊆ Y                                                        (H1)
   then        Z ∖ Y ⊆ Z ∖ X
   metamath    sscon
   target      sscon
 
-theorem complement-swap
+mundane theorem complement-swap
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z ∖ Y ↔ Y ⊆ Z ∖ X
   metamath    ssconb
   target      ssconb
 
-theorem complement-swap-outside
+mundane theorem complement-swap-outside
   then        Z ∖ Y ⊆ X ↔ Z ∖ X ⊆ Y
   metamath    difcom
   target      difcom
 
-theorem equal-subset
+mundane theorem equal-subset
   assume X = Y                                                        (H1)
   then        X ⊆ Y
   metamath    eqimss
   target      eqimss
 
-theorem disjoint-within
+mundane theorem disjoint-within
   assume X ⊆ Y                                                        (H1)
   assume Y ∩ Z = ∅                                                    (H2)
   then        X ∩ Z = ∅
   metamath    ssdisj
   target      ssdisj
 
-theorem disjoint-member
+mundane theorem disjoint-member
   assume Y ∩ Z = ∅                                                    (H1)
   assume u ∈ Y                                                        (H2)
   then        u ∉ Z
   metamath    disjel
   target      disjel
 
-theorem disjoint-difference
+mundane theorem disjoint-difference
   then        Y ∩ (Z ∖ Y) = ∅
   metamath    disjdif
   target      disjdif
 
-definition indexed-union
+mundane definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
   metamath    eliun
   target      eliun
 
-theorem union-contains-member
+mundane theorem union-contains-member
   assume Y ∈ D                                                        (H1)
   then        Y ⊆ ⋃(X ∈ D) X
   metamath    ssiun2s
@@ -340,7 +342,7 @@ theorem union-contains-member
               them by its hypothesis that the two sets agree where they are
               equal.
 
-theorem union-within
+mundane theorem union-within
   assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
   metamath    iunss

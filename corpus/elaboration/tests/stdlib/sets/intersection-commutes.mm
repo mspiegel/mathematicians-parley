@@ -6,6 +6,6 @@ $( tests/stdlib/sets/intersection-commutes, elaborated from tests/stdlib/sets.pr
 $[ stdlib/definitions.mm $]
 
 ${
-  intersec $p |- ( ( A e. _V /\ B e. _V ) -> ( A i^i B ) = ( B i^i A ) ) $=
+  interse1 $p |- ( ( A e. _V /\ B e. _V ) -> ( A i^i B ) = ( B i^i A ) ) $=
     ( cin wceq cvv wcel wa incom a1i ) ABCBACDAEFBEFGABHI $.
 $}

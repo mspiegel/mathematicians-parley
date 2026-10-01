@@ -1,7 +1,18 @@
-import proof stdlib/divisibility
-import proof stdlib/numbers
-import proof stdlib/reasoning
-import definition stdlib/divisibility/gcd
+import theorem    stdlib/divisibility/gcd-mod
+import mundane    stdlib/divisibility/gcd
+import mundane    stdlib/divisibility/gcd-commutes
+import mundane    stdlib/divisibility/gcd-zero
+import mundane    stdlib/divisibility/mod-less
+import mundane    stdlib/divisibility/mod-natural
+import mundane    stdlib/numbers/integer-step
+import mundane    stdlib/numbers/nat0-int
+import mundane    stdlib/numbers/nat0-nonzero
+import mundane    stdlib/numbers/nat0-real
+import mundane    stdlib/reasoning/disjunctive-syllogism
+import mundane    stdlib/reasoning/excluded-middle
+import mundane    stdlib/reasoning/from-contradiction
+import mundane    stdlib/reasoning/or-left
+import mundane    stdlib/reasoning/or-right
 
 theorem euclid
   metamath    eucalg
@@ -50,11 +61,11 @@ theorem euclid
 
           3.1.6.  b(0) + 0 ≤ N
                   inequalities, from 2
-                  requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
-                  requires b(0) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 3.1.2
+                  requires N ∈ ℝ: mun:nat0-real, from H2
+                  requires b(0) ∈ ℝ: mun:nat0-real, from 3.1.2
 
           3.1.7.  b(0) + 0 ≤ N or b(0) = 0
-                  thm:stdlib/reasoning/or-left, from 3.1.6
+                  mun:or-left, from 3.1.6
 
           3.1.8.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀ and gcd(a(0), b(0)) = gcd(M, N)
                   and (b(0) + 0 ≤ N or b(0) = 0)
@@ -71,7 +82,7 @@ theorem euclid
                   assume a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀ and gcd(a(j), b(j)) = gcd(M, N) and (b(j) + j ≤ N or b(j) = 0)   (I)
 
                   3.1.9.1.  b(j) = 0 or b(j) ≠ 0
-                            thm:stdlib/reasoning/excluded-middle P := b(j) = 0
+                            mun:excluded-middle P := b(j) = 0
 
                   3.1.9.2.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
                             and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
@@ -115,7 +126,7 @@ theorem euclid
                                                                   = gcd(M, N)              I
 
                             3.1.9.2.10. b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
-                                        thm:stdlib/reasoning/or-right, from 3.1.9.2.2
+                                        mun:or-right, from 3.1.9.2.2
 
                             3.1.9.2.11. a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
                                         and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
@@ -134,11 +145,11 @@ theorem euclid
                                         requires j ∈ ℕ₀: from J
 
                             3.1.9.2.14. b(j) ∈ ℕ
-                                        thm:stdlib/numbers/nat0-nonzero, from I, C2
+                                        mun:nat0-nonzero, from I, C2
 
                             3.1.9.2.15. a(j) mod b(j) ∈ ℕ₀
-                                        thm:stdlib/divisibility/mod-natural, from 3.1.9.2.14
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
+                                        mun:mod-natural, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: mun:nat0-int, from I
 
                             3.1.9.2.16. a(j + 1) ∈ ℕ₀
                                         substitute a(j + 1) = b(j) (line 3.1.9.2.12) into I
@@ -147,13 +158,13 @@ theorem euclid
                                         substitute b(j + 1) = a(j) mod b(j) (line 3.1.9.2.13) into line 3.1.9.2.15
 
                             3.1.9.2.18. gcd(a(j) mod b(j), b(j)) = gcd(a(j), b(j))
-                                        thm:stdlib/divisibility/gcd-mod, from 3.1.9.2.14
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
+                                        thm:gcd-mod, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: mun:nat0-int, from I
 
                             3.1.9.2.19. gcd(b(j), a(j) mod b(j)) = gcd(a(j) mod b(j), b(j))
-                                        thm:stdlib/divisibility/gcd-commutes
-                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
-                                        requires a(j) mod b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 3.1.9.2.15
+                                        mun:gcd-commutes
+                                        requires b(j) ∈ ℤ: mun:nat0-int, from I
+                                        requires a(j) mod b(j) ∈ ℤ: mun:nat0-int, from 3.1.9.2.15
 
                             3.1.9.2.20. gcd(a(j + 1), b(j + 1)) = gcd(b(j), b(j + 1))
                                         substitute a(j + 1) = b(j) (line 3.1.9.2.12)
@@ -170,29 +181,29 @@ theorem euclid
                                                                   = gcd(M, N)                          I
 
                             3.1.9.2.23. b(j) + j ≤ N
-                                        thm:stdlib/reasoning/disjunctive-syllogism, from I, C2
+                                        mun:disjunctive-syllogism, from I, C2
 
                             3.1.9.2.24. a(j) mod b(j) < b(j)
-                                        thm:stdlib/divisibility/mod-less, from 3.1.9.2.14
-                                        requires a(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
+                                        mun:mod-less, from 3.1.9.2.14
+                                        requires a(j) ∈ ℤ: mun:nat0-int, from I
 
                             3.1.9.2.25. b(j + 1) < b(j)
                                         substitute b(j + 1) = a(j) mod b(j) (line 3.1.9.2.13) into line 3.1.9.2.24
 
                             3.1.9.2.26. b(j + 1) + 1 ≤ b(j)
-                                        thm:stdlib/numbers/integer-step, from 3.1.9.2.25
-                                        requires b(j + 1) ∈ ℤ: thm:stdlib/numbers/nat0-int, from 3.1.9.2.17
-                                        requires b(j) ∈ ℤ: thm:stdlib/numbers/nat0-int, from I
+                                        mun:integer-step, from 3.1.9.2.25
+                                        requires b(j + 1) ∈ ℤ: mun:nat0-int, from 3.1.9.2.17
+                                        requires b(j) ∈ ℤ: mun:nat0-int, from I
 
                             3.1.9.2.27. b(j + 1) + (j + 1) ≤ N
                                         inequalities, from 3.1.9.2.26, 3.1.9.2.23
-                                        requires b(j + 1) ∈ ℝ: thm:stdlib/numbers/nat0-real, from 3.1.9.2.17
-                                        requires b(j) ∈ ℝ: thm:stdlib/numbers/nat0-real, from I
-                                        requires j ∈ ℝ: thm:stdlib/numbers/nat0-real, from J
-                                        requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
+                                        requires b(j + 1) ∈ ℝ: mun:nat0-real, from 3.1.9.2.17
+                                        requires b(j) ∈ ℝ: mun:nat0-real, from I
+                                        requires j ∈ ℝ: mun:nat0-real, from J
+                                        requires N ∈ ℝ: mun:nat0-real, from H2
 
                             3.1.9.2.28. b(j + 1) + (j + 1) ≤ N or b(j + 1) = 0
-                                        thm:stdlib/reasoning/or-left, from 3.1.9.2.27
+                                        mun:or-left, from 3.1.9.2.27
 
                             3.1.9.2.29. a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
                                         and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
@@ -204,7 +215,7 @@ theorem euclid
     instantiate k := N in line 3, from H2
 
 5.  b(N) = 0 or b(N) ≠ 0
-    thm:stdlib/reasoning/excluded-middle P := b(N) = 0
+    mun:excluded-middle P := b(N) = 0
 
 6.  b(N) = 0
     cases, from 5
@@ -219,23 +230,23 @@ theorem euclid
     assume b(N) ≠ 0                                                   (C4)
 
     6.2.  b(N) + N ≤ N
-          thm:stdlib/reasoning/disjunctive-syllogism, from 4, C4
+          mun:disjunctive-syllogism, from 4, C4
 
     6.3.  b(N) ∈ ℕ
-          thm:stdlib/numbers/nat0-nonzero, from 4, C4
+          mun:nat0-nonzero, from 4, C4
 
     6.4.  not b(N) + N ≤ N
           inequalities, from 6.3
-          requires N ∈ ℝ: thm:stdlib/numbers/nat0-real, from H2
+          requires N ∈ ℝ: mun:nat0-real, from H2
 
     6.5.  b(N) + N ≤ N. not b(N) + N ≤ N.
           join 6.2, 6.4
 
     6.6.  b(N) = 0
-          thm:stdlib/reasoning/from-contradiction P := b(N) + N ≤ N, Q := b(N) = 0, from 6.5
+          mun:from-contradiction P := b(N) + N ≤ N, Q := b(N) = 0, from 6.5
 
 7.  gcd(a(N), 0) = a(N)
-    thm:stdlib/divisibility/gcd-zero, from 4
+    mun:gcd-zero, from 4
 
 8.  gcd(a(N), 0) = gcd(a(N), b(N))
     substitute b(N) = 0 (line 6)

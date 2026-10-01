@@ -120,7 +120,7 @@ antisymmetric. So the two sides of `isosctr` are negatives of the corpus's
 two angles, and taking `abs` of both sides yields `∠CAB = ∠CBA` exactly as
 the text writes it.
 
-So the unsigned angle makes `thm:stdlib/geometry/angle-symmetric` true *and* keeps
+So the unsigned angle makes `mun:stdlib/geometry/angle-symmetric` true *and* keeps
 `isosctr`. Both, from one definition.
 
 What it costs is `arginv`'s side condition: the argument is antisymmetric off
@@ -151,9 +151,9 @@ notation plane
 
 `𝔼²` is the established notation for the Euclidean plane as a geometric
 object, distinguished from ℝ² or ℂ as algebraic ones, which is the
-distinction being drawn. `def:stdlib/geometry/point` then states `A is a point ↔ A ∈ 𝔼²`,
+distinction being drawn. `mun:stdlib/geometry/point` then states `A is a point ↔ A ∈ 𝔼²`,
 every dull fact reads `requires A ∈ 𝔼²`, and ℂ appears nowhere above the
-`target` field. `def:stdlib/numbers/irrational` is the precedent one level up: it names a
+`target` field. `mun:stdlib/numbers/irrational` is the precedent one level up: it names a
 word for `ℝ ∖ ℚ` rather than introducing a symbol.
 
 One thing to watch. `𝔼²` and `ℂ` are the same object in the kernel, so
@@ -177,9 +177,9 @@ against geometry's 1.3. Distinctness of an angle's points is exactly what the
 `requires` machinery is for.
 
 Two things do need doing, both one-off. The geometry items do not state the
-hypotheses they need: `thm:stdlib/geometry/angle-symmetric` reads `let P be a point` three
+hypotheses they need: `mun:stdlib/geometry/angle-symmetric` reads `let P be a point` three
 times and `then ∠PQR = ∠RQP`, with no disequality anywhere, and the same
-holds of `thm:stdlib/geometry/side-angle-side` and `def:stdlib/geometry/congruent`. Those statements are
+holds of `axi:stdlib/geometry/side-angle-side` and `def:stdlib/geometry/congruent`. Those statements are
 incomplete as written and would be whatever backend was chosen. And `A ≠ C`
 against `C ≠ A` is `necom`, which belongs in `rules.MEMBERSHIP` beside
 `nnz` and `zre` — a side condition the text never writes, settled by the
@@ -210,13 +210,13 @@ finished rather than a starting point — `lawcos`, `pythag`, `isosctr`,
 | `notation is-a-point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
 | `notation distance` | `target` the absolute value of a difference |
 | `notation angle` | `target` the absolute value of `ang` |
-| `def:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
-| `def:stdlib/geometry/angle` | the unsigned angle, and why it is unsigned |
-| `def:stdlib/geometry/triangle` | the three disequalities |
+| `mun:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
+| `mun:stdlib/geometry/angle` | the unsigned angle, and why it is unsigned |
+| `mun:stdlib/geometry/triangle` | the three disequalities |
 | `def:stdlib/geometry/congruent` | three sides and three angles, as it already reads |
-| `thm:stdlib/geometry/distance-symmetric` | `abssub` |
-| `thm:stdlib/geometry/angle-symmetric` | provable from `arginv`, with the cut as a case |
-| `thm:stdlib/geometry/side-angle-side` | provable, or the proof rerouted through `isosctr` |
+| `mun:stdlib/geometry/distance-symmetric` | `abssub` |
+| `mun:stdlib/geometry/angle-symmetric` | provable from `arginv`, with the cut as a case |
+| `axi:stdlib/geometry/side-angle-side` | provable, or the proof rerouted through `isosctr` |
 
 Three of the items gain the disequality hypotheses they presently omit, and
 `necom` joins the membership list.
@@ -225,7 +225,7 @@ Six `open` markers cleared.
 
 ## What it took
 
-`def:stdlib/geometry/angle` is the first definition in this corpus that introduces a symbol,
+`mun:stdlib/geometry/angle` is the first definition in this corpus that introduces a symbol,
 and the corpus emits it: `definitions.mm` declares `ang` and `df-ang`, which
 is decision 12 of `GOALS.md` exercised for the first time. Inlining the
 function instead would have worked and would have left the one definition
@@ -255,7 +255,7 @@ an item alongside a set.mm label and a proof file:
 triangles, six applications which are cyclic rotations of one lemma. It holds
 because the angle is unsigned: `cos11` is one to one on `0` to `π` and on
 nothing wider, so a signed angle could not be recovered from its cosine. The
-choice that makes `thm:stdlib/geometry/angle-symmetric` true is the same one that makes
+choice that makes `mun:stdlib/geometry/angle-symmetric` true is the same one that makes
 side-angle-side provable.
 
 ## What would change the answer

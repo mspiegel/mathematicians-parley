@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
-use crate::corpus::{cited_name, resolve, DefineLine, Item, Recursion, ScopeId, Step};
+use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
 use crate::formula::{fits, parse, Node, Sort};
 use crate::matching::{substitute, Binding as NodeBinding, Defined, Definitions};
 use crate::outcome::Checked;
@@ -361,10 +361,10 @@ impl<'a> Elaborator<'a> {
         Ok(found)
     }
 
-    /// The item a citation in this theorem's file names: `def:x` or `thm:x`,
-    /// spelt with its file's path, or bare for a theorem of this file.
+    /// The item a citation in this theorem's file names, `thm:x`: one the
+    /// file imports under that name, or a theorem of this file.
     pub fn item_cited(&self, cited: &str) -> Item<'a> {
-        let name = resolve(cited_name(cited), self.thm.module());
+        let name = self.thm.names.full(cited);
         *self
             .items
             .get(&name)
@@ -548,15 +548,17 @@ impl<'a> Elaborator<'a> {
 
     /// The label a definition from outside the theorem is held under: its own
     /// where its file is this theorem's, and the label on the import where it
-    /// is imported, so a step cites it as the page does.
+    /// is imported, so a step cites it as the page does. An import that gives
+    /// no label is one no line writes out (`check_definitions`), and the
+    /// define is held under a key no line can cite, so a step resting on it
+    /// names something it does not cite and is refused as any such step is.
     pub fn outside_label(&self, name: &str, d: &DefineLine, src: ScopeId) -> String {
         if src == self.thm.scope {
-            d.label.clone()
-        } else {
-            self.scopes[self.thm.scope]
-                .import_label(name)
-                .unwrap_or_else(|| panic!("no import writes {name}"))
-                .to_string()
+            return d.label.clone();
+        }
+        match self.scopes[self.thm.scope].import_label(name) {
+            Some(label) => label.to_string(),
+            None => format!("the define of {name}"),
         }
     }
 

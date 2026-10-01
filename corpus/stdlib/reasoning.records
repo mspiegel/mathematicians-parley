@@ -3,9 +3,11 @@
 # The laws of logic a proof cites by name: excluded middle, double negation,
 # and the rest of what takes a proof from some claims to another.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/reasoning/<name> or thm:stdlib/reasoning/<name>,
-# and the prefix must match the kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/reasoning/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -17,7 +19,7 @@
 # Other fields: target, note.
 
 
-theorem excluded-middle
+mundane axiom excluded-middle
   then        P or not P
   metamath    exmid
   target      exmid
@@ -25,7 +27,7 @@ theorem excluded-middle
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
 
-theorem from-contradiction
+mundane theorem from-contradiction
   assume P                                                            (H1)
   assume not P                                                        (H2)
   then        Q
@@ -34,7 +36,7 @@ theorem from-contradiction
   note        Closes an impossible case of a `cases` block so that every case
               ends in the block's common claim.
 
-theorem double-negation
+mundane theorem double-negation
   assume not not P                                                    (H1)
   then        P
   metamath    notnotr
@@ -44,7 +46,7 @@ theorem double-negation
               rule demands the literal negation of the claim, and a claim that
               is itself a negation therefore produces a doubled one.
 
-theorem disjunctive-syllogism
+mundane theorem disjunctive-syllogism
   assume P or Q                                                       (H1)
   assume not Q                                                        (H2)
   then        P
@@ -54,7 +56,7 @@ theorem disjunctive-syllogism
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.
 
-theorem or-left
+mundane theorem or-left
   assume P                                                            (H1)
   then        P or Q
   metamath    orc
@@ -63,7 +65,7 @@ theorem or-left
               first does. Euclid's algorithm proves "b(k) = 0 or b(k) + k ≤
               N" at each k, knowing one side or the other.
 
-theorem or-right
+mundane theorem or-right
   assume Q                                                            (H1)
   then        P or Q
   metamath    olc

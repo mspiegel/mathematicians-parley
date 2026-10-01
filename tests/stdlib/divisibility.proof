@@ -1,5 +1,11 @@
-import proof stdlib/divisibility
-import definition stdlib/divisibility/gcd
+import theorem    stdlib/divisibility/gcd-mod as divisibility-gcd-mod
+import mundane    stdlib/divisibility/gcd
+import mundane    stdlib/divisibility/gcd-commutes as divisibility-gcd-commutes
+import mundane    stdlib/divisibility/gcd-one as divisibility-gcd-one
+import mundane    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
+import mundane    stdlib/divisibility/mod-less as divisibility-mod-less
+import mundane    stdlib/divisibility/mod-natural as divisibility-mod-natural
+import mundane    stdlib/divisibility/zero-divides as divisibility-zero-divides
 
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
@@ -7,21 +13,21 @@ theorem gcd-commutes
   then gcd(a, b) = gcd(b, a)
 
 1.  gcd(a, b) = gcd(b, a)
-    thm:stdlib/divisibility/gcd-commutes, from H1, H2
+    mun:divisibility-gcd-commutes, from H1, H2
 
 theorem gcd-one
   let a ∈ ℤ                                                           (H1)
   then gcd(a, 1) = 1
 
 1.  gcd(a, 1) = 1
-    thm:stdlib/divisibility/gcd-one, from H1
+    mun:divisibility-gcd-one, from H1
 
 theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
   then gcd(n, 0) = n
 
 1.  gcd(n, 0) = n
-    thm:stdlib/divisibility/gcd-zero, from H1
+    mun:divisibility-gcd-zero, from H1
 
 theorem gcd-mod
   let a ∈ ℤ                                                           (H1)
@@ -29,7 +35,7 @@ theorem gcd-mod
   then gcd(a mod b, b) = gcd(a, b)
 
 1.  gcd(a mod b, b) = gcd(a, b)
-    thm:stdlib/divisibility/gcd-mod, from H1, H2
+    thm:divisibility-gcd-mod, from H1, H2
 
 theorem mod-natural
   let a ∈ ℤ                                                           (H1)
@@ -37,7 +43,7 @@ theorem mod-natural
   then a mod b ∈ ℕ₀
 
 1.  a mod b ∈ ℕ₀
-    thm:stdlib/divisibility/mod-natural, from H1, H2
+    mun:divisibility-mod-natural, from H1, H2
 
 theorem mod-less
   let a ∈ ℤ                                                           (H1)
@@ -45,11 +51,11 @@ theorem mod-less
   then a mod b < b
 
 1.  a mod b < b
-    thm:stdlib/divisibility/mod-less, from H1, H2
+    mun:divisibility-mod-less, from H1, H2
 
 theorem zero-divides
   let n ∈ ℤ                                                           (H1)
   then 0 divides n ↔ n = 0
 
 1.  0 divides n ↔ n = 0
-    thm:stdlib/divisibility/zero-divides, from H1
+    mun:divisibility-zero-divides, from H1

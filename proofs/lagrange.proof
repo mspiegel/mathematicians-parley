@@ -1,8 +1,30 @@
-import proof stdlib/counting
-import proof stdlib/divisibility
-import proof stdlib/functions
-import proof stdlib/groups
-import proof stdlib/sets
+import theorem    stdlib/groups/group-cancel
+import mundane    stdlib/counting/card-equal
+import mundane    stdlib/counting/card-nat0
+import mundane    stdlib/counting/finite-part
+import mundane    stdlib/counting/partition-count
+import mundane    stdlib/counting/parts-finite
+import mundane    stdlib/divisibility/divides
+import mundane    stdlib/functions/bijection
+import mundane    stdlib/functions/function-into
+import mundane    stdlib/functions/one-to-one
+import mundane    stdlib/groups/coset
+import mundane    stdlib/groups/group-associative
+import mundane    stdlib/groups/group-closed
+import mundane    stdlib/groups/group-identity
+import mundane    stdlib/groups/group-inverse
+import mundane    stdlib/groups/group-inverse-closed
+import mundane    stdlib/groups/subgroup-closed
+import mundane    stdlib/groups/subgroup-identity
+import mundane    stdlib/groups/subgroup-inverse
+import mundane    stdlib/groups/subgroup-within
+import mundane    stdlib/sets/in-subset
+import mundane    stdlib/sets/indexed-union
+import mundane    stdlib/sets/intersection
+import mundane    stdlib/sets/part-builder
+import mundane    stdlib/sets/subset
+import mundane    stdlib/sets/subset-antisymmetric
+import mundane    stdlib/sets/union-within
 
 theorem lagrange
   metamath    lagsubg, which says it of the index set.mm builds from the
@@ -17,13 +39,13 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
        reads the cosets of H: the parts of G of the form gH
 
 1.  H ⊆ G
-    thm:stdlib/groups/subgroup-within, from H2
+    mun:subgroup-within, from H2
 
 2.  H is finite
-    thm:stdlib/counting/finite-part, from H1, 1
+    mun:finite-part, from H1, 1
 
 3.  |H| ∈ ℕ₀
-    thm:stdlib/counting/card-nat0, from 2
+    mun:card-nat0, from 2
 
 4.  For all g ∈ G, gH ⊆ G.
     fix
@@ -34,33 +56,33 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           let u ∈ gH                                                  (K2)
 
           4.1.1.  h ∈ H. u = g·h.
-                  obtain h: def:stdlib/groups/coset u := u, from K1, K2
+                  obtain h: mun:coset u := u, from K1, K2
                   requires H ⊆ G: from 1
 
           4.1.2.  h ∈ G
-                  thm:stdlib/sets/in-subset, from 1, 4.1.1
+                  mun:in-subset, from 1, 4.1.1
 
           4.1.3.  g·h ∈ G
-                  thm:stdlib/groups/group-closed a := g, b := h, from K1, 4.1.2
+                  mun:group-closed a := g, b := h, from K1, 4.1.2
 
           4.1.4.  u ∈ G
                   substitute u = g·h (line 4.1.1) into line 4.1.3
 
     4.2.  gH ⊆ G
-          def:stdlib/sets/subset, from 4.1
+          mun:subset, from 4.1
 
 5.  For all g ∈ G, g ∈ gH.
     fix
     let g ∈ G                                                         (K3)
 
     5.1.  e ∈ H
-          thm:stdlib/groups/subgroup-identity, from H2
+          mun:subgroup-identity, from H2
 
     5.2.  g·e = g
-          thm:stdlib/groups/group-identity a := g, from K3
+          mun:group-identity a := g, from K3
 
     5.3.  g ∈ gH
-          def:stdlib/groups/coset u := g, from K3, 5.1, 5.2
+          mun:coset u := g, from K3, 5.1, 5.2
           requires H ⊆ G: from 1
 
 6.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
@@ -69,34 +91,34 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let x ∈ aH                                                        (K5)
 
     6.1.  h ∈ H. x = a·h.
-          obtain h: def:stdlib/groups/coset u := x, g := a, from K4, K5
+          obtain h: mun:coset u := x, g := a, from K4, K5
           requires H ⊆ G: from 1
 
     6.2.  aH ⊆ G
           instantiate g := a in line 4, from K4
 
     6.3.  x ∈ G
-          thm:stdlib/sets/in-subset, from 6.2, K5
+          mun:in-subset, from 6.2, K5
 
     6.4.  h ∈ G
-          thm:stdlib/sets/in-subset, from 1, 6.1
+          mun:in-subset, from 1, 6.1
 
     6.5.  For all u ∈ xH, u ∈ aH.
           fix
           let u ∈ xH                                                  (K6)
 
           6.5.1.  c ∈ H. u = x·c.
-                  obtain c: def:stdlib/groups/coset u := u, g := x, from 6.3, K6
+                  obtain c: mun:coset u := u, g := x, from 6.3, K6
                   requires H ⊆ G: from 1
 
           6.5.2.  c ∈ G
-                  thm:stdlib/sets/in-subset, from 1, 6.5.1
+                  mun:in-subset, from 1, 6.5.1
 
           6.5.3.  h·c ∈ H
-                  thm:stdlib/groups/subgroup-closed a := h, b := c, from H2, 6.1, 6.5.1
+                  mun:subgroup-closed a := h, b := c, from H2, 6.1, 6.5.1
 
           6.5.4.  (a·h)·c = a·(h·c)
-                  thm:stdlib/groups/group-associative a := a, b := h, c := c, from K4, 6.4, 6.5.2
+                  mun:group-associative a := a, b := h, c := c, from K4, 6.4, 6.5.2
 
           6.5.5.  x·c = (a·h)·c
                   substitute x = a·h (line 6.1)
@@ -108,11 +130,11 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                       = a·(h·c)          6.5.4
 
           6.5.7.  u ∈ aH
-                  def:stdlib/groups/coset u := u, g := a, from K4, 6.5.3, 6.5.6
+                  mun:coset u := u, g := a, from K4, 6.5.3, 6.5.6
                   requires H ⊆ G: from 1
 
     6.6.  xH ⊆ aH
-          def:stdlib/sets/subset, from 6.5
+          mun:subset, from 6.5
 
 7.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
     fix
@@ -120,29 +142,29 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let x ∈ aH                                                        (K8)
 
     7.1.  h ∈ H. x = a·h.
-          obtain h: def:stdlib/groups/coset u := x, g := a, from K7, K8
+          obtain h: mun:coset u := x, g := a, from K7, K8
           requires H ⊆ G: from 1
 
     7.2.  h ∈ G
-          thm:stdlib/sets/in-subset, from 1, 7.1
+          mun:in-subset, from 1, 7.1
 
     7.3.  h⁻¹ ∈ H
-          thm:stdlib/groups/subgroup-inverse a := h, from H2, 7.1
+          mun:subgroup-inverse a := h, from H2, 7.1
 
     7.4.  h⁻¹ ∈ G
-          thm:stdlib/groups/group-inverse-closed a := h, from 7.2
+          mun:group-inverse-closed a := h, from 7.2
 
     7.5.  (a·h)·h⁻¹ = a·(h·h⁻¹)
-          thm:stdlib/groups/group-associative a := a, b := h, c := h⁻¹, from K7, 7.2, 7.4
+          mun:group-associative a := a, b := h, c := h⁻¹, from K7, 7.2, 7.4
 
     7.6.  h·h⁻¹ = e
-          thm:stdlib/groups/group-inverse a := h, from 7.2
+          mun:group-inverse a := h, from 7.2
 
     7.7.  a·(h·h⁻¹) = a·e
           substitute h·h⁻¹ = e (line 7.6)
 
     7.8.  a·e = a
-          thm:stdlib/groups/group-identity a := a, from K7
+          mun:group-identity a := a, from K7
 
     7.9.  x·h⁻¹ = (a·h)·h⁻¹
           substitute x = a·h (line 7.1)
@@ -158,10 +180,10 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           instantiate g := a in line 4, from K7
 
     7.12. x ∈ G
-          thm:stdlib/sets/in-subset, from 7.11, K8
+          mun:in-subset, from 7.11, K8
 
     7.13. a ∈ xH
-          def:stdlib/groups/coset u := a, g := x, from 7.12, 7.3, 7.10
+          mun:coset u := a, g := x, from 7.12, 7.3, 7.10
           requires H ⊆ G: from 1
 
 8.  For all b ∈ G, for all y ∈ bH, yH = bH.
@@ -176,7 +198,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           instantiate g := b in line 4, from K9
 
     8.3.  y ∈ G
-          thm:stdlib/sets/in-subset, from 8.2, K10
+          mun:in-subset, from 8.2, K10
 
     8.4.  b ∈ yH
           instantiate a := b, x := y in line 7, from K9, K10
@@ -185,7 +207,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           instantiate a := y, x := b in line 6, from 8.3, 8.4
 
     8.6.  yH = bH
-          thm:stdlib/sets/subset-antisymmetric, from 8.1, 8.5
+          mun:subset-antisymmetric, from 8.1, 8.5
 
 9.  For all g ∈ G, |gH| = |H|.
     fix
@@ -202,11 +224,11 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                   D2, from K12
 
           9.1.2.  t(h) ∈ gH
-                  def:stdlib/groups/coset u := t(h), from K11, K12, 9.1.1
+                  mun:coset u := t(h), from K11, K12, 9.1.1
                   requires H ⊆ G: from 1
 
     9.2.  t : H → gH
-          thm:stdlib/functions/function-into, from 9.1
+          mun:function-into, from 9.1
           requires t is a function on H: from D2
 
     9.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
@@ -228,23 +250,23 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                         = g·r            9.3.2
 
           9.3.4.  s ∈ G
-                  thm:stdlib/sets/in-subset, from 1, K13
+                  mun:in-subset, from 1, K13
 
           9.3.5.  r ∈ G
-                  thm:stdlib/sets/in-subset, from 1, K14
+                  mun:in-subset, from 1, K14
 
           9.3.6.  s = r
-                  thm:stdlib/groups/group-cancel a := s, b := r, g := g, from 9.3.4, 9.3.5, K11, 9.3.3
+                  thm:group-cancel a := s, b := r, g := g, from 9.3.4, 9.3.5, K11, 9.3.3
 
     9.4.  t : H → gH is one-to-one
-          def:stdlib/functions/one-to-one, from 9.2, 9.3
+          mun:one-to-one, from 9.2, 9.3
 
     9.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
           fix
           let u ∈ gH                                                  (K15)
 
           9.5.1.  h ∈ H. u = g·h.
-                  obtain h: def:stdlib/groups/coset u := u, from K11, K15
+                  obtain h: mun:coset u := u, from K11, K15
                   requires H ⊆ G: from 1
 
           9.5.2.  t(h) = g·h
@@ -259,20 +281,20 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                   exhibit, from 9.5.1, 9.5.3
 
     9.6.  There is a bijection from H to gH.
-          thm:stdlib/functions/onto-bijection, from 9.4, 9.5
+          mun:bijection, from 9.4, 9.5
 
     9.7.  |H| = |gH|
-          thm:stdlib/counting/card-equal X := H, Y := gH, from 2, 9.6
+          mun:card-equal X := H, Y := gH, from 2, 9.6
 
 10. For all Y ∈ K, Y ⊆ G.
     fix
     let Y ∈ K                                                         (K16)
 
     10.1. Y ⊆ G
-          def:stdlib/sets/part-builder, from K16
+          mun:part-builder, from K16
 
 11. ⋃(Y ∈ K) Y ⊆ G
-    thm:stdlib/sets/union-within, from 10
+    mun:union-within, from 10
 
 12. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
     fix
@@ -285,7 +307,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           exhibit, from K17
 
     12.3. gH ∈ K
-          def:stdlib/sets/part-builder u := gH, from 12.1, 12.2
+          mun:part-builder u := gH, from 12.1, 12.2
 
     12.4. g ∈ gH
           instantiate g := g in line 5, from K17
@@ -294,13 +316,13 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           exhibit, from 12.3, 12.4
 
     12.6. g ∈ ⋃(Y ∈ K) Y
-          def:stdlib/sets/indexed-union u := g, from 12.5
+          mun:indexed-union u := g, from 12.5
 
 13. G ⊆ ⋃(Y ∈ K) Y
-    def:stdlib/sets/subset, from 12
+    mun:subset, from 12
 
 14. ⋃(Y ∈ K) Y = G
-    thm:stdlib/sets/subset-antisymmetric, from 11, 13
+    mun:subset-antisymmetric, from 11, 13
 
 15. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     fix
@@ -309,13 +331,13 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let x ∈ Y ∩ Z                                                     (K20)
 
     15.1. a ∈ G. Y = aH.
-          obtain a: def:stdlib/sets/part-builder, from K18
+          obtain a: mun:part-builder, from K18
 
     15.2. b ∈ G. Z = bH.
-          obtain b: def:stdlib/sets/part-builder, from K19
+          obtain b: mun:part-builder, from K19
 
     15.3. x ∈ Y. x ∈ Z.
-          thm:stdlib/sets/intersection-member, from K20
+          mun:intersection, from K20
 
     15.4. x ∈ aH
           substitute Y = aH (line 15.1) into line 15.3
@@ -341,7 +363,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     let Y ∈ K                                                         (K21)
 
     16.1. a ∈ G. Y = aH.
-          obtain a: def:stdlib/sets/part-builder, from K21
+          obtain a: mun:part-builder, from K21
 
     16.2. |H| = |aH|
           instantiate g := a in line 9, from 16.1
@@ -355,16 +377,16 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                 = |H|                16.2
 
 17. |G| = |K| · |H|
-    thm:stdlib/counting/partition-count A := G, m := |H|, from H1, 14, 15, 16, 3
+    mun:partition-count A := G, m := |H|, from H1, 14, 15, 16, 3
 
 18. K is finite
-    thm:stdlib/counting/parts-finite A := G, from H1, 10
+    mun:parts-finite A := G, from H1, 10
 
 19. |K| ∈ ℕ₀
-    thm:stdlib/counting/card-nat0, from 18
+    mun:card-nat0, from 18
 
 20. |G| ∈ ℕ₀
-    thm:stdlib/counting/card-nat0, from H1
+    mun:card-nat0, from H1
 
 21. |G| = |H|·|K|
     algebra, from 17
@@ -373,6 +395,6 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     requires |H| ∈ ℝ: from 3
 
 22. |H| divides |G|
-    def:stdlib/divisibility/divides d := |H|, n := |G|, from 19, 21
+    mun:divides d := |H|, n := |G|, from 19, 21
     requires |H| ∈ ℤ: from 3
     requires |G| ∈ ℤ: from 20

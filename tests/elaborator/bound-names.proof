@@ -1,13 +1,12 @@
-import proof stdlib/calculus
-import proof stdlib/divisibility
-import definition stdlib/divisibility/gcd
+import mundane    stdlib/calculus/series-sum
+import mundane    stdlib/divisibility/gcd
 
 theorem series-under-its-own-letters
   assume Σ(k = 1 to n) 1/(k·(k + 1)) → 1 as n → ∞                    (H1)
   then Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
 
 1.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
-    thm:stdlib/calculus/series-value L := 1, from H1
+    mun:series-sum L := 1, from H1
     requires for all k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
     requires 1 ∈ ℝ: arithmetic
 
@@ -18,4 +17,4 @@ theorem citation-under-a-bound-name
   then for all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b)
 
 1.  For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    def:stdlib/divisibility/gcd, from H1, H2
+    mun:gcd, from H1, H2

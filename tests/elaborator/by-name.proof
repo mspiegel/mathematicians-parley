@@ -1,4 +1,4 @@
-import proof stdlib/divisibility
+import mundane    stdlib/divisibility/divides
 
 theorem values-by-name
   let a ∈ ℤ                                                           (H1)
@@ -8,7 +8,7 @@ theorem values-by-name
   then a divides c and a + 1 ∈ ℤ
 
 1.  a divides c
-    def:stdlib/divisibility/divides n := c, d := a, from H1, H2, H3
+    mun:divides n := c, d := a, from H1, H2, H3
     requires 2 ∈ ℤ: arithmetic
 
 2.  a + 1 ∈ ℤ

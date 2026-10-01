@@ -1,6 +1,30 @@
-import proof stdlib/functions
-import proof stdlib/reasoning
-import proof stdlib/sets
+import mundane    stdlib/functions/bijection
+import mundane    stdlib/functions/function-into
+import mundane    stdlib/functions/function-value
+import mundane    stdlib/functions/image
+import mundane    stdlib/functions/image-monotone
+import mundane    stdlib/functions/image-within
+import mundane    stdlib/functions/inverse-value
+import mundane    stdlib/functions/one-to-one
+import mundane    stdlib/functions/value-in-image
+import mundane    stdlib/reasoning/excluded-middle
+import mundane    stdlib/reasoning/from-contradiction
+import mundane    stdlib/sets/complement-swap
+import mundane    stdlib/sets/complement-swap-outside
+import mundane    stdlib/sets/difference
+import mundane    stdlib/sets/difference-reverses
+import mundane    stdlib/sets/difference-subset
+import mundane    stdlib/sets/disjoint-difference
+import mundane    stdlib/sets/disjoint-member
+import mundane    stdlib/sets/disjoint-within
+import mundane    stdlib/sets/equal-subset
+import mundane    stdlib/sets/in-subset
+import mundane    stdlib/sets/indexed-union
+import mundane    stdlib/sets/part-builder
+import mundane    stdlib/sets/subset
+import mundane    stdlib/sets/subset-antisymmetric
+import mundane    stdlib/sets/union-contains-member
+import mundane    stdlib/sets/union-within
 
 theorem fixed-part
   metamath    sbthlem3, which says it of the union set.mm builds, where this
@@ -26,7 +50,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ⊆ A                                                         (K1)
 
     1.1.  M(X) ⊆ A
-          thm:stdlib/functions/image-within f := g
+          mun:image-within f := g
           requires X ⊆ A: from K1
 
 2.  For all X, Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
@@ -36,13 +60,13 @@ define C := ⋃(X ∈ D) X                                               (D3)
     assume X ⊆ Y                                                      (A1)
 
     2.1.  f[X] ⊆ f[Y]
-          thm:stdlib/functions/image-monotone, from A1
+          mun:image-monotone, from A1
 
     2.2.  B ∖ f[Y] ⊆ B ∖ f[X]
-          thm:stdlib/sets/difference-reverses, from 2.1
+          mun:difference-reverses, from 2.1
 
     2.3.  M(Y) ⊆ M(X)
-          thm:stdlib/functions/image-monotone f := g, from 2.2
+          mun:image-monotone f := g, from 2.2
           requires X ⊆ A: from K3
           requires Y ⊆ A: from K4
 
@@ -51,10 +75,10 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ∈ D                                                         (K5)
 
     3.1.  X ⊆ A
-          def:stdlib/sets/part-builder, from K5
+          mun:part-builder, from K5
 
 4.  C ⊆ A
-    thm:stdlib/sets/union-within, from 3
+    mun:union-within, from 3
 
 5.  M(C) ⊆ A
     instantiate X := C in line 1, from 4
@@ -64,78 +88,78 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ∈ D                                                         (K6)
 
     6.1.  X ⊆ A
-          def:stdlib/sets/part-builder, from K6
+          mun:part-builder, from K6
 
     6.2.  M(X) ∩ X = ∅
-          def:stdlib/sets/part-builder, from K6
+          mun:part-builder, from K6
           requires X ⊆ A: from 6.1
 
     6.3.  X ⊆ C
-          thm:stdlib/sets/union-contains-member Y := X, from K6
+          mun:union-contains-member Y := X, from K6
 
     6.4.  M(C) ⊆ M(X)
           instantiate X := X, Y := C in line 2, from 6.1, 4, 6.3
 
     6.5.  M(C) ∩ X = ∅
-          thm:stdlib/sets/disjoint-within, from 6.4, 6.2
+          mun:disjoint-within, from 6.4, 6.2
 
 7.  For all a ∈ M(C), a ∈ A ∖ C.
     fix
     let a ∈ M(C)                                                      (K7)
 
     7.1.  a ∈ A
-          thm:stdlib/sets/in-subset, from 5, K7
+          mun:in-subset, from 5, K7
 
     7.2.  a ∉ C
           contradiction
           suppose a ∈ C                                               (S1)
 
           7.2.1.  X ∈ D. a ∈ X.
-                  obtain X: def:stdlib/sets/indexed-union u := a, from S1
+                  obtain X: mun:indexed-union u := a, from S1
 
           7.2.2.  M(C) ∩ X = ∅
                   instantiate X := X in line 6, from 7.2.1
 
           7.2.3.  a ∉ X
-                  thm:stdlib/sets/disjoint-member, from 7.2.2, K7
+                  mun:disjoint-member, from 7.2.2, K7
 
           7.2.4.  a ∈ X. a ∉ X.
                   join 7.2.1, 7.2.3
 
     7.3.  a ∈ A ∖ C
-          thm:stdlib/sets/difference-member, from 7.1, 7.2
+          mun:difference, from 7.1, 7.2
 
 8.  M(C) ⊆ A ∖ C
-    def:stdlib/sets/subset, from 7
+    mun:subset, from 7
 
 9.  C ⊆ A ∖ M(C)
-    thm:stdlib/sets/complement-swap, from 4, 5, 8
+    mun:complement-swap, from 4, 5, 8
 
 10. A ∖ M(C) ⊆ A
-    thm:stdlib/sets/difference-subset
+    mun:difference-subset
 
 11. M(A ∖ M(C)) ⊆ M(C)
     instantiate X := C, Y := A ∖ M(C) in line 2, from 4, 10, 9
 
 12. M(C) ∩ (A ∖ M(C)) = ∅
-    thm:stdlib/sets/disjoint-difference
+    mun:disjoint-difference
 
 13. M(A ∖ M(C)) ∩ (A ∖ M(C)) = ∅
-    thm:stdlib/sets/disjoint-within, from 11, 12
+    mun:disjoint-within, from 11, 12
 
 14. A ∖ M(C) ∈ D
-    def:stdlib/sets/part-builder u := A ∖ M(C), from 10, 13
+    mun:part-builder u := A ∖ M(C), from 10, 13
     requires C ⊆ A: from 4
 
 15. A ∖ M(C) ⊆ C
-    thm:stdlib/sets/union-contains-member Y := A ∖ M(C), from 14
+    mun:union-contains-member Y := A ∖ M(C), from 14
     requires C ⊆ A: from 4
 
 16. A ∖ C ⊆ M(C)
-    thm:stdlib/sets/complement-swap-outside, from 15
+    mun:complement-swap-outside, from 15
 
 17. M(C) = A ∖ C
-    thm:stdlib/sets/subset-antisymmetric, from 8, 16
+    mun:subset-antisymmetric, from 8, 16
 
 18. There exists C ⊆ A such that g[B ∖ f[C]] = A ∖ C.
     exhibit, from 4, 17
@@ -151,10 +175,10 @@ theorem schroeder-bernstein
   then there is a bijection from A to B
 
 1.  For all s, t ∈ A, if f(s) = f(t) then s = t.
-    def:stdlib/functions/one-to-one, from H3
+    mun:one-to-one, from H3
 
 2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.
-    obtain C: thm:proofs/schroeder-bernstein/fixed-part
+    obtain C: thm:fixed-part
 
     define R := f[C]                                                  (D1)
            reads what f reaches from C
@@ -167,26 +191,26 @@ theorem schroeder-bernstein
     let t ∈ A ∖ C                                                     (K1)
 
     3.1.  t ∈ A. t ∉ C.
-          thm:stdlib/sets/difference-member, from K1
+          mun:difference, from K1
 
     3.2.  A ∖ C ⊆ g[B ∖ R]
-          thm:stdlib/sets/equal-subset, from 2
+          mun:equal-subset, from 2
 
     3.3.  t ∈ g[B ∖ R]
-          thm:stdlib/sets/in-subset, from 3.2, K1
+          mun:in-subset, from 3.2, K1
 
     3.4.  y ∈ B ∖ R. t = g(y).
-          obtain y: def:stdlib/functions/image f := g, u := t, Y := B ∖ R, from 3.3
-          requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
+          obtain y: mun:image f := g, u := t, Y := B ∖ R, from 3.3
+          requires B ∖ R ⊆ B: mun:difference-subset
 
     3.5.  y ∈ B
-          thm:stdlib/sets/difference-member, from 3.4
+          mun:difference, from 3.4
 
     3.6.  h(t) = g⁻¹(t)
           D2, from 3.1
 
     3.7.  g⁻¹(g(y)) = y
-          thm:stdlib/functions/inverse-value, from H4, 3.5
+          mun:inverse-value, from H4, 3.5
 
     3.8.  g⁻¹(t) = g⁻¹(g(y))
           substitute t = g(y) (line 3.4)
@@ -221,14 +245,14 @@ theorem schroeder-bernstein
           suppose h(u) = h(v)                                         (S1)
 
           4.1.1.  u ∈ A
-                  thm:stdlib/sets/in-subset, from 2, K2
+                  mun:in-subset, from 2, K2
 
           4.1.2.  h(u) = f(u)
                   D2, from K2
                   requires u ∈ A: from 4.1.1
 
           4.1.3.  f(u) ∈ R
-                  thm:stdlib/functions/value-in-image, from K2
+                  mun:value-in-image, from K2
                   requires C ⊆ A: from 2
 
           4.1.4.  h(v) = f(u)
@@ -243,7 +267,7 @@ theorem schroeder-bernstein
                   instantiate t := v in line 3, from K3
 
           4.1.7.  h(v) ∉ R
-                  thm:stdlib/sets/difference-member, from 4.1.6
+                  mun:difference, from 4.1.6
 
           4.1.8.  h(v) ∈ R. h(v) ∉ R.
                   join 4.1.5, 4.1.7
@@ -253,7 +277,7 @@ theorem schroeder-bernstein
     let s ∈ A                                                         (K4)
 
     5.1.  s ∈ C or s ∉ C
-          thm:stdlib/reasoning/excluded-middle P := s ∈ C
+          mun:excluded-middle P := s ∈ C
 
     5.2.  h(s) ∈ B
           cases, from 5.1
@@ -266,7 +290,7 @@ theorem schroeder-bernstein
                   requires s ∈ A: from K4
 
           5.2.2.  f(s) ∈ B
-                  thm:stdlib/functions/function-value f := f, x := s, from K4
+                  mun:function-value f := f, x := s, from K4
 
           5.2.3.  h(s) ∈ B
                   substitute h(s) = f(s) (line 5.2.1) into line 5.2.2
@@ -275,16 +299,16 @@ theorem schroeder-bernstein
           assume s ∉ C                                                (C2)
 
           5.2.4.  s ∈ A ∖ C
-                  thm:stdlib/sets/difference-member, from K4, C2
+                  mun:difference, from K4, C2
 
           5.2.5.  h(s) ∈ B ∖ R. g(h(s)) = s.
                   instantiate t := s in line 3, from 5.2.4
 
           5.2.6.  h(s) ∈ B
-                  thm:stdlib/sets/difference-member, from 5.2.5
+                  mun:difference, from 5.2.5
 
 6.  h : A → B
-    thm:stdlib/functions/function-into, from 5
+    mun:function-into, from 5
     requires h is a function on A: from D2
 
 7.  For all s, t ∈ A, if h(s) = h(t) then s = t.
@@ -294,10 +318,10 @@ theorem schroeder-bernstein
     assume h(s) = h(t)                                                (A1)
 
     7.1.  s ∈ C or s ∉ C
-          thm:stdlib/reasoning/excluded-middle P := s ∈ C
+          mun:excluded-middle P := s ∈ C
 
     7.2.  t ∈ C or t ∉ C
-          thm:stdlib/reasoning/excluded-middle P := t ∈ C
+          mun:excluded-middle P := t ∈ C
 
     7.3.  s = t
           cases, from 7.1
@@ -332,19 +356,19 @@ theorem schroeder-bernstein
                   assume t ∉ C                                        (C5)
 
                   7.3.1.5.  t ∈ A ∖ C
-                            thm:stdlib/sets/difference-member, from K6, C5
+                            mun:difference, from K6, C5
 
                   7.3.1.6.  not h(s) = h(t)
                             instantiate u := s, v := t in line 4, from C3, 7.3.1.5
 
                   7.3.1.7.  s = t
-                            thm:stdlib/reasoning/from-contradiction P := h(s) = h(t), Q := s = t, from A1, 7.3.1.6
+                            mun:from-contradiction P := h(s) = h(t), Q := s = t, from A1, 7.3.1.6
 
           case
           assume s ∉ C                                                (C6)
 
           7.3.2.  s ∈ A ∖ C
-                  thm:stdlib/sets/difference-member, from K5, C6
+                  mun:difference, from K5, C6
 
           7.3.3.  h(s) ∈ B ∖ R. g(h(s)) = s.
                   instantiate t := s in line 3, from 7.3.2
@@ -359,13 +383,13 @@ theorem schroeder-bernstein
                             instantiate u := t, v := s in line 4, from C7, 7.3.2
 
                   7.3.4.2.  s = t
-                            thm:stdlib/reasoning/from-contradiction P := h(t) = h(s), Q := s = t, from A1, 7.3.4.1
+                            mun:from-contradiction P := h(t) = h(s), Q := s = t, from A1, 7.3.4.1
 
                   case
                   assume t ∉ C                                        (C8)
 
                   7.3.4.3.  t ∈ A ∖ C
-                            thm:stdlib/sets/difference-member, from K6, C8
+                            mun:difference, from K6, C8
 
                   7.3.4.4.  h(t) ∈ B ∖ R. g(h(t)) = t.
                             instantiate t := t in line 3, from 7.3.4.3
@@ -384,7 +408,7 @@ theorem schroeder-bernstein
     let b ∈ B                                                         (K7)
 
     8.1.  b ∈ R or b ∉ R
-          thm:stdlib/reasoning/excluded-middle P := b ∈ R
+          mun:excluded-middle P := b ∈ R
 
     8.2.  There is s ∈ A with b = h(s).
           cases, from 8.1
@@ -393,11 +417,11 @@ theorem schroeder-bernstein
           assume b ∈ R                                                (C9)
 
           8.2.1.  x ∈ C. b = f(x).
-                  obtain x: def:stdlib/functions/image u := b, Y := C, from C9
+                  obtain x: mun:image u := b, Y := C, from C9
                   requires C ⊆ A: from 2
 
           8.2.2.  x ∈ A
-                  thm:stdlib/sets/in-subset, from 2, 8.2.1
+                  mun:in-subset, from 2, 8.2.1
 
           8.2.3.  h(x) = f(x)
                   D2, from 8.2.1
@@ -415,26 +439,26 @@ theorem schroeder-bernstein
           assume b ∉ R                                                (C10)
 
           8.2.6.  b ∈ B ∖ R
-                  thm:stdlib/sets/difference-member, from K7, C10
+                  mun:difference, from K7, C10
 
           8.2.7.  g(b) ∈ g[B ∖ R]
-                  thm:stdlib/functions/value-in-image f := g, from 8.2.6
-                  requires B ∖ R ⊆ B: thm:stdlib/sets/difference-subset
+                  mun:value-in-image f := g, from 8.2.6
+                  requires B ∖ R ⊆ B: mun:difference-subset
 
           8.2.8.  g[B ∖ R] ⊆ A ∖ C
-                  thm:stdlib/sets/equal-subset, from 2
+                  mun:equal-subset, from 2
 
           8.2.9.  g(b) ∈ A ∖ C
-                  thm:stdlib/sets/in-subset, from 8.2.8, 8.2.7
+                  mun:in-subset, from 8.2.8, 8.2.7
 
           8.2.10. g(b) ∈ A. g(b) ∉ C.
-                  thm:stdlib/sets/difference-member, from 8.2.9
+                  mun:difference, from 8.2.9
 
           8.2.11. h(g(b)) = g⁻¹(g(b))
                   D2, from 8.2.10
 
           8.2.12. g⁻¹(g(b)) = b
-                  thm:stdlib/functions/inverse-value, from H4, K7
+                  mun:inverse-value, from H4, K7
 
           8.2.13. b = h(g(b))
                   calculation
@@ -445,7 +469,7 @@ theorem schroeder-bernstein
                   exhibit, from 8.2.10, 8.2.13
 
 9.  h : A → B is one-to-one
-    def:stdlib/functions/one-to-one, from 6, 7
+    mun:one-to-one, from 6, 7
 
 10. There is a bijection from A to B.
-    thm:stdlib/functions/onto-bijection, from 9, 8
+    mun:bijection, from 9, 8

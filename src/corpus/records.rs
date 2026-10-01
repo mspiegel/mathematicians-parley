@@ -10,12 +10,19 @@ use crate::regex;
 use crate::text::repr;
 
 /// What a record is.
+///
+/// An item of the library is one of three kinds, and the kind says what a
+/// reader is to take it to be (`DATABASE.md`, "Record kinds"): an axiom is
+/// given, a theorem is proved, and a definition is where a word or a symbol
+/// gets its meaning. Whether a proof takes the item for granted is a mark
+/// beside the kind, `Record::mundane`, and not a kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum RecordKind {
     Notation,
     Method,
-    Definition,
+    Axiom,
     Theorem,
+    Definition,
     Precedence,
 }
 
@@ -24,8 +31,9 @@ impl RecordKind {
         Some(match word {
             "notation" => RecordKind::Notation,
             "method" => RecordKind::Method,
-            "definition" => RecordKind::Definition,
+            "axiom" => RecordKind::Axiom,
             "theorem" => RecordKind::Theorem,
+            "definition" => RecordKind::Definition,
             "precedence" => RecordKind::Precedence,
             _ => return None,
         })
@@ -35,15 +43,33 @@ impl RecordKind {
         match self {
             RecordKind::Notation => "notation",
             RecordKind::Method => "method",
-            RecordKind::Definition => "definition",
+            RecordKind::Axiom => "axiom",
             RecordKind::Theorem => "theorem",
+            RecordKind::Definition => "definition",
             RecordKind::Precedence => "precedence",
         }
     }
 
-    /// A definition or a theorem: an item a proof may cite.
+    /// An item a proof may cite: every kind of the library's.
     pub fn is_item(self) -> bool {
-        matches!(self, RecordKind::Definition | RecordKind::Theorem)
+        self.is_fact() || self.unfolds()
+    }
+
+    /// An axiom or a theorem: a statement a step applies.
+    pub fn is_fact(self) -> bool {
+        matches!(self, RecordKind::Axiom | RecordKind::Theorem)
+    }
+
+    /// A definition: what a step citing it unfolds.
+    pub fn unfolds(self) -> bool {
+        self == RecordKind::Definition
+    }
+
+    /// Whether a record of this kind may be marked `mundane`: an item, or a
+    /// method, which a proof may take for granted. A notation and the
+    /// precedence table are never cited, so nothing takes them for granted.
+    pub fn may_be_mundane(self) -> bool {
+        self.is_item() || self == RecordKind::Method
     }
 }
 
@@ -65,7 +91,7 @@ pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
         .map(|(_, fields)| *fields)
 }
 
-pub const FIELDS: [(RecordKind, &[&str]); 4] = [
+pub const FIELDS: [(RecordKind, &[&str]); 5] = [
     (
         RecordKind::Notation,
         &[
@@ -93,10 +119,11 @@ pub const FIELDS: [(RecordKind, &[&str]); 4] = [
     (
         RecordKind::Definition,
         &[
-            "function", "sort", "builds", "reads", "metamath", "target", "open",
-            "symbol", "defines", "note",
+            "sort", "builds", "reads", "metamath", "target", "open", "symbol",
+            "defines", "note",
         ],
     ),
+    (RecordKind::Axiom, &["metamath", "target", "open", "note"]),
     (RecordKind::Theorem, &["metamath", "target", "open", "note"]),
 ];
 
@@ -104,6 +131,9 @@ pub const FIELDS: [(RecordKind, &[&str]); 4] = [
 #[derive(Clone, Debug)]
 pub struct Record {
     pub kind: RecordKind,
+    /// Whether its header opens with `mundane`: a human proof takes it for
+    /// granted, using it without naming it.
+    pub mundane: bool,
     pub name: String,
     pub fields: IndexMap<String, String>,
     /// Each `let` or `assume`, its text without the keyword.
@@ -138,6 +168,23 @@ impl Record {
     pub fn field_or_empty(&self, name: &str) -> &str {
         self.field(name).unwrap_or("")
     }
+
+    /// Its header's words before its name, as a message names the record:
+    /// `mundane theorem`, `axiom`.
+    pub fn header(&self) -> String {
+        if self.mundane {
+            format!("mundane {}", self.kind)
+        } else {
+            self.kind.to_string()
+        }
+    }
+
+    /// Whether it declares a function a formula applies, `gcd(a, b)`: a
+    /// definition with a `sort` line. Such a definition also says what it
+    /// `builds`, and `library_functions` refuses one that does not.
+    pub fn is_function(&self) -> bool {
+        self.kind == RecordKind::Definition && self.fields.contains_key("sort")
+    }
 }
 
 regex!(RECORD_NAME, super::NAME);
@@ -165,14 +212,40 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
             .split_once(char::is_whitespace)
             .map_or((said, ""), |(w, r)| (w, r.trim()));
         if line.indent == 0 {
-            let name = rest;
+            // `mundane` is a mark that stands before the kind, and is no kind
+            // of its own.
+            let mundane = word == "mundane";
+            let (word, name) = if mundane {
+                rest.split_once(char::is_whitespace)
+                    .map_or((rest, ""), |(w, r)| (w, r.trim()))
+            } else {
+                (word, rest)
+            };
             let Some(kind) = RecordKind::parse(word) else {
                 return Err(Problem::new(
                     path,
                     line.no,
-                    format!("unknown record kind {}", repr(word)),
+                    if mundane && name.is_empty() {
+                        format!(
+                            "mundane {word} has no kind: a record's header says \
+                             `mundane axiom`, `mundane theorem`, `mundane definition` \
+                             or `mundane method` before its name"
+                        )
+                    } else {
+                        format!("unknown record kind {}", repr(word))
+                    },
                 ));
             };
+            if mundane && !kind.may_be_mundane() {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!(
+                        "mundane {kind}: a {kind} is never cited, so nothing takes it \
+                         for granted"
+                    ),
+                ));
+            }
             if !full(&RECORD_NAME, name) {
                 return Err(Problem::new(
                     path,
@@ -182,6 +255,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
             }
             records.push(Record {
                 kind,
+                mundane,
                 name: name.to_string(),
                 fields: IndexMap::new(),
                 hypotheses: Vec::new(),

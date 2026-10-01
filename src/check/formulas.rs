@@ -545,7 +545,7 @@ pub fn check_chain_links(
     let mut defines: BTreeSet<&str> =
         thm.defines.iter().map(|d| d.label.as_str()).collect();
     defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
-    defines.extend(scope.imports.iter().map(|i| i.label.as_str()));
+    defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
     for step in &thm.steps {
         for Link {
             claim,
@@ -593,7 +593,7 @@ fn define_named(thm: &Theorem, label: &str, scopes: &[FileScope]) -> Option<Stri
     scope
         .imports
         .iter()
-        .find(|i| i.label == label)
+        .find(|i| i.label.as_deref() == Some(label))
         .map(|i| i.alias.clone())
 }
 

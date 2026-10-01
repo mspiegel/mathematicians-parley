@@ -1,12 +1,14 @@
 //! Proof skeletons: the `.proof` files.
 
 use std::fmt;
+use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 
 use super::define::{define_parts, DefineParts};
 use super::lines::{read_lines, Line};
-use super::{cited_name, full, module_of, resolve};
+use super::records::{Record, RecordKind};
+use super::{cited_name, full, in_stdlib, module_of};
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
 use crate::text::{prefix, repr};
@@ -105,25 +107,78 @@ pub struct DefineLine {
     pub line: usize,
 }
 
-/// An `import definition` line.
+/// An import of a define from a proof file: `import definition
+/// proofs/tri/T as U (D1)`. Its label is what a line of the importing file
+/// cites it by, as it cites a define of its own, and a file that never
+/// writes the define out gives none.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Import {
     pub module: String,
     pub name: String,
     pub alias: String,
     pub line: usize,
-    pub label: String,
+    pub label: Option<String>,
 }
 
-/// An `import definition stdlib/<file>/<name>` line: a library function the
-/// file applies, by its name, from the library file that declares it. It
-/// carries no label, since nothing cites a function, and no `as`, since the
-/// library's name for it is the one every file writes.
+/// An import of a library function the file applies, by its name, from the
+/// library file that declares it: `import mundane stdlib/divisibility/gcd`.
+/// Its keyword is read as any item's is, and it is a function because the
+/// definition it names has `sort` and `builds` lines (`link_functions`). It
+/// takes no `as`, since the library's name for it is the one every formula
+/// reads.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct FunctionImport {
+    /// The kind its keyword says.
+    pub kind: ItemKind,
     pub module: String,
     pub name: String,
     pub line: usize,
+}
+
+/// An import of an item a step cites by its prefix and name: a library
+/// axiom, theorem or definition, marked mundane or not, or a theorem of a
+/// proof file.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ItemImport {
+    /// The kind its keyword says.
+    pub kind: ItemKind,
+    pub module: String,
+    pub name: String,
+    /// The name the file cites it by: its own, or the one after `as`.
+    pub alias: String,
+    pub line: usize,
+}
+
+impl ItemImport {
+    pub fn full(&self) -> String {
+        format!("{}/{}", self.module, self.name)
+    }
+}
+
+/// What each name a proof file cites stands for.
+///
+/// An import says where an item comes from, so a citation writes only its
+/// name: `thm:prime-factor` is the item imported under that name, and a name
+/// no import gives is a theorem of the citing file.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Names {
+    pub module: String,
+    /// Each imported item, by the name the file cites it by, with its full
+    /// name. Where two imports give one name the first is kept, and the
+    /// checker is what says there are two.
+    pub imported: IndexMap<String, String>,
+}
+
+impl Names {
+    /// The full name a citation written in the file means, `thm:x` or bare.
+    /// Whether anything has that name is the caller's to ask.
+    pub fn full(&self, cited: &str) -> String {
+        let name = cited_name(cited);
+        match self.imported.get(name) {
+            Some(full) => full.clone(),
+            None => format!("{}/{name}", self.module),
+        }
+    }
 }
 
 /// A `requires` line: the fact, and how it is justified.
@@ -182,26 +237,66 @@ pub fn fmt(number: &StepNo) -> String {
     number.to_string()
 }
 
-/// Whether a citation names a definition or a theorem.
+/// What a citation's prefix or an import's keyword says of the item it names:
+/// that a proof takes it for granted, `mun:`, or otherwise its kind.
+///
+/// It is what a reader needs from the line, and not what the item is: a
+/// mundane definition is cited `mun:` and is still unfolded, because the
+/// elaborator reads the kind from the record (`DATABASE.md`, "Record kinds").
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ItemKind {
-    Def,
-    Thm,
+    Axiom,
+    Theorem,
+    Mundane,
+    Definition,
 }
 
+pub const ITEM_KINDS: [ItemKind; 4] = [
+    ItemKind::Axiom,
+    ItemKind::Theorem,
+    ItemKind::Mundane,
+    ItemKind::Definition,
+];
+
 impl ItemKind {
+    /// What a citation writes before the item's name.
     pub fn prefix(self) -> &'static str {
         match self {
-            ItemKind::Def => "def",
-            ItemKind::Thm => "thm",
+            ItemKind::Axiom => "axi",
+            ItemKind::Theorem => "thm",
+            ItemKind::Mundane => "mun",
+            ItemKind::Definition => "def",
         }
     }
 
-    /// The kind of record a citation of this kind names.
-    pub fn record_kind(self) -> &'static str {
+    /// The keyword of an import of an item cited with this prefix.
+    pub fn keyword(self) -> &'static str {
         match self {
-            ItemKind::Def => "definition",
-            ItemKind::Thm => "theorem",
+            ItemKind::Axiom => "axiom",
+            ItemKind::Theorem => "theorem",
+            ItemKind::Mundane => "mundane",
+            ItemKind::Definition => "definition",
+        }
+    }
+
+    pub fn from_prefix(prefix: &str) -> Option<ItemKind> {
+        ITEM_KINDS.into_iter().find(|k| k.prefix() == prefix)
+    }
+
+    pub fn from_keyword(keyword: &str) -> Option<ItemKind> {
+        ITEM_KINDS.into_iter().find(|k| k.keyword() == keyword)
+    }
+
+    /// What a citation of a library record writes: `mun:` where its header
+    /// is marked mundane, and its kind's prefix otherwise.
+    pub fn of_record(r: &Record) -> ItemKind {
+        if r.mundane {
+            return ItemKind::Mundane;
+        }
+        match r.kind {
+            RecordKind::Axiom => ItemKind::Axiom,
+            RecordKind::Definition => ItemKind::Definition,
+            _ => ItemKind::Theorem,
         }
     }
 }
@@ -276,18 +371,22 @@ impl Method {
     }
 }
 
+/// The kind of item a text cites, where it opens with an item's prefix.
+pub fn item_prefix(text: &str) -> Option<ItemKind> {
+    let (prefix, _) = text.split_once(':')?;
+    ItemKind::from_prefix(prefix)
+}
+
 /// Whether a line opens a justification: one of the heads `GRAMMAR.md`
-/// lists, `def:`, `thm:` and the methods, by the text it starts with.
+/// lists, an item's prefix or a method, by the text it starts with.
 pub fn starts_with_head(text: &str) -> bool {
-    text.starts_with("def:")
-        || text.starts_with("thm:")
-        || METHODS.iter().any(|m| text.starts_with(m.as_str()))
+    item_prefix(text).is_some() || METHODS.iter().any(|m| text.starts_with(m.as_str()))
 }
 
 /// What a justification opens with.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Head {
-    /// A definition or theorem, with the name as the citation spells it.
+    /// An item, with the name as the citation writes it.
     Item {
         kind: ItemKind,
         cited: String,
@@ -344,8 +443,8 @@ pub struct Justification {
     pub chain: Vec<(String, usize)>,
     /// A `from` entry that is neither a line nor a label.
     pub bad_ref: Option<String>,
-    /// The module of the file it is written in, which a bare name means.
-    pub module: String,
+    /// What the names its file cites stand for.
+    pub names: Arc<Names>,
     /// The define's label, where the head is a define.
     pub defined: Option<String>,
 }
@@ -353,7 +452,7 @@ pub struct Justification {
 impl Justification {
     /// The full name a citation written in this justification's file means.
     pub fn item(&self, cited: &str) -> String {
-        resolve(cited_name(cited), &self.module)
+        self.names.full(cited)
     }
 }
 
@@ -386,8 +485,7 @@ impl Step {
 pub type ScopeId = usize;
 
 /// What a proof file holds outside its theorems: the definitions it writes
-/// between them, the definitions it imports from other files, and the proof
-/// files it imports.
+/// between them, and what it imports from other files, one item to a line.
 ///
 /// A theorem sees the definitions written above it and every one its file
 /// imports (`visible`). An imported one is read in the file that wrote it,
@@ -398,9 +496,10 @@ pub struct FileScope {
     pub defines: Vec<DefineLine>,
     /// A define's label, and what its `reads` line says.
     pub readings: IndexMap<String, (String, usize)>,
+    /// The defines it imports from proof files.
     pub imports: Vec<Import>,
-    /// The proof files it imports, with their lines.
-    pub proof_imports: Vec<(String, usize)>,
+    /// The items it imports that a step cites by prefix and name.
+    pub items: Vec<ItemImport>,
     /// Each definition import, by its alias, and the define it names in the
     /// scope that wrote it (`link_definitions`).
     pub linked: IndexMap<String, (ScopeId, DefineLine)>,
@@ -416,7 +515,7 @@ impl FileScope {
             defines: Vec::new(),
             readings: IndexMap::new(),
             imports: Vec::new(),
-            proof_imports: Vec::new(),
+            items: Vec::new(),
             linked: IndexMap::new(),
             functions: Vec::new(),
         }
@@ -431,12 +530,31 @@ impl FileScope {
         module_of(&self.path)
     }
 
-    /// The label the import writing a definition as `alias` carries.
+    /// What each name its citations write stands for: the items it imports
+    /// and the library functions, which a line unfolding one cites.
+    pub fn names(&self) -> Names {
+        let mut imported: IndexMap<String, String> = IndexMap::new();
+        for i in &self.items {
+            imported.entry(i.alias.clone()).or_insert_with(|| i.full());
+        }
+        for f in &self.functions {
+            imported
+                .entry(f.name.clone())
+                .or_insert_with(|| format!("{}/{}", f.module, f.name));
+        }
+        Names {
+            module: self.module().to_string(),
+            imported,
+        }
+    }
+
+    /// The label the import writing a definition as `alias` carries, where it
+    /// gives one.
     pub fn import_label(&self, alias: &str) -> Option<&str> {
         self.imports
             .iter()
             .find(|i| i.alias == alias)
-            .map(|i| i.label.as_str())
+            .and_then(|i| i.label.as_deref())
     }
 
     /// The define this file writes at file level under `name`.
@@ -491,6 +609,8 @@ pub struct Theorem {
     /// `metamath` and `note`, where it says them.
     pub fields: IndexMap<String, String>,
     pub scope: ScopeId,
+    /// What the names its file cites stand for.
+    pub names: Arc<Names>,
 }
 
 impl Theorem {
@@ -580,7 +700,7 @@ pub fn cites_define(text: &str, defines: &[String]) -> Option<String> {
         .then(|| label.to_string())
 }
 
-regex!(ITEM_HEAD, format!(r"^(def|thm):({})", super::CITED));
+regex!(ITEM_HEAD, format!(r"^(thm|axi|mun|def):({})", super::CITED));
 regex!(
     SUBSTITUTE_SOURCE,
     format!(
@@ -600,8 +720,9 @@ regex!(
 regex!(
     IN_TARGET,
     format!(
-        r"\bin\s+(?:line\s+({})|(def:{})|({}))\b",
+        r"\bin\s+(?:line\s+({})|({}{})|({}))\b",
         super::NUMBER,
+        super::ITEM_PREFIX,
         super::CITED,
         super::LABEL
     )
@@ -612,9 +733,9 @@ fn parse_justification(
     path: &str,
     line: &Line,
     defines: &[String],
+    names: &Arc<Names>,
 ) -> Checked<Justification> {
     let text = &line.text;
-    let module = module_of(path).to_string();
     let has_head = starts_with_head(text);
     let label = if has_head {
         None
@@ -633,7 +754,7 @@ fn parse_justification(
             instantiations: Vec::new(),
             chain: Vec::new(),
             bad_ref,
-            module,
+            names: names.clone(),
             defined: Some(label),
         });
     }
@@ -644,17 +765,13 @@ fn parse_justification(
             format!("no justification head in {}", repr(prefix(text, 40))),
         ));
     }
-    let head = if text.starts_with("def:") || text.starts_with("thm:") {
+    let head = if item_prefix(text).is_some() {
         match ITEM_HEAD.captures(text) {
             Some(m) => Head::Item {
-                kind: if &m[1] == "def" {
-                    ItemKind::Def
-                } else {
-                    ItemKind::Thm
-                },
+                kind: ItemKind::from_prefix(&m[1]).expect("a prefix ITEM_HEAD reads"),
                 cited: m[2].to_string(),
             },
-            // `def:` with no name after it cites nothing, which is a defect
+            // `thm:` with no name after it cites nothing, which is a defect
             // in the line.
             None => {
                 return Err(Problem::new(
@@ -696,7 +813,7 @@ fn parse_justification(
             .or(m.get(3))
             .map(|g| g.as_str().to_string());
         if let Some(t) = &got {
-            if !t.starts_with("def:") {
+            if item_prefix(t).is_none() {
                 refs.push(t.clone());
             }
         }
@@ -723,7 +840,7 @@ fn parse_justification(
         instantiations,
         chain: Vec::new(),
         bad_ref,
-        module,
+        names: names.clone(),
         defined: None,
     })
 }
@@ -732,28 +849,31 @@ regex!(STEP_RE, format!(r"^({})\.\s+(.*)$", super::NUMBER));
 // The item an obtain takes its object from.
 regex!(
     OBTAINED_FROM,
-    format!(r"^obtain\s+[^:]+:\s*((?:def|thm):{})", super::CITED)
+    format!(
+        r"^obtain\s+[^:]+:\s*({}{})",
+        super::ITEM_PREFIX,
+        super::CITED
+    )
 );
 // A requires line's justification, where it cites an item.
-regex!(REQUIRES_ITEM_RE, format!(r"^(def|thm):({})", super::CITED));
+regex!(
+    REQUIRES_ITEM_RE,
+    format!(r"^(thm|axi|mun|def):({})", super::CITED)
+);
 
-/// A requires line's citation of an item: the whole `def:x` or `thm:x`, and
-/// its prefix.
+/// A requires line's citation of an item: the whole `mun:x`, and the kind
+/// its prefix says.
 pub fn requires_item(how: &str) -> Option<(String, ItemKind)> {
     let m = REQUIRES_ITEM_RE.captures(how)?;
-    let kind = if &m[1] == "def" {
-        ItemKind::Def
-    } else {
-        ItemKind::Thm
-    };
+    let kind = ItemKind::from_prefix(&m[1])?;
     Some((m[0].to_string(), kind))
 }
 
-/// The item a step's justification cites, as `def:x` or `thm:x`.
+/// The item a step's justification cites, as `thm:x` or another prefix.
 ///
 /// Either the head is the item, or the step obtains from one: `obtain c:
-/// thm:stdlib/calculus/completeness S := S, from 5, 2, 7` owes the item's
-/// hypotheses as surely as a step headed by it does.
+/// axi:completeness S := S, from 5, 2, 7` owes the item's hypotheses as
+/// surely as a step headed by it does.
 pub fn cited_item(just: &Justification) -> Option<String> {
     if just.head.is_item() {
         return Some(just.head.to_string());
@@ -773,7 +893,7 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
             out.push((just.item(&item), just.line));
         }
         if let Some(target) = &just.target {
-            if target.starts_with("def:") {
+            if item_prefix(target).is_some() {
                 out.push((just.item(target), just.line));
             }
         }
@@ -786,47 +906,56 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     out
 }
 
-// A definition is imported by the name a formula writes, which is not an
-// item's name: a proof's define is one letter, perhaps with a subscript or a
-// prime, and a library function's name may be a Greek letter, as σ. So the
-// last part of the path takes those, where a module's parts are item names.
+// A define is imported by the name a formula writes, which is not an item's
+// name: a proof's define is one letter, perhaps with a subscript or a prime,
+// and may be a Greek letter, as σ. So the last part of the path takes those,
+// where a module's parts are item names.
 const DEFINED_NAME: &str = r"[A-Za-zα-ω][A-Za-zα-ω0-9₀-₉′-]*";
 
 regex!(
     IMPORTED,
     format!(
-        r"^import\s+(?:(?P<proof>proof)\s+(?P<module>{c})|(?P<definition>definition)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?)\s*$",
-        c = super::CITED,
+        r"^import\s+(?P<kind>\S+)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?\s*$",
         n = super::NAME,
         d = DEFINED_NAME,
         l = super::LABEL
     )
 );
+regex!(ITEM_NAME, super::NAME);
 
 enum Imported {
-    Proof(String, usize),
-    Definition(Import),
-    Function(FunctionImport),
+    Item(ItemImport),
+    Define(Import),
 }
 
-/// One `import` line.
+/// One `import` line: one item, with `mundane` as the keyword for an item a
+/// proof takes for granted and its kind otherwise.
 ///
-/// Every import says what it brings in: `import proof` a proof file, whose
-/// theorems the file may then cite by their full names, and `import
-/// definition` one definition, which the file then writes by its name, or by
-/// the name after `as`. Said on the line, a file and a definition never have
-/// to be told apart by what happens to exist.
+/// `import theorem stdlib/divisibility/prime-factor` brings in an item a step
+/// cites, `thm:prime-factor`, or by the name after `as`. A library function
+/// is read here as any library item is, and `link_functions` sets it apart
+/// once the records are read. A define of a proof file is brought in as a
+/// `definition`, under one letter, with the label a line of this file cites
+/// it by where a line does. Whether the keyword fits what the line names is
+/// the checker's to ask, since it wants the item.
 fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     let Some(m) = IMPORTED.captures(str::trim(text)) else {
         return Err(Problem::new(
             path,
             no,
-            "an import says `import proof <file>` or `import definition <file>/<name>`",
+            "an import says `import <kind> <file>/<name>`, as `import theorem stdlib/divisibility/prime-factor` does",
         ));
     };
-    if m.name("proof").is_some() {
-        return Ok(Imported::Proof(m["module"].to_string(), no));
-    }
+    let keyword = &m["kind"];
+    let Some(kind) = ItemKind::from_keyword(keyword) else {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "import {keyword}: an import's keyword is mundane for an item taken for granted, and otherwise the item's kind, axiom, theorem or definition"
+            ),
+        ));
+    };
     let whole = &m["full"];
     let (module, name) = match whole.rfind('/') {
         Some(at) => (&whole[..at], &whole[at + 1..]),
@@ -836,53 +965,64 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
         return Err(Problem::new(
             path,
             no,
-            format!("import definition {whole} names no file"),
+            format!("import {keyword} {whole} names no file"),
         ));
     }
-    // A library function is imported by the name the library gives it, and
-    // nothing cites it by a label.
-    if super::in_stdlib(whole) {
-        if m.name("label").is_some() || m.name("alias").is_some() {
+    let alias = m.name("alias").map_or(name, |a| a.as_str());
+    let label = m.name("label").map(|l| l.as_str().to_string());
+    let from_library = in_stdlib(whole);
+    // A define of a proof file is written in formulas, and cited by the
+    // label its import gives it, as one the file defines is: a calculation
+    // link writing S(k + 1) out cites the equation. A file that never writes
+    // it out gives it no label.
+    if !from_library && kind == ItemKind::Definition {
+        if !super::define::is_one_name(alias) {
             return Err(Problem::new(
                 path,
                 no,
                 format!(
-                    "import definition {whole}: a library function is imported by its name alone, with no `as` and no label"
+                    "a define is imported under one letter, perhaps with a subscript or a prime, and {} is not one",
+                    repr(alias)
                 ),
             ));
         }
-        return Ok(Imported::Function(FunctionImport {
+        return Ok(Imported::Define(Import {
             module: module.to_string(),
             name: name.to_string(),
+            alias: alias.to_string(),
             line: no,
+            label,
         }));
     }
-    // A definition a file imports is cited by its label, as one it defines
-    // is: a calculation link writing S(k + 1) out cites the equation.
-    let Some(label) = m.name("label") else {
-        return Err(Problem::new(
-            path,
-            no,
-            format!("import definition {whole} carries no label"),
-        ));
-    };
-    let alias = m.name("alias").map_or(name, |a| a.as_str());
-    if !super::define::is_one_name(alias) {
+    // Everything else is written only in a justification, by its prefix and
+    // the name it is imported under.
+    if label.is_some() {
         return Err(Problem::new(
             path,
             no,
             format!(
-                "a definition is imported under one letter, perhaps with a subscript or a prime, and {} is not one",
-                repr(alias)
+                "import {keyword} {whole}: only a define of a proof file carries a label"
             ),
         ));
     }
-    Ok(Imported::Definition(Import {
+    for said in [name, alias] {
+        if !full(&ITEM_NAME, said) {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "import {keyword} {whole}: {} is not an item's name",
+                    repr(said)
+                ),
+            ));
+        }
+    }
+    Ok(Imported::Item(ItemImport {
+        kind,
         module: module.to_string(),
         name: name.to_string(),
         alias: alias.to_string(),
         line: no,
-        label: label.as_str().to_string(),
     }))
 }
 
@@ -938,7 +1078,7 @@ fn placeholder_justification() -> Justification {
         instantiations: Vec::new(),
         chain: Vec::new(),
         bad_ref: None,
-        module: String::new(),
+        names: Arc::default(),
         defined: None,
     }
 }
@@ -958,6 +1098,9 @@ pub fn parse_proof(
     // index of the draft step in the theorem being read.
     let mut step: Option<usize> = None;
     let mut just_defined: Option<DefineLine> = None;
+    // What the file's citations name, settled at its first theorem: every
+    // import comes before it.
+    let mut names: Option<Arc<Names>> = None;
     // Between a theorem line and its statement a theorem may carry fields,
     // and a line there that opens no field continues the one above it.
     let mut header = false;
@@ -1052,6 +1195,7 @@ pub fn parse_proof(
                     path: path.to_string(),
                     fields: IndexMap::new(),
                     scope: scope_id,
+                    names: names.get_or_insert_with(|| Arc::new(scope.names())).clone(),
                 },
                 steps: Vec::new(),
             });
@@ -1073,11 +1217,8 @@ pub fn parse_proof(
                     ));
                 }
                 match importing(path, line.no, &t)? {
-                    Imported::Proof(module, no) => {
-                        scope.proof_imports.push((module, no))
-                    }
-                    Imported::Definition(import) => scope.imports.push(import),
-                    Imported::Function(import) => scope.functions.push(import),
+                    Imported::Item(import) => scope.items.push(import),
+                    Imported::Define(import) => scope.imports.push(import),
                 }
                 continue;
             }
@@ -1355,14 +1496,14 @@ pub fn parse_proof(
                         defines.push(d.label.clone());
                     }
                 }
-                for i in &scope.imports {
-                    if !defines.contains(&i.label) {
-                        defines.push(i.label.clone());
+                for label in scope.imports.iter().filter_map(|i| i.label.as_ref()) {
+                    if !defines.contains(label) {
+                        defines.push(label.clone());
                     }
                 }
                 if starts_with_head(&t) || cites_define(&t, &defines).is_some() {
                     draft.steps[at].step.just =
-                        parse_justification(path, &line, &defines)?;
+                        parse_justification(path, &line, &defines, &draft.thm.names)?;
                     draft.steps[at].has_just = true;
                 } else {
                     draft.steps[at].step.claim.push(t.clone());

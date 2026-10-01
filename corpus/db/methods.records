@@ -24,7 +24,8 @@ method citation
               literal instance of one sentence of X's conclusion.
   metamath    the cited item's own label, with substitution
   note        The method name is not written. The pointer is the justification.
-              The prefix must match the kind of the item it names.
+              The prefix is mun: for an item marked mundane, and otherwise
+              the prefix of the kind of the item it names.
 
 method obtain
   form        obtain a, b: item, from L
@@ -90,7 +91,7 @@ method algebra
               is an atom. Anything about what an atom means is a cited theorem
               in a step of its own.
 
-method arithmetic
+mundane method arithmetic
   form        arithmetic
   block       none
   checks      a fact about closed numerals: value, order, disequality, or
@@ -104,6 +105,9 @@ method arithmetic
               families for longer numerals
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
+              It is the one method marked mundane: a proof never says it is
+              using it, and it never justifies a numbered step. The mark is
+              for the reader and changes nothing a tool does.
 
 method membership
   form        membership, from L
@@ -155,7 +159,7 @@ method join
               cited and nothing about what it did, and four unrelated jobs
               collected under it unnoticed: joining, double negation,
               disjunctive syllogism and restating a case assumption. The two
-              laws are now thm:stdlib/reasoning/double-negation and thm:stdlib/reasoning/disjunctive-syllogism.
+              laws are now mun:stdlib/reasoning/double-negation and mun:stdlib/reasoning/disjunctive-syllogism.
               Restating one cited line is joining a list of one.
 
 method contradiction
@@ -212,7 +216,7 @@ method cases
   metamath    jaodan, jaoi
   note        A case that is impossible still ends by claiming the common
               formula: it reaches some P and not P, then claims the formula by
-              thm:stdlib/reasoning/from-contradiction.
+              mun:stdlib/reasoning/from-contradiction.
 
 method calculation
   form        calculation, then a chain

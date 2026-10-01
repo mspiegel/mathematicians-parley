@@ -76,6 +76,42 @@ that each line has one role.
 The viewer may collapse dull facts by default, since it can tell them apart
 mechanically. That is a viewer setting and changes nothing in the text.
 
+**Dull facts and mundane items are two tests of one idea: what a human proof
+leaves unsaid.** The dull-fact test decides where a line is written. It
+classifies a step by its role in the proof at hand, mechanically, and a step it
+picks out goes in a `requires` line. The mundane mark (`DATABASE.md`, "Record
+kinds") decides whether a reader needs to see a line. It marks a library item
+of any kind, axiom, theorem or definition, once for every proof that cites
+it, by whether a human proof takes the item for granted without naming it;
+that is a judgment made when the item is reviewed, not something the
+elaborator works out. A numbered step whose justification is a mundane item is
+a mundane step, and what a proof leaves unsaid is its dull facts and its
+mundane steps. The viewer may collapse mundane steps as it collapses dull
+facts, since a step citing a mundane item writes `mun:` on the line, whatever
+the item's kind.
+
+The two tests mostly agree, and they differ in two places. A dull fact may rest
+on no item at all: a requires line justified by `arithmetic`, or by a line that
+already says the fact, is dull by its role alone, and most requires lines are
+of this kind. A mundane step may be one the argument uses, which makes it no
+dull fact, so it stays a numbered step and is still taken for granted. In the
+corpus every requires line that cites a library item cites a mundane one, 63
+lines over 15 items, and 319 of the 335 numbered steps that cite a library
+item cite a mundane one. The sixteen others cite the eight named theorems,
+three named axioms (completeness, well-ordering and side-angle-side) and five
+steps citing named definitions (continuity, limits, congruent triangles, and
+C's two zero cases). No requires line rests on a named item; one that did
+would still be written as a requires line, and would be one the reader needs
+to see.
+
+Trichotomy, excluded middle and the group axioms are mundane axioms, and the
+unfolding of set difference is a mundane definition. A mundane definition is
+still written out and is still an unfolding: what "every unfolding of a
+definition, marked as such" asks is met by the record the citation points to,
+which says `definition`, and not by the line, which says `mun:`. Of the
+methods, only `arithmetic` is marked mundane; it never justifies a numbered
+step, and the mark is for the reader alone.
+
 **Membership in a number system is a dull fact and merits no exception.**
 That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
 or method requires it. Exempting it was tempting: such a fact never fails, the

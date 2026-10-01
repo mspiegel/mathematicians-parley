@@ -1,35 +1,38 @@
-import proof stdlib/counting
+import mundane    stdlib/counting/card-empty as counting-card-empty
+import mundane    stdlib/counting/factorial
+import mundane    stdlib/counting/factorial-zero as counting-factorial-zero
 import definition stdlib/counting/C
 
 theorem factorial-base
   then 1! = 1
 
 1.  1! = 1
-    def:stdlib/counting/factorial
+    mun:factorial
 
 theorem factorial-step
   let n ∈ ℕ                                                           (H1)
   then (n + 1)! = n!·(n + 1)
 
 1.  (n + 1)! = n!·(n + 1)
-    def:stdlib/counting/factorial, from H1
+    mun:factorial, from H1
 
 theorem binomial-coefficient
   let n ∈ ℕ₀                                                          (H1)
-  let k ∈ {0, …, n}                                                   (H2)
+  let k ∈ ℤ                                                           (H2)
+  assume k ∈ {0, …, n}                                                (H3)
   then C(n, k) = n!/((n − k)!·k!)
 
 1.  C(n, k) = n!/((n − k)!·k!)
-    def:stdlib/counting/binomial-coefficient, from H1, H2
+    def:C, from H1, H2, H3
 
 theorem card-empty
   then |∅| = 0
 
 1.  |∅| = 0
-    thm:stdlib/counting/card-empty
+    mun:counting-card-empty
 
 theorem factorial-zero
   then 0! = 1
 
 1.  0! = 1
-    thm:stdlib/counting/factorial-zero
+    mun:counting-factorial-zero

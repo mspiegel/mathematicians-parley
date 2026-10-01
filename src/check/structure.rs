@@ -9,9 +9,9 @@ use regex::Regex;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::{requires_item, starts_with_head, visible};
 use crate::corpus::{
-    cited_items, define_parts, fmt, full, in_stdlib, references, written_text,
-    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Step, StepNo, Theorem, LABEL, NUMBER, REF,
+    cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
+    written_text, FileScope, Head, Intro, Item, Justification, Method, Range, Record,
+    RecordKind, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
 };
 use crate::formula::library::Function;
 use crate::formula::{holds, parse_here, Sorts};
@@ -66,8 +66,9 @@ pub fn labels_in_scope(
         }
     }
     for i in &scopes[thm.scope].imports {
-        out.entry(i.label.clone())
-            .or_insert(Declared::Define(i.line));
+        if let Some(label) = &i.label {
+            out.entry(label.clone()).or_insert(Declared::Define(i.line));
+        }
     }
     for d in &thm.defines {
         if d.line < step.line {
@@ -103,8 +104,8 @@ fn productions() -> Vec<regex::Regex> {
     let cited = crate::corpus::CITED;
     let (inst, from) = (inst(), from());
     [
-        format!(r"^(?:def|thm):{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*(?:def|thm):{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
         format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+(?:line\s+{NUMBER}|{LABEL})$"),
         format!(r"^exhibit,\s*{from}$"),
         format!(r"^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$"),
@@ -310,7 +311,7 @@ pub fn check_blocks(
     }
 }
 
-regex!(CHAIN_ITEM, r"\b(?:def|thm):");
+regex!(CHAIN_ITEM, format!(r"\b{ITEM_PREFIX}"));
 
 /// A calculation only joins. Every line cites a numbered step or a label and
 /// carries no reasoning of its own, so a line that names an item or
@@ -363,14 +364,31 @@ pub fn claims_of(thm: &Theorem) -> IndexMap<String, String> {
     out
 }
 
+/// What to say of a label cited and not in scope: where it is the name of a
+/// define the file imports with no label, that the import is to give one,
+/// since a define is cited by its label and not by its name.
+fn out_of_scope(scope: &FileScope, cited: &str, said: String) -> String {
+    match scope
+        .imports
+        .iter()
+        .find(|i| i.alias == cited && i.label.is_none())
+    {
+        Some(i) => format!(
+            "{said}; {cited} is the define import definition {}/{} brings in, which a line cites by a label its import gives, as `(D1)`: add one",
+            i.module, i.name
+        ),
+        None => said,
+    }
+}
+
 /// What to say of a citation that names nothing.
 fn unresolved(cited: &str) -> String {
-    if !cited.contains('/') {
+    if cited.contains('/') {
         return format!(
-            "{cited} names no theorem of this file; an item of another file is cited by its full name"
+            "{cited} is cited by its path; an item is imported, and cited by the name its import gives it"
         );
     }
-    format!("{cited} resolves to no item")
+    format!("{cited} is neither imported nor a theorem of this file")
 }
 
 regex!(LABEL_RE, LABEL);
@@ -403,9 +421,13 @@ pub fn check_citations(
                     report.say(
                         &thm.path,
                         just.line,
-                        format!(
-                            "step {} cites {r}, which is not in scope here",
-                            step.number
+                        out_of_scope(
+                            &scopes[thm.scope],
+                            r,
+                            format!(
+                                "step {} cites {r}, which is not in scope here",
+                                step.number
+                            ),
                         ),
                     );
                 }
@@ -433,7 +455,7 @@ pub fn check_citations(
             }
         }
         if let Some(target) = &just.target {
-            if target.starts_with("def:") {
+            if item_prefix(target).is_some() {
                 report.say(
                     &thm.path,
                     just.line,
@@ -444,31 +466,30 @@ pub fn check_citations(
                 );
             }
         }
-        match &just.head {
-            Head::Item { kind, .. } => {
-                let head = just.head.to_string();
-                match items.get(&just.item(&head)) {
-                    None => report.say(&thm.path, just.line, unresolved(&head)),
-                    Some(item) if item.kind() != kind.record_kind() => report.say(
-                        &thm.path,
-                        just.line,
-                        format!("{head} names a {}", item.kind()),
+        if let Head::Method(m) = &just.head {
+            if !methods.contains_key(m.as_str()) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "{} is in no record of corpus/db/methods.records",
+                        m.as_str()
                     ),
-                    Some(_) => {}
-                }
+                );
             }
-            Head::Define => {}
-            Head::Method(m) => {
-                if !methods.contains_key(m.as_str()) {
-                    report.say(
-                        &thm.path,
-                        just.line,
-                        format!(
-                            "{} is in no record of corpus/db/methods.records",
-                            m.as_str()
-                        ),
-                    );
-                }
+        }
+        // The item a step cites, as its head or as what it obtains from,
+        // resolves, and its prefix is its kind.
+        if let Some(cited) = cited_item(just) {
+            let kind = item_prefix(&cited).expect("a citation opens with a prefix");
+            match items.get(&just.item(&cited)) {
+                None => report.say(&thm.path, just.line, unresolved(&cited)),
+                Some(item) if item.cited_as() != kind => report.say(
+                    &thm.path,
+                    just.line,
+                    format!("{cited} names {}", item.described()),
+                ),
+                Some(_) => {}
             }
         }
         for req in &step.requires {
@@ -489,10 +510,10 @@ pub fn check_citations(
             if let Some((cited, kind)) = requires_item(text) {
                 match items.get(&just.item(&cited)) {
                     None => report.say(&thm.path, no, unresolved(&cited)),
-                    Some(item) if item.kind() != kind.record_kind() => report.say(
+                    Some(item) if item.cited_as() != kind => report.say(
                         &thm.path,
                         no,
-                        format!("{cited} names a {}", item.kind()),
+                        format!("{cited} names {}", item.described()),
                     ),
                     Some(_) => {}
                 }
@@ -514,8 +535,10 @@ pub fn check_citations(
                         report.say(
                             &thm.path,
                             no,
-                            format!(
-                                "requires line cites {r}, which is not in scope here"
+                            out_of_scope(
+                                &scopes[thm.scope],
+                                &r,
+                                format!("requires line cites {r}, which is not in scope here"),
                             ),
                         );
                     }
@@ -883,13 +906,13 @@ fn functions_defined(text: &str) -> Vec<String> {
     }
 }
 
-/// A file imports each library function it applies, from the library file
-/// that declares it, and applies each one it imports.
+/// A file applies each library function it imports. An import is one of a
+/// function only where its full name is a function's record
+/// (`link_functions`), so where it comes from is not asked again here.
 pub fn check_function_imports(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
-    functions: &IndexMap<String, Function>,
 ) {
     for (id, scope) in scopes.iter().enumerate() {
         let mut text: Vec<String> = theorems
@@ -906,37 +929,11 @@ pub fn check_function_imports(
                 report.say(path, no, format!("{name} is imported twice"));
                 continue;
             }
-            let declared = functions
-                .get(name)
-                .map(|f| f.item.rsplit_once('/').map_or("", |(m, _)| m));
-            match declared {
-                None => report.say(
-                    path,
-                    no,
-                    format!("{} declares no function {name}", fi.module),
-                ),
-                Some(module) if module != fi.module => report.say(
-                    path,
-                    no,
-                    format!(
-                        "{} declares no function {name}; it is declared in {module}",
-                        fi.module
-                    ),
-                ),
-                Some(_) => {
-                    let applied = Regex::new(&format!(
-                        r"(?:^|[^A-Za-zα-ω]){}\(",
-                        regex::escape(name)
-                    ))
+            let applied =
+                Regex::new(&format!(r"(?:^|[^A-Za-zα-ω]){}\(", regex::escape(name)))
                     .unwrap();
-                    if !applied.is_match(&text) {
-                        report.say(
-                            path,
-                            no,
-                            format!("imports {name} and never applies it"),
-                        );
-                    }
-                }
+            if !applied.is_match(&text) {
+                report.say(path, no, format!("imports {name} and never applies it"));
             }
         }
     }
@@ -964,8 +961,8 @@ pub fn check_function_names(
                 path,
                 no,
                 format!(
-                    "{name} is the library's function, def:{}, which this file imports; name this function something else",
-                    f.item
+                    "{name} is the library's function, {}, which this file imports; name this function something else",
+                    f.cited()
                 ),
             );
         }
@@ -1048,7 +1045,7 @@ pub fn check_definitions(
         let labels = scope
             .imports
             .iter()
-            .map(|i| (i.label.clone(), i.line))
+            .filter_map(|i| Some((i.label.clone()?, i.line)))
             .chain(scope.defines.iter().map(|d| (d.label.clone(), d.line)));
         for (lab, no) in labels {
             if let Some(at) = tagged.get(&lab) {
@@ -1103,6 +1100,32 @@ pub fn check_definitions(
                 report.say(&scope.path, i.line, message);
             }
         }
+        // An imported define's label is what a line writing the define out
+        // cites, so a label no line cites is given for nothing.
+        let cited: IndexSet<String> = thms
+            .iter()
+            .flat_map(|t| &t.steps)
+            .flat_map(|s| {
+                let just = &s.just;
+                just.refs
+                    .iter()
+                    .cloned()
+                    .chain(just.defined.clone())
+                    .chain(s.requires.iter().flat_map(|r| references(&r.how).0))
+            })
+            .collect();
+        for i in &scope.imports {
+            if let Some(label) = i.label.as_ref().filter(|l| !cited.contains(*l)) {
+                report.say(
+                    &scope.path,
+                    i.line,
+                    format!(
+                        "import definition {}/{} gives the label {label}, which no line cites; a label is given only where a line writes the define out",
+                        i.module, i.name
+                    ),
+                );
+            }
+        }
         for thm in thms {
             let shown = visible(scopes, scope_id, thm.line);
             let seen: IndexSet<&str> =
@@ -1112,7 +1135,7 @@ pub fn check_definitions(
                 .filter(|(_, _, src)| *src == scope_id)
                 .map(|(_, d, _)| d.label.as_str())
                 .collect();
-            labels.extend(scope.imports.iter().map(|i| i.label.as_str()));
+            labels.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
             for d in &thm.defines {
                 if let Built(said) = define_parts(&d.text) {
                     for name in said.names() {
@@ -1157,16 +1180,19 @@ pub fn check_definitions(
     }
 }
 
-/// A proof file imports exactly the other files it cites: proof files, and
-/// the library files whose items it cites, `import proof stdlib/numbers`.
+/// A proof file imports each item it cites from another file, one to a
+/// line, with the item's kind as the keyword, and cites each item it
+/// imports.
 ///
-/// The imports have no cycle, because the theorems a file imports are built
-/// before its own. A library file imports nothing and is no part of that
-/// order.
+/// Every name the file cites is distinct within it: its own theorems, and
+/// each import under the name it gives. The imports have no cycle, because
+/// the theorems a file imports are built before its own. A library file
+/// imports nothing and is no part of that order.
 pub fn check_imports(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
+    items: &IndexMap<String, Item>,
     library: &IndexSet<String>,
 ) {
     let files = by_file(theorems);
@@ -1174,67 +1200,98 @@ pub fn check_imports(
     for (module, thms) in &files {
         let path = &thms[0].path;
         let scope = &scopes[thms[0].scope];
-        let mut said: IndexMap<String, usize> = IndexMap::new();
-        let mut said_library: IndexMap<String, usize> = IndexMap::new();
-        let mut seen: IndexSet<&str> = IndexSet::new();
-        for (name, no) in &scope.proof_imports {
-            if seen.contains(name.as_str()) {
-                report.say(path, *no, format!("{name} is imported twice"));
+        // Each name the file gives, and what gives it.
+        let mut given: IndexMap<&str, String> = IndexMap::new();
+        for thm in thms {
+            given
+                .entry(thm.name.as_str())
+                .or_insert_with(|| format!("theorem {} of this file", thm.name));
+        }
+        for i in &scope.imports {
+            given
+                .entry(i.alias.as_str())
+                .or_insert_with(|| format!("the import at line {}", i.line));
+        }
+        for f in &scope.functions {
+            given
+                .entry(f.name.as_str())
+                .or_insert_with(|| format!("the import at line {}", f.line));
+        }
+        let mut imported: IndexSet<String> = IndexSet::new();
+        let mut edges: IndexMap<String, usize> = IndexMap::new();
+        for i in &scope.items {
+            let (no, full_name) = (i.line, i.full());
+            let keyword = i.kind.keyword();
+            if !imported.insert(full_name.clone()) {
+                report.say(path, no, format!("{full_name} is imported twice"));
                 continue;
             }
-            seen.insert(name);
-            if name == crate::corpus::STDLIB || in_stdlib(name) {
-                if library.contains(name) {
-                    said_library.insert(name.clone(), *no);
-                } else {
-                    report.say(
-                        path,
-                        *no,
-                        format!("import {name} names no library file"),
-                    );
-                }
-            } else if name == module {
-                report.say(path, *no, format!("{name} imports itself"));
-            } else if !files.contains_key(name.as_str()) {
-                report.say(path, *no, format!("import {name} names no proof file"));
-            } else {
-                said.insert(name.clone(), *no);
-            }
-        }
-        let mut cited: IndexMap<String, (String, usize)> = IndexMap::new();
-        for thm in thms {
-            for (full_name, no) in cited_items(thm) {
-                let other = match full_name.rfind('/') {
-                    Some(at) => full_name[..at].to_string(),
-                    None => full_name.clone(),
-                };
-                if other != *module {
-                    cited.entry(other).or_insert((full_name, no));
-                }
-            }
-        }
-        for (other, (full_name, no)) in &cited {
-            let a_file = files.contains_key(other.as_str()) || library.contains(other);
-            if a_file && !seen.contains(other.as_str()) {
+            if let Some(other) = given.get(i.alias.as_str()) {
                 report.say(
                     path,
-                    *no,
-                    format!("{full_name} is cited and {other} is not imported"),
+                    no,
+                    format!(
+                        "{} is already the name of {other}; import one of them under another name with `as`",
+                        i.alias
+                    ),
                 );
+            } else {
+                given.insert(&i.alias, format!("the import at line {no}"));
             }
-        }
-        for (name, no) in said.iter().chain(&said_library) {
-            if !cited.contains_key(name) {
+            if i.module == *module {
                 report.say(
                     path,
-                    *no,
-                    format!("imports {name} and cites nothing from it"),
+                    no,
+                    format!("{full_name} is a theorem of this file, which is cited with no import"),
+                );
+                continue;
+            }
+            if !library.contains(&i.module) && !files.contains_key(i.module.as_str()) {
+                report.say(
+                    path,
+                    no,
+                    format!("import {keyword} {full_name}: {} is no file", i.module),
+                );
+                continue;
+            }
+            match items.get(&full_name) {
+                None => report.say(
+                    path,
+                    no,
+                    format!(
+                        "import {keyword} {full_name}: {} holds no item {}",
+                        i.module, i.name
+                    ),
+                ),
+                Some(item) if item.cited_as() != i.kind => report.say(
+                    path,
+                    no,
+                    format!(
+                        "import {keyword} {full_name}: {full_name} is {}",
+                        item.described()
+                    ),
+                ),
+                Some(_) => {}
+            }
+            if files.contains_key(i.module.as_str()) {
+                edges.entry(i.module.clone()).or_insert(no);
+            }
+        }
+        let cited: IndexSet<String> = thms
+            .iter()
+            .flat_map(|thm| cited_items(thm).into_iter().map(|(name, _)| name))
+            .collect();
+        for i in &scope.items {
+            if !cited.contains(&i.full()) {
+                report.say(
+                    path,
+                    i.line,
+                    format!("imports {} and cites nothing by it", i.alias),
                 );
             }
         }
         // A definition imported is a file read before this one, as a proof
         // file cited is, so it is an edge of the same graph.
-        let mut edges = said.clone();
         for i in &scope.imports {
             if files.contains_key(i.module.as_str()) && i.module != *module {
                 edges.entry(i.module.clone()).or_insert(i.line);

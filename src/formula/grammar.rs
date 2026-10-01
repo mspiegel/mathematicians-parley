@@ -539,13 +539,14 @@ impl Parser<'_> {
                     .is_some_and(|t| t.kind == TokenKind::Open);
                 if let Some(f) = self.g.functions.get(&tok.text) {
                     if applied && !own && !self.sorts.imported.contains(&tok.text) {
-                        let module = f.item.rsplit_once('/').map_or("", |(m, _)| m);
                         return Err(Problem::new(
                             self.path,
                             self.line,
                             format!(
-                                "{} is the library's function def:{}, and this file does not import it: write `import definition {module}/{}`",
-                                tok.text, f.item, tok.text
+                                "{} is the library's function {}, and this file does not import it: write `{}`",
+                                tok.text,
+                                f.cited(),
+                                f.import()
                             ),
                         ));
                     }

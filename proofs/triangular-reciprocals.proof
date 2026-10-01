@@ -1,6 +1,11 @@
-import proof stdlib/calculus
-import proof stdlib/numbers
-import proof stdlib/sums
+import theorem    stdlib/numbers/archimedean
+import theorem    stdlib/sums/sum-telescopes
+import mundane    stdlib/calculus/series-sum
+import mundane    stdlib/numbers/abs-difference-lt
+import mundane    stdlib/numbers/reciprocal-order
+import mundane    stdlib/numbers/reciprocal-positive
+import mundane    stdlib/sums/sum-termwise
+import definition stdlib/calculus/tends-to
 
 define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
        reads the k-th triangular number
@@ -32,12 +37,12 @@ theorem triangular-reciprocals
     let n ∈ ℕ                                                         (K2)
 
     2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
-          thm:stdlib/sums/sum-termwise a := 1, b := n, from 1
+          mun:sum-termwise a := 1, b := n, from 1
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: from K2
 
     2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)
-          thm:stdlib/sums/sum-telescopes a := 1, b := n
+          thm:sum-telescopes a := 1, b := n
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: from K2
           requires n + 1 ≥ 1: inequalities, from K2
@@ -59,7 +64,7 @@ theorem triangular-reciprocals
           requires ε ∈ ℝ: from K3
 
     3.2.  N ∈ ℕ. 1/N < ε/2.
-          obtain N: thm:stdlib/numbers/archimedean x := ε/2, from 3.1
+          obtain N: thm:archimedean x := ε/2, from 3.1
           requires ε/2 ∈ ℝ: membership, from K3
 
     3.3.  For all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
@@ -76,13 +81,13 @@ theorem triangular-reciprocals
                   requires n ∈ ℝ: from K4
 
           3.3.3.  1/(n + 1) ≤ 1/N
-                  thm:stdlib/numbers/reciprocal-order x := N, y := n + 1, from 3.2, 3.3.2
+                  mun:reciprocal-order x := N, y := n + 1, from 3.2, 3.3.2
                   requires n + 1 ∈ ℝ: membership, from K4
                   requires N > 0: inequalities, from 3.2
                   requires n + 1 > 0: inequalities, from K4
 
           3.3.4.  1/(n + 1) > 0
-                  thm:stdlib/numbers/reciprocal-positive x := n + 1
+                  mun:reciprocal-positive x := n + 1
                   requires n + 1 ∈ ℝ: membership, from K4
                   requires n + 1 > 0: inequalities, from K4
 
@@ -103,7 +108,7 @@ theorem triangular-reciprocals
                   requires n + 1 ≠ 0: inequalities, from K4
 
           3.3.7.  |Σ(k = 1 to n) 1/T(k) − 2| < ε
-                  thm:stdlib/numbers/abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from K3, 3.3.5, 3.3.6
+                  mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from K3, 3.3.5, 3.3.6
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership
                   requires 2 ∈ ℝ: arithmetic
 
@@ -111,11 +116,11 @@ theorem triangular-reciprocals
           exhibit, from 3.2, 3.3
 
 4.  Σ(k = 1 to n) 1/T(k) → 2 as n → ∞
-    def:stdlib/calculus/tends-to L := 2, from 3
+    def:tends-to L := 2, from 3
     requires for all n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership
     requires 2 ∈ ℝ: arithmetic
 
 5.  Σ(k = 1 to ∞) 1/T(k) = 2
-    thm:stdlib/calculus/series-value L := 2, from 4
+    mun:series-sum L := 2, from 4
     requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership
     requires 2 ∈ ℝ: arithmetic

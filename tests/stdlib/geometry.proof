@@ -1,4 +1,4 @@
-import proof stdlib/geometry
+import mundane    stdlib/geometry/angle-real as geometry-angle-real
 
 theorem angle-real
   let P be a point                                                    (H1)
@@ -9,4 +9,4 @@ theorem angle-real
   then ∠PQR ∈ ℝ. ∠PQR ≥ 0.
 
 1.  ∠PQR ∈ ℝ. ∠PQR ≥ 0.
-    thm:stdlib/geometry/angle-real, from H4, H5
+    mun:geometry-angle-real, from H4, H5

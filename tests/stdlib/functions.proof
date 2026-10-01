@@ -1,4 +1,4 @@
-import proof stdlib/functions
+import mundane    stdlib/functions/set-image as functions-set-image
 
 theorem set-image
   let Y be a set                                                      (H1)
@@ -9,4 +9,4 @@ theorem set-image
   then there is s ∈ Y with u = E(s)
 
 1.  There is s ∈ Y with u = E(s).
-    def:stdlib/functions/set-image, from H5
+    mun:functions-set-image, from H5

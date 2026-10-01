@@ -21,7 +21,9 @@ use std::path::Path;
 
 use indexmap::{IndexMap, IndexSet};
 
-use crate::corpus::{corpus, parse_proof, Corpus, Intro, Record, RecordKind};
+use crate::corpus::{
+    corpus, link_functions, parse_proof, Corpus, Intro, ItemKind, Record,
+};
 use crate::formula::{parse_here, Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
@@ -170,9 +172,9 @@ pub fn restatements(
     g: &Grammar,
 ) -> (Vec<(String, String)>, Vec<String>) {
     let mut files: IndexMap<String, String> = IndexMap::new();
-    // What each file imports: the library file its items come from, and the
-    // library functions they apply.
-    let mut heads: IndexMap<String, (String, IndexSet<String>)> = IndexMap::new();
+    // What each file imports: the items it cites, and the library functions
+    // they apply or it unfolds.
+    let mut heads: IndexMap<String, (Vec<String>, IndexSet<String>)> = IndexMap::new();
     let mut schemas: Vec<String> = Vec::new();
     let shapes = Shapes::new(records, g);
     for r in records {
@@ -186,20 +188,28 @@ pub fn restatements(
         let free = free_names(r, g);
         let file = r.module().rsplit('/').next().unwrap_or("");
         // Each file restates the items of one library file, and cites them,
-        // so it imports that file as any proof citing it does, and each
-        // library function its statements apply.
+        // so it imports each as any proof citing it does, and each library
+        // function its statements apply. A theorem restating an item takes
+        // the item's name, so the item is imported under another: a file
+        // gives each name once.
         let key = format!("{RESTATED}/{file}.proof");
-        heads
-            .entry(key.clone())
-            .or_insert_with(|| (r.module().to_string(), IndexSet::new()))
-            .1
-            .extend(applied_functions(r, g));
-        let text = files.entry(key).or_default();
-        let prefix = if r.kind == RecordKind::Definition {
-            "def"
+        let head = heads.entry(key.clone()).or_default();
+        head.1.extend(applied_functions(r, g));
+        let kind = ItemKind::of_record(r);
+        let cited = if r.is_function() {
+            head.1.insert(r.name.clone());
+            r.name.clone()
         } else {
-            "thm"
+            let alias = format!("{file}-{}", r.name);
+            head.0.push(format!(
+                "import {} {} as {alias}",
+                kind.keyword(),
+                r.qualified()
+            ));
+            alias
         };
+        let text = files.entry(key).or_default();
+        let prefix = kind.prefix();
         // The item's assumptions, and what its `let` lines claim, are what
         // the step cites it from, as a proof citing it names the lines that
         // say them.
@@ -238,12 +248,10 @@ pub fn restatements(
                 .iter()
                 .filter_map(|s| shapes.parts(s, &sorts, "wi"))
                 .collect();
-            if let (RecordKind::Definition, Some((left, right))) = (r.kind, sides) {
+            if let (true, Some((left, right))) = (r.kind.unfolds(), sides) {
                 ways.push((Some(left.clone()), right.clone()));
                 ways.push((Some(right), left));
-            } else if r.kind == RecordKind::Definition
-                && !cases.is_empty()
-                && cases.len() == said.len()
+            } else if r.kind.unfolds() && !cases.is_empty() && cases.len() == said.len()
             {
                 // A definition by cases is unfolded one case at a time, from
                 // a line saying its condition.
@@ -289,7 +297,7 @@ pub fn restatements(
                     None => from.push("R1".to_string()),
                 }
             }
-            let item = format!("{prefix}:{}{about}", r.qualified());
+            let item = format!("{prefix}:{cited}{about}");
             let from_text = if from.is_empty() {
                 String::new()
             } else {
@@ -318,14 +326,19 @@ pub fn restatements(
     let files = files
         .into_iter()
         .map(|(key, body)| {
-            let (module, applied) = &heads[&key];
-            let mut head = format!("import proof {module}\n");
+            let (items, applied) = &heads[&key];
+            let mut head = String::new();
+            for line in items {
+                head.push_str(line);
+                head.push('\n');
+            }
             for name in applied {
-                let from = g.functions[name]
-                    .item
-                    .rsplit_once('/')
-                    .map_or("", |(m, _)| m);
-                head.push_str(&format!("import definition {from}/{name}\n"));
+                let item = &g.functions[name].item;
+                let keyword = records
+                    .iter()
+                    .find(|r| r.qualified() == *item)
+                    .map_or("definition", |r| ItemKind::of_record(r).keyword());
+                head.push_str(&format!("import {keyword} {item}\n"));
             }
             (key, format!("{head}\n{body}"))
         })
@@ -479,6 +492,14 @@ pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
             }
             Err(problem) => return fail(problem.to_string()),
         }
+    }
+    // A restatement imports each library function it applies as it imports
+    // any item, and the records say which of its imports are functions.
+    if let Some((path, no, message)) = link_functions(&all.records, &mut all.scopes)
+        .into_iter()
+        .next()
+    {
+        return fail(format!("{path}:{no}  {message}"));
     }
     let wanted: Vec<Artifact> = artifacts(&all)
         .into_iter()

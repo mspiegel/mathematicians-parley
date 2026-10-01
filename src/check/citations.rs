@@ -414,6 +414,9 @@ pub fn concludes(
     seed: &Binding,
     library: &Library,
 ) -> bool {
+    // A conclusion is offered conjunct by conjunct, so a claim is asked for
+    // the same way: `u ∈ Y and u ∈ Z` is the two facts a reading gives.
+    let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
     for (want, gives) in groups {
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut sites = Sites::new();
@@ -438,7 +441,7 @@ pub fn concludes(
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = names_of(&trees);
         if take(
-            claims,
+            &claims,
             &candidates,
             seed,
             &[],

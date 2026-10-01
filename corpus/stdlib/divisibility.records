@@ -3,10 +3,11 @@
 # Even and odd, divisors, primes, greatest common divisors, division with a
 # remainder, and congruence modulo a number.
 #
-# One record per item. A record begins at column 0 with its kind and name; a
-# proof cites it as def:stdlib/divisibility/<name> or
-# thm:stdlib/divisibility/<name>, and the prefix must match the kind. Format is
-# described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/divisibility/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -18,7 +19,7 @@
 # Other fields: target, note.
 
 
-definition divides
+mundane definition divides
   let d ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
@@ -28,7 +29,7 @@ definition divides
               dull fact. This is the principle recorded by the primes pilot: a
               relation is defined once, on the widest set where it makes sense.
 
-definition even
+mundane definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   metamath    df-dvds, whose right side is the same existential
@@ -41,30 +42,30 @@ definition even
               same existential this statement writes. Found by checking every
               label the database names against set.mm.
 
-definition odd
+mundane definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   metamath    not 2 ∥ n
   target      odd2np1, equation reversed
 
-theorem even-or-odd
+mundane theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
   metamath    exmid
   target      exmid
-  note        def:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
+  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
               statement is excluded middle, ( ph or not ph ), and the
               expansion never uses H1. zeo says the same thing for an encoding
-              where "odd" means n - 1 is even, which is not the one def:stdlib/divisibility/odd
+              where "odd" means n - 1 is even, which is not the one mun:stdlib/divisibility/odd
               chose.
 
-theorem not-both
+mundane theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
   metamath    notnot
   target      notnot
-  note        def:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
+  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
               double negation introduction, ( ph -> not not ph ), and the
               expansion never uses H1.
 
@@ -92,7 +93,7 @@ theorem division-algorithm
               divalg's own variables, because its conclusion is never
               matched against this claim, so `with` says which is which.
 
-definition prime
+mundane definition prime
   let p ∈ ℕ                                                           (H1)
   then        p is prime ↔ p > 1 and for all d ∈ ℕ, if d divides p then
               d = 1 or d = p
@@ -104,8 +105,7 @@ definition prime
               eluz2gt1, declared with the rest of what an elaborator may
               lean on. `target` still names the unfolding and nothing else.
 
-definition gcd
-  function    gcd(_, _)
+mundane definition gcd
   sort        number, number → number
   builds      _1 _2 cgcd co
   reads       the greatest common divisor of
@@ -135,7 +135,7 @@ theorem prime-factor
               meets the claim. The two are equivalent and the bridge is a proof
               rather than a field of this file.
 
-theorem divides-difference
+mundane theorem divides-difference
   let d ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
@@ -145,14 +145,14 @@ theorem divides-difference
   metamath    dvds2sub
   target      dvds2sub
 
-theorem divides-one
+mundane theorem divides-one
   let d ∈ ℕ                                                           (H1)
   assume d divides 1                                                  (H2)
   then        d = 1
   metamath    dvds1, read left to right
   target      dvds1
 
-theorem divides-combination
+mundane theorem divides-combination
   let e ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
@@ -164,7 +164,7 @@ theorem divides-combination
   metamath    dvds2ln
   target      dvds2ln with K := e, I := x, M := a, J := y, N := b
 
-theorem divides-le
+mundane theorem divides-le
   let e ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)
   assume e divides m                                                  (H3)
@@ -172,7 +172,7 @@ theorem divides-le
   metamath    dvdsle
   target      dvdsle
 
-definition congruent-mod
+mundane definition congruent-mod
   let n ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
@@ -183,7 +183,7 @@ definition congruent-mod
               step reading one from a line saying the other has that line's
               proof. It is here so the page may say which it means.
 
-theorem divides-multiple
+mundane theorem divides-multiple
   let e ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let x ∈ ℤ                                                           (H3)
@@ -192,7 +192,7 @@ theorem divides-multiple
   metamath    dvdsmultr1
   target      dvdsmultr1
 
-theorem congruent-divides
+mundane theorem congruent-divides
   let m ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
@@ -202,20 +202,20 @@ theorem congruent-divides
   target      dvdssub2
   note        Two numbers congruent modulo m are divisible by m together.
 
-theorem gcd-commutes
+mundane theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        gcd(a, b) = gcd(b, a)
   metamath    gcdcom
   target      gcdcom
 
-theorem gcd-one
+mundane theorem gcd-one
   let a ∈ ℤ                                                           (H1)
   then        gcd(a, 1) = 1
   metamath    gcd1
   target      gcd1
 
-theorem gcd-zero
+mundane theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
   then        gcd(n, 0) = n
   metamath    nn0gcdid0
@@ -230,14 +230,14 @@ theorem gcd-mod
   note        One step of Euclid's algorithm keeps the gcd: the remainder
               and the divisor have the gcd the dividend and divisor had.
 
-theorem mod-natural
+mundane theorem mod-natural
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a mod b ∈ ℕ₀
   metamath    zmodcl
   target      zmodcl
 
-theorem mod-less
+mundane theorem mod-less
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a mod b < b
@@ -246,7 +246,7 @@ theorem mod-less
               elaboration/stdlib/proved.mm
   target      gzmodlt
 
-theorem zero-divides
+mundane theorem zero-divides
   let n ∈ ℤ                                                           (H1)
   then        0 divides n ↔ n = 0
   metamath    0dvds
