@@ -1,17 +1,17 @@
 import theorem    stdlib/divisibility/divides-gcd
+import mundane    stdlib/divisibility/divides
 import mundane    stdlib/divisibility/divides-one
+import mundane    stdlib/divisibility/even
 import mundane    stdlib/divisibility/even-or-odd
+import mundane    stdlib/divisibility/gcd
 import mundane    stdlib/divisibility/not-both
+import mundane    stdlib/divisibility/odd
 import mundane    stdlib/numbers/int-closure
+import mundane    stdlib/numbers/irrational
 import mundane    stdlib/numbers/pos-int-nat
 import mundane    stdlib/numbers/rational-coprime
+import mundane    stdlib/numbers/sqrt
 import mundane    stdlib/reasoning/disjunctive-syllogism
-import definition stdlib/divisibility/divides
-import definition stdlib/divisibility/even
-import definition stdlib/divisibility/odd
-import definition stdlib/numbers/irrational
-import definition stdlib/numbers/sqrt
-import function   stdlib/divisibility/gcd
 
 theorem odd-square
   metamath    zesq covers it
@@ -20,7 +20,7 @@ theorem odd-square
   then n² is odd
 
 1.  k ∈ ℤ. n = 2k + 1.
-    obtain k: def:odd n := n, from H1, H2
+    obtain k: mun:odd n := n, from H1, H2
 
 2.  n² = (2k + 1)²
     substitute n = 2k + 1 (line 1)
@@ -40,7 +40,7 @@ theorem odd-square
          = 2(2k² + 2k) + 1     4
 
 6.  n² is odd
-    def:odd n := n², from 5
+    mun:odd n := n², from 5
     requires n² ∈ ℤ: mun:int-closure, from H1
     requires 2 ∈ ℤ: arithmetic
     requires 2k² + 2k ∈ ℤ: mun:int-closure, from 1
@@ -131,12 +131,12 @@ theorem sqrt2-irrational
   then √2 is irrational
 
 1.  (√2)² = 2
-    def:sqrt x := 2
+    mun:sqrt x := 2
     requires 2 ∈ ℝ: arithmetic
     requires 2 ≥ 0: arithmetic
 
 2.  √2 ∈ ℝ
-    def:sqrt x := 2
+    mun:sqrt x := 2
     requires 2 ∈ ℝ: arithmetic
     requires 2 ≥ 0: arithmetic
 
@@ -158,7 +158,7 @@ theorem sqrt2-irrational
           requires q ∈ ℝ: from 3.1
 
     3.4.  p² is even
-          def:even n := p², from 3.3
+          mun:even n := p², from 3.3
           requires p² ∈ ℤ: mun:int-closure, from 3.1
           requires q² ∈ ℤ: mun:int-closure, from 3.1
 
@@ -166,7 +166,7 @@ theorem sqrt2-irrational
           thm:even-square n := p, from 3.1, 3.4
 
     3.6.  r ∈ ℤ. p = 2r.
-          obtain r: def:even n := p, from 3.1, 3.5
+          obtain r: mun:even n := p, from 3.1, 3.5
 
     3.7.  p² = (2r)²
           substitute p = 2r (line 3.6)
@@ -188,7 +188,7 @@ theorem sqrt2-irrational
           requires r ∈ ℝ: from 3.6
 
     3.11. q² is even
-          def:even n := q², from 3.10
+          mun:even n := q², from 3.10
           requires q² ∈ ℤ: mun:int-closure, from 3.1
           requires r² ∈ ℤ: mun:int-closure, from 3.6
 
@@ -196,14 +196,14 @@ theorem sqrt2-irrational
           thm:even-square n := q, from 3.1, 3.11
 
     3.13. s ∈ ℤ. q = 2s.
-          obtain s: def:even n := q, from 3.1, 3.12
+          obtain s: mun:even n := q, from 3.1, 3.12
 
     3.14. 2 divides p
-          def:divides d := 2, n := p, from 3.1, 3.6
+          mun:divides d := 2, n := p, from 3.1, 3.6
           requires 2 ∈ ℤ: arithmetic
 
     3.15. 2 divides q
-          def:divides d := 2, n := q, from 3.1, 3.13
+          mun:divides d := 2, n := q, from 3.1, 3.13
           requires 2 ∈ ℤ: arithmetic
 
     3.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
@@ -216,4 +216,4 @@ theorem sqrt2-irrational
           join 3.16, 3.1
 
 4.  √2 is irrational
-    def:irrational x := √2, from 3, 2
+    mun:irrational x := √2, from 3, 2

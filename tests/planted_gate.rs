@@ -88,8 +88,8 @@ fn cases() -> Vec<Case> {
             name: "a library item nothing cites",
             stage: tested_stage,
             file: "corpus/stdlib/sets.records",
-            old: "mundane union-self\n",
-            new: "mundane union-self-again\n  then        Y ∪ Y = Y\n  metamath    unidm\n  target      unidm\n\nmundane union-self\n",
+            old: "mundane theorem union-self\n",
+            new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath    unidm\n  target      unidm\n\nmundane theorem union-self\n",
             expect: "stdlib/sets/union-self-again is cited by no proof and has no test",
         },
         Case {

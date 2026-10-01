@@ -2,10 +2,11 @@
 #
 # Functions, their values, and the set of values a function takes.
 #
-# One record per item. A record begins at column 0 with its kind and name:
-# axiom, theorem, mundane, definition or function. A proof imports each item
-# it cites, `import <kind> stdlib/functions/<name>`, where the keyword is
-# the item's kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/functions/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -17,7 +18,7 @@
 # Other fields: target, note.
 
 
-definition set-image
+mundane definition set-image
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)
   let E : Y → Z                                                       (H3)
@@ -28,7 +29,7 @@ definition set-image
               elrnmptg says what is in that range where every E(s) is a set,
               which a function's value always is (`fvex`).
 
-mundane added-elements-are-new
+mundane theorem added-elements-are-new
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∉ Y                                   (H3)
@@ -42,14 +43,14 @@ mundane added-elements-are-new
               property it asks, because the language can name neither — the
               same gap `notation bijection` records.
 
-definition function
+mundane definition function
   open        The Cantor pilot's row reads "f : A → B ↔ for every x ∈ A,
               f(x) ∈ B, and ..." and is truncated. No pilot cites it. The
               statement has to be written before the item exists.
   note        set.mm's df-f is the target. The Cantor proof needs f only for the
               elaborator, since no step cites it; see that pilot's findings.
 
-mundane function-value
+mundane theorem function-value
   let f : D → E                                                       (H1)
   let x ∈ D                                                           (H2)
   then        f(x) ∈ E
@@ -59,7 +60,7 @@ mundane function-value
               with the Cantor pilot's definition of the same name. Renamed by the
               merge; that proof's three citations are renamed with it.
 
-mundane image-of-injection
+mundane theorem image-of-injection
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all S, T ∈ Y, if S ∪ {a} = T ∪ {a} then S = T            (H3)
@@ -73,7 +74,7 @@ mundane image-of-injection
               map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
               and does not name a function to say it.
 
-mundane added-element-in-image
+mundane theorem added-element-in-image
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let s ∈ Y                                                           (H3)
@@ -83,7 +84,7 @@ mundane added-element-in-image
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
 
-mundane added-elements-stay-inside
+mundane theorem added-elements-stay-inside
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∈ Z                                   (H3)
@@ -93,7 +94,7 @@ mundane added-elements-stay-inside
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
 
-definition image
+mundane definition image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   then        u ∈ f[Y] ↔ there is s ∈ Y with u = f(s)
@@ -105,27 +106,27 @@ definition image
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
 
-mundane image-within
+mundane theorem image-within
   let f : X → W                                                       (H1)
   then        f[Y] ⊆ W
   metamath    fimass
   target      fimass
 
-mundane image-monotone
+mundane theorem image-monotone
   let f : X → W                                                       (H1)
   assume Y ⊆ Z                                                        (H2)
   then        f[Y] ⊆ f[Z]
   metamath    imass2
   target      imass2
 
-mundane function-into
+mundane theorem function-into
   let E be a function on X                                            (H1)
   assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
   metamath    ffnfv
   target      ffnfv
 
-mundane value-in-image
+mundane theorem value-in-image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   let s ∈ Y                                                           (H3)
@@ -134,14 +135,14 @@ mundane value-in-image
               elaboration/stdlib/proved.mm
   target      gfnfvima
 
-definition one-to-one
+mundane definition one-to-one
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one ↔ f : X → Y and for all s, t ∈ X,
               if f(s) = f(t) then s = t
   metamath    dff13
   target      dff13
 
-mundane inverse-value
+mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
@@ -149,7 +150,7 @@ mundane inverse-value
               elaboration/stdlib/proved.mm
   target      gf1cnvfv1
 
-mundane onto-bijection
+mundane theorem onto-bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)
   assume for all y ∈ Y, there is x ∈ X with y = f(x)                  (H3)

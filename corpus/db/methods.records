@@ -24,7 +24,8 @@ method citation
               literal instance of one sentence of X's conclusion.
   metamath    the cited item's own label, with substitution
   note        The method name is not written. The pointer is the justification.
-              The prefix must match the kind of the item it names.
+              The prefix is mun: for an item marked mundane, and otherwise
+              the prefix of the kind of the item it names.
 
 method obtain
   form        obtain a, b: item, from L

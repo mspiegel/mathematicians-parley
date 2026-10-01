@@ -2,10 +2,11 @@
 #
 # Points, distances and angles in the plane, triangles, and congruence.
 #
-# One record per item. A record begins at column 0 with its kind and name:
-# axiom, theorem, mundane, definition or function. A proof imports each item
-# it cites, `import <kind> stdlib/geometry/<name>`, where the keyword is
-# the item's kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/geometry/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -18,7 +19,7 @@
 # introduces a symbol, symbol and defines.
 
 
-definition point
+mundane definition point
   open        The pilot's row reads "Let A be a point. (The plane is a set of
               points with distance and angle defined on it.)", which is a gloss
               and not a statement. What it becomes waits on def:stdlib/geometry/angle: a point
@@ -26,7 +27,7 @@ definition point
               base set if the angle is a congruence. ELABORATION.md.
   metamath    A ∈ ℂ
 
-definition angle
+mundane definition angle
   symbol      ang
   defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
               vy cv vx cv cdiv co clog cfv cim cfv cmpo
@@ -44,7 +45,7 @@ definition angle
               the symbol stands for, and what follows from that is
               mun:stdlib/geometry/angle-real.
 
-mundane angle-real
+mundane theorem angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -58,7 +59,7 @@ mundane angle-real
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
 
-definition collinear
+mundane definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
               cannot state what it is. In the plane it says (R − P)/(Q − P) is
               real, and subtraction takes numbers while P, Q and R are points:
@@ -68,7 +69,7 @@ definition collinear
   note        Named by the merge because def:stdlib/geometry/triangle needs a word for what a
               triangle's vertices are not.
 
-definition triangle
+mundane definition triangle
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -92,14 +93,14 @@ definition congruent
               ∠RPQ = ∠R′P′Q′
   open        six equations; no set.mm item
 
-mundane distance-symmetric
+mundane theorem distance-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| = |QP|
   metamath    abssub
   target      abssub
 
-mundane angle-symmetric
+mundane theorem angle-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -114,7 +115,7 @@ mundane angle-symmetric
               and the absolute values agree either way.
   target      gangsym3
 
-mundane triangle-swap
+mundane theorem triangle-swap
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -124,7 +125,7 @@ mundane triangle-swap
               set.mm states nothing about a triangle, having no notion of one
   target      gtriswap
 
-mundane triangle-rotate
+mundane theorem triangle-rotate
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)

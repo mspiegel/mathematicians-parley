@@ -1,11 +1,13 @@
-import axiom      stdlib/reasoning/excluded-middle
 import mundane    stdlib/functions/function-into
 import mundane    stdlib/functions/function-value
+import mundane    stdlib/functions/image
 import mundane    stdlib/functions/image-monotone
 import mundane    stdlib/functions/image-within
 import mundane    stdlib/functions/inverse-value
+import mundane    stdlib/functions/one-to-one
 import mundane    stdlib/functions/onto-bijection
 import mundane    stdlib/functions/value-in-image
+import mundane    stdlib/reasoning/excluded-middle
 import mundane    stdlib/reasoning/from-contradiction
 import mundane    stdlib/sets/complement-swap
 import mundane    stdlib/sets/complement-swap-outside
@@ -17,14 +19,12 @@ import mundane    stdlib/sets/disjoint-member
 import mundane    stdlib/sets/disjoint-within
 import mundane    stdlib/sets/equal-subset
 import mundane    stdlib/sets/in-subset
+import mundane    stdlib/sets/indexed-union
+import mundane    stdlib/sets/part-builder
+import mundane    stdlib/sets/subset
 import mundane    stdlib/sets/subset-antisymmetric
 import mundane    stdlib/sets/union-contains-member
 import mundane    stdlib/sets/union-within
-import definition stdlib/functions/image
-import definition stdlib/functions/one-to-one
-import definition stdlib/sets/indexed-union
-import definition stdlib/sets/part-builder
-import definition stdlib/sets/subset
 
 theorem fixed-part
   metamath    sbthlem3, which says it of the union set.mm builds, where this
@@ -75,7 +75,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ∈ D                                                         (K5)
 
     3.1.  X ⊆ A
-          def:part-builder, from K5
+          mun:part-builder, from K5
 
 4.  C ⊆ A
     mun:union-within, from 3
@@ -88,10 +88,10 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ∈ D                                                         (K6)
 
     6.1.  X ⊆ A
-          def:part-builder, from K6
+          mun:part-builder, from K6
 
     6.2.  M(X) ∩ X = ∅
-          def:part-builder, from K6
+          mun:part-builder, from K6
           requires X ⊆ A: from 6.1
 
     6.3.  X ⊆ C
@@ -115,7 +115,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           suppose a ∈ C                                               (S1)
 
           7.2.1.  X ∈ D. a ∈ X.
-                  obtain X: def:indexed-union u := a, from S1
+                  obtain X: mun:indexed-union u := a, from S1
 
           7.2.2.  M(C) ∩ X = ∅
                   instantiate X := X in line 6, from 7.2.1
@@ -130,7 +130,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           mun:difference-member, from 7.1, 7.2
 
 8.  M(C) ⊆ A ∖ C
-    def:subset, from 7
+    mun:subset, from 7
 
 9.  C ⊆ A ∖ M(C)
     mun:complement-swap, from 4, 5, 8
@@ -148,7 +148,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     mun:disjoint-within, from 11, 12
 
 14. A ∖ M(C) ∈ D
-    def:part-builder u := A ∖ M(C), from 10, 13
+    mun:part-builder u := A ∖ M(C), from 10, 13
     requires C ⊆ A: from 4
 
 15. A ∖ M(C) ⊆ C
@@ -175,7 +175,7 @@ theorem schroeder-bernstein
   then there is a bijection from A to B
 
 1.  For all s, t ∈ A, if f(s) = f(t) then s = t.
-    def:one-to-one, from H3
+    mun:one-to-one, from H3
 
 2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.
     obtain C: thm:fixed-part
@@ -200,7 +200,7 @@ theorem schroeder-bernstein
           mun:in-subset, from 3.2, K1
 
     3.4.  y ∈ B ∖ R. t = g(y).
-          obtain y: def:image f := g, u := t, Y := B ∖ R, from 3.3
+          obtain y: mun:image f := g, u := t, Y := B ∖ R, from 3.3
           requires B ∖ R ⊆ B: mun:difference-subset
 
     3.5.  y ∈ B
@@ -277,7 +277,7 @@ theorem schroeder-bernstein
     let s ∈ A                                                         (K4)
 
     5.1.  s ∈ C or s ∉ C
-          axi:excluded-middle P := s ∈ C
+          mun:excluded-middle P := s ∈ C
 
     5.2.  h(s) ∈ B
           cases, from 5.1
@@ -318,10 +318,10 @@ theorem schroeder-bernstein
     assume h(s) = h(t)                                                (A1)
 
     7.1.  s ∈ C or s ∉ C
-          axi:excluded-middle P := s ∈ C
+          mun:excluded-middle P := s ∈ C
 
     7.2.  t ∈ C or t ∉ C
-          axi:excluded-middle P := t ∈ C
+          mun:excluded-middle P := t ∈ C
 
     7.3.  s = t
           cases, from 7.1
@@ -408,7 +408,7 @@ theorem schroeder-bernstein
     let b ∈ B                                                         (K7)
 
     8.1.  b ∈ R or b ∉ R
-          axi:excluded-middle P := b ∈ R
+          mun:excluded-middle P := b ∈ R
 
     8.2.  There is s ∈ A with b = h(s).
           cases, from 8.1
@@ -417,7 +417,7 @@ theorem schroeder-bernstein
           assume b ∈ R                                                (C9)
 
           8.2.1.  x ∈ C. b = f(x).
-                  obtain x: def:image u := b, Y := C, from C9
+                  obtain x: mun:image u := b, Y := C, from C9
                   requires C ⊆ A: from 2
 
           8.2.2.  x ∈ A
@@ -469,7 +469,7 @@ theorem schroeder-bernstein
                   exhibit, from 8.2.10, 8.2.13
 
 9.  h : A → B is one-to-one
-    def:one-to-one, from 6, 7
+    mun:one-to-one, from 6, 7
 
 10. There is a bijection from A to B.
     mun:onto-bijection, from 9, 8

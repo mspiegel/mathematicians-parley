@@ -66,8 +66,9 @@ pub fn labels_in_scope(
         }
     }
     for i in &scopes[thm.scope].imports {
-        out.entry(i.label.clone())
-            .or_insert(Declared::Define(i.line));
+        if let Some(label) = &i.label {
+            out.entry(label.clone()).or_insert(Declared::Define(i.line));
+        }
     }
     for d in &thm.defines {
         if d.line < step.line {
@@ -363,14 +364,21 @@ pub fn claims_of(thm: &Theorem) -> IndexMap<String, String> {
     out
 }
 
-/// A kind of item with its article: a theorem, an axiom.
-fn a_kind(kind: &str) -> String {
-    let article = if kind.starts_with(['a', 'e', 'i', 'o', 'u']) {
-        "an"
-    } else {
-        "a"
-    };
-    format!("{article} {kind}")
+/// What to say of a label cited and not in scope: where it is the name of a
+/// define the file imports with no label, that the import is to give one,
+/// since a define is cited by its label and not by its name.
+fn out_of_scope(scope: &FileScope, cited: &str, said: String) -> String {
+    match scope
+        .imports
+        .iter()
+        .find(|i| i.alias == cited && i.label.is_none())
+    {
+        Some(i) => format!(
+            "{said}; {cited} is the define import definition {}/{} brings in, which a line cites by a label its import gives, as `(D1)`: add one",
+            i.module, i.name
+        ),
+        None => said,
+    }
 }
 
 /// What to say of a citation that names nothing.
@@ -413,9 +421,13 @@ pub fn check_citations(
                     report.say(
                         &thm.path,
                         just.line,
-                        format!(
-                            "step {} cites {r}, which is not in scope here",
-                            step.number
+                        out_of_scope(
+                            &scopes[thm.scope],
+                            r,
+                            format!(
+                                "step {} cites {r}, which is not in scope here",
+                                step.number
+                            ),
                         ),
                     );
                 }
@@ -472,10 +484,10 @@ pub fn check_citations(
             let kind = item_prefix(&cited).expect("a citation opens with a prefix");
             match items.get(&just.item(&cited)) {
                 None => report.say(&thm.path, just.line, unresolved(&cited)),
-                Some(item) if item.kind() != kind.record_kind() => report.say(
+                Some(item) if item.cited_as() != kind => report.say(
                     &thm.path,
                     just.line,
-                    format!("{cited} names {}", a_kind(item.kind())),
+                    format!("{cited} names {}", item.described()),
                 ),
                 Some(_) => {}
             }
@@ -498,10 +510,10 @@ pub fn check_citations(
             if let Some((cited, kind)) = requires_item(text) {
                 match items.get(&just.item(&cited)) {
                     None => report.say(&thm.path, no, unresolved(&cited)),
-                    Some(item) if item.kind() != kind.record_kind() => report.say(
+                    Some(item) if item.cited_as() != kind => report.say(
                         &thm.path,
                         no,
-                        format!("{cited} names {}", a_kind(item.kind())),
+                        format!("{cited} names {}", item.described()),
                     ),
                     Some(_) => {}
                 }
@@ -523,8 +535,10 @@ pub fn check_citations(
                         report.say(
                             &thm.path,
                             no,
-                            format!(
-                                "requires line cites {r}, which is not in scope here"
+                            out_of_scope(
+                                &scopes[thm.scope],
+                                &r,
+                                format!("requires line cites {r}, which is not in scope here"),
                             ),
                         );
                     }
@@ -892,13 +906,13 @@ fn functions_defined(text: &str) -> Vec<String> {
     }
 }
 
-/// A file imports each library function it applies, from the library file
-/// that declares it, and applies each one it imports.
+/// A file applies each library function it imports. An import is one of a
+/// function only where its full name is a function's record
+/// (`link_functions`), so where it comes from is not asked again here.
 pub fn check_function_imports(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
-    functions: &IndexMap<String, Function>,
 ) {
     for (id, scope) in scopes.iter().enumerate() {
         let mut text: Vec<String> = theorems
@@ -915,37 +929,11 @@ pub fn check_function_imports(
                 report.say(path, no, format!("{name} is imported twice"));
                 continue;
             }
-            let declared = functions
-                .get(name)
-                .map(|f| f.item.rsplit_once('/').map_or("", |(m, _)| m));
-            match declared {
-                None => report.say(
-                    path,
-                    no,
-                    format!("{} declares no function {name}", fi.module),
-                ),
-                Some(module) if module != fi.module => report.say(
-                    path,
-                    no,
-                    format!(
-                        "{} declares no function {name}; it is declared in {module}",
-                        fi.module
-                    ),
-                ),
-                Some(_) => {
-                    let applied = Regex::new(&format!(
-                        r"(?:^|[^A-Za-zα-ω]){}\(",
-                        regex::escape(name)
-                    ))
+            let applied =
+                Regex::new(&format!(r"(?:^|[^A-Za-zα-ω]){}\(", regex::escape(name)))
                     .unwrap();
-                    if !applied.is_match(&text) {
-                        report.say(
-                            path,
-                            no,
-                            format!("imports {name} and never applies it"),
-                        );
-                    }
-                }
+            if !applied.is_match(&text) {
+                report.say(path, no, format!("imports {name} and never applies it"));
             }
         }
     }
@@ -973,8 +961,8 @@ pub fn check_function_names(
                 path,
                 no,
                 format!(
-                    "{name} is the library's function, fun:{}, which this file imports; name this function something else",
-                    f.item
+                    "{name} is the library's function, {}, which this file imports; name this function something else",
+                    f.cited()
                 ),
             );
         }
@@ -1057,7 +1045,7 @@ pub fn check_definitions(
         let labels = scope
             .imports
             .iter()
-            .map(|i| (i.label.clone(), i.line))
+            .filter_map(|i| Some((i.label.clone()?, i.line)))
             .chain(scope.defines.iter().map(|d| (d.label.clone(), d.line)));
         for (lab, no) in labels {
             if let Some(at) = tagged.get(&lab) {
@@ -1112,6 +1100,32 @@ pub fn check_definitions(
                 report.say(&scope.path, i.line, message);
             }
         }
+        // An imported define's label is what a line writing the define out
+        // cites, so a label no line cites is given for nothing.
+        let cited: IndexSet<String> = thms
+            .iter()
+            .flat_map(|t| &t.steps)
+            .flat_map(|s| {
+                let just = &s.just;
+                just.refs
+                    .iter()
+                    .cloned()
+                    .chain(just.defined.clone())
+                    .chain(s.requires.iter().flat_map(|r| references(&r.how).0))
+            })
+            .collect();
+        for i in &scope.imports {
+            if let Some(label) = i.label.as_ref().filter(|l| !cited.contains(*l)) {
+                report.say(
+                    &scope.path,
+                    i.line,
+                    format!(
+                        "import definition {}/{} gives the label {label}, which no line cites; a label is given only where a line writes the define out",
+                        i.module, i.name
+                    ),
+                );
+            }
+        }
         for thm in thms {
             let shown = visible(scopes, scope_id, thm.line);
             let seen: IndexSet<&str> =
@@ -1121,7 +1135,7 @@ pub fn check_definitions(
                 .filter(|(_, _, src)| *src == scope_id)
                 .map(|(_, d, _)| d.label.as_str())
                 .collect();
-            labels.extend(scope.imports.iter().map(|i| i.label.as_str()));
+            labels.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
             for d in &thm.defines {
                 if let Built(said) = define_parts(&d.text) {
                     for name in said.names() {
@@ -1207,7 +1221,7 @@ pub fn check_imports(
         let mut edges: IndexMap<String, usize> = IndexMap::new();
         for i in &scope.items {
             let (no, full_name) = (i.line, i.full());
-            let keyword = i.kind.record_kind();
+            let keyword = i.kind.keyword();
             if !imported.insert(full_name.clone()) {
                 report.say(path, no, format!("{full_name} is imported twice"));
                 continue;
@@ -1249,12 +1263,12 @@ pub fn check_imports(
                         i.module, i.name
                     ),
                 ),
-                Some(item) if item.kind() != keyword => report.say(
+                Some(item) if item.cited_as() != i.kind => report.say(
                     path,
                     no,
                     format!(
                         "import {keyword} {full_name}: {full_name} is {}",
-                        a_kind(item.kind())
+                        item.described()
                     ),
                 ),
                 Some(_) => {}

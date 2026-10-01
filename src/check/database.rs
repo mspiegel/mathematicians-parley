@@ -65,7 +65,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             report.say(
                 &r.path,
                 r.line,
-                format!("{} {} is already defined at line {at}", r.kind, r.name),
+                format!("{} {} is already defined at line {at}", r.header(), r.name),
             );
         }
         seen.insert(key, r.line);
@@ -75,7 +75,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                 *no,
                 format!(
                     "{} {} states {name} a second time; the two are joined into one field, so the second is not read on its own and saying it changes nothing",
-                    r.kind, r.name
+                    r.header(), r.name
                 ),
             );
         }
@@ -89,7 +89,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                         r.lines.get(name).copied().unwrap_or(r.line),
                         format!(
                             "{} {} has a field {}, which a {} record does not have; its fields are {}",
-                            r.kind,
+                            r.header(),
                             r.name,
                             repr(name),
                             r.kind,
@@ -106,7 +106,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                     r.line,
                     format!(
                         "{} {} is outside stdlib/; an item the database states lives in the standard library",
-                        r.kind, r.name
+                        r.header(), r.name
                     ),
                 );
             }
@@ -128,7 +128,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             if r.conclusions.is_empty()
                 && !r.fields.contains_key("open")
                 && !r.fields.contains_key("defines")
-                && r.kind != RecordKind::Function
+                && !r.is_function()
             {
                 report.say(&r.path, r.line, format!("{} has no `then` line", r.name));
             }
@@ -446,7 +446,11 @@ pub fn check_statements(
             }
             let body = str::trim(&unlabel(&h.text)).to_string();
             if let Some(said) = introduction_problem(&body, env, sorts) {
-                report.say(&r.path, h.line, format!("{} {}: {said}", r.kind, r.name));
+                report.say(
+                    &r.path,
+                    h.line,
+                    format!("{} {}: {said}", r.header(), r.name),
+                );
             }
         }
         let mut places: Vec<(&str, usize)> = r
@@ -462,7 +466,7 @@ pub fn check_statements(
                     report.say(
                         &r.path,
                         no,
-                        format!("{} {}: {}", r.kind, r.name, p.message),
+                        format!("{} {}: {}", r.header(), r.name, p.message),
                     );
                 }
             }
@@ -623,7 +627,7 @@ pub fn check_unsorted(
                         *no,
                         format!(
                             "{} {}: {name} stands where a number goes, and no line says what {name} is",
-                            r.kind, r.name
+                            r.header(), r.name
                         ),
                     );
                 }

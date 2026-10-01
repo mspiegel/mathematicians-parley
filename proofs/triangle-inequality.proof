@@ -1,7 +1,7 @@
+import mundane    stdlib/numbers/abs
 import mundane    stdlib/numbers/abs-real
 import mundane    stdlib/numbers/nonneg-or-neg
 import mundane    stdlib/numbers/real-closure
-import definition stdlib/numbers/abs
 
 theorem abs-bounds
   metamath    leabs, absneg
@@ -18,7 +18,7 @@ theorem abs-bounds
     assume x ≥ 0                                                      (C1)
 
     2.1.  |x| = x
-          def:abs x := x, from H1, C1
+          mun:abs x := x, from H1, C1
 
     2.2.  x ≤ |x|
           inequalities, from 2.1
@@ -37,7 +37,7 @@ theorem abs-bounds
     assume x < 0                                                      (C2)
 
     2.5.  |x| = −x
-          def:abs x := x, from H1, C2
+          mun:abs x := x, from H1, C2
 
     2.6.  −x ≤ |x|
           inequalities, from 2.5
@@ -78,7 +78,7 @@ theorem triangle-inequality
     assume a + b ≥ 0                                                  (C1)
 
     5.1.  |a + b| = a + b
-          def:abs x := a + b, from 1, C1
+          mun:abs x := a + b, from 1, C1
 
     5.2.  a + b ≤ |a| + |b|
           inequalities, from 3, 4
@@ -96,7 +96,7 @@ theorem triangle-inequality
     assume a + b < 0                                                  (C2)
 
     5.4.  |a + b| = −(a + b)
-          def:abs x := a + b, from 1, C2
+          mun:abs x := a + b, from 1, C2
 
     5.5.  −(a + b) = −a + −b
           algebra

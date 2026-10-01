@@ -1,6 +1,6 @@
-import axiom      stdlib/reasoning/excluded-middle
+import mundane    stdlib/reasoning/excluded-middle
+import mundane    stdlib/sets/set-builder
 import mundane    stdlib/sets/set-builder-subset
-import definition stdlib/sets/set-builder
 
 theorem cantor
   metamath    canth
@@ -23,7 +23,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
           suppose f(x) = B                                            (S)
 
           2.1.1.  x ∈ B or x ∉ B
-                  axi:excluded-middle P := x ∈ B
+                  mun:excluded-middle P := x ∈ B
 
           2.1.2.  x ∈ B. x ∉ B.
                   cases, from 2.1.1
@@ -32,7 +32,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                   assume x ∈ B                                        (C1)
 
                   2.1.2.1.  x ∉ f(x)
-                            def:set-builder, from C1
+                            mun:set-builder, from C1
 
                   2.1.2.2.  x ∉ B
                             substitute f(x) = B (S) into line 2.1.2.1
@@ -47,7 +47,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                             substitute f(x) = B (S) into C2
 
                   2.1.2.5.  x ∈ B
-                            def:set-builder, from K, 2.1.2.4
+                            mun:set-builder, from K, 2.1.2.4
 
                   2.1.2.6.  x ∈ B. x ∉ B.
                             join 2.1.2.5, C2

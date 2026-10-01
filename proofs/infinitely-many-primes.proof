@@ -3,8 +3,8 @@ import mundane    stdlib/counting/factorial-divisible
 import mundane    stdlib/counting/factorial-nat
 import mundane    stdlib/divisibility/divides-difference
 import mundane    stdlib/divisibility/divides-one
+import mundane    stdlib/divisibility/prime
 import mundane    stdlib/numbers/nat-closure
-import definition stdlib/divisibility/prime
 
 theorem prime-above
   metamath    infpn
@@ -26,7 +26,7 @@ theorem prime-above
     obtain p: thm:prime-factor m := n! + 1, from 2, 3
 
 5.  p > 1
-    def:prime p := p, from 4
+    mun:prime p := p, from 4
 
 6.  p > n
     contradiction

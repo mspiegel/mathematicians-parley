@@ -1,5 +1,5 @@
-import axiom      stdlib/reasoning/excluded-middle
 import theorem    stdlib/divisibility/gcd-mod
+import mundane    stdlib/divisibility/gcd
 import mundane    stdlib/divisibility/gcd-commutes
 import mundane    stdlib/divisibility/gcd-zero
 import mundane    stdlib/divisibility/mod-less
@@ -9,10 +9,10 @@ import mundane    stdlib/numbers/nat0-int
 import mundane    stdlib/numbers/nat0-nonzero
 import mundane    stdlib/numbers/nat0-real
 import mundane    stdlib/reasoning/disjunctive-syllogism
+import mundane    stdlib/reasoning/excluded-middle
 import mundane    stdlib/reasoning/from-contradiction
 import mundane    stdlib/reasoning/or-left
 import mundane    stdlib/reasoning/or-right
-import function   stdlib/divisibility/gcd
 
 theorem euclid
   metamath    eucalg
@@ -82,7 +82,7 @@ theorem euclid
                   assume a(j) ∈ ℕ₀ and b(j) ∈ ℕ₀ and gcd(a(j), b(j)) = gcd(M, N) and (b(j) + j ≤ N or b(j) = 0)   (I)
 
                   3.1.9.1.  b(j) = 0 or b(j) ≠ 0
-                            axi:excluded-middle P := b(j) = 0
+                            mun:excluded-middle P := b(j) = 0
 
                   3.1.9.2.  a(j + 1) ∈ ℕ₀ and b(j + 1) ∈ ℕ₀
                             and gcd(a(j + 1), b(j + 1)) = gcd(M, N)
@@ -215,7 +215,7 @@ theorem euclid
     instantiate k := N in line 3, from H2
 
 5.  b(N) = 0 or b(N) ≠ 0
-    axi:excluded-middle P := b(N) = 0
+    mun:excluded-middle P := b(N) = 0
 
 6.  b(N) = 0
     cases, from 5

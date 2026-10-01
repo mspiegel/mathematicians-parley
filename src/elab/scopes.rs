@@ -1077,7 +1077,10 @@ impl<'a> Elaborator<'a> {
                     ex = fresh;
                 }
             }
-            Some(item_name) if item_prefix(item_name).is_some_and(|k| k.unfolds()) => {
+            Some(item_name)
+                if item_prefix(item_name).is_some()
+                    && self.item_cited(item_name).unfolds() =>
+            {
                 // The existence is the one the step's claim states, over
                 // names nothing else holds, reached as a step claiming it
                 // would reach it.

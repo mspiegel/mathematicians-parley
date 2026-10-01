@@ -2,10 +2,11 @@
 #
 # A group, its laws, its subgroups, and cosets.
 #
-# One record per item. A record begins at column 0 with its kind and name:
-# axiom, theorem, mundane, definition or function. A proof imports each item
-# it cites, `import <kind> stdlib/groups/<name>`, where the keyword is
-# the item's kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/groups/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line. A group is let as
@@ -19,7 +20,7 @@
 # Other fields: target, note.
 
 
-axiom group-closed
+mundane axiom group-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -27,7 +28,7 @@ axiom group-closed
   metamath    grpcl
   target      grpcl
 
-axiom group-associative
+mundane axiom group-associative
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -36,21 +37,21 @@ axiom group-associative
   metamath    grpass
   target      grpass
 
-axiom group-identity
+mundane axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
   metamath    grprid
   target      grprid
 
-axiom group-inverse
+mundane axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
   metamath    grprinv
   target      grprinv
 
-axiom group-inverse-closed
+mundane axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
@@ -67,21 +68,21 @@ theorem group-cancel
   metamath    grplcan
   target      grplcan
 
-mundane subgroup-within
+mundane theorem subgroup-within
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        H ⊆ G
   metamath    subgss
   target      subgss
 
-mundane subgroup-identity
+mundane theorem subgroup-identity
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        e ∈ H
   metamath    subg0cl
   target      subg0cl
 
-mundane subgroup-closed
+mundane theorem subgroup-closed
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)
@@ -90,7 +91,7 @@ mundane subgroup-closed
   metamath    subgcl
   target      subgcl
 
-mundane subgroup-inverse
+mundane theorem subgroup-inverse
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)
@@ -98,7 +99,7 @@ mundane subgroup-inverse
   metamath    subginvcl
   target      subginvcl
 
-definition coset
+mundane definition coset
   let G be a group with operation · and identity e                    (H1)
   assume H ⊆ G                                                        (H2)
   let g ∈ G                                                           (H3)

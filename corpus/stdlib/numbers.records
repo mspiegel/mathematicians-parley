@@ -4,10 +4,11 @@
 # under addition and multiplication, order, powers, square roots and absolute
 # value.
 #
-# One record per item. A record begins at column 0 with its kind and name:
-# axiom, theorem, mundane, definition or function. A proof imports each item
-# it cites, `import <kind> stdlib/numbers/<name>`, where the keyword is
-# the item's kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/numbers/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -19,26 +20,26 @@
 # Other fields: target, note.
 
 
-definition rational
+mundane definition rational
   then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℕ with x = p/q
   metamath    elq
   target      elq
 
-definition irrational
+mundane definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
   metamath    ℝ ∖ ℚ, as in sqrt2irr0
   target      eldif
   note        Names a word for an existing set.mm construct rather than
               introducing a symbol. See DATABASE.md on what def: means.
 
-definition sqrt
+mundane definition sqrt
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
   metamath    df-sqrt, resqrtcl, sqrtge0, resqrtth
   target      resqrtcl, sqrtge0, resqrtth
 
-mundane int-closure
+mundane theorem int-closure
   let a ∈ ℤ                                                           (H1)
   then        a² ∈ ℤ
   let b ∈ ℤ                                                           (H2)
@@ -51,14 +52,14 @@ mundane int-closure
               one `let` above it is how the database says so. See DATABASE.md
               on groups.
 
-mundane nat-closure
+mundane theorem nat-closure
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a + b ∈ ℕ. a·b ∈ ℕ.
   metamath    nnaddcl, nnmulcl
   target      nnaddcl, nnmulcl
 
-mundane real-closure
+mundane theorem real-closure
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x + y ∈ ℝ. x − y ∈ ℝ.
@@ -68,13 +69,13 @@ mundane real-closure
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
 
-mundane half-real
+mundane theorem half-real
   let x ∈ ℝ                                                           (H1)
   then        x/2 ∈ ℝ
   metamath    rehalfcl
   target      rehalfcl
 
-mundane half-positive
+mundane theorem half-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        x/2 > 0
@@ -85,13 +86,13 @@ mundane half-positive
               the intermediate value and triangular reciprocals proofs use the
               method.
 
-mundane nat0-closure
+mundane theorem nat0-closure
   let k ∈ ℕ₀                                                          (H1)
   then        k + 1 ∈ ℕ₀
   metamath    peano2nn0
   target      peano2nn0
 
-mundane nat-int
+mundane theorem nat-int
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℤ
   metamath    nnz
@@ -99,7 +100,7 @@ mundane nat-int
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℤ as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
 
-mundane int-real
+mundane theorem int-real
   let m ∈ ℤ                                                           (H1)
   then        m ∈ ℝ
   metamath    zre
@@ -107,7 +108,7 @@ mundane int-real
   note        `algebra` and `inequalities` work over a field, so a step
               reasoning about integers carries its atoms into ℝ first.
 
-mundane nat-real
+mundane theorem nat-real
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℝ
   metamath    nnre
@@ -116,7 +117,7 @@ mundane nat-real
               (`SYNTAX.md`, what a membership line says), by this lemma
               directly rather than through ℤ.
 
-mundane nat0-real
+mundane theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℝ
   metamath    nn0re
@@ -124,7 +125,7 @@ mundane nat0-real
   note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
               this lemma, as `nat-real`'s note says of ℕ.
 
-mundane below-successor
+mundane theorem below-successor
   let a ∈ ℝ                                                           (H1)
   then        a < a + 1
   metamath    ltp1
@@ -133,13 +134,13 @@ mundane below-successor
               cited, with 1 > 0 as the closed numeral fact left over, and the
               binomial theorem's step 10 uses the method.
 
-mundane nat0-int
+mundane theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℤ
   metamath    nn0z
   target      nn0z
 
-mundane nat-ge-1
+mundane theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then        m ≥ 1
   metamath    nnge1
@@ -147,21 +148,21 @@ mundane nat-ge-1
   note        No proof cites it: a line saying m ∈ ℕ says m ≥ 1 as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
 
-mundane pos-int-nat
+mundane theorem pos-int-nat
   let m ∈ ℤ                                                           (H1)
   assume 0 < m                                                        (H2)
   then        m ∈ ℕ
   metamath    elnnz
   target      elnnz
 
-mundane nat0-nonzero
+mundane theorem nat0-nonzero
   let m ∈ ℕ₀                                                          (H1)
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
   metamath    elnnne0
   target      elnnne0
 
-mundane integer-step
+mundane theorem integer-step
   let m ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   assume m < n                                                        (H3)
@@ -171,14 +172,14 @@ mundane integer-step
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
 
-mundane exponent-step
+mundane theorem exponent-step
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
   metamath    expp1
   target      expp1
 
-mundane ten-minus-one
+mundane theorem ten-minus-one
   then        10 − 1 = 9
   metamath    10m1e9
   target      10m1e9
@@ -187,14 +188,14 @@ mundane ten-minus-one
               one digit as a number they know nothing about, so what depends
               on 10 being ten is cited, and this is where it comes from.
 
-mundane power-integer
+mundane theorem power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℤ
   metamath    zexpcl
   target      zexpcl
 
-mundane power-real
+mundane theorem power-real
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℝ
@@ -204,7 +205,7 @@ mundane power-real
               so it has to be known real in its own right rather than through
               its base.
 
-mundane power-nat0
+mundane theorem power-nat0
   let a ∈ ℕ₀                                                          (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℕ₀
@@ -213,7 +214,7 @@ mundane power-nat0
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
 
-mundane exponent-one
+mundane theorem exponent-one
   let a ∈ ℝ                                                           (H1)
   then        a^1 = a
   metamath    exp1
@@ -222,25 +223,25 @@ mundane exponent-one
               arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
               exponent laws are theorems rather than closure methods.
 
-mundane exponent-zero
+mundane theorem exponent-zero
   let a ∈ ℝ                                                           (H1)
   then        a^0 = 1
   metamath    exp0
   target      exp0
 
-axiom trichotomy
+mundane axiom trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x
   metamath    lttri4, 0re
   target      lttri4 with B := 0
 
-mundane nonneg-or-neg
+mundane theorem nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
   then        x ≥ 0 or x < 0
   metamath    0re, lelttric
   target      lelttric
 
-mundane rational-coprime
+mundane theorem rational-coprime
   let x ∈ ℚ                                                           (H1)
   then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
   metamath    elq2
@@ -257,7 +258,7 @@ axiom well-ordering
   target      nnwo
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.
 
-definition abs
+mundane definition abs
   let x ∈ ℝ                                                           (H1)
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
   metamath    absid, absnid
@@ -267,7 +268,7 @@ definition abs
               definition. It is still called def:stdlib/numbers/abs because that is what it is
               to Reader A.
 
-mundane abs-real
+mundane theorem abs-real
   let x ∈ ℝ                                                           (H1)
   then        |x| ∈ ℝ
   metamath    recn, abscl
@@ -278,7 +279,7 @@ mundane abs-real
               intermediate value proofs will need it. set.mm defines abs on ℂ
               by df-abs, so the real case goes through recn. See METHODS.md.
 
-mundane abs-difference-lt
+mundane theorem abs-difference-lt
   let x ∈ ℝ                                                           (H1)
   let c ∈ ℝ                                                           (H2)
   let δ ∈ ℝ                                                           (H3)
@@ -286,7 +287,7 @@ mundane abs-difference-lt
   metamath    absdiflt, abslt
   target      absdiflt
 
-function min
+mundane definition min
   sort        number, number → number
   builds      _1 _2 cle wbr _1 _2 cif
   reads       the smaller of
@@ -296,7 +297,7 @@ function min
               nothing but what min(x, y) builds; what the page needs of it
               is min-real, min-le and lt-min, from ifcl, min1, min2 and ltmin.
 
-function max
+mundane definition max
   sort        number, number → number
   builds      _1 _2 cle wbr _2 _1 cif
   reads       the larger of
@@ -305,21 +306,21 @@ function max
   note        As min: max-real, le-max and max-le say what the page needs,
               from ifcl, max1, max2 and maxle.
 
-mundane min-real
+mundane theorem min-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ∈ ℝ
   metamath    ifcl
   target      ifcl
 
-mundane min-le
+mundane theorem min-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ≤ x. min(x, y) ≤ y.
   metamath    min1, min2
   target      min1, min2
 
-mundane lt-min
+mundane theorem lt-min
   let z ∈ ℝ                                                           (H1)
   let x ∈ ℝ                                                           (H2)
   let y ∈ ℝ                                                           (H3)
@@ -327,7 +328,7 @@ mundane lt-min
   metamath    ltmin
   target      ltmin
 
-mundane max-real
+mundane theorem max-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        max(x, y) ∈ ℝ
@@ -336,7 +337,7 @@ mundane max-real
   note        No proof cites it yet; it is here beside `min-real`, which
               the intermediate value proof cites.
 
-mundane le-max
+mundane theorem le-max
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x ≤ max(x, y). y ≤ max(x, y).
@@ -344,7 +345,7 @@ mundane le-max
   target      max1, max2
   note        No proof cites it yet.
 
-mundane max-le
+mundane theorem max-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let z ∈ ℝ                                                           (H3)
@@ -353,7 +354,7 @@ mundane max-le
   target      maxle
   note        No proof cites it yet.
 
-mundane quotient-real
+mundane theorem quotient-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
@@ -364,14 +365,14 @@ mundane quotient-real
               membership from its parts. `half-real` is the case y = 2, which
               needs no hypothesis on y.
 
-mundane reciprocal-positive
+mundane theorem reciprocal-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        1/x > 0
   metamath    recgt0
   target      recgt0
 
-mundane reciprocal-order
+mundane theorem reciprocal-order
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
@@ -393,14 +394,14 @@ theorem archimedean
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
 
-mundane abs-product
+mundane theorem abs-product
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        |x·y| = |x|·|y|
   metamath    absmul
   target      absmul
 
-mundane abs-quotient
+mundane theorem abs-quotient
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
@@ -408,41 +409,41 @@ mundane abs-quotient
   metamath    absdiv
   target      absdiv
 
-mundane abs-negative
+mundane theorem abs-negative
   let x ∈ ℝ                                                           (H1)
   then        |−x| = |x|
   metamath    absneg
   target      absneg
 
-mundane abs-zero
+mundane theorem abs-zero
   then        |0| = 0
   metamath    abs0
   target      abs0
 
-mundane abs-one
+mundane theorem abs-one
   then        |1| = 1
   metamath    abs1
   target      abs1
 
-mundane abs-square
+mundane theorem abs-square
   let x ∈ ℝ                                                           (H1)
   then        |x|² = x²
   metamath    absresq
   target      absresq
 
-mundane abs-power
+mundane theorem abs-power
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   then        |x^n| = |x|^n
   metamath    absexp
   target      absexp
 
-mundane nat0-member
+mundane theorem nat0-member
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
   metamath    elnn0
   target      elnn0
 
-mundane nat0-as-int
+mundane theorem nat0-as-int
   then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
   metamath    elnn0z
   target      elnn0z

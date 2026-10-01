@@ -13,7 +13,8 @@ pub mod records;
 pub use define::{define_parts, Define, DefineParts, Recursion};
 pub use lines::{read_lines, Line};
 pub use load::{
-    corpus, index, link_definitions, proof_files, record_files, Corpus, Item,
+    corpus, index, link_definitions, link_functions, proof_files, record_files, Corpus,
+    Item,
 };
 pub use proof::{
     cited_item, cited_items, cites_define, fmt, item_prefix, outermost, parse_proof,
@@ -48,7 +49,7 @@ pub const NAME: &str = r"[A-Za-z][A-Za-z0-9-]*";
 /// written by its path is said to be one rather than left unread.
 pub const CITED: &str = r"(?:[A-Za-z][A-Za-z0-9-]*/)*[A-Za-z][A-Za-z0-9-]*";
 /// The prefix of a citation of any item, `thm:` and the rest.
-pub const ITEM_PREFIX: &str = r"(?:thm|axi|mun|def|fun):";
+pub const ITEM_PREFIX: &str = r"(?:thm|axi|mun|def):";
 /// The standard library, the one module root that is not a proof file: its
 /// files are records.
 pub const STDLIB: &str = "stdlib";

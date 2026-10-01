@@ -32,7 +32,7 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{
     define_parts, fmt, item_prefix, outermost, Corpus, DefineParts, Intro, Item,
-    ItemKind, Record, Step, Theorem,
+    Record, Step, Theorem,
 };
 use crate::formula::{Grammar, Node};
 use crate::matching::{
@@ -142,7 +142,7 @@ fn qualified(item: Item) -> String {
 
 /// The prefix a citation of the item writes.
 fn item_kind(item: Item) -> &'static str {
-    ItemKind::from_keyword(item.kind()).map_or("thm", ItemKind::prefix)
+    item.cited_as().prefix()
 }
 
 impl<'a> Elaborator<'a> {
@@ -668,10 +668,12 @@ impl<'a> Elaborator<'a> {
         let mut how: Option<Method> = known_methods
             .contains(&head.as_str())
             .then(|| Method::Named(head.clone()));
+        // Whether a step unfolds what it cites is read from the record: a
+        // mundane definition is cited `mun:` and is unfolded all the same.
         let cited = item_prefix(&head);
-        if how.is_none() && cited.is_some_and(ItemKind::unfolds) {
+        if how.is_none() && cited.is_some() && self.item_cited(&head).unfolds() {
             let Item::Record(item) = self.item_cited(&head) else {
-                panic!("{head} is a definition or a function of the database");
+                panic!("{head} is a definition of the database");
             };
             // A definition stated as a biconditional is used by unfolding
             // it; one stated as an equation is used by citing the lemma that

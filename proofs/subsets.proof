@@ -1,4 +1,3 @@
-import axiom      stdlib/reasoning/excluded-middle
 import mundane    stdlib/counting/card-bijection
 import mundane    stdlib/counting/card-disjoint-union
 import mundane    stdlib/counting/card-nonempty
@@ -13,6 +12,7 @@ import mundane    stdlib/numbers/exponent-step
 import mundane    stdlib/numbers/power-nat0
 import mundane    stdlib/numbers/power-real
 import mundane    stdlib/reasoning/double-negation
+import mundane    stdlib/reasoning/excluded-middle
 import mundane    stdlib/sets/difference-absent
 import mundane    stdlib/sets/difference-of-union
 import mundane    stdlib/sets/difference-shrinks
@@ -23,17 +23,17 @@ import mundane    stdlib/sets/in-union-right
 import mundane    stdlib/sets/in-union-singleton
 import mundane    stdlib/sets/not-in-difference
 import mundane    stdlib/sets/not-in-subset
+import mundane    stdlib/sets/powerset
 import mundane    stdlib/sets/powerset-empty
 import mundane    stdlib/sets/powerset-monotone
 import mundane    stdlib/sets/remove-and-restore
 import mundane    stdlib/sets/singleton-subset
+import mundane    stdlib/sets/subset
 import mundane    stdlib/sets/subset-antisymmetric
 import mundane    stdlib/sets/subset-into-difference
 import mundane    stdlib/sets/subset-of-difference
 import mundane    stdlib/sets/subset-transitive
 import mundane    stdlib/sets/union-subset
-import definition stdlib/sets/powerset
-import definition stdlib/sets/subset
 
 theorem add-element-bijection
   note        The pilot's row was itself incomplete, reading "Let X be a set, a
@@ -51,10 +51,10 @@ theorem add-element-bijection
     assume S ∪ {a} = T ∪ {a}                                          (K3)
 
     1.1.  S ⊆ X
-          def:powerset S := S, from K1
+          mun:powerset S := S, from K1
 
     1.2.  T ⊆ X
-          def:powerset S := T, from K2
+          mun:powerset S := T, from K2
 
     1.3.  a ∉ S
           mun:not-in-subset Y := S, Z := X, from 1.1, H2
@@ -113,7 +113,7 @@ theorem powerset-split-disjoint
                   mun:double-negation P := S ∪ {a} ∈ 𝒫(X ∖ {a}), from S1
 
           2.2.2.  S ∪ {a} ⊆ X ∖ {a}
-                  def:powerset S := S ∪ {a}, from 2.2.1
+                  mun:powerset S := S ∪ {a}, from 2.2.1
 
           2.2.3.  a ∉ S ∪ {a}
                   mun:subset-of-difference, from 2.2.2
@@ -138,10 +138,10 @@ theorem powerset-split
     let V ∈ 𝒫X                                                        (K1)
 
     1.1.  V ⊆ X
-          def:powerset S := V, from K1
+          mun:powerset S := V, from K1
 
     1.2.  a ∈ V or a ∉ V
-          axi:excluded-middle P := a ∈ V
+          mun:excluded-middle P := a ∈ V
 
     1.3.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
           cases, from 1.2
@@ -154,7 +154,7 @@ theorem powerset-split
                   mun:difference-shrinks, from 1.1
 
           1.3.2.  V ∖ {a} ∈ 𝒫(X ∖ {a})
-                  def:powerset S := V ∖ {a}, from 1.3.1
+                  mun:powerset S := V ∖ {a}, from 1.3.1
 
           1.3.3.  (V ∖ {a}) ∪ {a} ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
                   mun:added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a},
@@ -177,13 +177,13 @@ theorem powerset-split
                   mun:subset-into-difference, from 1.1, C2
 
           1.3.8.  V ∈ 𝒫(X ∖ {a})
-                  def:powerset S := V, from 1.3.7
+                  mun:powerset S := V, from 1.3.7
 
           1.3.9.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
                   mun:in-union-left, from 1.3.8
 
 2.  𝒫X ⊆ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-    def:subset, from 1
+    mun:subset, from 1
 
 3.  X ∖ {a} ⊆ X
     mun:difference-subset
@@ -196,7 +196,7 @@ theorem powerset-split
     let S ∈ 𝒫(X ∖ {a})                                                (K2)
 
     5.1.  S ⊆ X ∖ {a}
-          def:powerset S := S, from K2
+          mun:powerset S := S, from K2
 
     5.2.  S ⊆ X
           mun:subset-transitive, from 5.1, 3
@@ -208,7 +208,7 @@ theorem powerset-split
           mun:union-subset, from 5.2, 5.3
 
     5.5.  S ∪ {a} ∈ 𝒫X
-          def:powerset S := S ∪ {a}, from 5.4
+          mun:powerset S := S ∪ {a}, from 5.4
 
 6.  {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} ⊆ 𝒫X
     mun:added-elements-stay-inside Y := 𝒫(X ∖ {a}), Z := 𝒫X, from 5

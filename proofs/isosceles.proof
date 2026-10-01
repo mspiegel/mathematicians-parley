@@ -1,10 +1,10 @@
 import axiom      stdlib/geometry/side-angle-side
 import mundane    stdlib/geometry/angle-symmetric
 import mundane    stdlib/geometry/distance-symmetric
+import mundane    stdlib/geometry/triangle
 import mundane    stdlib/geometry/triangle-rotate
 import mundane    stdlib/geometry/triangle-swap
 import definition stdlib/geometry/congruent
-import definition stdlib/geometry/triangle
 
 theorem isosceles
   metamath    isosctr
@@ -29,8 +29,8 @@ theorem isosceles
 
 4.  ∠ACB = ∠BCA
     mun:angle-symmetric P := A, Q := C, R := B
-    requires A ≠ C: def:triangle, from H4
-    requires B ≠ C: def:triangle, from H4
+    requires A ≠ C: mun:triangle, from H4
+    requires B ≠ C: mun:triangle, from H4
 
 5.  A, C, B form a triangle
     mun:triangle-swap P := A, Q := B, R := C, from H4
@@ -47,13 +47,13 @@ theorem isosceles
 
 9.  ∠CAB = ∠BAC
     mun:angle-symmetric P := C, Q := A, R := B
-    requires C ≠ A: def:triangle, from 6
-    requires B ≠ A: def:triangle, from 6
+    requires C ≠ A: mun:triangle, from 6
+    requires B ≠ A: mun:triangle, from 6
 
 10. ∠ABC = ∠CBA
     mun:angle-symmetric P := A, Q := B, R := C
-    requires A ≠ B: def:triangle, from 5
-    requires C ≠ B: def:triangle, from 5
+    requires A ≠ B: mun:triangle, from 5
+    requires C ≠ B: mun:triangle, from 5
 
 11. ∠CAB = ∠CBA
     calculation

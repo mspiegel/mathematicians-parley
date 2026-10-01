@@ -548,15 +548,17 @@ impl<'a> Elaborator<'a> {
 
     /// The label a definition from outside the theorem is held under: its own
     /// where its file is this theorem's, and the label on the import where it
-    /// is imported, so a step cites it as the page does.
+    /// is imported, so a step cites it as the page does. An import that gives
+    /// no label is one no line writes out (`check_definitions`), and the
+    /// define is held under a key no line can cite, so a step resting on it
+    /// names something it does not cite and is refused as any such step is.
     pub fn outside_label(&self, name: &str, d: &DefineLine, src: ScopeId) -> String {
         if src == self.thm.scope {
-            d.label.clone()
-        } else {
-            self.scopes[self.thm.scope]
-                .import_label(name)
-                .unwrap_or_else(|| panic!("no import writes {name}"))
-                .to_string()
+            return d.label.clone();
+        }
+        match self.scopes[self.thm.scope].import_label(name) {
+            Some(label) => label.to_string(),
+            None => format!("the define of {name}"),
         }
     }
 

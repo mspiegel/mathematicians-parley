@@ -1,5 +1,5 @@
 import mundane    stdlib/calculus/series-value
-import function   stdlib/divisibility/gcd
+import mundane    stdlib/divisibility/gcd
 
 theorem series-under-its-own-letters
   assume Σ(k = 1 to n) 1/(k·(k + 1)) → 1 as n → ∞                    (H1)
@@ -17,4 +17,4 @@ theorem citation-under-a-bound-name
   then for all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b)
 
 1.  For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    fun:gcd, from H1, H2
+    mun:gcd, from H1, H2

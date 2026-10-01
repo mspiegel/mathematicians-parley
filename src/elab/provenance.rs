@@ -476,9 +476,7 @@ impl<'a> Elaborator<'a> {
             Some((_, n)) => n,
             None => "",
         };
-        if !item_prefix(&reason).is_some_and(|k| k.unfolds())
-            || str::trim(name).is_empty()
-        {
+        if item_prefix(&reason).is_none() || str::trim(name).is_empty() {
             return false;
         }
         let first = name.split_whitespace().next().unwrap_or("");

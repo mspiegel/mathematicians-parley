@@ -211,7 +211,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "proofs/triangle-inequality.proof:39  no clause of def:abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
         ),
         // The same report reached from the other side: the target is right and
         // the step claims something the definition does not say. It is a
@@ -223,7 +223,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangle-inequality.proof",
             "    2.5.  |x| = −x",
             "    2.5.  |x| = x",
-            "proofs/triangle-inequality.proof:39  no clause of def:abs gives what step 2.5 claims",
+            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here line 5 does not say `C ≠ A` and line 6 does; taking
@@ -233,9 +233,9 @@ fn cases() -> Vec<Case> {
             "name a line that does not state the side condition",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires C ≠ A: def:triangle, from 6",
-            "    requires C ≠ A: def:triangle, from 5",
-            "def:triangle, from 5 does not reach",
+            "    requires C ≠ A: mun:triangle, from 6",
+            "    requires C ≠ A: mun:triangle, from 5",
+            "mun:triangle, from 5 does not reach",
         ),
         // The same, where the scope already holds the claim for another reason:
         // the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
@@ -244,9 +244,9 @@ fn cases() -> Vec<Case> {
             "name a line that does not state a claim the scope already holds",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires A ≠ B: def:triangle, from 5",
-            "    requires A ≠ B: def:triangle, from 6",
-            "def:triangle, from 6 does not reach",
+            "    requires A ≠ B: mun:triangle, from 5",
+            "    requires A ≠ B: mun:triangle, from 6",
+            "mun:triangle, from 6 does not reach",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
         // Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
@@ -352,7 +352,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "10. For all s ∈ S, s ≤ c.",
             "10. For all s ∈ S, s < c.",
-            "def:stdlib/calculus/upper-bound is taken as stated and states",
+            "mun:stdlib/calculus/upper-bound is taken as stated and states",
         ),
         // `elcncf2` is read in the page's words, which is a reading and not a
         // licence: continuity with δ where ε belongs, or with δ ≥ 0 where the
@@ -631,8 +631,8 @@ fn cases() -> Vec<Case> {
             "leave out the value a definition is concluded of",
             "proofs/sqrt2-irrational/odd-square",
             "proofs/sqrt2-irrational.proof",
-            "    def:odd n := n², from 5",
-            "    def:odd, from 5",
+            "    mun:odd n := n², from 5",
+            "    mun:odd, from 5",
             "is about n, and the step gives n no value",
         ),
         // A link reads its cited equation from either side, and nothing on the
@@ -686,8 +686,8 @@ fn cases() -> Vec<Case> {
             "obtain from a definition citing no line that says its left side",
             "proofs/schroeder-bernstein/schroeder-bernstein",
             "proofs/schroeder-bernstein.proof",
-            "obtain x: def:image u := b, Y := C, from C9",
-            "obtain x: def:image u := b, Y := C, from K7",
+            "obtain x: mun:image u := b, Y := C, from C9",
+            "obtain x: mun:image u := b, Y := C, from K7",
             "nothing step 8.2.1 cites says",
         ),
         // A part of A is asked of M's argument, and the line named must say it:
@@ -696,8 +696,8 @@ fn cases() -> Vec<Case> {
             "a requires line for a part naming a line that does not say it",
             "proofs/schroeder-bernstein/fixed-part",
             "proofs/schroeder-bernstein.proof",
-            "    def:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 4\n",
-            "    def:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 3\n",
+            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 4\n",
+            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 3\n",
             "from 3 does not reach",
         ),
         // g ∈ gH is shown by the member of H that g is g times, and the line
@@ -706,8 +706,8 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             "proofs/lagrange/lagrange",
             "proofs/lagrange.proof",
-            "def:coset u := g, from K3, 5.1, 5.2",
-            "def:coset u := g, from K3, 5.1",
+            "mun:coset u := g, from K3, 5.1, 5.2",
+            "mun:coset u := g, from K3, 5.1",
             "proofs/lagrange.proof:84  no cited line names a witness",
         ),
     ]

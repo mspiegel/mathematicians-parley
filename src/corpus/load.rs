@@ -2,10 +2,11 @@
 
 use indexmap::IndexMap;
 
-use super::define::define_parts;
-use super::proof::{parse_proof, FileScope, ItemKind, ScopeId, Theorem};
+use super::proof::{
+    parse_proof, FileScope, FunctionImport, ItemKind, ScopeId, Theorem,
+};
 use super::records::{parse_database, Record, RecordKind};
-use crate::outcome::{Built, Checked, Problem};
+use crate::outcome::{Checked, Problem};
 use crate::source::Source;
 use crate::text::check_encoding;
 
@@ -53,8 +54,64 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
     }
     // What does not resolve is the checker's to report; here a definition
     // import that names nothing is simply one that brings nothing in.
+    let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
     Ok(out)
+}
+
+/// Set apart, in each file, the imports that name a library function: a
+/// definition with `sort` and `builds` lines, which a formula applies by its
+/// name. Its keyword is read as any item's is, so it is not what tells a
+/// function apart; the record is. Say what is wrong with such an import:
+/// (path, line, message) for each.
+pub fn link_functions(
+    records: &[Record],
+    scopes: &mut [FileScope],
+) -> Vec<(String, usize, String)> {
+    let functions: IndexMap<String, &Record> = records
+        .iter()
+        .filter(|r| r.is_function())
+        .map(|r| (r.qualified(), r))
+        .collect();
+    let mut problems = Vec::new();
+    for scope in scopes.iter_mut() {
+        let (named, items): (Vec<_>, Vec<_>) = std::mem::take(&mut scope.items)
+            .into_iter()
+            .partition(|i| functions.contains_key(&i.full()));
+        scope.items = items;
+        for i in named {
+            let r = functions[&i.full()];
+            let (keyword, whole) = (i.kind.keyword(), i.full());
+            if i.alias != i.name {
+                problems.push((
+                    scope.path.clone(),
+                    i.line,
+                    format!(
+                        "import {keyword} {whole}: a library function is imported by its name alone, with no `as`"
+                    ),
+                ));
+            }
+            let is = ItemKind::of_record(r);
+            if i.kind != is {
+                problems.push((
+                    scope.path.clone(),
+                    i.line,
+                    format!(
+                        "import {keyword} {whole}: {whole} is {}; import it as `import {} {whole}`",
+                        Item::Record(r).described(),
+                        is.keyword()
+                    ),
+                ));
+            }
+            scope.functions.push(FunctionImport {
+                kind: i.kind,
+                module: i.module,
+                name: i.name,
+                line: i.line,
+            });
+        }
+    }
+    problems
 }
 
 /// Point every definition import at the define it names, and say what does
@@ -73,13 +130,12 @@ pub fn link_definitions(
     for &id in by_module.values() {
         let mut linked = IndexMap::new();
         for import in scopes[id].imports.clone() {
-            let keyword = import.kind.record_kind();
             let Some(&src) = by_module.get(&import.module) else {
                 problems.push((
                     scopes[id].path.clone(),
                     import.line,
                     format!(
-                        "import {keyword} {}/{} names no proof file",
+                        "import definition {}/{} names no proof file",
                         import.module, import.name
                     ),
                 ));
@@ -90,37 +146,12 @@ pub fn link_definitions(
                     scopes[id].path.clone(),
                     import.line,
                     format!(
-                        "import {keyword} {}/{}: {} defines no {} outside its theorems",
+                        "import definition {}/{}: {} defines no {} outside its theorems",
                         import.module, import.name, import.module, import.name
                     ),
                 ));
                 continue;
             };
-            // A define with an argument is a function and one without is a
-            // definition, and the keyword says which.
-            let takes = matches!(
-                define_parts(&d.text),
-                Built(said) if said.one().is_some_and(|one| one.param.is_some())
-            );
-            let is = if takes {
-                ItemKind::Function
-            } else {
-                ItemKind::Definition
-            };
-            if import.kind != is {
-                problems.push((
-                    scopes[id].path.clone(),
-                    import.line,
-                    format!(
-                        "import {keyword} {}/{}: {} is a {}, since it takes {}",
-                        import.module,
-                        import.name,
-                        import.name,
-                        is.record_kind(),
-                        if takes { "an argument" } else { "no argument" }
-                    ),
-                ));
-            }
             linked.insert(import.alias.clone(), (src, d));
         }
         scopes[id].linked = linked;
@@ -137,13 +168,41 @@ pub enum Item<'a> {
 }
 
 impl<'a> Item<'a> {
-    /// What it is, as a citation's prefix is checked against: a proved
+    /// What a citation of it writes, as its prefix is checked against: `mun:`
+    /// for a record marked mundane, and its kind's prefix otherwise. A proved
     /// theorem is a theorem.
-    pub fn kind(&self) -> &'static str {
+    pub fn cited_as(&self) -> ItemKind {
         match self {
-            Item::Record(r) => r.kind.as_str(),
-            Item::Theorem(_) => RecordKind::Theorem.as_str(),
+            Item::Record(r) => ItemKind::of_record(r),
+            Item::Theorem(_) => ItemKind::Theorem,
         }
+    }
+
+    /// Its header's words before its name, as a message names what it is:
+    /// `mundane theorem`, `axiom`.
+    pub fn header(&self) -> String {
+        match self {
+            Item::Record(r) => r.header(),
+            Item::Theorem(_) => RecordKind::Theorem.to_string(),
+        }
+    }
+
+    /// What it is, as a message says it: `a mundane theorem`, `an axiom`.
+    pub fn described(&self) -> String {
+        let header = self.header();
+        let article = if header.starts_with(['a', 'e', 'i', 'o', 'u']) {
+            "an"
+        } else {
+            "a"
+        };
+        format!("{article} {header}")
+    }
+
+    /// Whether a step citing it unfolds it: a definition. This is read from
+    /// the record and not from the citation, since a mundane definition is
+    /// cited `mun:`.
+    pub fn unfolds(&self) -> bool {
+        matches!(self, Item::Record(r) if r.kind.unfolds())
     }
 
     pub fn path(&self) -> &'a str {

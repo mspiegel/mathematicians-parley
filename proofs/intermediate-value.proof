@@ -1,25 +1,25 @@
 import axiom      stdlib/calculus/completeness
-import axiom      stdlib/numbers/trichotomy
 import theorem    proofs/triangle-inequality/abs-bounds
+import mundane    stdlib/calculus/interval
 import mundane    stdlib/calculus/interval-real
+import mundane    stdlib/calculus/least-upper-bound
+import mundane    stdlib/calculus/upper-bound
 import mundane    stdlib/functions/function-value
 import mundane    stdlib/numbers/abs-difference-lt
 import mundane    stdlib/numbers/abs-real
 import mundane    stdlib/numbers/half-real
 import mundane    stdlib/numbers/lt-min
+import mundane    stdlib/numbers/min
 import mundane    stdlib/numbers/min-le
 import mundane    stdlib/numbers/min-real
 import mundane    stdlib/numbers/real-closure
+import mundane    stdlib/numbers/trichotomy
 import mundane    stdlib/reasoning/double-negation
 import mundane    stdlib/reasoning/from-contradiction
+import mundane    stdlib/sets/set-builder
 import mundane    stdlib/sets/set-builder-subset
 import mundane    stdlib/sets/subset-transitive
 import definition stdlib/calculus/continuous-on
-import definition stdlib/calculus/interval
-import definition stdlib/calculus/least-upper-bound
-import definition stdlib/calculus/upper-bound
-import definition stdlib/sets/set-builder
-import function   stdlib/numbers/min
 
 theorem intermediate-value
   metamath    ivth, the general form
@@ -37,12 +37,12 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
        reads the points of the interval where f is still below zero
 
 1.  a ∈ [a, b]
-    def:interval x := a, from H1, H2
+    mun:interval x := a, from H1, H2
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: inequalities, from H1, H2, H3
 
 2.  a ∈ S
-    def:set-builder u := a, from 1, H6
+    mun:set-builder u := a, from 1, H6
 
 3.  S ⊆ [a, b]
     mun:set-builder-subset, from D1
@@ -58,13 +58,13 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     let s ∈ S                                                         (K1)
 
     6.1.  s ∈ [a, b]
-          def:set-builder, from K1
+          mun:set-builder, from K1
 
     6.2.  s ≤ b
-          def:interval, from H1, H2, 6.1
+          mun:interval, from H1, H2, 6.1
 
 7.  b is an upper bound of S
-    def:upper-bound, from 6
+    mun:upper-bound, from 6
 
 8.  c ∈ ℝ. c is a least upper bound of S.
     obtain c: axi:completeness S := S, from 5, 2, 7
@@ -72,10 +72,10 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
 9.  c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
-    def:least-upper-bound, from 8
+    mun:least-upper-bound, from 8
 
 10. For all s ∈ S, s ≤ c.
-    def:upper-bound, from 9
+    mun:upper-bound, from 9
 
 11. a ≤ c
     instantiate s := a in line 10, from 2
@@ -84,13 +84,13 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     instantiate u := b in line 9, from H2, 7
 
 13. c ∈ [a, b]
-    def:interval x := c, from H1, H2, 8, 11, 12
+    mun:interval x := c, from H1, H2, 8, 11, 12
 
 14. f(c) ∈ ℝ
     mun:function-value, from 13
 
 15. f(c) < 0 or f(c) = 0 or 0 < f(c)
-    axi:trichotomy x := f(c), from 14
+    mun:trichotomy x := f(c), from 14
 
 16. For all c′ ∈ [a, b], for all ε > 0, there exists δ > 0 such that
     |f(x) − f(c′)| < ε for all x ∈ [a, b] with |x − c′| < δ.
@@ -114,7 +114,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                     substitute c = b (line 17.1.1) into C1
 
            17.1.3.  b ∈ [a, b]
-                    def:interval x := b, from H1, H2
+                    mun:interval x := b, from H1, H2
                     requires a ≤ b: inequalities, from H1, H2, H3
                     requires b ≤ b: inequalities, from H2
 
@@ -183,7 +183,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires x₁ ∈ ℝ: from 17.9
 
     17.14. x₁ ∈ [a, b]
-           def:interval x := x₁, from H1, H2, 17.9, 17.13, 17.11
+           mun:interval x := x₁, from H1, H2, 17.9, 17.13, 17.11
 
     17.15. c − δ < x₁
            inequalities, from 17.10, 17.5
@@ -219,7 +219,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c), from 17.20
 
     17.23. x₁ ∈ S
-           def:set-builder u := x₁, from 17.14, 17.22
+           mun:set-builder u := x₁, from 17.14, 17.22
 
     17.24. x₁ ≤ c
            instantiate s := x₁ in line 10, from 17.23
@@ -257,13 +257,13 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            let s ∈ S                                                  (K2)
 
            17.31.1.  s ∈ [a, b]
-                     def:set-builder, from K2
+                     mun:set-builder, from K2
 
            17.31.2.  f(s) < 0
-                     def:set-builder, from K2
+                     mun:set-builder, from K2
 
            17.31.3.  s ∈ ℝ
-                     def:interval, from H1, H2, 17.31.1
+                     mun:interval, from H1, H2, 17.31.1
 
            17.31.4.  s ≤ c
                      instantiate s := s in line 10, from K2
@@ -315,7 +315,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                                  join 17.31.2, 17.31.5.9
 
     17.32. c − δ is an upper bound of S
-           def:upper-bound, from 17.31
+           mun:upper-bound, from 17.31
 
     17.33. c ≤ c − δ
            instantiate u := c − δ in line 9, from 17.32

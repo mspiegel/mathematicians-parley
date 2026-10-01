@@ -2,10 +2,11 @@
 #
 # How many elements a set has, factorials, and binomial coefficients.
 #
-# One record per item. A record begins at column 0 with its kind and name:
-# axiom, theorem, mundane, definition or function. A proof imports each item
-# it cites, `import <kind> stdlib/counting/<name>`, where the keyword is
-# the item's kind. Format is described in DATABASE.md.
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <keyword> stdlib/counting/<name>`, where the keyword is mundane
+# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
@@ -17,7 +18,7 @@
 # Other fields: target, note.
 
 
-definition factorial
+mundane definition factorial
   then        1! = 1
   let n ∈ ℕ                                                           (H1)
   then        (n + 1)! = n!·(n + 1)
@@ -26,13 +27,13 @@ definition factorial
   note        Two `then` groups: the base sentence has no hypothesis and the
               step sentence has H1. See DATABASE.md on recursive definitions.
 
-mundane factorial-nat
+mundane theorem factorial-nat
   let n ∈ ℕ                                                           (H1)
   then        n! ∈ ℕ
   metamath    faccl, which states it on ℕ0
   target      faccl
 
-mundane factorial-divisible
+mundane theorem factorial-divisible
   let n ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)
   assume m ≤ n                                                        (H3)
@@ -40,14 +41,14 @@ mundane factorial-divisible
   metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
   target      dvdsfac
 
-mundane card-zero
+mundane theorem card-zero
   let X be a set                                                      (H1)
   assume |X| = 0                                                      (H2)
   then        X = ∅
   metamath    hasheq0
   target      hasheq0
 
-mundane card-singleton
+mundane theorem card-singleton
   let x be an element                                                 (H1)
   then        |{x}| = 1
   metamath    hashsng
@@ -56,7 +57,7 @@ mundane card-singleton
               to have: `{ x }` for a proper class x is empty, and `hashsng`
               asks for the set because of it.
 
-mundane card-nonempty
+mundane theorem card-nonempty
   let X be a set                                                      (H1)
   let k ∈ ℕ₀                                                          (H2)
   assume |X| = k + 1                                                  (H3)
@@ -67,7 +68,7 @@ mundane card-nonempty
               hypothesis says what the size is, so the size is read as
               k + 1 through that hypothesis before `nn0p1gt0` answers.
 
-mundane card-remove
+mundane theorem card-remove
   let X be a set                                                      (H1)
   let a ∈ X                                                           (H2)
   let k ∈ ℕ₀                                                          (H3)
@@ -78,7 +79,7 @@ mundane card-remove
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
 
-mundane card-bijection
+mundane theorem card-bijection
   let X be a set                                                      (H1)
   let Y be a set                                                      (H2)
   let m ∈ ℕ₀                                                          (H3)
@@ -88,7 +89,7 @@ mundane card-bijection
   metamath    hashen
   target      hashen with A := X, B := Y
 
-mundane card-disjoint-union
+mundane theorem card-disjoint-union
   let X be a set                                                      (H1)
   let Y be a set                                                      (H2)
   let m ∈ ℕ₀                                                          (H3)
@@ -100,7 +101,7 @@ mundane card-disjoint-union
   metamath    hashun
   target      hashun with A := X, B := Y
 
-function C
+definition C
   sort        number, number → number
   builds      _1 _2 cbc co
   reads       choose
@@ -123,13 +124,13 @@ theorem pascal
   note        Holds for every integer k, the ends included, because C(n, k)
               is 0 outside 0 … n.
 
-mundane binomial-zero-index
+mundane theorem binomial-zero-index
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 0) = 1
   metamath    bcn0
   target      bcn0
 
-mundane binomial-above
+mundane theorem binomial-above
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)
   assume n < k                                                        (H3)
@@ -140,43 +141,43 @@ mundane binomial-above
               disjunction, k < 0 or n < k. This is the second of them, and the
               disjunction is apparatus `olc` supplies from it.
 
-mundane binomial-below
+mundane theorem binomial-below
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, −1) = 0
   metamath    bcneg1
   target      bcneg1
 
-mundane binomial-nat0
+mundane theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)
   then        C(n, k) ∈ ℕ₀
   metamath    bccl
   target      bccl
 
-mundane card-empty
+mundane theorem card-empty
   then        |∅| = 0
   metamath    hash0
   target      hash0
 
-mundane factorial-zero
+mundane theorem factorial-zero
   then        0! = 1
   metamath    fac0
   target      fac0
 
-mundane finite-part
+mundane theorem finite-part
   assume X is finite                                                  (H1)
   assume Y ⊆ X                                                        (H2)
   then        Y is finite
   metamath    ssfi
   target      ssfi
 
-mundane card-nat0
+mundane theorem card-nat0
   assume X is finite                                                  (H1)
   then        |X| ∈ ℕ₀
   metamath    hashcl
   target      hashcl
 
-mundane parts-finite
+mundane theorem parts-finite
   assume A is finite                                                  (H1)
   assume for all Y ∈ K, Y ⊆ A                                         (H2)
   then        K is finite
@@ -186,7 +187,7 @@ mundane parts-finite
   note        A finite set has finitely many parts, so any set of its parts
               is finite.
 
-mundane card-equal
+mundane theorem card-equal
   assume X is finite                                                  (H1)
   assume there is a bijection from X to Y                             (H2)
   then        |X| = |Y|
@@ -196,7 +197,7 @@ mundane card-equal
   note        Y is finite because X is, and two finite sets paired off one
               to one have the same number of elements.
 
-mundane partition-count
+mundane theorem partition-count
   let A be a set                                                      (H1)
   let K be a set                                                      (H2)
   let m ∈ ℕ₀                                                          (H3)

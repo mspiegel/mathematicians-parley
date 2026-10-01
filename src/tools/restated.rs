@@ -21,7 +21,9 @@ use std::path::Path;
 
 use indexmap::{IndexMap, IndexSet};
 
-use crate::corpus::{corpus, parse_proof, Corpus, Intro, ItemKind, Record, RecordKind};
+use crate::corpus::{
+    corpus, link_functions, parse_proof, Corpus, Intro, ItemKind, Record,
+};
 use crate::formula::{parse_here, Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
@@ -193,18 +195,21 @@ pub fn restatements(
         let key = format!("{RESTATED}/{file}.proof");
         let head = heads.entry(key.clone()).or_default();
         head.1.extend(applied_functions(r, g));
-        let cited = if r.kind == RecordKind::Function {
+        let kind = ItemKind::of_record(r);
+        let cited = if r.is_function() {
             head.1.insert(r.name.clone());
             r.name.clone()
         } else {
             let alias = format!("{file}-{}", r.name);
-            head.0
-                .push(format!("import {} {} as {alias}", r.kind, r.qualified()));
+            head.0.push(format!(
+                "import {} {} as {alias}",
+                kind.keyword(),
+                r.qualified()
+            ));
             alias
         };
         let text = files.entry(key).or_default();
-        let prefix =
-            ItemKind::from_keyword(r.kind.as_str()).map_or("thm", ItemKind::prefix);
+        let prefix = kind.prefix();
         // The item's assumptions, and what its `let` lines claim, are what
         // the step cites it from, as a proof citing it names the lines that
         // say them.
@@ -328,7 +333,12 @@ pub fn restatements(
                 head.push('\n');
             }
             for name in applied {
-                head.push_str(&format!("import function {}\n", g.functions[name].item));
+                let item = &g.functions[name].item;
+                let keyword = records
+                    .iter()
+                    .find(|r| r.qualified() == *item)
+                    .map_or("definition", |r| ItemKind::of_record(r).keyword());
+                head.push_str(&format!("import {keyword} {item}\n"));
             }
             (key, format!("{head}\n{body}"))
         })
@@ -482,6 +492,14 @@ pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
             }
             Err(problem) => return fail(problem.to_string()),
         }
+    }
+    // A restatement imports each library function it applies as it imports
+    // any item, and the records say which of its imports are functions.
+    if let Some((path, no, message)) = link_functions(&all.records, &mut all.scopes)
+        .into_iter()
+        .next()
+    {
+        return fail(format!("{path}:{no}  {message}"));
     }
     let wanted: Vec<Artifact> = artifacts(&all)
         .into_iter()

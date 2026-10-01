@@ -10,6 +10,7 @@ import mundane    stdlib/numbers/half-positive as numbers-half-positive
 import mundane    stdlib/numbers/int-real as numbers-int-real
 import mundane    stdlib/numbers/integer-step as numbers-integer-step
 import mundane    stdlib/numbers/le-max
+import mundane    stdlib/numbers/max
 import mundane    stdlib/numbers/max-le as numbers-max-le
 import mundane    stdlib/numbers/max-real as numbers-max-real
 import mundane    stdlib/numbers/nat-ge-1 as numbers-nat-ge-1
@@ -21,8 +22,7 @@ import mundane    stdlib/numbers/nat0-member as numbers-nat0-member
 import mundane    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
 import mundane    stdlib/numbers/nat0-real as numbers-nat0-real
 import mundane    stdlib/numbers/quotient-real as numbers-quotient-real
-import definition stdlib/numbers/rational as numbers-rational
-import function   stdlib/numbers/max
+import mundane    stdlib/numbers/rational as numbers-rational
 
 theorem rational
   let x ∈ ℝ                                                           (H1)
@@ -30,7 +30,7 @@ theorem rational
   then there are p ∈ ℤ and q ∈ ℕ with x = p/q
 
 1.  There are p ∈ ℤ and q ∈ ℕ with x = p/q.
-    def:numbers-rational, from H2
+    mun:numbers-rational, from H2
 
 theorem half-positive
   let x ∈ ℝ                                                           (H1)

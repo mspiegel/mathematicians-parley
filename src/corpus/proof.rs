@@ -7,6 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::define::{define_parts, DefineParts};
 use super::lines::{read_lines, Line};
+use super::records::{Record, RecordKind};
 use super::{cited_name, full, in_stdlib, module_of};
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
@@ -106,33 +107,37 @@ pub struct DefineLine {
     pub line: usize,
 }
 
-/// An import of a define from a proof file: `import function
-/// proofs/tri/T (D1)` or `import definition proofs/tri/B (D2)`. Its keyword
-/// says whether the define takes an argument, and its label is what a line
-/// of the importing file cites it by, as it cites a define of its own.
+/// An import of a define from a proof file: `import definition
+/// proofs/tri/T as U (D1)`. Its label is what a line of the importing file
+/// cites it by, as it cites a define of its own, and a file that never
+/// writes the define out gives none.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Import {
-    pub kind: ItemKind,
     pub module: String,
     pub name: String,
     pub alias: String,
     pub line: usize,
-    pub label: String,
+    pub label: Option<String>,
 }
 
-/// An `import function stdlib/<file>/<name>` line: a library function the
-/// file applies, by its name, from the library file that declares it. It
-/// carries no label, since a line unfolding it cites `fun:<name>`, and no
-/// `as`, since the library's name for it is the one every formula reads.
+/// An import of a library function the file applies, by its name, from the
+/// library file that declares it: `import mundane stdlib/divisibility/gcd`.
+/// Its keyword is read as any item's is, and it is a function because the
+/// definition it names has `sort` and `builds` lines (`link_functions`). It
+/// takes no `as`, since the library's name for it is the one every formula
+/// reads.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct FunctionImport {
+    /// The kind its keyword says.
+    pub kind: ItemKind,
     pub module: String,
     pub name: String,
     pub line: usize,
 }
 
 /// An import of an item a step cites by its prefix and name: a library
-/// axiom, theorem, mundane item or definition, or a theorem of a proof file.
+/// axiom, theorem or definition, marked mundane or not, or a theorem of a
+/// proof file.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemImport {
     /// The kind its keyword says.
@@ -232,23 +237,25 @@ pub fn fmt(number: &StepNo) -> String {
     number.to_string()
 }
 
-/// The kind of item a citation or an import names, which its prefix or its
-/// keyword says.
+/// What a citation's prefix or an import's keyword says of the item it names:
+/// that a proof takes it for granted, `mun:`, or otherwise its kind.
+///
+/// It is what a reader needs from the line, and not what the item is: a
+/// mundane definition is cited `mun:` and is still unfolded, because the
+/// elaborator reads the kind from the record (`DATABASE.md`, "Record kinds").
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ItemKind {
     Axiom,
     Theorem,
     Mundane,
     Definition,
-    Function,
 }
 
-pub const ITEM_KINDS: [ItemKind; 5] = [
+pub const ITEM_KINDS: [ItemKind; 4] = [
     ItemKind::Axiom,
     ItemKind::Theorem,
     ItemKind::Mundane,
     ItemKind::Definition,
-    ItemKind::Function,
 ];
 
 impl ItemKind {
@@ -259,19 +266,16 @@ impl ItemKind {
             ItemKind::Theorem => "thm",
             ItemKind::Mundane => "mun",
             ItemKind::Definition => "def",
-            ItemKind::Function => "fun",
         }
     }
 
-    /// The kind of record a citation of this kind names, which is also the
-    /// keyword of an import of it.
-    pub fn record_kind(self) -> &'static str {
+    /// The keyword of an import of an item cited with this prefix.
+    pub fn keyword(self) -> &'static str {
         match self {
             ItemKind::Axiom => "axiom",
             ItemKind::Theorem => "theorem",
             ItemKind::Mundane => "mundane",
             ItemKind::Definition => "definition",
-            ItemKind::Function => "function",
         }
     }
 
@@ -280,12 +284,20 @@ impl ItemKind {
     }
 
     pub fn from_keyword(keyword: &str) -> Option<ItemKind> {
-        ITEM_KINDS.into_iter().find(|k| k.record_kind() == keyword)
+        ITEM_KINDS.into_iter().find(|k| k.keyword() == keyword)
     }
 
-    /// A definition or a function: what a step citing it unfolds.
-    pub fn unfolds(self) -> bool {
-        matches!(self, ItemKind::Definition | ItemKind::Function)
+    /// What a citation of a library record writes: `mun:` where its header
+    /// is marked mundane, and its kind's prefix otherwise.
+    pub fn of_record(r: &Record) -> ItemKind {
+        if r.mundane {
+            return ItemKind::Mundane;
+        }
+        match r.kind {
+            RecordKind::Axiom => ItemKind::Axiom,
+            RecordKind::Definition => ItemKind::Definition,
+            _ => ItemKind::Theorem,
+        }
     }
 }
 
@@ -536,12 +548,13 @@ impl FileScope {
         }
     }
 
-    /// The label the import writing a definition as `alias` carries.
+    /// The label the import writing a definition as `alias` carries, where it
+    /// gives one.
     pub fn import_label(&self, alias: &str) -> Option<&str> {
         self.imports
             .iter()
             .find(|i| i.alias == alias)
-            .map(|i| i.label.as_str())
+            .and_then(|i| i.label.as_deref())
     }
 
     /// The define this file writes at file level under `name`.
@@ -687,10 +700,7 @@ pub fn cites_define(text: &str, defines: &[String]) -> Option<String> {
         .then(|| label.to_string())
 }
 
-regex!(
-    ITEM_HEAD,
-    format!(r"^(thm|axi|mun|def|fun):({})", super::CITED)
-);
+regex!(ITEM_HEAD, format!(r"^(thm|axi|mun|def):({})", super::CITED));
 regex!(
     SUBSTITUTE_SOURCE,
     format!(
@@ -848,7 +858,7 @@ regex!(
 // A requires line's justification, where it cites an item.
 regex!(
     REQUIRES_ITEM_RE,
-    format!(r"^(thm|axi|mun|def|fun):({})", super::CITED)
+    format!(r"^(thm|axi|mun|def):({})", super::CITED)
 );
 
 /// A requires line's citation of an item: the whole `mun:x`, and the kind
@@ -916,19 +926,18 @@ regex!(ITEM_NAME, super::NAME);
 enum Imported {
     Item(ItemImport),
     Define(Import),
-    Function(FunctionImport),
 }
 
-/// One `import` line: one item, with its kind as the keyword.
+/// One `import` line: one item, with `mundane` as the keyword for an item a
+/// proof takes for granted and its kind otherwise.
 ///
 /// `import theorem stdlib/divisibility/prime-factor` brings in an item a step
 /// cites, `thm:prime-factor`, or by the name after `as`. A library function
-/// is brought in by its own name, which a formula applies. A define of a
-/// proof file is brought in under one letter, with the label a line of this
-/// file cites it by, and its keyword is `function` where it takes an
-/// argument and `definition` where it takes none. Whether the keyword is the
-/// kind of what the line names is the checker's to ask, since it wants the
-/// item.
+/// is read here as any library item is, and `link_functions` sets it apart
+/// once the records are read. A define of a proof file is brought in as a
+/// `definition`, under one letter, with the label a line of this file cites
+/// it by where a line does. Whether the keyword fits what the line names is
+/// the checker's to ask, since it wants the item.
 fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     let Some(m) = IMPORTED.captures(str::trim(text)) else {
         return Err(Problem::new(
@@ -943,7 +952,7 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             path,
             no,
             format!(
-                "import {keyword}: an import's keyword is the kind of the item it names, axiom, theorem, mundane, definition or function"
+                "import {keyword}: an import's keyword is mundane for an item taken for granted, and otherwise the item's kind, axiom, theorem or definition"
             ),
         ));
     };
@@ -962,35 +971,11 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     let alias = m.name("alias").map_or(name, |a| a.as_str());
     let label = m.name("label").map(|l| l.as_str().to_string());
     let from_library = in_stdlib(whole);
-    // A library function is written in formulas by the library's name for
-    // it, and a line unfolding it cites `fun:<name>`.
-    if from_library && kind == ItemKind::Function {
-        if label.is_some() || m.name("alias").is_some() {
-            return Err(Problem::new(
-                path,
-                no,
-                format!(
-                    "import function {whole}: a library function is imported by its name alone, with no `as` and no label"
-                ),
-            ));
-        }
-        return Ok(Imported::Function(FunctionImport {
-            module: module.to_string(),
-            name: name.to_string(),
-            line: no,
-        }));
-    }
     // A define of a proof file is written in formulas, and cited by the
     // label its import gives it, as one the file defines is: a calculation
-    // link writing S(k + 1) out cites the equation.
-    if !from_library && kind.unfolds() {
-        let Some(label) = label else {
-            return Err(Problem::new(
-                path,
-                no,
-                format!("import {keyword} {whole} carries no label"),
-            ));
-        };
+    // link writing S(k + 1) out cites the equation. A file that never writes
+    // it out gives it no label.
+    if !from_library && kind == ItemKind::Definition {
         if !super::define::is_one_name(alias) {
             return Err(Problem::new(
                 path,
@@ -1002,7 +987,6 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             ));
         }
         return Ok(Imported::Define(Import {
-            kind,
             module: module.to_string(),
             name: name.to_string(),
             alias: alias.to_string(),
@@ -1235,7 +1219,6 @@ pub fn parse_proof(
                 match importing(path, line.no, &t)? {
                     Imported::Item(import) => scope.items.push(import),
                     Imported::Define(import) => scope.imports.push(import),
-                    Imported::Function(import) => scope.functions.push(import),
                 }
                 continue;
             }
@@ -1513,9 +1496,9 @@ pub fn parse_proof(
                         defines.push(d.label.clone());
                     }
                 }
-                for i in &scope.imports {
-                    if !defines.contains(&i.label) {
-                        defines.push(i.label.clone());
+                for label in scope.imports.iter().filter_map(|i| i.label.as_ref()) {
+                    if !defines.contains(label) {
+                        defines.push(label.clone());
                     }
                 }
                 if starts_with_head(&t) || cites_define(&t, &defines).is_some() {
