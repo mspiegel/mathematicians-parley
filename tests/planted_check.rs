@@ -1558,6 +1558,13 @@ fn cases() -> Vec<Case> {
             "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
         case(
+            "give a bound define a type other than the item asks",
+            vec![
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 11".to_string()), "requires g : ℕ → ℝ: from 11".to_string()),
+            ],
+            "says g : ℕ → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
+        ),
+        case(
             "name a number with the derivative's spelling",
             vec![
                 edit("proofs/mean-value.proof", Some("  assume a < b ".to_string()), "  let f′ ∈ ℝ                                                          (H9)\n  assume a < b ".to_string()),

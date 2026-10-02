@@ -122,6 +122,43 @@ impl<'a> Library<'a> {
         found
     }
 
+    /// What the `let` lines of the item of that full name say its functions
+    /// map between, `g : D → ℝ`, as trees in the item's own letters. The
+    /// groups leave these out, since a function the theorem has asks
+    /// nothing; one the citing proof defines is asked it in a requires line.
+    pub fn function_types(&self, name: &str) -> Vec<Node> {
+        // A theorem's hypothesis is written with its `let`, as a proof file
+        // has it, and a record's without.
+        let (said, sorts): (Vec<(Intro, String)>, &Sorts) =
+            if let Some(k) = self.proved.get(name) {
+                let said = k
+                    .thm
+                    .hypotheses
+                    .iter()
+                    .map(|h| (h.kind, unlabel(&h.text[h.kind.as_str().len()..])))
+                    .collect();
+                (said, &k.sorts)
+            } else if let Some(&i) = self.items.get(name) {
+                let said = self.records[i]
+                    .hypotheses
+                    .iter()
+                    .map(|h| (h.kind, unlabel(&h.text)))
+                    .collect();
+                (said, &self.record_sorts[&i])
+            } else {
+                return Vec::new();
+            };
+        let lines: Vec<String> = said
+            .into_iter()
+            .filter(|(kind, _)| *kind == Intro::Let)
+            .map(|(_, text)| str::trim(&text).to_string())
+            .filter(|text| {
+                function_re().is_match(text) && !function_being_re().is_match(text)
+            })
+            .collect();
+        self.trees(&lines, sorts)
+    }
+
     /// One (hypotheses, conclusion sentences) pair per `then` group.
     fn read(&self, name: &str) -> Option<Vec<Group>> {
         if let Some(k) = self.proved.get(name) {

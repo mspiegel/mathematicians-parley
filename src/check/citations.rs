@@ -868,12 +868,13 @@ pub fn check_requires(
 /// k)·y^k asks x ∈ ℝ, y ∈ ℝ and m ∈ ℕ₀, and nothing of k.
 ///
 /// `let g : D → ℝ` where g stands for a function the proof defines asks
-/// what g maps between, said whole. The checker reads the define as its
-/// rule, and the kernel asks it of every value the rule gives.
+/// what g maps between, said whole and as the item says it: `g := g, D :=
+/// [a, b]` asks g : [a, b] → ℝ and nothing else of g. The checker reads the
+/// define as its rule, and the kernel asks it of every value the rule gives.
 struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
-    functions: BTreeSet<String>,
+    types: Vec<Node>,
 }
 
 fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
@@ -884,16 +885,18 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let parts = known.parts(step, library);
     let mut held = BTreeSet::new();
     let mut values = Vec::new();
-    // A defined function the citation writes for one of the item's letters,
-    // as `f := F` does. What the step claims is no guide to that: an
-    // `obtain` claims the witness, not the item's conclusion.
-    let functions = parts
-        .seed
-        .values()
-        .filter(|v| {
-            v.is_name() && matches!(known.defined.get(&v.text), Some(Defined::Rule(_)))
+    // The item's function types under what the citation writes for its
+    // letters, `f := F`, where that makes the function one the proof
+    // defines. What the step claims is no guide to the letters: an `obtain`
+    // claims the witness, not the item's conclusion.
+    let types = library
+        .function_types(&just.item(&cited_item(just).expect("a cited item")))
+        .iter()
+        .map(|t| substitute(t, &parts.seed))
+        .filter(|t| {
+            let f = &t.children[0];
+            f.is_name() && matches!(known.defined.get(&f.text), Some(Defined::Rule(_)))
         })
-        .map(|v| v.text.clone())
         .collect();
     for (want, gives) in groups.iter() {
         let mut trees = gives.clone();
@@ -933,7 +936,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     FamilyAsks {
         held,
         values,
-        functions,
+        types,
     }
 }
 
@@ -945,8 +948,7 @@ impl FamilyAsks {
             return false;
         };
         if node.notation == "function-type" {
-            return node.children[0].is_name()
-                && self.functions.contains(&node.children[0].text);
+            return self.types.iter().any(|t| t.shape() == node.shape());
         }
         // Or the hypothesis said whole, of every value the function takes:
         // `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
