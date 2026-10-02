@@ -668,6 +668,16 @@ notation image
               f(X) is f applied to one thing, and M(C) beside f[C] in
               Schröder–Bernstein would be the two meanings side by side.
 
+notation derivative
+  pattern     _′(_)
+  sort        function from number to number, number → number
+  reads       the derivative of, at
+  metamath    cdv over ℝ, applied with cfv
+  target      _2 cr _1 cdv co cfv
+  note        f′(x) is the derivative of f at x: set.mm's ( ( RR _D F ) ` x ).
+              A prime on a name of a point or a number, c′ or P′, is part of
+              the name; on a function applied to a term it is the derivative.
+
 notation holds-of
   pattern     _(_)
   sort        property of α, α → formula
@@ -691,6 +701,16 @@ notation closed-interval
   reads       the closed interval from, to
   metamath    cicc
   target      _1 _2 cicc co
+
+notation open-interval
+  pattern     (_, _)
+  sort        number, number → set of number
+  reads       the open interval from, to
+  metamath    cioo
+  target      _1 _2 cioo co
+  note        Told apart from a bracketed term by its comma, and from a
+              function applied to two arguments, f(a, b), by having no name
+              before it.
 
 notation integer-range
   pattern     {_, …, _}
@@ -1280,6 +1300,20 @@ notation continuous
               names only the domain because `def:stdlib/calculus/continuous-on` takes
               `f : D → ℝ` as its hypothesis, so the codomain is ℝ wherever
               this pattern may be written.
+
+notation differentiable
+  pattern     _ is differentiable on _
+  sort        function from number to number, set of number → formula
+  level       predicate
+  reads       is differentiable on
+  metamath    the domain of the derivative, cdm of cdv over ℝ
+  target      cr _1 cdv co cdm _2 wceq
+  note        set.mm has no predicate for this either: mvth and rolle say the
+              derivative of f is defined on exactly the open interval, which is
+              what the target writes. For f on [a, b] that also says neither
+              end has a one-sided derivative, a little more than a textbook's
+              "differentiable on (a, b)" says, and it is the hypothesis set.mm's
+              theorems ask.
 
 notation collinear
   pattern     _, _, _ are collinear

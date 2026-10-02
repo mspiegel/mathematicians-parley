@@ -1493,7 +1493,15 @@ pub fn parse_proof(
                 ));
             };
             let body = str::trim(&t["requires".len()..]);
-            let Some((fact, how)) = body.split_once(':') else {
+            // The fact ends at the first colon written against the word
+            // before it. A colon inside a fact stands apart, as in `g : [a,
+            // b] → ℝ` and `{x ∈ ℕ : x > 1}`.
+            let chars: Vec<(usize, char)> = body.char_indices().collect();
+            let split = chars.iter().enumerate().find_map(|(i, &(at, c))| {
+                (c == ':' && i > 0 && !chars[i - 1].1.is_whitespace())
+                    .then(|| (&body[..at], &body[at + 1..]))
+            });
+            let Some((fact, how)) = split else {
                 return Err(Problem::new(
                     path,
                     line.no,

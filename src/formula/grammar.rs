@@ -492,6 +492,24 @@ impl Parser<'_> {
             return self.no(format!("{} ends early", repr(self.src)));
         };
         if tok.kind == TokenKind::Open {
+            // A notation may open with a bracket, as the open interval (a, b)
+            // does, and is tried as one opening with a name is: what none
+            // reads is a bracketed group. The interval's two holes and its
+            // comma are what tell it from a group, so `(P, Q, R are
+            // collinear)` is still the group it always was.
+            let g = self.g;
+            let opening: Vec<&Notation> = g
+                .notations
+                .iter()
+                .filter(|n| {
+                    n.parts.first().and_then(Part::literal) == Some(tok.text.as_str())
+                })
+                .collect();
+            if !opening.is_empty() {
+                if let Some(found) = self.apply(&opening, None)? {
+                    return Ok(Some(found));
+                }
+            }
             self.i += 1;
             let Some(inner) = self.expression(None, None)? else {
                 return Ok(None);

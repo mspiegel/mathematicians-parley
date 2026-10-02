@@ -348,7 +348,7 @@ become a parse.
 ```
 <token>   ::= <word> | <name> | <numeral> | <symbol> | `(` | `)`
 <word>    ::= a maximal run of letters that is a declared literal, longest match
-<name>    ::= a letter, then any subscripts and primes
+<name>    ::= a letter, then any subscripts and primes, but no prime just before `(`
 <numeral> ::= a maximal run of digits
 <symbol>  ::= a declared token that is neither letters nor digits
 ```
@@ -357,6 +357,15 @@ A run of letters is a `<word>` if one is declared and a `<name>` otherwise, whic
 is decidable because juxtaposition never joins two bare names. Round brackets
 are the one piece of notation the grammar owns rather than the database: they
 group, they take no sort of their own, and `(e)` parses exactly as `e` does.
+
+A notation may still open with a bracket, as the open interval `(a, b)` does.
+It is tried as a notation opening with a name is, and what no such notation
+reads is a group: the interval's comma between two holes is what tells it
+from `(e)`.
+
+A prime belongs to a name, as in c′ and P′, except directly before a bracket:
+`f′(x)` is the derivative of f at x, and there the prime is the derivative
+notation's own token, so the name is `f`.
 
 **A word is at least two letters, and a single letter is always a name.** One
 declared literal is one letter: `a`, from `_, _, _ form a triangle` and

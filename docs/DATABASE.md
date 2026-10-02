@@ -401,8 +401,8 @@ mundane definition difference
 |---|---|
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
-| `theorem` | 13 |
-| `mundane theorem` | 172 |
+| `theorem` | 18 |
+| `mundane theorem` | 173 |
 | `definition` | 6 |
 | `mundane definition` | 41 |
 
@@ -520,6 +520,8 @@ this table is mundane.
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
+| rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
+| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
@@ -537,6 +539,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | gcd, min, max | `mundane definition` | functions, applied and seldom unfolded: "g = gcd(a, b) divides a and b", bezout step 13 |
 | cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
+| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: mean-value step 33 |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or
@@ -544,8 +547,8 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 341 of the 363 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: six steps in eighteen proofs cite a named
+Counted this way, 352 of the 381 numbered steps that cite a library item cite
+a mundane one. `def:` is rare: six steps in nineteen proofs cite a named
 definition.
 
 ### Follow-ups

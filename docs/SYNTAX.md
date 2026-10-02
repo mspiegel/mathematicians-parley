@@ -120,7 +120,9 @@ the 2 that is not there, and the checker reports it. A step is:
    line. The alternative, a tree of requires lines under a step, was
    allowed at first and rejected after one proof grew a tree three deep;
    the rule makes no difference to the kernel proof and only keeps the
-   text flat.
+   text flat. The fact ends at the first colon written against the word
+   before it, `requires b ≤ b: inequalities`; a colon inside a fact stands
+   apart, as in `requires g : [a, b] → ℝ: from 11`.
 
 The last step of a proof is the theorem's conclusion.
 
@@ -443,7 +445,9 @@ domain is written beside the rule: `define t(c) := g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
 `requires` line. It states nothing about where the values lie: `t : H → gH`
 is proved, from a line saying each value is in gH, as Lagrange's step 9.2
-does.
+does. A cited item whose `let g : D → ℝ` the citation fills with a defined
+function, `g := g`, asks that type in a `requires` line citing the step that
+proves it, as the mean value theorem's steps 14 to 19 do.
 
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let

@@ -311,10 +311,22 @@ impl Builder {
 
     /// Register a lemma this file proves, so a later one may apply it.
     pub fn define(&mut self, label: &str, statement: &str) {
+        self.define_with_hyps(label, statement, &[]);
+    }
+
+    /// Register a lemma stated as a deduction, with the hypotheses it takes
+    /// in order. Its variables are those of the statement and the
+    /// hypotheses together, as `proved` writes them.
+    pub fn define_with_hyps(&mut self, label: &str, statement: &str, hyps: &[&str]) {
         let tokens: Vec<String> =
             statement.split_whitespace().map(String::from).collect();
+        let essentials: Vec<Vec<String>> = hyps
+            .iter()
+            .map(|h| h.split_whitespace().map(String::from).collect())
+            .collect();
         let mut free: Vec<&String> = tokens
             .iter()
+            .chain(essentials.iter().flatten())
             .filter(|t| self.flabel.contains(t))
             .collect::<BTreeSet<_>>()
             .into_iter()
@@ -334,7 +346,7 @@ impl Builder {
                 kind: Kind::Theorem,
                 statement: tokens,
                 floats,
-                essentials: Vec::new(),
+                essentials,
                 disjoint: BTreeSet::new(),
             },
         );

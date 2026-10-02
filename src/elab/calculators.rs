@@ -1384,8 +1384,9 @@ impl<'a> Elaborator<'a> {
         self.combining(&combined);
         let weight = found[&given.len()].clone();
         if claim.how == How::Ne {
-            let made =
-                self.stays_apart(&used, &given, &where_, &claim, scope, facts, lines)?;
+            let made = self.stays_apart(
+                &used, &given, &where_, &claim, &goal, scope, facts, lines,
+            )?;
             if made.is_declined() {
                 let apart =
                     self.apart_by_order(refs, &goal, scope, facts, lines, skip)?;
@@ -2409,6 +2410,7 @@ impl<'a> Elaborator<'a> {
         given: &[linear::Fact],
         where_: &[(String, Term)],
         claim: &linear::Fact,
+        goal: &Term,
         scope: &str,
         facts: &Facts,
         lines: &Lines,
@@ -2426,6 +2428,11 @@ impl<'a> Elaborator<'a> {
         let left_over = claim.side.minus(&given[used[0]].side.scaled(&q(-1)));
         if !left_over.atoms().is_empty() || !left_over.constant.is_zero() {
             return Ok(Route::no("the claim is not that bound turned"));
+        }
+        // And written as the two of them: `b − a ≠ 0` is the same bound
+        // turned, and another statement, which the order proves.
+        if self.rpn(goal) != t!(t!(below[1], below[0], "wceq"), "wn") {
+            return Ok(Route::no("the claim is not the two the bound names"));
         }
         let bound = take!(self.cited_fact(&r, &said, scope, facts, lines)?);
         let real = self.membership(&below[0], "cr", scope, facts)?;

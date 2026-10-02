@@ -1,0 +1,197 @@
+import theorem            stdlib/calculus/continuous-linear
+import theorem            stdlib/calculus/continuous-sum
+import theorem            stdlib/calculus/derivative-linear
+import mundane theorem    stdlib/calculus/derivative-real
+import theorem            stdlib/calculus/derivative-sum
+import theorem            stdlib/calculus/rolle
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-value
+
+theorem mean-value
+  metamath    mvth
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume f is continuous on [a, b]                                    (H5)
+  assume f is differentiable on (a, b)                                (H6)
+  then there is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a)
+
+define g(x) := ((f(a) − f(b))/(b − a))·x, for x ∈ [a, b]              (D1)
+       reads the line through 0 whose slope is the chord's, negated
+
+define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
+       reads f with the line g added, so that it takes one value at a and b
+
+1.  a ∈ [a, b]
+    mun:interval x := a, from H1, H2
+    requires a ≤ a: inequalities, from H1
+    requires a ≤ b: inequalities, from H1, H2, H3
+
+2.  b ∈ [a, b]
+    mun:interval x := b, from H1, H2
+    requires a ≤ b: inequalities, from H1, H2, H3
+    requires b ≤ b: inequalities, from H2
+
+3.  [a, b] ⊆ ℝ
+    mun:interval-real, from H1, H2
+
+4.  f(a) ∈ ℝ
+    mun:function-value x := a, from 1
+
+5.  f(b) ∈ ℝ
+    mun:function-value x := b, from 2
+
+6.  b − a ≠ 0
+    inequalities, from H3
+    requires a ∈ ℝ: from H1
+    requires b ∈ ℝ: from H2
+
+7.  (f(a) − f(b))/(b − a) ∈ ℝ
+    membership, from 4, 5, H1, H2, 6
+
+8.  For all x ∈ [a, b], g(x) = ((f(a) − f(b))/(b − a))·x.
+    fix
+    let x ∈ [a, b]                                                    (K1)
+
+    8.1.  g(x) = ((f(a) − f(b))/(b − a))·x
+          D1, from K1
+
+9.  For all x ∈ [a, b], F(x) = f(x) + g(x).
+    fix
+    let x ∈ [a, b]                                                    (K2)
+
+    9.1.  F(x) = f(x) + g(x)
+          D2, from K2
+
+10. For all x ∈ [a, b], g(x) ∈ ℝ.
+    fix
+    let x ∈ [a, b]                                                    (K3)
+
+    10.1. x ∈ ℝ
+          mun:interval, from H1, H2, K3
+
+    10.2. g(x) ∈ ℝ
+          membership, from K3
+          requires (f(a) − f(b))/(b − a) ∈ ℝ: from 7
+          requires x ∈ ℝ: from 10.1
+
+11. g : [a, b] → ℝ
+    mun:function-into, from 10
+    requires g is a function on [a, b]: from D1
+
+12. For all x ∈ [a, b], F(x) ∈ ℝ.
+    fix
+    let x ∈ [a, b]                                                    (K4)
+
+    12.1. x ∈ ℝ
+          mun:interval, from H1, H2, K4
+
+    12.2. f(x) ∈ ℝ
+          mun:function-value x := x, from K4
+
+    12.3. F(x) ∈ ℝ
+          membership, from K4
+          requires f(x) ∈ ℝ: from 12.2
+          requires (f(a) − f(b))/(b − a) ∈ ℝ: from 7
+          requires x ∈ ℝ: from 12.1
+
+13. F : [a, b] → ℝ
+    mun:function-into, from 12
+    requires F is a function on [a, b]: from D2
+
+14. g is continuous on [a, b]
+    thm:continuous-linear D := [a, b], m := (f(a) − f(b))/(b − a), g := g, from 3, 7, 8
+    requires g : [a, b] → ℝ: from 11
+
+15. F is continuous on [a, b]
+    thm:continuous-sum D := [a, b], F := F, f := f, g := g, from 3, 9, H5, 14
+    requires F : [a, b] → ℝ: from 13
+    requires g : [a, b] → ℝ: from 11
+
+16. g is differentiable on (a, b)
+    thm:derivative-linear a := a, b := b, m := (f(a) − f(b))/(b − a), g := g, from H1, H2, 7, 8
+    requires g : [a, b] → ℝ: from 11
+
+17. For all x ∈ (a, b), g′(x) = (f(a) − f(b))/(b − a).
+    thm:derivative-linear a := a, b := b, m := (f(a) − f(b))/(b − a), g := g, from H1, H2, 7, 8
+    requires g : [a, b] → ℝ: from 11
+
+18. F is differentiable on (a, b)
+    thm:derivative-sum a := a, b := b, F := F, f := f, g := g, from H1, H2, 9, H6, 16
+    requires F : [a, b] → ℝ: from 13
+    requires g : [a, b] → ℝ: from 11
+
+19. For all x ∈ (a, b), F′(x) = f′(x) + g′(x).
+    thm:derivative-sum a := a, b := b, F := F, f := f, g := g, from H1, H2, 9, H6, 16
+    requires F : [a, b] → ℝ: from 13
+    requires g : [a, b] → ℝ: from 11
+
+20. F(a) = f(a) + g(a)
+    D2, from 1
+
+21. g(a) = ((f(a) − f(b))/(b − a))·a
+    D1, from 1
+
+22. F(b) = f(b) + g(b)
+    D2, from 2
+
+23. g(b) = ((f(a) − f(b))/(b − a))·b
+    D1, from 2
+
+24. f(a) + g(a) = f(a) + ((f(a) − f(b))/(b − a))·a
+    substitute g(a) = ((f(a) − f(b))/(b − a))·a (line 21)
+
+25. f(b) + g(b) = f(b) + ((f(a) − f(b))/(b − a))·b
+    substitute g(b) = ((f(a) − f(b))/(b − a))·b (line 23)
+
+26. f(a) + ((f(a) − f(b))/(b − a))·a = f(b) + ((f(a) − f(b))/(b − a))·b
+    algebra
+    requires b − a ≠ 0: from 6
+    requires a ∈ ℝ: from H1
+    requires b ∈ ℝ: from H2
+    requires f(a) ∈ ℝ: from 4
+    requires f(b) ∈ ℝ: from 5
+
+27. F(a) = F(b)
+    calculation
+      F(a) = f(a) + g(a)                                       20
+           = f(a) + ((f(a) − f(b))/(b − a))·a                  24
+           = f(b) + ((f(a) − f(b))/(b − a))·b                  26
+           = f(b) + g(b)                                       25
+           = F(b)                                              22
+
+28. c ∈ (a, b). F′(c) = 0.
+    obtain c: thm:rolle a := a, b := b, f := F, from H1, H2, H3, 15, 18, 27
+
+29. F′(c) = f′(c) + g′(c)
+    instantiate x := c in line 19, from 28
+
+30. g′(c) = (f(a) − f(b))/(b − a)
+    instantiate x := c in line 17, from 28
+
+31. f′(c) + g′(c) = f′(c) + (f(a) − f(b))/(b − a)
+    substitute g′(c) = (f(a) − f(b))/(b − a) (line 30)
+
+32. f′(c) + (f(a) − f(b))/(b − a) = 0
+    calculation
+      f′(c) + (f(a) − f(b))/(b − a) = f′(c) + g′(c)            31
+                                    = F′(c)                    29
+                                    = 0                        28
+
+33. f′(c) ∈ ℝ
+    mun:derivative-real a := a, b := b, f := f, x := c, from H1, H2, H6, 28
+
+34. f′(c) = (f(b) − f(a))/(b − a)
+    algebra, from 32
+    requires b − a ≠ 0: from 6
+    requires f′(c) ∈ ℝ: from 33
+    requires f(a) ∈ ℝ: from 4
+    requires f(b) ∈ ℝ: from 5
+    requires a ∈ ℝ: from H1
+    requires b ∈ ℝ: from H2
+
+35. There is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a).
+    exhibit, from 28, 34

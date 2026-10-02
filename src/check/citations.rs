@@ -14,7 +14,7 @@ use crate::corpus::{
 use crate::formula::{parse_here, walk, Node, NodeId};
 use crate::matching::{
     binding_sites, expand, instantiation, match_tree, substitute, substitute_apart,
-    Binding, PROPERTY,
+    Binding, Defined, PROPERTY,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -866,9 +866,14 @@ pub fn check_requires(
 /// compound's from its atoms'. So what the hypothesis asks is the membership
 /// of each name the summand holds that the sum does not bind: C(m, k)·x^(m −
 /// k)·y^k asks x ∈ ℝ, y ∈ ℝ and m ∈ ℕ₀, and nothing of k.
+///
+/// `let g : D → ℝ` where g stands for a function the proof defines asks
+/// what g maps between, said whole. The checker reads the define as its
+/// rule, and the kernel asks it of every value the rule gives.
 struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
+    functions: BTreeSet<String>,
 }
 
 fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
@@ -879,6 +884,17 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let parts = known.parts(step, library);
     let mut held = BTreeSet::new();
     let mut values = Vec::new();
+    // A defined function the citation writes for one of the item's letters,
+    // as `f := F` does. What the step claims is no guide to that: an
+    // `obtain` claims the witness, not the item's conclusion.
+    let functions = parts
+        .seed
+        .values()
+        .filter(|v| {
+            v.is_name() && matches!(known.defined.get(&v.text), Some(Defined::Rule(_)))
+        })
+        .map(|v| v.text.clone())
+        .collect();
     for (want, gives) in groups.iter() {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
@@ -914,7 +930,11 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             }
         }
     }
-    FamilyAsks { held, values }
+    FamilyAsks {
+        held,
+        values,
+        functions,
+    }
 }
 
 impl FamilyAsks {
@@ -924,6 +944,10 @@ impl FamilyAsks {
         let Ok(node) = parse_here(fact, library.env.g, &known.sorts) else {
             return false;
         };
+        if node.notation == "function-type" {
+            return node.children[0].is_name()
+                && self.functions.contains(&node.children[0].text);
+        }
         // Or the hypothesis said whole, of every value the function takes:
         // `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
         // asks that every partial sum be real. T is a defined function and
