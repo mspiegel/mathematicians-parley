@@ -166,6 +166,20 @@ impl<'a> Elaborator<'a> {
         added: &str,
         origin: Option<&str>,
     ) -> (String, Facts) {
+        self.widen_to(scope, facts, added, origin, 4)
+    }
+
+    /// `widen`, taking the assumption apart `depth` conjunctions deep: an
+    /// `obtain` says as many things as its claim has sentences, and each is
+    /// a fact a later step may cite on its own.
+    pub fn widen_to(
+        &mut self,
+        scope: &str,
+        facts: &Facts,
+        added: &str,
+        origin: Option<&str>,
+        depth: usize,
+    ) -> (String, Facts) {
         let inner = t!(scope, added, "wa");
         let lifted = Facts::new();
         let weaken = pf!(self.b; scope, added, "simpl");
@@ -178,7 +192,7 @@ impl<'a> Elaborator<'a> {
             here = self.seal(here, origin);
         }
         lifted.set(added, here.clone());
-        self.unpack(added, &here, &inner, &lifted, 4);
+        self.unpack(added, &here, &inner, &lifted, depth);
         // Each frame keeps what is known at it, because a step whose lemma
         // forbids an inner assumption is proved at an outer one.
         self.frames.push(Frame {
@@ -1210,9 +1224,6 @@ impl<'a> Elaborator<'a> {
         if layers.len() > 1 {
             member = t!(member, "wa");
         }
-        let (outer, held) = self.widen(scope, facts, &member, Some(number));
-        let (inner, lifted) = self.widen(&outer, &held, &body, Some(number));
-
         for (name, (variable, over_term)) in got.iter().zip(layers.iter()) {
             self.names.insert(name.clone(), format!("{variable} cv"));
             self.sets.insert(name.clone(), over_term.clone());
@@ -1220,6 +1231,12 @@ impl<'a> Elaborator<'a> {
         // Read after the obtained names are bound, so a sentence naming one of
         // them is about the variable the existential introduced.
         let sentences = self.said(step)?;
+        // The body is taken apart as deep as the sentences the claim wrote
+        // for it, as any line saying several things is; the claim's other
+        // sentences are the memberships.
+        let deep = sentences.len().saturating_sub(got.len() + 1);
+        let (outer, held) = self.widen(scope, facts, &member, Some(number));
+        let (inner, lifted) = self.widen_to(&outer, &held, &body, Some(number), deep);
         self.lines.set(
             number,
             Line {

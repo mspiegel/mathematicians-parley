@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty are written and elaborate from set.mm with nothing assumed. Ten
-more are chosen and not yet started: "The next ten", at the end. Each of
-the twenty has its proof in `proofs/` and its design record in
+All twenty-one are written and elaborate from set.mm with nothing assumed.
+Ten more are chosen and not yet started: "The next ten", at the end. Each of
+the twenty-one has its proof in `proofs/` and its design record in
 `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -35,6 +35,7 @@ the twenty has its proof in `proofs/` and its design record in
 | 8 | intermediate-value | 18 | de-moivre |
 | 9 | isosceles | 19 | mean-value |
 | 10 | geometric-series | 20 | rationals-countable |
+|  |  | 21 | angle-sum |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -363,6 +364,24 @@ arithmetic (#80), still stated through a function into prime-count
 sequences; and the sum of the angles of a triangle (#27), which set.mm's
 signed angles make π or −π rather than 180°.
 
+## Theorem 21: the angle sum
+
+Taken ahead of the ten below, which were chosen first and are numbered after
+it. Set aside twice before because set.mm's signed angles make the sum π or
+−π; the corpus's angle is unsigned, so the page states the reader's theorem,
+180°, and what it costs is the sides of a line, weighed in `GEOMETRY.md`.
+
+| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
+|---|---|---|---|---|---|---|---|---|---|
+| 21 | angles of a triangle add to 180° | adding angles; a parallel drawn and alternate angles read off; degrees | ang180 | 88 (+968 in ang180lem1–5) | no | A, B, C, F | none | 7 | Wiedijk #27; the school proof, not checked against a page |
+
+Written: `proofs/angle-sum.proof`, with its design record in
+`docs/pilot/angle-sum.md`, and it elaborates with nothing assumed. The proof
+is the school one, through a parallel to AC at B, and not set.mm's, which
+multiplies three quotients to −1. The library gained the three items it
+cites, `parallel-through`, `alternate-angles` and `angles-on-a-line`, each
+proved in `proved.mm`.
+
 ## The next ten
 
 The twenty are written and elaborate with nothing assumed. The next ten are
@@ -374,16 +393,16 @@ brackets is the theorem's own lemmas, which carry its argument.
 
 | # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
 |---|---|---|---|---|---|---|---|---|---|
-| 21 | Pythagorean theorem | a second geometry theorem; a right angle | pythag, citing lawcos | 46 (lawcos: 88) | no | A, B, C, F, O, X, Y, Z | none | 7 | Wiedijk #4; ProofWiki |
-| 22 | Euler's theorem, a^φ(n) ≡ 1 (mod n) | Euler's φ; a product over the residues, reordered by multiplying each by a | eulerth | 29 (+586 in eulerthlem1, 2) | no | A, N | none | 0 | Wiedijk #10; ProofWiki |
-| 23 | the harmonic series diverges | a limit that does not exist; a statement that is a negation | harmonic | 110 | no | F, H | none | 0 | Wiedijk #34; ProofWiki |
-| 24 | factor theorem | polynomials, which set.mm encodes through `Poly` | facth | 40 (+79 in facth1) | no | A, F, G, S | none | 0 | Wiedijk #89; ProofWiki |
-| 25 | Cauchy–Schwarz inequality, for finite sums | an inequality between sums; an auxiliary quadratic that is never negative | csbren | 137 | yes | A, B, C | none | 2 | Wiedijk #78; ProofWiki |
-| 26 | ℝ is uncountable | strict comparison of sizes; nested intervals, built by recursion | ruc | 12 (+865 in ruclem1–13) | no | none | none | 0 | Wiedijk #22; ProofWiki |
-| 27 | Pythagorean triples | every solution described: an equivalence with three ∃; parity and coprimality | pythagtrip | 66 (+1464 in pythagtriplem1–19) | no | A, B, C | none | 12 | Wiedijk #23; ProofWiki |
-| 28 | Königsberg bridges | a graph, and one particular graph given by its edges; impossibility by the parity of degrees | konigsberg | 39 (+731 in konigsberglem1–5) | no | E, G, V | none | 0 | Wiedijk #54; ProofWiki |
-| 29 | fundamental theorem of calculus | the integral | ftc2 | 172 | yes | A, B, F | none | 4 | Wiedijk #15; ProofWiki |
-| 30 | birthday problem | a long calculation with concrete numbers; a probability as a ratio of counts | birthday | 142 (+477 in birthdaylem1–3) | no | K, N, S, T | none | 2 | Wiedijk #93; ProofWiki |
+| 22 | Pythagorean theorem | a third geometry theorem; a right angle | pythag, citing lawcos | 46 (lawcos: 88) | no | A, B, C, F, O, X, Y, Z | none | 7 | Wiedijk #4; ProofWiki |
+| 23 | Euler's theorem, a^φ(n) ≡ 1 (mod n) | Euler's φ; a product over the residues, reordered by multiplying each by a | eulerth | 29 (+586 in eulerthlem1, 2) | no | A, N | none | 0 | Wiedijk #10; ProofWiki |
+| 24 | the harmonic series diverges | a limit that does not exist; a statement that is a negation | harmonic | 110 | no | F, H | none | 0 | Wiedijk #34; ProofWiki |
+| 25 | factor theorem | polynomials, which set.mm encodes through `Poly` | facth | 40 (+79 in facth1) | no | A, F, G, S | none | 0 | Wiedijk #89; ProofWiki |
+| 26 | Cauchy–Schwarz inequality, for finite sums | an inequality between sums; an auxiliary quadratic that is never negative | csbren | 137 | yes | A, B, C | none | 2 | Wiedijk #78; ProofWiki |
+| 27 | ℝ is uncountable | strict comparison of sizes; nested intervals, built by recursion | ruc | 12 (+865 in ruclem1–13) | no | none | none | 0 | Wiedijk #22; ProofWiki |
+| 28 | Pythagorean triples | every solution described: an equivalence with three ∃; parity and coprimality | pythagtrip | 66 (+1464 in pythagtriplem1–19) | no | A, B, C | none | 12 | Wiedijk #23; ProofWiki |
+| 29 | Königsberg bridges | a graph, and one particular graph given by its edges; impossibility by the parity of degrees | konigsberg | 39 (+731 in konigsberglem1–5) | no | E, G, V | none | 0 | Wiedijk #54; ProofWiki |
+| 30 | fundamental theorem of calculus | the integral | ftc2 | 172 | yes | A, B, F | none | 4 | Wiedijk #15; ProofWiki |
+| 31 | birthday problem | a long calculation with concrete numbers; a probability as a ratio of counts | birthday | 142 (+477 in birthdaylem1–3) | no | K, N, S, T | none | 2 | Wiedijk #93; ProofWiki |
 
 Two of the labels are not the ones the Metamath 100 page lists. For #4 it
 lists `cphpyth`, stated in pre-Hilbert spaces and set aside when the ten
@@ -392,62 +411,61 @@ were chosen; `pythag` is the same theorem in the complex plane, the encoding
 spaces; `csbren` is the form for finite sums of reals, which is the
 textbook's.
 
-21. **Pythagorean theorem.** The test of whether what the isosceles proof
-    built to hide set.mm's plane carries over to a second theorem. set.mm
+22. **Pythagorean theorem.** The test of whether what the isosceles proof
+    built to hide set.mm's plane carries over to a third theorem. set.mm
     proves it from the law of cosines, which has the same angle encoding
     and is twice the size.
-22. **Euler's theorem.** The first multiplicative argument modulo n:
+23. **Euler's theorem.** The first multiplicative argument modulo n:
     multiplying every residue coprime to n by a gives the same residues in
     another order, so the two products agree and a^φ(n) cancels against 1.
     It needs φ, and an inverse modulo n.
-23. **Harmonic series.** The first proof that a limit does not exist.
+24. **Harmonic series.** The first proof that a limit does not exist.
     set.mm states it as the partial sums not being in the domain of `~~>`;
     the readable statement says the sum grows without bound, and the proof
     groups the terms in blocks each worth at least 1/2. The series of 13 is
     the corpus's other infinite sum.
-24. **Factor theorem.** The first polynomial. set.mm's `Poly` is a set of
+25. **Factor theorem.** The first polynomial. set.mm's `Poly` is a set of
     functions picked out by coefficient sequences, and its division
     `quot` is defined through them; a reader sees p(x) = (x − a)q(x). It is
     the polynomial counterpart of the group and the plane: an encoding to
     hide whole.
-25. **Cauchy–Schwarz.** An inequality between finite sums, proved by the
+26. **Cauchy–Schwarz.** An inequality between finite sums, proved by the
     quadratic Σ(aₖt + bₖ)² in a variable t the proof introduces, never
     negative, so its discriminant is not positive. Deduction form.
-26. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ. The readable statement
+27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ. The readable statement
     is that no sequence of reals contains them all; the proof nests closed
     intervals, each avoiding the next term, and takes a point in all of
     them. It uses the recursion of 16 and the completeness of 8 together,
     and its diagonal idea is Cantor's of 6 for a sequence.
-27. **Pythagorean triples.** The first theorem that describes every
+28. **Pythagorean triples.** The first theorem that describes every
     solution: a² + b² = c² exactly when a, b, c are k(m² − n²), 2kmn and
     k(m² + n²). It rests on the corpus's gcd and divisibility, and on
     coprime numbers whose product is a square being squares themselves.
     The largest of the ten by its lemmas.
-28. **Königsberg bridges.** The first graph. set.mm's graph is a structure
+29. **Königsberg bridges.** The first graph. set.mm's graph is a structure
     read with `Vtx` and `iEdg`, hidden as groups are, and this one is a
     particular graph given by listing its seven edges. The argument is
     that a walk crossing every edge once leaves at most two vertices of odd
     degree, and Königsberg has four.
-29. **Fundamental theorem of calculus.** The first integral, in the form
+30. **Fundamental theorem of calculus.** The first integral, in the form
     ∫ₐᵇ f′ = f(b) − f(a). set.mm's integral is Lebesgue's, far from the
     Riemann sums a textbook uses, so the integral enters as a library item
     with a pointer, as completeness did.
-30. **Birthday problem.** set.mm states it as a ratio of counts of
+31. **Birthday problem.** set.mm states it as a ratio of counts of
     functions from 23 people to 365 days: the one-to-one functions against
     all of them. Below 1/2 is a calculation with a product of 23 factors
     against 365²³, the longest computation with concrete numbers the corpus
     will have, and the test of the `arithmetic` method at that size.
 
-Order: 21, 22 and 24 first, since each adds one object to machinery the
-corpus has (the plane, divisibility, functions); then 23 and 25, which
-extend sums and series; then 26 and 27, large but built on the corpus's
-own results; then 28, 29 and 30, which each bring a kind of object the
+Order: 22, 23 and 25 first, since each adds one object to machinery the
+corpus has (the plane, divisibility, functions); then 24 and 26, which
+extend sums and series; then 27 and 28, large but built on the corpus's
+own results; then 29, 30 and 31, which each bring a kind of object the
 corpus has not met. Before each pilot, its informal source is checked.
 
 Considered for these ten and not chosen: Wilson's theorem (#51), which
-needs the same residues modulo n as 22 and pairs each with its inverse
-instead; the sum of the angles of a triangle (#27), for the reason above;
-the inequality of arithmetic and geometric means (#38), still stated through
+needs the same residues modulo n as 23 and pairs each with its inverse
+instead; the inequality of arithmetic and geometric means (#38), still stated through
 `gsum` in the multiplicative monoid, 558 steps with its lemma; Sylow's theorem (#72), group actions
 on top of Lagrange, 975 with its lemmas; quadratic reciprocity (#7), the
 sums of two squares (#20) and of four (#19), the Basel problem (#14),

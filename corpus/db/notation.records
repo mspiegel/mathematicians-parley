@@ -448,6 +448,27 @@ notation imaginary-unit
               the one thing. Geometry keeps ℂ off the page (GEOMETRY.md), and
               no geometry proof writes i.
 
+notation pi
+  pattern     π
+  sort        → number
+  reads       pi
+  metamath    cpi
+  target      cpi
+  note        Half a turn, measured in radians. A geometry text writes 180°,
+              which is this; see the degrees notation.
+
+notation degrees
+  pattern     _°
+  sort        number → number
+  level       power
+  reads       degrees
+  metamath    multiplied by π and divided by 180
+  target      _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
+  note        An angle is a number of radians, from 0 to π, as
+              mun:stdlib/geometry/angle has it, and x° is that number written
+              in degrees, so 180° is π. The page writes degrees because a
+              school reader measures angles in them; nothing else changes.
+
 notation empty-set
   pattern     ∅
   sort        → set of α
@@ -1351,6 +1372,69 @@ notation forms-a-triangle
   metamath    the three vertices distinct and not on one line
   target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa
               _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wn wa
+
+notation plane
+  pattern     𝔼²
+  sort        → set of point
+  reads       the Euclidean plane
+  metamath    cc, the complex numbers read as the plane
+  target      cc
+  note        What a point is in, for a claim that names one: "there are
+              D, E ∈ 𝔼² with …". It is ℂ in the kernel and never ℂ on the
+              page, and the point sort is what keeps a proof from multiplying
+              two of its members. GEOMETRY.md takes that decision.
+
+notation parallel
+  pattern     line __ ∥ line __
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       is parallel to
+  metamath    the ratio of the two differences is real
+  target      _2 _1 cmin co _4 _3 cmin co cdiv co cr wcel
+  note        line PQ ∥ line RS says the line through P and Q runs the same way
+              as the one through R and S. Each pair of letters is juxtaposed
+              after the word line, as in "on the same side of line PQ": a
+              pattern opening on two juxtaposed holes has no token to start
+              from, and PQ ∥ RS does not parse. It asks nothing of R and S
+              being apart: a step needing that has it from a line that says
+              so. See mun:stdlib/geometry/parallel.
+
+notation between
+  pattern     _ is between _ and _
+  sort        point, point, point → formula
+  level       predicate
+  reads       is between, and
+  metamath    the second apart from the first, and the third minus the first
+              a negative multiple of the second minus the first
+  target      _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
+              _3 _1 cmin co _2 _1 cmin co cdiv co cc0 clt wbr w3a
+  note        Strictly between: R is between S and T says R lies on the
+              segment from S to T and is neither end. See
+              mun:stdlib/geometry/between.
+
+notation same-side
+  pattern     _ and _ are on the same side of line __
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       are on the same side of the line through
+  metamath    the imaginary parts of the two points' positions relative to
+              the line have a positive product
+  target      cc0 _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
+              _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co clt wbr
+  note        Neither point is on the line, and the line does not pass
+              between them. See mun:stdlib/geometry/same-side.
+
+notation opposite-sides
+  pattern     _ and _ are on opposite sides of line __
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       are on opposite sides of the line through
+  metamath    the imaginary parts of the two points' positions relative to
+              the line have a negative product
+  target      _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
+              _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co cc0 clt wbr
+  note        Neither point is on the line, and the line passes between them.
+              See mun:stdlib/geometry/same-side.
 
 notation bijection
   pattern     there is a bijection from _ to _

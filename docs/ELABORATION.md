@@ -402,7 +402,10 @@ rather than relied on.
 
 **`obtain`** is not a step. There is no kernel move that hands you a name.
 Everything below is proved out of the obtained facts conjoined onto the
-antecedent, and the existential is discharged at the end. So one readable step
+antecedent, and the existential is discharged at the end. The obtained claim
+is taken apart as deep as the sentences its line writes, as any line saying
+several things is, so each sentence is a fact a later step cites on its own:
+the angle sum's parallel says eight. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 
@@ -1483,8 +1486,10 @@ signed.
 
 `GEOMETRY.md` weighs the seven candidates and takes the complex plane with the
 angle read unsigned. The angle is a constant this corpus declares — `ang`, in
-`definitions.mm` — and the four items set.mm does not state are proved in
-`corpus/elaboration/stdlib/proved.mm`. `isosceles` elaborates and assumes nothing.
+`definitions.mm` — and the items set.mm does not state are proved in
+`corpus/elaboration/stdlib/proved.mm`: the four `isosceles` cites, and the three
+of the angle sum, in a block of their own. Both proofs elaborate and assume
+nothing.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
 `ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to

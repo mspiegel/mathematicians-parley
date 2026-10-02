@@ -1,0 +1,52 @@
+import axiom              stdlib/geometry/parallel-through
+import theorem            stdlib/geometry/alternate-angles
+import theorem            stdlib/geometry/angles-on-a-line
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/triangle-rotate
+import mundane theorem    stdlib/geometry/triangle-swap
+
+theorem angle-sum
+  metamath    ang180
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then ∠BAC + ∠ABC + ∠BCA = 180°
+
+1.  A, C, B form a triangle
+    mun:triangle-swap P := A, Q := B, R := C, from H4
+
+2.  B, C, A form a triangle
+    mun:triangle-rotate P := A, Q := B, R := C, from H4
+
+3.  D ∈ 𝔼². E ∈ 𝔼². line BD ∥ line AC. line BE ∥ line CA.
+    B is between D and E.
+    D and C are on opposite sides of line BA.
+    E and A are on opposite sides of line BC.
+    A and C are on the same side of line BD.
+    obtain D, E: axi:parallel-through P := A, Q := C, R := B, from 1
+
+4.  ∠DBA = ∠BAC
+    thm:alternate-angles P := A, Q := C, R := B, S := D, from 3
+    requires C ≠ A: mun:triangle, from 2
+    requires B ≠ A: mun:triangle, from 2
+
+5.  ∠EBC = ∠BCA
+    thm:alternate-angles P := C, Q := A, R := B, S := E, from 3
+    requires A ≠ C: mun:triangle, from H4
+    requires B ≠ C: mun:triangle, from H4
+
+6.  ∠DBA + ∠ABC + ∠EBC = 180°
+    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 3
+
+7.  ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA
+    substitute ∠DBA = ∠BAC (line 4)
+
+8.  ∠DBA + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠EBC
+    substitute ∠EBC = ∠BCA (line 5)
+
+9.  ∠BAC + ∠ABC + ∠BCA = 180°
+    calculation
+      ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA      7
+                         = ∠DBA + ∠ABC + ∠EBC      8
+                         = 180°                    6

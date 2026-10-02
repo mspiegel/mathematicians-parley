@@ -119,15 +119,15 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 127 |
-| `open` | it is cited but unproved and unbridged | 5 |
+| `metamath` | a set.mm label or labels supply it | 255 |
+| `open` | it is cited but unproved and unbridged | 8 |
 
 `mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 14 of the 23 name a set.mm
+`note` lines under its `theorem` line; 24 of the 32 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem

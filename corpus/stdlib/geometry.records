@@ -143,6 +143,87 @@ mundane theorem triangle-rotate
               Stating one theorem per ordering was the alternative and is five
               items for two uses.
 
+mundane definition parallel
+  open        As mun:stdlib/geometry/collinear is: in the plane PQ ∥ RS says
+              (Q − P)/(S − R) is real, and the readable layer cannot subtract
+              points. The notation carries a target, so a claim of
+              parallelism elaborates; what has no readable statement is the
+              equivalence.
+  note        Named for the angle sum, whose proof draws the parallel to one
+              side through the opposite vertex.
+
+mundane definition between
+  open        In the plane R is between S and T says S ≠ R and
+              (T − R)/(S − R) is a negative real: T lies beyond R from S, on
+              the same line. The readable layer cannot state it, as for
+              mun:stdlib/geometry/collinear.
+
+mundane definition same-side
+  open        Which side of the line through P and Q a point X is on is the
+              sign of the imaginary part of (X − P)/(Q − P): positive on one
+              side, negative on the other, zero on the line. Two points are on
+              the same side when the two signs multiply to a positive number,
+              and on opposite sides when to a negative one. The readable
+              layer cannot state it, as for mun:stdlib/geometry/collinear.
+  note        One record for both notations, same-side and opposite-sides,
+              since they are one sign read two ways.
+
+axiom parallel-through
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP,
+              R is between D and E, D and Q are on opposite sides of line RP,
+              E and P are on opposite sides of line RQ, and P and Q are on the
+              same side of line RD
+  metamath    gparthru, which this corpus proves in elaboration/stdlib/proved.mm:
+              set.mm has no parallels to state it with
+  target      gparthru
+  note        The line through R parallel to PQ, with a point on it each side
+              of R: D on P's side and E on Q's. What a figure shows of that
+              line is written out, since nothing else can supply it. An axiom
+              in Euclid, as his fifth postulate, and in Hilbert, as the
+              parallel axiom; over ℂ it is a theorem, with D = R + (P − Q) and
+              E = R + (Q − P).
+
+theorem alternate-angles
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume Q ≠ P                                                        (H5)
+  assume R ≠ P                                                        (H6)
+  assume line RS ∥ line PQ                                            (H7)
+  assume S and Q are on opposite sides of line RP                     (H8)
+  then        ∠SRP = ∠RPQ
+  metamath    galtang, which this corpus proves in elaboration/stdlib/proved.mm:
+              set.mm has no parallels to state it with
+  target      galtang
+  note        The line RP crosses the two parallels RS and PQ, and the angles
+              it makes with them on opposite sides are equal. Over ℂ, S − R
+              is a negative multiple of Q − P, because S and Q are on opposite
+              sides, and the two angles are one angle read from each end.
+
+theorem angles-on-a-line
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  let T be a point                                                    (H5)
+  assume R is between S and T                                         (H6)
+  assume P and Q are on the same side of line RS                      (H7)
+  assume S and Q are on opposite sides of line RP                     (H8)
+  then        ∠SRP + ∠PRQ + ∠TRQ = 180°
+  metamath    gline, which this corpus proves in elaboration/stdlib/proved.mm:
+              set.mm has no sides of a line to state it with
+  target      gline
+  note        The three angles at R between S, P, Q and T, in that order,
+              make up the straight line ST. H7 puts P and Q on one side of
+              the line and H8 puts P between S and Q as seen from R, which is
+              the order. Over ℂ the three angles turn the same way, and their
+              signed sum is half a turn.
+
 axiom side-angle-side
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

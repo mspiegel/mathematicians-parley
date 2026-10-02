@@ -1,8 +1,8 @@
 # Which geometry this project should stand on
 
-`proofs/isosceles.proof` is the corpus's one geometry proof. What it stands on
-is a question about foundations rather than about tools, and seven answers
-have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
+`proofs/isosceles.proof` and `proofs/angle-sum.proof` are the corpus's
+geometry proofs. What they stand on is a question about foundations rather
+than about tools, and seven answers have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
 SMSG, and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
 
 This document settles it against criteria taken from `GOALS.md` and
@@ -258,12 +258,64 @@ nothing wider, so a signed angle could not be recovered from its cosine. The
 choice that makes `mun:stdlib/geometry/angle-symmetric` true is the same one that makes
 side-angle-side provable.
 
+The angle sum's three items are proved the same way, in their own block of
+`proved.mm`:
+
+| lemma | carries |
+| --- | --- |
+| `gparthru` | `parallel-through`: D = B + (A − C) and E = B + (C − A), and each side condition |
+| `galtang` | `alternate-angles`: the angle at one end is the angle at the other, read back |
+| `gline` | `angles-on-a-line`: three angles along a line add to 180° |
+| `gargsum` | three numbers on one side of the real line, with a negative real product, have argument sizes adding to π |
+| `gargpos` | the same above the line, from `eflogeq` and the bounds on each argument |
+| `grecsgn` | 1/Z is on the other side of the real line from Z |
+| `gangrp` | lengthening one arm of an angle leaves it unchanged |
+
+## The angle sum, which adds angles
+
+The angle sum is the second geometry proof, and the first that adds angles,
+which the section below said should be weighed before it was written. It is
+the school proof: draw the line DE through B parallel to AC, read ∠DBA =
+∠BAC and ∠EBC = ∠BCA as alternate angles, and see ∠DBA + ∠ABC + ∠EBC make
+the straight line DE, 180°.
+
+**The unsigned angle stays.** Adding unsigned angles needs to know which
+way round they lie, and that is what it cost: the proof writes out what a
+figure shows, that D and C are on opposite sides of line BA, E and A on
+opposite sides of line BC, and A and C on the same side of line BD. Those
+come with the parallel (`axi:stdlib/geometry/parallel-through`) and are
+cited where the angles are added. A signed angle would not need them, and
+would lose `angle-symmetric` and side-angle-side, which `isosceles` stands
+on. The sides are three sentences in one step; the symmetry is everywhere.
+
+**What a side is, over ℂ.** Which side of the line through P and Q a point X
+is on is the sign of the imaginary part of (X − P)/(Q − P). Two points are on
+the same side when the two signs multiply to a positive number, and on
+opposite sides when to a negative one. Lines are parallel when the quotient
+of their directions is real, and R is between S and T when (T − R)/(S − R)
+is a negative real. All three are notations with targets and definitions
+the readable layer cannot state, as `collinear` is.
+
+**Why the sum is 180°.** The three angles at B are the arguments of three
+quotients whose product is (E − B)/(D − B), a negative real. Their
+arguments therefore add to π up to whole turns, and the side conditions put
+all three quotients on one side of the real line, so each argument is
+between 0 and π and the sum is π exactly. set.mm's `ang180` is the same
+fact for a triangle, signed, which is why it says π or −π.
+
+**Degrees on the page.** The page writes 180°, the reader's unit. ° is a
+notation, x° being x·π/180; the angle is still the number from 0 to π that
+`mun:stdlib/geometry/angle` defines, and `isosceles` is unchanged.
+
+The three items and the lemmas under them are listed above, under "What it
+took".
+
 ## What would change the answer
 
-**A second geometry proof that adds angles.** One proof needing
-`∠ABD + ∠DBC = ∠ABC` alongside symmetry would make the unsigned choice
-painful rather than free, and would be worth weighing before a second proof
-is written rather than after.
+**A proof that adds angles everywhere.** The angle sum adds once, and its
+side conditions are three sentences of one step. A proof that adds and
+reverses angles at every step would write sides at every step, and would be
+the case for weighing a signed angle again.
 
 **Wanting solid geometry.** ℂ cannot. That is the one requirement it cannot
 be stretched to meet, and it would force `EE^n` and the chapter of work that
