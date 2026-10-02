@@ -549,12 +549,30 @@ impl<'a> Elaborator<'a> {
                 .last()
                 .is_some_and(|b| b.owner.just.head.to_string() == "contradiction");
             (scope, facts, closers) = self.take_step(&step, &scope, &facts, closers)?;
+            // A step contradicting a line closes a contradiction block on the
+            // two of them, as its last pair.
+            if let (Some(other), true) =
+                (&step.just.contradicting, self.in_contradiction)
+            {
+                let said = self.lines.get(other).map(|l| l.term).unwrap_or_default();
+                self.contradicted = Some(said);
+            }
             if let (Some(part), Some(block)) = (step.part, blocks.last_mut()) {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
-                block
-                    .parts
-                    .insert(part, (held.term, held.proof, scope.clone()));
+                let (term, proof) = match &step.just.contradicting {
+                    // A case that cannot occur gives the block's claim from
+                    // its line and the line it contradicts.
+                    Some(other) => {
+                        let claim = self.claim_of(&block.owner.claim_text())?;
+                        let made = self.by_opposites(
+                            &step, &held, other, &claim, &scope, &facts,
+                        )?;
+                        (claim, made)
+                    }
+                    None => (held.term, held.proof),
+                };
+                block.parts.insert(part, (term, proof, scope.clone()));
             }
         }
         while let Some(mut done) = blocks.pop() {
@@ -606,6 +624,39 @@ impl<'a> Elaborator<'a> {
             ));
         }
         Ok((goal, terms, proof))
+    }
+
+    /// ( scope -> claim ) from a step's line and the line it contradicts, the
+    /// one a formula and the other, or a sentence of it, that formula negated
+    /// (`pm2.21dd`), found as a contradiction block finds its pair.
+    fn by_opposites(
+        &mut self,
+        step: &Step,
+        held: &Line,
+        other: &str,
+        claim: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let lines = self.lines.clone();
+        let Some(there) = lines.get(other) else {
+            return Err(self.defect(step.line, format!("{other} is no line in scope")));
+        };
+        let pair = Facts::new();
+        pair.set(held.term.clone(), held.proof.clone());
+        pair.set(there.term.clone(), self.carried(other, facts, &lines));
+        let offered = [held.term.clone(), there.term.clone()];
+        let Some((first, second, known)) = self.opposing(&offered, &pair, scope) else {
+            return Err(self.defect(
+                step.line,
+                format!("the step and {other} are not a formula and its negation"),
+            ));
+        };
+        Ok(self.b.ap(
+            "pm2.21dd",
+            &binds! {"ph" => scope, "ps" => &first, "ch" => claim},
+            &[&known.get(&first).unwrap(), &known.get(&second).unwrap()],
+        ))
     }
 
     /// One step, with the search offered only what the step names.

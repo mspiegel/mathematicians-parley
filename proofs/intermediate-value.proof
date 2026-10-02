@@ -15,7 +15,6 @@ import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/real-closure
 import mundane axiom      stdlib/numbers/trichotomy
 import mundane theorem    stdlib/reasoning/double-negation
-import mundane theorem    stdlib/reasoning/from-contradiction
 import mundane definition stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/subset-transitive
@@ -122,11 +121,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                     mun:function-value, from 17.1.3
 
            17.1.5.  not f(b) < 0
-                    inequalities, from H7
+                    inequalities, from H7, contradicting 17.1.2
                     requires f(b) ∈ ℝ: from 17.1.4
-
-           17.1.6.  f(b) < 0. not f(b) < 0.
-                    join 17.1.2, 17.1.5
 
     17.2.  c < b
            inequalities, from 12, 17.1
@@ -225,112 +221,97 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            instantiate s := x₁ in line 10, from 17.23
 
     17.25. not x₁ ≤ c
-           inequalities, from 17.10
+           inequalities, from 17.10, contradicting 17.24
            requires c ∈ ℝ: from 8
            requires x₁ ∈ ℝ: from 17.9
-
-    17.26. x₁ ≤ c. not x₁ ≤ c.
-           join 17.24, 17.25
-
-    17.27. f(c) = 0
-           mun:from-contradiction P := x₁ ≤ c, Q := f(c) = 0, from 17.26
 
     case
     assume f(c) = 0                                                   (C2)
 
-    17.28. f(c) = 0
+    17.26. f(c) = 0
            join C2
 
     case
     assume 0 < f(c)                                                   (C3)
 
-    17.29. There exists δ > 0 such that
+    17.27. There exists δ > 0 such that
            |f(x) − f(c)| < f(c) for all x ∈ [a, b] with |x − c| < δ.
            instantiate c′ := c, ε := f(c) in line 16, from 13, 14, C3
 
-    17.30. δ ∈ ℝ. δ > 0.
+    17.28. δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
-           obtain δ from line 17.29
+           obtain δ from line 17.27
 
-    17.31. For all s ∈ S, s ≤ c − δ.
+    17.29. For all s ∈ S, s ≤ c − δ.
            fix
            let s ∈ S                                                  (K2)
 
-           17.31.1.  s ∈ [a, b]
+           17.29.1.  s ∈ [a, b]
                      mun:set-builder, from K2
 
-           17.31.2.  f(s) < 0
+           17.29.2.  f(s) < 0
                      mun:set-builder, from K2
 
-           17.31.3.  s ∈ ℝ
-                     mun:interval, from H1, H2, 17.31.1
+           17.29.3.  s ∈ ℝ
+                     mun:interval, from H1, H2, 17.29.1
 
-           17.31.4.  s ≤ c
+           17.29.4.  s ≤ c
                      instantiate s := s in line 10, from K2
 
-           17.31.5.  s ≤ c − δ
+           17.29.5.  s ≤ c − δ
                      contradiction
                      suppose not s ≤ c − δ                            (S2)
 
-                     17.31.5.1.  c − δ < s
+                     17.29.5.1.  c − δ < s
                                  inequalities, from S2
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 17.31.3
-                                 requires δ ∈ ℝ: from 17.30
+                                 requires s ∈ ℝ: from 17.29.3
+                                 requires δ ∈ ℝ: from 17.28
 
-                     17.31.5.2.  s < c + δ
-                                 inequalities, from 17.31.4, 17.30
+                     17.29.5.2.  s < c + δ
+                                 inequalities, from 17.29.4, 17.28
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 17.31.3
-                                 requires δ ∈ ℝ: from 17.30
+                                 requires s ∈ ℝ: from 17.29.3
+                                 requires δ ∈ ℝ: from 17.28
 
-                     17.31.5.3.  |s − c| < δ
+                     17.29.5.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s, c := c, δ := δ,
-                                   from 17.31.3, 8, 17.30, 17.31.5.1, 17.31.5.2
+                                   from 17.29.3, 8, 17.28, 17.29.5.1, 17.29.5.2
 
-                     17.31.5.4.  |f(s) − f(c)| < f(c)
-                                 instantiate x := s in line 17.30, from 17.31.1, 17.31.5.3
+                     17.29.5.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 17.28, from 17.29.1, 17.29.5.3
 
-                     17.31.5.5.  f(s) ∈ ℝ
-                                 mun:function-value, from 17.31.1
+                     17.29.5.5.  f(s) ∈ ℝ
+                                 mun:function-value, from 17.29.1
 
-                     17.31.5.6.  f(s) − f(c) ∈ ℝ
-                                 mun:real-closure, from 17.31.5.5, 14
+                     17.29.5.6.  f(s) − f(c) ∈ ℝ
+                                 mun:real-closure, from 17.29.5.5, 14
 
-                     17.31.5.7.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
-                                 thm:abs-bounds x := f(s) − f(c), from 17.31.5.6
+                     17.29.5.7.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                                 thm:abs-bounds x := f(s) − f(c), from 17.29.5.6
 
-                     17.31.5.8.  0 < f(s)
-                                 inequalities, from 17.31.5.7, 17.31.5.4
-                                 requires f(s) ∈ ℝ: from 17.31.5.5
+                     17.29.5.8.  0 < f(s)
+                                 inequalities, from 17.29.5.7, 17.29.5.4
+                                 requires f(s) ∈ ℝ: from 17.29.5.5
                                  requires f(c) ∈ ℝ: from 14
                                  requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c),
-                                   from 17.31.5.6
+                                   from 17.29.5.6
 
-                     17.31.5.9.  not f(s) < 0
-                                 inequalities, from 17.31.5.8
-                                 requires f(s) ∈ ℝ: from 17.31.5.5
+                     17.29.5.9.  not f(s) < 0
+                                 inequalities, from 17.29.5.8, contradicting 17.29.2
+                                 requires f(s) ∈ ℝ: from 17.29.5.5
 
-                     17.31.5.10. f(s) < 0. not f(s) < 0.
-                                 join 17.31.2, 17.31.5.9
+    17.30. c − δ is an upper bound of S
+           mun:upper-bound, from 17.29
 
-    17.32. c − δ is an upper bound of S
-           mun:upper-bound, from 17.31
+    17.31. c ≤ c − δ
+           instantiate u := c − δ in line 9, from 17.30
+           requires c − δ ∈ ℝ: mun:real-closure, from 8, 17.28
 
-    17.33. c ≤ c − δ
-           instantiate u := c − δ in line 9, from 17.32
-           requires c − δ ∈ ℝ: mun:real-closure, from 8, 17.30
-
-    17.34. not c ≤ c − δ
-           inequalities, from 17.30
+    17.32. not c ≤ c − δ
+           inequalities, from 17.28, contradicting 17.31
            requires c ∈ ℝ: from 8
-           requires δ ∈ ℝ: from 17.30
-
-    17.35. c ≤ c − δ. not c ≤ c − δ.
-           join 17.33, 17.34
-
-    17.36. f(c) = 0
-           mun:from-contradiction P := c ≤ c − δ, Q := f(c) = 0, from 17.35
+           requires δ ∈ ℝ: from 17.28
 
 18. There exists c ∈ [a, b] such that f(c) = 0.
     exhibit, from 13, 17

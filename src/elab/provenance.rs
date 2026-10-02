@@ -255,6 +255,9 @@ impl<'a> Elaborator<'a> {
     /// `join` inside it names.
     pub fn named(&self, step: &Step, number: &str, block: bool) -> BTreeSet<String> {
         let mut out: BTreeSet<String> = step.just.refs.iter().cloned().collect();
+        // The line a step contradicts is one it rests on, where it ends a
+        // case that cannot occur.
+        out.extend(step.just.contradicting.iter().cloned());
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
         if block {
@@ -275,12 +278,15 @@ impl<'a> Elaborator<'a> {
             let depth = number.matches('.').count() + 1;
             for inner in &self.thm.steps {
                 let name = number_of(inner);
-                if name.starts_with(&prefix)
-                    && name.matches('.').count() == depth
-                    && inner.just.head.to_string() == "join"
-                {
+                if !name.starts_with(&prefix) || name.matches('.').count() != depth {
+                    continue;
+                }
+                if inner.just.head.to_string() == "join" {
                     out.extend(inner.just.refs.iter().cloned());
                 }
+                // A block closed on a contradiction rests on the line its
+                // last step contradicts.
+                out.extend(inner.just.contradicting.iter().cloned());
             }
         }
         out

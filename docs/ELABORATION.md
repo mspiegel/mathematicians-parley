@@ -437,12 +437,15 @@ The lemma is chosen by the pair of relations either side of each join rather
 than fixed for the chain, since a chain may fold equalities into a `≤`. In
 deduction form each is the `d`-suffixed variant.
 
-**`join`** is absorbed by the block that contains it. Inside a
-`contradiction` it emits nothing — `pm2.65d` closes the block and consumes
-both joined lines. Inside a `case` it is `jca`, and it pairs its cited lines
-by what they claim rather than by the order the line lists them, because the
-readable order is the order they were derived and the conclusion's order is the
-theorem's. A join of one line is that line: a case whose assumption is already
+**`join`** is `jca`, and it pairs its cited lines by what they claim rather
+than by the order the line lists them, because the readable order is the order
+they were derived and the conclusion's order is the theorem's.
+
+**A step `contradicting` a line** is what closes a `contradiction`:
+`pm2.21dd` takes the step's line and the line it names to the block's claim,
+and `pm2.65d` drops the supposition. Ending a case, it takes the two to the
+formula every case claims, so a case that cannot occur needs no step of its
+own to reach that formula. A join of one line is that line: a case whose assumption is already
 the block's claim ends on `join C2`, and the line must be what the step claims.
 
 **`exhibit`, and a definition used to conclude an existence claim,** are
@@ -1451,7 +1454,7 @@ by a proof or tested, at a formula of that proof's own, so what it says is
 used and verified there; only the restatement is missing.
 
 - A statement: `stdlib/reasoning/excluded-middle` (P or not P),
-  `stdlib/reasoning/from-contradiction`, `stdlib/reasoning/double-negation`,
+  `stdlib/reasoning/double-negation`,
   `stdlib/reasoning/disjunctive-syllogism`, `stdlib/reasoning/or-left` and
   `stdlib/reasoning/or-right`. A proof introduces things and never a
   statement, and has no `let` for one.
@@ -1542,11 +1545,9 @@ would leave the gate green on the day a proof was added and not read.
 7. **One statement form for every theorem.** Hypotheses conjoined into an
    antecedent, never made essential hypotheses.
 
-8. **Some methods are absorbed by their block.** `join` inside a
-   `contradiction` emits nothing; inside a `case` it emits `jca` and pairs its
-   cited lines by what they claim rather than by the order the line lists them,
-   since the readable order is the order they were derived and the conclusion's
-   order is the theorem's. So the expansion of a block is not the concatenation
+8. **Some steps are read by their block.** A step `contradicting` a line
+   closes a `contradiction` on the two, and ends a case with the formula the
+   other cases claim. So the expansion of a block is not the concatenation
    of the expansions of its steps, and a method's specification has to say what
    it does in each block that can contain it.
 

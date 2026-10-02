@@ -173,7 +173,9 @@ pub struct Elaborator<'a> {
     pub commutes: Vec<Commuting>,
     /// Corpus theorems this proof leans on.
     pub cited: Vec<String>,
-    pub joined: Option<Vec<String>>,
+    /// What the last step of the contradiction block being elaborated
+    /// contradicts, which the block closes on with that step's own line.
+    pub contradicted: Option<String>,
     /// Whether the step being elaborated sits directly inside a
     /// contradiction.
     pub in_contradiction: bool,
@@ -312,7 +314,7 @@ impl<'a> Elaborator<'a> {
             spare,
             commutes: targets::commuting(records),
             cited: Vec::new(),
-            joined: None,
+            contradicted: None,
             in_contradiction: false,
             shapes: IndexMap::new(),
             at: thm.line,

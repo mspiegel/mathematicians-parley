@@ -56,11 +56,8 @@ theorem prime-above
           mun:divides-one d := p, from 4, 6.5
 
     6.7.  not p = 1
-          inequalities, from 5
+          inequalities, from 5, contradicting 6.6
           requires p ∈ ℝ: from 4
-
-    6.8.  p = 1. not p = 1.
-          join 6.6, 6.7
 
 7.  There exists p ∈ ℕ such that p is prime and p > n.
     exhibit, from 4, 6

@@ -277,11 +277,12 @@ pub fn check_contradiction(
         let rest = &opener.text[opener.kind.as_str().len()..];
         let supposed = known.read(str::trim(&unlabel(rest)));
         let claimed = known.read(&step.claim_text());
-        let (Some(supposed), Some(claimed)) = (supposed, claimed) else {
-            continue; // already reported as unreadable
-        };
-        if !(negates(Some(&supposed), Some(&claimed), &wrappers)
-            || negates(Some(&claimed), Some(&supposed), &wrappers))
+        // What could not be read is reported where it is read; the block's
+        // last step is checked all the same.
+        let readable = supposed.is_some() && claimed.is_some();
+        if readable
+            && !(negates(supposed.as_ref(), claimed.as_ref(), &wrappers)
+                || negates(claimed.as_ref(), supposed.as_ref(), &wrappers))
         {
             report.say(
                 &thm.path,
@@ -303,22 +304,88 @@ pub fn check_contradiction(
         let Some(last_step) = inside.last() else {
             continue;
         };
-        let last = sentences(&last_step.claim_text());
-        let pair: Vec<Option<Node>> = if last.len() == 2 {
-            last.iter().map(|s| known.read(s)).collect()
-        } else {
-            Vec::new()
-        };
-        let closes = pair.len() == 2
-            && (negates(pair[0].as_ref(), pair[1].as_ref(), &wrappers)
-                || negates(pair[1].as_ref(), pair[0].as_ref(), &wrappers));
-        if !closes {
+        if last_step.just.contradicting.is_none() {
             report.say(
                 &thm.path,
                 last_step.line,
                 format!(
-                    "step {} ends a contradiction block and does not state a formula and that formula negated",
+                    "step {} ends a contradiction block and does not say which line it contradicts: write `contradicting` and the line after its reasons",
                     last_step.number
+                ),
+            );
+        }
+    }
+}
+
+/// A step written `contradicting N`: its claim and line N are a formula and
+/// that formula negated, and the step is the last of a contradiction block,
+/// which it closes, or of a case, which it shows cannot occur.
+pub fn check_contradicting(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) {
+    let wrappers = wrappers(env);
+    for (at, step) in thm.steps.iter().enumerate() {
+        let Some(other) = &step.just.contradicting else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let Some(said) = scope.get(other) else {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} contradicts {other}, which is no line in scope",
+                    step.number
+                ),
+            );
+            continue;
+        };
+        // The claim is the opposite of the line, or of one sentence of it:
+        // a line may say several things and be contradicted in one.
+        let claimed = known.read(&step.claim_text());
+        let there: Vec<Option<Node>> =
+            sentences(said).iter().map(|s| known.read(s)).collect();
+        let opposed = there.iter().any(|t| {
+            negates(claimed.as_ref(), t.as_ref(), &wrappers)
+                || negates(t.as_ref(), claimed.as_ref(), &wrappers)
+        });
+        if claimed.is_some() && there.iter().all(Option::is_some) && !opposed {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} says it contradicts {other}, and neither is the other negated",
+                    step.number
+                ),
+            );
+        }
+        // The step's block is the one its number sits directly under.
+        let depth = step.number.len();
+        let owner = thm.steps[..at].iter().rev().find(|s| {
+            s.number.len() + 1 == depth
+                && step.number.prefix(s.number.len()) == s.number
+        });
+        let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
+        let ends = match owner.map(|o| &o.just.head) {
+            Some(h) if h.is(Method::Contradiction) => {
+                later.is_none_or(|s| s.number.len() < depth)
+            }
+            Some(h) if h.is(Method::Cases) => match later {
+                None => true,
+                Some(s) => s.number.len() < depth || s.part != step.part,
+            },
+            _ => false,
+        };
+        if !ends {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} contradicts a line, which only the last step of a contradiction block or of a case may do",
+                    step.number
                 ),
             );
         }

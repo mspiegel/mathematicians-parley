@@ -194,9 +194,17 @@ that the part handles:
 
 The disjunction being split is a cited line, here line 2, and the reader
 checks that the case assumptions are its disjuncts in order. A case that
-is impossible still ends by claiming the common formula: it reaches some
-P and not P, and then claims the formula by the theorem "if P and not P
-then Q", mun:stdlib/reasoning/from-contradiction. Two alternatives were rejected for the
+cannot occur ends on the step that reaches the opposite of an earlier line,
+and says so after its reasons, as a textbook says "contradicting 6.2":
+
+```
+    6.4.  not b(N) + N ≤ N
+          inequalities, from 6.3, contradicting 6.2
+```
+
+The step's claim is the line negated, or the line, or one sentence of it,
+is the claim negated, and the step is the last of its case; the case then
+gives the common formula, as every case does. Two alternatives were rejected for the
 impossible-case problem: refuting each case in its own contradiction
 block outside any cases block, which loses the case-split narrative, and
 letting a cases step have no claim when each case ends in its own
@@ -329,7 +337,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the rules for inequalities, starting from L |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
-| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step states some P and also not P. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
+| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.6`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
 | `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for all k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |

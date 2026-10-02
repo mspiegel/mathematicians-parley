@@ -402,7 +402,7 @@ mundane definition difference
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
 | `theorem` | 19 |
-| `mundane theorem` | 179 |
+| `mundane theorem` | 178 |
 | `definition` | 6 |
 | `mundane definition` | 43 |
 
@@ -549,7 +549,7 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 364 of the 394 numbered steps that cite a library item cite
+Counted this way, 359 of the 389 numbered steps that cite a library item cite
 a mundane one. `def:` is rare: six steps in twenty proofs cite a named
 definition.
 

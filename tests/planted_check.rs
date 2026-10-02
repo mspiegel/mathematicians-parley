@@ -985,11 +985,25 @@ fn cases() -> Vec<Case> {
             "neither expansion of `contradiction` applies",
         ),
         case(
-            "end a contradiction block without a contradiction",
+            "end a contradiction block without saying what it contradicts",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("    6.8.  p = 1. not p = 1.".to_string()), "    6.8.  p = 1. p = 1.".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 5, contradicting 6.6".to_string()), "inequalities, from 5".to_string()),
             ],
-            "does not state a formula and that formula negated",
+            "does not say which line it contradicts",
+        ),
+        case(
+            "contradict a line that is not the claim's opposite",
+            vec![
+                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 5, contradicting 6.6".to_string()), "inequalities, from 5, contradicting 6.5".to_string()),
+            ],
+            "says it contradicts 6.5, and neither is the other negated",
+        ),
+        case(
+            "contradict a line before the end of the block",
+            vec![
+                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 4, 6.5".to_string()), "mun:divides-one d := p, from 4, 6.5, contradicting 6.5".to_string()),
+            ],
+            "only the last step of a contradiction block or of a case may do",
         ),
         case(
             "write a word predicate under a bare not",
@@ -1336,7 +1350,7 @@ fn cases() -> Vec<Case> {
         case(
             "keep a point out of a disjoint set without saying it is in the other",
             vec![
-                edit("proofs/schroeder-bernstein.proof", Some("                  mun:disjoint-member, from 7.2.2, K7\n".to_string()), "                  mun:disjoint-member, from 7.2.2\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("                  mun:disjoint-member, from 7.2.2, K7, contradicting 7.2.1\n".to_string()), "                  mun:disjoint-member, from 7.2.2, contradicting 7.2.1\n".to_string()),
             ],
             "step 7.2.3 cites mun:disjoint-member, which asks for",
         ),

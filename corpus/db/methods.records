@@ -212,11 +212,11 @@ method cases
   part-opens  assume, labelled
   checks      L claims "P or Q". Each part opens with assume of its disjunct,
               labelled, in the order of L, and its last step claims the same
-              formula as the step above the block.
-  metamath    jaodan, jaoi
-  note        A case that is impossible still ends by claiming the common
-              formula: it reaches some P and not P, then claims the formula by
-              mun:stdlib/reasoning/from-contradiction.
+              formula as the step above the block, or contradicts a line.
+  metamath    jaodan, jaoi, pm2.21dd
+  note        A case that cannot occur ends on the step reaching the opposite
+              of an earlier line, written `contradicting` and the line; from
+              the two, pm2.21dd gives the formula the other cases claim.
 
 method calculation
   form        calculation, then a chain

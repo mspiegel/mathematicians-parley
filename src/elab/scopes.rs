@@ -359,7 +359,7 @@ impl<'a> Elaborator<'a> {
                 block.supposed = Some(supposed);
                 block.scope = inner;
                 block.facts = lifted;
-                self.joined = None;
+                self.contradicted = None;
             }
             "fix" => {
                 for o in &step.openers {
@@ -570,21 +570,25 @@ impl<'a> Elaborator<'a> {
         block.proof = Some(proof.clone());
         let outer = block.outside.copy();
         outer.set(claim.clone(), proof.clone());
+        // A block's claim is a line like any other, which a later step may
+        // rewrite: Cantor's x ∉ B, shown by cases, becomes x ∉ f(x).
+        let said = self.said(&step)?;
         self.lines.set(
             number.clone(),
             Line {
                 term: claim,
                 proof,
-                sentences: Vec::new(),
+                sentences: said,
             },
         );
         self.last = Some(number);
         Ok((block.outer.clone(), outer, closers))
     }
 
-    /// A contradiction closes on the pair its `join` named: `pm2.21dd` takes
-    /// the pair to the block's claim first, the obtains raised inside the
-    /// block discharge that, and the supposition is dropped last.
+    /// A contradiction closes on its last step and the line that step
+    /// contradicts: `pm2.21dd` takes the pair to the block's claim first, the
+    /// obtains raised inside the block discharge that, and the supposition is
+    /// dropped last.
     fn close_contradiction(
         &mut self,
         block: &Block,
@@ -595,18 +599,21 @@ impl<'a> Elaborator<'a> {
         let step = &block.owner;
         let scope = &block.outer;
         let supposed = block.supposed.clone().unwrap_or_default();
-        let Some(joined) = self.joined.clone().filter(|j| !j.is_empty()) else {
-            return Err(self.defect(step.line, "the block closes on no join"));
+        let Some(other) = self.contradicted.clone() else {
+            return Err(
+                self.defect(step.line, "the block's last step contradicts no line")
+            );
         };
         let held = self.last.as_ref().and_then(|l| self.lines.get(l));
-        let mut offered = joined;
+        let mut offered = vec![other];
         if let Some(h) = &held {
             offered.push(h.term.clone());
         }
         let Some((first, second, known)) = self.opposing(&offered, facts, deep) else {
-            return Err(
-                self.defect(step.line, "the joined lines are not a contradiction")
-            );
+            return Err(self.defect(
+                step.line,
+                "the last step and the line it contradicts are not a contradiction",
+            ));
         };
         let claim = self.claim_of(&step.claim_text())?;
         let mut proof = pf!(self.b; deep, first, claim, known.get(&first).unwrap(), known.get(&second).unwrap(), "pm2.21dd");
@@ -1747,10 +1754,7 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// Two lines paired, which is one thing inside a contradiction and
-    /// another outside it: inside, it emits nothing, since `pm2.21dd` closes
-    /// the block on the pair; elsewhere it is `jca`, the lines paired by what
-    /// they claim.
+    /// Two lines paired, `jca`, the lines paired by what they claim.
     pub fn join(
         &mut self,
         step: &Step,
@@ -1758,16 +1762,6 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         let lines = self.lines.clone();
-        self.joined = Some(
-            step.just
-                .refs
-                .iter()
-                .map(|r| lines.get(r).map(|l| l.term).expect("a line joined"))
-                .collect(),
-        );
-        if self.in_contradiction {
-            return Ok(None);
-        }
         let wanted = self.claim_of(&step.claim_text())?;
         let held = Facts::new();
         for r in &step.just.refs {

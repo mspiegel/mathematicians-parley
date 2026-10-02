@@ -568,9 +568,9 @@ something and should say so. Disjunctive syllogism goes with it, and the √2
 pilot had already asked for it to be tested on a real reader rather than
 assumed.
 
-That criterion also accounts for the two logical items the database already
-had, `mun:stdlib/reasoning/excluded-middle` and `mun:stdlib/reasoning/from-contradiction`, which is the sign that
-it was the rule operating implicitly all along. The three moves that left
+That criterion also accounts for the logical item the database already had,
+`mun:stdlib/reasoning/excluded-middle`, which is the sign that it was the rule
+operating implicitly all along. The three moves that left
 `join` are now `mun:stdlib/reasoning/double-negation`, cited twice, and
 `mun:stdlib/reasoning/disjunctive-syllogism`, cited once.
 
@@ -585,7 +585,8 @@ step inside it.
 ### Facts in
 
 The block's supposition, which asserts nothing outside the block, and the
-block's last step, whose claim is two sentences, one the negation of the other.
+block's last step, which reaches the opposite of an earlier line and names it,
+`contradicting 3.6`.
 
 ### Fact out
 
@@ -605,8 +606,9 @@ reading is never in doubt. A folded negation counts as a negation: the
 `negates` line of a notation record makes "n is not odd" the same tree as
 "not (n is odd)", so a block may claim either spelling and suppose the other.
 
-Then check that the last step closes: two sentences, one the negation of the
-other by the same comparison.
+Then check that the last step closes: its claim and the line it names, or one
+sentence of that line, are a formula and that formula negated, by the same
+comparison.
 
 ### Refusals
 
@@ -615,9 +617,10 @@ negates. The two shapes above are the whole of what the method accepts, and a
 step whose supposition is merely the opposite in spirit fails to elaborate
 rather than being waved through.
 
-A last step that is not a formula and its negation. Two sentences that
-contradict each other in meaning but not in form are not a closing pair, and
-the step that reconciles them belongs inside the block.
+A last step that names no line, or one whose claim is not that line negated
+nor negated by it. Two lines that contradict each other in meaning but not in
+form are not a closing pair, and the step that reconciles them belongs inside
+the block.
 
 Rewriting the supposition. Where a proof needs the supposition in another form,
 as `p ≤ n` for "not p > n", that is a step inside the block citing whatever
@@ -630,8 +633,8 @@ None. The method is propositional and asks nothing of the terms.
 ### Expansion
 
 Both shapes target set.mm's `pm2.65`, which is negation introduction: from
-`φ → ψ` and `φ → ¬ψ` conclude `¬φ`. The block's supposition is the antecedent
-and its last two sentences are the two consequents.
+`φ → ψ` and `φ → ¬ψ` conclude `¬φ`. The block's supposition is the antecedent,
+and its last step and the line that step contradicts are the two consequents.
 
 That is the whole expansion when the claim is a negation. When the claim is
 positive the expansion needs `notnotr` on top of it, and that is the classical

@@ -260,6 +260,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         structure::check_defined_below(&mut report, thm, &scopes);
         formulas::check_clashes(&mut report, thm, clashes);
         formulas::check_contradiction(&mut report, thm, env, k);
+        formulas::check_contradicting(&mut report, thm, env, k);
         formulas::check_closed_arithmetic(&mut report, thm, env, k);
         formulas::check_membership_claims(&mut report, thm, env, k);
         citations::check_hypotheses(&mut report, thm, &library, k);

@@ -63,12 +63,9 @@ theorem least-combination-divides
           substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.4
 
     3.6.  not d ≤ r
-          inequalities, from 1
+          inequalities, from 1, contradicting 3.5
           requires r ∈ ℝ: from 1
           requires d ∈ ℝ: from H4
-
-    3.7.  d ≤ r. not d ≤ r.
-          join 3.5, 3.6
 
 4.  c = q·d + 0
     substitute r = 0 (line 3) into line 1

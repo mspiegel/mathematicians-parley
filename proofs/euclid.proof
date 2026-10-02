@@ -10,7 +10,6 @@ import mundane theorem    stdlib/numbers/nat0-nonzero
 import mundane theorem    stdlib/numbers/nat0-real
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane theorem    stdlib/reasoning/from-contradiction
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -236,14 +235,8 @@ theorem euclid
           mun:nat0-nonzero, from 4, C4
 
     6.4.  not b(N) + N ≤ N
-          inequalities, from 6.3
+          inequalities, from 6.3, contradicting 6.2
           requires N ∈ ℝ: mun:nat0-real, from H2
-
-    6.5.  b(N) + N ≤ N. not b(N) + N ≤ N.
-          join 6.2, 6.4
-
-    6.6.  b(N) = 0
-          mun:from-contradiction P := b(N) + N ≤ N, Q := b(N) = 0, from 6.5
 
 7.  gcd(a(N), 0) = a(N)
     mun:gcd-zero, from 4

@@ -438,6 +438,9 @@ pub struct Justification {
     pub names: Arc<Names>,
     /// The define's label, where the head is a define.
     pub defined: Option<String>,
+    /// The line this step's claim is the opposite of, `contradicting 3.6`,
+    /// which closes a contradiction block or ends a case that cannot occur.
+    pub contradicting: Option<String>,
 }
 
 impl Justification {
@@ -726,7 +729,14 @@ fn parse_justification(
     defines: &[String],
     names: &Arc<Names>,
 ) -> Checked<Justification> {
-    let text = &line.text;
+    // A step reaching the opposite of an earlier line says so after its
+    // reasons, `inequalities, from 3.1, contradicting 3.6`; the rest of the
+    // line is read as any other.
+    let (said, contradicting) = match CONTRADICTING.captures(&line.text) {
+        Some(m) => (str::trim(&m[1]).to_string(), Some(m[2].to_string())),
+        None => (line.text.clone(), None),
+    };
+    let text = &said;
     let has_head = starts_with_head(text);
     let label = if has_head {
         None
@@ -747,6 +757,7 @@ fn parse_justification(
             bad_ref,
             names: names.clone(),
             defined: Some(label),
+            contradicting,
         });
     }
     if !has_head {
@@ -833,9 +844,14 @@ fn parse_justification(
         bad_ref,
         names: names.clone(),
         defined: None,
+        contradicting,
     })
 }
 
+regex!(
+    CONTRADICTING,
+    format!(r"^(.*?),\s*contradicting\s+({})\s*$", super::REF)
+);
 regex!(STEP_RE, format!(r"^({})\.\s+(.*)$", super::NUMBER));
 // The item an obtain takes its object from.
 regex!(
@@ -1099,6 +1115,7 @@ fn placeholder_justification() -> Justification {
         bad_ref: None,
         names: Arc::default(),
         defined: None,
+        contradicting: None,
     }
 }
 

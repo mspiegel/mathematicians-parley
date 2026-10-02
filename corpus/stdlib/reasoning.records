@@ -27,15 +27,6 @@ mundane axiom excluded-middle
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
 
-mundane theorem from-contradiction
-  assume P                                                            (H1)
-  assume not P                                                        (H2)
-  then        Q
-  metamath    pm2.21
-  target      pm2.21
-  note        Closes an impossible case of a `cases` block so that every case
-              ends in the block's common claim.
-
 mundane theorem double-negation
   assume not not P                                                    (H1)
   then        P

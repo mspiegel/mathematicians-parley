@@ -82,11 +82,8 @@ theorem euclid-perfect
           mun:prime p := 2^p − 1, from 2, H2
 
     8.9.  not 2^p − 1 = 1
-          inequalities, from 8.8
+          inequalities, from 8.8, contradicting 8.7
           requires 2^p ∈ ℝ: from 1
-
-    8.10. 2^p − 1 = 1. not 2^p − 1 = 1.
-          join 8.7, 8.9
 
 9.  gcd(2^p − 1, 2^(p − 1)) = 1
     mun:prime-coprime p := 2^p − 1, a := 2^(p − 1), from 2, H2, 4, 8
