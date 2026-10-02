@@ -66,6 +66,11 @@ mundane theorem subset-transitive
   metamath    sstr
   target      sstr
 
+mundane theorem subset-self
+  then        X ⊆ X
+  metamath    ssid
+  target      ssid
+
 mundane definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A

@@ -1,0 +1,43 @@
+import theorem            stdlib/calculus/derivative-linear
+import theorem            stdlib/calculus/derivative-sum
+import mundane theorem    stdlib/calculus/reals-open
+import mundane theorem    stdlib/sets/subset-self
+
+theorem derivative-on-the-line
+  let f : ℝ → ℝ                                                       (H1)
+  assume f is differentiable on ℝ                                     (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, g(x) = 3·x                                    (H4)
+  let F : ℝ → ℝ                                                       (H5)
+  assume for all x ∈ ℝ, F(x) = f(x) + g(x)                            (H6)
+  then for all x ∈ ℝ, F′(x) = f′(x) + 3
+
+1.  ℝ ⊆ ℝ
+    mun:subset-self X := ℝ
+
+2.  ℝ is open
+    mun:reals-open
+
+3.  g is differentiable on ℝ
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
+    requires 3 ∈ ℝ: arithmetic
+
+4.  For all x ∈ ℝ, g′(x) = 3.
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
+    requires 3 ∈ ℝ: arithmetic
+
+5.  For all x ∈ ℝ, F′(x) = f′(x) + g′(x).
+    thm:derivative-sum D := ℝ, U := ℝ, F := F, f := f, g := g, from 1, H6, H2, 3
+
+6.  For all x ∈ ℝ, F′(x) = f′(x) + 3.
+    fix
+    let x ∈ ℝ                                                         (K1)
+
+    6.1.  F′(x) = f′(x) + g′(x)
+          instantiate x := x in line 5, from K1
+
+    6.2.  g′(x) = 3
+          instantiate x := x in line 4, from K1
+
+    6.3.  F′(x) = f′(x) + 3
+          substitute g′(x) = 3 (line 6.2) into line 6.1

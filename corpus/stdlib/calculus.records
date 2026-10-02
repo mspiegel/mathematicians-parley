@@ -47,6 +47,11 @@ mundane theorem open-interval-open
   metamath    iooretop
   target      iooretop
 
+mundane theorem reals-open
+  then        ℝ is open
+  metamath    reopn
+  target      reopn
+
 definition continuous-on
   let D ⊆ ℝ                                                           (H1)
   let f : D → ℝ                                                       (H2)
