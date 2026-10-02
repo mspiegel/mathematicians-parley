@@ -53,8 +53,12 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
 1. **f′(x) is notation** for the derivative of f at x. A prime keeps its
    old meaning in a name, c′ and P′, except directly before a bracket.
 2. **(a, b) is the open interval,** and "f is differentiable on (a, b)"
-   says the derivative is defined exactly there, set.mm's
-   `dom ( RR _D F ) = ( A (,) B )`.
+   says the derivative is defined at every point of it,
+   `( A (,) B ) C_ dom ( RR _D F )`, as a textbook means it of a function
+   differentiable on a larger set as well. set.mm's `rolle` and `mvth` ask
+   the derivative be defined on exactly (a, b); for f on [a, b] the two
+   agree, since no derivative is taken at an end (`gdvdmicc`), and `grolle`
+   is Rolle's theorem in the page's form.
 3. **Rolle's theorem and the sum rules are named theorems:** continuity of
    a sum and of a line, the derivative of a sum and of a line. A textbook
    cites each. That a real function's derivative is real is mundane.

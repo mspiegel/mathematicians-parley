@@ -301,9 +301,9 @@ $d x V $.
   ${
     gdvdm.1 $e |- ( ph -> D = ( x e. I |-> E ) ) $.
     gdvdm.2 $e |- ( ( ph /\ x e. I ) -> E e. V ) $.
-  gdvdm $p |- ( ph -> dom D = I ) $=
-    ( cdm cmpt dmeqd wcel wral wceq ralrimiva dmmptg syl eqtrd )
-    ACIBEDJZIZEACSGKADFLZBEMTENAUABEHOBEDFPQR $.
+  gdvdm $p |- ( ph -> I C_ dom D ) $=
+    ( cdm cmpt dmeqd wcel wral wceq ralrimiva dmmptg syl eqtrd eqcomd eqimssd
+    ) AECIZAUAEAUABEDJZIZEACUBGKADFLZBEMUCENAUDBEHOBEDFPQRST $.
   $}
 
   ${
@@ -316,31 +316,63 @@ $d x V $.
   $}
 
   ${
+    gdvsub.1 $e |- ( ph -> A e. RR ) $.
+    gdvsub.2 $e |- ( ph -> B e. RR ) $.
+    gdvsub.3 $e |- ( ph -> F : ( A [,] B ) --> CC ) $.
+  gdvsub $p |- ( ph -> dom ( RR _D F ) C_ ( A (,) B ) ) $=
+    ( cr cdv co cdm cicc cioo crn ctg cfv cnt ccnfld ctopn cc wss ax-resscn
+    a1i wcel iccssre syl2anc eqid tgioo2 dvbssntr wceq iccntr sseqtrd )
+    AHDIJKBCLJZMNZOPZQPZPZBCMJZAUMHDUORSPZHTUAAUBUCGABHUDZCHUDZUMHUAEFBCUEUFUSUSUGZUHVBUIAUTVAUQURUJEFBCUKUFUL $.
+  $}
+
+  ${
+    gdvdmicc.1 $e |- ( ph -> A e. RR ) $.
+    gdvdmicc.2 $e |- ( ph -> B e. RR ) $.
+    gdvdmicc.3 $e |- ( ph -> F : ( A [,] B ) --> CC ) $.
+    gdvdmicc.4 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+  gdvdmicc $p |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $=
+    ( cr cdv co cdm cioo gdvsub eqssd ) AIDJKLBCMKABCDEFGNHO $.
+  $}
+
+  ${
+    grolle.1 $e |- ( ph -> A e. RR ) $.
+    grolle.2 $e |- ( ph -> B e. RR ) $.
+    grolle.3 $e |- ( ph -> A < B ) $.
+    grolle.4 $e |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) ) $.
+    grolle.5 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    grolle.6 $e |- ( ph -> ( F ` A ) = ( F ` B ) ) $.
+  grolle $p |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 ) $=
+    ( cicc co cr cc ccncf wcel wf cncff syl wss ax-resscn a1i fssd gdvdmicc
+    rolle ) ABCDEFGHIACDEFGACDLMZNOEAEUGNPMQUGNERIUGNESTNOUAAUBUCUDJUEKUF $.
+  $}
+
+  ${
     gdvloc.1 $e |- ( ph -> A e. RR ) $.
     gdvloc.2 $e |- ( ph -> B e. RR ) $.
     gdvloc.3 $e |- ( ph -> F : ( A [,] B ) --> CC ) $.
   gdvloc $p |- ( ph -> ( RR _D ( F |` ( A (,) B ) ) ) = ( RR _D F ) ) $=
     ( cr cioo co cres cdv crn ctg cfv cnt cc wss cicc wf wa wceq ax-resscn
     a1i jca wcel iccssre syl2anc ioossre ccnfld ctopn eqid tgioo2 dvres syl
-    ioontr reseq2d eqtrd wrel cdm reldv dvbssntr iccntr sseqtrd relssres )
-    AHDBCIJZKZLJZHDLJZVFKZVIAVHVIVFIMZNOZPOZOZKZVJAHQRZBCSJZQDTZUAZVQHRZVFHRZUAZUAVHVOUBAVSWBAVPVRVPAUCUDZGUEAVTWAABHUFZCHUFZVTEFBCUGZUHZWAABCUIUDUEUEVQVFHVLDUJUKOZWHULZWHWIUMZUNUOAVNVFVIVNVFUBABCUPUDUQURAVIUSZVIUTZVFRVJVIUBWKAHDVAUDAWLVQVMOZVFAVQHDVLWHWCGWGWJWIVBAWDWEWMVFUBEFBCVCUHVDVIVFVEUHUR $.
+    ioontr reseq2d eqtrd wrel cdm reldv gdvsub relssres )
+    AHDBCIJZKZLJZHDLJZVDKZVGAVFVGVDIMZNOZPOZOZKZVHAHQRZBCSJZQDTZUAZVOHRZVDHRZUAZUAVFVMUBAVQVTAVNVPVNAUCUDGUEAVRVSABHUFCHUFVREFBCUGUHVSABCUIUDUEUEVOVDHVJDUJUKOZWAULZWAWBUMUNUOAVLVDVGVLVDUBABCUPUDUQURAVGUSZVGUTVDRVHVGUBWCAHDVAUDABCDEFGVBVGVDVCUHUR $.
   $}
 
   ${
     gdvf.1 $e |- ( ph -> A e. RR ) $.
     gdvf.2 $e |- ( ph -> B e. RR ) $.
     gdvf.3 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
-    gdvf.4 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
+    gdvf.4 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
   gdvf $p |- ( ph -> ( RR _D F ) : ( A (,) B ) --> RR ) $=
-    ( cr cdv co cdm wf cioo cicc wss wcel iccssre syl2anc dvfre feq2d mpbid )
-    AIDJKZLZIUCMZBCNKZIUCMABCOKZIDMUGIPZUEGABIQCIQUHEFBCRSUGDTSAUDUFIUCHUAUB $.
+    ( cr cdv co cdm wf cioo cicc wss wcel iccssre syl2anc dvfre cc ax-resscn
+    a1i fssd gdvdmicc feq2d mpbid )
+    AIDJKZLZIUHMZBCNKZIUHMABCOKZIDMULIPZUJGABIQCIQUMEFBCRSULDTSAUIUKIUHABCDEFAULIUADGIUAPAUBUCUDHUEUFUG $.
   $}
 
   ${
     gdvre.1 $e |- ( ph -> A e. RR ) $.
     gdvre.2 $e |- ( ph -> B e. RR ) $.
     gdvre.3 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
-    gdvre.4 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
+    gdvre.4 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
     gdvre.5 $e |- ( ph -> C e. ( A (,) B ) ) $.
   gdvre $p |- ( ph -> ( ( RR _D F ) ` C ) e. RR ) $=
     ( cioo co cr cdv gdvf ffvelcdmd ) ABCKLMDMENLABCEFGHIOJP $.
@@ -350,7 +382,7 @@ $d x V $.
     gdvmpt.1 $e |- ( ph -> A e. RR ) $.
     gdvmpt.2 $e |- ( ph -> B e. RR ) $.
     gdvmpt.3 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
-    gdvmpt.4 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
+    gdvmpt.4 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
   gdvmpt $p |- ( ph -> ( RR _D ( x e. ( A (,) B ) |-> ( F ` x ) ) ) = ( x e. ( A (,) B ) |-> ( ( RR _D F ) ` x ) ) ) $=
     ( cr cioo co cv cfv cmpt cdv cres cicc wss ioossicc a1i feqresmpt eqcomd
     oveq2d cc ax-resscn fssd gdvloc eqtrd wfn wceq gdvf ffnd dffn5 sylib )
@@ -378,7 +410,7 @@ $d x V $.
     gdvlin.3 $e |- ( ph -> M e. RR ) $.
     gdvlin.4 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
     gdvlin.5 $e |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = ( M x. x ) ) $.
-  gdvlin $p |- ( ph -> dom ( RR _D G ) = ( A (,) B ) ) $=
+  gdvlin $p |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $=
     ( cr cdv co cioo gdvlinmap wcel cv adantr gdvdm )
     ABLEMNFCDONZLABCDEFGHIJKPAFLQBRUAQIST $.
   $}
@@ -401,8 +433,8 @@ $d x V $.
     gdvaddmap.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
     gdvaddmap.5 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
     gdvaddmap.6 $e |- ( ph -> A. x e. ( A [,] B ) ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) ) $.
-    gdvaddmap.7 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
-    gdvaddmap.8 $e |- ( ph -> dom ( RR _D G ) = ( A (,) B ) ) $.
+    gdvaddmap.7 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    gdvaddmap.8 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $.
   gdvaddmap $p |- ( ph -> ( RR _D H ) = ( x e. ( A (,) B ) |-> ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) ) ) $=
     ( cr cdv co cioo cv cfv caddc cmpt cres cicc cc wss ax-resscn a1i fssd
     gdvloc eqcomd ioossicc feqresmpt wceq wral wi ssralv ax-mp syl r19.21bi
@@ -418,9 +450,9 @@ $d x V $.
     gdvadd.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
     gdvadd.5 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
     gdvadd.6 $e |- ( ph -> A. x e. ( A [,] B ) ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) ) $.
-    gdvadd.7 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
-    gdvadd.8 $e |- ( ph -> dom ( RR _D G ) = ( A (,) B ) ) $.
-  gdvadd $p |- ( ph -> dom ( RR _D H ) = ( A (,) B ) ) $=
+    gdvadd.7 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    gdvadd.8 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $.
+  gdvadd $p |- ( ph -> ( A (,) B ) C_ dom ( RR _D H ) ) $=
     ( cr cdv co cv cfv caddc cioo cvv gdvaddmap wcel wa ovex a1i gdvdm )
     ABPGQRBSZPEQRZTZUJPFQRZTZUARZCDUBRZUCABCDEFGHIJKLMNOUDUOUCUEAUJUPUEUFULUNUAUGUHUI $.
   $}
@@ -432,8 +464,8 @@ $d x V $.
     gdvaddv.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
     gdvaddv.5 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
     gdvaddv.6 $e |- ( ph -> A. x e. ( A [,] B ) ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) ) $.
-    gdvaddv.7 $e |- ( ph -> dom ( RR _D F ) = ( A (,) B ) ) $.
-    gdvaddv.8 $e |- ( ph -> dom ( RR _D G ) = ( A (,) B ) ) $.
+    gdvaddv.7 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    gdvaddv.8 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $.
   gdvaddv $p |- ( ph -> A. x e. ( A (,) B ) ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) ) $=
     ( cr cdv co cv cfv caddc cioo cvv gdvaddmap wcel wa ovex a1i gdvval )
     ABPGQRBSZPEQRZTZUJPFQRZTZUARZCDUBRZUCABCDEFGHIJKLMNOUDUOUCUEAUJUPUEUFULUNUAUGUHUI $.

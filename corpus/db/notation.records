@@ -1307,13 +1307,13 @@ notation differentiable
   level       predicate
   reads       is differentiable on
   metamath    the domain of the derivative, cdm of cdv over ℝ
-  target      cr _1 cdv co cdm _2 wceq
-  note        set.mm has no predicate for this either: mvth and rolle say the
-              derivative of f is defined on exactly the open interval, which is
-              what the target writes. For f on [a, b] that also says neither
-              end has a one-sided derivative, a little more than a textbook's
-              "differentiable on (a, b)" says, and it is the hypothesis set.mm's
-              theorems ask.
+  target      _2 cr _1 cdv co cdm wss
+  note        set.mm has no predicate for this either. The target says the
+              derivative of f is defined at every point of the set, as a
+              textbook means it: x² is differentiable on (0, 1) though it is
+              differentiable everywhere. mvth and rolle ask the derivative be
+              defined on exactly the open interval, which for f on [a, b]
+              follows, since no derivative is taken at an end (gdvdmicc).
 
 notation collinear
   pattern     _, _, _ are collinear

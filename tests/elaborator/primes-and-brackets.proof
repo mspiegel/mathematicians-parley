@@ -1,0 +1,29 @@
+theorem prime-name
+  let c ∈ ℝ                                                           (H1)
+  let c′ ∈ ℝ                                                          (H2)
+  assume c′ = c + 1                                                   (H3)
+  then c′ − c = 1
+
+1.  c′ − c = 1
+    algebra, from H3
+    requires c ∈ ℝ: from H1
+    requires c′ ∈ ℝ: from H2
+
+theorem order-apart
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  then b − a ≠ 0
+
+1.  b − a ≠ 0
+    inequalities, from H3
+    requires a ∈ ℝ: from H1
+    requires b ∈ ℝ: from H2
+
+theorem bracketed-formula
+  let a ∈ ℝ                                                           (H1)
+  assume (for all x ∈ ℝ, x ≤ a)                                       (H2)
+  then a ≤ a
+
+1.  a ≤ a
+    instantiate x := a in H2, from H1

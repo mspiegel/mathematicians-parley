@@ -11,7 +11,10 @@
 //!
 //! A function on [a, b] is differentiable on (a, b) at most, since a
 //! derivative is taken only where a neighbourhood lies in the domain
-//! (`dvbssntr`, `iccntr`). So its derivative is that of its restriction to
+//! (`dvbssntr`, `iccntr`, `gdvsub`). The page's "differentiable on (a, b)"
+//! says (a, b) lies within the derivative's domain, and for a function on
+//! [a, b] that makes the two equal (`gdvdmicc`), which is what set.mm's
+//! `rolle` asks (`grolle`). So its derivative is that of its restriction to
 //! (a, b) (`dvres`, `ioontr`), which is where set.mm's rules for maps apply
 //! (`gdvloc`, `gdvmpt`). Derivatives are into ℂ in set.mm, and a real
 //! function's are real (`dvfre`).
@@ -44,6 +47,9 @@ pub fn proofs(b: &mut Builder) -> Vec<Lemma> {
     vec![
         domain(b),
         values(b),
+        inside_open(b),
+        exactly_open(b),
+        rolle(b),
         restricted(b),
         derivative_type(b),
         derivative_real(b),
@@ -84,11 +90,11 @@ fn lemma(
     Lemma::new(label, statement, proof).with_hyps(hyps)
 }
 
-/// `gdvdm`: a map on I is defined exactly on I.
+/// `gdvdm`: a map on I is defined on I.
 fn domain(b: &mut Builder) -> Lemma {
     let is_map = ("gdvdm.1", "|- ( ph -> D = ( x e. I |-> E ) )");
     let a_set = ("gdvdm.2", "|- ( ( ph /\\ x e. I ) -> E e. V )");
-    let statement = "|- ( ph -> dom D = I )";
+    let statement = "|- ( ph -> I C_ dom D )";
     hypotheses(b, &[is_map, a_set]);
     let proof = {
         let b: &Builder = b;
@@ -114,7 +120,7 @@ fn domain(b: &mut Builder) -> Lemma {
                 ),
             ],
         );
-        b.ap(
+        let exactly = b.ap(
             "eqtrd",
             &binds! {"ph" => b.wff("ph"), "A" => b.class("dom D"),
             "B" => b.class(&format!("dom {map}")), "C" => b.class("I")},
@@ -126,6 +132,15 @@ fn domain(b: &mut Builder) -> Lemma {
                 ),
                 &map_domain,
             ],
+        );
+        b.ap(
+            "eqimssd",
+            &binds! {"ph" => b.wff("ph"), "A" => b.class("I"), "B" => b.class("dom D")},
+            &[&b.ap(
+                "eqcomd",
+                &binds! {"ph" => b.wff("ph"), "A" => b.class("dom D"), "B" => b.class("I")},
+                &[&exactly],
+            )],
         )
     };
     lemma(b, "gdvdm", statement, &[is_map, a_set], proof)
@@ -207,7 +222,7 @@ fn read_off(
     let statement = if values {
         format!("|- ( ph -> A. x e. {OPEN} ( {whole} ` x ) = {rule} )")
     } else {
-        format!("|- ( ph -> dom {whole} = {OPEN} )")
+        format!("|- ( ph -> {OPEN} C_ dom {whole} )")
     };
     let renamed: Vec<(String, String)> = hyps
         .iter()
@@ -285,6 +300,141 @@ fn open_within(b: &Builder, ph: &str) -> Proof {
             &[],
         )],
     )
+}
+
+/// `gdvsub`: a function on [a, b] has a derivative on (a, b) at most, since
+/// a derivative is taken only where a neighbourhood lies in the domain.
+fn inside_open(b: &mut Builder) -> Lemma {
+    let a = ("gdvsub.1", "|- ( ph -> A e. RR )");
+    let bb = ("gdvsub.2", "|- ( ph -> B e. RR )");
+    let f = ("gdvsub.3", "|- ( ph -> F : ( A [,] B ) --> CC )");
+    let statement = "|- ( ph -> dom ( RR _D F ) C_ ( A (,) B ) )";
+    hypotheses(b, &[a, bb, f]);
+    let proof = {
+        let b: &Builder = b;
+        let ph = b.wff("ph");
+        let closed_inside = format!("( ( int ` {T} ) ` {AB} )");
+        let within = b.ap(
+            "dvbssntr",
+            &binds! {"ph" => ph.clone(), "S" => b.class("RR"), "F" => b.class("F"),
+            "A" => b.class(AB), "J" => b.class(T), "K" => b.class(K)},
+            &[
+                &real_complex(b),
+                &b.step(f.0),
+                &closed_real(b, a.0, bb.0),
+                &real_topology(b),
+                &b.ap("eqid", &binds! {"A" => b.class(K)}, &[]),
+            ],
+        );
+        let interior_closed = b.ap(
+            "syl2anc",
+            &binds! {"ph" => ph.clone(), "ps" => b.wff("A e. RR"), "ch" => b.wff("B e. RR"),
+            "th" => b.wff(&format!("{closed_inside} = {OPEN}"))},
+            &[
+                &b.step(a.0),
+                &b.step(bb.0),
+                &b.ap(
+                    "iccntr",
+                    &binds! {"A" => b.class("A"), "B" => b.class("B")},
+                    &[],
+                ),
+            ],
+        );
+        b.ap(
+            "sseqtrd",
+            &binds! {"ph" => ph, "A" => b.class("dom ( RR _D F )"),
+            "B" => b.class(&closed_inside), "C" => b.class(OPEN)},
+            &[&within, &interior_closed],
+        )
+    };
+    lemma(b, "gdvsub", statement, &[a, bb, f], proof)
+}
+
+/// `gdvdmicc`: a function on [a, b] differentiable on (a, b) is
+/// differentiable there and nowhere else, which is the form set.mm's
+/// `rolle` and `mvth` ask.
+fn exactly_open(b: &mut Builder) -> Lemma {
+    let a = ("gdvdmicc.1", "|- ( ph -> A e. RR )");
+    let bb = ("gdvdmicc.2", "|- ( ph -> B e. RR )");
+    let f = ("gdvdmicc.3", "|- ( ph -> F : ( A [,] B ) --> CC )");
+    let d = ("gdvdmicc.4", "|- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )");
+    let statement = "|- ( ph -> dom ( RR _D F ) = ( A (,) B ) )";
+    hypotheses(b, &[a, bb, f, d]);
+    let proof = {
+        let b: &Builder = b;
+        b.ap(
+            "eqssd",
+            &binds! {"ph" => b.wff("ph"), "A" => b.class("dom ( RR _D F )"),
+            "B" => b.class(OPEN)},
+            &[
+                &b.ap(
+                    "gdvsub",
+                    &binds! {"ph" => b.wff("ph"), "A" => b.class("A"), "B" => b.class("B"),
+                    "F" => b.class("F")},
+                    &[&b.step(a.0), &b.step(bb.0), &b.step(f.0)],
+                ),
+                &b.step(d.0),
+            ],
+        )
+    };
+    lemma(b, "gdvdmicc", statement, &[a, bb, f, d], proof)
+}
+
+/// `grolle`: for `thm:stdlib/calculus/rolle`. set.mm's `rolle` asks the
+/// derivative be defined on exactly (a, b), and the page says on (a, b).
+fn rolle(b: &mut Builder) -> Lemma {
+    let a = ("grolle.1", "|- ( ph -> A e. RR )");
+    let bb = ("grolle.2", "|- ( ph -> B e. RR )");
+    let lt = ("grolle.3", "|- ( ph -> A < B )");
+    let f = ("grolle.4", "|- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )");
+    let d = ("grolle.5", "|- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )");
+    let e = ("grolle.6", "|- ( ph -> ( F ` A ) = ( F ` B ) )");
+    let statement = "|- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 )";
+    let all = [a, bb, lt, f, d, e];
+    hypotheses(b, &all);
+    let proof = {
+        let b: &Builder = b;
+        let ph = b.wff("ph");
+        let into_rr = b.ap(
+            "syl",
+            &binds! {"ph" => ph.clone(), "ps" => b.wff(&format!("F e. ( {AB} -cn-> RR )")),
+            "ch" => b.wff(&format!("F : {AB} --> RR"))},
+            &[
+                &b.step(f.0),
+                &b.ap(
+                    "cncff",
+                    &binds! {"A" => b.class(AB), "B" => b.class("RR"), "F" => b.class("F")},
+                    &[],
+                ),
+            ],
+        );
+        let into_cc = b.ap(
+            "fssd",
+            &binds! {"ph" => ph.clone(), "F" => b.class("F"), "A" => b.class(AB),
+            "B" => b.class("RR"), "C" => b.class("CC")},
+            &[&into_rr, &real_complex(b)],
+        );
+        let exactly = b.ap(
+            "gdvdmicc",
+            &binds! {"ph" => ph.clone(), "A" => b.class("A"), "B" => b.class("B"),
+            "F" => b.class("F")},
+            &[&b.step(a.0), &b.step(bb.0), &into_cc, &b.step(d.0)],
+        );
+        b.ap(
+            "rolle",
+            &binds! {"ph" => ph, "A" => b.class("A"), "B" => b.class("B"),
+            "F" => b.class("F"), "x" => b.float("x")},
+            &[
+                &b.step(a.0),
+                &b.step(bb.0),
+                &b.step(lt.0),
+                &b.step(f.0),
+                &exactly,
+                &b.step(e.0),
+            ],
+        )
+    };
+    lemma(b, "grolle", statement, &all, proof)
 }
 
 /// `gdvloc`: a function on [a, b] has the derivative its restriction to
@@ -377,38 +527,11 @@ fn restricted(b: &mut Builder) -> Lemma {
                 &[],
             )],
         );
-        let closed_inside = format!("( ( int ` {T} ) ` {AB} )");
-        let within = b.ap(
-            "dvbssntr",
-            &binds! {"ph" => ph.clone(), "S" => b.class("RR"), "F" => b.class("F"),
-            "A" => b.class(AB), "J" => b.class(T), "K" => b.class(K)},
-            &[
-                &rr_cc,
-                &b.step(f.0),
-                &ab_rr,
-                &tg,
-                &b.ap("eqid", &binds! {"A" => b.class(K)}, &[]),
-            ],
-        );
-        let interior_closed = b.ap(
-            "syl2anc",
-            &binds! {"ph" => ph.clone(), "ps" => b.wff("A e. RR"), "ch" => b.wff("B e. RR"),
-            "th" => b.wff(&format!("{closed_inside} = {OPEN}"))},
-            &[
-                &b.step(a.0),
-                &b.step(bb.0),
-                &b.ap(
-                    "iccntr",
-                    &binds! {"A" => b.class("A"), "B" => b.class("B")},
-                    &[],
-                ),
-            ],
-        );
         let domain = b.ap(
-            "sseqtrd",
-            &binds! {"ph" => ph.clone(), "A" => b.class("dom ( RR _D F )"),
-            "B" => b.class(&closed_inside), "C" => b.class(OPEN)},
-            &[&within, &interior_closed],
+            "gdvsub",
+            &binds! {"ph" => ph.clone(), "A" => b.class("A"), "B" => b.class("B"),
+            "F" => b.class("F")},
+            &[&b.step(a.0), &b.step(bb.0), &b.step(f.0)],
         );
         let whole = b.ap(
             "syl2anc",
@@ -444,7 +567,7 @@ fn differentiable(label: &str) -> [(String, &'static str); 4] {
         (format!("{label}.3"), "|- ( ph -> F : ( A [,] B ) --> RR )"),
         (
             format!("{label}.4"),
-            "|- ( ph -> dom ( RR _D F ) = ( A (,) B ) )",
+            "|- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )",
         ),
     ]
 }
@@ -478,11 +601,27 @@ fn derivative_type(b: &mut Builder) -> Lemma {
                 ),
             ],
         );
+        let exactly = b.ap(
+            "gdvdmicc",
+            &binds! {"ph" => ph.clone(), "A" => b.class("A"), "B" => b.class("B"),
+            "F" => b.class("F")},
+            &[
+                &b.step(said[0].0),
+                &b.step(said[1].0),
+                &b.ap(
+                    "fssd",
+                    &binds! {"ph" => ph.clone(), "F" => b.class("F"), "A" => b.class(AB),
+                    "B" => b.class("RR"), "C" => b.class("CC")},
+                    &[&b.step(said[2].0), &real_complex(b)],
+                ),
+                &b.step(said[3].0),
+            ],
+        );
         let moved = b.ap(
             "feq2d",
             &binds! {"ph" => ph.clone(), "A" => b.class("dom ( RR _D F )"),
             "B" => b.class(OPEN), "C" => b.class("RR"), "F" => b.class("( RR _D F )")},
-            &[&b.step(said[3].0)],
+            &[&exactly],
         );
         b.ap(
             "mpbid",
@@ -960,8 +1099,8 @@ const SUM: [(&str, &str); 8] = [
         "",
         "|- ( ph -> A. x e. ( A [,] B ) ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )",
     ),
-    ("", "|- ( ph -> dom ( RR _D F ) = ( A (,) B ) )"),
-    ("", "|- ( ph -> dom ( RR _D G ) = ( A (,) B ) )"),
+    ("", "|- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )"),
+    ("", "|- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) )"),
 ];
 
 const SUM_BINDS: [(&str, &str); 5] =

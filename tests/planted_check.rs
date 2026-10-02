@@ -1550,5 +1550,12 @@ fn cases() -> Vec<Case> {
             ],
             "'2' is not a set, so nothing can range over it",
         ),
+        case(
+            "give the type of a define the citation does not bind",
+            vec![
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 11".to_string()), "requires F : [a, b] → ℝ: from 13".to_string()),
+            ],
+            "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
+        ),
     ]
 }

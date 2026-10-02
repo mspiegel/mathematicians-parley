@@ -108,8 +108,11 @@ theorem rolle
   assume f is differentiable on (a, b)                                (H6)
   assume f(a) = f(b)                                                  (H7)
   then        there is c ∈ (a, b) with f′(c) = 0
-  metamath    rolle
-  target      rolle
+  metamath    rolle, through grolle, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      grolle
+  note        rolle asks that f′ be defined on exactly (a, b); the page says
+              on (a, b), and for f on [a, b] the two agree (gdvdmicc).
 
 mundane theorem derivative-real
   let a ∈ ℝ                                                           (H1)
