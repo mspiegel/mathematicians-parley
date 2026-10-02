@@ -145,14 +145,8 @@ pub fn tokenise(
                 i = take(&mut out, TokenKind::Word, word, i);
                 continue;
             }
-            // A prime is part of a name, as c′ and P′ are, except where a
-            // bracket follows it: f′(x) is the derivative of f at x, and the
-            // prime is the notation's own token.
             let mut end = i + 1;
-            while end < chars.len()
-                && is_mark(chars[end])
-                && !(chars[end] == '′' && chars.get(end + 1) == Some(&'('))
-            {
+            while end < chars.len() && is_mark(chars[end]) {
                 end += 1;
             }
             i = take(&mut out, TokenKind::Name, chars[i..end].iter().collect(), i);

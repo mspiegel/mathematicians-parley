@@ -1,3 +1,5 @@
+import mundane theorem    stdlib/calculus/derivative-real
+
 theorem prime-name
   let c ∈ ℝ                                                           (H1)
   let c′ ∈ ℝ                                                          (H2)
@@ -8,6 +10,20 @@ theorem prime-name
     algebra, from H3
     requires c ∈ ℝ: from H1
     requires c′ ∈ ℝ: from H2
+
+theorem derivative-names
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let f : [a, b] → ℝ                                                  (H3)
+  assume f is differentiable on (a, b)                                (H4)
+  assume f′ is continuous on (a, b)                                   (H5)
+  assume f′ is differentiable on (a, b)                               (H6)
+  let x ∈ (a, b)                                                      (H7)
+  assume f′′(x) = 0                                                   (H8)
+  then f′(x) ∈ ℝ
+
+1.  f′(x) ∈ ℝ
+    mun:derivative-real a := a, b := b, f := f, x := x, from H1, H2, H4, H7
 
 theorem order-apart
   let a ∈ ℝ                                                           (H1)

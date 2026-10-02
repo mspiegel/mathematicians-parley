@@ -669,14 +669,17 @@ notation image
               Schröder–Bernstein would be the two meanings side by side.
 
 notation derivative
-  pattern     _′(_)
-  sort        function from number to number, number → number
-  reads       the derivative of, at
-  metamath    cdv over ℝ, applied with cfv
-  target      _2 cr _1 cdv co cfv
-  note        f′(x) is the derivative of f at x: set.mm's ( ( RR _D F ) ` x ).
-              A prime on a name of a point or a number, c′ or P′, is part of
-              the name; on a function applied to a term it is the derivative.
+  pattern     _′
+  sort        function from number to number → function from number to number
+  reads       the derivative of
+  metamath    cdv over ℝ
+  target      cr _1 cdv co
+  note        f′ is the derivative of f, set.mm's ( RR _D F ), and f′(x) is it
+              applied to x. A prime is part of a name to the lexer, so c′ and
+              P′ are names; the parser reads f′ as this notation where nothing
+              declares f′ and f is a function, and f′′ as the derivative of f′.
+              Declaring f′ beside a function f is a defect, since a reader
+              would take it for the derivative.
 
 notation holds-of
   pattern     _(_)

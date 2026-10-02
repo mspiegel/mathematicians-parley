@@ -537,6 +537,12 @@ impl Parser<'_> {
                 n.parts.first().and_then(Part::literal) == Some(tok.text.as_str())
             })
             .collect();
+        if tok.kind == TokenKind::Name {
+            if let Some(found) = self.derivative(&tok.text, tok.at)? {
+                self.i += 1;
+                return Ok(Some(found));
+            }
+        }
         if tok.kind == TokenKind::Name || tok.kind == TokenKind::Numeral {
             let leaf = if tok.kind == TokenKind::Name {
                 // A name the theorem does not introduce that its file imports
@@ -591,6 +597,58 @@ impl Parser<'_> {
             return Ok(Some(leaf));
         }
         self.apply(&cands, None)
+    }
+
+    /// The sort a name has where something says it: the theorem, or the
+    /// library function the file imports under that name.
+    fn said_sort(&self, text: &str) -> Option<Sort> {
+        let own = self.sorts.introduces(text);
+        self.sorts
+            .get(text)
+            .or_else(|| {
+                (!own && self.sorts.imported.contains(text))
+                    .then(|| self.g.function_sorts.get(text))
+                    .flatten()
+            })
+            .filter(|s| !s.is_unknown() && !s.is_unsorted())
+            .cloned()
+    }
+
+    /// What a primed name stands for where its stem names a function: the
+    /// derivative of that function, `f′`, and of that derivative, `f′′`. A
+    /// prime is part of a name to the lexer, so c′ and P′ are names, and
+    /// what decides is the sort of the stem. A primed name declared beside a
+    /// function of its stem is a defect, since a reader takes it for the
+    /// derivative. None where the name is a name like any other.
+    fn derivative(&self, text: &str, at: usize) -> Checked<Option<Node>> {
+        let Some(stem) = text.strip_suffix('′') else {
+            return Ok(None);
+        };
+        let Some(n) = self.g.notations.iter().find(|n| n.name == "derivative") else {
+            return Ok(None);
+        };
+        let inner = match self.derivative(stem, at)? {
+            Some(node) => node,
+            None => match self.said_sort(stem) {
+                Some(sort) => Node::leaf("name", sort, stem),
+                None => return Ok(None),
+            },
+        };
+        if inner.sort.is_unknown() || !fits(&n.holes[0], &inner.sort) {
+            return Ok(None);
+        }
+        if self.said_sort(text).is_some() {
+            return Err(Problem::new(
+                self.path,
+                self.line,
+                format!(
+                    "{text} is how the derivative of the function {stem} is written, so it cannot name anything else: call it {stem}₁"
+                ),
+            ));
+        }
+        let node = Node::new(n.key(), Sort::of(&n.yields), vec![inner], &n.literal);
+        node.set_span(at, at + text.chars().count());
+        Ok(Some(node))
     }
 
     /// The precedence level of the notation a node was built by, where it

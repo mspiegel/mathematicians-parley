@@ -50,8 +50,10 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
 
 ## Decisions made with the reader
 
-1. **f′(x) is notation** for the derivative of f at x. A prime keeps its
-   old meaning in a name, c′ and P′, except directly before a bracket.
+1. **f′ is notation** for the derivative of f, and f′(x) is it applied to x.
+   The sort of the stem decides: where f is a function and nothing declares
+   f′, it is the derivative, and c′ and P′ stay names. f′ alone and f′′ read
+   the same way.
 2. **(a, b) is the open interval,** and "f is differentiable on (a, b)"
    says the derivative is defined at every point of it,
    `( A (,) B ) C_ dom ( RR _D F )`, as a textbook means it of a function

@@ -348,7 +348,7 @@ become a parse.
 ```
 <token>   ::= <word> | <name> | <numeral> | <symbol> | `(` | `)`
 <word>    ::= a maximal run of letters that is a declared literal, longest match
-<name>    ::= a letter, then any subscripts and primes, but no prime just before `(`
+<name>    ::= a letter, then any subscripts and primes
 <numeral> ::= a maximal run of digits
 <symbol>  ::= a declared token that is neither letters nor digits
 ```
@@ -363,9 +363,13 @@ It is tried as a notation opening with a name is, and what no such notation
 reads is a group: the interval's comma between two holes is what tells it
 from `(e)`.
 
-A prime belongs to a name, as in c′ and P′, except directly before a bracket:
-`f′(x)` is the derivative of f at x, and there the prime is the derivative
-notation's own token, so the name is `f`.
+A prime always belongs to a name to the lexer, and what a primed name means is
+the parser's to say, by the sort of its stem. Where nothing declares `f′` and
+f is a function, `f′` is the derivative of f, written `_′` in the notation
+records, and `f′′` the derivative of `f′`; `f′(x)` is that function applied to
+x. Where the stem is a point or a number, or nothing at all, c′ and P′ are names
+like any other. Declaring `f′` beside a function f is a defect, since a reader
+takes it for the derivative: the checker says to call it f₁.
 
 **A word is at least two letters, and a single letter is always a name.** One
 declared literal is one letter: `a`, from `_, _, _ form a triangle` and

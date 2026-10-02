@@ -1557,5 +1557,12 @@ fn cases() -> Vec<Case> {
             ],
             "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
+        case(
+            "name a number with the derivative's spelling",
+            vec![
+                edit("proofs/mean-value.proof", Some("  assume a < b ".to_string()), "  let f′ ∈ ℝ                                                          (H9)\n  assume a < b ".to_string()),
+            ],
+            "f′ is how the derivative of the function f is written, so it cannot name anything else: call it f₁",
+        ),
     ]
 }
