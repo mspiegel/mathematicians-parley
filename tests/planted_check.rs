@@ -980,7 +980,7 @@ fn cases() -> Vec<Case> {
         case(
             "suppose something unrelated to the claim",
             vec![
-                edit("proofs/bezout.proof", Some("3.  r = 0\n    contradiction\n    suppose not r = 0".to_string()), "3.  r = 0\n    contradiction\n    suppose not r ≤ 0".to_string()),
+                edit("proofs/bezout.proof", Some("3.  r = 0\n    contradiction\n    suppose r ≠ 0".to_string()), "3.  r = 0\n    contradiction\n    suppose not r ≤ 0".to_string()),
             ],
             "neither expansion of `contradiction` applies",
         ),

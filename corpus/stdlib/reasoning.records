@@ -27,15 +27,17 @@ mundane axiom excluded-middle
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
 
+
 mundane theorem double-negation
   assume not not P                                                    (H1)
   then        P
   metamath    notnotr
   target      notnotr
   note        The step intuitionistic logic refuses, so citing it is the text
-              saying which logic it is in. It appears because the contradiction
-              rule demands the literal negation of the claim, and a claim that
-              is itself a negation therefore produces a doubled one.
+              saying which logic it is in. No proof cites it: a contradiction
+              block proving a negation supposes what the negation denies, so
+              none writes a doubled one. It stays for a line that meets one in
+              what it cites, and tests/stdlib/reasoning.proof uses it.
 
 mundane theorem disjunctive-syllogism
   assume P or Q                                                       (H1)

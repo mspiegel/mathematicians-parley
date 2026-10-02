@@ -570,9 +570,10 @@ assumed.
 
 That criterion also accounts for the logical item the database already had,
 `mun:stdlib/reasoning/excluded-middle`, which is the sign that it was the rule
-operating implicitly all along. The three moves that left
-`join` are now `mun:stdlib/reasoning/double-negation`, cited twice, and
-`mun:stdlib/reasoning/disjunctive-syllogism`, cited once.
+operating implicitly all along. Disjunctive syllogism, which left `join`, is
+`mun:stdlib/reasoning/disjunctive-syllogism`. A doubled negation is not
+written at all: a contradiction block proving a negation supposes what the
+negation denies.
 
 ---
 
@@ -639,24 +640,18 @@ and its last step and the line that step contradicts are the two consequents.
 That is the whole expansion when the claim is a negation. When the claim is
 positive the expansion needs `notnotr` on top of it, and that is the classical
 step. So the logic each block depends on falls out of which shape it is, rather
-than being something the text has to announce. Of the corpus's seven blocks,
-five are reductio and two prove a negation directly.
+than being something the text has to announce. Of the corpus's twelve blocks,
+three are reductio and nine prove a negation directly.
 
 ### Why the method accepts two shapes
 
-`corpus/db/methods.records` used to say the block assumes "not C" written literally, and
-five of the seven blocks do exactly that, two of them writing a doubled
-negation and stripping it with `mun:stdlib/reasoning/double-negation` in the next line. The
-other two suppose the thing the claim negates.
-
-Both are correct, and forcing either one on the other costs something real.
-Requiring the literal negation everywhere would put a doubled negation and a
-cited classical step into two proofs that need neither, and the note on
-`mun:stdlib/reasoning/double-negation` says citing it is the text saying which logic it is in,
-which is worth nothing if it appears where the logic is not classical.
-Requiring the direct form everywhere would rewrite the other two and remove a
-step from each. Accepting both changes no proof in the corpus, and the
-expansion still says exactly where the classical step is.
+A claim that is not a negation can only be proved by reductio, supposing its
+negation. A claim that is a negation could be proved either way, but supposing
+its negation would write a doubled negation, "suppose not not c = b", and then
+need a step to strip it. So a negation is proved by supposing what it denies,
+"suppose c = b", which is how a textbook writes it and needs no classical
+step; `LINTER.md` prefers that form. Both shapes stay in the method because
+each is the only way to prove its kind of claim.
 
 ---
 

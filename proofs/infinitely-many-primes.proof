@@ -55,7 +55,7 @@ theorem prime-above
     6.6.  p = 1
           mun:divides-one d := p, from 4, 6.5
 
-    6.7.  not p = 1
+    6.7.  p ≠ 1
           inequalities, from 5, contradicting 6.6
           requires p ∈ ℝ: from 4
 

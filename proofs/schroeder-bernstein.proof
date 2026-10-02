@@ -231,12 +231,12 @@ theorem schroeder-bernstein
     3.13. h(t) ∈ B ∖ R. g(h(t)) = t.
           join 3.10, 3.12
 
-4.  For all u ∈ C, for all v ∈ A ∖ C, not h(u) = h(v).
+4.  For all u ∈ C, for all v ∈ A ∖ C, h(u) ≠ h(v).
     fix
     let u ∈ C                                                         (K2)
     let v ∈ A ∖ C                                                     (K3)
 
-    4.1.  not h(u) = h(v)
+    4.1.  h(u) ≠ h(v)
           contradiction
           suppose h(u) = h(v)                                         (S1)
 
@@ -351,7 +351,7 @@ theorem schroeder-bernstein
                   7.3.1.5.  t ∈ A ∖ C
                             mun:difference, from K6, C5
 
-                  7.3.1.6.  not h(s) = h(t)
+                  7.3.1.6.  h(s) ≠ h(t)
                             instantiate u := s, v := t in line 4, from C3, 7.3.1.5, contradicting A1
 
           case
@@ -369,7 +369,7 @@ theorem schroeder-bernstein
                   case
                   assume t ∈ C                                        (C7)
 
-                  7.3.4.1.  not h(s) = h(t)
+                  7.3.4.1.  h(s) ≠ h(t)
                             instantiate u := t, v := s in line 4, from C7, 7.3.2, contradicting A1
 
                   case

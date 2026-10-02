@@ -42,32 +42,36 @@ free, and free is what a linter is for.
 | write | not | today |
 |---|---|---|
 | `x ∉ B` | `not x ∈ B` | 39 lines with the sign, none with the word |
+| `x ≠ y` | `not x = y` | 39 lines with the sign, none with the word |
 | `n is not odd` | `not (n is odd)` | 3 lines with the word, none with `not` |
 | `there is no d ∈ ℤ with …` | `not there is d ∈ ℤ with …` | 2 lines with the word, none with `not` |
 
-The sign wins for membership because it is the notation a school reader meets
-first and the alternative is three words. The word wins for the other two
-because the alternatives need brackets, or read as "not there is", which is not
-English. Both rules were settled by picking the form the corpus mostly already
-used and making the rest agree.
+The sign wins for membership and equality because it is the notation a school
+reader meets first and the alternative is three words. The word wins for the
+other two because the alternatives need brackets, or read as "not there is",
+which is not English. Each rule was settled by picking the form the corpus
+mostly already used and making the rest agree.
 
-### The negated equality is not settled
+`x ≠ y` is the sign written in a proof for what a keyboard writes `!=`. It was
+long unsettled because two lines read worse with it: a doubled negation, which
+the next rule removes, and the closing pair of a contradiction block, `p = 1.
+not p = 1.`, which a block no longer writes, since its last step names the line
+it contradicts.
 
-`x ≠ y` and `not x = y` are both written, on 28 lines against 9, and which
-one a reader gets more easily depends on where it stands. A plain negated
-equality is easier as `x ≠ y`. One place writes a doubled negation, the
-intermediate value proof's supposition `not not c = b`, where the sign would
-give `not c ≠ b`, a double negative that takes longer to read rather than
-less. One writes the closing pair of a contradiction block, `p = 1. not p =
-1.` in the proof that there are infinitely many primes, where the word form
-mirrors the claim above it and the sign breaks the mirror. The rest of the
-word forms are plain negated equalities: Bezout's supposition `not r = 0`,
-and four lines of Schröder–Bernstein saying `not h(u) = h(v)` and the like.
+## A negation proved by contradiction supposes what it denies
 
-So the rule is either "the sign, except where the negation is doubled or
-mirrors a claim", which is three clauses and hard to apply, or nothing. It is
-left open, because a rule that has to be argued about at each use makes the
-text harder to read rather than easier, which is the opposite of the point.
+| write | not | today |
+|---|---|---|
+| `c ≠ b`, then `suppose c = b` | `c ≠ b`, then `suppose not not c = b` | 9 blocks prove a negation, all supposing what it denies |
+
+A `contradiction` block may suppose its claim negated, or, where the claim is a
+negation, the thing it denies (`METHODS.md`). For a negated claim the first
+writes a doubled negation, `not not c = b`, or with the sign `not c ≠ b`,
+which a reader has to undo before the argument starts, and then needs a step
+citing `mun:stdlib/reasoning/double-negation` to undo it on the page. The second
+says what a textbook says, "suppose c = b", and needs no step and no classical
+logic. The three blocks proving a claim that is not a negation suppose its
+negation, which is the only way to prove it.
 
 ### Where the universal stands
 
@@ -172,8 +176,8 @@ something a tool can see from the text.
 
 ## What would enforce these
 
-Nothing does. Four of the seven are a regular expression over the source line
-and would be cheap; the obtain rule is a justification head and is cheaper
+Nothing does. Most are a regular expression over the source line and would be
+cheap, the doubled negation among them, `suppose not` before a negated claim; the obtain rule is a justification head and is cheaper
 still. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 

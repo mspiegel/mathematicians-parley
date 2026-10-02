@@ -1,5 +1,14 @@
+import mundane theorem    stdlib/reasoning/double-negation as reasoning-double-negation
 import mundane theorem    stdlib/reasoning/or-left as reasoning-or-left
 import mundane theorem    stdlib/reasoning/or-right as reasoning-or-right
+
+theorem double-negation
+  let x ∈ ℝ                                                           (H1)
+  assume not x ≠ 0                                                    (H2)
+  then x = 0
+
+1.  x = 0
+    mun:reasoning-double-negation P := x = 0, from H2
 
 theorem or-left
   let x ∈ ℝ                                                           (H1)

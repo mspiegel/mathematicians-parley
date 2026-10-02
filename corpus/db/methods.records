@@ -158,8 +158,10 @@ method join
   note        Named `lines` until it was specified. That name said what it
               cited and nothing about what it did, and four unrelated jobs
               collected under it unnoticed: joining, double negation,
-              disjunctive syllogism and restating a case assumption. The two
-              laws are now mun:stdlib/reasoning/double-negation and mun:stdlib/reasoning/disjunctive-syllogism.
+              disjunctive syllogism and restating a case assumption.
+              Disjunctive syllogism is mun:stdlib/reasoning/disjunctive-syllogism;
+              a doubled negation is not written, since a contradiction block
+              proving a negation supposes what the negation denies.
               Restating one cited line is joining a list of one.
 
 method contradiction

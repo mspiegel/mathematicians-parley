@@ -42,7 +42,7 @@ theorem least-combination-divides
 
 3.  r = 0
     contradiction
-    suppose not r = 0                                                 (S)
+    suppose r ≠ 0                                                     (S)
 
     3.1.  0 < r
           inequalities, from 1, S
