@@ -16,20 +16,44 @@ throughout), the class variables in the statement, set-existence
 hypotheses (`A e. _V`), and the number of disjoint-variable pairs among the
 statement's variables.
 
+## State
+
+All twenty are written and elaborate from set.mm with nothing assumed. Each
+has its proof in `proofs/` and its design record in `docs/pilot/`, under the
+same name:
+
+| # | proof | # | proof |
+|---|---|---|---|
+| 1 | sqrt2-irrational | 11 | divisibility-by-three |
+| 2 | sum-formula | 12 | binomial |
+| 3 | triangle-inequality | 13 | triangular-reciprocals |
+| 4 | infinitely-many-primes | 14 | schroeder-bernstein |
+| 5 | bezout | 15 | lagrange |
+| 6 | cantor | 16 | euclid |
+| 7 | subsets | 17 | perfect-numbers |
+| 8 | intermediate-value | 18 | de-moivre |
+| 9 | isosceles | 19 | mean-value |
+| 10 | geometric-series | 20 | rationals-countable |
+
+Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
+that every even perfect number has that form, is not proved. Six informal
+sources are still marked "verify": those of 3, 6, 7, 10, 14 and 20. Their
+pilots were written without that check.
+
 ## The ten
 
-| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source | state |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | √2 is irrational | contradiction; definition unfolding; calculation chain | sqrt2irr | 99 (+69 in sqrt2irrlem, 74 in zesq) | no | none | none | 0 | Hammack ch. 6 | pilot written |
-| 2 | 1 + 2 + ... + n = n(n + 1)/2 | induction | arisum | 73 | no | N | none | 1 | Hammack ch. 10 | pilot written |
-| 3 | triangle inequality, real case | proof by cases | abstri | 78 | no | A, B | none | 0 | ProofWiki; Hammack exercise (verify) | pilot written |
-| 4 | infinitely many primes | existence by construction | infpn, infpnlem1, infpnlem2 | 2 + 58 + 38 | no | K, M, N | none | 3 to 5 | Hammack ch. 6 | pilot written |
-| 5 | Bezout's identity | existence via a least element; definition of gcd | bezout | 47 | no | A, B | none | 5 | Hammack ch. 7 | draft written |
-| 6 | Cantor's theorem | set-theoretic argument | canth | 21 | no | A, F | `A e. _V` | 0 | Hammack ch. 14 (verify); ProofWiki | draft written |
-| 7 | a set with n elements has 2ⁿ subsets | counting | hashpw | 25 | no | A | none | 0 | Hammack ch. 1 and 10 (verify) | draft written |
-| 8 | intermediate value theorem | quantifier alternation; completeness of ℝ | ivth, ivthle | 16 + 69 | yes | A, B, D, F, U | none | 13 | ProofWiki | draft written |
-| 9 | isosceles triangle theorem | geometry | isosctr | 40 | no | A, B, C, F | none | 7 | ProofWiki | draft written |
-| 10 | sum of a geometric series | calculation chain in deduction form; induction | geoser | 18 | yes | A, N | none | 3 | ProofWiki; Hammack ch. 10 exercise (verify) | draft written |
+| # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | √2 is irrational | contradiction; definition unfolding; calculation chain | sqrt2irr | 99 (+69 in sqrt2irrlem, 74 in zesq) | no | none | none | 0 | Hammack ch. 6 |
+| 2 | 1 + 2 + ... + n = n(n + 1)/2 | induction | arisum | 73 | no | N | none | 1 | Hammack ch. 10 |
+| 3 | triangle inequality, real case | proof by cases | abstri | 78 | no | A, B | none | 0 | ProofWiki; Hammack exercise (verify) |
+| 4 | infinitely many primes | existence by construction | infpn, infpnlem1, infpnlem2 | 2 + 58 + 38 | no | K, M, N | none | 3 to 5 | Hammack ch. 6 |
+| 5 | Bezout's identity | existence via a least element; definition of gcd | bezout | 47 | no | A, B | none | 5 | Hammack ch. 7 |
+| 6 | Cantor's theorem | set-theoretic argument | canth | 21 | no | A, F | `A e. _V` | 0 | Hammack ch. 14 (verify); ProofWiki |
+| 7 | a set with n elements has 2ⁿ subsets | counting | hashpw | 25 | no | A | none | 0 | Hammack ch. 1 and 10 (verify) |
+| 8 | intermediate value theorem | quantifier alternation; completeness of ℝ | ivth, ivthle | 16 + 69 | yes | A, B, D, F, U | none | 13 | ProofWiki |
+| 9 | isosceles triangle theorem | geometry | isosctr | 40 | no | A, B, C, F | none | 7 | ProofWiki |
+| 10 | sum of a geometric series | calculation chain in deduction form; induction | geoser | 18 | yes | A, N | none | 3 | ProofWiki; Hammack ch. 10 exercise (verify) |
 
 ## Notes on each choice
 
@@ -125,8 +149,9 @@ for the existence-by-construction feature.
   prime factor for the infinitude of primes. Each will be a database item
   with a pointer, and each is above what Reader A's school background
   provides, which is what the pointer rule was designed for.
-- The informal-source entries marked "verify" should be checked against
-  the book before any of those pilots is written.
+- The informal-source entries marked "verify" are to be checked against
+  the book. Their pilots were written without it; `rationals-countable.md`
+  says Hammack's account was recalled rather than reread.
 
 ## The next five
 
@@ -176,13 +201,21 @@ bijection are among them.
 4. **Schröder–Bernstein.** Short in set.mm and long on the page. The
    readable proof follows the chain of repeated images and defines the
    bijection by cases on it, so it needs a set defined by recursion and a
-   function defined piecewise, neither of which the corpus has.
+   function defined piecewise, neither of which the corpus has. Written:
+   `proofs/schroeder-bernstein.proof`, with its design record in
+   `docs/pilot/schroeder-bernstein.md`, and both of its theorems elaborate
+   with nothing assumed. The proof is the fixed-point one, not the chain
+   argument, because the chain needs a set defined by recursion: the largest
+   part C of A with nothing of g's image of what f misses on C landing in C,
+   built at once, with the bijection f on C and the way back along g off it.
 5. **Lagrange's theorem.** set.mm's group is a structure, a function from
    slot indices to its base set and operation, and the essential hypothesis
    `X = ( Base ` G )` is how every group theorem names its set. A reader
    never sees that encoding, which makes this the algebraic counterpart of
    the geometry theorem. The argument reuses the corpus's counting: the
    cosets partition the group and each has the size of the subgroup.
+   Written: `proofs/lagrange.proof`, with its design record in
+   `docs/pilot/lagrange.md`, and it elaborates with nothing assumed.
 
 Order: 11 and 12 first, since each extends machinery the corpus already
 has (divisibility and sums); then 13, which extends the analysis; 14 and 15
@@ -234,6 +267,9 @@ ProofWiki's Euclidean algorithm before the pilot: the same update, the same
 three facts (the remainder is below the divisor, gcd(a, b) = gcd(b, r),
 gcd(r, 0) = r), and the same termination by falling remainders.
 
+Theorem 16 is written and elaborates with nothing assumed:
+`proofs/euclid.proof`, with `docs/pilot/euclid.md`.
+
 Considered and not chosen: the derangements formula (#88), where set.mm
 defines a derangement by counting permutations and the recurrence
 `subfacp1` is a result about them, not a definition; the sum of k-th powers
@@ -248,7 +284,9 @@ are chosen by the same coverage rule, asking what none of the sixteen
 exercises. All four are on Wiedijk's list and in set.mm's main body.
 Measured on the same set.mm with a one-off script that is not kept; it
 reproduces every count in the tables above except ivth's disjoint pairs,
-which it makes 11, so that column may read low.
+which it makes 11. The difference is ivth's two pairs with its context
+`ph`, which the tables count, as they do geoser's; counted that way ivth
+has 13, as the table says.
 
 | # | theorem | feature stressed | set.mm | essential steps | deduction form | class vars | set-existence hyps | dv pairs | informal source |
 |---|---|---|---|---|---|---|---|---|---|
