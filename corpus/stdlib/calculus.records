@@ -33,6 +33,20 @@ mundane theorem interval-real
   metamath    iccssre
   target      iccssre
 
+mundane theorem open-within-closed
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        (a, b) ⊆ [a, b]
+  metamath    ioossicc
+  target      ioossicc
+
+mundane theorem open-interval-open
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        (a, b) is open
+  metamath    iooretop
+  target      iooretop
+
 definition continuous-on
   let D ⊆ ℝ                                                           (H1)
   let f : D → ℝ                                                       (H2)
@@ -152,31 +166,34 @@ theorem continuous-linear
   target      gcncflin with M := m
 
 theorem derivative-sum
-  let a ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  let F : [a, b] → ℝ                                                  (H3)
-  let f : [a, b] → ℝ                                                  (H4)
-  let g : [a, b] → ℝ                                                  (H5)
-  assume for all x ∈ [a, b], F(x) = f(x) + g(x)                       (H6)
-  assume f is differentiable on (a, b)                                (H7)
-  assume g is differentiable on (a, b)                                (H8)
-  then        F is differentiable on (a, b).
-              For all x ∈ (a, b), F′(x) = f′(x) + g′(x).
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  let F : D → ℝ                                                       (H3)
+  let f : D → ℝ                                                       (H4)
+  let g : D → ℝ                                                       (H5)
+  assume for all x ∈ D, F(x) = f(x) + g(x)                            (H6)
+  assume f is differentiable on U                                     (H7)
+  assume g is differentiable on U                                     (H8)
+  then        F is differentiable on U.
+              For all x ∈ U, F′(x) = f′(x) + g′(x).
   metamath    gdvadd, gdvaddv, which this corpus proves in
-              elaboration/stdlib/proved.mm from dvmptadd
-  target      gdvadd, gdvaddv with F := f, G := g
-  note        One target to a sentence, as completeness has. Each reads its
-              sentence off `gdvaddmap`, which gives the derivative of the sum
-              as a map on (a, b).
+              elaboration/stdlib/proved.mm from dvaddbr
+  target      gdvadd, gdvaddv with D := D, F := f, G := g
+  note        One target to a sentence, as completeness has. A sum is
+              differentiable at each point both its parts are, so U may be any
+              set: (a, b) inside [a, b], or ℝ itself.
 
 theorem derivative-linear
-  let a ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  let m ∈ ℝ                                                           (H3)
-  let g : [a, b] → ℝ                                                  (H4)
-  assume for all x ∈ [a, b], g(x) = m·x                               (H5)
-  then        g is differentiable on (a, b).
-              For all x ∈ (a, b), g′(x) = m.
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  assume U is open                                                    (H3)
+  let m ∈ ℝ                                                           (H4)
+  let g : D → ℝ                                                       (H5)
+  assume for all x ∈ D, g(x) = m·x                                    (H6)
+  then        g is differentiable on U.
+              For all x ∈ U, g′(x) = m.
   metamath    gdvlin, gdvlinv, which this corpus proves in
-              elaboration/stdlib/proved.mm from dvmptcmul
-  target      gdvlin, gdvlinv with M := m
+              elaboration/stdlib/proved.mm from dvmptcmul and dvres
+  target      gdvlin, gdvlinv with D := D, M := m
+  note        U is open because a line on [a, b] has no derivative at a or b:
+              the derivative is taken where a neighbourhood lies in the domain.

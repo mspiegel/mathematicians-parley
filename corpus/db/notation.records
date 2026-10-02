@@ -1318,6 +1318,18 @@ notation differentiable
               defined on exactly the open interval, which for f on [a, b]
               follows, since no derivative is taken at an end (gdvdmicc).
 
+notation open
+  pattern     _ is open
+  sort        set of number → formula
+  level       predicate
+  reads       is open
+  metamath    the open sets of the real line, topGen ran (,)
+  target      _1 cioo crn ctg cfv wcel
+  note        U is open when every point of it has an open interval about it
+              inside U, which is what being in the topology the open intervals
+              generate says. A line is differentiable on an open set inside its
+              domain and not at an end of a closed interval.
+
 notation collinear
   pattern     _, _, _ are collinear
   sort        point, point, point → formula

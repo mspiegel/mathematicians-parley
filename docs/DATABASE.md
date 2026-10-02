@@ -402,7 +402,7 @@ mundane definition difference
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
 | `theorem` | 18 |
-| `mundane theorem` | 173 |
+| `mundane theorem` | 175 |
 | `definition` | 6 |
 | `mundane definition` | 41 |
 

@@ -83,13 +83,14 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
    rather than from matching the claim, since an `obtain` claims its
    witness and not the item's conclusion.
 2. **A lemma letter only the hypotheses hold needs a `with`.** `gdvlin`'s
-   M, `gdvre`'s A and B, and the F and G of the sum rules appear in no
-   conclusion, so the elaborator would take the first fact that fits. The
-   records say which they are, `with M := m`, as completeness says its
+   D and M, `gdvre`'s A and B, and the D, F and G of the sum rules appear in
+   no conclusion, so the elaborator would take the first fact that fits.
+   The records say which they are, `with M := m`, as completeness says its
    witness.
 3. **One target to a sentence.** The derivative rules conclude two
-   sentences, and each has a lemma of its own, as completeness does. Both
-   read their sentence off one lemma giving the derivative as a map.
+   sentences, and each has a lemma of its own, as completeness does. The
+   sum's both read off one point (`gdvaddbr`), the line's off its
+   derivative restricted to U (`gdvlinres`).
 4. **`membership` reads a define as its rule, all the way down.** F(x) is
    read as f(x) + slope·x, so the requires lines of step 12.3 name the
    slope and x, which F's rule never writes.
@@ -97,11 +98,14 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
    proof of b ≠ a, which the build accepted and the verifier refused. The
    route now takes only a claim that names the bound's two sides, and the
    order proves the rest. No earlier proof wrote the shape.
-6. **The library proves the sum rules below the readable layer.** set.mm
-   states them of maps, `( x e. X |-> A )`, and of a derivative on the whole
-   of a map's domain. `src/proofs/stdlib/calculus.rs` restricts a function
-   on [a, b] to (a, b), where its derivative is unchanged (`gdvloc`), and
-   applies `dvmptadd`, `dvmptcmul`, `addcncf` and `mulcncf` there.
+6. **The library proves the sum rules below the readable layer, on any
+   D ⊆ ℝ.** The derivative rules say f on D is differentiable on a set U.
+   A sum is differentiable at each point both its parts are (`dvaddbr`), so
+   U is any set; a line is differentiable only where a neighbourhood lies
+   in D, so its rule asks U be open, a notation of its own. The mean value
+   theorem cites them with D := [a, b] and U := (a, b), and says (a, b) is
+   open and inside [a, b] by two mundane items. `addcncf`, `mulcncf`,
+   `dvmptcmul` and `dvres` do the rest, in `src/proofs/stdlib/calculus.rs`.
 
 ---
 

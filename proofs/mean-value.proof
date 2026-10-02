@@ -6,6 +6,8 @@ import theorem            stdlib/calculus/derivative-sum
 import theorem            stdlib/calculus/rolle
 import mundane definition stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-value
 
@@ -112,20 +114,26 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     requires g : [a, b] → ℝ: from 11
 
 16. g is differentiable on (a, b)
-    thm:derivative-linear a := a, b := b, m := (f(a) − f(b))/(b − a), g := g, from H1, H2, 7, 8
+    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), g := g, from 3, 7, 8
+    requires (a, b) ⊆ [a, b]: mun:open-within-closed, from H1, H2
+    requires (a, b) is open: mun:open-interval-open, from H1, H2
     requires g : [a, b] → ℝ: from 11
 
 17. For all x ∈ (a, b), g′(x) = (f(a) − f(b))/(b − a).
-    thm:derivative-linear a := a, b := b, m := (f(a) − f(b))/(b − a), g := g, from H1, H2, 7, 8
+    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), g := g, from 3, 7, 8
+    requires (a, b) ⊆ [a, b]: mun:open-within-closed, from H1, H2
+    requires (a, b) is open: mun:open-interval-open, from H1, H2
     requires g : [a, b] → ℝ: from 11
 
 18. F is differentiable on (a, b)
-    thm:derivative-sum a := a, b := b, F := F, f := f, g := g, from H1, H2, 9, H6, 16
+    thm:derivative-sum D := [a, b], U := (a, b), F := F, f := f, g := g, from 3, 9, H6, 16
+    requires (a, b) ⊆ [a, b]: mun:open-within-closed, from H1, H2
     requires F : [a, b] → ℝ: from 13
     requires g : [a, b] → ℝ: from 11
 
 19. For all x ∈ (a, b), F′(x) = f′(x) + g′(x).
-    thm:derivative-sum a := a, b := b, F := F, f := f, g := g, from H1, H2, 9, H6, 16
+    thm:derivative-sum D := [a, b], U := (a, b), F := F, f := f, g := g, from 3, 9, H6, 16
+    requires (a, b) ⊆ [a, b]: mun:open-within-closed, from H1, H2
     requires F : [a, b] → ℝ: from 13
     requires g : [a, b] → ℝ: from 11
 
