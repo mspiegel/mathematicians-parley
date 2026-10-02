@@ -1,4 +1,4 @@
-import mundane    stdlib/geometry/angle-real as geometry-angle-real
+import mundane theorem    stdlib/geometry/angle-real as geometry-angle-real
 
 theorem angle-real
   let P be a point                                                    (H1)

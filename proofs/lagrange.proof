@@ -1,30 +1,30 @@
-import theorem    stdlib/groups/group-cancel
-import mundane    stdlib/counting/card-equal
-import mundane    stdlib/counting/card-nat0
-import mundane    stdlib/counting/finite-part
-import mundane    stdlib/counting/partition-count
-import mundane    stdlib/counting/parts-finite
-import mundane    stdlib/divisibility/divides
-import mundane    stdlib/functions/bijection
-import mundane    stdlib/functions/function-into
-import mundane    stdlib/functions/one-to-one
-import mundane    stdlib/groups/coset
-import mundane    stdlib/groups/group-associative
-import mundane    stdlib/groups/group-closed
-import mundane    stdlib/groups/group-identity
-import mundane    stdlib/groups/group-inverse
-import mundane    stdlib/groups/group-inverse-closed
-import mundane    stdlib/groups/subgroup-closed
-import mundane    stdlib/groups/subgroup-identity
-import mundane    stdlib/groups/subgroup-inverse
-import mundane    stdlib/groups/subgroup-within
-import mundane    stdlib/sets/in-subset
-import mundane    stdlib/sets/indexed-union
-import mundane    stdlib/sets/intersection
-import mundane    stdlib/sets/part-builder
-import mundane    stdlib/sets/subset
-import mundane    stdlib/sets/subset-antisymmetric
-import mundane    stdlib/sets/union-within
+import theorem            stdlib/groups/group-cancel
+import mundane theorem    stdlib/counting/card-equal
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/counting/partition-count
+import mundane theorem    stdlib/counting/parts-finite
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/functions/bijection
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/groups/coset
+import mundane axiom      stdlib/groups/group-associative
+import mundane axiom      stdlib/groups/group-closed
+import mundane axiom      stdlib/groups/group-identity
+import mundane axiom      stdlib/groups/group-inverse
+import mundane axiom      stdlib/groups/group-inverse-closed
+import mundane theorem    stdlib/groups/subgroup-closed
+import mundane theorem    stdlib/groups/subgroup-identity
+import mundane theorem    stdlib/groups/subgroup-inverse
+import mundane theorem    stdlib/groups/subgroup-within
+import mundane theorem    stdlib/sets/in-subset
+import mundane definition stdlib/sets/indexed-union
+import mundane definition stdlib/sets/intersection
+import mundane definition stdlib/sets/part-builder
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/union-within
 
 theorem lagrange
   metamath    lagsubg, which says it of the index set.mm builds from the

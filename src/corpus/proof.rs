@@ -121,8 +121,9 @@ pub struct Import {
 }
 
 /// An import of a library function the file applies, by its name, from the
-/// library file that declares it: `import mundane stdlib/divisibility/gcd`.
-/// Its keyword is read as any item's is, and it is a function because the
+/// library file that declares it: `import mundane definition
+/// stdlib/divisibility/gcd`. Its words are read as any item's are, and it
+/// is a function because the
 /// definition it names has `sort` and `builds` lines (`link_functions`). It
 /// takes no `as`, since the library's name for it is the one every formula
 /// reads.
@@ -140,8 +141,12 @@ pub struct FunctionImport {
 /// proof file.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemImport {
-    /// The kind its keyword says.
+    /// What a citation of it writes, which its keywords say: `mun:` where
+    /// they open with `mundane`, and the kind's prefix otherwise.
     pub kind: ItemKind,
+    /// Its keywords as one text, which is the header of the record it names
+    /// before the name: `mundane theorem`, `axiom`.
+    pub said: String,
     pub module: String,
     pub name: String,
     /// The name the file cites it by: its own, or the one after `as`.
@@ -269,22 +274,8 @@ impl ItemKind {
         }
     }
 
-    /// The keyword of an import of an item cited with this prefix.
-    pub fn keyword(self) -> &'static str {
-        match self {
-            ItemKind::Axiom => "axiom",
-            ItemKind::Theorem => "theorem",
-            ItemKind::Mundane => "mundane",
-            ItemKind::Definition => "definition",
-        }
-    }
-
     pub fn from_prefix(prefix: &str) -> Option<ItemKind> {
         ITEM_KINDS.into_iter().find(|k| k.prefix() == prefix)
-    }
-
-    pub fn from_keyword(keyword: &str) -> Option<ItemKind> {
-        ITEM_KINDS.into_iter().find(|k| k.keyword() == keyword)
     }
 
     /// What a citation of a library record writes: `mun:` where its header
@@ -915,7 +906,7 @@ const DEFINED_NAME: &str = r"[A-Za-zα-ω][A-Za-zα-ω0-9₀-₉′-]*";
 regex!(
     IMPORTED,
     format!(
-        r"^import\s+(?P<kind>\S+)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?\s*$",
+        r"^import\s+(?:(?P<mark>mundane)\s+)?(?P<kind>\S+)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?\s*$",
         n = super::NAME,
         d = DEFINED_NAME,
         l = super::LABEL
@@ -928,16 +919,19 @@ enum Imported {
     Define(Import),
 }
 
-/// One `import` line: one item, with `mundane` as the keyword for an item a
-/// proof takes for granted and its kind otherwise.
+/// One `import` line: one item, with the words its record's header says
+/// before its name, `mundane` for an item a proof takes for granted and then
+/// its kind.
 ///
 /// `import theorem stdlib/divisibility/prime-factor` brings in an item a step
-/// cites, `thm:prime-factor`, or by the name after `as`. A library function
-/// is read here as any library item is, and `link_functions` sets it apart
-/// once the records are read. A define of a proof file is brought in as a
-/// `definition`, under one letter, with the label a line of this file cites
-/// it by where a line does. Whether the keyword fits what the line names is
-/// the checker's to ask, since it wants the item.
+/// cites, `thm:prime-factor`, or by the name after `as`, and
+/// `import mundane theorem stdlib/numbers/int-closure` one it cites
+/// `mun:int-closure`. A library function is read here as any library item
+/// is, and `link_functions` sets it apart once the records are read. A define
+/// of a proof file is brought in as a `definition`, under one letter, with
+/// the label a line of this file cites it by where a line does. Whether the
+/// words are the header of what the line names is the checker's to ask,
+/// since it wants the item.
 fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     let Some(m) = IMPORTED.captures(str::trim(text)) else {
         return Err(Problem::new(
@@ -946,15 +940,30 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             "an import says `import <kind> <file>/<name>`, as `import theorem stdlib/divisibility/prime-factor` does",
         ));
     };
-    let keyword = &m["kind"];
-    let Some(kind) = ItemKind::from_keyword(keyword) else {
+    let mundane = m.name("mark").is_some();
+    let word = &m["kind"];
+    let Some(record_kind) = RecordKind::parse(word).filter(|k| k.is_item()) else {
         return Err(Problem::new(
             path,
             no,
             format!(
-                "import {keyword}: an import's keyword is mundane for an item taken for granted, and otherwise the item's kind, axiom, theorem or definition"
+                "import {word}: an import says the header of the item it names, its kind, axiom, theorem or definition, with mundane before it for an item taken for granted, as `import mundane theorem stdlib/numbers/int-closure`"
             ),
         ));
+    };
+    let kind = if mundane {
+        ItemKind::Mundane
+    } else {
+        match record_kind {
+            RecordKind::Axiom => ItemKind::Axiom,
+            RecordKind::Definition => ItemKind::Definition,
+            _ => ItemKind::Theorem,
+        }
+    };
+    let keyword = if mundane {
+        format!("mundane {word}")
+    } else {
+        word.to_string()
     };
     let whole = &m["full"];
     let (module, name) = match whole.rfind('/') {
@@ -975,7 +984,16 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     // label its import gives it, as one the file defines is: a calculation
     // link writing S(k + 1) out cites the equation. A file that never writes
     // it out gives it no label.
-    if !from_library && kind == ItemKind::Definition {
+    if !from_library && record_kind == RecordKind::Definition {
+        if mundane {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "import {keyword} {whole}: a proof's define is where the proof gives a name its meaning, so it is never mundane; import it as `import definition {whole}`"
+                ),
+            ));
+        }
         if !super::define::is_one_name(alias) {
             return Err(Problem::new(
                 path,
@@ -1019,6 +1037,7 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     }
     Ok(Imported::Item(ItemImport {
         kind,
+        said: keyword,
         module: module.to_string(),
         name: name.to_string(),
         alias: alias.to_string(),

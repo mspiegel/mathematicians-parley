@@ -1,7 +1,7 @@
-import mundane    stdlib/counting/card-empty as counting-card-empty
-import mundane    stdlib/counting/factorial
-import mundane    stdlib/counting/factorial-zero as counting-factorial-zero
-import definition stdlib/counting/C
+import mundane theorem    stdlib/counting/card-empty as counting-card-empty
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-zero as counting-factorial-zero
+import definition         stdlib/counting/C
 
 theorem factorial-base
   then 1! = 1

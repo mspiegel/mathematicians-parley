@@ -203,7 +203,7 @@ pub fn restatements(
             let alias = format!("{file}-{}", r.name);
             head.0.push(format!(
                 "import {} {} as {alias}",
-                kind.keyword(),
+                r.header(),
                 r.qualified()
             ));
             alias
@@ -337,7 +337,7 @@ pub fn restatements(
                 let keyword = records
                     .iter()
                     .find(|r| r.qualified() == *item)
-                    .map_or("definition", |r| ItemKind::of_record(r).keyword());
+                    .map_or("definition".to_string(), Record::header);
                 head.push_str(&format!("import {keyword} {item}\n"));
             }
             (key, format!("{head}\n{body}"))

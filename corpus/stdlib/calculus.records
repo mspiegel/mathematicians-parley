@@ -5,8 +5,8 @@
 # One record per item. A record begins at column 0 with its kind, axiom,
 # theorem or definition, and its name; `mundane` before the kind marks an
 # item a proof takes for granted. A proof imports each item it cites,
-# `import <keyword> stdlib/calculus/<name>`, where the keyword is mundane
-# for a marked item and the item's kind otherwise. Format is described in DATABASE.md.
+# `import <header> stdlib/calculus/<name>`, where the header is the
+# record's own before its name, as `mundane theorem` or `axiom`. Format is described in DATABASE.md.
 #
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.

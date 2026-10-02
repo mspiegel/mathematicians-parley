@@ -1,23 +1,23 @@
-import theorem    stdlib/divisibility/sigma-multiplicative
-import theorem    stdlib/divisibility/sigma-prime
-import theorem    stdlib/divisibility/sigma-prime-power
-import theorem    proofs/geometric-series/geometric-sum
-import mundane    stdlib/divisibility/divides-difference
-import mundane    stdlib/divisibility/divides-multiple
-import mundane    stdlib/divisibility/divides-one
-import mundane    stdlib/divisibility/divides-self
-import mundane    stdlib/divisibility/gcd
-import mundane    stdlib/divisibility/gcd-commutes
-import mundane    stdlib/divisibility/prime
-import mundane    stdlib/divisibility/prime-coprime
-import mundane    stdlib/divisibility/prime-nat
-import mundane    stdlib/divisibility/two-prime
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/nat-closure
-import mundane    stdlib/numbers/nat-minus-one
-import mundane    stdlib/numbers/power-nat
-import definition stdlib/divisibility/perfect
-import definition stdlib/divisibility/σ
+import theorem            stdlib/divisibility/sigma-multiplicative
+import theorem            stdlib/divisibility/sigma-prime
+import theorem            stdlib/divisibility/sigma-prime-power
+import theorem            proofs/geometric-series/geometric-sum
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/divisibility/prime-coprime
+import mundane theorem    stdlib/divisibility/prime-nat
+import mundane theorem    stdlib/divisibility/two-prime
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/nat-closure
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/power-nat
+import definition         stdlib/divisibility/perfect
+import definition         stdlib/divisibility/σ
 
 theorem euclid-perfect
   metamath    perfect1

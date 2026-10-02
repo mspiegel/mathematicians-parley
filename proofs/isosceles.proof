@@ -1,10 +1,10 @@
-import axiom      stdlib/geometry/side-angle-side
-import mundane    stdlib/geometry/angle-symmetric
-import mundane    stdlib/geometry/distance-symmetric
-import mundane    stdlib/geometry/triangle
-import mundane    stdlib/geometry/triangle-rotate
-import mundane    stdlib/geometry/triangle-swap
-import definition stdlib/geometry/congruent
+import axiom              stdlib/geometry/side-angle-side
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/triangle-rotate
+import mundane theorem    stdlib/geometry/triangle-swap
+import definition         stdlib/geometry/congruent
 
 theorem isosceles
   metamath    isosctr

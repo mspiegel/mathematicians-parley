@@ -1221,7 +1221,7 @@ pub fn check_imports(
         let mut edges: IndexMap<String, usize> = IndexMap::new();
         for i in &scope.items {
             let (no, full_name) = (i.line, i.full());
-            let keyword = i.kind.keyword();
+            let keyword = &i.said;
             if !imported.insert(full_name.clone()) {
                 report.say(path, no, format!("{full_name} is imported twice"));
                 continue;
@@ -1263,12 +1263,13 @@ pub fn check_imports(
                         i.module, i.name
                     ),
                 ),
-                Some(item) if item.cited_as() != i.kind => report.say(
+                Some(item) if item.header() != i.said => report.say(
                     path,
                     no,
                     format!(
-                        "import {keyword} {full_name}: {full_name} is {}",
-                        item.described()
+                        "import {keyword} {full_name}: {full_name} is {}; import it as `import {} {full_name}`",
+                        item.described(),
+                        item.header()
                     ),
                 ),
                 Some(_) => {}

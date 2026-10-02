@@ -1,9 +1,9 @@
-import mundane    stdlib/sums/range as sums-range
-import mundane    stdlib/sums/range-empty as sums-range-empty
-import mundane    stdlib/sums/range-nat as sums-range-nat
-import mundane    stdlib/sums/range-single as sums-range-single
-import mundane    stdlib/sums/range-split as sums-range-split
-import mundane    stdlib/sums/range0 as sums-range0
+import mundane definition stdlib/sums/range as sums-range
+import mundane theorem    stdlib/sums/range-empty as sums-range-empty
+import mundane theorem    stdlib/sums/range-nat as sums-range-nat
+import mundane theorem    stdlib/sums/range-single as sums-range-single
+import mundane theorem    stdlib/sums/range-split as sums-range-split
+import mundane definition stdlib/sums/range0 as sums-range0
 
 theorem range-nat
   let n ∈ ℤ                                                           (H1)

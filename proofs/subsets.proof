@@ -1,39 +1,39 @@
-import mundane    stdlib/counting/card-bijection
-import mundane    stdlib/counting/card-disjoint-union
-import mundane    stdlib/counting/card-nonempty
-import mundane    stdlib/counting/card-remove
-import mundane    stdlib/counting/card-singleton
-import mundane    stdlib/counting/card-zero
-import mundane    stdlib/functions/added-element-in-image
-import mundane    stdlib/functions/added-elements-are-new
-import mundane    stdlib/functions/added-elements-stay-inside
-import mundane    stdlib/functions/image-of-injection
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/power-nat0
-import mundane    stdlib/numbers/power-real
-import mundane    stdlib/reasoning/double-negation
-import mundane    stdlib/reasoning/excluded-middle
-import mundane    stdlib/sets/difference-absent
-import mundane    stdlib/sets/difference-of-union
-import mundane    stdlib/sets/difference-shrinks
-import mundane    stdlib/sets/difference-subset
-import mundane    stdlib/sets/disjoint-empty
-import mundane    stdlib/sets/in-union-left
-import mundane    stdlib/sets/in-union-right
-import mundane    stdlib/sets/in-union-singleton
-import mundane    stdlib/sets/not-in-difference
-import mundane    stdlib/sets/not-in-subset
-import mundane    stdlib/sets/powerset
-import mundane    stdlib/sets/powerset-empty
-import mundane    stdlib/sets/powerset-monotone
-import mundane    stdlib/sets/remove-and-restore
-import mundane    stdlib/sets/singleton-subset
-import mundane    stdlib/sets/subset
-import mundane    stdlib/sets/subset-antisymmetric
-import mundane    stdlib/sets/subset-into-difference
-import mundane    stdlib/sets/subset-of-difference
-import mundane    stdlib/sets/subset-transitive
-import mundane    stdlib/sets/union-subset
+import mundane theorem    stdlib/counting/card-bijection
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-nonempty
+import mundane theorem    stdlib/counting/card-remove
+import mundane theorem    stdlib/counting/card-singleton
+import mundane theorem    stdlib/counting/card-zero
+import mundane theorem    stdlib/functions/added-element-in-image
+import mundane theorem    stdlib/functions/added-elements-are-new
+import mundane theorem    stdlib/functions/added-elements-stay-inside
+import mundane theorem    stdlib/functions/image-of-injection
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/power-nat0
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/reasoning/double-negation
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/sets/difference-absent
+import mundane theorem    stdlib/sets/difference-of-union
+import mundane theorem    stdlib/sets/difference-shrinks
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/disjoint-empty
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane theorem    stdlib/sets/in-union-singleton
+import mundane theorem    stdlib/sets/not-in-difference
+import mundane theorem    stdlib/sets/not-in-subset
+import mundane definition stdlib/sets/powerset
+import mundane theorem    stdlib/sets/powerset-empty
+import mundane theorem    stdlib/sets/powerset-monotone
+import mundane theorem    stdlib/sets/remove-and-restore
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/subset-into-difference
+import mundane theorem    stdlib/sets/subset-of-difference
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/sets/union-subset
 
 theorem add-element-bijection
   note        The pilot's row was itself incomplete, reading "Let X be a set, a

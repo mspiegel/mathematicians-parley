@@ -1,28 +1,28 @@
-import mundane    stdlib/numbers/abs-negative as numbers-abs-negative
-import mundane    stdlib/numbers/abs-one as numbers-abs-one
-import mundane    stdlib/numbers/abs-power as numbers-abs-power
-import mundane    stdlib/numbers/abs-product as numbers-abs-product
-import mundane    stdlib/numbers/abs-quotient as numbers-abs-quotient
-import mundane    stdlib/numbers/abs-square as numbers-abs-square
-import mundane    stdlib/numbers/abs-zero as numbers-abs-zero
-import mundane    stdlib/numbers/below-successor as numbers-below-successor
-import mundane    stdlib/numbers/half-positive as numbers-half-positive
-import mundane    stdlib/numbers/int-real as numbers-int-real
-import mundane    stdlib/numbers/integer-step as numbers-integer-step
-import mundane    stdlib/numbers/le-max
-import mundane    stdlib/numbers/max
-import mundane    stdlib/numbers/max-le as numbers-max-le
-import mundane    stdlib/numbers/max-real as numbers-max-real
-import mundane    stdlib/numbers/nat-ge-1 as numbers-nat-ge-1
-import mundane    stdlib/numbers/nat-int as numbers-nat-int
-import mundane    stdlib/numbers/nat-real as numbers-nat-real
-import mundane    stdlib/numbers/nat0 as numbers-nat0
-import mundane    stdlib/numbers/nat0-as-int as numbers-nat0-as-int
-import mundane    stdlib/numbers/nat0-int as numbers-nat0-int
-import mundane    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
-import mundane    stdlib/numbers/nat0-real as numbers-nat0-real
-import mundane    stdlib/numbers/quotient-real as numbers-quotient-real
-import mundane    stdlib/numbers/rational as numbers-rational
+import mundane theorem    stdlib/numbers/abs-negative as numbers-abs-negative
+import mundane theorem    stdlib/numbers/abs-one as numbers-abs-one
+import mundane theorem    stdlib/numbers/abs-power as numbers-abs-power
+import mundane theorem    stdlib/numbers/abs-product as numbers-abs-product
+import mundane theorem    stdlib/numbers/abs-quotient as numbers-abs-quotient
+import mundane theorem    stdlib/numbers/abs-square as numbers-abs-square
+import mundane theorem    stdlib/numbers/abs-zero as numbers-abs-zero
+import mundane theorem    stdlib/numbers/below-successor as numbers-below-successor
+import mundane theorem    stdlib/numbers/half-positive as numbers-half-positive
+import mundane theorem    stdlib/numbers/int-real as numbers-int-real
+import mundane theorem    stdlib/numbers/integer-step as numbers-integer-step
+import mundane theorem    stdlib/numbers/le-max
+import mundane definition stdlib/numbers/max
+import mundane theorem    stdlib/numbers/max-le as numbers-max-le
+import mundane theorem    stdlib/numbers/max-real as numbers-max-real
+import mundane theorem    stdlib/numbers/nat-ge-1 as numbers-nat-ge-1
+import mundane theorem    stdlib/numbers/nat-int as numbers-nat-int
+import mundane theorem    stdlib/numbers/nat-real as numbers-nat-real
+import mundane definition stdlib/numbers/nat0 as numbers-nat0
+import mundane theorem    stdlib/numbers/nat0-as-int as numbers-nat0-as-int
+import mundane theorem    stdlib/numbers/nat0-int as numbers-nat0-int
+import mundane theorem    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
+import mundane theorem    stdlib/numbers/nat0-real as numbers-nat0-real
+import mundane theorem    stdlib/numbers/quotient-real as numbers-quotient-real
+import mundane definition stdlib/numbers/rational as numbers-rational
 
 theorem rational
   let x ∈ ℝ                                                           (H1)

@@ -1,4 +1,4 @@
-import mundane    stdlib/functions/set-image as functions-set-image
+import mundane definition stdlib/functions/set-image as functions-set-image
 
 theorem set-image
   let Y be a set                                                      (H1)

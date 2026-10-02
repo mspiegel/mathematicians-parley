@@ -501,9 +501,9 @@ substitution in the corpus comes close.
 
 ```
 <proof file>  ::= { <import> } { <theorem> | <define> }
-<import>      ::= `import` <kind> <module> `/` <name> [ `as` <name> ]
-                  [ `(` <label> `)` ]
-<kind>        ::= `axiom` | `theorem` | `definition` | `mundane`
+<import>      ::= `import` [ `mundane` ] <kind> <module> `/` <name>
+                  [ `as` <name> ] [ `(` <label> `)` ]
+<kind>        ::= `axiom` | `theorem` | `definition`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
                   { <hypothesis> | <define> }
@@ -621,38 +621,40 @@ library's records files, `corpus/stdlib/<module>.records`, and hold items
 rather than proofs. Any other module names a proof file, `<module>.proof`,
 wherever under the root that file is kept.
 
-**An import names one item, and its keyword is `mundane` for an item taken
-for granted and the item's kind otherwise.** A proof file imports each item it
-uses from another file, one to a line, by its full name:
+**An import names one item, after the words its record's header says before
+its name.** A proof file imports each item it uses from another file, one to a
+line, by its full name, its paths in one column:
 
 ```
-import axiom      stdlib/calculus/completeness
-import theorem    stdlib/divisibility/prime-factor
-import mundane    stdlib/numbers/trichotomy
-import mundane    stdlib/numbers/int-closure
-import mundane    stdlib/divisibility/gcd
-import definition stdlib/counting/C
-import theorem    proofs/triangle-inequality/abs-bounds as abs-sum
-import definition proofs/tri/T as U (D1)
-import definition proofs/cantor/B
+import axiom              stdlib/calculus/completeness
+import theorem            stdlib/divisibility/prime-factor
+import mundane axiom      stdlib/numbers/trichotomy
+import mundane theorem    stdlib/numbers/int-closure
+import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/counting/C
+import theorem            proofs/triangle-inequality/abs-bounds as abs-sum
+import definition         proofs/tri/T as U (D1)
+import definition         proofs/cantor/B
 ```
 
-The keyword is what the item is where it lives. For the library it is
-`mundane` where the record's header is marked mundane and the record's kind
-otherwise (`DATABASE.md`, "Record kinds"). For a proof file it is `theorem`
-for a theorem and `definition` for a define outside the theorems, whether or
-not the define takes an argument, since a reader calls both "the definition
-of T" and "the definition of B". A proof's define is never mundane: it is
-where the proof gives a name its meaning, and a reader meets it there. So the
-head of a file says what the file rests on, and which of it is mundane,
-without the reader opening another file. There is no import of a whole file,
-and a bare `import` is a defect. The path is the full one from the root, so
+The words are what the item is where it lives. For the library they are the
+record's header: its kind, with `mundane` before it where the record is
+marked mundane (`DATABASE.md`, "Record kinds"). For a proof file they are
+`theorem` for a theorem and `definition` for a define outside the theorems,
+whether or not the define takes an argument, since a reader calls both "the
+definition of T" and "the definition of B". A proof's define is never
+mundane: it is where the proof gives a name its meaning, and a reader meets it
+there. So the head of a file says what the file rests on, what each item is,
+and which of it is taken for granted, without the reader opening another
+file. There is no import of a whole file, and a bare `import` is a defect, as
+is `import mundane` with no kind. The path is the full one from the root, so
 moving or renaming a directory changes the imports and nothing else about
 them.
 
-**A citation writes the import keyword's prefix and the item's name, not its
-path.** The import says where an item comes from, so the step does not say it
-again:
+**A citation writes the prefix its import's words give and the item's name,
+not its path:** `mun:` where the words open with `mundane`, and the kind's
+prefix otherwise. The import says where an item comes from, so the step does
+not say it again:
 
 | record | citation |
 |---|---|
@@ -697,7 +699,8 @@ applied bare in a formula, `gcd(a, b)`, and a step that unfolds it cites
 cites or applies is distinct within it: its own theorems, and each import under
 its name or the name after `as`. Where two would share a name, an import takes
 `as`, as the tests of the library do, whose theorems take the names of the
-items they test: `import mundane stdlib/numbers/abs-one as numbers-abs-one`. An
+items they test: `import mundane theorem stdlib/numbers/abs-one as
+numbers-abs-one`. An
 imported define is written inside formulas, so the name it is imported under,
 its own or the one `as` gives, is one letter, as a define's is. A library
 function is imported by its own name and takes no `as`: a formula reads the
@@ -707,8 +710,9 @@ one may be any name.
 
 **Each of these is a defect:** an item cited or applied and not imported; an
 import that nothing cites or applies; an item imported twice; an import whose
-keyword, or a citation whose prefix, is not `mundane` or `mun:` for an item
-taken for granted, or not the item's kind for one that is not; a citation
+words are not its record's header, and a citation whose prefix is not `mun:`
+for an item taken for granted, or not the item's kind for one that is not; a
+proof's define imported as mundane; a citation
 written with a path; an import of a path that names no file; an import of a
 name the file does not hold, or holds only inside a theorem; an import of a
 theorem of the importing file; an imported define's label that no line cites,
@@ -961,11 +965,11 @@ first argument, since `target` already names the theorem the record's statement
 is, and a definition with a `sort` line and no `builds` is refused. A `then`
 line is optional: `min` and `max` have none, and what a proof needs of them is
 in items of their own. A proof file that applies a function imports it as it
-imports any item, by its mark or kind, from the library file that declares
-it, with no label and no `as`:
+imports any item, after its record's header, from the library file that
+declares it, with no label and no `as`:
 
 ```
-import mundane stdlib/divisibility/gcd
+import mundane definition stdlib/divisibility/gcd
 ```
 
 and then writes `gcd(a, b)`, which the parser reads as the name gcd applied to

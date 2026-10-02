@@ -1,10 +1,10 @@
-import theorem    stdlib/divisibility/prime-factor
-import mundane    stdlib/counting/factorial-divisible
-import mundane    stdlib/counting/factorial-nat
-import mundane    stdlib/divisibility/divides-difference
-import mundane    stdlib/divisibility/divides-one
-import mundane    stdlib/divisibility/prime
-import mundane    stdlib/numbers/nat-closure
+import theorem            stdlib/divisibility/prime-factor
+import mundane theorem    stdlib/counting/factorial-divisible
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/numbers/nat-closure
 
 theorem prime-above
   metamath    infpn

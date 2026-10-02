@@ -1,4 +1,4 @@
-import mundane    stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/divides
 
 theorem values-by-name
   let a ∈ ℤ                                                           (H1)

@@ -1,11 +1,11 @@
-import theorem    stdlib/numbers/archimedean
-import theorem    stdlib/sums/sum-telescopes
-import mundane    stdlib/calculus/series-sum
-import mundane    stdlib/numbers/abs-difference-lt
-import mundane    stdlib/numbers/reciprocal-order
-import mundane    stdlib/numbers/reciprocal-positive
-import mundane    stdlib/sums/sum-termwise
-import definition stdlib/calculus/tends-to
+import theorem            stdlib/numbers/archimedean
+import theorem            stdlib/sums/sum-telescopes
+import mundane definition stdlib/calculus/series-sum
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/sums/sum-termwise
+import definition         stdlib/calculus/tends-to
 
 define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
        reads the k-th triangular number

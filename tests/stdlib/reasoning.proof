@@ -1,5 +1,5 @@
-import mundane    stdlib/reasoning/or-left as reasoning-or-left
-import mundane    stdlib/reasoning/or-right as reasoning-or-right
+import mundane theorem    stdlib/reasoning/or-left as reasoning-or-left
+import mundane theorem    stdlib/reasoning/or-right as reasoning-or-right
 
 theorem or-left
   let x ∈ ℝ                                                           (H1)

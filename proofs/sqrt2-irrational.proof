@@ -1,17 +1,17 @@
-import theorem    stdlib/divisibility/divides-gcd
-import mundane    stdlib/divisibility/divides
-import mundane    stdlib/divisibility/divides-one
-import mundane    stdlib/divisibility/even
-import mundane    stdlib/divisibility/even-or-odd
-import mundane    stdlib/divisibility/gcd
-import mundane    stdlib/divisibility/not-both
-import mundane    stdlib/divisibility/odd
-import mundane    stdlib/numbers/int-closure
-import mundane    stdlib/numbers/irrational
-import mundane    stdlib/numbers/pos-int-nat
-import mundane    stdlib/numbers/rational-coprime
-import mundane    stdlib/numbers/sqrt
-import mundane    stdlib/reasoning/disjunctive-syllogism
+import theorem            stdlib/divisibility/divides-gcd
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/not-both
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/numbers/int-closure
+import mundane definition stdlib/numbers/irrational
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/rational-coprime
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 
 theorem odd-square
   metamath    zesq covers it

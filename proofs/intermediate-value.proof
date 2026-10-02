@@ -1,25 +1,25 @@
-import axiom      stdlib/calculus/completeness
-import theorem    proofs/triangle-inequality/abs-bounds
-import mundane    stdlib/calculus/interval
-import mundane    stdlib/calculus/interval-real
-import mundane    stdlib/calculus/least-upper-bound
-import mundane    stdlib/calculus/upper-bound
-import mundane    stdlib/functions/function-value
-import mundane    stdlib/numbers/abs-difference-lt
-import mundane    stdlib/numbers/abs-real
-import mundane    stdlib/numbers/half-real
-import mundane    stdlib/numbers/lt-min
-import mundane    stdlib/numbers/min
-import mundane    stdlib/numbers/min-le
-import mundane    stdlib/numbers/min-real
-import mundane    stdlib/numbers/real-closure
-import mundane    stdlib/numbers/trichotomy
-import mundane    stdlib/reasoning/double-negation
-import mundane    stdlib/reasoning/from-contradiction
-import mundane    stdlib/sets/set-builder
-import mundane    stdlib/sets/set-builder-subset
-import mundane    stdlib/sets/subset-transitive
-import definition stdlib/calculus/continuous-on
+import axiom              stdlib/calculus/completeness
+import theorem            proofs/triangle-inequality/abs-bounds
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane definition stdlib/calculus/least-upper-bound
+import mundane definition stdlib/calculus/upper-bound
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/half-real
+import mundane theorem    stdlib/numbers/lt-min
+import mundane definition stdlib/numbers/min
+import mundane theorem    stdlib/numbers/min-le
+import mundane theorem    stdlib/numbers/min-real
+import mundane theorem    stdlib/numbers/real-closure
+import mundane axiom      stdlib/numbers/trichotomy
+import mundane theorem    stdlib/reasoning/double-negation
+import mundane theorem    stdlib/reasoning/from-contradiction
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane theorem    stdlib/sets/subset-transitive
+import definition         stdlib/calculus/continuous-on
 
 theorem intermediate-value
   metamath    ivth, the general form

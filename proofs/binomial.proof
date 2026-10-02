@@ -1,23 +1,23 @@
-import theorem    stdlib/counting/pascal
-import mundane    stdlib/counting/binomial-nat0
-import mundane    stdlib/counting/binomial-zero-index
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/int-closure
-import mundane    stdlib/numbers/nat0-closure
-import mundane    stdlib/numbers/power-real
-import mundane    stdlib/numbers/real-closure
-import mundane    stdlib/sums/range-difference
-import mundane    stdlib/sums/range-integer
-import mundane    stdlib/sums/range-nat0
-import mundane    stdlib/sums/sum-add
-import mundane    stdlib/sums/sum-first
-import mundane    stdlib/sums/sum-last
-import mundane    stdlib/sums/sum-real
-import mundane    stdlib/sums/sum-scaled
-import mundane    stdlib/sums/sum-shift
-import mundane    stdlib/sums/sum-single
-import mundane    stdlib/sums/sum-termwise
-import definition stdlib/counting/C
+import theorem            stdlib/counting/pascal
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/nat0-closure
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/real-closure
+import mundane theorem    stdlib/sums/range-difference
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/sums/range-nat0
+import mundane theorem    stdlib/sums/sum-add
+import mundane theorem    stdlib/sums/sum-first
+import mundane theorem    stdlib/sums/sum-last
+import mundane theorem    stdlib/sums/sum-real
+import mundane theorem    stdlib/sums/sum-scaled
+import mundane theorem    stdlib/sums/sum-shift
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-termwise
+import definition         stdlib/counting/C
 
 theorem binomial-step
   note        The induction step's algebra, stated apart from the induction.

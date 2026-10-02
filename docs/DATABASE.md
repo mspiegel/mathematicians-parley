@@ -28,10 +28,11 @@ An item is named by the file that holds it and then its own name:
 `stdlib/divisibility/odd`, `stdlib/numbers/int-real`,
 `proofs/triangle-inequality/abs-bounds`. The file is its path without the
 extension, so the full name says where to look. A proof file imports each item
-it cites from another file by that full name, one to a line, with `mundane`
-as the keyword for an item taken for granted and the item's kind otherwise,
-`import mundane stdlib/numbers/int-real`; a step then cites it by the
-keyword's prefix and its name, `mun:int-real`. A theorem of the citing file is
+it cites from another file by that full name, one to a line, after the words
+its record's header says before its name, `import mundane theorem
+stdlib/numbers/int-real`; a step then cites it by its name and the prefix
+those words give, `mun:` for an item taken for granted and the kind's
+otherwise, `mun:int-real`. A theorem of the citing file is
 cited the same way, `thm:odd-square`, and has no import. `GRAMMAR.md` gives
 the rules under "Names". Prose outside a proof, as in this document and the
 records' notes, names an item by its prefix and full name,
@@ -109,7 +110,7 @@ A function a proof may apply is a definition with a `sort` line: its name is
 the function's, its `sort` line gives one place before the arrow for each
 argument, its `builds` line gives the set.mm term an application stands for,
 and its `reads` line says it in words. A proof file that applies it imports
-it as it imports any item, `import mundane stdlib/divisibility/gcd`, and the
+it as it imports any item, `import mundane definition stdlib/divisibility/gcd`, and the
 name is then read
 wherever the file applies it, as a proof's own `T(k)` is; nothing about it is
 notation (`GRAMMAR.md`, "Database records").
@@ -409,8 +410,9 @@ The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
 `mundane` is not a kind. A bare `mundane int-closure` is a defect, and so is
 `mundane` before `notation` or `precedence`, which nothing cites. The mark
-decides the prefix a citation writes, `mun:`, and the keyword of an import,
-and nothing else: a mundane definition is still written out where it is used
+decides the prefix a citation writes, `mun:`, and an import repeats the
+header, `import mundane theorem stdlib/numbers/int-closure`; it changes
+nothing else: a mundane definition is still written out where it is used
 and is still unfolded, because the elaborator reads the kind from the record
 and not from the line.
 

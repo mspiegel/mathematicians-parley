@@ -1,15 +1,15 @@
-import theorem    stdlib/trigonometry/cos-add
-import theorem    stdlib/trigonometry/sin-add
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/exponent-zero
-import mundane    stdlib/numbers/i
-import mundane    stdlib/numbers/i-complex
-import mundane    stdlib/trigonometry/cos
-import mundane    stdlib/trigonometry/cos-real
-import mundane    stdlib/trigonometry/cos-zero
-import mundane    stdlib/trigonometry/sin
-import mundane    stdlib/trigonometry/sin-real
-import mundane    stdlib/trigonometry/sin-zero
+import theorem            stdlib/trigonometry/cos-add
+import theorem            stdlib/trigonometry/sin-add
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane definition stdlib/numbers/i
+import mundane theorem    stdlib/numbers/i-complex
+import mundane definition stdlib/trigonometry/cos
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane theorem    stdlib/trigonometry/cos-zero
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+import mundane theorem    stdlib/trigonometry/sin-zero
 
 theorem de-moivre
   metamath    demoivre

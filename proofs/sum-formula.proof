@@ -1,6 +1,6 @@
-import mundane    stdlib/numbers/nat-closure
-import mundane    stdlib/sums/sum-extended
-import mundane    stdlib/sums/sum-single
+import mundane theorem    stdlib/numbers/nat-closure
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
 
 theorem sum-formula
   metamath    arisum

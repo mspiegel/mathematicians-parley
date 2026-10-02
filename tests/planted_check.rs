@@ -204,7 +204,7 @@ fn cases() -> Vec<Case> {
                 edit("proofs/tri.proof", None, TRI.to_string()),
                 edit("proofs/tri-use.proof", None, "import theorem proofs/tri/tri-one\nimport function proofs/tri/T\n\ntheorem use-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    thm:tri-one\n".to_string()),
             ],
-            "import function: an import's keyword is mundane for an item taken for granted, and otherwise the item's kind",
+            "import function: an import says the header of the item it names",
         ),
         // An imported define's label is what a line writing it out cites, and
         // is given only where a line does.
@@ -270,25 +270,25 @@ fn cases() -> Vec<Case> {
         case(
             "apply a library function the file does not import",
             vec![
-                edit("proofs/bezout.proof", Some("import mundane    stdlib/divisibility/gcd\n".to_string()), String::new()),
+                edit("proofs/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), String::new()),
             ],
-            "gcd is the library's function mun:stdlib/divisibility/gcd, and this file does not import it: write `import mundane stdlib/divisibility/gcd`",
+            "gcd is the library's function mun:stdlib/divisibility/gcd, and this file does not import it: write `import mundane definition stdlib/divisibility/gcd`",
         ),
         case(
             "import a library function from a file that does not declare it",
             vec![
-                edit("proofs/bezout.proof", Some("import mundane    stdlib/divisibility/gcd\n".to_string()), "import mundane stdlib/numbers/gcd\n".to_string()),
+                edit("proofs/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/numbers/gcd\n".to_string()),
             ],
-            "import mundane stdlib/numbers/gcd: stdlib/numbers holds no item gcd",
+            "import mundane definition stdlib/numbers/gcd: stdlib/numbers holds no item gcd",
         ),
         // A library function is imported as its record's mark or kind says,
         // as any library item is.
         case(
             "import a mundane library function as a definition",
             vec![
-                edit("proofs/bezout.proof", Some("import mundane    stdlib/divisibility/gcd\n".to_string()), "import definition stdlib/divisibility/gcd\n".to_string()),
+                edit("proofs/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import definition stdlib/divisibility/gcd\n".to_string()),
             ],
-            "import definition stdlib/divisibility/gcd: stdlib/divisibility/gcd is a mundane definition; import it as `import mundane stdlib/divisibility/gcd`",
+            "import definition stdlib/divisibility/gcd: stdlib/divisibility/gcd is a mundane definition; import it as `import mundane definition stdlib/divisibility/gcd`",
         ),
         // An item's name may open with a Greek letter, as σ's does, and is
         // imported from the file that holds it like any other.
@@ -302,9 +302,9 @@ fn cases() -> Vec<Case> {
         case(
             "import a name that is no item's name",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/numbers/σ₁\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane theorem stdlib/numbers/σ₁\n\ntheorem cantor\n".to_string()),
             ],
-            "import mundane stdlib/numbers/σ₁: 'σ₁' is not an item's name",
+            "import mundane theorem stdlib/numbers/σ₁: 'σ₁' is not an item's name",
         ),
         case(
             "import a definition by a subscripted name the file does not define",
@@ -317,21 +317,21 @@ fn cases() -> Vec<Case> {
         case(
             "import a library function the file never applies",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/numbers/max\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane definition stdlib/numbers/max\n\ntheorem cantor\n".to_string()),
             ],
             "imports max and never applies it",
         ),
         case(
             "import a library function with a label",
             vec![
-                edit("proofs/bezout.proof", Some("import mundane    stdlib/divisibility/gcd\n".to_string()), "import mundane stdlib/divisibility/gcd (D9)\n".to_string()),
+                edit("proofs/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/divisibility/gcd (D9)\n".to_string()),
             ],
-            "import mundane stdlib/divisibility/gcd: only a define of a proof file carries a label",
+            "import mundane definition stdlib/divisibility/gcd: only a define of a proof file carries a label",
         ),
         case(
             "import a library function under another name",
             vec![
-                edit("proofs/bezout.proof", Some("import mundane    stdlib/divisibility/gcd\n".to_string()), "import mundane stdlib/divisibility/gcd as hcf\n".to_string()),
+                edit("proofs/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/divisibility/gcd as hcf\n".to_string()),
             ],
             "a library function is imported by its name alone, with no `as`",
         ),
@@ -436,17 +436,17 @@ fn cases() -> Vec<Case> {
         case(
             "import an item that is not in the database",
             vec![
-                edit("proofs/cantor.proof", Some("import mundane    stdlib/sets/set-builder-subset\n".to_string()), "import mundane    stdlib/sets/set-builder-nonesuch\n".to_string()),
+                edit("proofs/cantor.proof", Some("import mundane theorem    stdlib/sets/set-builder-subset\n".to_string()), "import mundane theorem    stdlib/sets/set-builder-nonesuch\n".to_string()),
                 edit("proofs/cantor.proof", Some("    mun:set-builder-subset, from D1".to_string()), "    mun:set-builder-nonesuch, from D1".to_string()),
             ],
-            "import mundane stdlib/sets/set-builder-nonesuch: stdlib/sets holds no item set-builder-nonesuch",
+            "import mundane theorem stdlib/sets/set-builder-nonesuch: stdlib/sets holds no item set-builder-nonesuch",
         ),
         case(
             "import an item from a library file that does not exist",
             vec![
-                edit("proofs/cantor.proof", Some("import mundane    stdlib/sets/set-builder-subset\n".to_string()), "import mundane    stdlib/nonesuch/set-builder-subset\n".to_string()),
+                edit("proofs/cantor.proof", Some("import mundane theorem    stdlib/sets/set-builder-subset\n".to_string()), "import mundane theorem    stdlib/nonesuch/set-builder-subset\n".to_string()),
             ],
-            "import mundane stdlib/nonesuch/set-builder-subset: stdlib/nonesuch is no file",
+            "import mundane theorem stdlib/nonesuch/set-builder-subset: stdlib/nonesuch is no file",
         ),
         case(
             "cite an item the file does not import",
@@ -545,7 +545,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite another proof file's theorem without importing it",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import theorem    proofs/triangle-inequality/abs-bounds\n".to_string()), "".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import theorem            proofs/triangle-inequality/abs-bounds\n".to_string()), "".to_string()),
             ],
             "thm:abs-bounds is neither imported nor a theorem of this file",
         ),
@@ -553,32 +553,55 @@ fn cases() -> Vec<Case> {
         case(
             "import without saying what is imported",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import theorem    proofs/triangle-inequality/abs-bounds\n".to_string()), "import proofs/triangle-inequality/abs-bounds\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import theorem            proofs/triangle-inequality/abs-bounds\n".to_string()), "import proofs/triangle-inequality/abs-bounds\n".to_string()),
             ],
             "an import says `import <kind> <file>/<name>`",
         ),
         case(
             "import a whole proof file",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import theorem    proofs/triangle-inequality/abs-bounds\n".to_string()), "import proof proofs/triangle-inequality\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import theorem            proofs/triangle-inequality/abs-bounds\n".to_string()), "import proof proofs/triangle-inequality\n".to_string()),
             ],
-            "import proof: an import's keyword is mundane for an item taken for granted",
+            "import proof: an import says the header of the item it names",
         ),
         // An item taken for granted is imported as mundane, whatever its kind,
         // and an item that is not is imported by its kind.
+        // An import says its record's header: the mark and the kind both.
+        case(
+            "import a mundane item without its kind",
+            vec![
+                edit("proofs/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import mundane stdlib/reasoning/excluded-middle\n".to_string()),
+            ],
+            "import mundane: an import says the header of the item it names",
+        ),
+        case(
+            "import a mundane item under another kind",
+            vec![
+                edit("proofs/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import mundane theorem    stdlib/reasoning/excluded-middle\n".to_string()),
+            ],
+            "import mundane theorem stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is a mundane axiom; import it as `import mundane axiom stdlib/reasoning/excluded-middle`",
+        ),
+        case(
+            "import a proof's define as mundane",
+            vec![
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane definition proofs/tri/T\n\ntheorem cantor\n".to_string()),
+            ],
+            "a proof's define is where the proof gives a name its meaning, so it is never mundane",
+        ),
         case(
             "import a mundane axiom by its kind",
             vec![
-                edit("proofs/cantor.proof", Some("import mundane    stdlib/reasoning/excluded-middle\n".to_string()), "import axiom      stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import axiom      stdlib/reasoning/excluded-middle\n".to_string()),
             ],
             "import axiom stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is a mundane axiom",
         ),
         case(
             "import a named axiom as mundane",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import axiom      stdlib/calculus/completeness\n".to_string()), "import mundane    stdlib/calculus/completeness\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import axiom              stdlib/calculus/completeness\n".to_string()), "import mundane axiom      stdlib/calculus/completeness\n".to_string()),
             ],
-            "import mundane stdlib/calculus/completeness: stdlib/calculus/completeness is an axiom",
+            "import mundane axiom stdlib/calculus/completeness: stdlib/calculus/completeness is an axiom",
         ),
         case(
             "cite a mundane axiom by its kind",
@@ -620,7 +643,7 @@ fn cases() -> Vec<Case> {
         case(
             "import a proof's theorem as a library kind",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import theorem    proofs/triangle-inequality/abs-bounds\n".to_string()), "import mundane proofs/triangle-inequality/abs-bounds\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import theorem            proofs/triangle-inequality/abs-bounds\n".to_string()), "import mundane theorem proofs/triangle-inequality/abs-bounds\n".to_string()),
             ],
             "proofs/triangle-inequality/abs-bounds is a theorem",
         ),
@@ -634,14 +657,14 @@ fn cases() -> Vec<Case> {
         case(
             "cite a library item without importing it",
             vec![
-                edit("proofs/cantor.proof", Some("import mundane    stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
+                edit("proofs/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
             ],
             "mun:excluded-middle is neither imported nor a theorem of this file",
         ),
         case(
             "import a library item nothing cites",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/sets/subset-transitive\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane theorem stdlib/sets/subset-transitive\n\ntheorem cantor\n".to_string()),
             ],
             "imports subset-transitive and cites nothing by it",
         ),
@@ -662,7 +685,7 @@ fn cases() -> Vec<Case> {
         case(
             "import the same item twice",
             vec![
-                edit("proofs/intermediate-value.proof", Some("import theorem    proofs/triangle-inequality/abs-bounds\n".to_string()), "import theorem    proofs/triangle-inequality/abs-bounds\nimport theorem    proofs/triangle-inequality/abs-bounds\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("import theorem            proofs/triangle-inequality/abs-bounds\n".to_string()), "import theorem            proofs/triangle-inequality/abs-bounds\nimport theorem            proofs/triangle-inequality/abs-bounds\n".to_string()),
             ],
             "proofs/triangle-inequality/abs-bounds is imported twice",
         ),
@@ -670,7 +693,7 @@ fn cases() -> Vec<Case> {
         case(
             "import an item under the name of a theorem of the file",
             vec![
-                edit("proofs/cantor.proof", Some("import mundane    stdlib/sets/set-builder-subset\n".to_string()), "import mundane    stdlib/sets/set-builder-subset as cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("import mundane theorem    stdlib/sets/set-builder-subset\n".to_string()), "import mundane theorem    stdlib/sets/set-builder-subset as cantor\n".to_string()),
                 edit("proofs/cantor.proof", Some("    mun:set-builder-subset, from D1".to_string()), "    mun:cantor, from D1".to_string()),
             ],
             "cantor is already the name of theorem cantor of this file; import one of them under another name with `as`",
@@ -678,7 +701,7 @@ fn cases() -> Vec<Case> {
         case(
             "import two items under one name",
             vec![
-                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane stdlib/sets/subset-transitive as set-builder-subset\n\ntheorem cantor\n".to_string()),
+                edit("proofs/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane theorem stdlib/sets/subset-transitive as set-builder-subset\n\ntheorem cantor\n".to_string()),
             ],
             "set-builder-subset is already the name of the import at line",
         ),
@@ -837,7 +860,7 @@ fn cases() -> Vec<Case> {
         case(
             "point a requires line at an item that does not cover it",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("theorem odd-square\n".to_string()), "import mundane stdlib/numbers/int-real\n\ntheorem odd-square\n".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("theorem odd-square\n".to_string()), "import mundane theorem stdlib/numbers/int-real\n\ntheorem odd-square\n".to_string()),
                 edit("proofs/sqrt2-irrational.proof", Some("    requires n² ∈ ℤ: mun:int-closure, from H1".to_string()), "    requires n² ∈ ℤ: mun:int-real, from H1".to_string()),
             ],
             "does not conclude",
@@ -1125,7 +1148,7 @@ fn cases() -> Vec<Case> {
         case(
             "leave a name's sort to a citation",
             vec![
-                edit("proofs/cites.proof", None, "import mundane stdlib/numbers/int-real\n\ntheorem only-cited\n  then c = c\n\n1.  c = c\n    mun:int-real m := c\n".to_string()),
+                edit("proofs/cites.proof", None, "import mundane theorem stdlib/numbers/int-real\n\ntheorem only-cited\n  then c = c\n\n1.  c = c\n    mun:int-real m := c\n".to_string()),
             ],
             "citing stdlib/numbers/int-real with m := c: only the citation says c is a number; say so where c is introduced",
         ),

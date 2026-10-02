@@ -1,10 +1,10 @@
-import mundane    stdlib/numbers/exponent-one
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/exponent-zero
-import mundane    stdlib/numbers/nat0-closure
-import mundane    stdlib/numbers/power-real
-import mundane    stdlib/sums/sum-last
-import mundane    stdlib/sums/sum-single
+import mundane theorem    stdlib/numbers/exponent-one
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane theorem    stdlib/numbers/nat0-closure
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/sums/sum-last
+import mundane theorem    stdlib/sums/sum-single
 
 theorem geometric-sum
   metamath    geoser

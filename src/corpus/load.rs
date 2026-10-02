@@ -61,7 +61,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
 
 /// Set apart, in each file, the imports that name a library function: a
 /// definition with `sort` and `builds` lines, which a formula applies by its
-/// name. Its keyword is read as any item's is, so it is not what tells a
+/// name. Its words are read as any item's are, so they are not what tell a
 /// function apart; the record is. Say what is wrong with such an import:
 /// (path, line, message) for each.
 pub fn link_functions(
@@ -81,7 +81,7 @@ pub fn link_functions(
         scope.items = items;
         for i in named {
             let r = functions[&i.full()];
-            let (keyword, whole) = (i.kind.keyword(), i.full());
+            let (keyword, whole) = (i.said.as_str(), i.full());
             if i.alias != i.name {
                 problems.push((
                     scope.path.clone(),
@@ -91,15 +91,14 @@ pub fn link_functions(
                     ),
                 ));
             }
-            let is = ItemKind::of_record(r);
-            if i.kind != is {
+            if i.said != r.header() {
                 problems.push((
                     scope.path.clone(),
                     i.line,
                     format!(
                         "import {keyword} {whole}: {whole} is {}; import it as `import {} {whole}`",
                         Item::Record(r).described(),
-                        is.keyword()
+                        r.header()
                     ),
                 ));
             }

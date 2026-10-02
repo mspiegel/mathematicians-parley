@@ -31,9 +31,11 @@ pub struct Function {
     pub builds: String,
     /// The record that declares it, by its full name.
     pub item: String,
-    /// What a citation of its record writes, and the keyword of an import
-    /// of it.
+    /// What a citation of its record writes.
     pub cited_as: ItemKind,
+    /// Its record's header before the name, which an import of it says:
+    /// `mundane definition`.
+    pub header: String,
     pub path: String,
     pub line: usize,
 }
@@ -46,7 +48,7 @@ impl Function {
 
     /// The import that brings it in.
     pub fn import(&self) -> String {
-        format!("import {} {}", self.cited_as.keyword(), self.item)
+        format!("import {} {}", self.header, self.item)
     }
 }
 
@@ -119,6 +121,7 @@ pub fn library_functions(records: &[Record]) -> Checked<IndexMap<String, Functio
                 builds: str::trim(builds).to_string(),
                 item: r.qualified(),
                 cited_as: ItemKind::of_record(r),
+                header: r.header(),
                 path: r.path.clone(),
                 line,
             },

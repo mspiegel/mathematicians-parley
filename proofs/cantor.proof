@@ -1,6 +1,6 @@
-import mundane    stdlib/reasoning/excluded-middle
-import mundane    stdlib/sets/set-builder
-import mundane    stdlib/sets/set-builder-subset
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
 
 theorem cantor
   metamath    canth

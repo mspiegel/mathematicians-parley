@@ -1,17 +1,17 @@
-import mundane    stdlib/divisibility/congruent-divides
-import mundane    stdlib/divisibility/congruent-mod
-import mundane    stdlib/divisibility/divides
-import mundane    stdlib/divisibility/divides-combination
-import mundane    stdlib/divisibility/divides-multiple
-import mundane    stdlib/functions/function-value
-import mundane    stdlib/numbers/exponent-step
-import mundane    stdlib/numbers/int-closure
-import mundane    stdlib/numbers/nat0-closure
-import mundane    stdlib/numbers/power-integer
-import mundane    stdlib/numbers/ten-minus-one
-import mundane    stdlib/sums/sum-difference
-import mundane    stdlib/sums/sum-divisible
-import mundane    stdlib/sums/sum-integer
+import mundane theorem    stdlib/divisibility/congruent-divides
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-combination
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/nat0-closure
+import mundane theorem    stdlib/numbers/power-integer
+import mundane theorem    stdlib/numbers/ten-minus-one
+import mundane theorem    stdlib/sums/sum-difference
+import mundane theorem    stdlib/sums/sum-divisible
+import mundane theorem    stdlib/sums/sum-integer
 
 theorem ten-power-congruent
   let k ∈ ℕ₀                                                          (H1)

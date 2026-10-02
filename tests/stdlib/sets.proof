@@ -1,17 +1,17 @@
-import mundane    stdlib/sets/difference-empty as sets-difference-empty
-import mundane    stdlib/sets/difference-self as sets-difference-self
-import mundane    stdlib/sets/difference-set as sets-difference-set
-import mundane    stdlib/sets/intersection as sets-intersection
-import mundane    stdlib/sets/intersection-commutes as sets-intersection-commutes
-import mundane    stdlib/sets/intersection-distributes as sets-intersection-distributes
-import mundane    stdlib/sets/intersection-empty as sets-intersection-empty
-import mundane    stdlib/sets/intersection-self as sets-intersection-self
-import mundane    stdlib/sets/remove-member as sets-remove-member
-import mundane    stdlib/sets/subset-empty as sets-subset-empty
-import mundane    stdlib/sets/union as sets-union
-import mundane    stdlib/sets/union-commutes as sets-union-commutes
-import mundane    stdlib/sets/union-empty as sets-union-empty
-import mundane    stdlib/sets/union-self as sets-union-self
+import mundane theorem    stdlib/sets/difference-empty as sets-difference-empty
+import mundane theorem    stdlib/sets/difference-self as sets-difference-self
+import mundane theorem    stdlib/sets/difference-set as sets-difference-set
+import mundane definition stdlib/sets/intersection as sets-intersection
+import mundane theorem    stdlib/sets/intersection-commutes as sets-intersection-commutes
+import mundane theorem    stdlib/sets/intersection-distributes as sets-intersection-distributes
+import mundane theorem    stdlib/sets/intersection-empty as sets-intersection-empty
+import mundane theorem    stdlib/sets/intersection-self as sets-intersection-self
+import mundane theorem    stdlib/sets/remove-member as sets-remove-member
+import mundane theorem    stdlib/sets/subset-empty as sets-subset-empty
+import mundane definition stdlib/sets/union as sets-union
+import mundane theorem    stdlib/sets/union-commutes as sets-union-commutes
+import mundane theorem    stdlib/sets/union-empty as sets-union-empty
+import mundane theorem    stdlib/sets/union-self as sets-union-self
 
 theorem difference-set
   let X be a set                                                      (H1)

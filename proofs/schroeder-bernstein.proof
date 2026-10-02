@@ -1,30 +1,30 @@
-import mundane    stdlib/functions/bijection
-import mundane    stdlib/functions/function-into
-import mundane    stdlib/functions/function-value
-import mundane    stdlib/functions/image
-import mundane    stdlib/functions/image-monotone
-import mundane    stdlib/functions/image-within
-import mundane    stdlib/functions/inverse-value
-import mundane    stdlib/functions/one-to-one
-import mundane    stdlib/functions/value-in-image
-import mundane    stdlib/reasoning/excluded-middle
-import mundane    stdlib/reasoning/from-contradiction
-import mundane    stdlib/sets/complement-swap
-import mundane    stdlib/sets/complement-swap-outside
-import mundane    stdlib/sets/difference
-import mundane    stdlib/sets/difference-reverses
-import mundane    stdlib/sets/difference-subset
-import mundane    stdlib/sets/disjoint-difference
-import mundane    stdlib/sets/disjoint-member
-import mundane    stdlib/sets/disjoint-within
-import mundane    stdlib/sets/equal-subset
-import mundane    stdlib/sets/in-subset
-import mundane    stdlib/sets/indexed-union
-import mundane    stdlib/sets/part-builder
-import mundane    stdlib/sets/subset
-import mundane    stdlib/sets/subset-antisymmetric
-import mundane    stdlib/sets/union-contains-member
-import mundane    stdlib/sets/union-within
+import mundane definition stdlib/functions/bijection
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-value
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/image-monotone
+import mundane theorem    stdlib/functions/image-within
+import mundane theorem    stdlib/functions/inverse-value
+import mundane definition stdlib/functions/one-to-one
+import mundane theorem    stdlib/functions/value-in-image
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/from-contradiction
+import mundane theorem    stdlib/sets/complement-swap
+import mundane theorem    stdlib/sets/complement-swap-outside
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/difference-reverses
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/disjoint-difference
+import mundane theorem    stdlib/sets/disjoint-member
+import mundane theorem    stdlib/sets/disjoint-within
+import mundane theorem    stdlib/sets/equal-subset
+import mundane theorem    stdlib/sets/in-subset
+import mundane definition stdlib/sets/indexed-union
+import mundane definition stdlib/sets/part-builder
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/union-contains-member
+import mundane theorem    stdlib/sets/union-within
 
 theorem fixed-part
   metamath    sbthlem3, which says it of the union set.mm builds, where this

@@ -1,14 +1,14 @@
-import axiom      stdlib/numbers/well-ordering
-import theorem    stdlib/divisibility/division-algorithm
-import mundane    stdlib/divisibility/divides
-import mundane    stdlib/divisibility/divides-combination
-import mundane    stdlib/divisibility/divides-le
-import mundane    stdlib/divisibility/gcd
-import mundane    stdlib/numbers/int-closure
-import mundane    stdlib/numbers/pos-int-nat
-import mundane    stdlib/sets/set-builder
-import mundane    stdlib/sets/set-builder-subset
-import mundane    stdlib/sets/subset
+import axiom              stdlib/numbers/well-ordering
+import theorem            stdlib/divisibility/division-algorithm
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-combination
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane definition stdlib/sets/subset
 
 theorem least-combination-divides
   let a ∈ ℕ                                                           (H1)

@@ -1,7 +1,7 @@
-import mundane    stdlib/numbers/abs
-import mundane    stdlib/numbers/abs-real
-import mundane    stdlib/numbers/nonneg-or-neg
-import mundane    stdlib/numbers/real-closure
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/real-closure
 
 theorem abs-bounds
   metamath    leabs, absneg

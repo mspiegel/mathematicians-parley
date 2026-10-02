@@ -1,12 +1,12 @@
-import theorem    stdlib/divisibility/gcd-mod as divisibility-gcd-mod
-import mundane    stdlib/divisibility/gcd
-import mundane    stdlib/divisibility/gcd-commutes as divisibility-gcd-commutes
-import mundane    stdlib/divisibility/gcd-one as divisibility-gcd-one
-import mundane    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
-import mundane    stdlib/divisibility/mod-less as divisibility-mod-less
-import mundane    stdlib/divisibility/mod-natural as divisibility-mod-natural
-import mundane    stdlib/divisibility/zero-divides as divisibility-zero-divides
-import definition stdlib/divisibility/σ
+import theorem            stdlib/divisibility/gcd-mod as divisibility-gcd-mod
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes as divisibility-gcd-commutes
+import mundane theorem    stdlib/divisibility/gcd-one as divisibility-gcd-one
+import mundane theorem    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
+import mundane theorem    stdlib/divisibility/mod-less as divisibility-mod-less
+import mundane theorem    stdlib/divisibility/mod-natural as divisibility-mod-natural
+import mundane theorem    stdlib/divisibility/zero-divides as divisibility-zero-divides
+import definition         stdlib/divisibility/σ
 
 theorem sigma
   let n ∈ ℕ                                                           (H1)

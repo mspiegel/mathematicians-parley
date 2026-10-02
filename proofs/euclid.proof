@@ -1,18 +1,18 @@
-import theorem    stdlib/divisibility/gcd-mod
-import mundane    stdlib/divisibility/gcd
-import mundane    stdlib/divisibility/gcd-commutes
-import mundane    stdlib/divisibility/gcd-zero
-import mundane    stdlib/divisibility/mod-less
-import mundane    stdlib/divisibility/mod-natural
-import mundane    stdlib/numbers/integer-step
-import mundane    stdlib/numbers/nat0-int
-import mundane    stdlib/numbers/nat0-nonzero
-import mundane    stdlib/numbers/nat0-real
-import mundane    stdlib/reasoning/disjunctive-syllogism
-import mundane    stdlib/reasoning/excluded-middle
-import mundane    stdlib/reasoning/from-contradiction
-import mundane    stdlib/reasoning/or-left
-import mundane    stdlib/reasoning/or-right
+import theorem            stdlib/divisibility/gcd-mod
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/divisibility/gcd-zero
+import mundane theorem    stdlib/divisibility/mod-less
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/nat0-int
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane theorem    stdlib/numbers/nat0-real
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/from-contradiction
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
 
 theorem euclid
   metamath    eucalg
