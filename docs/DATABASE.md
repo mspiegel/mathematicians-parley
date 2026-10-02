@@ -401,10 +401,10 @@ mundane definition difference
 |---|---|
 | `axiom` | 3 |
 | `mundane axiom` | 7 |
-| `theorem` | 18 |
-| `mundane theorem` | 177 |
+| `theorem` | 19 |
+| `mundane theorem` | 179 |
 | `definition` | 6 |
-| `mundane definition` | 41 |
+| `mundane definition` | 43 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -521,6 +521,7 @@ this table is mundane.
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
+| prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
@@ -538,6 +539,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | bijection, series-sum | `mundane definition` | "so it is a bijection", lagrange 9.6; the sum of a series as the limit of its partial sums, triangular-reciprocals step 5 |
 | gcd, min, max | `mundane definition` | functions, applied and seldom unfolded: "g = gcd(a, b) divides a and b", bezout step 13 |
 | cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
+| numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 | derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: mean-value step 33 |
 
@@ -547,8 +549,8 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 352 of the 381 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: six steps in nineteen proofs cite a named
+Counted this way, 364 of the 394 numbered steps that cite a library item cite
+a mundane one. `def:` is rare: six steps in twenty proofs cite a named
 definition.
 
 ### Follow-ups

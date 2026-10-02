@@ -966,6 +966,18 @@ impl Parser<'_> {
                 return self.no(why);
             }
         }
+        // What it yields, where its record leaves that to what fills it:
+        // f(x) is of the sort f maps to.
+        let mut yields = Sort::of(&n.yields);
+        if n.yields == "any" {
+            let filled: Vec<&Sort> = kids.iter().map(|k| &k.sort).collect();
+            let sorts = self.g.notation_sorts();
+            if let Some(found) =
+                sorts.signature(n.key()).and_then(|s| s.settled(&filled))
+            {
+                yields = found;
+            }
+        }
         // The node is named by the record and carries the literal of the
         // pattern it stands for. Both are needed: ℝ and ℕ₀ are one record,
         // and so are `a < b` and `a ≥ b`, and nothing comparing two formulas
@@ -1094,7 +1106,7 @@ impl Parser<'_> {
             }
             return Ok(Some(body));
         }
-        let node = Node::new(n.key(), Sort::of(&n.yields), kids, &n.literal);
+        let node = Node::new(n.key(), yields, kids, &n.literal);
         if let (Some(from), Some(to)) = (begin, end) {
             node.set_span(from, to);
             if let Some(at) = wrapped_at {

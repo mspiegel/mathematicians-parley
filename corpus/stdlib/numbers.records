@@ -440,6 +440,36 @@ mundane theorem abs-negative
   metamath    absneg
   target      absneg
 
+mundane theorem abs-integer
+  let z ∈ ℤ                                                           (H1)
+  then        |z| ∈ ℕ₀
+  metamath    nn0abscl
+  target      nn0abscl
+
+mundane definition numer
+  sort        number → number
+  builds      _1 cnumer cfv
+  reads       the numerator in lowest terms of
+  metamath    df-numer
+  note        The numerator of a rational written in lowest terms with a
+              positive denominator, under set.mm's name for it. What a proof
+              needs of it is in `lowest-terms-parts`, as for cos and sin.
+
+mundane definition denom
+  sort        number → number
+  builds      _1 cdenom cfv
+  reads       the denominator in lowest terms of
+  metamath    df-denom
+  note        The positive denominator of a rational in lowest terms, under
+              set.mm's name for it.
+
+mundane theorem lowest-terms-parts
+  let x ∈ ℚ                                                           (H1)
+  then        numer(x) ∈ ℤ. denom(x) ∈ ℕ.
+              x = numer(x)/denom(x).
+  metamath    qnumcl, qdencl, qeqnumdivden
+  target      qnumcl, qdencl, qeqnumdivden
+
 mundane theorem abs-zero
   then        |0| = 0
   metamath    abs0

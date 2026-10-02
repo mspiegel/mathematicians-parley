@@ -309,6 +309,12 @@ ProofWiki's proof 1, adding a line h·x to f rather than subtracting the
 chord through (a, f(a)); Rolle's theorem and the sum rules are named
 library items.
 
+Theorem 20 is written and elaborates with nothing assumed:
+`proofs/rationals-countable.proof`, with `docs/pilot/rationals-countable.md`.
+ℚ injects into ℕ by x ↦ 2^|p|·3^q·5^s for x = p/q in lowest terms, s
+recording the sign, and Schröder–Bernstein, which the corpus proves, gives
+the bijection. Unique factorisation is the one new named item.
+
 Considered for these four and not chosen: Wilson's theorem (#51), a pairing
 argument mod p close to divisibility by 3 and Lagrange; the factor theorem
 (#89), where set.mm's `Poly` encoding would have to be hidden as groups

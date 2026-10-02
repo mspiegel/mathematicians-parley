@@ -327,3 +327,20 @@ theorem sigma-prime-power
   target      g1sgmppw
   note        The divisors of p^k are 1, p, …, p^k, so their sum is a
               geometric series.
+
+theorem prime-powers-unique
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  let c ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let b′ ∈ ℕ₀                                                         (H5)
+  let c′ ∈ ℕ₀                                                         (H6)
+  assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
+  then        a = a′. b = b′. c = c′.
+  metamath    g235a, g235b, g235c, which this corpus proves in
+              elaboration/stdlib/proved.mm from pcmul, pcidlem and pcexp
+  target      g235a, g235b, g235c with A := a, B := b, C := c, D := a′, E := b′, F := c′
+  note        A number has one factorisation into primes, so the powers of
+              2, 3 and 5 in it are what they are. set.mm counts how many
+              times a prime divides a number, pCnt, and the count of 2 in
+              2^a·3^b·5^c is a. One target to a sentence.

@@ -402,6 +402,45 @@ impl Signature {
         let result = instance(&self.result, &mut names, store);
         (holes, result)
     }
+
+    /// What a node of this signature produces, where the sorts of what fills
+    /// its holes settle a result the signature leaves to a variable:
+    /// application's β, from the function in its first hole, so cos(x) is a
+    /// number and |cos(x)| an absolute value. None where they do not, or
+    /// where they disagree with the signature, which the hole check reports.
+    pub fn settled(&self, filled: &[&Sort]) -> Option<Sort> {
+        let mut store = Store::default();
+        let (holes, result) = self.fresh(&mut store);
+        for (hole, sort) in holes.iter().zip(filled) {
+            let Some(whole) = sort.full() else { continue };
+            let said = term_of(whole, &mut store);
+            if store.unify(hole, &said).is_declined() {
+                return None;
+            }
+        }
+        if matches!(store.find(&result), SortTerm::Var(_)) {
+            return None;
+        }
+        sort(&store, &result)
+    }
+}
+
+/// A sort in full as a term, its open parts fresh variables.
+fn term_of(whole: &Whole, store: &mut Store) -> SortTerm {
+    match whole {
+        Whole::Number => NUMBER,
+        Whole::Point => POINT,
+        Whole::Formula => FORMULA,
+        Whole::GroupElement => GROUP_ELEMENT,
+        Whole::Set(c) => SortTerm::set(term_of(c, store)),
+        Whole::Property(c) => SortTerm::Property(Box::new(term_of(c, store))),
+        Whole::Function(a, b) => {
+            let a = term_of(a, store);
+            let b = term_of(b, store);
+            SortTerm::Function(Box::new(a), Box::new(b))
+        }
+        Whole::Open => store.var(),
+    }
 }
 
 fn instance(

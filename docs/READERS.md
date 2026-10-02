@@ -95,9 +95,9 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 71
-lines over 18 items, and 352 of the 381 numbered steps that cite a library
-item cite a mundane one. The twenty-nine others are twenty steps citing named
+corpus every requires line that cites a library item cites a mundane one, 73
+lines over 19 items, and 364 of the 394 numbered steps that cite a library
+item cite a mundane one. The thirty others are twenty-one steps citing named
 theorems, three citing named axioms (completeness, well-ordering and
 side-angle-side) and six citing named definitions (continuity, limits,
 congruent triangles, C's two zero cases, and perfect). No requires line rests

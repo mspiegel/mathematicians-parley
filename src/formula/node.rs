@@ -150,6 +150,11 @@ impl Sort {
         Sort::of("unknown")
     }
 
+    /// The sort in full, where the reading settled it.
+    pub fn full(&self) -> Option<&Whole> {
+        self.whole.as_deref()
+    }
+
     /// The sort's category, or None for no sort.
     pub fn name(&self) -> Option<&str> {
         self.category.as_deref()

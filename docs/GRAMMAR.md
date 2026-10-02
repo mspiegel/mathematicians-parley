@@ -358,6 +358,12 @@ is decidable because juxtaposition never joins two bare names. Round brackets
 are the one piece of notation the grammar owns rather than the database: they
 group, they take no sort of their own, and `(e)` parses exactly as `e` does.
 
+A function applied is of the sort its function maps to: `cos(x)` is a number,
+so `|cos(x)|` is an absolute value and not the size of a set. Where a
+notation's record leaves what it yields to a sort variable, as application's
+`function from α to β, α → β` does, the sorts of what fills its holes settle
+it.
+
 A notation may still open with a bracket, as the open interval `(a, b)` does.
 It is tried as a notation opening with a name is, and what no such notation
 reads is a group: the interval's comma between two holes is what tells it

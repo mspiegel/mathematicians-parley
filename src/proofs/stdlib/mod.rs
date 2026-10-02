@@ -13,6 +13,7 @@ pub mod functions;
 pub mod geometry;
 pub mod groups;
 pub mod numbers;
+pub mod powers;
 pub mod series;
 pub mod sets;
 
@@ -29,7 +30,7 @@ struct Group {
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved.
-const GROUPS: [Group; 8] = [
+const GROUPS: [Group; 9] = [
     Group {
         head: geometry::HEAD,
         proofs: geometry::proofs,
@@ -57,6 +58,10 @@ const GROUPS: [Group; 8] = [
     Group {
         head: divisors::HEAD,
         proofs: divisors::proofs,
+    },
+    Group {
+        head: powers::HEAD,
+        proofs: powers::proofs,
     },
     Group {
         head: calculus::HEAD,

@@ -285,6 +285,109 @@ $d k P $.
 $}
 
 ${
+$( Powers: the exponents of 2, 3 and 5 in 2^a 3^b 5^c are a, b and c. $)
+
+  ${
+    gpcoth.1 $e |- ( ph -> P e. Prime ) $.
+    gpcoth.2 $e |- ( ph -> Q e. Prime ) $.
+    gpcoth.3 $e |- ( ph -> P =/= Q ) $.
+    gpcoth.4 $e |- ( ph -> N e. NN0 ) $.
+  gpcoth $p |- ( ph -> ( P pCnt ( Q ^ N ) ) = 0 ) $=
+    ( cexp co cpc cmul cc0 cprime wcel cq wne wa cz wceq cn prmnn syl nnzd zq
+    nnne0d jca nn0zd pcexp syl3anc cdvds wbr wn neneqd c2 cuz cfv wb prmuz2
+    dvdsprm syl2anc mtbird pceq0 mpbird oveq2d nn0cnd mul01d 3eqtrd )
+    ABCDIJZKJZDBCKJZLJZDMLJMABNOZCPOZCMQZRDSOVJVLTEAVNVOACSOVNACACNOZCUAOZFCUBZUCZUDCUEUCACVSUFUGADHUHCBDUIUJAVKMDLAVKMTZBCUKULZUMZAWABCTZABCGUNABUOUPUQZOZVPWAWCURAVMWEEBUSUCFCBUTVAVBAVMVQVTWBUREVSBCVCVAVDVEADADHVFVGVH $.
+  $}
+
+  ${
+    gpcmul3.1 $e |- ( ph -> P e. Prime ) $.
+    gpcmul3.2 $e |- ( ph -> X e. NN ) $.
+    gpcmul3.3 $e |- ( ph -> Y e. NN ) $.
+    gpcmul3.4 $e |- ( ph -> Z e. NN ) $.
+  gpcmul3 $p |- ( ph -> ( P pCnt ( ( X x. Y ) x. Z ) ) = ( ( ( P pCnt X ) + ( P pCnt Y ) ) + ( P pCnt Z ) ) ) $=
+    ( cmul co cpc caddc cprime wcel cz cc0 wne wa wceq nnmulcld nnzd nnne0d
+    jca pcmul syl3anc oveq1d eqtrd )
+    ABCDJKZEJKZLKZBUILKZBELKZMKZBCLKZBDLKZMKZUMMKABNOZUIPOZUIQRZSEPOZEQRZSUKUNTFAUSUTAUIACDGHUAZUBAUIVCUCUDAVAVBAEIUBAEIUCUDUIEBUEUFAULUQUMMAURCPOZCQRZSDPOZDQRZSULUQTFAVDVEACGUBACGUCUDAVFVGADHUBADHUCUDCDBUEUFUGUH $.
+  $}
+
+  ${
+    gpc2.1 $e |- ( ph -> A e. NN0 ) $.
+    gpc2.2 $e |- ( ph -> B e. NN0 ) $.
+    gpc2.3 $e |- ( ph -> C e. NN0 ) $.
+  gpc2 $p |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = A ) $=
+    ( c2 cexp co c3 cmul c5 cpc caddc cc0 cprime wcel 2prm a1i cn 2nn
+    nnexpcld 3nn 5nn gpcmul3 cn0 wceq pcidlem syl2anc 3prm wne 2re 2lt3
+    ltneii gpcoth oveq12d 5prm 2lt5 nn0cnd cc 0cn addcld addridd eqtrd 3eqtrd
+    )
+    AHHBIJZKCIJZLJMDIJZLJNJHVGNJZHVHNJZOJZHVINJZOJBPOJZPOJZBAHVGVHVIHQRZASTZAHBHUARAUBTEUCAKCKUARAUDTFUCAMDMUARAUETGUCUFAVLVNVMPOAVJBVKPOAVPBUGRVJBUHVQEBHUIUJAHKCVQKQRAUKTHKULAHKUMUNUOTFUPUQAHMDVQMQRAURTHMULAHMUMUSUOTGUPUQAVOVNBAVNABPABEUTZPVARAVBTVCVDABVRVDVEVF $.
+  $}
+
+  ${
+    gpc3.1 $e |- ( ph -> A e. NN0 ) $.
+    gpc3.2 $e |- ( ph -> B e. NN0 ) $.
+    gpc3.3 $e |- ( ph -> C e. NN0 ) $.
+  gpc3 $p |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = B ) $=
+    ( c3 c2 cexp co cmul c5 cpc caddc cc0 cprime wcel 3prm a1i cn 2nn
+    nnexpcld 3nn 5nn gpcmul3 2prm wne 2re 2lt3 ltneii necomi gpcoth cn0 wceq
+    pcidlem syl2anc oveq12d 5prm 3re 3lt5 cc 0cn nn0cnd addcld addridd
+    addlidd eqtrd 3eqtrd )
+    AHIBJKZHCJKZLKMDJKZLKNKHVJNKZHVKNKZOKZHVLNKZOKPCOKZPOKZCAHVJVKVLHQRZASTZAIBIUARAUBTEUCAHCHUARAUDTFUCAMDMUARAUETGUCUFAVOVQVPPOAVMPVNCOAHIBVTIQRAUGTHIUHAIHIHUIUJUKULTEUMAVSCUNRVNCUOVTFCHUPUQURAHMDVTMQRAUSTHMUHAHMUTVAUKTGUMURAVRVQCAVQAPCPVBRAVCTACFVDZVEVFACWAVGVHVI $.
+  $}
+
+  ${
+    gpc5.1 $e |- ( ph -> A e. NN0 ) $.
+    gpc5.2 $e |- ( ph -> B e. NN0 ) $.
+    gpc5.3 $e |- ( ph -> C e. NN0 ) $.
+  gpc5 $p |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = C ) $=
+    ( c5 c2 cexp co c3 cmul cpc caddc cc0 cprime wcel 5prm a1i cn 2nn
+    nnexpcld 3nn 5nn gpcmul3 2prm wne 2re 2lt5 ltneii necomi gpcoth 3prm 3re
+    3lt5 oveq12d cn0 wceq pcidlem syl2anc 00id oveq1d nn0cnd addlidd eqtrd
+    3eqtrd )
+    AHIBJKZLCJKZMKHDJKZMKNKHVHNKZHVINKZOKZHVJNKZOKPPOKZDOKZDAHVHVIVJHQRZASTZAIBIUARAUBTEUCALCLUARAUDTFUCAHDHUARAUETGUCUFAVMVOVNDOAVKPVLPOAHIBVRIQRAUGTHIUHAIHIHUIUJUKULTEUMAHLCVRLQRAUNTHLUHALHLHUOUPUKULTFUMUQAVQDURRVNDUSVRGDHUTVAUQAVPPDOKDAVOPDOVOPUSAVBTVCADADGVDVEVFVG $.
+  $}
+
+  ${
+    g235a.1 $e |- ( ph -> A e. NN0 ) $.
+    g235a.2 $e |- ( ph -> B e. NN0 ) $.
+    g235a.3 $e |- ( ph -> C e. NN0 ) $.
+    g235a.4 $e |- ( ph -> D e. NN0 ) $.
+    g235a.5 $e |- ( ph -> E e. NN0 ) $.
+    g235a.6 $e |- ( ph -> F e. NN0 ) $.
+    g235a.7 $e |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) $.
+  g235a $p |- ( ph -> A = D ) $=
+    ( c2 cexp co c3 cmul c5 cpc oveq2d gpc2 3eqtr3d )
+    AOOBPQZRCPQZSQZTDPQZSQZUAQOOEPQZRFPQZSQZTGPQZSQZUAQBEAUIUNOUANUBABCDHIJUCAEFGKLMUCUD $.
+  $}
+
+  ${
+    g235b.1 $e |- ( ph -> A e. NN0 ) $.
+    g235b.2 $e |- ( ph -> B e. NN0 ) $.
+    g235b.3 $e |- ( ph -> C e. NN0 ) $.
+    g235b.4 $e |- ( ph -> D e. NN0 ) $.
+    g235b.5 $e |- ( ph -> E e. NN0 ) $.
+    g235b.6 $e |- ( ph -> F e. NN0 ) $.
+    g235b.7 $e |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) $.
+  g235b $p |- ( ph -> B = E ) $=
+    ( c3 c2 cexp co cmul c5 cpc oveq2d gpc3 3eqtr3d )
+    AOPBQRZOCQRZSRZTDQRZSRZUAROPEQRZOFQRZSRZTGQRZSRZUARCFAUIUNOUANUBABCDHIJUCAEFGKLMUCUD $.
+  $}
+
+  ${
+    g235c.1 $e |- ( ph -> A e. NN0 ) $.
+    g235c.2 $e |- ( ph -> B e. NN0 ) $.
+    g235c.3 $e |- ( ph -> C e. NN0 ) $.
+    g235c.4 $e |- ( ph -> D e. NN0 ) $.
+    g235c.5 $e |- ( ph -> E e. NN0 ) $.
+    g235c.6 $e |- ( ph -> F e. NN0 ) $.
+    g235c.7 $e |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) $.
+  g235c $p |- ( ph -> C = F ) $=
+    ( c5 c2 cexp co c3 cmul cpc oveq2d gpc5 3eqtr3d )
+    AOPBQRZSCQRZTRZODQRZTRZUAROPEQRZSFQRZTRZOGQRZTRZUARDGAUIUNOUANUBABCDHIJUCAEFGKLMUCUD $.
+  $}
+
+$}
+
+${
 $( Calculus: continuity and derivatives of a sum and of a line, as the
    page says them of functions named apart from their values. $)
 $d x ph $.

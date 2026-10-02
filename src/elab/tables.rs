@@ -1150,8 +1150,24 @@ impl<'a> Elaborator<'a> {
                 &[&pa],
             )));
         }
+        // A value by cases is in a system where the value of each case is.
+        if node.variable().is_none()
+            && node.label() == Some("cif")
+            && node.children().len() == 3
+        {
+            let condition = self.rpn(&node.children()[0]);
+            let (a, b) = (self.rpn(&node.children()[1]), self.rpn(&node.children()[2]));
+            let pa = take!(parts(self, &a, system)?);
+            let pb = take!(parts(self, &b, system)?);
+            return Ok(Built(self.b.ap(
+                "ifcld",
+                &binds! {"ph" => scope, "ps" => &condition, "A" => &a, "B" => &b,
+                "C" => system},
+                &[&pa, &pb],
+            )));
+        }
         Ok(Route::no(
-            "not a sum, difference, product, power or negation",
+            "not a sum, difference, product, power, negation or value by cases",
         ))
     }
 
