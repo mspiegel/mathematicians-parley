@@ -445,8 +445,10 @@ they were derived and the conclusion's order is the theorem's.
 `pm2.21dd` takes the step's line and the line it names to the block's claim,
 and `pm2.65d` drops the supposition. Ending a case, it takes the two to the
 formula every case claims, so a case that cannot occur needs no step of its
-own to reach that formula. A join of one line is that line: a case whose assumption is already
-the block's claim ends on `join C2`, and the line must be what the step claims.
+own to reach that formula. A join of one line is that line, and the line must
+be what the step claims. A case whose assumption line says `, which is the
+claim` has no steps; what it gives the block is its assumption, under the
+case's own scope, and the elaborator requires that to be the block's claim.
 
 **`exhibit`, and a definition used to conclude an existence claim,** are
 `rspcev`: restricted existential introduction. The witness comes either from a

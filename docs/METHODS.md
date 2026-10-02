@@ -520,9 +520,10 @@ the define gives (`mpbid`).
 ### Facts in, fact out, procedure
 
 Each cited line supplies its sentences. The claim must be exactly those
-sentences, in any order. With one cited line the claim is that line, which is
-the case where a `cases` part has to end in the block's common formula and the
-part's assumption already is it.
+sentences, in any order. With one cited line the claim is that line. A `cases`
+part whose assumption already is the block's common formula does not end on a
+join of it: its assumption line says `, which is the claim`, and it has no
+steps.
 
 There is no procedure beyond matching. A reader checks that every sentence of
 the claim appears among the cited lines and that nothing else does.

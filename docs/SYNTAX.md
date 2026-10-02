@@ -208,7 +208,28 @@ gives the common formula, as every case does. Two alternatives were rejected for
 impossible-case problem: refuting each case in its own contradiction
 block outside any cases block, which loses the case-split narrative, and
 letting a cases step have no claim when each case ends in its own
-contradiction, which breaks collapsing and citation for that step. The marker
+contradiction, which breaks collapsing and citation for that step.
+
+A case whose assumption already is the block's claim has nothing to show,
+and says so on its assumption line, as a textbook says "if b(N) = 0 there is
+nothing to prove":
+
+```
+    case
+    assume b(N) = 0, which is the claim                               (C3)
+
+    case
+    assume b(N) ≠ 0                                                   (C4)
+
+    6.1.  b(N) + N ≤ N
+          ...
+```
+
+Such a case has no steps, and its assumption must be the claim of the step
+above the block. Having no step to say which block it is in, it is in the
+innermost `cases` block open at its line, so a case of an outer block that is
+the claim is written before an inner block opens or after a step of its own
+block. The marker
 stays a bare word, and the assumption is a line of the same kind as
 `assume` and `suppose`. Alternatives considered and rejected: the
 disjunction repeated on the method line; the marker carrying the formula

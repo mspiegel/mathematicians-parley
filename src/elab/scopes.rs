@@ -479,6 +479,37 @@ impl<'a> Elaborator<'a> {
         Ok((block.scope.clone(), block.facts.clone()))
     }
 
+    /// The cases that are the claim and come before part `before`, or all of
+    /// them: each has no steps, and what it shows is what it assumes.
+    pub fn settle_claimed(
+        &mut self,
+        block: &mut Block,
+        closers: Vec<Closer>,
+        before: Option<usize>,
+    ) -> Checked<Vec<Closer>> {
+        let mut closers = closers;
+        for o in block.owner.openers.clone() {
+            let Some(part) = o.part.filter(|_| o.is_claim) else {
+                continue;
+            };
+            if block.parts.contains_key(&part) || before.is_some_and(|b| part >= b) {
+                continue;
+            }
+            closers = self.end_case(block, closers)?;
+            let (scope, facts) = self.enter_case(block, part)?;
+            block.case_opened_at = Some(closers.len());
+            let claim = self.claim_of(&block.owner.claim_text())?;
+            let assumed = self.term(&block.assumed[&part].0)?;
+            if assumed != claim {
+                return Err(self
+                    .defect(o.line, "the case's assumption is not the block's claim"));
+            }
+            let proof = facts.get(&assumed).expect("the case just laid down");
+            block.parts.insert(part, (claim, proof, scope));
+        }
+        Ok(closers)
+    }
+
     /// The closers an obtain raised inside a case, spent where it ends: the
     /// lemma that closes the cases wants each case over the scope the case
     /// opened.

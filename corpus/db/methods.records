@@ -214,7 +214,9 @@ method cases
   part-opens  assume, labelled
   checks      L claims "P or Q". Each part opens with assume of its disjunct,
               labelled, in the order of L, and its last step claims the same
-              formula as the step above the block, or contradicts a line.
+              formula as the step above the block, or contradicts a line. A
+              part whose assume line ends ", which is the claim" assumes that
+              formula and has no steps.
   metamath    jaodan, jaoi, pm2.21dd
   note        A case that cannot occur ends on the step reaching the opposite
               of an earlier line, written `contradicting` and the line; from

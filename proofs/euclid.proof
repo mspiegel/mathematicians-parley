@@ -220,22 +220,19 @@ theorem euclid
     cases, from 5
 
     case
-    assume b(N) = 0                                                   (C3)
-
-    6.1.  b(N) = 0
-          join C3
+    assume b(N) = 0, which is the claim                               (C3)
 
     case
     assume b(N) ≠ 0                                                   (C4)
 
-    6.2.  b(N) + N ≤ N
+    6.1.  b(N) + N ≤ N
           mun:disjunctive-syllogism, from 4, C4
 
-    6.3.  b(N) ∈ ℕ
+    6.2.  b(N) ∈ ℕ
           mun:nat0-nonzero, from 4, C4
 
-    6.4.  not b(N) + N ≤ N
-          inequalities, from 6.3, contradicting 6.2
+    6.3.  not b(N) + N ≤ N
+          inequalities, from 6.2, contradicting 6.1
           requires N ∈ ℝ: mun:nat0-real, from H2
 
 7.  gcd(a(N), 0) = a(N)

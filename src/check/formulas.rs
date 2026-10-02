@@ -392,6 +392,45 @@ pub fn check_contradicting(
     }
 }
 
+/// A case that says it is the claim assumes what its block claims, and has
+/// no steps: there is nothing in it to show.
+pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
+    for owner in &thm.steps {
+        for o in owner.openers.iter().filter(|o| o.is_claim) {
+            let body = o.text.strip_prefix(o.kind.as_str()).unwrap_or(&o.text);
+            let assumed = known.read(str::trim(&unlabel(body)));
+            let claim = known.read(&owner.claim_text());
+            let differ = match (&assumed, &claim) {
+                (Some(a), Some(c)) => a.shape() != c.shape(),
+                _ => false,
+            };
+            if differ {
+                report.say(
+                    &thm.path,
+                    o.line,
+                    format!(
+                        "case {} says it is the claim of step {}, and it is not",
+                        o.label, owner.number
+                    ),
+                );
+            }
+            let depth = owner.number.len() + 1;
+            let inside = thm.steps.iter().any(|s| {
+                s.number.len() == depth
+                    && s.number.prefix(depth - 1) == owner.number
+                    && s.part == o.part
+            });
+            if inside {
+                report.say(
+                    &thm.path,
+                    o.line,
+                    format!("case {} is the claim and has steps of its own", o.label),
+                );
+            }
+        }
+    }
+}
+
 /// One link of a calculation.
 pub struct Link {
     /// What the link claims: `previous rel t`.

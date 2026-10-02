@@ -1006,6 +1006,27 @@ fn cases() -> Vec<Case> {
             "only the last step of a contradiction block or of a case may do",
         ),
         case(
+            "say a case is the claim when it is not",
+            vec![
+                edit("proofs/euclid.proof", Some("assume b(N) = 0, which is the claim".to_string()), "assume b(N) = 1, which is the claim".to_string()),
+            ],
+            "case C3 says it is the claim of step 6, and it is not",
+        ),
+        case(
+            "say a case with steps is the claim",
+            vec![
+                edit("proofs/euclid.proof", Some("assume b(N) ≠ 0                                                   (C4)".to_string()), "assume b(N) ≠ 0, which is the claim                               (C4)".to_string()),
+            ],
+            "case C4 is the claim and has steps of its own",
+        ),
+        case(
+            "say a line is the claim outside any cases block",
+            vec![
+                edit("proofs/cantor.proof", Some("suppose f(x) = B                                            (S)".to_string()), "suppose f(x) = B, which is the claim                        (S)".to_string()),
+            ],
+            "a line saying it is the claim outside any `cases` block",
+        ),
+        case(
             "write a word predicate under a bare not",
             vec![
                 edit("corpus/stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),

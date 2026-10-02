@@ -97,6 +97,9 @@ pub struct Opener {
     pub label: String,
     pub line: usize,
     pub part: Option<usize>,
+    /// The line says `, which is the claim`: a case whose assumption is what
+    /// the block claims, and which has no steps. The words are not in `text`.
+    pub is_claim: bool,
 }
 
 /// A `define` line as written.
@@ -1098,6 +1101,10 @@ const THEOREM_FIELDS: [&str; 2] = ["metamath", "note"];
 
 regex!(THEOREM_NAME, super::NAME);
 regex!(LABEL_END, r"\(([A-Z]+[0-9]*)\)$");
+regex!(
+    IS_CLAIM,
+    r"^(.*?),\s*which is the claim\s+(\([A-Z]+[0-9]*\))$"
+);
 
 fn label_at_end(text: &str) -> Option<String> {
     LABEL_END.captures(text).map(|c| c[1].to_string())
@@ -1168,6 +1175,54 @@ pub fn parse_proof(
         }
         *step = None;
         Ok(())
+    }
+
+    /// Held markers and openers given to the step that owns their block,
+    /// `owner`, numbered `parent`; what comes back is the part they open.
+    #[allow(clippy::too_many_arguments)]
+    fn attach(
+        path: &str,
+        draft: &mut DraftTheorem,
+        owner: Option<usize>,
+        parent: &StepNo,
+        markers: &mut Vec<(String, usize, Option<Said>)>,
+        openers: &mut Vec<(Intro, String, String, usize)>,
+        part_no: &mut IndexMap<StepNo, usize>,
+    ) -> Checked<Option<usize>> {
+        for (marker, no, note) in markers.drain(..) {
+            let Some(owner) = owner else {
+                return Err(Problem::new(
+                    path,
+                    no,
+                    format!("part marker {} outside any block", repr(&marker)),
+                ));
+            };
+            draft.steps[owner].step.parts.push((marker, no));
+            let index = part_no.get(parent).map_or(0, |n| n + 1);
+            part_no.insert(parent.clone(), index);
+            if let Some(note) = note {
+                draft.steps[owner].step.part_notes.insert(index, note);
+            }
+        }
+        let current = part_no.get(parent).copied();
+        for (kind, text, label, no) in openers.drain(..) {
+            let Some(owner) = owner else {
+                return Err(Problem::new(
+                    path,
+                    no,
+                    format!("{kind} line outside any block"),
+                ));
+            };
+            draft.steps[owner].step.openers.push(Opener {
+                kind,
+                text,
+                label,
+                line: no,
+                part: current,
+                is_claim: false,
+            });
+        }
+        Ok(current)
     }
 
     /// A define after a theorem's last step is the file's, for the theorems
@@ -1338,38 +1393,15 @@ pub fn parse_proof(
             // that this step sits in, and say which part it sits in.
             let parent = number.parent();
             let owner = by_number.get(&parent).copied();
-            for (marker, no, note) in pending_markers.drain(..) {
-                let Some(owner) = owner else {
-                    return Err(Problem::new(
-                        path,
-                        no,
-                        format!("part marker {} outside any block", repr(&marker)),
-                    ));
-                };
-                draft.steps[owner].step.parts.push((marker, no));
-                let index = part_no.get(&parent).map_or(0, |n| n + 1);
-                part_no.insert(parent.clone(), index);
-                if let Some(note) = note {
-                    draft.steps[owner].step.part_notes.insert(index, note);
-                }
-            }
-            let current = part_no.get(&parent).copied();
-            for (kind, text, label, no) in pending_openers.drain(..) {
-                let Some(owner) = owner else {
-                    return Err(Problem::new(
-                        path,
-                        no,
-                        format!("{kind} line outside any block"),
-                    ));
-                };
-                draft.steps[owner].step.openers.push(Opener {
-                    kind,
-                    text,
-                    label,
-                    line: no,
-                    part: current,
-                });
-            }
+            let current = attach(
+                path,
+                draft,
+                owner,
+                &parent,
+                &mut pending_markers,
+                &mut pending_openers,
+                &mut part_no,
+            )?;
             draft.steps.push(DraftStep {
                 step: Step {
                     number: number.clone(),
@@ -1498,7 +1530,46 @@ pub fn parse_proof(
                     format!("{head} line carries no label"),
                 ));
             };
-            pending_openers.push((kind, t.clone(), label, line.no));
+            let Some(m) = IS_CLAIM.captures(&t) else {
+                pending_openers.push((kind, t.clone(), label, line.no));
+                continue;
+            };
+            // A case that is the claim has no step to say which block it is
+            // in, so it is in the innermost `cases` block open at this line.
+            let draft = thm.as_mut().unwrap();
+            let last = draft.steps.last().map(|s| s.step.number.clone());
+            let owner = last.and_then(|n| {
+                (1..=n.len()).rev().map(|k| n.prefix(k)).find(|p| {
+                    by_number.get(p).is_some_and(|&i| {
+                        draft.steps[i].step.just.head.is(Method::Cases)
+                    })
+                })
+            });
+            let Some(parent) = owner else {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "a line saying it is the claim outside any `cases` block",
+                ));
+            };
+            let at = by_number[&parent];
+            let current = attach(
+                path,
+                draft,
+                Some(at),
+                &parent,
+                &mut pending_markers,
+                &mut pending_openers,
+                &mut part_no,
+            )?;
+            draft.steps[at].step.openers.push(Opener {
+                kind,
+                text: format!("{} {}", &m[1], &m[2]),
+                label,
+                line: line.no,
+                part: current,
+                is_claim: true,
+            });
             continue;
         }
         if head == "requires" {

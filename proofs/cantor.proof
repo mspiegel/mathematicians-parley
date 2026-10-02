@@ -38,10 +38,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
                             substitute f(x) = B (S) into line 2.1.2.1
 
                   case
-                  assume x ∉ B                                        (C2)
-
-                  2.1.2.3.  x ∉ B
-                            join C2
+                  assume x ∉ B, which is the claim                    (C2)
 
           2.1.3.  x ∉ f(x)
                   substitute f(x) = B (S) into line 2.1.2

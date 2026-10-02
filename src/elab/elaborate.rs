@@ -514,6 +514,7 @@ impl<'a> Elaborator<'a> {
                 .is_some_and(|b| step.number.len() <= b.owner.number.len())
             {
                 let mut done = blocks.pop().unwrap();
+                closers = self.settle_claimed(&mut done, closers, None)?;
                 (scope, facts, closers) =
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 Self::hand_up(&done, &mut blocks);
@@ -532,6 +533,7 @@ impl<'a> Elaborator<'a> {
             };
             if entering {
                 let mut block = blocks.pop().unwrap();
+                closers = self.settle_claimed(&mut block, closers, step.part)?;
                 closers = self.end_case(&mut block, closers)?;
                 (scope, facts) = self.enter_case(&mut block, step.part.unwrap())?;
                 block.case_opened_at = Some(closers.len());
@@ -576,6 +578,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         while let Some(mut done) = blocks.pop() {
+            closers = self.settle_claimed(&mut done, closers, None)?;
             (scope, facts, closers) =
                 self.close_block(&mut done, &facts, closers, &scope)?;
             Self::hand_up(&done, &mut blocks);
