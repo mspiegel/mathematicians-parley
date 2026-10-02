@@ -6,6 +6,6 @@ $( proofs/sqrt2-irrational/even-square, elaborated from proofs/sqrt2-irrational.
 $[ proofs/sqrt2-irrational/odd-square.mm $]
 
 ${
-  evensqua $p |- ( ( A e. ZZ /\ 2 || ( A ^ 2 ) ) -> 2 || A ) $=
-    ( cz wcel c2 cexp co cdvds wbr wa wn wo exmid a1i wi simpl id syl simpr jca oddsquar notnot pm2.21dd ex pm2.01d orel2 mpd ) ABCZDADEFZGHZIZDAGHZUKJZKZUKUMUJUKLMUJULJZUMUKNUJULUJULUNUJULIZUIJZUNUOUGULIUPUOUGULUOUJUGUJULOZUJUGUGUGUIOUGPQQUJULRSATQUOUIUPJUOUJUIUQUGUIRQUIUAQUBUCUDULUKUEQUF $.
+  proofs.sqrt2-irrational.even-square $p |- ( ( A e. ZZ /\ 2 || ( A ^ 2 ) ) -> 2 || A ) $=
+    ( cz wcel c2 cexp co cdvds wbr wa wn wo exmid a1i wi simpl id syl simpr jca proofs.sqrt2-irrational.odd-square notnot pm2.21dd ex pm2.01d orel2 mpd ) ABCZDADEFZGHZIZDAGHZUKJZKZUKUMUJUKLMUJULJZUMUKNUJULUJULUNUJULIZUIJZUNUOUGULIUPUOUGULUOUJUGUJULOZUJUGUGUGUIOUGPQQUJULRSATQUOUIUPJUOUJUIUQUGUIRQUIUAQUBUCUDULUKUEQUF $.
 $}

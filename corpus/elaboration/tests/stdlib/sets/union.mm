@@ -6,6 +6,6 @@ $( tests/stdlib/sets/union, elaborated from tests/stdlib/sets.proof by parley bu
 $[ stdlib/definitions.mm $]
 
 ${
-  union $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ C e. ( A u. B ) ) -> ( C e. A \/ C e. B ) ) $=
+  tests.stdlib.sets.union $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ C e. ( A u. B ) ) -> ( C e. A \/ C e. B ) ) $=
     ( cvv wcel wa cun wo simpr wb elun a1i mpbid ) ADEZBDEZFZCDEZFZCABGZEZFZTCAEZCBEZHZRTITUDJUACABKLM $.
 $}

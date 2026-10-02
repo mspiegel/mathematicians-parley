@@ -6,6 +6,6 @@ $( tests/stdlib/counting/factorial-base, elaborated from tests/stdlib/counting.p
 $[ stdlib/definitions.mm $]
 
 ${
-  factoria $p |- ( ! ` 1 ) = 1 $=
+  tests.stdlib.counting.factorial-base $p |- ( ! ` 1 ) = 1 $=
     ( c1 cfa cfv wceq wtru fac1 a1i mptru ) ABCZADZJEFGH $.
 $}

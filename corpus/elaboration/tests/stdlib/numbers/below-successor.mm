@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/below-successor, elaborated from tests/stdlib/numbers.pr
 $[ stdlib/definitions.mm $]
 
 ${
-  belowsuc $p |- ( A e. RR -> A < ( A + 1 ) ) $=
+  tests.stdlib.numbers.below-successor $p |- ( A e. RR -> A < ( A + 1 ) ) $=
     ( ltp1 ) AB $.
 $}

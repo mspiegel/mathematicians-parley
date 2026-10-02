@@ -6,6 +6,6 @@ $( tests/stdlib/sets/remove-member, elaborated from tests/stdlib/sets.proof by p
 $[ stdlib/definitions.mm $]
 
 ${
-  removeme $p |- ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) -> ( C e. ( A \ { B } ) <-> ( C e. A /\ -. C = B ) ) ) $=
+  tests.stdlib.sets.remove-member $p |- ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) -> ( C e. ( A \ { B } ) <-> ( C e. A /\ -. C = B ) ) ) $=
     ( cvv wcel wa csn cdif wne wb wceq wn eldifsn a1i df-ne anbi2d bibi2d mpbid ) ADEZBDEZFZCDEZFZCABGZHZEZCAEZCBIZFZJZUFUGCBKZLZFZJUJUCCABMNUCUIUMUFUCUHULUGUHULJUCCBONPQR $.
 $}

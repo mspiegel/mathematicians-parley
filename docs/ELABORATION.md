@@ -1177,6 +1177,12 @@ list names that no file states any longer. A record is one entry:
     - `corpus/elaboration/proofs/<theorem>/<file>.mm` `<label>`: why it is not built,
       and what would build it.
 
+A theorem's label is its full name with a dot for each slash,
+`proofs.sqrt2-irrational.even-square`, and a statement taken as stated is
+labelled after it, `proofs.mean-value.mean-value.itm1`. A label depends on
+nothing but its theorem's name, so adding or renaming another theorem never
+moves it, and no set.mm label begins `proofs.` or `tests.`.
+
 Definitions are not steps, and the constants and definitions
 `corpus/elaboration/stdlib/definitions.mm` declares are decision 12's, not this
 list's.

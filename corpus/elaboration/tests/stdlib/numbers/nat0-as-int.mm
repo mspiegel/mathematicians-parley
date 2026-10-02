@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat0-as-int, elaborated from tests/stdlib/numbers.proof 
 $[ stdlib/definitions.mm $]
 
 ${
-  nat0asin $p |- ( A e. RR -> ( A e. NN0 <-> ( A e. ZZ /\ 0 <_ A ) ) ) $=
+  tests.stdlib.numbers.nat0-as-int $p |- ( A e. RR -> ( A e. NN0 <-> ( A e. ZZ /\ 0 <_ A ) ) ) $=
     ( cn0 wcel cz cc0 cle wbr wa wb cr elnn0z a1i ) ABCADCEAFGHIAJCAKL $.
 $}

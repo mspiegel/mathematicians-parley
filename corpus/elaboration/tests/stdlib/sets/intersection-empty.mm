@@ -6,6 +6,6 @@ $( tests/stdlib/sets/intersection-empty, elaborated from tests/stdlib/sets.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  interse3 $p |- ( A e. _V -> ( A i^i (/) ) = (/) ) $=
+  tests.stdlib.sets.intersection-empty $p |- ( A e. _V -> ( A i^i (/) ) = (/) ) $=
     ( c0 cin wceq cvv wcel in0 a1i ) ABCBDAEFAGH $.
 $}

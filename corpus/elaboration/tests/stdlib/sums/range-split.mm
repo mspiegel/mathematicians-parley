@@ -6,6 +6,6 @@ $( tests/stdlib/sums/range-split, elaborated from tests/stdlib/sums.proof by par
 $[ stdlib/definitions.mm $]
 
 ${
-  rangespl $p |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ( A ... B ) ) -> ( A ... B ) = ( ( A ... C ) u. ( ( C + 1 ) ... B ) ) ) $=
+  tests.stdlib.sums.range-split $p |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ( A ... B ) ) -> ( A ... B ) = ( ( A ... C ) u. ( ( C + 1 ) ... B ) ) ) $=
     ( cz wcel wa cfz co c1 caddc cun wceq simpr fzsplit syl ) ADEZBDEZFZCABGHZEZFTSACGHCIJHBGHKLRTMCABNO $.
 $}

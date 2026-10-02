@@ -8,6 +8,6 @@ $[ stdlib/proved.mm $]
 ${
   $d d m $.
   $d A d m $.
-  sigma1 $p |- ( A e. NN -> ( 1 sigma A ) = sum_ d e. { d e. NN | d || A } d ) $=
+  tests.stdlib.divisibility.sigma $p |- ( A e. NN -> ( 1 sigma A ) = sum_ d e. { d e. NN | d || A } d ) $=
     ( cn wcel c1 csgm co cv cdvds wbr crab vm csu g1sgmval wceq id cbvsumv a1i eqtrd ) ACDZEAFGBHZAIJZBCKZLHZLMZUCUABMZALBNUEUFOTUCUDUALBUDUAOPQRS $.
 $}

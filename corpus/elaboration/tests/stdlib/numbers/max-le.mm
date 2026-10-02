@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/max-le, elaborated from tests/stdlib/numbers.proof by pa
 $[ stdlib/definitions.mm $]
 
 ${
-  maxle1 $p |- ( ( ( A e. RR /\ B e. RR ) /\ C e. RR ) -> ( if ( A <_ B , B , A ) <_ C <-> ( A <_ C /\ B <_ C ) ) ) $=
+  tests.stdlib.numbers.max-le $p |- ( ( ( A e. RR /\ B e. RR ) /\ C e. RR ) -> ( if ( A <_ B , B , A ) <_ C <-> ( A <_ C /\ B <_ C ) ) ) $=
     ( cr wcel wa w3a cle wbr cif wb simpl id syl simpr 3jca maxle ) ADEZBDEZFZCDEZFZRSUAGABHIBAJCHIACHIBCHIFKUBRSUAUBTRTUALZTRRRSLRMNNUBTSUCRSONTUAOPABCQN $.
 $}

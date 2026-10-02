@@ -6,6 +6,6 @@ $( tests/stdlib/sums/range-nat, elaborated from tests/stdlib/sums.proof by parle
 $[ stdlib/definitions.mm $]
 
 ${
-  rangenat $p |- ( ( A e. ZZ /\ B e. ( 1 ... A ) ) -> B e. NN ) $=
+  tests.stdlib.sums.range-nat $p |- ( ( A e. ZZ /\ B e. ( 1 ... A ) ) -> B e. NN ) $=
     ( cz wcel c1 cfz co wa cn simpr elfznn syl ) ACDZBEAFGZDZHOBIDMOJBAKL $.
 $}

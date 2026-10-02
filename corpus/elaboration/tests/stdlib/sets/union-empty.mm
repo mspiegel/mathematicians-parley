@@ -6,6 +6,6 @@ $( tests/stdlib/sets/union-empty, elaborated from tests/stdlib/sets.proof by par
 $[ stdlib/definitions.mm $]
 
 ${
-  unionemp $p |- ( A e. _V -> ( A u. (/) ) = A ) $=
+  tests.stdlib.sets.union-empty $p |- ( A e. _V -> ( A u. (/) ) = A ) $=
     ( c0 cun wceq cvv wcel un0 a1i ) ABCADAEFAGH $.
 $}

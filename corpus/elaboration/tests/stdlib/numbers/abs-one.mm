@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-one, elaborated from tests/stdlib/numbers.proof by p
 $[ stdlib/definitions.mm $]
 
 ${
-  absone $p |- ( abs ` 1 ) = 1 $=
+  tests.stdlib.numbers.abs-one $p |- ( abs ` 1 ) = 1 $=
     ( c1 cabs cfv wceq wtru abs1 a1i mptru ) ABCZADZJEFGH $.
 $}

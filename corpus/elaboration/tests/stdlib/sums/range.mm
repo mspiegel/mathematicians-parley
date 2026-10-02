@@ -6,6 +6,6 @@ $( tests/stdlib/sums/range, elaborated from tests/stdlib/sums.proof by parley bu
 $[ stdlib/definitions.mm $]
 
 ${
-  range $p |- ( ( ( A e. ZZ /\ B e. RR ) /\ B e. ( 1 ... A ) ) -> ( B e. NN /\ B <_ A ) ) $=
+  tests.stdlib.sums.range $p |- ( ( ( A e. ZZ /\ B e. RR ) /\ B e. ( 1 ... A ) ) -> ( B e. NN /\ B <_ A ) ) $=
     ( cz wcel cr wa c1 cfz co cn cle wbr simpr wb simpl id syl fznn mpbid ) ACDZBEDZFZBGAHIZDZFZUDBJDZBAKLZFZUBUDMUETUDUHNUEUBTUBUDOUBTTTUAOTPQQBARQS $.
 $}

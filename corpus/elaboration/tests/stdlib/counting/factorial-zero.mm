@@ -6,6 +6,6 @@ $( tests/stdlib/counting/factorial-zero, elaborated from tests/stdlib/counting.p
 $[ stdlib/definitions.mm $]
 
 ${
-  factori2 $p |- ( ! ` 0 ) = 1 $=
+  tests.stdlib.counting.factorial-zero $p |- ( ! ` 0 ) = 1 $=
     ( cc0 cfa cfv c1 wceq wtru fac0 a1i mptru ) ABCZDEZKFGHI $.
 $}

@@ -6,6 +6,6 @@ $( tests/stdlib/reasoning/or-right, elaborated from tests/stdlib/reasoning.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  orright $p |- ( ( A e. RR /\ A = 1 ) -> ( A = 0 \/ A = 1 ) ) $=
+  tests.stdlib.reasoning.or-right $p |- ( ( A e. RR /\ A = 1 ) -> ( A = 0 \/ A = 1 ) ) $=
     ( cr wcel c1 wceq wa cc0 wo simpr olc syl ) ABCZADEZFMAGEZMHLMIMNJK $.
 $}

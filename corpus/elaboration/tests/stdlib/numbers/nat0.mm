@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat0, elaborated from tests/stdlib/numbers.proof by parl
 $[ stdlib/definitions.mm $]
 
 ${
-  nat0 $p |- ( ( A e. RR /\ A e. NN0 ) -> ( A e. NN \/ A = 0 ) ) $=
+  tests.stdlib.numbers.nat0 $p |- ( ( A e. RR /\ A e. NN0 ) -> ( A e. NN \/ A = 0 ) ) $=
     ( cr wcel cn0 wa cn cc0 wceq wo simpr wb elnn0 a1i mpbid ) ABCZADCZEZPAFCZAGHZIZOPJPTKQALMN $.
 $}

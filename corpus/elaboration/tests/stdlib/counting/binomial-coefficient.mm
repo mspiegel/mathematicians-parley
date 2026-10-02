@@ -6,6 +6,6 @@ $( tests/stdlib/counting/binomial-coefficient, elaborated from tests/stdlib/coun
 $[ stdlib/definitions.mm $]
 
 ${
-  binomia2 $p |- ( ( ( A e. NN0 /\ B e. ZZ ) /\ B e. ( 0 ... A ) ) -> ( A _C B ) = ( ( ! ` A ) / ( ( ! ` ( A - B ) ) x. ( ! ` B ) ) ) ) $=
+  tests.stdlib.counting.binomial-coefficient $p |- ( ( ( A e. NN0 /\ B e. ZZ ) /\ B e. ( 0 ... A ) ) -> ( A _C B ) = ( ( ! ` A ) / ( ( ! ` ( A - B ) ) x. ( ! ` B ) ) ) ) $=
     ( cn0 wcel cz wa cc0 cfz co cbc cfa cfv cmin cmul cdiv wceq simpr bcval2 syl ) ACDZBEDZFZBGAHIZDZFUDABJIAKLABMIKLBKLNIOIPUBUDQBARS $.
 $}

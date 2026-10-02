@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/gcd-zero, elaborated from tests/stdlib/divisibility
 $[ stdlib/definitions.mm $]
 
 ${
-  gcdzero $p |- ( A e. NN0 -> ( A gcd 0 ) = A ) $=
+  tests.stdlib.divisibility.gcd-zero $p |- ( A e. NN0 -> ( A gcd 0 ) = A ) $=
     ( nn0gcdid0 ) AB $.
 $}

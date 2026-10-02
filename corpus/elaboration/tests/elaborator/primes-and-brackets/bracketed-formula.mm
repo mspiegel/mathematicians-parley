@@ -7,6 +7,6 @@ $[ stdlib/definitions.mm $]
 
 ${
   $d A x $.
-  brackete $p |- ( ( A e. RR /\ A. x e. RR x <_ A ) -> A <_ A ) $=
+  tests.elaborator.primes-and-brackets.bracketed-formula $p |- ( ( A e. RR /\ A. x e. RR x <_ A ) -> A <_ A ) $=
     ( cr wcel cv cle wbr wral wa simpr wi simpl id syl wceq breq1d rspcv mpd ) BCDZAEZBFGZACHZIZUBBBFGZSUBJUCSUBUDKUCSSSUBLSMNUAUDABCTBOZTBBFUEMPQNR $.
 $}

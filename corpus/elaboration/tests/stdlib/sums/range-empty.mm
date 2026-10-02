@@ -6,6 +6,6 @@ $( tests/stdlib/sums/range-empty, elaborated from tests/stdlib/sums.proof by par
 $[ stdlib/definitions.mm $]
 
 ${
-  rangeemp $p |- ( 1 ... 0 ) = (/) $=
+  tests.stdlib.sums.range-empty $p |- ( 1 ... 0 ) = (/) $=
     ( c1 cc0 cfz co c0 wceq wtru fz10 a1i mptru ) ABCDZEFZLGHIJ $.
 $}

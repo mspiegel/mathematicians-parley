@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/angle-real, elaborated from tests/stdlib/geometry.proof
 $[ stdlib/proved.mm $]
 
 ${
-  anglerea $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) -> ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) e. RR /\ 0 <_ ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) $=
+  tests.stdlib.geometry.angle-real $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) -> ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) e. RR /\ 0 <_ ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) $=
     ( cc wcel wa wceq wn cmin co cang cabs cfv cr cc0 cle wbr simpl simpr syl jca w3a wi id 3jca gangbnd3 mpd ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZUNUQFZABIJZCBIJZKJZLMZNEZOVCPQZFZURUNUQURUOUNUOUQRZULUNSTUOUQSUAURUHUIUKUBUSVFUCURUHUIUKURUOUHVGUOULUHULUNRZULUJUHUJUKRZUJUHUHUHUIRUHUDTTTTURUOUIVGUOULUIVHULUJUIVIUHUISTTTURUOUKVGUOULUKVHUJUKSTTUEABCUFTUG $.
 $}

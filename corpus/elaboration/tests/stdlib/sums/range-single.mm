@@ -6,6 +6,6 @@ $( tests/stdlib/sums/range-single, elaborated from tests/stdlib/sums.proof by pa
 $[ stdlib/definitions.mm $]
 
 ${
-  rangesin $p |- ( A e. ZZ -> ( A ... A ) = { A } ) $=
+  tests.stdlib.sums.range-single $p |- ( A e. ZZ -> ( A ... A ) = { A } ) $=
     ( fzsn ) AB $.
 $}

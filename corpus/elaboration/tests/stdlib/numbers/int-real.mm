@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/int-real, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  intreal $p |- ( A e. ZZ -> A e. RR ) $=
+  tests.stdlib.numbers.int-real $p |- ( A e. ZZ -> A e. RR ) $=
     ( zre ) AB $.
 $}

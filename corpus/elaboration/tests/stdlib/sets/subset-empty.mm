@@ -6,6 +6,6 @@ $( tests/stdlib/sets/subset-empty, elaborated from tests/stdlib/sets.proof by pa
 $[ stdlib/definitions.mm $]
 
 ${
-  subsetem $p |- ( A e. _V -> ( A C_ (/) <-> A = (/) ) ) $=
+  tests.stdlib.sets.subset-empty $p |- ( A e. _V -> ( A C_ (/) <-> A = (/) ) ) $=
     ( c0 wss wceq wb cvv wcel ss0b a1i ) ABCABDEAFGAHI $.
 $}

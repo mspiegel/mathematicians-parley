@@ -6,6 +6,6 @@ $( tests/stdlib/sets/union-self, elaborated from tests/stdlib/sets.proof by parl
 $[ stdlib/definitions.mm $]
 
 ${
-  unionsel $p |- ( A e. _V -> ( A u. A ) = A ) $=
+  tests.stdlib.sets.union-self $p |- ( A e. _V -> ( A u. A ) = A ) $=
     ( cun wceq cvv wcel unidm a1i ) AABACADEAFG $.
 $}

@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-square, elaborated from tests/stdlib/numbers.proof b
 $[ stdlib/definitions.mm $]
 
 ${
-  abssquar $p |- ( A e. RR -> ( ( abs ` A ) ^ 2 ) = ( A ^ 2 ) ) $=
+  tests.stdlib.numbers.abs-square $p |- ( A e. RR -> ( ( abs ` A ) ^ 2 ) = ( A ^ 2 ) ) $=
     ( absresq ) AB $.
 $}

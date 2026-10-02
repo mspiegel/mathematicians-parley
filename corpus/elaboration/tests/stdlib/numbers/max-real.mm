@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/max-real, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  maxreal $p |- ( ( A e. RR /\ B e. RR ) -> if ( A <_ B , B , A ) e. RR ) $=
+  tests.stdlib.numbers.max-real $p |- ( ( A e. RR /\ B e. RR ) -> if ( A <_ B , B , A ) e. RR ) $=
     ( cr wcel wa cle wbr cif simpr simpl id syl jca ifcl ) ACDZBCDZEZPOEABFGZBAHCDQPOOPIQOOOPJOKLMRBACNL $.
 $}

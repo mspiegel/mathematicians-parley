@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/integer-step, elaborated from tests/stdlib/numbers.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  integers $p |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ A < B ) -> ( A + 1 ) <_ B ) $=
+  tests.stdlib.numbers.integer-step $p |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ A < B ) -> ( A + 1 ) <_ B ) $=
     ( cz wcel wa clt wbr c1 caddc co cle simpr wb simpl id syl jca zltp1le mpbid ) ACDZBCDZEZABFGZEZUCAHIJZBKGZUBUCLUDUBUCUFMUDTUAUDUBTUBUCNZUBTTTUANTOPPUDUBUAUGTUALPQABRPS $.
 $}

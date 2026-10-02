@@ -6,6 +6,6 @@ $( tests/stdlib/sets/intersection, elaborated from tests/stdlib/sets.proof by pa
 $[ stdlib/definitions.mm $]
 
 ${
-  intersec $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ C e. ( A i^i B ) ) -> ( C e. A /\ C e. B ) ) $=
+  tests.stdlib.sets.intersection $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ C e. ( A i^i B ) ) -> ( C e. A /\ C e. B ) ) $=
     ( cvv wcel wa cin simpr wb elin a1i mpbid ) ADEZBDEZFZCDEZFZCABGZEZFZSCAEZCBEZFZQSHSUCITCABJKL $.
 $}

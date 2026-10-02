@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/gcd-one, elaborated from tests/stdlib/divisibility.
 $[ stdlib/definitions.mm $]
 
 ${
-  gcdone $p |- ( A e. ZZ -> ( A gcd 1 ) = 1 ) $=
+  tests.stdlib.divisibility.gcd-one $p |- ( A e. ZZ -> ( A gcd 1 ) = 1 ) $=
     ( gcd1 ) AB $.
 $}

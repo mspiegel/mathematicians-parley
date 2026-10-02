@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-negative, elaborated from tests/stdlib/numbers.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  absnegat $p |- ( A e. RR -> ( abs ` -u A ) = ( abs ` A ) ) $=
+  tests.stdlib.numbers.abs-negative $p |- ( A e. RR -> ( abs ` -u A ) = ( abs ` A ) ) $=
     ( cr wcel cc cneg cabs cfv wceq id recn syl absneg ) ABCZADCZAEFGAFGHMMNMIAJKALK $.
 $}

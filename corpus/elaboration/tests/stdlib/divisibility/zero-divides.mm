@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/zero-divides, elaborated from tests/stdlib/divisibi
 $[ stdlib/definitions.mm $]
 
 ${
-  zerodivi $p |- ( A e. ZZ -> ( 0 || A <-> A = 0 ) ) $=
+  tests.stdlib.divisibility.zero-divides $p |- ( A e. ZZ -> ( 0 || A <-> A = 0 ) ) $=
     ( 0dvds ) AB $.
 $}

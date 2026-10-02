@@ -8,6 +8,6 @@ $[ stdlib/definitions.mm $]
 ${
   $d p q $.
   $d A p q $.
-  rational $p |- ( ( A e. RR /\ A e. QQ ) -> E. p e. ZZ E. q e. NN A = ( p / q ) ) $=
+  tests.stdlib.numbers.rational $p |- ( ( A e. RR /\ A e. QQ ) -> E. p e. ZZ E. q e. NN A = ( p / q ) ) $=
     ( cr wcel cq wa cv cdiv co wceq cn wrex cz simpr wb elq a1i mpbid ) ADEZAFEZGZUAACHZBHZIJZKZBLMZCNMZTUAOUAUHPUBCBAQRS $.
 $}

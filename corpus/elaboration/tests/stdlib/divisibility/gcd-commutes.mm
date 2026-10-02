@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/gcd-commutes, elaborated from tests/stdlib/divisibi
 $[ stdlib/definitions.mm $]
 
 ${
-  gcdcommu $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A gcd B ) = ( B gcd A ) ) $=
+  tests.stdlib.divisibility.gcd-commutes $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A gcd B ) = ( B gcd A ) ) $=
     ( gcdcom ) ABC $.
 $}

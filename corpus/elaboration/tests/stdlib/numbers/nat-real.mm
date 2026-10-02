@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat-real, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  natreal $p |- ( A e. NN -> A e. RR ) $=
+  tests.stdlib.numbers.nat-real $p |- ( A e. NN -> A e. RR ) $=
     ( nnre ) AB $.
 $}

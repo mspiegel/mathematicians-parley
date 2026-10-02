@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-product, elaborated from tests/stdlib/numbers.proof 
 $[ stdlib/definitions.mm $]
 
 ${
-  absprodu $p |- ( ( A e. RR /\ B e. RR ) -> ( abs ` ( A x. B ) ) = ( ( abs ` A ) x. ( abs ` B ) ) ) $=
+  tests.stdlib.numbers.abs-product $p |- ( ( A e. RR /\ B e. RR ) -> ( abs ` ( A x. B ) ) = ( ( abs ` A ) x. ( abs ` B ) ) ) $=
     ( cr wcel wa cc cmul co cabs cfv wceq simpl id syl recn simpr jca absmul ) ACDZBCDZEZAFDZBFDZEABGHIJAIJBIJGHKUAUBUCUASUBUASSSTLSMNAONUATUCSTPBONQABRN $.
 $}

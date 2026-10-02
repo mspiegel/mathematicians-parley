@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/mod-less, elaborated from tests/stdlib/divisibility
 $[ stdlib/proved.mm $]
 
 ${
-  modless $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
+  tests.stdlib.divisibility.mod-less $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( gzmodlt ) ABC $.
 $}

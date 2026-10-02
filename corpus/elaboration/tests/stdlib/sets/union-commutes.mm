@@ -6,6 +6,6 @@ $( tests/stdlib/sets/union-commutes, elaborated from tests/stdlib/sets.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  unioncom $p |- ( ( A e. _V /\ B e. _V ) -> ( A u. B ) = ( B u. A ) ) $=
+  tests.stdlib.sets.union-commutes $p |- ( ( A e. _V /\ B e. _V ) -> ( A u. B ) = ( B u. A ) ) $=
     ( cun wceq cvv wcel wa uncom a1i ) ABCBACDAEFBEFGABHI $.
 $}

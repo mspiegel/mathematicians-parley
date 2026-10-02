@@ -6,6 +6,6 @@ $( tests/stdlib/sets/difference-self, elaborated from tests/stdlib/sets.proof by
 $[ stdlib/definitions.mm $]
 
 ${
-  differe1 $p |- ( A e. _V -> ( A \ A ) = (/) ) $=
+  tests.stdlib.sets.difference-self $p |- ( A e. _V -> ( A \ A ) = (/) ) $=
     ( cdif c0 wceq cvv wcel difid a1i ) AABCDAEFAGH $.
 $}

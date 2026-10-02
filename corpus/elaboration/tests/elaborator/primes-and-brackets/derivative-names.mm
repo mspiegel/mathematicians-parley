@@ -6,6 +6,6 @@ $( tests/elaborator/primes-and-brackets/derivative-names, elaborated from tests/
 $[ stdlib/proved.mm $]
 
 ${
-  derivati $p |- ( ( ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ C : ( A [,] B ) --> RR ) /\ ( A (,) B ) C_ dom ( RR _D C ) ) /\ ( RR _D C ) e. ( ( A (,) B ) -cn-> RR ) ) /\ ( A (,) B ) C_ dom ( RR _D ( RR _D C ) ) ) /\ D e. ( A (,) B ) ) /\ ( ( RR _D ( RR _D C ) ) ` D ) = 0 ) -> ( ( RR _D C ) ` D ) e. RR ) $=
+  tests.elaborator.primes-and-brackets.derivative-names $p |- ( ( ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ C : ( A [,] B ) --> RR ) /\ ( A (,) B ) C_ dom ( RR _D C ) ) /\ ( RR _D C ) e. ( ( A (,) B ) -cn-> RR ) ) /\ ( A (,) B ) C_ dom ( RR _D ( RR _D C ) ) ) /\ D e. ( A (,) B ) ) /\ ( ( RR _D ( RR _D C ) ) ` D ) = 0 ) -> ( ( RR _D C ) ` D ) e. RR ) $=
     ( cr wcel wa cicc co wf cioo cdv cdm wss ccncf cfv cc0 wceq simpl id syl simpr gdvre ) AEFZBEFZGZABHIZECJZGZABKIZECLIZMZNZGZUKUJEOIZFZGZUJEUKLIZMZNZGZDUJFZGZDURPZQRZGZABDCVFVCUDVCVESZVCVAUDVAVBSZVAUQUDUQUTSZUQUNUDUNUPSZUNUIUDUIUMSZUIUFUDUFUHSZUFUDUDUDUESUDTUAUAUAUAUAUAUAVFVCUEVGVCVAUEVHVAUQUEVIUQUNUEVJUNUIUEVKUIUFUEVLUDUEUBUAUAUAUAUAUAVFVCUHVGVCVAUHVHVAUQUHVIUQUNUHVJUNUIUHVKUFUHUBUAUAUAUAUAVFVCUMVGVCVAUMVHVAUQUMVIUQUNUMVJUIUMUBUAUAUAUAVFVCVBVGVAVBUBUAUC $.
 $}

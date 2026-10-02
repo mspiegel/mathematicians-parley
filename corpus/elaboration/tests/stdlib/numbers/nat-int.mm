@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat-int, elaborated from tests/stdlib/numbers.proof by p
 $[ stdlib/definitions.mm $]
 
 ${
-  natint $p |- ( A e. NN -> A e. ZZ ) $=
+  tests.stdlib.numbers.nat-int $p |- ( A e. NN -> A e. ZZ ) $=
     ( nnz ) AB $.
 $}

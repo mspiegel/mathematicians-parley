@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat0-nonzero, elaborated from tests/stdlib/numbers.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  nat0nonz $p |- ( ( A e. NN0 /\ -. A = 0 ) -> A e. NN ) $=
+  tests.stdlib.numbers.nat0-nonzero $p |- ( ( A e. NN0 /\ -. A = 0 ) -> A e. NN ) $=
     ( cn0 wcel cc0 wceq wn wa wne cn simpl id syl simpr df-ne sylibr necom sylib jca elnnne0 ) ABCZADEZFZGZTADHZGAICUCTUDUCTTTUBJTKLUCDAHZUDUCUDUEUCUBUDTUBMADNOADPQDAPQRASO $.
 $}

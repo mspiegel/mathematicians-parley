@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/gcd-mod, elaborated from tests/stdlib/divisibility.
 $[ stdlib/definitions.mm $]
 
 ${
-  gcdmod $p |- ( ( A e. ZZ /\ B e. NN ) -> ( ( A mod B ) gcd B ) = ( A gcd B ) ) $=
+  tests.stdlib.divisibility.gcd-mod $p |- ( ( A e. ZZ /\ B e. NN ) -> ( ( A mod B ) gcd B ) = ( A gcd B ) ) $=
     ( modgcd ) ABC $.
 $}

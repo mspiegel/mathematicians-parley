@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/mod-natural, elaborated from tests/stdlib/divisibil
 $[ stdlib/definitions.mm $]
 
 ${
-  modnatur $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) e. NN0 ) $=
+  tests.stdlib.divisibility.mod-natural $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) e. NN0 ) $=
     ( zmodcl ) ABC $.
 $}

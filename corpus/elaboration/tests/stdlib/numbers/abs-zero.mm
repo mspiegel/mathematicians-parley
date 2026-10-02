@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-zero, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  abszero $p |- ( abs ` 0 ) = 0 $=
+  tests.stdlib.numbers.abs-zero $p |- ( abs ` 0 ) = 0 $=
     ( cc0 cabs cfv wceq wtru abs0 a1i mptru ) ABCZADZJEFGH $.
 $}

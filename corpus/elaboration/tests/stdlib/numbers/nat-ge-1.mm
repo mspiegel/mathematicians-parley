@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/nat-ge-1, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  natge1 $p |- ( A e. NN -> 1 <_ A ) $=
+  tests.stdlib.numbers.nat-ge-1 $p |- ( A e. NN -> 1 <_ A ) $=
     ( nnge1 ) AB $.
 $}

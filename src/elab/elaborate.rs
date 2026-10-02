@@ -80,61 +80,44 @@ pub enum Way {
     Unfolded,
 }
 
-/// What this elaborator calls a theorem it has written out.
+/// What this elaborator calls a theorem it has written out: its full name,
+/// file and theorem, with a dot where the name has a slash, which Metamath
+/// does not allow in a label: `proofs.sqrt2-irrational.even-square`.
 ///
-/// set.mm proves some of what this corpus proves and has its own names for
-/// them, so the label is moved off any that is already in use, and off any
-/// math symbol set.mm declares, which Metamath forbids a label to be: a
-/// theorem named `abs` would otherwise take `abs`. The corpus's
-/// own theorems can share a stem as well, so `ours`, the full names of every
-/// theorem the corpus proves, are given labels one at a time in order of
-/// full name, each moved off what set.mm and the ones before it hold. Which
-/// label a theorem lands on then depends only on set.mm and the corpus.
-/// A label is ASCII, as Metamath asks, so a Greek letter in a name is spelt
-/// by its English name: a theorem named σ is labelled from `sigma`.
+/// The label depends on nothing but the theorem's own name, so adding or
+/// renaming another theorem never moves it. Two theorems of one file have
+/// two names, and set.mm writes a dot only in a hypothesis's label, after
+/// its theorem's, so no set.mm label begins `proofs.` or `tests.`; a label
+/// already taken is a defect all the same rather than one moved aside. A
+/// label is ASCII, as Metamath asks, so a Greek letter in a name is spelt by
+/// its English name: a theorem named σ is labelled from `sigma`.
 pub fn label_of(
     name: &str,
     taken: &dyn Lookup,
     syntax: &Syntax,
     path: &str,
     line: usize,
-    ours: &BTreeSet<String>,
 ) -> Checked<String> {
-    let mut all = ours.clone();
-    all.insert(name.to_string());
-    let mut given: IndexMap<String, String> = IndexMap::new();
-    for one in &all {
-        let last = one.rsplit('/').next().unwrap_or(one);
-        let stem: String = crate::text::spelt_in_ascii(&last.replace('-', ""))
-            .chars()
-            .take(8)
-            .collect();
-        let head: String = stem.chars().take(7).collect();
-        let held: BTreeSet<&String> = given.values().collect();
-        let mut candidates = vec![stem.clone()];
-        candidates.extend((1..10).map(|d| format!("{head}{d}")));
-        let free = candidates.into_iter().find(|s| {
-            !taken.contains_key(s) && !syntax.is_symbol(s) && !held.contains(s)
-        });
-        let Some(free) = free else {
-            return Err(Problem::new(
-                path,
-                line,
-                format!("no free label near {}", repr(&stem)),
-            ));
-        };
-        given.insert(one.clone(), free);
+    let label = crate::text::spelt_in_ascii(&name.replace('/', "."));
+    let allowed = |c: char| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.');
+    if !label.chars().all(allowed) {
+        return Err(Problem::new(
+            path,
+            line,
+            format!(
+                "{} cannot be a Metamath label, which is letters, digits, `-`, `_` and `.`",
+                repr(&label)
+            ),
+        ));
     }
-    Ok(given[name].clone())
-}
-
-/// The full names of the theorems this corpus proves.
-pub fn proved_here(items: &IndexMap<String, Item>) -> BTreeSet<String> {
-    items
-        .iter()
-        .filter(|(_, item)| item.proved())
-        .map(|(name, _)| name.clone())
-        .collect()
+    if taken.contains_key(&label) || syntax.is_symbol(&label) {
+        return Err(Problem::new(
+            path,
+            line,
+            format!("{} is a label set.mm already uses", repr(&label)),
+        ));
+    }
+    Ok(label)
 }
 
 /// An item's full name: its file's module, then its own name.
@@ -1907,7 +1890,6 @@ impl<'a> Elaborator<'a> {
             self.b.syntax(),
             &self.thm.path,
             self.thm.line,
-            &proved_here(self.items),
         )
     }
 
@@ -3198,7 +3180,6 @@ impl<'a> Elaborator<'a> {
             self.b.syntax(),
             &self.thm.path,
             self.thm.line,
-            &proved_here(self.items),
         )?;
         // The cited theorem is proved in another file, so the library does
         // not hold it; what it takes is what is being pushed. Kept apart from

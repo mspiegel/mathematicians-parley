@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/le-max-right, elaborated from tests/stdlib/numbers.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  lemaxrig $p |- ( ( A e. RR /\ B e. RR ) -> B <_ if ( A <_ B , B , A ) ) $=
+  tests.stdlib.numbers.le-max-right $p |- ( ( A e. RR /\ B e. RR ) -> B <_ if ( A <_ B , B , A ) ) $=
     ( max2 ) ABC $.
 $}

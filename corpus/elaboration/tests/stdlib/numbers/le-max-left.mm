@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/le-max-left, elaborated from tests/stdlib/numbers.proof 
 $[ stdlib/definitions.mm $]
 
 ${
-  lemaxlef $p |- ( ( A e. RR /\ B e. RR ) -> A <_ if ( A <_ B , B , A ) ) $=
+  tests.stdlib.numbers.le-max-left $p |- ( ( A e. RR /\ B e. RR ) -> A <_ if ( A <_ B , B , A ) ) $=
     ( max1 ) ABC $.
 $}

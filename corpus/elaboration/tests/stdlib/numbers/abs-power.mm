@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-power, elaborated from tests/stdlib/numbers.proof by
 $[ stdlib/definitions.mm $]
 
 ${
-  abspower $p |- ( ( A e. RR /\ B e. NN0 ) -> ( abs ` ( A ^ B ) ) = ( ( abs ` A ) ^ B ) ) $=
+  tests.stdlib.numbers.abs-power $p |- ( ( A e. RR /\ B e. NN0 ) -> ( abs ` ( A ^ B ) ) = ( ( abs ` A ) ^ B ) ) $=
     ( cr wcel cn0 wa cc cexp co cabs cfv wceq simpl id syl recn simpr jca absexp ) ACDZBEDZFZAGDZUAFABHIJKAJKBHILUBUCUAUBTUCUBTTTUAMTNOAPOTUAQRABSO $.
 $}

@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/half-positive, elaborated from tests/stdlib/numbers.proo
 $[ stdlib/definitions.mm $]
 
 ${
-  halfposi $p |- ( ( A e. RR /\ 0 < A ) -> 0 < ( A / 2 ) ) $=
+  tests.stdlib.numbers.half-positive $p |- ( ( A e. RR /\ 0 < A ) -> 0 < ( A / 2 ) ) $=
     ( cr wcel cc0 clt wbr wa c2 cdiv co simpr wb simpl id syl halfpos2 mpbid ) ABCZDAEFZGZSDAHIJZEFZRSKTRSUBLTRRRSMRNOAPOQ $.
 $}

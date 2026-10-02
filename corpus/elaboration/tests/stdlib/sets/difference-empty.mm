@@ -6,6 +6,6 @@ $( tests/stdlib/sets/difference-empty, elaborated from tests/stdlib/sets.proof b
 $[ stdlib/definitions.mm $]
 
 ${
-  differen $p |- ( A e. _V -> ( A \ (/) ) = A ) $=
+  tests.stdlib.sets.difference-empty $p |- ( A e. _V -> ( A \ (/) ) = A ) $=
     ( c0 cdif wceq cvv wcel dif0 a1i ) ABCADAEFAGH $.
 $}

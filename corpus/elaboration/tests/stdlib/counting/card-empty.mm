@@ -6,6 +6,6 @@ $( tests/stdlib/counting/card-empty, elaborated from tests/stdlib/counting.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  cardempt $p |- ( # ` (/) ) = 0 $=
+  tests.stdlib.counting.card-empty $p |- ( # ` (/) ) = 0 $=
     ( c0 chash cfv cc0 wceq wtru hash0 a1i mptru ) ABCZDEZKFGHI $.
 $}

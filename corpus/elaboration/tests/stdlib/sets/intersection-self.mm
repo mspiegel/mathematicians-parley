@@ -6,6 +6,6 @@ $( tests/stdlib/sets/intersection-self, elaborated from tests/stdlib/sets.proof 
 $[ stdlib/definitions.mm $]
 
 ${
-  interse4 $p |- ( A e. _V -> ( A i^i A ) = A ) $=
+  tests.stdlib.sets.intersection-self $p |- ( A e. _V -> ( A i^i A ) = A ) $=
     ( cin wceq cvv wcel inidm a1i ) AABACADEAFG $.
 $}

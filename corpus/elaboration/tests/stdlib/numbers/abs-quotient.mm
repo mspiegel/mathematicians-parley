@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/abs-quotient, elaborated from tests/stdlib/numbers.proof
 $[ stdlib/definitions.mm $]
 
 ${
-  absquoti $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( abs ` ( A / B ) ) = ( ( abs ` A ) / ( abs ` B ) ) ) $=
+  tests.stdlib.numbers.abs-quotient $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( abs ` ( A / B ) ) = ( ( abs ` A ) / ( abs ` B ) ) ) $=
     ( cr wcel wa cc0 wceq wn cc wne w3a cdiv co cabs cfv simpl id syl recn simpr df-ne sylibr necom sylib 3jca absdiv ) ACDZBCDZEZBFGZHZEZAIDZBIDZBFJZKABLMNOANOBNOLMGULUMUNUOULUGUMULUIUGUIUKPZUIUGUGUGUHPUGQRRASRULUHUNULUIUHUPUGUHTRBSRULFBJZUOULUOUQULUKUOUIUKTBFUAUBBFUCUDFBUCUDUEABUFR $.
 $}

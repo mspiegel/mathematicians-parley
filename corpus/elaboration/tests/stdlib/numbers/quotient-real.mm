@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/quotient-real, elaborated from tests/stdlib/numbers.proo
 $[ stdlib/definitions.mm $]
 
 ${
-  quotient $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( A / B ) e. RR ) $=
+  tests.stdlib.numbers.quotient-real $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( A / B ) e. RR ) $=
     ( cr wcel wa cc0 wceq wn wne w3a cdiv co simpl id syl simpr df-ne sylibr necom sylib 3jca redivcl ) ACDZBCDZEZBFGZHZEZUCUDBFIZJABKLCDUHUCUDUIUHUEUCUEUGMZUEUCUCUCUDMUCNOOUHUEUDUJUCUDPOUHFBIZUIUHUIUKUHUGUIUEUGPBFQRBFSTFBSTUAABUBO $.
 $}

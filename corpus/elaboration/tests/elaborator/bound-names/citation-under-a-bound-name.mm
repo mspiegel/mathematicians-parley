@@ -9,6 +9,6 @@ ${
   $d e m $.
   $d A e m $.
   $d B e m $.
-  citation $p |- ( ( ( A e. NN /\ B e. NN ) /\ A. e e. NN e <_ e ) -> A. e e. NN ( ( e || A /\ e || B ) -> e <_ ( A gcd B ) ) ) $=
+  tests.elaborator.bound-names.citation-under-a-bound-name $p |- ( ( ( A e. NN /\ B e. NN ) /\ A. e e. NN e <_ e ) -> A. e e. NN ( ( e || A /\ e || B ) -> e <_ ( A gcd B ) ) ) $=
     ( cn wcel wa cv cle wbr wral vm cdvds cgcd co wi cz w3a cc0 wceq wn simpr nnz syl simpl id 3jca wne nnne0 df-ne sylib intnanrt jca dvdslegcd ralrimiva breq1d anbi12d imbi12d cbvralvw ) ADEZBDEZFZCGZVBHIZCDJZFZKGZALIZVFBLIZFZVFABMNZHIZOZKDJVBALIZVBBLIZFZVBVJHIZOZCDJVEVLKDVEVFDEZFZVFPEZAPEZBPEZQZARSZBRSZFZTZFVLVSWCWGVSVTWAWBVSVRVTVEVRUAVFUBUCVSUSWAVSVEUSVEVRUDZVEVAUSVAVDUDZVAUSUSUSUTUDZUSUEZUCZUCZUCZAUBUCVSUTWBVSVEUTWHVEVAUTWIUSUTUAUCUCBUBUCUFVSWDTZWGVSARUGZWOVSUSWPWNAUHUCARUIUJWDWEUKUCULVFABUMUCUNVLVQKCDVFVBSZVIVOVKVPWQVGVMVHVNWQVFVBALWQUEZUOWQVFVBBLWRUOUPWQVFVBVJHWRUOUQURUJ $.
 $}
