@@ -738,7 +738,12 @@ is proved the same way from the lines it cites (`member_of`). A claim said of
 every member is proved of one fixed by `widen`, with what its membership says
 laid beside it (`fixed`), and closed by `ralrimiva`; a sum over a range is
 `fsumrecl` or `fsumcl` over its term, proved with the index fixed in the
-range the same way (`summed`), and `fzfid` says the range is finite.
+range the same way (`summed`), and `fzfid` says the range is finite. Both
+lemmas keep their index out of the scope and the range, and where either
+spells it, as an induction hypothesis about a sum over the same letter does,
+the sum is shown over a letter nothing holds and renamed back
+(`renaming_apart`, through `cbvsumv`), as a lemma citation moves to other
+letters (`tests/elaborator/sum-letter-in-scope.proof`).
 
 The normaliser reads only the arithmetic it normalises, and a division
 inside anything else — the summand of Σ(k = 1 to n) 1/T(k) — belongs to that

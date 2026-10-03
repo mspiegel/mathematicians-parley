@@ -522,7 +522,7 @@ this table is mundane.
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
-| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 3 |
+| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |
 | congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 8.11, 11, 13, 14, 20 and 28 |

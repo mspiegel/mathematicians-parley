@@ -1,0 +1,10 @@
+theorem sum-under-a-hypothesis-over-its-letter
+  note        The hypothesis sums over k, and so does the claim: the lemma
+              that puts a sum in ℝ keeps its index out of the scope, so the
+              sum is shown over another letter and renamed back.
+  let n ∈ ℕ                                                           (H1)
+  assume Σ(k = 1 to n) 1/k ≥ 0                                        (H2)
+  then Σ(k = 1 to n + 1) 1/k ∈ ℝ
+
+1.  Σ(k = 1 to n + 1) 1/k ∈ ℝ
+    membership

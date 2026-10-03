@@ -1578,6 +1578,33 @@ impl<'a> Elaborator<'a> {
                 "a sum in {system} over this range is not written"
             )));
         };
+        // The lemma keeps its index out of the scope and the range. Where
+        // either spells it, as an induction hypothesis about a sum over the
+        // same letter does, the sum is shown over a letter nothing holds and
+        // renamed back (`renaming_apart`).
+        let letter = self.rpn(&index);
+        let spells = |text: &str| text.split_whitespace().any(|t| t == letter);
+        if spells(scope) || spells(&self.rpn(&limits)) {
+            let Some(name) = index.variable() else {
+                return Ok(Route::no("a sum's index is no letter"));
+            };
+            let Some(fresh) = self.unheld(&[&self.to_term(scope), whole]) else {
+                return Ok(Route::no("no letter is left to sum over"));
+            };
+            let mut put = IndexMap::new();
+            put.insert(name.to_string(), fresh);
+            let moved = whole.substitute(&put);
+            let shown = take!(self.summed(&moved, system, scope, known, step)?);
+            let said = t!(self.rpn(&moved), system, "wcel");
+            let want = t!(self.rpn(whole), system, "wcel");
+            let Some(across) = self.renaming_apart(&said, &want)? else {
+                return Ok(Route::no("the sum does not rename back"));
+            };
+            let turned = pf!(self.b; t!(said, want, "wb"), scope, across, "a1i");
+            return Ok(Built(
+                pf!(self.b; scope, said, want, shown, turned, "mpbid"),
+            ));
+        }
         let (low, high) = (
             self.rpn(&limits.children()[0]),
             self.rpn(&limits.children()[1]),

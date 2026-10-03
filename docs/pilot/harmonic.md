@@ -21,7 +21,7 @@ statement, by contradiction. All three elaborate to
 `corpus/elaboration/proofs/harmonic/`, assume nothing, and verify.
 
 Numbers: `harmonic-block` is 15 numbered steps, 23 with those inside blocks;
-`harmonic-unbounded` 7 and 20; `harmonic` 2 and 9.
+`harmonic-unbounded` 6 and 15; `harmonic` 2 and 8.
 
 ---
 
@@ -94,9 +94,10 @@ is at least every partial sum; but some partial sum exceeds B. ∎
    item's conclusion uses m and its limit n, so a scope holding the limit
    does not meet a condition on n. And `membership` proved Σ ∈ ℝ inside the
    induction step and the contradiction with `fsumrecl`, whose index the
-   scope there binds; the verifier refused it. Those memberships are now a
-   line proved outside, instantiated where needed. `membership` choosing its
-   scope by `$d`, as a lemma citation does, would remove the need.
+   scope there binds; the verifier refused it. `membership` now shows such a
+   sum over a letter nothing holds and renames it back, as a lemma citation
+   moves to other letters, so the page writes `membership` there as anywhere
+   (`tests/elaborator/sum-letter-in-scope.proof`).
 6. **What is still a limit.** A term like 1/k is real only where something
    says k ≠ 0, so a sum over {2^j + 1, …, 2^(j + 1)} needs its terms said
    real in a line of its own (`harmonic-block` step 7). The coefficient
