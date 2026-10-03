@@ -2237,7 +2237,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         held: &Facts,
     ) -> Checked<Route<Proof>> {
-        let (name, domain) = (whole.children()[0].clone(), whole.children()[1].clone());
+        let name = whole.children()[0].clone();
         let (map, is_map) = take!(self.define_value(&name, scope, held)?);
         if map.label() != Some("cmpt") || map.children().len() != 3 {
             return Ok(Route::no(
@@ -2249,9 +2249,6 @@ impl<'a> Elaborator<'a> {
             self.rpn(&map.children()[1]),
             self.rpn(&map.children()[2]),
         );
-        if over != self.rpn(&domain) {
-            return Ok(Route::no("the define gives its function on another set"));
-        }
         let every = t!(t!(rule, "cvv", "wcel"), letter, over, "wral");
         let sets =
             take!(self.settle(&self.to_term(&every), scope, held, 3, None, None)?);
@@ -2273,11 +2270,23 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "F" => &name_rpn, "G" => &map_rpn, "A" => &over},
             &[&is_map],
         );
-        Ok(Built(self.b.ap(
+        let on_over = t!(name_rpn, over, "wfn");
+        let named = self.b.ap(
             "mpbird",
-            &binds! {"ph" => scope, "ps" => t!(name_rpn, over, "wfn"), "ch" => &map_on},
+            &binds! {"ph" => scope, "ps" => &on_over, "ch" => &map_on},
             &[&mapped, &carried],
-        )))
+        );
+        // A domain the claim names by a define is the set the define's body
+        // holds written out, and the two are one in standard form.
+        let claimed = self.rpn(whole);
+        if claimed == on_over {
+            return Ok(Built(named));
+        }
+        let alike =
+            take!(self.same(&self.to_term(&on_over), whole, scope, held, None)?);
+        Ok(Built(
+            pf!(self.b; scope, on_over, claimed, named, alike, "mpbid"),
+        ))
     }
 
     /// (value, ( scope -> one = value )) where `one` is a defined name or a

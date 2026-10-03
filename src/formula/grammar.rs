@@ -297,7 +297,7 @@ fn read(
         refused: None,
         refused_order: false,
     };
-    let Some(node) = p.expression(None, None)? else {
+    let Some(node) = p.expression(None, &[])? else {
         return Err(Problem::new(path, line, p.why()));
     };
     if p.i != tokens.len() {
@@ -467,18 +467,25 @@ impl Parser<'_> {
     /// Parse a primary, then extend it with any notation whose first hole it
     /// can fill, so long as that notation binds tighter than `outer`.
     ///
-    /// `stop` is the literal that closes an interior hole. Without it the hole
-    /// runs past its own delimiter: the set in `for all s ∈ S, d ≤ s` would
-    /// swallow the comma and try to be the first point of a triangle.
-    fn expression(&mut self, outer: Option<&str>, stop: Option<&str>) -> Reading {
+    /// `stop` is the run of literals that closes an interior hole. Without it
+    /// the hole runs past its own delimiter: the set in `for all s ∈ S, d ≤ s`
+    /// would swallow the comma and try to be the first point of a triangle.
+    /// It is the whole run and not its first literal, since the first may
+    /// stand inside the hole as well: the bracket of `(mod n)` is also the
+    /// bracket of f(x) in `a ≡ f(x) (mod n)`.
+    fn expression(&mut self, outer: Option<&str>, stop: &[&str]) -> Reading {
         let Some(mut left) = self.primary()? else {
             return Ok(None);
         };
         loop {
-            if let (Some(stop), Some(next)) = (stop, self.peek()) {
-                if next.text == stop {
-                    return Ok(Some(left));
-                }
+            if !stop.is_empty()
+                && stop.len() <= self.t.len() - self.i
+                && stop
+                    .iter()
+                    .zip(&self.t[self.i..])
+                    .all(|(lit, tok)| tok.text == *lit)
+            {
+                return Ok(Some(left));
             }
             match self.extend(&left, outer)? {
                 None => return Ok(Some(left)),
@@ -511,7 +518,7 @@ impl Parser<'_> {
                 }
             }
             self.i += 1;
-            let Some(inner) = self.expression(None, None)? else {
+            let Some(inner) = self.expression(None, &[])? else {
                 return Ok(None);
             };
             let Some(close) =
@@ -911,18 +918,15 @@ impl Parser<'_> {
                         took.push(None);
                     } else {
                         let at_edge = k == n.parts.len() - 1;
-                        let after = if at_edge {
-                            None
-                        } else {
-                            n.parts[k + 1].literal()
-                        };
+                        let after: Vec<&str> =
+                            n.parts[k + 1..].iter().map_while(Part::literal).collect();
                         let barrier = if at_edge {
                             Some(n.level.as_str())
                         } else {
                             None
                         };
                         let from = self.i;
-                        let Some(kid) = self.hole(want, barrier, after)? else {
+                        let Some(kid) = self.hole(want, barrier, &after)? else {
                             return Ok(None);
                         };
                         kids.push(kid);
@@ -1021,7 +1025,7 @@ impl Parser<'_> {
                 refused: None,
                 refused_order: false,
             };
-            let condition = match sub.expression(None, None)? {
+            let condition = match sub.expression(None, &[])? {
                 Some(c) if sub.i == to => c,
                 _ => {
                     return self.no(format!(
@@ -1198,13 +1202,8 @@ impl Parser<'_> {
 
     /// A `variable` hole takes a bare name; any other takes an expression,
     /// bounded by `barrier` when the hole sits at the pattern's right edge
-    /// and by `stop`, the literal that follows it, when it does not.
-    fn hole(
-        &mut self,
-        want: &str,
-        barrier: Option<&str>,
-        stop: Option<&str>,
-    ) -> Reading {
+    /// and by `stop`, the literals that follow it, when it does not.
+    fn hole(&mut self, want: &str, barrier: Option<&str>, stop: &[&str]) -> Reading {
         if want == "variable" {
             let Some(tok) = self.peek().cloned() else {
                 return self.no("a binder wants a name".into());

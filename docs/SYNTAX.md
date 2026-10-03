@@ -403,6 +403,10 @@ that the name is the term and nothing more, so wherever two formulas are
 compared the name is expanded first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing with
 both sets written out say the same thing, and the citation is checked as such.
 Expansion repeats, since a define may be written in terms of an earlier one.
+A defined function applied is its rule at the argument, and standing alone it
+is the rule itself, so `f : S → S` and a line saying every f(r) lies in S are
+about one function however each is written, with S written out in both
+(Euler's theorem, steps 9 to 11).
 
 **A define may name a function.** `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ
 (D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
@@ -474,7 +478,8 @@ domain is written beside the rule: `define t(c) := g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
 `requires` line. It states nothing about where the values lie: `t : H → gH`
 is proved, from a line saying each value is in gH, as Lagrange's step 9.2
-does. A cited item whose `let g : D → ℝ` the citation fills with a defined
+does. The domain may be a set another define names, as Euler's `define f(r)
+:= (r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined
 function, `g := g`, asks that type in a `requires` line citing the step that
 proves it, as the mean value theorem's steps 14 to 19 do.
 

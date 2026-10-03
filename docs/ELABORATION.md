@@ -590,7 +590,10 @@ function on its domain, which it is where each value its rule gives is a set
 (`mptfng`), settled as any sethood is, and carried from the map to the name
 by the define's equation (`fneq1d`). A `requires` line resting `from` the
 define alone is proved the same way (`define_on`). The domain is the one the
-define gives; a claim naming another is not what the define says.
+define gives. A claim naming it by another define, as Euler's f is on S, is
+that set written out in standard form, and `same` carries the map's domain
+to the name (`fneq2d`); a claim naming another set is not what the define
+says.
 
 **A definition from outside the theorem is written out in the statement and
 a name in the proof.** What a theorem sees from outside it, a define its

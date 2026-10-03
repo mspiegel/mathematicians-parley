@@ -126,9 +126,10 @@ impl Context {
 ///
 /// Both are read from the declarations: a binder is a notation with a
 /// `binds` line, and an application is one whose first hole takes a property
-/// or a function. The second map says which of the two each applies, because
-/// a function is read as a family only where a binder applies it to what it
-/// binds. Nothing here is known by name.
+/// or a function and whose second takes what that applies to. The second map
+/// says which of the two each applies, because a function is read as a
+/// family only where a binder applies it to what it binds. Nothing here is
+/// known by name.
 pub fn binding_context(
     notations: &[Notation],
 ) -> (IndexMap<String, Binds>, IndexMap<String, String>) {
@@ -136,7 +137,7 @@ pub fn binding_context(
     let mut props = IndexMap::new();
     for n in notations {
         if let Some(first) = n.holes.first() {
-            if first == "property" || first == "function" {
+            if (first == "property" || first == "function") && applies_first(n) {
                 props.insert(n.key().to_string(), first.clone());
             }
         }
@@ -145,6 +146,26 @@ pub fn binding_context(
         }
     }
     (binders, props)
+}
+
+/// The notation's second hole takes what its first applies to: `f(x)` puts
+/// an α where f is a function from α, and `P(x)` where P is a property of
+/// α. `f is a function on X` and `f : X → Y` take a set of α there, and say
+/// something of f rather than apply it.
+fn applies_first(n: &Notation) -> bool {
+    let Some(sort) = &n.sort else {
+        return false;
+    };
+    let Some((holes, _)) = sort.rsplit_once(" → ") else {
+        return false;
+    };
+    let holes: Vec<&str> = holes.split(", ").map(str::trim).collect();
+    let domain = holes[0]
+        .strip_prefix("function from ")
+        .and_then(|rest| rest.split_once(" to "))
+        .map(|(from, _)| from)
+        .or_else(|| holes[0].strip_prefix("property of "));
+    domain.is_some() && holes.get(1).copied() == domain
 }
 
 /// The occurrences of a property that may decide what it stands for.
@@ -585,8 +606,10 @@ pub type Definitions = IndexMap<String, Defined>;
 /// itself.
 ///
 /// A defined function is read where it is applied: S(k + 1) is the rule with
-/// k + 1 for its parameter. Standing alone it is the function, and stays a
-/// name.
+/// k + 1 for its parameter. Standing alone it is the rule itself, a property
+/// with the parameter as its hole, which is what an item's function letter
+/// is bound to where the item applies it under a binder. So `f : S → S` and
+/// every f(r) lying in S are about one thing, however each is written.
 pub fn expand(node: &Node, definitions: &Definitions) -> Node {
     expand_to(node, definitions, 8)
 }
@@ -598,7 +621,12 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
     if node.is_name() {
         if let Some(found) = definitions.get(&node.text) {
             return match found {
-                Defined::Rule(_) => node.clone(),
+                Defined::Rule(rule) => Node::new(
+                    PROPERTY,
+                    crate::formula::Sort::of("property"),
+                    vec![expand_to(&rule.body, definitions, depth - 1)],
+                    &rule.param,
+                ),
                 Defined::Term(t) => expand_to(t, definitions, depth - 1),
             };
         }

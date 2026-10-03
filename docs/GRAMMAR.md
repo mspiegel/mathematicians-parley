@@ -430,6 +430,11 @@ matters because a value of no known sort fits every hole: in `d divides p, and
 d divides q` the name `p` is an admissible first point of a triangle, and the
 comma after it must be free to end the clause it belongs to.
 
+A hole between literals ends where the literals after it follow, all of them
+and not only the first. The middle hole of `_ ≡ _ (mod _)` ends at `( mod`,
+so the bracket of f(x) in `a ≡ f(x) (mod n)` is f's and not the start of
+`(mod n)`.
+
 ### Precedence and nesting
 
 A hole is filled by the longest parse that its notation's level permits. Where

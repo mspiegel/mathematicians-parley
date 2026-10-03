@@ -391,7 +391,6 @@ fn statements_in_scope(
 /// A defined name and the term it names are one formula, so all three are
 /// expanded: the facts, the claim, and the written instantiation alike.
 fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
-    let g = library.env.g;
     let scope = known.scope(step);
     let mut supplied: Vec<String> = Vec::new();
     for r in &step.just.refs {
@@ -400,19 +399,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         }
     }
     supplied.extend(step.requires.iter().map(|r| r.fact.clone()));
-    let mut facts: Vec<Node> = supplied.iter().filter_map(|s| known.read(s)).collect();
-    // A defined function standing alone stays its name, so an item whose
-    // function letter the claim fills with it (`h : A → B` from every h(s)
-    // lying in B) asks for h(s) as written, which the expanded fact no
-    // longer says. The fact is offered as written too.
-    for text in &supplied {
-        let Ok(written) = parse_here(text, g, &known.sorts) else {
-            continue;
-        };
-        if facts.iter().all(|x| written.shape() != x.shape()) {
-            facts.push(written);
-        }
-    }
+    let facts: Vec<Node> = supplied.iter().filter_map(|s| known.read(s)).collect();
     let mut facts = with_parts(&facts, library);
     let implied: Vec<Node> = facts
         .iter()

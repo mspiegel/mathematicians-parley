@@ -344,3 +344,108 @@ theorem prime-powers-unique
               2, 3 and 5 in it are what they are. set.mm counts how many
               times a prime divides a number, pCnt, and the count of 2 in
               2^a·3^b·5^c is a. One target to a sentence.
+
+definition φ
+  sort        number → number
+  builds      _1 cphi cfv
+  reads       Euler's φ, how many whole numbers below n have no factor in common with
+  let n ∈ ℕ                                                           (H1)
+  then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|
+  metamath    dfphi2 with 0 ..^ n read as 0 ... n − 1 by fzoval, which this
+              corpus proves in elaboration/stdlib/proved.mm
+  target      gphival
+
+mundane theorem coprime-product
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume gcd(x, n) = 1                                                (H4)
+  assume gcd(y, n) = 1                                                (H5)
+  then        gcd(x·y, n) = 1
+  metamath    rpmul, which puts n first in each gcd, and gcdcom, which this
+              corpus proves together in elaboration/stdlib/proved.mm
+  target      grpmul
+
+theorem congruent-cancel
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume x·c ≡ y·c (mod n)                                            (H5)
+  assume gcd(c, n) = 1                                                (H6)
+  then        x ≡ y (mod n)
+  metamath    subdir and coprmdvds, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gcongrcan
+  note        A factor with no factor in common with n cancels from both
+              sides of a congruence modulo n.
+
+theorem coprime-divides
+  let x ∈ ℤ                                                           (H1)
+  let c ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume n divides x·c                                                (H4)
+  assume gcd(c, n) = 1                                                (H5)
+  then        n divides x
+  metamath    coprmdvds, with the coprime factor first, which this corpus
+              proves in elaboration/stdlib/proved.mm
+  target      gcoprmdvds
+  note        A number dividing a product and sharing no factor with one
+              of its factors divides the other: Euclid's lemma, said of any
+              number and not only of a prime.
+
+mundane theorem congruent-in-range
+  let n ∈ ℕ                                                           (H1)
+  let x ∈ {0, …, n − 1}                                               (H2)
+  let y ∈ {0, …, n − 1}                                               (H3)
+  assume x ≡ y (mod n)                                                (H4)
+  then        x = y
+  metamath    fzocongeq, with 0 ..^ n read as 0 ... n − 1 by fzoval, which
+              this corpus proves in elaboration/stdlib/proved.mm
+  target      gfzocong0
+
+mundane theorem mod-congruent
+  let x ∈ ℤ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  then        x ≡ x mod n (mod n)
+  metamath    moddvds and modabs2, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gmodcong
+
+mundane theorem mod-equal-congruent
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume x mod n = y mod n                                            (H4)
+  then        x ≡ y (mod n)
+  metamath    moddvds, read one way, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gmodeqdvds
+
+theorem product-coprime
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
+  then        gcd(∏(x ∈ X) x, n) = 1
+  metamath    gfprodrp, which this corpus proves in
+              elaboration/stdlib/proved.mm by induction on the finite set
+              (findcard2d), a factor at a time (fprodsplitsn, rpmul)
+  target      gfprodrp
+  note        A product of numbers with no factor in common with n has none
+              in common with n either. set.mm's coprmprod says so only of
+              factors that are coprime to each other as well.
+
+theorem product-congruent
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  let f : X → X                                                       (H5)
+  assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
+  then        ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
+  metamath    fprodmodd and moddvds, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfprodcong
+  note        Congruences multiply: the products of two lists of terms,
+              congruent term by term, are congruent.

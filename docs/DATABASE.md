@@ -68,8 +68,8 @@ has, and a subject is one file:
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 5 |
 | `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 63 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 34 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges | 22 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 43 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 28 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 51 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 15 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 20 |
@@ -120,7 +120,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 263 |
+| `metamath` | a set.mm label or labels supply it | 278 |
 | `open` | it is cited but unproved and unbridged | 8 |
 
 `mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
@@ -128,7 +128,7 @@ record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 25 of the 34 name a set.mm
+`note` lines under its `theorem` line; 26 of the 35 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -400,12 +400,12 @@ mundane definition difference
 
 | header | items |
 |---|---|
-| `axiom` | 3 |
+| `axiom` | 4 |
 | `mundane axiom` | 7 |
-| `theorem` | 19 |
-| `mundane theorem` | 178 |
-| `definition` | 6 |
-| `mundane definition` | 43 |
+| `theorem` | 30 |
+| `mundane theorem` | 191 |
+| `definition` | 7 |
+| `mundane definition` | 46 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -524,11 +524,13 @@ this table is mundane.
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |
+| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 8.11, 11, 13, 14, 20 and 28 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
 | C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
 | σ | `definition` | a word Reader A has not met, the sum of the divisors |
+| φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 15 |
 | perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 25 |
 
 Some mundane items are worth a word, since a reader might expect otherwise:

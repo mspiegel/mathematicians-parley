@@ -1197,6 +1197,17 @@ notation sum-over
               finite. Σ(k = a to b) is this sum over {a, …, b}, and is kept
               because a reader writes a range that way.
 
+notation product-over
+  pattern     ∏(_ ∈ _) _
+  sort        number, set of number, number → number
+  level       summation
+  binds       hole 1 over hole 3
+  reads       the product, as the first runs over the second, of the third
+  metamath    cprod over a finite set
+  target      _2 _3 _1 cprod
+  note        The product of the third hole for each member of the second,
+              which is finite, as Σ(_ ∈ _) is its sum.
+
 notation sum-over-condition
   pattern     Σ(_ ∈ _ : _) _
   sort        number, set of number, formula, number → number

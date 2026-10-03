@@ -11,10 +11,10 @@ use crate::corpus::proof::requires_item;
 use crate::corpus::{
     cited_item, define_parts, references, DefineParts, Method, Step, Theorem,
 };
-use crate::formula::{parse_here, walk, Node, NodeId};
+use crate::formula::{walk, Node, NodeId};
 use crate::matching::{
-    binding_sites, expand, instantiation, match_tree, substitute, substitute_apart,
-    Binding, Defined, PROPERTY,
+    binding_sites, instantiation, match_tree, substitute, substitute_apart, Binding,
+    PROPERTY,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -893,10 +893,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         .function_types(&just.item(&cited_item(just).expect("a cited item")))
         .iter()
         .map(|t| substitute(t, &parts.seed))
-        .filter(|t| {
-            let f = &t.children[0];
-            f.is_name() && matches!(known.defined.get(&f.text), Some(Defined::Rule(_)))
-        })
+        .filter(|t| t.children[0].notation == PROPERTY)
         .collect();
     for (want, gives) in groups.iter() {
         let mut trees = gives.clone();
@@ -943,8 +940,8 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
 impl FamilyAsks {
     /// Whether one requires line's fact is a membership the item's function
     /// hypotheses ask for.
-    fn asks(&self, fact: &str, known: &Known, library: &Library) -> bool {
-        let Ok(node) = parse_here(fact, library.env.g, &known.sorts) else {
+    fn asks(&self, fact: &str, known: &Known) -> bool {
+        let Some(node) = known.read(fact) else {
             return false;
         };
         if node.notation == "function-type" {
@@ -956,7 +953,6 @@ impl FamilyAsks {
         // no name a membership could be asked of, so what is compared is the
         // value itself, read at the name the line binds.
         if node.notation == "for-all" && node.children.len() == 3 {
-            let node = expand(&node, &known.defined);
             let (bound, body) = (&node.children[0], &node.children[2]);
             if body.notation != "membership"
                 || body.children[1].notation != "number-systems"
@@ -1142,7 +1138,7 @@ pub fn check_surplus(
             let mut lighter = step.clone();
             lighter.requires.remove(i);
             if holds(&lighter)
-                && !asks.asks(&req.fact, known, library)
+                && !asks.asks(&req.fact, known)
                 && !in_domain.contains(&squash(&req.fact))
             {
                 report.say(

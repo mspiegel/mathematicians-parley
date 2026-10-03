@@ -17,6 +17,7 @@ pub mod parallels;
 pub mod powers;
 pub mod series;
 pub mod sets;
+pub mod totient;
 pub mod triangles;
 
 use crate::mm::compress::{compressed, shapes_of};
@@ -32,7 +33,7 @@ struct Group {
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved.
-const GROUPS: [Group; 11] = [
+const GROUPS: [Group; 12] = [
     Group {
         head: geometry::HEAD,
         proofs: geometry::proofs,
@@ -76,6 +77,10 @@ const GROUPS: [Group; 11] = [
     Group {
         head: calculus::HEAD,
         proofs: calculus::proofs,
+    },
+    Group {
+        head: totient::HEAD,
+        proofs: totient::proofs,
     },
 ];
 

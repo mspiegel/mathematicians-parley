@@ -207,3 +207,57 @@ mundane theorem range-split
   then        {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
   metamath    fzsplit
   target      fzsplit
+
+mundane theorem range-finite
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        {a, …, b} is finite
+  metamath    fzfi
+  target      fzfi
+
+mundane theorem range-in-integers
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        {a, …, b} ⊆ ℤ
+  metamath    fzssz
+  target      fzssz
+
+mundane theorem range-from-bounds
+  let m ∈ ℕ                                                           (H1)
+  let x ∈ ℕ₀                                                          (H2)
+  assume x < m                                                        (H3)
+  then        x ∈ {0, …, m − 1}
+  metamath    elfzo0, with 0 ..^ m read as 0 ... m − 1 by fzoval, which this
+              corpus proves in elaboration/stdlib/proved.mm
+  target      gelfz0m1
+
+theorem product-reorder
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let f : X → X be one-to-one                                         (H3)
+  then        ∏(x ∈ X) f(x) = ∏(x ∈ X) x
+  metamath    f1finf1o and fprodf1o, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfprodf1
+  note        A one-to-one function from a finite set to itself takes each
+              member to a member once, so the values are the members in
+              another order, and their product is the same.
+
+theorem product-factor
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  then        ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
+  metamath    fprodmul and fprodconst, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfprodmulc
+  note        A factor common to every term comes out of the product once
+              for each term.
+
+mundane theorem product-integer
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  then        ∏(x ∈ X) x ∈ ℤ
+  metamath    fprodzcl, which this corpus proves in
+              elaboration/stdlib/proved.mm from X ⊆ ℤ
+  target      gfprodz

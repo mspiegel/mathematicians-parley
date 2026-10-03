@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty-two are written and elaborate from set.mm with nothing assumed.
-Nine more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-two has its proof in `proofs/` and its design record
+All twenty-three are written and elaborate from set.mm with nothing assumed.
+Eight more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-three has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -36,6 +36,7 @@ in `docs/pilot/`, under the same name:
 | 9 | isosceles | 19 | mean-value |
 | 10 | geometric-series | 20 | rationals-countable |
 | 21 | angle-sum | 22 | pythagoras |
+| 23 | euler | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -423,7 +424,11 @@ textbook's.
 23. **Euler's theorem.** The first multiplicative argument modulo n:
     multiplying every residue coprime to n by a gives the same residues in
     another order, so the two products agree and a^φ(n) cancels against 1.
-    It needs φ, and an inverse modulo n.
+    Written: `proofs/euler.proof`, with `docs/pilot/euler.md`, and it
+    elaborates with nothing assumed. ProofWiki gives only the proof by
+    Lagrange's theorem in the group of units, so the informal source is the
+    rearrangement argument set.mm's `eulerth` follows; it needs φ and
+    cancelling a factor coprime to n, and no inverse modulo n.
 24. **Harmonic series.** The first proof that a limit does not exist.
     set.mm states it as the partial sums not being in the domain of `~~>`;
     the readable statement says the sum grows without bound, and the proof

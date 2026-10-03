@@ -1606,5 +1606,22 @@ fn cases() -> Vec<Case> {
             ],
             "f′ is how the derivative of the function f is written, so it cannot name anything else: call it f₁",
         ),
+        // A defined function standing alone is read as its rule, so what is
+        // said of it and what is said of its values are about one thing; it
+        // is still only what the lines say of those values.
+        case(
+            "say a defined function maps into a set its values were not shown to lie in",
+            vec![
+                edit("proofs/euler.proof", Some("9.  f : S → S\n".to_string()), "9.  f : S → ℕ\n".to_string()),
+            ],
+            "step 9 claims something that mun:function-into does not conclude",
+        ),
+        case(
+            "reorder a product by a map not shown to be one-to-one",
+            vec![
+                edit("proofs/euler.proof", Some("thm:product-reorder, from 6, 5, 10".to_string()), "thm:product-reorder, from 6, 5, 9".to_string()),
+            ],
+            "step 11 cites thm:product-reorder, which asks for",
+        ),
     ]
 }
