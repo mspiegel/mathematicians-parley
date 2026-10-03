@@ -1,0 +1,268 @@
+import theorem            stdlib/numbers/archimedean-natural
+import theorem            stdlib/calculus/convergent-bounded
+import mundane theorem    stdlib/sums/sum-split
+import mundane theorem    stdlib/sums/sum-le
+import mundane theorem    stdlib/sums/sum-constant
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-real
+import mundane theorem    stdlib/sums/range-bounds
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane theorem    stdlib/numbers/power-nat
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/int-real
+
+theorem harmonic-block
+  note        The induction step's block, stated apart from the induction as
+              binomial-step is: inside the step the hypothesis is in scope and
+              names the sum's index, which set.mm's sum lemmas forbid there.
+  let j ∈ ℕ₀                                                          (H1)
+  then Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+
+1.  2^(j + 1) = 2^j·2
+    mun:exponent-step a := 2, m := j, from H1
+    requires 2 ∈ ℂ: arithmetic
+
+2.  2^j ∈ ℕ
+    mun:power-nat a := 2, m := j, from H1
+    requires 2 ∈ ℕ: arithmetic
+
+3.  2^(j + 1) ∈ ℕ
+    mun:power-nat a := 2, m := j + 1
+    requires 2 ∈ ℕ: arithmetic
+    requires j + 1 ∈ ℕ₀: membership, from H1
+
+4.  2^j ≤ 2^(j + 1)
+    inequalities, from 1, 2
+    requires 2^j ∈ ℝ: membership, from H1
+    requires 2^(j + 1) ∈ ℝ: membership, from H1
+
+5.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 4
+    requires 1 ∈ ℤ: arithmetic
+    requires 2^j ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires 1 ≤ 2^j + 1: inequalities, from 2
+
+6.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/2^(j + 1) ≤ 1/k.
+    fix
+    let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K1)
+
+    6.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+          mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K1
+          requires 2^j + 1 ∈ ℤ: membership, from H1
+          requires 2^(j + 1) ∈ ℤ: membership, from H1
+
+    6.2.  k ∈ ℤ
+          mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K1
+          requires 2^j + 1 ∈ ℤ: membership, from H1
+          requires 2^(j + 1) ∈ ℤ: membership, from H1
+
+    6.3.  1/2^(j + 1) ≤ 1/k
+          mun:reciprocal-order x := k, y := 2^(j + 1), from 6.1
+          requires k ∈ ℝ: membership, from 6.2
+          requires k > 0: inequalities, from 6.1, 2
+          requires 2^(j + 1) ∈ ℝ: membership, from H1
+          requires 2^(j + 1) > 0: inequalities, from 3
+
+7.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
+    fix
+    let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K2)
+
+    7.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+          mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
+          requires 2^j + 1 ∈ ℤ: membership, from H1
+          requires 2^(j + 1) ∈ ℤ: membership, from H1
+
+    7.2.  k ∈ ℤ
+          mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K2
+          requires 2^j + 1 ∈ ℤ: membership, from H1
+          requires 2^(j + 1) ∈ ℤ: membership, from H1
+
+    7.3.  k ∈ ℝ
+          mun:int-real m := k, from 7.2
+
+    7.4.  k ≠ 0
+          inequalities, from 7.1, 2
+          requires k ∈ ℝ: from 7.3
+          requires 2^j ∈ ℝ: membership, from H1
+
+    7.5.  1/k ∈ ℝ
+          membership, from 7.3, 7.4
+
+8.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 6
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
+    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
+
+9.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
+    mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires 2^j + 1 ≤ 2^(j + 1): inequalities, from 1, 2
+    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
+
+10. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
+    substitute 2^(j + 1) = 2^j·2 (line 1)
+
+11. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
+    algebra
+    requires 2^j ∈ ℝ: membership, from H1
+    requires 2^j ≠ 0: inequalities, from 2
+
+12. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
+    calculation
+      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    10
+                                                 = 1/2                                    11
+
+13. Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ
+    mun:sum-real a := 2^j + 1, b := 2^(j + 1)
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
+
+14. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ
+    mun:sum-real a := 2^j + 1, b := 2^(j + 1)
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
+
+15. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+    inequalities, from 5, 8, 9, 12
+    requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership
+    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: from 13
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: from 14
+    requires 2^j ∈ ℝ: membership, from H1
+    requires 2^(j + 1) ∈ ℝ: membership, from H1
+    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
+    requires 2^(j + 1) ≠ 0: inequalities, from 3
+
+
+theorem harmonic-unbounded
+  let M ∈ ℝ                                                           (H1)
+  then there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M
+
+1.  For all m ∈ ℕ₀, Σ(k = 1 to 2^m) 1/k ∈ ℝ.
+    fix
+    let m ∈ ℕ₀                                                        (K1)
+
+    1.1.  Σ(k = 1 to 2^m) 1/k ∈ ℝ
+          membership
+
+2.  For all m ∈ ℕ₀, Σ(k = 1 to 2^m) 1/k ≥ m/2.
+    fix
+    let m ∈ ℕ₀                                                        (K2)
+
+    2.1.  Σ(k = 1 to 2^m) 1/k ≥ m/2
+          induction on m starting at 0, from K2
+
+          base
+          2.1.1.  2^0 = 1
+                  mun:exponent-zero a := 2
+                  requires 2 ∈ ℂ: arithmetic
+
+          2.1.2.  Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k
+                  substitute 2^0 = 1 (line 2.1.1)
+
+          2.1.3.  Σ(k = 1 to 1) 1/k = 1/1
+                  mun:sum-single a := 1
+                  requires 1 ∈ ℤ: arithmetic
+
+          2.1.4.  Σ(k = 1 to 2^0) 1/k = 1
+                  calculation
+                    Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     2.1.2
+                                        = 1/1                   2.1.3
+                                        = 1                     arithmetic
+
+          2.1.5.  Σ(k = 1 to 2^0) 1/k ∈ ℝ
+                  instantiate m := 0 in line 1
+                  requires 0 ∈ ℕ₀: arithmetic
+
+          2.1.6.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
+                  inequalities, from 2.1.4
+                  requires Σ(k = 1 to 2^0) 1/k ∈ ℝ: from 2.1.5
+
+          step
+          2.1.7.  For all j ∈ ℕ₀, if Σ(k = 1 to 2^j) 1/k ≥ j/2
+                  then Σ(k = 1 to 2^(j + 1)) 1/k ≥ (j + 1)/2.
+                  fix
+                  let j ∈ ℕ₀                                          (K3)
+                  assume Σ(k = 1 to 2^j) 1/k ≥ j/2                    (IH)
+
+                  2.1.7.1.  Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+                            thm:harmonic-block j := j, from K3
+
+                  2.1.7.2.  Σ(k = 1 to 2^j) 1/k ∈ ℝ
+                            instantiate m := j in line 1, from K3
+
+                  2.1.7.3.  Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ
+                            instantiate m := j + 1 in line 1
+                            requires j + 1 ∈ ℕ₀: membership, from K3
+
+                  2.1.7.4.  Σ(k = 1 to 2^(j + 1)) 1/k ≥ (j + 1)/2
+                            inequalities, from 2.1.7.1, IH
+                            requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: from 2.1.7.3
+                            requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: from 2.1.7.2
+                            requires j ∈ ℝ: membership, from K3
+
+3.  N ∈ ℕ. N > 2M.
+    obtain N: thm:archimedean-natural x := 2M
+    requires 2M ∈ ℝ: membership, from H1
+
+4.  Σ(k = 1 to 2^N) 1/k ≥ N/2
+    instantiate m := N in line 2, from 3
+
+5.  Σ(k = 1 to 2^N) 1/k > M
+    inequalities, from 4, 3
+    requires Σ(k = 1 to 2^N) 1/k ∈ ℝ: membership
+    requires N ∈ ℝ: membership, from 3
+    requires M ∈ ℝ: from H1
+
+6.  2^N ∈ ℕ
+    mun:power-nat a := 2, m := N
+    requires 2 ∈ ℕ: arithmetic
+    requires N ∈ ℕ₀: membership, from 3
+
+7.  There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M.
+    exhibit, from 6, 5
+
+
+theorem harmonic
+  metamath    harmonic
+  then there is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞
+
+1.  For all n ∈ ℕ, Σ(k = 1 to n) 1/k ∈ ℝ.
+    fix
+    let n ∈ ℕ                                                         (K1)
+
+    1.1.  Σ(k = 1 to n) 1/k ∈ ℝ
+          membership
+
+2.  There is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞.
+    contradiction
+    suppose there is L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞       (S)
+
+    2.1.  L ∈ ℝ. Σ(k = 1 to n) 1/k → L as n → ∞.
+          obtain L from S
+
+    2.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.
+          obtain B: thm:convergent-bounded L := L, from 2.1
+          requires for all n ∈ ℕ, Σ(k = 1 to n) 1/k ∈ ℝ: from 1
+
+    2.3.  N ∈ ℕ. Σ(k = 1 to N) 1/k > B.
+          obtain N: thm:harmonic-unbounded M := B, from 2.2
+
+    2.4.  Σ(k = 1 to N) 1/k ≤ B
+          instantiate m := N in line 2.2, from 2.3
+
+    2.5.  Σ(k = 1 to N) 1/k ∈ ℝ
+          instantiate n := N in line 1, from 2.3
+
+    2.6.  not Σ(k = 1 to N) 1/k > B
+          inequalities, from 2.4, contradicting 2.3
+          requires Σ(k = 1 to N) 1/k ∈ ℝ: from 2.5
+          requires B ∈ ℝ: from 2.2

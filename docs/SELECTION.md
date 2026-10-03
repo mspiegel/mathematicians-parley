@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty-three are written and elaborate from set.mm with nothing assumed.
-Eight more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-three has its proof in `proofs/` and its design record
+All twenty-four are written and elaborate from set.mm with nothing assumed.
+Seven more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-four has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -36,7 +36,7 @@ in `docs/pilot/`, under the same name:
 | 9 | isosceles | 19 | mean-value |
 | 10 | geometric-series | 20 | rationals-countable |
 | 21 | angle-sum | 22 | pythagoras |
-| 23 | euler | | |
+| 23 | euler | 24 | harmonic |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -433,7 +433,11 @@ textbook's.
     set.mm states it as the partial sums not being in the domain of `~~>`;
     the readable statement says the sum grows without bound, and the proof
     groups the terms in blocks each worth at least 1/2. The series of 13 is
-    the corpus's other infinite sum.
+    the corpus's other infinite sum. Written: `proofs/harmonic.proof`, with
+    `docs/pilot/harmonic.md`, and all three of its theorems elaborate with
+    nothing assumed. The reader chose both statements: the partial sums
+    pass every bound (`harmonic-unbounded`), and so they tend to no limit
+    (`harmonic`, set.mm's statement), since a convergent sequence is bounded.
 25. **Factor theorem.** The first polynomial. set.mm's `Poly` is a set of
     functions picked out by coefficient sequences, and its division
     `quot` is defined through them; a reader sees p(x) = (x − a)q(x). It is

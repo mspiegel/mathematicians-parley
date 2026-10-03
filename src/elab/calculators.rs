@@ -1404,7 +1404,18 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the claim states no relation"));
         };
         let (left, right) = (self.rpn(&left), self.rpn(&right));
-        if used.len() == 1 && given[used[0]].how == How::Eq {
+        // What the scaled facts leave over is a constant, which the method
+        // may use as a closed numeral fact the step does not cite.
+        let mut spare = claim.side.clone();
+        for i in &used {
+            spare = spare.minus(&given[*i].side.scaled(&(&found[i] / &weight)));
+        }
+        if !spare.constant_only() {
+            return Ok(Route::no("what is left over is not a constant"));
+        }
+        // One equation, scaled, that is the claim with nothing left over.
+        if used.len() == 1 && given[used[0]].how == How::Eq && spare.constant.is_zero()
+        {
             let times = &found[&used[0]] / &weight;
             return self.one_equation_scaled(
                 &where_[used[0]],
@@ -1416,15 +1427,6 @@ impl<'a> Elaborator<'a> {
                 facts,
                 lines,
             );
-        }
-        // What the scaled facts leave over is a constant, which the method
-        // may use as a closed numeral fact the step does not cite.
-        let mut spare = claim.side.clone();
-        for i in &used {
-            spare = spare.minus(&given[*i].side.scaled(&(&found[i] / &weight)));
-        }
-        if !spare.constant_only() {
-            return Ok(Route::no("what is left over is not a constant"));
         }
         let parts: Vec<Part> = used
             .iter()

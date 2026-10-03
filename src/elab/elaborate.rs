@@ -36,7 +36,8 @@ use crate::corpus::{
 };
 use crate::formula::{Grammar, Node};
 use crate::matching::{
-    instantiation, match_tree, Binding as NodeBinding, Context, Defined,
+    binding_sites, instantiation, match_tree, substitute_apart, Binding as NodeBinding,
+    Context, Defined, PROPERTY,
 };
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
@@ -911,11 +912,17 @@ impl<'a> Elaborator<'a> {
         item: &'a Record,
         cites: Option<&str>,
     ) -> Checked<Proof> {
+        let ctx = Context::new(&self.g.notations, self.records);
         let (asks, ends) =
             self.names_kept(|me| -> Checked<(Vec<String>, Vec<String>)> {
-                for (name, node) in me.item_binding(step, item, cites)? {
-                    let term = me.term(&node)?;
-                    me.names.insert(name, term);
+                let bound = me.item_binding(step, item, cites)?;
+                // A letter standing for a rule is that rule where the item
+                // applies it (`filled`), and is no term of its own.
+                for (name, node) in &bound {
+                    if node.notation != PROPERTY {
+                        let term = me.term(node)?;
+                        me.names.insert(name.clone(), term);
+                    }
                 }
                 me.in_its_names(
                     Item::Record(item),
@@ -923,13 +930,13 @@ impl<'a> Elaborator<'a> {
                         let mut asks = Vec::new();
                         for h in &item.hypotheses {
                             let body = me.hypothesis_formula(h.kind.as_str(), &h.text);
-                            let node = me.read(&body)?;
+                            let node = filled(&me.read(&body)?, &bound, &ctx);
                             asks.push(me.term(&node)?);
                         }
                         let mut ends = Vec::new();
                         for (text, _line) in &item.conclusions {
                             for sentence in me.sentences(text) {
-                                let node = me.read(&sentence)?;
+                                let node = filled(&me.read(&sentence)?, &bound, &ctx);
                                 ends.push(me.term(&node)?);
                             }
                         }
@@ -1076,6 +1083,24 @@ impl<'a> Elaborator<'a> {
         Ok(pf!(self.b; scope, other, goal, given, proof, "mpbid"))
     }
 
+    /// A sentence of an item, read in the item's own names and then said at
+    /// this step: each name the step fixes (`item_binding`) is what it stands
+    /// for, and a function letter standing for a rule is that rule where the
+    /// sentence applies it. `x(n) ≤ B` of `convergent-bounded`, with x the
+    /// partial sums of 1/k, is Σ(k = 1 to n) 1/k ≤ B.
+    pub(crate) fn item_sentence_here(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        cites: Option<&str>,
+        text: &str,
+    ) -> Checked<Node> {
+        let bound = self.item_binding(step, item, cites)?;
+        let node = self.in_its_names(Item::Record(item), |me| me.read(text))?;
+        let ctx = Context::new(&self.g.notations, self.records);
+        Ok(filled(&node, &bound, &ctx))
+    }
+
     /// What an item's names stand for at this step, as the page says it: a
     /// name the step writes first, then the item's conclusion matched
     /// against the step's claim, and each of its hypotheses against what the
@@ -1148,7 +1173,13 @@ impl<'a> Elaborator<'a> {
             .flat_map(|e| e.children.iter().cloned())
             .collect();
         hyps.extend(sides.iter().cloned());
-        let sites = indexmap::IndexSet::new();
+        // Where a binder applies a function letter to what it binds, that
+        // occurrence says what the letter stands for: `x(n) → L as n → ∞`
+        // cited at the partial sums of 1/k makes x their rule.
+        let mut sites = indexmap::IndexSet::new();
+        for n in ends.iter().chain(hyps.iter()) {
+            binding_sites(n, &ctx, &[], &mut sites);
+        }
         let said = self.said(step)?;
         for end in ends.iter().chain(sides.iter()) {
             for s in &said {
@@ -3640,6 +3671,41 @@ pub fn elaborate(
         text: out,
         statement: format!("|- {says}"),
     })
+}
+
+/// `node` with each name `bound` fixes replaced by what it stands for, and a
+/// letter bound to a rule applied where the node applies it.
+fn filled(node: &Node, bound: &NodeBinding, ctx: &Context) -> Node {
+    if node.is_name() {
+        return match bound.get(&node.text) {
+            Some(stands) if stands.notation != PROPERTY => stands.clone(),
+            _ => node.clone(),
+        };
+    }
+    if ctx.props.contains_key(&node.notation)
+        && node.children.len() == 2
+        && node.children[0].is_name()
+    {
+        if let Some(rule) = bound.get(&node.children[0].text) {
+            if rule.notation == PROPERTY {
+                let mut at = NodeBinding::new();
+                at.insert(rule.text.clone(), filled(&node.children[1], bound, ctx));
+                return substitute_apart(&rule.children[0], &at, ctx);
+            }
+        }
+    }
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    Node::new(
+        &node.notation,
+        node.sort.clone(),
+        node.children
+            .iter()
+            .map(|c| filled(c, bound, ctx))
+            .collect(),
+        &node.text,
+    )
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

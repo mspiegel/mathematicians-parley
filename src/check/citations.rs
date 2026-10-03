@@ -903,29 +903,42 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
         let variables = names_of(&trees);
+        // What a function letter stands for is read where the item applies
+        // it: its conclusions against what the step claims, and its
+        // hypotheses against what the step cites, since an `obtain` claims
+        // the witness and says nothing of the function.
+        let mut pairs: Vec<(Node, &Node)> = Vec::new();
         for concl in gives {
             for (target, _extra) in readings(concl, library) {
                 for cand in conjuncts(&target, library) {
                     for claim in &parts.claims {
-                        let found = match_tree(
-                            &cand,
-                            claim,
-                            &parts.seed,
-                            &variables,
-                            &sites,
-                            &library.ctx,
-                        );
-                        for value in found.iter().flat_map(|b| b.values()) {
-                            if value.notation == PROPERTY {
-                                for n in value.children[0].names() {
-                                    if n != value.text {
-                                        held.insert(n);
-                                    }
-                                }
-                                values.push(value.clone());
-                            }
+                        pairs.push((cand.clone(), claim));
+                    }
+                }
+            }
+        }
+        for (_, hyp) in want.iter() {
+            for fact in &parts.facts {
+                pairs.push((hyp.clone(), fact));
+            }
+        }
+        for (pattern, ground) in &pairs {
+            let found = match_tree(
+                pattern,
+                ground,
+                &parts.seed,
+                &variables,
+                &sites,
+                &library.ctx,
+            );
+            for value in found.iter().flat_map(|b| b.values()) {
+                if value.notation == PROPERTY {
+                    for n in value.children[0].names() {
+                        if n != value.text {
+                            held.insert(n);
                         }
                     }
+                    values.push(value.clone());
                 }
             }
         }

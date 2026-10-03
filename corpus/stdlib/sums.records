@@ -208,6 +208,51 @@ mundane theorem range-split
   metamath    fzsplit
   target      fzsplit
 
+mundane theorem range-bounds
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let k ∈ {a, …, b}                                                   (H3)
+  then        a ≤ k. k ≤ b.
+  metamath    elfzle1, elfzle2
+  target      elfzle1, elfzle2
+
+mundane theorem sum-split
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume a ≤ b + 1                                                    (H4)
+  assume b ≤ c                                                        (H5)
+  let t : {a, …, c} → ℝ                                               (H6)
+  then        Σ(k = a to c) t(k) = Σ(k = a to b) t(k) + Σ(k = b + 1 to c) t(k)
+  metamath    fsumsplit, fzsplit2 and fzdisj, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gfsumsplit
+  note        A sum over a range is the sum over its first part and the sum
+              over the rest.
+
+mundane theorem sum-le
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  let u : {a, …, b} → ℝ                                               (H4)
+  assume for all k ∈ {a, …, b}, t(k) ≤ u(k)                           (H5)
+  then        Σ(k = a to b) t(k) ≤ Σ(k = a to b) u(k)
+  metamath    fsumle
+  target      fsumle
+  note        A sum whose every term is at most another's, index by index,
+              is at most the other sum.
+
+mundane theorem sum-constant
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a ≤ b                                                        (H3)
+  let c ∈ ℝ                                                           (H4)
+  then        Σ(k = a to b) c = (b − a + 1)·c
+  metamath    fsumconst and hashfz, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfsumconst
+  note        The same term b − a + 1 times.
+
 mundane theorem range-finite
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

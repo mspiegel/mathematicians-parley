@@ -23,7 +23,7 @@ use super::state::{
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{
-    define_parts, fmt, item_prefix, DefineParts, Intro, Step, CITED, ITEM_PREFIX,
+    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Step, CITED, ITEM_PREFIX,
 };
 use crate::matching::instantiation;
 use crate::mm::kernel::Term;
@@ -1180,7 +1180,17 @@ impl<'a> Elaborator<'a> {
                         let var = me.binder_var(name)?;
                         me.names.insert(name.clone(), format!("{var} cv"));
                     }
-                    let node = me.read(&Self::claimed_by(item))?;
+                    // A library item says its existential in its own names,
+                    // and the step's lines say what those stand for.
+                    let node = match item {
+                        Item::Record(r) => me.item_sentence_here(
+                            step,
+                            r,
+                            Some(&cites),
+                            &Self::claimed_by(item),
+                        )?,
+                        Item::Theorem(_) => me.read(&Self::claimed_by(item))?,
+                    };
                     me.term(&node)
                 })?;
                 // An item states its existential in its own names, and a

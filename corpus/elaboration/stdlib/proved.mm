@@ -875,3 +875,59 @@ $d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
 
 $}
 
+${
+$( Bounds: a sequence with a limit is bounded above. $)
+$( The map binds n and the bound counts by m, each kept out of what the
+   other names; the bound x is apart from all three classes and from the
+   hypotheses. $)
+$d m n x $.
+$d m B $.  $d n C $.
+$d x A $.  $d x B $.  $d x C $.
+$d m ph $.  $d x ph $.
+  ${
+    gclimbdd.1 $e |- ( ( ph /\ m e. NN ) -> C e. RR ) $.
+    gclimbdd.2 $e |- ( ph -> ( n e. NN |-> B ) ~~> A ) $.
+    gclimbdd.3 $e |- ( n = m -> B = C ) $.
+  gclimbdd $p |- ( ph -> E. x e. RR A. m e. NN C <_ x ) $=
+    ( cv cn cmpt cfv cabs cle wbr wral cr wrex c1 cz wcel cli cdm cc 1z a1i
+    climrel releldmi syl wa wceq simpr eqid fvmptg syl2anc recnd eqeltrd
+    ralrimiva nnuz climbdd syl3anc adantlr adantr abscld simplr leabs fveq2d
+    eqbrtrrd letrd ex ralimdva reximdva mpd )
+    AFKZGLDMZNZONZBKZPQZFLRZBSTZEVTPQZFLRZBSTAUAUBUCZVQUDUEZUCZVRUFUCZFLRWCWFAUGUHAVQCUDQWHIVQCUDUIUJUKAWIFLAVPLUCZULZVREUFWKWJESUCZVREUMZAWJUNZHGVPDELSVQJVQUOZUPZUQZWKEHURUSUTBFVQUALVAVBVCAWBWEBSAVTSUCZULZWAWDFLWSWJULZWAWDWTWAULZEEONZVTWTWLWAAWJWLWRHVDZVEZXAEXAEXDURVFWTWRWAAWRWJVGVEXAWLEXBPQXDEVHUKXAVSXBVTPWTVSXBUMWAWTVREOAWJWMWRWQVDVIVEWTWAUNVJVKVLVMVNVO $.
+  $}
+
+$}
+
+${
+$( Ranges: a sum over a range split in two, and a sum of a constant. $)
+$( The sum binds k, apart from the ends of the range, the constant and the
+   hypotheses; the summand names it. $)
+$d k K $.  $d k M $.  $d k N $.  $d k B $.  $d k ph $.
+  ${
+    gfsumsplit.1 $e |- ( ph -> M e. ZZ ) $.
+    gfsumsplit.2 $e |- ( ph -> K e. ZZ ) $.
+    gfsumsplit.3 $e |- ( ph -> N e. ZZ ) $.
+    gfsumsplit.4 $e |- ( ph -> M <_ ( K + 1 ) ) $.
+    gfsumsplit.5 $e |- ( ph -> K <_ N ) $.
+    gfsumsplit.6 $e |- ( ( ph /\ k e. ( M ... N ) ) -> A e. RR ) $.
+  gfsumsplit $p |- ( ph -> sum_ k e. ( M ... N ) A = ( sum_ k e. ( M ... K ) A + sum_ k e. ( ( K + 1 ) ... N ) A ) ) $=
+    ( cfz co c1 caddc clt wbr cin c0 wceq zred ltp1d fzdisj syl cuz cfv wcel
+    cun cz cle w3a peano2zd 3jca eluz2 sylibr fzsplit2 syl2anc fzfid cv wa
+    recnd fsumsplit )
+    AEDMNZDOPNZFMNZBEFMNZCADVEQRVDVFSTUAADADHUBUCEDVEFUDUEAVEEUFUGZUHZFDUFUGZUHZVGVDVFUIUAAEUJUHZVEUJUHZEVEUKRZULVIAVLVMVNGADHUMJUNEVEUOUPADUJUHZFUJUHZDFUKRZULVKAVOVPVQHIKUNDFUOUPDEFUQURAEFUSACUTVGUHVABLVBVC $.
+  $}
+
+  ${
+    gfsumconst.1 $e |- ( ph -> M e. ZZ ) $.
+    gfsumconst.2 $e |- ( ph -> N e. ZZ ) $.
+    gfsumconst.3 $e |- ( ph -> M <_ N ) $.
+    gfsumconst.4 $e |- ( ph -> B e. RR ) $.
+  gfsumconst $p |- ( ph -> sum_ k e. ( M ... N ) B = ( ( ( N - M ) + 1 ) x. B ) ) $=
+    ( cfz co csu chash cfv cmul cmin c1 caddc cfn wcel cc wceq fzfid recnd
+    fsumconst syl2anc cuz cz cle wbr w3a 3jca eluz2 sylibr hashfz syl oveq1d
+    eqtrd )
+    ADEJKZBCLZUSMNZBOKZEDPKZQRKZBOKAUSSTBUATUTVBUBADEUCABIUDUSBCUEUFAVAVDBOAEDUGNZTZVAVDUBADUHTZEUHTZDEUIUJZUKVFAVGVHVIFGHULDEUMUNDEUOUPUQUR $.
+  $}
+
+$}
+

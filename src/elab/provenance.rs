@@ -16,7 +16,7 @@ use std::collections::BTreeSet;
 use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
-use crate::corpus::proof::references;
+use crate::corpus::proof::{cited_item, references};
 use crate::corpus::{fmt, item_prefix, Item, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
@@ -124,14 +124,15 @@ impl<'a> Elaborator<'a> {
     /// directly or through another of the step's requires lines. On a method
     /// step a requires line is also at work where the method demands it
     /// without the kernel needing it, and each atom's membership must be on
-    /// the page. A step citing an item is the checker's to judge.
+    /// the page. A step citing an item, as its head or as what it obtains
+    /// from, is the checker's to judge.
     pub fn does_work(
         &mut self,
         step: &Step,
         number: &str,
         proof: &Proof,
     ) -> Checked<()> {
-        if step.just.head.is_item() {
+        if cited_item(&step.just).is_some() {
             return Ok(());
         }
         let mut used: BTreeSet<String> = proof.origin.clone();

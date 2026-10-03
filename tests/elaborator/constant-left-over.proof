@@ -1,0 +1,8 @@
+theorem one-equation-and-a-constant
+  let s ∈ ℝ                                                           (H1)
+  assume s = 1                                                        (H2)
+  then s ≥ 0
+
+1.  s ≥ 0
+    inequalities, from H2
+    requires s ∈ ℝ: from H1

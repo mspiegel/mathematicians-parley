@@ -7,6 +7,7 @@
 //! holds apart (`$d`) holds nothing apart in another. A label is global all
 //! the same, and a proof file that cites any of them includes this one file.
 
+pub mod bounds;
 pub mod calculus;
 pub mod divisors;
 pub mod functions;
@@ -15,6 +16,7 @@ pub mod groups;
 pub mod numbers;
 pub mod parallels;
 pub mod powers;
+pub mod ranges;
 pub mod series;
 pub mod sets;
 pub mod totient;
@@ -33,7 +35,7 @@ struct Group {
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved.
-const GROUPS: [Group; 12] = [
+const GROUPS: [Group; 14] = [
     Group {
         head: geometry::HEAD,
         proofs: geometry::proofs,
@@ -81,6 +83,14 @@ const GROUPS: [Group; 12] = [
     Group {
         head: totient::HEAD,
         proofs: totient::proofs,
+    },
+    Group {
+        head: bounds::HEAD,
+        proofs: bounds::proofs,
+    },
+    Group {
+        head: ranges::HEAD,
+        proofs: ranges::proofs,
     },
 ];
 

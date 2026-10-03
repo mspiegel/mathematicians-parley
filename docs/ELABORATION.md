@@ -413,6 +413,14 @@ obtain. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 
+An `obtain` from a library item reads the item's existential in the item's
+own names, and says it at the step by what the step's lines fix of them
+(`item_sentence_here`): each letter the citation writes or a hypothesis
+matched against a cited line binds is what it stands for, and a function
+letter is its rule where the item applies it. `convergent-bounded` cited
+from a line saying the partial sums of 1/k tend to L obtains B with every
+partial sum at most B (the harmonic series, step 2.2).
+
 An `obtain` from a definition obtains the existence its claim states
 (`existence_claimed`): `a ∈ G. Y = aH.` obtaining a is there is a ∈ G with
 Y = aH, each membership sentence giving a name's domain, over letters

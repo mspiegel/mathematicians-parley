@@ -96,6 +96,18 @@ mundane definition series-sum
               through a sequence of its own, and `sersumlim` is the join,
               proved below the readable layer from `isumclim3` and `climuni`.
 
+theorem convergent-bounded
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then        there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
+  metamath    climbdd and leabs, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gclimbdd with A := L
+  note        A sequence with a limit is bounded: from some point on its
+              terms are near the limit, and before that there are finitely
+              many of them.
+
 mundane definition upper-bound
   then        u is an upper bound of S ↔ for all s ∈ S, s ≤ u
   metamath    ub as in df-sup
