@@ -390,6 +390,19 @@ mundane theorem quotient-real
               membership from its parts. `half-real` is the case y = 2, which
               needs no hypothesis on y.
 
+mundane theorem multiply-cancel
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a·c = b·c                                                    (H4)
+  assume c ≠ 0                                                        (H5)
+  then        a = b
+  metamath    mulcan2ad
+  target      mulcan2ad
+  note        A common factor that is not 0 cancels. `algebra` multiplies
+              equations together but never divides one by a factor, so the
+              cancellation is a step of its own.
+
 mundane theorem reciprocal-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)

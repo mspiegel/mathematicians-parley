@@ -224,6 +224,87 @@ theorem angles-on-a-line
               the order. Over ℂ the three angles turn the same way, and their
               signed sum is half a turn.
 
+mundane theorem distance-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| ∈ ℝ
+  metamath    gdistre, which this corpus proves in elaboration/stdlib/proved.mm
+              from subcl and abscl
+  target      gdistre
+
+mundane theorem between-symmetric
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        R is between T and S
+  metamath    gbetsym, which this corpus proves in elaboration/stdlib/proved.mm:
+              the quotient read the other way is its reciprocal
+  target      gbetsym
+
+mundane theorem angle-along-segment
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume S is between P and Q                                         (H5)
+  assume R ≠ P                                                        (H6)
+  then        ∠SPR = ∠QPR
+  metamath    gangseg, which this corpus proves in elaboration/stdlib/proved.mm
+  target      gangseg
+  note        S on the segment from P to Q is on the ray from P through Q,
+              so the angle that ray makes with PR is the same measured to S
+              as to Q.
+
+theorem segment-addition
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  assume S is between P and Q                                         (H4)
+  then        |PS| + |SQ| = |PQ|
+  metamath    gsegadd, which this corpus proves in elaboration/stdlib/proved.mm
+  target      gsegadd
+
+mundane theorem sine-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        sin(∠PQR) > 0
+  metamath    gsinpos, which this corpus proves in elaboration/stdlib/proved.mm
+  target      gsinpos
+  note        An angle of a triangle is strictly between 0° and 180°, where
+              the sine is positive.
+
+theorem law-of-sines
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
+  metamath    glawsin, which this corpus proves in elaboration/stdlib/proved.mm
+              from heron, taken at Q and at R
+  target      glawsin
+  note        Each side over the sine of the angle opposite it is the same:
+              PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
+              |PQ|/sin(∠QRP), written without division.
+
+theorem altitude-foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume ∠PRQ = 90°                                                   (H5)
+  then        there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°,
+              ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a
+              triangle
+  metamath    galtfoot, which this corpus proves in elaboration/stdlib/proved.mm:
+              D is P + t(Q − P), with t the real part of (R − P)/(Q − P)
+  target      galtfoot
+  note        The perpendicular from the right angle meets the hypotenuse
+              between its ends, and splits the triangle into two right
+              triangles.
+
 axiom side-angle-side
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

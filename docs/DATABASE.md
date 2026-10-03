@@ -66,16 +66,17 @@ has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
-| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 4 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 50 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 20 |
+| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 5 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 63 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence | 34 |
 | `corpus/stdlib/sums.records` | sums over a range, and the ranges | 22 |
-| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 50 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 51 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 15 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 22 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity | 8 |
-| `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence | 11 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 20 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives | 17 |
+| `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 24 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
+| `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 8 |
 
 A proof imports each library item it cites, as it imports each theorem of
 another proof file it cites, so its head says where everything it cites comes
@@ -119,7 +120,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 255 |
+| `metamath` | a set.mm label or labels supply it | 263 |
 | `open` | it is cited but unproved and unbridged | 8 |
 
 `mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
@@ -127,7 +128,7 @@ record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 24 of the 32 name a set.mm
+`note` lines under its `theorem` line; 25 of the 34 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem

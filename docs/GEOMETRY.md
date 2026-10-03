@@ -1,7 +1,7 @@
 # Which geometry this project should stand on
 
-`proofs/isosceles.proof` and `proofs/angle-sum.proof` are the corpus's
-geometry proofs. What they stand on is a question about foundations rather
+`proofs/isosceles.proof`, `proofs/angle-sum.proof` and
+`proofs/pythagoras.proof` are the corpus's geometry proofs. What they stand on is a question about foundations rather
 than about tools, and seven answers have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
 SMSG, and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
 
@@ -270,6 +270,25 @@ The angle sum's three items are proved the same way, in their own block of
 | `gargpos` | the same above the line, from `eflogeq` and the bounds on each argument |
 | `grecsgn` | 1/Z is on the other side of the real line from Z |
 | `gangrp` | lengthening one arm of an angle leaves it unchanged |
+
+Pythagoras, proved by similar triangles, adds a block of its own. Similarity
+itself is a theorem of the readable layer, from the angle sum and the law of
+sines; these are what it and the proof cite:
+
+| lemma | carries |
+| --- | --- |
+| `glawsin` | `law-of-sines`: `heron` at two vertices of one triangle, the same area |
+| `gsinpos` | `sine-positive`: an angle of a triangle is strictly between 0 and π |
+| `galtfoot` | `altitude-foot`: the foot of the altitude from a right angle, between the other two vertices |
+| `gangseg` | `angle-along-segment`: a point between P and Q is on the ray from P through Q |
+| `gsegadd` | `segment-addition`: the parts of a segment add to it |
+| `gbetsym` | `between-symmetric` |
+| `gdistre` | `distance-real` |
+| `gsinabs` | the sine of an angle's size is the size of its sine, between −π and π |
+| `g90` | 90° is π/2 |
+
+`galtfoot` puts each point at a coordinate along PQ, P at 0 and Q at 1, so
+that every quotient of differences it names is a quotient of coordinates.
 
 ## The angle sum, which adds angles
 

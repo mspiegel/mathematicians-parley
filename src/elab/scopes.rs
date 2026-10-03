@@ -1235,7 +1235,23 @@ impl<'a> Elaborator<'a> {
         // for it, as any line saying several things is; the claim's other
         // sentences are the memberships.
         let deep = sentences.len().saturating_sub(got.len() + 1);
-        let (outer, held) = self.widen(scope, facts, &member, Some(number));
+        // A point is a point as `let A be a point` says it is: a sort, which
+        // a step rests on without citing the line and the checker does not
+        // let it cite. A number obtained is cited for its membership, as a
+        // requires line from the obtain.
+        let points = got.iter().all(|name| {
+            self.sorts_now
+                .get(name)
+                .is_some_and(|s| s.name() == Some("point"))
+        });
+        let members = if points {
+            let sort = format!("{number}∈");
+            self.sorts.insert(sort.clone());
+            sort
+        } else {
+            number.to_string()
+        };
+        let (outer, held) = self.widen(scope, facts, &member, Some(&members));
         let (inner, lifted) = self.widen_to(&outer, &held, &body, Some(number), deep);
         self.lines.set(
             number,

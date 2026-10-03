@@ -48,20 +48,20 @@ $d n A $.  $d n B $.  $d n C $.
 
 /// A proof, and the formula it proves.
 #[derive(Clone)]
-struct Said {
-    says: Term,
-    proof: Proof,
+pub(super) struct Said {
+    pub(super) says: Term,
+    pub(super) proof: Proof,
 }
 
 /// Steps applied by their lemma, with the lemma's variables read off the
 /// proofs a step rests on.
-struct Prover<'a> {
-    b: &'a Builder,
+pub(super) struct Prover<'a> {
+    pub(super) b: &'a Builder,
 }
 
 impl Prover<'_> {
     /// A formula or a class in set.mm's notation, as a term.
-    fn term(&self, text: &str, start: &str) -> Term {
+    pub(super) fn term(&self, text: &str, start: &str) -> Term {
         let tokens: Vec<&str> = text.split_whitespace().collect();
         self.b
             .syntax()
@@ -69,7 +69,7 @@ impl Prover<'_> {
             .unwrap_or_else(|_| panic!("{text:?} is not a {start}"))
     }
 
-    fn show(&self, term: &Term) -> String {
+    pub(super) fn show(&self, term: &Term) -> String {
         render(&term.rpn(&self.b.flabel), &self.b.sigs)
     }
 
@@ -77,7 +77,12 @@ impl Prover<'_> {
     /// order. Its variables are what matching the hypotheses against what
     /// `given` proves makes them, and `fixed` gives those no hypothesis
     /// mentions, in set.mm's notation.
-    fn by(&self, label: &str, given: &[&Said], fixed: &[(&str, &str)]) -> Said {
+    pub(super) fn by(
+        &self,
+        label: &str,
+        given: &[&Said],
+        fixed: &[(&str, &str)],
+    ) -> Said {
         let sig = self
             .b
             .sigs
@@ -145,7 +150,12 @@ impl Prover<'_> {
     /// `given` proofs share: one proof of a, or one of each conjunct of a
     /// two- or three-way conjunction, by `syl`, `syl2anc` or `syl3anc`. The
     /// theorem's variables are read off what the proofs conclude.
-    fn apply(&self, label: &str, given: &[&Said], fixed: &[(&str, &str)]) -> Said {
+    pub(super) fn apply(
+        &self,
+        label: &str,
+        given: &[&Said],
+        fixed: &[(&str, &str)],
+    ) -> Said {
         let sig = self
             .b
             .sigs
@@ -212,7 +222,7 @@ impl Prover<'_> {
     }
 
     /// `said`, having checked it proves `text`.
-    fn is(&self, said: Said, text: &str) -> Said {
+    pub(super) fn is(&self, said: Said, text: &str) -> Said {
         let want = self.term(text, "wff");
         if !same(&said.says, &want) {
             panic!("expected `{text}` and proved `{}`", self.show(&said.says));
@@ -222,7 +232,7 @@ impl Prover<'_> {
 
     /// Each conjunct of a left-nested antecedent, proved from it:
     /// ( ( ( a /\ b ) /\ c ) -> a ) and so on, in the order written.
-    fn parts(&self, conjuncts: &[&str]) -> Vec<Said> {
+    pub(super) fn parts(&self, conjuncts: &[&str]) -> Vec<Said> {
         let mut whole = conjuncts[0].to_string();
         let mut out = vec![self.by("id", &[], &[("ph", conjuncts[0])])];
         for next in &conjuncts[1..] {
@@ -237,7 +247,7 @@ impl Prover<'_> {
     }
 
     /// The antecedent `parts` takes apart, written out.
-    fn conjoined(conjuncts: &[&str]) -> String {
+    pub(super) fn conjoined(conjuncts: &[&str]) -> String {
         let mut whole = conjuncts[0].to_string();
         for next in &conjuncts[1..] {
             whole = format!("( {whole} /\\ {next} )");
@@ -246,7 +256,7 @@ impl Prover<'_> {
     }
 
     /// ( a -> ( b -> ( c -> concl ) ) ) from ( ( ( a /\ b ) /\ c ) -> concl ).
-    fn curried(&self, said: Said, conjuncts: &[&str]) -> Said {
+    pub(super) fn curried(&self, said: Said, conjuncts: &[&str]) -> Said {
         let mut out = said;
         for n in (1..conjuncts.len()).rev() {
             out = self.by("ex", &[&out], &[("ph", &Self::conjoined(&conjuncts[..n]))]);
@@ -255,13 +265,13 @@ impl Prover<'_> {
     }
 
     /// The angle's own value: what `df-ang` says `ang` is.
-    fn ang_defined(&self) -> Said {
+    pub(super) fn ang_defined(&self) -> Said {
         self.by("df-ang", &[], &[("x", "x"), ("y", "y")])
     }
 }
 
 /// The statement a lemma registers and is written with, from its proof.
-fn statement(p: &Prover, said: &Said) -> String {
+pub(super) fn statement(p: &Prover, said: &Said) -> String {
     format!("|- {}", p.show(&said.says))
 }
 
@@ -711,17 +721,17 @@ fn alternate(b: &mut Builder) -> Lemma {
 
 impl Prover<'_> {
     /// `said` under one more conjunct of its antecedent.
-    fn lift(&self, said: &Said, extra: &str) -> Said {
+    pub(super) fn lift(&self, said: &Said, extra: &str) -> Said {
         self.by("adantr", &[said], &[("ch", extra)])
     }
 
     /// A closed fact under the antecedent `g`.
-    fn always(&self, said: &Said, g: &str) -> Said {
+    pub(super) fn always(&self, said: &Said, g: &str) -> Said {
         self.by("a1i", &[said], &[("ps", g)])
     }
 
     /// ( g -> ( ( ( a /\ b ) /\ c ) ... ) ), from a proof of each under g.
-    fn joined(&self, parts: &[&Said]) -> Said {
+    pub(super) fn joined(&self, parts: &[&Said]) -> Said {
         let mut out = parts[0].clone();
         for next in &parts[1..] {
             out = self.by("jca", &[&out, next], &[]);
@@ -731,7 +741,7 @@ impl Prover<'_> {
 
     /// ( g -> x =/= 0 ), from ( g -> ( Im ` x ) =/= 0 ): a number whose
     /// imaginary part is not 0 is not 0, since 0's is (`im0`).
-    fn nonzero(&self, x: &str, g: &str, im_apart: &Said) -> Said {
+    pub(super) fn nonzero(&self, x: &str, g: &str, im_apart: &Said) -> Said {
         let read = self.by("fveq2", &[], &[("A", x), ("B", "0"), ("F", "Im")]);
         let zero = self.by("eqtrdi", &[&read, &self.by("im0", &[], &[])], &[]);
         let back = self.by("necon3d", &[&self.always(&zero, g)], &[]);
@@ -740,7 +750,7 @@ impl Prover<'_> {
 
     /// ( g -> ( Im ` ( _i x. y ) ) = y ), for y real: the imaginary part of
     /// 0 + i·y (`crim`).
-    fn im_times_i(&self, y: &str, g: &str, real: &Said) -> Said {
+    pub(super) fn im_times_i(&self, y: &str, g: &str, real: &Said) -> Said {
         let zero = self.always(&self.by("0re", &[], &[]), g);
         let read = self.by(
             "syl2anc",
@@ -780,7 +790,7 @@ impl Prover<'_> {
     /// term holding w, or a formula holding v says what the same formula
     /// holding w says: one congruence lemma for each node on the way down to
     /// every v. None where `t` does not hold v.
-    fn cong(&self, eq: &Said, v: &Term, t: &Term) -> Option<Said> {
+    pub(super) fn cong(&self, eq: &Said, v: &Term, t: &Term) -> Option<Said> {
         if same(t, v) {
             return Some(eq.clone());
         }
@@ -827,6 +837,7 @@ impl Prover<'_> {
             "wbr" => two("breq12d", "breq1d", "breq2d", "C", Some(("R", 2))),
             "wcel" => two("eleq12d", "eleq1d", "eleq2d", "C", None),
             "wne" => two("neeq12d", "neeq1d", "neeq2d", "C", None),
+            "wceq" => two("eqeq12d", "eqeq1d", "eqeq2d", "C", None),
             "wa" => two("anbi12d", "anbi1d", "anbi2d", "th", None),
             "cfv" => self.by(
                 "fveq2d",
@@ -852,7 +863,7 @@ impl Prover<'_> {
 
     /// ( g -> ( ( y - x ) / ( x - y ) ) = -u 1 ), from x and y being numbers
     /// and x − y not 0.
-    fn minus_one(&self, x: &Said, y: &Said, apart: &Said) -> Said {
+    pub(super) fn minus_one(&self, x: &Said, y: &Said, apart: &Said) -> Said {
         let d = self.by("subcld", &[x, y], &[]);
         let turned = self.by("eqcomd", &[&self.by("negsubdi2d", &[x, y], &[])], &[]);
         let below = self.show(&d.says.children()[1].children()[0]);
@@ -877,7 +888,7 @@ impl Prover<'_> {
 
     /// ( g -> ( Im ` w ) =/= 0 ), from w = a / b, b not 0, and a / b not
     /// real: a number off the real line has an imaginary part.
-    fn off_line(&self, w: &Said, eq: &Said, not_real: &Said) -> Said {
+    pub(super) fn off_line(&self, w: &Said, eq: &Said, not_real: &Said) -> Said {
         let not_w = self.by(
             "mtbird",
             &[not_real, &self.by("eleq1d", &[eq], &[("C", "RR")])],

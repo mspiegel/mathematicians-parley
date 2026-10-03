@@ -1122,6 +1122,16 @@ impl<'a> Elaborator<'a> {
                     }
                 }
             }
+            // So is a library function the item applies, as sin in
+            // sin(∠PQR): the library's, not a name the step gives a value.
+            // Only where it is applied, since a letter such as C may be a
+            // function's name and a point's.
+            let applied =
+                matches!(node.notation.as_str(), "application" | "application-to-two")
+                    && node.children.first().is_some_and(Node::is_name);
+            if applied && self.g.functions.contains_key(&node.children[0].text) {
+                own.insert(node.children[0].text.clone());
+            }
             rest.extend(node.children.iter().cloned());
         }
         let mut variables: BTreeSet<String> = BTreeSet::new();
@@ -3128,12 +3138,17 @@ impl<'a> Elaborator<'a> {
                 for h in &other.hypotheses {
                     let node =
                         me.read(&me.hypothesis_formula(h.kind.as_str(), &h.text))?;
-                    // `let X be a set` names a class as surely as `let n ∈ ℕ`
-                    // does, and the name is in the same place.
+                    // `let X be a set` and `let A be a point` name a class as
+                    // surely as `let n ∈ ℕ` does, and the name is in the same
+                    // place.
                     if h.kind == Intro::Let
                         && matches!(
                             node.notation.as_str(),
-                            "membership" | "is-a-set" | "conjunction" | "function-type"
+                            "membership"
+                                | "is-a-set"
+                                | "is-a-point"
+                                | "conjunction"
+                                | "function-type"
                         )
                     {
                         let name = subject_of(&node).text.clone();

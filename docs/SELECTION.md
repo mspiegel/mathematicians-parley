@@ -18,10 +18,10 @@ statement's variables.
 
 ## State
 
-All twenty-one are written and elaborate from set.mm with nothing assumed.
-Ten more are chosen and not yet started: "The next ten", at the end. Each of
-the twenty-one has its proof in `proofs/` and its design record in
-`docs/pilot/`, under the same name:
+All twenty-two are written and elaborate from set.mm with nothing assumed.
+Nine more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-two has its proof in `proofs/` and its design record
+in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
 |---|---|---|---|
@@ -35,7 +35,7 @@ the twenty-one has its proof in `proofs/` and its design record in
 | 8 | intermediate-value | 18 | de-moivre |
 | 9 | isosceles | 19 | mean-value |
 | 10 | geometric-series | 20 | rationals-countable |
-|  |  | 21 | angle-sum |
+| 21 | angle-sum | 22 | pythagoras |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -414,7 +414,12 @@ textbook's.
 22. **Pythagorean theorem.** The test of whether what the isosceles proof
     built to hide set.mm's plane carries over to a third theorem. set.mm
     proves it from the law of cosines, which has the same angle encoding
-    and is twice the size.
+    and is twice the size. Written: `proofs/pythagoras.proof`, with
+    `docs/pilot/pythagoras.md`, and both of its theorems elaborate with
+    nothing assumed. The proof is by similar triangles, through the altitude
+    from the right angle, not by the law of cosines, which a school reader
+    would take as circular; similarity is proved in the readable layer from
+    the angle sum and the law of sines.
 23. **Euler's theorem.** The first multiplicative argument modulo n:
     multiplying every residue coprime to n by a gives the same residues in
     another order, so the two products agree and a^φ(n) cancels against 1.
