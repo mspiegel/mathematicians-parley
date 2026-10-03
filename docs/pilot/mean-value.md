@@ -19,10 +19,12 @@ The proof is `proofs/mean-value.proof`, one theorem with two defines. It
 elaborates to `corpus/elaboration/proofs/mean-value/mean-value.mm`, assumes
 nothing, and verifies.
 
-Numbers: 35 numbered steps at the top and 7 inside blocks. Steps 1 to 7 say
-what is real; 8 to 13 what g and F are and that both are real-valued; 14 to
-19 apply the sum rules; 20 to 27 show F(a) = F(b); 28 is Rolle's theorem;
-29 to 35 solve for f′(c).
+Numbers: 33 numbered steps at the top and 6 inside blocks. Steps 1 to 5 say
+what is real; 6 to 11 what g and F are and that both are real-valued; 12 to
+17 apply the sum rules; 18 to 25 show F(a) = F(b); 26 is Rolle's theorem;
+27 to 33 solve for f′(c). f(a) and f(b) are real by H4 with steps 1 and 2,
+which the steps needing it cite (`READERS.md`, a function's type cited for
+its values).
 
 ---
 
@@ -92,7 +94,7 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
    sum's both read off one point (`gdvaddbr`), the line's off its
    derivative restricted to U (`gdvlinres`).
 4. **`membership` reads a define as its rule, all the way down.** F(x) is
-   read as f(x) + slope·x, so the requires lines of step 12.2 name the
+   read as f(x) + slope·x, so the requires lines of step 10.2 name the
    slope and x, which F's rule never writes.
 5. **An `inequalities` defect.** A claim b − a ≠ 0 from a < b was given the
    proof of b ≠ a, which the build accepted and the verifier refused. The

@@ -225,7 +225,9 @@ three rather than trusting them.
 biconditional defining `f : A → B`; the intermediate value pilot stated it as
 the derived fact that a function's values land in its codomain, and cited it
 three times for exactly that. The fact is now `mun:stdlib/functions/function-value` and those
-three citations are renamed. `mun:stdlib/functions/function` keeps the name for the definition,
+three citations are renamed. A function's type is now cited for its values
+(`READERS.md`), so `function-value` is cited only where the value is a step
+of the argument, Schröder–Bernstein's f(s) ∈ B. `mun:stdlib/functions/function` keeps the name for the definition,
 which is `open` because the Cantor pilot's row is truncated and no proof cites
 it.
 
@@ -522,13 +524,13 @@ this table is mundane.
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
-| rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
+| rolle | `theorem` | "by Rolle's theorem", mean-value step 26 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
-| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |
+| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 12 to 17 |
 | congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 8.11, 11, 13, 14, 20 and 28 |
-| continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 16 |
+| continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
 | C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
@@ -547,7 +549,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
 | numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
-| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: mean-value step 33 |
+| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: mean-value step 31 |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or

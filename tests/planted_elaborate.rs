@@ -374,7 +374,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "|f(x) − f(c′)| < ε for all x",
             "|f(x) − f(c′)| < δ for all x",
-            "proofs/intermediate-value.proof:93  no method owns this step: elcncf2 does not say",
+            "proofs/intermediate-value.proof:89  no method owns this step: elcncf2 does not say",
         ),
         case(
             "unfold continuity with a weaker bound than it gives",
@@ -393,7 +393,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "obtain c: axi:completeness S := S, from 5, 2, 7",
             "obtain c: axi:completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:67  no cited line names a witness for E. x e. RR",
+            "proofs/intermediate-value.proof:66  no cited line names a witness for E. x e. RR",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -573,7 +573,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "    def:continuous-on, from H5",
             "    def:continuous-on",
-            "proofs/intermediate-value.proof:93  no method owns this step: no cited line is what elcncf2 unfolds",
+            "proofs/intermediate-value.proof:89  no method owns this step: no cited line is what elcncf2 unfolds",
         ),
         // An item's target asks a side condition the page never writes, and
         // `rewritten` answers it through the equation the step cites: `0 < |X|`

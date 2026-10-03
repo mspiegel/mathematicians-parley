@@ -26,6 +26,10 @@ The merge renamed three of its citations. Steps 14, 17.13 and 17.25.5.5 cited
 `def:stdlib/functions/function` for the fact that f(x) is real, while the Cantor pilot used the
 same name for a definition of what `f : A → B` means. The fact is now
 `thm:stdlib/functions/function-value` and those three steps name it.
+Later, a function's type became citable for its values (`READERS.md`): the
+steps restating f(x) ∈ ℝ are gone, and a step needing it cites H4 with the
+line putting x in [a, b]. That renumbered the proof, so the step numbers
+below are those of the pilot as written.
 
 
 ---

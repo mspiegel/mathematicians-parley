@@ -419,7 +419,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line inside a block that has closed",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    17.2.  c < b\n           inequalities, from 12, 17.1".to_string()), "    17.2.  c < b\n           inequalities, from 12, 17.1.1".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    16.2.  c < b\n           inequalities, from 12, 16.1".to_string()), "    16.2.  c < b\n           inequalities, from 12, 16.1.1".to_string()),
             ],
             "inside a block that has closed",
         ),
@@ -1599,14 +1599,14 @@ fn cases() -> Vec<Case> {
         case(
             "give the type of a define the citation does not bind",
             vec![
-                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 11".to_string()), "requires F : [a, b] → ℝ: from 13".to_string()),
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 9".to_string()), "requires F : [a, b] → ℝ: from 11".to_string()),
             ],
             "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
         case(
             "give a bound define a type other than the item asks",
             vec![
-                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 11".to_string()), "requires g : ℕ → ℝ: from 11".to_string()),
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 9".to_string()), "requires g : ℕ → ℝ: from 9".to_string()),
             ],
             "says g : ℕ → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
