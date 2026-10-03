@@ -37,6 +37,33 @@ pub enum Whole {
 }
 
 impl Whole {
+    /// A sort as a record's `sort` line writes it in full, `set of function
+    /// from number to number`; None for one that names a sort variable or a
+    /// word it does not know.
+    pub fn read(text: &str) -> Option<Whole> {
+        let text = str::trim(text);
+        if let Some(rest) = text.strip_prefix("set of ") {
+            return Some(Whole::Set(Rc::new(Whole::read(rest)?)));
+        }
+        if let Some(rest) = text.strip_prefix("property of ") {
+            return Some(Whole::Property(Rc::new(Whole::read(rest)?)));
+        }
+        if let Some(rest) = text.strip_prefix("function from ") {
+            let (from, to) = rest.split_once(" to ")?;
+            return Some(Whole::Function(
+                Rc::new(Whole::read(from)?),
+                Rc::new(Whole::read(to)?),
+            ));
+        }
+        Some(match text {
+            "number" => Whole::Number,
+            "point" => Whole::Point,
+            "formula" => Whole::Formula,
+            "group-element" => Whole::GroupElement,
+            _ => return None,
+        })
+    }
+
     /// The sort as a reader would say it: `a set of numbers`.
     pub fn describe(&self) -> String {
         match self {

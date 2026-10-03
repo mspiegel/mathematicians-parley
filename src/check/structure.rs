@@ -801,7 +801,7 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem) {
             // A part of a set is stated by ⊆ as surely as by ∈ 𝒫.
             let stated = [
                 format!(r"(?<![A-Za-z]){n}\s*[∈⊆]"),
-                format!(r"(?<![A-Za-z]){n}\s+is a (set|point)"),
+                format!(r"(?<![A-Za-z]){n}\s+is a (set|point|polynomial)"),
                 format!(r"(?<![A-Za-z]){n}\s*:"),
             ]
             .iter()

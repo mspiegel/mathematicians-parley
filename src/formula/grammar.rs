@@ -6,7 +6,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::{library_functions, Function};
-use super::node::{describe_category, Node, Sort};
+use super::node::{describe_category, Node, Sort, Whole};
 use super::notation::{
     binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter, Wrap,
 };
@@ -282,7 +282,7 @@ fn read(
     line: usize,
 ) -> Checked<Node> {
     let mut local = sorts.clone();
-    for (k, v) in bound_sorts(tokens, sorts) {
+    for (k, v) in bound_sorts(tokens, g, sorts) {
         local.insert(k, v);
     }
     let mut p = Parser {
@@ -339,11 +339,47 @@ pub fn parse_here(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
 }
 
 /// The sort of each letter the tokens put in a set that says what it holds,
-/// `x ∈ S`, or in a coset of one, `x ∈ gH`. Only for letters of no sort
-/// already.
-fn bound_sorts(tokens: &[Token], sorts: &Sorts) -> Vec<(String, Sort)> {
+/// `x ∈ S`, or in a coset of one, `x ∈ gH`, or that a binder filling its set
+/// names right after its words, `there is a polynomial q`. Only for letters
+/// of no sort already.
+fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sort)> {
     let mut out: IndexMap<String, Sort> = IndexMap::new();
     let sort_of = |name: &str| sorts.get(name).cloned().unwrap_or_default();
+    // The literal standing just before a filling binder's name, and what the
+    // set it fills holds.
+    let mut named_after: IndexMap<&str, Sort> = IndexMap::new();
+    for n in &g.notations {
+        let (Some(fill), Some(binds)) = (&n.fill, &n.binds) else {
+            continue;
+        };
+        let Some(held) = Whole::read(&fill.yields)
+            .and_then(Sort::whole)
+            .and_then(|s| holds(&s))
+        else {
+            continue;
+        };
+        let mut seen = 0;
+        for (k, part) in n.parts.iter().enumerate() {
+            if !part.is_hole() {
+                continue;
+            }
+            if binds.held.contains(&seen) && k > 0 {
+                if let Some(lit) = n.parts[k - 1].literal() {
+                    named_after.insert(lit, held.clone());
+                }
+            }
+            seen += 1;
+        }
+    }
+    for pair in tokens.windows(2) {
+        let (word, x) = (&pair[0], &pair[1]);
+        if x.kind != TokenKind::Name || !sort_of(&x.text).is_unknown() {
+            continue;
+        }
+        if let Some(held) = named_after.get(word.text.as_str()) {
+            out.entry(x.text.clone()).or_insert(held.clone());
+        }
+    }
     for i in 0..tokens.len().saturating_sub(2) {
         let (x, sign, s) = (&tokens[i], &tokens[i + 1], &tokens[i + 2]);
         if x.kind != TokenKind::Name
@@ -1083,6 +1119,14 @@ impl Parser<'_> {
             kids = places.iter().map(|p| kids[p - 1].clone()).collect();
         } else if let Some(gone) = gone {
             kids.remove(gone);
+        }
+        // A part the page names in words and never writes, "a polynomial",
+        // stands in the node as the notation it is.
+        if let Some(f) = &n.fill {
+            let sort = Whole::read(&f.yields)
+                .and_then(Sort::whole)
+                .unwrap_or_else(|| Sort::of("set"));
+            kids.insert(f.hole - 1, Node::new(&f.name, sort, Vec::new(), &f.literal));
         }
         // Where it was read from: its first token, or the value it extends,
         // to its last token.

@@ -16,8 +16,8 @@ use crate::regex;
 use crate::rules;
 use crate::sorts::{
     definitions_in_scope, element_re, file_definitions, function_being_re,
-    function_on_re, function_re, group_re, let_formula, part_re, sentences,
-    set_or_point_re, unlabel, Env,
+    function_on_re, function_re, group_re, let_formula, part_re, polynomial_re,
+    sentences, set_or_point_re, unlabel, Env,
 };
 
 /// One `then` group of an item: its facts, each with the text it was read
@@ -226,6 +226,7 @@ impl<'a> Library<'a> {
             if *kind == Intro::Let
                 && (function_being_re().is_match(&text)
                     || function_on_re().is_match(&text)
+                    || polynomial_re().is_match(&text)
                     || part_re().is_match(&text))
             {
                 text = let_formula(&text);

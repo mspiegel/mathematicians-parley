@@ -394,6 +394,7 @@ impl<'a> Elaborator<'a> {
                 && !label.is_empty()
                 && (text.contains(" be a set")
                     || text.contains(" be a point")
+                    || text.contains(" be a polynomial")
                     || text.contains('→')
                     || text.contains(" group with operation "))
             {

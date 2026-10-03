@@ -77,6 +77,16 @@
 #               conditional` makes "for all x ∈ S with A, B" the tree of
 #               "for all x ∈ S, if A then B". The joined node stands where
 #               the first hole did; `places` names it by that hole's number.
+#   wraps       that one hole's term goes inside another notation in the
+#               node: `wraps hole 2 in powerset` makes "there is C ⊆ A with
+#               …" the tree of "there is C ∈ 𝒫A with …".
+#   fills       that the node has, as one hole of the notation spelt, a
+#               notation of no holes the page names in words and never
+#               writes: `fills hole 2 with polynomials` makes "there is a
+#               polynomial q with …" the tree of "there is q ∈ (the
+#               polynomials) with …". The holes written stand one place
+#               further along from it, and a name the spelling binds right
+#               after its words has the sort the filled set holds.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -1457,3 +1467,41 @@ notation bijection
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a
               function built on the spot.
+
+notation polynomials
+  pattern     polynomials
+  sort        → set of function from number to number
+  reads       the polynomials with complex coefficients
+  metamath    Poly over ℂ
+  target      cc cply cfv
+  note        What a polynomial is in. The page says "p is a polynomial" and
+              "there is a polynomial q with …", each of which fills this set
+              into the notation it spells, and never writes the set itself.
+              set.mm's Poly is the functions from ℂ to ℂ that some finite
+              sequence of coefficients gives, which the reader does not meet.
+
+notation is-a-polynomial
+  pattern     _ is a polynomial
+  sort        function from number to number → formula
+  level       predicate
+  spells      membership ∈
+  fills       hole 2 with polynomials
+  reads       is a polynomial
+  metamath    wcel with Poly over ℂ
+  target      _1 cc cply cfv wcel
+  note        "p is a polynomial" is "p ∈ (the polynomials)", built as exactly
+              that formula, as `there-is-part` builds its power set.
+
+notation there-is-a-polynomial
+  pattern     there is a polynomial _ with _
+  sort        function from number to number, formula → formula
+  level       binder
+  binds       hole 1 over hole 2
+  spells      there-is thereis∈with
+  fills       hole 2 with polynomials
+  reads       there is a polynomial, with
+  metamath    wrex over Poly over ℂ
+  target      _2 _1 cc cply cfv wrex
+  note        "There is a polynomial q with …" is "there is q ∈ (the
+              polynomials) with …", so obtaining and exhibiting it work as
+              for any "there is".

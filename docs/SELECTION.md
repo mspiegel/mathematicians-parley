@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty-four are written and elaborate from set.mm with nothing assumed.
-Seven more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-four has its proof in `proofs/` and its design record
+All twenty-five are written and elaborate from set.mm with nothing assumed.
+Six more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-five has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -37,6 +37,7 @@ in `docs/pilot/`, under the same name:
 | 10 | geometric-series | 20 | rationals-countable |
 | 21 | angle-sum | 22 | pythagoras |
 | 23 | euler | 24 | harmonic |
+| 25 | factor | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -442,7 +443,10 @@ textbook's.
     functions picked out by coefficient sequences, and its division
     `quot` is defined through them; a reader sees p(x) = (x − a)q(x). It is
     the polynomial counterpart of the group and the plane: an encoding to
-    hide whole.
+    hide whole. Written: `proofs/factor.proof`, with `docs/pilot/factor.md`,
+    and it elaborates with nothing assumed. The reader chose to say
+    "polynomial" in words, the proof by the remainder theorem, and q a
+    polynomial in the statement; the page never writes a coefficient.
 26. **Cauchy–Schwarz.** An inequality between finite sums, proved by the
     quadratic Σ(aₖt + bₖ)² in a variable t the proof introduces, never
     negative, so its discriminant is not positive. Deduction form.

@@ -983,6 +983,18 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
+        // A value whose function changes: `fveq1d` takes the argument before
+        // the two functions, so its parts are given by name.
+        if head == "cfv" && slots == [1] {
+            return Built((
+                spelt_now,
+                self.b.ap(
+                    "fveq1d",
+                    &binds! {"ph" => scope, "A" => &was[0], "F" => &was[1], "G" => &now[1]},
+                    &deeper.iter().collect::<Vec<_>>(),
+                ),
+            ));
+        }
         let lemma = rules::congruence(&head, &slots)
             .unwrap_or_else(|| panic!("no congruence for {head} at {slots:?}"));
         let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];

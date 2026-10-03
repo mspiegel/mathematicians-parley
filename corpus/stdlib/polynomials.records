@@ -1,0 +1,38 @@
+# Standard library: polynomials
+#
+# Polynomials with complex coefficients, their values, and division by
+# x − a.
+#
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <header> stdlib/polynomials/<name>`, where the header is the
+# record's own before its name, as `mundane theorem` or `axiom`. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, note.
+
+
+theorem remainder
+  let p be a polynomial                                               (H1)
+  let a ∈ ℂ                                                           (H2)
+  then        there is a polynomial q with p(x) = (x − a)·q(x) + p(a) for all x ∈ ℂ
+  metamath    plyrem, read at each x, and quotcl2 for the quotient, which this
+              corpus proves together in elaboration/stdlib/proved.mm
+  target      gplyrem
+  note        The remainder theorem: dividing p by x − a leaves a polynomial
+              quotient and the constant remainder p(a).
+
+mundane theorem polynomial-value
+  let p be a polynomial                                               (H1)
+  let x ∈ ℂ                                                           (H2)
+  then        p(x) ∈ ℂ
+  metamath    plyf and ffvelcdm, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gplyval

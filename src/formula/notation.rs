@@ -106,6 +106,11 @@ pub struct Notation {
     pub nests: Option<Vec<(usize, usize)>>,
     pub bounds: Option<Bounds>,
     pub joins: Option<Join>,
+    /// For a spelling that writes fewer holes than the notation it spells,
+    /// the hole of that notation it fills with a notation of no holes, the
+    /// set the page names in words: "there is a polynomial q with …" is
+    /// "there is q ∈ (the polynomials) with …" (`fills`).
+    pub fill: Option<Wrap>,
 }
 
 impl Notation {
@@ -137,6 +142,20 @@ impl Notation {
             return Some(Binds {
                 held: vec![0],
                 body: (2..2 + after).collect(),
+            });
+        }
+        // A filled hole is a part of the node the page never writes, so the
+        // written holes from it on stand one place further along.
+        if let Some(f) = &self.fill {
+            let shift = |holes: &[usize]| -> Vec<usize> {
+                holes
+                    .iter()
+                    .map(|h| if *h + 1 >= f.hole { h + 1 } else { *h })
+                    .collect()
+            };
+            return Some(Binds {
+                held: shift(&binds.held),
+                body: shift(&binds.body),
             });
         }
         if self.places.is_none() && self.joins.is_none() {
@@ -189,6 +208,9 @@ regex!(SPELLS, r"^\s*(\S+)\s+(\S+)");
 // `wraps hole 2 in powerset`: the node built puts that hole's term inside
 // the named notation, so `for all X ⊆ A` is `for all X ∈ 𝒫A` exactly.
 regex!(WRAPS, r"^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$");
+// `fills hole 2 with polynomials`: the node built has, as that hole of the
+// notation spelt, the named notation of no holes, which the page never writes.
+regex!(FILLS, r"^\s*hole\s+(\d+)\s+with\s+(\S+)\s*$");
 // `joins hole 3 to hole 4 by conditional`: the node holds the two holes as
 // one, that notation's node with them in its holes.
 regex!(
@@ -328,6 +350,7 @@ pub fn compile_notations(
         let folded = NEGATES.captures(r.field_or_empty("negates"));
         let spells = SPELLS.captures(r.field_or_empty("spells"));
         let wraps = WRAPS.captures(r.field_or_empty("wraps"));
+        let fills = FILLS.captures(r.field_or_empty("fills"));
         let places: Option<Vec<usize>> = r.field("places").map(|p| {
             p.split_whitespace()
                 .filter_map(|n| n.parse::<usize>().ok())
@@ -491,6 +514,12 @@ pub fn compile_notations(
                 nests: nests.clone(),
                 bounds: bounds.clone(),
                 joins: joins.clone(),
+                fill: fills.as_ref().map(|f| Wrap {
+                    hole: f[1].parse().unwrap(),
+                    name: f[2].to_string(),
+                    literal: String::new(),
+                    yields: String::new(),
+                }),
             });
         }
     }
@@ -499,7 +528,14 @@ pub fn compile_notations(
     // `not (n is odd)`, down to what stands in the outer node.
     let mut literals: IndexMap<String, String> = IndexMap::new();
     let mut yields: IndexMap<String, String> = IndexMap::new();
+    let mut whole_sorts: IndexMap<String, String> = IndexMap::new();
     for n in &out {
+        if let Some((_, result)) = n.sort.as_deref().and_then(|s| s.rsplit_once('→'))
+        {
+            whole_sorts
+                .entry(n.key().to_string())
+                .or_insert_with(|| str::trim(result).to_string());
+        }
         literals
             .entry(n.key().to_string())
             .or_insert_with(|| n.literal.clone());
@@ -516,6 +552,13 @@ pub fn compile_notations(
         if let Some(w) = &mut n.wrap {
             w.literal = literals.get(&w.name).cloned().unwrap_or_default();
             w.yields = yields.get(&w.name).cloned().unwrap_or_default();
+        }
+        // A filled set's node is the whole sort its record gives, `set of
+        // function from number to number`, since what it holds is what a
+        // name its binder introduces is.
+        if let Some(f) = &mut n.fill {
+            f.literal = literals.get(&f.name).cloned().unwrap_or_default();
+            f.yields = whole_sorts.get(&f.name).cloned().unwrap_or_default();
         }
         let joining = n.joins.as_mut().map(|j| &mut j.by);
         let bounding = n.bounds.as_mut().and_then(|b| b.join.as_mut());

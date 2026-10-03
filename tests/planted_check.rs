@@ -752,7 +752,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
             ],
-            "none of the 10 introductions",
+            "none of the 11 introductions",
         ),
         // Renaming the isosceles points to a and n makes the distance |an| spell
         // the declared word `an`, which is what the capital-letter convention has
@@ -1382,7 +1382,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/lagrange.proof", Some("let G be a finite group with operation · and identity e".to_string()), "let G be a finite group with operation ·".to_string()),
             ],
-            "is none of the 10 introductions",
+            "is none of the 11 introductions",
         ),
         // gH is read as the coset only of a part of the group, and the step
         // says H is one.
@@ -1622,6 +1622,15 @@ fn cases() -> Vec<Case> {
                 edit("proofs/euler.proof", Some("thm:product-reorder, from 6, 5, 10".to_string()), "thm:product-reorder, from 6, 5, 9".to_string()),
             ],
             "step 11 cites thm:product-reorder, which asks for",
+        ),
+        // `let p be a polynomial` says p is one, and an item asking that of
+        // what it is cited at asks it of the lines the step names.
+        case(
+            "divide by x − a without saying p is a polynomial",
+            vec![
+                edit("proofs/factor.proof", Some("p := p, a := a, from H1, H2".to_string()), "p := p, a := a, from H2".to_string()),
+            ],
+            "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),
     ]
 }

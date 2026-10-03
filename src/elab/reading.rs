@@ -21,8 +21,8 @@ use crate::regex;
 use crate::rules::NUMERALS;
 use crate::sorts::{
     definition_sorts, element_re, file_definitions, function_being_re, function_on_re,
-    group_re, let_formula, not_in_re, part_re, sentences, sorts_of_record,
-    sorts_of_statement, unlabel, Env,
+    group_re, let_formula, not_in_re, part_re, polynomial_re, sentences,
+    sorts_of_record, sorts_of_statement, unlabel, Env,
 };
 use crate::t;
 use crate::targets;
@@ -63,7 +63,10 @@ pub fn hypothesis_body(kind: &str, text: &str) -> String {
         if let Some(m) = function_being_re().captures(&said) {
             return format!("{} and {}", &m[1], let_formula(&said));
         }
-        if part_re().is_match(&said) || function_on_re().is_match(&said) {
+        if part_re().is_match(&said)
+            || function_on_re().is_match(&said)
+            || polynomial_re().is_match(&said)
+        {
             return let_formula(&said);
         }
         return BE_A

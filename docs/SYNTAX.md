@@ -47,8 +47,9 @@ theorem even-square
   A be a point` for a point of the plane, `let f be a function on A` for a
   function known by its domain alone, `let f : A → B` for a
   function with its domain and codomain, `let f : A → B be one-to-one` for
-  such a function with a property, and `let G be a group with operation ·
-  and identity e` for a group. A library item may also write `let P be a
+  such a function with a property, `let p be a polynomial` for a
+  polynomial with complex coefficients, and `let G be a group with
+  operation · and identity e` for a group. A library item may also write `let P be a
   property of the elements of X`, for a property a statement can be
   written about; a theorem in a proof may not, because the elaborator
   cannot state a theorem over a property (`ELABORATION.md`, "Library items
@@ -64,12 +65,17 @@ theorem even-square
   does `for all X ⊆ A`, `there is X ⊆ A with`, `{X ⊆ A : …}` and a
   define ending `for X ⊆ A`: each is the power-set form written in the
   words a school reader has, and builds the same formula.
-  Those ten are all the forms a `let` line has. It carries an
+  Those eleven are all the forms a `let` line has. It carries an
   introduction, which names something and says what it is, and never a
   formula; `assume` is the line that asserts. The one thing a `let`
   asserts is what `be` says of a function, "be" being how English says
   "is" after "let": `let f : A → B be one-to-one` asserts that f is
-  one-to-one, and a citation of an item written so must supply it.
+  one-to-one, and `let p be a polynomial` that p is one, and a citation of
+  an item written so must supply it. A polynomial is said in words
+  throughout, "p is a polynomial" and "there is a polynomial q with …",
+  and each is the membership or the "there is" of set.mm's polynomials
+  with complex coefficients, a set the page never writes (`GRAMMAR.md`,
+  `fills`).
   `let G be a finite group with operation · and identity e` asserts that G
   is finite, and a step citing the line has that.
   A group's line names its set, its operation and its identity. G is the set
@@ -84,7 +90,7 @@ theorem even-square
   introduce `t`, and `t` does not exist on the line above. `P(t)` reads "the
   property P holds of t", which is substitution into a statement and not a
   function applied to an argument; the `holds-of` record says why.
-  Three of the ten, `be an element`, `be a set` and `be a point`, are
+  Three of the eleven, `be an element`, `be a set` and `be a point`, are
   therefore not notations and never appear inside a formula. Quantifying over an arbitrary set
   inside a formula is the separate `for all sets X, ...`, a binder with no
   domain, which is to `let X be a set` what `for all n ∈ ℕ, ...` is to

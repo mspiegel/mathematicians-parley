@@ -77,6 +77,7 @@ has, and a subject is one file:
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 24 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 8 |
+| `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
 
 A proof imports each library item it cites, as it imports each theorem of
 another proof file it cites, so its head says where everything it cites comes
@@ -120,7 +121,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 284 |
+| `metamath` | a set.mm label or labels supply it | 286 |
 | `open` | it is cited but unproved and unbridged | 8 |
 
 `mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
@@ -128,7 +129,7 @@ record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 27 of the 38 name a set.mm
+`note` lines under its `theorem` line; 28 of the 39 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -402,8 +403,8 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 7 |
-| `theorem` | 32 |
-| `mundane theorem` | 195 |
+| `theorem` | 33 |
+| `mundane theorem` | 196 |
 | `definition` | 7 |
 | `mundane definition` | 46 |
 
@@ -522,6 +523,7 @@ this table is mundane.
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 28 |
+| remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 14 to 19 |

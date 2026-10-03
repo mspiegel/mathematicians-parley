@@ -60,6 +60,8 @@ regex!(FUNCTION_BEING, r"^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$");
 regex!(PART, r"^(\S+)\s*⊆\s*(\S.*)$");
 // `let E be a function on X`: a function, and the set it is on.
 regex!(FUNCTION_ON, r"^(\S+)\s+be\s+a\s+function\s+on\s+(\S.*)$");
+// `let p be a polynomial`: a function, and that it is a polynomial.
+regex!(POLYNOMIAL, r"^(\S+)\s+be\s+a\s+polynomial$");
 // `let G be a finite group with operation · and identity e`: a set whose
 // members are group elements, its operation, and its identity, which is one
 // of them.
@@ -97,6 +99,9 @@ pub fn function_being_re() -> &'static regex::Regex {
 pub fn function_on_re() -> &'static regex::Regex {
     &FUNCTION_ON
 }
+pub fn polynomial_re() -> &'static regex::Regex {
+    &POLYNOMIAL
+}
 pub fn part_re() -> &'static regex::Regex {
     &PART
 }
@@ -127,6 +132,9 @@ pub fn let_formula(body: &str) -> String {
     }
     if let Some(m) = FUNCTION_ON.captures(body) {
         return format!("{} is a function on {}", &m[1], str::trim(&m[2]));
+    }
+    if let Some(m) = POLYNOMIAL.captures(body) {
+        return format!("{} is a polynomial", &m[1]);
     }
     if let Some(m) = FUNCTION_BEING.captures(body) {
         return format!("{} is {}", &m[1], &m[2]);
@@ -209,6 +217,7 @@ fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
     if let Some(m) = FUNCTION
         .captures(body)
         .or_else(|| FUNCTION_ON.captures(body))
+        .or_else(|| POLYNOMIAL.captures(body))
     {
         return vec![(m[1].to_string(), "function")];
     }

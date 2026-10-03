@@ -63,6 +63,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wbr", &[1], "breq2d"),
     ("wbr", &[0, 1], "breq12d"),
     ("cfv", &[0], "fveq2d"),
+    ("cfv", &[0, 1], "fveq12d"),
     // A pair, as the state of a define by recursion holds its values.
     ("cop", &[0], "opeq1d"),
     ("cop", &[1], "opeq2d"),
