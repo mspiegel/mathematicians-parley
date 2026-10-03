@@ -406,6 +406,11 @@ pub struct Taken {
 /// monomial of degree at most one, which is every such step the corpus has.
 /// Nothing is searched for past that.
 ///
+/// At most one cited equation is multiplied by a monomial with a letter in
+/// it; the others are added, subtracted and scaled by numbers. A step does
+/// one thing, and multiplying a second equation by a term is a second thing,
+/// a step of its own (`METHODS.md`, "algebra").
+///
 /// What is returned is the combination itself: the claim is the sum of what
 /// each [`Taken`] takes off. A proof of the step is built from it.
 pub fn follows(given: &[Poly], claim: &Poly, atoms: &[Rc<str>]) -> Option<Vec<Taken>> {
@@ -420,15 +425,20 @@ pub fn follows(given: &[Poly], claim: &Poly, atoms: &[Rc<str>]) -> Option<Vec<Ta
     sorted.dedup();
     let mut shapes = vec![one()];
     shapes.extend(sorted.into_iter().map(|a| atom(a)));
-    reduces(claim, given, &shapes, 3)
+    reduces(claim, given, &shapes, 3, None)
 }
 
 /// Take one cited equation off the claim, by some allowed multiplier.
+///
+/// `shapes[0]` is 1, and every other shape is an atom. `multiplied` is the
+/// one equation an atom has multiplied so far, which only that equation may
+/// be again.
 fn reduces(
     claim: &Poly,
     given: &[Poly],
     shapes: &[Poly],
     depth: u32,
+    multiplied: Option<usize>,
 ) -> Option<Vec<Taken>> {
     if claim.zero() {
         return Some(Vec::new());
@@ -440,13 +450,23 @@ fn reduces(
         if held.zero() {
             continue;
         }
-        for shape in shapes {
+        for (k, shape) in shapes.iter().enumerate() {
+            let by_atom = k > 0;
+            if by_atom && multiplied.is_some_and(|m| m != which) {
+                continue;
+            }
             let part = held.times(shape);
             let Some(scale) = cancels(claim, &part) else {
                 continue;
             };
-            let rest =
-                reduces(&claim.minus(&part.scaled(&scale)), given, shapes, depth - 1);
+            let next = if by_atom { Some(which) } else { multiplied };
+            let rest = reduces(
+                &claim.minus(&part.scaled(&scale)),
+                given,
+                shapes,
+                depth - 1,
+                next,
+            );
             if let Some(rest) = rest {
                 let mut out = vec![Taken {
                     which,
@@ -715,5 +735,32 @@ mod tests {
         let taken = follows(&[given], &claim, &[]).unwrap();
         assert_eq!(taken.len(), 1);
         assert_eq!(taken[0].scale, q(3));
+    }
+
+    /// The atoms of the two tests below, and the two equations they cite:
+    /// a = b and c = d.
+    fn two_equations() -> (Vec<Poly>, [Poly; 6], Vec<Rc<str>>) {
+        let names = ["va", "vb", "vc", "vd", "vx", "vy"];
+        let [a, b, c, d, x, y] = names.map(atom);
+        let given = vec![a.minus(&b), c.minus(&d)];
+        let atoms = names.iter().map(|n| Rc::from(*n)).collect();
+        (given, [a, b, c, d, x, y], atoms)
+    }
+
+    #[test]
+    fn two_equations_each_multiplied_by_a_term_are_two_steps() {
+        // x·(a − b) + y·(c − d): a combination of the two, and one that
+        // multiplies both by a term, which `algebra` does not do in one step.
+        let (given, [a, b, c, d, x, y], atoms) = two_equations();
+        let claim = a.minus(&b).times(&x).plus(&c.minus(&d).times(&y));
+        assert!(follows(&given, &claim, &atoms).is_none());
+    }
+
+    #[test]
+    fn one_equation_multiplied_and_another_added_is_one_step() {
+        // x·(a − b) + (c − d): one equation multiplied, the other added.
+        let (given, [a, b, c, d, x, _], atoms) = two_equations();
+        let claim = a.minus(&b).times(&x).plus(&c.minus(&d));
+        assert!(follows(&given, &claim, &atoms).is_some());
     }
 }

@@ -987,7 +987,8 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 step.line,
                 format!(
-                    "{} is not an identity, nor does it follow from what step {} cites",
+                    "{} is not an identity, nor does it follow from what step {} cites, \
+                     added and subtracted with at most one equation multiplied by a term",
                     self.render(term),
                     fmt(&step.number)
                 ),

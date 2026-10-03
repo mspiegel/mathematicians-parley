@@ -289,10 +289,17 @@ L − R  =  Σ pᵢ · (lᵢ − rᵢ)
 ```
 
 for polynomials `pᵢ`. With no cited equations this is the ordinary test that
-`L − R` normalises to zero, which is twelve of the seventeen steps. The
-heaviest case is Bezout's step 2, which takes three cited equations with
-coefficients −1, 1 and −q, and is the only step in the corpus whose
-coefficients are not constants.
+`L − R` normalises to zero, which is twelve of the seventeen steps.
+
+**At most one `pᵢ` has a letter in it.** The others are numbers: a step
+adds and subtracts the equations it cites, scales them, and multiplies at
+most one of them by a term. A step does one thing, and multiplying a second
+equation by a term is a second thing, written as a step of its own and
+joined to the first by a calculation, as `similar-triangles` does with its
+two laws of sines (steps 25 to 27). Two steps in the corpus multiply one
+equation: Bezout's lemma, step 2, which takes three cited equations with
+coefficients −1, 1 and −q, and Pythagoras, step 21, which multiplies
+|AD| + |DB| = |AB| by |AB|.
 
 For a disequality `e ≠ 0`, the claim holds when `e` is a nonzero rational
 multiple of some cited `d ≠ 0` after normalisation. Step 1 of the geometric
@@ -309,6 +316,7 @@ fact about the field rather than an identity.
   appear among the supplied nonzero facts.
 - **Order relations.** Those are `inequalities`.
 - **A disequality that is not a multiple of a cited one.**
+- **Two cited equations each multiplied by a term.** That is two steps.
 
 ### Hypotheses
 

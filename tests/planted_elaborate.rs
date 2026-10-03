@@ -170,6 +170,17 @@ fn the_elaborator_reports_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // Two equations each multiplied by a term is two steps: the proof
+        // multiplies each law of sines in a step of its own and joins them by
+        // a calculation, and one `algebra` step citing both is refused.
+        case(
+            "one algebra step multiplying two cited equations",
+            "proofs/pythagoras/similar-triangles",
+            "proofs/pythagoras.proof",
+            "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       25\n                            = |P′Q′|·|PR|·sin(∠PQR)       26",
+            "    algebra, from 15, 18\n    requires |PQ| ∈ ℝ: from 20\n    requires |PR| ∈ ℝ: from 21\n    requires |P′Q′| ∈ ℝ: from 22\n    requires |P′R′| ∈ ℝ: from 23\n    requires sin(∠PQR) ∈ ℝ: from 19\n    requires sin(∠QRP) ∈ ℝ: from 24",
+            "at most one equation multiplied by a term",
+        ),
         // A formula that does not lex is a defect with a position, and not a
         // route declining: taken for one, the step would be assumed and the
         // build would go green.
