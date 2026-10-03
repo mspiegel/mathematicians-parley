@@ -407,6 +407,13 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         .flat_map(|f| implied_facts(f, library.env, &known.sorts))
         .collect();
     facts.extend(implied);
+    let valued = function_values(&facts, library.env, &known.sorts);
+    let implied: Vec<Node> = valued
+        .iter()
+        .flat_map(|f| implied_facts(f, library.env, &known.sorts))
+        .collect();
+    facts.extend(valued);
+    facts.extend(implied);
     let claims = sentences(&step.claim_text())
         .iter()
         .filter_map(|s| known.read(s))
@@ -479,6 +486,40 @@ fn template(said: &str, env: Env, sorts: &Sorts) -> Node {
     parse_here(said, env.g, sorts).unwrap_or_else(|p| {
         panic!("the notation database no longer reads {said:?}, which a membership implies: {p}")
     })
+}
+
+/// What a function's type and a membership of its domain say together: the
+/// value there is in the codomain. `let a : {1, …, n} → ℝ` and `let k ∈ {1,
+/// …, n}`, cited together, say a(k) ∈ ℝ (`READERS.md`, a function's type
+/// cited for its values).
+pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
+    let mut out = Vec::new();
+    for typed in facts {
+        if typed.notation != "function-type" || typed.children.len() != 3 {
+            continue;
+        }
+        let (function, domain, codomain) =
+            (&typed.children[0], &typed.children[1], &typed.children[2]);
+        for member in facts {
+            if member.notation != "membership"
+                || member.children.len() != 2
+                || member.children[1].shape() != domain.shape()
+            {
+                continue;
+            }
+            let point = &member.children[0];
+            let mut local = sorts.clone();
+            local.insert("f".into(), function.sort.clone());
+            local.insert("x".into(), point.sort.clone());
+            local.insert("S".into(), codomain.sort.clone());
+            let mut put = Binding::new();
+            put.insert("f".into(), function.clone());
+            put.insert("x".into(), point.clone());
+            put.insert("S".into(), codomain.clone());
+            out.push(substitute(&template("f(x) ∈ S", env, &local), &put));
+        }
+    }
+    out
 }
 
 /// What a membership fact also says, by the table in `rules`.

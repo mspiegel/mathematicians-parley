@@ -91,12 +91,9 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     12.1. x ∈ ℝ
           mun:interval, from H1, H2, K4
 
-    12.2. f(x) ∈ ℝ
-          mun:function-value x := x, from K4
-
-    12.3. F(x) ∈ ℝ
+    12.2. F(x) ∈ ℝ
           membership, from K4
-          requires f(x) ∈ ℝ: from 12.2
+          requires f(x) ∈ ℝ: from H4, K4
           requires (f(a) − f(b))/(b − a) ∈ ℝ: from 7
           requires x ∈ ℝ: from 12.1
 

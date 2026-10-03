@@ -392,7 +392,7 @@ fn unresolved(cited: &str) -> String {
 }
 
 regex!(LABEL_RE, LABEL);
-regex!(FROM_REF, format!(r"^from\s+{REF}$"));
+regex!(FROM_REF, format!(r"^from\s+{REF}(\s*,\s*{REF})*$"));
 
 pub fn check_citations(
     report: &mut Report,

@@ -14,8 +14,8 @@ inequality.
 ## Theorems expand and cauchy-schwarz
 
 The proof is `proofs/cauchy-schwarz.proof`, two theorems. `expand`
-multiplies the quadratic out, 13 numbered steps, 16 with those inside its
-block. `cauchy-schwarz` is 9 numbered steps, 48 with those inside its
+multiplies the quadratic out, 13 numbered steps, 14 with those inside its
+block. `cauchy-schwarz` is 9 numbered steps, 43 with those inside its
 blocks. Both elaborate to `corpus/elaboration/proofs/cauchy-schwarz/`,
 assume nothing, and verify.
 
@@ -78,6 +78,12 @@ B² ≤ AC. ∎
    `ffvelcdm` from the `let` line (`function_value`); and a claim a line
    says of every index is read at the letter a sum lemma moved to
    (`instance_of_universal`).
+   The first draft restated a(k) ∈ ℝ as a numbered step seven times, each
+   `mun:function-value, from K`. The reader asked why the step could not
+   use H2, which says it, and chose to cite the type with the domain line:
+   `requires a(k) ∈ ℝ: from H2, K4`. A function's type is now cited for its
+   values (`READERS.md`), and the seven steps are gone; so is
+   `divisibility-by-three`'s 1.4 and `mean-value`'s 12.2.
 5. **A define inside a case is the case's.** A, B and C are named only
    where Σaₖ² > 0. A define is now read after its case is entered.
 6. **A defined name's membership is read as the claim is.** `membership`

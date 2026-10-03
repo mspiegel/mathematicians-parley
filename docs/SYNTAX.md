@@ -120,7 +120,9 @@ the 2 that is not there, and the checker reports it. A step is:
 3. Zero or more **requires** lines, one per hypothesis of the cited item
    that is not the conclusion of a cited line, each with a justification
    of exactly one citation: a method such as `arithmetic`, an item applied
-   to lines already present, or a line that states the fact. Requires
+   to lines already present, or a line that states the fact — or the lines
+   that state it together, a function's type and a point of its domain,
+   `requires a(k) ∈ ℝ: from H2, K4` (below). Requires
    lines do not nest. A fact that needs more than one citation is a
    numbered step before the step that needs it, cited in `from` like any
    line. The alternative, a tree of requires lines under a step, was
@@ -397,6 +399,13 @@ set.mm lemma from the line, so the fact still comes from a line the step
 names; the dull-fact rule of `READERS.md` holds, and one written line counts
 for what it plainly says. Nothing past the table is read: that an integer
 above 0 is a natural number is the item `pos-int-nat`.
+
+**A function's type and a point of its domain say the value is in the
+codomain.** `let a : {1, …, n} → ℝ (H2)` and `let k ∈ {1, …, n} (K4)`, cited
+together, say a(k) ∈ ℝ, and what that membership implies by the table:
+`requires a(k) ∈ ℝ: from H2, K4`, or an item asking x ∈ ℝ at x := a(k),
+answered by H2 and K4. The domain is the one the type writes. This is the one
+place a sort is cited (`READERS.md`).
 
 A `define` line names an object: `define S := E (D1)` is an unnumbered,
 labelled line placed where S is first needed. It introduces S and states one

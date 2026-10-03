@@ -1,4 +1,3 @@
-import mundane theorem    stdlib/functions/function-value
 import mundane theorem    stdlib/sums/sum-termwise
 import mundane theorem    stdlib/sums/sum-add
 import mundane theorem    stdlib/sums/sum-scaled
@@ -25,16 +24,10 @@ theorem expand
     fix
     let k ∈ {1, …, n}                                                 (K1)
 
-    1.1.  a(k) ∈ ℝ
-          mun:function-value, from K1
-
-    1.2.  b(k) ∈ ℝ
-          mun:function-value, from K1
-
-    1.3.  (a(k)·t + b(k))² = t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²)
+    1.1.  (a(k)·t + b(k))² = t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²)
           algebra
-          requires a(k) ∈ ℝ: from 1.1
-          requires b(k) ∈ ℝ: from 1.2
+          requires a(k) ∈ ℝ: from H2, K1
+          requires b(k) ∈ ℝ: from H3, K1
           requires t ∈ ℝ: from H4
 
 2.  Σ(k = 1 to n) (a(k)·t + b(k))² = Σ(k = 1 to n) (t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²))
@@ -117,15 +110,9 @@ theorem cauchy-schwarz
           fix
           let k ∈ {1, …, n}                                           (K2)
 
-          1.1.1.  a(k) ∈ ℝ
-                  mun:function-value, from K2
-
-          1.1.2.  b(k) ∈ ℝ
-                  mun:function-value, from K2
-
-          1.1.3.  (a(k)·t + b(k))² ≥ 0
+          1.1.1.  (a(k)·t + b(k))² ≥ 0
                   mun:square-nonneg x := a(k)·t + b(k)
-                  requires a(k)·t + b(k) ∈ ℝ: membership, from 1.1.1, K1, 1.1.2
+                  requires a(k)·t + b(k) ∈ ℝ: membership, from H2, H3, K1, K2
 
     1.2.  Σ(k = 1 to n) (a(k)·t + b(k))² ≥ 0
           mun:sum-nonneg a := 1, b := n, from 1.1
@@ -143,11 +130,8 @@ theorem cauchy-schwarz
     fix
     let k ∈ {1, …, n}                                                 (K3)
 
-    2.1.  a(k) ∈ ℝ
-          mun:function-value, from K3
-
-    2.2.  a(k)² ≥ 0
-          mun:square-nonneg x := a(k), from 2.1
+    2.1.  a(k)² ≥ 0
+          mun:square-nonneg x := a(k), from H2, K3
 
 3.  Σ(k = 1 to n) a(k)² ≥ 0
     mun:sum-nonneg a := 1, b := n, from 2
@@ -191,22 +175,16 @@ theorem cauchy-schwarz
           fix
           let k ∈ {1, …, n}                                           (K4)
 
-          9.3.1.  a(k) ∈ ℝ
-                  mun:function-value, from K4
-
-          9.3.2.  a(k)² = 0
+          9.3.1.  a(k)² = 0
                   instantiate k := k in line 9.2, from K4
 
-          9.3.3.  a(k) = 0
-                  mun:square-zero x := a(k), from 9.3.1, 9.3.2
+          9.3.2.  a(k) = 0
+                  mun:square-zero x := a(k), from 9.3.1, H2, K4
 
-          9.3.4.  b(k) ∈ ℝ
-                  mun:function-value, from K4
-
-          9.3.5.  a(k)·b(k) = 0
-                  algebra, from 9.3.3
-                  requires a(k) ∈ ℝ: from 9.3.1
-                  requires b(k) ∈ ℝ: from 9.3.4
+          9.3.3.  a(k)·b(k) = 0
+                  algebra, from 9.3.2
+                  requires a(k) ∈ ℝ: from H2, K4
+                  requires b(k) ∈ ℝ: from H3, K4
 
     9.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0
           mun:sum-termwise a := 1, b := n, from 9.3

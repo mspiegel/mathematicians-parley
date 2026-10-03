@@ -147,6 +147,17 @@ The two are told apart by the form of the line, as `SYNTAX.md` gives it: `be
 a set`, `be a point` and a function's arrow are introductions and never
 formulas.
 
+**A function's type is cited for its values.** `let a : {1, …, n} → ℝ` says
+what a is, and it also says that a(k) is real for each k in {1, …, n}, as
+`let k ∈ ℕ` says k is real. A step that needs a(k) ∈ ℝ cites the type with
+the line putting k in the domain — `requires a(k) ∈ ℝ: from H2, K4`, or
+`from 9.3.1, H2, K4` where a cited item asks it — and no numbered step
+restates the value's membership. Both lines are named: the type gives the
+codomain, and the other line is what makes a(k) a value of a at all. A step
+using only that a is a function cites neither, as before. A value that is
+part of the argument, `f(s) ∈ B` substituted into to give `h(s) ∈ B`, is
+still a step.
+
 **A set's sort says what it holds, and the page never writes it.** A reader
 thinks of a set as holding one sort of thing. A set of numbers is not a set of
 points, and a set of sets of numbers is neither. The sorts are numbers, points,

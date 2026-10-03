@@ -608,6 +608,17 @@ fn cases() -> Vec<Case> {
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
             "no clause of mun:card-remove reaches what step 1.2.1.2 claims",
         ),
+        // A function's type gives a value only at a point of its domain, and a
+        // requires line rests only on what it names, so a line citing the
+        // type alone is reported.
+        case(
+            "cite a function's type for a value without the point's domain",
+            "proofs/cauchy-schwarz/cauchy-schwarz",
+            "proofs/cauchy-schwarz.proof",
+            "requires a(k) ∈ ℝ: from H2, K4",
+            "requires a(k) ∈ ℝ: from H2",
+            "from H2 does not reach",
+        ),
         // A closed exponent's membership of ℕ₀ is placed through the digit it
         // comes to (`by_value`), and (0 − 1) − 0 comes to −1, which is no
         // digit and not in ℕ₀. The term's membership is refused, so the lemma

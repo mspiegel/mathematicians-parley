@@ -180,6 +180,17 @@ fn cases() -> Vec<Case> {
             ],
             "names no proof file",
         ),
+        // A function's type says its value is in the codomain only at a point
+        // of its domain, so the line putting k in {1, …, n} is cited with it.
+        case(
+            "cite a function's type for a value without the point's domain",
+            vec![edit(
+                "proofs/cauchy-schwarz.proof",
+                Some("mun:square-zero x := a(k), from 9.3.1, H2, K4".to_string()),
+                "mun:square-zero x := a(k), from 9.3.1, H2".to_string(),
+            )],
+            "asks for x ∈ ℝ",
+        ),
         case(
             "import a definition the file does not define",
             vec![

@@ -585,6 +585,20 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // What two of the lines say together: a function's type and a
+        // membership of its domain put its value there in its codomain.
+        let wanted = self.to_term(term);
+        if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
+            let (value, system) = (
+                self.rpn(&wanted.children()[0]),
+                self.rpn(&wanted.children()[1]),
+            );
+            if lookup(rules::SYSTEMS, &system).is_some() {
+                if let Some(p) = self.function_value(&value, &system, scope, facts)? {
+                    return Ok(Built(p));
+                }
+            }
+        }
         Ok(Route::no("no line this names says it"))
     }
 

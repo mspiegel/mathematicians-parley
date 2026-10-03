@@ -942,9 +942,12 @@ by the closure lemma for its operator (`built` — `readdcld` from `a ∈ ℝ` a
 `b ∈ ℝ`); a numeral from the library; the scope's own copy of the claim; and
 last, a function's value at a point of its domain, from the function's type
 (`function_value` — `ffvelcdm` from `a : {1, …, n} → ℝ` and `k ∈ {1, …, n}`,
-carried to another system by a bridge where asked). A function's type is a
-`let` line, a sort, so a(k) is a number wherever k is in the range, as an
-atom whose membership a line wrote is. Only then is it searched for, with
+carried to another system by a bridge where asked). The page names both
+lines, the type and the point's domain (`READERS.md`, a function's type
+cited for its values), and R1 and R3 hold the proof to them: a requires line
+`from H2, K4` is proved by the same `function_value` once no single line it
+names says the fact (`unfolded_at`), and one citing H2 alone rests on K4,
+which it does not name, and is reported. Only then is it searched for, with
 the step's lines laid over the scope's copies of the same claims.
 
 `membership` reads a defined name as its body, the standard form's reading,
