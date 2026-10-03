@@ -1565,9 +1565,12 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// Whether two statements differ only in the letters they bind: a letter
-    /// is bound where it stands directly under a constructor other than
-    /// `cv`, and every other letter must be the same on both sides.
+    /// Whether two statements differ only in the letters they bind: a set
+    /// variable is bound where it stands directly under a constructor other
+    /// than `cv`, and every other letter must be the same on both sides. A
+    /// class variable stands directly under a constructor as an operand, as
+    /// P does in P − Q, and is bound by nothing: read as bound, it would make
+    /// |PQ| and |RS| one term renamed (`letters_bound` draws the same line).
     pub fn rebound(&self, stated: &str, claimed: &str) -> bool {
         let mut pairs: IndexMap<String, String> = IndexMap::new();
         let mut binders: std::collections::BTreeSet<String> =
@@ -1612,9 +1615,10 @@ impl<'a> Elaborator<'a> {
         }
         let values: std::collections::BTreeSet<&String> = pairs.values().collect();
         values.len() == pairs.len()
-            && pairs
-                .iter()
-                .all(|(mine, theirs)| mine == theirs || binders.contains(mine))
+            && pairs.iter().all(|(mine, theirs)| {
+                mine == theirs
+                    || (binders.contains(mine) && self.is_setvar(&self.float_of(mine)))
+            })
     }
 
     /// The "there is" an obtain's claim states: the claim states each name's

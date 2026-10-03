@@ -1,0 +1,17 @@
+import mundane theorem    stdlib/geometry/distance-real
+
+theorem distances-out-of-order
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  then |RS|·|PQ| ∈ ℝ
+
+1.  |PQ| ∈ ℝ
+    mun:distance-real P := P, Q := Q
+
+2.  |RS| ∈ ℝ
+    mun:distance-real P := R, Q := S
+
+3.  |RS|·|PQ| ∈ ℝ
+    membership, from 2, 1

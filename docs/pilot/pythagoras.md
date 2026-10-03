@@ -29,7 +29,7 @@ or a distance is a real number; `pythagoras` is 21.
 ## Rendered view
 
 **Theorem (similar triangles).** If triangles PQR and P′Q′R′ have
-∠QPR = ∠Q′P′R′ and ∠PQR = ∠P′Q′R′, then |PQ|·|P′R′| = |PR|·|P′Q′|.
+∠QPR = ∠Q′P′R′ and ∠PQR = ∠P′Q′R′, then |PQ|·|P′R′| = |P′Q′|·|PR|.
 
 *Proof.* By the angle sum the third angles are equal too. By the law of
 sines |PQ|·sin∠PQR = |PR|·sin∠QRP in one triangle, and the same with primes
@@ -53,7 +53,7 @@ Since |AD| + |DB| = |AB|, adding gives |AC|² + |BC|² = |AB|². ∎
 2. **Similarity is a theorem of the corpus, in the readable layer.** It is
    proved from the angle sum and the law of sines, both cited items, so the
    argument a reader would check is on the page. Its conclusion is a product,
-   |PQ|·|P′R′| = |PR|·|P′Q′|, the proportion PQ/PR = P′Q′/P′R′ with nothing
+   |PQ|·|P′R′| = |P′Q′|·|PR|, the proportion PQ/P′Q′ = PR/P′R′ with nothing
    divided.
 3. **The library gained what the textbook cites:** the law of sines, the
    foot of the altitude from a right angle, that a point between two others
@@ -81,7 +81,12 @@ Since |AD| + |DB| = |AB|, adding gives |AC|² + |BC|² = |AB|². ∎
    term.** It found no combination for a step that was |P′R′| times one
    equation minus |PR| times another, because the leading terms did not line
    up; written as two steps and a calculation, as a reader would, it does.
-5. **A product written out of the standard order is not carried back.**
-   `membership` proves a product real in its standard order and could not
-   turn |PR|·|P′Q′| into |P′Q′|·|PR|. The statement writes the product in
-   the order it is proved in.
+5. **Two distances were taken for one renamed.** `membership` proves a
+   product real in its standard order, |PR|·|P′Q′|, and then carries that
+   back to the order written, |P′Q′|·|PR|, by swapping the factors. It never
+   swapped them: `rebound` counted the points in P − R as bound letters, so
+   |PR| and |P′Q′| looked like one term renamed, and the comparison went
+   inside the product instead. A class variable is bound by nothing, as
+   `letters_bound` already said; `rebound` now says so too, and
+   `tests/elaborator/product-order.proof` writes a product of two distances
+   out of order.

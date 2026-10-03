@@ -27,7 +27,7 @@ theorem similar-triangles
   assume P′, Q′, R′ form a triangle                                   (H8)
   assume ∠QPR = ∠Q′P′R′                                               (H9)
   assume ∠PQR = ∠P′Q′R′                                               (H10)
-  then |PQ|·|P′R′| = |PR|·|P′Q′|
+  then |PQ|·|P′R′| = |P′Q′|·|PR|
 
 1.  Q, R, P form a triangle
     mun:triangle-rotate P := P, Q := Q, R := R, from H7
@@ -129,7 +129,7 @@ theorem similar-triangles
     requires sin(∠PQR) ∈ ℝ: from 19
     requires sin(∠QRP) ∈ ℝ: from 24
 
-26. |PR|·|P′Q′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+26. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
     algebra, from 18
     requires |PR| ∈ ℝ: from 21
     requires |P′Q′| ∈ ℝ: from 22
@@ -137,10 +137,10 @@ theorem similar-triangles
     requires sin(∠PQR) ∈ ℝ: from 19
     requires sin(∠QRP) ∈ ℝ: from 24
 
-27. |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′Q′|·sin(∠PQR)
+27. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
     calculation
       |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       25
-                            = |PR|·|P′Q′|·sin(∠PQR)       26
+                            = |P′Q′|·|PR|·sin(∠PQR)       26
 
 28. sin(∠PQR) > 0
     mun:sine-positive P := P, Q := Q, R := R, from H7
@@ -149,11 +149,11 @@ theorem similar-triangles
     inequalities, from 28
     requires sin(∠PQR) ∈ ℝ: from 19
 
-30. |PQ|·|P′R′| = |PR|·|P′Q′|
-    mun:multiply-cancel a := |PQ|·|P′R′|, b := |PR|·|P′Q′|, c := sin(∠PQR),
+30. |PQ|·|P′R′| = |P′Q′|·|PR|
+    mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
       from 27, 29
     requires |PQ|·|P′R′| ∈ ℝ: membership, from 20, 23
-    requires |PR|·|P′Q′| ∈ ℝ: membership, from 21, 22
+    requires |P′Q′|·|PR| ∈ ℝ: membership, from 21, 22
     requires sin(∠PQR) ∈ ℝ: from 19
 
 theorem pythagoras
