@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty-five are written and elaborate from set.mm with nothing assumed.
-Six more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-five has its proof in `proofs/` and its design record
+All twenty-six are written and elaborate from set.mm with nothing assumed.
+Five more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-six has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -37,7 +37,7 @@ in `docs/pilot/`, under the same name:
 | 10 | geometric-series | 20 | rationals-countable |
 | 21 | angle-sum | 22 | pythagoras |
 | 23 | euler | 24 | harmonic |
-| 25 | factor | | |
+| 25 | factor | 26 | cauchy-schwarz |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -450,6 +450,11 @@ textbook's.
 26. **Cauchy–Schwarz.** An inequality between finite sums, proved by the
     quadratic Σ(aₖt + bₖ)² in a variable t the proof introduces, never
     negative, so its discriminant is not positive. Deduction form.
+    Written: `proofs/cauchy-schwarz.proof`, with
+    `docs/pilot/cauchy-schwarz.md`, and both of its theorems elaborate with
+    nothing assumed. The reader chose sums from 1 to n, the case Σaₖ² = 0
+    as a case on the page, and the discriminant step on the page as well:
+    the quadratic at t = −B/A, then multiplied by A > 0.
 27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ. The readable statement
     is that no sequence of reals contains them all; the proof nests closed
     intervals, each avoiding the next term, and takes a point in all of

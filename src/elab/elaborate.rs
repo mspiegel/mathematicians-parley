@@ -521,10 +521,6 @@ impl<'a> Elaborator<'a> {
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 Self::hand_up(&done, &mut blocks);
             }
-            // Any define standing above this step, now that the block it
-            // sits in is open and the names it leans on are in hand.
-            (scope, facts, closers) =
-                self.define(step.line, &scope, &facts, closers)?;
             // A step in a case sits under the case's assumption, where the
             // part is new.
             let entering = match (blocks.last(), step.part) {
@@ -541,6 +537,11 @@ impl<'a> Elaborator<'a> {
                 block.case_opened_at = Some(closers.len());
                 blocks.push(block);
             }
+            // Any define standing above this step, now that the block and
+            // the case it sits in are open and the names it leans on are in
+            // hand: a define written inside a case is the case's.
+            (scope, facts, closers) =
+                self.define(step.line, &scope, &facts, closers)?;
             if !step.openers.is_empty() || !step.parts.is_empty() {
                 let mut block = self.open_block(&step, &scope, &facts)?;
                 block.opened_at = closers.len();

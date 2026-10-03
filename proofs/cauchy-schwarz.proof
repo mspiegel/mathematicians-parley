@@ -1,0 +1,327 @@
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/sums/sum-termwise
+import mundane theorem    stdlib/sums/sum-add
+import mundane theorem    stdlib/sums/sum-scaled
+import mundane theorem    stdlib/sums/sum-nonneg
+import mundane theorem    stdlib/sums/sum-zero-terms
+import mundane theorem    stdlib/sums/sum-constant
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane theorem    stdlib/numbers/square-zero
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane axiom      stdlib/numbers/trichotomy
+
+theorem expand
+  note        The quadratic in t, multiplied out, stated apart from the main
+              theorem as binomial-step is: there the sums are named, and a
+              name's equation in scope holds the index set.mm's sum lemmas
+              keep out of it.
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  let b : {1, …, n} → ℝ                                               (H3)
+  let t ∈ ℝ                                                           (H4)
+  then Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)²
+
+1.  For all k ∈ {1, …, n}, (a(k)·t + b(k))² = t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²).
+    fix
+    let k ∈ {1, …, n}                                                 (K1)
+
+    1.1.  a(k) ∈ ℝ
+          mun:function-value, from K1
+
+    1.2.  b(k) ∈ ℝ
+          mun:function-value, from K1
+
+    1.3.  (a(k)·t + b(k))² = t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²)
+          algebra
+          requires a(k) ∈ ℝ: from 1.1
+          requires b(k) ∈ ℝ: from 1.2
+          requires t ∈ ℝ: from H4
+
+2.  Σ(k = 1 to n) (a(k)·t + b(k))² = Σ(k = 1 to n) (t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²))
+    mun:sum-termwise a := 1, b := n, from 1
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+    requires t ∈ ℝ: from H4
+
+3.  Σ(k = 1 to n) (t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²)) = Σ(k = 1 to n) t²·a(k)² + Σ(k = 1 to n) (2t·(a(k)·b(k)) + b(k)²)
+    mun:sum-add a := 1, b := n
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+    requires t ∈ ℝ: from H4
+
+4.  Σ(k = 1 to n) (2t·(a(k)·b(k)) + b(k)²) = Σ(k = 1 to n) 2t·(a(k)·b(k)) + Σ(k = 1 to n) b(k)²
+    mun:sum-add a := 1, b := n
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+    requires t ∈ ℝ: from H4
+
+5.  t²·(Σ(k = 1 to n) a(k)²) = Σ(k = 1 to n) t²·a(k)²
+    mun:sum-scaled a := 1, b := n, c := t²
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+    requires t² ∈ ℝ: membership, from H4
+
+6.  2t·(Σ(k = 1 to n) a(k)·b(k)) = Σ(k = 1 to n) 2t·(a(k)·b(k))
+    mun:sum-scaled a := 1, b := n, c := 2t
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+    requires 2t ∈ ℝ: membership, from H4
+
+7.  Σ(k = 1 to n) (a(k)·t + b(k))² = Σ(k = 1 to n) t²·a(k)² + Σ(k = 1 to n) (2t·(a(k)·b(k)) + b(k)²)
+    calculation
+      Σ(k = 1 to n) (a(k)·t + b(k))² = Σ(k = 1 to n) (t²·a(k)² + (2t·(a(k)·b(k)) + b(k)²))   2
+                                     = Σ(k = 1 to n) t²·a(k)² + Σ(k = 1 to n) (2t·(a(k)·b(k)) + b(k)²)   3
+
+8.  Σ(k = 1 to n) (a(k)·t + b(k))² = Σ(k = 1 to n) t²·a(k)² + (Σ(k = 1 to n) 2t·(a(k)·b(k)) + Σ(k = 1 to n) b(k)²)
+    substitute Σ(k = 1 to n) (2t·(a(k)·b(k)) + b(k)²) = Σ(k = 1 to n) 2t·(a(k)·b(k)) + Σ(k = 1 to n) b(k)² (line 4) into line 7
+
+9.  Σ(k = 1 to n) t²·a(k)² = t²·(Σ(k = 1 to n) a(k)²)
+    algebra, from 5
+    requires t ∈ ℝ: from H4
+    requires Σ(k = 1 to n) t²·a(k)² ∈ ℝ: membership, from H4
+    requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
+
+10. Σ(k = 1 to n) 2t·(a(k)·b(k)) = 2t·(Σ(k = 1 to n) a(k)·b(k))
+    algebra, from 6
+    requires t ∈ ℝ: from H4
+    requires Σ(k = 1 to n) 2t·(a(k)·b(k)) ∈ ℝ: membership, from H4
+    requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
+
+11. Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + (Σ(k = 1 to n) 2t·(a(k)·b(k)) + Σ(k = 1 to n) b(k)²)
+    substitute Σ(k = 1 to n) t²·a(k)² = t²·(Σ(k = 1 to n) a(k)²) (line 9) into line 8
+
+12. Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + (2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)²)
+    substitute Σ(k = 1 to n) 2t·(a(k)·b(k)) = 2t·(Σ(k = 1 to n) a(k)·b(k)) (line 10) into line 11
+
+13. Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)²
+    algebra, from 12
+    requires t ∈ ℝ: from H4
+    requires Σ(k = 1 to n) (a(k)·t + b(k))² ∈ ℝ: membership, from H4
+    requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
+    requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
+    requires Σ(k = 1 to n) b(k)² ∈ ℝ: membership
+
+
+theorem cauchy-schwarz
+  metamath    csbren
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  let b : {1, …, n} → ℝ                                               (H3)
+  then (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+
+1.  For all t ∈ ℝ, t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² ≥ 0.
+    fix
+    let t ∈ ℝ                                                         (K1)
+
+    1.1.  For all k ∈ {1, …, n}, (a(k)·t + b(k))² ≥ 0.
+          fix
+          let k ∈ {1, …, n}                                           (K2)
+
+          1.1.1.  a(k) ∈ ℝ
+                  mun:function-value, from K2
+
+          1.1.2.  b(k) ∈ ℝ
+                  mun:function-value, from K2
+
+          1.1.3.  (a(k)·t + b(k))² ≥ 0
+                  mun:square-nonneg x := a(k)·t + b(k)
+                  requires a(k)·t + b(k) ∈ ℝ: membership, from 1.1.1, K1, 1.1.2
+
+    1.2.  Σ(k = 1 to n) (a(k)·t + b(k))² ≥ 0
+          mun:sum-nonneg a := 1, b := n, from 1.1
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from H1
+          requires t ∈ ℝ: from K1
+
+    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)²
+          thm:expand n := n, t := t, from H1, K1
+
+    1.4.  t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² ≥ 0
+          substitute Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² (line 1.3) into line 1.2
+
+2.  For all k ∈ {1, …, n}, a(k)² ≥ 0.
+    fix
+    let k ∈ {1, …, n}                                                 (K3)
+
+    2.1.  a(k) ∈ ℝ
+          mun:function-value, from K3
+
+    2.2.  a(k)² ≥ 0
+          mun:square-nonneg x := a(k), from 2.1
+
+3.  Σ(k = 1 to n) a(k)² ≥ 0
+    mun:sum-nonneg a := 1, b := n, from 2
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H1
+
+4.  Σ(k = 1 to n) a(k)² ∈ ℝ
+    membership
+
+5.  Σ(k = 1 to n) a(k)·b(k) ∈ ℝ
+    membership
+
+6.  Σ(k = 1 to n) b(k)² ∈ ℝ
+    membership
+
+7.  Σ(k = 1 to n) a(k)² ∈ ℝ. Σ(k = 1 to n) a(k)·b(k) ∈ ℝ. Σ(k = 1 to n) b(k)² ∈ ℝ.
+    join 4, 5, 6
+
+8.  Σ(k = 1 to n) a(k)² < 0 or Σ(k = 1 to n) a(k)² = 0 or 0 < Σ(k = 1 to n) a(k)²
+    mun:trichotomy x := Σ(k = 1 to n) a(k)², from 4
+
+9.  (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+    cases, from 8
+
+    case
+    assume Σ(k = 1 to n) a(k)² < 0                                    (C1)
+
+    9.1.  not Σ(k = 1 to n) a(k)² < 0
+          inequalities, from 3, contradicting C1
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+
+    case
+    assume Σ(k = 1 to n) a(k)² = 0                                    (C2)
+
+    9.2.  For all k ∈ {1, …, n}, a(k)² = 0.
+          mun:sum-zero-terms a := 1, b := n, from 2, C2
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from H1
+
+    9.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
+          fix
+          let k ∈ {1, …, n}                                           (K4)
+
+          9.3.1.  a(k) ∈ ℝ
+                  mun:function-value, from K4
+
+          9.3.2.  a(k)² = 0
+                  instantiate k := k in line 9.2, from K4
+
+          9.3.3.  a(k) = 0
+                  mun:square-zero x := a(k), from 9.3.1, 9.3.2
+
+          9.3.4.  b(k) ∈ ℝ
+                  mun:function-value, from K4
+
+          9.3.5.  a(k)·b(k) = 0
+                  algebra, from 9.3.3
+                  requires a(k) ∈ ℝ: from 9.3.1
+                  requires b(k) ∈ ℝ: from 9.3.4
+
+    9.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0
+          mun:sum-termwise a := 1, b := n, from 9.3
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from H1
+
+    9.5.  Σ(k = 1 to n) 0 = (n − 1 + 1)·0
+          mun:sum-constant a := 1, b := n, c := 0
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from H1
+          requires 1 ≤ n: inequalities, from H1
+          requires 0 ∈ ℝ: arithmetic
+
+    9.6.  (n − 1 + 1)·0 = 0
+          algebra
+          requires n ∈ ℝ: membership, from H1
+
+    9.7.  Σ(k = 1 to n) a(k)·b(k) = 0
+          calculation
+            Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0      9.4
+                                    = (n − 1 + 1)·0        9.5
+                                    = 0                    9.6
+
+    9.8.  (Σ(k = 1 to n) a(k)·b(k))² = 0
+          algebra, from 9.7
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
+
+    9.9.  (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²) = 0
+          algebra, from C2
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+          requires Σ(k = 1 to n) b(k)² ∈ ℝ: from 7
+
+    9.10. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+          inequalities, from 9.8, 9.9
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+          requires Σ(k = 1 to n) b(k)² ∈ ℝ: from 7
+
+    case
+    assume 0 < Σ(k = 1 to n) a(k)²                                    (C3)
+
+    define A := Σ(k = 1 to n) a(k)²                                   (D1)
+           reads the sum of the squares of the a's
+
+    define B := Σ(k = 1 to n) a(k)·b(k)                               (D2)
+           reads the sum of the products
+
+    define C := Σ(k = 1 to n) b(k)²                                   (D3)
+           reads the sum of the squares of the b's
+
+    9.11. A ∈ ℝ
+          membership
+
+    9.12. B ∈ ℝ
+          membership
+
+    9.13. C ∈ ℝ
+          membership
+
+    9.14. A = Σ(k = 1 to n) a(k)²
+          D1
+
+    9.15. A > 0
+          inequalities, from C3, 9.14
+          requires A ∈ ℝ: from 9.11
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+
+    9.16. A ≠ 0
+          inequalities, from 9.15
+          requires A ∈ ℝ: from 9.11
+
+    9.17. −B/A ∈ ℝ
+          membership, from 9.11, 9.12, 9.16
+
+    9.18. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
+          instantiate t := −B/A in line 1
+          requires −B/A ∈ ℝ: from 9.17
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
+          requires A ∈ ℝ: from 9.11
+          requires B ∈ ℝ: from 9.12
+
+    9.19. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
+          algebra
+          requires A ∈ ℝ: from 9.11
+          requires B ∈ ℝ: from 9.12
+          requires C ∈ ℝ: from 9.13
+          requires A ≠ 0: from 9.16
+
+    9.20. B²/A ∈ ℝ
+          membership, from 9.11, 9.12, 9.16
+
+    9.21. B²/A ≤ C
+          inequalities, from 9.18, 9.19, 9.16
+          requires B²/A ∈ ℝ: from 9.20
+          requires A ∈ ℝ: from 9.11
+          requires B ∈ ℝ: from 9.12
+          requires C ∈ ℝ: from 9.13
+
+    9.22. A·(B²/A) ≤ A·C
+          mun:multiply-le, from 9.21, 9.20, 9.11, 9.13
+          requires A > 0: from 9.15
+
+    9.23. A·(B²/A) = B²
+          algebra
+          requires A ∈ ℝ: from 9.11
+          requires B ∈ ℝ: from 9.12
+          requires A ≠ 0: from 9.16
+
+    9.24. B² ≤ A·C
+          substitute A·(B²/A) = B² (line 9.23) into line 9.22
+
+    9.25. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+          calculation
+            (Σ(k = 1 to n) a(k)·b(k))² = B²      D2
+                                       ≤ A·C     9.24
+                                       = (Σ(k = 1 to n) a(k)²)·C    D1
+                                       = (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)    D3

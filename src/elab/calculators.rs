@@ -1514,6 +1514,10 @@ impl<'a> Elaborator<'a> {
         let term = self.rpn(claim);
         let read = self.standard(claim);
         let (whole, system) = (read.children()[0].clone(), read.children()[1].clone());
+        // The claim is read with its defined names written out, and so is
+        // each membership the facts hold: a line saying a defined name is
+        // real is then a line about what the claim, read, holds.
+        let known = &self.read_memberships(scope, known, step)?;
         let made = if whole.variable().is_none() && whole.label() == Some("csu") {
             self.summed(&whole, &self.rpn(&system), scope, known, step)?
         } else {
@@ -1527,6 +1531,61 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, self.rpn(&read), term, made, alike, "mpbid"),
         ))
+    }
+
+    /// `known`, with each fact `part` builds from — a membership in a number
+    /// system, and a term's not being 0 — laid down beside itself in its
+    /// standard form, where that differs.
+    pub(crate) fn read_memberships(
+        &mut self,
+        scope: &str,
+        known: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Facts> {
+        let kept = std::mem::replace(&mut self.reading_facts, true);
+        let out = self.memberships_read(scope, known, step);
+        self.reading_facts = kept;
+        out
+    }
+
+    fn memberships_read(
+        &mut self,
+        scope: &str,
+        known: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Facts> {
+        let out = known.copy();
+        // The side conditions the step wrote are facts here as well, read
+        // as the rest are.
+        let mut offered = known.entries();
+        for (said, (at, held)) in self.written.clone() {
+            if let Some(lifted) = self.lifted_to(&said, &held, &at, scope) {
+                offered.push((said, lifted));
+            }
+        }
+        for (said, held) in offered {
+            let fact = self.to_term(&said);
+            let member = fact.label() == Some("wcel")
+                && lookup(rules::SYSTEMS, &self.rpn(&fact.children()[1])).is_some();
+            let nonzero = fact.label() == Some("wn")
+                && fact.children()[0].label() == Some("wceq")
+                && self.rpn(&fact.children()[0].children()[1]) == "cc0";
+            if fact.variable().is_some() || !(member || nonzero) {
+                continue;
+            }
+            let read = self.standard(&fact);
+            let read_rpn = self.rpn(&read);
+            if read_rpn == said || out.has(&read_rpn) {
+                continue;
+            }
+            if let Built(alike) = self.same(&fact, &read, scope, known, step)? {
+                out.set(
+                    read_rpn.clone(),
+                    pf!(self.b; scope, said, read_rpn, held, alike, "mpbid"),
+                );
+            }
+        }
+        Ok(out)
     }
 
     /// The scope widened by one member of `over`, and the facts with what

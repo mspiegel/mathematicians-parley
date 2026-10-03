@@ -194,7 +194,12 @@ impl<'a> Elaborator<'a> {
         lifted.set(added, here.clone());
         self.unpack(added, &here, &inner, &lifted, depth);
         // Each frame keeps what is known at it, because a step whose lemma
-        // forbids an inner assumption is proved at an outer one.
+        // forbids an inner assumption is proved at an outer one. What is
+        // known at the frame widened is what has been proved there up to
+        // now, the lines written since it opened included.
+        if let Some(widened) = self.frames.last_mut().filter(|f| f.scope == scope) {
+            widened.facts = facts.clone();
+        }
         self.frames.push(Frame {
             scope: inner.clone(),
             added: Some(added.to_string()),

@@ -1,3 +1,8 @@
+import mundane theorem    stdlib/numbers/nat-int
+import mundane theorem    stdlib/numbers/int-real
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/sums/sum-termwise
+
 theorem sum-under-a-hypothesis-over-its-letter
   note        The hypothesis sums over k, and so does the claim: the lemma
               that puts a sum in ℝ keeps its index out of the scope, so the
@@ -8,3 +13,36 @@ theorem sum-under-a-hypothesis-over-its-letter
 
 1.  Σ(k = 1 to n + 1) 1/k ∈ ℝ
     membership
+
+theorem termwise-under-a-hypothesis-over-its-letter
+  note        The hypothesis sums over k, and the lemma that rewrites a sum
+              term by term keeps its index out of the scope. The line it
+              reads term by term holds only where the hypothesis does, so the
+              sum is rewritten there over another letter and renamed back.
+  let n ∈ ℕ                                                           (H1)
+  assume Σ(k = 1 to n) k ≥ 0                                          (H2)
+  then Σ(k = 1 to n) (k + 0) = Σ(k = 1 to n) k
+
+1.  n ∈ ℤ
+    mun:nat-int, from H1
+
+2.  For all k ∈ {1, …, n}, k + 0 = k.
+    fix
+    let k ∈ {1, …, n}                                                 (J)
+
+    2.1.  k ∈ ℤ
+          mun:range-integer a := 1, b := n, from J
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: from 1
+
+    2.2.  k ∈ ℝ
+          mun:int-real, from 2.1
+
+    2.3.  k + 0 = k
+          algebra
+          requires k ∈ ℝ: from 2.2
+
+3.  Σ(k = 1 to n) (k + 0) = Σ(k = 1 to n) k
+    mun:sum-termwise a := 1, b := n, from 2
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: from 1

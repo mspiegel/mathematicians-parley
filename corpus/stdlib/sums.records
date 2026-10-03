@@ -253,6 +253,27 @@ mundane theorem sum-constant
   target      gfsumconst
   note        The same term b − a + 1 times.
 
+mundane theorem sum-nonneg
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
+  then        Σ(k = a to b) t(k) ≥ 0
+  metamath    fsumge0
+  target      fsumge0
+
+mundane theorem sum-zero-terms
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
+  assume Σ(k = a to b) t(k) = 0                                       (H5)
+  then        for all k ∈ {a, …, b}, t(k) = 0
+  metamath    fsum00
+  target      fsum00
+  note        A sum of terms none of them negative is 0 only where every
+              term is.
+
 mundane theorem range-finite
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

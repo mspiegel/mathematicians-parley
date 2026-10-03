@@ -2430,9 +2430,13 @@ impl Emitter {
         Ok(Built(out.expect("a monomial of one factor at least").0))
     }
 
-    /// ( under -> k e. ZZ ), which `expne0d` asks for.
+    /// ( under -> k e. ZZ ), which `expne0d` asks for: set.mm says each digit
+    /// is in ℕ (`7nn`), and `nnzi` carries that to ℤ; it names k ∈ ℤ only up
+    /// to 3.
     fn whole_index(&self, o: &dyn Oracle, power: u32) -> Proof {
-        self.a1i_label(o, &t!(n(power), "cz", "wcel"), &format!("{power}z"))
+        let natural = o.b().step(&format!("{power}nn"));
+        let whole = o.b().ap("nnzi", &binds! {"N" => n(power)}, &[&natural]);
+        self.a1i(o, &t!(n(power), "cz", "wcel"), &whole)
     }
 
     /// A numerator on its own, given the denominator of one it hides: `div1`
@@ -2510,6 +2514,12 @@ impl Emitter {
             return Ok(Built((items, None, proof)));
         }
         if term.variable().is_none()
+            && term.label() == Some("cneg")
+            && term.children().len() == 1
+        {
+            return self.quotient_negated(o, &term.children()[0], labels, &said);
+        }
+        if term.variable().is_none()
             && term.label() == Some("co")
             && term.children().len() == 3
         {
@@ -2528,6 +2538,64 @@ impl Emitter {
         Ok(Route::no(format!(
             "{said} divides somewhere this does not reach"
         )))
+    }
+
+    /// `-u x`, where x divides: x is normalised to `a / b`, `divnegd` moves
+    /// the sign onto the numerator, and `-u a` is negated as a term that
+    /// divides nothing is.
+    fn quotient_negated(
+        &mut self,
+        o: &mut dyn Oracle,
+        inner: &Term,
+        labels: &FloatLabels,
+        said: &str,
+    ) -> Checked<Route<Quotiented>> {
+        let (over, under, first) = take!(self.normalize_quotient(o, inner, labels)?);
+        let inner_s = inner.rpn(labels).to_string();
+        let Some(under) = under else {
+            let (items, p) = take!(self.negated(o, &inner_s, &over, first, said)?);
+            return Ok(Built((items, None, p)));
+        };
+        let (a, b) = (Self::spell_run(&over), Self::spell_run(&under));
+        let quotient = op(&a, &b, DIV);
+        let moved = o.b().ap(
+            "negeqd",
+            &binds! {"ph" => &self.under, "A" => &inner_s, "B" => &quotient},
+            &[&first],
+        );
+        let rc = self.run_cc(o, &over)?;
+        let (held, nonzero) = take!(self.denominator(o, &under)?);
+        let law = o.b().ap(
+            "divnegd",
+            &binds! {"ph" => &self.under, "A" => &a, "B" => &b},
+            &[&rc, &held, &nonzero],
+        );
+        let negated_top = t!(a, "cneg");
+        let signed = self.chain(
+            o,
+            &moved,
+            &law,
+            said,
+            &t!(quotient, "cneg"),
+            &op(&negated_top, &b, DIV),
+        );
+        let refl = self.same(o, &a);
+        let (top, p) = take!(self.negated(o, &a, &over, refl, &negated_top)?);
+        let lifted = o.b().ap(
+            "oveq1d",
+            &binds! {"ph" => &self.under, "A" => &negated_top,
+            "B" => Self::spell_run(&top), "C" => &b, "F" => DIV},
+            &[&p],
+        );
+        let whole = self.chain(
+            o,
+            &signed,
+            &lifted,
+            said,
+            &op(&negated_top, &b, DIV),
+            &op(&Self::spell_run(&top), &b, DIV),
+        );
+        Ok(Built((top, Some(under), whole)))
     }
 
     /// `a / b`, where what is below may divide as well: `divdiv1` is what

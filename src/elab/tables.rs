@@ -966,22 +966,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         written: &Facts,
     ) -> Option<Proof> {
-        if self.bridges.is_none() {
-            let mut bridges = IndexMap::new();
-            for label in self.declared_as(super::state::Role::Carrier) {
-                let whole = self.statement(&label);
-                let (given, gives) = (&whole.children()[0], &whole.children()[1]);
-                bridges
-                    .entry((
-                        self.rpn(&given.children()[1]),
-                        self.rpn(&gives.children()[1]),
-                    ))
-                    .or_insert(label);
-            }
-            self.bridges = Some(bridges);
-        }
-        let bridges = self.bridges.clone().unwrap_or_default();
-        for ((source, target), label) in bridges {
+        for ((source, target), label) in self.bridge_labels() {
             if target != system {
                 continue;
             }
@@ -1351,10 +1336,103 @@ impl<'a> Elaborator<'a> {
         if let Some(f) = found {
             return Ok(Built(f));
         }
+        if let Some(valued) = self.function_value(said, system, scope, facts)? {
+            return Ok(Built(valued));
+        }
         Ok(Route::no(format!(
             "nothing written says {}",
             self.render(&want)
         )))
+    }
+
+    /// `( F ` x ) ∈ system` where a fact in hand gives F's type, F : A → B,
+    /// and x is in A: a function's value at a point of its domain is in its
+    /// codomain (`ffvelcdm`), carried to the system wanted by one of the
+    /// lemmas `bridged` carries by. A function's type is a `let` line, a
+    /// sort, so a(k) for a : {1, …, n} → ℝ is a number wherever k is in the
+    /// range, as an atom whose membership a line wrote is.
+    pub(crate) fn function_value(
+        &mut self,
+        said: &str,
+        system: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let term = self.to_term(said);
+        if term.variable().is_some() || term.label() != Some("cfv") {
+            return Ok(None);
+        }
+        let (point, function) =
+            (self.rpn(&term.children()[0]), self.rpn(&term.children()[1]));
+        for (typed, held) in facts.entries() {
+            let t = self.to_term(&typed);
+            if t.variable().is_some() || t.label() != Some("wf") {
+                continue;
+            }
+            let (domain, codomain, named) = (
+                self.rpn(&t.children()[0]),
+                self.rpn(&t.children()[1]),
+                self.rpn(&t.children()[2]),
+            );
+            if named != function {
+                continue;
+            }
+            let inside = t!(&point, &domain, "wcel");
+            let Built(at) =
+                self.settle(&self.to_term(&inside), scope, facts, 2, None, None)?
+            else {
+                continue;
+            };
+            let value = t!(said, &codomain, "wcel");
+            let law = self.b.ap(
+                "ffvelcdm",
+                &binds! {"F" => &function, "A" => &domain, "B" => &codomain, "C" => &point},
+                &[],
+            );
+            let made = self.b.ap(
+                "syl2anc",
+                &binds! {"ph" => scope, "ps" => &typed, "ch" => &inside, "th" => &value},
+                &[&held, &at, &law],
+            );
+            if codomain == system {
+                return Ok(Some(made));
+            }
+            let Some(label) = self
+                .bridge_labels()
+                .get(&(codomain.clone(), system.to_string()))
+                .cloned()
+            else {
+                continue;
+            };
+            let push = self.sig(&label).push()[0].to_string();
+            let law = self.b.ap(&label, &binds! {push => said}, &[]);
+            return Ok(Some(self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &value, "ch" => t!(said, system, "wcel")},
+                &[&made, &law],
+            )));
+        }
+        Ok(None)
+    }
+
+    /// The lemmas `rules::MEMBERSHIP` declares that take a thing in one
+    /// number system to another, by the two systems.
+    fn bridge_labels(&mut self) -> IndexMap<(String, String), String> {
+        if self.bridges.is_none() {
+            let mut bridges = IndexMap::new();
+            for label in self.declared_as(super::state::Role::Carrier) {
+                let whole = self.statement(&label);
+                let (given, gives) = (&whole.children()[0], &whole.children()[1]);
+                bridges
+                    .entry((
+                        self.rpn(&given.children()[1]),
+                        self.rpn(&gives.children()[1]),
+                    ))
+                    .or_insert(label);
+            }
+            self.bridges = Some(bridges);
+        }
+        self.bridges.clone().unwrap_or_default()
     }
 
     /// What a line states, sentence by sentence, with each proof where

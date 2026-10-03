@@ -303,15 +303,31 @@ proved there.
 
 `allowed` picks the innermost frame the lemma's disjointness conditions permit,
 before anything is built, and `carry` brings the result back in with `adantr`.
-Each frame keeps the facts known at it, because a hoisted step is proved from
-those rather than from the innermost ones, and that holds for the lines the
-step cites as well: a line proved inside the frame is not offered to a lemma
-proved outside it (`with_cited`). Its proof states it under the inner scope,
-and handed to the lemma it is a proof of another statement, which the
-verifier refuses and the elaborator did not; now the lemma declines and the
-step is reported. The binomial theorem's induction step met this, and states
-its sum algebra as a theorem of its own, `binomial-step`, where no
-hypothesis in scope names the sum's index. The readable order is still
+Each frame keeps the facts known at it — what had been proved under it when
+an inner frame opened, the lines written since it opened included — because
+a hoisted step is proved from those rather than from the innermost ones, and
+that holds for the lines the step cites as well: a line proved inside the
+frame is not offered to a lemma proved outside it (`with_cited`). Its proof
+states it under the inner scope, and handed to the lemma it is a proof of
+another statement, which the verifier would refuse.
+
+An outer frame knows less than the step does, so two things keep a lemma in
+the innermost frame where they can:
+
+- where an inner scope spells the claim's own bound letter, the lemma is
+  first proved in the innermost frame over a letter nothing holds and renamed
+  back (`over_other_letters`), and the outer frame is taken only if that does
+  not reach the claim. Cauchy–Schwarz's Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to
+  n) 0, under the case Σ(k = 1 to n) a(k)² = 0, is `sumeq2dv` over another
+  letter and `cbvsumv`;
+- an antecedent the outer frame cannot settle may be one an inner assumption
+  gives, as that case gives `fsum00` its sum equal to 0: what is built so far
+  is carried in, and that antecedent and the rest are discharged in the
+  innermost frame (`apply_lemma`).
+
+The binomial theorem's induction step states its sum algebra as a theorem of
+its own, `binomial-step`, where no hypothesis in scope names the sum's index,
+and Cauchy–Schwarz's `expand` does the same. The readable order is still
 correct — the reader needs the step where it stands — so what moves is the
 elaborator's order and not the author's.
 
@@ -578,7 +594,10 @@ and gives them back where it gives back its frames — in `close_block`, and in
 `enter_case`, which resets a `cases` block between its parts. A `define` is
 read where it stands rather than all of them at the top, which is what lets
 `subsets` write `define U := 𝒫(X ∖ {a})` eighteen columns in, with `X` from a
-`fix` and `a` from an `obtain`.
+`fix` and `a` from an `obtain`. A define written in a case is read once the
+case is entered, under its assumption, so the case owns it and the next case
+starts without it: Cauchy–Schwarz names A, B and C only in its third case,
+where Σ(k = 1 to n) a(k)² > 0.
 
 **A defined function is a map and its equation.** `define G(m) := Σ(j = 0 to
 m) a^j, for m ∈ ℕ₀` is read as the map sending each m ∈ ℕ₀ to that sum, which
@@ -757,6 +776,12 @@ disequality is the page's own. The triangular reciprocals divide 1 by
 `k(k + 1)/2` and say `k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)`
 is `k² + k`, of which the page says nothing.
 
+A negated quotient, −(a/b), is `(−a) / b` by `divnegd`, and −a is negated
+as a term that divides nothing is; Cauchy–Schwarz puts t = −B/A into its
+quadratic. A power's exponent k is in ℤ for `expne0d` by `nnzi` from set.mm's
+`kn`, since set.mm names k ∈ ℤ only up to 3 and a denominator multiplied out
+without cancelling reaches A⁷.
+
 The certificate is written as it stands: any number of cited facts, each
 scaled by the weight the certificate gives it, and a number left over. The weights are brought to whole numbers by
 multiplying the claim through by a positive whole number `W`. Each fact is
@@ -914,9 +939,29 @@ the step's own line for exactly that claim; that line carried to another
 number system by one of the twelve lemmas `rules.MEMBERSHIP` declares for it
 (`bridged` — `recn` takes `k ∈ ℝ` to `k ∈ ℂ`); a compound built from its parts
 by the closure lemma for its operator (`built` — `readdcld` from `a ∈ ℝ` and
-`b ∈ ℝ`); a numeral from the library; and last, the scope's own copy of the
-claim. Only then is it searched for, with the step's lines laid over the
-scope's copies of the same claims.
+`b ∈ ℝ`); a numeral from the library; the scope's own copy of the claim; and
+last, a function's value at a point of its domain, from the function's type
+(`function_value` — `ffvelcdm` from `a : {1, …, n} → ℝ` and `k ∈ {1, …, n}`,
+carried to another system by a bridge where asked). A function's type is a
+`let` line, a sort, so a(k) is a number wherever k is in the range, as an
+atom whose membership a line wrote is. Only then is it searched for, with
+the step's lines laid over the scope's copies of the same claims.
+
+`membership` reads a defined name as its body, the standard form's reading,
+so a membership the facts hold of a defined name is read the same way: each
+fact `part` builds from, a membership in a number system or a term's not
+being 0, is laid down beside itself in standard form, the two shown one
+claim by `same` (`read_memberships`). Cauchy–Schwarz's −B/A ∈ ℝ, with A and
+B defined sums, is the sums' quotient read from B ∈ ℝ, A ∈ ℝ and A ≠ 0.
+`same` reads its facts the same way wherever a define is in force, since
+what it asks of a part it asks of the part written out: commuting
+(−B/A)²·A asks A in ℂ as the sum A stands for.
+
+A claim a fact says of every member of a set is settled from that fact and
+a line putting the term in the set (`instance_of_universal`, by `rspcv`), as
+`instantiate` reads a line at a name the step gives. A sum lemma moved to a
+letter the scope does not hold asks its terms at that letter, and the line
+the step cites says them of every index.
 
 The order is the point. Searched for first, `settle` tries its lemmas in the
 order the list gives them, and `zcn` stands before `recn` and before `mulcl`, so
@@ -1247,8 +1292,12 @@ The orders follow five rules, and each search below is one of them applied.
    read through (`in_other_words`).
 3. **The nearer reading comes before the deeper one.** `apply_lemma` fits
    the claim to a lemma's conclusion at each level before peeling another
-   antecedent, so a match at an outer level beats one further in; at one
-   level the forward read beats the near side of a biconditional turned.
+   antecedent, so a match at an outer level beats one further in. At one
+   level, where the claim fits both sides of a biconditional, it is read as
+   the side whose pattern fixes more constructors: `lemul2`'s `( C x. A ) <_
+   ( C x. B )` before its `A <_ B`, which fits any inequality, and
+   `ralrnmpt`'s "for all y ∈ ran F" before its "for all x ∈ A". On a tie the
+   near side is read, turned.
    `allowed` takes the innermost scope a lemma's disjointness conditions
    permit.
 4. **The cheaper route comes before the costlier.** Where the routes for a

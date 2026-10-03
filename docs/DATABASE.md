@@ -67,9 +67,9 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 5 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 64 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 67 |
 | `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 43 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 32 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 34 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 51 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 15 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 20 |
@@ -121,7 +121,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 286 |
+| `metamath` | a set.mm label or labels supply it | 291 |
 | `open` | it is cited but unproved and unbridged | 8 |
 
 `mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
@@ -129,7 +129,7 @@ record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 28 of the 39 name a set.mm
+`note` lines under its `theorem` line; 29 of the 41 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -404,7 +404,7 @@ mundane definition difference
 | `axiom` | 4 |
 | `mundane axiom` | 7 |
 | `theorem` | 33 |
-| `mundane theorem` | 196 |
+| `mundane theorem` | 201 |
 | `definition` | 7 |
 | `mundane definition` | 46 |
 

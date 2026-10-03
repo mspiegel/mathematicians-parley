@@ -80,6 +80,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("csu", &[0], "sumeq1d"),
     ("cpw", &[0], "pweqd"),
     ("csn", &[0], "sneqd"),
+    ("cneg", &[0], "negeqd"),
     ("crn", &[0], "rneqd"),
     ("cun", &[0], "uneq1d"),
     ("cun", &[1], "uneq2d"),

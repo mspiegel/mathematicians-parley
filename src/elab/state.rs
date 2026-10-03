@@ -202,6 +202,9 @@ pub struct Elaborator<'a> {
     pub lemma_heads: Option<LemmaIndex>,
     /// Term and bound letters -> its standard form.
     pub standards: IndexMap<(String, Vars), Term>,
+    /// Whether the facts are being read in standard form, so that the
+    /// comparisons the reading makes are offered the facts as they stand.
+    pub reading_facts: bool,
     /// The rules of the standard form set.mm has, plain and conditional,
     /// read once.
     pub rewrite_rules: Option<[Vec<super::matcher::Rewrite>; 2]>,
@@ -328,6 +331,7 @@ impl<'a> Elaborator<'a> {
             bridges: None,
             lemma_heads: None,
             standards: IndexMap::new(),
+            reading_facts: false,
             rewrite_rules: None,
             binding: Vars::new(),
             citing: IndexSet::new(),

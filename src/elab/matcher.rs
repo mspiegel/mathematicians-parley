@@ -164,6 +164,13 @@ impl<'a> Elaborator<'a> {
             if let Some(found) = self.bridged(&s, &sys, scope, &facts) {
                 return Ok(Built(found));
             }
+            // A function's value at a point of its domain, from the
+            // function's type, spending none of the depth.
+            if lookup(rules::SYSTEMS, &sys).is_some() {
+                if let Some(found) = self.function_value(&s, &sys, scope, &facts)? {
+                    return Ok(Built(found));
+                }
+            }
         }
         // A sum, difference, product, power or negation is in a number
         // system because its parts are, spending none of the depth.
@@ -263,7 +270,64 @@ impl<'a> Elaborator<'a> {
                 return Ok(found);
             }
         }
+        if let Some(found) = self.instance_of_universal(&rpn, scope, &facts)? {
+            return Ok(Built(found));
+        }
         Ok(self.no("cannot settle {}", &[&rpn]))
+    }
+
+    /// ( scope -> wanted ) where a fact says it of every member of a set and
+    /// another puts a term in that set whose instance it is (`rspcv`), as
+    /// `instantiate` reads a line at a name the step gives. A sum lemma
+    /// moved to a letter the scope does not hold asks its terms at that
+    /// letter, and the line the step cites says them of every index.
+    fn instance_of_universal(
+        &mut self,
+        wanted: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        for (said, held) in facts.entries() {
+            let whole = self.to_term(&said);
+            if whole.variable().is_some() || whole.label() != Some("wral") {
+                continue;
+            }
+            let (body, letter, domain) = (
+                whole.children()[0].clone(),
+                self.rpn(&whole.children()[1]),
+                self.rpn(&whole.children()[2]),
+            );
+            let mark = format!("{letter} cv");
+            for (member, inside) in facts.entries() {
+                let m = self.to_term(&member);
+                if m.variable().is_some()
+                    || m.label() != Some("wcel")
+                    || self.rpn(&m.children()[1]) != domain
+                {
+                    continue;
+                }
+                let at = self.rpn(&m.children()[0]);
+                if self.rpn(&self.restated(&body, &mark, &at)) != wanted {
+                    continue;
+                }
+                let ph = self.rpn(&body);
+                let tie =
+                    self.to_term(&t!(t!(mark, at, "wceq"), t!(ph, wanted, "wb"), "wi"));
+                let Built(asked) = self.prove_essential(&tie, scope, facts)? else {
+                    continue;
+                };
+                let applied = self.b.ap(
+                    "rspcv",
+                    &binds! {"ph" => &ph, "ps" => wanted, "x" => &letter, "A" => &at, "B" => &domain},
+                    &[&asked],
+                );
+                let carried = pf!(self.b; scope, member, t!(said, wanted, "wi"), inside, applied, "syl");
+                return Ok(Some(
+                    pf!(self.b; scope, said, wanted, held, carried, "mpd"),
+                ));
+            }
+        }
+        Ok(None)
     }
 
     /// The declared lemmas that could conclude what is wanted, in order,
@@ -1180,6 +1244,16 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
+        // The two are compared with their defined names written out, and
+        // what that asks of a part is asked of it written out, so the facts
+        // are read the same way.
+        let read;
+        let facts = if self.reading_facts || self.definitions.is_empty() {
+            facts
+        } else {
+            read = self.read_memberships(scope, facts, step)?;
+            &read
+        };
         let mut letters = self.letters_bound(given);
         letters.extend(self.letters_bound(want));
         let kept = std::mem::replace(&mut self.binding, letters);
@@ -3954,6 +4028,19 @@ impl<'a> Elaborator<'a> {
             // reaching it; tried only where the forward read has already
             // failed, and with the seed, as the forward read is.
             if reads.label() == Some("wb") {
+                // Where both sides fit, the claim is the side that says more
+                // of it: `A <_ B` fits any inequality, `( C x. A ) <_ ( C x.
+                // B )` only a product's. On a tie it is the near side.
+                let (near, far) = (&reads.children()[0], &reads.children()[1]);
+                if let Some(forward) = fit(far, goal, &start, &variables).filter(|_| {
+                    fit(near, goal, &start, &variables).is_none()
+                        || constructors(far) > constructors(near)
+                }) {
+                    antecedents.push(reads.children()[0].clone());
+                    joins.push(Join::Iff);
+                    reads = reads.children()[1].clone();
+                    break forward;
+                }
                 if let Some(turned) =
                     fit(&reads.children()[0], goal, &start, &variables)
                 {
@@ -4104,6 +4191,20 @@ impl<'a> Elaborator<'a> {
                 );
             }
         }
+        // An outer frame knows less than the step does: lines written inside
+        // the inner one are not there. Where the claim's own bound letter is
+        // what the inner scope spells, the lemma is tried there over another
+        // letter first, and the outer frame is the way taken only if that
+        // does not reach the claim.
+        if frame.is_some_and(|f| f + 1 < self.frames.len()) {
+            let why = Decline::new("an inner scope spells the claim's letter");
+            let moved = self.over_other_letters(
+                label, goal, scope, facts, step, crossing, seed, why,
+            )?;
+            if !moved.is_declined() {
+                return Ok(moved);
+            }
+        }
         let Built(where_) = where_ else {
             unreachable!("an allowed scope")
         };
@@ -4206,6 +4307,7 @@ impl<'a> Elaborator<'a> {
             let carried = pf!(self.b; goal_rpn, where_, proof, "a1i");
             return Ok(Built(self.carry(carried, &goal_rpn, frame)));
         }
+        let (mut where_, mut frame, mut known) = (where_, frame, known);
         let mut carried = false;
         let mut stood_under = false;
         for (i, slot) in antecedents.iter().enumerate() {
@@ -4240,8 +4342,8 @@ impl<'a> Elaborator<'a> {
             }
             // What decides the fold is whether what has been built so far
             // states its claim outright or states it under the scope.
-            let first = proof.last() == label && !carried;
-            let (x, y) = if joins[i] == Join::Turned && !first {
+            let mut first = proof.last() == label && !carried;
+            let (mut x, mut y) = if joins[i] == Join::Turned && !first {
                 (rest.clone(), asks_rpn.clone())
             } else {
                 (asks_rpn.clone(), rest.clone())
@@ -4252,7 +4354,7 @@ impl<'a> Elaborator<'a> {
                 .parts(&asks_rpn)
                 .iter()
                 .any(|p| self.to_term(p).label() == Some("wrex"));
-            let under = if is_scope {
+            let mut under = if is_scope {
                 Built(pf!(self.b; where_, "id"))
             } else if instanced && step.is_some() {
                 let lines = self.lines.clone();
@@ -4260,6 +4362,42 @@ impl<'a> Elaborator<'a> {
             } else {
                 self.settle(&asks, &where_, &known, 3, None, None)?
             };
+            // An antecedent the lemma's frame does not hold may be one an
+            // inner assumption gives, as a case that a sum is 0 gives a lemma
+            // that keeps the sum's letter out of its scope: what is built so
+            // far is carried in, and this antecedent and the rest are
+            // discharged there.
+            if under.is_declined() && frame + 1 < self.frames.len() {
+                let mut remaining = goal_rpn.clone();
+                for (later, join) in antecedents[i..].iter().zip(&joins[i..]).rev() {
+                    let said = self.rpn(&later.substitute(&binding));
+                    if said != where_ {
+                        remaining = if *join == Join::Turned {
+                            t!(remaining, said, "wb")
+                        } else {
+                            t!(said, remaining, join_token(*join))
+                        };
+                    }
+                }
+                let under_frame = if first {
+                    pf!(self.b; remaining, where_, proof, "a1i")
+                } else {
+                    proof.clone()
+                };
+                proof = self.carry(under_frame, &remaining, frame);
+                frame = self.frames.len() - 1;
+                where_ = self.frames[frame].scope.clone();
+                let supplied = self.supplied(step, &where_, facts)?;
+                known = self.with_cited(step, &where_, &supplied, None);
+                carried = true;
+                first = false;
+                (x, y) = if joins[i] == Join::Turned {
+                    (rest.clone(), asks_rpn.clone())
+                } else {
+                    (asks_rpn.clone(), rest.clone())
+                };
+                under = self.settle(&asks, &where_, &known, 3, None, None)?;
+            }
             let under = take!(under);
             proof = pf!(self.b; where_, x, y, under, proof, discharge(joins[i], first));
         }
@@ -4550,6 +4688,14 @@ fn join_token(join: Join) -> &'static str {
         Join::Implies => "wi",
         Join::Iff | Join::Turned => "wb",
     }
+}
+
+/// How many constructors a pattern fixes: the nodes that are not variables.
+fn constructors(pattern: &Term) -> usize {
+    if pattern.variable().is_some() {
+        return 0;
+    }
+    1 + pattern.children().iter().map(constructors).sum::<usize>()
 }
 
 /// Whether a shape holds the hole numbered `wanted`.

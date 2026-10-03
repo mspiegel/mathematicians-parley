@@ -390,6 +390,31 @@ mundane theorem quotient-real
               membership from its parts. `half-real` is the case y = 2, which
               needs no hypothesis on y.
 
+mundane theorem square-nonneg
+  let x ∈ ℝ                                                           (H1)
+  then        x² ≥ 0
+  metamath    sqge0
+  target      sqge0
+
+mundane theorem square-zero
+  let x ∈ ℝ                                                           (H1)
+  assume x² = 0                                                       (H2)
+  then        x = 0
+  metamath    sqeq0
+  target      sqeq0
+
+mundane theorem multiply-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume x ≤ y                                                        (H4)
+  assume c > 0                                                        (H5)
+  then        c·x ≤ c·y
+  metamath    lemul2
+  target      lemul2
+  note        `inequalities` multiplies a line only by a number, so a step
+              multiplying both sides by a positive term cites this.
+
 mundane theorem multiply-cancel
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
