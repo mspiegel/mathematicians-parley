@@ -77,10 +77,11 @@ Since |AD| + |DB| = |AB|, adding gives |AC|² + |BC|² = |AB|². ∎
    `obtain` as a sort, as it reads `let A be a point`, and refuses a citation
    made only for it; the elaborator now does the same. A number obtained is
    still cited for its membership in a `requires` line, as eight proofs do.
-4. **`algebra` takes one cited equation off at a time, by its leading
-   term.** It found no combination for a step that was |P′R′| times one
-   equation minus |PR| times another, because the leading terms did not line
-   up; written as two steps and a calculation, as a reader would, it does.
+4. **Two equations combined are two steps.** |PQ|·|P′R′|·sin∠PQR =
+   |P′Q′|·|PR|·sin∠PQR is |P′R′| times one law of sines less |PR| times the
+   other, which a single `algebra` step citing both would leave the reader to
+   find. Each equation is multiplied in a step of its own, steps 25 and 26,
+   and a calculation joins them, so every move is on the page.
 5. **Two distances were taken for one renamed.** `membership` proves a
    product real in its standard order, |PR|·|P′Q′|, and then carries that
    back to the order written, |P′Q′|·|PR|, by swapping the factors. It never
