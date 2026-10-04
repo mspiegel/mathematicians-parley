@@ -204,6 +204,19 @@ impl<'a> Item<'a> {
         matches!(self, Item::Record(r) if r.kind.unfolds())
     }
 
+    /// Whether what it concludes says "for all" anywhere. Every universal
+    /// the notation database has is spelt with those words, so the text
+    /// answers what reading each conclusion would. A step claiming "for all
+    /// k ∈ X, P" applies an item that does not at a member of X, and reads
+    /// one that does as written (`SYNTAX.md`, a step said of every member).
+    pub fn says_for_all(&self) -> bool {
+        let said = |text: &str| text.to_lowercase().contains("for all");
+        match self {
+            Item::Record(r) => r.conclusions.iter().any(|(text, _)| said(text)),
+            Item::Theorem(t) => said(&t.conclusion),
+        }
+    }
+
     pub fn path(&self) -> &'a str {
         match self {
             Item::Record(r) => &r.path,

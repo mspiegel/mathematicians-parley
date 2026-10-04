@@ -739,22 +739,13 @@ impl<'a> Elaborator<'a> {
                 self.defect(step.line, format!("no expansion for {}", repr(&head)))
             );
         };
-        // The step's own requires lines hold for the whole of it, offered as
-        // `written` is, which the membership lookup and the one-lemma bridge
-        // read and a search does not.
-        let known = if step.requires.is_empty() {
-            Facts::new()
-        } else {
-            self.supplied(Some(step), scope, facts)?
-        };
         let citing = std::mem::replace(
             &mut self.citing,
             step.just.refs.iter().cloned().collect(),
         );
         let lines = self.lines.clone();
-        let made = self.writing(scope, &known, true, |me| {
-            me.by_method(&how, step, &node, &term, scope, facts, &lines)
-        });
+        let made =
+            self.by_method_written(&how, step, &node, &term, scope, facts, &lines);
         self.citing = citing;
         let made = made?;
         // Every route the method had declined, so nothing here owns the
@@ -786,6 +777,144 @@ impl<'a> Elaborator<'a> {
             self.unpack(&term, &proof, scope, facts, said.len() - 1);
         }
         Ok((scope.to_string(), facts.clone(), closers))
+    }
+
+    /// A step's proof by the method its justification names, with its
+    /// requires lines, as it is written or at a member of what it says
+    /// "for all" of.
+    #[allow(clippy::too_many_arguments)]
+    fn by_method_written(
+        &mut self,
+        how: &Method,
+        step: &Step,
+        node: &Node,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Option<Proof>>> {
+        // Said of every member: an item whose conclusions say no "for all", a
+        // define, and a method proving one fact, are applied at a member and
+        // the claim generalised; the checker reads an item's citation the same
+        // way (`SYNTAX.md`, a step said of every member). The requires lines
+        // are then about that member, and are proved where it is in scope.
+        let at_a_member = match how {
+            Method::Cite | Method::Reading(_) => {
+                !self.item_cited(&step.just.head.to_string()).says_for_all()
+            }
+            Method::Named(name) => ["define", "membership", "algebra", "inequalities"]
+                .contains(&name.as_str()),
+            _ => false,
+        };
+        let whole = self.to_term(term);
+        if at_a_member && whole.variable().is_none() && whole.label() == Some("wral") {
+            let letter = self.member_letter(step)?;
+            let kids = whole.children();
+            let (body, variable, over) =
+                (kids[0].clone(), kids[1].clone(), kids[2].clone());
+            // The member is fixed as the claim's own letter where neither the
+            // scope nor a name holds it, and a spare otherwise, the claim then
+            // proved over the spare and renamed back. Either is reserved, so
+            // that no later step is handed it as a letter nothing holds; the
+            // page's letter is bound to it only while the step is proved.
+            let name = self.rpn(&variable);
+            let scope_term = self.to_term(scope);
+            let var = if scope.split_whitespace().any(|t| t == name)
+                || self.names_held().contains(&name)
+            {
+                match self.unheld(&[&scope_term, &body, &over]) {
+                    Some(spare) => self.rpn(&spare),
+                    None => {
+                        return Ok(Route::no(format!(
+                            "no letter left to say {name} over"
+                        )));
+                    }
+                }
+            } else {
+                name.clone()
+            };
+            self.reserved.insert(var.clone());
+            let (body, variable) = if var == name {
+                (body, variable)
+            } else {
+                let again =
+                    self.restated(&body, &format!("{name} cv"), &format!("{var} cv"));
+                (again, self.var_of(&var))
+            };
+            let made = self.for_every(
+                scope,
+                facts,
+                &body,
+                &variable,
+                &over,
+                &mut |me, said, inner, lifted| {
+                    let at = me.rpn(said);
+                    // The membership the member was fixed by, over the
+                    // letter it was fixed as, which a spare replaces
+                    // where the claim's own is held.
+                    let member = me
+                        .frames
+                        .last()
+                        .and_then(|f| f.added.clone())
+                        .expect("a member fixed in its own frame");
+                    let fixed = me.rpn(&me.to_term(&member).children()[0]);
+                    let kept = me.member.replace(member);
+                    let made = me.names_kept(|me| {
+                        if let Some((page, _)) = &letter {
+                            me.names.insert(page.clone(), fixed.clone());
+                        }
+                        me.with_requires(how, step, node, &at, inner, lifted, lines)
+                    });
+                    me.member = kept;
+                    Ok(match made? {
+                        Built(Some(p)) => Built(p),
+                        Built(None) => Route::no("the step gives no proof at a member"),
+                        Declined(d) => Declined(d),
+                    })
+                },
+                true,
+            )?;
+            let made = take!(made);
+            if var == name {
+                return Ok(Built(Some(made)));
+            }
+            let said = t!(self.rpn(&body), var, self.rpn(&over), "wral");
+            let Some(across) = self.renaming(&self.to_term(&said), &whole)? else {
+                return Ok(Route::no(format!(
+                    "the claim over {var} is not carried back to {name}"
+                )));
+            };
+            return Ok(Built(Some(self.b.ap(
+                "sylib",
+                &binds! {"ph" => scope, "ps" => &said, "ch" => term},
+                &[&made, &across],
+            ))));
+        }
+        self.with_requires(how, step, node, term, scope, facts, lines)
+    }
+
+    /// The method run with the step's own requires lines, which hold for the
+    /// whole of it, offered as `written` is, which the membership lookup and
+    /// the one-lemma bridge read and a search does not.
+    #[allow(clippy::too_many_arguments)]
+    fn with_requires(
+        &mut self,
+        how: &Method,
+        step: &Step,
+        node: &Node,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Option<Proof>>> {
+        let known = if step.requires.is_empty() {
+            Facts::new()
+        } else {
+            self.supplied(Some(step), scope, facts)?
+        };
+        self.writing(scope, &known, true, |me| {
+            me.by_method(how, step, node, term, scope, facts, lines)
+        })
     }
 
     /// A step's proof by the method its justification names.
@@ -1732,6 +1861,25 @@ impl<'a> Elaborator<'a> {
             )? {
                 chosen = Some(found);
                 break;
+            }
+        }
+        // A step said of every member unfolds the membership its claim's
+        // "for all" gives, as it would a cited line saying it.
+        if chosen.is_none() {
+            if let Some(member) = self.member.clone() {
+                if let Some(p) = facts.get(&member) {
+                    let held = Facts::new();
+                    held.set(member, p);
+                    if let Built(found) = self.unfolds_from(
+                        &reads.children()[0],
+                        &held,
+                        &variables,
+                        scope,
+                        facts,
+                    )? {
+                        chosen = Some(found);
+                    }
+                }
             }
         }
         let Some((mut binding, given)) = chosen else {

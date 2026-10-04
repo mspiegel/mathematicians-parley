@@ -24,12 +24,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
        reads a code for x: the size and sign of its numerator, and its denominator
 
 1.  For all n ∈ ℕ, f(n) ∈ ℚ.
-    fix
-    let n ∈ ℕ                                                         (K1)
-
-    1.1.  f(n) ∈ ℚ
-          membership, from K1
-          requires n ∈ ℚ: from K1
+    membership
 
 2.  f : ℕ → ℚ
     mun:function-into, from 1

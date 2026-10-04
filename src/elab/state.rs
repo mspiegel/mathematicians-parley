@@ -188,7 +188,8 @@ pub struct Elaborator<'a> {
     pub sets: IndexMap<String, String>,
     /// (label, statement) for each statement taken as stated.
     pub axioms: Vec<(String, String)>,
-    /// Setvars the conclusion quantifies over.
+    /// Setvars the conclusion quantifies over, and those a step said of
+    /// every member was proved over: none is a letter nothing holds.
     pub reserved: IndexSet<String>,
     /// Map -> its rule spelt apart (`rule_apart`).
     pub rules_read: IndexMap<String, Term>,
@@ -205,6 +206,10 @@ pub struct Elaborator<'a> {
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
+    /// While a step said of every member is proved at one, that member's
+    /// membership: what the claim's "for all k ∈ X" gives the step, as a
+    /// cited line would.
+    pub member: Option<String>,
     /// The rules of the standard form set.mm has, plain and conditional,
     /// read once.
     pub rewrite_rules: Option<[Vec<super::matcher::Rewrite>; 2]>,
@@ -332,6 +337,7 @@ impl<'a> Elaborator<'a> {
             lemma_heads: None,
             standards: IndexMap::new(),
             reading_facts: false,
+            member: None,
             rewrite_rules: None,
             binding: Vars::new(),
             citing: IndexSet::new(),

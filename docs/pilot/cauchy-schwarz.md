@@ -14,8 +14,8 @@ inequality.
 ## Theorems expand and cauchy-schwarz
 
 The proof is `proofs/cauchy-schwarz.proof`, two theorems. `expand`
-multiplies the quadratic out, 13 numbered steps, 14 with those inside its
-block. `cauchy-schwarz` is 9 numbered steps, 43 with those inside its
+multiplies the quadratic out in 13 numbered steps and no blocks.
+`cauchy-schwarz` is 9 numbered steps, 41 with those inside its
 blocks. Both elaborate to `corpus/elaboration/proofs/cauchy-schwarz/`,
 assume nothing, and verify.
 
@@ -105,3 +105,10 @@ B² ≤ AC. ∎
 10. **Five mundane items:** square-nonneg (`sqge0`), square-zero
     (`sqeq0`), multiply-le (`lemul2`), sum-nonneg (`fsumge0`) and
     sum-zero-terms (`fsum00`).
+11. **A "for all" with one step was a block of one step.** The reader asked
+    why "for all k, a(k)² ≥ 0" needed a `fix` block, and chose to let such a
+    step be one line: the item applied at a member (`SYNTAX.md`, a step said
+    of every member). The reading is decided by what is cited, not tried one
+    way then the other, which the reader asked for when the first draft did
+    try. Three blocks here became lines, and six elsewhere; `euler` 19 and
+    `harmonic` 1 stay blocks, for the fault `ELABORATION.md` records.

@@ -287,11 +287,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:card-equal X := H, Y := gH, from 2, 9.6
 
 10. For all Y ∈ K, Y ⊆ G.
-    fix
-    let Y ∈ K                                                         (K16)
-
-    10.1. Y ⊆ G
-          mun:part-builder, from K16
+    mun:part-builder
 
 11. ⋃(Y ∈ K) Y ⊆ G
     mun:union-within, from 10

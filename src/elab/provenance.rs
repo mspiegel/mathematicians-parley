@@ -179,9 +179,21 @@ impl<'a> Elaborator<'a> {
             self.atoms_of(claim, &mut atoms, &mut terms);
         }
         let mut written = Vec::new();
+        let letter = if step.requires.is_empty() {
+            None
+        } else {
+            self.member_letter(step)?
+        };
         for r in &step.requires {
-            let node = self.read(&r.fact)?;
-            let term = self.term(&node)?;
+            let term = self.names_kept(|me| -> Checked<String> {
+                if let Some((page, kernel)) = &letter {
+                    if !me.names.contains_key(page) {
+                        me.names.insert(page.clone(), kernel.clone());
+                    }
+                }
+                let node = me.read(&r.fact)?;
+                me.term(&node)
+            })?;
             let claim = self.to_term(&term);
             written.push(claim.clone());
             if used.contains(&requirement(r.line)) {
@@ -369,6 +381,28 @@ impl<'a> Elaborator<'a> {
     /// A step's finished proof, checked by the rules and sealed: it rests on
     /// nothing the step does not name (R1), everything the step names does
     /// work, and from here on the proof stands for the step's number.
+    /// The letter a step's claim says "for all" of, as the page writes it,
+    /// and the kernel name it is bound to; None for any other claim. A step
+    /// said of every member is proved at one, and its requires lines speak
+    /// of that member by this letter.
+    pub fn member_letter(&mut self, step: &Step) -> Checked<Option<(String, String)>> {
+        let said = self.sentences(&step.claim_text());
+        let [sentence] = said.as_slice() else {
+            return Ok(None);
+        };
+        let node = self.read(sentence)?;
+        if !node.notation.starts_with("for-all") || !node.children[0].is_name() {
+            return Ok(None);
+        }
+        let said = self.term(&node)?;
+        let term = self.to_term(&said);
+        if term.variable().is_some() || term.label() != Some("wral") {
+            return Ok(None);
+        }
+        let kernel = format!("{} cv", self.rpn(&term.children()[1]));
+        Ok(Some((node.children[0].text.clone(), kernel)))
+    }
+
     pub fn check_step(
         &mut self,
         proof: Proof,

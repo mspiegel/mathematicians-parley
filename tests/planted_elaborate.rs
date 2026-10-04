@@ -684,7 +684,7 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "    15.1. a ∈ G. Y = aH.\n",
             "    15.1. a ∈ G. Z = aH.\n",
-            "proofs/lagrange.proof:333  nothing step 15.1 cites says",
+            "proofs/lagrange.proof:329  nothing step 15.1 cites says",
         ),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R

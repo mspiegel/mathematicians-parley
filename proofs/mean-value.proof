@@ -48,18 +48,10 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     membership, from H4, 1, 2, H1, H2, 4
 
 6.  For all x ∈ [a, b], g(x) = ((f(a) − f(b))/(b − a))·x.
-    fix
-    let x ∈ [a, b]                                                    (K1)
-
-    6.1.  g(x) = ((f(a) − f(b))/(b − a))·x
-          D1, from K1
+    D1
 
 7.  For all x ∈ [a, b], F(x) = f(x) + g(x).
-    fix
-    let x ∈ [a, b]                                                    (K2)
-
-    7.1.  F(x) = f(x) + g(x)
-          D2, from K2
+    D2
 
 8.  For all x ∈ [a, b], g(x) ∈ ℝ.
     fix

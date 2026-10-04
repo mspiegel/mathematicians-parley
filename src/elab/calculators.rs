@@ -1454,9 +1454,15 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let claim = self.to_term(term);
-        if claim.variable().is_some()
-            || claim.label() != Some("wcel")
-            || lookup(rules::SYSTEMS, &self.rpn(&claim.children()[1])).is_none()
+        // What is said of every member is read at one, down to the
+        // membership (`member_of`).
+        let mut said = claim.clone();
+        while said.variable().is_none() && said.label() == Some("wral") {
+            said = said.children()[0].clone();
+        }
+        if said.variable().is_some()
+            || said.label() != Some("wcel")
+            || lookup(rules::SYSTEMS, &self.rpn(&said.children()[1])).is_none()
         {
             return Err(self.defect(
                 step.line,

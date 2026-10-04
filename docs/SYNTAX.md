@@ -407,6 +407,24 @@ together, say a(k) ∈ ℝ, and what that membership implies by the table:
 answered by H2 and K4. The domain is the one the type writes. This is the one
 place a sort is cited (`READERS.md`).
 
+**A step said of every member.** A step claiming "for all k ∈ X, P" may be
+justified as P would be, read at a member k of X, with no `fix` block:
+
+    2.  For all k ∈ {1, …, n}, a(k)² ≥ 0.
+        mun:square-nonneg x := a(k), from H2
+
+is the block `fix`, `let k ∈ {1, …, n} (K)`, and one step proving a(k)² ≥ 0
+from H2 and K. The membership k ∈ X is what the claim's own "for all" gives,
+so no line is cited for it, and a requires line speaks of the member by the
+claim's letter. "for all X ⊆ A" is read at a part of A. Which reading a
+citation takes is read off what it cites, never tried one way and then the
+other: an item whose conclusions say "for all" anywhere is read as written,
+as `sum-zero-terms` gives one and `upper-bound` unfolds to one, and an item
+whose conclusions do not is applied at a member; a define, which says one
+equation, is read at a member, and so are `membership`, `algebra` and
+`inequalities`, which each prove one fact. A step whose body needs more than
+one step is still a block.
+
 A `define` line names an object: `define S := E (D1)` is an unnumbered,
 labelled line placed where S is first needed. It introduces S and states one
 fact, that S is E, as a textbook's "let x₁ = min(b, c + δ/2)" does, and it is

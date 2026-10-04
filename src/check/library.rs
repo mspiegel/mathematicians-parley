@@ -8,16 +8,16 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::structure::{labels_in_scope, Declared};
 use crate::corpus::{Intro, Record, RecordKind, Step, StepNo, Theorem};
-use crate::formula::{parse_here, Node, Sort, Sorts};
+use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
 use crate::matching::{
     expand, instantiation, substitute, Binding, Context, Definitions,
 };
 use crate::regex;
 use crate::rules;
 use crate::sorts::{
-    definitions_in_scope, element_re, file_definitions, function_being_re,
-    function_on_re, function_re, group_re, let_formula, part_re, polynomial_re,
-    sentences, set_or_point_re, unlabel, Env,
+    definitions_in_scope, element_re, element_sort, file_definitions,
+    function_being_re, function_on_re, function_re, group_re, let_formula, part_re,
+    polynomial_re, sentences, set_or_point_re, unlabel, Env,
 };
 
 /// One `then` group of an item: its facts, each with the text it was read
@@ -107,6 +107,16 @@ impl<'a> Library<'a> {
             set.insert(r.name.clone());
         }
         lib
+    }
+
+    /// The item of that full name, a record or a theorem this corpus proves.
+    pub fn item(&self, name: &str) -> Option<crate::corpus::Item<'a>> {
+        if let Some(&i) = self.items.get(name) {
+            return Some(crate::corpus::Item::Record(&self.records[i]));
+        }
+        self.proved
+            .get(name)
+            .map(|k| crate::corpus::Item::Theorem(k.thm))
     }
 
     /// The groups of the item of that full name, or None where no item has
@@ -401,6 +411,35 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     }
     supplied.extend(step.requires.iter().map(|r| r.fact.clone()));
     let facts: Vec<Node> = supplied.iter().filter_map(|s| known.read(s)).collect();
+    let claims: Vec<Node> = sentences(&step.claim_text())
+        .iter()
+        .filter_map(|s| known.read(s))
+        .collect();
+    let mut seed = Binding::new();
+    for (name, value) in instantiation(&step.just.text) {
+        if let Some(got) = known.read(&value) {
+            seed.insert(name, got);
+        }
+    }
+    match at_a_member(step, &claims, library, &known.sorts) {
+        Some((member, body)) => {
+            let mut facts = facts;
+            facts.push(member);
+            finished(facts, vec![body], seed, library, known)
+        }
+        None => finished(facts, claims, seed, library, known),
+    }
+}
+
+/// The parts of a citation from the facts as read: each with its parts, what
+/// a membership implies, and what a function's type says at a point.
+fn finished(
+    facts: Vec<Node>,
+    claims: Vec<Node>,
+    seed: Binding,
+    library: &Library,
+    known: &Known,
+) -> Parts {
     let mut facts = with_parts(&facts, library);
     let implied: Vec<Node> = facts
         .iter()
@@ -414,21 +453,73 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         .collect();
     facts.extend(valued);
     facts.extend(implied);
-    let claims = sentences(&step.claim_text())
-        .iter()
-        .filter_map(|s| known.read(s))
-        .collect();
-    let mut seed = Binding::new();
-    for (name, value) in instantiation(&step.just.text) {
-        if let Some(got) = known.read(&value) {
-            seed.insert(name, got);
-        }
-    }
     Parts {
         facts,
         claims,
         seed,
     }
+}
+
+/// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which
+/// the step then has as a fact, and P, which it then claims (`SYNTAX.md`, a
+/// step said of every member). Which reading a citation takes is read off the
+/// item, not tried: an item whose conclusions say no "for all" anywhere is
+/// applied at a member, and one whose conclusions say one, as `upper-bound`
+/// unfolds to one, is read as written. A define says one equation, and is
+/// read at a member.
+fn at_a_member(
+    step: &Step,
+    claims: &[Node],
+    library: &Library,
+    sorts: &Sorts,
+) -> Option<(Node, Node)> {
+    let [claim] = claims else {
+        return None;
+    };
+    // "for all X ⊆ A" ranges over the parts of A, and a member is one.
+    let (written, held_as) = match claim.notation.as_str() {
+        "for-all" => ("x ∈ S", None),
+        "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
+        _ => return None,
+    };
+    if claim.children.len() != 3 {
+        return None;
+    }
+    let just = &step.just;
+    // A define says what its name is equal to, never a "for all", so a
+    // step citing one for a "for all" is read at a member.
+    if just.head != crate::corpus::Head::Define {
+        if !just.head.is_item() {
+            return None;
+        }
+        let item = library.item(&just.item(&just.head.to_string()))?;
+        if item.says_for_all() {
+            return None;
+        }
+    }
+    let (letter, domain, body) =
+        (&claim.children[0], &claim.children[1], &claim.children[2]);
+    // What a set holds is often not settled on the node; a membership of
+    // it reads whatever the letter is.
+    let held = held_as.unwrap_or_else(|| {
+        domain
+            .sort
+            .held()
+            .unwrap_or_else(|| element_sort(&domain.text, sorts))
+    });
+    let held = if held.is_unsorted() {
+        Sort::of("any")
+    } else {
+        held
+    };
+    let mut local = sorts.clone();
+    local.insert("x".into(), held);
+    local.insert("S".into(), domain.sort.clone());
+    let said = parse_here(written, library.env.g, &local).ok()?;
+    let mut put = Binding::new();
+    put.insert("x".into(), letter.clone());
+    put.insert("S".into(), domain.clone());
+    Some((substitute(&said, &put), body.clone()))
 }
 
 /// The facts, and each part of one that is a conjunction.
@@ -508,15 +599,28 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
                 continue;
             }
             let point = &member.children[0];
+            // A letter a binder introduces has no sort of its own yet, and
+            // takes what the function's domain holds.
+            let from_type = match function.sort.full() {
+                Some(Whole::Function(domain, _)) => Sort::whole((**domain).clone()),
+                _ => None,
+            };
+            let at = match (point.sort.full(), from_type) {
+                (None, Some(domain)) => domain,
+                _ => point.sort.clone(),
+            };
             let mut local = sorts.clone();
             local.insert("f".into(), function.sort.clone());
-            local.insert("x".into(), point.sort.clone());
+            local.insert("x".into(), at);
             local.insert("S".into(), codomain.sort.clone());
+            let Ok(said) = parse_here("f(x) ∈ S", env.g, &local) else {
+                continue;
+            };
             let mut put = Binding::new();
             put.insert("f".into(), function.clone());
             put.insert("x".into(), point.clone());
             put.insert("S".into(), codomain.clone());
-            out.push(substitute(&template("f(x) ∈ S", env, &local), &put));
+            out.push(substitute(&said, &put));
         }
     }
     out

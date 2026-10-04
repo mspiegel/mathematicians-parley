@@ -180,6 +180,27 @@ fn cases() -> Vec<Case> {
             ],
             "names no proof file",
         ),
+        // A step said of every member is the item applied at one: what the
+        // item concludes there has to be the claim's body, and what it asks
+        // there has to be supplied, by the member's domain or by a line.
+        case(
+            "say of every member what the item does not conclude at one",
+            vec![edit(
+                "proofs/cauchy-schwarz.proof",
+                Some("2.  For all k ∈ {1, …, n}, a(k)² ≥ 0.".to_string()),
+                "2.  For all k ∈ {1, …, n}, a(k)² > 0.".to_string(),
+            )],
+            "claims something that mun:square-nonneg does not conclude",
+        ),
+        case(
+            "say of every member what the item asks a line for, citing none",
+            vec![edit(
+                "proofs/cauchy-schwarz.proof",
+                Some("    mun:square-nonneg x := a(k), from H2\n".to_string()),
+                "    mun:square-nonneg x := a(k)\n".to_string(),
+            )],
+            "asks for x ∈ ℝ",
+        ),
         // A function's type says its value is in the codomain only at a point
         // of its domain, so the line putting k in {1, …, n} is cited with it.
         case(

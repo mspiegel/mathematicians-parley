@@ -45,12 +45,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
        reads everything in at least one of them: the largest part of A that shares nothing with its M
 
 1.  For all X ⊆ A, M(X) ⊆ A.
-    fix
-    let X ⊆ A                                                         (K1)
-
-    1.1.  M(X) ⊆ A
-          mun:image-within f := g
-          requires X ⊆ A: from K1
+    mun:image-within f := g
 
 2.  For all X, Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
     fix
@@ -70,11 +65,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           requires Y ⊆ A: from K4
 
 3.  For all X ∈ D, X ⊆ A.
-    fix
-    let X ∈ D                                                         (K5)
-
-    3.1.  X ⊆ A
-          mun:part-builder, from K5
+    mun:part-builder
 
 4.  C ⊆ A
     mun:union-within, from 3

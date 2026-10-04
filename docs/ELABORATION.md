@@ -293,6 +293,19 @@ A standalone `fix` gives back everything it took — `ex` for what it supposed,
 then one `ralrimiva` per name it fixed, innermost first. Inside an induction
 it is one part of the induction, which takes it as it stands.
 
+A step said of every member (`SYNTAX.md`) is the one-step block it abbreviates,
+built without one (`by_method_written`): the member is fixed in a frame of its
+own (`for_every`), the page's letter bound to it while the step and its
+requires lines are proved, and the claim generalised. The member takes the
+claim's own letter where neither the scope nor a name holds it, and a spare
+otherwise, renamed back after. Either is `reserved`, so no later step is handed
+it as a letter nothing holds. A definition the step cites unfolds the member's
+membership as it would a cited line (`member`). Two blocks of the corpus stay
+blocks: written as one line, `euler`'s step 19 and `harmonic`'s step 1 each
+leave a later step fitting one letter to two variables a lemma keeps apart
+(`gfprodrp`'s x and k in `euler`), which the verifier refuses. That is the
+fitting of cited lines' bound letters, not this reading, and is open.
+
 **Where a step is proved is not always where the text puts it.** A kernel
 disjointness condition can make a step's expansion illegal under the antecedent
 the readable proof states it under while the same step is provable one scope
