@@ -792,6 +792,13 @@ impl<'a> Elaborator<'a> {
         if let Built(p) = self.part(said, system, scope, facts)? {
             return Ok(p);
         }
+        // A finite sum is a number because its terms are (`summed`).
+        let whole = self.to_term(said);
+        if whole.variable().is_none() && whole.label() == Some("csu") {
+            if let Built(p) = self.summed(&whole, system, scope, facts, None)? {
+                return Ok(p);
+            }
+        }
         // What `part` cannot build is searched for, with the step's own
         // lines laid over the scope's copies of the same claims.
         let written = facts.filtered(|_, v| from_requires(v));
@@ -1103,6 +1110,39 @@ impl<'a> Elaborator<'a> {
                     lemma,
                     &binds! {"ph" => scope, "A" => &left, "B" => &right},
                     &[&pa, &pb, &pn],
+                )));
+            }
+            // A binomial coefficient of a whole number and an integer is a
+            // whole number (`bccl`), carried to the system asked by a bridge.
+            if op == "cbc" {
+                let pn = take!(parts(self, &left, "cn0")?);
+                let pk = take!(parts(self, &right, "cz")?);
+                let law = self
+                    .b
+                    .ap("bccl", &binds! {"N" => &left, "K" => &right}, &[]);
+                let whole = t!(said, "cn0", "wcel");
+                let made = self.b.ap(
+                    "syl2anc",
+                    &binds! {"ph" => scope, "ps" => t!(left, "cn0", "wcel"),
+                    "ch" => t!(right, "cz", "wcel"), "th" => &whole},
+                    &[&pn, &pk, &law],
+                );
+                if system == "cn0" {
+                    return Ok(Built(made));
+                }
+                let Some(label) = self
+                    .bridge_labels()
+                    .get(&("cn0".to_string(), system.to_string()))
+                    .cloned()
+                else {
+                    return Ok(Route::no(format!("no way from ℕ₀ to {system}")));
+                };
+                let push = self.sig(&label).push()[0].to_string();
+                let carry = self.b.ap(&label, &binds! {push => said}, &[]);
+                return Ok(Built(self.b.ap(
+                    "syl",
+                    &binds! {"ph" => scope, "ps" => &whole, "ch" => t!(said, system, "wcel")},
+                    &[&made, &carry],
                 )));
             }
             let Some(lemma) = rules::closed(&op, system) else {

@@ -129,7 +129,7 @@ record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 29 of the 41 name a set.mm
+`note` lines under its `theorem` line; 29 of the 40 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem

@@ -268,6 +268,25 @@ is an atom and the step is only `x + x = x·2`. In
 the method cannot connect them. That is why `mun:stdlib/numbers/exponent-step` exists and why
 the subsets proof was wrong to fold it in.
 
+**A finite sum is linear.** A sum over a range {a, …, b} is read through its
+summand: each term of the summand, as a polynomial, is split into what is
+free of the sum's letter and what holds it, and Σ(k) of the whole is the sum
+of each free part times the sum of what holds k — Σ(k = 1 to n) (a(k)·t +
+b(k))² is t²·Σa(k)² + 2t·Σa(k)·b(k) + Σb(k)², each of those three sums an
+atom. A reader writes this as "by linearity of the sum", one step. Two sums
+that differ only in their letter are one atom. A summand that divides, or
+holds a sum of its own, or has a term free of the letter, leaves the sum one
+atom.
+
+A step reads its sums so when one of them, in its claim or a line it cites,
+is linear in something: two parts or more, or a part with a factor free of
+its letter. Otherwise each sum is one atom as written, as a reader takes Σ in
+x·Σ + 0 = x·Σ. The test is on the text and decides the reading before
+anything is proved; nothing is tried one way and then the other. Read as
+linear, what the step combines is each part's free factor, whose membership
+it writes, and what holds the letter is a number at each index by what the
+summand is built from, as a sum's membership is.
+
 ### Facts in
 
 Each line named in `from` supplies its claim as an equation or a disequality

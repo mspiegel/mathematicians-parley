@@ -83,6 +83,19 @@ impl Oracle for Ask<'_, '_> {
     }
 
     fn atom(&mut self, said: &str) -> Checked<Proof> {
+        // A sum a linear reading wrote is a number because its terms are,
+        // as `membership` builds any sum (`summed`).
+        let key = (self.spec.scope.clone(), said.to_string());
+        if let Some(p) = self.el.sums_in_cc.get(&key) {
+            return Ok(p.clone());
+        }
+        let term = self.el.to_term(said);
+        if term.variable().is_none() && term.label() == Some("csu") {
+            let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
+            if let Built(p) = self.el.summed(&term, "cc", &scope, &facts, None)? {
+                return Ok(p);
+            }
+        }
         self.el
             .membership(said, "cc", &self.spec.scope, &self.spec.facts)
     }
@@ -94,6 +107,14 @@ impl Oracle for Ask<'_, '_> {
     fn written(&mut self, said: &str) -> Checked<Option<Proof>> {
         let facts = self.spec.written.clone().unwrap_or_default();
         self.el.written_nonzero(&self.spec.scope, &facts, said)
+    }
+
+    fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
+        let Some(letter) = self.el.sum_letter.clone() else {
+            return Ok(Route::no("a sum is one atom outside `algebra`"));
+        };
+        let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
+        self.el.linear_sum(said, &letter, &scope, &facts)
     }
 }
 
@@ -186,6 +207,20 @@ pub fn rescales(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<Q> {
 /// A combination's parts: what was cited, which fact, and its weight.
 type Part = ((String, Term), linear::Fact, Q);
 
+/// What a sum read as linear is shown at a member, each under the member's
+/// scope.
+struct AtMember {
+    /// The summand is the parts added.
+    pointwise: Proof,
+    /// Each run of the first parts added is a number, the first part alone
+    /// first.
+    runs: Vec<Proof>,
+    /// Each part is a number.
+    terms: Vec<Proof>,
+    /// Each part's factor holding the letter is a number.
+    bounds: Vec<Proof>,
+}
+
 /// A term against zero: the term, whether strictly, the proof it is below
 /// zero, and the proof it is real.
 type Against = (String, bool, Proof, Proof);
@@ -206,7 +241,8 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        self.decide_field(step, term, lines)?;
+        let linear = self.sums_linear(term, Some(step), lines);
+        field::reading_sums(linear, || self.decide_field(step, term, lines))?;
         let found = self.prove_field(Some(step), term, scope, facts, lines)?;
         if found.is_declined() {
             return self
@@ -218,7 +254,57 @@ impl<'a> Elaborator<'a> {
 
     /// An `algebra` claim, by whichever of the routes reaches it, in the
     /// order they cost; refused in the words of every route that declined.
+    /// Whether a step reads its sums as linear: one of them, in its claim or
+    /// a line it cites, is linear in something (`field::says_something_linear`).
+    pub fn sums_linear(&self, term: &str, step: Option<&Step>, lines: &Lines) -> bool {
+        let labels = self.b.flabel.clone();
+        let mut said = vec![self.to_term(term)];
+        if let Some(step) = step {
+            for r in &step.just.refs {
+                if let Some(line) = lines.get(r) {
+                    said.push(self.to_term(&line.term));
+                }
+            }
+        }
+        said.iter()
+            .any(|t| field::says_something_linear(t, &labels))
+    }
+
     pub fn prove_field(
+        &mut self,
+        step: Option<&Step>,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        // Every finite sum the step reads is written over one letter nothing
+        // holds, which neither the claim, the scope nor a cited line spells;
+        // where the step reads its sums as atoms there is none.
+        let linear = self.sums_linear(term, step, lines);
+        let letter = if linear {
+            let mut seen: Vec<Term> = vec![self.to_term(term), self.to_term(scope)];
+            if let Some(step) = step {
+                for r in &step.just.refs {
+                    if let Some(line) = lines.get(r) {
+                        seen.push(self.to_term(&line.term));
+                    }
+                }
+            }
+            let refs: Vec<&Term> = seen.iter().collect();
+            self.unheld(&refs).map(|v| self.rpn(&v))
+        } else {
+            None
+        };
+        let kept = std::mem::replace(&mut self.sum_letter, letter);
+        let out = field::reading_sums(linear, || {
+            self.field_proved(step, term, scope, facts, lines)
+        });
+        self.sum_letter = kept;
+        out
+    }
+
+    fn field_proved(
         &mut self,
         step: Option<&Step>,
         term: &str,
@@ -746,6 +832,19 @@ impl<'a> Elaborator<'a> {
             let gap = t!(a, b, "cmin", "co");
             let Some(times) = multiplier(&taken.shape, &taken.scale) else {
                 return Ok(Route::no("a multiplier with no spelling"));
+            };
+            // A sum the decision read as linear is written over a placeholder
+            // letter; in a proof it is the step's own (`sum_letter`).
+            let times = match &self.sum_letter {
+                Some(letter) => times
+                    .split_whitespace()
+                    .map(|t| if t == "§" { letter.as_str() } else { t })
+                    .collect::<Vec<_>>()
+                    .join(" "),
+                None if times.split_whitespace().any(|t| t == "§") => {
+                    return Ok(Route::no("a multiplier holding a sum read as linear"));
+                }
+                None => times,
             };
             let cited = self.cited_fact(&r, &node, scope, facts, lines)?;
             let a_cc = self.in_cc(&a, scope, facts)?;
@@ -1614,9 +1713,227 @@ impl<'a> Elaborator<'a> {
         (inner, out)
     }
 
+    /// ( scope -> said = L ) and L: a finite sum written out as linear over
+    /// `spare`, the step's one letter nothing holds (`field::linear_sum`).
+    /// The sum is renamed to the spare (`class_alpha`), its summand is shown
+    /// at a member to be the parts added (`sumeq2dv`), the sum is split a
+    /// part at a time (`fsumadd`), and each part's free factor is taken out
+    /// (`fsummulc2`). The sum lemmas keep their letter apart from the scope
+    /// and the range, which the spare is.
+    pub fn linear_sum(
+        &mut self,
+        said: &str,
+        spare: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<(Term, Proof)>> {
+        let labels = self.b.flabel.clone();
+        let whole = self.to_term(said);
+        let Some((range, letter, parts)) = field::linear_sum(&whole, &labels) else {
+            return Ok(Route::no("the sum is read as one atom"));
+        };
+        let summand = whole.children()[1].clone();
+        let range_term = whole.children()[0].clone();
+        // Already as the parts write it, and nothing to do.
+        if letter == spare
+            && parts.len() == 1
+            && parts[0].weight == q(1)
+            && parts[0].free.is_empty()
+            && self.rpn(&summand) == field::spell_monomial(&parts[0].bound)
+        {
+            return Ok(Route::no("the sum is written out already"));
+        }
+        let member_cv = format!("{spare} cv");
+        let summand_at = if letter == spare {
+            self.rpn(&summand)
+        } else {
+            let moved = self.restated(&summand, &format!("{letter} cv"), &member_cv);
+            self.rpn(&moved)
+        };
+        let at_spare = t!(range, summand_at, spare, "csu");
+        let renamed = if letter == spare {
+            None
+        } else {
+            let Some(closed) = self.class_alpha(&whole, &self.to_term(&at_spare))?
+            else {
+                return Ok(Route::no("the sum is not renamed to the spare letter"));
+            };
+            Some(pf!(self.b; t!(said, at_spare, "wceq"), scope, closed, "a1i"))
+        };
+        // The parts, each its free factor times what holds the letter.
+        let mut scaled: Vec<(String, String, String)> = Vec::new();
+        for part in &parts {
+            let bound = field::respelt(&part.bound, &letter, spare);
+            let m = field::spell_monomial(&bound);
+            let c = Emitter::spell_run(&[(part.free.clone(), part.weight.clone())]);
+            let t = t!(c, m, "cmul", "co");
+            scaled.push((c, m, t));
+        }
+        let mut prefixes: Vec<String> = vec![scaled[0].2.clone()];
+        for one in &scaled[1..] {
+            let last = prefixes.last().unwrap().clone();
+            prefixes.push(t!(last, one.2, "caddc", "co"));
+        }
+        let added = prefixes.last().unwrap().clone();
+        // At a member: the summand is the parts added, and each part and
+        // each run of them is a number.
+        let variable = self.var_of(spare);
+        let at_member = self.frames_kept(|me| -> Checked<Route<AtMember>> {
+            let (inner, lifted) = me.fixed(scope, facts, &variable, &range_term);
+            // What the member's membership says is the step's to use there,
+            // as a line it writes: the claim's sum ranges over it.
+            let kept = me.written.clone();
+            for (said, held) in lifted.entries() {
+                if !facts.has(&said) {
+                    me.written.insert(said, (inner.clone(), held));
+                }
+            }
+            let made = (|| -> Checked<Route<AtMember>> {
+                let mut w = Work::plain(&inner, &lifted);
+                let pointwise =
+                    take!(me.same_polynomial(&mut w, &summand_at, &added)?);
+                let mut runs = Vec::new();
+                for p in &prefixes {
+                    runs.push(me.membership(p, "cc", &inner, &lifted)?);
+                }
+                let mut terms = Vec::new();
+                let mut bounds = Vec::new();
+                for (_, m, t) in &scaled {
+                    terms.push(me.membership(t, "cc", &inner, &lifted)?);
+                    bounds.push(me.membership(m, "cc", &inner, &lifted)?);
+                }
+                Ok(Built(AtMember {
+                    pointwise,
+                    runs,
+                    terms,
+                    bounds,
+                }))
+            })();
+            me.written = kept;
+            made
+        })?;
+        let AtMember {
+            pointwise,
+            runs,
+            terms,
+            bounds,
+        } = take!(at_member);
+        let sum_of = |s: &str| t!(range, s, spare, "csu");
+        let finite = {
+            let kids = range_term.children();
+            let law = self.b.ap(
+                "fzfi",
+                &binds! {"M" => self.rpn(&kids[0]), "N" => self.rpn(&kids[1])},
+                &[],
+            );
+            pf!(self.b; t!(range, "cfn", "wcel"), scope, law, "a1i")
+        };
+        // Each part's sum is a number, its terms being (`fsumcl`), kept for
+        // when the normaliser asks.
+        for (i, (_, m, _)) in scaled.iter().enumerate() {
+            let p = self.b.ap(
+                "fsumcl",
+                &binds! {"ph" => scope, "A" => &range, "B" => m, "k" => spare},
+                &[&finite, &bounds[i]],
+            );
+            self.sums_in_cc.insert((scope.to_string(), sum_of(m)), p);
+        }
+        // ( scope -> sum of the summand = sum of the parts added ).
+        let lifted = self.b.ap(
+            "sumeq2dv",
+            &binds! {"ph" => scope, "k" => spare, "A" => &range, "B" => &summand_at, "C" => &added},
+            &[&pointwise],
+        );
+        // ( scope -> sum of the parts added = the parts' sums added ).
+        let mut split: Option<Proof> = None;
+        let mut sums = sum_of(&scaled[0].2);
+        for i in 1..scaled.len() {
+            let (before, part) = (&prefixes[i - 1], &scaled[i].2);
+            let step = self.b.ap(
+                "fsumadd",
+                &binds! {"ph" => scope, "A" => &range, "B" => before, "C" => part, "k" => spare},
+                &[&finite, &runs[i - 1], &terms[i]],
+            );
+            let next = t!(sums, sum_of(part), "caddc", "co");
+            split = Some(match split {
+                None => step,
+                Some(earlier) => {
+                    let carried = self.b.ap(
+                        "oveq1d",
+                        &binds! {"ph" => scope, "A" => sum_of(before), "B" => &sums,
+                        "C" => sum_of(part), "F" => "caddc"},
+                        &[&earlier],
+                    );
+                    self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => sum_of(&prefixes[i]),
+                        "B" => t!(sum_of(before), sum_of(part), "caddc", "co"), "C" => &next},
+                        &[&step, &carried],
+                    )
+                }
+            });
+            sums = next;
+        }
+        // ( scope -> the parts' sums added = each free factor times its sum ).
+        let mut pulled: Option<(Proof, String, String)> = None;
+        for (i, (c, m, t)) in scaled.iter().enumerate() {
+            let free = self.membership(c, "cc", scope, facts)?;
+            let out = self.b.ap(
+                "fsummulc2",
+                &binds! {"ph" => scope, "A" => &range, "B" => m, "C" => c, "k" => spare},
+                &[&finite, &free, &bounds[i]],
+            );
+            let times = t!(c, sum_of(m), "cmul", "co");
+            let this = self.b.ap(
+                "eqcomd",
+                &binds! {"ph" => scope, "A" => &times, "B" => sum_of(t)},
+                &[&out],
+            );
+            pulled = Some(match pulled {
+                None => (this, sum_of(t), times),
+                Some((earlier, from, to)) => {
+                    let joined = self.b.ap(
+                        "oveq12d",
+                        &binds! {"ph" => scope, "A" => &from, "B" => &to,
+                        "C" => sum_of(t), "D" => &times, "F" => "caddc"},
+                        &[&earlier, &this],
+                    );
+                    (
+                        joined,
+                        t!(from, sum_of(t), "caddc", "co"),
+                        t!(to, times, "caddc", "co"),
+                    )
+                }
+            });
+        }
+        let (pulled, from, linear) = pulled.expect("a sum of one part at least");
+        // said = at_spare = sum of parts added = sums added = linear.
+        let mut chain: Vec<(Proof, String, String)> = Vec::new();
+        if let Some(r) = renamed {
+            chain.push((r, said.to_string(), at_spare.clone()));
+        }
+        chain.push((lifted, at_spare.clone(), sum_of(&added)));
+        if let Some(s) = split {
+            chain.push((s, sum_of(&added), from.clone()));
+        }
+        chain.push((pulled, from, linear.clone()));
+        let (mut proof, first, mut last) = chain[0].clone();
+        for (p, a, b) in chain.into_iter().skip(1) {
+            debug_assert_eq!(a, last);
+            proof = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => &first, "B" => &a, "C" => &b},
+                &[&proof, &p],
+            );
+            last = b;
+        }
+        let _ = last;
+        Ok(Built((self.to_term(&linear), proof)))
+    }
+
     /// A finite sum in ℝ or ℂ because each term is, for each index in its
     /// range (`fsumrecl`, `fsumcl`).
-    fn summed(
+    pub(crate) fn summed(
         &mut self,
         whole: &Term,
         system: &str,

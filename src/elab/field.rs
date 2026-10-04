@@ -315,8 +315,134 @@ fn operation<'t>(
     None
 }
 
+/// One term of a finite sum read as linear: its weight, the factor free of
+/// the sum's letter, and the factor holding it.
+#[derive(Clone, Debug)]
+pub struct SumPart {
+    pub weight: Q,
+    pub free: Monomial,
+    pub bound: Monomial,
+}
+
+/// A finite sum over a range {a, …, b} read as linear: Σ(k ∈ R) Σᵢ wᵢ·Fᵢ·Mᵢ
+/// is Σᵢ wᵢ·Fᵢ·Σ(k ∈ R) Mᵢ, each Fᵢ free of k and each Mᵢ holding it
+/// (`fsumadd`, `fsummulc2`). Given as the range, the letter, and the parts,
+/// all spelt; None where the sum is one atom: a range that is no {a, …, b},
+/// a summand that divides or holds a sum of its own, or a part free of k,
+/// which would be a count of the range rather than a sum.
+pub fn linear_sum(
+    term: &Term,
+    labels: &FloatLabels,
+) -> Option<(String, String, Vec<SumPart>)> {
+    if term.variable().is_some()
+        || term.label() != Some("csu")
+        || term.children().len() != 3
+    {
+        return None;
+    }
+    let (range, summand, letter) = (
+        &term.children()[0],
+        &term.children()[1],
+        &term.children()[2],
+    );
+    let ranged = range.variable().is_none()
+        && range.label() == Some("co")
+        && range.children().len() == 3
+        && &*range.children()[2].rpn(labels) == "cfz";
+    if !ranged || summand.rpn(labels).split_whitespace().any(|t| t == "csu") {
+        return None;
+    }
+    let letter = letter.rpn(labels).to_string();
+    let read = read(summand, labels);
+    if read.under != one() {
+        return None;
+    }
+    let holds = |atom: &str| atom.split_whitespace().any(|t| t == letter);
+    let mut parts = Vec::new();
+    for (monomial, weight) in &read.over.terms {
+        let (bound, free): (Monomial, Monomial) =
+            monomial.iter().cloned().partition(|(a, _)| holds(a));
+        if bound.is_empty() {
+            return None;
+        }
+        parts.push(SumPart {
+            weight: weight.clone(),
+            free,
+            bound,
+        });
+    }
+    if parts.is_empty() {
+        return None;
+    }
+    Some((range.rpn(labels).to_string(), letter, parts))
+}
+
+thread_local! {
+    static LINEAR: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Run `f` with finite sums read as linear, or as atoms, by `read`. Which a
+/// step takes is decided once from its text (`says_something_linear`), and
+/// deciding and proving it read the same way.
+pub fn reading_sums<T>(linear: bool, f: impl FnOnce() -> T) -> T {
+    let was = LINEAR.with(|c| c.replace(linear));
+    let out = f();
+    LINEAR.with(|c| c.set(was));
+    out
+}
+
+/// Whether some finite sum in `term` is linear in something: it has two
+/// parts or more, or a part with a factor free of its letter. A step one of
+/// whose terms is reads every sum it holds as linear; a step none of whose
+/// terms is reads each sum as one atom, as a reader takes Σ in x·Σ + 0.
+pub fn says_something_linear(term: &Term, labels: &FloatLabels) -> bool {
+    if let Some((_, _, parts)) = linear_sum(term, labels) {
+        if parts.len() > 1
+            || parts.iter().any(|p| !p.free.is_empty() || p.weight != q(1))
+        {
+            return true;
+        }
+    }
+    term.variable().is_none()
+        && term
+            .children()
+            .iter()
+            .any(|c| says_something_linear(c, labels))
+}
+
+/// A monomial with every occurrence of one letter respelt as another.
+pub fn respelt(monomial: &Monomial, from: &str, to: &str) -> Monomial {
+    monomial
+        .iter()
+        .map(|(atom, power)| {
+            let said: Vec<&str> = atom
+                .split_whitespace()
+                .map(|t| if t == from { to } else { t })
+                .collect();
+            (Rc::from(said.join(" ")), *power)
+        })
+        .collect()
+}
+
 /// A term as a quotient of polynomials over its atoms.
 pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
+    // A finite sum is linear, where the step reads sums so: each part's sum
+    // over its letter is an atom, and the letter is read as one placeholder,
+    // so that two sums over different letters are one atom.
+    let linear = LINEAR.with(|c| c.get());
+    if let Some((range, letter, parts)) =
+        linear.then(|| linear_sum(term, labels)).flatten()
+    {
+        let mut out = Poly::default();
+        for part in parts {
+            let bound = respelt(&part.bound, &letter, "§");
+            let inner = format!("{range} {} § csu", spell_monomial(&bound));
+            let mut free = IndexMap::new();
+            free.insert(part.free.clone(), part.weight.clone());
+            out = out.plus(&Poly::new(free).times(&atom(&inner)));
+        }
+        return Quotient::whole(out);
+    }
     if let Some(whole) = whole_number(term) {
         return Quotient::whole(constant(q(whole)));
     }

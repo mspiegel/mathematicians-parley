@@ -11,22 +11,15 @@ inequality.
 
 ---
 
-## Theorems expand and cauchy-schwarz
+## Theorem cauchy-schwarz
 
-The proof is `proofs/cauchy-schwarz.proof`, two theorems. `expand`
-multiplies the quadratic out in 13 numbered steps and no blocks.
-`cauchy-schwarz` is 9 numbered steps, 41 with those inside its
-blocks. Both elaborate to `corpus/elaboration/proofs/cauchy-schwarz/`,
-assume nothing, and verify.
+The proof is `proofs/cauchy-schwarz.proof`, one theorem of 9 numbered steps,
+41 with those inside its blocks. It elaborates to
+`corpus/elaboration/proofs/cauchy-schwarz/`, assumes nothing, and verifies.
 
 ---
 
 ## Rendered view
-
-**Theorem (expand).** Let n ∈ ℕ, a, b : {1, …, n} → ℝ and t ∈ ℝ. Then
-Σ(aₖt + bₖ)² = t²·Σaₖ² + 2t·Σaₖbₖ + Σbₖ².
-
-*Proof.* Multiply out each term and split the sum. ∎
 
 **Theorem (Cauchy–Schwarz).** Let n ∈ ℕ and a, b : {1, …, n} → ℝ. Then
 (Σaₖbₖ)² ≤ (Σaₖ²)(Σbₖ²).
@@ -71,8 +64,15 @@ B² ≤ AC. ∎
 2. **A frame's facts were those it opened with.** A frame widened by a
    `fix` now takes the facts known when the `fix` opens, so lines written
    in a case before it are there for a lemma proved in the case's frame.
-3. **`expand` is a theorem of its own,** as `binomial-step` is: the sum
-   algebra, stated where no hypothesis names the sum's index.
+3. **The quadratic is multiplied out in one step.** The first draft put it
+   in a theorem of its own, `expand`, of 13 steps: the sum lemmas could not
+   be used where a define's equation named the sum's index, and `algebra`
+   took a sum for one atom, so each split (`sum-add`) and each constant
+   taken out (`sum-scaled`) was a step, put in place by a `substitute`.
+   The reader asked whether that was a fault of `sum-add` or of the
+   implementation; it was `algebra`'s, which now reads a finite sum as
+   linear (`METHODS.md`), and step 1.3 is `algebra`. Five other proofs'
+   files change by one line each, and verify.
 4. **A function's value is a number from its type.** a(k) ∈ ℝ where
    a : {1, …, n} → ℝ and k is in the range, inside a membership, is
    `ffvelcdm` from the `let` line (`function_value`); and a claim a line

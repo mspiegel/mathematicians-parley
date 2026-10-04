@@ -341,8 +341,8 @@ the innermost frame where they can:
   innermost frame (`apply_lemma`).
 
 The binomial theorem's induction step states its sum algebra as a theorem of
-its own, `binomial-step`, where no hypothesis in scope names the sum's index,
-and Cauchy–Schwarz's `expand` does the same. The readable order is still
+its own, `binomial-step`, where no hypothesis in scope names the sum's index.
+The readable order is still
 correct — the reader needs the step where it stands — so what moves is the
 elaborator's order and not the author's.
 
@@ -793,6 +793,25 @@ product is not zero when its factors are not (`mulne0d`), and each factor's
 disequality is the page's own. The triangular reciprocals divide 1 by
 `k(k + 1)/2` and say `k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)`
 is `k² + k`, of which the page says nothing.
+
+A finite sum the step reads as linear (`METHODS.md`) is written out by the
+oracle the normaliser asks (`linear_sum`), and the parts' sums it gives are
+atoms. Every sum in the step is written over one letter nothing holds and
+that neither the claim, the scope nor a cited line spells (`sum_letter`), so
+that two sums over different letters are one atom and the sum lemmas, which
+keep their letter apart from the scope and the range, apply. The sum is
+renamed to that letter (`class_alpha`); its summand is shown, at a member, to
+be the parts added (`sumeq2dv`), by the normaliser over the member's scope,
+where what the member's membership says is the step's to use; the sum is
+split a part at a time (`fsumadd`), each free factor taken out
+(`fsummulc2`), and each part's sum shown a number from its terms
+(`fsumcl`), kept for when the normaliser asks of it as an atom
+(`sums_in_cc`). Deciding reads the sums the same way (`field::read`, with
+the letter a placeholder), and a step whose sums are atoms reads them as
+written, as before. A multiplier `algebra` spells from the decision is
+written over the step's letter. A binomial coefficient of a whole number and
+an integer is a whole number (`bccl`), which the membership lookup builds as
+it builds a sum.
 
 A negated quotient, −(a/b), is `(−a) / b` by `divnegd`, and −a is negated
 as a term that divides nothing is; Cauchy–Schwarz puts t = −B/A into its

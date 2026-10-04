@@ -451,8 +451,8 @@ textbook's.
     quadratic Σ(aₖt + bₖ)² in a variable t the proof introduces, never
     negative, so its discriminant is not positive. Deduction form.
     Written: `proofs/cauchy-schwarz.proof`, with
-    `docs/pilot/cauchy-schwarz.md`, and both of its theorems elaborate with
-    nothing assumed. The reader chose sums from 1 to n, the case Σaₖ² = 0
+    `docs/pilot/cauchy-schwarz.md`, and it elaborates with nothing
+    assumed. The reader chose sums from 1 to n, the case Σaₖ² = 0
     as a case on the page, and the discriminant step on the page as well:
     the quadratic at t = −B/A, then multiplied by A > 0.
 27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ. The readable statement

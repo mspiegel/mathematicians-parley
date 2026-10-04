@@ -69,12 +69,14 @@ impl<'a> Elaborator<'a> {
     pub fn atoms_of(
         &self,
         rpn: &str,
+        linear: bool,
         atoms: &mut BTreeSet<String>,
         terms: &mut BTreeSet<String>,
     ) {
         fn walk(
             me: &Elaborator,
             node: &crate::mm::Term,
+            linear: bool,
             atoms: &mut BTreeSet<String>,
             terms: &mut BTreeSet<String>,
         ) {
@@ -86,7 +88,7 @@ impl<'a> Elaborator<'a> {
                     node.children()
                 };
                 for kid in kids {
-                    walk(me, kid, atoms, terms);
+                    walk(me, kid, linear, atoms, terms);
                 }
                 return;
             }
@@ -98,24 +100,38 @@ impl<'a> Elaborator<'a> {
             {
                 let op = me.rpn(&node.children()[2]);
                 if rules::ARITHMETIC.contains(&op.as_str()) {
-                    walk(me, &node.children()[0], atoms, terms);
-                    walk(me, &node.children()[1], atoms, terms);
+                    walk(me, &node.children()[0], linear, atoms, terms);
+                    walk(me, &node.children()[1], linear, atoms, terms);
                     return;
                 }
                 if op == "cexp"
                     && linear::numeral(&node.children()[1], me.flabel()).is_some()
                 {
-                    walk(me, &node.children()[0], atoms, terms);
+                    walk(me, &node.children()[0], linear, atoms, terms);
                     return;
                 }
             }
             if node.variable().is_none() && label == "cneg" {
-                walk(me, &node.children()[0], atoms, terms);
+                walk(me, &node.children()[0], linear, atoms, terms);
+                return;
+            }
+            // A finite sum read as linear is looked inside: what it combines
+            // is each part's factor free of its letter, and what holds the
+            // letter is a number as a summand is, by what its terms are.
+            if let Some((_, _, parts)) = linear
+                .then(|| super::field::linear_sum(node, me.flabel()))
+                .flatten()
+            {
+                for part in parts {
+                    for (atom, _) in &part.free {
+                        walk(me, &me.to_term(atom), linear, atoms, terms);
+                    }
+                }
                 return;
             }
             atoms.insert(me.rpn(node));
         }
-        walk(self, &self.to_term(rpn), atoms, terms);
+        walk(self, &self.to_term(rpn), linear, atoms, terms);
     }
 
     /// Everything a step names does work, or a defect names what does not.
@@ -175,8 +191,15 @@ impl<'a> Elaborator<'a> {
             .get(&step.line)
             .map(|s| s.iter().cloned().collect())
             .unwrap_or_default();
+        // An `algebra` step reads its sums as linear where one of them is
+        // linear in something, and then what it combines is inside them.
+        let lines = self.lines.clone();
+        let linear = step.just.head.to_string() == "algebra"
+            && combined
+                .iter()
+                .any(|c| self.sums_linear(c, Some(step), &lines));
         for claim in &combined {
-            self.atoms_of(claim, &mut atoms, &mut terms);
+            self.atoms_of(claim, linear, &mut atoms, &mut terms);
         }
         let mut written = Vec::new();
         let letter = if step.requires.is_empty() {

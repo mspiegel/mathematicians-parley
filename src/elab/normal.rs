@@ -60,6 +60,12 @@ pub trait Oracle {
     /// What the page says makes `said` not zero, asked only of an emitter
     /// given a way to.
     fn written(&mut self, said: &str) -> Checked<Option<Proof>>;
+    /// A finite sum written out as linear, as `field::linear_sum` reads it,
+    /// and ( under -> said = that ); declined where sums are atoms.
+    fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
+        let _ = said;
+        Ok(Route::no("a sum is one atom here"))
+    }
 }
 
 /// `( left what right )`, which reverse Polish writes the other way.
@@ -1949,6 +1955,23 @@ impl Emitter {
                 take!(self.normalize(o, &term.children()[0], labels)?);
             let inner = term.children()[0].rpn(labels).to_string();
             return self.negated(o, &inner, &items, proof, &said);
+        }
+        // A finite sum is linear: it is written out as its parts' sums, each
+        // scaled by what is free of its letter, and that is normalised.
+        if term.variable().is_none() && term.label() == Some("csu") {
+            if let Built((linear, written)) = o.linear_sum(&said)? {
+                let spelt = linear.rpn(labels).to_string();
+                let (items, proof) = take!(self.normalize(o, &linear, labels)?);
+                let p = self.chain(
+                    o,
+                    &written,
+                    &proof,
+                    &said,
+                    &spelt,
+                    &Self::spell_run(&items),
+                );
+                return Ok(Built((items, p)));
+            }
         }
         if term.variable().is_none()
             && term.label() == Some("co")

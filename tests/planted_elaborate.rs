@@ -608,6 +608,17 @@ fn cases() -> Vec<Case> {
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
             "no clause of mun:card-remove reaches what step 1.2.1.2 claims",
         ),
+        // `algebra` reads a finite sum as linear where the step's sums are:
+        // Σ(a(k)t + b(k))² is t²Σa(k)² + 2tΣa(k)b(k) + Σb(k)², and with
+        // 3t in place of 2t the claim is no identity and is refused.
+        case(
+            "expand a sum linearly with a wrong coefficient",
+            "proofs/cauchy-schwarz/cauchy-schwarz",
+            "proofs/cauchy-schwarz.proof",
+            "    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·",
+            "    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 3t·",
+            "is not an identity",
+        ),
         // A function's type gives a value only at a point of its domain, and a
         // requires line rests only on what it names, so a line citing the
         // type alone is reported.

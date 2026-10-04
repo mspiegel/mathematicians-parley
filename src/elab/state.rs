@@ -210,6 +210,13 @@ pub struct Elaborator<'a> {
     /// membership: what the claim's "for all k ∈ X" gives the step, as a
     /// cited line would.
     pub member: Option<String>,
+    /// While `algebra` proves a step, the one letter nothing holds that
+    /// every finite sum it reads is written over, so that sums over
+    /// different letters are one atom; None outside it, where a sum is one.
+    pub sum_letter: Option<String>,
+    /// (scope, sum) -> ( scope -> sum e. CC ), for each sum a linear reading
+    /// wrote, proved from its terms when it was written.
+    pub sums_in_cc: IndexMap<(String, String), Proof>,
     /// The rules of the standard form set.mm has, plain and conditional,
     /// read once.
     pub rewrite_rules: Option<[Vec<super::matcher::Rewrite>; 2]>,
@@ -338,6 +345,8 @@ impl<'a> Elaborator<'a> {
             standards: IndexMap::new(),
             reading_facts: false,
             member: None,
+            sum_letter: None,
+            sums_in_cc: IndexMap::new(),
             rewrite_rules: None,
             binding: Vars::new(),
             citing: IndexSet::new(),
