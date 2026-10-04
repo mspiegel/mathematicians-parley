@@ -150,6 +150,7 @@ read, the existence is written with "with".
 |---|---|---|
 | `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
+| a "for all" step of one line, justified as its body would be | a `fix` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | 9 one-line steps; 2 blocks against the rule, `euler` 19 and `harmonic` 1 |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
@@ -169,6 +170,19 @@ is a define's condition, which `part-builder` and `set-builder` hold inside
 a conjunction, is an item all the same: Lagrange obtains a coset's a from
 K in one line.
 
+A block of one step says "fix k, let k ∈ X, and then P", and the one-line
+step says "for all k ∈ X, P, by the item": the same proof, the second as a
+textbook writes "each a(k)² ≥ 0, since squares are not negative"
+(`SYNTAX.md`, a step said of every member). The block costs the reader a
+label, an opener and a sub-step number for nothing a reader would ask about.
+A block stays where its one step is itself a block — `contradiction` or
+`induction`, as in Cantor's step 2, Schröder–Bernstein's 4 and the harmonic
+series' first theorem — since that step cannot be written on one line. The
+two blocks against the rule are not a choice: written as lines, each leaves a
+later step fitting one letter to two variables a lemma keeps apart, which the
+verifier refuses (`ELABORATION.md`, under `fix`), and they become lines when
+that is fixed.
+
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a
 particular `and` joins two claims or belongs inside one formula is not
@@ -178,7 +192,8 @@ something a tool can see from the text.
 
 Nothing does. Most are a regular expression over the source line and would be
 cheap, the doubled negation among them, `suppose not` before a negated claim; the obtain rule is a justification head and is cheaper
-still. The two marked judgement are not mechanical at all and are here so that
+still, and so is the one-step block, a `fix` with one child whose head is
+not a block method. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 
 If a linter is written it belongs in the gate beside the checker, and
