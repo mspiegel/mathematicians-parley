@@ -15,6 +15,7 @@ use num_traits::ToPrimitive;
 
 use super::field::{self, Value};
 use super::linear;
+use super::matcher::ChainLink;
 use super::provenance::{from_requires, rests_on_only};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines};
@@ -182,9 +183,21 @@ impl<'a> Elaborator<'a> {
         Ok(Built(self.chained(
             scope,
             &[
-                (given.clone(), moved.clone(), first),
-                (moved, moved_want.clone(), walked),
-                (moved_want, want.clone(), last),
+                ChainLink {
+                    from: given.clone(),
+                    to: moved.clone(),
+                    proof: first,
+                },
+                ChainLink {
+                    from: moved,
+                    to: moved_want.clone(),
+                    proof: walked,
+                },
+                ChainLink {
+                    from: moved_want,
+                    to: want.clone(),
+                    proof: last,
+                },
             ],
         )))
     }

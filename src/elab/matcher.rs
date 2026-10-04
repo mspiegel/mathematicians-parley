@@ -63,12 +63,23 @@ pub enum How {
     Commuted,
 }
 
-/// A link of a chain: one term against another, and the proof between.
-type Link = (Term, Term, Proof);
+/// A link of a chain of equalities or equivalences: ( scope -> from = to ),
+/// or `<->` between formulas.
+#[derive(Clone)]
+pub struct ChainLink {
+    pub from: Term,
+    pub to: Term,
+    pub proof: Proof,
+}
 
-/// A node's holes as written, as rewritten, and the proof at each place
-/// that changed.
-type Walked = (Vec<String>, Vec<String>, IndexMap<usize, Proof>);
+/// A node's holes walked: each as written and as rewritten, by place.
+struct Walked {
+    holes: Vec<String>,
+    after: Vec<String>,
+    /// The proof at each place that changed, that the hole as written is the
+    /// hole as rewritten.
+    proofs: IndexMap<usize, Proof>,
+}
 
 impl<'a> Elaborator<'a> {
     // --- facts the text never writes ------------------------------------
@@ -948,9 +959,17 @@ impl<'a> Elaborator<'a> {
                 after[i] = built;
                 proofs.insert(i, proof);
             }
-            Ok(Built((holes, after, proofs)))
+            Ok(Built(Walked {
+                holes,
+                after,
+                proofs,
+            }))
         })?;
-        let (holes, after, proofs) = take!(walked);
+        let Walked {
+            holes,
+            after,
+            proofs,
+        } = take!(walked);
         if proofs.is_empty() {
             let said = self.term(node)?;
             return Ok(Route::no(format!("nothing to rewrite in {said}")));
@@ -1712,12 +1731,20 @@ impl<'a> Elaborator<'a> {
 
     /// One proof of the first term against the last, from links each proving
     /// one against the next, joined by `bitrd` or `eqtrd`.
-    pub fn chained(&self, where_: &str, links: &[Link]) -> Proof {
-        let (first, mut last, mut proof) =
-            (links[0].0.clone(), links[0].1.clone(), links[0].2.clone());
+    pub fn chained(&self, where_: &str, links: &[ChainLink]) -> Proof {
+        let (first, mut last, mut proof) = (
+            links[0].from.clone(),
+            links[0].to.clone(),
+            links[0].proof.clone(),
+        );
         let wff = self.is_wff(&first);
         let start = self.rpn(&first);
-        for (_was, now, more) in &links[1..] {
+        for ChainLink {
+            to: now,
+            proof: more,
+            ..
+        } in &links[1..]
+        {
             let (mid, end) = (self.rpn(&last), self.rpn(now));
             proof = if wff {
                 self.b.ap(
@@ -1803,7 +1830,7 @@ impl<'a> Elaborator<'a> {
         if self.rpn(&parts) == self.rpn(other) && self.lifts(one, &parts) {
             return Ok(None);
         }
-        let mut links: Vec<Link> = Vec::new();
+        let mut links: Vec<ChainLink> = Vec::new();
         let mut cur = one.clone();
         if self.rpn(&parts) != self.rpn(one) {
             if !self.lifts(one, &parts) {
@@ -1820,7 +1847,11 @@ impl<'a> Elaborator<'a> {
             let Built(made) = made else {
                 return Ok(Some(made));
             };
-            links.push((one.clone(), parts.clone(), made));
+            links.push(ChainLink {
+                from: one.clone(),
+                to: parts.clone(),
+                proof: made,
+            });
             cur = parts;
         }
         let Some((how, nxt)) = self.standard_step(&cur) else {
@@ -1830,7 +1861,11 @@ impl<'a> Elaborator<'a> {
         let Built(made) = made else {
             return Ok(Some(made));
         };
-        links.push((cur, nxt.clone(), made));
+        links.push(ChainLink {
+            from: cur,
+            to: nxt.clone(),
+            proof: made,
+        });
         if self.rpn(&nxt) != self.rpn(other) {
             let made = self.congruence(
                 &nxt,
@@ -1843,7 +1878,11 @@ impl<'a> Elaborator<'a> {
             let Built(made) = made else {
                 return Ok(Some(made));
             };
-            links.push((nxt, other.clone(), made));
+            links.push(ChainLink {
+                from: nxt,
+                to: other.clone(),
+                proof: made,
+            });
         }
         Ok(Some(Built(self.chained(where_, &links))))
     }
@@ -1910,7 +1949,11 @@ impl<'a> Elaborator<'a> {
             let Built(made) = self.standard_proof(x, &how, &nxt, where_, held)? else {
                 continue;
             };
-            let mut links = vec![(x.clone(), nxt.clone(), made)];
+            let mut links = vec![ChainLink {
+                from: x.clone(),
+                to: nxt.clone(),
+                proof: made,
+            }];
             if self.rpn(&nxt) != self.rpn(y) {
                 let Built(rest) = self.congruence(
                     &nxt,
@@ -1923,7 +1966,11 @@ impl<'a> Elaborator<'a> {
                 else {
                     continue;
                 };
-                links.push((nxt, y.clone(), rest));
+                links.push(ChainLink {
+                    from: nxt,
+                    to: y.clone(),
+                    proof: rest,
+                });
             }
             let proof = self.chained(where_, &links);
             return Ok(Some(Built(if forward {
@@ -1932,7 +1979,7 @@ impl<'a> Elaborator<'a> {
                 self.flipped(where_, x, y, &proof)
             })));
         }
-        let mut links: Vec<Link> = Vec::new();
+        let mut links: Vec<ChainLink> = Vec::new();
         if self.rpn(&ours) != a {
             let made = self.congruence(
                 one,
@@ -1945,7 +1992,11 @@ impl<'a> Elaborator<'a> {
             let Built(made) = made else {
                 return Ok(Some(made));
             };
-            links.push((one.clone(), ours.clone(), made));
+            links.push(ChainLink {
+                from: one.clone(),
+                to: ours.clone(),
+                proof: made,
+            });
         }
         if said != want {
             let wff = self.is_wff(&ours);
@@ -1958,11 +2009,11 @@ impl<'a> Elaborator<'a> {
                 return Ok(Some(Route::no("no renaming says the two are one")));
             };
             let join = if wff { "wb" } else { "wceq" };
-            links.push((
-                ours.clone(),
-                theirs.clone(),
-                pf!(self.b; t!(said, want, join), where_, renamed, "a1i"),
-            ));
+            links.push(ChainLink {
+                from: ours.clone(),
+                to: theirs.clone(),
+                proof: pf!(self.b; t!(said, want, join), where_, renamed, "a1i"),
+            });
         }
         if self.rpn(&theirs) != b {
             let made = self.congruence(
@@ -1977,7 +2028,11 @@ impl<'a> Elaborator<'a> {
                 return Ok(Some(made));
             };
             let flipped = self.flipped(where_, other, &theirs, &made);
-            links.push((theirs.clone(), other.clone(), flipped));
+            links.push(ChainLink {
+                from: theirs.clone(),
+                to: other.clone(),
+                proof: flipped,
+            });
         }
         Ok(Some(Built(self.chained(where_, &links))))
     }
@@ -2291,7 +2346,11 @@ impl<'a> Elaborator<'a> {
                 else {
                     continue;
                 };
-                let mut links = vec![(a.clone(), became.clone(), made)];
+                let mut links = vec![ChainLink {
+                    from: a.clone(),
+                    to: became.clone(),
+                    proof: made,
+                }];
                 if self.rpn(&became) != self.rpn(b) {
                     let Built(rest) = self.congruence(
                         &became,
@@ -2304,7 +2363,11 @@ impl<'a> Elaborator<'a> {
                     else {
                         continue;
                     };
-                    links.push((became, b.clone(), rest));
+                    links.push(ChainLink {
+                        from: became,
+                        to: b.clone(),
+                        proof: rest,
+                    });
                 }
                 let proof = self.chained(where_, &links);
                 return Ok(Some(if forward {
@@ -3706,8 +3769,16 @@ impl<'a> Elaborator<'a> {
         Ok(Some(self.chained(
             scope,
             &[
-                (said.clone(), turned.clone(), across),
-                (turned, goal.clone(), back),
+                ChainLink {
+                    from: said.clone(),
+                    to: turned.clone(),
+                    proof: across,
+                },
+                ChainLink {
+                    from: turned,
+                    to: goal.clone(),
+                    proof: back,
+                },
             ],
         )))
     }

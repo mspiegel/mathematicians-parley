@@ -45,9 +45,16 @@ const SUB: &str = "cmin";
 /// order the form writes them.
 pub type Run = Vec<(Monomial, Q)>;
 
-/// A term's canonical form as a numerator, a denominator where it divides,
-/// and the proof that the term is the one over the other.
-pub type Quotiented = (Run, Option<Run>, Proof);
+/// A term's canonical form as a quotient.
+pub struct Quotiented {
+    /// The numerator.
+    pub over: Run,
+    /// The denominator, or None where the term divides nothing.
+    pub under: Option<Run>,
+    /// ( under -> term = over / under ), or `= over` where it divides
+    /// nothing.
+    pub proof: Proof,
+}
 
 /// What the emitter asks of the elaborator driving it.
 pub trait Oracle {
@@ -2534,7 +2541,11 @@ impl Emitter {
         let said = term.rpn(labels).to_string();
         if !divides(term, labels) {
             let (items, proof) = take!(self.normalize(o, term, labels)?);
-            return Ok(Built((items, None, proof)));
+            return Ok(Built(Quotiented {
+                over: items,
+                under: None,
+                proof,
+            }));
         }
         if term.variable().is_none()
             && term.label() == Some("cneg")
@@ -2573,11 +2584,19 @@ impl Emitter {
         labels: &FloatLabels,
         said: &str,
     ) -> Checked<Route<Quotiented>> {
-        let (over, under, first) = take!(self.normalize_quotient(o, inner, labels)?);
+        let Quotiented {
+            over,
+            under,
+            proof: first,
+        } = take!(self.normalize_quotient(o, inner, labels)?);
         let inner_s = inner.rpn(labels).to_string();
         let Some(under) = under else {
             let (items, p) = take!(self.negated(o, &inner_s, &over, first, said)?);
-            return Ok(Built((items, None, p)));
+            return Ok(Built(Quotiented {
+                over: items,
+                under: None,
+                proof: p,
+            }));
         };
         let (a, b) = (Self::spell_run(&over), Self::spell_run(&under));
         let quotient = op(&a, &b, DIV);
@@ -2618,7 +2637,11 @@ impl Emitter {
             &op(&negated_top, &b, DIV),
             &op(&Self::spell_run(&top), &b, DIV),
         );
-        Ok(Built((top, Some(under), whole)))
+        Ok(Built(Quotiented {
+            over: top,
+            under: Some(under),
+            proof: whole,
+        }))
     }
 
     /// `a / b`, where what is below may divide as well: `divdiv1` is what
@@ -2631,9 +2654,16 @@ impl Emitter {
         labels: &FloatLabels,
         said: &str,
     ) -> Checked<Route<Quotiented>> {
-        let (over, under, first) = take!(self.normalize_quotient(o, left, labels)?);
-        let (below, beneath, second) =
-            take!(self.normalize_quotient(o, right, labels)?);
+        let Quotiented {
+            over,
+            under,
+            proof: first,
+        } = take!(self.normalize_quotient(o, left, labels)?);
+        let Quotiented {
+            over: below,
+            under: beneath,
+            proof: second,
+        } = take!(self.normalize_quotient(o, right, labels)?);
         if beneath.is_some() {
             return self.divided_by_quotient(o, left, right, labels, said);
         }
@@ -2645,7 +2675,11 @@ impl Emitter {
             &[&first, &second],
         );
         let Some(under) = under else {
-            return Ok(Built((over, Some(below), joined)));
+            return Ok(Built(Quotiented {
+                over,
+                under: Some(below),
+                proof: joined,
+            }));
         };
         // ( A / B ) / C is A / ( B x. C ), and the new denominator is then
         // the two of them multiplied out.
@@ -2697,7 +2731,11 @@ impl Emitter {
             &op(&top, &op(&bottom, &outer, MUL), DIV),
             &op(&top, &Self::spell_run(&made), DIV),
         );
-        Ok(Built((over, Some(made), p)))
+        Ok(Built(Quotiented {
+            over,
+            under: Some(made),
+            proof: p,
+        }))
     }
 
     /// `a / ( c / d )`, normalised as `( a x. d ) / c` (`divdiv2`). What is
@@ -2764,7 +2802,8 @@ impl Emitter {
                 right.children()[2].clone(),
             ],
         );
-        let (over, under, proof) = take!(self.normalize_quotient(o, &rebuilt, labels)?);
+        let Quotiented { over, under, proof } =
+            take!(self.normalize_quotient(o, &rebuilt, labels)?);
         let p = self.chain(
             o,
             &turned,
@@ -2773,7 +2812,11 @@ impl Emitter {
             &flipped,
             &Self::spell_quotient(&over, under.as_deref()),
         );
-        Ok(Built((over, under, p)))
+        Ok(Built(Quotiented {
+            over,
+            under,
+            proof: p,
+        }))
     }
 
     /// ( under -> ( t e. CC /\ t =/= 0 ) ) for a term as the page wrote it.
@@ -2882,7 +2925,8 @@ impl Emitter {
         };
         let mut quotients = Vec::new();
         for side in [left, right] {
-            let (over, under, proof) = take!(self.normalize_quotient(o, side, labels)?);
+            let Quotiented { over, under, proof } =
+                take!(self.normalize_quotient(o, side, labels)?);
             quotients.push(self.as_quotient(
                 o,
                 over,
@@ -3011,7 +3055,11 @@ impl Emitter {
             &op(&top, &bottom, DIV),
             &op(&Self::spell_run(&made), &Self::spell_run(&low), DIV),
         );
-        Ok(Built((made, Some(low), p)))
+        Ok(Built(Quotiented {
+            over: made,
+            under: Some(low),
+            proof: p,
+        }))
     }
 
     /// `( a / b ) ^ k`, which `expdiv` takes apart.
@@ -3027,7 +3075,11 @@ impl Emitter {
             Some(t) if (0..=9).contains(&t) => t as u32,
             _ => return Ok(Route::no(format!("{said} has no numeral exponent"))),
         };
-        let (o1, u1, p1) = take!(self.normalize_quotient(o, left, labels)?);
+        let Quotiented {
+            over: o1,
+            under: u1,
+            proof: p1,
+        } = take!(self.normalize_quotient(o, left, labels)?);
         let (over, under, first) =
             self.as_quotient(o, o1, u1, p1, &left.rpn(labels))?;
         let (a, b) = (Self::spell_run(&over), Self::spell_run(&under));
@@ -3081,7 +3133,11 @@ impl Emitter {
             &split,
             &op(&Self::spell_run(&made), &Self::spell_run(&low), DIV),
         );
-        Ok(Built((made, Some(low), p)))
+        Ok(Built(Quotiented {
+            over: made,
+            under: Some(low),
+            proof: p,
+        }))
     }
 }
 

@@ -21,7 +21,7 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::field::{self, numeral as n, q, Poly, Verdict, Q};
 use super::linear::{self, Certificate, How};
-use super::normal::{Emitter, Oracle, Run};
+use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::provenance::requirement;
 use super::state::Elaborator;
 use super::{Facts, Line, Lines};
@@ -204,8 +204,14 @@ pub fn rescales(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<Q> {
     Some(times)
 }
 
-/// A combination's parts: what was cited, which fact, and its weight.
-type Part = ((String, Term), linear::Fact, Q);
+/// One fact a combination uses, and its weight.
+struct Part {
+    /// The line the fact is cited from.
+    cited: String,
+    /// The fact as that line says it.
+    said: Term,
+    times: Q,
+}
 
 /// What a sum read as linear is shown at a member, each under the member's
 /// scope.
@@ -221,9 +227,17 @@ struct AtMember {
     bounds: Vec<Proof>,
 }
 
-/// A term against zero: the term, whether strictly, the proof it is below
-/// zero, and the proof it is real.
-type Against = (String, bool, Proof, Proof);
+/// A term against zero, as `inequalities` combines the facts it is given.
+#[derive(Clone)]
+struct Against {
+    term: String,
+    /// Whether the term is strictly below zero, or at most zero.
+    strict: bool,
+    /// ( scope -> term < 0 ), or `<_` where not strict.
+    below: Proof,
+    /// ( scope -> term e. RR ).
+    real: Proof,
+}
 
 impl<'a> Elaborator<'a> {
     fn ask<'s>(&'s mut self, spec: &'s Spec) -> Ask<'s, 'a> {
@@ -508,7 +522,7 @@ impl<'a> Elaborator<'a> {
         let was: Vec<String> = cited.children().iter().map(|c| self.rpn(c)).collect();
         let mut quotients = Vec::new();
         for (side, said) in cited.children().iter().zip(&was) {
-            let (over, under, proof) =
+            let Quotiented { over, under, proof } =
                 take!(w
                     .e
                     .normalize_quotient(&mut self.ask(&w.spec), side, &labels)?);
@@ -681,15 +695,21 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
         let lt = self.to_term(left);
-        let (first_items, first_under, first) =
-            take!(w
-                .e
-                .normalize_quotient(&mut self.ask(&w.spec), &lt, &labels)?);
+        let Quotiented {
+            over: first_items,
+            under: first_under,
+            proof: first,
+        } = take!(w
+            .e
+            .normalize_quotient(&mut self.ask(&w.spec), &lt, &labels)?);
         let rt = self.to_term(right);
-        let (second_items, second_under, second) =
-            take!(w
-                .e
-                .normalize_quotient(&mut self.ask(&w.spec), &rt, &labels)?);
+        let Quotiented {
+            over: second_items,
+            under: second_under,
+            proof: second,
+        } = take!(w
+            .e
+            .normalize_quotient(&mut self.ask(&w.spec), &rt, &labels)?);
         if first_under.is_none() && second_under.is_none() {
             if Emitter::spell_run(&first_items) != Emitter::spell_run(&second_items) {
                 return Ok(Route::no("the two are not one polynomial"));
@@ -1529,7 +1549,14 @@ impl<'a> Elaborator<'a> {
         }
         let parts: Vec<Part> = used
             .iter()
-            .map(|i| (where_[*i].clone(), given[*i].clone(), &found[i] / &weight))
+            .map(|i| {
+                let (cited, said) = where_[*i].clone();
+                Part {
+                    cited,
+                    said,
+                    times: &found[i] / &weight,
+                }
+            })
             .collect();
         self.combination(
             &parts,
@@ -2112,7 +2139,7 @@ impl<'a> Elaborator<'a> {
             )));
         }
         let mut whole = spare.denom().clone();
-        for (_, _, times) in parts {
+        for Part { times, .. } in parts {
             whole = whole.lcm(times.denom());
         }
         let whole = whole.to_i64().unwrap_or(i64::MAX);
@@ -2131,7 +2158,12 @@ impl<'a> Elaborator<'a> {
             written: Some(known),
         });
         let mut terms: Vec<Against> = Vec::new();
-        for ((r, said), _fact, times) in parts {
+        for Part {
+            cited: r,
+            said,
+            times,
+        } in parts
+        {
             let given = take!(self.cited_fact(r, said, scope, facts, lines)?);
             let one = take!(self.scaled_bound(
                 &mut w,
@@ -2157,7 +2189,12 @@ impl<'a> Elaborator<'a> {
         for one in &terms[1..] {
             total = self.added_pair(scope, &total, one);
         }
-        let (term, strict, below, _real) = total;
+        let Against {
+            term,
+            strict,
+            below,
+            ..
+        } = total;
         if how == "<" && !strict {
             return Ok(Route::no("nothing combined is strict"));
         }
@@ -2284,7 +2321,12 @@ impl<'a> Elaborator<'a> {
         if rel != "<" {
             let (term, below, real) =
                 take!(self.at_most_zero(w, &said, times, given, facts)?);
-            return Ok(Built((term, false, below, real)));
+            return Ok(Built(Against {
+                term,
+                strict: false,
+                below,
+                real,
+            }));
         }
         let was: Vec<String> =
             said.children()[..2].iter().map(|c| self.rpn(c)).collect();
@@ -2309,7 +2351,12 @@ impl<'a> Elaborator<'a> {
             &[&given, &turn],
         );
         if times.is_one() {
-            return Ok(Built((gap, true, below, real)));
+            return Ok(Built(Against {
+                term: gap,
+                strict: true,
+                below,
+                real,
+            }));
         }
         let times_n = times.to_integer().to_i64().unwrap_or(0);
         let Some(numeral) = crate::rules::numeral_label(times_n as u32)
@@ -2329,7 +2376,12 @@ impl<'a> Elaborator<'a> {
         );
         let moved =
             self.times_positive(w, &gap, &real, numeral, times_n, "clt", &below);
-        Ok(Built((scaled, true, moved, scaled_real)))
+        Ok(Built(Against {
+            term: scaled,
+            strict: true,
+            below: moved,
+            real: scaled_real,
+        }))
     }
 
     /// ( scope -> ( n x. gap ) R 0 ) from ( scope -> gap R 0 ), n > 0.
@@ -2499,13 +2551,18 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => numeral},
             &[&real],
         );
-        Built((negated, true, below, neg_real))
+        Built(Against {
+            term: negated,
+            strict: true,
+            below,
+            real: neg_real,
+        })
     }
 
     /// Two terms against zero added, strict where either is.
     fn added_pair(&self, scope: &str, one: &Against, other: &Against) -> Against {
-        let (a, sa, pa, ra) = one;
-        let (b, sb, pb, rb) = other;
+        let (a, sa, pa, ra) = (&one.term, &one.strict, &one.below, &one.real);
+        let (b, sb, pb, rb) = (&other.term, &other.strict, &other.below, &other.real);
         let rel_a = if *sa { "clt" } else { "cle" };
         let rel_b = if *sb { "clt" } else { "cle" };
         let lemma = rules::ADDING
@@ -2574,7 +2631,12 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => a, "B" => b},
             &[ra, rb],
         );
-        (total, *sa || *sb, below, real)
+        Against {
+            term: total,
+            strict: *sa || *sb,
+            below,
+            real,
+        }
     }
 
     /// An equation from the two bounds that close on it: a number neither

@@ -33,6 +33,22 @@ it is `#[must_use]`, so a caller who forgot to look does not compile.
 The test is whether the error can happen on a run where nothing is wrong. If it
 fires hundreds of times in a green build, it is branching and it is spelt wrong.
 
+## Types
+
+**A tuple that is passed around is a struct with named fields.** A struct is
+the right type when a tuple has two fields of the same type, or is taken apart
+by position in more than one place. Either way a swap compiles and says
+nothing, and the reader has to remember which place is which. `(Term, Term,
+Proof)` is `ChainLink { from, to, proof }`; `(Run, Option<Run>, Proof)` is
+`Quotiented { over, under, proof }`. Each field says what it holds, in a doc
+comment where its name and type do not.
+
+A tuple stays a tuple where it is never taken apart by name: a key into a
+cache (`PartsKey`), a pair of different types used in one place, or a value
+returned and destructured once beside its definition. A `type` alias over a
+tuple names the tuple and fixes none of this, so it is not a substitute for
+the struct.
+
 ## The design documents
 
 Read the one that governs a change before making it.

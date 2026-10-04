@@ -22,6 +22,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
+use super::matcher::ChainLink;
 use super::provenance::item_clauses;
 use super::reading::{hypothesis_body, is_subgroup, subject_of, CLASS_NAMES};
 use super::state::{
@@ -343,8 +344,16 @@ impl<'a> Elaborator<'a> {
             self.chained(
                 scope,
                 &[
-                    (was, now.clone(), first),
-                    (now, self.to_term(&given), proof),
+                    ChainLink {
+                        from: was,
+                        to: now.clone(),
+                        proof: first,
+                    },
+                    ChainLink {
+                        from: now,
+                        to: self.to_term(&given),
+                        proof,
+                    },
                 ],
             )
         };

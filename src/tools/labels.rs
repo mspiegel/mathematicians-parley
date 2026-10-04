@@ -32,8 +32,14 @@ regex!(LABEL_SHAPED, r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$");
 // as in `1re`, and a dot, as in `pm2.21dd`.
 regex!(TABLED, r"^[a-z0-9][a-z0-9.]*(?:-[a-z0-9.]+)*$");
 
-/// Where a label was named: the file, the line, and who named it.
-type Where = (String, usize, String);
+/// Where a label was named.
+struct Where {
+    /// The file.
+    place: String,
+    line: usize,
+    /// The record or table that named it.
+    who: String,
+}
 
 /// What names labels: a record, or a proved theorem's `metamath` line.
 struct Naming<'a> {
@@ -57,7 +63,11 @@ struct Naming<'a> {
 fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
     let mut out: IndexMap<String, Where> = IndexMap::new();
     for r in namings {
-        let here = || (r.path.to_string(), r.line, r.name.to_string());
+        let here = || Where {
+            place: r.path.to_string(),
+            line: r.line,
+            who: r.name.to_string(),
+        };
         for field in ["target", "defines"] {
             let Some(value) = r.fields.get(field) else {
                 continue;
@@ -91,8 +101,11 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
     }
     for (table, one) in rules::every_label() {
         if TABLED.is_match(one) {
-            out.entry(one.to_string())
-                .or_insert_with(|| (tables_at.to_string(), 0, table.to_string()));
+            out.entry(one.to_string()).or_insert_with(|| Where {
+                place: tables_at.to_string(),
+                line: 0,
+                who: table.to_string(),
+            });
         }
     }
     out
@@ -180,7 +193,7 @@ pub fn run(source: &dyn Source, library: Option<&Path>, tables_at: &str) -> Said
     let mut missing: Vec<(&String, usize, &String, &String)> = wanted
         .iter()
         .filter(|(label, _)| !have.contains(*label))
-        .map(|(label, (place, line, who))| (place, *line, who, label))
+        .map(|(label, Where { place, line, who })| (place, *line, who, label))
         .collect();
     missing.sort();
     let mut printed = String::new();

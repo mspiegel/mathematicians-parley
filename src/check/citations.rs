@@ -417,7 +417,7 @@ pub fn concludes(
     // A conclusion is offered conjunct by conjunct, so a claim is asked for
     // the same way: `u ∈ Y and u ∈ Z` is the two facts a reading gives.
     let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
-    for (want, gives) in groups {
+    for Group { wants: want, gives } in groups {
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut sites = Sites::new();
         for concl in gives {
@@ -469,7 +469,7 @@ fn obtains(
     seed: &Binding,
     library: &Library,
 ) -> bool {
-    for (_want, gives) in groups {
+    for Group { gives, .. } in groups {
         for concl in gives {
             let mut sites = Sites::new();
             binding_sites(concl, &library.ctx, &[], &mut sites);
@@ -603,7 +603,7 @@ fn derives(
     if facts.iter().any(|f| f.shape() == claim.shape()) {
         return true;
     }
-    for (want, gives) in groups {
+    for Group { wants: want, gives } in groups {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = names_of(&trees);
@@ -636,7 +636,7 @@ fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<Strin
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
     let mut missing = None;
-    for (want, _) in groups.iter() {
+    for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {
             return None;
         }
@@ -680,7 +680,7 @@ fn ways_supplied(
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
     let mut out: Vec<Vec<Node>> = Vec::new();
-    for (want, _) in groups.iter() {
+    for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {
             return None;
         }
@@ -895,7 +895,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         .map(|t| substitute(t, &parts.seed))
         .filter(|t| t.children[0].notation == PROPERTY)
         .collect();
-    for (want, gives) in groups.iter() {
+    for Group { wants: want, gives } in groups.iter() {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let mut sites = Sites::new();

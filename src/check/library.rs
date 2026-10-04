@@ -20,9 +20,13 @@ use crate::sorts::{
     polynomial_re, sentences, set_or_point_re, unlabel, Env,
 };
 
-/// One `then` group of an item: its facts, each with the text it was read
-/// from, and the sentences it concludes.
-pub type Group = (Vec<(String, Node)>, Vec<Node>);
+/// One `then` group of an item.
+pub struct Group {
+    /// What it asks for, each fact with the text it was read from.
+    pub wants: Vec<(String, Node)>,
+    /// The sentences it concludes.
+    pub gives: Vec<Node>,
+}
 
 /// What each item asks a citation to supply.
 ///
@@ -195,7 +199,10 @@ impl<'a> Library<'a> {
                 .iter()
                 .map(|t| expand(t, &own))
                 .collect();
-            return Some(vec![(facts, gives)]);
+            return Some(vec![Group {
+                wants: facts,
+                gives,
+            }]);
         }
         let &i = self.items.get(name)?;
         let item = &self.records[i];
@@ -208,13 +215,16 @@ impl<'a> Library<'a> {
                 .filter(|h| h.line < *at)
                 .map(|h| (h.kind, str::trim(&unlabel(&h.text)).to_string()))
                 .collect();
-            out.push((
-                self.facts(&lines, sorts),
-                self.trees(&sentences(text), sorts),
-            ));
+            out.push(Group {
+                wants: self.facts(&lines, sorts),
+                gives: self.trees(&sentences(text), sorts),
+            });
         }
         if out.is_empty() {
-            out.push((Vec::new(), Vec::new()));
+            out.push(Group {
+                wants: Vec::new(),
+                gives: Vec::new(),
+            });
         }
         Some(out)
     }
