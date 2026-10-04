@@ -207,8 +207,8 @@ fn cases() -> Vec<Case> {
             "cite a function's type for a value without the point's domain",
             vec![edit(
                 "proofs/cauchy-schwarz.proof",
-                Some("mun:square-zero x := a(k), from 9.3.1, H2, K4".to_string()),
-                "mun:square-zero x := a(k), from 9.3.1, H2".to_string(),
+                Some("mun:square-zero x := a(k), from 5.3.1, H2, K4".to_string()),
+                "mun:square-zero x := a(k), from 5.3.1, H2".to_string(),
             )],
             "asks for x ∈ ℝ",
         ),

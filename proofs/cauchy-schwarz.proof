@@ -43,90 +43,79 @@ theorem cauchy-schwarz
     requires 1 ∈ ℤ: arithmetic
     requires n ∈ ℤ: membership, from H1
 
-4.  Σ(k = 1 to n) a(k)² ∈ ℝ
-    membership
+4.  Σ(k = 1 to n) a(k)² < 0 or Σ(k = 1 to n) a(k)² = 0 or 0 < Σ(k = 1 to n) a(k)²
+    mun:trichotomy x := Σ(k = 1 to n) a(k)²
+    requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
-5.  Σ(k = 1 to n) a(k)·b(k) ∈ ℝ
-    membership
-
-6.  Σ(k = 1 to n) b(k)² ∈ ℝ
-    membership
-
-7.  Σ(k = 1 to n) a(k)² ∈ ℝ. Σ(k = 1 to n) a(k)·b(k) ∈ ℝ. Σ(k = 1 to n) b(k)² ∈ ℝ.
-    join 4, 5, 6
-
-8.  Σ(k = 1 to n) a(k)² < 0 or Σ(k = 1 to n) a(k)² = 0 or 0 < Σ(k = 1 to n) a(k)²
-    mun:trichotomy x := Σ(k = 1 to n) a(k)², from 4
-
-9.  (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
-    cases, from 8
+5.  (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+    cases, from 4
 
     case
     assume Σ(k = 1 to n) a(k)² < 0                                    (C1)
 
-    9.1.  not Σ(k = 1 to n) a(k)² < 0
+    5.1.  not Σ(k = 1 to n) a(k)² < 0
           inequalities, from 3, contradicting C1
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
     case
     assume Σ(k = 1 to n) a(k)² = 0                                    (C2)
 
-    9.2.  For all k ∈ {1, …, n}, a(k)² = 0.
+    5.2.  For all k ∈ {1, …, n}, a(k)² = 0.
           mun:sum-zero-terms a := 1, b := n, from 2, C2
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: membership, from H1
 
-    9.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
+    5.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
           fix
           let k ∈ {1, …, n}                                           (K4)
 
-          9.3.1.  a(k)² = 0
-                  instantiate k := k in line 9.2, from K4
+          5.3.1.  a(k)² = 0
+                  instantiate k := k in line 5.2, from K4
 
-          9.3.2.  a(k) = 0
-                  mun:square-zero x := a(k), from 9.3.1, H2, K4
+          5.3.2.  a(k) = 0
+                  mun:square-zero x := a(k), from 5.3.1, H2, K4
 
-          9.3.3.  a(k)·b(k) = 0
-                  algebra, from 9.3.2
+          5.3.3.  a(k)·b(k) = 0
+                  algebra, from 5.3.2
                   requires a(k) ∈ ℝ: from H2, K4
                   requires b(k) ∈ ℝ: from H3, K4
 
-    9.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0
-          mun:sum-termwise a := 1, b := n, from 9.3
+    5.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0
+          mun:sum-termwise a := 1, b := n, from 5.3
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: membership, from H1
 
-    9.5.  Σ(k = 1 to n) 0 = (n − 1 + 1)·0
+    5.5.  Σ(k = 1 to n) 0 = (n − 1 + 1)·0
           mun:sum-constant a := 1, b := n, c := 0
           requires 1 ∈ ℤ: arithmetic
           requires n ∈ ℤ: membership, from H1
           requires 1 ≤ n: inequalities, from H1
           requires 0 ∈ ℝ: arithmetic
 
-    9.6.  (n − 1 + 1)·0 = 0
+    5.6.  (n − 1 + 1)·0 = 0
           algebra
           requires n ∈ ℝ: membership, from H1
 
-    9.7.  Σ(k = 1 to n) a(k)·b(k) = 0
+    5.7.  Σ(k = 1 to n) a(k)·b(k) = 0
           calculation
-            Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0      9.4
-                                    = (n − 1 + 1)·0        9.5
-                                    = 0                    9.6
+            Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0      5.4
+                                    = (n − 1 + 1)·0        5.5
+                                    = 0                    5.6
 
-    9.8.  (Σ(k = 1 to n) a(k)·b(k))² = 0
-          algebra, from 9.7
-          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
+    5.8.  (Σ(k = 1 to n) a(k)·b(k))² = 0
+          algebra, from 5.7
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
 
-    9.9.  (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²) = 0
+    5.9.  (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²) = 0
           algebra, from C2
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
-          requires Σ(k = 1 to n) b(k)² ∈ ℝ: from 7
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
+          requires Σ(k = 1 to n) b(k)² ∈ ℝ: membership
 
-    9.10. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
-          inequalities, from 9.8, 9.9
-          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
-          requires Σ(k = 1 to n) b(k)² ∈ ℝ: from 7
+    5.10. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+          inequalities, from 5.8, 5.9
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
+          requires Σ(k = 1 to n) b(k)² ∈ ℝ: membership
 
     case
     assume 0 < Σ(k = 1 to n) a(k)²                                    (C3)
@@ -140,71 +129,71 @@ theorem cauchy-schwarz
     define C := Σ(k = 1 to n) b(k)²                                   (D3)
            reads the sum of the squares of the b's
 
-    9.11. A ∈ ℝ
+    5.11. A ∈ ℝ
           membership
 
-    9.12. B ∈ ℝ
+    5.12. B ∈ ℝ
           membership
 
-    9.13. C ∈ ℝ
+    5.13. C ∈ ℝ
           membership
 
-    9.14. A = Σ(k = 1 to n) a(k)²
+    5.14. A = Σ(k = 1 to n) a(k)²
           D1
 
-    9.15. A > 0
-          inequalities, from C3, 9.14
-          requires A ∈ ℝ: from 9.11
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
+    5.15. A > 0
+          inequalities, from C3, 5.14
+          requires A ∈ ℝ: from 5.11
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
-    9.16. A ≠ 0
-          inequalities, from 9.15
-          requires A ∈ ℝ: from 9.11
+    5.16. A ≠ 0
+          inequalities, from 5.15
+          requires A ∈ ℝ: from 5.11
 
-    9.17. −B/A ∈ ℝ
-          membership, from 9.11, 9.12, 9.16
+    5.17. −B/A ∈ ℝ
+          membership, from 5.11, 5.12, 5.16
 
-    9.18. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
+    5.18. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
           instantiate t := −B/A in line 1
-          requires −B/A ∈ ℝ: from 9.17
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: from 7
-          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: from 7
-          requires A ∈ ℝ: from 9.11
-          requires B ∈ ℝ: from 9.12
+          requires −B/A ∈ ℝ: from 5.17
+          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
+          requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
+          requires A ∈ ℝ: from 5.11
+          requires B ∈ ℝ: from 5.12
 
-    9.19. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
+    5.19. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
           algebra
-          requires A ∈ ℝ: from 9.11
-          requires B ∈ ℝ: from 9.12
-          requires C ∈ ℝ: from 9.13
-          requires A ≠ 0: from 9.16
+          requires A ∈ ℝ: from 5.11
+          requires B ∈ ℝ: from 5.12
+          requires C ∈ ℝ: from 5.13
+          requires A ≠ 0: from 5.16
 
-    9.20. B²/A ∈ ℝ
-          membership, from 9.11, 9.12, 9.16
+    5.20. B²/A ∈ ℝ
+          membership, from 5.11, 5.12, 5.16
 
-    9.21. B²/A ≤ C
-          inequalities, from 9.18, 9.19, 9.16
-          requires B²/A ∈ ℝ: from 9.20
-          requires A ∈ ℝ: from 9.11
-          requires B ∈ ℝ: from 9.12
-          requires C ∈ ℝ: from 9.13
+    5.21. B²/A ≤ C
+          inequalities, from 5.18, 5.19, 5.16
+          requires B²/A ∈ ℝ: from 5.20
+          requires A ∈ ℝ: from 5.11
+          requires B ∈ ℝ: from 5.12
+          requires C ∈ ℝ: from 5.13
 
-    9.22. A·(B²/A) ≤ A·C
-          mun:multiply-le, from 9.21, 9.20, 9.11, 9.13
-          requires A > 0: from 9.15
+    5.22. A·(B²/A) ≤ A·C
+          mun:multiply-le, from 5.21, 5.20, 5.11, 5.13
+          requires A > 0: from 5.15
 
-    9.23. A·(B²/A) = B²
+    5.23. A·(B²/A) = B²
           algebra
-          requires A ∈ ℝ: from 9.11
-          requires B ∈ ℝ: from 9.12
-          requires A ≠ 0: from 9.16
+          requires A ∈ ℝ: from 5.11
+          requires B ∈ ℝ: from 5.12
+          requires A ≠ 0: from 5.16
 
-    9.24. B² ≤ A·C
-          substitute A·(B²/A) = B² (line 9.23) into line 9.22
+    5.24. B² ≤ A·C
+          substitute A·(B²/A) = B² (line 5.23) into line 5.22
 
-    9.25. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+    5.25. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
           calculation
             (Σ(k = 1 to n) a(k)·b(k))² = B²      D2
-                                       ≤ A·C     9.24
+                                       ≤ A·C     5.24
                                        = (Σ(k = 1 to n) a(k)²)·C    D1
                                        = (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)    D3

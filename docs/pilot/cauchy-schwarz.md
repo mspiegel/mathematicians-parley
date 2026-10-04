@@ -13,8 +13,8 @@ inequality.
 
 ## Theorem cauchy-schwarz
 
-The proof is `proofs/cauchy-schwarz.proof`, one theorem of 9 numbered steps,
-41 with those inside its blocks. It elaborates to
+The proof is `proofs/cauchy-schwarz.proof`, one theorem of 5 numbered steps,
+37 with those inside its blocks. It elaborates to
 `corpus/elaboration/proofs/cauchy-schwarz/`, assumes nothing, and verifies.
 
 ---
@@ -118,3 +118,10 @@ B² ≤ AC. ∎
     corpus theorem's conclusion was taken for a claim over other letters
     without renaming the two. Both are fixed, and three other proofs'
     files changed by a few lines and verify.
+12. **The sums' memberships were steps of their own.** Three steps said
+    each sum is real and a fourth joined them, for the requires lines of
+    the cases to cite. They were dull facts written apart from the steps
+    they serve, against `READERS.md`, and were there because a `requires`
+    line inside the case Σaₖ² = 0 was proved outside it. With that fixed,
+    each step that needs a sum real says so where it needs it, by
+    `membership`, and the four steps are gone.
