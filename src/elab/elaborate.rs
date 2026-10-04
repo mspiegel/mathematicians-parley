@@ -3377,11 +3377,10 @@ impl<'a> Elaborator<'a> {
                 let stated = me.in_its_names(Item::Theorem(other), |me| {
                     me.claim_of(&other.conclusion)
                 })?;
-                let mut whole = if stated == term || me.rebound(&stated, term) {
-                    term.to_string()
-                } else {
-                    stated.clone()
-                };
+                // What the cited label proves is its statement over its own
+                // letters, which the claim may bind otherwise; the two are
+                // joined below, not taken to be one.
+                let mut whole = stated.clone();
                 if me.sentences(&other.conclusion).len()
                     > me.sentences(&claim_text).len()
                 {
@@ -3482,6 +3481,14 @@ impl<'a> Elaborator<'a> {
         };
         if term == whole {
             return Ok(proof);
+        }
+        // The claim over other bound letters: one claim, renamed closed by
+        // way of letters nothing holds (`renaming_apart`).
+        if self.rebound(&whole, term) {
+            if let Some(across) = self.renaming_apart(&whole, term)? {
+                let turned = pf!(self.b; t!(whole, term, "wb"), scope, across, "a1i");
+                return Ok(pf!(self.b; scope, whole, term, proof, turned, "mpbid"));
+            }
         }
         let taken = Facts::new();
         taken.set(whole.clone(), proof.clone());

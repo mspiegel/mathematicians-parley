@@ -150,7 +150,7 @@ read, the existence is written with "with".
 |---|---|---|
 | `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
-| a "for all" step of one line, justified as its body would be | a `fix` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | 9 one-line steps; 2 blocks against the rule, `euler` 19 and `harmonic` 1 |
+| a "for all" step of one line, justified as its body would be | a `fix` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
@@ -177,11 +177,7 @@ textbook writes "each a(k)² ≥ 0, since squares are not negative"
 label, an opener and a sub-step number for nothing a reader would ask about.
 A block stays where its one step is itself a block — `contradiction` or
 `induction`, as in Cantor's step 2, Schröder–Bernstein's 4 and the harmonic
-series' first theorem — since that step cannot be written on one line. The
-two blocks against the rule are not a choice: written as lines, each leaves a
-later step fitting one letter to two variables a lemma keeps apart, which the
-verifier refuses (`ELABORATION.md`, under `fix`), and they become lines when
-that is fixed.
+series' first theorem — since that step cannot be written on one line.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

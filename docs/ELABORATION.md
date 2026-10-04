@@ -231,6 +231,12 @@ claim one sentence of a conclusion that says several — `intermediate-value`
 cites `thm:proofs/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
 the whole. The conclusion is read in the sorts the cited theorem's own
 hypotheses state, since `|x|` is absolute value only where x is a number.
+What the cited label proves is its conclusion over its own bound letters,
+and a claim that says it over others is reached by renaming the two apart
+(`renaming_apart`), never by taking the claim for the conclusion: the
+harmonic series cites `harmonic-unbounded` for "there is N ∈ ℕ with
+Σ(k = 1 to N) 1/k > B", whose letters the citing proof may spell
+differently.
 
 **A group is a structure the page never writes.** `let G be a finite group
 with operation · and identity e` is set.mm's `W e. Grp` for a class W, with
@@ -300,11 +306,7 @@ requires lines are proved, and the claim generalised. The member takes the
 claim's own letter where neither the scope nor a name holds it, and a spare
 otherwise, renamed back after. Either is `reserved`, so no later step is handed
 it as a letter nothing holds. A definition the step cites unfolds the member's
-membership as it would a cited line (`member`). Two blocks of the corpus stay
-blocks: written as one line, `euler`'s step 19 and `harmonic`'s step 1 each
-leave a later step fitting one letter to two variables a lemma keeps apart
-(`gfprodrp`'s x and k in `euler`), which the verifier refuses. That is the
-fitting of cited lines' bound letters, not this reading, and is open.
+membership as it would a cited line (`member`).
 
 **Where a step is proved is not always where the text puts it.** A kernel
 disjointness condition can make a step's expansion illegal under the antecedent
@@ -353,10 +355,13 @@ apart from any scope it is used under; `gpartsfin`, which
 `mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
 
-- every letter the lemma binds and keeps apart from its scope, and the claim
-  does not fix, is given one nothing in the proof holds, whether or not a
-  frame spells the lemma's own, and never the one a cited line happens to
-  bind (`letters_unheld`). What the lemma's other variables stand for is
+- every letter the lemma binds and keeps apart from its scope, or from
+  another of its letters the claim has fixed, and the claim does not fix, is
+  given one nothing in the proof holds, whether or not a frame spells the
+  lemma's own, and never the one a cited line happens to bind
+  (`letters_unheld`). `gfprodrp` keeps its hypothesis's x apart from the
+  product's k; Euler's step 20 fixes k as r, and line 19, "for all r ∈ S",
+  would otherwise hand x the same r. What the lemma's other variables stand for is
   still read off the lines, fitted with the fresh letters left open
   (`fit_respelt`). The rule applies where it is redundant too: a lemma whose
   own letter nothing spells still takes a fresh one, so no step depends on

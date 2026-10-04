@@ -211,11 +211,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     substitute φ(n) = |S| (line 15) into line 17
 
 19. For all r ∈ S, gcd(r, n) = 1.
-    fix
-    let r ∈ S                                                         (K6)
-
-    19.1. gcd(r, n) = 1
-          mun:set-builder u := r, from K6, D1
+    mun:set-builder u := r, from D1
 
 20. gcd(∏(r ∈ S) r, n) = 1
     thm:product-coprime, from 6, 5, H1, 19

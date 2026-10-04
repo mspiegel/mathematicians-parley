@@ -218,11 +218,7 @@ theorem harmonic
   then there is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞
 
 1.  For all n ∈ ℕ, Σ(k = 1 to n) 1/k ∈ ℝ.
-    fix
-    let n ∈ ℕ                                                         (K1)
-
-    1.1.  Σ(k = 1 to n) 1/k ∈ ℝ
-          membership
+    membership
 
 2.  There is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞.
     contradiction

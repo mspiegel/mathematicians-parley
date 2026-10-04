@@ -3011,10 +3011,19 @@ impl<'a> Elaborator<'a> {
         let mut apart: BTreeSet<String> = BTreeSet::new();
         for (a, b) in &sig.disjoint {
             for (one, other) in [(a, b), (b, a)] {
-                if kinds.get(one.as_str()) == Some(&"setvar")
-                    && !binding.contains_key(other)
-                    && !matches!(kinds.get(other.as_str()), None | Some(&"setvar"))
-                {
+                if kinds.get(one.as_str()) != Some(&"setvar") {
+                    continue;
+                }
+                // Kept apart from a class the claim leaves open, which the
+                // scope may spell; or from another letter the claim has
+                // fixed, which a cited line may bind as well: `gfprodrp`
+                // keeps its x from the product's k, and a line saying "for
+                // all r ∈ S" would hand x the r the product fixed as k.
+                let from_class = !binding.contains_key(other)
+                    && !matches!(kinds.get(other.as_str()), None | Some(&"setvar"));
+                let from_fixed = kinds.get(other.as_str()) == Some(&"setvar")
+                    && binding.contains_key(other);
+                if from_class || from_fixed {
                     apart.insert(one.clone());
                 }
             }

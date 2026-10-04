@@ -110,5 +110,11 @@ B² ≤ AC. ∎
     step be one line: the item applied at a member (`SYNTAX.md`, a step said
     of every member). The reading is decided by what is cited, not tried one
     way then the other, which the reader asked for when the first draft did
-    try. Three blocks here became lines, and six elsewhere; `euler` 19 and
-    `harmonic` 1 stay blocks, for the fault `ELABORATION.md` records.
+    try. Three blocks here became lines, and eight elsewhere. Two of those,
+    `euler` 19 and `harmonic` 1, first built proofs the verifier refused,
+    and each showed a fault in reading a cited line's bound letters that the
+    blocks had hidden: a lemma's letter kept apart from another the claim
+    fixed was not given a fresh one (`gfprodrp`'s x and k), and a cited
+    corpus theorem's conclusion was taken for a claim over other letters
+    without renaming the two. Both are fixed, and three other proofs'
+    files changed by a few lines and verify.
