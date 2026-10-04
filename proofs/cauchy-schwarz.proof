@@ -129,71 +129,56 @@ theorem cauchy-schwarz
     define C := Σ(k = 1 to n) b(k)²                                   (D3)
            reads the sum of the squares of the b's
 
-    5.11. A ∈ ℝ
-          membership
-
-    5.12. B ∈ ℝ
-          membership
-
-    5.13. C ∈ ℝ
-          membership
-
-    5.14. A = Σ(k = 1 to n) a(k)²
+    5.11. A = Σ(k = 1 to n) a(k)²
           D1
 
-    5.15. A > 0
-          inequalities, from C3, 5.14
-          requires A ∈ ℝ: from 5.11
+    5.12. A > 0
+          inequalities, from C3, 5.11
+          requires A ∈ ℝ: membership
           requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
-    5.16. A ≠ 0
-          inequalities, from 5.15
-          requires A ∈ ℝ: from 5.11
-
-    5.17. −B/A ∈ ℝ
-          membership, from 5.11, 5.12, 5.16
-
-    5.18. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
+    5.13. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
           instantiate t := −B/A in line 1
-          requires −B/A ∈ ℝ: from 5.17
+          requires −B/A ∈ ℝ: membership, from 5.12
           requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires Σ(k = 1 to n) a(k)·b(k) ∈ ℝ: membership
-          requires A ∈ ℝ: from 5.11
-          requires B ∈ ℝ: from 5.12
+          requires A ∈ ℝ: membership
+          requires B ∈ ℝ: membership
 
-    5.19. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
+    5.14. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
           algebra
-          requires A ∈ ℝ: from 5.11
-          requires B ∈ ℝ: from 5.12
-          requires C ∈ ℝ: from 5.13
-          requires A ≠ 0: from 5.16
+          requires A ∈ ℝ: membership
+          requires B ∈ ℝ: membership
+          requires C ∈ ℝ: membership
+          requires A ≠ 0: inequalities, from 5.12
 
-    5.20. B²/A ∈ ℝ
-          membership, from 5.11, 5.12, 5.16
+    5.15. B²/A ≤ C
+          inequalities, from 5.13, 5.14
+          requires B²/A ∈ ℝ: membership, from 5.12
+          requires A ∈ ℝ: membership
+          requires B ∈ ℝ: membership
+          requires C ∈ ℝ: membership
+          requires A ≠ 0: inequalities, from 5.12
 
-    5.21. B²/A ≤ C
-          inequalities, from 5.18, 5.19, 5.16
-          requires B²/A ∈ ℝ: from 5.20
-          requires A ∈ ℝ: from 5.11
-          requires B ∈ ℝ: from 5.12
-          requires C ∈ ℝ: from 5.13
+    5.16. A·(B²/A) ≤ A·C
+          mun:multiply-le, from 5.15
+          requires B²/A ∈ ℝ: membership, from 5.12
+          requires A ∈ ℝ: membership
+          requires C ∈ ℝ: membership
+          requires A > 0: from 5.12
 
-    5.22. A·(B²/A) ≤ A·C
-          mun:multiply-le, from 5.21, 5.20, 5.11, 5.13
-          requires A > 0: from 5.15
-
-    5.23. A·(B²/A) = B²
+    5.17. A·(B²/A) = B²
           algebra
-          requires A ∈ ℝ: from 5.11
-          requires B ∈ ℝ: from 5.12
-          requires A ≠ 0: from 5.16
+          requires A ∈ ℝ: membership
+          requires B ∈ ℝ: membership
+          requires A ≠ 0: inequalities, from 5.12
 
-    5.24. B² ≤ A·C
-          substitute A·(B²/A) = B² (line 5.23) into line 5.22
+    5.18. B² ≤ A·C
+          substitute A·(B²/A) = B² (line 5.17) into line 5.16
 
-    5.25. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
+    5.19. (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
           calculation
             (Σ(k = 1 to n) a(k)·b(k))² = B²      D2
-                                       ≤ A·C     5.24
+                                       ≤ A·C     5.18
                                        = (Σ(k = 1 to n) a(k)²)·C    D1
                                        = (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)    D3

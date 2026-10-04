@@ -1666,8 +1666,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `known`, with each fact `part` builds from — a membership in a number
-    /// system, and a term's not being 0 — laid down beside itself in its
-    /// standard form, where that differs.
+    /// system, a term's not being 0, and a term above 0 or below it — laid
+    /// down beside itself in its standard form, where that differs.
     pub(crate) fn read_memberships(
         &mut self,
         scope: &str,
@@ -1702,7 +1702,12 @@ impl<'a> Elaborator<'a> {
             let nonzero = fact.label() == Some("wn")
                 && fact.children()[0].label() == Some("wceq")
                 && self.rpn(&fact.children()[0].children()[1]) == "cc0";
-            if fact.variable().is_some() || !(member || nonzero) {
+            // A term above zero or below it, which says it is not zero.
+            let signed = fact.label() == Some("wbr")
+                && self.rpn(&fact.children()[2]) == "clt"
+                && (self.rpn(&fact.children()[0]) == "cc0"
+                    || self.rpn(&fact.children()[1]) == "cc0");
+            if fact.variable().is_some() || !(member || nonzero || signed) {
                 continue;
             }
             let read = self.standard(&fact);

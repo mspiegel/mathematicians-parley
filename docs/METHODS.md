@@ -507,7 +507,9 @@ The term is walked by the operation at its head, as `algebra` walks it:
 - a sum, difference, product or power is in S when its parts are
   (`readdcld`, `remulcld` and the rest of the closure table);
 - a negation is in S when what it negates is, for S that holds negatives;
-- a quotient is in ℝ or ℂ when its parts are and its divisor is not zero;
+- a quotient is in ℝ or ℂ when its parts are and its divisor is not zero,
+  which a cited line says by saying it, or by saying the divisor is above
+  zero or below it (`gt0ne0d`, `lt0ne0d`): −B/A ∈ ℝ from A > 0;
 - a sum over a range {a, …, b} is in ℝ or ℂ when its term is, for each index
   in the range (`fsumrecl`, `fsumcl`); the index is in ℕ where the range
   starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks

@@ -14,7 +14,7 @@ inequality.
 ## Theorem cauchy-schwarz
 
 The proof is `proofs/cauchy-schwarz.proof`, one theorem of 5 numbered steps,
-37 with those inside its blocks. It elaborates to
+31 with those inside its blocks. It elaborates to
 `corpus/elaboration/proofs/cauchy-schwarz/`, assumes nothing, and verifies.
 
 ---
@@ -124,4 +124,8 @@ B² ≤ AC. ∎
     they serve, against `READERS.md`, and were there because a `requires`
     line inside the case Σaₖ² = 0 was proved outside it. With that fixed,
     each step that needs a sum real says so where it needs it, by
-    `membership`, and the four steps are gone.
+    `membership`, and the four steps are gone. The case Σaₖ² > 0 had six
+    more: A, B and C real, A ≠ 0, and −B/A and B²/A real. They are
+    `requires` lines now. `membership` builds a sum from its terms as the
+    lookup does, and takes A > 0 for A ≠ 0 as a divisor asks, which is how
+    a reader reads it; A ≠ 0 elsewhere is `inequalities, from` A > 0.

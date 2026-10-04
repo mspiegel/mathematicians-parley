@@ -1275,6 +1275,26 @@ impl<'a> Elaborator<'a> {
             }
             return Ok(Built(pf!(self.b; scope, divisor, "cc0", found, "neqned")));
         }
+        // A line saying the divisor is above zero, or below it, says it is
+        // not zero (`gt0ne0d`, `lt0ne0d`), as a reader takes A > 0.
+        for (want, lemma) in [
+            (t!("cc0", divisor, "clt", "wbr"), "gt0ne0d"),
+            (t!(divisor, "cc0", "clt", "wbr"), "lt0ne0d"),
+        ] {
+            let mut found = facts.get(&want);
+            if found.is_none() {
+                if let Some((at, held)) = self.written.get(&want).cloned() {
+                    found = self.lifted_to(&want, &held, &at, scope);
+                }
+            }
+            if let Some(found) = found {
+                return Ok(Built(self.b.ap(
+                    lemma,
+                    &binds! {"ph" => scope, "A" => divisor},
+                    &[&found],
+                )));
+            }
+        }
         // A cited line whose membership says so: `let k ∈ ℕ` says k ≠ 0.
         let citing: Vec<String> = self.citing.iter().cloned().collect();
         for r in citing {
@@ -1391,6 +1411,12 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(valued) = self.function_value(said, system, scope, facts)? {
             return Ok(Built(valued));
+        }
+        // A finite sum is a number because its terms are (`summed`).
+        if term.variable().is_none() && term.label() == Some("csu") {
+            if let Built(p) = self.summed(&term, system, scope, facts, None)? {
+                return Ok(Built(p));
+            }
         }
         Ok(Route::no(format!(
             "nothing written says {}",
