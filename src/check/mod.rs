@@ -26,7 +26,7 @@ use crate::sorts::{settled, Env};
 use crate::source::Source;
 use crate::text::check_encoding;
 
-pub use library::{Known, Library};
+pub use library::{implied_facts, Known, Library};
 
 /// Methods whose steps this checker accepts without examining them.
 pub const CLOSURE: [&str; 5] = [

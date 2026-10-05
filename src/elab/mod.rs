@@ -20,6 +20,7 @@ pub mod definitions;
 pub mod elaborate;
 pub mod field;
 pub mod linear;
+mod listing;
 pub mod matcher;
 pub mod normal;
 pub mod provenance;

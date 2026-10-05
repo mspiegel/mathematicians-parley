@@ -230,6 +230,9 @@ pub struct Elaborator<'a> {
     /// Where messages are being tested, each sentence said back as another
     /// term (`Options::say_back`).
     pub said_back: Option<Vec<String>>,
+    /// Where the tools' answers are being compared, what this one answers
+    /// (`Options::list_answers`, `listing`).
+    pub answers: Option<Vec<String>>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
     /// By step line, what its method combined.
@@ -358,6 +361,7 @@ impl<'a> Elaborator<'a> {
             citing: IndexSet::new(),
             in_family: 0,
             said_back: None,
+            answers: None,
             resting: None,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),

@@ -1655,6 +1655,15 @@ proved (`discharged_by`).
     what step 5 claims: cannot settle 1 / T(k) ∈ ℝ". `tests/said_back.rs`
     elaborates every theorem with each sentence its steps claim said back
     and read again.
+  - both, where both answer one question: what a line implies besides
+    itself. `tests/agree.rs` elaborates every theorem and asks each tool of
+    every sentence a step claims or requires, comparing the answers as kernel
+    terms, since k ≥ 0 and 0 ≤ k are one term written two ways; an answer
+    the page cannot say, set.mm's =/=, is not compared. The answers that
+    differ are listed in the test, and it fails on any other: the checker
+    reads a part of a set as a member of its power set and the elaborator
+    does not, and the elaborator reads a member of a range of integers as an
+    integer and the checker does not.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items

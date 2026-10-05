@@ -714,6 +714,11 @@ impl<'a> Elaborator<'a> {
         if self.said_back.is_some() {
             self.say_back(&sentences, step.line)?;
         }
+        if self.answers.is_some() {
+            let mut facts = sentences.clone();
+            facts.extend(step.requires.iter().map(|r| r.fact.clone()));
+            self.list_implied(step, &facts)?;
+        }
         let Some(how) = self.method_for(step, &term)? else {
             return Err(
                 self.defect(step.line, format!("no expansion for {}", repr(&head)))
@@ -3695,6 +3700,9 @@ pub struct Options {
     /// that comes back as another term kept in `Elaborated::said_back`.
     /// Only the test of what messages say turns it on.
     pub say_back: bool,
+    /// What the elaborator answers to the questions the checker answers
+    /// too, listed in `Elaborated::answers` for `tests/agree.rs`.
+    pub list_answers: bool,
 }
 
 /// One theorem's elaborated file, and the statement it proves, which a
@@ -3705,6 +3713,8 @@ pub struct Elaborated {
     /// Where `Options::say_back` is on, each sentence said back as another
     /// term: the sentence, what it was said back as, and its line.
     pub said_back: Vec<String>,
+    /// Where `Options::list_answers` is on, the elaborator's answers.
+    pub answers: Vec<String>,
 }
 
 /// Elaborate one theorem of the corpus into its file.
@@ -3741,6 +3751,7 @@ pub fn elaborate(
     work.b.share_syntax(syntax);
     work.whole_scope = options.whole_scope_offered;
     work.said_back = options.say_back.then(Vec::new);
+    work.answers = options.list_answers.then(Vec::new);
     let (goal, hypotheses, mut proof) = work.run()?;
     let mut antecedent = hypotheses.first().cloned();
     for extra in hypotheses.iter().skip(1) {
@@ -3840,6 +3851,7 @@ pub fn elaborate(
         text: out,
         statement: format!("|- {says}"),
         said_back: work.said_back.take().unwrap_or_default(),
+        answers: work.answers.take().unwrap_or_default(),
     })
 }
 

@@ -66,15 +66,20 @@ impl Elaborator<'_> {
     /// again; one that comes back as another term, or cannot be said, is
     /// kept in `said_back`.
     pub fn say_back(&mut self, sentences: &[String], line: usize) -> Checked<()> {
-        // Reading a sentence may give a bound letter a kernel letter; what is
-        // read here is read only to be compared, and leaves nothing behind.
+        self.aside(|me| me.said_back_each(sentences, line))
+    }
+
+    /// `f`, leaving nothing behind of what reading does: reading a sentence
+    /// may give a bound letter a kernel letter, and what a test reads it
+    /// reads only to compare.
+    pub fn aside<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
         let kept = (
             self.names.clone(),
             self.bound_as.clone(),
             self.written_as.clone(),
             self.spare.clone(),
         );
-        let out = self.said_back_each(sentences, line);
+        let out = f(self);
         (self.names, self.bound_as, self.written_as, self.spare) = kept;
         out
     }
