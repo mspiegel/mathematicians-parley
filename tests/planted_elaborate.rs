@@ -500,9 +500,9 @@ fn cases() -> Vec<Case> {
             "membership of a defined function's value without citing its define",
             "proofs/mean-value/mean-value",
             "proofs/mean-value.proof",
-            "membership, from D1, K3",
-            "membership, from K3",
-            "is not built from what step 8.2 cites",
+            "    membership, from D1\n",
+            "    membership\n",
+            "is not built from what step 8 cites",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the

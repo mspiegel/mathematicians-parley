@@ -416,7 +416,15 @@ justified as P would be, read at a member k of X, with no `fix` block:
 is the block `fix`, `let k ∈ {1, …, n} (K)`, and one step proving a(k)² ≥ 0
 from H2 and K. The membership k ∈ X is what the claim's own "for all" gives,
 so no line is cited for it, and a requires line speaks of the member by the
-claim's letter. "for all X ⊆ A" is read at a part of A. Which reading a
+claim's letter and has its membership as the step does:
+
+    8.  For all x ∈ [a, b], g(x) ∈ ℝ.
+        membership, from D1
+        requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
+        requires x ∈ ℝ: mun:interval, from H1, H2
+
+reads x ∈ ℝ off x ∈ [a, b] as the block's line `mun:interval, from H1, H2,
+K` would. "for all X ⊆ A" is read at a part of A. Which reading a
 citation takes is read off what it cites, never tried one way and then the
 other: an item whose conclusions say "for all" anywhere is read as written,
 as `sum-zero-terms` gives one and `upper-bound` unfolds to one, and an item

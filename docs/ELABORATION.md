@@ -307,7 +307,10 @@ requires lines are proved, and the claim generalised. The member takes the
 claim's own letter where neither the scope nor a name holds it, and a spare
 otherwise, renamed back after. Either is `reserved`, so no later step is handed
 it as a letter nothing holds. A definition the step cites unfolds the member's
-membership as it would a cited line (`member`).
+membership as it would a cited line (`member`), and so does one a requires
+line cites: a requires line naming a definition stated as a biconditional is
+read as a step citing it is (`reading`, `trying`), from the lines the
+requires line cites rather than the step's.
 
 **Where a step is proved is not always where the text puts it.** A kernel
 disjointness condition can make a step's expansion illegal under the antecedent

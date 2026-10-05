@@ -54,33 +54,19 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     D2
 
 8.  For all x ∈ [a, b], g(x) ∈ ℝ.
-    fix
-    let x ∈ [a, b]                                                    (K3)
-
-    8.1.  x ∈ ℝ
-          mun:interval, from H1, H2, K3
-
-    8.2.  g(x) ∈ ℝ
-          membership, from D1, K3
-          requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
-          requires x ∈ ℝ: from 8.1
+    membership, from D1
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
+    requires x ∈ ℝ: mun:interval, from H1, H2
 
 9.  g : [a, b] → ℝ
     mun:function-into, from 8
     requires g is a function on [a, b]: from D1
 
 10. For all x ∈ [a, b], F(x) ∈ ℝ.
-    fix
-    let x ∈ [a, b]                                                    (K4)
-
-    10.1. x ∈ ℝ
-          mun:interval, from H1, H2, K4
-
-    10.2. F(x) ∈ ℝ
-          membership, from D1, D2, K4
-          requires f(x) ∈ ℝ: from H4, K4
-          requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
-          requires x ∈ ℝ: from 10.1
+    membership, from D1, D2
+    requires f(x) ∈ ℝ: from H4
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
+    requires x ∈ ℝ: mun:interval, from H1, H2
 
 11. F : [a, b] → ℝ
     mun:function-into, from 10

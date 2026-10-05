@@ -486,15 +486,6 @@ fn at_a_member(
     let [claim] = claims else {
         return None;
     };
-    // "for all X ⊆ A" ranges over the parts of A, and a member is one.
-    let (written, held_as) = match claim.notation.as_str() {
-        "for-all" => ("x ∈ S", None),
-        "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
-        _ => return None,
-    };
-    if claim.children.len() != 3 {
-        return None;
-    }
     let just = &step.just;
     // A define says what its name is equal to, never a "for all", so a
     // step citing one for a "for all" is read at a member.
@@ -506,6 +497,26 @@ fn at_a_member(
         if item.says_for_all() {
             return None;
         }
+    }
+    claimed_member(claim, library, sorts)
+}
+
+/// What a claim "for all k ∈ X, P" gives a step that proves it in one line:
+/// the membership k ∈ X, and P. "for all X ⊆ A" gives X ⊆ A. None for any
+/// other claim.
+pub fn claimed_member(
+    claim: &Node,
+    library: &Library,
+    sorts: &Sorts,
+) -> Option<(Node, Node)> {
+    // "for all X ⊆ A" ranges over the parts of A, and a member is one.
+    let (written, held_as) = match claim.notation.as_str() {
+        "for-all" => ("x ∈ S", None),
+        "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
+        _ => return None,
+    };
+    if claim.children.len() != 3 {
+        return None;
     }
     let (letter, domain, body) =
         (&claim.children[0], &claim.children[1], &claim.children[2]);

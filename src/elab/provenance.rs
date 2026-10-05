@@ -13,6 +13,7 @@
 
 use std::collections::BTreeSet;
 
+use super::elaborate::Way;
 use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
@@ -821,6 +822,34 @@ impl<'a> Elaborator<'a> {
                     let first = name.split_whitespace().next().unwrap_or("");
                     let full = self.thm.names.full(first);
                     if let Some(item) = self.items.get(&full).copied() {
+                        // A definition stated as a biconditional is read as
+                        // a step citing it reads it, from the lines this line
+                        // cites (`one_unfolded`).
+                        if let Item::Record(record) = item {
+                            let biconditional = item.unfolds()
+                                && record.fields.contains_key("target")
+                                && record
+                                    .conclusions
+                                    .iter()
+                                    .any(|(t, _)| t.contains('↔'));
+                            if biconditional {
+                                let way =
+                                    self.reading(record, &term, step, Some(&refs))?;
+                                if way != Way::Conclude {
+                                    let lines = self.lines.clone();
+                                    return self.trying(
+                                        item,
+                                        step,
+                                        way,
+                                        &term,
+                                        scope,
+                                        facts,
+                                        &lines,
+                                        Some(&refs),
+                                    );
+                                }
+                            }
+                        }
                         if !item_clauses(item).is_empty() {
                             // What the line cites is taken apart as a step's
                             // citations are.

@@ -730,7 +730,7 @@ impl<'a> Elaborator<'a> {
             how = Some(if !item.fields.contains_key("target") {
                 Method::TakeDefinition
             } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
-                Method::Reading(self.reading(item, &term, step)?)
+                Method::Reading(self.reading(item, &term, step, None)?)
             } else {
                 Method::UnfoldEquation
             });
@@ -957,7 +957,7 @@ impl<'a> Elaborator<'a> {
             }
             Method::Reading(way) => {
                 let item = self.item_cited(&step.just.head.to_string());
-                self.trying(item, step, *way, term, scope, facts, lines)?
+                self.trying(item, step, *way, term, scope, facts, lines, None)?
             }
             Method::UnfoldEquation => self.unfold_equation(step, term, scope, facts)?,
             Method::Cite => self.cite(step, term, scope, facts, lines)?,
@@ -1679,7 +1679,9 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
+        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
+        let refs = cites.unwrap_or(&step.just.refs);
         // A claim the lemma's left side fits only as the standard form reads
         // it is reached at the lemma's own instance and carried by `same`.
         let mut whole = self.statement(lemma);
@@ -1697,11 +1699,10 @@ impl<'a> Elaborator<'a> {
             None => term.to_string(),
         };
         if instance != term {
-            let made = take!(
-                self.one_equivalent(lemma, step, &instance, scope, facts, lines)?
-            );
+            let made = take!(self
+                .one_equivalent(lemma, step, &instance, scope, facts, lines, cites)?);
             let supplied = self.supplied(Some(step), scope, facts)?;
-            let held = self.with_cited(Some(step), scope, &supplied, None);
+            let held = self.with_cited(Some(step), scope, &supplied, cites);
             let alike = take!(self.same(
                 &self.to_term(&instance),
                 &self.to_term(term),
@@ -1715,9 +1716,7 @@ impl<'a> Elaborator<'a> {
         }
         // What a lemma's right side says beyond what its left fixes can only
         // come from the lines the step cites, in the order it writes them.
-        let said: Vec<String> = step
-            .just
-            .refs
+        let said: Vec<String> = refs
             .iter()
             .filter_map(|r| lines.get(r).map(|l| l.term))
             .collect();
@@ -1739,7 +1738,7 @@ impl<'a> Elaborator<'a> {
         // The right side is what the step supplies, and not whatever the
         // scope would give.
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, None);
+        let known = self.with_cited(Some(step), scope, &supplied, cites);
         let under = take!(self.settle(
             &self.to_term(&right),
             scope,
@@ -1828,7 +1827,9 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
+        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
+        let refs = cites.unwrap_or(&step.just.refs);
         let sig = self.sig(lemma).clone();
         let whole = self.statement(lemma);
         let variables = names_of(&whole);
@@ -1842,7 +1843,7 @@ impl<'a> Elaborator<'a> {
         // A line may say several things at once, and what the definition
         // unfolds is any one of them.
         let mut chosen = None;
-        for r in &step.just.refs {
+        for r in refs {
             let Some(cited) = lines.get(r) else {
                 continue;
             };
@@ -1916,7 +1917,7 @@ impl<'a> Elaborator<'a> {
         // What carries the unfolding to the claim asks from what the step
         // names, requires lines included.
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let facts = self.with_cited(Some(step), scope, &supplied, None);
+        let facts = self.with_cited(Some(step), scope, &supplied, cites);
         let (made, _) = take!(self.unfolding(
             step,
             lemma,
@@ -1960,6 +1961,9 @@ impl<'a> Elaborator<'a> {
     /// Use whichever lemma the target names reaches the claim; a defect the
     /// way found on its own account is not one of the lemmas declining, and
     /// goes past.
+    ///
+    /// `cites` is the lines the citation names: None for a step's own, and a
+    /// requires line's where the line cites the item (`by_its_reason`).
     #[allow(clippy::too_many_arguments)]
     pub fn trying(
         &mut self,
@@ -1970,14 +1974,17 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
+        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
         let mut declines = Vec::new();
         for lemma in item_clauses(item) {
             let found = match way {
                 Way::Equivalent => {
-                    self.one_equivalent(&lemma, step, term, scope, facts, lines)?
+                    self.one_equivalent(&lemma, step, term, scope, facts, lines, cites)?
                 }
-                _ => self.one_unfolded(&lemma, step, term, scope, facts, lines)?,
+                _ => {
+                    self.one_unfolded(&lemma, step, term, scope, facts, lines, cites)?
+                }
             };
             match found {
                 Built(p) => return Ok(Built(p)),
@@ -1992,7 +1999,14 @@ impl<'a> Elaborator<'a> {
 
     /// Which of three ways a biconditional definition reaches a claim: the
     /// claim decides, and what the lemma states decides with it.
-    fn reading(&mut self, item: &'a Record, term: &str, step: &Step) -> Checked<Way> {
+    pub fn reading(
+        &mut self,
+        item: &'a Record,
+        term: &str,
+        step: &Step,
+        cites: Option<&[String]>,
+    ) -> Checked<Way> {
+        let refs = cites.unwrap_or(&step.just.refs);
         for lemma in targets::clauses(item) {
             let mut whole = self.statement(&lemma);
             while whole.label() == Some("wi") {
@@ -2007,7 +2021,7 @@ impl<'a> Elaborator<'a> {
                 if self.to_term(term).label() == Some("wrex") {
                     return Ok(Way::Unfolded);
                 }
-                if step.just.refs.iter().any(|r| {
+                if refs.iter().any(|r| {
                     self.lines
                         .get(r)
                         .is_some_and(|l| self.to_term(&l.term).label() == Some("wrex"))

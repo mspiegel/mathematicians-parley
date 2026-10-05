@@ -1153,6 +1153,7 @@ impl<'a> Elaborator<'a> {
                     scope,
                     facts,
                     &lines,
+                    None,
                 )? {
                     Built(p) => p,
                     Declined(_) => {

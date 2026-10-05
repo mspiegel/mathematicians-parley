@@ -5,7 +5,9 @@ use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::library::{conjuncts, readings, with_parts, Group, Known, Library};
+use super::library::{
+    claimed_member, conjuncts, readings, with_parts, Group, Known, Library,
+};
 use super::Report;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
@@ -558,7 +560,22 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
                 .filter(|o| o.fact != req.fact)
                 .map(|o| o.fact.clone()),
         );
-        let read: Vec<Node> = supplied.iter().filter_map(|s| known.read(s)).collect();
+        let mut read: Vec<Node> =
+            supplied.iter().filter_map(|s| known.read(s)).collect();
+        // A step said of every member in one line: its requires lines speak
+        // of the member, whose membership the claim gives (`SYNTAX.md`).
+        if step.openers.is_empty() {
+            let claimed: Vec<Node> = sentences(&step.claim_text())
+                .iter()
+                .filter_map(|s| known.read(s))
+                .collect();
+            if let [claim] = claimed.as_slice() {
+                if let Some((member, _)) = claimed_member(claim, library, &known.sorts)
+                {
+                    read.push(member);
+                }
+            }
+        }
         let facts = with_parts(&read, library);
         let mut seed = Binding::new();
         for (name, value) in instantiation(&req.how) {

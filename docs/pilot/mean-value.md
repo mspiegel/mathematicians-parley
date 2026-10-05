@@ -94,8 +94,9 @@ f′(c) = (f(b) − f(a))/(b − a). ∎
    sum's both read off one point (`gdvaddbr`), the line's off its
    derivative restricted to U (`gdvlinres`).
 4. **`membership` reads a define as its rule, all the way down.** F(x) is
-   read as f(x) + slope·x, so the requires lines of step 10.2 name the
-   slope and x, which F's rule never writes.
+   read as f(x) + slope·x, so the requires lines of step 10 name the
+   slope and x, which F's rule never writes, and the step cites the
+   defines of F and g.
 5. **An `inequalities` defect.** A claim b − a ≠ 0 from a < b was given the
    proof of b ≠ a, which the build accepted and the verifier refused. The
    route now takes only a claim that names the bound's two sides, and the
