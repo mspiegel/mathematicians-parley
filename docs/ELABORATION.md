@@ -1539,16 +1539,19 @@ proved (`discharged_by`).
   also lets one line discharge from another (`SYNTAX.md`). `supplied` proves a
   step's requires lines in the order written, each with those above it in
   hand; asked again while one is being proved, it answers with what that line
-  was given, so a line below is never proved first. A line whose reason is
-  `inequalities` takes the orders and equations above it as lines it cites,
-  each known by the proof `supplied` sealed as that line, and reads them and
-  its claim with defined names written out, as `inequalities` reads a step's
-  (`order_of_requires`): `requires sin(∠PQR) ≠ 0: inequalities` stands on
-  `requires sin(∠PQR) > 0` above it, and `requires A > 0: inequalities, from
-  D1, C3` on the sum D1 names. A line whose reason is `algebra` is proved as
-  its step would be were the step citing what the line cites: `requires 1 −
-  a ≠ 0: algebra, from H2` rescales `a ≠ 1`. *the requires line rests on 1,
-  which it does not name.*
+  was given, so a line below is never proved first. A line whose reason is a
+  method or an item is proved as the step it would be (`requires_as_step`,
+  `as_a_step`): its fact the claim, its reason the justification, the method
+  chosen and run by the route a numbered step takes. Among the lines it cites
+  are the orders and equations above it, each known by the proof `supplied`
+  sealed as that line, so `requires sin(∠PQR) ≠ 0: inequalities` stands on
+  `requires sin(∠PQR) > 0` above it; `requires A > 0: inequalities, from D1,
+  C3` reads the sum D1 names as a step does, and `requires 1 − a ≠ 0:
+  algebra, from H2` rescales `a ≠ 1` as a step does. What that route reports
+  of the line is said of the requires line. Only a reason with no step form
+  is read apart: a bare `from`, a definition folded into the line, and a
+  define giving its function. *the requires line rests on 1, which it does
+  not name.*
 - **R3 — everything a step names does work.** Divided by who can see it:
   - the elaborator, on every step but an item citation: each cited line is in
     the proof's provenance. On a method step, a requires line the proof does

@@ -1124,6 +1124,31 @@ fn label_at_end(text: &str) -> Option<String> {
     LABEL_END.captures(text).map(|c| c[1].to_string())
 }
 
+/// A requires line read as the step it would be: its fact claimed, its
+/// reason the justification, at its own line, under the step it sits in and
+/// with no requires lines of its own. A reason that is a method or an item
+/// is proved this way, so a requires line and a step are one thing to the
+/// elaborator (`ELABORATION.md`, R2).
+pub fn requires_as_step(step: &Step, req: &Requires, path: &str) -> Checked<Step> {
+    let line = Line {
+        no: req.line,
+        text: req.how.clone(),
+        indent: 0,
+    };
+    let just = parse_justification(path, &line, &[], &step.just.names)?;
+    Ok(Step {
+        claim: vec![req.fact.clone()],
+        just,
+        requires: Vec::new(),
+        parts: Vec::new(),
+        openers: Vec::new(),
+        line: req.line,
+        note: None,
+        part_notes: IndexMap::new(),
+        ..step.clone()
+    })
+}
+
 fn placeholder_justification() -> Justification {
     Justification {
         head: Head::Define,

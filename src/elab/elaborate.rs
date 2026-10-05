@@ -22,8 +22,9 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
+use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::item_clauses;
+use super::provenance::{item_clauses, requirement};
 use super::reading::{hypothesis_body, is_subgroup, subject_of, CLASS_NAMES};
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Elaborator, Vars,
@@ -31,7 +32,7 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::corpus::proof::requires_item;
+use crate::corpus::proof::{requires_as_step, requires_item, Requires};
 use crate::corpus::{
     define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
     Item, Record, Step, Theorem,
@@ -710,43 +711,7 @@ impl<'a> Elaborator<'a> {
         let sentences = self.sentences(&claim);
         let node = self.read(sentences.last().map(String::as_str).unwrap_or(""))?;
         let term = self.claim_of(&claim)?;
-        let known_methods = [
-            "algebra",
-            "arithmetic",
-            "inequalities",
-            "membership",
-            "substitute",
-            "instantiate",
-            "calculation",
-            "join",
-            "exhibit",
-            "define",
-        ];
-        let mut how: Option<Method> = known_methods
-            .contains(&head.as_str())
-            .then(|| Method::Named(head.clone()));
-        // Whether a step unfolds what it cites is read from the record: a
-        // mundane definition is cited `mun:` and is unfolded all the same.
-        let cited = item_prefix(&head);
-        if how.is_none() && cited.is_some() && self.item_cited(&head).unfolds() {
-            let Item::Record(item) = self.item_cited(&head) else {
-                panic!("{head} is a definition of the database");
-            };
-            // A definition stated as a biconditional is used by unfolding
-            // it; one stated as an equation is used by citing the lemma that
-            // proves it. With no target it is taken as stated.
-            how = Some(if !item.fields.contains_key("target") {
-                Method::TakeDefinition
-            } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
-                Method::Reading(self.reading(item, &term, step, None)?)
-            } else {
-                Method::UnfoldEquation
-            });
-        }
-        if how.is_none() && cited.is_some() {
-            how = Some(Method::Cite);
-        }
-        let Some(how) = how else {
+        let Some(how) = self.method_for(step, &term)? else {
             return Err(
                 self.defect(step.line, format!("no expansion for {}", repr(&head)))
             );
@@ -789,6 +754,119 @@ impl<'a> Elaborator<'a> {
             self.unpack(&term, &proof, scope, facts, said.len() - 1);
         }
         Ok((scope.to_string(), facts.clone(), closers))
+    }
+
+    /// A requires line whose reason is a method or an item, proved as the
+    /// step it would be (`requires_as_step`): the same method, chosen the
+    /// same way, by the same route a numbered step takes. The step's
+    /// requires lines above it, which `supplied` has proved and put in hand,
+    /// are lines it cites (R2), offered as what `inequalities` takes from a
+    /// cited membership: orders and equations, since a line saying two terms
+    /// differ splits every certificate and one saying two points differ is
+    /// no fact about numbers.
+    pub fn as_a_step(
+        &mut self,
+        step: &Step,
+        req: &Requires,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut at = requires_as_step(step, req, &self.thm.path)?;
+        let lines = self.lines.copy();
+        let labels = self.b.flabel.clone();
+        for o in &step.requires {
+            let node = self.read(&o.fact)?;
+            let above = self.term(&node)?;
+            let key = requirement(o.line);
+            let sealed = facts.get(&above).filter(|p| p.origin.contains(&key));
+            let bound = linear::fact(&self.to_term(&above), &labels)
+                .is_some_and(|f| f.how != linear::How::Ne);
+            if let Some(proof) = sealed.filter(|_| bound) {
+                lines.set(
+                    key.clone(),
+                    Line {
+                        term: above,
+                        proof,
+                        sentences: vec![node],
+                    },
+                );
+                at.just.refs.push(key);
+            }
+        }
+        let node = self.read(&req.fact)?;
+        let term = self.term(&node)?;
+        let Some(how) = self.method_for(&at, &term)? else {
+            return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
+        };
+        let kept = std::mem::replace(&mut self.lines, lines.clone());
+        let citing =
+            std::mem::replace(&mut self.citing, at.just.refs.iter().cloned().collect());
+        let made =
+            self.by_method_written(&how, &at, &node, &term, scope, facts, &lines);
+        self.citing = citing;
+        self.lines = kept;
+        // What the step route says of the line it was given is said of the
+        // requires line, whose step it is not.
+        let made = made.map_err(|mut p| {
+            if p.line.line == req.line {
+                p.message = format!(
+                    "the requires line {} of step {}, read as a step citing what it cites: {}",
+                    str::trim(&req.fact),
+                    fmt(&step.number),
+                    p.message
+                );
+            }
+            p
+        });
+        Ok(match made? {
+            Built(Some(p)) => Built(p),
+            Built(None) => Route::no("the requires line's method gives no proof"),
+            Declined(d) => Declined(d),
+        })
+    }
+
+    /// The method a step's justification names: one of the methods, or what
+    /// citing its item comes to, by the item's kind and what it states. A
+    /// requires line made a step (`requires_as_step`) is read the same way.
+    fn method_for(&mut self, step: &Step, term: &str) -> Checked<Option<Method>> {
+        let head = step.just.head.to_string();
+        let known_methods = [
+            "algebra",
+            "arithmetic",
+            "inequalities",
+            "membership",
+            "substitute",
+            "instantiate",
+            "calculation",
+            "join",
+            "exhibit",
+            "define",
+        ];
+        let mut how: Option<Method> = known_methods
+            .contains(&head.as_str())
+            .then(|| Method::Named(head.clone()));
+        // Whether a step unfolds what it cites is read from the record: a
+        // mundane definition is cited `mun:` and is unfolded all the same.
+        let cited = item_prefix(&head);
+        if how.is_none() && cited.is_some() && self.item_cited(&head).unfolds() {
+            let Item::Record(item) = self.item_cited(&head) else {
+                panic!("{head} is a definition of the database");
+            };
+            // A definition stated as a biconditional is used by unfolding
+            // it; one stated as an equation is used by citing the lemma that
+            // proves it. With no target it is taken as stated.
+            how = Some(if !item.fields.contains_key("target") {
+                Method::TakeDefinition
+            } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
+                Method::Reading(self.reading(item, term, step, None)?)
+            } else {
+                Method::UnfoldEquation
+            });
+        }
+        if how.is_none() && cited.is_some() {
+            how = Some(Method::Cite);
+        }
+        Ok(how)
     }
 
     /// A step's proof by the method its justification names, with its

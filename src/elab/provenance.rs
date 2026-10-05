@@ -13,12 +13,11 @@
 
 use std::collections::BTreeSet;
 
-use super::elaborate::Way;
 use super::linear;
 use super::state::{number_of, Elaborator};
-use super::{Facts, Line};
-use crate::corpus::proof::{cited_item, references, requires_item};
-use crate::corpus::{fmt, item_prefix, Item, Step};
+use super::Facts;
+use crate::corpus::proof::{cited_item, references, requires_item, Requires};
+use crate::corpus::{item_prefix, Item, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -578,7 +577,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
             self.supplying.insert(term.clone());
-            let made = self.side(&want, &r.how, scope, &given, Some(step));
+            let made = self.side(&want, r, scope, &given, Some(step));
             self.supplying.shift_remove(&term);
             let made = match made? {
                 Built(p) => self.discharged_by(p, step, &r.how, r.line)?,
@@ -800,16 +799,17 @@ impl<'a> Elaborator<'a> {
     pub fn side(
         &mut self,
         want: &Node,
-        how: &str,
+        req: &Requires,
         scope: &str,
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
+        let how = req.how.as_str();
         let citing =
             std::mem::replace(&mut self.citing, citations(how).into_iter().collect());
         let allowed = step.map(|s| self.reason_allows(s, how));
         let out = self.resting_on(allowed, |me| {
-            me.by_its_reason(want, how, scope, facts, step)
+            me.by_its_reason(want, Some(req), scope, facts, step)
         });
         self.citing = citing;
         out
@@ -819,11 +819,12 @@ impl<'a> Elaborator<'a> {
     fn by_its_reason(
         &mut self,
         want: &Node,
-        how: &str,
+        req: Option<&Requires>,
         scope: &str,
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
+        let how = req.map_or("", |r| r.how.as_str());
         let term = self.term(want)?;
         let refs = citations(how);
         // A define gives its function on the domain it names, which is proved
@@ -870,169 +871,12 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = facts.get(&term) {
             return Ok(Built(p));
         }
-        let closure = str::trim(how.split(',').next().unwrap_or("")).to_string();
-        // `membership` builds the fact from its parts, as a step naming it
-        // does, from the lines this one cites.
-        if closure == "membership" {
-            return match self.member_of(&self.to_term(&term), scope, facts, step)? {
-                Built(p) => Ok(Built(p)),
-                Declined(d) => Err(self.defect(
-                    self.at,
-                    format!(
-                        "{} is not built from what the requires line cites: {}",
-                        self.render(&term),
-                        self.say(&d)
-                    ),
-                )),
-            };
-        }
-        // A line naming a method is discharged by the method it names. A
-        // closed numeral inequality is what `arithmetic` decides outright.
-        if closure == "arithmetic" {
-            // Said in the page's words where the line is in hand.
-            let mut written = None;
-            if let Some(step) = step {
-                for r in &step.requires {
-                    if self.claim_of(&r.fact)? == term {
-                        written = Some(r.fact.clone());
-                        break;
-                    }
-                }
-            }
-            let said = match (&written, step) {
-                (Some(w), Some(step)) => format!(
-                    "the requires line of step {} claims {}",
-                    fmt(&step.number),
-                    str::trim(w)
-                ),
-                _ => format!("the requires line {}", self.render(&term)),
-            };
-            self.worked_out(&term, &said)?;
-            if let Built(p) = self.prove_numeral(&term, scope, facts)? {
+        // A reason that is a method or an item is proved as the step it would
+        // be, by the route a numbered step takes (`as_a_step`): a requires
+        // line and a step have one way of being proved.
+        if let (Some(step), Some(req)) = (step, req) {
+            if let Built(p) = self.as_a_step(step, req, scope, facts)? {
                 return Ok(Built(p));
-            }
-        }
-        // A line naming an item is that item cited, the same as a step naming
-        // it, and only where the item has a target: citing one without is
-        // assuming it. The name ends at the first space, because what follows
-        // it is the instantiation.
-        if let Some(step) = step {
-            if let Some((_, name)) = closure.split_once(':') {
-                if item_prefix(&closure).is_some() {
-                    let first = name.split_whitespace().next().unwrap_or("");
-                    let full = self.thm.names.full(first);
-                    if let Some(item) = self.items.get(&full).copied() {
-                        // A definition stated as a biconditional is read as
-                        // a step citing it reads it, from the lines this line
-                        // cites (`one_unfolded`).
-                        if let Item::Record(record) = item {
-                            let biconditional = item.unfolds()
-                                && record.fields.contains_key("target")
-                                && record
-                                    .conclusions
-                                    .iter()
-                                    .any(|(t, _)| t.contains('↔'));
-                            if biconditional {
-                                let way =
-                                    self.reading(record, &term, step, Some(&refs))?;
-                                if way != Way::Conclude {
-                                    let lines = self.lines.clone();
-                                    return self.trying(
-                                        item,
-                                        step,
-                                        way,
-                                        &term,
-                                        scope,
-                                        facts,
-                                        &lines,
-                                        Some(&refs),
-                                    );
-                                }
-                            }
-                        }
-                        if !item_clauses(item).is_empty() {
-                            // What the line cites is taken apart as a step's
-                            // citations are.
-                            let given =
-                                self.with_cited(Some(step), scope, facts, Some(&refs));
-                            return self.cite_item(
-                                step,
-                                &term,
-                                scope,
-                                &given,
-                                item,
-                                Some(how),
-                            );
-                        }
-                    }
-                }
-            }
-        }
-        if closure == "arithmetic" {
-            // A value is the other thing `arithmetic` decides, and a closed one
-            // is an identity of the field with no atoms in it.
-            let lines = self.lines.clone();
-            if let Built(p) = self.prove_field(None, &term, scope, facts, &lines)? {
-                return Ok(Built(p));
-            }
-            return Err(self
-                .unshown(&term, &format!("the requires line {}", self.render(&term))));
-        }
-        if closure == "inequalities" {
-            // A side condition resting on a method is proved the way a step
-            // resting on it is, where the method can prove one at all, from
-            // the lines it cites and the step's requires lines above it,
-            // which `supplied` has proved and put in hand (R2).
-            let lines = self.lines.copy();
-            let mut cited = refs.clone();
-            if let Some(step) = step {
-                for o in &step.requires {
-                    let node = self.read(&o.fact)?;
-                    let above = self.term(&node)?;
-                    let key = requirement(o.line);
-                    // `supplied` proves the lines in order and seals each as
-                    // itself, so a line above is one whose proof in hand is
-                    // its own.
-                    let sealed = facts.get(&above).filter(|p| p.origin.contains(&key));
-                    // An order or an equation, as what a cited membership
-                    // implies is offered: a line saying two terms differ
-                    // would split every certificate, and one saying two
-                    // points differ is no fact about numbers.
-                    let labels = self.b.flabel.clone();
-                    let bound = linear::fact(&self.to_term(&above), &labels)
-                        .is_some_and(|f| f.how != linear::How::Ne);
-                    if let Some(proof) = sealed.filter(|_| bound) {
-                        lines.set(
-                            key.clone(),
-                            Line {
-                                term: above,
-                                proof,
-                                sentences: vec![node],
-                            },
-                        );
-                        cited.push(key);
-                    }
-                }
-            }
-            if let Built(p) =
-                self.order_of_requires(&cited, &term, scope, facts, &lines, step)?
-            {
-                return Ok(Built(p));
-            }
-        }
-        if closure == "algebra" {
-            // Proved as the step would be were it citing what this line
-            // cites: an identity of the field, or a disequality a cited one
-            // rescales (`METHODS.md`).
-            if let Some(step) = step {
-                let mut at = step.clone();
-                at.just.refs = refs.clone();
-                let lines = self.lines.clone();
-                if let Built(p) =
-                    self.prove_field(Some(&at), &term, scope, facts, &lines)?
-                {
-                    return Ok(Built(p));
-                }
             }
         }
         // What no route reaches is a defect naming the line; nothing is taken
@@ -1095,7 +939,7 @@ impl<'a> Elaborator<'a> {
             if self.term(&node)? == goal {
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
-                return match self.side(&node, &r.how, scope, facts, Some(step))? {
+                return match self.side(&node, r, scope, facts, Some(step))? {
                     Built(made) => self.discharged_by(made, step, &r.how, r.line),
                     Declined(d) => Err(self.defect(
                         self.at,

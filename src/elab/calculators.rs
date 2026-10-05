@@ -1451,39 +1451,6 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// A requires line's order, proved as `inequalities` proves a step's:
-    /// the claim and the lines it rests on read with defined names written
-    /// out, and the proof carried back to the claim as the page writes it.
-    pub fn order_of_requires(
-        &mut self,
-        refs: &[String],
-        term: &str,
-        scope: &str,
-        facts: &Facts,
-        lines: &Lines,
-        step: Option<&Step>,
-    ) -> Checked<Route<Proof>> {
-        let out = take!(self.names_written_out(step, refs, term, scope, facts, lines)?);
-        let proof = take!(self.prove_order(
-            refs,
-            &out.term,
-            scope,
-            &out.facts,
-            &out.lines,
-            &[]
-        )?);
-        if out.term == term {
-            return Ok(Built(proof));
-        }
-        let (said, want) = (self.to_term(&out.term), self.to_term(term));
-        let Built(back) = self.same(&said, &want, scope, facts, step)? else {
-            return Ok(Route::no("the claim written out is not carried back"));
-        };
-        Ok(Built(
-            pf!(self.b; scope, &out.term, term, proof, back, "mpbid"),
-        ))
-    }
-
     /// A term with each defined name written out as what it names.
     pub(crate) fn defined_names_out(&self, term: &Term) -> Term {
         if term.variable().is_some() {

@@ -286,7 +286,7 @@ fn cases() -> Vec<Case> {
         // A requires line rests only on its reason. Line 2 does not say k is an
         // integer, and `mun:int-real` asks it; the scope has it from line 1,
         // which the line does not cite, so the item it names reaches nothing.
-        // The import puts the step one line lower.
+        // The import puts the requires line at 31, where it is reported.
         case_importing(
             "give a requires line a reason that is not where its proof comes from",
             "proofs/sqrt2-irrational/odd-square",
@@ -294,7 +294,7 @@ fn cases() -> Vec<Case> {
             "import mundane theorem stdlib/numbers/int-real",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: mun:int-real, from 2\n",
-            "proofs/sqrt2-irrational.proof:29  mun:stdlib/numbers/int-real targets zre, and none of them reaches m e. RR",
+            "proofs/sqrt2-irrational.proof:31  the requires line k ∈ ℝ of step 3, read as a step citing what it cites: no clause of mun:int-real reaches",
         ),
         // Everything a step names does work. 2 is a numeral, not an atom, so
         // `algebra` asks nothing about its being real, and the kernel has it
@@ -372,7 +372,7 @@ fn cases() -> Vec<Case> {
             "proofs/pythagoras.proof",
             "    requires sin(∠PQR) > 0: mun:sine-positive P := P, Q := Q, R := R, from H7\n",
             "",
-            "inequalities does not reach",
+            "the requires line sin(∠PQR) ≠ 0 of step 12, read as a step citing what it cites:",
         ),
         // A definition with no target is read off a line the step cites that
         // already says the claim; stating the claim instead would take whatever
@@ -565,7 +565,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangular-reciprocals.proof",
             "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
             "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
-            "is not built from what the requires line cites",
+            "the requires line Σ(k = 0 to n) 1/T(k) ∈ ℝ of step 3.2.5, read as a step citing what it cites:",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
         // gives no k ≠ 0.
@@ -575,7 +575,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangular-reciprocals.proof",
             "requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership",
             "requires for all k ∈ ℤ, 1/T(k) ∈ ℝ: membership",
-            "is not built from what the requires line cites",
+            "the requires line for all k ∈ ℤ, 1/T(k) ∈ ℝ of step 5, read as a step citing what it cites:",
         ),
         // A membership line says what the table in `rules` says it does and
         // nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
