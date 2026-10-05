@@ -61,6 +61,13 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    - a symmetric one (`rules.SYMMETRIC`: `eqcom`, and the commuting pairs)
      puts its two sides in a fixed order, read with the letters the
      statement binds as blanks;
+   The facts at a scope are kept by that standard form too (`Facts`,
+   `fact_key`), so `0 ≠ k`, `k ≠ 0` and `¬ k = 0` are one fact: every route
+   asks `held`, which takes the fact with the wanted claim's standard form
+   proved last and carries it to the spelling wanted by `same`, built at a
+   frame of the fact's own scope. The key reads only the declared rules and
+   the fixed order, not a defined name or a map at a value, which depend on
+   the step;
    - a rule that asks something first (`exp0`, `nn0absid`, `rexss`) holds
      only where that is so, and is applied only where it closes a difference,
      with what it asks settled there;
