@@ -137,79 +137,91 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            inequalities, from 16.5
            requires δ ∈ ℝ: from 16.5
 
-    16.7.  c + δ/2 ∈ ℝ
-           mun:real-closure x := c, y := δ/2, from 8
-           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
-
-    16.8.  c < c + δ/2
+    16.7.  c < c + δ/2
            inequalities, from 16.6
            requires c ∈ ℝ: from 8
            requires δ ∈ ℝ: from 16.5
 
-    16.9.  x₁ ∈ ℝ
-           mun:min-real x := b, y := c + δ/2, from D2, H2, 16.7
+    16.8.  c < x₁
+           mun:lt-min z := c, x := b, y := c + δ/2, from D2, 8, H2, 16.2, 16.7
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
 
-    16.10. c < x₁
-           mun:lt-min z := c, x := b, y := c + δ/2, from D2, 8, H2, 16.7, 16.2, 16.8
+    16.9.  x₁ ≤ b. x₁ ≤ c + δ/2.
+           mun:min-le x := b, y := c + δ/2, from D2, H2
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
 
-    16.11. x₁ ≤ b. x₁ ≤ c + δ/2.
-           mun:min-le x := b, y := c + δ/2, from D2, H2, 16.7
-
-    16.12. x₁ − c < δ
-           inequalities, from 16.11, 16.6
-           requires x₁ ∈ ℝ: from 16.9
+    16.10. x₁ − c < δ
+           inequalities, from 16.9, 16.6
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
            requires c ∈ ℝ: from 8
            requires δ ∈ ℝ: from 16.5
 
-    16.13. a ≤ x₁
-           inequalities, from 11, 16.10
+    16.11. a ≤ x₁
+           inequalities, from 11, 16.8
            requires a ∈ ℝ: from H1
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 16.9
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
 
-    16.14. x₁ ∈ [a, b]
-           mun:interval x := x₁, from H1, H2, 16.9, 16.13, 16.11
+    16.12. x₁ ∈ [a, b]
+           mun:interval x := x₁, from H1, H2, 16.11, 16.9
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
 
-    16.15. c − δ < x₁
-           inequalities, from 16.10, 16.5
+    16.13. c − δ < x₁
+           inequalities, from 16.8, 16.5
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 16.9
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
            requires δ ∈ ℝ: from 16.5
 
-    16.16. x₁ < c + δ
-           inequalities, from 16.12
+    16.14. x₁ < c + δ
+           inequalities, from 16.10
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 16.9
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
            requires δ ∈ ℝ: from 16.5
 
-    16.17. |x₁ − c| < δ
-           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.9, 8, 16.5, 16.15, 16.16
+    16.15. |x₁ − c| < δ
+           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 8, 16.5, 16.13, 16.14
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
 
-    16.18. |f(x₁) − f(c)| < −f(c)
-           instantiate x := x₁ in line 16.5, from 16.14, 16.17
+    16.16. |f(x₁) − f(c)| < −f(c)
+           instantiate x := x₁ in line 16.5, from 16.12, 16.15
 
-    16.19. f(x₁) − f(c) ∈ ℝ
-           mun:real-closure, from H4, 16.14, 13
+    16.17. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
+           thm:abs-bounds x := f(x₁) − f(c)
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.12, 13
 
-    16.20. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
-           thm:abs-bounds x := f(x₁) − f(c), from 16.19
-
-    16.21. f(x₁) < 0
-           inequalities, from 16.20, 16.18
-           requires f(x₁) ∈ ℝ: from H4, 16.14
+    16.18. f(x₁) < 0
+           inequalities, from 16.17, 16.16
+           requires f(x₁) ∈ ℝ: from H4, 16.12
            requires f(c) ∈ ℝ: from H4, 13
-           requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c), from 16.19
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.12, 13
+           requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c)
 
-    16.22. x₁ ∈ S
-           mun:set-builder u := x₁, from D1, 16.14, 16.21
+    16.19. x₁ ∈ S
+           mun:set-builder u := x₁, from D1, 16.12, 16.18
 
-    16.23. x₁ ≤ c
-           instantiate s := x₁ in line 10, from 16.22
+    16.20. x₁ ≤ c
+           instantiate s := x₁ in line 10, from 16.19
 
-    16.24. not x₁ ≤ c
-           inequalities, from 16.10, contradicting 16.23
+    16.21. not x₁ ≤ c
+           inequalities, from 16.8, contradicting 16.20
            requires c ∈ ℝ: from 8
-           requires x₁ ∈ ℝ: from 16.9
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
 
     case
     assume f(c) = 0, which is the claim                               (C2)
@@ -217,81 +229,77 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     case
     assume 0 < f(c)                                                   (C3)
 
-    16.25. There exists δ > 0 such that
+    16.22. There exists δ > 0 such that
            |f(x) − f(c)| < f(c) for all x ∈ [a, b] with |x − c| < δ.
            instantiate c′ := c, ε := f(c) in line 15, from 13, H4, C3
 
-    16.26. δ ∈ ℝ. δ > 0.
+    16.23. δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
-           obtain δ from line 16.25
+           obtain δ from line 16.22
 
-    16.27. For all s ∈ S, s ≤ c − δ.
+    16.24. For all s ∈ S, s ≤ c − δ.
            fix
            let s ∈ S                                                  (K2)
 
-           16.27.1.  s ∈ [a, b]
+           16.24.1.  s ∈ [a, b]
                      mun:set-builder, from D1, K2
 
-           16.27.2.  f(s) < 0
+           16.24.2.  f(s) < 0
                      mun:set-builder, from D1, K2
 
-           16.27.3.  s ∈ ℝ
-                     mun:interval, from H1, H2, 16.27.1
-
-           16.27.4.  s ≤ c
+           16.24.3.  s ≤ c
                      instantiate s := s in line 10, from K2
 
-           16.27.5.  s ≤ c − δ
+           16.24.4.  s ≤ c − δ
                      contradiction
                      suppose not s ≤ c − δ                            (S2)
 
-                     16.27.5.1.  c − δ < s
+                     16.24.4.1.  c − δ < s
                                  inequalities, from S2
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 16.27.3
-                                 requires δ ∈ ℝ: from 16.26
+                                 requires s ∈ ℝ: mun:interval, from H1, H2, 16.24.1
+                                 requires δ ∈ ℝ: from 16.23
 
-                     16.27.5.2.  s < c + δ
-                                 inequalities, from 16.27.4, 16.26
+                     16.24.4.2.  s < c + δ
+                                 inequalities, from 16.24.3, 16.23
                                  requires c ∈ ℝ: from 8
-                                 requires s ∈ ℝ: from 16.27.3
-                                 requires δ ∈ ℝ: from 16.26
+                                 requires s ∈ ℝ: mun:interval, from H1, H2, 16.24.1
+                                 requires δ ∈ ℝ: from 16.23
 
-                     16.27.5.3.  |s − c| < δ
+                     16.24.4.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s, c := c, δ := δ,
-                                   from 16.27.3, 8, 16.26, 16.27.5.1, 16.27.5.2
+                                   from 8, 16.23, 16.24.4.1, 16.24.4.2
+                                 requires s ∈ ℝ: mun:interval, from H1, H2, 16.24.1
 
-                     16.27.5.4.  |f(s) − f(c)| < f(c)
-                                 instantiate x := s in line 16.26, from 16.27.1, 16.27.5.3
+                     16.24.4.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 16.23, from 16.24.1, 16.24.4.3
 
-                     16.27.5.5.  f(s) − f(c) ∈ ℝ
-                                 mun:real-closure, from H4, 16.27.1, 13
+                     16.24.4.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                                 thm:abs-bounds x := f(s) − f(c)
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.24.1, 13
 
-                     16.27.5.6.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
-                                 thm:abs-bounds x := f(s) − f(c), from 16.27.5.5
-
-                     16.27.5.7.  0 < f(s)
-                                 inequalities, from 16.27.5.6, 16.27.5.4
-                                 requires f(s) ∈ ℝ: from H4, 16.27.1
+                     16.24.4.6.  0 < f(s)
+                                 inequalities, from 16.24.4.5, 16.24.4.4
+                                 requires f(s) ∈ ℝ: from H4, 16.24.1
                                  requires f(c) ∈ ℝ: from H4, 13
-                                 requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c),
-                                   from 16.27.5.5
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.24.1, 13
+                                 requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c)
 
-                     16.27.5.8.  not f(s) < 0
-                                 inequalities, from 16.27.5.7, contradicting 16.27.2
-                                 requires f(s) ∈ ℝ: from H4, 16.27.1
+                     16.24.4.7.  not f(s) < 0
+                                 inequalities, from 16.24.4.6, contradicting 16.24.2
+                                 requires f(s) ∈ ℝ: from H4, 16.24.1
 
-    16.28. c − δ is an upper bound of S
-           mun:upper-bound, from 16.27
+    16.25. c − δ is an upper bound of S
+           mun:upper-bound, from 16.24
 
-    16.29. c ≤ c − δ
-           instantiate u := c − δ in line 9, from 16.28
-           requires c − δ ∈ ℝ: mun:real-closure, from 8, 16.26
+    16.26. c ≤ c − δ
+           instantiate u := c − δ in line 9, from 16.25
+           requires c − δ ∈ ℝ: mun:real-closure, from 8, 16.23
 
-    16.30. not c ≤ c − δ
-           inequalities, from 16.26, contradicting 16.29
+    16.27. not c ≤ c − δ
+           inequalities, from 16.23, contradicting 16.26
            requires c ∈ ℝ: from 8
-           requires δ ∈ ℝ: from 16.26
+           requires δ ∈ ℝ: from 16.23
 
 17. There exists c ∈ [a, b] such that f(c) = 0.
     exhibit, from 13, 16

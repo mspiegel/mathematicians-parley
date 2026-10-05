@@ -132,71 +132,71 @@ theorem euclid
                    D1, from C2
                    requires k ∈ ℕ₀: from K
 
-          3.10.14. b(k) ∈ ℕ
-                   mun:nat0-nonzero, from IH, C2
-
-          3.10.15. a(k) mod b(k) ∈ ℕ₀
-                   mun:mod-natural, from 3.10.14
+          3.10.14. a(k) mod b(k) ∈ ℕ₀
+                   mun:mod-natural
+                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
                    requires a(k) ∈ ℤ: mun:nat0-int, from IH
 
-          3.10.16. a(k + 1) ∈ ℕ₀
+          3.10.15. a(k + 1) ∈ ℕ₀
                    substitute a(k + 1) = b(k) (line 3.10.12) into IH
 
-          3.10.17. b(k + 1) ∈ ℕ₀
-                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.15
+          3.10.16. b(k + 1) ∈ ℕ₀
+                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.14
 
-          3.10.18. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
-                   thm:gcd-mod, from 3.10.14
+          3.10.17. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
+                   thm:gcd-mod
+                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
                    requires a(k) ∈ ℤ: mun:nat0-int, from IH
 
-          3.10.19. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
+          3.10.18. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
                    mun:gcd-commutes
                    requires b(k) ∈ ℤ: mun:nat0-int, from IH
-                   requires a(k) mod b(k) ∈ ℤ: mun:nat0-int, from 3.10.15
+                   requires a(k) mod b(k) ∈ ℤ: mun:nat0-int, from 3.10.14
 
-          3.10.20. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
+          3.10.19. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
                    substitute a(k + 1) = b(k) (line 3.10.12)
 
-          3.10.21. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
+          3.10.20. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
                    substitute b(k + 1) = a(k) mod b(k) (line 3.10.13)
 
-          3.10.22. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          3.10.21. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                    calculation
-                     gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         3.10.20
-                                             = gcd(b(k), a(k) mod b(k))    3.10.21
-                                             = gcd(a(k) mod b(k), b(k))    3.10.19
-                                             = gcd(a(k), b(k))             3.10.18
+                     gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         3.10.19
+                                             = gcd(b(k), a(k) mod b(k))    3.10.20
+                                             = gcd(a(k) mod b(k), b(k))    3.10.18
+                                             = gcd(a(k), b(k))             3.10.17
                                              = gcd(M, N)                   IH
 
-          3.10.23. b(k) + k ≤ N
+          3.10.22. b(k) + k ≤ N
                    mun:disjunctive-syllogism, from IH, C2
 
-          3.10.24. a(k) mod b(k) < b(k)
-                   mun:mod-less, from 3.10.14
+          3.10.23. a(k) mod b(k) < b(k)
+                   mun:mod-less
+                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
                    requires a(k) ∈ ℤ: mun:nat0-int, from IH
 
-          3.10.25. b(k + 1) < b(k)
-                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.24
+          3.10.24. b(k + 1) < b(k)
+                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.23
 
-          3.10.26. b(k + 1) + 1 ≤ b(k)
-                   mun:integer-step, from 3.10.25
-                   requires b(k + 1) ∈ ℤ: mun:nat0-int, from 3.10.17
+          3.10.25. b(k + 1) + 1 ≤ b(k)
+                   mun:integer-step, from 3.10.24
+                   requires b(k + 1) ∈ ℤ: mun:nat0-int, from 3.10.16
                    requires b(k) ∈ ℤ: mun:nat0-int, from IH
 
-          3.10.27. b(k + 1) + (k + 1) ≤ N
-                   inequalities, from 3.10.26, 3.10.23
-                   requires b(k + 1) ∈ ℝ: mun:nat0-real, from 3.10.17
+          3.10.26. b(k + 1) + (k + 1) ≤ N
+                   inequalities, from 3.10.25, 3.10.22
+                   requires b(k + 1) ∈ ℝ: mun:nat0-real, from 3.10.16
                    requires b(k) ∈ ℝ: mun:nat0-real, from IH
                    requires k ∈ ℝ: mun:nat0-real, from K
                    requires N ∈ ℝ: mun:nat0-real, from H2
 
-          3.10.28. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                   mun:or-left, from 3.10.27
+          3.10.27. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                   mun:or-left, from 3.10.26
 
-          3.10.29. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+          3.10.28. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
                    and gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                    and (b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0)
-                   join 3.10.16, 3.10.17, 3.10.22, 3.10.28
+                   join 3.10.15, 3.10.16, 3.10.21, 3.10.27
 
 4.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀ and gcd(a(N), b(N)) = gcd(M, N)
     and (b(N) + N ≤ N or b(N) = 0)

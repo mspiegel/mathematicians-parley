@@ -134,7 +134,7 @@ the 2 that is not there, and the checker reports it. A step is:
    ℕ₀: mun:abs-integer z := numer(x)` below it rest on it. A line below is
    not yet established. The fact ends at the first colon written against the word
    before it, `requires b ≤ b: inequalities`; a colon inside a fact stands
-   apart, as in `requires g : [a, b] → ℝ: from 11`.
+   apart, as in `requires g : [a, b] → ℝ: from 7`.
 
 The last step of a proof is the theorem's conclusion.
 
@@ -216,27 +216,27 @@ with an `assume` line, labelled like a hypothesis, stating the disjunct
 that the part handles:
 
 ```
-5.  |a + b| ≤ |a| + |b|
-    cases, from 2
+4.  |a + b| ≤ |a| + |b|
+    cases, from 1
 
     case
     assume a + b ≥ 0                                  (C1)
-    5.1.  |a + b| ≤ |a| + |b|
+    4.1.  |a + b| ≤ |a| + |b|
           ...
     case
     assume a + b < 0                                  (C2)
-    5.2.  |a + b| ≤ |a| + |b|
+    4.2.  |a + b| ≤ |a| + |b|
           ...
 ```
 
-The disjunction being split is a cited line, here line 2, and the reader
+The disjunction being split is a cited line, here line 1, and the reader
 checks that the case assumptions are its disjuncts in order. A case that
 cannot occur ends on the step that reaches the opposite of an earlier line,
-and says so after its reasons, as a textbook says "contradicting 6.2":
+and says so after its reasons, as a textbook says "contradicting 6.1":
 
 ```
-    6.4.  not b(N) + N ≤ N
-          inequalities, from 6.3, contradicting 6.2
+    6.3.  not b(N) + N ≤ N
+          inequalities, from 6.2, contradicting 6.1
 ```
 
 The step's claim is the line negated, or the line, or one sentence of it,
@@ -387,7 +387,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `thm:X v := t, from L` | the same for a theorem, and `axi:X` for an axiom; `mun:X` for any item a proof takes for granted, whatever its kind. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line after its record's header, `import mundane theorem stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
 | `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Use the first form where the existence comes from an item**, and the second, after a step stating the existence, where it comes from a line. In the first form the name arrives in a claim written above the justification that introduces it, and the claim says all there is of it, so the one line reads as "p = 2r for some integer r" or "choose N with …" does, whatever letter the item uses: the item's text is elsewhere, and its letters never reach the page. `LINTER.md` keeps the rule |
 | `D, from L` | D is a define's label; the claim equates the name it gives, applied or not, with what it names, and for a define by cases L says which case |
-| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
+| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `mun:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
@@ -395,7 +395,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the rules for inequalities, starting from L |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
-| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.6`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
+| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
@@ -447,9 +447,10 @@ from H2 and K. The membership k ∈ X is what the claim's own "for all" gives,
 so no line is cited for it, and a requires line speaks of the member by the
 claim's letter and has its membership as the step does:
 
-    8.  For all x ∈ [a, b], g(x) ∈ ℝ.
+    6.  For all x ∈ [a, b], g(x) ∈ ℝ.
         membership, from D1
-        requires (f(a) − f(b))/(b − a) ∈ ℝ: from 5
+        requires b − a ≠ 0: inequalities, from H1, H2, H3
+        requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
         requires x ∈ ℝ: mun:interval, from H1, H2
 
 reads x ∈ ℝ off x ∈ [a, b] as the block's line `mun:interval, from H1, H2,
@@ -483,7 +484,7 @@ about one function however each is written (Euler's theorem, steps 8 to 10).
 **A step that does not cite a define keeps the name as a name.** `x₁ ∈ S`,
 from the define of S and lines saying x₁ ∈ [a, b] and f(x₁) < 0, uses what S
 is and nothing of what x₁ is, and cites the one define
-(intermediate-value, step 16.22). A reader asking where x₁ came from follows
+(intermediate-value, step 16.19). A reader asking where x₁ came from follows
 the lines it cites back to the steps that cite the define of x₁.
 
 **A define may name a function.** `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ
@@ -566,11 +567,11 @@ of its own.
 domain is written beside the rule: `define t(c) := g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
 `requires` line. It states nothing about where the values lie: `t : H → gH`
-is proved, from a line saying each value is in gH, as Lagrange's step 9.2
+is proved, from a line saying each value is in gH, as Lagrange's step 8.2
 does. The domain may be a set another define names, as Euler's `define f(r)
 := (r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined
 function, `g := g`, asks that type in a `requires` line citing the step that
-proves it, as the mean value theorem's steps 14 to 19 do.
+proves it, as the mean value theorem's steps 10 to 15 do.
 
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let
@@ -653,20 +654,27 @@ it; each is worked out as a closed fact is. A change touching a letter,
 `k(k + 1)/2 + (k + 1)` to `(k + 1)((k + 1) + 1)/2`, is still `algebra`'s.
 
 ```
-5.4.  |a + b| = −(a + b)
-      def:abs x := a + b, from 1, C2
+4.4.  |a + b| = −(a + b)
+      mun:abs x := a + b, from C2
+      requires a + b ∈ ℝ: mun:real-closure, from H1, H2
 
-5.5.  −(a + b) = −a + −b
+4.5.  −(a + b) = −a + −b
       algebra
+      requires a ∈ ℝ: from H1
+      requires b ∈ ℝ: from H2
 
-5.6.  −a + −b ≤ |a| + |b|
-      inequalities, from 3, 4
+4.6.  −a + −b ≤ |a| + |b|
+      inequalities, from 2, 3
+      requires a ∈ ℝ: from H1
+      requires b ∈ ℝ: from H2
+      requires |a| ∈ ℝ: mun:abs-real x := a, from H1
+      requires |b| ∈ ℝ: mun:abs-real x := b, from H2
 
-5.7.  |a + b| ≤ |a| + |b|
+4.7.  |a + b| ≤ |a| + |b|
       calculation
-        |a + b| = −(a + b)              5.4
-                = −a + −b               5.5
-                ≤ |a| + |b|             5.6
+        |a + b| = −(a + b)              4.4
+                = −a + −b               4.5
+                ≤ |a| + |b|             4.6
 ```
 
 **A substitution names its variable, and its place in the list says

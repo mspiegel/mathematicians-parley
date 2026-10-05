@@ -127,7 +127,7 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     cosets. Read at gH, the checker put gH in for X and let K's g catch the
     g of gH, which said `there is g ∈ G with gH = gH`; so K first bound a.
     The checker now spells the bound letter afresh where a value would be
-    caught, and step 12.2's `there is a ∈ G with gH = aH` is the reading.
+    caught, and step 11.2's `there is a ∈ G with gH = aH` is the reading.
     The same comparison let the √2 proof say `there is r ∈ ℤ with p = 2r`
     where it said k and obtained r.
 14. **An obtain from an item is one line, whatever the item's letters.**
@@ -141,7 +141,7 @@ share a point x are both xH, so they are equal. Each has |H| elements, so
     `u := x, g := a`.
 15. **An obtain may reach a "there is" a define holds.** `part-builder`
     says Y ∈ K is Y ⊆ G and K's condition of Y, so the "there is" of
-    15.1, 15.2 and 16.1 is K's own and sits inside an "and". The checker
+    14.1, 14.2 and 15.1 is K's own and sits inside an "and". The checker
     now decides K's condition from the line the step cites and finds the
     "there is" there; the elaborator builds it from the step's claim
     (`a ∈ G. Y = aH.` is there is a ∈ G with Y = aH) and reaches it as a

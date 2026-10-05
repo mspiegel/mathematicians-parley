@@ -11,7 +11,6 @@ import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/power-nat
 import mundane theorem    stdlib/numbers/reciprocal-order
-import mundane theorem    stdlib/numbers/int-real
 
 theorem harmonic-block
   note        The induction step's block, stated apart from the induction as
@@ -28,118 +27,95 @@ theorem harmonic-block
     mun:power-nat a := 2, m := j, from H1
     requires 2 ∈ ℕ: arithmetic
 
-3.  2^(j + 1) ∈ ℕ
-    mun:power-nat a := 2, m := j + 1
-    requires 2 ∈ ℕ: arithmetic
-    requires j + 1 ∈ ℕ₀: membership, from H1
-
-4.  2^j ≤ 2^(j + 1)
+3.  2^j ≤ 2^(j + 1)
     inequalities, from 1, 2
     requires 2^j ∈ ℝ: membership, from H1
     requires 2^(j + 1) ∈ ℝ: membership, from H1
 
-5.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 4
+4.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 3
     requires 1 ∈ ℤ: arithmetic
     requires 2^j ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 1 ≤ 2^j + 1: inequalities, from 2
 
-6.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/2^(j + 1) ≤ 1/k.
+5.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/2^(j + 1) ≤ 1/k.
     fix
     let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K1)
 
-    6.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+    5.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K1
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    6.2.  k ∈ ℤ
-          mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K1
+    5.2.  1/2^(j + 1) ≤ 1/k
+          mun:reciprocal-order x := k, y := 2^(j + 1), from 5.1
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
-
-    6.3.  1/2^(j + 1) ≤ 1/k
-          mun:reciprocal-order x := k, y := 2^(j + 1), from 6.1
-          requires k ∈ ℝ: membership, from 6.2
-          requires k > 0: inequalities, from 6.1, 2
+          requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K1
+          requires k ∈ ℝ: membership
+          requires k > 0: inequalities, from 5.1, 2
           requires 2^(j + 1) ∈ ℝ: membership, from H1
-          requires 2^(j + 1) > 0: inequalities, from 3
+          requires 2^(j + 1) > 0: inequalities, from 1, 2
 
-7.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
+6.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
     fix
     let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K2)
 
-    7.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+    6.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    7.2.  k ∈ ℤ
-          mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K2
+    6.2.  1/k ∈ ℝ
+          membership
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
-
-    7.3.  k ∈ ℝ
-          mun:int-real m := k, from 7.2
-
-    7.4.  k ≠ 0
-          inequalities, from 7.1, 2
-          requires k ∈ ℝ: from 7.3
+          requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K2
+          requires k ∈ ℝ: membership
           requires 2^j ∈ ℝ: membership, from H1
+          requires k ≠ 0: inequalities, from 6.1, 2
 
-    7.5.  1/k ∈ ℝ
-          membership, from 7.3, 7.4
-
-8.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 6
+7.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 5
     requires 2^j + 1 ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 6
     requires 1/2^(j + 1) ∈ ℝ: membership, from H1
 
-9.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
+8.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
     mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
     requires 2^j + 1 ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 2^j + 1 ≤ 2^(j + 1): inequalities, from 1, 2
     requires 1/2^(j + 1) ∈ ℝ: membership, from H1
 
-10. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
+9.  (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
     substitute 2^(j + 1) = 2^j·2 (line 1)
 
-11. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
+10. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
     algebra
     requires 2^j ∈ ℝ: membership, from H1
     requires 2^j ≠ 0: inequalities, from 2
 
-12. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
+11. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
     calculation
-      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    10
-                                                 = 1/2                                    11
+      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    9
+                                                 = 1/2                                    10
 
-13. Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ
-    mun:sum-real a := 2^j + 1, b := 2^(j + 1)
-    requires 2^j + 1 ∈ ℤ: membership, from H1
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
-
-14. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ
-    mun:sum-real a := 2^j + 1, b := 2^(j + 1)
-    requires 2^j + 1 ∈ ℤ: membership, from H1
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
-
-15. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
-    inequalities, from 5, 8, 9, 12
+12. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+    inequalities, from 4, 7, 8, 11
     requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership
     requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: from 13
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: from 14
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 6
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: membership, from H1
     requires 2^j ∈ ℝ: membership, from H1
     requires 2^(j + 1) ∈ ℝ: membership, from H1
     requires 1/2^(j + 1) ∈ ℝ: membership, from H1
-    requires 2^(j + 1) ≠ 0: inequalities, from 3
+    requires 2^(j + 1) ≠ 0: inequalities, from 1, 2
 
 
 theorem harmonic-unbounded

@@ -31,9 +31,10 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
+use crate::corpus::proof::requires_item;
 use crate::corpus::{
-    define_parts, fmt, item_prefix, outermost, Corpus, DefineParts, Intro, Item,
-    Record, Step, Theorem,
+    define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
+    Item, Record, Step, Theorem,
 };
 use crate::formula::{Grammar, Node};
 use crate::matching::{
@@ -1253,6 +1254,71 @@ impl<'a> Elaborator<'a> {
         item: &'a Record,
         cites: Option<&str>,
     ) -> Checked<NodeBinding> {
+        let said = self.said(step)?;
+        self.item_binding_at(step, item, cites, &said, &step.just.refs)
+    }
+
+    /// What a requires line citing an item asks for: the item's hypotheses,
+    /// under the names the line gives and those its fact and its citations
+    /// fix, as terms. Empty where the line cites no record.
+    pub fn asked_by_requires(
+        &mut self,
+        step: &Step,
+        how: &str,
+        fact: &str,
+    ) -> Checked<Vec<String>> {
+        let Some((cited, _)) = requires_item(how) else {
+            return Ok(Vec::new());
+        };
+        let name = cited.split_once(':').map_or(cited.as_str(), |(_, n)| n);
+        let full = self.thm.names.full(name);
+        let Some(Item::Record(item)) = self.items.get(&full).copied() else {
+            return Ok(Vec::new());
+        };
+        let said = vec![self.read(fact)?];
+        let refs = references(how).0;
+        let ctx = Context::new(&self.g.notations, self.records);
+        self.names_kept(|me| -> Checked<Vec<String>> {
+            let bound = me.item_binding_at(step, item, Some(how), &said, &refs)?;
+            for (name, node) in &bound {
+                if node.notation != PROPERTY {
+                    let term = me.term(node)?;
+                    me.names.insert(name.clone(), term);
+                }
+            }
+            me.in_its_names(Item::Record(item), |me| -> Checked<Vec<String>> {
+                let mut asks = Vec::new();
+                for h in &item.hypotheses {
+                    let body = me.hypothesis_formula(h.kind.as_str(), &h.text);
+                    let read = me.read(&body)?;
+                    // A letter the line does not fix, as the t of `let t :
+                    // {a, …, b} → ℝ` that stands for a summand, leaves the
+                    // hypothesis no term a requires line could write.
+                    let unfixed = read.names().iter().any(|n| {
+                        let fixed =
+                            bound.get(n).is_some_and(|b| b.notation != PROPERTY);
+                        !fixed && !me.g.functions.contains_key(n)
+                    });
+                    if unfixed {
+                        continue;
+                    }
+                    asks.push(me.term(&filled(&read, &bound, &ctx))?);
+                }
+                Ok(asks)
+            })
+        })
+    }
+
+    /// `item_binding` against a claim and citations of the caller's: a
+    /// requires line's own fact and the lines its reason cites.
+    fn item_binding_at(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        cites: Option<&str>,
+        said: &[Node],
+        refs: &[String],
+    ) -> Checked<NodeBinding> {
         let mut bound = NodeBinding::new();
         for (name, value) in instantiation(cites.unwrap_or(&step.just.text)) {
             let node = self.read(&value)?;
@@ -1322,9 +1388,8 @@ impl<'a> Elaborator<'a> {
         for n in ends.iter().chain(hyps.iter()) {
             binding_sites(n, &ctx, &[], &mut sites);
         }
-        let said = self.said(step)?;
         for end in ends.iter().chain(sides.iter()) {
-            for s in &said {
+            for s in said {
                 if let Some(got) = match_tree(end, s, &bound, &variables, &sites, &ctx)
                 {
                     bound = got;
@@ -1333,14 +1398,14 @@ impl<'a> Elaborator<'a> {
             }
         }
         let mut given: Vec<Node> = Vec::new();
-        for r in &step.just.refs {
+        for r in refs {
             if let Some(line) = self.lines.get(r) {
                 given.extend(line.sentences.iter().cloned());
             }
         }
         // Only what the step cites: a sort line fixes nothing.
         for h in &self.thm.hypotheses {
-            if h.label.as_ref().is_some_and(|l| step.just.refs.contains(l)) {
+            if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
                 given.push(
                     self.read(&self.hypothesis_formula(h.kind.as_str(), &h.text))?,
                 );

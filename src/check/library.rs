@@ -443,7 +443,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
 
 /// The parts of a citation from the facts as read: each with its parts, what
 /// a membership implies, and what a function's type says at a point.
-fn finished(
+pub fn finished(
     facts: Vec<Node>,
     claims: Vec<Node>,
     seed: Binding,

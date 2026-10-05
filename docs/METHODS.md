@@ -79,8 +79,9 @@ that fact reaches a step as a cited line, which is what
 A defined name is an atom, unless the step writes what the name names as
 well: then each defined name in its claim and its cited lines whose define
 the step cites is read as what it names, and every sum as one sum whatever
-its letter. Cauchy–Schwarz claims A > 0 from 0 < Σ(k = 1 to n) a(k)², with A
-defined as that sum, citing the define, and the two are one atom. A step that
+its letter. Cauchy–Schwarz's `requires A > 0: inequalities, from D1, C3`
+claims A > 0 from 0 < Σ(k = 1 to n) a(k)², with A defined as that sum,
+citing the define, and the two are one atom. A step that
 writes a name without what it names reads the name as one atom, so it rests
 on nothing it does not cite. Two sums that
 differ only in their letter are one atom too, and a line saying one of them
@@ -163,9 +164,10 @@ other than zero needs no line: that 2 is not zero is a closed numeral fact,
 so `δ/2` is real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
-sentence a cited line says. Line 2 of `least-combination-divides` says
-`0 ≤ r` and `r < d` among five things, and step 4.1 takes `0 < r` from the
-first of them and the supposition `r ≠ 0`; d is in none of what it combines,
+sentence a cited line says. Line 1 of `least-combination-divides` says
+`0 ≤ r` and `r < d` among five things, and step 3.1's `requires 0 < r:
+inequalities, from 1, S` takes `0 < r` from the first of them and the
+supposition `r ≠ 0`; d is in none of what it combines,
 so `d ∈ ℝ` is not one of its hypotheses and is not written. A dull fact is one
 that discharges a hypothesis, and one that discharges nothing is a line doing
 no work. `READERS.md`
@@ -181,7 +183,7 @@ power is real. `mun:stdlib/numbers/abs-real`, `mun:stdlib/numbers/int-real`, `mu
 wrote 97 membership lines across the 42 steps citing this method or `algebra`.
 
 Two shapes are worth knowing. Most are a bare citation of a fact already on the
-page, as step 17.9 of the intermediate value proof is with `requires c ∈ ℝ:
+page, as step 16.7 of the intermediate value proof is with `requires c ∈ ℝ:
 from 8`. The heaviest is step 2 of the Bezout lemma, which has ten atoms and so
 carries ten.
 
@@ -223,11 +225,11 @@ So a disequality belongs to `inequalities` when the order is what settles it,
 and to `algebra` when no order is involved. The corpus has one of each and
 they are not alike:
 
-- Bezout's step 3.1 turns `0 ≤ r` together with `r ≠ 0` into `0 < r`. Every
-  part of that is the order, and the claim is an order relation, which
-  `algebra` refuses.
-- The geometric series' step 1 concludes `1 − a ≠ 0` from `a ≠ 1`. That holds
-  in any field and has no order in it. Reaching it through trichotomy would
+- A requires line of Bezout's step 3.1 turns `0 ≤ r` together with `r ≠ 0`
+  into `0 < r`. Every part of that is the order, and the claim is an order
+  relation, which `algebra` refuses.
+- The geometric series' `requires 1 − a ≠ 0: algebra, from H2` concludes
+  `1 − a ≠ 0` from `a ≠ 1`. That holds in any field and has no order in it. Reaching it through trichotomy would
   prove an order-free fact by the order, which is more than the fact needs.
 
 The rule: a disequality whose argument runs through `<` or `≤` is
@@ -325,14 +327,14 @@ adds and subtracts the equations it cites, scales them, and multiplies at
 most one of them by a term. A step does one thing, and multiplying a second
 equation by a term is a second thing, written as a step of its own and
 joined to the first by a calculation, as `similar-triangles` does with its
-two laws of sines (steps 17 to 19). Two steps in the corpus multiply one
+two laws of sines (steps 9 to 11). Two steps in the corpus multiply one
 equation: Bezout's lemma, step 2, which takes three cited equations with
-coefficients −1, 1 and −q, and Pythagoras, step 21, which multiplies
+coefficients −1, 1 and −q, and Pythagoras, step 19, which multiplies
 |AD| + |DB| = |AB| by |AB|.
 
 For a disequality `e ≠ 0`, the claim holds when `e` is a nonzero rational
-multiple of some cited `d ≠ 0` after normalisation. Step 1 of the geometric
-series is the only use: `1 − a` is `−1` times `a − 1`, and the cited fact is
+multiple of some cited `d ≠ 0` after normalisation. The geometric series'
+`requires 1 − a ≠ 0: algebra, from H2` is the only use: `1 − a` is `−1` times `a − 1`, and the cited fact is
 `a ≠ 1`. **`algebra` may prove a disequality, but only this narrowly.** It may not, for instance, conclude
 `a² ≠ 0` from `a ≠ 0`, which needs a field to have no zero divisors and is a
 fact about the field rather than an identity.
@@ -373,7 +375,7 @@ every step is either a normalisation with no cited equation or a combination
 with coefficients of degree at most one.
 
 Six steps are written out in `corpus/elaboration/`, and `ELABORATION.md` measures
-them. Five come from the three elaborated proofs; the sixth is step 3 of
+them. Five come from the three elaborated proofs; the sixth is step 2 of
 `thm:proofs/bezout/least-combination-divides`, the only step in the corpus whose
 coefficients are not constants, and it is in `corpus/elaboration/algebra.mm`.
 

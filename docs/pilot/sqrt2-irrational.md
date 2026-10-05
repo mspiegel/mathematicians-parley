@@ -111,7 +111,7 @@ theorem missing a row of its own, and the merge added it.
 
 Findings about the vocabulary in `READERS.md`:
 
-1. **Substitution of equals is missing.** Steps 3.2 and 3.7, and step 2 of
+1. **Substitution of equals is missing.** Steps 2.2 and 2.7, and step 2 of
    odd-square, replace one side of an equation inside an earlier line. This
    is not "algebra" and not "by lines". It needs its own method.
 2. **Calculation blocks are needed.** Three chained equalities read far
@@ -119,7 +119,7 @@ Findings about the vocabulary in `READERS.md`:
    a clean elaboration into transitivity lemmas. The rule settled by the
    third pilot keeps the block and the steps: each equality is a numbered
    step with its own justification, and the block that follows only joins
-   them, its lines citing those steps. Steps 3.7 to 3.9 and steps 2 to 5
+   them, its lines citing those steps. Steps 2.7 to 2.9 and steps 2 to 5
    of odd-square are in that form. A viewer may fold the cited steps into
    the chain to show the textbook calculation.
 3. **A block belongs to the claim it proves, and a theorem's Let/Assume
@@ -199,8 +199,8 @@ Findings about the vocabulary in `READERS.md`:
     itself, or whether the text carries "requires p ∈ ℝ" on every algebra
     step, is decided when the method is defined.
 11. **Two conventions hide a step each.** A calculation reads a cited
-    equation right to left: line 3.9 opens with "2q² = p², by 3.3", and
-    line 3.3 states p² = 2q². And a step claims one conjunct of a cited
+    equation right to left: line 2.9 opens with "2q² = p², by 2.3", and
+    line 2.3 states p² = 2q². And a step claims one conjunct of a cited
     item's conclusion: step 1 takes "(√2)² = 2" out of the three conjuncts
     of def:stdlib/numbers/sqrt, and the requires line at step 3 takes "√2 ∈ ℝ" out of the
     same three. Symmetry of equality and conjunction elimination are steps

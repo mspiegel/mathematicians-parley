@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::{
-    claimed_member, conjuncts, readings, with_parts, Group, Known, Library,
+    claimed_member, conjuncts, finished, readings, Group, Known, Library,
 };
 use super::Report;
 use crate::corpus::proof::requires_item;
@@ -578,22 +578,25 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
                 }
             }
         }
-        let facts = with_parts(&read, library);
         let mut seed = Binding::new();
         for (name, value) in instantiation(&req.how) {
             if let Some(got) = known.read(&value) {
                 seed.insert(name, got);
             }
         }
+        // The facts a step's own citation is given, so that an item cited
+        // on a requires line reaches what it reaches cited by a step.
+        let parts = finished(read, claims, seed, library, known);
         // One use of the item, read as `concludes` reads it, or the item
         // applied as often as it takes (`derives`), which reads its
         // conclusions only as they stand. Neither covers the other.
-        if concludes(&groups, &claims, &facts, &seed, library) {
+        if concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library) {
             continue;
         }
-        if claims
+        if parts
+            .claims
             .iter()
-            .all(|c| derives(c, &groups, &facts, library, 5))
+            .all(|c| derives(c, &groups, &parts.facts, library, 5))
         {
             continue;
         }
@@ -876,29 +879,64 @@ pub fn check_requires(
     }
 }
 
-/// Whether a `membership` requires line below `req` in its step builds a
-/// term holding what `req` says is a member: `requires |PQ| ∈ ℝ` above
-/// `requires |PQ|·|P′R′| ∈ ℝ: membership` is the atom that line builds from,
-/// asked for as surely as an item's hypothesis is (`SYNTAX.md`: a requires
-/// line rests on the lines above it).
+/// Whether a requires line below `req` in its step rests on what `req` says
+/// is a member, or not zero, by a method that asks it of its atoms and the
+/// terms it divides by (`METHODS.md`): `requires |PQ| ∈ ℝ` above `requires
+/// |PQ|·|P′R′| ∈ ℝ: membership`, `requires d ∈ ℝ` above `requires 0 < d:
+/// inequalities, from 3.1`, or `requires b − a ≠ 0` above `requires (f(a) −
+/// f(b))/(b − a) ∈ ℝ: membership`. An order between terms is what
+/// `inequalities` reasons from, so `requires sin(∠PQR) > 0` is asked for by
+/// `requires sin(∠PQR) ≠ 0: inequalities` below it. Such a line is asked
+/// for as surely as an item's hypothesis is (`SYNTAX.md`: a requires line
+/// rests on the lines above it).
 fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
+    const ASKING: [&str; 3] = ["membership", "inequalities", "algebra"];
     let Some(said) = known.read(&req.fact) else {
         return false;
     };
-    if said.notation != "membership" || said.children.len() != 2 {
-        return false;
-    }
-    let atom = said.children[0].shape().to_string();
+    // t ∈ X names t, and t ≠ u, read as not t = u, names t: a method asks
+    // them of its atoms. t < u names both sides, and only `inequalities`
+    // reads an order.
+    let (held, asking): (Vec<&Node>, &[&str]) = match said.notation.as_str() {
+        "membership" if said.children.len() == 2 => (vec![&said.children[0]], &ASKING),
+        "logical-not"
+            if said.children.len() == 1
+                && said.children[0].notation == "equality"
+                && said.children[0].children.len() == 2 =>
+        {
+            (vec![&said.children[0].children[0]], &ASKING)
+        }
+        "order" if said.children.len() == 2 => (
+            said.children
+                .iter()
+                .filter(|c| c.notation != "numeral")
+                .collect(),
+            &["inequalities"],
+        ),
+        _ => return false,
+    };
+    let atoms: Vec<String> = held.iter().map(|h| h.shape().to_string()).collect();
     step.requires
         .iter()
         .skip_while(|r| r.line != req.line)
         .skip(1)
-        .filter(|r| str::trim(&r.how).starts_with("membership"))
+        .filter(|r| {
+            let how = str::trim(&r.how);
+            asking
+                .iter()
+                .any(|m| how == *m || how.starts_with(&format!("{m},")))
+        })
         .filter_map(|r| known.read(&r.fact))
-        .filter(|n| n.notation == "membership" && n.children.len() == 2)
         .any(|n| {
-            n.children[0].shape() != atom
-                && n.children[0].walk().iter().any(|part| part.shape() == atom)
+            let held = if n.notation == "membership" && n.children.len() == 2 {
+                &n.children[0]
+            } else {
+                &n
+            };
+            atoms.iter().any(|atom| {
+                held.shape() != *atom
+                    && held.walk().iter().any(|part| part.shape() == *atom)
+            })
         })
 }
 

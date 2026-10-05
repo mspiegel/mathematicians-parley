@@ -452,7 +452,7 @@ definition C
 ```
 
 A step citing it gives the line that says which case it is in, as the binomial
-proof's step 8 cites `m < m + 1`. The formula's (n − k)! is said only where
+proof's step 6 cites `m < m + 1`. The formula's (n − k)! is said only where
 k ∈ {0, …, n}, so it is never said where it has no value.
 
 **A function is a definition with a `sort` line.** The four are `gcd`, `C`,
@@ -520,23 +520,23 @@ this table is mundane.
 |---|---|---|
 | completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
-| side-angle-side | `axiom` | "by SAS", isosceles step 7 |
+| side-angle-side | `axiom` | "by SAS", isosceles step 5 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
-| sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
-| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.17 and 6.18 |
-| rolle | `theorem` | "by Rolle's theorem", mean-value step 26 |
+| sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
+| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.15 and 2.16 |
+| rolle | `theorem` | "by Rolle's theorem", mean-value step 24 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
-| prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
-| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 12 to 17 |
-| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.11, 10, 12, 13, 19 and 26 |
+| prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 7.8 |
+| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 10 to 15 |
+| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.7, 10, 12, 13, 19 and 23 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
-| congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
-| C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
+| congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 6 |
+| C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 6 and 25 |
 | σ | `definition` | a word Reader A has not met, the sum of the divisors |
 | φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 14 |
-| perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 25 |
+| perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 21 |
 
 Some mundane items are worth a word, since a reader might expect otherwise:
 
@@ -544,12 +544,12 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 |---|---|---|
 | trichotomy, excluded-middle, the five group axioms | `mundane axiom` | a split into three cases, "x ∈ B or x ∉ B", the chain a·h·h⁻¹ = a: never named |
 | difference, intersection, union, range, range0, nat0, rational | `mundane definition` | the meaning of ∖, ∩, ∪, {1, …, n}, {0, …, n}, ℕ₀ and ℚ, each the membership statement the library held as a theorem |
-| bijection, series-sum | `mundane definition` | "so it is a bijection", lagrange 9.6; the sum of a series as the limit of its partial sums, triangular-reciprocals step 5 |
+| bijection, series-sum | `mundane definition` | "so it is a bijection", lagrange 8.6; the sum of a series as the limit of its partial sums, triangular-reciprocals step 5 |
 | gcd, min, max | `mundane definition` | functions, applied and seldom unfolded: "g = gcd(a, b) divides a and b", bezout step 13 |
 | cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
 | numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
-| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 31 |
+| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 29 |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or
@@ -557,9 +557,8 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 359 of the 389 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: six steps in twenty proofs cite a named
-definition.
+Counted this way, 346 of the 395 numbered steps that cite a library item cite
+a mundane one. `def:` is rare: seven steps cite a named definition.
 
 ### Follow-ups
 

@@ -355,6 +355,12 @@ definition φ
               corpus proves in elaboration/stdlib/proved.mm
   target      gphival
 
+mundane theorem phi-natural
+  let n ∈ ℕ                                                           (H1)
+  then        φ(n) ∈ ℕ
+  metamath    phicl
+  target      phicl
+
 mundane theorem coprime-product
   let x ∈ ℤ                                                           (H1)
   let y ∈ ℤ                                                           (H2)

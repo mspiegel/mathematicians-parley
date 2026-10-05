@@ -14,50 +14,48 @@ theorem prime-above
 1.  n! ∈ ℕ
     mun:factorial-nat n := n, from H1
 
-2.  n! + 1 ∈ ℕ
-    mun:nat-closure a := n!, b := 1, from 1
-    requires 1 ∈ ℕ: arithmetic
-
-3.  n! + 1 > 1
+2.  n! + 1 > 1
     inequalities, from 1
     requires n! ∈ ℝ: from 1
 
-4.  p ∈ ℕ. p is prime. p divides n! + 1.
-    obtain p: thm:prime-factor m := n! + 1, from 2, 3
+3.  p ∈ ℕ. p is prime. p divides n! + 1.
+    obtain p: thm:prime-factor m := n! + 1, from 2
+    requires 1 ∈ ℕ: arithmetic
+    requires n! + 1 ∈ ℕ: mun:nat-closure a := n!, b := 1, from 1
 
-5.  p > 1
-    mun:prime p := p, from 4
+4.  p > 1
+    mun:prime p := p, from 3
 
-6.  p > n
+5.  p > n
     contradiction
     suppose not p > n                                                 (S)
 
-    6.1.  p ≤ n
+    5.1.  p ≤ n
           inequalities, from S
-          requires p ∈ ℝ: from 4
+          requires p ∈ ℝ: from 3
           requires n ∈ ℝ: from H1
 
-    6.2.  p divides n!
-          mun:factorial-divisible n := n, m := p, from H1, 4, 6.1
+    5.2.  p divides n!
+          mun:factorial-divisible n := n, m := p, from H1, 3, 5.1
 
-    6.3.  p divides (n! + 1) − n!
-          mun:divides-difference d := p, a := n! + 1, b := n!, from 4, 6.2
-          requires n! + 1 ∈ ℤ: from 2
+    5.3.  p divides (n! + 1) − n!
+          mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2
+          requires n! + 1 ∈ ℤ: membership, from 1
           requires n! ∈ ℤ: from 1
 
-    6.4.  (n! + 1) − n! = 1
+    5.4.  (n! + 1) − n! = 1
           algebra
           requires n! ∈ ℝ: from 1
 
-    6.5.  p divides 1
-          substitute (n! + 1) − n! = 1 (line 6.4) into line 6.3
+    5.5.  p divides 1
+          substitute (n! + 1) − n! = 1 (line 5.4) into line 5.3
 
-    6.6.  p = 1
-          mun:divides-one d := p, from 4, 6.5
+    5.6.  p = 1
+          mun:divides-one d := p, from 3, 5.5
 
-    6.7.  p ≠ 1
-          inequalities, from 5, contradicting 6.6
-          requires p ∈ ℝ: from 4
+    5.7.  p ≠ 1
+          inequalities, from 4, contradicting 5.6
+          requires p ∈ ℝ: from 3
 
-7.  There exists p ∈ ℕ such that p is prime and p > n.
-    exhibit, from 4, 6
+6.  There exists p ∈ ℕ such that p is prime and p > n.
+    exhibit, from 3, 5

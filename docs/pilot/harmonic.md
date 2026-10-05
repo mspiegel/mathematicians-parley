@@ -100,5 +100,5 @@ is at least every partial sum; but some partial sum exceeds B. ∎
    (`tests/elaborator/sum-letter-in-scope.proof`).
 6. **What is still a limit.** A term like 1/k is real only where something
    says k ≠ 0, so a sum over {2^j + 1, …, 2^(j + 1)} needs its terms said
-   real in a line of its own (`harmonic-block` step 7). The coefficient
+   real in a line of its own (`harmonic-block` step 6). The coefficient
    arithmetic stops at one digit.

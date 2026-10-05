@@ -61,8 +61,8 @@ and 2^(p − 1)·q is perfect, by definition. ∎
    a prime's power, are named theorems, as ProofWiki names them.
 3. **"Perfect" is a named definition,** n is perfect ↔ σ(n) = 2n, and the
    last step cites it, as ProofWiki's last line does.
-4. **σ of a power of 2 is the corpus's own geometric series.** Steps 16 to
-   20 read σ(2^(p − 1)) as Σ(j = 0 to p − 1) 2^j and cite
+4. **σ of a power of 2 is the corpus's own geometric series.** Steps 12 to
+   16 read σ(2^(p − 1)) as Σ(j = 0 to p − 1) 2^j and cite
    `thm:proofs/geometric-series/geometric-sum`, where set.mm has
    `1sgm2ppw` in one label.
 5. **p ∈ ℕ,** as ProofWiki writes it, where `perfect1` allows any integer:

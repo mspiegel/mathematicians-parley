@@ -139,7 +139,7 @@ In `corpus/elaboration/stdlib/proved.mm`, proved below the readable layer by
    numerals is now worded as its reason is: a chain line may name
    `arithmetic` where only pieces with no letter in them change.
 
-10. **An obtained name can be the letter the goal binds.** Step 3.2 obtains
+10. **An obtained name can be the letter the goal binds.** Step 3.1 obtains
    N from the Archimedean item's "there is N ∈ ℕ with 1/N < x", in one line
    since the letter is the item's own, inside a block claiming "there is
    N ∈ ℕ with …". Both "there is" lines bind N, so the obtained N and the

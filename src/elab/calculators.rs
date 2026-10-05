@@ -1404,7 +1404,14 @@ impl<'a> Elaborator<'a> {
         // A defined name is read as what it names, as `membership` and the
         // comparison of two spellings read it: the claim and each cited line
         // are taken with their defined names written out.
-        let out = take!(self.names_written_out(step, term, scope, facts, lines)?);
+        let out = take!(self.names_written_out(
+            Some(step),
+            &step.just.refs,
+            term,
+            scope,
+            facts,
+            lines
+        )?);
         let (term_out, facts_out, lines_out) = (&out.term, &out.facts, &out.lines);
         self.decide_order(step, term_out, facts_out, lines_out)?;
         // The method wants every atom in ℝ, and a `requires` line is where
@@ -1431,6 +1438,39 @@ impl<'a> Elaborator<'a> {
         };
         Ok(Built(
             pf!(self.b; scope, term_out, term, proof, back, "mpbid"),
+        ))
+    }
+
+    /// A requires line's order, proved as `inequalities` proves a step's:
+    /// the claim and the lines it rests on read with defined names written
+    /// out, and the proof carried back to the claim as the page writes it.
+    pub fn order_of_requires(
+        &mut self,
+        refs: &[String],
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        let out = take!(self.names_written_out(step, refs, term, scope, facts, lines)?);
+        let proof = take!(self.prove_order(
+            refs,
+            &out.term,
+            scope,
+            &out.facts,
+            &out.lines,
+            &[]
+        )?);
+        if out.term == term {
+            return Ok(Built(proof));
+        }
+        let (said, want) = (self.to_term(&out.term), self.to_term(term));
+        let Built(back) = self.same(&said, &want, scope, facts, step)? else {
+            return Ok(Route::no("the claim written out is not carried back"));
+        };
+        Ok(Built(
+            pf!(self.b; scope, &out.term, term, proof, back, "mpbid"),
         ))
     }
 
@@ -1476,21 +1516,21 @@ impl<'a> Elaborator<'a> {
         Term::apply(term.label().unwrap_or(""), parts)
     }
 
-    /// The claim, the facts and the lines a step cites, with defined names
-    /// written out: each cited line written otherwise is laid down written
-    /// out, carried across by `same`, which reads a defined name the same way.
+    /// The claim, the facts and the lines a step or a requires line cites,
+    /// with defined names written out: each cited line written otherwise is
+    /// laid down written out, carried across by `same`, which reads a defined
+    /// name the same way.
     fn names_written_out(
         &mut self,
-        step: &Step,
+        step: Option<&Step>,
+        refs: &[String],
         term: &str,
         scope: &str,
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<WrittenOut>> {
         let claim = self.to_term(term);
-        let cited: Vec<(String, Line)> = step
-            .just
-            .refs
+        let cited: Vec<(String, Line)> = refs
             .iter()
             .filter_map(|r| lines.get(r).map(|l| (r.clone(), l)))
             .collect();
@@ -1546,8 +1586,7 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let held = self.carried(r, facts, lines);
-            let Built(alike) = self.same(&said, &written, scope, facts, Some(step))?
-            else {
+            let Built(alike) = self.same(&said, &written, scope, facts, step)? else {
                 return Ok(Route::no(
                     "a cited line is not carried to its names written out",
                 ));

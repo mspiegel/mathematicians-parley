@@ -91,8 +91,8 @@ carry a bound, "for all n ≥ N", or a condition of one relation, "for all
 x ∈ D with |x − c| < δ", which is how a textbook writes a limit and
 continuity. The nine: Cantor's statement and its last step; the
 definitions of tends-to and continuity; triangular-reciprocals' step 3 and
-its last step 3.4; and intermediate-value's step 15 and the two steps 16.4
-and 16.25 that instantiate it. Step 3.3, and 16.5 and 16.26, which restate
+its last step 3.3; and intermediate-value's step 15 and the two steps 16.4
+and 16.22 that instantiate it. Step 3.2, and 16.5 and 16.23, which restate
 an obtained universal as a claim of its own, keep the prefix form.
 
 ### Two universals over one set

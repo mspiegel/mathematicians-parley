@@ -16,8 +16,8 @@ use std::collections::BTreeSet;
 use super::elaborate::Way;
 use super::linear;
 use super::state::{number_of, Elaborator};
-use super::Facts;
-use crate::corpus::proof::{cited_item, references};
+use super::{Facts, Line};
+use crate::corpus::proof::{cited_item, references, requires_item};
 use crate::corpus::{fmt, item_prefix, Item, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
@@ -234,6 +234,25 @@ impl<'a> Elaborator<'a> {
             if used.contains(&requirement(r.line)) {
                 continue;
             }
+            // A requires line below that cites an item asks for that item's
+            // hypotheses, which the kernel may prove without: a line saying
+            // one of them is at work as an item's hypothesis is on a step
+            // citing it.
+            let mut asked = false;
+            for o in step.requires.iter().filter(|o| o.line > r.line) {
+                if requires_item(&o.how).is_none() {
+                    continue;
+                }
+                let asks =
+                    self.names_kept(|me| me.asked_by_requires(step, &o.how, &o.fact))?;
+                if asks.contains(&term) {
+                    asked = true;
+                    break;
+                }
+            }
+            if asked {
+                continue;
+            }
             let demanded = match claim.label() {
                 // An atom is the same atom over other bound letters, and a
                 // defined name the atom it names.
@@ -257,9 +276,13 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         }
+        // Cited by the step, or by one of its requires lines: what a
+        // requires line's method combines, its own reason may say is a
+        // number.
         let mut cited: BTreeSet<String> = BTreeSet::new();
-        for r in &step.just.refs {
-            if let Some(line) = self.lines.get(r) {
+        let from_requires = step.requires.iter().flat_map(|r| references(&r.how).0);
+        for r in step.just.refs.iter().cloned().chain(from_requires) {
+            if let Some(line) = self.lines.get(&r) {
                 cited.extend(self.parts(&line.term));
             }
         }
@@ -957,12 +980,59 @@ impl<'a> Elaborator<'a> {
         }
         if closure == "inequalities" {
             // A side condition resting on a method is proved the way a step
-            // resting on it is, where the method can prove one at all.
-            let lines = self.lines.clone();
+            // resting on it is, where the method can prove one at all, from
+            // the lines it cites and the step's requires lines above it,
+            // which `supplied` has proved and put in hand (R2).
+            let lines = self.lines.copy();
+            let mut cited = refs.clone();
+            if let Some(step) = step {
+                for o in &step.requires {
+                    let node = self.read(&o.fact)?;
+                    let above = self.term(&node)?;
+                    let key = requirement(o.line);
+                    // `supplied` proves the lines in order and seals each as
+                    // itself, so a line above is one whose proof in hand is
+                    // its own.
+                    let sealed = facts.get(&above).filter(|p| p.origin.contains(&key));
+                    // An order or an equation, as what a cited membership
+                    // implies is offered: a line saying two terms differ
+                    // would split every certificate, and one saying two
+                    // points differ is no fact about numbers.
+                    let labels = self.b.flabel.clone();
+                    let bound = linear::fact(&self.to_term(&above), &labels)
+                        .is_some_and(|f| f.how != linear::How::Ne);
+                    if let Some(proof) = sealed.filter(|_| bound) {
+                        lines.set(
+                            key.clone(),
+                            Line {
+                                term: above,
+                                proof,
+                                sentences: vec![node],
+                            },
+                        );
+                        cited.push(key);
+                    }
+                }
+            }
             if let Built(p) =
-                self.prove_order(&refs, &term, scope, facts, &lines, &[])?
+                self.order_of_requires(&cited, &term, scope, facts, &lines, step)?
             {
                 return Ok(Built(p));
+            }
+        }
+        if closure == "algebra" {
+            // Proved as the step would be were it citing what this line
+            // cites: an identity of the field, or a disequality a cited one
+            // rescales (`METHODS.md`).
+            if let Some(step) = step {
+                let mut at = step.clone();
+                at.just.refs = refs.clone();
+                let lines = self.lines.clone();
+                if let Built(p) =
+                    self.prove_field(Some(&at), &term, scope, facts, &lines)?
+                {
+                    return Ok(Built(p));
+                }
             }
         }
         // Nothing generic stands here. What is left is a method saying at the

@@ -29,114 +29,108 @@ theorem similar-triangles
   assume ∠PQR = ∠P′Q′R′                                               (H10)
   then |PQ|·|P′R′| = |P′Q′|·|PR|
 
-1.  Q, R, P form a triangle
-    mun:triangle-rotate P := P, Q := Q, R := R, from H7
-
-2.  Q′, R′, P′ form a triangle
-    mun:triangle-rotate P := P′, Q := Q′, R := R′, from H8
-
-3.  ∠QPR ∈ ℝ
-    mun:angle-real P := Q, Q := P, R := R
-    requires Q ≠ P: mun:triangle, from 1
-    requires R ≠ P: mun:triangle, from 1
-
-4.  ∠PQR ∈ ℝ
-    mun:angle-real P := P, Q := Q, R := R
-    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P, from 1
-    requires P ≠ Q: mun:triangle
-    requires R ≠ Q: mun:triangle
-
-5.  ∠QRP ∈ ℝ
-    mun:angle-real P := Q, Q := R, R := P
-    requires Q ≠ R: mun:triangle, from H7
-    requires P ≠ R: mun:triangle, from H7
-
-6.  ∠Q′P′R′ ∈ ℝ
-    mun:angle-real P := Q′, Q := P′, R := R′
-    requires Q′ ≠ P′: mun:triangle, from 2
-    requires R′ ≠ P′: mun:triangle, from 2
-
-7.  ∠P′Q′R′ ∈ ℝ
-    mun:angle-real P := P′, Q := Q′, R := R′
-    requires R′, P′, Q′ form a triangle: mun:triangle-rotate P := Q′, Q := R′, R := P′, from 2
-    requires P′ ≠ Q′: mun:triangle
-    requires R′ ≠ Q′: mun:triangle
-
-8.  ∠Q′R′P′ ∈ ℝ
-    mun:angle-real P := Q′, Q := R′, R := P′
-    requires Q′ ≠ R′: mun:triangle, from H8
-    requires P′ ≠ R′: mun:triangle, from H8
-
-9.  ∠QPR + ∠PQR + ∠QRP = 180°
+1.  ∠QPR + ∠PQR + ∠QRP = 180°
     thm:angle-sum A := P, B := Q, C := R, from H7
 
-10. ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′ = 180°
+2.  ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′ = 180°
     thm:angle-sum A := P′, B := Q′, C := R′, from H8
 
-11. ∠QPR + ∠PQR + ∠QRP = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′
+3.  ∠QPR + ∠PQR + ∠QRP = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′
     calculation
-      ∠QPR + ∠PQR + ∠QRP = 180°                               9
-                         = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′         10
+      ∠QPR + ∠PQR + ∠QRP = 180°                               1
+                         = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′         2
 
-12. ∠QRP = ∠Q′R′P′
-    algebra, from 11, H9, H10
-    requires ∠QPR ∈ ℝ: from 3
-    requires ∠PQR ∈ ℝ: from 4
-    requires ∠QRP ∈ ℝ: from 5
-    requires ∠Q′P′R′ ∈ ℝ: from 6
-    requires ∠P′Q′R′ ∈ ℝ: from 7
-    requires ∠Q′R′P′ ∈ ℝ: from 8
+4.  ∠QRP = ∠Q′R′P′
+    algebra, from 3, H9, H10
+    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
+    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
+    requires Q ≠ P: mun:triangle
+    requires R ≠ P: mun:triangle
+    requires ∠QPR ∈ ℝ: mun:angle-real P := Q, Q := P, R := R
+    requires P ≠ Q: mun:triangle, from H7
+    requires R ≠ Q: mun:triangle
+    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires Q ≠ R: mun:triangle, from H7
+    requires P ≠ R: mun:triangle, from H7
+    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
+    requires Q′, R′, P′ form a triangle: mun:triangle-rotate P := P′, Q := Q′, R := R′, from H8
+    requires R′, P′, Q′ form a triangle: mun:triangle-rotate P := Q′, Q := R′, R := P′
+    requires Q′ ≠ P′: mun:triangle
+    requires R′ ≠ P′: mun:triangle
+    requires ∠Q′P′R′ ∈ ℝ: mun:angle-real P := Q′, Q := P′, R := R′
+    requires P′ ≠ Q′: mun:triangle, from H8
+    requires R′ ≠ Q′: mun:triangle
+    requires ∠P′Q′R′ ∈ ℝ: mun:angle-real P := P′, Q := Q′, R := R′
+    requires Q′ ≠ R′: mun:triangle, from H8
+    requires P′ ≠ R′: mun:triangle, from H8
+    requires ∠Q′R′P′ ∈ ℝ: mun:angle-real P := Q′, Q := R′, R := P′
 
-13. |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
+5.  |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
     thm:law-of-sines P := P, Q := Q, R := R, from H7
 
-14. |P′Q′|·sin(∠P′Q′R′) = |P′R′|·sin(∠Q′R′P′)
+6.  |P′Q′|·sin(∠P′Q′R′) = |P′R′|·sin(∠Q′R′P′)
     thm:law-of-sines P := P′, Q := Q′, R := R′, from H8
 
-15. |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠Q′R′P′)
-    substitute ∠PQR = ∠P′Q′R′ (H10) into line 14
+7.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠Q′R′P′)
+    substitute ∠PQR = ∠P′Q′R′ (H10) into line 6
 
-16. |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠QRP)
-    substitute ∠QRP = ∠Q′R′P′ (line 12) into line 15
+8.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠QRP)
+    substitute ∠QRP = ∠Q′R′P′ (line 4) into line 7
 
-17. |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
-    algebra, from 13
+9.  |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 5
     requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q
     requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4
-    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP, from 5
+    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
+    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
+    requires P ≠ Q: mun:triangle, from H7
+    requires R ≠ Q: mun:triangle
+    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires Q ≠ R: mun:triangle, from H7
+    requires P ≠ R: mun:triangle, from H7
+    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
-18. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
-    algebra, from 16
+10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 8
     requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R
     requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4
-    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP, from 5
+    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
+    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
+    requires P ≠ Q: mun:triangle, from H7
+    requires R ≠ Q: mun:triangle
+    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires Q ≠ R: mun:triangle, from H7
+    requires P ≠ R: mun:triangle, from H7
+    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
-19. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
+11. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
     calculation
-      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       17
-                            = |P′Q′|·|PR|·sin(∠PQR)       18
+      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9
+                            = |P′Q′|·|PR|·sin(∠PQR)       10
 
-20. sin(∠PQR) > 0
-    mun:sine-positive P := P, Q := Q, R := R, from H7
-
-21. sin(∠PQR) ≠ 0
-    inequalities, from 20
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4
-
-22. |PQ|·|P′R′| = |P′Q′|·|PR|
+12. |PQ|·|P′R′| = |P′Q′|·|PR|
     mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
-      from 19, 21
+      from 11
     requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q
     requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R
     requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
     requires |PQ|·|P′R′| ∈ ℝ: membership
     requires |P′Q′|·|PR| ∈ ℝ: membership
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4
+    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
+    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
+    requires P ≠ Q: mun:triangle, from H7
+    requires R ≠ Q: mun:triangle
+    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires sin(∠PQR) > 0: mun:sine-positive P := P, Q := Q, R := R, from H7
+    requires sin(∠PQR) ≠ 0: inequalities
 
 theorem pythagoras
   metamath    pythag
@@ -151,84 +145,84 @@ theorem pythagoras
     A, D, C form a triangle. B, D, C form a triangle.
     obtain D: thm:altitude-foot P := A, Q := B, R := C, from H4, H5
 
-2.  A, C, B form a triangle
-    mun:triangle-swap P := A, Q := B, R := C, from H4
-
-3.  B, C, A form a triangle
-    mun:triangle-rotate P := A, Q := B, R := C, from H4
-
-4.  ∠DAC = ∠BAC
+2.  ∠DAC = ∠BAC
     mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
-    requires C ≠ A: mun:triangle, from 3
+    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
+    requires C ≠ A: mun:triangle
 
-5.  ∠BAC = ∠CAB
+3.  ∠BAC = ∠CAB
     mun:angle-symmetric P := B, Q := A, R := C
-    requires B ≠ A: mun:triangle, from 3
-    requires C ≠ A: mun:triangle, from 3
+    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
+    requires B ≠ A: mun:triangle
+    requires C ≠ A: mun:triangle
 
-6.  ∠DAC = ∠CAB
+4.  ∠DAC = ∠CAB
     calculation
-      ∠DAC = ∠BAC       4
-           = ∠CAB       5
+      ∠DAC = ∠BAC       2
+           = ∠CAB       3
 
-7.  ∠ADC = ∠ACB
+5.  ∠ADC = ∠ACB
     calculation
       ∠ADC = 90°        1
            = ∠ACB       H5
 
-8.  |AD|·|AB| = |AC|·|AC|
+6.  |AD|·|AB| = |AC|·|AC|
     thm:similar-triangles P := A, Q := D, R := C, P′ := A, Q′ := C, R′ := B,
-      from 1, 2, 6, 7
+      from 1, 4, 5
+    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
 
-9.  D is between B and A
+7.  D is between B and A
     mun:between-symmetric R := D, S := A, T := B, from 1
 
-10. ∠DBC = ∠ABC
-    mun:angle-along-segment P := B, Q := A, R := C, S := D, from 9
-    requires C ≠ B: mun:triangle, from 2
+8.  ∠DBC = ∠ABC
+    mun:angle-along-segment P := B, Q := A, R := C, S := D, from 7
+    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
+    requires C ≠ B: mun:triangle
 
-11. ∠ABC = ∠CBA
+9.  ∠ABC = ∠CBA
     mun:angle-symmetric P := A, Q := B, R := C
     requires A ≠ B: mun:triangle, from H4
-    requires C ≠ B: mun:triangle, from 2
+    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
+    requires C ≠ B: mun:triangle
 
-12. ∠DBC = ∠CBA
+10. ∠DBC = ∠CBA
     calculation
-      ∠DBC = ∠ABC       10
-           = ∠CBA       11
+      ∠DBC = ∠ABC       8
+           = ∠CBA       9
 
-13. ∠BCA = ∠ACB
+11. ∠BCA = ∠ACB
     mun:angle-symmetric P := B, Q := C, R := A
     requires B ≠ C: mun:triangle, from H4
     requires A ≠ C: mun:triangle, from H4
 
-14. ∠BDC = ∠BCA
+12. ∠BDC = ∠BCA
     calculation
       ∠BDC = 90°        1
            = ∠ACB       H5
-           = ∠BCA       13
+           = ∠BCA       11
 
-15. |BD|·|BA| = |BC|·|BC|
+13. |BD|·|BA| = |BC|·|BC|
     thm:similar-triangles P := B, Q := D, R := C, P′ := B, Q′ := C, R′ := A,
-      from 1, 3, 12, 14
+      from 1, 10, 12
+    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
 
-16. |AD| + |DB| = |AB|
+14. |AD| + |DB| = |AB|
     thm:segment-addition P := A, Q := B, S := D, from 1
 
-17. |BD| = |DB|
+15. |BD| = |DB|
     mun:distance-symmetric P := B, Q := D
 
-18. |BA| = |AB|
+16. |BA| = |AB|
     mun:distance-symmetric P := B, Q := A
 
-19. |DB|·|BA| = |BC|·|BC|
-    substitute |BD| = |DB| (line 17) into line 15
+17. |DB|·|BA| = |BC|·|BC|
+    substitute |BD| = |DB| (line 15) into line 13
 
-20. |DB|·|AB| = |BC|·|BC|
-    substitute |BA| = |AB| (line 18) into line 19
+18. |DB|·|AB| = |BC|·|BC|
+    substitute |BA| = |AB| (line 16) into line 17
 
-21. |AB|² = |AC|² + |BC|²
-    algebra, from 8, 20, 16
+19. |AB|² = |AC|² + |BC|²
+    algebra, from 6, 18, 14
     requires |AB| ∈ ℝ: mun:distance-real P := A, Q := B
     requires |AC| ∈ ℝ: mun:distance-real P := A, Q := C
     requires |BC| ∈ ℝ: mun:distance-real P := B, Q := C

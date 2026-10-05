@@ -66,17 +66,32 @@ definition, theorem or method: that a divisor is not zero, that a product of
 integers is an integer, that 2 > 1. These are dull facts. The name describes
 how they read, but they are classified by role, never by how obvious they
 look: a step is a dull fact exactly when its only use is to discharge a
-hypothesis of an item cited by another step, which the elaborator can
-determine mechanically.
+hypothesis of an item or a method cited by another step, directly or through
+another dull fact, which the elaborator can determine mechanically.
 
 Dull facts are written, because nothing is assumed, but they are not written
 as standalone lines the reader meets before knowing their purpose. They are
 attached to the step they serve, with the word "requires" and the reason they
-hold: "By algebra from line 3.3. Requires q ≠ 0, which holds since q > 0 in
-line 3.1." The word "requires" tells the reader the fact is there because the
+hold: "By algebra from line 2.2. Requires q ≠ 0, which holds since q > 0 in
+line 2.1." The word "requires" tells the reader the fact is there because the
 cited item demands it, not because there is a subtlety to find. A step that
 bundles a dull fact together with a claim used in the argument is split, so
 that each line has one role.
+
+A dull fact has no numbered line of its own, however many steps it serves.
+Each step that needs it carries the requires line, word for word, and a dull
+fact another one rests on is a requires line written above it on the same
+step, which the line below rests on (`SYNTAX.md`: a requires line rests on its
+reason and on the requires lines above it). In the intermediate value proof
+x₁ ∈ ℝ is never a step: each of the seven steps that use it writes δ/2 ∈ ℝ,
+c + δ/2 ∈ ℝ and x₁ ∈ ℝ, in that order. The repetition is the price of each
+step saying everything it rests on where it is read. One kind of dull fact
+stays a numbered step: a fact said of every member whose own reason needs
+facts said at the member, as `For all x ∈ [a, b], g(x) ∈ ℝ` in the mean value
+proof needs x ∈ ℝ and the slope's membership. A requires line has no requires
+lines of its own, so such a fact is one line, `membership`, with its requires
+lines under it (steps 6 and 8 of the mean value proof, step 5 of the proof
+that ℚ is countable).
 
 The viewer may collapse dull facts by default, since it can tell them apart
 mechanically. That is a viewer setting and changes nothing in the text.
@@ -100,12 +115,13 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 73
-lines over 19 items, and 359 of the 389 numbered steps that cite a library
-item cite a mundane one. The thirty others are twenty-one steps citing named
-theorems, three citing named axioms (completeness, well-ordering and
-side-angle-side) and six citing named definitions (continuity, limits,
-congruent triangles, C's two zero cases, and perfect). No requires line rests
+corpus every requires line that cites a library item cites a mundane one, 322
+lines over 50 items, and 346 of the 395 numbered steps that cite a library
+item cite a mundane one. The forty-nine others are thirty-eight steps citing
+named theorems, four citing named axioms (completeness, well-ordering,
+side-angle-side and the parallel through a point) and seven citing named
+definitions (continuity, limits, congruent triangles, C's two zero cases,
+perfect, and Euler's φ). No requires line rests
 on a named item; one that did
 would still be written as a requires line, and would be one the reader needs
 to see.
@@ -123,8 +139,8 @@ That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
 or method requires it. Exempting it was tempting: such a fact never fails, the
 `let` line that states it is always in view, and writing it is expensive,
 since the closure methods of `METHODS.md` work over a field and so need it for
-every atom of every algebra and inequalities step. That is 97 lines across 42
-steps in the current corpus, and one step carries ten. The exemption was
+every atom of every algebra and inequalities step. That is 324 lines across
+111 steps in the current corpus, and one step carries eleven. The exemption was
 rejected. Whether a fact can fail is not the test. Whether the cited item
 demands it is, and that is the test every other dull fact is held to. An
 exemption here would be the first place the text asked a reader to supply
@@ -156,7 +172,7 @@ formulas.
 what a is, and it also says that a(k) is real for each k in {1, …, n}, as
 `let k ∈ ℕ` says k is real. A step that needs a(k) ∈ ℝ cites the type with
 the line putting k in the domain — `requires a(k) ∈ ℝ: from H2, K4`, or
-`from 9.3.1, H2, K4` where a cited item asks it — and no numbered step
+`from 5.3.1, H2, K4` where a cited item asks it — and no numbered step
 restates the value's membership. Both lines are named: the type gives the
 codomain, and the other line is what makes a(k) a value of a at all. A step
 using only that a is a function cites neither, as before. A value that is

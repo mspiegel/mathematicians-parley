@@ -447,7 +447,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line that does not exist",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.4".to_string()), "    3.5.  p is even\n          thm:even-square n := p, from 3.1, 3.99".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.1, 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.1, 2.99".to_string()),
             ],
             "does not exist",
         ),
@@ -549,7 +549,7 @@ fn cases() -> Vec<Case> {
         case(
             "text that is not in Normalisation Form C",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("3.  √2 ∉ ℚ".to_string()), "3.  √2 ∈\u{0338} ℚ".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("2.  √2 ∉ ℚ".to_string()), "2.  √2 ∈\u{0338} ℚ".to_string()),
             ],
             "Normalisation Form C",
         ),
@@ -575,7 +575,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/angle-sum.proof", Some("    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n".to_string()), "".to_string()),
             ],
-            "the requires line of step 3 needs something that mun:triangle does not conclude",
+            "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
@@ -868,7 +868,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a claim in a notation nobody declared",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("5.  p > 1\n    mun:prime p := p, from 4".to_string()), "5.  p exceeds 1\n    mun:prime p := p, from 4".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime p := p, from 3".to_string()), "4.  p exceeds 1\n    mun:prime p := p, from 3".to_string()),
             ],
             "token(s) left over",
         ),
@@ -953,7 +953,7 @@ fn cases() -> Vec<Case> {
         case(
             "claim something the cited item does not conclude",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("5.  p > 1\n    mun:prime p := p, from 4".to_string()), "5.  p > 2\n    mun:prime p := p, from 4".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime p := p, from 3".to_string()), "4.  p > 2\n    mun:prime p := p, from 3".to_string()),
             ],
             "does not conclude",
         ),
@@ -1065,21 +1065,21 @@ fn cases() -> Vec<Case> {
         case(
             "end a contradiction block without saying what it contradicts",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 5, contradicting 6.6".to_string()), "inequalities, from 5".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 4, contradicting 5.6".to_string()), "inequalities, from 4".to_string()),
             ],
             "does not say which line it contradicts",
         ),
         case(
             "contradict a line that is not the claim's opposite",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 5, contradicting 6.6".to_string()), "inequalities, from 5, contradicting 6.5".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("inequalities, from 4, contradicting 5.6".to_string()), "inequalities, from 4, contradicting 5.5".to_string()),
             ],
-            "says it contradicts 6.5, and neither is the other negated",
+            "says it contradicts 5.5, and neither is the other negated",
         ),
         case(
             "contradict a line before the end of the block",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 4, 6.5".to_string()), "mun:divides-one d := p, from 4, 6.5, contradicting 6.5".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 3, 5.5".to_string()), "mun:divides-one d := p, from 3, 5.5, contradicting 5.5".to_string()),
             ],
             "only the last step of a contradiction block or of a case may do",
         ),
@@ -1177,15 +1177,15 @@ fn cases() -> Vec<Case> {
             ],
             "theorem archimedean has a field 'taget', which a theorem record does not have",
         ),
-        // Everything a citation names does work. Line 1 says a + b ∈ ℝ, which
-        // is what `mun:nonneg-or-neg` asks; H1 says a ∈ ℝ, which
-        // it does not.
+        // Everything a citation names does work. The requires line says
+        // a + b ∈ ℝ, which is what `mun:nonneg-or-neg` asks; H1 says a ∈ ℝ,
+        // which it does not.
         case(
             "cite a line the cited item asks nothing of",
             vec![
-                edit("proofs/triangle-inequality.proof", Some("    mun:nonneg-or-neg x := a + b, from 1\n".to_string()), "    mun:nonneg-or-neg x := a + b, from 1, H1\n".to_string()),
+                edit("proofs/triangle-inequality.proof", Some("    mun:nonneg-or-neg x := a + b\n".to_string()), "    mun:nonneg-or-neg x := a + b, from H1\n".to_string()),
             ],
-            "step 2 cites H1, and mun:nonneg-or-neg asks for nothing it says",
+            "step 1 cites H1, and mun:nonneg-or-neg asks for nothing it says",
         ),
         // A "there is" given by an instance is given only where the instance is
         // in the domain. Bezout's step 2 puts a in S by exhibiting 1 and 0, and
@@ -1205,7 +1205,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n".to_string()),
             ],
-            "the requires line of step 6 needs something that mun:abs-integer does not conclude",
+            "the requires line of step 5 needs something that mun:abs-integer does not conclude",
         ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no
@@ -1294,34 +1294,34 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proofs/binomial.proof", Some("    42.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    42.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/binomial.proof", Some("    39.1.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    39.1.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
-            "step 42.5 claims something that thm:pascal does not conclude",
+            "step 39.1 claims something that thm:pascal does not conclude",
         ),
         // Shifting the index moves the range with it.
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proofs/binomial.proof", Some("23. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "23. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/binomial.proof", Some("21. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "21. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
             ],
-            "step 23 claims something that mun:sum-shift does not conclude",
+            "step 21 claims something that mun:sum-shift does not conclude",
         ),
         // A line saying something of every index from 0 to m says nothing of
         // the index m + 1, which the sum to m + 1 takes.
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 42\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 5\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 39\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 3\n".to_string()),
             ],
-            "step 43 cites mun:sum-termwise, which asks for",
+            "step 40 cites mun:sum-termwise, which asks for",
         ),
         // C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from H3, 1, 7".to_string()), "    def:C n := m + 1, k := m + 1, from H3, 1, 7".to_string()),
+                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from H3, 5".to_string()), "    def:C n := m + 1, k := m + 1, from H3, 5".to_string()),
             ],
-            "step 8 claims something that def:C does not conclude",
+            "step 6 claims something that def:C does not conclude",
         ),
         // Four blocks of binomial-step each fix k under the label J, and J means
         // what the block around the citing step says: here k runs from 1. Read
@@ -1329,9 +1329,9 @@ fn cases() -> Vec<Case> {
         case(
             "a label read as a sibling block's",
             vec![
-                edit("proofs/binomial.proof", Some("mun:range-integer a := 1, b := m + 1, from J\n           requires 1 ∈ ℤ: arithmetic\n".to_string()), "mun:range-integer a := 0, b := m + 1, from J\n           requires 0 ∈ ℤ: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("           requires 1 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires 0 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
-            "step 25.1 cites mun:range-integer, which asks for",
+            "the requires line of step 23.1 needs something that mun:range-integer does not conclude",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -1339,7 +1339,7 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 30)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
+                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 28)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
             ],
             "takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it",
         ),
@@ -1355,7 +1355,7 @@ fn cases() -> Vec<Case> {
         case(
             "a gap in the numbering",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("7.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()), "8.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("6.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()), "7.  There exists p ∈ ℕ such that p is prime and p > n.".to_string()),
             ],
             "numbers run on without gaps",
         ),
@@ -1382,9 +1382,9 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-real a := 0, b := m\n    requires 0 ∈ ℤ: arithmetic\n".to_string()), "    mun:sum-real a := 0, b := m\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n    requires 0 ∈ ℤ: arithmetic\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n".to_string()),
             ],
-            "says 1 ∈ ℤ, and neither mun:sum-real nor",
+            "says 1 ∈ ℤ, and neither mun:sum-scaled nor",
         ),
         // A hypothesis asking a = b is answered by a line saying b = a, and by
         // nothing else: line 2 says |CB| = |BC|, which is neither way round the
@@ -1392,9 +1392,9 @@ fn cases() -> Vec<Case> {
         case(
             "answer an equation with one that says it neither way round",
             vec![
-                edit("proofs/isosceles.proof", Some("      from 5, 6, 3, 4, H5\n".to_string()), "      from 5, 6, 3, 4, 2\n".to_string()),
+                edit("proofs/isosceles.proof", Some("      from 3, 4, H5\n".to_string()), "      from 3, 4, 2\n".to_string()),
             ],
-            "step 7 cites axi:side-angle-side, which asks for",
+            "step 5 cites axi:side-angle-side, which asks for",
         ),
         // A step citing a define by cases says which case it is in, by a line
         // giving the condition or its negation, and claims that case's value.
@@ -1477,9 +1477,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a coset without saying H lies in G",
             vec![
-                edit("proofs/lagrange.proof", Some("          mun:coset u := g, from K3, 5.1, 5.2\n          requires H ⊆ G: from 1\n".to_string()), "          mun:coset u := g, from K3, 5.1, 5.2\n".to_string()),
+                edit("proofs/lagrange.proof", Some("          mun:coset u := g, from K3, 4.1, 4.2\n          requires H ⊆ G: from 1\n".to_string()), "          mun:coset u := g, from K3, 4.1, 4.2\n".to_string()),
             ],
-            "step 5.3 cites mun:coset, which asks for H ⊆ G",
+            "step 4.3 cites mun:coset, which asks for H ⊆ G",
         ),
         // An equation names a witness read either way round, and only so: g
         // is in gH as g = g·h for some h ∈ H, and e·g = g fits that neither
@@ -1487,9 +1487,9 @@ fn cases() -> Vec<Case> {
         case(
             "name a coset witness by an equation that does not fit either way",
             vec![
-                edit("proofs/lagrange.proof", Some("    5.2.  g·e = g\n".to_string()), "    5.2.  e·g = g\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    4.2.  g·e = g\n".to_string()), "    4.2.  e·g = g\n".to_string()),
             ],
-            "step 5.3 claims something that mun:coset does not conclude",
+            "step 4.3 claims something that mun:coset does not conclude",
         ),
         // A claim may bind another letter than the definition it reads, and says
         // the same thing only where the letter it binds is the one it uses: with
@@ -1498,9 +1498,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition with a bound letter the claim does not use",
             vec![
-                edit("proofs/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is b ∈ G with gH = aH.\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    11.2. There is a ∈ G with gH = aH.\n".to_string()), "    11.2. There is b ∈ G with gH = aH.\n".to_string()),
             ],
-            "step 12.3 claims something that mun:part-builder does not conclude",
+            "step 11.3 claims something that mun:part-builder does not conclude",
         ),
         // K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
         // of gH is not caught by K's. So the sentence written with it caught
@@ -1508,9 +1508,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition at a term its bound letter would catch",
             vec![
-                edit("proofs/lagrange.proof", Some("    12.2. There is a ∈ G with gH = aH.\n".to_string()), "    12.2. There is g ∈ G with gH = gH.\n".to_string()),
+                edit("proofs/lagrange.proof", Some("    11.2. There is a ∈ G with gH = aH.\n".to_string()), "    11.2. There is g ∈ G with gH = gH.\n".to_string()),
             ],
-            "step 12.3 claims something that mun:part-builder does not conclude",
+            "step 11.3 claims something that mun:part-builder does not conclude",
         ),
         // An obtain from part-builder finds its "there is" in the condition of
         // the set the cited line puts Y in; K20 says only x ∈ Y ∩ Z.
@@ -1519,15 +1519,25 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/lagrange.proof", Some("obtain a: mun:part-builder, from D1, K18".to_string()), "obtain a: mun:part-builder, from D1, K20".to_string()),
             ],
-            "step 15.1 obtains from mun:part-builder, which says there is one only from something the step does not cite",
+            "step 14.1 obtains from mun:part-builder, which says there is one only from something the step does not cite",
+        ),
+        // A line saying a term is not zero is asked for by a line below that
+        // divides by it, and only by such a line: nothing in step 11 divides
+        // by b − a.
+        case(
+            "a term said not zero that nothing below divides by",
+            vec![
+                edit("proofs/mean-value.proof", Some("    requires F : [a, b] → ℝ: from 9\n    requires g : [a, b] → ℝ: from 7\n".to_string()), "    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires F : [a, b] → ℝ: from 9\n    requires g : [a, b] → ℝ: from 7\n".to_string()),
+            ],
+            "the requires line of step 11 says b − a ≠ 0, and neither thm:continuous-sum nor the step's other lines ask for it",
         ),
         // Counting by parts asks that two parts which meet be one part.
         case(
             "count by parts without saying they do not overlap",
             vec![
-                edit("proofs/lagrange.proof", Some("from H1, 14, 15, 16, 3".to_string()), "from H1, 14, 16, 3".to_string()),
+                edit("proofs/lagrange.proof", Some("from H1, 13, 14, 15".to_string()), "from H1, 13, 15".to_string()),
             ],
-            "step 17 cites mun:partition-count, which asks for",
+            "step 16 cites mun:partition-count, which asks for",
         ),
         // A define by recursion gives each name a value at 0 and a rule at the
         // step, the rule naming the sequences only at k, and a citation of it
@@ -1676,14 +1686,14 @@ fn cases() -> Vec<Case> {
         case(
             "give the type of a define the citation does not bind",
             vec![
-                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 9".to_string()), "requires F : [a, b] → ℝ: from 11".to_string()),
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 7".to_string()), "requires F : [a, b] → ℝ: from 9".to_string()),
             ],
             "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
         case(
             "give a bound define a type other than the item asks",
             vec![
-                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 9".to_string()), "requires g : ℕ → ℝ: from 9".to_string()),
+                edit("proofs/mean-value.proof", Some("requires g : [a, b] → ℝ: from 7".to_string()), "requires g : ℕ → ℝ: from 7".to_string()),
             ],
             "says g : ℕ → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),

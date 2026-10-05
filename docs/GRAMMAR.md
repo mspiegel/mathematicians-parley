@@ -686,10 +686,10 @@ not say it again:
 | record | citation |
 |---|---|
 | `axiom completeness` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
-| `mundane axiom trichotomy` | `mun:trichotomy x := f(c), from 14` |
-| `theorem prime-factor` | `obtain p: thm:prime-factor m := n! + 1, from 2, 3` |
+| `mundane axiom trichotomy` | `mun:trichotomy x := f(c), from H4, 13` |
+| `theorem prime-factor` | `obtain p: thm:prime-factor m := n! + 1, from 2` |
 | `mundane theorem int-closure` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
-| `definition C` | `def:C n := m, k := m + 1, from H3, 1, 7` |
+| `definition C` | `def:C n := m, k := m + 1, from H3, 5` |
 | `mundane definition gcd` | `mun:gcd a := a, b := b, from H1, H2` |
 
 The prefix stays because it says on the line whether a reader needs to see

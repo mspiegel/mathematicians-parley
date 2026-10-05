@@ -290,9 +290,10 @@ line saying its left side, unfolds that line (`unfolded`) as the obtain would;
 a definition reaches a claim by a witness (`conclude`) only where the claim is
 its left side, which is never a "there is".
 
-An obtained name may stand for the very letter the goal binds. `obtain N from
-line 5.2` in the triangular reciprocals takes N as the letter the line's "there
-is N" binds, inside a block claiming "there is N ∈ ℕ with …", and
+An obtained name may stand for the very letter the goal binds. `obtain N:
+thm:archimedean x := ε/2` at step 3.1 of the triangular reciprocals takes N as
+the letter the item's "there is N" binds, inside a block claiming "there exists
+N ∈ ℕ such that …", and
 `rexlimdva` keeps the obtained letter out of the goal. The goal is renamed
 apart for the discharge and renamed back afterwards, which says nothing new:
 the two are one claim with different bound letters.
@@ -928,7 +929,7 @@ A line the page cites says what it states and what a membership among its
 sentences implies (`SYNTAX.md`): `let k ∈ ℕ` gives `k ∈ ℝ` by `nnre`,
 `k ≥ 1` by `nnge1` and `k ≠ 0` by `nnne0`, from the table in `rules.rs`
 (`implied`). An `obtain`'s names count as their line's: the scope holds
-`N ∈ ℕ` with line 5.3 as its origin, and `requires N ≠ 0: from 5.3` reads it
+`N ∈ ℕ` with line 3.1 as its origin, and `requires N ≠ 0: from 3.1` reads it
 there (`stated_by`). `inequalities` is offered the bounds, with the facts as
 written, and not the disequalities: `k ≠ 0` would split every certificate it
 stood in.
@@ -938,7 +939,7 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proofs/isosceles.proof:48  def:triangle, from 5 does not reach -. C = A,
+proofs/isosceles.proof:47  mun:triangle does not reach -. C = A,
                           which this line claims it supplies
 ```
 
@@ -1155,7 +1156,7 @@ digit other than zero, which says so itself (`2ne0`): the intermediate value
 proof's `δ/2` is real because `δ` is, with no line saying so.
 
 The rest of the search is bounded by how many lemmas one chain applies on top
-of one another, and three is the deepest chain the corpus needs: step 2.1 of
+of one another, and three is the deepest chain the corpus needs: step 1.1 of
 the geometric series needs `A^0 ∈ ℂ`, by `recn` from `A^0 ∈ ℝ`, by `reexpcl`
 asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
 spends none of it; nor does going under a "for all". What a lemma asks of
@@ -1194,7 +1195,7 @@ and the step owes those hypotheses like any others. What the item states and
 what the step claims must be one statement up to the letters they bind, or one
 side of it where the item states a biconditional; then the other side is what
 the step cites. `mun:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
-c − δ < x and x < c + δ, and step 17.11 of `intermediate-value` claims the
+c − δ < x and x < c + δ, and step 16.15 of `intermediate-value` claims the
 first from lines saying the second. Stated with the step's claim under the
 item's hypotheses, the axiom would say that every |x − c| is below every δ,
 and the kernel accepts whatever is assumed. Anything else is a defect naming
@@ -1272,8 +1273,8 @@ above as asked for when a `membership` line below builds on it, as
 
 - what a line said of every member of a set says at a member the step has,
   taken apart as the line is (`part_at_a_member`, `rspcv`):
-  `requires s(x) ∈ ℕ₀: from 5`, where line 5 says for all x ∈ ℚ, s(x) ∈ ℕ₀
-  and more, in a step said of every x ∈ ℚ (rationals-countable, step 6);
+  `requires s(x) ∈ ℕ₀: from 4`, where line 4 says for all x ∈ ℚ, s(x) ∈ ℕ₀
+  and more, in a step said of every x ∈ ℚ (rationals-countable, step 5);
 
 - the kernel's sethood of what a let introduces: `let x be an element` and
   `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the
@@ -1291,9 +1292,10 @@ Anything else the line gives only in other words does not count: an
 equation or an inequation with its sides turned round, ℝ⁺ for "ℝ with
 0 <", and every other rewording the standard form makes. The requires line
 names the line that writes the fact, or a step of its own writes the
-rewording. Isosceles's lines 5 and 6 are the triangle in two orders, and a
-requires line for A ≠ B names line 5, which writes it, not line 6, which
-writes B ≠ A.
+rewording. Isosceles's requires lines write the triangle in two orders,
+A, C, B and B, C, A, and step 8's requires line for A ≠ B rests on the line
+above it saying A, C, B form a triangle, which writes it, not on B, C, A,
+which writes B ≠ A.
 
 `mun:stdlib/counting/card-remove` is `hashdifsnp1`, which states it whole: the size is given
 as k + 1, so nothing asks that X be finite. `mun:stdlib/counting/card-nonempty` is
@@ -1550,15 +1552,28 @@ proved (`discharged_by`).
   also lets one line discharge from another (`SYNTAX.md`). `supplied` proves a
   step's requires lines in the order written, each with those above it in
   hand; asked again while one is being proved, it answers with what that line
-  was given, so a line below is never proved first. *the requires line rests
-  on 1, which it does not name.*
+  was given, so a line below is never proved first. A line whose reason is
+  `inequalities` takes the orders and equations above it as lines it cites,
+  each known by the proof `supplied` sealed as that line, and reads them and
+  its claim with defined names written out, as `inequalities` reads a step's
+  (`order_of_requires`): `requires sin(∠PQR) ≠ 0: inequalities` stands on
+  `requires sin(∠PQR) > 0` above it, and `requires A > 0: inequalities, from
+  D1, C3` on the sum D1 names. A line whose reason is `algebra` is proved as
+  its step would be were the step citing what the line cites: `requires 1 −
+  a ≠ 0: algebra, from H2` rescales `a ≠ 1`. *the requires line rests on 1,
+  which it does not name.*
 - **R3 — everything a step names does work.** Divided by who can see it:
   - the elaborator, on every step but an item citation: each cited line is in
     the proof's provenance. On a method step, a requires line the proof does
     not rest on is at work only where the method demands it — the membership
     of an atom of what the certificate combined, or a term of it not zero —
-    and each atom combined has its membership on the page, written or cited
-    (`METHODS.md`). An atom is what the method treats as a number it knows
+    or where a requires line below it cites an item whose hypotheses, under
+    the binding that line gives, include what it says: `requires 2^(j + 1) ∈
+    ℤ` above `requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j +
+    1)`, whose record asks b ∈ ℤ though its lemma proves k ∈ ℤ without it
+    (`asked_by_requires`). Each atom combined has its membership on the page,
+    written, or cited by the step or by one of its requires lines, whose
+    method may be what combined it (`METHODS.md`). An atom is what the method treats as a number it knows
     nothing about; sums, products, quotients, negations and numeral powers are
     looked inside, and numerals are not atoms. A line saying a term is a
     number says it of the atom that term is over other bound letters, or with
@@ -1566,6 +1581,13 @@ proved (`discharged_by`).
   - the checker, on a step citing an item: the item's statement says what is
     needed. Each cited line and each requires line is taken away in turn and
     the step checked again, and one whose absence changes nothing is surplus.
+    A requires line is also asked for where a requires line below it builds
+    on what it says by a method that asks it: a membership or a term not
+    zero, where the line below holds the term inside what it says and cites
+    `membership`, `inequalities` or `algebra`, and an order, where the line
+    below cites `inequalities` (`built_on`). A requires line citing an item
+    is checked as a step citing it is, from the lines it cites and the
+    requires lines above it, with the same facts read from them.
     A "there is" given by an instance needs the instance in the domain, so a
     witness's membership is at work. So does the membership of a name a
     summand is built from and its sum does not bind, where the item reads a
@@ -1583,8 +1605,11 @@ proved (`discharged_by`).
     n is odd.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
-line whose every use is by requires lines is a dull fact by `READERS.md`'s
-definition — `geometric-sum`'s line 1, `1 − a ≠ 0`, is the one in the corpus.
+line whose every use is by requires lines, or by the hypotheses of items
+other steps cite, is a dull fact by `READERS.md`'s definition and is written
+as requires lines at each use. The corpus keeps only the kind `READERS.md`
+names as the exception, a fact said of every member whose reason needs facts
+at the member.
 
 `tests/planted_elaborate.rs` and `tests/planted_check.rs` plant one case of each rule, and each
 is confirmed to have elaborated or checked cleanly before its rule existed.

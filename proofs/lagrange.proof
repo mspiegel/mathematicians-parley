@@ -44,350 +44,346 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 2.  H is finite
     mun:finite-part, from H1, 1
 
-3.  |H| ∈ ℕ₀
-    mun:card-nat0, from 2
-
-4.  For all g ∈ G, gH ⊆ G.
+3.  For all g ∈ G, gH ⊆ G.
     fix
     let g ∈ G                                                         (K1)
 
-    4.1.  For all u ∈ gH, u ∈ G.
+    3.1.  For all u ∈ gH, u ∈ G.
           fix
           let u ∈ gH                                                  (K2)
 
-          4.1.1.  h ∈ H. u = g·h.
+          3.1.1.  h ∈ H. u = g·h.
                   obtain h: mun:coset u := u, from K1, K2
                   requires H ⊆ G: from 1
 
-          4.1.2.  h ∈ G
-                  mun:in-subset, from 1, 4.1.1
+          3.1.2.  h ∈ G
+                  mun:in-subset, from 1, 3.1.1
 
-          4.1.3.  g·h ∈ G
-                  mun:group-closed a := g, b := h, from K1, 4.1.2
+          3.1.3.  g·h ∈ G
+                  mun:group-closed a := g, b := h, from K1, 3.1.2
 
-          4.1.4.  u ∈ G
-                  substitute u = g·h (line 4.1.1) into line 4.1.3
+          3.1.4.  u ∈ G
+                  substitute u = g·h (line 3.1.1) into line 3.1.3
 
-    4.2.  gH ⊆ G
-          mun:subset, from 4.1
+    3.2.  gH ⊆ G
+          mun:subset, from 3.1
 
-5.  For all g ∈ G, g ∈ gH.
+4.  For all g ∈ G, g ∈ gH.
     fix
     let g ∈ G                                                         (K3)
 
-    5.1.  e ∈ H
+    4.1.  e ∈ H
           mun:subgroup-identity, from H2
 
-    5.2.  g·e = g
+    4.2.  g·e = g
           mun:group-identity a := g, from K3
 
-    5.3.  g ∈ gH
-          mun:coset u := g, from K3, 5.1, 5.2
+    4.3.  g ∈ gH
+          mun:coset u := g, from K3, 4.1, 4.2
           requires H ⊆ G: from 1
 
-6.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
+5.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
     fix
     let a ∈ G                                                         (K4)
     let x ∈ aH                                                        (K5)
 
-    6.1.  h ∈ H. x = a·h.
+    5.1.  h ∈ H. x = a·h.
           obtain h: mun:coset u := x, g := a, from K4, K5
           requires H ⊆ G: from 1
 
-    6.2.  aH ⊆ G
-          instantiate g := a in line 4, from K4
+    5.2.  aH ⊆ G
+          instantiate g := a in line 3, from K4
 
-    6.3.  x ∈ G
-          mun:in-subset, from 6.2, K5
+    5.3.  x ∈ G
+          mun:in-subset, from 5.2, K5
 
-    6.4.  h ∈ G
-          mun:in-subset, from 1, 6.1
+    5.4.  h ∈ G
+          mun:in-subset, from 1, 5.1
 
-    6.5.  For all u ∈ xH, u ∈ aH.
+    5.5.  For all u ∈ xH, u ∈ aH.
           fix
           let u ∈ xH                                                  (K6)
 
-          6.5.1.  c ∈ H. u = x·c.
-                  obtain c: mun:coset u := u, g := x, from 6.3, K6
+          5.5.1.  c ∈ H. u = x·c.
+                  obtain c: mun:coset u := u, g := x, from 5.3, K6
                   requires H ⊆ G: from 1
 
-          6.5.2.  c ∈ G
-                  mun:in-subset, from 1, 6.5.1
+          5.5.2.  c ∈ G
+                  mun:in-subset, from 1, 5.5.1
 
-          6.5.3.  h·c ∈ H
-                  mun:subgroup-closed a := h, b := c, from H2, 6.1, 6.5.1
+          5.5.3.  h·c ∈ H
+                  mun:subgroup-closed a := h, b := c, from H2, 5.1, 5.5.1
 
-          6.5.4.  (a·h)·c = a·(h·c)
-                  mun:group-associative a := a, b := h, c := c, from K4, 6.4, 6.5.2
+          5.5.4.  (a·h)·c = a·(h·c)
+                  mun:group-associative a := a, b := h, c := c, from K4, 5.4, 5.5.2
 
-          6.5.5.  x·c = (a·h)·c
-                  substitute x = a·h (line 6.1)
+          5.5.5.  x·c = (a·h)·c
+                  substitute x = a·h (line 5.1)
 
-          6.5.6.  u = a·(h·c)
+          5.5.6.  u = a·(h·c)
                   calculation
-                    u = x·c              6.5.1
-                      = (a·h)·c          6.5.5
-                      = a·(h·c)          6.5.4
+                    u = x·c              5.5.1
+                      = (a·h)·c          5.5.5
+                      = a·(h·c)          5.5.4
 
-          6.5.7.  u ∈ aH
-                  mun:coset u := u, g := a, from K4, 6.5.3, 6.5.6
+          5.5.7.  u ∈ aH
+                  mun:coset u := u, g := a, from K4, 5.5.3, 5.5.6
                   requires H ⊆ G: from 1
 
-    6.6.  xH ⊆ aH
-          mun:subset, from 6.5
+    5.6.  xH ⊆ aH
+          mun:subset, from 5.5
 
-7.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
+6.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
     fix
     let a ∈ G                                                         (K7)
     let x ∈ aH                                                        (K8)
 
-    7.1.  h ∈ H. x = a·h.
+    6.1.  h ∈ H. x = a·h.
           obtain h: mun:coset u := x, g := a, from K7, K8
           requires H ⊆ G: from 1
 
-    7.2.  h ∈ G
-          mun:in-subset, from 1, 7.1
+    6.2.  h ∈ G
+          mun:in-subset, from 1, 6.1
 
-    7.3.  h⁻¹ ∈ H
-          mun:subgroup-inverse a := h, from H2, 7.1
+    6.3.  h⁻¹ ∈ H
+          mun:subgroup-inverse a := h, from H2, 6.1
 
-    7.4.  h⁻¹ ∈ G
-          mun:group-inverse-closed a := h, from 7.2
+    6.4.  h⁻¹ ∈ G
+          mun:group-inverse-closed a := h, from 6.2
 
-    7.5.  (a·h)·h⁻¹ = a·(h·h⁻¹)
-          mun:group-associative a := a, b := h, c := h⁻¹, from K7, 7.2, 7.4
+    6.5.  (a·h)·h⁻¹ = a·(h·h⁻¹)
+          mun:group-associative a := a, b := h, c := h⁻¹, from K7, 6.2, 6.4
 
-    7.6.  h·h⁻¹ = e
-          mun:group-inverse a := h, from 7.2
+    6.6.  h·h⁻¹ = e
+          mun:group-inverse a := h, from 6.2
 
-    7.7.  a·(h·h⁻¹) = a·e
-          substitute h·h⁻¹ = e (line 7.6)
+    6.7.  a·(h·h⁻¹) = a·e
+          substitute h·h⁻¹ = e (line 6.6)
 
-    7.8.  a·e = a
+    6.8.  a·e = a
           mun:group-identity a := a, from K7
 
-    7.9.  x·h⁻¹ = (a·h)·h⁻¹
-          substitute x = a·h (line 7.1)
+    6.9.  x·h⁻¹ = (a·h)·h⁻¹
+          substitute x = a·h (line 6.1)
 
-    7.10. a = x·h⁻¹
+    6.10. a = x·h⁻¹
           calculation
-            a = a·e                  7.8
-              = a·(h·h⁻¹)            7.7
-              = (a·h)·h⁻¹            7.5
-              = x·h⁻¹                7.9
+            a = a·e                  6.8
+              = a·(h·h⁻¹)            6.7
+              = (a·h)·h⁻¹            6.5
+              = x·h⁻¹                6.9
 
-    7.11. aH ⊆ G
-          instantiate g := a in line 4, from K7
+    6.11. aH ⊆ G
+          instantiate g := a in line 3, from K7
 
-    7.12. x ∈ G
-          mun:in-subset, from 7.11, K8
+    6.12. x ∈ G
+          mun:in-subset, from 6.11, K8
 
-    7.13. a ∈ xH
-          mun:coset u := a, g := x, from 7.12, 7.3, 7.10
+    6.13. a ∈ xH
+          mun:coset u := a, g := x, from 6.12, 6.3, 6.10
           requires H ⊆ G: from 1
 
-8.  For all b ∈ G, for all y ∈ bH, yH = bH.
+7.  For all b ∈ G, for all y ∈ bH, yH = bH.
     fix
     let b ∈ G                                                         (K9)
     let y ∈ bH                                                        (K10)
 
-    8.1.  yH ⊆ bH
+    7.1.  yH ⊆ bH
+          instantiate a := b, x := y in line 5, from K9, K10
+
+    7.2.  bH ⊆ G
+          instantiate g := b in line 3, from K9
+
+    7.3.  y ∈ G
+          mun:in-subset, from 7.2, K10
+
+    7.4.  b ∈ yH
           instantiate a := b, x := y in line 6, from K9, K10
 
-    8.2.  bH ⊆ G
-          instantiate g := b in line 4, from K9
+    7.5.  bH ⊆ yH
+          instantiate a := y, x := b in line 5, from 7.3, 7.4
 
-    8.3.  y ∈ G
-          mun:in-subset, from 8.2, K10
+    7.6.  yH = bH
+          mun:subset-antisymmetric, from 7.1, 7.5
 
-    8.4.  b ∈ yH
-          instantiate a := b, x := y in line 7, from K9, K10
-
-    8.5.  bH ⊆ yH
-          instantiate a := y, x := b in line 6, from 8.3, 8.4
-
-    8.6.  yH = bH
-          mun:subset-antisymmetric, from 8.1, 8.5
-
-9.  For all g ∈ G, |gH| = |H|.
+8.  For all g ∈ G, |gH| = |H|.
     fix
     let g ∈ G                                                         (K11)
 
     define t(c) := g·c, for c ∈ H                                     (D2)
            reads g times c
 
-    9.1.  For all h ∈ H, t(h) ∈ gH.
+    8.1.  For all h ∈ H, t(h) ∈ gH.
           fix
           let h ∈ H                                                   (K12)
 
-          9.1.1.  t(h) = g·h
+          8.1.1.  t(h) = g·h
                   D2, from K12
 
-          9.1.2.  t(h) ∈ gH
-                  mun:coset u := t(h), from K11, K12, 9.1.1
+          8.1.2.  t(h) ∈ gH
+                  mun:coset u := t(h), from K11, K12, 8.1.1
                   requires H ⊆ G: from 1
 
-    9.2.  t : H → gH
-          mun:function-into, from 9.1
+    8.2.  t : H → gH
+          mun:function-into, from 8.1
           requires t is a function on H: from D2
 
-    9.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
+    8.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
           fix
           let s ∈ H                                                   (K13)
           let r ∈ H                                                   (K14)
           assume t(s) = t(r)                                          (A1)
 
-          9.3.1.  t(s) = g·s
+          8.3.1.  t(s) = g·s
                   D2, from K13
 
-          9.3.2.  t(r) = g·r
+          8.3.2.  t(r) = g·r
                   D2, from K14
 
-          9.3.3.  g·s = g·r
+          8.3.3.  g·s = g·r
                   calculation
-                    g·s = t(s)           9.3.1
+                    g·s = t(s)           8.3.1
                         = t(r)           A1
-                        = g·r            9.3.2
+                        = g·r            8.3.2
 
-          9.3.4.  s ∈ G
+          8.3.4.  s ∈ G
                   mun:in-subset, from 1, K13
 
-          9.3.5.  r ∈ G
+          8.3.5.  r ∈ G
                   mun:in-subset, from 1, K14
 
-          9.3.6.  s = r
-                  thm:group-cancel a := s, b := r, g := g, from 9.3.4, 9.3.5, K11, 9.3.3
+          8.3.6.  s = r
+                  thm:group-cancel a := s, b := r, g := g, from 8.3.4, 8.3.5, K11, 8.3.3
 
-    9.4.  t : H → gH is one-to-one
-          mun:one-to-one, from 9.2, 9.3
+    8.4.  t : H → gH is one-to-one
+          mun:one-to-one, from 8.2, 8.3
 
-    9.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
+    8.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
           fix
           let u ∈ gH                                                  (K15)
 
-          9.5.1.  h ∈ H. u = g·h.
+          8.5.1.  h ∈ H. u = g·h.
                   obtain h: mun:coset u := u, from K11, K15
                   requires H ⊆ G: from 1
 
-          9.5.2.  t(h) = g·h
-                  D2, from 9.5.1
+          8.5.2.  t(h) = g·h
+                  D2, from 8.5.1
 
-          9.5.3.  u = t(h)
+          8.5.3.  u = t(h)
                   calculation
-                    u = g·h              9.5.1
-                      = t(h)             9.5.2
+                    u = g·h              8.5.1
+                      = t(h)             8.5.2
 
-          9.5.4.  There is h ∈ H with u = t(h).
-                  exhibit, from 9.5.1, 9.5.3
+          8.5.4.  There is h ∈ H with u = t(h).
+                  exhibit, from 8.5.1, 8.5.3
 
-    9.6.  There is a bijection from H to gH.
-          mun:bijection, from 9.4, 9.5
+    8.6.  There is a bijection from H to gH.
+          mun:bijection, from 8.4, 8.5
 
-    9.7.  |H| = |gH|
-          mun:card-equal X := H, Y := gH, from 2, 9.6
+    8.7.  |H| = |gH|
+          mun:card-equal X := H, Y := gH, from 2, 8.6
 
-10. For all Y ∈ K, Y ⊆ G.
+9.  For all Y ∈ K, Y ⊆ G.
     mun:part-builder, from D1
 
-11. ⋃(Y ∈ K) Y ⊆ G
-    mun:union-within, from 10
+10. ⋃(Y ∈ K) Y ⊆ G
+    mun:union-within, from 9
 
-12. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
+11. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
     fix
     let g ∈ G                                                         (K17)
 
-    12.1. gH ⊆ G
-          instantiate g := g in line 4, from K17
+    11.1. gH ⊆ G
+          instantiate g := g in line 3, from K17
 
-    12.2. There is a ∈ G with gH = aH.
+    11.2. There is a ∈ G with gH = aH.
           exhibit, from K17
 
-    12.3. gH ∈ K
-          mun:part-builder u := gH, from D1, 12.1, 12.2
+    11.3. gH ∈ K
+          mun:part-builder u := gH, from D1, 11.1, 11.2
 
-    12.4. g ∈ gH
-          instantiate g := g in line 5, from K17
+    11.4. g ∈ gH
+          instantiate g := g in line 4, from K17
 
-    12.5. There is Y ∈ K with g ∈ Y.
-          exhibit, from 12.3, 12.4
+    11.5. There is Y ∈ K with g ∈ Y.
+          exhibit, from 11.3, 11.4
 
-    12.6. g ∈ ⋃(Y ∈ K) Y
-          mun:indexed-union u := g, from 12.5
+    11.6. g ∈ ⋃(Y ∈ K) Y
+          mun:indexed-union u := g, from 11.5
 
-13. G ⊆ ⋃(Y ∈ K) Y
-    mun:subset, from 12
+12. G ⊆ ⋃(Y ∈ K) Y
+    mun:subset, from 11
 
-14. ⋃(Y ∈ K) Y = G
-    mun:subset-antisymmetric, from 11, 13
+13. ⋃(Y ∈ K) Y = G
+    mun:subset-antisymmetric, from 10, 12
 
-15. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
+14. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     fix
     let Y ∈ K                                                         (K18)
     let Z ∈ K                                                         (K19)
     let x ∈ Y ∩ Z                                                     (K20)
 
-    15.1. a ∈ G. Y = aH.
+    14.1. a ∈ G. Y = aH.
           obtain a: mun:part-builder, from D1, K18
 
-    15.2. b ∈ G. Z = bH.
+    14.2. b ∈ G. Z = bH.
           obtain b: mun:part-builder, from D1, K19
 
-    15.3. x ∈ Y. x ∈ Z.
+    14.3. x ∈ Y. x ∈ Z.
           mun:intersection, from K20
 
-    15.4. x ∈ aH
-          substitute Y = aH (line 15.1) into line 15.3
+    14.4. x ∈ aH
+          substitute Y = aH (line 14.1) into line 14.3
 
-    15.5. x ∈ bH
-          substitute Z = bH (line 15.2) into line 15.3
+    14.5. x ∈ bH
+          substitute Z = bH (line 14.2) into line 14.3
 
-    15.6. xH = aH
-          instantiate b := a, y := x in line 8, from 15.1, 15.4
+    14.6. xH = aH
+          instantiate b := a, y := x in line 7, from 14.1, 14.4
 
-    15.7. xH = bH
-          instantiate b := b, y := x in line 8, from 15.2, 15.5
+    14.7. xH = bH
+          instantiate b := b, y := x in line 7, from 14.2, 14.5
 
-    15.8. Y = Z
+    14.8. Y = Z
           calculation
-            Y = aH                  15.1
-              = xH                  15.6
-              = bH                  15.7
-              = Z                   15.2
+            Y = aH                  14.1
+              = xH                  14.6
+              = bH                  14.7
+              = Z                   14.2
 
-16. For all Y ∈ K, |Y| = |H|.
+15. For all Y ∈ K, |Y| = |H|.
     fix
     let Y ∈ K                                                         (K21)
 
-    16.1. a ∈ G. Y = aH.
+    15.1. a ∈ G. Y = aH.
           obtain a: mun:part-builder, from D1, K21
 
-    16.2. |H| = |aH|
-          instantiate g := a in line 9, from 16.1
+    15.2. |H| = |aH|
+          instantiate g := a in line 8, from 15.1
 
-    16.3. |Y| = |aH|
-          substitute Y = aH (line 16.1)
+    15.3. |Y| = |aH|
+          substitute Y = aH (line 15.1)
 
-    16.4. |Y| = |H|
+    15.4. |Y| = |H|
           calculation
-            |Y| = |aH|               16.3
-                = |H|                16.2
+            |Y| = |aH|               15.3
+                = |H|                15.2
 
-17. |G| = |K| · |H|
-    mun:partition-count A := G, m := |H|, from H1, 14, 15, 16, 3
+16. |G| = |K| · |H|
+    mun:partition-count A := G, m := |H|, from H1, 13, 14, 15
+    requires |H| ∈ ℕ₀: mun:card-nat0, from 2
 
-18. K is finite
-    mun:parts-finite A := G, from H1, 10
+17. K is finite
+    mun:parts-finite A := G, from H1, 9
 
-19. |K| ∈ ℕ₀
-    mun:card-nat0, from 18
-
-20. |G| = |H|·|K|
-    algebra, from 17
+18. |G| = |H|·|K|
+    algebra, from 16
     requires |G| ∈ ℕ₀: mun:card-nat0, from H1
-    requires |K| ∈ ℝ: from 19
-    requires |H| ∈ ℝ: from 3
+    requires |K| ∈ ℕ₀: mun:card-nat0, from 17
+    requires |H| ∈ ℕ₀: mun:card-nat0, from 2
 
-21. |H| divides |G|
-    mun:divides d := |H|, n := |G|, from 19, 20
-    requires |H| ∈ ℤ: from 3
+19. |H| divides |G|
+    mun:divides d := |H|, n := |G|, from 18
+    requires |H| ∈ ℕ₀: mun:card-nat0, from 2
+    requires |K| ∈ ℕ₀: mun:card-nat0, from 17
     requires |G| ∈ ℕ₀: mun:card-nat0, from H1

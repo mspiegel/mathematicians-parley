@@ -44,26 +44,24 @@ theorem least-combination-divides
     contradiction
     suppose r ≠ 0                                                     (S)
 
-    3.1.  0 < r
-          inequalities, from 1, S
+    3.1.  r ∈ ℕ
+          mun:pos-int-nat m := r, from 1
           requires r ∈ ℝ: from 1
+          requires 0 < r: inequalities, from 1, S
 
-    3.2.  r ∈ ℕ
-          mun:pos-int-nat m := r, from 1, 3.1
+    3.2.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
+          substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.1
 
-    3.3.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
-          substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.2
-
-    3.4.  d ≤ a·(u − q·x₀) + b·(v − q·y₀)
-          instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.3
+    3.3.  d ≤ a·(u − q·x₀) + b·(v − q·y₀)
+          instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.2
           requires u − q·x₀ ∈ ℤ: mun:int-closure, from H5, 1, H7
           requires v − q·y₀ ∈ ℤ: mun:int-closure, from H6, 1, H8
 
-    3.5.  d ≤ r
-          substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.4
+    3.4.  d ≤ r
+          substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.3
 
-    3.6.  not d ≤ r
-          inequalities, from 1, contradicting 3.5
+    3.5.  not d ≤ r
+          inequalities, from 1, contradicting 3.4
           requires r ∈ ℝ: from 1
           requires d ∈ ℝ: from H4
 

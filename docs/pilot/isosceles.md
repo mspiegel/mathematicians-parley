@@ -41,7 +41,7 @@ Seven of the eight are open items, which is what finding 1 below says. Three
 further things the merge found. `def:stdlib/geometry/angle` is needed by the ∠ notation and
 appeared only in the findings, so it was added as an open item.
 `thm:triangle-permute`'s conclusion is not a formula and has to be restated.
-And `thm:stdlib/geometry/side-angle-side` names its variables P, Q, R while step 7 of the
+And `thm:stdlib/geometry/side-angle-side` names its variables P, Q, R while step 5 of the
 proof instantiates A, B, C; one of the two must change, and the merge changed
 neither.
 

@@ -177,8 +177,8 @@ fn cases() -> Vec<Case> {
             "one algebra step multiplying two cited equations",
             "proofs/pythagoras/similar-triangles",
             "proofs/pythagoras.proof",
-            "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       17\n                            = |P′Q′|·|PR|·sin(∠PQR)       18",
-            "    algebra, from 13, 16\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP, from 5",
+            "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
+            "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7\n    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P\n    requires P ≠ Q: mun:triangle, from H7\n    requires R ≠ Q: mun:triangle\n    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires Q ≠ R: mun:triangle, from H7\n    requires P ≠ R: mun:triangle, from H7\n    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
             "at most one equation multiplied by a term",
         ),
         // A formula that does not lex is a defect with a position, and not a
@@ -188,9 +188,9 @@ fn cases() -> Vec<Case> {
             "a requires line that does not lex",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "          requires a ∈ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
-            "          requires a ¿ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
-            "proofs/geometric-series.proof:93",
+            "          requires a ∈ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
+            "          requires a ¿ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
+            "proofs/geometric-series.proof:87",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -199,8 +199,8 @@ fn cases() -> Vec<Case> {
             "substitute a name the proof never introduced",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "          substitute a^(0 + 1) = a (line 2.6)",
-            "          substitute a^(0 + 1) = z (line 2.6)",
+            "          substitute a^(0 + 1) = a (line 1.6)",
+            "          substitute a^(0 + 1) = z (line 1.6)",
             "no kernel name for 'z'",
         ),
         // A gap in the database rather than in the text, reported at the line
@@ -237,27 +237,39 @@ fn cases() -> Vec<Case> {
             "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
-        // proves it. Here line 5 does not say `C ≠ A` and line 6 does; taking
-        // it from the theorem's own hypothesis and turning it with `necom`
-        // would verify, and leave the line the page named unused.
+        // proves it. Here H5 does not say `C ≠ A`, and no line above this one
+        // does; taking it from the theorem's own hypothesis and turning it
+        // with `necom` would verify, and leave the line the page named unused.
         case(
             "name a line that does not state the side condition",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires C ≠ A: mun:triangle, from 6",
-            "    requires C ≠ A: mun:triangle, from 5",
-            "mun:triangle, from 5 does not reach",
+            "    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n    requires C ≠ A: mun:triangle\n",
+            "    requires C ≠ A: mun:triangle, from H5\n    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n",
+            "mun:triangle, from H5 does not reach",
         ),
         // The same, where the scope already holds the claim for another reason:
-        // the hypothesis says A, B, C form a triangle, so `A ≠ B` is held before
-        // the line is read, and line 6 does not say it.
+        // the hypothesis says A, B, C form a triangle, so `A ≠ C` is held before
+        // the line is read, and H5 does not say it.
         case(
             "name a line that does not state a claim the scope already holds",
             "proofs/isosceles/isosceles",
             "proofs/isosceles.proof",
-            "    requires A ≠ B: mun:triangle, from 5",
-            "    requires A ≠ B: mun:triangle, from 6",
-            "mun:triangle, from 6 does not reach",
+            "    requires A ≠ C: mun:triangle, from H4\n",
+            "    requires A ≠ C: mun:triangle, from H5\n",
+            "mun:triangle, from H5 does not reach",
+        ),
+        // A requires line below that cites an item asks for that item's
+        // hypotheses, and only those: mun:sum-real asks 0 ∈ ℤ and m ∈ ℤ of
+        // the range, and nothing asks 1 ∈ ℤ of an `algebra` step whose atoms
+        // are x, y and the sum.
+        case(
+            "a requires line above an item's line that the item does not ask for",
+            "proofs/binomial/binomial-step",
+            "proofs/binomial.proof",
+            "    requires y ∈ ℝ: from H2\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℤ: from H3\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
+            "    requires y ∈ ℝ: from H2\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℤ: from H3\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
+            "the requires line of step 1 says 1 ∈ ℤ, and the step neither uses nor asks for it",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
         // Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
@@ -295,15 +307,16 @@ fn cases() -> Vec<Case> {
             "          requires 2 ≠ 0: arithmetic\n          requires 2 ∈ ℝ: arithmetic\n",
             "says 2 ∈ ℝ, and the step neither uses nor asks for it",
         ),
-        // The certificate combines lines 3 and 4; line 1 says a + b ∈ ℝ, which
-        // the step writes as its atoms instead, and is cited for nothing.
+        // The certificate combines lines 2 and 3; line 1 says a + b is at
+        // least 0 or below it, which the step does not combine, and is cited
+        // for nothing.
         case(
             "cite a line a method step does not combine",
             "proofs/triangle-inequality/triangle-inequality",
             "proofs/triangle-inequality.proof",
-            "    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 3, 4\n",
-            "    5.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 3, 4\n",
-            "step 5.2 cites 1 and uses nothing it says",
+            "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n",
+            "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n",
+            "step 4.2 cites 1 and uses nothing it says",
         ),
         // Each atom a method combines is real, and the step says so. The
         // kernel's `ltne` never needs d ∈ ℝ here, so nothing else would see the
@@ -312,9 +325,9 @@ fn cases() -> Vec<Case> {
             "leave out the membership of an atom the method combines",
             "proofs/sqrt2-irrational/lowest-terms",
             "proofs/sqrt2-irrational.proof",
-            "    3.7.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.6\n          requires d ∈ ℝ: from 3.1\n",
-            "    3.7.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.6\n",
-            "step 3.7 combines d, and nothing it writes or cites says it is a number",
+            "    3.5.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.4\n          requires d ∈ ℝ: from 3.1\n",
+            "    3.5.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.4\n",
+            "step 3.5 combines d, and nothing it writes or cites says it is a number",
         ),
         // `decide_field` refuses a claim that is not an identity, before
         // anything falls back to stating the step.
@@ -322,8 +335,8 @@ fn cases() -> Vec<Case> {
             "claim an algebra step the cited lines do not give",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "    2.15. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
-            "    2.15. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
+            "    1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
+            "    1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
             "is not an identity",
         ),
         // A side condition is searched for among what the step names, not among
@@ -434,7 +447,7 @@ fn cases() -> Vec<Case> {
             "proofs/divisibility-by-three.proof",
             "10 − 1 = 9\n          mun:ten-minus-one",
             "10 − 1 = 9\n          arithmetic",
-            "step 1.6 claims 10 − 1 = 9, which is true, and arithmetic cannot show it yet",
+            "step 1.5 claims 10 − 1 = 9, which is true, and arithmetic cannot show it yet",
         ),
         // What has no exact value is refused before anything is computed or
         // stated: a division by zero, a number too large to work out, which
@@ -444,24 +457,24 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.9.",
             "which divides by zero",
         ),
         case(
             "state a numeral too large to work out",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.9.",
             "which is too large to work out",
         ),
         case(
             "raise a numeral to a power that is not whole",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.9.",
             "which is not a rational number",
         ),
         // Named where it is used, `arithmetic` works the fact out first, as it
@@ -472,7 +485,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "substitute 0 + 1 = 1 (arithmetic)",
             "substitute 0 + 1 = 2 (arithmetic)",
-            "step 2.4 substitutes 0 + 1 = 2, which is false",
+            "step 1.4 substitutes 0 + 1 = 2, which is false",
         ),
         case(
             "a chain link of numerals that is false",
@@ -482,15 +495,16 @@ fn cases() -> Vec<Case> {
             "= 1(1 + 1)/3            arithmetic",
             "a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false",
         ),
-        // `membership` builds from what the line cites: ε > 0 does not say ε is
-        // a real number, and the scope's copy of the line that does is not
-        // the requires line's to use unnamed.
+        // `membership` builds from what the line cites and the lines above it:
+        // ε > 0 does not say ε is a real number, no line above says it once
+        // this line comes first, and the scope's copy of the line that does is
+        // not the requires line's to use unnamed.
         case(
             "membership from a line that says nothing of the atom",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "requires ε/2 ∈ ℝ: membership, from K3",
-            "requires ε/2 ∈ ℝ: membership, from A1",
+            "          requires ε ∈ ℝ: from K3\n          requires ε/2 > 0: inequalities, from A1\n          requires ε/2 ∈ ℝ: membership, from K3\n",
+            "          requires ε/2 ∈ ℝ: membership, from A1\n          requires ε ∈ ℝ: from K3\n          requires ε/2 > 0: inequalities, from A1\n",
             "rests on K3, which it does not name",
         ),
         // g(x) is real because of what g is, and a step that uses what a
@@ -502,17 +516,17 @@ fn cases() -> Vec<Case> {
             "proofs/mean-value.proof",
             "    membership, from D1\n",
             "    membership\n",
-            "is not built from what step 8 cites",
+            "is not built from what step 6 cites",
         ),
-        // Line 5 says s(x) ∈ ℕ₀ of every x ∈ ℚ and is read at the step's
-        // member; line 3 says something else of every pair of naturals, and
+        // Line 4 says s(x) ∈ ℕ₀ of every x ∈ ℚ and is read at the step's
+        // member; line 2 says something else of every pair of naturals, and
         // nothing read at a member of anything gives s(x) ∈ ℕ₀.
         case(
             "a requires line citing a line said of every member that does not say the fact",
             "proofs/rationals-countable/rationals-countable",
             "proofs/rationals-countable.proof",
-            "requires s(x) ∈ ℕ₀: from 5",
-            "requires s(x) ∈ ℕ₀: from 3",
+            "requires s(x) ∈ ℕ₀: from 4",
+            "requires s(x) ∈ ℕ₀: from 2",
             "does not reach",
         ),
         // G(a, 0) is the rule at a and 0 only where a is in G's first
@@ -521,8 +535,8 @@ fn cases() -> Vec<Case> {
             "read a function of two at a value nothing puts in its domain",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "                    = 1                     2.2\n          requires a ∈ ℝ: from H1\n",
-            "                    = 1                     2.2\n",
+            "                    = 1                     1.2\n          requires a ∈ ℝ: from H1\n",
+            "                    = 1                     1.2\n",
             "cannot settle A e. RR",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
@@ -542,8 +556,8 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
-            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
+            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
             "is not built from what the requires line cites",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
@@ -736,9 +750,9 @@ fn cases() -> Vec<Case> {
             "obtain from part-builder a claim the condition does not give",
             "proofs/lagrange/lagrange",
             "proofs/lagrange.proof",
-            "    15.1. a ∈ G. Y = aH.\n",
-            "    15.1. a ∈ G. Z = aH.\n",
-            "proofs/lagrange.proof:329  nothing step 15.1 cites says",
+            "    14.1. a ∈ G. Y = aH.\n",
+            "    14.1. a ∈ G. Z = aH.\n",
+            "proofs/lagrange.proof:326  nothing step 14.1 cites says",
         ),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R
@@ -767,9 +781,9 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             "proofs/lagrange/lagrange",
             "proofs/lagrange.proof",
-            "mun:coset u := g, from K3, 5.1, 5.2",
-            "mun:coset u := g, from K3, 5.1",
-            "proofs/lagrange.proof:84  no cited line names a witness",
+            "mun:coset u := g, from K3, 4.1, 4.2",
+            "mun:coset u := g, from K3, 4.1",
+            "proofs/lagrange.proof:81  no cited line names a witness",
         ),
     ]
 }

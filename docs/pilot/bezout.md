@@ -77,7 +77,7 @@ lemmas in the subsets pilot.
    4, from 7.1` does the same for a line. It is a quantifier move and so, by
    READERS.md, a method.
 4. **A hypothesis can be a "for every" sentence.** H11 quantifies over x
-   and y. Citing it is an `instantiate`, at step 3.4. A `let`/`assume`
+   and y. Citing it is an `instantiate`, at step 3.3. A `let`/`assume`
    statement can therefore contain quantifiers, which the earlier pilots
    did not need.
 5. **Set-builder membership is a definition used both ways.** Step 2 puts
