@@ -61,7 +61,32 @@ fn the_tools_answer_alike() {
             });
         }
     });
-    let found: BTreeSet<String> = found.into_inner().unwrap();
+    let all: BTreeSet<String> = found.into_inner().unwrap();
+    // What the elaborator answers alone, which a later change compares with
+    // the shared answer: what an item cited by a requires line asks, and
+    // what an obtain claims. The hook is counted, so that one that stopped
+    // running is not taken for one that agrees.
+    let asked = all.iter().filter(|a| a.contains(" | asked | ")).count();
+    let obtained = all.iter().filter(|a| a.contains(" | obtained | ")).count();
+    let unanswered: Vec<&String> = all
+        .iter()
+        .filter(|a| a.contains(" | asked | ") && a.contains("cannot answer"))
+        .collect();
+    println!(
+        "{asked} hypotheses asked, {obtained} sentences obtained, {} citations the elaborator cannot answer:",
+        unanswered.len()
+    );
+    for a in &unanswered {
+        println!("  {a}");
+    }
+    assert!(
+        asked > 0 && obtained > 0,
+        "the listing hook gave no asked items"
+    );
+    let found: BTreeSet<String> = all
+        .into_iter()
+        .filter(|a| !a.contains(" | asked | ") && !a.contains(" | obtained | "))
+        .collect();
     let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();

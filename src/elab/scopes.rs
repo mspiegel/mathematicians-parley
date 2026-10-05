@@ -1299,6 +1299,15 @@ impl<'a> Elaborator<'a> {
                         )?,
                         Item::Theorem(_) => me.read(&Self::claimed_by(item))?,
                     };
+                    if let (Item::Record(r), Some(list)) = (item, &mut me.answers) {
+                        list.push(format!(
+                            "{}:{} | obtained | {} | {}",
+                            me.thm.path,
+                            step.line,
+                            r.qualified(),
+                            me.g.print(&node)
+                        ));
+                    }
                     me.term(&node)
                 })?;
                 // An item states its existential in its own names, and a

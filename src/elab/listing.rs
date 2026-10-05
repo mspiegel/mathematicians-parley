@@ -11,6 +11,7 @@
 use std::collections::BTreeSet;
 
 use crate::check::implied_facts;
+use crate::corpus::proof::requires_item;
 use crate::corpus::Step;
 use crate::outcome::Checked;
 use crate::sorts::Env;
@@ -18,6 +19,54 @@ use crate::sorts::Env;
 use super::state::Elaborator;
 
 impl Elaborator<'_> {
+    /// What the item each requires line cites asks for, as this elaborator
+    /// answers it (`asked_by_requires`): one line per hypothesis, `path:line
+    /// | asked | item | fact`, for the requires line's step.
+    /// The member a claim said of every member names is named first, as
+    /// `does_work` names it. Where the elaborator cannot answer, what stops
+    /// it is listed as its answer, since that is what a comparison is of.
+    pub fn list_asked(&mut self, step: &Step) -> Checked<()> {
+        let path = self.thm.path.clone();
+        let letter = if step.requires.is_empty() {
+            None
+        } else {
+            self.member_letter(step)?
+        };
+        let mut out = Vec::new();
+        for o in &step.requires {
+            let Some((named, _)) = requires_item(&o.how) else {
+                continue;
+            };
+            let asks = self.aside(|me| {
+                if let Some((page, kernel)) = &letter {
+                    if !me.names.contains_key(page) {
+                        me.names.insert(page.clone(), kernel.clone());
+                    }
+                }
+                me.asked_by_requires(step, &o.how, &o.fact)
+            });
+            match asks {
+                Ok(asks) => {
+                    for fact in asks {
+                        out.push(format!(
+                            "{path}:{} | asked | {named} | {}",
+                            o.line,
+                            self.render(&fact)
+                        ));
+                    }
+                }
+                Err(problem) => out.push(format!(
+                    "{path}:{} | asked | {named} | cannot answer: {}",
+                    o.line, problem.message
+                )),
+            }
+        }
+        if let Some(list) = &mut self.answers {
+            list.extend(out);
+        }
+        Ok(())
+    }
+
     /// What each sentence implies besides itself: the elaborator's answer
     /// (`implied_terms`) against the checker's (`implied_facts`). The step's
     /// claims and its requires lines are read with the member a claim said

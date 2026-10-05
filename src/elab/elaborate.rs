@@ -718,6 +718,7 @@ impl<'a> Elaborator<'a> {
             let mut facts = sentences.clone();
             facts.extend(step.requires.iter().map(|r| r.fact.clone()));
             self.list_implied(step, &facts)?;
+            self.list_asked(step)?;
         }
         let Some(how) = self.method_for(step, &term)? else {
             return Err(
