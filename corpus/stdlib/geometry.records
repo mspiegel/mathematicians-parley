@@ -59,6 +59,21 @@ mundane theorem angle-real
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
 
+mundane theorem triangle-angle-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        ∠QPR ∈ ℝ. ∠PQR ∈ ℝ. ∠QRP ∈ ℝ.
+  metamath    gtriangp, gtriangq, gtriangr, which this corpus proves in
+              elaboration/stdlib/proved.mm from gangbnd3
+  target      gtriangp, gtriangq, gtriangr
+  note        One target to a sentence. mun:stdlib/geometry/angle-real asks
+              that the corner differ from both ends, and the triangle says its
+              points differ in one order each, so citing it at a corner takes a
+              rotated triangle first; this says each angle is a number from the
+              triangle as written.
+
 mundane definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
               cannot state what it is. In the plane it says (R − P)/(Q − P) is

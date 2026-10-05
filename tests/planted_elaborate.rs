@@ -178,7 +178,7 @@ fn cases() -> Vec<Case> {
             "proofs/pythagoras/similar-triangles",
             "proofs/pythagoras.proof",
             "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
-            "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7\n    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P\n    requires P ≠ Q: mun:triangle, from H7\n    requires R ≠ Q: mun:triangle\n    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires Q ≠ R: mun:triangle, from H7\n    requires P ≠ R: mun:triangle, from H7\n    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
+            "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
             "at most one equation multiplied by a term",
         ),
         // A formula that does not lex is a defect with a position, and not a

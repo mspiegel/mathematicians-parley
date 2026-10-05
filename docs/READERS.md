@@ -115,7 +115,7 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 322
+corpus every requires line that cites a library item cites a mundane one, 290
 lines over 50 items, and 346 of the 395 numbered steps that cite a library
 item cite a mundane one. The forty-nine others are thirty-eight steps citing
 named theorems, four citing named axioms (completeness, well-ordering,
@@ -139,7 +139,7 @@ That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
 or method requires it. Exempting it was tempting: such a fact never fails, the
 `let` line that states it is always in view, and writing it is expensive,
 since the closure methods of `METHODS.md` work over a field and so need it for
-every atom of every algebra and inequalities step. That is 324 lines across
+every atom of every algebra and inequalities step. That is 327 lines across
 111 steps in the current corpus, and one step carries eleven. The exemption was
 rejected. Whether a fact can fail is not the test. Whether the cited item
 demands it is, and that is the test every other dull fact is held to. An

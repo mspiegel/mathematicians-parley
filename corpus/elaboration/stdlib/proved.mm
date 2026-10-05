@@ -95,6 +95,23 @@ $d x U $.  $d y U $.
     simp1d simp2d ex )
     ADEZBDEZCDEZFZABGZHZCBGZHZIZABJKZCBJKZLKZMNZOEZPVSQRZIVJVOIZVTWAWBVTWAVSSQRZWBVSPSTKZEZVTWAWCFZWBVPDEZVPPUAZIZVQDEZVQPUAZIZIZWEWBWIWLWBWGWHWBABVJVGVOVGVHVIUBZUCZVJVHVOVGVHVIUDZUCZUEZWBWHABUAZWBABVOVLVJVLVNUFZUGZUHZWBVPPABWBABWOWQUIZUJZUKZULZWBWJWKWBCBVJVIVOVGVHVIUMZUCZWQUEZWBWKCBUAZWBCBVOVNVJVLVNUNZUGZUHZWBVQPCBWBCBXHWQUIZUJZUKZULZULZVPVQUOZUPZWBPOEZSOEZWEWFUQZYAWBURUSZYBWBUTUSZPSVSVAZVBZVCZVDWBVTWAWCYHVEULVF $.
 
+  gtriangp $p |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) -> ( abs ` ( ( B - A ) ang ( C - A ) ) ) e. RR ) ) $=
+    ( cc wcel w3a wceq wn wa cmin co cdiv cr cang cabs cfv cc0 cle wbr simp2
+    adantr simp1 simp3 3jca simpr simpld neqned necomd neneqd simprd jca
+    gangbnd3 imp syl2anc ex )
+    ADEZBDEZCDEZFZABGZHZBCGZHZIZACGZHZIZCAJKZBAJKZLKZMEZHZIZVIVHNKZOPZMEZUSVMIZVPQVORSZVQUQUPURFZBAGZHZCAGZHZIZVPVRIZVQUQUPURUSUQVMUPUQURTUAUSUPVMUPUQURUBUAUSURVMUPUQURUCUAUDVQWAWCVQBAVQABVQABVQVAVCVQVDVFVQVGVLUSVMUEZUFZUFUFUGUHUIVQCAVQACVQACVQVDVFWGUJUGUHUIUKVSWDWEBACULUMUNUFUO $.
+
+  gtriangq $p |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) e. RR ) ) $=
+    ( cc wcel w3a wceq wn wa cmin co cdiv cr cang cabs cfv cc0 cle wbr simp1
+    adantr simp2 simp3 3jca simpr simpld simprd neqned necomd neneqd jca
+    gangbnd3 imp syl2anc ex )
+    ADEZBDEZCDEZFZABGZHZBCGZHZIZACGZHZIZCAJKZBAJKZLKZMEZHZIZABJKZCBJKZNKZOPZMEZUSVMIZVRQVQRSZVSUSVACBGZHZIZVRVTIZVSUPUQURUSUPVMUPUQURTUAUSUQVMUPUQURUBUAUSURVMUPUQURUCUAUDVSVAWBVSVAVCVSVDVFVSVGVLUSVMUEZUFZUFZUFVSCBVSBCVSBCVSVAVCWGUGUHUIUJUKUSWCWDABCULUMUNUFUO $.
+
+  gtriangr $p |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) -> ( abs ` ( ( B - C ) ang ( A - C ) ) ) e. RR ) ) $=
+    ( cc wcel w3a wceq wn wa cmin co cdiv cr cang cabs cfv cc0 cle wbr simp2
+    adantr simp3 simp1 3jca simpr simpld simprd jca gangbnd3 imp syl2anc ex )
+    ADEZBDEZCDEZFZABGZHZBCGZHZIZACGZHZIZCAJKZBAJKZLKZMEZHZIZBCJKZACJKZNKZOPZMEZUPVJIZVOQVNRSZVPUNUOUMFZUTVCIZVOVQIZVPUNUOUMUPUNVJUMUNUOTUAUPUOVJUMUNUOUBUAUPUMVJUMUNUOUCUAUDVPUTVCVPURUTVPVAVCVPVDVIUPVJUEZUFZUFUGVPVAVCWBUGUHVRVSVTBCAUIUJUKUFUL $.
+
   glawcos $p |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( abs ` ( C - A ) ) ^ 2 ) = ( ( ( ( abs ` ( A - B ) ) ^ 2 ) + ( ( abs ` ( B - C ) ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` ( A - B ) ) x. ( abs ` ( B - C ) ) ) x. ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) ) ) $=
     ( cc wcel w3a wceq wn wa cmin co cabs cfv c2 cexp caddc cmul cang ccos
     wne simp3 adantr simp1 simp2 3jca simpr adantl neqned simpl jca vx vy

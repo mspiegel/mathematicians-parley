@@ -1651,6 +1651,124 @@ fn angle_bounds(b: &Builder, out: &mut Vec<Lemma>) {
     ));
 }
 
+/// Each angle of a triangle is a real number.
+///
+/// `gangbnd3` asks that the corner differ from both ends, and a triangle
+/// says its three points differ only in one order each: A ≠ B, B ≠ C and
+/// A ≠ C. So each corner takes the two it needs, turned round where the
+/// triangle writes them the other way, and the size's membership is the first
+/// half of what `gangbnd3` gives. One lemma per corner, one for each sentence
+/// of `mun:stdlib/geometry/triangle-angle-real`.
+fn triangle_angles(b: &mut Builder, out: &mut Vec<Lemma>) {
+    let points = "( A e. CC /\\ B e. CC /\\ C e. CC )";
+    let size = |x: &str, y: &str, z: &str| {
+        format!("( abs ` ( ( {x} - {y} ) ang ( {z} - {y} ) ) )")
+    };
+    let bounded = |x: &str, y: &str, z: &str| {
+        let s = size(x, y, z);
+        format!("( {s} e. RR /\\ 0 <_ {s} )")
+    };
+    b.define(
+        "gangbnd3",
+        &format!(
+            "|- ( {points} -> ( ( -. A = B /\\ -. C = B ) -> {} ) )",
+            bounded("A", "B", "C")
+        ),
+    );
+    let b: &Builder = b;
+    let given = triangle("A", "B", "C");
+    let held = format!("( {points} /\\ {given} )");
+    let mem = members(b, points, &given);
+    let whole = b.ap(
+        "simpr",
+        &binds! {"ph" => b.wff(points), "ps" => b.wff(&given)},
+        &[],
+    );
+    let apart_binds = binds! {"ph" => b.wff(&held),
+    "ps" => b.wff("( ( -. A = B /\\ -. B = C ) /\\ -. A = C )"),
+    "ch" => b.wff("-. ( ( C - A ) / ( B - A ) ) e. RR")};
+    let apart = b.ap("simpld", &apart_binds, &[&whole]);
+    let pair_binds = binds! {"ph" => b.wff(&held),
+    "ps" => b.wff("( -. A = B /\\ -. B = C )"),
+    "ch" => b.wff("-. A = C")};
+    let pair = b.ap("simpld", &pair_binds, &[&apart]);
+    let not_ac = b.ap("simprd", &pair_binds, &[&apart]);
+    let two = binds! {"ph" => b.wff(&held), "ps" => b.wff("-. A = B"),
+    "ch" => b.wff("-. B = C")};
+    let not_ab = b.ap("simpld", &two, &[&pair]);
+    let not_bc = b.ap("simprd", &two, &[&pair]);
+    // -. x = y for each ordered pair the corners ask, as the triangle says it
+    // or turned round.
+    let unequal = |x: &str, y: &str| -> Proof {
+        match (x, y) {
+            ("A", "B") => not_ab.clone(),
+            ("B", "C") => not_bc.clone(),
+            ("A", "C") => not_ac.clone(),
+            ("B", "A") => flipped(b, &held, "A", "B", &not_ab),
+            ("C", "B") => flipped(b, &held, "B", "C", &not_bc),
+            ("C", "A") => flipped(b, &held, "A", "C", &not_ac),
+            _ => unreachable!("no corner asks {x} ≠ {y}"),
+        }
+    };
+    // The corner and its two ends, each written as ∠ writes it: the size of
+    // the angle from x − y to z − y.
+    for (label, x, y, z) in [
+        ("gtriangp", "B", "A", "C"),
+        ("gtriangq", "A", "B", "C"),
+        ("gtriangr", "B", "C", "A"),
+    ] {
+        let three = format!("( {x} e. CC /\\ {y} e. CC /\\ {z} e. CC )");
+        let sides = format!("( -. {x} = {y} /\\ -. {z} = {y} )");
+        let s = size(x, y, z);
+        let both = bounded(x, y, z);
+        let bounds = b.ap(
+            "syl2anc",
+            &binds! {"ph" => b.wff(&held), "ps" => b.wff(&three),
+            "ch" => b.wff(&sides), "th" => b.wff(&both)},
+            &[
+                &b.ap(
+                    "3jca",
+                    &binds! {"ph" => b.wff(&held), "ps" => b.wff(&format!("{x} e. CC")),
+                    "ch" => b.wff(&format!("{y} e. CC")), "th" => b.wff(&format!("{z} e. CC"))},
+                    &[&mem[x], &mem[y], &mem[z]],
+                ),
+                &b.ap(
+                    "jca",
+                    &binds! {"ph" => b.wff(&held), "ps" => b.wff(&format!("-. {x} = {y}")),
+                    "ch" => b.wff(&format!("-. {z} = {y}"))},
+                    &[&unequal(x, y), &unequal(z, y)],
+                ),
+                &b.ap(
+                    "imp",
+                    &binds! {"ph" => b.wff(&three), "ps" => b.wff(&sides),
+                    "ch" => b.wff(&both)},
+                    &[&b.ap(
+                        "gangbnd3",
+                        &binds! {"A" => b.class(x), "B" => b.class(y), "C" => b.class(z)},
+                        &[],
+                    )],
+                ),
+            ],
+        );
+        let real = b.ap(
+            "simpld",
+            &binds! {"ph" => b.wff(&held), "ps" => b.wff(&format!("{s} e. RR")),
+            "ch" => b.wff(&format!("0 <_ {s}"))},
+            &[&bounds],
+        );
+        out.push(Lemma::new(
+            label,
+            format!("|- ( {points} -> ( {given} -> {s} e. RR ) )"),
+            b.ap(
+                "ex",
+                &binds! {"ph" => b.wff(points), "ps" => b.wff(&given),
+                "ch" => b.wff(&format!("{s} e. RR"))},
+                &[&real],
+            ),
+        ));
+    }
+}
+
 /// set.mm's law of cosines, said the way this corpus says things.
 ///
 /// `lawcos` takes the angle function as a hypothesis, and the function it
@@ -3012,6 +3130,7 @@ pub fn proofs(b: &mut Builder) -> Vec<Lemma> {
     angle_symmetry(b, &mut out);
     angle_size(b, &mut out);
     angle_bounds(b, &mut out);
+    triangle_angles(b, &mut out);
     law_of_cosines(b, &mut out);
     cancelling(b, &mut out);
     side_angle_side(b, &mut out);

@@ -3,13 +3,13 @@ import theorem            stdlib/geometry/law-of-sines
 import theorem            stdlib/geometry/altitude-foot
 import theorem            stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
-import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
 import mundane theorem    stdlib/geometry/distance-real
 import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-rotate
 import mundane theorem    stdlib/geometry/triangle-swap
 import mundane theorem    stdlib/numbers/multiply-cancel
@@ -42,28 +42,12 @@ theorem similar-triangles
 
 4.  ∠QRP = ∠Q′R′P′
     algebra, from 3, H9, H10
-    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
-    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
-    requires Q ≠ P: mun:triangle
-    requires R ≠ P: mun:triangle
-    requires ∠QPR ∈ ℝ: mun:angle-real P := Q, Q := P, R := R
-    requires P ≠ Q: mun:triangle, from H7
-    requires R ≠ Q: mun:triangle
-    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
-    requires Q ≠ R: mun:triangle, from H7
-    requires P ≠ R: mun:triangle, from H7
-    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
-    requires Q′, R′, P′ form a triangle: mun:triangle-rotate P := P′, Q := Q′, R := R′, from H8
-    requires R′, P′, Q′ form a triangle: mun:triangle-rotate P := Q′, Q := R′, R := P′
-    requires Q′ ≠ P′: mun:triangle
-    requires R′ ≠ P′: mun:triangle
-    requires ∠Q′P′R′ ∈ ℝ: mun:angle-real P := Q′, Q := P′, R := R′
-    requires P′ ≠ Q′: mun:triangle, from H8
-    requires R′ ≠ Q′: mun:triangle
-    requires ∠P′Q′R′ ∈ ℝ: mun:angle-real P := P′, Q := Q′, R := R′
-    requires Q′ ≠ R′: mun:triangle, from H8
-    requires P′ ≠ R′: mun:triangle, from H8
-    requires ∠Q′R′P′ ∈ ℝ: mun:angle-real P := Q′, Q := R′, R := P′
+    requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires ∠Q′P′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠P′Q′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠Q′R′P′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
 
 5.  |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
     thm:law-of-sines P := P, Q := Q, R := R, from H7
@@ -82,15 +66,9 @@ theorem similar-triangles
     requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q
     requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
-    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
-    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
-    requires P ≠ Q: mun:triangle, from H7
-    requires R ≠ Q: mun:triangle
-    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
-    requires Q ≠ R: mun:triangle, from H7
-    requires P ≠ R: mun:triangle, from H7
-    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
 10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
@@ -98,15 +76,9 @@ theorem similar-triangles
     requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R
     requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
-    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
-    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
-    requires P ≠ Q: mun:triangle, from H7
-    requires R ≠ Q: mun:triangle
-    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
-    requires Q ≠ R: mun:triangle, from H7
-    requires P ≠ R: mun:triangle, from H7
-    requires ∠QRP ∈ ℝ: mun:angle-real P := Q, Q := R, R := P
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
 11. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
@@ -123,11 +95,7 @@ theorem similar-triangles
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
     requires |PQ|·|P′R′| ∈ ℝ: membership
     requires |P′Q′|·|PR| ∈ ℝ: membership
-    requires Q, R, P form a triangle: mun:triangle-rotate P := P, Q := Q, R := R, from H7
-    requires R, P, Q form a triangle: mun:triangle-rotate P := Q, Q := R, R := P
-    requires P ≠ Q: mun:triangle, from H7
-    requires R ≠ Q: mun:triangle
-    requires ∠PQR ∈ ℝ: mun:angle-real P := P, Q := Q, R := R
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires sin(∠PQR) > 0: mun:sine-positive P := P, Q := Q, R := R, from H7
     requires sin(∠PQR) ≠ 0: inequalities

@@ -32,7 +32,7 @@ writes the isosceles theorem. A backend that cannot say it is asking the text
 to change, which is a corpus decision and a cost, not a neutral choice.
 
 **4. Dull facts are written, and membership merits no exception.**
-`READERS.md` argues this at length and records the price: *"324 lines across
+`READERS.md` argues this at length and records the price: *"327 lines across
 111 steps"* citing `algebra` or `inequalities`, one step carrying eleven. The
 exemption *"was rejected"*. So whatever non-degeneracy a
 backend demands is written on the page, every time, and counts against it.
@@ -171,7 +171,7 @@ it whole; over ℂ the phrase is taken apart and the pieces cited at each
 angle, which `isosceles` would do about sixteen times across twelve steps.
 
 That is an ordinary dull-fact load and not a reason against ℂ. `READERS.md`
-records the arithmetic load the corpus already pays without complaint — 324
+records the arithmetic load the corpus already pays without complaint — 327
 lines across 111 steps, one step carrying eleven — which is about 2.9 a step
 against geometry's 1.3. Distinctness of an angle's points is exactly what the
 `requires` machinery is for.
