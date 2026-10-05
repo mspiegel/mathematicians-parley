@@ -249,7 +249,35 @@ fn set_default(out: &mut Sorts, name: String, sort: Sort) {
 /// value cites the define.
 pub fn definitions_in_scope(thm: &Theorem, env: Env, sorts: &Sorts) -> Definitions {
     let mut out = file_definitions(thm, env);
-    for d in &thm.defines {
+    defines_into(&mut out, thm.defines.iter(), env, sorts);
+    out
+}
+
+/// What the `define` lines a citation names by label stand for, and only
+/// those: a defined name and the term it names are one formula in a step
+/// that cites the define (`SYNTAX.md`), and a name whose define the step
+/// does not cite is the name.
+pub fn cited_defines(
+    thm: &Theorem,
+    env: Env,
+    sorts: &Sorts,
+    cited: &[String],
+) -> Definitions {
+    let mut out = Definitions::new();
+    let lines = thm.defines.iter().filter(|d| cited.contains(&d.label));
+    defines_into(&mut out, lines, env, sorts);
+    out
+}
+
+/// Each define line's name and the tree it stands for, read in the order
+/// written, put in `out`.
+fn defines_into<'d>(
+    out: &mut Definitions,
+    lines: impl Iterator<Item = &'d DefineLine>,
+    env: Env,
+    sorts: &Sorts,
+) {
+    for d in lines {
         let Built(DefineParts::One(said)) = define_parts(&d.text) else {
             continue;
         };
@@ -267,7 +295,6 @@ pub fn definitions_in_scope(thm: &Theorem, env: Env, sorts: &Sorts) -> Definitio
         };
         out.insert(said.name.clone(), made);
     }
-    out
 }
 
 /// What each definition the theorem sees from outside it stands for: those

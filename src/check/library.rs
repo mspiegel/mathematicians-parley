@@ -10,7 +10,9 @@ use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
 use crate::corpus::{Intro, Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{expand, instantiation, Binding, Definitions};
-use crate::sorts::{definitions_in_scope, let_formula, sentences, unlabel, Env};
+use crate::sorts::{
+    cited_defines, file_definitions, let_formula, sentences, unlabel, Env,
+};
 
 type PartsKey = (StepNo, Vec<String>, Vec<String>);
 
@@ -19,10 +21,11 @@ pub type Statements = IndexMap<String, String>;
 
 /// What a theorem's lines give every check of it, read once a run.
 ///
-/// The sort of each name and what each `define` stands for depend on the
-/// theorem alone, the lines a citation may name on its step, and what a
-/// step's citation supplies on the step. Each is read the first time a check
-/// asks and kept for the run; nothing that uses them changes them.
+/// The sort of each name depends on the theorem alone, what each `define`
+/// stands for on the lines a citation names, the lines a citation may name
+/// on its step, and what a step's citation supplies on the step. Each is
+/// read the first time a check asks and kept for the run; nothing that uses
+/// them changes them.
 ///
 /// What a step's citation supplies is kept by what it depends on — the
 /// step, the lines it names and its requires lines — so that a step with a
@@ -31,7 +34,10 @@ pub struct Known<'a> {
     pub thm: &'a Theorem,
     pub env: Env<'a>,
     pub sorts: Sorts,
-    pub defined: Definitions,
+    /// What each definition from outside the theorem stands for, written
+    /// out wherever it is used.
+    outside: Definitions,
+    cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
     scopes: RefCell<IndexMap<(StepNo, usize), Rc<Statements>>>,
     parts: RefCell<IndexMap<PartsKey, Rc<Parts>>>,
 }
@@ -39,28 +45,50 @@ pub struct Known<'a> {
 impl<'a> Known<'a> {
     /// `sorts` is what the theorem's one reading settled (`check::run`).
     pub fn new(thm: &'a Theorem, env: Env<'a>, sorts: Sorts) -> Known<'a> {
-        let defined = definitions_in_scope(thm, env, &sorts);
         Known {
             thm,
             env,
             sorts,
-            defined,
+            outside: file_definitions(thm, env),
+            cited: RefCell::new(IndexMap::new()),
             scopes: RefCell::new(IndexMap::new()),
             parts: RefCell::new(IndexMap::new()),
         }
     }
 
-    /// A sentence as the theorem's checks compare it: parsed with its sorts,
-    /// each defined name written out; None where it does not read, which
-    /// `check_formulas` reports.
-    pub fn read(&self, text: &str) -> Option<Node> {
-        self.read_as_written(text)
-            .map(|n| expand(&n, &self.defined))
+    /// A sentence as the checks of `step` compare it: parsed with its sorts,
+    /// each defined name the step's citation lets it write out written out
+    /// (`citing`); None where it does not read, which `check_formulas`
+    /// reports.
+    pub fn read(&self, step: &Step, text: &str) -> Option<Node> {
+        self.read_citing(text, &self.citing(&step.just.refs))
     }
 
     /// The text read with its defined names kept, as a message prints it.
     pub fn read_as_written(&self, text: &str) -> Option<Node> {
         parse_here(text, self.env.g, &self.sorts).ok()
+    }
+
+    /// What a defined name stands for in a citation naming `refs`: a
+    /// definition from outside the theorem everywhere, and one of the
+    /// theorem's `define` lines only where the citation names it. A defined
+    /// name and the term it names are one formula in a step that cites the
+    /// define (`SYNTAX.md`), and the elaborator reads a citation the same way.
+    pub fn citing(&self, refs: &[String]) -> Rc<Definitions> {
+        if let Some(found) = self.cited.borrow().get(refs) {
+            return found.clone();
+        }
+        let mut made = self.outside.clone();
+        made.extend(cited_defines(self.thm, self.env, &self.sorts, refs));
+        let made = Rc::new(made);
+        self.cited.borrow_mut().insert(refs.to_vec(), made.clone());
+        made
+    }
+
+    /// A sentence read with what `defined` writes out (`citing`); None
+    /// where it does not read.
+    pub fn read_citing(&self, text: &str, defined: &Definitions) -> Option<Node> {
+        self.read_as_written(text).map(|n| expand(&n, defined))
     }
 
     /// A tree as page text.
@@ -81,7 +109,7 @@ impl<'a> Known<'a> {
             .iter()
             .filter_map(|r| scope.get(*r))
             .flat_map(|text| sentences(text))
-            .filter_map(|s| self.read(&s))
+            .filter_map(|s| self.read(step, &s))
             .collect();
         with_parts(&said, library)
     }
@@ -156,10 +184,14 @@ fn statements_in_scope(
 /// What a citation supplies, what it claims, and what it says its variables
 /// stand for.
 ///
-/// A defined name and the term it names are one formula, so all three are
-/// expanded: the facts, the claim, and the written instantiation alike.
+/// A defined name and the term it names are one formula where the step cites
+/// the define, so all three are expanded with what it cites
+/// (`Known::citing`): the facts, the claim, and the written instantiation
+/// alike.
 fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     let scope = known.scope(step);
+    let defined = known.citing(&step.just.refs);
+    let read = |s: &str| known.read_citing(s, &defined);
     let mut supplied: Vec<String> = Vec::new();
     for r in &step.just.refs {
         if let Some(text) = scope.get(r) {
@@ -167,14 +199,14 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         }
     }
     supplied.extend(step.requires.iter().map(|r| r.fact.clone()));
-    let facts: Vec<Node> = supplied.iter().filter_map(|s| known.read(s)).collect();
+    let facts: Vec<Node> = supplied.iter().filter_map(|s| read(s)).collect();
     let claims: Vec<Node> = sentences(&step.claim_text())
         .iter()
-        .filter_map(|s| known.read(s))
+        .filter_map(|s| read(s))
         .collect();
     let mut seed = Binding::new();
     for (name, value) in instantiation(&step.just.text) {
-        if let Some(got) = known.read(&value) {
+        if let Some(got) = read(&value) {
             seed.insert(name, got);
         }
     }

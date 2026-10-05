@@ -1419,6 +1419,16 @@ fn cases() -> Vec<Case> {
             ],
             "step 3.6 cites D2 and its claim never names h",
         ),
+        // A defined name is the term it names only where the step cites the
+        // define (`SYNTAX.md`). Without D2 cited, x₁ ∈ ℝ is said of x₁, and
+        // min-real concludes it only of min(b, c + δ/2).
+        case(
+            "lean on a define the line does not cite",
+            vec![
+                edit("proofs/intermediate-value.proof", Some("requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2\n".to_string()), "requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from H2\n".to_string()),
+            ],
+            "the requires line of step 16.10 needs something that mun:min-real does not conclude",
+        ),
         // A `let` names a function's type and nothing more, unless `be` says a
         // property of it; a property slipped in as the codomain went unasked.
         case(

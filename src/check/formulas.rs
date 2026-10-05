@@ -276,8 +276,8 @@ pub fn check_contradiction(
             continue; // already reported as a missing suppose
         };
         let rest = &opener.text[opener.kind.as_str().len()..];
-        let supposed = known.read(str::trim(&unlabel(rest)));
-        let claimed = known.read(&step.claim_text());
+        let supposed = known.read(step, str::trim(&unlabel(rest)));
+        let claimed = known.read(step, &step.claim_text());
         // What could not be read is reported where it is read; the block's
         // last step is checked all the same.
         let readable = supposed.is_some() && claimed.is_some();
@@ -346,9 +346,11 @@ pub fn check_contradicting(
         };
         // The claim is the opposite of the line, or of one sentence of it:
         // a line may say several things and be contradicted in one.
-        let claimed = known.read(&step.claim_text());
-        let there: Vec<Option<Node>> =
-            sentences(said).iter().map(|s| known.read(s)).collect();
+        let claimed = known.read(step, &step.claim_text());
+        let there: Vec<Option<Node>> = sentences(said)
+            .iter()
+            .map(|s| known.read(step, s))
+            .collect();
         let opposed = there.iter().any(|t| {
             negates(claimed.as_ref(), t.as_ref(), &wrappers)
                 || negates(t.as_ref(), claimed.as_ref(), &wrappers)
@@ -399,8 +401,8 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
     for owner in &thm.steps {
         for o in owner.openers.iter().filter(|o| o.is_claim) {
             let body = o.text.strip_prefix(o.kind.as_str()).unwrap_or(&o.text);
-            let assumed = known.read(str::trim(&unlabel(body)));
-            let claim = known.read(&owner.claim_text());
+            let assumed = known.read(owner, str::trim(&unlabel(body)));
+            let claim = known.read(owner, &owner.claim_text());
             let differ = match (&assumed, &claim) {
                 (Some(a), Some(c)) => a.shape() != c.shape(),
                 _ => false,
@@ -667,7 +669,7 @@ pub fn check_chain_links(
             {
                 continue;
             }
-            let Some(said) = known.read(&claim) else {
+            let Some(said) = known.read(step, &claim) else {
                 continue; // `check_formulas` says it does not read
             };
             let lines = known.lines_say(step, &[cite.as_str()], library);

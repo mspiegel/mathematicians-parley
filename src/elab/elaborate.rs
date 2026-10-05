@@ -39,7 +39,7 @@ use crate::corpus::{
     Item, Record, Step, Theorem,
 };
 use crate::formula::{Grammar, Node};
-use crate::matching::{instantiation, Binding as NodeBinding, Defined};
+use crate::matching::{expand, instantiation, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -47,7 +47,7 @@ use crate::mm::spell::Proof;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::sorts::{file_definitions, sorts_in_scope, unlabel};
+use crate::sorts::{cited_defines, file_definitions, sorts_in_scope, unlabel};
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, regex, t, take};
@@ -1187,7 +1187,8 @@ impl<'a> Elaborator<'a> {
             facts.push(self.read(&r.fact)?);
         }
         let cites = cites.unwrap_or(&step.just.text);
-        let parts = self.citation_parts(facts, Vec::new(), cites, &library)?;
+        let parts =
+            self.citation_parts(facts, Vec::new(), cites, &step.just.refs, &library)?;
         let taken = match obtained(&groups, &parts.facts, &parts.seed, &library) {
             Built(t) => t,
             Declined(d) => {
@@ -1232,7 +1233,8 @@ impl<'a> Elaborator<'a> {
             return Ok(Vec::new());
         };
         let library = self.item_library();
-        let mut facts = self.cited_sentences(&references(&o.how).0)?;
+        let refs = references(&o.how).0;
+        let mut facts = self.cited_sentences(&refs)?;
         for above in step.requires_above(o.line) {
             facts.push(self.read(&above.fact)?);
         }
@@ -1250,7 +1252,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
-        let parts = self.citation_parts(facts, claims, &o.how, &library)?;
+        let parts = self.citation_parts(facts, claims, &o.how, &refs, &library)?;
         let asks = match asked(&item.qualified(), &parts, &library) {
             Built(a) => a,
             Declined(_) => return Ok(Vec::new()),
@@ -1266,20 +1268,25 @@ impl<'a> Elaborator<'a> {
     /// What a citation supplies and claims (`citing::finished`), with the
     /// instantiation written in `cites` as its seed.
     ///
-    /// A defined name is kept as the page writes it, where the checker
-    /// writes it out: what the binding gives back is said at the step, and an
-    /// obtain citing `S := S` for a defined S claims something of S, which
-    /// the step's lines say, not of the set S names.
+    /// A defined name is written out where the citation names its define
+    /// among `refs`, and kept as the page writes it where it does not
+    /// (`SYNTAX.md`, `cited_defines`): `x₁ ∈ ℝ` cited with D2 is
+    /// `min(b, c + δ/2) ∈ ℝ`, and an obtain citing `S := S` without the
+    /// define of S claims something of S.
     fn citation_parts(
         &self,
         facts: Vec<Node>,
         claims: Vec<Node>,
         cites: &str,
+        refs: &[String],
         library: &citing::Library,
     ) -> Checked<Parts> {
+        let defined = cited_defines(self.thm, self.env(), &self.sorts_now, refs);
+        let facts = facts.iter().map(|n| expand(n, &defined)).collect();
+        let claims = claims.iter().map(|n| expand(n, &defined)).collect();
         let mut seed = NodeBinding::new();
         for (name, value) in instantiation(cites) {
-            seed.insert(name, self.read(&value)?);
+            seed.insert(name, expand(&self.read(&value)?, &defined));
         }
         Ok(finished(facts, claims, seed, library, &self.sorts_now))
     }
