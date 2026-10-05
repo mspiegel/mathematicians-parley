@@ -1002,6 +1002,22 @@ impl<'a> Elaborator<'a> {
         } else {
             self.supplied(Some(step), scope, facts)?
         };
+        // What the step writes is its requires lines and the lines it cites:
+        // a cited `N ∈ ℕ` says N ≠ 0 as surely as a requires line would
+        // (`READERS.md`, what a membership says).
+        let known = self.with_cited(Some(step), scope, &known, None);
+        // An `obtain`'s memberships are in the scope under its name rather
+        // than in its proved line, and are what it writes all the same.
+        for r in &step.just.refs {
+            if let Some(line) = self.lines.get(r) {
+                for said in &line.sentences {
+                    let term = self.term(said)?;
+                    if let Some(p) = facts.get(&term) {
+                        known.set_default(term, p);
+                    }
+                }
+            }
+        }
         self.writing(scope, &known, true, |me| {
             me.by_method(how, step, node, term, scope, facts, lines)
         })

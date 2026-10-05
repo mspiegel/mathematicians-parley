@@ -16,7 +16,6 @@ theorem prime-above
 
 2.  n! + 1 > 1
     inequalities, from 1
-    requires n! ∈ ℝ: from 1
 
 3.  p ∈ ℕ. p is prime. p divides n! + 1.
     obtain p: thm:prime-factor m := n! + 1, from 2

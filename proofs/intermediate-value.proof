@@ -135,7 +135,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     16.6.  δ/2 > 0
            inequalities, from 16.5
-           requires δ ∈ ℝ: from 16.5
 
     16.7.  c < c + δ/2
            inequalities, from 16.6
@@ -180,7 +179,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
            requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
            requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
-           requires δ ∈ ℝ: from 16.5
 
     16.14. x₁ < c + δ
            inequalities, from 16.10
@@ -264,7 +262,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                                  inequalities, from 16.24.3, 16.23
                                  requires c ∈ ℝ: from 8
                                  requires s ∈ ℝ: mun:interval, from H1, H2, 16.24.1
-                                 requires δ ∈ ℝ: from 16.23
 
                      16.24.4.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s, c := c, δ := δ,
@@ -299,7 +296,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     16.27. not c ≤ c − δ
            inequalities, from 16.23, contradicting 16.26
            requires c ∈ ℝ: from 8
-           requires δ ∈ ℝ: from 16.23
 
 17. There exists c ∈ [a, b] such that f(c) = 0.
     exhibit, from 13, 16

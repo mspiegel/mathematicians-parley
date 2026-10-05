@@ -132,7 +132,6 @@ theorem cauchy-schwarz
     5.11. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
           instantiate t := −B/A in line 1, from D1, D2, D3
           requires A ∈ ℝ: membership, from D1
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires A > 0: inequalities, from D1, C3
           requires −B/A ∈ ℝ: membership, from D1, D2
 
@@ -141,13 +140,11 @@ theorem cauchy-schwarz
           requires A ∈ ℝ: membership, from D1
           requires B ∈ ℝ: membership, from D2
           requires C ∈ ℝ: membership, from D3
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires A ≠ 0: inequalities, from D1, C3
 
     5.13. B²/A ≤ C
           inequalities, from 5.11, 5.12
           requires A ∈ ℝ: membership, from D1
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires A > 0: inequalities, from D1, C3
           requires B²/A ∈ ℝ: membership, from D1, D2
           requires B ∈ ℝ: membership, from D2
@@ -157,7 +154,6 @@ theorem cauchy-schwarz
     5.14. A·(B²/A) ≤ A·C
           mun:multiply-le, from 5.13
           requires A ∈ ℝ: membership, from D1
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires A > 0: inequalities, from D1, C3
           requires B²/A ∈ ℝ: membership, from D1, D2
           requires C ∈ ℝ: membership, from D3
@@ -166,7 +162,6 @@ theorem cauchy-schwarz
           algebra
           requires A ∈ ℝ: membership, from D1
           requires B ∈ ℝ: membership, from D2
-          requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
           requires A ≠ 0: inequalities, from D1, C3
 
     5.16. B² ≤ A·C

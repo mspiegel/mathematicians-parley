@@ -270,6 +270,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         citations::check_obtained(&mut report, thm, &library, k);
         citations::check_requires(&mut report, thm, &library, k);
         citations::check_surplus(&mut report, thm, &library, k);
+        citations::check_repeated(&mut report, thm, &library, k);
         formulas::check_chain_links(&mut report, thm, &library, k, &scopes);
         structure::check_last_step(&mut report, thm);
         structure::check_readings(&mut report, thm);

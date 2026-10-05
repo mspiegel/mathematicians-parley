@@ -639,6 +639,12 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = facts.get(&denied) {
             return Ok(Some(pf!(self.b; scope, said, "cc0", p, "neqned")));
         }
+        // Or a membership written that says it: N ∈ ℕ says N ≠ 0.
+        for (fact, proof) in facts.entries() {
+            if let Some(p) = self.implied(&fact, &proof, scope).get(&want) {
+                return Ok(Some(p.clone()));
+            }
+        }
         self.apart_as_written(said, scope, facts)
     }
 

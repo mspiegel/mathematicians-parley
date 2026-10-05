@@ -1552,7 +1552,16 @@ proved (`discharged_by`).
   is read apart: a bare `from`, a definition folded into the line, and a
   define giving its function. *the requires line rests on 1, which it does
   not name.*
-- **R3 — everything a step names does work.** Divided by who can see it:
+- **R3 — everything a step names does work.** One part holds of every step,
+  whatever its reason, and the checker judges it: a requires line says what
+  the step's other lines do not (`check_repeated`). What the step has without
+  the line is the lines it cites, the requires lines above it, the lines below
+  it whose reason is a bare `from`, and what each of those implies (`READERS.md`,
+  what a membership says); a line below with any other reason may rest on
+  this one, as `2^p − 1 ∈ ℕ: mun:prime-nat` rests on `2^p − 1 ∈ ℤ` above it.
+  So `requires k ∈ ℝ: membership` under `requires k ∈ ℤ` is refused, and so is
+  `requires r ∈ ℝ: from 1` on a step citing line 1, which says r ∈ ℤ. The
+  rest is divided by who can see it:
   - the elaborator, on every step but an item citation: each cited line is in
     the proof's provenance. On a method step, a requires line the proof does
     not rest on is at work only where the method demands it — the membership
@@ -1563,7 +1572,13 @@ proved (`discharged_by`).
     1)`, whose record asks b ∈ ℤ though its lemma proves k ∈ ℤ without it
     (`asked_by_requires`). Each atom combined has its membership on the page,
     written, or cited by the step or by one of its requires lines, whose
-    method may be what combined it (`METHODS.md`). An atom is what the method treats as a number it knows
+    method may be what combined it (`METHODS.md`). A cited line is read as
+    the page writes it, so an `obtain`'s witnesses' memberships, which the
+    scope holds rather than its proved line, are on the page where it is
+    cited; and a defined name is the atom it names where a line saying its
+    membership cites the define. What a step writes, which a method reads
+    for a term not zero as for a membership, is its requires lines and the
+    lines it cites, with what each implies: a cited `N ∈ ℕ` says N ≠ 0. An atom is what the method treats as a number it knows
     nothing about; sums, products, quotients, negations and numeral powers are
     looked inside, and numerals are not atoms. A line saying a term is a
     number says it of the atom that term is over other bound letters, or with

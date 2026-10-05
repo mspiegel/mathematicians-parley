@@ -283,9 +283,22 @@ impl<'a> Elaborator<'a> {
         for r in step.just.refs.iter().cloned().chain(from_requires) {
             if let Some(line) = self.lines.get(&r) {
                 cited.extend(self.parts(&line.term));
+                // What the page wrote, which for an `obtain` holds the
+                // witnesses' memberships its proved term keeps in the scope.
+                for said in &line.sentences {
+                    let term = self.term(said)?;
+                    cited.extend(self.parts(&term));
+                }
             }
         }
-        for atom in &atoms {
+        // A defined name is read as what it names where a line saying its
+        // membership cites the define, as `A ∈ ℝ: membership, from D1` does,
+        // whether or not the step cites it.
+        let kept = self.resting.clone();
+        if let Some(allowed) = &mut self.resting {
+            allowed.extend(step.requires.iter().flat_map(|r| references(&r.how).0));
+        }
+        let unsaid = atoms.iter().find(|atom| {
             let mut said = written.iter().any(|c| {
                 let held = self.rpn(&c.children()[0]);
                 c.label() == Some("wcel") && self.one_atom(&held, atom)
@@ -298,21 +311,23 @@ impl<'a> Elaborator<'a> {
                         self.one_atom(&held, atom)
                     }
                 });
-            if !said {
-                // By the name the page writes, where the atom is one.
-                let shown = self
-                    .names
-                    .iter()
-                    .find(|(_, kernel)| *kernel == atom)
-                    .map(|(name, _)| name.clone())
-                    .unwrap_or_else(|| self.render(atom));
-                return Err(self.defect(
-                    step.line,
-                    format!(
-                        "step {number} combines {shown}, and nothing it writes or cites says it is a number"
-                    ),
-                ));
-            }
+            !said
+        });
+        self.resting = kept;
+        if let Some(atom) = unsaid {
+            // By the name the page writes, where the atom is one.
+            let shown = self
+                .names
+                .iter()
+                .find(|(_, kernel)| *kernel == atom)
+                .map(|(name, _)| name.clone())
+                .unwrap_or_else(|| self.render(atom));
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "step {number} combines {shown}, and nothing it writes or cites says it is a number"
+                ),
+            ));
         }
         Ok(())
     }

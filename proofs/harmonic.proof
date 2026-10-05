@@ -29,7 +29,6 @@ theorem harmonic-block
 
 3.  2^j ≤ 2^(j + 1)
     inequalities, from 1, 2
-    requires 2^j ∈ ℝ: membership, from H1
     requires 2^(j + 1) ∈ ℝ: membership, from H1
 
 4.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
@@ -53,9 +52,7 @@ theorem harmonic-block
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
           requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K1
-          requires k ∈ ℝ: membership
           requires k > 0: inequalities, from 5.1, 2
-          requires 2^(j + 1) ∈ ℝ: membership, from H1
           requires 2^(j + 1) > 0: inequalities, from 1, 2
 
 6.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
@@ -72,7 +69,6 @@ theorem harmonic-block
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
           requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K2
-          requires k ∈ ℝ: membership
           requires 2^j ∈ ℝ: membership, from H1
           requires k ≠ 0: inequalities, from 6.1, 2
 
@@ -113,7 +109,6 @@ theorem harmonic-block
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: membership, from H1
     requires 2^j ∈ ℝ: membership, from H1
-    requires 2^(j + 1) ∈ ℝ: membership, from H1
     requires 1/2^(j + 1) ∈ ℝ: membership, from H1
     requires 2^(j + 1) ≠ 0: inequalities, from 1, 2
 
@@ -170,7 +165,6 @@ theorem harmonic-unbounded
 4.  Σ(k = 1 to 2^N) 1/k > M
     inequalities, from 3, 2
     requires Σ(k = 1 to 2^N) 1/k ∈ ℝ: membership
-    requires N ∈ ℝ: membership, from 2
     requires M ∈ ℝ: from H1
 
 5.  2^N ∈ ℕ

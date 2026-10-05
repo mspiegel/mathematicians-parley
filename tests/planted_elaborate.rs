@@ -267,8 +267,8 @@ fn cases() -> Vec<Case> {
             "a requires line above an item's line that the item does not ask for",
             "proofs/binomial/binomial-step",
             "proofs/binomial.proof",
-            "    requires y ∈ ℝ: from H2\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℤ: from H3\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
-            "    requires y ∈ ℝ: from H2\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℤ: from H3\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
+            "    requires y ∈ ℝ: from H2\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
+            "    requires y ∈ ℝ: from H2\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
             "the requires line of step 1 says 1 ∈ ℤ, and the step neither uses nor asks for it",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
@@ -319,15 +319,16 @@ fn cases() -> Vec<Case> {
             "step 4.2 cites 1 and uses nothing it says",
         ),
         // Each atom a method combines is real, and the step says so. The
-        // kernel's `ltne` never needs d ∈ ℝ here, so nothing else would see the
-        // line gone: only what the method asks for does.
+        // kernel's `ltne` never needs p ∈ ℝ here, and line 4, which the step
+        // cites, says only p > 1, so nothing else would see the line gone:
+        // only what the method asks for does.
         case(
             "leave out the membership of an atom the method combines",
-            "proofs/sqrt2-irrational/lowest-terms",
-            "proofs/sqrt2-irrational.proof",
-            "    3.5.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.4\n          requires d ∈ ℝ: from 3.1\n",
-            "    3.5.  d ≠ 1\n          inequalities, from 3.1, contradicting 3.4\n",
-            "step 3.5 combines d, and nothing it writes or cites says it is a number",
+            "proofs/infinitely-many-primes/prime-above",
+            "proofs/infinitely-many-primes.proof",
+            "          inequalities, from 4, contradicting 5.6\n          requires p ∈ ℝ: from 3\n",
+            "          inequalities, from 4, contradicting 5.6\n",
+            "step 5.7 combines p, and nothing it writes or cites says it is a number",
         ),
         // `decide_field` refuses a claim that is not an identity, before
         // anything falls back to stating the step.
@@ -563,8 +564,8 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
-            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.1",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n",
+            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n",
             "the requires line Σ(k = 0 to n) 1/T(k) ∈ ℝ of step 3.2.5, read as a step citing what it cites:",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ

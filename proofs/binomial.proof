@@ -34,14 +34,12 @@ theorem binomial-step
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m
 
 2.  x·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) x·(C(m, k)·x^(m − k)·y^k)
     mun:sum-scaled a := 0, b := m, c := x
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
@@ -59,11 +57,9 @@ theorem binomial-step
 
     3.2.  (m − k) + 1 = (m + 1) − k
           algebra
-          requires m ∈ ℝ: from H3
           requires 0 ∈ ℤ: arithmetic
           requires m ∈ ℤ: from H3
           requires k ∈ ℤ: mun:range-integer a := 0, b := m, from J
-          requires k ∈ ℝ: membership
 
     3.3.  x^((m − k) + 1) = x^((m + 1) − k)
           substitute (m − k) + 1 = (m + 1) − k (line 3.2)
@@ -149,7 +145,6 @@ theorem binomial-step
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m
 
@@ -161,7 +156,6 @@ theorem binomial-step
 18. y·(Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k) = Σ(k = 0 to m) y·(C(m, k)·x^(m − k)·y^k)
     mun:sum-scaled a := 0, b := m, c := y
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from H3
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
     requires y ∈ ℝ: from H2
@@ -203,7 +197,6 @@ theorem binomial-step
 21. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)
     mun:sum-shift a := 0, b := m, c := 1
     requires 0 ∈ ℤ: arithmetic
-    requires m ∈ ℤ: from H3
     requires 1 ∈ ℤ: arithmetic
     requires m ∈ ℕ₀: from H3
     requires x ∈ ℝ: from H1
@@ -222,14 +215,12 @@ theorem binomial-step
            requires 1 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: membership, from H3
            requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J
-           requires k ∈ ℝ: membership
 
     23.2.  (k − 1) + 1 = k
            algebra
            requires 1 ∈ ℤ: arithmetic
            requires m + 1 ∈ ℤ: membership, from H3
            requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J
-           requires k ∈ ℝ: membership
 
     23.3.  C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^((k − 1) + 1)
            substitute m − (k − 1) = (m + 1) − k (line 23.1)

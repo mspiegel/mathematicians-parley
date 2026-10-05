@@ -19,7 +19,6 @@ import mundane theorem    stdlib/divisibility/phi-natural
 import mundane theorem    stdlib/functions/function-into
 import mundane definition stdlib/functions/one-to-one
 import mundane theorem    stdlib/counting/finite-part
-import mundane theorem    stdlib/numbers/int-real
 import mundane theorem    stdlib/numbers/int-closure
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-from-bounds
@@ -213,7 +212,6 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     requires φ(n) ∈ ℕ: mun:phi-natural, from H1
     requires a^φ(n) ∈ ℝ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 5, 4
-    requires ∏(r ∈ S) r ∈ ℝ: mun:int-real
 
 21. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
     mun:congruent-mod, from 17

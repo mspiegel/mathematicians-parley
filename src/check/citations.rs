@@ -1162,6 +1162,58 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
 /// was supplying nothing. A requires line another one of the step leans on
 /// is kept by the second check. A define is not asked about: citing one
 /// names what a symbol means and supplies no fact.
+/// A requires line says something the step's other lines do not.
+///
+/// Every line does work (R3), and a fact the step already has does none:
+/// `requires k ∈ ℝ: membership` under `requires k ∈ ℤ` says what k ∈ ℤ says
+/// (`READERS.md`, what a membership line says). What the step has without
+/// the line is the lines it cites, the requires lines above it, the lines
+/// below it whose reason is a bare `from`, and what each of those implies.
+/// Any other line below may rest on this one (R2): `2^p − 1 ∈ ℕ:
+/// mun:prime-nat` below `2^p − 1 ∈ ℤ` implies it and needs it, where `m ∈
+/// ℕ₀: from H3` rests on H3 alone. One line written twice is flagged where
+/// it is written the second time. This holds on every step, whatever its
+/// reason, so the checker and the elaborator need not each judge it.
+pub fn check_repeated(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        for (i, req) in step.requires.iter().enumerate() {
+            let Some(said) = known.read(&req.fact) else {
+                continue;
+            };
+            let mut lighter = step.clone();
+            lighter.requires = step
+                .requires
+                .iter()
+                .enumerate()
+                .filter(|(j, o)| {
+                    *j < i
+                        || (*j > i
+                            && str::trim(&o.how).starts_with("from ")
+                            && squash(&o.fact) != squash(&req.fact))
+                })
+                .map(|(_, o)| o.clone())
+                .collect();
+            let left = known.parts(&lighter, library);
+            if left.facts.iter().any(|f| f.shape() == said.shape()) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} says {}, which the step's other lines already say",
+                        step.number,
+                        str::trim(&req.fact)
+                    ),
+                );
+            }
+        }
+    }
+}
+
 pub fn check_surplus(
     report: &mut Report,
     thm: &Theorem,

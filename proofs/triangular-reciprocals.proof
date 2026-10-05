@@ -95,8 +95,6 @@ theorem triangular-reciprocals
                   requires ε ∈ ℝ: from K3
                   requires n ∈ ℝ: from K4
                   requires n + 1 ≠ 0: inequalities, from K4
-                  requires N ∈ ℝ: from 3.1
-                  requires N ≠ 0: from 3.1
 
           3.2.6.  Σ(k = 1 to n) 1/T(k) < 2 + ε
                   inequalities, from D1, 3.2.1, 3.2.4, A1
