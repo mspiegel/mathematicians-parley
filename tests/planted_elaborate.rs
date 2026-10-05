@@ -493,14 +493,36 @@ fn cases() -> Vec<Case> {
             "requires ε/2 ∈ ℝ: membership, from A1",
             "rests on K3, which it does not name",
         ),
+        // g(x) is real because of what g is, and a step that uses what a
+        // define says cites it (`SYNTAX.md`). Without the define g stays a
+        // name, and nothing the step cites says g(x) is real.
+        case(
+            "membership of a defined function's value without citing its define",
+            "proofs/mean-value/mean-value",
+            "proofs/mean-value.proof",
+            "membership, from D1, K3",
+            "membership, from K3",
+            "is not built from what step 8.2 cites",
+        ),
+        // a ∈ S because S is the points of [a, b] where f is below zero; the
+        // item speaks of a set written by its condition, and without the
+        // define S is only a name.
+        case(
+            "membership in a defined set without citing its define",
+            "proofs/intermediate-value/intermediate-value",
+            "proofs/intermediate-value.proof",
+            "u := a, from D1, 1, H6",
+            "u := a, from 1, H6",
+            "no cited line is what rabid unfolds",
+        ),
         // A sum's terms are built for each index in its range, and from 0 the
         // first of them divides by T(0), which nothing says is not zero.
         case(
             "membership of a sum whose first term divides by zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
-            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
+            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n                  requires N ∈ ℝ: from 3.2",
             "is not built from what the requires line cites",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
@@ -704,8 +726,8 @@ fn cases() -> Vec<Case> {
             "obtain from a definition citing no line that says its left side",
             "proofs/schroeder-bernstein/schroeder-bernstein",
             "proofs/schroeder-bernstein.proof",
-            "obtain x: mun:image u := b, Y := C, from C9",
-            "obtain x: mun:image u := b, Y := C, from K7",
+            "obtain x: mun:image u := b, Y := C, from D1, C9",
+            "obtain x: mun:image u := b, Y := C, from D1, K7",
             "nothing step 8.2.1 cites says",
         ),
         // A part of A is asked of M's argument, and the line named must say it:
@@ -714,8 +736,8 @@ fn cases() -> Vec<Case> {
             "a requires line for a part naming a line that does not say it",
             "proofs/schroeder-bernstein/fixed-part",
             "proofs/schroeder-bernstein.proof",
-            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 4\n",
-            "    mun:part-builder u := A ∖ M(C), from 10, 13\n    requires C ⊆ A: from 3\n",
+            "    mun:part-builder u := A ∖ M(C), from D2, 10, 13\n    requires C ⊆ A: from 4\n",
+            "    mun:part-builder u := A ∖ M(C), from D2, 10, 13\n    requires C ⊆ A: from 3\n",
             "from 3 does not reach",
         ),
         // g ∈ gH is shown by the member of H that g is g times, and the line

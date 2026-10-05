@@ -23,7 +23,7 @@ use super::field::{self, numeral as n, q, Poly, Verdict, Q};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::provenance::requirement;
-use super::state::Elaborator;
+use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{fmt, Step};
@@ -1441,8 +1441,8 @@ impl<'a> Elaborator<'a> {
         }
         let kids = term.children();
         if term.label() == Some("cv") && kids.len() == 1 {
-            if let Some(body) = self.definitions.get(&self.rpn(&kids[0])) {
-                return self.defined_names_out(&self.to_term(body));
+            if let Some(body) = self.named_body(term, &Vars::new()) {
+                return self.defined_names_out(&body);
             }
         }
         let parts: Vec<Term> = kids.iter().map(|k| self.defined_names_out(k)).collect();
@@ -1523,8 +1523,8 @@ impl<'a> Elaborator<'a> {
             }
             let kids = node.children();
             if node.label() == Some("cv") && kids.len() == 1 {
-                if let Some(body) = self.definitions.get(&self.rpn(&kids[0])) {
-                    let out = self.defined_names_out(&self.to_term(body));
+                if let Some(body) = self.named_body(&node, &Vars::new()) {
+                    let out = self.defined_names_out(&body);
                     named.insert(self.rpn(&self.sums_over(&out, &letter)));
                 }
             }

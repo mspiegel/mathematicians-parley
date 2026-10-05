@@ -130,39 +130,39 @@ theorem cauchy-schwarz
            reads the sum of the squares of the b's
 
     5.11. A > 0
-          inequalities, from C3
+          inequalities, from D1, C3
           requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
     5.12. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
-          instantiate t := −B/A in line 1
-          requires −B/A ∈ ℝ: membership, from 5.11
+          instantiate t := −B/A in line 1, from D1, D2, D3
+          requires −B/A ∈ ℝ: membership, from D1, D2, 5.11
 
     5.13. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
           algebra
-          requires A ∈ ℝ: membership
-          requires B ∈ ℝ: membership
-          requires C ∈ ℝ: membership
+          requires A ∈ ℝ: membership, from D1
+          requires B ∈ ℝ: membership, from D2
+          requires C ∈ ℝ: membership, from D3
           requires A ≠ 0: inequalities, from 5.11
 
     5.14. B²/A ≤ C
           inequalities, from 5.12, 5.13
-          requires B²/A ∈ ℝ: membership, from 5.11
-          requires A ∈ ℝ: membership
-          requires B ∈ ℝ: membership
-          requires C ∈ ℝ: membership
+          requires B²/A ∈ ℝ: membership, from D1, D2, 5.11
+          requires A ∈ ℝ: membership, from D1
+          requires B ∈ ℝ: membership, from D2
+          requires C ∈ ℝ: membership, from D3
           requires A ≠ 0: inequalities, from 5.11
 
     5.15. A·(B²/A) ≤ A·C
           mun:multiply-le, from 5.14
-          requires B²/A ∈ ℝ: membership, from 5.11
-          requires A ∈ ℝ: membership
-          requires C ∈ ℝ: membership
+          requires B²/A ∈ ℝ: membership, from D1, D2, 5.11
+          requires A ∈ ℝ: membership, from D1
+          requires C ∈ ℝ: membership, from D3
           requires A > 0: from 5.11
 
     5.16. A·(B²/A) = B²
           algebra
-          requires A ∈ ℝ: membership
-          requires B ∈ ℝ: membership
+          requires A ∈ ℝ: membership, from D1
+          requires B ∈ ℝ: membership, from D2
           requires A ≠ 0: inequalities, from 5.11
 
     5.17. B² ≤ A·C

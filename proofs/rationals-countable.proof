@@ -24,7 +24,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
        reads a code for x: the size and sign of its numerator, and its denominator
 
 1.  For all n ∈ ℕ, f(n) ∈ ℚ.
-    membership
+    membership, from D1
 
 2.  f : ℕ → ℚ
     mun:function-into, from 1
@@ -59,7 +59,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
           mun:lowest-terms-parts x := x, from K4
 
     5.2.  s(x) ∈ ℕ₀
-          membership, from K4
+          membership, from D2, K4
 
     5.3.  numer(x) ≥ 0 or not numer(x) ≥ 0
           mun:excluded-middle P := numer(x) ≥ 0
@@ -137,7 +137,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
           mun:abs-integer z := numer(x), from 6.1
 
     6.3.  g(x) ∈ ℕ
-          membership, from K5
+          membership, from D2, D3, K5
           requires |numer(x)| ∈ ℕ₀: from 6.2
           requires denom(x) ∈ ℕ: from 6.1
 

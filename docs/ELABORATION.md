@@ -64,8 +64,9 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    - a rule that asks something first (`exp0`, `nn0absid`, `rexss`) holds
      only where that is so, and is applied only where it closes a difference,
      with what it asks settled there;
-   - a name a `define` introduced is what it names (`named_body`), the one
-     rule that is not a set.mm lemma: the define's own equation proves it;
+   - a name a `define` introduced is what it names (`named_body`), where the
+     proof being built may rest on the define, the one rule that is not a
+     set.mm lemma: the define's own equation proves it;
    - a map applied to a value is its rule at that value (`applied_body`,
      `fvmptd3`), so a function a `define` introduced is evaluated where it
      is applied;
@@ -541,19 +542,27 @@ the name. It is taken the way an `obtain` is: `elisset` gives `∃x x = E` once 
 is a set (`rules.SETHOOD`), the scope is widened by `x = E`, and `exlimdv`
 discharges it where the scope ends (`scopes.define`). The variable is a spare,
 never the name's own letter, which keeps Cantor's defined B apart from the B
-its conclusion binds. A body naming an earlier define is held written out:
-kept over U, the subsets proof's T would meet a theorem about 𝒫(X ∖ {a}) only
-by a change of a map's domain, which `mpteq1d` makes with its parts in an
-order the congruence walk does not push.
+its conclusion binds. A body naming an earlier define is held as written, so
+a step citing the later define rests on the earlier one only where it reads
+that name too: F(a) = f(a) + g(a), by the define of F, needs nothing of what g
+is.
 
 A lemma speaks of the body and a line of the name, and the standard form
 reads the name as the body wherever two things are compared (`named_body`),
 so the matcher meets the two as it meets `k · 2` and `2 · k`: every route
 that fits a lemma matches as written and then in standard form, and `same`
 carries the lemma's instance to the line through the equation. Nothing
-rewrites a claim itself, so a calculator still sees x₁ as a name. A step may
-rest on a define without citing it, as on a sort: the checker reads a defined
-name as its body wherever it compares two formulas (`SYNTAX.md`).
+rewrites a claim itself, so a calculator still sees x₁ as a name.
+
+A define is not a sort: a step that uses what it says cites it (`SYNTAX.md`),
+and R1 refuses one that rests on a define it does not cite. The standard form
+reads a name as its body only where the proof being built may rest on the
+define (`may_read`), the same limit the search's facts are under
+(`resting`). Read wherever the define is in scope, a name would be written out
+and folded back in a step that never uses what it names, and the step would
+rest on a define it has no reason to cite: x₁ ∈ S, from the define of S, would
+rest on the define of x₁ through x₁ ∈ [a, b] written out and back. A define
+inside a block is the block's own, as its openers are (`named`).
 
 A step may also cite a define as its head, `D2, from 4.1` (`by_define`). One
 side of its equation is read once as the define says, by the define's own
@@ -816,7 +825,7 @@ asked — the lookup, the `membership` method's parts, and `settle` (`summed`)
 — and a divisor is not zero by a line placing it above zero or below it.
 
 `inequalities` in a step that writes a defined name and what it names takes
-the claim and each cited line with defined names written out and every sum
+the claim and each cited line with the defined names it cites written out and every sum
 written over one letter nothing holds (`names_written_out`), each cited line
 carried across by `same`, and the claim carried back by it.
 
@@ -994,7 +1003,8 @@ names says the fact (`unfolded_at`), and one citing H2 alone rests on K4,
 which it does not name, and is reported. Only then is it searched for, with
 the step's lines laid over the scope's copies of the same claims.
 
-`membership` reads a defined name as its body, the standard form's reading,
+`membership` reads a defined name whose define the step cites as its body,
+the standard form's reading,
 so a membership the facts hold of a defined name is read the same way: each
 fact `part` builds from, a membership in a number system or a term's not
 being 0, is laid down beside itself in standard form, the two shown one

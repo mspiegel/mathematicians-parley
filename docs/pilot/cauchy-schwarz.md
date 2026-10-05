@@ -103,7 +103,8 @@ B² ≤ AC. ∎
 9. **A defined name and its sum were two atoms to `inequalities`.** A > 0
    was not C3 written again, so the page said A = Σaₖ², by D1, and cited
    it. `inequalities` now reads a defined name as what it names in a step
-   that writes both (`METHODS.md`), and A > 0 is `inequalities, from C3`.
+   that writes both (`METHODS.md`), and A > 0 is `inequalities, from D1, C3`,
+   the define cited because the step uses what A is.
    The quadratic at t = −B/A carried four `requires` lines, two sums and A
    and B real, for the comparison of its two spellings; `settle` now builds
    a sum's membership from its terms, and they are gone.

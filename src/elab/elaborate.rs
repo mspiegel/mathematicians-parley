@@ -385,7 +385,8 @@ impl<'a> Elaborator<'a> {
         self.from_outside = file_definitions(self.thm, self.env());
         let nodes = self.hypotheses()?;
         // A sort is stated once, like a declared type, and a step may rest on
-        // it without naming it. So may a define.
+        // it without naming it. A define is not one: a step that uses what it
+        // says cites it, as it cites any line it uses.
         let mut sorts: BTreeSet<String> = BTreeSet::new();
         let mut lets: Vec<(Intro, String, String)> = self
             .thm
@@ -420,12 +421,6 @@ impl<'a> Elaborator<'a> {
             {
                 sorts.insert(label.clone());
             }
-        }
-        for d in &self.thm.defines {
-            sorts.insert(d.label.clone());
-        }
-        for (name, d, src) in self.visible_outside() {
-            sorts.insert(self.outside_label(&name, &d, src));
         }
         self.sorts = sorts;
         let mut terms = Vec::new();

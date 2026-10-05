@@ -45,7 +45,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
        reads everything in at least one of them: the largest part of A that shares nothing with its M
 
 1.  For all X ⊆ A, M(X) ⊆ A.
-    mun:image-within f := g
+    mun:image-within f := g, from D1
 
 2.  For all X, Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
     fix
@@ -60,15 +60,15 @@ define C := ⋃(X ∈ D) X                                               (D3)
           mun:difference-reverses, from 2.1
 
     2.3.  M(Y) ⊆ M(X)
-          mun:image-monotone f := g, from 2.2
+          mun:image-monotone f := g, from D1, 2.2
           requires X ⊆ A: from K3
           requires Y ⊆ A: from K4
 
 3.  For all X ∈ D, X ⊆ A.
-    mun:part-builder
+    mun:part-builder, from D2
 
 4.  C ⊆ A
-    mun:union-within, from 3
+    mun:union-within, from D3, 3
 
 5.  M(C) ⊆ A
     instantiate X := C in line 1, from 4
@@ -78,14 +78,14 @@ define C := ⋃(X ∈ D) X                                               (D3)
     let X ∈ D                                                         (K6)
 
     6.1.  X ⊆ A
-          mun:part-builder, from K6
+          mun:part-builder, from D2, K6
 
     6.2.  M(X) ∩ X = ∅
-          mun:part-builder, from K6
+          mun:part-builder, from D2, K6
           requires X ⊆ A: from 6.1
 
     6.3.  X ⊆ C
-          mun:union-contains-member Y := X, from K6
+          mun:union-contains-member Y := X, from D3, K6
 
     6.4.  M(C) ⊆ M(X)
           instantiate X := X, Y := C in line 2, from 6.1, 4, 6.3
@@ -105,7 +105,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           suppose a ∈ C                                               (S1)
 
           7.2.1.  X ∈ D. a ∈ X.
-                  obtain X: mun:indexed-union u := a, from S1
+                  obtain X: mun:indexed-union u := a, from D3, S1
 
           7.2.2.  M(C) ∩ X = ∅
                   instantiate X := X in line 6, from 7.2.1
@@ -135,11 +135,11 @@ define C := ⋃(X ∈ D) X                                               (D3)
     mun:disjoint-within, from 11, 12
 
 14. A ∖ M(C) ∈ D
-    mun:part-builder u := A ∖ M(C), from 10, 13
+    mun:part-builder u := A ∖ M(C), from D2, 10, 13
     requires C ⊆ A: from 4
 
 15. A ∖ M(C) ⊆ C
-    mun:union-contains-member Y := A ∖ M(C), from 14
+    mun:union-contains-member Y := A ∖ M(C), from D3, 14
     requires C ⊆ A: from 4
 
 16. A ∖ C ⊆ M(C)
@@ -149,7 +149,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     mun:subset-antisymmetric, from 8, 16
 
 18. There exists C ⊆ A such that g[B ∖ f[C]] = A ∖ C.
-    exhibit, from 4, 17
+    exhibit, from D1, 4, 17
 
 
 theorem schroeder-bernstein
@@ -181,7 +181,7 @@ theorem schroeder-bernstein
           mun:difference, from K1
 
     3.2.  A ∖ C ⊆ g[B ∖ R]
-          mun:equal-subset, from 2
+          mun:equal-subset, from D1, 2
 
     3.3.  t ∈ g[B ∖ R]
           mun:in-subset, from 3.2, K1
@@ -239,7 +239,7 @@ theorem schroeder-bernstein
                   requires u ∈ A: from 4.1.1
 
           4.1.3.  f(u) ∈ R
-                  mun:value-in-image, from K2
+                  mun:value-in-image, from D1, K2
                   requires C ⊆ A: from 2
 
           4.1.4.  h(v) = f(u)
@@ -395,7 +395,7 @@ theorem schroeder-bernstein
           assume b ∈ R                                                (C9)
 
           8.2.1.  x ∈ C. b = f(x).
-                  obtain x: mun:image u := b, Y := C, from C9
+                  obtain x: mun:image u := b, Y := C, from D1, C9
                   requires C ⊆ A: from 2
 
           8.2.2.  x ∈ A
@@ -424,7 +424,7 @@ theorem schroeder-bernstein
                   requires B ∖ R ⊆ B: mun:difference-subset
 
           8.2.8.  g[B ∖ R] ⊆ A ∖ C
-                  mun:equal-subset, from 2
+                  mun:equal-subset, from D1, 2
 
           8.2.9.  g(b) ∈ A ∖ C
                   mun:in-subset, from 8.2.8, 8.2.7

@@ -39,7 +39,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     requires a ≤ b: inequalities, from H1, H2, H3
 
 2.  a ∈ S
-    mun:set-builder u := a, from 1, H6
+    mun:set-builder u := a, from D1, 1, H6
 
 3.  S ⊆ [a, b]
     mun:set-builder-subset, from D1
@@ -55,7 +55,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     let s ∈ S                                                         (K1)
 
     6.1.  s ∈ [a, b]
-          mun:set-builder, from K1
+          mun:set-builder, from D1, K1
 
     6.2.  s ≤ b
           mun:interval, from H1, H2, 6.1
@@ -147,13 +147,13 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires δ ∈ ℝ: from 16.5
 
     16.9.  x₁ ∈ ℝ
-           mun:min-real x := b, y := c + δ/2, from H2, 16.7
+           mun:min-real x := b, y := c + δ/2, from D2, H2, 16.7
 
     16.10. c < x₁
-           mun:lt-min z := c, x := b, y := c + δ/2, from 8, H2, 16.7, 16.2, 16.8
+           mun:lt-min z := c, x := b, y := c + δ/2, from D2, 8, H2, 16.7, 16.2, 16.8
 
     16.11. x₁ ≤ b. x₁ ≤ c + δ/2.
-           mun:min-le x := b, y := c + δ/2, from H2, 16.7
+           mun:min-le x := b, y := c + δ/2, from D2, H2, 16.7
 
     16.12. x₁ − c < δ
            inequalities, from 16.11, 16.6
@@ -201,7 +201,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c), from 16.19
 
     16.22. x₁ ∈ S
-           mun:set-builder u := x₁, from 16.14, 16.21
+           mun:set-builder u := x₁, from D1, 16.14, 16.21
 
     16.23. x₁ ≤ c
            instantiate s := x₁ in line 10, from 16.22
@@ -230,10 +230,10 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            let s ∈ S                                                  (K2)
 
            16.27.1.  s ∈ [a, b]
-                     mun:set-builder, from K2
+                     mun:set-builder, from D1, K2
 
            16.27.2.  f(s) < 0
-                     mun:set-builder, from K2
+                     mun:set-builder, from D1, K2
 
            16.27.3.  s ∈ ℝ
                      mun:interval, from H1, H2, 16.27.1

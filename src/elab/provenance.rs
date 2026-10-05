@@ -330,6 +330,25 @@ impl<'a> Elaborator<'a> {
                     .map(|o| o.label.clone()),
             );
             out.insert(format!("{number} assumes"));
+            // A define inside the block is the block's own, as its openers
+            // are: it comes after the block's first line and before its last
+            // step.
+            let last = self
+                .thm
+                .steps
+                .iter()
+                .filter(|s| number_of(s).starts_with(&prefix))
+                .map(|s| s.line)
+                .max();
+            if let Some(last) = last {
+                out.extend(
+                    self.thm
+                        .defines
+                        .iter()
+                        .filter(|d| step.line < d.line && d.line < last)
+                        .map(|d| d.label.clone()),
+                );
+            }
             let depth = number.matches('.').count() + 1;
             for inner in &self.thm.steps {
                 let name = number_of(inner);

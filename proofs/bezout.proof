@@ -97,7 +97,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     requires b ∈ ℝ: from H2
 
 2.  a ∈ S
-    mun:set-builder u := a, from H1, 1
+    mun:set-builder u := a, from D1, H1, 1
     requires 1 ∈ ℤ: arithmetic
     requires 0 ∈ ℤ: arithmetic
 
@@ -114,7 +114,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     instantiate t := d in line 5, from 4
 
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
-    obtain x₀, y₀: mun:set-builder u := d, from 4
+    obtain x₀, y₀: mun:set-builder u := d, from D1, 4
 
 8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     fix
@@ -130,7 +130,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
           requires y ∈ ℝ: from K2
 
     8.2.  a·x + b·y ∈ S
-          mun:set-builder u := a·x + b·y, from K3, 8.1
+          mun:set-builder u := a·x + b·y, from D1, K3, 8.1
           requires x ∈ ℤ: from K1
           requires y ∈ ℤ: from K2
 

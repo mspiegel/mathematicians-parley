@@ -1341,7 +1341,7 @@ impl<'a> Elaborator<'a> {
 
     /// The term with every rule applied, parts first, each pair in order.
     pub fn standard(&mut self, term: &Term) -> Term {
-        let key = (self.rpn(term), self.binding.clone());
+        let key = (self.rpn(term), self.binding.clone(), self.names_readable());
         if let Some(found) = self.standards.get(&key) {
             return found.clone();
         }
@@ -1416,8 +1416,13 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What a name a `define` introduced names, where `term` is that name
-    /// standing free; else None. A letter the compared statements bind is
-    /// never a defined name.
+    /// standing free and the proof being built may rest on the define; else
+    /// None. A letter the compared statements bind is never a defined name.
+    ///
+    /// A step that uses what a define says cites it (`SYNTAX.md`), so a name
+    /// whose define the step does not cite stays a name: x₁ ∈ S, cited from
+    /// the define of S and a line saying x₁ ∈ [a, b], reads S as its set and
+    /// x₁ as written.
     pub fn named_body(&self, term: &Term, bound: &Vars) -> Option<Term> {
         if term.variable().is_some()
             || term.label() != Some("cv")
@@ -1431,8 +1436,32 @@ impl<'a> Elaborator<'a> {
         {
             return None;
         }
-        let body = self.definitions.get(&self.rpn(&term.children()[0]))?;
+        let var = self.rpn(&term.children()[0]);
+        if !self.may_read(&var) {
+            return None;
+        }
+        let body = self.definitions.get(&var)?;
         Some(self.to_term(body))
+    }
+
+    /// Whether the proof being built may read the defined name `var` as what
+    /// it names: whether it may rest on the name's define.
+    fn may_read(&self, var: &str) -> bool {
+        match (&self.resting, self.defined_by.get(var)) {
+            (Some(allowed), Some(label)) => allowed.contains(label),
+            _ => true,
+        }
+    }
+
+    /// The defined names the proof being built may read, as a key.
+    fn names_readable(&self) -> String {
+        let readable: Vec<&str> = self
+            .definitions
+            .keys()
+            .filter(|v| self.may_read(v))
+            .map(String::as_str)
+            .collect();
+        readable.join(" ")
     }
 
     /// What a map applied to a value comes to: the map's rule with the value

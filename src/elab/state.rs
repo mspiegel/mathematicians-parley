@@ -201,8 +201,9 @@ pub struct Elaborator<'a> {
     pub bridges: Option<IndexMap<(String, String), String>>,
     /// Declared lemma -> what its readings end on, and its role.
     pub lemma_heads: Option<LemmaIndex>,
-    /// Term and bound letters -> its standard form.
-    pub standards: IndexMap<(String, Vars), Term>,
+    /// Term, bound letters and the defined names it may read -> its standard
+    /// form.
+    pub standards: IndexMap<(String, Vars, String), Term>,
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
@@ -247,6 +248,9 @@ pub struct Elaborator<'a> {
     pub unread: usize,
     /// A defined name's setvar -> the term it names.
     pub definitions: IndexMap<String, String>,
+    /// A defined name's setvar -> the label of the define that names it, which
+    /// a step cites to read the name as what it names.
+    pub defined_by: IndexMap<String, String>,
     /// Name -> tree, while a statement is read.
     pub from_outside: IndexMap<String, Defined>,
     /// A define by recursion: its label -> each name's map; its seq term ->
@@ -363,6 +367,7 @@ impl<'a> Elaborator<'a> {
             assumed: IndexMap::new(),
             unread: 0,
             definitions: IndexMap::new(),
+            defined_by: IndexMap::new(),
             from_outside: IndexMap::new(),
             recursion_maps: IndexMap::new(),
             recursions: IndexMap::new(),

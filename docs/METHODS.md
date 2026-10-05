@@ -77,11 +77,12 @@ that fact reaches a step as a cited line, which is what
 `thm:proofs/triangle-inequality/abs-bounds` is for.
 
 A defined name is an atom, unless the step writes what the name names as
-well: then each defined name in its claim and its cited lines is read as
-what it names, and every sum as one sum whatever its letter. Cauchy–Schwarz
-claims A > 0 from 0 < Σ(k = 1 to n) a(k)², with A defined as that sum, and
-the two are one atom. A step that writes a name without what it names reads
-the name as one atom, as before, so it rests on nothing new. Two sums that
+well: then each defined name in its claim and its cited lines whose define
+the step cites is read as what it names, and every sum as one sum whatever
+its letter. Cauchy–Schwarz claims A > 0 from 0 < Σ(k = 1 to n) a(k)², with A
+defined as that sum, citing the define, and the two are one atom. A step that
+writes a name without what it names reads the name as one atom, so it rests
+on nothing it does not cite. Two sums that
 differ only in their letter are one atom too, and a line saying one of them
 is real says it of the other.
 
@@ -499,8 +500,9 @@ library item at a time.
 
 The step's requires lines and the lines it cites, read for what they say
 (`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0). A defined name is read
-as its rule, T(k) as k(k + 1)/2, as it is wherever a formula is compared, and
-is not cited for it.
+as its rule, T(k) as k(k + 1)/2, where the step cites its define, as it is
+wherever a formula is compared: `requires Σ(k = 1 to n) 1/T(k) ∈ ℝ:
+membership, from D1`.
 
 ### Fact out
 

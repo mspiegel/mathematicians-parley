@@ -1147,7 +1147,7 @@ fn cases() -> Vec<Case> {
         case(
             "exhibit a witness without saying it is in the domain",
             vec![
-                edit("proofs/bezout.proof", Some("    mun:set-builder u := a, from H1, 1\n    requires 1 ∈ ℤ: arithmetic\n".to_string()), "    mun:set-builder u := a, from H1, 1\n".to_string()),
+                edit("proofs/bezout.proof", Some("    mun:set-builder u := a, from D1, H1, 1\n    requires 1 ∈ ℤ: arithmetic\n".to_string()), "    mun:set-builder u := a, from D1, H1, 1\n".to_string()),
             ],
             "step 2 claims something that mun:set-builder does not conclude",
         ),
@@ -1201,7 +1201,7 @@ fn cases() -> Vec<Case> {
         case(
             "say an element of a set of numbers is a set",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          mun:set-builder, from K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          mun:set-builder, from K1\n          requires s is a set: from K1\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n          requires s is a set: from K1\n".to_string()),
             ],
             "the requires line of step 6.1: 's is a set': s is a number, and `_ is a set` wants a set",
         ),
@@ -1385,7 +1385,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a value in an image with nothing saying the set is in the domain",
             vec![
-                edit("proofs/schroeder-bernstein.proof", Some("                  mun:value-in-image, from K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  mun:value-in-image, from K2\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("                  mun:value-in-image, from D1, K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  mun:value-in-image, from D1, K2\n".to_string()),
             ],
             "step 4.1.3 cites mun:value-in-image, which asks for",
         ),
@@ -1461,7 +1461,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from part-builder citing no line that puts the set in it",
             vec![
-                edit("proofs/lagrange.proof", Some("obtain a: mun:part-builder, from K18".to_string()), "obtain a: mun:part-builder, from K20".to_string()),
+                edit("proofs/lagrange.proof", Some("obtain a: mun:part-builder, from D1, K18".to_string()), "obtain a: mun:part-builder, from D1, K20".to_string()),
             ],
             "step 15.1 obtains from mun:part-builder, which says there is one only from something the step does not cite",
         ),

@@ -1506,9 +1506,7 @@ impl<'a> Elaborator<'a> {
         closers: Vec<Closer>,
     ) -> Checked<(String, Facts, Vec<Closer>)> {
         self.at = line;
-        // A body naming an earlier define is held written out, so every
-        // equation says in full what its name is.
-        let body = self.rpn(&self.written_out(&self.to_term(body)));
+        let body = body.to_string();
         let var = self.spare_var()?;
         let said = t!(format!("{var} cv"), body, "wceq");
         let ex = t!(said, var, "wex");
@@ -1538,6 +1536,7 @@ impl<'a> Elaborator<'a> {
         let (outer, held) = self.widen(scope, facts, &said, Some(label));
         self.names.insert(name.to_string(), format!("{var} cv"));
         self.definitions.insert(var.clone(), body);
+        self.defined_by.insert(var.clone(), label.to_string());
         // What a term comes to in standard form now reads this name as its
         // body, and a form worked out before could hold the name as it stood.
         self.standards.clear();

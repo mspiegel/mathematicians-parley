@@ -431,15 +431,23 @@ fact, that S is E, as a textbook's "let x₁ = min(b, c + δ/2)" does, and it is
 cited by its label wherever a step needs to know what S stands for. It is the
 third kind of unnumbered line beside `let` and `assume`.
 
-**A defined name and the term it names are one formula.** A define states
-that the name is the term and nothing more, so wherever two formulas are
-compared the name is expanded first: a step claiming `𝒫X = U ∪ T` and a theorem concluding the same thing with
-both sets written out say the same thing, and the citation is checked as such.
-Expansion repeats, since a define may be written in terms of an earlier one.
+**A defined name and the term it names are one formula in a step that cites
+the define.** A define states that the name is the term and nothing more, so
+where a step cites it the name is expanded before two formulas are compared: a
+step claiming `𝒫X = U ∪ T`, citing the defines of U and T, and a theorem
+concluding the same thing with both sets written out say the same thing, and
+the citation is checked as such. Expansion repeats, since a define may be
+written in terms of an earlier one, and the step cites each define it passes
+through: F(x) ∈ ℝ, where F(x) := f(x) + g(x), cites the defines of F and g.
 A defined function applied is its rule at the argument, and standing alone it
 is the rule itself, so `f : S → S` and a line saying every f(r) lies in S are
-about one function however each is written, with S written out in both
-(Euler's theorem, steps 9 to 11).
+about one function however each is written (Euler's theorem, steps 9 to 11).
+
+**A step that does not cite a define keeps the name as a name.** `x₁ ∈ S`,
+from the define of S and lines saying x₁ ∈ [a, b] and f(x₁) < 0, uses what S
+is and nothing of what x₁ is, and cites the one define
+(intermediate-value, step 16.22). A reader asking where x₁ came from follows
+the lines it cites back to the steps that cite the define of x₁.
 
 **A define may name a function.** `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ
 (D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
