@@ -42,6 +42,7 @@ debug = 1
 # The tests run in this profile (`scripts/precommit.sh`), and an overflow is
 # a fault to stop at there and in the tools alike.
 overflow-checks = true
+incremental = true
 
 [lints.rust]
 unsafe_code = "forbid"
