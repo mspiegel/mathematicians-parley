@@ -223,8 +223,26 @@ fn in_parallel<T: Send>(cases: &[Case], run: impl Fn(&Case) -> T + Sync) -> Vec<
 fn the_gate_catches_every_planted_defect() {
     let clean = clean();
     let setmm = set_mm();
-    for (name, stage) in STAGES {
-        let said = stage(&clean, &setmm);
+    let cases = cases();
+    // The stages over the tree as it stands and the planted cases read the
+    // tree and write nothing to it, so all of them run at once; whether
+    // every stage was green is asked before anything a case says counts.
+    let (unplanted, results) = std::thread::scope(|scope| {
+        let stages: Vec<_> = STAGES
+            .iter()
+            .map(|(name, stage)| {
+                let (clean, setmm) = (&clean, &setmm);
+                scope.spawn(move || (*name, stage(clean, setmm)))
+            })
+            .collect();
+        let results = in_parallel(&cases, |case| outcome(case, &clean, &setmm));
+        let unplanted: Vec<(&str, Said)> = stages
+            .into_iter()
+            .map(|handle| handle.join().expect("a stage panicked"))
+            .collect();
+        (unplanted, results)
+    });
+    for (name, said) in unplanted {
         assert!(
             said.green(),
             "the stage {name} is not green over the tree as it stands, so a planted defect proves nothing:\n{}{}",
@@ -232,8 +250,6 @@ fn the_gate_catches_every_planted_defect() {
             said.complained
         );
     }
-    let cases = cases();
-    let results = in_parallel(&cases, |case| outcome(case, &clean, &setmm));
     let missed = results.iter().filter(|(_, missed)| *missed).count();
     let said: Vec<&str> = results.iter().map(|(line, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
