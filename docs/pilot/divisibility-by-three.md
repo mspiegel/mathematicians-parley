@@ -78,12 +78,12 @@ into ℝ to functions into any set. In `corpus/db/notation.records` it added `su
    universal at the index (`at_the_index`, `rspcv`), once k is in ℕ₀ by
    `elfznn0`.
 6. **10 is the first number past a digit.** set.mm writes it as the decimal
-   `; 1 0`. The methods read a digit as its value and anything longer as a
-   number they know nothing about, so what depends on 10 being ten is
-   cited: `thm:stdlib/numbers/ten-minus-one`, and the step case is arranged so that
-   `algebra` never needs the value — (10^m − 1)·10 + (10 − 1)·1 is
-   10^m·10 − 1 whatever 10 is. A decimal's membership of a number system is
-   built from its digits (`decimal_within`), not searched for.
+   `; 1 0`, and the methods read it as ten (`METHODS.md`, arithmetic's
+   expansion), so step 1.5's 10 − 1 = 9 is `arithmetic`. The step case is
+   arranged so that `algebra` never needs the value — (10^m − 1)·10 +
+   (10 − 1)·1 is 10^m·10 − 1 whatever 10 is. A decimal's membership of a
+   number system is built from its digits (`decimal_within`), not searched
+   for.
 7. **`arithmetic` states nothing.** Elaborating this pilot found a false
    `arithmetic` claim of digits alone crashing the normaliser, and, with
    that fixed, being stated as an axiom, as a false claim with 10 in it

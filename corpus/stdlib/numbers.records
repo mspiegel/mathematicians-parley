@@ -191,15 +191,6 @@ mundane theorem exponent-step
   metamath    expp1
   target      expp1
 
-mundane theorem ten-minus-one
-  then        10 − 1 = 9
-  metamath    10m1e9
-  target      10m1e9
-  note        The one fact about 10 that `arithmetic` and `algebra` do not work
-              out. They read a digit as its value and a numeral of more than
-              one digit as a number they know nothing about, so what depends
-              on 10 being ten is cited, and this is where it comes from.
-
 mundane theorem power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)

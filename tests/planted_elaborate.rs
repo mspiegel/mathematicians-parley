@@ -529,7 +529,7 @@ fn cases() -> Vec<Case> {
             "ask arithmetic for a true fact it cannot show",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "10 − 1 = 9\n          mun:ten-minus-one",
+            "10 − 1 = 9\n          arithmetic",
             "10 − 1 ≤ 9\n          arithmetic",
             "step 1.5 claims 10 − 1 ≤ 9, which is true, and arithmetic cannot show it yet",
         ),

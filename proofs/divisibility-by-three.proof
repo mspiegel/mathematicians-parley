@@ -8,7 +8,6 @@ import mundane theorem    stdlib/numbers/int-closure
 import mundane theorem    stdlib/numbers/nat0-closure
 import mundane theorem    stdlib/numbers/power-integer
 import mundane theorem    stdlib/numbers/power-real
-import mundane theorem    stdlib/numbers/ten-minus-one
 import mundane theorem    stdlib/sums/sum-difference
 import mundane theorem    stdlib/sums/sum-divisible
 import mundane theorem    stdlib/sums/sum-integer
@@ -52,7 +51,7 @@ theorem ten-power-congruent
           requires 9 ∈ ℤ: arithmetic
 
     1.5.  10 − 1 = 9
-          mun:ten-minus-one
+          arithmetic
 
     1.6.  3 divides 10 − 1
           substitute 10 − 1 = 9 (line 1.5) into line 1.4
