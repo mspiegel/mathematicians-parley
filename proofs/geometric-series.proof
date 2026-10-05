@@ -6,8 +6,8 @@ import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/sums/sum-last
 import mundane theorem    stdlib/sums/sum-single
 
-define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈ ℕ₀               (D1)
-       reads the geometric series: the powers of a, from a^0 up to a^m
+define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈ ℕ₀               (D1)
+       reads the geometric series: the powers of a, from a^0 up to a^n
 
 theorem geometric-sum
   metamath    geoser

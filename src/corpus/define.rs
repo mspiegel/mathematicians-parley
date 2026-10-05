@@ -12,7 +12,7 @@ use crate::text::{repr, squash};
 /// "S(m) = 1 + 2 + … + m": `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ`. Its
 /// domain is said with it, because a rule without one says what S does and
 /// not where S is defined. A function of two arguments says each one's
-/// domain in order: `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈
+/// domain in order: `define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈
 /// ℕ₀`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Define {

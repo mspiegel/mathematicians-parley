@@ -649,7 +649,7 @@ once, but it forbids the map's letter in the scope, and the scope holds that
 very equation. What the rule asks, that n is in the domain, is the step's to
 supply in a `requires` line.
 
-A define of two arguments, `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈
+A define of two arguments, `define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈
 ℕ₀`, is the map of two, set.mm's `( x ∈ A, y ∈ B ↦ C )` (`cmpo`, the notation
 `map-of-two`), and G(a, n) is set.mm's `( a G n )`. The standard form reads
 it as the rule at a and n (`applied_body_of_two`), and `ovmpoga` proves that,

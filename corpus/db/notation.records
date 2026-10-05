@@ -578,7 +578,7 @@ notation map-of-two
   metamath    cmpo
   target      _1 _3 _2 _4 _5 cmpo
   note        A function of two arguments, which a define of two builds: `define
-              G(a, m) := …, for a ∈ ℝ, m ∈ ℕ₀` is this map, and G(a, m) is it
+              G(a, n) := …, for a ∈ ℝ, n ∈ ℕ₀` is this map, and G(a, n) is it
               applied to both (`application-to-two`). Its sort takes the
               arguments one at a time, as that notation's does.
 

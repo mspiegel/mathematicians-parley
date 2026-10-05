@@ -579,8 +579,8 @@ fn family(
 }
 
 /// What a define with arguments stands for: `define S(m) := …` is a
-/// function, and S(t) is its body with t for m; `define G(a, m) := …` is a
-/// function of two, and G(s, t) is its body with s for a and t for m.
+/// function, and S(t) is its body with t for m; `define G(a, n) := …` is a
+/// function of two, and G(s, t) is its body with s for a and t for n.
 #[derive(Clone, Debug)]
 pub struct Rule {
     /// The arguments, in the order the name takes them, each with its

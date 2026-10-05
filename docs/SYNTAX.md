@@ -500,8 +500,8 @@ defines. A function only one proof needs is defined there and nowhere else:
 it takes no letter from any other proof.
 
 **A define may name a function of two arguments**, each with its domain, in
-order: `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈ ℕ₀ (D1)` is "the
-geometric series G(a, m) = 1 + a + … + a^m". G(a, n) is G applied to both, and
+order: `define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈ ℕ₀ (D1)` is "the
+geometric series G(a, n) = 1 + a + … + aⁿ". G(a, k) is G applied to both, and
 a step that needs what that is cites the define with a `requires` line for
 each argument's domain the step does not otherwise have. A define names one
 or two arguments; a function of more is not yet needed. Written above a

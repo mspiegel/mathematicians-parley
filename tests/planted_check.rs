@@ -572,9 +572,9 @@ fn cases() -> Vec<Case> {
         case(
             "a define of two whose domains are out of order",
             vec![
-                edit("proofs/geometric-series.proof", Some("for a ∈ ℝ, m ∈ ℕ₀".to_string()), "for m ∈ ℕ₀, a ∈ ℝ".to_string()),
+                edit("proofs/geometric-series.proof", Some("for a ∈ ℝ, n ∈ ℕ₀".to_string()), "for n ∈ ℕ₀, a ∈ ℝ".to_string()),
             ],
-            "define G(a, m) gives the domain of m",
+            "define G(a, n) gives the domain of n",
         ),
         // An induction's step part assumes its own claim's statement, and
         // names that claim by the induction's number (`SYNTAX.md`).
