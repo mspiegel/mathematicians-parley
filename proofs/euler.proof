@@ -42,212 +42,207 @@ define S := {r ∈ {0, …, n − 1} : gcd(r, n) = 1}                      (D1)
 define f(r) := (r·a) mod n, for r ∈ S                                (D2)
        reads the remainder of r times a on dividing by n
 
-1.  n − 1 ∈ ℤ
-    membership, from H1
-
-2.  {0, …, n − 1} is finite
+1.  {0, …, n − 1} is finite
     mun:range-finite
     requires 0 ∈ ℤ: arithmetic
-    requires n − 1 ∈ ℤ: from 1
+    requires n − 1 ∈ ℤ: membership, from H1
 
-3.  {0, …, n − 1} ⊆ ℤ
+2.  {0, …, n − 1} ⊆ ℤ
     mun:range-in-integers
     requires 0 ∈ ℤ: arithmetic
-    requires n − 1 ∈ ℤ: from 1
+    requires n − 1 ∈ ℤ: membership, from H1
 
-4.  S ⊆ {0, …, n − 1}
+3.  S ⊆ {0, …, n − 1}
     mun:set-builder-subset, from D1
 
-5.  S is finite
-    mun:finite-part, from 2, 4
+4.  S is finite
+    mun:finite-part, from 1, 3
 
-6.  S ⊆ ℤ
-    mun:subset-transitive, from 4, 3
+5.  S ⊆ ℤ
+    mun:subset-transitive, from 3, 2
 
-7.  For all r ∈ S, f(r) ∈ S.
+6.  For all r ∈ S, f(r) ∈ S.
     fix
     let r ∈ S                                                         (K1)
 
-    7.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
+    6.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
           mun:set-builder u := r, from K1, D1
 
-    7.2.  r ∈ ℤ
-          mun:range-integer, from 7.1
+    6.2.  r ∈ ℤ
+          mun:range-integer, from 6.1
           requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: from 1
+          requires n − 1 ∈ ℤ: membership, from H1
 
-    7.3.  r·a ∈ ℤ
-          membership, from 7.2, H2
+    6.3.  r·a ∈ ℤ
+          membership, from 6.2, H2
 
-    7.4.  gcd(r·a, n) = 1
-          mun:coprime-product, from 7.2, H2, H1, 7.1, H3
+    6.4.  gcd(r·a, n) = 1
+          mun:coprime-product, from 6.2, H2, H1, 6.1, H3
 
-    7.5.  gcd((r·a) mod n, n) = gcd(r·a, n)
-          thm:gcd-mod, from 7.3, H1
+    6.5.  gcd((r·a) mod n, n) = gcd(r·a, n)
+          thm:gcd-mod, from 6.3, H1
 
-    7.6.  gcd((r·a) mod n, n) = 1
+    6.6.  gcd((r·a) mod n, n) = 1
           calculation
-            gcd((r·a) mod n, n) = gcd(r·a, n)        7.5
-                                = 1                  7.4
+            gcd((r·a) mod n, n) = gcd(r·a, n)        6.5
+                                = 1                  6.4
 
-    7.7.  (r·a) mod n ∈ ℕ₀
-          mun:mod-natural, from 7.3, H1
+    6.7.  (r·a) mod n ∈ ℕ₀
+          mun:mod-natural, from 6.3, H1
 
-    7.8.  (r·a) mod n < n
-          mun:mod-less, from 7.3, H1
+    6.8.  (r·a) mod n < n
+          mun:mod-less, from 6.3, H1
 
-    7.9.  (r·a) mod n ∈ {0, …, n − 1}
-          mun:range-from-bounds, from H1, 7.7, 7.8
+    6.9.  (r·a) mod n ∈ {0, …, n − 1}
+          mun:range-from-bounds, from H1, 6.7, 6.8
 
-    7.10. (r·a) mod n ∈ S
-          mun:set-builder u := (r·a) mod n, from 7.9, 7.6, D1
+    6.10. (r·a) mod n ∈ S
+          mun:set-builder u := (r·a) mod n, from 6.9, 6.6, D1
 
-    7.11. f(r) = (r·a) mod n
+    6.11. f(r) = (r·a) mod n
           D2, from K1
 
-    7.12. f(r) ∈ S
-          substitute f(r) = (r·a) mod n (line 7.11) into line 7.10
+    6.12. f(r) ∈ S
+          substitute f(r) = (r·a) mod n (line 6.11) into line 6.10
 
-8.  For all s, t ∈ S, if f(s) = f(t) then s = t.
+7.  For all s, t ∈ S, if f(s) = f(t) then s = t.
     fix
     let s ∈ S                                                         (K2)
     let t ∈ S                                                         (K3)
     assume f(s) = f(t)                                                (K4)
 
-    8.1.  s ∈ {0, …, n − 1}. gcd(s, n) = 1.
+    7.1.  s ∈ {0, …, n − 1}. gcd(s, n) = 1.
           mun:set-builder u := s, from K2, D1
 
-    8.2.  t ∈ {0, …, n − 1}. gcd(t, n) = 1.
+    7.2.  t ∈ {0, …, n − 1}. gcd(t, n) = 1.
           mun:set-builder u := t, from K3, D1
 
-    8.3.  s ∈ ℤ
-          mun:range-integer, from 8.1
+    7.3.  s ∈ ℤ
+          mun:range-integer, from 7.1
           requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: from 1
+          requires n − 1 ∈ ℤ: membership, from H1
 
-    8.4.  t ∈ ℤ
-          mun:range-integer, from 8.2
+    7.4.  t ∈ ℤ
+          mun:range-integer, from 7.2
           requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: from 1
+          requires n − 1 ∈ ℤ: membership, from H1
 
-    8.5.  s·a ∈ ℤ
-          membership, from 8.3, H2
+    7.5.  s·a ∈ ℤ
+          membership, from 7.3, H2
 
-    8.6.  t·a ∈ ℤ
-          membership, from 8.4, H2
+    7.6.  t·a ∈ ℤ
+          membership, from 7.4, H2
 
-    8.7.  f(s) = (s·a) mod n
+    7.7.  f(s) = (s·a) mod n
           D2, from K2
 
-    8.8.  f(t) = (t·a) mod n
+    7.8.  f(t) = (t·a) mod n
           D2, from K3
 
-    8.9.  (s·a) mod n = (t·a) mod n
+    7.9.  (s·a) mod n = (t·a) mod n
           calculation
-            (s·a) mod n = f(s)          8.7
+            (s·a) mod n = f(s)          7.7
                         = f(t)          K4
-                        = (t·a) mod n   8.8
+                        = (t·a) mod n   7.8
 
-    8.10. s·a ≡ t·a (mod n)
-          mun:mod-equal-congruent, from 8.5, 8.6, H1, 8.9
+    7.10. s·a ≡ t·a (mod n)
+          mun:mod-equal-congruent, from 7.5, 7.6, H1, 7.9
 
-    8.11. s ≡ t (mod n)
-          thm:congruent-cancel c := a, from 8.3, 8.4, H2, H1, 8.10, H3
+    7.11. s ≡ t (mod n)
+          thm:congruent-cancel c := a, from 7.3, 7.4, H2, H1, 7.10, H3
 
-    8.12. s = t
-          mun:congruent-in-range, from H1, 8.1, 8.2, 8.11
+    7.12. s = t
+          mun:congruent-in-range, from H1, 7.1, 7.2, 7.11
 
-9.  f : S → S
-    mun:function-into, from 7
+8.  f : S → S
+    mun:function-into, from 6
     requires f is a function on S: from D2
 
-10. f : S → S is one-to-one
-    mun:one-to-one, from 9, 8
+9.  f : S → S is one-to-one
+    mun:one-to-one, from 8, 7
 
-11. ∏(r ∈ S) f(r) = ∏(r ∈ S) r
-    thm:product-reorder, from 6, 5, 10
+10. ∏(r ∈ S) f(r) = ∏(r ∈ S) r
+    thm:product-reorder, from 5, 4, 9
 
-12. For all r ∈ S, r·a ≡ f(r) (mod n).
+11. For all r ∈ S, r·a ≡ f(r) (mod n).
     fix
     let r ∈ S                                                         (K5)
 
-    12.1. r ∈ {0, …, n − 1}. gcd(r, n) = 1.
+    11.1. r ∈ {0, …, n − 1}. gcd(r, n) = 1.
           mun:set-builder u := r, from K5, D1
 
-    12.2. r ∈ ℤ
-          mun:range-integer, from 12.1
+    11.2. r ∈ ℤ
+          mun:range-integer, from 11.1
           requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: from 1
+          requires n − 1 ∈ ℤ: membership, from H1
 
-    12.3. r·a ∈ ℤ
-          membership, from 12.2, H2
+    11.3. r·a ∈ ℤ
+          membership, from 11.2, H2
 
-    12.4. r·a ≡ (r·a) mod n (mod n)
-          mun:mod-congruent, from 12.3, H1
+    11.4. r·a ≡ (r·a) mod n (mod n)
+          mun:mod-congruent, from 11.3, H1
 
-    12.5. f(r) = (r·a) mod n
+    11.5. f(r) = (r·a) mod n
           D2, from K5
 
-    12.6. r·a ≡ f(r) (mod n)
-          substitute f(r) = (r·a) mod n (line 12.5) into line 12.4
+    11.6. r·a ≡ f(r) (mod n)
+          substitute f(r) = (r·a) mod n (line 11.5) into line 11.4
 
-13. ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)
-    thm:product-congruent X := S, f := f, from 6, 5, H2, H1, 12
-    requires f : S → S: from 9
+12. ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)
+    thm:product-congruent X := S, f := f, from 5, 4, H2, H1, 11
+    requires f : S → S: from 8
 
-14. ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r
-    thm:product-factor, from 6, 5, H2
+13. ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r
+    thm:product-factor, from 5, 4, H2
 
-15. φ(n) = |S|
+14. φ(n) = |S|
     def:φ, from H1, D1
 
-16. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)
-    substitute ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r (line 14) into line 13
+15. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)
+    substitute ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r (line 13) into line 12
 
-17. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
-    substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 11) into line 16
+16. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
+    substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 15
 
-18. a^φ(n)·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
-    substitute φ(n) = |S| (line 15) into line 17
+17. a^φ(n)·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
+    substitute φ(n) = |S| (line 14) into line 16
 
-19. For all r ∈ S, gcd(r, n) = 1.
+18. For all r ∈ S, gcd(r, n) = 1.
     mun:set-builder u := r, from D1
 
-20. gcd(∏(r ∈ S) r, n) = 1
-    thm:product-coprime, from 6, 5, H1, 19
+19. gcd(∏(r ∈ S) r, n) = 1
+    thm:product-coprime, from 5, 4, H1, 18
 
-21. ∏(r ∈ S) r ∈ ℤ
-    mun:product-integer, from 6, 5
+20. ∏(r ∈ S) r ∈ ℤ
+    mun:product-integer, from 5, 4
 
-22. |S| ∈ ℕ₀
-    mun:card-nat0, from 5
+21. |S| ∈ ℕ₀
+    mun:card-nat0, from 4
 
-23. φ(n) ∈ ℕ₀
-    substitute φ(n) = |S| (line 15) into line 22
+22. φ(n) ∈ ℕ₀
+    substitute φ(n) = |S| (line 14) into line 21
 
-24. a^φ(n) ∈ ℤ
-    membership, from H2, 23
-
-25. a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r
+23. a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r
     algebra
-    requires a^φ(n) ∈ ℝ: mun:int-real, from 24
-    requires ∏(r ∈ S) r ∈ ℝ: mun:int-real, from 21
+    requires a^φ(n) ∈ ℝ: membership, from H2, 22
+    requires ∏(r ∈ S) r ∈ ℝ: mun:int-real, from 20
 
-26. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
-    mun:congruent-mod, from 18
+24. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
+    mun:congruent-mod, from 17
     requires n ∈ ℤ: membership, from H1
-    requires a^φ(n)·∏(r ∈ S) r ∈ ℤ: mun:int-closure, from 24, 21
-    requires ∏(r ∈ S) r ∈ ℤ: from 21
+    requires a^φ(n) ∈ ℤ: membership, from H2, 22
+    requires a^φ(n)·∏(r ∈ S) r ∈ ℤ: mun:int-closure, from 20
+    requires ∏(r ∈ S) r ∈ ℤ: from 20
 
-27. n divides (a^φ(n) − 1)·∏(r ∈ S) r
-    substitute a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r (line 25) into line 26
+25. n divides (a^φ(n) − 1)·∏(r ∈ S) r
+    substitute a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r (line 23) into line 24
 
-28. n divides a^φ(n) − 1
-    thm:coprime-divides c := ∏(r ∈ S) r, from 21, H1, 27, 20
-    requires a^φ(n) − 1 ∈ ℤ: membership, from H2, 23
+26. n divides a^φ(n) − 1
+    thm:coprime-divides c := ∏(r ∈ S) r, from 20, H1, 25, 19
+    requires a^φ(n) − 1 ∈ ℤ: membership, from H2, 22
 
-29. a^φ(n) ≡ 1 (mod n)
-    mun:congruent-mod, from 28
+27. a^φ(n) ≡ 1 (mod n)
+    mun:congruent-mod, from 26
     requires n ∈ ℤ: membership, from H1
-    requires a^φ(n) ∈ ℤ: from 24
+    requires a^φ(n) ∈ ℤ: membership, from H2, 22
     requires 1 ∈ ℤ: arithmetic

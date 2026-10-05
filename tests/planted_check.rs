@@ -567,6 +567,16 @@ fn cases() -> Vec<Case> {
             ],
             "takes no block",
         ),
+        // `requires C ≠ A: mun:triangle` unfolds a line saying B, C, A form a
+        // triangle; written above it, that line is what it rests on, and
+        // without it nothing is.
+        case(
+            "unfold a triangle no line above says",
+            vec![
+                edit("proofs/angle-sum.proof", Some("    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n".to_string()), "".to_string()),
+            ],
+            "the requires line of step 3 needs something that mun:triangle does not conclude",
+        ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
         case(
@@ -1284,26 +1294,26 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proofs/binomial.proof", Some("    44.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    44.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/binomial.proof", Some("    42.5.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    42.5.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
-            "step 44.5 claims something that thm:pascal does not conclude",
+            "step 42.5 claims something that thm:pascal does not conclude",
         ),
         // Shifting the index moves the range with it.
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proofs/binomial.proof", Some("24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "24. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/binomial.proof", Some("23. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "23. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
             ],
-            "step 24 claims something that mun:sum-shift does not conclude",
+            "step 23 claims something that mun:sum-shift does not conclude",
         ),
         // A line saying something of every index from 0 to m says nothing of
         // the index m + 1, which the sum to m + 1 takes.
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 44\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 5\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 42\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 5\n".to_string()),
             ],
-            "step 45 cites mun:sum-termwise, which asks for",
+            "step 43 cites mun:sum-termwise, which asks for",
         ),
         // C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
         case(
@@ -1321,7 +1331,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("mun:range-integer a := 1, b := m + 1, from J\n           requires 1 ∈ ℤ: arithmetic\n".to_string()), "mun:range-integer a := 0, b := m + 1, from J\n           requires 0 ∈ ℤ: arithmetic\n".to_string()),
             ],
-            "step 26.1 cites mun:range-integer, which asks for",
+            "step 25.1 cites mun:range-integer, which asks for",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -1329,7 +1339,7 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 31)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
+                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 30)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
             ],
             "takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it",
         ),
@@ -1433,7 +1443,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/schroeder-bernstein.proof", Some("                  mun:value-in-image, from D1, K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  mun:value-in-image, from D1, K2\n".to_string()),
             ],
-            "step 4.1.3 cites mun:value-in-image, which asks for",
+            "step 4.1.2 cites mun:value-in-image, which asks for",
         ),
         // An obtain states what its name is, and ⊆ says it of a part as ∈ 𝒫
         // would; with neither the name's sort is left to be inferred.
@@ -1690,16 +1700,16 @@ fn cases() -> Vec<Case> {
         case(
             "say a defined function maps into a set its values were not shown to lie in",
             vec![
-                edit("proofs/euler.proof", Some("9.  f : S → S\n".to_string()), "9.  f : S → ℕ\n".to_string()),
+                edit("proofs/euler.proof", Some("8.  f : S → S\n".to_string()), "8.  f : S → ℕ\n".to_string()),
             ],
-            "step 9 claims something that mun:function-into does not conclude",
+            "step 8 claims something that mun:function-into does not conclude",
         ),
         case(
             "reorder a product by a map not shown to be one-to-one",
             vec![
-                edit("proofs/euler.proof", Some("thm:product-reorder, from 6, 5, 10".to_string()), "thm:product-reorder, from 6, 5, 9".to_string()),
+                edit("proofs/euler.proof", Some("thm:product-reorder, from 5, 4, 9".to_string()), "thm:product-reorder, from 5, 4, 8".to_string()),
             ],
-            "step 11 cites thm:product-reorder, which asks for",
+            "step 10 cites thm:product-reorder, which asks for",
         ),
         // `let p be a polynomial` says p is one, and an item asking that of
         // what it is cited at asks it of the lines the step names.

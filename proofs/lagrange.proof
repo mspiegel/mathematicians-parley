@@ -381,16 +381,13 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 19. |K| ∈ ℕ₀
     mun:card-nat0, from 18
 
-20. |G| ∈ ℕ₀
-    mun:card-nat0, from H1
-
-21. |G| = |H|·|K|
+20. |G| = |H|·|K|
     algebra, from 17
-    requires |G| ∈ ℝ: from 20
+    requires |G| ∈ ℕ₀: mun:card-nat0, from H1
     requires |K| ∈ ℝ: from 19
     requires |H| ∈ ℝ: from 3
 
-22. |H| divides |G|
-    mun:divides d := |H|, n := |G|, from 19, 21
+21. |H| divides |G|
+    mun:divides d := |H|, n := |G|, from 19, 20
     requires |H| ∈ ℤ: from 3
-    requires |G| ∈ ℤ: from 20
+    requires |G| ∈ ℕ₀: mun:card-nat0, from H1

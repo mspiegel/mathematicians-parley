@@ -87,14 +87,12 @@ theorem ten-power-congruent
     1.13. 3 divides 10^(m + 1) − 1
           substitute (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1 (line 1.12) into line 1.8
 
-    1.14. m + 1 ∈ ℕ₀
-          mun:nat0-closure, from K
-
-    1.15. 10^(m + 1) ≡ 1 (mod 3)
+    1.14. 10^(m + 1) ≡ 1 (mod 3)
           mun:congruent-mod, from 1.13
           requires 3 ∈ ℤ: arithmetic
           requires 10 ∈ ℤ: arithmetic
-          requires 10^(m + 1) ∈ ℤ: mun:power-integer a := 10, m := m + 1, from 1.14
+          requires m + 1 ∈ ℕ₀: mun:nat0-closure, from K
+          requires 10^(m + 1) ∈ ℤ: mun:power-integer a := 10, m := m + 1
           requires 1 ∈ ℤ: arithmetic
 
 2.  10^k ≡ 1 (mod 3)

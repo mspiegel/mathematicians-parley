@@ -659,14 +659,31 @@ impl<'a> Elaborator<'a> {
     /// What a line a `requires` line names says, taken apart: a definition
     /// the database gives no target for is one the notation folds away, so
     /// the unfolding is the line itself, and a `from H1` reason asks the same
-    /// of the line it names.
+    /// of the line it names. With `above`, a requires line written above
+    /// this one is such a line too.
     pub fn unfolded_at(
         &mut self,
         term: &str,
         scope: &str,
         facts: &Facts,
         refs: &[String],
+        above: bool,
     ) -> Checked<Route<Proof>> {
+        if above {
+            for (said, proof) in facts.entries() {
+                if proof.origin.is_empty()
+                    || !proof.origin.iter().all(|o| o.starts_with(REQUIRES))
+                {
+                    continue;
+                }
+                let held = Facts::new();
+                held.set(said.clone(), proof.clone());
+                self.unpack(&said, &proof, scope, &held, 4);
+                if let Some(p) = held.get(term) {
+                    return Ok(Built(p));
+                }
+            }
+        }
         for r in refs {
             let Some(line) = self.lines.get(r) else {
                 continue;
@@ -810,7 +827,12 @@ impl<'a> Elaborator<'a> {
         // Read from the lines it cites before the scope is asked, since the
         // scope may hold the same claim for another reason.
         if self.rests_on_lines(how) {
-            return match self.unfolded_at(&term, scope, facts, &refs)? {
+            // A definition folded into the line it is unfolded at may be
+            // unfolded at a requires line above this one, which the line
+            // rests on as it rests on a cited one (R2). A reason that is only
+            // `from` names its lines, and is read from those.
+            let above = !str::trim(how).starts_with("from ");
+            return match self.unfolded_at(&term, scope, facts, &refs, above)? {
                 Built(p) => Ok(Built(p)),
                 Declined(_) => Err(self.defect(
                     self.at,

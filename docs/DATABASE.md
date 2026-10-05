@@ -526,16 +526,16 @@ this table is mundane.
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.17 and 6.18 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 26 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
-| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
+| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 8.8 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 12 to 17 |
-| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 8.11, 11, 13, 14, 20 and 28 |
+| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.11, 10, 12, 13, 19 and 26 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 8 |
 | C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 8 and 28 |
 | σ | `definition` | a word Reader A has not met, the sum of the divisors |
-| φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 15 |
+| φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 14 |
 | perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 25 |
 
 Some mundane items are worth a word, since a reader might expect otherwise:
@@ -549,7 +549,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
 | numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
-| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: mean-value step 31 |
+| derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 31 |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or

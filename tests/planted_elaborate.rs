@@ -177,8 +177,8 @@ fn cases() -> Vec<Case> {
             "one algebra step multiplying two cited equations",
             "proofs/pythagoras/similar-triangles",
             "proofs/pythagoras.proof",
-            "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       25\n                            = |P′Q′|·|PR|·sin(∠PQR)       26",
-            "    algebra, from 15, 18\n    requires |PQ| ∈ ℝ: from 20\n    requires |PR| ∈ ℝ: from 21\n    requires |P′Q′| ∈ ℝ: from 22\n    requires |P′R′| ∈ ℝ: from 23\n    requires sin(∠PQR) ∈ ℝ: from 19\n    requires sin(∠QRP) ∈ ℝ: from 24",
+            "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       17\n                            = |P′Q′|·|PR|·sin(∠PQR)       18",
+            "    algebra, from 13, 16\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR, from 4\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP, from 5",
             "at most one equation multiplied by a term",
         ),
         // A formula that does not lex is a defect with a position, and not a

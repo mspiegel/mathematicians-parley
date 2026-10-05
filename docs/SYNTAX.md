@@ -478,7 +478,7 @@ written in terms of an earlier one, and the step cites each define it passes
 through: F(x) ∈ ℝ, where F(x) := f(x) + g(x), cites the defines of F and g.
 A defined function applied is its rule at the argument, and standing alone it
 is the rule itself, so `f : S → S` and a line saying every f(r) lies in S are
-about one function however each is written (Euler's theorem, steps 9 to 11).
+about one function however each is written (Euler's theorem, steps 8 to 10).
 
 **A step that does not cite a define keeps the name as a name.** `x₁ ∈ S`,
 from the define of S and lines saying x₁ ∈ [a, b] and f(x₁) < 0, uses what S

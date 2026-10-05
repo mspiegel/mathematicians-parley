@@ -364,7 +364,7 @@ that may itself say "for all Y ∈ K", binding the same letter. So:
   given one nothing in the proof holds, whether or not a frame spells the
   lemma's own, and never the one a cited line happens to bind
   (`letters_unheld`). `gfprodrp` keeps its hypothesis's x apart from the
-  product's k; Euler's step 20 fixes k as r, and line 19, "for all r ∈ S",
+  product's k; Euler's step 19 fixes k as r, and line 18, "for all r ∈ S",
   would otherwise hand x the same r. What the lemma's other variables stand for is
   still read off the lines, fitted with the fresh letters left open
   (`fit_respelt`). The rule applies where it is redundant too: a lemma whose
@@ -457,7 +457,7 @@ own names, and says it at the step by what the step's lines fix of them
 matched against a cited line binds is what it stands for, and a function
 letter is its rule where the item applies it. `convergent-bounded` cited
 from a line saying the partial sums of 1/k tend to L obtains B with every
-partial sum at most B (the harmonic series, step 2.2).
+partial sum at most B (the harmonic series, step 1.2).
 
 An `obtain` from a definition obtains the existence its claim states
 (`existence_claimed`): `a ∈ G. Y = aH.` obtaining a is there is a ∈ G with
@@ -1261,8 +1261,14 @@ the step's scope, and the lemma's hypotheses are asked under it.
 
 **What a requires line takes from the line it cites** is the fact as that
 line writes it, one of its sentences or what the line unfolds to where its
-reason is a definition the notation folds away (`unfolded_at`). Five things
-count as the line writing it besides:
+reason is a definition the notation folds away (`unfolded_at`). Such a
+definition may also be unfolded at a requires line written above, which
+the line rests on as it rests on a cited one (R2): `requires C ≠ A:
+mun:triangle` under `requires B, C, A form a triangle: …`. A reason that is
+only `from` is read from the lines it names. The checker counts a line
+above as asked for when a `membership` line below builds on it, as
+`requires |PQ| ∈ ℝ` is under `requires |PQ|·|P′R′| ∈ ℝ: membership`
+(`built_on`). Five things count as the line writing it besides:
 
 - what a line said of every member of a set says at a member the step has,
   taken apart as the line is (`part_at_a_member`, `rspcv`):

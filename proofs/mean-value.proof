@@ -157,17 +157,14 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
                                     = F′(c)                    27
                                     = 0                        26
 
-31. f′(c) ∈ ℝ
-    mun:derivative-real a := a, b := b, f := f, x := c, from H1, H2, H6, 26
-
-32. f′(c) = (f(b) − f(a))/(b − a)
+31. f′(c) = (f(b) − f(a))/(b − a)
     algebra, from 30
     requires b − a ≠ 0: from 4
-    requires f′(c) ∈ ℝ: from 31
+    requires f′(c) ∈ ℝ: mun:derivative-real a := a, b := b, f := f, x := c, from H1, H2, H6, 26
     requires f(a) ∈ ℝ: from H4, 1
     requires f(b) ∈ ℝ: from H4, 2
     requires a ∈ ℝ: from H1
     requires b ∈ ℝ: from H2
 
-33. There is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a).
-    exhibit, from 26, 32
+32. There is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a).
+    exhibit, from 26, 31

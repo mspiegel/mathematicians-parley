@@ -325,7 +325,7 @@ adds and subtracts the equations it cites, scales them, and multiplies at
 most one of them by a term. A step does one thing, and multiplying a second
 equation by a term is a second thing, written as a step of its own and
 joined to the first by a calculation, as `similar-triangles` does with its
-two laws of sines (steps 25 to 27). Two steps in the corpus multiply one
+two laws of sines (steps 17 to 19). Two steps in the corpus multiply one
 equation: Bezout's lemma, step 2, which takes three cited equations with
 coefficients −1, 1 and −q, and Pythagoras, step 21, which multiplies
 |AD| + |DB| = |AB| by |AB|.

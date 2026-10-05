@@ -876,6 +876,32 @@ pub fn check_requires(
     }
 }
 
+/// Whether a `membership` requires line below `req` in its step builds a
+/// term holding what `req` says is a member: `requires |PQ| ∈ ℝ` above
+/// `requires |PQ|·|P′R′| ∈ ℝ: membership` is the atom that line builds from,
+/// asked for as surely as an item's hypothesis is (`SYNTAX.md`: a requires
+/// line rests on the lines above it).
+fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
+    let Some(said) = known.read(&req.fact) else {
+        return false;
+    };
+    if said.notation != "membership" || said.children.len() != 2 {
+        return false;
+    }
+    let atom = said.children[0].shape().to_string();
+    step.requires
+        .iter()
+        .skip_while(|r| r.line != req.line)
+        .skip(1)
+        .filter(|r| str::trim(&r.how).starts_with("membership"))
+        .filter_map(|r| known.read(&r.fact))
+        .filter(|n| n.notation == "membership" && n.children.len() == 2)
+        .any(|n| {
+            n.children[0].shape() != atom
+                && n.children[0].walk().iter().any(|part| part.shape() == atom)
+        })
+}
+
 /// The requires lines a cited item's function hypotheses ask for.
 ///
 /// `let t : {a, …, b} → ℝ` in a sum item, where the step's summand is what t
@@ -1181,6 +1207,7 @@ pub fn check_surplus(
             if holds(&lighter)
                 && !asks.asks(&req.fact, known)
                 && !in_domain.contains(&squash(&req.fact))
+                && !built_on(req, step, known)
             {
                 report.say(
                     &thm.path,
