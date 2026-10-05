@@ -37,13 +37,12 @@ struct Taken {
     cut: Cut,
 }
 
-/// Every requires line of every proof, each as the file without it.
-fn every_line(source: &dyn Source) -> Result<Vec<Taken>, String> {
+/// Every requires line of the proof files `files`, each as the file without
+/// it.
+fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, String> {
     let mut out = Vec::new();
-    for path in proof_files(source) {
-        let text = source
-            .read_text(&path)
-            .map_err(|e| format!("{path}: {e}"))?;
+    for path in files {
+        let text = source.read_text(path).map_err(|e| format!("{path}: {e}"))?;
         let lines: Vec<&str> = text.split('\n').collect();
         let mut theorem: Option<String> = None;
         let mut step = String::new();
@@ -186,7 +185,15 @@ fn together<'t>(
     Ok(kept.into_iter().flatten().collect())
 }
 
+/// Every requires line of every proof file is needed.
 pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
+    run_over(source, setmm, &proof_files(source))
+}
+
+/// Every requires line of the proof files `files` is needed: each is taken
+/// away in turn, and its theorem checked and elaborated over the corpus
+/// without it. A planted line is asked of its own file alone.
+pub fn run_over(source: &dyn Source, setmm: Option<&Path>, files: &[String]) -> Said {
     let mut said = Said::default();
     let Some(setmm) = setmm.and_then(|p| p.to_str()) else {
         said.printed =
@@ -204,7 +211,7 @@ pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
             return said;
         }
     };
-    let taken = match every_line(&tree) {
+    let taken = match every_line(&tree, files) {
         Ok(taken) => taken,
         Err(e) => {
             said.complained = format!("{e}\n");

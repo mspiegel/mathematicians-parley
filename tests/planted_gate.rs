@@ -47,8 +47,14 @@ fn restated_stage(tree: &dyn Source, setmm: &Path) -> Said {
     restated::run(tree, Some(setmm))
 }
 
+/// The proof file the requires-line case edits.
+const NEEDED_FILE: &str = "proofs/sum-formula.proof";
+
+/// Whether every requires line is needed, asked of the one file the case
+/// edits: a line planted there is caught there, and the gate asks it of
+/// every file.
 fn needed_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    needed::run(tree, Some(setmm))
+    needed::run_over(tree, Some(setmm), &[NEEDED_FILE.to_string()])
 }
 
 const STAGES: [(&str, Stage); 7] = [
@@ -148,7 +154,7 @@ fn cases() -> Vec<Case> {
         Case {
             name: "a requires line the step is checked and built without",
             stage: needed_stage,
-            file: "proofs/sum-formula.proof",
+            file: NEEDED_FILE,
             old: "          algebra\n          requires k ∈ ℝ: from K\n",
             new: "          algebra\n          requires 2 ≠ 0: arithmetic\n          requires k ∈ ℝ: from K\n",
             expect: "says 2 ≠ 0: arithmetic, and the step is checked and built without it",
