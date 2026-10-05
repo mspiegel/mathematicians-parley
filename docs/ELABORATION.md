@@ -1698,7 +1698,17 @@ proved (`discharged_by`).
     answers in the page's notation (`check::answers`, `list_asked`) and
     compares the two lists; they are alike, and a difference fails the test.
     A definition that unfolds is not asked: the elaborator reaches the
-    existence an obtain of one claims from the claim itself.
+    existence an obtain of one claims from the claim itself. Page trees are
+    compared in one standard order (`matching::standard`), as the
+    elaborator's terms are: a spelling whose target is another's with the
+    holes exchanged is read as that one, so `x > 0` is `0 < x`, taken from
+    the notation's `target` line and not named in the code. Only comparing
+    reads it so; a tree prints as the page wrote it. An equation, or its
+    denial, is searched either way round (`either_way`), since which way a
+    pattern is read is decided by what is matched after it.
+    `tests/invariance.rs` rewrites the proofs in ways that keep what they
+    say — cited lines in another order, operators unspaced, an order or an
+    equation turned round — and asks that both tools still accept them.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items

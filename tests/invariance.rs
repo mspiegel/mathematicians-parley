@@ -23,36 +23,12 @@ use parley::tools::build::{elaborate_one, library};
 
 /// The breaks there are, each a gap a later change closes.
 ///
-/// Two kinds, each in both tools:
-/// - an order written the other way round, `0 < m` for `m > 0`: the checker
-///   and the shared matcher (`citing`) compare the two as different trees,
-///   though the kernel writes both as `0 < m`;
-/// - a denied equation written the other way round, `0 ≠ k` for `k ≠ 0` or
-///   `C ≠ A` for `A ≠ C`: the trees differ, and so do the kernel terms,
-///   since `necom` is not among the elaborator's symmetric rules
-///   (`rules::SYMMETRIC`). An equation turned around breaks nothing.
+/// One kind, in the elaborator: a denied equation written the other way
+/// round, `0 ≠ k` for `k ≠ 0` or `C ≠ A` for `A ≠ C`. Its normalizer reads
+/// the two as one claim (`df-ne`, then `eqcom`), but the facts a step has
+/// are kept by their kernel terms as written, and a route that looks one up
+/// by its term finds only the way round it was written.
 const KNOWN: &[&str] = &[
-    "an equation in a requires line turned around | check | proofs/angle-sum.proof:27  the requires line of step 2 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/angle-sum.proof:28  the requires line of step 2 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/angle-sum.proof:32  the requires line of step 3 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/angle-sum.proof:33  the requires line of step 3 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:32  the requires line of step 4 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:33  the requires line of step 4 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:47  the requires line of step 7 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:48  the requires line of step 7 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:53  the requires line of step 8 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/isosceles.proof:54  the requires line of step 8 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/mean-value.proof:71  the requires line of step 10 says 0 ≠ b − a, and neither thm:continuous-linear nor the step's other lines ask for it",
-    "an equation in a requires line turned around | check | proofs/mean-value.proof:82  the requires line of step 12 says 0 ≠ b − a, and neither thm:derivative-linear nor the step's other lines ask for it",
-    "an equation in a requires line turned around | check | proofs/mean-value.proof:90  the requires line of step 13 says 0 ≠ b − a, and neither thm:derivative-linear nor the step's other lines ask for it",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:119  the requires line of step 2 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:124  the requires line of step 3 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:125  the requires line of step 3 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:148  the requires line of step 8 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:152  the requires line of step 9 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:154  the requires line of step 9 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:163  the requires line of step 11 needs something that mun:triangle does not conclude",
-    "an equation in a requires line turned around | check | proofs/pythagoras.proof:164  the requires line of step 11 needs something that mun:triangle does not conclude",
     "an equation in a requires line turned around | elaborate | proofs/angle-sum.proof:24  mun:triangle does not reach A ≠ C, which this line claims it supplies",
     "an equation in a requires line turned around | elaborate | proofs/cauchy-schwarz.proof:145  step 5.13 follows from what it cites, and inequalities cannot write its proof: nothing says vp cv is not zero",
     "an equation in a requires line turned around | elaborate | proofs/geometric-series.proof:50  nothing says ( ( -u 1 x. ( A ^ 1 ) ) + ( 1 x. 1 ) ) =/= 0, which this step needs to divide by it",
@@ -61,38 +37,6 @@ const KNOWN: &[&str] = &[
     "an equation in a requires line turned around | elaborate | proofs/mean-value.proof:51  the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 6, read as a step citing what it cites: (f(a) − f(b)) / (b − a) ∈ ℝ is not built from what step 6 cites: nothing written says (f(a) − f(b)) / (b − a) ∈ ℝ",
     "an equation in a requires line turned around | elaborate | proofs/pythagoras.proof:116  mun:triangle does not reach A ≠ C, which this line claims it supplies",
     "an equation in a requires line turned around | elaborate | proofs/triangular-reciprocals.proof:23  from K1 does not reach 0 ≠ k, which this line claims it supplies",
-    "an order in a requires line turned around | check | proofs/bezout.proof:46  step 3.1 cites mun:pos-int-nat, which asks for m ∈ ℤ; 0 < m, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/bezout.proof:46  step 3.1 claims something that mun:pos-int-nat does not conclude",
-    "an order in a requires line turned around | check | proofs/cauchy-schwarz.proof:154  step 5.14 cites mun:multiply-le, which asks for x ∈ ℝ; y ∈ ℝ; c ∈ ℝ; x ≤ y; c > 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/cauchy-schwarz.proof:154  step 5.14 claims something that mun:multiply-le does not conclude",
-    "an order in a requires line turned around | check | proofs/cauchy-schwarz.proof:89  step 5.5 cites mun:sum-constant, which asks for a ∈ ℤ; b ∈ ℤ; a ≤ b; c ∈ ℝ, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/cauchy-schwarz.proof:89  step 5.5 claims something that mun:sum-constant does not conclude",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:35  step 4 cites mun:sum-split, which asks for a ∈ ℤ; b ∈ ℤ; c ∈ ℤ; a ≤ b + 1; b ≤ c, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:35  step 4 claims something that mun:sum-split does not conclude",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:51  step 5.2 cites mun:reciprocal-order, which asks for x ∈ ℝ; x > 0; y ∈ ℝ; y > 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:51  step 5.2 claims something that mun:reciprocal-order does not conclude",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:82  step 8 cites mun:sum-constant, which asks for a ∈ ℤ; b ∈ ℤ; a ≤ b; c ∈ ℝ, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/harmonic.proof:82  step 8 claims something that mun:sum-constant does not conclude",
-    "an order in a requires line turned around | check | proofs/intermediate-value.proof:108  step 16.1.2 claims something that mun:interval does not conclude",
-    "an order in a requires line turned around | check | proofs/intermediate-value.proof:37  step 1 claims something that mun:interval does not conclude",
-    "an order in a requires line turned around | check | proofs/mean-value.proof:30  step 1 claims something that mun:interval does not conclude",
-    "an order in a requires line turned around | check | proofs/mean-value.proof:35  step 2 claims something that mun:interval does not conclude",
-    "an order in a requires line turned around | check | proofs/sqrt2-irrational.proof:103  the requires line of step 3.4 needs something that mun:pos-int-nat does not conclude",
-    "an order in a requires line turned around | check | proofs/sqrt2-irrational.proof:121  step 1 cites mun:sqrt, which asks for x ∈ ℝ; x ≥ 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/sqrt2-irrational.proof:121  step 1 claims something that mun:sqrt does not conclude",
-    "an order in a requires line turned around | check | proofs/sqrt2-irrational.proof:191  step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
-    "an order in a requires line turned around | check | proofs/sqrt2-irrational.proof:199  the requires line of step 3 needs something that mun:sqrt does not conclude",
-    "an order in a requires line turned around | check | proofs/sum-formula.proof:33  step 1.3 cites mun:sum-extended, which asks for a ∈ ℤ; n ∈ ℤ; n ≥ a, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/sum-formula.proof:33  step 1.3 claims something that mun:sum-extended does not conclude",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:45  step 2.2 cites thm:sum-telescopes, which asks for a ∈ ℤ; b ∈ ℤ; b + 1 ≥ a, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:45  step 2.2 claims something that thm:sum-telescopes does not conclude",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:63  step 3.1 cites thm:archimedean, which asks for x ∈ ℝ; x > 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:63  step 3.1 obtains from thm:archimedean, which says there is one only from something the step does not cite",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:82  step 3.2.3 cites mun:reciprocal-order, which asks for x ∈ ℝ; x > 0; y ∈ ℝ; y > 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:82  step 3.2.3 claims something that mun:reciprocal-order does not conclude",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:88  step 3.2.4 cites mun:reciprocal-positive, which asks for x ∈ ℝ; x > 0, and what it cites does not supply them",
-    "an order in a requires line turned around | check | proofs/triangular-reciprocals.proof:88  step 3.2.4 claims something that mun:reciprocal-positive does not conclude",
-    "an order in a requires line turned around | elaborate | proofs/triangular-reciprocals.proof:62  step 3.1 cites thm:stdlib/numbers/archimedean, which asks for x > 0, and what it cites does not supply it",
 ];
 
 /// One rewriting that keeps what a line says: the line rewritten, or None

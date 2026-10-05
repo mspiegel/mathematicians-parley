@@ -8,7 +8,7 @@ use crate::matching::{
 };
 use crate::outcome::{Built, Route};
 
-use super::library::{conjuncts, readings, Group, Library};
+use super::library::{conjuncts, either_way, readings, Group, Library};
 use super::supply::{names_of, supply, Sites};
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
@@ -158,7 +158,9 @@ pub fn taken(
                 let first: Vec<Node> =
                     extra.iter().flat_map(|e| conjuncts(e, library)).collect();
                 for c in conjuncts(&target, library) {
-                    candidates.push((c, first.clone()));
+                    for way in either_way(&c, library) {
+                        candidates.push((way, first.clone()));
+                    }
                 }
             }
         }

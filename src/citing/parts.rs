@@ -1,7 +1,7 @@
 //! What a citation supplies and claims, as the search reads them.
 
 use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
-use crate::matching::{substitute, Binding};
+use crate::matching::{standard, substitute, Binding};
 use crate::rules;
 use crate::sorts::{element_sort, Env};
 
@@ -17,7 +17,8 @@ pub struct Parts {
 
 /// The parts of a citation from the facts as read: each with its parts, what
 /// a membership implies, and what a function's type says at a point, each
-/// read with the citing theorem's `sorts`.
+/// read with the citing theorem's `sorts`, and all in the standard order
+/// the item's patterns are in (`matching::standard`).
 pub fn finished(
     facts: Vec<Node>,
     claims: Vec<Node>,
@@ -25,6 +26,13 @@ pub fn finished(
     library: &Library,
     sorts: &Sorts,
 ) -> Parts {
+    let ctx = &library.ctx;
+    let facts: Vec<Node> = facts.iter().map(|f| standard(f, ctx)).collect();
+    let claims = claims.iter().map(|c| standard(c, ctx)).collect();
+    let seed = seed
+        .into_iter()
+        .map(|(name, value)| (name, standard(&value, ctx)))
+        .collect();
     let mut facts = with_parts(&facts, library);
     let implied: Vec<Node> = facts
         .iter()
@@ -38,6 +46,9 @@ pub fn finished(
         .collect();
     facts.extend(valued);
     facts.extend(implied);
+    // What a membership implies is read from the rules' own spelling,
+    // `x ≥ 1`, and is put in the same order.
+    let facts = facts.iter().map(|f| standard(f, ctx)).collect();
     Parts {
         facts,
         claims,

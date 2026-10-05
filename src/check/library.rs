@@ -9,7 +9,7 @@ use super::structure::{labels_in_scope, Declared};
 use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
-use crate::matching::{expand, instantiation, Binding, Definitions};
+use crate::matching::{expand, instantiation, standard, Binding, Context, Definitions};
 use crate::sorts::{cited_defines, file_definitions, said_by_line, sentences, Env};
 
 type PartsKey = (StepNo, Vec<String>, Vec<String>);
@@ -32,6 +32,9 @@ pub struct Known<'a> {
     pub thm: &'a Theorem,
     pub env: Env<'a>,
     pub sorts: Sorts,
+    /// What the notations are, read once for the corpus: which spelling of a
+    /// relation is another turned around (`matching::standard`).
+    ctx: &'a Context,
     /// What each definition from outside the theorem stands for, written
     /// out wherever it is used.
     outside: Definitions,
@@ -42,11 +45,17 @@ pub struct Known<'a> {
 
 impl<'a> Known<'a> {
     /// `sorts` is what the theorem's one reading settled (`check::run`).
-    pub fn new(thm: &'a Theorem, env: Env<'a>, sorts: Sorts) -> Known<'a> {
+    pub fn new(
+        thm: &'a Theorem,
+        env: Env<'a>,
+        sorts: Sorts,
+        ctx: &'a Context,
+    ) -> Known<'a> {
         Known {
             thm,
             env,
             sorts,
+            ctx,
             outside: file_definitions(thm, env),
             cited: RefCell::new(IndexMap::new()),
             scopes: RefCell::new(IndexMap::new()),
@@ -83,10 +92,12 @@ impl<'a> Known<'a> {
         made
     }
 
-    /// A sentence read with what `defined` writes out (`citing`); None
-    /// where it does not read.
+    /// A sentence read with what `defined` writes out (`citing`), in the
+    /// standard order two trees are compared in (`matching::standard`);
+    /// None where it does not read.
     pub fn read_citing(&self, text: &str, defined: &Definitions) -> Option<Node> {
-        self.read_as_written(text).map(|n| expand(&n, defined))
+        self.read_as_written(text)
+            .map(|n| standard(&expand(&n, defined), self.ctx))
     }
 
     /// A tree as page text.

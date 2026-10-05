@@ -25,7 +25,7 @@ use crate::binds;
 use crate::corpus::{
     define_parts, fmt, item_prefix, DefineParts, Intro, Item, Step, CITED, ITEM_PREFIX,
 };
-use crate::matching::instantiation;
+use crate::matching::{instantiation, standard};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Signature;
@@ -1304,14 +1304,22 @@ impl<'a> Elaborator<'a> {
                         )?,
                         Item::Theorem(_) => me.read(&Self::claimed_by(item))?,
                     };
-                    if let (Item::Record(r), Some(list)) = (item, &mut me.answers) {
-                        list.push(format!(
-                            "{}:{} | obtained | {} | {}",
-                            me.thm.path,
-                            step.line,
-                            r.qualified(),
-                            me.g.print(&node)
-                        ));
+                    // Listed in the standard order the checker lists its own
+                    // answer in, since the two are compared (`check::answers`).
+                    if me.answers.is_some() {
+                        if let Item::Record(r) = item {
+                            let ctx = &me.item_library().ctx;
+                            let said = me.g.print(&standard(&node, ctx));
+                            let line = format!(
+                                "{}:{} | obtained | {} | {said}",
+                                me.thm.path,
+                                step.line,
+                                r.qualified()
+                            );
+                            if let Some(list) = &mut me.answers {
+                                list.push(line);
+                            }
+                        }
                     }
                     me.term(&node)
                 })?;

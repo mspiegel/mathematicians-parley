@@ -428,11 +428,12 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     let Some(said) = known.read(step, &req.fact) else {
         return false;
     };
-    // t ∈ X names t: a method asks it of its atoms. t ≠ u, read as not
-    // t = u, names t, which `membership` and `algebra` ask of a divisor;
-    // `inequalities` takes two terms differing only from a line it cites,
-    // not from one above (`METHODS.md`). t < u names both sides, and only
-    // `inequalities` reads an order.
+    // t ∈ X names t: a method asks it of its atoms. t ≠ 0, read as not
+    // t = 0, names t, which `membership` and `algebra` ask of a divisor, and
+    // says it written either way round, 0 ≠ t as well; `inequalities` takes
+    // two terms differing only from a line it cites, not from one above
+    // (`METHODS.md`). t < u names both sides, and only `inequalities` reads
+    // an order.
     let (held, asking): (Vec<&Node>, &[&str]) = match said.notation.as_str() {
         "membership" if said.children.len() == 2 => (vec![&said.children[0]], &ASKING),
         "logical-not"
@@ -441,7 +442,11 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 && said.children[0].children.len() == 2 =>
         {
             (
-                vec![&said.children[0].children[0]],
+                said.children[0]
+                    .children
+                    .iter()
+                    .filter(|c| c.notation != "numeral")
+                    .collect(),
                 &["membership", "algebra"],
             )
         }

@@ -102,6 +102,18 @@ pub struct Context {
     pub functions_on: IndexSet<String>,
     /// The notations writing a sum (`csu`).
     pub sums: IndexSet<String>,
+    /// Each spelling that is another of its notation's with the holes in
+    /// another order, by (notation, literal): `x > 0` is `0 < x` (`turned`).
+    pub turned: IndexMap<(String, String), Turned>,
+}
+
+/// What a spelling is in its notation's standard order: the literal it is
+/// written with there, and which of its own holes, counted from 1, fills
+/// each hole of that one.
+#[derive(Clone, Debug)]
+pub struct Turned {
+    pub literal: String,
+    pub places: Vec<usize>,
 }
 
 impl Context {
@@ -113,6 +125,7 @@ impl Context {
             equations: equations(records),
             functions_on: functions_on(records),
             sums: sums(records),
+            turned: turned(notations, records),
         }
     }
 
@@ -227,6 +240,107 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
         })
         .map(|r| r.name.clone())
         .collect()
+}
+
+/// Each pattern whose target is another pattern's of the same record with
+/// the holes in another order, and how its holes stand in that one: `_ > _`
+/// targets `_2 _1 clt wbr`, which is `_ < _`'s `_1 _2 clt wbr` with the two
+/// holes exchanged, so x > 0 and 0 < x are one term in the kernel. The
+/// pattern whose holes stand in order is the standard one, and is taken from
+/// what the database targets rather than named here.
+fn turned(
+    notations: &[Notation],
+    records: &[Record],
+) -> IndexMap<(String, String), Turned> {
+    let mut out = IndexMap::new();
+    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
+        let targets: Vec<&str> = r
+            .field_or_empty("target")
+            .split(", ")
+            .map(str::trim)
+            .collect();
+        let patterns: Vec<&Notation> =
+            notations.iter().filter(|n| n.name == r.name).collect();
+        if targets.len() != patterns.len() {
+            continue;
+        }
+        // A target with its holes blanked, and the hole each blank held.
+        let read = |target: &str| -> (String, Vec<usize>) {
+            let mut holes = Vec::new();
+            let blanked: Vec<&str> = target
+                .split_whitespace()
+                .map(|t| match t.strip_prefix('_').and_then(|n| n.parse().ok()) {
+                    Some(n) => {
+                        holes.push(n);
+                        "_"
+                    }
+                    None => t,
+                })
+                .collect();
+            (blanked.join(" "), holes)
+        };
+        let read: Vec<(String, Vec<usize>)> = targets.iter().map(|t| read(t)).collect();
+        for (i, (shape, holes)) in read.iter().enumerate() {
+            let in_order = holes.iter().enumerate().all(|(at, &h)| h == at + 1);
+            if holes.is_empty() || in_order {
+                continue;
+            }
+            let standard = read.iter().enumerate().find(|(j, (other, theirs))| {
+                *j != i
+                    && other == shape
+                    && theirs.iter().enumerate().all(|(at, &h)| h == at + 1)
+            });
+            if let Some((j, _)) = standard {
+                out.insert(
+                    (patterns[i].key().to_string(), patterns[i].literal.clone()),
+                    Turned {
+                        literal: patterns[j].literal.clone(),
+                        places: holes.clone(),
+                    },
+                );
+            }
+        }
+    }
+    out
+}
+
+/// The tree with each spelling put in its notation's standard order
+/// (`Context::turned`), as two trees are compared: `x > 0` read as `0 < x`.
+/// What a tree prints as is the page's, and only comparing reads it so.
+pub fn standard(node: &Node, ctx: &Context) -> Node {
+    if ctx.turned.is_empty() {
+        return node.clone();
+    }
+    turned_to_standard(node, ctx).unwrap_or_else(|| node.clone())
+}
+
+/// `standard` of a tree that has a spelling to turn somewhere in it; None
+/// for one that has none, which is kept as it is, with what it was read from.
+fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
+    let turned: Vec<Option<Node>> = node
+        .children
+        .iter()
+        .map(|c| turned_to_standard(c, ctx))
+        .collect();
+    let here = ctx
+        .turned
+        .get(&(node.notation.clone(), node.text.clone()))
+        .filter(|t| t.places.len() == node.children.len());
+    if here.is_none() && turned.iter().all(Option::is_none) {
+        return None;
+    }
+    let children: Vec<Node> = turned
+        .into_iter()
+        .zip(&node.children)
+        .map(|(t, c)| t.unwrap_or_else(|| c.clone()))
+        .collect();
+    Some(match here {
+        Some(t) => {
+            let placed = t.places.iter().map(|&p| children[p - 1].clone()).collect();
+            Node::new(&node.notation, node.sort.clone(), placed, &t.literal)
+        }
+        None => Node::new(&node.notation, node.sort.clone(), children, &node.text),
+    })
 }
 
 /// The notations whose `metamath` is set.mm's `Fn`: what a define with a

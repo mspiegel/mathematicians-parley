@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
-use crate::matching::{expand, Context};
+use crate::matching::{expand, standard, Context};
 use crate::regex;
 use crate::sorts::{
     element_re, file_definitions, function_being_re, function_on_re, function_re,
@@ -52,13 +52,14 @@ pub struct Library<'a> {
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
     /// Which notations are an existential, a membership, a conjunction, a
-    /// biconditional and an implication, taken from what they target in the
-    /// kernel rather than named here.
+    /// biconditional, an implication and a negation, taken from what they
+    /// target in the kernel rather than named here.
     pub exists: IndexSet<String>,
     pub members: IndexSet<String>,
     pub conj: IndexSet<String>,
     pub bicond: IndexSet<String>,
     pub implies: IndexSet<String>,
+    pub negations: IndexSet<String>,
     pub ctx: Context,
 }
 
@@ -92,6 +93,7 @@ impl<'a> Library<'a> {
             conj: IndexSet::new(),
             bicond: IndexSet::new(),
             implies: IndexSet::new(),
+            negations: IndexSet::new(),
             ctx: Context::new(&env.g.notations, records),
         };
         // A metamath field may say more after the target, as "wrex, and wrex
@@ -110,6 +112,7 @@ impl<'a> Library<'a> {
                 "wa" => &mut lib.conj,
                 "wb" => &mut lib.bicond,
                 "wi" => &mut lib.implies,
+                "wn" => &mut lib.negations,
                 _ => continue,
             };
             set.insert(r.name.clone());
@@ -233,10 +236,13 @@ impl<'a> Library<'a> {
         Some(out)
     }
 
+    /// Each text read, in the standard order a citation is compared in
+    /// (`matching::standard`).
     fn trees(&self, texts: &[String], sorts: &Sorts) -> Vec<Node> {
         texts
             .iter()
             .filter_map(|t| parse_here(t, self.env.g, sorts).ok())
+            .map(|t| standard(&t, &self.ctx))
             .collect()
     }
 
@@ -263,7 +269,7 @@ impl<'a> Library<'a> {
                 continue;
             }
             if let Ok(tree) = parse_here(&text, self.env.g, sorts) {
-                out.push((text, tree));
+                out.push((text, standard(&tree, &self.ctx)));
             }
         }
         out
@@ -298,6 +304,35 @@ pub fn conjuncts(node: &Node, library: &Library) -> Vec<Node> {
         return out;
     }
     vec![node.clone()]
+}
+
+/// The ways a pattern may be read: as written, and where it is an equation
+/// or the denial of one, turned round, since its sides say the same either
+/// way (`SYNTAX.md`). Which way a pattern is read is decided by what the
+/// search matches after it as much as by what it is matched with, so the
+/// search tries each, where a match of one tree commits to the first way
+/// that fits.
+pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
+    let turn = |eq: &Node| -> Option<Node> {
+        (library.ctx.equations.contains(&eq.notation) && eq.children.len() == 2).then(
+            || {
+                let sides = vec![eq.children[1].clone(), eq.children[0].clone()];
+                Node::new(&eq.notation, eq.sort.clone(), sides, &eq.text)
+            },
+        )
+    };
+    let turned =
+        if library.negations.contains(&node.notation) && node.children.len() == 1 {
+            turn(&node.children[0]).map(|eq| {
+                Node::new(&node.notation, node.sort.clone(), vec![eq], &node.text)
+            })
+        } else {
+            turn(node)
+        };
+    match turned {
+        Some(turned) if turned.shape() != node.shape() => vec![node.clone(), turned],
+        _ => vec![node.clone()],
+    }
 }
 
 /// (what a step may claim, what a fact must state first), for one sentence

@@ -21,6 +21,7 @@ use crate::corpus::{
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
+use crate::matching::Context;
 use crate::outcome::{At, Problem};
 use crate::sorts::infer;
 use crate::sorts::{settled, Env};
@@ -134,7 +135,8 @@ impl Checking<'_> {
             self.statements,
             &mut self.store,
         );
-        let k = Known::new(thm, self.env, settled(&reader, &self.store));
+        let library = self.library;
+        let k = Known::new(thm, self.env, settled(&reader, &self.store), &library.ctx);
         let mut report = Report::default();
         check_theorem(&mut report, self, thm, &k, &reader.clashes);
         report.problems.iter().map(|p| p.to_string()).collect()
@@ -376,11 +378,12 @@ fn prepared<T>(
     for thm in &theorems {
         statements.insert(thm.qualified(), infer::read_statement(thm, env, &mut store));
     }
+    let ctx = Context::new(&env.g.notations, &records);
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
     for thm in &theorems {
         let reader = formulas::read_with_citations(thm, env, &statements, &mut store);
-        known.push(Known::new(thm, env, settled(&reader, &store)));
+        known.push(Known::new(thm, env, settled(&reader, &store), &ctx));
         clashes.push(reader.clashes);
     }
     let proved = known

@@ -9,7 +9,7 @@ use crate::formula::{Node, NodeId};
 use crate::matching::{match_tree, substitute, substitute_apart, Binding, PROPERTY};
 use crate::rules;
 
-use super::library::Library;
+use super::library::{either_way, Library};
 
 /// The places in a pattern where a binder applies a property or a function to
 /// what it binds, which decide what the property or function stands for
@@ -118,109 +118,114 @@ pub fn search(
             }
         }
     }
-    let mut body_form: Option<(Node, BTreeSet<String>)> = None;
-    if library.exists.contains(&first.notation) && first.children.len() > 2 {
-        // A "there is" pattern holds its body last and names its variables
-        // before it, one name and one domain at a time, so the two-variable
-        // form is read the same way as the one-variable form.
-        let body = first.children[first.children.len() - 1].clone();
-        let mut seen = open_names.as_ref().clone();
-        for c in &first.children[..first.children.len() - 1] {
-            if c.is_name() {
-                seen.insert(c.text.clone());
+    // An equation, or the denial of one, is searched for each way round
+    // (`either_way`): which way the hypothesis is read is decided by the
+    // hypotheses after it as much as by the fact it is matched with.
+    for first in either_way(&first, library) {
+        let mut body_form: Option<(Node, BTreeSet<String>)> = None;
+        if library.exists.contains(&first.notation) && first.children.len() > 2 {
+            // A "there is" pattern holds its body last and names its variables
+            // before it, one name and one domain at a time, so the two-variable
+            // form is read the same way as the one-variable form.
+            let body = first.children[first.children.len() - 1].clone();
+            let mut seen = open_names.as_ref().clone();
+            for c in &first.children[..first.children.len() - 1] {
+                if c.is_name() {
+                    seen.insert(c.text.clone());
+                }
             }
+            body_form = Some((body, seen));
         }
-        body_form = Some((body, seen));
-    }
-    let forms = std::iter::once((&first, open_names.as_ref()))
-        .chain(body_form.iter().map(|(n, s)| (n, s)));
-    // Whether every variable of the hypothesis is already bound, which is
-    // the same for every fact tried here, so asked at most once.
-    let mut pinned: Option<bool> = None;
-    for i in 0..facts.len() {
-        if used[i] {
-            continue;
-        }
-        let fact = &facts[i];
-        for (which, (form, seen)) in forms.clone().enumerate() {
-            let is_first = which == 0;
-            let mut found = match_tree(form, fact, binding, seen, sites, ctx);
-            if found.is_none()
-                && is_first
-                && library.exists.contains(&first.notation)
-                && first.children.len() == 2
-                && library.members.contains(&fact.notation)
-                && fact.children.len() == 2
-            {
-                found = match_tree(
-                    &first.children[1],
-                    &fact.children[1],
-                    binding,
+        let forms = std::iter::once((&first, open_names.as_ref()))
+            .chain(body_form.iter().map(|(n, s)| (n, s)));
+        // Whether every variable of the hypothesis is already bound, which is
+        // the same for every fact tried here, so asked at most once.
+        let mut pinned: Option<bool> = None;
+        for i in 0..facts.len() {
+            if used[i] {
+                continue;
+            }
+            let fact = &facts[i];
+            for (which, (form, seen)) in forms.clone().enumerate() {
+                let is_first = which == 0;
+                let mut found = match_tree(form, fact, binding, seen, sites, ctx);
+                if found.is_none()
+                    && is_first
+                    && library.exists.contains(&first.notation)
+                    && first.children.len() == 2
+                    && library.members.contains(&fact.notation)
+                    && fact.children.len() == 2
+                {
+                    found = match_tree(
+                        &first.children[1],
+                        &fact.children[1],
+                        binding,
+                        variables,
+                        sites,
+                        ctx,
+                    );
+                }
+                // A "for all" said of a set is said of every set inside it
+                // (`SYNTAX.md`).
+                if found.is_none() && is_first {
+                    if let Some(smaller) = narrowed(&first, fact, binding) {
+                        found = match_tree(form, &smaller, binding, seen, sites, ctx);
+                    }
+                }
+                let Some(found) = found else { continue };
+                // A "there is" given by an instance is given only where the
+                // instance is in the domain: the step's requires lines are where
+                // `SYNTAX.md` has a witness named. Matching the body alone took
+                // any value at all.
+                if !is_first {
+                    let remaining: Vec<Node> = facts
+                        .iter()
+                        .zip(used.iter())
+                        .filter(|(_, u)| !**u)
+                        .map(|(f, _)| f.clone())
+                        .collect();
+                    if !witnessed_in(&first, &found, &remaining, seen, library, sites) {
+                        continue;
+                    }
+                }
+                // A fact is used once when nothing has pinned the binding yet, or
+                // a variable free in two hypotheses binds to whatever made the
+                // first of them match and the second is then satisfied by the
+                // same line. Where the claim has already pinned it, one line may
+                // legitimately answer two requirements. A hypothesis whose every
+                // variable the binding already fixed is a closed claim, and what
+                // goes wrong above cannot: nothing is left for the line to bind.
+                let pinned = *pinned
+                    .get_or_insert_with(|| all_bound(&first, variables, binding));
+                let takes = !(reuse || pinned);
+                if takes {
+                    used[i] = true;
+                }
+                // A fact that supplies a hypothesis is one the way uses, taken
+                // for the hypotheses after it or not.
+                if let Some(ways) = ways.as_deref_mut() {
+                    ways.path.push(i);
+                }
+                let done = search(
+                    rest,
+                    facts,
+                    used,
+                    &found,
                     variables,
+                    library,
                     sites,
-                    ctx,
+                    reuse,
+                    ways.as_deref_mut(),
                 );
-            }
-            // A "for all" said of a set is said of every set inside it
-            // (`SYNTAX.md`).
-            if found.is_none() && is_first {
-                if let Some(smaller) = narrowed(&first, fact, binding) {
-                    found = match_tree(form, &smaller, binding, seen, sites, ctx);
+                if let Some(ways) = ways.as_deref_mut() {
+                    ways.path.pop();
                 }
-            }
-            let Some(found) = found else { continue };
-            // A "there is" given by an instance is given only where the
-            // instance is in the domain: the step's requires lines are where
-            // `SYNTAX.md` has a witness named. Matching the body alone took
-            // any value at all.
-            if !is_first {
-                let remaining: Vec<Node> = facts
-                    .iter()
-                    .zip(used.iter())
-                    .filter(|(_, u)| !**u)
-                    .map(|(f, _)| f.clone())
-                    .collect();
-                if !witnessed_in(&first, &found, &remaining, seen, library, sites) {
-                    continue;
+                if takes {
+                    used[i] = false;
                 }
-            }
-            // A fact is used once when nothing has pinned the binding yet, or
-            // a variable free in two hypotheses binds to whatever made the
-            // first of them match and the second is then satisfied by the
-            // same line. Where the claim has already pinned it, one line may
-            // legitimately answer two requirements. A hypothesis whose every
-            // variable the binding already fixed is a closed claim, and what
-            // goes wrong above cannot: nothing is left for the line to bind.
-            let pinned =
-                *pinned.get_or_insert_with(|| all_bound(&first, variables, binding));
-            let takes = !(reuse || pinned);
-            if takes {
-                used[i] = true;
-            }
-            // A fact that supplies a hypothesis is one the way uses, taken
-            // for the hypotheses after it or not.
-            if let Some(ways) = ways.as_deref_mut() {
-                ways.path.push(i);
-            }
-            let done = search(
-                rest,
-                facts,
-                used,
-                &found,
-                variables,
-                library,
-                sites,
-                reuse,
-                ways.as_deref_mut(),
-            );
-            if let Some(ways) = ways.as_deref_mut() {
-                ways.path.pop();
-            }
-            if takes {
-                used[i] = false;
-            }
-            if done.is_some() {
-                return done;
+                if done.is_some() {
+                    return done;
+                }
             }
         }
     }
