@@ -1459,9 +1459,13 @@ impl<'a> Elaborator<'a> {
     /// `( F ` x ) ∈ system` where a fact in hand gives F's type, F : A → B,
     /// and x is in A: a function's value at a point of its domain is in its
     /// codomain (`ffvelcdm`), carried to the system wanted by one of the
-    /// lemmas `bridged` carries by. A function's type is a `let` line, a
-    /// sort, so a(k) for a : {1, …, n} → ℝ is a number wherever k is in the
-    /// range, as an atom whose membership a line wrote is.
+    /// lemmas `bridged` carries by.
+    ///
+    /// A function's type is a `let` line, a sort, and is cited for its values
+    /// (`READERS.md`): a step or requires line that needs a(k) ∈ ℝ names the
+    /// type. A family's values are the exception, a sum's terms or what an
+    /// item asks of every member, where a(k) for a : {1, …, n} → ℝ is a
+    /// number wherever k is in the range, as the summand's atoms are.
     pub(crate) fn function_value(
         &mut self,
         said: &str,
@@ -1486,6 +1490,12 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&t.children()[2]),
             );
             if named != function {
+                continue;
+            }
+            let unnamed_sort = !held.origin.is_empty()
+                && held.origin.iter().all(|o| self.sorts.contains(o))
+                && !held.origin.iter().all(|o| self.citing.contains(o));
+            if unnamed_sort && self.in_family == 0 {
                 continue;
             }
             let inside = t!(&point, &domain, "wcel");

@@ -125,6 +125,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     16.4.  There exists δ > 0 such that
            |f(x) − f(c)| < −f(c) for all x ∈ [a, b] with |x − c| < δ.
            instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3
+           requires −f(c) ∈ ℝ: membership, from H4, 13
 
     16.5.  δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).

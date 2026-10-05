@@ -190,7 +190,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "          requires a ∈ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
             "          requires a ¿ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
-            "proofs/geometric-series.proof:87",
+            "proofs/geometric-series.proof:88",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -303,8 +303,8 @@ fn cases() -> Vec<Case> {
             "write a requires line nothing asks for",
             "proofs/sum-formula/sum-formula",
             "proofs/sum-formula.proof",
-            "          requires 2 ≠ 0: arithmetic\n",
-            "          requires 2 ≠ 0: arithmetic\n          requires 2 ∈ ℝ: arithmetic\n",
+            "          algebra\n          requires k ∈ ℝ: from K\n",
+            "          algebra\n          requires 2 ∈ ℝ: arithmetic\n          requires k ∈ ℝ: from K\n",
             "says 2 ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // The certificate combines lines 2 and 3; line 1 says a + b is at
@@ -774,14 +774,14 @@ fn cases() -> Vec<Case> {
             "nothing step 8.2.1 cites says",
         ),
         // A part of A is asked of M's argument, and the line named must say it:
-        // line 3 says every member of D is one, which is not C.
+        // A1 says X ⊆ Y, which is not that Y is a part of A.
         case(
             "a requires line for a part naming a line that does not say it",
             "proofs/schroeder-bernstein/fixed-part",
             "proofs/schroeder-bernstein.proof",
-            "    mun:part-builder u := A ∖ M(C), from D2, 10, 13\n    requires C ⊆ A: from 4\n",
-            "    mun:part-builder u := A ∖ M(C), from D2, 10, 13\n    requires C ⊆ A: from 3\n",
-            "from 3 does not reach",
+            "          requires Y ⊆ A: from K4\n",
+            "          requires Y ⊆ A: from A1\n",
+            "from A1 does not reach",
         ),
         // g ∈ gH is shown by the member of H that g is g times, and the line
         // saying g·e = g is what names it.
@@ -792,6 +792,27 @@ fn cases() -> Vec<Case> {
             "mun:coset u := g, from K3, 4.1, 4.2",
             "mun:coset u := g, from K3, 4.1",
             "proofs/lagrange.proof:81  no cited line names a witness",
+        ),
+        // An angle's membership left out of an `algebra` step: the search for
+        // it goes only as deep as any side condition's, so the step is
+        // reported at once rather than after minutes of looking.
+        case(
+            "leave out an atom's membership that only a deep search could find",
+            "proofs/pythagoras/similar-triangles",
+            "proofs/pythagoras.proof",
+            "    requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7\n",
+            "",
+            "nothing it writes or cites says it is a number",
+        ),
+        // f(x) ∈ ℝ is H4's to say, and a step that needs it names H4: a
+        // function's type is cited for its values, outside a sum's terms.
+        case(
+            "a function's value from a type the step does not name",
+            "proofs/mean-value/mean-value",
+            "proofs/mean-value.proof",
+            "    requires f(x) ∈ ℝ: from H4\n",
+            "",
+            "is not built from what step 8 cites",
         ),
     ]
 }

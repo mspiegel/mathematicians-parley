@@ -5,19 +5,22 @@ use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
 
+use super::formulas::chain_links;
 use super::library::{
-    claimed_member, conjuncts, finished, readings, Group, Known, Library,
+    bound_in, claimed_member, conjuncts, finished, readings, with_parts, Group, Known,
+    Library,
 };
+use super::structure::instantiated_line;
 use super::Report;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
-    cited_item, define_parts, for_pieces, references, DefineParts, Method, Step,
-    Theorem,
+    cited_item, define_parts, for_pieces, references, step_index, DefineParts,
+    FileScope, Method, Step, Theorem,
 };
-use crate::formula::{walk, Node, NodeId};
+use crate::formula::{walk, Node, NodeId, Sort};
 use crate::matching::{
     binding_sites, instantiation, match_tree, substitute, substitute_apart, Binding,
-    PROPERTY,
+    Context, PROPERTY,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -1074,26 +1077,69 @@ impl FamilyAsks {
 /// as its rule without asking, and the kernel does not (`SYNTAX.md`: a
 /// define may name a function).
 fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
-    let claim: Vec<char> = step.claim_text().chars().collect();
-    let mut out = BTreeSet::new();
-    // Each function by name, with the domain of each argument in order.
-    let mut functions: Vec<(String, Vec<String>)> = Vec::new();
-    for d in &thm.defines {
+    let functions = defined_functions(thm.defines.iter());
+    applied(&functions, &step.claim_text())
+        .into_iter()
+        .flat_map(|a| a.says)
+        .collect()
+}
+
+/// A defined function by name, with the domain of each argument in order.
+#[derive(Clone)]
+struct Defined {
+    name: String,
+    label: String,
+    domains: Vec<String>,
+    /// Defined by recursion, whose domain is its step clause's index: the
+    /// clause at k + 1 holds for k in the domain, and the base clause for
+    /// its one argument.
+    recursive: bool,
+}
+
+/// The functions some defines name.
+fn defined_functions<'d>(
+    defines: impl Iterator<Item = &'d crate::corpus::DefineLine>,
+) -> Vec<Defined> {
+    let mut functions = Vec::new();
+    for d in defines {
         match define_parts(&d.text) {
             Built(DefineParts::Recursion(r)) => {
                 for name in &r.names {
-                    functions.push((name.clone(), vec![r.domain.clone()]));
+                    functions.push(Defined {
+                        name: name.clone(),
+                        label: d.label.clone(),
+                        domains: vec![r.domain.clone()],
+                        recursive: true,
+                    });
                 }
             }
             Built(DefineParts::One(one)) if !one.params.is_empty() => {
-                functions.push((
-                    one.name.clone(),
-                    one.params.iter().map(|p| p.domain.clone()).collect(),
-                ));
+                functions.push(Defined {
+                    name: one.name.clone(),
+                    label: d.label.clone(),
+                    domains: one.params.iter().map(|p| p.domain.clone()).collect(),
+                    recursive: false,
+                });
             }
             _ => {}
         }
     }
+    functions
+}
+
+/// One argument a defined function is applied to in a text, and the
+/// facts any one of which says it is in the function's domain.
+struct Applied {
+    label: String,
+    arg: String,
+    says: Vec<String>,
+}
+
+/// Every application of the functions in `text`, each argument with what
+/// says it is in its domain.
+fn applied(functions: &[Defined], text: &str) -> Vec<Applied> {
+    let claim: Vec<char> = text.chars().collect();
+    let mut out = Vec::new();
     let find = |needle: &[char], from: usize| -> Option<usize> {
         if needle.len() > claim.len() {
             return None;
@@ -1101,7 +1147,13 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
         (from..=claim.len() - needle.len())
             .find(|&i| claim[i..i + needle.len()] == *needle)
     };
-    for (name, domains) in &functions {
+    for Defined {
+        name,
+        label,
+        domains,
+        recursive,
+    } in functions
+    {
         let needle: Vec<char> = format!("{name}(").chars().collect();
         let name_len = name.chars().count();
         let mut at = 0;
@@ -1128,7 +1180,17 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
                         break;
                     }
                     for (arg, domain) in args.iter().zip(domains) {
-                        out.insert(squash(&format!("{arg} ∈ {domain}")));
+                        // A recursion's step at m asks m; any other argument
+                        // is its value at 0, which asks nothing.
+                        let member = if *recursive {
+                            match step_index(arg) {
+                                Some(index) => index,
+                                None => continue,
+                            }
+                        } else {
+                            arg.to_string()
+                        };
+                        let mut says = vec![squash(&format!("{member} ∈ {domain}"))];
                         // A power set's member is a part, which the page may
                         // say with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
                         if let Some(inner) = domain.strip_prefix('𝒫') {
@@ -1140,8 +1202,13 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
                             } else {
                                 inner
                             };
-                            out.insert(squash(&format!("{arg} ⊆ {inner}")));
+                            says.push(squash(&format!("{member} ⊆ {inner}")));
                         }
+                        out.push(Applied {
+                            label: label.clone(),
+                            arg: str::trim(arg).to_string(),
+                            says,
+                        });
                     }
                     break;
                 }
@@ -1152,16 +1219,390 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
     out
 }
 
-/// What an item citation names, it needs.
+/// The indices of the sums anywhere in a formula, by the places the
+/// notation database declares each sum holds its index in.
+fn sum_indices(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
+    if ctx.sums.contains(&node.notation) {
+        let (held, _) = ctx.held_body(&node.notation);
+        for at in held {
+            if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
+                out.insert(letter.text.clone());
+            }
+        }
+    }
+    for child in &node.children {
+        sum_indices(child, ctx, out);
+    }
+}
+
+/// A define used for what it is has each argument in its domain.
 ///
-/// `DATABASE.md` holds that a named thing doing no work is an error, the
-/// shape of a `target` that never fires. For a step citing an item, the
-/// item's statement says what is needed and the two checks above say
-/// whether it is supplied; taking each named line away in turn and asking
-/// them again says which lines supply it. One whose absence changes nothing
-/// was supplying nothing. A requires line another one of the step leans on
-/// is kept by the second check. A define is not asked about: citing one
-/// names what a symbol means and supplies no fact.
+/// `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ` gives S(k + 1) its rule only
+/// where k + 1 ∈ ℕ, so a step citing the define, itself or on a calculation
+/// line, writes a requires line for each argument's domain it does not
+/// otherwise have (`SYNTAX.md`). A built-up argument is no exception, as an
+/// item's hypothesis of one is not: what is cited or required says it, with
+/// what each of those implies.
+pub fn check_define_domains(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    if functions.is_empty() {
+        return;
+    }
+    for step in &thm.steps {
+        let links = chain_links(&step.just);
+        let mut cited: BTreeSet<String> = step.just.refs.iter().cloned().collect();
+        for link in &links {
+            cited.extend(references(&link.cite).0);
+        }
+        let used: Vec<Defined> = functions
+            .iter()
+            .filter(|f| cited.contains(&f.label))
+            .cloned()
+            .collect();
+        if used.is_empty() {
+            continue;
+        }
+        let parts = known.parts(step, library);
+        let mut facts = parts.facts.clone();
+        let from_links: Vec<String> =
+            links.iter().flat_map(|l| references(&l.cite).0).collect();
+        let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
+        facts.extend(known.lines_say(step, &refs, library));
+        // A claim said of every member puts the member in its domain.
+        facts.extend(
+            parts
+                .claims
+                .iter()
+                .filter_map(|c| claimed_member(c, library, &known.sorts))
+                .map(|(member, _)| member),
+        );
+        let facts = finished(facts, Vec::new(), Binding::new(), library, known).facts;
+        // A sum's index is in the range the sum runs over, and what holds it
+        // is a term of the sum, whose values are a family's (`family_asks`).
+        let mut indices: BTreeSet<String> = BTreeSet::new();
+        for claim in &parts.claims {
+            sum_indices(claim, &library.ctx, &mut indices);
+        }
+        let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
+        let mut seen: BTreeSet<String> = BTreeSet::new();
+        for asked in applied(&used, &step.claim_text()) {
+            let holds_index = known
+                .read_as_written(&asked.arg)
+                .is_some_and(|a| !a.names().is_disjoint(&indices));
+            if holds_index {
+                continue;
+            }
+            let said = asked
+                .says
+                .iter()
+                .any(|s| known.read(s).is_some_and(|n| shapes.contains(n.shape())));
+            if said || !seen.insert(asked.says[0].clone()) {
+                continue;
+            }
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {} at {}, so it needs {}, and nothing it cites or requires says it",
+                    step.number,
+                    asked.label,
+                    asked.arg,
+                    known
+                        .read_as_written(&asked.says[0])
+                        .map(|n| known.print(&n))
+                        .unwrap_or_else(|| asked.says[0].clone())
+                ),
+            );
+        }
+    }
+}
+
+/// An exhibit's lines say every part of its body at one value.
+///
+/// `exhibit, from L` claims a bare "there is", and the lines L state its
+/// body with some value in place of the bound letter (`SYNTAX.md`). Each
+/// part is stated, the value's membership of the domain among them: "there
+/// is d ∈ ℤ with d > 1, d divides p" at d = 2 asks 2 ∈ ℤ and 2 > 1 as
+/// surely as 2 divides p, since `READERS.md` writes a dull fact wherever
+/// what a step rests on demands it, a numeral's included.
+pub fn check_exhibited(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Exhibit) {
+            continue;
+        }
+        let parts = known.parts(step, library);
+        let written: Vec<Node> = sentences(&step.claim_text())
+            .iter()
+            .filter_map(|s| known.read_as_written(s))
+            .collect();
+        for (claim, as_written) in parts.claims.iter().zip(&written) {
+            let Some(Exhibited { wants, letters }) = exhibited(claim, library, known)
+            else {
+                continue;
+            };
+            let mut sites = Sites::new();
+            for t in &wants {
+                binding_sites(t, &library.ctx, &[], &mut sites);
+            }
+            let facts = with_parts(&parts.facts, library);
+            let stated = |wants: &[Node]| {
+                supply(
+                    wants,
+                    &facts,
+                    &Binding::new(),
+                    &letters,
+                    library,
+                    &sites,
+                    true,
+                )
+            };
+            // A term equals itself, which no line need write: gH = aH at
+            // a = g is stated by nothing and needs nothing.
+            let itself = |w: &Node| {
+                w.notation == "equality"
+                    && w.children.len() == 2
+                    && w.children[0].shape() == w.children[1].shape()
+            };
+            let (equations, rest): (Vec<Node>, Vec<Node>) = wants
+                .iter()
+                .cloned()
+                .partition(|w| w.notation == "equality" && w.children.len() == 2);
+            let said = stated(&wants).is_some()
+                || (!equations.is_empty()
+                    && stated(&rest).is_some_and(|at| {
+                        equations.iter().all(|e| itself(&substitute(e, &at)))
+                    }));
+            if said {
+                continue;
+            }
+            // The value is the one the most parts are said of, each part's
+            // own line suggesting one; what is not said of it is what the
+            // step needs.
+            let holds = |w: &Node, at: &Binding| {
+                let w = substitute(w, at);
+                itself(&w) || facts.iter().any(|f| f.shape() == w.shape())
+            };
+            let mut best: Option<(usize, Binding)> = None;
+            for w in &wants {
+                let Some(at) = stated(std::slice::from_ref(w)) else {
+                    continue;
+                };
+                if !letters.iter().all(|l| at.contains_key(l)) {
+                    continue;
+                }
+                let count = wants.iter().filter(|w| holds(w, &at)).count();
+                if best.as_ref().is_none_or(|(most, _)| count > *most) {
+                    best = Some((count, at));
+                }
+            }
+            let Some((_, at)) = best else {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} exhibits a value, and nothing it cites or requires says the claim's body of any one value",
+                        step.number
+                    ),
+                );
+                continue;
+            };
+            let shown = exhibited(as_written, library, known)
+                .map(|e| e.wants)
+                .filter(|w| w.len() == wants.len())
+                .unwrap_or_else(|| wants.clone());
+            let values: Vec<String> = letters
+                .iter()
+                .filter_map(|l| at.get(l).map(|v| format!("{l} := {}", known.print(v))))
+                .collect();
+            for (want, show) in wants.iter().zip(&shown) {
+                if holds(want, &at) {
+                    continue;
+                }
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} exhibits {}, so it needs {}, and nothing it cites or requires says it",
+                        step.number,
+                        values.join(", "),
+                        known.print(&substitute(show, &at))
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// What a "there is" asks of the value exhibited for it: each letter in its
+/// domain, then each part of the body; and the letters.
+struct Exhibited {
+    wants: Vec<Node>,
+    letters: BTreeSet<String>,
+}
+
+fn exhibited(claim: &Node, library: &Library, known: &Known) -> Option<Exhibited> {
+    // The letters and their domains, then the body.
+    let bound: Vec<(&Node, &Node)> = match claim.notation.as_str() {
+        "there-is" if claim.children.len() == 3 => {
+            vec![(&claim.children[0], &claim.children[1])]
+        }
+        "there-are" if claim.children.len() == 5 => vec![
+            (&claim.children[0], &claim.children[1]),
+            (&claim.children[2], &claim.children[3]),
+        ],
+        _ => return None,
+    };
+    let body = claim.children.last()?;
+    let mut wants: Vec<Node> = bound
+        .iter()
+        .filter_map(|(letter, domain)| {
+            bound_in("x ∈ S", None, letter, domain, library, &known.sorts)
+        })
+        .collect();
+    wants.extend(conjuncts(body, library));
+    let letters = bound.iter().map(|(l, _)| l.text.clone()).collect();
+    Some(Exhibited { wants, letters })
+}
+
+/// An instantiation's values are in the domains they are put in.
+///
+/// `instantiate v := t in line L, from L2`: line L says "for all v ∈ X, B",
+/// and L2 supplies t ∈ X (`SYNTAX.md`), or a requires line does. A numeral
+/// is no exception: `y := 1` in "for all x, y ∈ ℤ" asks 1 ∈ ℤ, written
+/// `requires 1 ∈ ℤ: arithmetic`, as a cited item's hypothesis does.
+pub fn check_instantiated(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Instantiate) {
+            continue;
+        }
+        let Some(target) = instantiated_line(&step.just.text) else {
+            continue;
+        };
+        let Some(text) = known.scope(step).get(&target).cloned() else {
+            continue;
+        };
+        let parts = known.parts(step, library);
+        let written: IndexMap<String, String> =
+            instantiation(&step.just.text).into_iter().collect();
+        for sentence in sentences(&text) {
+            let (Some(read), Some(as_written)) =
+                (known.read(&sentence), known.read_as_written(&sentence))
+            else {
+                continue;
+            };
+            let binders = binders_of(&read);
+            if !binders
+                .iter()
+                .any(|b| parts.seed.contains_key(&b.letter.text))
+            {
+                continue;
+            }
+            // A domain may name the letters bound before it, and only those.
+            // What is compared is read with defined names written out; what
+            // a message says is the page's own spelling.
+            let mut outer = Binding::new();
+            let mut outer_written = Binding::new();
+            for (b, w) in binders.iter().zip(binders_of(&as_written)) {
+                let Some(value) = parts.seed.get(&b.letter.text) else {
+                    continue;
+                };
+                let domain = substitute(&b.domain, &outer);
+                outer.insert(b.letter.text.clone(), value.clone());
+                let Some(want) = bound_in(
+                    b.how,
+                    b.held.clone(),
+                    value,
+                    &domain,
+                    library,
+                    &known.sorts,
+                ) else {
+                    continue;
+                };
+                let value_written = written
+                    .get(&b.letter.text)
+                    .and_then(|v| known.read_as_written(v))
+                    .unwrap_or_else(|| value.clone());
+                let domain_written = substitute(&w.domain, &outer_written);
+                outer_written.insert(w.letter.text.clone(), value_written.clone());
+                if parts.facts.iter().any(|f| f.shape() == want.shape()) {
+                    continue;
+                }
+                let needed = bound_in(
+                    b.how,
+                    b.held.clone(),
+                    &value_written,
+                    &domain_written,
+                    library,
+                    &known.sorts,
+                )
+                .unwrap_or(want);
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} puts {} for {} in line {target}, so it needs {}, and nothing it cites or requires says it",
+                        step.number,
+                        known.print(&value_written),
+                        b.letter.text,
+                        known.print(&needed)
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// One binder of a "for all": the letter, the domain, and how a value is
+/// said to be in it — `x ∈ S`, or `x ⊆ S` for a part, with the sort the
+/// letter then has.
+struct Binder {
+    letter: Node,
+    domain: Node,
+    how: &'static str,
+    held: Option<Sort>,
+}
+
+/// The binders a sentence opens with, outermost first.
+fn binders_of(node: &Node) -> Vec<Binder> {
+    let mut out = Vec::new();
+    let mut node = node.clone();
+    loop {
+        let (how, held) = match node.notation.as_str() {
+            "for-all" => ("x ∈ S", None),
+            "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
+            _ => break,
+        };
+        if node.children.len() != 3 {
+            break;
+        }
+        out.push(Binder {
+            letter: node.children[0].clone(),
+            domain: node.children[1].clone(),
+            how,
+            held,
+        });
+        node = node.children[2].clone();
+    }
+    out
+}
+
 /// A requires line says something the step's other lines do not.
 ///
 /// Every line does work (R3), and a fact the step already has does none:
@@ -1214,6 +1655,16 @@ pub fn check_repeated(
     }
 }
 
+/// What an item citation names, it needs.
+///
+/// `DATABASE.md` holds that a named thing doing no work is an error, the
+/// shape of a `target` that never fires. For a step citing an item, the
+/// item's statement says what is needed and the two checks above say
+/// whether it is supplied; taking each named line away in turn and asking
+/// them again says which lines supply it. One whose absence changes nothing
+/// was supplying nothing. A requires line another one of the step leans on
+/// is kept by the second check. A define is not asked about: citing one
+/// names what a symbol means and supplies no fact.
 pub fn check_surplus(
     report: &mut Report,
     thm: &Theorem,

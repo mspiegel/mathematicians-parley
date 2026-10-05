@@ -249,6 +249,7 @@ impl<'a> Elaborator<'a> {
                 // generalised; going under the binder spends no depth.
                 let (body, variable, over) =
                     (kids[0].clone(), kids[1].clone(), kids[2].clone());
+                self.in_family += 1;
                 let made = self.for_every(
                     scope,
                     &facts,
@@ -259,7 +260,9 @@ impl<'a> Elaborator<'a> {
                         me.settle(said, inner, lifted, depth, None, None)
                     },
                     false,
-                )?;
+                );
+                self.in_family -= 1;
+                let made = made?;
                 if !made.is_declined() {
                     return Ok(made);
                 }

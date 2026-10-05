@@ -23,6 +23,7 @@ define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
             S(1) = Σ(j = 1 to 1) j       D1
                  = 1                     1.1
                  = 1(1 + 1)/2            arithmetic
+          requires 1 ∈ ℕ: arithmetic
 
     step
     let k ∈ ℕ                                                         (K)
@@ -48,7 +49,6 @@ define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
 
     1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2
           algebra
-          requires 2 ≠ 0: arithmetic
           requires k ∈ ℝ: from K
 
     1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2

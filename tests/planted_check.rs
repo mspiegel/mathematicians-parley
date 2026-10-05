@@ -15,7 +15,7 @@ use parley::source::{Disk, Memory, Overlay, Source};
 
 /// A file that defines a function outside its theorems, for the cases below
 /// that import it, use it, or define its name again.
-const TRI: &str = "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n";
+const TRI: &str = "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n    requires 1 ∈ ℕ: arithmetic\n";
 
 /// One edit: the file, the text replaced (its first occurrence), and what
 /// replaces it. No text replaced writes a file that was not there.
@@ -1738,6 +1738,40 @@ fn cases() -> Vec<Case> {
                 edit("proofs/factor.proof", Some("p := p, a := a, from H1, H2".to_string()), "p := p, a := a, from H2".to_string()),
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
+        ),
+        // An exhibit's lines say each part of its body at the value, a
+        // numeral's facts among them, and what is missing is named.
+        case(
+            "exhibit 2 for a d > 1 without saying 2 > 1",
+            vec![
+                edit("proofs/sqrt2-irrational.proof", Some("          requires 2 > 1: arithmetic\n".to_string()), String::new()),
+            ],
+            "step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
+        ),
+        // An instantiation's value is in what its letter ranges over, as a
+        // line the step names says: −f(c) > 0 says nothing of ℝ.
+        case(
+            "instantiate ε := −f(c) without saying −f(c) is real",
+            vec![
+                edit("proofs/intermediate-value.proof", Some("           requires −f(c) ∈ ℝ: membership, from H4, 13\n".to_string()), String::new()),
+            ],
+            "step 16.4 puts −f(c) for ε in line 15, so it needs −f(c) ∈ ℝ, and nothing it cites or requires says it",
+        ),
+        // A define used for what it is has its argument in its domain.
+        case(
+            "unfold S(1) without saying 1 ∈ ℕ",
+            vec![
+                edit("proofs/sum-formula.proof", Some("                 = 1(1 + 1)/2            arithmetic\n          requires 1 ∈ ℕ: arithmetic\n".to_string()), "                 = 1(1 + 1)/2            arithmetic\n".to_string()),
+            ],
+            "step 1.2 cites D1 at 1, so it needs 1 ∈ ℕ, and nothing it cites or requires says it",
+        ),
+        // A recursion's domain is its index: a(k + 1) asks k.
+        case(
+            "unfold a(k + 1) without saying k ∈ ℕ₀",
+            vec![
+                edit("proofs/euclid.proof", Some("                   D1, from C1\n                   requires k ∈ ℕ₀: from K\n".to_string()), "                   D1, from C1\n".to_string()),
+            ],
+            "step 3.10.1 cites D1 at k + 1, so it needs k ∈ ℕ₀, and nothing it cites or requires says it",
         ),
     ]
 }

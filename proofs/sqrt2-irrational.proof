@@ -99,7 +99,6 @@ theorem lowest-terms
 
     3.4.  d = 1
           mun:divides-one d := d, from 3.3
-          requires d ∈ ℝ: from 3.1
           requires 0 < d: inequalities, from 3.1
           requires d ∈ ℕ: mun:pos-int-nat m := d, from 3.1
 
@@ -166,7 +165,6 @@ theorem sqrt2-irrational
 
     2.10. q² = 2r²
           algebra, from 2.9
-          requires 2 ≠ 0: arithmetic
           requires q ∈ ℝ: from 2.1
           requires r ∈ ℝ: from 2.6
 

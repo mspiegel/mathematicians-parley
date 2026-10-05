@@ -966,8 +966,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// ( scope -> said e. CC ), for a term of the step's own depth: built by
-    /// `part` first, from the step's own lines, and searched for at a depth
-    /// of its own where that cannot.
+    /// `part` first, from the step's own lines, and searched for where that
+    /// cannot, to the depth every side condition is searched to.
     fn in_cc(
         &mut self,
         said: &str,
@@ -978,7 +978,7 @@ impl<'a> Elaborator<'a> {
         if !found.is_declined() {
             return Ok(found);
         }
-        self.within(said, "cc", scope, facts, 12)
+        self.within(said, "cc", scope, facts, 3)
     }
 
     /// A claim a cited equation is a whole multiple of: proving each side is
@@ -2146,8 +2146,22 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A finite sum in ℝ or ℂ because each term is, for each index in its
-    /// range (`fsumrecl`, `fsumcl`).
+    /// range (`fsumrecl`, `fsumcl`). Its terms are a family's values.
     pub(crate) fn summed(
+        &mut self,
+        whole: &Term,
+        system: &str,
+        scope: &str,
+        known: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        self.in_family += 1;
+        let out = self.summed_terms(whole, system, scope, known, step);
+        self.in_family -= 1;
+        out
+    }
+
+    fn summed_terms(
         &mut self,
         whole: &Term,
         system: &str,

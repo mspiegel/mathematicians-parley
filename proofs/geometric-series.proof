@@ -34,6 +34,7 @@ theorem geometric-sum
                     = a^0                   1.1
                     = 1                     1.2
           requires a ∈ ℝ: from H1
+          requires 0 ∈ ℕ₀: arithmetic
 
     1.4.  a^(0 + 1) = a^1
           substitute 0 + 1 = 1 (arithmetic)

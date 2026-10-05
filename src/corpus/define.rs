@@ -177,6 +177,16 @@ fn rule_term(text: &str) -> Route<String> {
     Built(pieces.join(" "))
 }
 
+/// The index value at which an argument is a recursion's step: `a(m + 1)`
+/// is the step rule at m (`SYNTAX.md`: a value at 0 and a rule from k to
+/// k + 1). None for any other argument, the value at 0 among them. A rule
+/// is read by this, and so is an application of the sequence.
+pub fn step_index(arg: &str) -> Option<String> {
+    squash(arg)
+        .strip_suffix(" + 1")
+        .map(|index| str::trim(index).to_string())
+}
+
 /// A define of sequences by recursion, without its label, read into its
 /// parts; or a decline saying what is wrong with it.
 fn recursion_parts(said: &str) -> Route<DefineParts> {
@@ -212,7 +222,7 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
         };
         let table = if at == "0" {
             &mut start
-        } else if at == format!("{index} + 1") {
+        } else if step_index(&at).as_deref() == Some(index.as_str()) {
             &mut step
         } else {
             return Route::no(format!(

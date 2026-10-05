@@ -646,6 +646,12 @@ fancy!(
 );
 regex!(CAPTURE_TARGET, r"\bin\s+(?:line\s+)?([\w.]+)");
 
+/// The line an `instantiate` justification instantiates, by its number or
+/// label.
+pub fn instantiated_line(just: &str) -> Option<String> {
+    CAPTURE_TARGET.captures(just).map(|m| m[1].to_string())
+}
+
 // Patterns whose holes sit next to each other with no token between them,
 // so that the names filling them run together in the text.
 regex!(ADJACENT_BARS, r"\|([A-Za-z]{2,})\|");

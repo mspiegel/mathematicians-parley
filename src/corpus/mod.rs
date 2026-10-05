@@ -10,7 +10,9 @@ pub mod load;
 pub mod proof;
 pub mod records;
 
-pub use define::{define_parts, for_pieces, Define, DefineParts, Param, Recursion};
+pub use define::{
+    define_parts, for_pieces, step_index, Define, DefineParts, Param, Recursion,
+};
 pub use lines::{read_lines, Line};
 pub use load::{
     corpus, index, link_definitions, link_functions, proof_files, record_files, Corpus,

@@ -1016,7 +1016,11 @@ last, a function's value at a point of its domain, from the function's type
 (`function_value` — `ffvelcdm` from `a : {1, …, n} → ℝ` and `k ∈ {1, …, n}`,
 carried to another system by a bridge where asked). The page names both
 lines, the type and the point's domain (`READERS.md`, a function's type
-cited for its values), and R1 and R3 hold the proof to them: a requires line
+cited for its values). A type is a sort, which a step rests on unnamed, so
+`function_value` reads a value from one only where what is being proved
+cites it; a family's values, a sum's terms or what an item asks of every
+member, are the exception, as a summand's atoms are (`in_family`). R1 and R3
+hold the proof to them: a requires line
 `from H2, K4` is proved by the same `function_value` once no single line it
 names says the fact (`unfolded_at`), and one citing H2 alone rests on K4,
 which it does not name, and is reported. Only then is it searched for, with
@@ -1459,7 +1463,7 @@ is whether the tool is right: the planted defects the checker must catch
 (`tests/planted_elaborate.rs`), the planted defects each of the gate's other
 stages must catch (`tests/planted_gate.rs`), that a compressed proof is the
 proof it was made from (`tests/compress.rs`), and that the hand elaborations
-write their files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in seven
+write their files (`tests/comparison.rs`). `parley gate` is whether the corpus is right, in eight
 stages: the checker over the whole corpus; every artifact built afresh and
 compared with the file in the tree; every set.mm label the database names;
 that every library item is cited by a proof or tested in `tests/stdlib/`
@@ -1467,7 +1471,10 @@ that every library item is cited by a proof or tested in `tests/stdlib/`
 unless "Steps taken as stated" above records it; a verifier over every
 proof the elaborator has written; and that every library item with a target
 gives its target what it asks, by a theorem restating the item and citing
-it from its own lines, built and verified (`src/tools/restated.rs`). `scripts/precommit.sh` runs both.
+it from its own lines, built and verified (`src/tools/restated.rs`); and
+that every requires line is needed, each taken away in turn and its theorem
+checked and elaborated without it (`src/tools/needed.rs`, "Lines taken away"
+below). `scripts/precommit.sh` runs both.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is
@@ -1608,6 +1615,32 @@ proved (`discharged_by`).
     is", so in place of the conclusion the checker asks that the item give
     one from what the step names: `mun:stdlib/divisibility/odd` gives one only from a line saying
     n is odd.
+  - the checker, on a step that exhibits, instantiates or unfolds a define:
+    what the step puts somewhere is shown to belong there, by a line it
+    cites or requires, as an item's hypothesis is, a numeral's facts and a
+    built-up term's included (`READERS.md`, dull facts).
+    `exhibit` claims "there is d ∈ ℤ with d > 1, …", and its lines say
+    each part of the body at one value, the value's domain among them:
+    sqrt2-irrational's 2.16 writes `requires 2 ∈ ℤ` and `requires 2 > 1`
+    (`check_exhibited`). An equation whose sides are one term at the value
+    is said by nothing and needs nothing, as `settle` proves a term equal to
+    itself without a line: Lagrange's 11.2 exhibits a = g for gH = aH.
+    `instantiate v := t in line L` asks t in what v ranges over (`SYNTAX.md`),
+    as intermediate-value's 16.4 writes `requires −f(c) ∈ ℝ` for ε := −f(c)
+    (`check_instantiated`). A step citing a define with parameters, itself
+    or on a calculation line, asks each argument in its domain, as
+    sum-formula's 1.2 writes `requires 1 ∈ ℕ` for S(1); a recursion's
+    domain is its step's index, so a(k + 1) asks k ∈ ℕ₀ and a(0) asks
+    nothing (`check_define_domains`, `step_index`). An argument holding a
+    sum's index is not asked: it is a term of the sum, whose values are a
+    family's, as a summand's are. The letter of a claim said of every member
+    is asked like any argument, and the claim's binder says where it lies.
+    Each says which fact is missing, printed from the tree the check built
+    (`Grammar::print`): "step 2.16 exhibits d := 2, so it needs 2 > 1, and
+    nothing it cites or requires says it". The printer writes each node by
+    its notation's plain pattern and brackets a child at a pattern's edge by
+    the parser's own precedence, and `tests/print.rs` reads every formula
+    the corpus claims or requires, prints it and reads it again.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items
@@ -1627,6 +1660,31 @@ the scope without asking `settle`, and the nets in `tests/planted_elaborate.rs` 
 one case of each with the search offered the whole scope. Each builds
 silently with its rule taken away as well, so the rule is the only thing
 catching it.
+
+### Lines taken away
+
+R3 asks of a requires line whether the proof rests on it, and a line can be
+rested on without being needed: a route that finds `B²/A ∈ ℝ` written takes
+it, and with the line gone the same step builds B²/A from A ∈ ℝ, B ∈ ℝ and
+A > 0, as `membership` builds any compound. Neither tool sees that from the
+proof in hand. So the gate's last stage takes each requires line of each
+proof away in turn and asks both tools again of the theorem it sits in: the
+checker, of that theorem read from the edited file against the corpus read
+once, and the elaborator. A line neither complains of is reported.
+
+Two lines of one step can stand in for each other, each surplus alone and
+not both. Where a theorem has several surplus lines, each after the first is
+asked again with those already found surplus taken away too, and reported
+only if it can go with them.
+
+A line needed only by a surplus line is needed while that line is there, so
+it is reported once the surplus line is gone, in the next run.
+
+The stage runs in thirteen seconds over eight workers, each reading the
+corpus and loading set.mm once. That rests on a failure being quick: with a
+membership left out, the search for it goes only as deep as any side
+condition's (three lemmas, "Facts the text never writes"), so a step that
+cannot be built says so at once rather than after minutes of looking.
 
 ### What they do not check
 

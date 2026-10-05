@@ -82,7 +82,6 @@ define C := ⋃(X ∈ D) X                                               (D3)
 
     6.2.  M(X) ∩ X = ∅
           mun:part-builder, from D2, K6
-          requires X ⊆ A: from 6.1
 
     6.3.  X ⊆ C
           mun:union-contains-member Y := X, from D3, K6
@@ -136,11 +135,9 @@ define C := ⋃(X ∈ D) X                                               (D3)
 
 14. A ∖ M(C) ∈ D
     mun:part-builder u := A ∖ M(C), from D2, 10, 13
-    requires C ⊆ A: from 4
 
 15. A ∖ M(C) ⊆ C
     mun:union-contains-member Y := A ∖ M(C), from D3, 14
-    requires C ⊆ A: from 4
 
 16. A ∖ C ⊆ M(C)
     mun:complement-swap-outside, from 15

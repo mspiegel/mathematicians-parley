@@ -223,6 +223,10 @@ pub struct Elaborator<'a> {
     pub binding: Vars,
     /// The lines what is being proved cites, in the order it writes them.
     pub citing: IndexSet<String>,
+    /// How many families' values are being read: a sum's terms, or what an
+    /// item asks of every member. There a function's type gives its values
+    /// as the sort it is (`function_value`).
+    pub in_family: usize,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
     /// By step line, what its method combined.
@@ -349,6 +353,7 @@ impl<'a> Elaborator<'a> {
             rewrite_rules: None,
             binding: Vars::new(),
             citing: IndexSet::new(),
+            in_family: 0,
             resting: None,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),

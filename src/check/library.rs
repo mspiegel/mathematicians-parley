@@ -316,9 +316,18 @@ impl<'a> Known<'a> {
     /// each defined name written out; None where it does not read, which
     /// `check_formulas` reports.
     pub fn read(&self, text: &str) -> Option<Node> {
-        parse_here(text, self.env.g, &self.sorts)
-            .ok()
+        self.read_as_written(text)
             .map(|n| expand(&n, &self.defined))
+    }
+
+    /// The text read with its defined names kept, as a message prints it.
+    pub fn read_as_written(&self, text: &str) -> Option<Node> {
+        parse_here(text, self.env.g, &self.sorts).ok()
+    }
+
+    /// A tree as page text.
+    pub fn print(&self, node: &Node) -> String {
+        self.env.g.print(node)
     }
 
     /// What the lines `refs` name at `step` say, each sentence read, and
@@ -520,6 +529,20 @@ pub fn claimed_member(
     }
     let (letter, domain, body) =
         (&claim.children[0], &claim.children[1], &claim.children[2]);
+    let said = bound_in(written, held_as, letter, domain, library, sorts)?;
+    Some((said, body.clone()))
+}
+
+/// What a binder says of the letter it binds: `x ∈ S`, or `x ⊆ S` as
+/// `written` has it, at the letter and the domain.
+pub fn bound_in(
+    written: &str,
+    held_as: Option<Sort>,
+    letter: &Node,
+    domain: &Node,
+    library: &Library,
+    sorts: &Sorts,
+) -> Option<Node> {
     // What a set holds is often not settled on the node; a membership of
     // it reads whatever the letter is.
     let held = held_as.unwrap_or_else(|| {
@@ -540,7 +563,7 @@ pub fn claimed_member(
     let mut put = Binding::new();
     put.insert("x".into(), letter.clone());
     put.insert("S".into(), domain.clone());
-    Some((substitute(&said, &put), body.clone()))
+    Some(substitute(&said, &put))
 }
 
 /// The facts, and each part of one that is a conjunction.

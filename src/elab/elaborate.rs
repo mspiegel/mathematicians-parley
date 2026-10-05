@@ -854,7 +854,8 @@ impl<'a> Elaborator<'a> {
             };
             // A definition stated as a biconditional is used by unfolding
             // it; one stated as an equation is used by citing the lemma that
-            // proves it. With no target it is taken as stated.
+            // proves it. With no target it is read off the lines the step
+            // cites, or is a defect (`take_definition`).
             how = Some(if !item.fields.contains_key("target") {
                 Method::TakeDefinition
             } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {

@@ -100,6 +100,8 @@ pub struct Context {
     pub equations: IndexSet<String>,
     /// The notations saying a function is a function on a set (`wfn`).
     pub functions_on: IndexSet<String>,
+    /// The notations writing a sum (`csu`).
+    pub sums: IndexSet<String>,
 }
 
 impl Context {
@@ -110,10 +112,13 @@ impl Context {
             props,
             equations: equations(records),
             functions_on: functions_on(records),
+            sums: sums(records),
         }
     }
 
-    fn held_body(&self, notation: &str) -> (Vec<usize>, Vec<usize>) {
+    /// The places of a binder that hold the letters it binds, and those of
+    /// the body they are bound in; neither for a notation that binds none.
+    pub fn held_body(&self, notation: &str) -> (Vec<usize>, Vec<usize>) {
         match self.binders.get(notation) {
             Some(b) => (b.held.clone(), b.body.clone()),
             None => (Vec::new(), Vec::new()),
@@ -232,6 +237,18 @@ pub fn functions_on(records: &[Record]) -> IndexSet<String> {
         .filter(|r| {
             r.kind == RecordKind::Notation
                 && str::trim(r.field_or_empty("metamath")) == "wfn"
+        })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// The notations whose `metamath` is set.mm's `csu`, a sum over some range.
+pub fn sums(records: &[Record]) -> IndexSet<String> {
+    records
+        .iter()
+        .filter(|r| {
+            r.kind == RecordKind::Notation
+                && str::trim(r.field_or_empty("metamath")).starts_with("csu ")
         })
         .map(|r| r.name.clone())
         .collect()

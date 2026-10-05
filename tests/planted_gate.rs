@@ -18,7 +18,7 @@ use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::gate::{as_built, verifies};
-use parley::tools::{assumed, labels, restated, tested};
+use parley::tools::{assumed, labels, needed, restated, tested};
 
 /// One of the gate's stages, run over a tree with set.mm where it is.
 type Stage = fn(&dyn Source, &Path) -> Said;
@@ -47,13 +47,18 @@ fn restated_stage(tree: &dyn Source, setmm: &Path) -> Said {
     restated::run(tree, Some(setmm))
 }
 
-const STAGES: [(&str, Stage); 6] = [
+fn needed_stage(tree: &dyn Source, setmm: &Path) -> Said {
+    needed::run(tree, Some(setmm))
+}
+
+const STAGES: [(&str, Stage); 7] = [
     ("set.mm labels", labels_stage),
     ("cited or tested", tested_stage),
     ("taken as stated", assumed_stage),
     ("a fresh build", as_built_stage),
     ("the proofs verify", verify_stage),
     ("items restated", restated_stage),
+    ("requires lines needed", needed_stage),
 ];
 
 /// One planted defect: the stage that must catch it, the file, the text
@@ -139,6 +144,14 @@ fn cases() -> Vec<Case> {
             old: "`stdlib/sets/set-builder-subset`.",
             new: "`stdlib/sets/set-builder-subset`, `stdlib/sets/union-self`.",
             expect: "ELABORATION.md lists stdlib/sets/union-self as not restated, and it is restated",
+        },
+        Case {
+            name: "a requires line the step is checked and built without",
+            stage: needed_stage,
+            file: "proofs/sum-formula.proof",
+            old: "          algebra\n          requires k ∈ ℝ: from K\n",
+            new: "          algebra\n          requires 2 ≠ 0: arithmetic\n          requires k ∈ ℝ: from K\n",
+            expect: "says 2 ≠ 0: arithmetic, and the step is checked and built without it",
         },
     ]
 }

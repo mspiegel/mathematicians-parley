@@ -9,6 +9,7 @@ pub mod grammar;
 pub mod library;
 pub mod node;
 pub mod notation;
+mod print;
 pub mod token;
 
 pub use grammar::{fits, holds, parse, parse_here, Grammar, Sorts, TERM_SORTS};

@@ -16,7 +16,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{
     index, link_definitions, link_functions, parse_database, parse_proof, proof_files,
-    record_files, written_text, FileScope, Intro, Record, RecordKind, Theorem,
+    record_files, written_text, FileScope, Intro, Item, Record, RecordKind, Theorem,
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
@@ -65,15 +65,135 @@ pub use crate::said::Said as Outcome;
 
 /// Check the corpus under the source's root.
 pub fn run(source: &dyn Source) -> Outcome {
+    let checked = prepared(source, |report, c| {
+        for (i, thm) in c.theorems.iter().enumerate() {
+            check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
+        }
+    });
+    match checked {
+        Ok((report, counts, ())) => summary(report, counts),
+        Err(out) => out,
+    }
+}
+
+/// The corpus read once, which every theorem's checks are given.
+pub struct Checking<'a> {
+    theorems: &'a [Theorem],
+    known: &'a [Known<'a>],
+    clashes: &'a [Vec<infer::Clash>],
+    env: Env<'a>,
+    library: &'a Library<'a>,
+    scopes: &'a [FileScope],
+    words: &'a IndexSet<String>,
+    methods: &'a IndexMap<String, &'a Record>,
+    items: &'a IndexMap<String, Item<'a>>,
+    statements: &'a IndexMap<String, infer::Reader>,
+    store: infer::Store,
+}
+
+/// One proof file's text with an edit made, and the theorem in it the edit
+/// is inside.
+pub struct Cut {
+    pub path: String,
+    pub text: String,
+    pub theorem: String,
+}
+
+/// What the checker says of each cut's theorem, the cut file read in place
+/// of the file on disk and the rest of the corpus as it stands: the problems
+/// it finds in that theorem. The corpus is read once for every cut.
+pub fn check_cuts(
+    source: &dyn Source,
+    cuts: &[Cut],
+) -> Result<Vec<Vec<String>>, Outcome> {
+    prepared(source, |_, c| {
+        cuts.iter().map(|cut| c.check_cut(cut)).collect()
+    })
+    .map(|(_, _, said)| said)
+}
+
+impl Checking<'_> {
+    /// The problems one cut's theorem has, read from the cut's text. What a
+    /// requires line says does not change what the theorem states, so the
+    /// rest of the corpus is read as it was.
+    fn check_cut(&mut self, cut: &Cut) -> Vec<String> {
+        let Some(at) = self.scopes.iter().position(|s| s.path == cut.path) else {
+            return vec![format!("{} is not a proof file of the corpus", cut.path)];
+        };
+        let theorems = match parse_proof(&cut.path, &cut.text, at) {
+            Ok((_, found)) => found,
+            Err(p) => return vec![p.to_string()],
+        };
+        let Some(thm) = theorems.iter().find(|t| t.name == cut.theorem) else {
+            return vec![format!("{} has no theorem {}", cut.path, cut.theorem)];
+        };
+        let reader = formulas::read_with_citations(
+            thm,
+            self.env,
+            self.statements,
+            &mut self.store,
+        );
+        let k = Known::new(thm, self.env, settled(&reader, &self.store));
+        let mut report = Report::default();
+        check_theorem(&mut report, self, thm, &k, &reader.clashes);
+        report.problems.iter().map(|p| p.to_string()).collect()
+    }
+}
+
+/// Every sentence a step claims or requires, printed from its tree and read
+/// again, where the two trees differ: `Grammar::print` is right exactly when
+/// this is empty. Each entry is the sentence, what it printed as, and where;
+/// with them, how many sentences were read and printed.
+pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome> {
+    prepared(source, |_, c| {
+        let mut out = Vec::new();
+        let mut read_count = 0;
+        for (thm, k) in c.theorems.iter().zip(c.known) {
+            for step in &thm.steps {
+                let texts = crate::sorts::sentences(&step.claim_text())
+                    .into_iter()
+                    .chain(step.requires.iter().map(|r| r.fact.clone()));
+                // Read as written, defined names and all, as a reader reads.
+                let read = |text: &str| {
+                    crate::formula::parse_here(text, c.env.g, &k.sorts).ok()
+                };
+                for text in texts {
+                    let Some(node) = read(&text) else {
+                        continue;
+                    };
+                    read_count += 1;
+                    let printed = c.env.g.print(&node);
+                    let again = read(&printed);
+                    if again.as_ref().map(|a| a.shape()) != Some(node.shape()) {
+                        out.push(format!(
+                            "{}:{}  {text}  printed as  {printed}",
+                            thm.path, step.line
+                        ));
+                    }
+                }
+            }
+        }
+        (read_count, out)
+    })
+    .map(|(_, _, out)| out)
+}
+
+/// Read the corpus, check what is checked of the corpus as a whole, and give
+/// what was read to `then`; or the outcome where nothing can be read.
+#[allow(clippy::type_complexity)]
+fn prepared<T>(
+    source: &dyn Source,
+    then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
+) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
     let mut report = Report::default();
     let db_files = record_files(source);
     let proofs = proof_files(source);
     if db_files.is_empty() || proofs.is_empty() {
-        return Outcome {
+        return Err(Outcome {
             printed: String::new(),
             complained: format!("no corpus under {}\n", source.root().display()),
             status: 2,
-        };
+        });
     }
 
     let mut texts: IndexMap<String, String> = IndexMap::new();
@@ -171,7 +291,7 @@ pub fn run(source: &dyn Source) -> Outcome {
         Ok(g) => g,
         Err(p) => {
             report.problems.push(p);
-            return summary(report, counts);
+            return Err(summary(report, counts));
         }
     };
     let env = Env {
@@ -255,60 +375,86 @@ pub fn run(source: &dyn Source) -> Outcome {
         .iter()
         .map(|(name, &i)| (name.clone(), &records[i]))
         .collect();
-    for ((thm, k), clashes) in theorems.iter().zip(known.iter()).zip(&clashes) {
-        formulas::check_formulas(&mut report, thm, env, k);
-        structure::check_defined_below(&mut report, thm, &scopes);
-        formulas::check_clashes(&mut report, thm, clashes);
-        formulas::check_contradiction(&mut report, thm, env, k);
-        formulas::check_contradicting(&mut report, thm, env, k);
-        formulas::check_claimed_cases(&mut report, thm, k);
-        formulas::check_closed_arithmetic(&mut report, thm, env, k);
-        formulas::check_membership_claims(&mut report, thm, env, k);
-        citations::check_hypotheses(&mut report, thm, &library, k);
-        citations::check_conclusion(&mut report, thm, &library, k);
-        formulas::check_define_citation(&mut report, thm, &library, k, &scopes);
-        citations::check_obtained(&mut report, thm, &library, k);
-        citations::check_requires(&mut report, thm, &library, k);
-        citations::check_surplus(&mut report, thm, &library, k);
-        citations::check_repeated(&mut report, thm, &library, k);
-        formulas::check_chain_links(&mut report, thm, &library, k, &scopes);
-        structure::check_last_step(&mut report, thm);
-        structure::check_readings(&mut report, thm);
-        database::check_introductions(&mut report, thm, env, k);
-        formulas::check_recursions(&mut report, thm, env, k);
-        structure::check_sorts(&mut report, thm);
-        let lets: Vec<(&str, usize)> = thm
-            .hypotheses
-            .iter()
-            .filter(|h| h.kind == Intro::Let)
-            .map(|h| (h.text.as_str(), h.line))
-            .chain(thm.steps.iter().flat_map(|s| {
-                s.openers
-                    .iter()
-                    .filter(|o| o.kind == Intro::Let)
-                    .map(|o| (o.text.as_str(), o.line))
-            }))
-            .collect();
-        structure::check_ranges(
-            &mut report,
-            &thm.path,
-            &thm.ranges,
-            &lets,
-            &written_text(thm),
-            env,
-            &k.sorts,
-        );
-        structure::check_capture(&mut report, thm, &structure::claims_of(thm));
-        structure::check_run_together(&mut report, thm, &words);
-        structure::check_numbering(&mut report, thm);
-        structure::check_blocks(&mut report, thm, &methods);
-        for step in &thm.steps {
-            structure::check_justification_form(&mut report, &thm.path, &step.just);
-            structure::check_chain(&mut report, thm, step);
-        }
-        structure::check_citations(&mut report, thm, &items, &methods, &scopes);
+    let mut checking = Checking {
+        theorems: &theorems,
+        known: &known,
+        clashes: &clashes,
+        env,
+        library: &library,
+        scopes: &scopes,
+        words: &words,
+        methods: &methods,
+        items: &items,
+        statements: &statements,
+        store,
+    };
+    let out = then(&mut report, &mut checking);
+    Ok((report, counts, out))
+}
+
+/// Everything checked of one theorem, given the corpus read once.
+fn check_theorem(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) {
+    let (env, library, scopes) = (c.env, c.library, c.scopes);
+    formulas::check_formulas(report, thm, env, k);
+    structure::check_defined_below(report, thm, scopes);
+    formulas::check_clashes(report, thm, clashes);
+    formulas::check_contradiction(report, thm, env, k);
+    formulas::check_contradicting(report, thm, env, k);
+    formulas::check_claimed_cases(report, thm, k);
+    formulas::check_closed_arithmetic(report, thm, env, k);
+    formulas::check_membership_claims(report, thm, env, k);
+    citations::check_hypotheses(report, thm, library, k);
+    citations::check_conclusion(report, thm, library, k);
+    formulas::check_define_citation(report, thm, library, k, scopes);
+    citations::check_obtained(report, thm, library, k);
+    citations::check_requires(report, thm, library, k);
+    citations::check_surplus(report, thm, library, k);
+    citations::check_repeated(report, thm, library, k);
+    citations::check_exhibited(report, thm, library, k);
+    citations::check_instantiated(report, thm, library, k);
+    citations::check_define_domains(report, thm, library, k, scopes);
+    formulas::check_chain_links(report, thm, library, k, scopes);
+    structure::check_last_step(report, thm);
+    structure::check_readings(report, thm);
+    database::check_introductions(report, thm, env, k);
+    formulas::check_recursions(report, thm, env, k);
+    structure::check_sorts(report, thm);
+    let lets: Vec<(&str, usize)> = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .map(|h| (h.text.as_str(), h.line))
+        .chain(thm.steps.iter().flat_map(|s| {
+            s.openers
+                .iter()
+                .filter(|o| o.kind == Intro::Let)
+                .map(|o| (o.text.as_str(), o.line))
+        }))
+        .collect();
+    structure::check_ranges(
+        report,
+        &thm.path,
+        &thm.ranges,
+        &lets,
+        &written_text(thm),
+        env,
+        &k.sorts,
+    );
+    structure::check_capture(report, thm, &structure::claims_of(thm));
+    structure::check_run_together(report, thm, c.words);
+    structure::check_numbering(report, thm);
+    structure::check_blocks(report, thm, c.methods);
+    for step in &thm.steps {
+        structure::check_justification_form(report, &thm.path, &step.just);
+        structure::check_chain(report, thm, step);
     }
-    summary(report, counts)
+    structure::check_citations(report, thm, c.items, c.methods, scopes);
 }
 
 /// What the run found, as printed, and the exit status.

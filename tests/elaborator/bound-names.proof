@@ -7,7 +7,6 @@ theorem series-under-its-own-letters
 
 1.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
     mun:series-sum L := 1, from H1
-    requires for all k ∈ ℕ, 1/(k·(k + 1)) ∈ ℝ: membership
     requires 1 ∈ ℝ: arithmetic
 
 theorem citation-under-a-bound-name

@@ -8,6 +8,7 @@ use parley::source::Disk;
 const USAGE: &str = "usage: parley check
        parley build [name] [set.mm]
        parley gate
+       parley needed
 
 Run from the working tree: the directory holding corpus/ and the proofs.";
 
@@ -33,7 +34,7 @@ fn main() -> ExitCode {
     };
     // At most this many arguments, for each command.
     let most = match sub.as_str() {
-        "check" | "gate" => 0,
+        "check" | "gate" | "needed" => 0,
         "build" => 2,
         other => return refuse(&format!("unknown command {other}")),
     };
@@ -52,6 +53,14 @@ fn main() -> ExitCode {
             rest.first().map(String::as_str),
             rest.get(1).map(String::as_str),
         )),
+        // The gate's slowest stage alone: every requires line taken away.
+        "needed" => {
+            let setmm = parley::mm::where_set_mm(None, root);
+            say(parley::tools::needed::run(
+                &Disk::new(root.to_path_buf()),
+                setmm.as_deref(),
+            ))
+        }
         _ => say(parley::tools::gate::run(root)),
     }
 }

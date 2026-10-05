@@ -146,7 +146,6 @@ theorem cauchy-schwarz
           inequalities, from 5.11, 5.12
           requires A ∈ ℝ: membership, from D1
           requires A > 0: inequalities, from D1, C3
-          requires B²/A ∈ ℝ: membership, from D1, D2
           requires B ∈ ℝ: membership, from D2
           requires C ∈ ℝ: membership, from D3
           requires A ≠ 0: inequalities
