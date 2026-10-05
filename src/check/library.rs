@@ -7,12 +7,10 @@ use indexmap::IndexMap;
 
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
-use crate::corpus::{Intro, Step, StepNo, Theorem};
+use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{expand, instantiation, Binding, Definitions};
-use crate::sorts::{
-    cited_defines, file_definitions, let_formula, sentences, unlabel, Env,
-};
+use crate::sorts::{cited_defines, file_definitions, said_by_line, sentences, Env};
 
 type PartsKey = (StepNo, Vec<String>, Vec<String>);
 
@@ -152,14 +150,7 @@ fn statements_in_scope(
     step: &Step,
     env: Env,
 ) -> IndexMap<String, String> {
-    fn said(kind: Intro, text: &str) -> String {
-        let body = str::trim(&unlabel(&text[kind.as_str().len()..])).to_string();
-        if kind == Intro::Let {
-            let_formula(&body)
-        } else {
-            body
-        }
-    }
+    let said = said_by_line;
     let mut out: IndexMap<String, String> = thm
         .steps
         .iter()

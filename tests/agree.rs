@@ -6,10 +6,12 @@
 //! elaborated with each answer compared, as kernel terms, with the checker's
 //! to the same question about the same line (`Options::list_answers`).
 //!
-//! What an item cited by a requires line asks, and what an obtain claims,
-//! both tools answer with one matcher (`citing`), and are not compared; the
-//! elaborator's answers are listed and counted, so that a hook that stopped
-//! running is caught.
+//! What a record cited by a requires line asks, and what an obtain says
+//! there is, both tools answer with one matcher (`citing`), each from its
+//! own reading of the page: which lines a citation names, what they say,
+//! and which defines are written out. So each tool lists its answers in the
+//! page's notation (`check::answers`, `Elaborator::list_asked`), and the
+//! two lists are compared.
 //!
 //! Answers they give differently are listed in `KNOWN`, each a gap a later
 //! change closes, and there are none. The test fails on any other
@@ -67,31 +69,46 @@ fn the_tools_answer_alike() {
         }
     });
     let all: BTreeSet<String> = found.into_inner().unwrap();
-    // What the elaborator answers alone, which a later change compares with
-    // the shared answer: what an item cited by a requires line asks, and
-    // what an obtain claims. The hook is counted, so that one that stopped
-    // running is not taken for one that agrees.
-    let asked = all.iter().filter(|a| a.contains(" | asked | ")).count();
-    let obtained = all.iter().filter(|a| a.contains(" | obtained | ")).count();
-    let unanswered: Vec<&String> = all
-        .iter()
-        .filter(|a| a.contains(" | asked | ") && a.contains("cannot answer"))
-        .collect();
-    println!(
-        "{asked} hypotheses asked, {obtained} sentences obtained, {} citations the elaborator cannot answer:",
-        unanswered.len()
-    );
-    for a in &unanswered {
-        println!("  {a}");
-    }
-    assert!(
-        asked > 0 && obtained > 0,
-        "the listing hook gave no asked items"
-    );
-    let found: BTreeSet<String> = all
+    // What a cited record asks, and what an obtain says there is: each tool
+    // lists its own answer, read from the page its own way, and the two
+    // lists are compared line by line. Each list is counted, so that a hook
+    // that stopped running is not taken for one that agrees.
+    let is_cited =
+        |a: &String| a.contains(" | asked | ") || a.contains(" | obtained | ");
+    let elaborator: BTreeSet<String> =
+        all.iter().filter(|a| is_cited(a)).cloned().collect();
+    let checker: BTreeSet<String> = parley::check::answers(&tree)
+        .unwrap_or_else(|_| panic!("the corpus checks"))
         .into_iter()
-        .filter(|a| !a.contains(" | asked | ") && !a.contains(" | obtained | "))
         .collect();
+    let count = |list: &BTreeSet<String>, kind: &str| {
+        list.iter().filter(|a| a.contains(kind)).count()
+    };
+    println!(
+        "elaborator: {} asked, {} obtained; checker: {} asked, {} obtained",
+        count(&elaborator, " | asked | "),
+        count(&elaborator, " | obtained | "),
+        count(&checker, " | asked | "),
+        count(&checker, " | obtained | "),
+    );
+    for list in [&elaborator, &checker] {
+        assert!(
+            count(list, " | asked | ") > 0 && count(list, " | obtained | ") > 0,
+            "a listing hook gave no cited items"
+        );
+    }
+    let mut found: BTreeSet<String> =
+        all.into_iter().filter(|a| !is_cited(a)).collect();
+    found.extend(
+        elaborator
+            .difference(&checker)
+            .map(|a| format!("{a} | elaborator only")),
+    );
+    found.extend(
+        checker
+            .difference(&elaborator)
+            .map(|a| format!("{a} | checker only")),
+    );
     let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();

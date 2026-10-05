@@ -1,28 +1,36 @@
-//! Where the elaborator and the checker answer one question differently,
+//! What the elaborator answers to questions the checker also answers,
 //! listed for `tests/agree.rs` (`Options::list_answers`).
 //!
-//! Two answers are compared as kernel terms: the checker answers in the
-//! page's notation, and one fact has several spellings there, k ≥ 0 and
-//! 0 ≤ k, which are one term. Only the elaborator turns page text into kernel
-//! terms, so the comparison is made here, with the checker's answer asked of
-//! the same line. Each difference is one line, `path:line | fact | which
-//! tool | answer`, with the answer in the page's notation (`spoken`).
+//! What a line implies is compared here, as kernel terms: the checker
+//! answers in the page's notation, and one fact has several spellings there,
+//! k ≥ 0 and 0 ≤ k, which are one term. Only the elaborator turns page text
+//! into kernel terms, so the comparison is made here, with the checker's
+//! answer asked of the same line. Each difference is one line, `path:line |
+//! fact | which tool | answer`, with the answer in the page's notation
+//! (`spoken`).
+//!
+//! What a cited record asks, and what an obtain says there is, both tools
+//! answer with `citing` from their own reading of the page, and each lists
+//! its answers as trees printed in the page's notation; the test compares
+//! the two lists (`list_asked`, `check::answers`).
 
 use std::collections::BTreeSet;
 
 use crate::citing::implied_facts;
 use crate::corpus::proof::requires_item;
-use crate::corpus::Step;
-use crate::outcome::Checked;
+use crate::corpus::{Item, Step};
+use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::Env;
 
 use super::state::Elaborator;
 
 impl Elaborator<'_> {
-    /// What the item each requires line cites asks for, as this elaborator
-    /// answers it (`asked_by_requires`): one line per hypothesis, `path:line
-    /// | asked | item | fact`, for the requires line's step.
-    /// The member a claim said of every member names is named first, as
+    /// What the record each requires line cites asks for, as this
+    /// elaborator answers it (`asked_here`): one line per hypothesis,
+    /// `path:line | asked | item | fact` in the page's notation, or one
+    /// saying the shared matcher declines. The checker lists its own answer
+    /// the same way (`check::answers`), and `tests/agree.rs` compares the
+    /// two. The member a claim said of every member names is named first, as
     /// `does_work` names it. Where the elaborator cannot answer, what stops
     /// it is listed as its answer, since that is what a comparison is of.
     pub fn list_asked(&mut self, step: &Step) -> Checked<()> {
@@ -37,28 +45,30 @@ impl Elaborator<'_> {
             let Some((named, _)) = requires_item(&o.how) else {
                 continue;
             };
+            let name = named.split_once(':').map_or(named.as_str(), |(_, n)| n);
+            let full = self.thm.names.full(name);
+            if !matches!(self.items.get(&full), Some(Item::Record(_))) {
+                continue;
+            }
+            let at = format!("{path}:{} | asked | {named}", o.line);
             let asks = self.aside(|me| {
                 if let Some((page, kernel)) = &letter {
                     if !me.names.contains_key(page) {
                         me.names.insert(page.clone(), kernel.clone());
                     }
                 }
-                me.asked_by_requires(step, o)
+                me.asked_here(step, o)
             });
             match asks {
-                Ok(asks) => {
-                    for fact in asks {
-                        out.push(format!(
-                            "{path}:{} | asked | {named} | {}",
-                            o.line,
-                            self.render(&fact)
-                        ));
+                Ok(Built(here)) => {
+                    for fact in &here.hypotheses {
+                        out.push(format!("{at} | {}", self.g.print(fact)));
                     }
                 }
-                Err(problem) => out.push(format!(
-                    "{path}:{} | asked | {named} | cannot answer: {}",
-                    o.line, problem.message
-                )),
+                Ok(Declined(_)) => out.push(format!("{at} | declines")),
+                Err(problem) => {
+                    out.push(format!("{at} | cannot answer: {}", problem.message))
+                }
             }
         }
         if let Some(list) = &mut self.answers {

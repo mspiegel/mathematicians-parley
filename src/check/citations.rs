@@ -9,26 +9,26 @@ use super::library::Known;
 use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
-    bound_in, claimed_member, concludes, conjuncts, derives, finished, names_of,
-    obtains, readings, search, supply, with_parts, Group, Library, Sites, Ways,
+    asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
+    names_of, obtained, obtains, readings, search, supply, with_parts, Group, Library,
+    Parts, Sites, Ways,
 };
-use crate::corpus::proof::requires_item;
+use crate::corpus::proof::{requires_item, Requires};
 use crate::corpus::{
     cited_item, define_parts, for_pieces, references, step_index, DefineParts,
-    FileScope, Method, Step, Theorem,
+    FileScope, Item, Method, Step, Theorem,
 };
 use crate::formula::{Node, Sort};
 use crate::matching::{
     binding_sites, instantiation, match_tree, substitute, Binding, Context, PROPERTY,
 };
-use crate::outcome::Built;
+use crate::outcome::{Built, Declined};
 use crate::sorts::sentences;
 use crate::text::squash;
 
 /// The requires lines of a step whose item does not conclude them, as
 /// (line, item) pairs.
 fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, String)> {
-    let scope = known.scope(step);
     let mut out = Vec::new();
     for req in &step.requires {
         let Some((named, _)) = requires_item(&req.how) else {
@@ -37,51 +37,9 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
         let Some(groups) = library.groups(&step.just.item(&named)) else {
             continue;
         };
-        let (refs, _bad) = references(&req.how);
-        // A define is written out where the line cites it (`Known::citing`).
-        let defined = known.citing(&refs);
-        let read_one = |s: &str| known.read_citing(s, &defined);
-        let claims: Vec<Node> = sentences(&req.fact)
-            .iter()
-            .filter_map(|s| read_one(s))
-            .collect();
-        if claims.is_empty() {
+        let Some(parts) = requires_parts(step, req, known, library) else {
             continue;
-        }
-        let mut supplied: Vec<String> = Vec::new();
-        for r in &refs {
-            if let Some(text) = scope.get(r) {
-                supplied.extend(sentences(text));
-            }
-        }
-        // A requires line may not cite another, but the facts the lines above
-        // it state are established for the same step and are what a dull fact
-        // its own citation asks for is written as.
-        supplied.extend(step.requires_above(req.line).map(|o| o.fact.clone()));
-        let mut read: Vec<Node> = supplied.iter().filter_map(|s| read_one(s)).collect();
-        // A step said of every member in one line: its requires lines speak
-        // of the member, whose membership the claim gives (`SYNTAX.md`).
-        if step.openers.is_empty() {
-            let claimed: Vec<Node> = sentences(&step.claim_text())
-                .iter()
-                .filter_map(|s| read_one(s))
-                .collect();
-            if let [claim] = claimed.as_slice() {
-                if let Some((member, _)) = claimed_member(claim, library, &known.sorts)
-                {
-                    read.push(member);
-                }
-            }
-        }
-        let mut seed = Binding::new();
-        for (name, value) in instantiation(&req.how) {
-            if let Some(got) = read_one(&value) {
-                seed.insert(name, got);
-            }
-        }
-        // The facts a step's own citation is given, so that an item cited
-        // on a requires line reaches what it reaches cited by a step.
-        let parts = finished(read, claims, seed, library, &known.sorts);
+        };
         // One use of the item, read as `concludes` reads it, or the item
         // applied as often as it takes (`derives`), which reads its
         // conclusions only as they stand. Neither covers the other.
@@ -96,6 +54,132 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
             continue;
         }
         out.push((req.line, named));
+    }
+    out
+}
+
+/// What a requires line's citation supplies and claims: the line's fact is
+/// its claim, and its facts are the lines its reason names, the requires
+/// lines above it, and the member a claim said of every member names, each
+/// read with the defines the line cites. None where the fact does not read,
+/// which `check_formulas` reports.
+fn requires_parts(
+    step: &Step,
+    req: &Requires,
+    known: &Known,
+    library: &Library,
+) -> Option<Parts> {
+    let scope = known.scope(step);
+    let (refs, _bad) = references(&req.how);
+    // A define is written out where the line cites it (`Known::citing`).
+    let defined = known.citing(&refs);
+    let read_one = |s: &str| known.read_citing(s, &defined);
+    let claims: Vec<Node> = sentences(&req.fact)
+        .iter()
+        .filter_map(|s| read_one(s))
+        .collect();
+    if claims.is_empty() {
+        return None;
+    }
+    let mut supplied: Vec<String> = Vec::new();
+    for r in &refs {
+        if let Some(text) = scope.get(r) {
+            supplied.extend(sentences(text));
+        }
+    }
+    // A requires line may not cite another, but the facts the lines above
+    // it state are established for the same step and are what a dull fact
+    // its own citation asks for is written as.
+    supplied.extend(step.requires_above(req.line).map(|o| o.fact.clone()));
+    let mut read: Vec<Node> = supplied.iter().filter_map(|s| read_one(s)).collect();
+    // A step said of every member in one line: its requires lines speak
+    // of the member, whose membership the claim gives (`SYNTAX.md`).
+    if step.openers.is_empty() {
+        let claimed: Vec<Node> = sentences(&step.claim_text())
+            .iter()
+            .filter_map(|s| read_one(s))
+            .collect();
+        if let [claim] = claimed.as_slice() {
+            if let Some((member, _)) = claimed_member(claim, library, &known.sorts) {
+                read.push(member);
+            }
+        }
+    }
+    let mut seed = Binding::new();
+    for (name, value) in instantiation(&req.how) {
+        if let Some(got) = read_one(&value) {
+            seed.insert(name, got);
+        }
+    }
+    // The facts a step's own citation is given, so that an item cited
+    // on a requires line reaches what it reaches cited by a step.
+    Some(finished(read, claims, seed, library, &known.sorts))
+}
+
+/// What the record each requires line cites asks of it, and what the
+/// record each obtain cites says there is, as this checker reads the page:
+/// one line per hypothesis or sentence, in the page's notation, and one
+/// saying the shared matcher declines where it does. `tests/agree.rs`
+/// compares them with the elaborator's (`Elaborator::list_asked`), since
+/// the two read the page each its own way before they ask `citing` alike.
+pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
+    let mut out = Vec::new();
+    for step in &thm.steps {
+        for req in &step.requires {
+            let Some((named, _)) = requires_item(&req.how) else {
+                continue;
+            };
+            let name = step.just.item(&named);
+            if !matches!(library.item(&name), Some(Item::Record(_))) {
+                continue;
+            }
+            let Some(parts) = requires_parts(step, req, known, library) else {
+                continue;
+            };
+            let at = format!("{}:{} | asked | {named}", thm.path, req.line);
+            match asked(&name, &parts, library) {
+                Built(asks) => {
+                    for h in &asks.hypotheses {
+                        out.push(format!("{at} | {}", known.print(h)));
+                    }
+                }
+                Declined(_) => out.push(format!("{at} | declines")),
+            }
+        }
+        if !step.just.head.is(Method::Obtain) {
+            continue;
+        }
+        let Some(item) = cited_item(&step.just) else {
+            continue;
+        };
+        let name = step.just.item(&item);
+        // A definition that unfolds gives the existence the step claims, which
+        // the elaborator reaches from the claim and never asks the item for.
+        let Some(Item::Record(record)) = library.item(&name) else {
+            continue;
+        };
+        if Item::Record(record).unfolds() {
+            continue;
+        }
+        let Some(groups) = library.groups(&name) else {
+            continue;
+        };
+        let at = format!(
+            "{}:{} | obtained | {}",
+            thm.path,
+            step.line,
+            record.qualified()
+        );
+        let parts = known.parts(step, library);
+        match obtained(&groups, &parts.facts, &parts.seed, library) {
+            Built(taken) => {
+                for said in &groups[taken.group].gives {
+                    let said = filled(said, &taken.binding, &library.ctx);
+                    out.push(format!("{at} | {}", known.print(&said)));
+                }
+            }
+            Declined(_) => out.push(format!("{at} | declines")),
+        }
     }
     out
 }

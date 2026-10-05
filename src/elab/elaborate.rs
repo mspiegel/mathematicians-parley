@@ -47,13 +47,23 @@ use crate::mm::spell::Proof;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::sorts::{cited_defines, file_definitions, sorts_in_scope, unlabel};
+use crate::sorts::{
+    cited_defines, file_definitions, said_by_line, sorts_in_scope, unlabel,
+};
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, regex, t, take};
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
+
+/// What a requires line's record asks of it (`Elaborator::asked_here`).
+pub(crate) struct AskedHere<'a> {
+    /// The record the line cites, in whose names the hypotheses are terms.
+    pub item: &'a Record,
+    /// Its hypotheses, each letter the citation fixes put in.
+    pub hypotheses: Vec<Node>,
+}
 
 regex!(
     SUBSTITUTE,
@@ -703,6 +713,10 @@ impl<'a> Elaborator<'a> {
         self.last = Some(number.to_string());
         self.at = step.line;
         if head == "obtain" {
+            // An obtain's requires lines cite items as any step's do.
+            if self.answers.is_some() {
+                self.list_asked(step)?;
+            }
             return self.obtain(step, number, scope, facts, closers);
         }
         let claim = step.claim_text();
@@ -1212,25 +1226,45 @@ impl<'a> Elaborator<'a> {
         Ok(filled(&node, &taken.binding, &library.ctx))
     }
 
-    /// What a requires line citing an item asks for: the item's hypotheses
-    /// under the binding the line's citation fixes (`citing::asked`), as
-    /// terms. The citation is read as the checker reads it: the line's fact
-    /// is its claim, and its facts are the lines its reason names, the
-    /// requires lines above it, and the member a claim said of every member
-    /// names. Empty where the line cites no record, and where no group of
-    /// the item concludes the line's fact from them: then it asks nothing.
+    /// What a requires line citing an item asks for, as terms
+    /// (`asked_here`). Empty where the line cites no record, and where no
+    /// group of the item concludes the line's fact: then it asks nothing.
     pub fn asked_by_requires(
         &mut self,
         step: &Step,
         o: &Requires,
     ) -> Checked<Vec<String>> {
+        let AskedHere { item, hypotheses } = match self.asked_here(step, o)? {
+            Built(here) => here,
+            Declined(_) => return Ok(Vec::new()),
+        };
+        // Each letter the binding fixes is already replaced in the hypotheses
+        // (`citing::filled`), so they are terms in the item's names as they
+        // stand.
+        self.in_its_names(Item::Record(item), |me| {
+            hypotheses.iter().map(|h| me.term(h)).collect()
+        })
+    }
+
+    /// What a requires line citing a record asks for: the record's
+    /// hypotheses under the binding the line's citation fixes
+    /// (`citing::asked`), as trees. The citation is read as the checker
+    /// reads it: the line's fact is its claim, and its facts are the lines
+    /// its reason names, the requires lines above it, and the member a claim
+    /// said of every member names. Declined where the line cites no record,
+    /// and where no group of the record concludes the line's fact from them.
+    pub(crate) fn asked_here(
+        &mut self,
+        step: &Step,
+        o: &Requires,
+    ) -> Checked<Route<AskedHere<'a>>> {
         let Some((cited, _)) = requires_item(&o.how) else {
-            return Ok(Vec::new());
+            return Ok(Route::no("the line cites no item"));
         };
         let name = cited.split_once(':').map_or(cited.as_str(), |(_, n)| n);
         let full = self.thm.names.full(name);
         let Some(Item::Record(item)) = self.items.get(&full).copied() else {
-            return Ok(Vec::new());
+            return Ok(Route::no("the line cites no record"));
         };
         let library = self.item_library();
         let refs = references(&o.how).0;
@@ -1253,16 +1287,12 @@ impl<'a> Elaborator<'a> {
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
         let parts = self.citation_parts(facts, claims, &o.how, &refs, &library)?;
-        let asks = match asked(&item.qualified(), &parts, &library) {
-            Built(a) => a,
-            Declined(_) => return Ok(Vec::new()),
-        };
-        // Each letter the binding fixes is already replaced in the hypotheses
-        // (`citing::filled`), so they are terms in the item's names as they
-        // stand.
-        self.in_its_names(Item::Record(item), |me| {
-            asks.hypotheses.iter().map(|h| me.term(h)).collect()
-        })
+        Ok(
+            asked(&item.qualified(), &parts, &library).map(|asks| AskedHere {
+                item,
+                hypotheses: asks.hypotheses,
+            }),
+        )
     }
 
     /// What a citation supplies and claims (`citing::finished`), with the
@@ -1300,12 +1330,13 @@ impl<'a> Elaborator<'a> {
                 given.extend(line.sentences.iter().cloned());
             }
         }
-        // Only what the step cites: a sort line fixes nothing.
+        // Only what the step cites: a sort line fixes nothing. A cited
+        // hypothesis says what it says to the checker (`said_by_line`).
         for h in &self.thm.hypotheses {
             if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                given.push(
-                    self.read(&self.hypothesis_formula(h.kind.as_str(), &h.text))?,
-                );
+                for s in self.sentences(&said_by_line(h.kind, &h.text)) {
+                    given.push(self.read(&s)?);
+                }
             }
         }
         Ok(given)

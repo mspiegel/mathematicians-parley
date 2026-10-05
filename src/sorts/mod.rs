@@ -17,7 +17,7 @@ use std::collections::BTreeSet;
 
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Record, ScopeId, Theorem,
+    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
 };
 pub mod infer;
 
@@ -149,6 +149,18 @@ pub fn let_formula(body: &str) -> String {
         return format!("{} ∈ 𝒫{whole}", &m[1]);
     }
     body.to_string()
+}
+
+/// What a hypothesis or a block's opening line says to a citation of it:
+/// the text after its first word, its label taken off, and for a `let` line
+/// the formula `let_formula` gives. Both tools read a cited line this way.
+pub fn said_by_line(kind: Intro, text: &str) -> String {
+    let body = str::trim(&unlabel(&text[kind.as_str().len()..])).to_string();
+    if kind == Intro::Let {
+        let_formula(&body)
+    } else {
+        body
+    }
 }
 
 /// The sentences of a line, each without its full stop.
