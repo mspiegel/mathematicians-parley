@@ -128,7 +128,7 @@ pub fn run(root: &Path) -> Said {
     let setmm = where_set_mm(None, root);
     let setmm = setmm.as_deref();
 
-    type Stage<'s> = Box<dyn Fn() -> Said + 's>;
+    type Stage<'s> = Box<dyn Fn() -> Said + Send + Sync + 's>;
     let stages: Vec<(&str, Stage)> = vec![
         ("checker", Box::new(|| crate::check::run(&source))),
         (
@@ -154,10 +154,19 @@ pub fn run(root: &Path) -> Said {
         ),
     ];
 
+    // No stage reads what another writes, so they run side by side and are
+    // printed in the order above.
+    let results: Vec<Said> = std::thread::scope(|scope| {
+        let running: Vec<_> =
+            stages.iter().map(|(_, stage)| scope.spawn(stage)).collect();
+        running
+            .into_iter()
+            .map(|handle| handle.join().expect("a gate stage panicked"))
+            .collect()
+    });
     let mut out = Said::default();
     let mut failed = Vec::new();
-    for (what, stage) in &stages {
-        let said = stage();
+    for ((what, _), said) in stages.iter().zip(results) {
         out.printed += &format!("\n=== {what}\n{}{}", said.printed, said.complained);
         if !said.green() {
             failed.push(*what);
