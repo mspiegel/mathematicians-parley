@@ -2,12 +2,18 @@
 # Everything that must pass before a commit, with what can run at once run
 # at once.
 #
-# Two lanes run side by side, because cargo locks each build directory and
-# the two lanes build into different ones:
+# Three lanes run side by side:
 #
-#   debug:    cargo clippy, then cargo test          (target/debug)
+#   debug:    cargo clippy                           (target/debug)
 #   release:  cargo build --release, then parley build, then parley gate
-#                                                    (target/release)
+#   test:     cargo test --release                   (target/release)
+#
+# The tests elaborate proofs and load set.mm, and run several times faster
+# built with optimisations. The release and test lanes share a build
+# directory, whose lock cargo holds while it compiles: one lane compiles the
+# library and the other waits for it, then uses it. parley build and the gate
+# run the binary without cargo, beside the tests. The release profile keeps
+# overflow checks for the tests.
 #
 # Formatting is checked first; it takes a moment and needs no build. While
 # the lanes run, a line says when each step starts and how it ends, with how
@@ -66,7 +72,6 @@ parley_build() {
 
 debug_lane() {
     step debug "cargo clippy" cargo clippy --all-targets -- -D warnings || return 1
-    step debug "cargo test" cargo test || return 1
 }
 
 release_lane() {
@@ -75,17 +80,25 @@ release_lane() {
     step release "parley gate" ./target/release/parley gate || return 1
 }
 
+test_lane() {
+    step test "cargo test --release" cargo test --release || return 1
+}
+
 debug_lane >"$logs/debug.log" 2>&1 &
 debug=$!
 release_lane >"$logs/release.log" 2>&1 &
 release=$!
+test_lane >"$logs/test.log" 2>&1 &
+tests=$!
 
 failed=""
 wait "$debug" || failed="$failed debug-lane"
 wait "$release" || failed="$failed release-lane"
+wait "$tests" || failed="$failed test-lane"
 
 cat "$logs/debug.log"
 cat "$logs/release.log"
+cat "$logs/test.log"
 
 # A build that changed files ran while the tests were reading them.
 if [ -f "$logs/build.out" ] && ! grep -q " 0 changed$" "$logs/build.out"; then
