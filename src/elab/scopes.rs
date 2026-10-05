@@ -574,13 +574,18 @@ impl<'a> Elaborator<'a> {
             // The induction hypothesis is the claim's statement at the letter
             // just fixed, read as the close reads the statement, so that the
             // two are one formula with one choice of bound letters.
-            let node = if o.is_hypothesis {
+            // What the line says is kept as the page's tree, which a citation
+            // of it is matched against (`citing`); its term is the frozen one.
+            let (node, added) = if o.is_hypothesis {
                 let claim = self.claim_node(&block.owner.claim_text())?;
-                self.freeze(&claim.children[2])?
+                let frozen = self.freeze(&claim.children[2])?;
+                let added = self.term(&frozen)?;
+                (claim.children[2].clone(), added)
             } else {
-                self.read(&body)?
+                let node = self.read(&body)?;
+                let added = self.term(&node)?;
+                (node, added)
             };
-            let added = self.term(&node)?;
             let origin = assumption(block, &o.label);
             let (inner, lifted) = self.widen(
                 &block.scope.clone(),
@@ -1307,7 +1312,6 @@ impl<'a> Elaborator<'a> {
                             r.qualified(),
                             me.g.print(&node)
                         ));
-                        me.list_obtained(step, r, &cites, &node);
                     }
                     me.term(&node)
                 })?;

@@ -66,7 +66,63 @@ fn take(
 /// groups, and what the item's letters stand for there.
 pub struct Taken {
     pub group: usize,
+    /// Only the letters free in the group's statement. The search also binds
+    /// a letter a "there is" or a "for all" of the item binds itself, to the
+    /// value that gave it, and that letter stands for nothing at the
+    /// citation: the s of `there is s ∈ S` is still the conclusion's own s.
     pub binding: Binding,
+}
+
+impl Taken {
+    fn of(group: usize, mut binding: Binding, of: &Group, library: &Library) -> Taken {
+        let mut free = BTreeSet::new();
+        for t in of.gives.iter().chain(of.wants.iter().map(|(_, t)| t)) {
+            free_names(t, library, &mut Vec::new(), &mut free);
+        }
+        binding.retain(|name, _| free.contains(name));
+        Taken { group, binding }
+    }
+}
+
+/// The names free in `node`, put in `out`: those no binder around them
+/// holds, `bound` being the ones that do.
+fn free_names(
+    node: &Node,
+    library: &Library,
+    bound: &mut Vec<String>,
+    out: &mut BTreeSet<String>,
+) {
+    if node.is_name() {
+        if !bound.contains(&node.text) {
+            out.insert(node.text.clone());
+        }
+        return;
+    }
+    let binds = library.ctx.binders.get(&node.notation);
+    for (at, child) in node.children.iter().enumerate() {
+        let Some(binds) = binds else {
+            free_names(child, library, bound, out);
+            continue;
+        };
+        if binds.held.contains(&at) {
+            continue;
+        }
+        if binds.body.contains(&at) {
+            let held: Vec<String> = binds
+                .held
+                .iter()
+                .filter_map(|&h| node.children.get(h))
+                .filter(|h| h.is_name())
+                .map(|h| h.text.clone())
+                .collect();
+            let depth = bound.len();
+            bound.extend(held);
+            free_names(child, library, bound, out);
+            bound.truncate(depth);
+            continue;
+        }
+        free_names(child, library, bound, out);
+    }
 }
 
 /// Whether one group of an item's conclusions covers what is claimed.
@@ -127,7 +183,7 @@ pub fn taken(
             library,
             &sites,
         ) {
-            return Built(Taken { group, binding });
+            return Built(Taken::of(group, binding, &groups[group], library));
         }
     }
     Route::no("no group of the item concludes the claim from the facts named")
@@ -150,22 +206,34 @@ pub fn obtains(
 
 /// The first group of an item that gives a "there is" from the facts, with
 /// the binding the facts fix; declined where none does.
+///
+/// The facts supply the group's hypotheses as well as what the reading asks
+/// first, so that every letter the item says the "there is" of is bound: the
+/// x of `x(n) → L as n → ∞` is fixed by that hypothesis alone.
 pub fn obtained(
     groups: &[Group],
     facts: &[Node],
     seed: &Binding,
     library: &Library,
 ) -> Route<Taken> {
-    for (group, Group { gives, .. }) in groups.iter().enumerate() {
+    for (group, Group { wants, gives }) in groups.iter().enumerate() {
+        let asked: Vec<Node> = wants
+            .iter()
+            .flat_map(|(_, t)| conjuncts(t, library))
+            .collect();
         for concl in gives {
             let mut sites = Sites::new();
             binding_sites(concl, &library.ctx, &[], &mut sites);
+            for t in &asked {
+                binding_sites(t, &library.ctx, &[], &mut sites);
+            }
             for (target, extra) in readings(concl, library) {
                 // The "there is" is the reading's target or a part of it, and
                 // may be a property the definition applies, which the line
                 // the step cites decides.
-                let need: Vec<Node> =
+                let mut need: Vec<Node> =
                     extra.iter().flat_map(|e| conjuncts(e, library)).collect();
+                need.extend(asked.iter().cloned());
                 let variables = names_of(&need);
                 let found =
                     supply(&need, facts, seed, &variables, library, &sites, false);
@@ -174,7 +242,8 @@ pub fn obtained(
                         .iter()
                         .any(|part| existential(part, &binding, library))
                     {
-                        return Built(Taken { group, binding });
+                        let taken = Taken::of(group, binding, &groups[group], library);
+                        return Built(taken);
                     }
                 }
             }

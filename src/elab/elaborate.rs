@@ -32,17 +32,14 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::citing::filled;
+use crate::citing::{self, asked, claimed_member, filled, finished, obtained, Parts};
 use crate::corpus::proof::{requires_as_step, requires_item, Requires};
 use crate::corpus::{
     define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
     Item, Record, Step, Theorem,
 };
 use crate::formula::{Grammar, Node};
-use crate::matching::{
-    binding_sites, instantiation, match_tree, Binding as NodeBinding, Context, Defined,
-    PROPERTY,
-};
+use crate::matching::{instantiation, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -1161,10 +1158,16 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A sentence of an item, read in the item's own names and then said at
-    /// this step: each name the step fixes (`item_binding`) is what it stands
-    /// for, and a function letter standing for a rule is that rule where the
-    /// sentence applies it. `x(n) ≤ B` of `convergent-bounded`, with x the
-    /// partial sums of 1/k, is Σ(k = 1 to n) 1/k ≤ B.
+    /// this step: each name the step's citation fixes (`citing::obtained`) is
+    /// what it stands for, and a function letter standing for a rule is that
+    /// rule where the sentence applies it. `x(n) ≤ B` of
+    /// `convergent-bounded`, with x the partial sums of 1/k, is
+    /// Σ(k = 1 to n) 1/k ≤ B.
+    ///
+    /// The citation is read as the checker reads it: the lines the step
+    /// names, its requires lines, and the instantiation written in `cites`.
+    /// An item that gives no "there is" from them is a defect, which the
+    /// checker reports of the same step.
     pub(crate) fn item_sentence_here(
         &mut self,
         step: &Step,
@@ -1172,36 +1175,55 @@ impl<'a> Elaborator<'a> {
         cites: Option<&str>,
         text: &str,
     ) -> Checked<Node> {
-        let bound = self.item_binding(step, item, cites)?;
+        let library = self.item_library();
+        let Some(groups) = library.groups(&item.qualified()) else {
+            return Err(self.defect(
+                step.line,
+                format!("{} is not an item a step may cite", item.qualified()),
+            ));
+        };
+        let mut facts = self.cited_sentences(&step.just.refs)?;
+        for r in &step.requires {
+            facts.push(self.read(&r.fact)?);
+        }
+        let cites = cites.unwrap_or(&step.just.text);
+        let parts = self.citation_parts(facts, Vec::new(), cites, &library)?;
+        let taken = match obtained(&groups, &parts.facts, &parts.seed, &library) {
+            Built(t) => t,
+            Declined(d) => {
+                let missing = unsupplied_alone(&groups, &parts, &library);
+                if missing.is_empty() {
+                    return Err(d.into_problem(&self.thm.path, step.line));
+                }
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "step {} cites {}:{}, which asks for {}, and what it cites does not supply it",
+                        fmt(&step.number),
+                        item_kind(Item::Record(item)),
+                        item.qualified(),
+                        missing.join("; ")
+                    ),
+                ));
+            }
+        };
         let node = self.in_its_names(Item::Record(item), |me| me.read(text))?;
-        let ctx = Context::new(&self.g.notations, self.records);
-        Ok(filled(&node, &bound, &ctx))
+        Ok(filled(&node, &taken.binding, &library.ctx))
     }
 
-    /// What an item's names stand for at this step, as the page says it: a
-    /// name the step writes first, then the item's conclusion matched
-    /// against the step's claim, and each of its hypotheses against what the
-    /// step cites, until nothing more is learned.
-    fn item_binding(
-        &mut self,
-        step: &Step,
-        item: &'a Record,
-        cites: Option<&str>,
-    ) -> Checked<NodeBinding> {
-        let said = self.said(step)?;
-        self.item_binding_at(step, item, cites, &said, &step.just.refs)
-    }
-
-    /// What a requires line citing an item asks for: the item's hypotheses,
-    /// under the names the line gives and those its fact and its citations
-    /// fix, as terms. Empty where the line cites no record.
+    /// What a requires line citing an item asks for: the item's hypotheses
+    /// under the binding the line's citation fixes (`citing::asked`), as
+    /// terms. The citation is read as the checker reads it: the line's fact
+    /// is its claim, and its facts are the lines its reason names, the
+    /// requires lines above it, and the member a claim said of every member
+    /// names. Empty where the line cites no record, and where no group of
+    /// the item concludes the line's fact from them: then it asks nothing.
     pub fn asked_by_requires(
         &mut self,
         step: &Step,
-        how: &str,
-        fact: &str,
+        o: &Requires,
     ) -> Checked<Vec<String>> {
-        let Some((cited, _)) = requires_item(how) else {
+        let Some((cited, _)) = requires_item(&o.how) else {
             return Ok(Vec::new());
         };
         let name = cited.split_once(':').map_or(cited.as_str(), |(_, n)| n);
@@ -1209,147 +1231,57 @@ impl<'a> Elaborator<'a> {
         let Some(Item::Record(item)) = self.items.get(&full).copied() else {
             return Ok(Vec::new());
         };
-        let said = vec![self.read(fact)?];
-        let refs = references(how).0;
-        let ctx = Context::new(&self.g.notations, self.records);
-        self.names_kept(|me| -> Checked<Vec<String>> {
-            let bound = me.item_binding_at(step, item, Some(how), &said, &refs)?;
-            for (name, node) in &bound {
-                if node.notation != PROPERTY {
-                    let term = me.term(node)?;
-                    me.names.insert(name.clone(), term);
+        let library = self.item_library();
+        let mut facts = self.cited_sentences(&references(&o.how).0)?;
+        for above in step.requires_above(o.line) {
+            facts.push(self.read(&above.fact)?);
+        }
+        if step.openers.is_empty() {
+            if let [claim] = self.said(step)?.as_slice() {
+                if let Some((member, _)) =
+                    claimed_member(claim, &library, &self.sorts_now)
+                {
+                    facts.push(member);
                 }
             }
-            me.in_its_names(Item::Record(item), |me| -> Checked<Vec<String>> {
-                let mut asks = Vec::new();
-                for h in &item.hypotheses {
-                    let body = me.hypothesis_formula(h.kind.as_str(), &h.text);
-                    let read = me.read(&body)?;
-                    // A letter the line does not fix, as the t of `let t :
-                    // {a, …, b} → ℝ` that stands for a summand, leaves the
-                    // hypothesis no term a requires line could write.
-                    let unfixed = read.names().iter().any(|n| {
-                        let fixed =
-                            bound.get(n).is_some_and(|b| b.notation != PROPERTY);
-                        !fixed && !me.g.functions.contains_key(n)
-                    });
-                    if unfixed {
-                        continue;
-                    }
-                    asks.push(me.term(&filled(&read, &bound, &ctx))?);
-                }
-                Ok(asks)
-            })
+        }
+        let claims = self
+            .sentences(&o.fact)
+            .iter()
+            .map(|s| self.read(s))
+            .collect::<Checked<Vec<Node>>>()?;
+        let parts = self.citation_parts(facts, claims, &o.how, &library)?;
+        let asks = match asked(&item.qualified(), &parts, &library) {
+            Built(a) => a,
+            Declined(_) => return Ok(Vec::new()),
+        };
+        // Each letter the binding fixes is already replaced in the hypotheses
+        // (`citing::filled`), so they are terms in the item's names as they
+        // stand.
+        self.in_its_names(Item::Record(item), |me| {
+            asks.hypotheses.iter().map(|h| me.term(h)).collect()
         })
     }
 
-    /// `item_binding` against a claim and citations of the caller's: a
-    /// requires line's own fact and the lines its reason cites.
-    fn item_binding_at(
-        &mut self,
-        step: &Step,
-        item: &'a Record,
-        cites: Option<&str>,
-        said: &[Node],
-        refs: &[String],
-    ) -> Checked<NodeBinding> {
-        let mut bound = NodeBinding::new();
-        for (name, value) in instantiation(cites.unwrap_or(&step.just.text)) {
-            let node = self.read(&value)?;
-            bound.insert(name, node);
+    /// What a citation supplies and claims (`citing::finished`), with the
+    /// instantiation written in `cites` as its seed.
+    ///
+    /// A defined name is kept as the page writes it, where the checker
+    /// writes it out: what the binding gives back is said at the step, and an
+    /// obtain citing `S := S` for a defined S claims something of S, which
+    /// the step's lines say, not of the set S names.
+    fn citation_parts(
+        &self,
+        facts: Vec<Node>,
+        claims: Vec<Node>,
+        cites: &str,
+        library: &citing::Library,
+    ) -> Checked<Parts> {
+        let mut seed = NodeBinding::new();
+        for (name, value) in instantiation(cites) {
+            seed.insert(name, self.read(&value)?);
         }
-        let (ends, mut hyps) = self.in_its_names(
-            Item::Record(item),
-            |me| -> Checked<(Vec<Node>, Vec<Node>)> {
-                let mut ends = Vec::new();
-                for (text, _line) in &item.conclusions {
-                    for sentence in me.sentences(text) {
-                        ends.push(me.read(&sentence)?);
-                    }
-                }
-                let mut hyps = Vec::new();
-                for h in &item.hypotheses {
-                    hyps.push(
-                        me.read(&me.hypothesis_formula(h.kind.as_str(), &h.text))?,
-                    );
-                }
-                Ok((ends, hyps))
-            },
-        )?;
-        let ctx = Context::new(&self.g.notations, self.records);
-        // A name the item binds itself is the item's own and stands for
-        // nothing at the step.
-        let mut own: BTreeSet<String> = BTreeSet::new();
-        let mut rest: Vec<Node> = ends.iter().chain(hyps.iter()).cloned().collect();
-        while let Some(node) = rest.pop() {
-            if let Some(b) = ctx.binders.get(&node.notation) {
-                for &at in &b.held {
-                    if node.children[at].is_name() {
-                        own.insert(node.children[at].text.clone());
-                    }
-                }
-            }
-            // So is a library function the item applies, as sin in
-            // sin(∠PQR): the library's, not a name the step gives a value.
-            // Only where it is applied, since a letter such as C may be a
-            // function's name and a point's.
-            let applied =
-                matches!(node.notation.as_str(), "application" | "application-to-two")
-                    && node.children.first().is_some_and(Node::is_name);
-            if applied && self.g.functions.contains_key(&node.children[0].text) {
-                own.insert(node.children[0].text.clone());
-            }
-            rest.extend(node.children.iter().cloned());
-        }
-        let mut variables: BTreeSet<String> = BTreeSet::new();
-        for n in ends.iter().chain(hyps.iter()) {
-            variables.extend(n.names());
-        }
-        let variables: BTreeSet<String> = variables.difference(&own).cloned().collect();
-        // A definition is a biconditional, and a step unfolding one claims
-        // one side and cites the other, so each side is matched as well as
-        // the whole.
-        let sides: Vec<Node> = ends
-            .iter()
-            .filter(|e| e.notation == "biconditional")
-            .flat_map(|e| e.children.iter().cloned())
-            .collect();
-        hyps.extend(sides.iter().cloned());
-        // Where a binder applies a function letter to what it binds, that
-        // occurrence says what the letter stands for: `x(n) → L as n → ∞`
-        // cited at the partial sums of 1/k makes x their rule.
-        let mut sites = indexmap::IndexSet::new();
-        for n in ends.iter().chain(hyps.iter()) {
-            binding_sites(n, &ctx, &[], &mut sites);
-        }
-        for end in ends.iter().chain(sides.iter()) {
-            for s in said {
-                if let Some(got) = match_tree(end, s, &bound, &variables, &sites, &ctx)
-                {
-                    bound = got;
-                    break;
-                }
-            }
-        }
-        let given = self.cited_sentences(refs)?;
-        let mut learned = true;
-        while learned {
-            learned = false;
-            for hyp in &hyps {
-                for fact in &given {
-                    if let Some(got) =
-                        match_tree(hyp, fact, &bound, &variables, &sites, &ctx)
-                    {
-                        if got.len() > bound.len() {
-                            bound = got;
-                            learned = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        Ok(bound)
+        Ok(finished(facts, claims, seed, library, &self.sorts_now))
     }
 
     /// What the lines and labelled hypotheses `refs` name say, each sentence
@@ -3861,6 +3793,38 @@ pub fn elaborate(
         said_back: work.said_back.take().unwrap_or_default(),
         answers: work.answers.take().unwrap_or_default(),
     })
+}
+
+/// The hypotheses of an item, as the item writes them, that no one fact of
+/// the citation supplies on its own: what a message names when the item
+/// gives the citation nothing.
+fn unsupplied_alone(
+    groups: &[citing::Group],
+    parts: &Parts,
+    library: &citing::Library,
+) -> Vec<String> {
+    let mut out = Vec::new();
+    for group in groups {
+        for (text, tree) in &group.wants {
+            let one = std::slice::from_ref(tree);
+            let mut sites = citing::Sites::new();
+            crate::matching::binding_sites(tree, &library.ctx, &[], &mut sites);
+            let variables = citing::names_of(one);
+            let found = citing::supply(
+                one,
+                &parts.facts,
+                &parts.seed,
+                &variables,
+                library,
+                &sites,
+                false,
+            );
+            if found.is_none() && !out.contains(text) {
+                out.push(text.clone());
+            }
+        }
+    }
+    out
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

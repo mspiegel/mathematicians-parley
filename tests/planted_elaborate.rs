@@ -408,14 +408,15 @@ fn cases() -> Vec<Case> {
         ),
         // The least upper bound is the supremum, which is a number only of a
         // set bounded above, and line 7 is what says S is. Without it cited
-        // nothing names a bound, and the step says which.
+        // nothing supplies the hypothesis naming a bound, and the step says
+        // which.
         case(
             "obtain the least upper bound without the line bounding the set",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
             "obtain c: axi:completeness S := S, from 5, 2, 7",
             "obtain c: axi:completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:66  no cited line names a witness for there is x ∈ ℝ with",
+            "proofs/intermediate-value.proof:66  step 8 cites axi:stdlib/calculus/completeness, which asks for there is u ∈ ℝ with u is an upper bound of S",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -641,17 +642,16 @@ fn cases() -> Vec<Case> {
             "    def:continuous-on",
             "proofs/intermediate-value.proof:89  no method owns this step: no cited line is what elcncf2 unfolds",
         ),
-        // An item's target asks a side condition the page never writes, and
-        // `rewritten` answers it through the equation the step cites: `0 < |X|`
-        // is `0 < k + 1` by C2. Without C2 cited, the equation is in scope and
-        // not in hand, and the side condition must go unanswered.
+        // The item asks |X| = k + 1, which C2 says. Without C2 cited, the
+        // equation is in scope and not in hand, and the hypothesis must go
+        // unanswered rather than be answered by a line the step does not name.
         case(
             "answer a side condition by an equation the step does not cite",
             "proofs/subsets/subsets-count",
             "proofs/subsets.proof",
             "obtain a: mun:card-nonempty, from K2, C2",
             "obtain a: mun:card-nonempty, from K2",
-            "mun:stdlib/counting/card-nonempty targets hashgt0elex, and none of them reaches",
+            "proofs/subsets.proof:267  step 1.2.1 cites mun:stdlib/counting/card-nonempty, which asks for |X| = k + 1",
         ),
         // `elrnmpt1s` reads its map at a term only a cited line supplies. With
         // the line gone nothing says where the map is read, and the body must

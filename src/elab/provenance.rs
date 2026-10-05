@@ -242,8 +242,7 @@ impl<'a> Elaborator<'a> {
                 if requires_item(&o.how).is_none() {
                     continue;
                 }
-                let asks =
-                    self.names_kept(|me| me.asked_by_requires(step, &o.how, &o.fact))?;
+                let asks = self.names_kept(|me| me.asked_by_requires(step, o))?;
                 if asks.contains(&term) {
                     asked = true;
                     break;
