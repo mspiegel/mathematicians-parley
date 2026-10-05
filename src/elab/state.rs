@@ -7,12 +7,14 @@
 //! the grammar, the database, set.mm — is borrowed; what belongs to this
 //! theorem is owned, and goes when the theorem is written.
 
+use std::cell::OnceCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
 use super::{Facts, Lines};
+use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::fancy;
 use crate::formula::{Grammar, Node, Sorts};
@@ -21,6 +23,7 @@ use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Checked, Decline, Problem, Route};
+use crate::sorts::{sorts_of_record, Env};
 use crate::targets::{self, Commuting};
 
 /// Variables for a name the proof does not spell: what a `define` renames
@@ -279,6 +282,9 @@ pub struct Elaborator<'a> {
     pub statements: &'a dyn Fn(&str) -> Option<String>,
     /// Whether the search is offered every fact in scope (`Options`).
     pub whole_scope: bool,
+    /// What each record asks a citation and concludes, read as the checker
+    /// reads it (`citing`), the first time a citation asks.
+    pub item_library: OnceCell<Rc<citing::Library<'a>>>,
 }
 
 impl<'a> Elaborator<'a> {
@@ -388,7 +394,33 @@ impl<'a> Elaborator<'a> {
             terms,
             statements,
             whole_scope: false,
+            item_library: OnceCell::new(),
         }
+    }
+
+    /// What each record asks a citation and concludes, read once. Only
+    /// records: a theorem of the corpus is cited by what its own file proves.
+    pub fn item_library(&self) -> Rc<citing::Library<'a>> {
+        let library = self.item_library.get_or_init(|| {
+            let env = Env {
+                g: self.g,
+                scopes: self.scopes,
+            };
+            let sorts = self
+                .records
+                .iter()
+                .enumerate()
+                .filter(|(_, r)| r.kind.is_item())
+                .map(|(i, r)| (i, sorts_of_record(r, env)))
+                .collect();
+            Rc::new(citing::Library::new(
+                self.records,
+                sorts,
+                IndexMap::new(),
+                env,
+            ))
+        });
+        library.clone()
     }
 
     /// Something a person has to fix, and where in the proof it is: every

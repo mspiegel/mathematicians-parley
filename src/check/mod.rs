@@ -379,7 +379,7 @@ fn prepared<T>(
             (k.thm.qualified(), at)
         })
         .collect();
-    let library = Library::new(&records, &record_sorts, proved, env);
+    let library = Library::new(&records, record_sorts.clone(), proved, env);
 
     formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods

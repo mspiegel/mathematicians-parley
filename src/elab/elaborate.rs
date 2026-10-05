@@ -32,6 +32,7 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
+use crate::citing::filled;
 use crate::corpus::proof::{requires_as_step, requires_item, Requires};
 use crate::corpus::{
     define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
@@ -39,8 +40,8 @@ use crate::corpus::{
 };
 use crate::formula::{Grammar, Node};
 use crate::matching::{
-    binding_sites, instantiation, match_tree, substitute_apart, Binding as NodeBinding,
-    Context, Defined, PROPERTY,
+    binding_sites, instantiation, match_tree, Binding as NodeBinding, Context, Defined,
+    PROPERTY,
 };
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
@@ -1330,20 +1331,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let mut given: Vec<Node> = Vec::new();
-        for r in refs {
-            if let Some(line) = self.lines.get(r) {
-                given.extend(line.sentences.iter().cloned());
-            }
-        }
-        // Only what the step cites: a sort line fixes nothing.
-        for h in &self.thm.hypotheses {
-            if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                given.push(
-                    self.read(&self.hypothesis_formula(h.kind.as_str(), &h.text))?,
-                );
-            }
-        }
+        let given = self.cited_sentences(refs)?;
         let mut learned = true;
         while learned {
             learned = false;
@@ -1362,6 +1350,26 @@ impl<'a> Elaborator<'a> {
             }
         }
         Ok(bound)
+    }
+
+    /// What the lines and labelled hypotheses `refs` name say, each sentence
+    /// read.
+    pub(crate) fn cited_sentences(&self, refs: &[String]) -> Checked<Vec<Node>> {
+        let mut given: Vec<Node> = Vec::new();
+        for r in refs {
+            if let Some(line) = self.lines.get(r) {
+                given.extend(line.sentences.iter().cloned());
+            }
+        }
+        // Only what the step cites: a sort line fixes nothing.
+        for h in &self.thm.hypotheses {
+            if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
+                given.push(
+                    self.read(&self.hypothesis_formula(h.kind.as_str(), &h.text))?,
+                );
+            }
+        }
+        Ok(given)
     }
 
     /// A universal used at one term: `instantiate s := a in line 10` takes a
@@ -3853,41 +3861,6 @@ pub fn elaborate(
         said_back: work.said_back.take().unwrap_or_default(),
         answers: work.answers.take().unwrap_or_default(),
     })
-}
-
-/// `node` with each name `bound` fixes replaced by what it stands for, and a
-/// letter bound to a rule applied where the node applies it.
-fn filled(node: &Node, bound: &NodeBinding, ctx: &Context) -> Node {
-    if node.is_name() {
-        return match bound.get(&node.text) {
-            Some(stands) if stands.notation != PROPERTY => stands.clone(),
-            _ => node.clone(),
-        };
-    }
-    if ctx.props.contains_key(&node.notation)
-        && node.children.len() == 2
-        && node.children[0].is_name()
-    {
-        if let Some(rule) = bound.get(&node.children[0].text) {
-            if rule.notation == PROPERTY {
-                let mut at = NodeBinding::new();
-                at.insert(rule.text.clone(), filled(&node.children[1], bound, ctx));
-                return substitute_apart(&rule.children[0], &at, ctx);
-            }
-        }
-    }
-    if node.children.is_empty() {
-        return node.clone();
-    }
-    Node::new(
-        &node.notation,
-        node.sort.clone(),
-        node.children
-            .iter()
-            .map(|c| filled(c, bound, ctx))
-            .collect(),
-        &node.text,
-    )
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

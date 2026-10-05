@@ -1307,6 +1307,7 @@ impl<'a> Elaborator<'a> {
                             r.qualified(),
                             me.g.print(&node)
                         ));
+                        me.list_obtained(step, r, &cites, &node);
                     }
                     me.term(&node)
                 })?;

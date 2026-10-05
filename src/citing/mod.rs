@@ -9,11 +9,13 @@
 //! the nodes over; the checker and the elaborator ask the one question
 //! here, so that they answer it alike.
 
+mod asked;
 mod conclude;
 mod library;
 mod parts;
 mod supply;
 
+pub use asked::{asked, filled, Asked};
 pub use conclude::{concludes, derives, obtained, obtains, taken, Taken};
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved};
 pub use parts::{

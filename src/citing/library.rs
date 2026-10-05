@@ -45,7 +45,9 @@ pub struct Proved<'a> {
 pub struct Library<'a> {
     pub env: Env<'a>,
     records: &'a [Record],
-    record_sorts: &'a IndexMap<usize, Sorts>,
+    /// The sort of each name an item record's statement uses, by the
+    /// record's place in `records`.
+    record_sorts: IndexMap<usize, Sorts>,
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
@@ -63,11 +65,12 @@ pub struct Library<'a> {
 regex!(FIRST_WORD, r"^[a-z0-9-]+");
 
 impl<'a> Library<'a> {
-    /// `proved` gives the theorems a citation may name besides the records,
-    /// each by its full name.
+    /// `record_sorts` holds every item record's sorts, and `proved` gives
+    /// the theorems a citation may name besides the records, each by its
+    /// full name.
     pub fn new(
         records: &'a [Record],
-        record_sorts: &'a IndexMap<usize, Sorts>,
+        record_sorts: IndexMap<usize, Sorts>,
         proved: IndexMap<String, Proved<'a>>,
         env: Env<'a>,
     ) -> Library<'a> {
