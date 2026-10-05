@@ -434,6 +434,59 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
     }
 }
 
+/// A `cases` block cites one line, and that line claims the cases'
+/// assumptions joined by "or", in the order the parts take them
+/// (`SYNTAX.md`). A line with that disjunction as one part of what it says
+/// is not it. The two are compared as written, not in standard form, since
+/// standard form puts the two sides of an "or" in an order of its own.
+pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
+    for owner in &thm.steps {
+        if !owner.just.head.is(Method::Cases) {
+            continue;
+        }
+        let Some(cited) = owner.just.refs.first() else {
+            continue;
+        };
+        // A reference to nothing is `check_references`'s to report.
+        let scope = known.scope(owner);
+        let Some(said) = scope.get(cited) else {
+            continue;
+        };
+        let mut parts: Vec<_> = owner
+            .openers
+            .iter()
+            .filter(|o| o.kind == Intro::Assume && o.part.is_some())
+            .collect();
+        if parts.is_empty() {
+            continue;
+        }
+        parts.sort_by_key(|o| o.part);
+        let joined = parts
+            .iter()
+            .map(|o| {
+                let body = o.text.strip_prefix(o.kind.as_str()).unwrap_or(&o.text);
+                format!("({})", str::trim(&unlabel(body)))
+            })
+            .collect::<Vec<_>>()
+            .join(" or ");
+        let (Some(want), Some(have)) =
+            (known.read_as_written(&joined), known.read_as_written(said))
+        else {
+            continue;
+        };
+        if want.shape() != have.shape() {
+            report.say(
+                &thm.path,
+                owner.just.line,
+                format!(
+                    "step {} takes its cases from {cited}, which does not claim their assumptions joined by \"or\", in the order the cases take them",
+                    owner.number
+                ),
+            );
+        }
+    }
+}
+
 /// One link of a calculation.
 pub struct Link {
     /// What the link claims: `previous rel t`.
@@ -878,10 +931,8 @@ fn recursion_equation(
 /// a(k − 1)` reaches a value the rule has not given yet. Each rule reads,
 /// since a rule that does not is a value nobody can cite.
 ///
-/// Nor does a rule name k itself, outside a value at k: set.mm's recursion
-/// steps from the values alone, so `c(k + 1) := c(k) + k` has no reading
-/// there. A sequence that needs its index keeps it as a value of its own,
-/// `i(0) := 0, i(k + 1) := i(k) + 1`.
+/// A rule at k + 1 may name k itself, as `c(k + 1) := c(k) + k` does; a
+/// value at 0 has no k to name.
 pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
     for d in &thm.defines {
         let Built(DefineParts::Recursion(said)) = define_parts(&d.text) else {
@@ -922,15 +973,17 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     .filter(|n| applied(n))
                     .map(|n| n.children[1].id())
                     .collect();
-                if nodes.iter().any(|n| {
-                    n.is_name() && n.text == said.index && !at_k.contains(&n.id())
-                }) {
+                if at.is_none()
+                    && nodes.iter().any(|n| {
+                        n.is_name() && n.text == said.index && !at_k.contains(&n.id())
+                    })
+                {
                     report.say(
                         &thm.path,
                         d.line,
                         format!(
-                            "define {label}: the rule for {place} names {} outside a value at {}; a step sees only the values",
-                            said.index, said.index
+                            "define {label}: the value of {place} names {}, which has no value at 0",
+                            said.index
                         ),
                     );
                 }

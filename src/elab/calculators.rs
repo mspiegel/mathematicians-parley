@@ -22,6 +22,7 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 use super::field::{self, numeral as n, q, Poly, Verdict, Q};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
+use super::numerals;
 use super::provenance::requirement;
 use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
@@ -137,9 +138,10 @@ pub fn order_sides(goal: &Term) -> Option<(Term, Term, &'static str)> {
     Some((kids[0].clone(), kids[1].clone(), how))
 }
 
-/// How many times the claim the cited equation is, if a whole number from 2
-/// to 9: both are the polynomial that must vanish, so one being a multiple
-/// of the other is the two saying the same thing at different scales.
+/// How many times the claim the cited equation is, if a whole number of 2
+/// or more: both are the polynomial that must vanish, so one being a
+/// multiple of the other is the two saying the same thing at different
+/// scales.
 pub fn whole_multiple(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<i64> {
     let (cited, claim) = (cited?, claim?);
     let lead = claim.lead()?;
@@ -149,7 +151,7 @@ pub fn whole_multiple(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<i64>
         return None;
     }
     let whole = times.to_integer().to_i64()?;
-    if !(2..=9).contains(&whole) {
+    if whole < 2 {
         return None;
     }
     if *cited != claim.scaled(&times) {
@@ -1019,9 +1021,7 @@ impl<'a> Elaborator<'a> {
                 field::equation(&cited, &labels).as_ref(),
                 want.as_ref(),
             );
-            let Some(times) =
-                times.filter(|t| self.b.sigs.contains_key(&format!("{t}ne0")))
-            else {
+            let Some(times) = times else {
                 continue;
             };
             let numeral = n(times as u32);
@@ -1079,7 +1079,7 @@ impl<'a> Elaborator<'a> {
         let apart = self.b.ap(
             "a1i",
             &binds! {"ph" => t!(numeral, "cc0", "wne"), "ps" => scope},
-            &[&self.step(&format!("{times}ne0"))],
+            &[&numerals::ne0(&self.b, times as u64)],
         );
         let both = self.b.ap(
             "jca",
@@ -1270,24 +1270,24 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the claim states no relation"));
         };
         let labels = self.b.flabel.clone();
-        let digit = |v: Option<Q>| -> Option<i64> {
+        let whole = |v: Option<Q>| -> Option<i64> {
             let v = v?;
             if !v.is_integer() {
                 return None;
             }
             let n = v.to_integer().to_i64()?;
-            (0..=9).contains(&n).then_some(n)
+            (n >= 0).then_some(n)
         };
         let (Some(a), Some(b)) = (
-            digit(linear::numeral(&first, &labels)),
-            digit(linear::numeral(&second, &labels)),
+            whole(linear::numeral(&first, &labels)),
+            whole(linear::numeral(&second, &labels)),
         ) else {
-            return Ok(Route::no("the two sides are not single digits"));
+            return Ok(Route::no("the two sides are not whole numbers"));
         };
-        // Each side must *be* its digit, not merely come to it.
+        // Each side must *be* its numeral, not merely come to it.
         if self.rpn(&first) != n(a as u32) || self.rpn(&second) != n(b as u32) {
             return Ok(Route::no(
-                "a side works out to a digit but is one only after working out",
+                "a side works out to a whole number but is one only after working out",
             ));
         }
         let (na, nb) = (n(a as u32), n(b as u32));
@@ -1347,7 +1347,7 @@ impl<'a> Elaborator<'a> {
         let held = self.b.ap(
             "a1i",
             &binds! {"ph" => t!(nw, "cr", "wcel"), "ps" => scope},
-            &[&self.step(&format!("{whole}re"))],
+            &[&numerals::re(&self.b, whole as u64)],
         );
         if numerator >= 0 {
             return held;
@@ -1356,20 +1356,12 @@ impl<'a> Elaborator<'a> {
             .ap("renegcld", &binds! {"ph" => scope, "A" => nw}, &[&held])
     }
 
-    /// ( scope -> a < b ), the one thing set.mm names for every pair: `0 < n`
-    /// is `npos` rather than `0ltn`, and one is the exception to that.
+    /// ( scope -> a < b ), for whole numbers a below b (`numerals::below`).
     fn numeral_below(&self, scope: &str, a: i64, b: i64) -> Proof {
-        let label = if a != 0 {
-            format!("{a}lt{b}")
-        } else if b == 1 {
-            "0lt1".to_string()
-        } else {
-            format!("{b}pos")
-        };
         self.b.ap(
             "a1i",
             &binds! {"ph" => t!(n(a as u32), n(b as u32), "clt", "wbr"), "ps" => scope},
-            &[&self.step(&label)],
+            &[&numerals::below(&self.b, a as u64, b as u64)],
         )
     }
 
@@ -1433,7 +1425,10 @@ impl<'a> Elaborator<'a> {
             facts,
             lines
         )?);
-        let (term_out, facts_out, lines_out) = (&out.term, &out.facts, &out.lines);
+        let (term_out, lines_out) = (&out.term, &out.lines);
+        // A cited line says each of its parts, a membership among them, as
+        // the checker and R3 read it (`READERS.md`, what a membership says).
+        let facts_out = &self.with_cited(Some(step), scope, &out.facts, None);
         self.decide_order(step, term_out, facts_out, lines_out)?;
         // The method wants every atom in ℝ, and a `requires` line is where
         // the step writes that; offered to the membership lookup and to
@@ -1794,7 +1789,11 @@ impl<'a> Elaborator<'a> {
         let supplied = self.supplied(Some(step), scope, facts)?;
         let cited = self.with_cited(Some(step), scope, &supplied, None);
         let known = facts.with(&cited);
-        match self.member_of(&claim, scope, &known, Some(step))? {
+        // The one method that reads a cited equation as saying a membership.
+        let kept = std::mem::replace(&mut self.reading_equations, true);
+        let made = self.member_of(&claim, scope, &known, Some(step));
+        self.reading_equations = kept;
+        match made? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,
@@ -2419,12 +2418,8 @@ impl<'a> Elaborator<'a> {
             &[&rl, &rr],
         );
         let (mut times_span, mut times_real) = (span.clone(), span_real.clone());
-        let numeral = crate::rules::numeral_label(whole as u32)
-            .filter(|_| (0..=9).contains(&whole));
         if whole != 1 {
-            let Some(numeral) = numeral else {
-                return Ok(Route::no(format!("{whole} is past one digit")));
-            };
+            let numeral = n(whole as u32);
             times_span = t!(numeral, span, "cmul", "co");
             let real = self.real_numeral(scope, &q(whole));
             times_real = self.b.ap(
@@ -2457,7 +2452,7 @@ impl<'a> Elaborator<'a> {
                 &mut w,
                 &span,
                 &span_real,
-                numeral.unwrap(),
+                n(whole as u32),
                 whole,
                 rel,
                 &reached,
@@ -2570,14 +2565,7 @@ impl<'a> Elaborator<'a> {
             }));
         }
         let times_n = times.to_integer().to_i64().unwrap_or(0);
-        let Some(numeral) = crate::rules::numeral_label(times_n as u32)
-            .filter(|_| (0..=9).contains(&times_n))
-        else {
-            return Ok(Route::no(format!(
-                "{} is past one digit",
-                super::normal::show(times)
-            )));
-        };
+        let numeral = n(times_n as u32);
         let scaled = t!(numeral, gap, "cmul", "co");
         let rn = self.real_numeral(&scope, times);
         let scaled_real = self.b.ap(
@@ -2615,7 +2603,7 @@ impl<'a> Elaborator<'a> {
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&self.step(&format!("{whole}pos"))],
+            &[&numerals::pos(&self.b, whole as u64)],
         );
         let positive = self.b.ap(
             "jca",
@@ -2678,7 +2666,7 @@ impl<'a> Elaborator<'a> {
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&self.step(&format!("{whole}pos"))],
+            &[&numerals::pos(&self.b, whole as u64)],
         );
         let positive = self.b.ap(
             "jca",
@@ -2727,24 +2715,19 @@ impl<'a> Elaborator<'a> {
         let whole = value
             .to_integer()
             .to_i64()
-            .filter(|w| value.is_integer() && (0..=9).contains(w));
+            .filter(|w| value.is_integer() && *w > 0);
         let Some(whole) = whole else {
             return Route::no(format!(
-                "{} is past one digit",
+                "{} is not a positive whole number",
                 super::normal::show(value)
             ));
         };
         let numeral = n(whole as u32);
         let real = self.real_numeral(scope, &q(whole));
-        let label = if whole == 1 {
-            "0lt1".to_string()
-        } else {
-            format!("{whole}pos")
-        };
         let positive = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => scope},
-            &[&self.step(&label)],
+            &[&numerals::pos(&self.b, whole as u64)],
         );
         let negated = t!(numeral, "cneg");
         let turn = self.b.ap(
@@ -3185,7 +3168,7 @@ impl<'a> Elaborator<'a> {
         );
         let Some(numeral) = field::spell_coefficient(times) else {
             return Ok(Route::no(format!(
-                "{} is past one digit",
+                "{} is not a whole number",
                 super::normal::show(times)
             )));
         };
@@ -3258,7 +3241,7 @@ impl<'a> Elaborator<'a> {
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&self.step(&format!("{}pos", times.numer()))],
+            &[&numerals::pos(&self.b, times.numer().to_u64().unwrap_or(0))],
         );
         let positive = self.b.ap(
             "jca",
@@ -3421,7 +3404,7 @@ impl<'a> Elaborator<'a> {
         };
         let Some(numeral) = field::spell_coefficient(times) else {
             return Ok(Route::no(format!(
-                "{} is past one digit",
+                "{} is not a whole number",
                 super::normal::show(times)
             )));
         };

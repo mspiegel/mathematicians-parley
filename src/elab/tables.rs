@@ -1327,15 +1327,13 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let apart = t!(divisor, "cc0", "wne");
-        // A digit other than zero says so itself: a closed numeral fact,
+        // A numeral other than zero says so itself: a closed numeral fact,
         // which a method may use unwritten.
-        if let Some(value) = rules::digit_of(divisor).filter(|v| *v != 0) {
-            let label = if value == 1 {
-                "ax-1ne0".to_string()
-            } else {
-                format!("{value}ne0")
-            };
-            return Ok(Built(pf!(self.b; apart, scope, label, "a1i")));
+        let numeral =
+            super::numerals::value(&self.to_term(divisor)).filter(|v| *v != 0);
+        if let Some(value) = numeral {
+            let closed = super::numerals::ne0(&self.b, value);
+            return Ok(Built(pf!(self.b; apart, scope, closed, "a1i")));
         }
         // Held however the page wrote it: either way round, as ≠ or as the
         // denial of an equation (`held`).
@@ -1493,10 +1491,67 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(p));
             }
         }
+        if self.reading_equations {
+            if let Some(p) = self.equated_part(said, system, scope, facts)? {
+                return Ok(Built(p));
+            }
+        }
         Ok(Route::no(format!(
             "nothing written says {}",
             self.render(&want)
         )))
+    }
+
+    /// `said ∈ system` from an equation in hand with `said` on one side: the
+    /// term is in what the other side is in (`eqeltrd`), as a reader takes
+    /// a(0) = 0 to say a(0) ∈ ℝ. Only a `membership` step reads equations so
+    /// (`METHODS.md`, membership); every other method takes an atom's
+    /// membership from a line saying it. The other side
+    /// may not hold `said`, and a term already being read this way is not
+    /// read again, so that two equations cannot send it round.
+    fn equated_part(
+        &mut self,
+        said: &str,
+        system: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if self.equating.contains(said) {
+            return Ok(None);
+        }
+        let inside = |other: &str| format!(" {other} ").contains(&format!(" {said} "));
+        for (fact, proof) in facts.entries() {
+            let node = self.to_term(&fact);
+            if node.variable().is_some()
+                || node.label() != Some("wceq")
+                || node.children().len() != 2
+            {
+                continue;
+            }
+            let (left, right) =
+                (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
+            let (other, equal) = if left == said && !inside(&right) {
+                (right, proof)
+            } else if right == said && !inside(&left) {
+                let turned = self.b.ap(
+                    "eqcomd",
+                    &binds! {"ph" => scope, "A" => &left, "B" => &right},
+                    &[&proof],
+                );
+                (left, turned)
+            } else {
+                continue;
+            };
+            self.equating.insert(said.to_string());
+            let made = self.part(&other, system, scope, facts);
+            self.equating.shift_remove(said);
+            if let Built(inner) = made? {
+                return Ok(Some(
+                    pf!(self.b; scope, said, other, system, equal, inner, "eqeltrd"),
+                ));
+            }
+        }
+        Ok(None)
     }
 
     /// `( F ` x ) ∈ system` where a fact in hand gives F's type, F : A → B,

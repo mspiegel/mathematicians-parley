@@ -547,8 +547,10 @@ define a(0) := M,  b(0) := N,
 Each name has one value at 0 and one rule at k + 1, and a rule may be by
 cases, written as above. The index is the letter after `for`, and runs over
 ℕ₀, since the values start at 0. A rule says the value at k + 1 from the
-values at k, of this name or another the define gives, and from what was
-named before the define; it names no value at any other index. The define
+values at k, of this name or another the define gives, from k itself, and
+from what was named before the define; it names no value at any other index.
+A value at 0 names no k, since there is none: the uncountability proof's
+rules take f(k + 1), the term the interval after k + 1 steps must miss. The define
 states the sequences and nothing about them, so a name is never unfolded
 into its rule: a step that needs a value writes it and cites the define.
 `a(0) = M` cites `D1`; `b(k + 1) = a(k) mod b(k)` cites `D1, from` a line

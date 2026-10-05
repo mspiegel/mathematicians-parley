@@ -23,6 +23,7 @@ pub mod linear;
 mod listing;
 pub mod matcher;
 pub mod normal;
+pub mod numerals;
 pub mod provenance;
 pub mod reading;
 pub mod scopes;

@@ -1624,11 +1624,18 @@ fn cases() -> Vec<Case> {
             "names a at a place other than k",
         ),
         case(
-            "write a step rule that names the index itself",
+            "take cases from a disjunction in the other order",
             vec![
-                edit("proofs/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k) + k         if b(k) = 0".to_string()),
+                edit("proofs/euclid.proof", Some("    3.9.  b(k) = 0 or b(k) ≠ 0".to_string()), "    3.9.  b(k) ≠ 0 or b(k) = 0".to_string()),
             ],
-            "names k outside a value at k",
+            "step 3.10 takes its cases from 3.9, which does not claim their assumptions joined by \"or\", in the order the cases take them",
+        ),
+        case(
+            "give a first value in terms of the index",
+            vec![
+                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := k,  b(0) := N,".to_string()),
+            ],
+            "names k, which has no value at 0",
         ),
         case(
             "give a first value in terms of a sequence",

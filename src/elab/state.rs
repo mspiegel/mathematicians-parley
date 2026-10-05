@@ -138,6 +138,23 @@ pub struct Block {
     pub parts: IndexMap<usize, (String, Proof, String)>,
 }
 
+/// How a define by recursion is built in set.mm (`recursion_terms`).
+#[derive(Clone, Debug)]
+pub struct Recurrence {
+    /// The map from a state to the next, `(x ∈ _V ↦ …)`; for an indexed
+    /// recursion the map of two, `(z ∈ _V, w ∈ _V ↦ …)`, taking the state
+    /// and the input at the next index.
+    pub step: String,
+    /// The values at 0, as one state.
+    pub start: String,
+    /// How many names the define gives.
+    pub count: usize,
+    /// For a recursion whose rules name the index, the input `(i ∈ ℕ₀ ↦ ⟨i,
+    /// start⟩)` that hands each step its index; None for one whose rules
+    /// see only the values.
+    pub input: Option<String>,
+}
+
 /// What a lemma is for, read off what it states.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Role {
@@ -196,6 +213,12 @@ pub struct Elaborator<'a> {
     pub rules_read: IndexMap<String, Term>,
     /// `requires` terms being discharged now.
     pub supplying: IndexSet<String>,
+    /// Whether a `membership` step is being proved, the one method that
+    /// reads a cited equation as saying a membership (`METHODS.md`).
+    pub reading_equations: bool,
+    /// Terms whose membership is being read from an equation now, so that
+    /// `x = y` and `y = x` do not send `part` from one to the other.
+    pub equating: IndexSet<String>,
     /// By page item, what its proof was built on.
     pub rests_on: IndexMap<String, BTreeSet<String>>,
     /// (from system, to system) -> one lemma.
@@ -266,10 +289,10 @@ pub struct Elaborator<'a> {
     /// Name -> tree, while a statement is read.
     pub from_outside: IndexMap<String, Defined>,
     /// A define by recursion: its label -> each name's map; its seq term ->
-    /// (step, start, how many names); and while a step rule is read, each
-    /// name -> its part of the state.
+    /// how it is built; and while a step rule is read, each name -> its part
+    /// of the state.
     pub recursion_maps: IndexMap<String, IndexMap<String, String>>,
-    pub recursions: IndexMap<String, (String, String, usize)>,
+    pub recursions: IndexMap<String, Recurrence>,
     pub recurring: IndexMap<String, String>,
     pub file_given: bool,
     pub last: Option<String>,
@@ -357,6 +380,8 @@ impl<'a> Elaborator<'a> {
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),
             supplying: IndexSet::new(),
+            reading_equations: false,
+            equating: IndexSet::new(),
             rests_on: IndexMap::new(),
             bridges: None,
             lemma_heads: None,

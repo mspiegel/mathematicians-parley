@@ -19,6 +19,7 @@
 
 use std::cmp::Reverse;
 use std::rc::Rc;
+use std::sync::{LazyLock, Mutex};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
@@ -27,7 +28,7 @@ use num_traits::{Signed, ToPrimitive, Zero};
 
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Declined, Route};
-use crate::rules::{digit_of, numeral_label};
+use crate::rules::digit_of;
 
 pub const ADD: &str = "caddc";
 pub const SUB: &str = "cmin";
@@ -46,9 +47,16 @@ pub fn q(n: i64) -> Q {
     BigRational::from_integer(BigInt::from(n))
 }
 
-/// The constant set.mm names a digit by, for a digit this is sure of.
-pub fn numeral(digit: u32) -> &'static str {
-    numeral_label(digit).expect("a digit")
+/// A whole number as set.mm spells it: a digit's constant, or a decimal
+/// (`numerals::spell`). Each spelling is made once and kept for the run, so
+/// that it is lent out as a digit's constant is.
+pub fn numeral(value: u32) -> &'static str {
+    static SPELT: LazyLock<Mutex<IndexMap<u32, &'static str>>> =
+        LazyLock::new(Default::default);
+    let mut spelt = SPELT.lock().unwrap_or_else(|e| e.into_inner());
+    spelt.entry(value).or_insert_with(|| {
+        Box::leak(super::numerals::spell(value as u64).into_boxed_str())
+    })
 }
 
 /// A monomial: (atom, power) pairs in atom order, so the empty one is the
@@ -184,25 +192,18 @@ pub fn spell_monomial(monomial: &Monomial) -> String {
 }
 
 /// A rational coefficient as a numeral, negated where it is negative; None
-/// where it is not a whole number the kernel has one digit for, which is
-/// past anything this corpus writes.
+/// where it is not a whole number.
 pub fn spell_coefficient(weight: &Q) -> Option<String> {
-    let digit = small_whole(weight)?;
-    let said = numeral(digit.unsigned_abs() as u32);
-    Some(if digit < 0 {
-        format!("{said} cneg")
-    } else {
-        said.to_string()
-    })
-}
-
-/// A rational that is a whole number from −9 to 9, as that number.
-pub fn small_whole(weight: &Q) -> Option<i64> {
     if !weight.is_integer() {
         return None;
     }
-    let n = weight.to_integer().to_i64()?;
-    (n.abs() <= 9).then_some(n)
+    let whole = weight.to_integer().to_i64()?;
+    let said = super::numerals::spell(whole.unsigned_abs());
+    Some(if whole < 0 {
+        format!("{said} cneg")
+    } else {
+        said
+    })
 }
 
 /// A polynomial as one term in reverse Polish: the canonical form.
@@ -284,16 +285,16 @@ impl Quotient {
     }
 }
 
-/// The whole number a term denotes, if it denotes one: a digit, or a digit
-/// negated.
+/// The whole number a term denotes, if it denotes one: a numeral of any
+/// length, or one negated.
 pub fn whole_number(term: &Term) -> Option<i64> {
+    if let Some(n) = super::numerals::value(term) {
+        return i64::try_from(n).ok();
+    }
     if term.variable().is_some() {
         return None;
     }
     let label = term.label()?;
-    if let Some(d) = digit_of(label) {
-        return Some(d as i64);
-    }
     if label == NEG && term.children().len() == 1 {
         return whole_number(&term.children()[0]).map(|n| -n);
     }

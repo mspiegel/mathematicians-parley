@@ -103,7 +103,9 @@ also states a membership or a quantified sentence is not an error.
 A membership supplies the bounds it implies (`SYNTAX.md`): a line saying
 k ∈ ℕ supplies k ≥ 1 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. It
 also discharges the hypothesis that k is real. So `requires k ≠ 0:
-inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`.
+inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`. A membership that
+is one part of a cited line discharges it as a line of its own would: a line
+saying `a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)` says a(k) and b(k) are real.
 
 A **closed numeral fact is available without being cited**. The combination
 that reaches a claim may need one — `n! ≥ 1` gives `n! + 1 > 1`, and the
@@ -159,7 +161,7 @@ it is discharged by a cited line or written as a requires line.
 A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero, and both are the page's to
 write. Its membership is then built from those as a sum's is from its
-parts', and no line says that `1/(n + 1)` is real. A divisor that is a digit
+parts', and no line says that `1/(n + 1)` is real. A divisor that is a numeral
 other than zero needs no line: that 2 is not zero is a closed numeral fact,
 so `δ/2` is real because `δ` is.
 
@@ -490,14 +492,20 @@ formula grammar.
 ### Expansion
 
 set.mm's numeral lemmas: `2re`, `2z`, `0z`, `1z`, `1nn`, `2pos`, `2ne0`,
-`1lt2` for the small cases in this corpus. A numeral of more than one digit
-is set.mm's decimal `; A B`, and its membership of a number system is built
-from its digits by `deccl` and carried on by `nn0zi`, `nn0rei` or `nn0cni`.
-What the expansion does not do is compute with such a numeral: the methods
-read a digit as its value and anything longer as a number they know nothing
-about, so 10 − 1 = 9 is true, worked out as true, and not proved. The
-divisibility proof cites `mun:stdlib/numbers/ten-minus-one` for it. set.mm's `decadd`
-family is what would prove such facts, and is not yet used.
+`1lt2` for a digit. A numeral of more than one digit is set.mm's decimal
+`; A B`, A the number its digits before the last make and B the last digit,
+and the methods read it as its value wherever they read a digit. Its
+membership of a number system is built from its digits by `deccl` and
+carried on by `nn0zi`, `nn0rei` or `nn0cni`.
+
+A sum, product or order of whole numbers of any length is worked the way it
+is worked on paper (`elab/numerals.rs`): the last digits from set.mm's
+tables of digits (`9p3e12`, `6t3e18`, `3lt7`), the digits before them by the
+same procedure, and a carry where the last digits pass nine (`decadd`,
+`decaddc`, `decmul1`, `decmul1c`, `declt`, `decltc`). The tables state a
+result past nine only with the larger digit first, and the other order is
+turned round by `addcomi` or `mulcomi`. So 10 − 1 = 9 is proved, and so is
+the −6·3 = −18 a cut into thirds asks of `inequalities`.
 
 ---
 
@@ -516,6 +524,15 @@ The step's requires lines and the lines it cites, read for what they say
 as its rule, T(k) as k(k + 1)/2, where the step cites its define, as it is
 wherever a formula is compared: `requires Σ(k = 1 to n) 1/T(k) ∈ ℝ:
 membership, from D1`.
+
+A cited equation with the term on one side says the term is in whatever the
+other side is in, as a reader takes a(0) = 0 to say a(0) is a number:
+`a(0) ∈ ℝ: membership, from 1`, where line 1 says a(0) = 0, and
+`a(k + 1) ∈ ℝ: membership, from 4.1, IH`, where 4.1 gives a(k + 1) as a
+term in a(k) and b(k) and the induction hypothesis says those are real.
+Only this method reads an equation so. Every other method takes an atom's
+membership from a line saying it, so that a membership a step uses is one
+the page shows.
 
 ### Fact out
 
@@ -539,9 +556,11 @@ The term is walked by the operation at its head, as `algebra` walks it:
   starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks
   the page for nothing;
 - anything else is an atom, and its membership is a line the step cites or
-  writes, carried to S by at most one lemma (`nnre`, `zcn` and the rest).
+  writes, carried to S by at most one lemma (`nnre`, `zcn` and the rest), or
+  a cited equation with the atom on one side, the other side's membership
+  read the same way and carried across by `eqeltrd`.
 
-A divisor is not zero when a line says so, when it is a digit other than
+A divisor is not zero when a line says so, when it is a numeral other than
 zero, when it is built in ℕ (`nnne0`: k + 1 where k ∈ ℕ), or when it is a
 product or quotient of parts that are not zero (`mulne0d`, `divne0d`).
 

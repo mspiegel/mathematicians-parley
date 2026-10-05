@@ -482,13 +482,19 @@ lemma binding its letter on both sides, as `eliun` does in the union and in
 the existence, keeps the letter the step's term fixes, and `bridging`
 carries the existence to the obtain's own.
 
-**`substitute`** walks the path from the root of the claim to the occurrence
-being replaced and emits one congruence lemma per step of that path. The base
-of a power is the first argument of `^`, so `oveq1`; the exponent would be
-`oveq2`, and inside a function application `fveq2`. Nothing is searched for;
-the tree decides. It takes a target — `into line 1` replaces a subterm of a
-cited line rather than of the step's own claim, and the claim is the default
-rather than the only choice.
+**`substitute`** walks the line it rewrites and the claim together from the
+root (`congruence`, over the cited equation and nothing else) and emits one
+congruence lemma for each operation where the two differ beneath it. The
+base of a power is the first argument of `^`, so `oveq1`; the exponent would
+be `oveq2`, and inside a function application `fveq2`. Where a part of one is
+a side of the equation and the other has the other side there, the equation
+is the proof of that part. So the claim may put one side for the other at
+every place it stands or at some, as a reader may: `substitute p = p + 0
+(line 6.1.1) into line 6.1.3` takes a(p) ≤ a(p) to a(p) ≤ a(p + 0). Nothing
+is searched for; the trees decide. It takes a target — `into line 1`
+replaces a subterm of a cited line rather than of the step's own claim, and
+the claim is the default rather than the only choice; with no target, the
+claim's two sides are the two walked.
 
 A claim may hold its variable in several places at once, so the congruence
 machinery changes more than one operand at a time: `eqeq12d` and `oveq12d`
@@ -729,9 +735,31 @@ so the rule's parts and the page's names meet there.
 
 The state space is `_V` and not ℕ₀ × ℕ₀, so a define carries no claim about
 where its values lie: that every a(k) is a whole number is the proof's to
-show, and Euclid's shows it by induction. A rule names the sequences only at
-k and never k itself (`check_recursions`), because the step sees only the
-values.
+show, and Euclid's shows it by induction.
+
+**A rule may name k itself**, as the uncountability proof's do: `a(k + 1) :=
+… if f(k + 1) < (a(k) + b(k))/2`. E sees only the state, so such a
+recursion hands each step its index as well, and nothing about the index
+has to be proved. `recursion_terms` reads the rules once with k standing for
+a mark no term holds, and where the mark comes back writes:
+
+- the input G, `(i ∈ ℕ₀ ↦ ⟨i, start⟩)`;
+- the step F, the map of two `(z ∈ _V, w ∈ _V ↦ ⟨1st(w), rules⟩)`, each
+  rule read with a name at k as its part of 2nd(z) and k as 1st(w) − 1;
+- the recursion R, `seq 0 (F, G)`, so that R(n) is ⟨n, the values at n⟩;
+- each name, the map from ℕ₀ sending k to its part of 2nd(R(k)).
+
+A rule that does not name k is written as above, so Euclid's recursion is
+set.mm's algorithm form still. `recursion_value` takes the indexed one
+apart in its own way (`indexed_value`): at 0, `seq1` says R(0) is G(0),
+which `fvmptd3` makes ⟨0, start⟩; at J + 1, `seqp1d` says R(J + 1) is
+F(R(J), G(J + 1)), G(J + 1) is ⟨J + 1, start⟩ by `fvmptd3`, and `ovmpog`
+takes F there over letters of its own (`cbvmpov`), since R(J) holds F and
+with it F's letters. What F gives names the index as 1st(⟨J + 1, start⟩) and
+k as that less one; `op1stg` makes the first J + 1 and `pncand` the second J,
+and `congruence` puts them in, so the step's rule is read at J as the page
+writes it. The part asked for is then taken out of 2nd(R(J + 1)) as for any
+recursion (`part_of_state`).
 
 ## The closure methods
 
@@ -740,12 +768,13 @@ values.
 **`arithmetic` decides closed numeral facts** — claims with no atom in them.
 Two shapes, and both are tried before anything generic:
 
-- *A relation between two numerals.* Each side must **be** its digit, not merely
-  come to it; a side that works out to one is a computation and belongs to the
-  other half. Saying it rests on the one thing set.mm names for every pair,
-  that one number is below another, and everything else is that weakened or
-  turned — `ltle` for *at most*, `ltne` for *not equal*, `leid` and `eqid`
-  where the two are the same.
+- *A relation between two numerals.* Each side must **be** its numeral, not
+  merely come to it; a side that works out to one is a computation and belongs
+  to the other half. Saying it rests on one number being below another, which
+  set.mm names for every pair of digits and `numerals::below` builds for longer
+  numerals from their digits (`declt`, `decltc`, `declti`), and everything
+  else is that weakened or turned — `ltle` for *at most*, `ltne` for *not
+  equal*, `leid` and `eqid` where the two are the same.
 - *A numeral in a number system.* `2 ∈ ℤ`, `1 ∈ ℕ`, `0 ∈ ℝ`. set.mm names the
   fact for each digit and system and the label is the digit and a suffix
   throughout — `2z`, `1nn`, `0re` — with `ax-1cn` the one place it spells such
@@ -808,8 +837,12 @@ a difference or a product of quotients to one numerator over one denominator
 already make for every atom (`part`), made a step's claim. The claim is read
 in standard form, so T(k) is k(k + 1)/2; that is built from its parts by the
 closure table, each atom's membership from a line the step cites or writes,
-carried by one lemma (`bridged`); and `same` carries it back to the claim as
-written. A divisor is not zero by a line, by being a digit, by a membership
+carried by one lemma (`bridged`), or from a cited equation with the atom on
+one side, whose other side is placed the same way and carried across by
+`eqeltrd` (`equated_part`, which only a `membership` step turns on, and which
+reads no term twice at once, so that x = y and y = x do not send it round);
+and `same` carries it back to the claim as written. A divisor is not zero by
+a line, by being a numeral other than zero, by a membership
 that says so (`let k ∈ ℕ`), by being built in ℕ (`nnne0`), or as a product or
 quotient of such (`mulne0d`, `divne0d`). A requires line may name it too, and
 is proved the same way from the lines it cites (`member_of`). A claim said of
@@ -1166,7 +1199,8 @@ side condition: `telfsum` asks each 2/k to be complex for k from 1 to n + 1,
 and k ≠ 0 there because k ∈ ℕ (`elfznn`, `nnne0`). A quotient a method reads
 is built the same way from what the step writes (`part`), and its divisor
 not being zero is the step's to write too, except where the divisor is a
-digit other than zero, which says so itself (`2ne0`): the intermediate value
+numeral other than zero, which says so itself (`2ne0`, or for a longer one
+`nnne0i` from its digits): the intermediate value
 proof's `δ/2` is real because `δ` is, with no line saying so.
 
 The rest of the search is bounded by how many lemmas one chain applies on top

@@ -27,7 +27,7 @@ use num_traits::{Signed, Zero};
 
 use super::field::{q, ADD, DIV, MUL, NEG, Q, SUB};
 use crate::mm::kernel::{FloatLabels, Term};
-use crate::rules::{digit_of, numeral_label};
+use crate::rules::numeral_label;
 
 /// A rational combination of atoms, plus a constant.
 #[derive(Clone, Debug, Default)]
@@ -147,13 +147,13 @@ pub fn relation(label: &str) -> Option<How> {
 
 /// The value a term denotes, if it is built only from numerals.
 pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
+    if let Some(whole) = super::numerals::value(term) {
+        return Some(q(whole as i64));
+    }
     if term.variable().is_some() {
         return None;
     }
     let label = term.label()?;
-    if let Some(d) = digit_of(label) {
-        return Some(q(d as i64));
-    }
     if label == NEG && term.children().len() == 1 {
         return numeral(&term.children()[0], labels).map(|v| -v);
     }

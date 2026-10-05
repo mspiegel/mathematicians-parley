@@ -151,7 +151,7 @@ pub fn run(source: &dyn Source, built: &[String], setmm: Option<&Path>) -> Said 
 
 /// Every problem the verifier finds in the files, starting from the joined
 /// one, each written out with the statement it is in.
-fn verified(files: Vec<(String, Vec<u8>)>) -> Vec<String> {
+pub fn verified(files: Vec<(String, Vec<u8>)>) -> Vec<String> {
     let mut db = Database::new(DbOptions::default());
     db.parse(JOINED.to_string(), files);
     db.verify_pass();

@@ -29,6 +29,7 @@ use num_traits::{ToPrimitive, Zero};
 use super::field::{
     self, numeral as n, order, q, spell_coefficient, spell_monomial, Monomial, Q,
 };
+use super::numerals;
 use crate::binds;
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
@@ -163,25 +164,6 @@ impl Emitter {
 
     // --- membership -----------------------------------------------------
 
-    /// What says a numeral is a complex number. set.mm proves one for each
-    /// digit but takes the one for 1 as an axiom.
-    pub fn complex_label(value: i64) -> String {
-        if value == 1 {
-            "ax-1cn".to_string()
-        } else {
-            format!("{value}cn")
-        }
-    }
-
-    /// What says a numeral is not zero, named the same way.
-    pub fn apart_label(value: i64) -> String {
-        if value == 1 {
-            "ax-1ne0".to_string()
-        } else {
-            format!("{value}ne0")
-        }
-    }
-
     /// ( under -> n e. CC ) for a whole number the kernel spells.
     pub fn number(&mut self, o: &dyn Oracle, value: i64) -> Proof {
         let key = Made::Number(value);
@@ -192,7 +174,7 @@ impl Emitter {
         let made = b.ap(
             "a1i",
             &binds! {"ph" => t!(n(value as u32), "cc", "wcel"), "ps" => &self.under},
-            &[&b.step(&Self::complex_label(value))],
+            &[&numerals::cc(b, value as u64)],
         );
         self.made.insert(key, made.clone());
         made
@@ -208,7 +190,7 @@ impl Emitter {
         let made = b.ap(
             "a1i",
             &binds! {"ph" => t!(n(value as u32), "cn0", "wcel"), "ps" => &self.under},
-            &[&b.step(&format!("{value}nn0"))],
+            &[&numerals::nn0(b, value as u64)],
         );
         self.made.insert(key, made.clone());
         made
@@ -435,18 +417,11 @@ impl Emitter {
         )
     }
 
-    /// `a1i` of a closed lemma named by its label.
-    pub fn a1i_label(&self, o: &dyn Oracle, claim: &str, label: &str) -> Proof {
-        let step = o.b().step(label);
-        self.a1i(o, claim, &step)
-    }
-
     /// ( under -> ( c + d ) = e ), the coefficients as `spell` writes them.
     ///
-    /// set.mm names a lemma for every pair of single digits, and the pairs
-    /// it leaves out are exactly those with a zero, which `addlid` and
-    /// `addrid` cover. A pair that cancels is `negidd`. Anything else is
-    /// refused rather than guessed at.
+    /// Two whole numbers are added by `numerals::sum`, digit by digit. A
+    /// pair that cancels is `negidd`, and a sign is taken off first where
+    /// there is one, so that what is added is two whole numbers.
     pub fn coefficient_sum(
         &mut self,
         o: &dyn Oracle,
@@ -458,7 +433,7 @@ impl Emitter {
         let (c, d) = (spell_coefficient(first), spell_coefficient(second));
         let (Some(said), Some(c), Some(d)) = (said, c, d) else {
             return Route::no(format!(
-                "{} + {} is past one digit",
+                "{} + {} is not a sum of whole numbers",
                 show(first),
                 show(second)
             ));
@@ -566,46 +541,8 @@ impl Emitter {
             }
             return self.minus_numeral(o, a, -bn, &c, &d, &said);
         }
-        let bb = o.b();
-        if a == 0 {
-            let law = bb.ap("addlid", &binds! {"A" => &d}, &[]);
-            let held = self.mp(
-                o,
-                &t!(d, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(bn),
-                &law,
-            );
-            return Built(self.a1i(o, &claim, &held));
-        }
-        if bn == 0 {
-            let law = bb.ap("addrid", &binds! {"A" => &c}, &[]);
-            let held = self.mp(
-                o,
-                &t!(c, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(a),
-                &law,
-            );
-            return Built(self.a1i(o, &claim, &held));
-        }
-        Built(self.a1i_label(o, &claim, &format!("{a}p{bn}e{}", a + bn)))
-    }
-
-    fn mp(
-        &self,
-        o: &dyn Oracle,
-        given: &str,
-        claim: &str,
-        hypothesis: &str,
-        implication: &Proof,
-    ) -> Proof {
-        let b = o.b();
-        b.ap(
-            "ax-mp",
-            &binds! {"ph" => given, "ps" => claim},
-            &[&b.step(hypothesis), implication],
-        )
+        let held = numerals::sum(o.b(), a as u64, bn as u64);
+        Built(self.a1i(o, &claim, &held))
     }
 
     /// ( under -> ( i - j ) = k ) for whole numbers with i at least j.
@@ -1222,11 +1159,6 @@ impl Emitter {
         let a = op(name, n(first), EXP);
         let b = op(name, n(second), EXP);
         let total = first + second;
-        if total > 9 {
-            return Ok(Route::no(format!(
-                "{name} to the {total} is past one digit"
-            )));
-        }
         let exponent = op(n(first), n(second), ADD);
         let atom = o.atom(name)?;
         let i1 = self.index(o, first as i64);
@@ -1450,62 +1382,20 @@ impl Emitter {
 
     // --- multiplying ----------------------------------------------------
 
-    /// ( under -> ( a x. b ) = c ) for two whole numbers.
+    /// ( under -> ( a x. b ) = c ) for two whole numbers, worked digit by
+    /// digit (`numerals::product`).
     fn positive_product(&mut self, o: &dyn Oracle, first: i64, second: i64) -> Proof {
         let (a, b) = (n(first as u32), n(second as u32));
         let claim = t!(op(a, b, MUL), n((first * second) as u32), "wceq");
-        let bb = o.b();
-        let held = if first == 0 {
-            let law = bb.ap("mul02", &binds! {"A" => b}, &[]);
-            self.mp(
-                o,
-                &t!(b, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(second),
-                &law,
-            )
-        } else if second == 0 {
-            let law = bb.ap("mul01", &binds! {"A" => a}, &[]);
-            self.mp(
-                o,
-                &t!(a, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(first),
-                &law,
-            )
-        } else if first == 1 {
-            let law = bb.ap("mullid", &binds! {"A" => b}, &[]);
-            self.mp(
-                o,
-                &t!(b, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(second),
-                &law,
-            )
-        } else if second == 1 {
-            let law = bb.ap("mulrid", &binds! {"A" => a}, &[]);
-            self.mp(
-                o,
-                &t!(a, "cc", "wcel"),
-                &claim,
-                &Self::complex_label(first),
-                &law,
-            )
-        } else {
-            return self.a1i_label(
-                o,
-                &claim,
-                &format!("{first}t{second}e{}", first * second),
-            );
-        };
+        let held = numerals::product(o.b(), first as u64, second as u64);
         self.a1i(o, &claim, &held)
     }
 
     /// ( under -> ( c x. d ) = e ), the coefficients as `spell` has them.
     ///
     /// Signs come off first — `mulneg1`, `mulneg2` and `mul2neg` say where
-    /// the minus goes — and what is left is two whole numbers, which set.mm
-    /// names a lemma for.
+    /// the minus goes — and what is left is two whole numbers, which
+    /// `positive_product` multiplies.
     fn coefficient_product(
         &mut self,
         o: &dyn Oracle,
@@ -1518,7 +1408,7 @@ impl Emitter {
         let d = spell_coefficient(second);
         let (Some(said), Some(c), Some(d)) = (said, c, d) else {
             return Route::no(format!(
-                "{} x. {} is past one digit",
+                "{} x. {} is not a product of whole numbers",
                 show(first),
                 show(second)
             ));
@@ -1530,14 +1420,8 @@ impl Emitter {
         let size = self.positive_product(o, a.abs(), b.abs());
         let whole_p = op(n(a.unsigned_abs() as u32), n(b.unsigned_abs() as u32), MUL);
         if a < 0 && b < 0 {
-            let paired = self.pair(
-                o,
-                "mul2neg",
-                n(a.unsigned_abs() as u32),
-                n(b.unsigned_abs() as u32),
-                &op(&c, &d, MUL),
-                &whole_p,
-            );
+            let paired =
+                self.pair(o, "mul2neg", a.abs(), b.abs(), &op(&c, &d, MUL), &whole_p);
             return Built(self.chain(
                 o,
                 &paired,
@@ -1551,8 +1435,8 @@ impl Emitter {
         let paired = self.pair(
             o,
             label,
-            n(a.unsigned_abs() as u32),
-            n(b.unsigned_abs() as u32),
+            a.abs(),
+            b.abs(),
             &op(&c, &d, MUL),
             &t!(whole_p, "cneg"),
         );
@@ -1571,18 +1455,19 @@ impl Emitter {
         ))
     }
 
-    /// A two-argument law of ℂ, applied to two numerals.
+    /// A two-argument law of ℂ, applied to two whole numbers.
     fn pair(
         &mut self,
         o: &dyn Oracle,
         label: &str,
-        left: &str,
-        right: &str,
+        first: i64,
+        second: i64,
         before: &str,
         after: &str,
     ) -> Proof {
-        let pl = self.number(o, crate::rules::digit_of(left).unwrap_or(0) as i64);
-        let pr = self.number(o, crate::rules::digit_of(right).unwrap_or(0) as i64);
+        let (left, right) = (n(first as u32), n(second as u32));
+        let pl = self.number(o, first);
+        let pr = self.number(o, second);
         let b = o.b();
         let law = b.ap(label, &binds! {"A" => left, "B" => right}, &[]);
         b.ap(
@@ -1933,7 +1818,7 @@ impl Emitter {
     ) -> Checked<Route<(Run, Proof)>> {
         let said = term.rpn(labels).to_string();
         if term.variable().is_none() {
-            if let Some(value) = term.label().and_then(crate::rules::digit_of) {
+            if let Some(value) = numerals::value(term) {
                 let value = value as i64;
                 if value == 0 {
                     // The empty run, not a term of weight zero: a canonical
@@ -1994,7 +1879,7 @@ impl Emitter {
                 // claim is decided: a numeral exponent is expanded, and any
                 // other leaves the whole power an atom.
                 if let Some(times) = field::whole_number(right) {
-                    if (0..=9).contains(&times) {
+                    if (0..=field::CAP).contains(&times) {
                         let times = times as u32;
                         let (inner, proof) = take!(self.normalize(o, left, labels)?);
                         let (out, raised) = take!(self.power(o, &inner, times)?);
@@ -2390,10 +2275,10 @@ impl Emitter {
         let digit = coeff(weight);
         let numerator = whole(&Q::from_integer(weight.numer().clone()));
         let magnitude = numerator.abs();
-        let mut nonzero = self.a1i_label(
+        let mut nonzero = self.a1i(
             o,
             &t!(n(magnitude as u32), "cc0", "wne"),
-            &Self::apart_label(magnitude),
+            &numerals::ne0(o.b(), magnitude as u64),
         );
         if numerator < 0 {
             let num = self.number(o, magnitude);
@@ -2421,10 +2306,10 @@ impl Emitter {
         monomial: &Monomial,
     ) -> Checked<Route<Proof>> {
         if monomial.is_empty() {
-            return Ok(Built(self.a1i_label(
+            return Ok(Built(self.a1i(
                 o,
                 &t!(n(1), "cc0", "wne"),
-                &Self::apart_label(1),
+                &numerals::ne0(o.b(), 1),
             )));
         }
         let mut out: Option<(Proof, String, Proof)> = None;
@@ -2460,11 +2345,11 @@ impl Emitter {
         Ok(Built(out.expect("a monomial of one factor at least").0))
     }
 
-    /// ( under -> k e. ZZ ), which `expne0d` asks for: set.mm says each digit
-    /// is in ℕ (`7nn`), and `nnzi` carries that to ℤ; it names k ∈ ℤ only up
-    /// to 3.
+    /// ( under -> k e. ZZ ), which `expne0d` asks for: k is in ℕ
+    /// (`numerals::nn`), and `nnzi` carries that to ℤ; set.mm names k ∈ ℤ
+    /// only up to 3.
     fn whole_index(&self, o: &dyn Oracle, power: u32) -> Proof {
-        let natural = o.b().step(&format!("{power}nn"));
+        let natural = numerals::nn(o.b(), power as u64);
         let whole = o.b().ap("nnzi", &binds! {"N" => n(power)}, &[&natural]);
         self.a1i(o, &t!(n(power), "cz", "wcel"), &whole)
     }
@@ -2846,12 +2731,12 @@ impl Emitter {
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
         let said = term.rpn(labels).to_string();
-        if let Some(value) = crate::rules::digit_of(&said) {
+        if let Some(value) = numerals::value(term) {
             if value != 0 {
-                return Ok(Built(self.a1i_label(
+                return Ok(Built(self.a1i(
                     o,
                     &t!(said, "cc0", "wne"),
-                    &Self::apart_label(value as i64),
+                    &numerals::ne0(o.b(), value),
                 )));
             }
         }
@@ -3072,7 +2957,7 @@ impl Emitter {
         said: &str,
     ) -> Checked<Route<Quotiented>> {
         let times = match field::whole_number(right) {
-            Some(t) if (0..=9).contains(&t) => t as u32,
+            Some(t) if (0..=field::CAP).contains(&t) => t as u32,
             _ => return Ok(Route::no(format!("{said} has no numeral exponent"))),
         };
         let Quotiented {

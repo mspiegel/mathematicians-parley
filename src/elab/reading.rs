@@ -614,6 +614,13 @@ impl<'a> Elaborator<'a> {
     /// The n values are one state: the value itself for one sequence, a pair
     /// for two, and for more a pair whose second is the rest. The recursion
     /// is set.mm's `seq 0 ((E ∘ 1st), (ℕ₀ × {start}))`.
+    ///
+    /// Where a rule names the index, the step is also handed the index, so
+    /// that nothing about it need be proved: the recursion is `seq 0 (F,
+    /// G)` with G(i) = ⟨i, start⟩, and F(z, w) = ⟨1st(w), the rules⟩ with
+    /// the values at k read out of 2nd(z) and k itself as 1st(w) − 1. Then
+    /// R(J + 1) is F(R(J), G(J + 1)), whose index is J + 1 by G alone, and
+    /// each R(n) is ⟨n, the values at n⟩.
     pub fn recursion_terms(
         &mut self,
         label: &str,
@@ -646,16 +653,91 @@ impl<'a> Elaborator<'a> {
             let node = self.read(&said.start[name])?;
             starts.push(self.term(&node)?);
         }
-        let kept = self.recurring.clone();
-        let kept_sorts = self.sorts_now.clone();
-        self.recurring = said
+        // Read once with k standing for a mark no term holds: where the mark
+        // comes back, a rule names k, and the rules are read again over the
+        // indexed state.
+        const MARK: &str = "§k";
+        let whole = format!("{state} cv");
+        let steps = self.rules_read(said, parts(whole.clone()), MARK)?;
+        let names_k = steps
+            .iter()
+            .any(|s| s.split_whitespace().any(|t| t == MARK));
+        let start = tuple_of(&starts);
+        let (recursion, at_k, made) = if names_k {
+            // The state is ⟨index, values⟩, and k is the next index less one.
+            let input = self.spare_var()?;
+            let counter = self.spare_var()?;
+            let given = format!("{input} cv");
+            let index_less_one = t!(t!(given, "c1st", "cfv"), "c1", "cmin", "co");
+            let values = parts(t!(whole, "c2nd", "cfv"));
+            let steps = self.rules_read(said, values, &index_less_one)?;
+            let step = t!(
+                state,
+                input,
+                "cvv",
+                "cvv",
+                t!(t!(given, "c1st", "cfv"), tuple_of(&steps), "cop"),
+                "cmpo"
+            );
+            let g = t!(
+                counter,
+                "cn0",
+                t!(format!("{counter} cv"), start, "cop"),
+                "cmpt"
+            );
+            let recursion = t!(step, g, "cc0", "cseq");
+            let at_k = t!(t!(format!("{index} cv"), recursion, "cfv"), "c2nd", "cfv");
+            let made = super::state::Recurrence {
+                step,
+                start,
+                count,
+                input: Some(g),
+            };
+            (recursion, at_k, made)
+        } else {
+            let step = t!(state, "cvv", tuple_of(&steps), "cmpt");
+            let recursion = t!(
+                t!(step, "c1st", "ccom"),
+                t!("cn0", t!(start, "csn"), "cxp"),
+                "cc0",
+                "cseq"
+            );
+            let at_k = t!(format!("{index} cv"), recursion, "cfv");
+            let made = super::state::Recurrence {
+                step,
+                start,
+                count,
+                input: None,
+            };
+            (recursion, at_k, made)
+        };
+        self.recursions.insert(recursion.clone(), made);
+        let maps: IndexMap<String, String> = said
             .names
             .iter()
             .cloned()
-            .zip(parts(format!("{state} cv")))
+            .zip(parts(at_k))
+            .map(|(name, part)| (name, t!(index, "cn0", part, "cmpt")))
             .collect();
+        self.recursion_maps.insert(label.to_string(), maps.clone());
+        Ok(maps)
+    }
+
+    /// Each name's rule at k + 1 as a term, with each name at k read as its
+    /// part of the state, `parts` in the names' order, and k itself as `k`.
+    fn rules_read(
+        &mut self,
+        said: &Recursion,
+        parts: Vec<String>,
+        k: &str,
+    ) -> Checked<Vec<String>> {
+        let kept = self.recurring.clone();
+        let kept_sorts = self.sorts_now.clone();
+        let kept_k = self.names.get(&said.index).cloned();
+        self.recurring = said.names.iter().cloned().zip(parts).collect();
         self.sorts_now
             .insert(said.index.clone(), Sort::of("number"));
+        self.names.insert(said.index.clone(), k.to_string());
         let steps = (|| -> Checked<Vec<String>> {
             let mut steps = Vec::new();
             for name in &said.names {
@@ -666,27 +748,11 @@ impl<'a> Elaborator<'a> {
         })();
         self.recurring = kept;
         self.sorts_now = kept_sorts;
-        let steps = steps?;
-        let start = tuple_of(&starts);
-        let step = t!(state, "cvv", tuple_of(&steps), "cmpt");
-        let recursion = t!(
-            t!(step, "c1st", "ccom"),
-            t!("cn0", t!(start, "csn"), "cxp"),
-            "cc0",
-            "cseq"
-        );
-        self.recursions
-            .insert(recursion.clone(), (step, start, count));
-        let at_k = t!(format!("{index} cv"), recursion, "cfv");
-        let maps: IndexMap<String, String> = said
-            .names
-            .iter()
-            .cloned()
-            .zip(parts(at_k))
-            .map(|(name, part)| (name, t!(index, "cn0", part, "cmpt")))
-            .collect();
-        self.recursion_maps.insert(label.to_string(), maps.clone());
-        Ok(maps)
+        match kept_k {
+            Some(t) => self.names.insert(said.index.clone(), t),
+            None => self.names.shift_remove(&said.index),
+        };
+        steps
     }
 
     /// A term whose bound names are ones nothing else is using.

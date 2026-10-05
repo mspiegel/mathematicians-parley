@@ -1573,35 +1573,29 @@ impl<'a> Elaborator<'a> {
                 pf!(self.b; scope, new, old, held, "eqcomd")
             }
         };
-        let turned = pf!(self.b; scope, old, new, facing, "eqcomd");
+        // The claim is what it rewrites with one side of the equation put
+        // for the other at some of the places it stands, every place or
+        // fewer: where the two differ, the equation says they are equal, and
+        // nothing else is asked (`congruence` over the equation alone).
+        let equation = Facts::new();
+        self.know(&equation, t!(old, new, "wceq"), facing);
+        let leaf = Leaf::Rows(vec![super::tables::Row::Held]);
         let into = said.get(3).map(|m| m.as_str().to_string());
         let Some(into_text) = into else {
-            // An equation is one fact and a claimed equation is one fact, and
-            // neither carries a direction: the cited equation is read
-            // whichever way rewrites, and the step's own two sides whichever
-            // way one reaches the other.
-            let sides = [
-                (node.children[0].clone(), node.children[1].clone(), false),
-                (node.children[1].clone(), node.children[0].clone(), true),
-            ];
-            for (was, now, faces) in [(&old, &new, &facing), (&new, &old, &turned)] {
-                for (start, other, flip) in &sides {
-                    let Built((built, proof)) =
-                        self.rewrite(start, was, now, scope, faces)?
-                    else {
-                        continue;
-                    };
-                    if built != self.term(other)? {
-                        continue;
-                    }
-                    if *flip {
-                        let (s, o) = (self.term(start)?, self.term(other)?);
-                        return Ok(Built(pf!(self.b; scope, s, o, proof, "eqcomd")));
-                    }
-                    return Ok(Built(proof));
-                }
-            }
-            return Err(self.defect(step.line, "the substitution misses the claim"));
+            let (start, other) =
+                (self.term(&node.children[0])?, self.term(&node.children[1])?);
+            let alike = self.congruence(
+                &self.to_term(&start),
+                &self.to_term(&other),
+                scope,
+                &equation,
+                Some(step),
+                &leaf,
+            )?;
+            return match alike {
+                Built(p) if start != other => Ok(Built(p)),
+                _ => Err(self.defect(step.line, "the substitution misses the claim")),
+            };
         };
         let where_ = into_text
             .split_whitespace()
@@ -1644,23 +1638,28 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        for (was, now, faces) in [(&old, &new, &facing), (&new, &old, &turned)] {
-            for one in &offered {
-                let start = self.term(one)?;
-                let Some(given) = self.held(&known, &start, scope)? else {
-                    continue;
-                };
-                let Built((built, proof)) =
-                    self.rewrite(one, was, now, scope, faces)?
-                else {
-                    continue;
-                };
-                if built == term {
-                    return Ok(Built(
-                        pf!(self.b; scope, start, term, given, proof, "mpbid"),
-                    ));
-                }
+        for one in &offered {
+            let start = self.term(one)?;
+            if start == term {
+                continue;
             }
+            let Some(given) = self.held(&known, &start, scope)? else {
+                continue;
+            };
+            let Built(alike) = self.congruence(
+                &self.to_term(&start),
+                &self.to_term(term),
+                scope,
+                &equation,
+                Some(step),
+                &leaf,
+            )?
+            else {
+                continue;
+            };
+            return Ok(Built(
+                pf!(self.b; scope, start, term, given, alike, "mpbid"),
+            ));
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
     }
@@ -2570,8 +2569,33 @@ impl<'a> Elaborator<'a> {
         }
         let (at, made) = (core.children()[0].clone(), core.children()[1].clone());
         let recursion = self.rpn(&made);
-        let (step, start, count) = self.recursions[&recursion].clone();
+        let super::state::Recurrence {
+            step,
+            start,
+            count,
+            input,
+        } = self.recursions[&recursion].clone();
         let where_ = self.rpn(&at);
+        if let Some(input) = &input {
+            let Some((state, moved)) = take!(
+                self.indexed_value(&at, &recursion, &step, &start, input, scope, held)?
+            ) else {
+                return Ok(Built((value.clone(), proof)));
+            };
+            return self.part_of_state(
+                one,
+                value,
+                proof,
+                &path,
+                state,
+                moved,
+                &where_,
+                &recursion,
+                count + 1,
+                scope,
+                held,
+            );
+        }
         let common = binds! {"ph" => scope, "A" => &start, "R" => &recursion, "S" => "cvv", "F" => &step, "M" => "cc0", "Z" => "cn0"};
         let start_set = take!(self.settle(
             &self.to_term(&t!(start, "cvv", "wcel")),
@@ -2587,7 +2611,7 @@ impl<'a> Elaborator<'a> {
             self.b.ap("0zd", &binds! {"ph" => scope}, &[]),
             start_set,
         ];
-        let (mut state, mut moved);
+        let (state, moved);
         if where_ == "cc0" {
             state = start.clone();
             moved = self
@@ -2676,11 +2700,277 @@ impl<'a> Elaborator<'a> {
         } else {
             return Ok(Built((value.clone(), proof)));
         }
-        // The part asked for, taken out of the state from the inside.
+        self.part_of_state(
+            one, value, proof, &path, state, moved, &where_, &recursion, count, scope,
+            held,
+        )
+    }
+
+    /// (state, ( scope -> R(at) = state )) for a recursion whose rules name
+    /// the index (`recursion_terms`), the state being ⟨at, the values⟩;
+    /// None where `at` is neither 0 nor J + 1.
+    ///
+    /// At 0, `seq1` says R(0) is G(0), which is ⟨0, start⟩. At J + 1,
+    /// `seqp1d` says R(J + 1) is F(R(J), G(J + 1)), and `ovmpog` takes F at
+    /// the two over letters of its own (`cbvmpov`), since R(J) holds F and
+    /// with it F's letters. What F gives names the index as 1st(G(J + 1)),
+    /// and k as that less one, which `op1stg` and `pncand` make J + 1 and J.
+    #[allow(clippy::too_many_arguments)]
+    fn indexed_value(
+        &mut self,
+        at: &Term,
+        recursion: &str,
+        step: &str,
+        start: &str,
+        input: &str,
+        scope: &str,
+        held: &Facts,
+    ) -> Checked<Route<Option<(String, Proof)>>> {
+        let where_ = self.rpn(at);
+        let at_zero = where_ == "cc0";
+        let at_next = at.label() == Some("co")
+            && at.children()[1].label() == Some("c1")
+            && at.children()[2].label() == Some("caddc");
+        if !at_zero && !at_next {
+            return Ok(Built(None));
+        }
+        let index_in = if at_zero {
+            pf!(self.b; t!("cc0", "cn0", "wcel"), scope, "0nn0", "a1i")
+        } else {
+            take!(self.settle(
+                &self.to_term(&t!(where_, "cn0", "wcel")),
+                scope,
+                held,
+                3,
+                None,
+                None
+            )?)
+        };
+        // G at the index: ⟨index, start⟩ (`fvmptd3`).
+        let g = self.to_term(input);
+        let letter = self.rpn(&g.children()[0]);
+        let body = self.rpn(&g.children()[2]);
+        let given = t!(where_, start, "cop");
+        let tie = self.to_term(&t!(
+            t!(format!("{letter} cv"), where_, "wceq"),
+            t!(body, given, "wceq"),
+            "wi"
+        ));
+        let instance = take!(self.prove_essential(&tie, "", &Facts::new())?);
+        let given_set = pf!(self.b; t!(given, "cvv", "wcel"), scope,
+            self.b.ap("opex", &binds! {"A" => &where_, "B" => start}, &[]), "a1i");
+        let given_is = self.b.ap(
+            "fvmptd3",
+            &binds! {"ph" => scope, "x" => &letter, "A" => &where_, "B" => &body, "C" => &given, "D" => "cn0", "F" => input, "V" => "cvv"},
+            &[&pf!(self.b; input, "eqid"), &instance, &index_in, &given_set],
+        );
+        let at_r = t!(where_, recursion, "cfv");
+        let at_g = t!(where_, input, "cfv");
+        if at_zero {
+            let law = self.b.ap(
+                "seq1",
+                &binds! {"M" => "cc0", ".+" => step, "F" => input},
+                &[],
+            );
+            let first = self.b.ap(
+                "ax-mp",
+                &binds! {"ph" => t!("cc0", "cz", "wcel"), "ps" => t!(at_r, at_g, "wceq")},
+                &[&self.step("0z"), &law],
+            );
+            let first = pf!(self.b; t!(at_r, at_g, "wceq"), scope, first, "a1i");
+            let moved = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => &at_r, "B" => &at_g, "C" => &given},
+                &[&first, &given_is],
+            );
+            return Ok(Built(Some((given, moved))));
+        }
+        let before = self.rpn(&at.children()[0]);
+        let before_in = take!(self.settle(
+            &self.to_term(&t!(before, "cn0", "wcel")),
+            scope,
+            held,
+            3,
+            None,
+            None
+        )?);
+        let prior = t!(before, recursion, "cfv");
+        let applied = t!(prior, given, step, "co");
+        let stepped = self.b.ap(
+            "seqp1d",
+            &binds! {"ph" => scope, "Z" => "cn0", "M" => "cc0", "N" => &before, "K" => &where_,
+            ".+" => step, "F" => input, "A" => &prior, "B" => &given},
+            &[
+                &self.step("nn0uz"),
+                &before_in,
+                &pf!(self.b; where_, "eqid"),
+                &self.b.ap("eqidd", &binds! {"ph" => scope, "A" => &prior}, &[]),
+                &given_is,
+            ],
+        );
+        // F taken at R(J) and G(J + 1), over letters R(J) does not hold.
+        let map = self.to_term(step);
+        let (z, w) = (self.rpn(&map.children()[0]), self.rpn(&map.children()[1]));
+        let rule = map.children()[4].clone();
+        let (x, y) = (self.spare_var()?, self.spare_var()?);
+        let (zc, wc, xc, yc) = (
+            format!("{z} cv"),
+            format!("{w} cv"),
+            format!("{x} cv"),
+            format!("{y} cv"),
+        );
+        let r = self.rpn(&rule);
+        let half = self.rpn(&self.restated(&rule, &zc, &xc));
+        let fresh = self.rpn(&self.restated(&self.to_term(&half), &wc, &yc));
+        let mut ties = Vec::new();
+        for (from, to, was, now) in [(&zc, &xc, &r, &half), (&wc, &yc, &half, &fresh)] {
+            let tie =
+                self.to_term(&t!(t!(from, to, "wceq"), t!(was, now, "wceq"), "wi"));
+            ties.push(take!(self.prove_essential(&tie, "", &Facts::new())?));
+        }
+        let respelt = self.b.ap(
+            "cbvmpov",
+            &binds! {"x" => &z, "y" => &w, "z" => &x, "w" => &y, "A" => "cvv", "B" => "cvv",
+            "C" => &r, "E" => &half, "D" => &fresh},
+            &[&ties[0], &ties[1]],
+        );
+        let once = self.rpn(&self.restated(&self.to_term(&fresh), &xc, &prior));
+        let taken = self.rpn(&self.restated(&self.to_term(&once), &yc, &given));
+        let mut ties = Vec::new();
+        for (from, to, was, now) in
+            [(&xc, &prior, &fresh, &once), (&yc, &given, &once, &taken)]
+        {
+            let tie =
+                self.to_term(&t!(t!(from, to, "wceq"), t!(was, now, "wceq"), "wi"));
+            ties.push(take!(self.prove_essential(&tie, "", &Facts::new())?));
+        }
+        let law = self.b.ap(
+            "ovmpog",
+            &binds! {"x" => &x, "y" => &y, "A" => &prior, "B" => &given, "C" => "cvv", "D" => "cvv",
+            "R" => &fresh, "G" => &once, "S" => &taken, "F" => step, "H" => "cvv"},
+            &[&ties[0], &ties[1], &respelt],
+        );
+        let pair = self.to_term(&taken);
+        let mut sets = Vec::new();
+        for (term, made) in [
+            (&prior, self.b.ap("fvex", &binds! {"A" => &before, "F" => recursion}, &[])),
+            (&given, self.b.ap("opex", &binds! {"A" => &where_, "B" => start}, &[])),
+            (
+                &taken,
+                self.b.ap(
+                    "opex",
+                    &binds! {"A" => self.rpn(&pair.children()[0]), "B" => self.rpn(&pair.children()[1])},
+                    &[],
+                ),
+            ),
+        ] {
+            sets.push(pf!(self.b; t!(term, "cvv", "wcel"), scope, made, "a1i"));
+        }
+        let evaluated = self.b.ap(
+            "syl3anc",
+            &binds! {"ph" => scope, "ps" => t!(prior, "cvv", "wcel"), "ch" => t!(given, "cvv", "wcel"),
+            "th" => t!(taken, "cvv", "wcel"), "ta" => t!(applied, taken, "wceq")},
+            &[&sets[0], &sets[1], &sets[2], &law],
+        );
+        // 1st(G(J + 1)) is J + 1 (`op1stg`), and that less one is J (`pncand`).
+        let first_of = t!(given, "c1st", "cfv");
+        let mut parts_set = Vec::new();
+        for c in [&where_, &start.to_string()] {
+            parts_set.push(take!(self.settle(
+                &self.to_term(&t!(c, "cvv", "wcel")),
+                scope,
+                held,
+                3,
+                None,
+                None
+            )?));
+        }
+        let both = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => t!(where_, "cvv", "wcel"), "ch" => t!(start, "cvv", "wcel")},
+            &[&parts_set[0], &parts_set[1]],
+        );
+        let law = self.b.ap(
+            "op1stg",
+            &binds! {"A" => &where_, "B" => start, "V" => "cvv", "W" => "cvv"},
+            &[],
+        );
+        let index_is = pf!(self.b; scope,
+            t!(t!(where_, "cvv", "wcel"), t!(start, "cvv", "wcel"), "wa"),
+            t!(first_of, where_, "wceq"), both, law, "syl");
+        let less_one = t!(first_of, "c1", "cmin", "co");
+        let shifted = self.b.ap(
+            "oveq1d",
+            &binds! {"ph" => scope, "A" => &first_of, "B" => &where_, "C" => "c1", "F" => "cmin"},
+            &[&index_is],
+        );
+        let before_cc = self.b.ap(
+            "nn0cnd",
+            &binds! {"ph" => scope, "A" => &before},
+            &[&before_in],
+        );
+        let one_cc = self.b.ap("1cnd", &binds! {"ph" => scope}, &[]);
+        let cancelled = self.b.ap(
+            "pncand",
+            &binds! {"ph" => scope, "A" => &before, "B" => "c1"},
+            &[&before_cc, &one_cc],
+        );
+        let k_is = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &less_one, "B" => t!(where_, "c1", "cmin", "co"), "C" => &before},
+            &[&shifted, &cancelled],
+        );
+        let known = Facts::new();
+        self.know(&known, t!(first_of, where_, "wceq"), index_is);
+        self.know(&known, t!(less_one, before, "wceq"), k_is);
+        let state = {
+            let read = self.restated(&pair, &less_one, &before);
+            self.rpn(&self.restated(&read, &first_of, &where_))
+        };
+        let tidied = take!(self.congruence(
+            &pair,
+            &self.to_term(&state),
+            scope,
+            &known,
+            None,
+            &Leaf::Rows(vec![super::tables::Row::Held])
+        )?);
+        let mut moved = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &at_r, "B" => &applied, "C" => &taken},
+            &[&stepped, &evaluated],
+        );
+        moved = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &at_r, "B" => &taken, "C" => &state},
+            &[&moved, &tidied],
+        );
+        Ok(Built(Some((state, moved))))
+    }
+
+    /// (part, ( scope -> one = part )) from ( scope -> R(where) = state ):
+    /// the part `path` names, taken out of the state from the inside with
+    /// `op1stg` and `op2ndg`. `parts` is how many components the state
+    /// holds, so a state of one is never taken apart.
+    #[allow(clippy::too_many_arguments)]
+    fn part_of_state(
+        &mut self,
+        one: &Term,
+        value: &Term,
+        proof: Proof,
+        path: &[String],
+        mut state: String,
+        mut moved: Proof,
+        where_: &str,
+        recursion: &str,
+        parts: usize,
+        scope: &str,
+        held: &Facts,
+    ) -> Checked<Route<(Term, Proof)>> {
         let mut held_at = t!(where_, recursion, "cfv");
         for label in path.iter().rev() {
             let pair = self.to_term(&state);
-            if pair.label() != Some("cop") || count < 2 {
+            if pair.label() != Some("cop") || parts < 2 {
                 return Ok(Route::no("the recursion's state is not a pair here"));
             }
             let (first, rest) =
