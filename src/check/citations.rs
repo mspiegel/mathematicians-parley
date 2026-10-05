@@ -1164,6 +1164,11 @@ fn binders_of(node: &Node) -> Vec<Binder> {
 /// ℕ₀: from H3` rests on H3 alone. One line written twice is flagged where
 /// it is written the second time. This holds on every step, whatever its
 /// reason, so the checker and the elaborator need not each judge it.
+///
+/// What the step's own citations give is not in hand on a requires line
+/// below, which sees only its own reason and the lines above it (R2). So a
+/// line whose fact only the step's citations give is flagged only where no
+/// line below needs it (`needed_below`), as the elaborator's R3 judges it.
 pub fn check_repeated(
     report: &mut Report,
     thm: &Theorem,
@@ -1188,8 +1193,14 @@ pub fn check_repeated(
                 })
                 .map(|(_, o)| o.clone())
                 .collect();
-            let left = known.parts(&lighter, library);
-            if left.facts.iter().any(|f| f.shape() == said.shape()) {
+            let says =
+                |parts: &Parts| parts.facts.iter().any(|f| f.shape() == said.shape());
+            let mut uncited = lighter.clone();
+            uncited.just.refs.clear();
+            let repeated = says(&known.parts(&uncited, library))
+                || (says(&known.parts(&lighter, library))
+                    && !needed_below(step, i, &said, known, library));
+            if repeated {
                 report.say(
                     &thm.path,
                     req.line,
@@ -1202,6 +1213,34 @@ pub fn check_repeated(
             }
         }
     }
+}
+
+/// Whether a requires line below the step's `i`-th rests on what it says,
+/// `said`: one citing a record that asks for it (`citing::asked`), or one
+/// whose method asks it of the terms the line names (`built_on`).
+fn needed_below(
+    step: &Step,
+    i: usize,
+    said: &Node,
+    known: &Known,
+    library: &Library,
+) -> bool {
+    let req = &step.requires[i];
+    if built_on(req, step, known) {
+        return true;
+    }
+    step.requires[i + 1..].iter().any(|o| {
+        let Some((named, _)) = requires_item(&o.how) else {
+            return false;
+        };
+        let Some(parts) = requires_parts(step, o, known, library) else {
+            return false;
+        };
+        match asked(&step.just.item(&named), &parts, library) {
+            Built(asks) => asks.hypotheses.iter().any(|h| h.shape() == said.shape()),
+            Declined(_) => false,
+        }
+    })
 }
 
 /// What an item citation names, it needs.

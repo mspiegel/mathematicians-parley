@@ -103,20 +103,26 @@ are. Each family is one table, so the next one is added in one place, and each
 pilot is the test of whether the list still holds.
 
 **What is true of the code today.** Each part is a module, and each is an
-`impl` block on the one `Elaborator` in `src/elab/state.rs` (517 lines),
+`impl` block on the one `Elaborator` in `src/elab/state.rs` (617 lines),
 which holds the state they share:
 
 | part | module | lines |
 |---|---|---|
-| reading | `src/elab/reading.rs` | 768 |
-| scopes | `src/elab/scopes.rs` | 1,837 |
-| the matcher | `src/elab/matcher.rs` | 4,525 |
-| rule tables, as data | `src/rules.rs` | 873 |
-| rule tables, read | `src/elab/tables.rs` | 1,345 |
-| the calculators | `src/elab/calculators.rs`, deciding in `field.rs`, `normal.rs`, `linear.rs` | 7,223 |
-| the proof rules | `src/elab/provenance.rs` | 878 |
+| reading | `src/elab/reading.rs` | 870 |
+| scopes | `src/elab/scopes.rs` | 2,048 |
+| the matcher | `src/elab/matcher.rs` | 5,118 |
+| rule tables, as data | `src/rules.rs` | 944 |
+| rule tables, read | `src/elab/tables.rs` | 1,632 |
+| the calculators | `src/elab/calculators.rs`, deciding in `field.rs`, `normal.rs`, `linear.rs` | 8,171 |
+| the proof rules | `src/elab/provenance.rs` | 1,020 |
+| what a cited item asks and gives, shared with the checker | `src/citing/` | 1,333 |
 
-What `src/elab/elaborate.rs` keeps (3,483 lines) is the step loop, the handler
+`src/citing/` depends on neither tool: the checker and the elaborator each
+read a citation from the page and hand it the nodes, and it answers which
+group of the item the citation takes, under what binding, and what the item
+then asks (`asked`) or says there is (`obtained`).
+
+What `src/elab/elaborate.rs` keeps (3,877 lines) is the step loop, the handler
 for each kind of step, citing an item or a corpus theorem, the definition
 readings, and writing the file. Each part changes the shared state only
 through its own methods: the frames through the scopes (`frames_kept`,
@@ -1571,7 +1577,12 @@ proved (`discharged_by`).
   what a membership says); a line below with any other reason may rest on
   this one, as `2^p − 1 ∈ ℕ: mun:prime-nat` rests on `2^p − 1 ∈ ℤ` above it.
   So `requires k ∈ ℝ: membership` under `requires k ∈ ℤ` is refused, and so is
-  `requires r ∈ ℝ: from 1` on a step citing line 1, which says r ∈ ℤ. The
+  `requires r ∈ ℝ: from 1` on a step citing line 1, which says r ∈ ℤ. What
+  only the step's own citations give is not in hand on a requires line below,
+  which sees its own reason and the lines above it (R2), so a line saying it
+  is refused only where no line below needs it: none cites a record asking it
+  (`citing::asked`, the answer the elaborator's `asked_by_requires` gives),
+  and none has a method asking it of the terms it names (`built_on`). The
   rest is divided by who can see it:
   - the elaborator, on every step but an item citation: each cited line is in
     the proof's provenance. On a method step, a requires line the proof does
@@ -1581,7 +1592,11 @@ proved (`discharged_by`).
     the binding that line gives, include what it says: `requires 2^(j + 1) ∈
     ℤ` above `requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j +
     1)`, whose record asks b ∈ ℤ though its lemma proves k ∈ ℤ without it
-    (`asked_by_requires`). Each atom combined has its membership on the page,
+    (`asked_by_requires`). What a record asks there is the checker's answer,
+    from the one search both tools use (`citing::asked`): the line's fact is
+    the claim, and the lines its reason cites, the requires lines above it
+    and the member a claim said of every member names are the facts. A
+    record none of whose groups concludes the fact asks nothing. Each atom combined has its membership on the page,
     written, or cited by the step or by one of its requires lines, whose
     method may be what combined it (`METHODS.md`). A cited line is read as
     the page writes it, so an `obtain`'s witnesses' memberships, which the
@@ -1674,6 +1689,16 @@ proved (`discharged_by`).
     page says its member is whole. A sum's index is the exception, a whole
     number as the sum runs over its range (`RANGE_WITHIN`), as a family's
     values are read (`in_family`).
+  - both, where both ask one search: what a record a requires line cites
+    asks of it, and what a record an obtain cites says there is. Both ask
+    `src/citing/` (`asked`, `obtained`), so what can differ is what each
+    hands it, read from the page its own way: which lines a citation names,
+    what each says, and which defines are written out, only those the
+    citation cites (`SYNTAX.md`). `tests/agree.rs` has each tool list its
+    answers in the page's notation (`check::answers`, `list_asked`) and
+    compares the two lists; they are alike, and a difference fails the test.
+    A definition that unfolds is not asked: the elaborator reaches the
+    existence an obtain of one claims from the claim itself.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items

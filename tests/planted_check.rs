@@ -148,6 +148,47 @@ fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A requires line whose fact the step's own citation gives is not repeated
+/// where a line below needs it: the line below sees only its reason and the
+/// lines above it (R2). Here step 16.10 cites line 8, which says c ∈ ℝ, and
+/// `c + δ/2 ∈ ℝ: mun:real-closure` below asks c ∈ ℝ of the line above it.
+#[test]
+fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
+    let clean = clean();
+    let case = case(
+        "restate a fact the step cites, for a requires line below",
+        vec![edit(
+            "proofs/intermediate-value.proof",
+            Some(
+                "\
+    16.10. x₁ − c < δ
+           inequalities, from 16.9, 16.6
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
+           requires c ∈ ℝ: from 8
+           requires δ ∈ ℝ: from 16.5
+"
+                .to_string(),
+            ),
+            "\
+    16.10. x₁ − c < δ
+           inequalities, from 16.9, 16.6, 8
+           requires c ∈ ℝ: from 8
+           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
+           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
+           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
+           requires δ ∈ ℝ: from 16.5
+"
+            .to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::check::run(&tree).printed;
+    assert!(out.contains("\n0 problem(s)\n"), "{out}");
+}
+
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
