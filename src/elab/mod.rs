@@ -131,7 +131,217 @@ impl<V: Clone> Table<V> {
 }
 
 /// What is known at a scope: a proof of each claim under it.
-pub type Facts = Table<Proof>;
+///
+/// A fact is found by its standard form, the one the normalizer gives it
+/// (`Elaborator::fact_key`), so a fact written one way is held whichever way
+/// a route asks for it: `0 ≠ k`, `k ≠ 0` and `¬ k = 0` are one fact. The
+/// table keeps each claim as it was proved, with its standard form beside
+/// it, and only the elaborator stores or finds one (`Elaborator::know`,
+/// `Elaborator::held`): reading a standard form and proving one spelling
+/// from another are its.
+///
+/// Cloning the table shares it; [`Facts::copy`] is a table of its own with
+/// the same entries.
+#[derive(Clone, Default)]
+pub struct Facts {
+    proofs: Table<Proof>,
+    /// Each standard form, and the claims held under it in the order they
+    /// were proved.
+    standard: Table<Vec<String>>,
+}
+
+impl Facts {
+    pub fn new() -> Self {
+        Facts::default()
+    }
+
+    /// A table of its own with the same entries.
+    pub fn copy(&self) -> Self {
+        Facts {
+            proofs: self.proofs.copy(),
+            standard: self.standard.copy(),
+        }
+    }
+
+    /// Every claim and its proof as they stand now, in order.
+    pub fn entries(&self) -> Vec<(String, Proof)> {
+        self.proofs.entries()
+    }
+
+    /// Every claim, in order.
+    pub fn keys(&self) -> Vec<String> {
+        self.proofs.keys()
+    }
+
+    pub fn len(&self) -> usize {
+        self.proofs.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.proofs.is_empty()
+    }
+
+    /// This table's facts with `over`'s laid on top.
+    pub fn with(&self, over: &Facts) -> Self {
+        let standard = self.standard.copy();
+        for (key, claims) in over.standard.entries() {
+            // What is laid on top is the latest under its standard form.
+            let mut held = standard.get(&key).unwrap_or_default();
+            for claim in claims {
+                held.retain(|c| *c != claim);
+                held.push(claim);
+            }
+            standard.set(key, held);
+        }
+        Facts {
+            proofs: self.proofs.with(&over.proofs),
+            standard,
+        }
+    }
+
+    /// The facts that pass `keep`, as a table of their own.
+    pub fn filtered(&self, keep: impl Fn(&str, &Proof) -> bool) -> Self {
+        let proofs = self.proofs.filtered(keep);
+        let standard = Table::new();
+        for (key, claims) in self.standard.entries() {
+            let kept: Vec<String> =
+                claims.into_iter().filter(|c| proofs.has(c)).collect();
+            if !kept.is_empty() {
+                standard.set(key, kept);
+            }
+        }
+        Facts { proofs, standard }
+    }
+
+    pub fn same(&self, other: &Facts) -> bool {
+        self.proofs.same(&other.proofs)
+    }
+
+    /// The same claims, each proved by what `carry` makes of its proof, as a
+    /// table of its own: a fact's standard form is its claim's, whatever
+    /// proves it, so the table is carried to a wider scope as it stands.
+    pub fn rebased(&self, mut carry: impl FnMut(&str, Proof) -> Proof) -> Self {
+        let proofs = Table::new();
+        for (claim, proof) in self.proofs.entries() {
+            let made = carry(&claim, proof);
+            proofs.set(claim, made);
+        }
+        Facts {
+            proofs,
+            standard: self.standard.copy(),
+        }
+    }
+
+    /// `claim` proved by `proof`, held under `standard`, its standard form.
+    pub(crate) fn store(&self, claim: String, standard: String, proof: Proof) {
+        self.proofs.set(claim.clone(), proof);
+        // The claims under a standard form stand in the order they were
+        // last proved, so the latest is last.
+        let mut held = self.standard.get(&standard).unwrap_or_default();
+        held.retain(|c| *c != claim);
+        held.push(claim);
+        self.standard.set(standard, held);
+    }
+
+    /// `store`, where the claim is not held yet as it is spelt.
+    pub(crate) fn store_default(&self, claim: String, standard: String, proof: Proof) {
+        if !self.proofs.has(&claim) {
+            self.store(claim, standard, proof);
+        }
+    }
+
+    /// The claims held under a standard form, in the order they were last
+    /// proved.
+    pub(crate) fn under(&self, standard: &str) -> Vec<String> {
+        self.standard.get(standard).unwrap_or_default()
+    }
+
+    /// The proof of a claim held as it is spelt.
+    pub(crate) fn proof(&self, claim: &str) -> Option<Proof> {
+        self.proofs.get(claim)
+    }
+}
+
+/// What the lines of the step being proved wrote, each with the scope it
+/// was proved under, which the membership lookup and the one-lemma bridge
+/// read before any search (`Elaborator::writing`). A fact here is found by
+/// its standard form as one in `Facts` is (`Elaborator::written_held`).
+///
+/// A clone is a table of its own, since what a step wrote is set aside and
+/// put back around the work that changes it.
+#[derive(Default)]
+pub struct Written {
+    facts: Facts,
+    /// Each claim, as it was proved, and the scope it was proved under.
+    at: IndexMap<String, String>,
+}
+
+/// A fact the step's lines wrote: its proof, and the scope it is under.
+pub struct WrittenFact {
+    pub proof: Proof,
+    pub at: String,
+}
+
+impl Clone for Written {
+    fn clone(&self) -> Self {
+        Written {
+            facts: self.facts.copy(),
+            at: self.at.clone(),
+        }
+    }
+}
+
+impl Written {
+    pub fn new() -> Self {
+        Written::default()
+    }
+
+    /// Each claim, its proof and its scope, in order.
+    pub fn entries(&self) -> Vec<(String, WrittenFact)> {
+        self.facts
+            .entries()
+            .into_iter()
+            .map(|(claim, proof)| {
+                let at = self.at.get(&claim).cloned().unwrap_or_default();
+                (claim, WrittenFact { proof, at })
+            })
+            .collect()
+    }
+
+    /// The facts whose proofs pass `keep`.
+    pub fn filtered(&self, keep: impl Fn(&Proof) -> bool) -> Self {
+        let facts = self.facts.filtered(|_, p| keep(p));
+        let at = self
+            .at
+            .iter()
+            .filter(|(claim, _)| facts.proof(claim).is_some())
+            .map(|(c, s)| (c.clone(), s.clone()))
+            .collect();
+        Written { facts, at }
+    }
+
+    /// `claim`, proved by `proof` under `at`, held under `standard`.
+    pub(crate) fn store(
+        &mut self,
+        claim: String,
+        standard: String,
+        at: String,
+        proof: Proof,
+    ) {
+        self.at.insert(claim.clone(), at);
+        self.facts.store(claim, standard, proof);
+    }
+
+    /// The facts held under a standard form, and the latest of them.
+    pub(crate) fn facts(&self) -> &Facts {
+        &self.facts
+    }
+
+    /// The scope a claim was proved under.
+    pub(crate) fn at(&self, claim: &str) -> Option<&String> {
+        self.at.get(claim)
+    }
+}
 
 /// A claim, a proof of it at one scope, and the sentences it was read from.
 ///

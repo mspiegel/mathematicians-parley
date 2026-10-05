@@ -13,7 +13,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::{Facts, Lines};
+use super::{Facts, Lines, Written};
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::fancy;
@@ -205,6 +205,9 @@ pub struct Elaborator<'a> {
     /// Term, bound letters and the defined names it may read -> its standard
     /// form.
     pub standards: IndexMap<(String, Vars, String), Term>,
+    /// Claim -> the key a fact of it is stored and found by
+    /// (`Elaborator::fact_key`), which depends on the claim alone.
+    pub fact_keys: IndexMap<String, String>,
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
@@ -244,7 +247,7 @@ pub struct Elaborator<'a> {
     pub sorts: BTreeSet<String>,
     /// Side conditions the step being proved wrote, with the scope each was
     /// proved under.
-    pub written: IndexMap<String, (String, Proof)>,
+    pub written: Written,
     pub saying: IndexSet<String>,
     pub rewriting: IndexSet<String>,
     pub numbering: IndexSet<String>,
@@ -358,6 +361,7 @@ impl<'a> Elaborator<'a> {
             bridges: None,
             lemma_heads: None,
             standards: IndexMap::new(),
+            fact_keys: IndexMap::new(),
             reading_facts: false,
             member: None,
             sum_letter: None,
@@ -371,7 +375,7 @@ impl<'a> Elaborator<'a> {
             resting: None,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),
-            written: IndexMap::new(),
+            written: Written::new(),
             saying: IndexSet::new(),
             rewriting: IndexSet::new(),
             numbering: IndexSet::new(),

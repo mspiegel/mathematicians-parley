@@ -24,10 +24,10 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::provenance::item_clauses;
 use super::state::{
-    fit, fit_respelt, names_of, Binding, Elaborator, HeadKey, Role, Shape, Vars,
+    fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
 use super::tables::{Leaf, Row};
-use super::{Facts, Lines};
+use super::{Facts, Lines, WrittenFact};
 use crate::binds;
 use crate::corpus::Step;
 use crate::formula::Node;
@@ -82,6 +82,144 @@ struct Walked {
 }
 
 impl<'a> Elaborator<'a> {
+    // --- the facts at a scope, by standard form ---------------------------
+
+    /// The standard form a fact is stored and found by (`Facts`): the claim
+    /// with the normalizer's rules applied, parts first, and each symmetric
+    /// pair in order (`written_step`), no letter read as bound. A defined
+    /// name and a map's value stay as written, since reading them depends on
+    /// the step and the scope, and a fact's key must be the same wherever it
+    /// is stored and wherever it is asked for. `0 ≠ k`, `k ≠ 0` and
+    /// `¬ k = 0` have one key.
+    pub fn fact_key(&mut self, claim: &str) -> String {
+        if let Some(found) = self.fact_keys.get(claim) {
+            return found.clone();
+        }
+        let kept = std::mem::take(&mut self.binding);
+        let term = self.to_term(claim);
+        let written = self.written_form(&term);
+        self.binding = kept;
+        let key = self.rpn(&written);
+        self.fact_keys.insert(claim.to_string(), key.clone());
+        key
+    }
+
+    /// The term with every rule `written_step` takes applied, parts first.
+    fn written_form(&mut self, term: &Term) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
+            return term.clone();
+        }
+        let kids: Vec<Term> = term
+            .children()
+            .iter()
+            .map(|c| self.written_form(c))
+            .collect();
+        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        match self.written_step(&parts) {
+            None => parts,
+            Some((_, next)) => self.written_form(&next),
+        }
+    }
+
+    /// `claim`, proved by `proof`, among `facts`.
+    pub fn know(&mut self, facts: &Facts, claim: impl Into<String>, proof: Proof) {
+        let claim = claim.into();
+        let key = self.fact_key(&claim);
+        facts.store(claim, key, proof);
+    }
+
+    /// `know`, where the claim is not held yet as it is spelt.
+    pub fn know_default(
+        &mut self,
+        facts: &Facts,
+        claim: impl Into<String>,
+        proof: Proof,
+    ) {
+        let claim = claim.into();
+        let key = self.fact_key(&claim);
+        facts.store_default(claim, key, proof);
+    }
+
+    /// A proof of `wanted`, under `scope`, among `facts`: the fact with its
+    /// standard form proved last, as a later proof of a claim replaces an
+    /// earlier one, carried to `wanted` by the normalizer's proof that the
+    /// two are one claim (`same`) where it is spelt otherwise. `0 ≠ k` is
+    /// held where `k ≠ 0` was proved, and a step's own requires line saying
+    /// it is the one taken over a line of the scope saying it earlier.
+    /// Every route that asks whether a fact is held asks here.
+    pub fn held(
+        &mut self,
+        facts: &Facts,
+        wanted: &str,
+        scope: &str,
+    ) -> Checked<Option<Proof>> {
+        let key = self.fact_key(wanted);
+        let claims = facts.under(&key);
+        let Some(stored) = claims.last() else {
+            return Ok(None);
+        };
+        let Some(proof) = facts.proof(stored) else {
+            return Ok(None);
+        };
+        if stored == wanted {
+            return Ok(Some(proof));
+        }
+        // The normalizer proves under the innermost frame it may (`allowed`),
+        // and the fact is held under `scope`, which may be an outer one: the
+        // two are made one claim at a frame of `scope`'s own.
+        let (was, now) = (self.to_term(stored), self.to_term(wanted));
+        let across = self.frames_kept(|me| {
+            me.frames.push(Frame {
+                scope: scope.to_string(),
+                added: None,
+                facts: Facts::new(),
+            });
+            me.same(&was, &now, scope, &Facts::new(), None)
+        })?;
+        Ok(match across {
+            Built(across) => {
+                Some(pf!(self.b; scope, stored, wanted, proof, across, "mpbid"))
+            }
+            Declined(_) => None,
+        })
+    }
+
+    /// `claim`, proved by `proof` under `at`, among what the step's lines
+    /// wrote (`Written`).
+    pub fn write(
+        &mut self,
+        claim: impl Into<String>,
+        at: impl Into<String>,
+        proof: Proof,
+    ) {
+        let claim = claim.into();
+        let key = self.fact_key(&claim);
+        self.written.store(claim, key, at.into(), proof);
+    }
+
+    /// `wanted`, among what the step's lines wrote, under the scope the fact
+    /// it is held by was proved under: found by standard form as `held`
+    /// finds a fact.
+    pub fn written_held(&mut self, wanted: &str) -> Checked<Option<WrittenFact>> {
+        let key = self.fact_key(wanted);
+        let written = self.written.clone();
+        let Some(latest) = written.facts().under(&key).last().cloned() else {
+            return Ok(None);
+        };
+        let Some(at) = written.at(&latest).cloned() else {
+            return Ok(None);
+        };
+        Ok(self
+            .held(written.facts(), wanted, &at)?
+            .map(|proof| WrittenFact { proof, at }))
+    }
+
+    /// Whether `wanted` is held among `facts` (`held`), with no proof built.
+    pub fn holds(&mut self, facts: &Facts, wanted: &str) -> bool {
+        let key = self.fact_key(wanted);
+        !facts.under(&key).is_empty()
+    }
+
     // --- facts the text never writes ------------------------------------
 
     /// A proof of something a step needs and the text does not write.
@@ -111,7 +249,7 @@ impl<'a> Elaborator<'a> {
             None => facts.clone(),
         };
         let rpn = self.rpn(wanted);
-        if let Some(p) = facts.get(&rpn) {
+        if let Some(p) = self.held(&facts, &rpn, scope)? {
             return Ok(Built(p));
         }
         let label = wanted.label().unwrap_or("");
@@ -127,18 +265,6 @@ impl<'a> Elaborator<'a> {
                 &binds! {"ph" => scope, "A" => &a},
                 &[],
             )));
-        }
-        // An equation says the same read from either side.
-        if label == "wceq" && kids.len() == 2 {
-            let (a, b) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
-            let turned = t!(b, a, "wceq");
-            if let Some(held) = facts.get(&turned) {
-                return Ok(Built(self.b.ap(
-                    "eqcomd",
-                    &binds! {"ph" => scope, "A" => &b, "B" => &a},
-                    &[&held],
-                )));
-            }
         }
         // A number's membership of a number system is worked out from the
         // numeral, not searched for, and spends none of the depth.
@@ -172,7 +298,7 @@ impl<'a> Elaborator<'a> {
         // one to carry, before the lemmas below are tried in their order.
         if label == "wcel" && kids.len() == 2 {
             let (s, sys) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
-            if let Some(found) = self.bridged(&s, &sys, scope, &facts) {
+            if let Some(found) = self.bridged(&s, &sys, scope, &facts)? {
                 return Ok(Built(found));
             }
             // A function's value at a point of its domain, from the
@@ -1164,7 +1290,7 @@ impl<'a> Elaborator<'a> {
             Leaf::Rows(rows) => {
                 for row in rows {
                     let found = match row {
-                        Row::Held => self.closed_held(one, other, held),
+                        Row::Held => self.closed_held(one, other, where_, held)?,
                         Row::Cited {
                             was,
                             now,
@@ -1172,10 +1298,10 @@ impl<'a> Elaborator<'a> {
                             flip,
                         } => self.closed_cited(
                             one, other, where_, held, was, now, said, *flip,
-                        ),
-                        Row::Assumed { was, now, under } => {
-                            self.closed_assumed(one, other, held, was, now, under)
-                        }
+                        )?,
+                        Row::Assumed { was, now, under } => self.closed_assumed(
+                            one, other, where_, held, was, now, under,
+                        )?,
                         Row::Standard => {
                             self.closed_standard(one, other, where_, held)?
                         }
@@ -1200,16 +1326,17 @@ impl<'a> Elaborator<'a> {
 
     /// Two terms an equation in hand says are equal.
     fn closed_held(
-        &self,
+        &mut self,
         one: &Term,
         other: &Term,
+        where_: &str,
         held: &Facts,
-    ) -> Option<Route<Proof>> {
+    ) -> Checked<Option<Route<Proof>>> {
         let (a, b) = (self.rpn(one), self.rpn(other));
         if a == b {
-            return None;
+            return Ok(None);
         }
-        held.get(&t!(a, b, "wceq")).map(Built)
+        Ok(self.held(held, &t!(a, b, "wceq"), where_)?.map(Built))
     }
 
     /// The place one cited equation rewrote, carried back. The line says
@@ -1217,7 +1344,7 @@ impl<'a> Elaborator<'a> {
     /// term back is `now = was`.
     #[allow(clippy::too_many_arguments)]
     fn closed_cited(
-        &self,
+        &mut self,
         one: &Term,
         other: &Term,
         where_: &str,
@@ -1226,35 +1353,37 @@ impl<'a> Elaborator<'a> {
         now: &str,
         said: &str,
         flip: bool,
-    ) -> Option<Route<Proof>> {
+    ) -> Checked<Option<Route<Proof>>> {
         if self.rpn(one) != now || self.rpn(other) != was {
-            return None;
+            return Ok(None);
         }
-        let Some(proof) = held.get(said) else {
-            return Some(self.no("{} is not in hand here", &[said]));
+        let Some(proof) = self.held(held, said, where_)? else {
+            return Ok(Some(self.no("{} is not in hand here", &[said])));
         };
-        Some(Built(if flip {
+        Ok(Some(Built(if flip {
             pf!(self.b; where_, was, now, proof, "eqcomd")
         } else {
             proof
-        }))
+        })))
     }
 
     /// The place a lemma's own assumed equation says the two agree: the
     /// equation is handed over as a fact rather than reproved at the leaf.
+    #[allow(clippy::too_many_arguments)]
     fn closed_assumed(
-        &self,
+        &mut self,
         one: &Term,
         other: &Term,
+        where_: &str,
         held: &Facts,
         was: &str,
         now: &str,
         under: &str,
-    ) -> Option<Route<Proof>> {
+    ) -> Checked<Option<Route<Proof>>> {
         if self.rpn(one) == was && self.rpn(other) == now {
-            held.get(under).map(Built)
+            Ok(self.held(held, under, where_)?.map(Built))
         } else {
-            None
+            Ok(None)
         }
     }
 
@@ -1375,6 +1504,16 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(body) = self.applied_body(term) {
             return Some((How::Applied, body));
+        }
+        self.written_step(term)
+    }
+
+    /// `standard_step` by the rules alone: a declared rule, or a symmetric
+    /// pair put in order, and never a defined name or a map read as what it
+    /// stands for, which depend on what the step cites and on the scope.
+    fn written_step(&mut self, term: &Term) -> Option<(How, Term)> {
+        if term.variable().is_some() {
+            return None;
         }
         for rule in self.rewrites(false) {
             if let Some(bound) = fit(&rule.given, term, &Binding::new(), &rule.names) {
@@ -1635,7 +1774,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(direct));
         }
         // A defined name is carried to its map first.
-        let Some(named) = held.get(&t!(written, mapped, "wceq")) else {
+        let Some(named) = self.held(held, &t!(written, mapped, "wceq"), where_)? else {
             return Ok(Route::no("the equation a define holds is not in hand"));
         };
         let via = self.b.ap(
@@ -1734,7 +1873,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let (a, b) = (self.rpn(cur), self.rpn(nxt));
         match how {
-            How::Defined => Ok(match held.get(&t!(a, b, "wceq")) {
+            How::Defined => Ok(match self.held(held, &t!(a, b, "wceq"), where_)? {
                 Some(p) => Built(p),
                 None => Route::no("the equation a define holds is not in hand"),
             }),
@@ -1882,7 +2021,7 @@ impl<'a> Elaborator<'a> {
         let spelt = self.rpn(&own);
         let mut named = None;
         if written_f != spelt {
-            named = held.get(&t!(written_f, spelt, "wceq"));
+            named = self.held(held, &t!(written_f, spelt, "wceq"), where_)?;
             if named.is_none() {
                 return Ok(Route::no("the equation a define holds is not in hand"));
             }
@@ -2639,19 +2778,17 @@ impl<'a> Elaborator<'a> {
             layers.iter().map(|(_, v, _)| format!("{v} cv")).collect();
         // A line proved before a block opened holds inside it too, and the
         // scope's own copy is what says so where the step sits.
-        let mut sources: Vec<(String, Proof)> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| lines.get(r))
-            .map(|cited| {
-                let proof = facts.get(&cited.term).unwrap_or(cited.proof.clone());
-                (cited.term, proof)
-            })
-            .collect();
+        let mut sources: Vec<(String, Proof)> = Vec::new();
+        for cited in step.just.refs.iter().filter_map(|r| lines.get(r)) {
+            let proof = match self.held(facts, &cited.term, scope)? {
+                Some(p) => p,
+                None => cited.proof.clone(),
+            };
+            sources.push((cited.term, proof));
+        }
         for r in &step.requires {
             let said = self.claim_of(&r.fact)?;
-            if let Some(proof) = facts.get(&said) {
+            if let Some(proof) = self.held(facts, &said, scope)? {
                 sources.push((said, proof));
             }
         }
@@ -3601,7 +3738,7 @@ impl<'a> Elaborator<'a> {
                 false,
                 Some(seed)
             )?);
-            known.set(said.clone(), proof.clone());
+            self.know(&known, said.clone(), proof.clone());
             self.unpack(&said, &proof, scope, &known, 4);
         }
         self.introduced(&want, scope, &known)
@@ -3656,7 +3793,7 @@ impl<'a> Elaborator<'a> {
             };
             let made = take!(made);
             let key = self.rpn(&part);
-            known.set(key.clone(), made.clone());
+            self.know(&known, key.clone(), made.clone());
             self.unpack(&key, &made, scope, &known, 4);
         }
         self.introduced(want, scope, &known)
@@ -4677,7 +4814,7 @@ impl<'a> Elaborator<'a> {
             // An antecedent that is the scope is supplied by standing under
             // it, not by a fact looked up, so it rests on everything the scope
             // says.
-            let more = self.scope_origin(&where_, &known);
+            let more = self.scope_origin(&where_, &known)?;
             proof = proof.resting(more);
         }
         Ok(Built(self.carry(proof, &goal_rpn, frame)))
@@ -4705,7 +4842,8 @@ impl<'a> Elaborator<'a> {
         let proof =
             take!(self.apply_lemma(label, &said, scope, facts, step, false, None)?);
         let known = facts.copy();
-        known.set(self.rpn(&said), proof);
+        let said = self.rpn(&said);
+        self.know(&known, said, proof);
         self.settle(goal, scope, &known, 3, None, None)
     }
 
@@ -4764,7 +4902,8 @@ impl<'a> Elaborator<'a> {
             let was = self.rpn(&left.children()[0]);
             let now = self.rpn(&left.children()[1]);
             let held = Facts::new();
-            held.set(under.clone(), pf!(self.b; under, "id"));
+            let id = pf!(self.b; under, "id");
+            self.know(&held, under.clone(), id);
             let leaf = Leaf::Rows(vec![Row::Assumed {
                 was,
                 now,
@@ -4788,18 +4927,19 @@ impl<'a> Elaborator<'a> {
             let wider = Facts::new();
             for (k, v) in facts.entries() {
                 let carried = pf!(self.b; under, scope, k, weaken, v, "syl");
-                wider.set(k, carried);
+                self.know(&wider, k, carried);
             }
-            wider.set(extra.clone(), pf!(self.b; scope, extra, "simpr"));
+            let simpr = pf!(self.b; scope, extra, "simpr");
+            self.know(&wider, extra.clone(), simpr);
             // A line said of every index may be a requires line of the step,
             // read here and not by the search below.
             let named = wider.copy();
-            for (claim, (at, proof)) in self.written.clone() {
-                if let Some(lifted) = self.lifted_to(&claim, &proof, &at, scope) {
-                    if !named.has(&claim) {
+            for (claim, w) in self.written.entries() {
+                if let Some(lifted) = self.lifted_to(&claim, &w.proof, &w.at, scope) {
+                    if !self.holds(&named, &claim) {
                         let carried =
                             pf!(self.b; under, scope, claim, weaken, lifted, "syl");
-                        named.set(claim, carried);
+                        self.know(&named, claim, carried);
                     }
                 }
             }

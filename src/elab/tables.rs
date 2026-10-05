@@ -18,7 +18,7 @@ use super::linear;
 use super::matcher::ChainLink;
 use super::provenance::{from_requires, rests_on_only};
 use super::state::{fit, names_of, Binding, Elaborator};
-use super::{Facts, Lines};
+use super::{Facts, Lines, Written};
 use crate::binds;
 use crate::corpus::Step;
 use crate::formula::Node;
@@ -97,21 +97,14 @@ impl<'a> Elaborator<'a> {
         f: impl FnOnce(&mut Self) -> T,
     ) -> T {
         let kept = self.written.clone();
-        let made: IndexMap<String, (String, Proof)> = known
-            .entries()
-            .into_iter()
-            .filter(|(_, v)| from_requires(v))
-            .map(|(k, v)| (k, (scope.to_string(), v)))
-            .collect();
-        self.written = if keep {
-            let mut out = kept.clone();
-            for (k, v) in made {
-                out.insert(k, v);
+        if !keep {
+            self.written = Written::new();
+        }
+        for (k, v) in known.entries() {
+            if from_requires(&v) {
+                self.write(k, scope, v);
             }
-            out
-        } else {
-            made
-        };
+        }
         let out = f(self);
         self.written = kept;
         out
@@ -850,9 +843,9 @@ impl<'a> Elaborator<'a> {
         // What `part` cannot build is searched for, with the step's own
         // lines laid over the scope's copies of the same claims.
         let written = facts.filtered(|_, v| from_requires(v));
-        for (k, (at, v)) in self.written.clone() {
-            if let Some(lifted) = self.lifted_to(&k, &v, &at, scope) {
-                written.set(k, lifted);
+        for (k, w) in self.written.entries() {
+            if let Some(lifted) = self.lifted_to(&k, &w.proof, &w.at, scope) {
+                self.know(&written, k, lifted);
             }
         }
         let offered = facts.with(&written);
@@ -1016,8 +1009,8 @@ impl<'a> Elaborator<'a> {
         proof: &Proof,
         scope: &str,
         facts: &Facts,
-    ) -> Checked<IndexMap<String, Proof>> {
-        let mut out = IndexMap::new();
+    ) -> Checked<Facts> {
+        let out = Facts::new();
         'claims: for (claim, chain) in self.implied_chains(said) {
             let mut held = proof.clone();
             let mut at = said.to_string();
@@ -1053,7 +1046,7 @@ impl<'a> Elaborator<'a> {
                 }
                 at = after;
             }
-            out.insert(claim, held);
+            self.know(&out, claim, held);
         }
         Ok(out)
     }
@@ -1067,16 +1060,16 @@ impl<'a> Elaborator<'a> {
         system: &str,
         scope: &str,
         written: &Facts,
-    ) -> Option<Proof> {
+    ) -> Checked<Option<Proof>> {
         for ((source, target), label) in self.bridge_labels() {
             if target != system {
                 continue;
             }
             let claim = t!(said, source, "wcel");
-            let mut proof = written.get(&claim);
+            let mut proof = self.held(written, &claim, scope)?;
             if proof.is_none() {
-                if let Some((at, held)) = self.written.get(&claim).cloned() {
-                    proof = self.lifted_to(&claim, &held, &at, scope);
+                if let Some(w) = self.written_held(&claim)? {
+                    proof = self.lifted_to(&claim, &w.proof, &w.at, scope);
                 }
             }
             // What a requires line wrote, or what a line being cited says.
@@ -1091,13 +1084,13 @@ impl<'a> Elaborator<'a> {
             }
             let push = self.sig(&label).push()[0].to_string();
             let law = self.b.ap(&label, &binds! {push => said}, &[]);
-            return Some(self.b.ap(
+            return Ok(Some(self.b.ap(
                 "syl",
                 &binds! {"ph" => scope, "ps" => &claim, "ch" => t!(said, system, "wcel")},
                 &[&proof, &law],
-            ));
+            )));
         }
-        None
+        Ok(None)
     }
 
     /// The sethood of each class a statement's `let` lines introduce, in the
@@ -1110,7 +1103,7 @@ impl<'a> Elaborator<'a> {
         terms: &[String],
         scope: &str,
         facts: &Facts,
-    ) -> BTreeSet<String> {
+    ) -> Checked<BTreeSet<String>> {
         let mut out = BTreeSet::new();
         let hypotheses = self.thm.hypotheses.clone();
         for ((h, node), t) in hypotheses.iter().zip(nodes).zip(terms) {
@@ -1126,12 +1119,15 @@ impl<'a> Elaborator<'a> {
             };
             let said = t!(kernel, "cvv", "wcel");
             let origin = format!("sethood@{label}");
-            if let Some(held) = facts.get(&said) {
+            let membership = if node.notation == "membership" {
+                self.held(facts, t, scope)?
+            } else {
+                None
+            };
+            if let Some(held) = self.held(facts, &said, scope)? {
                 let sealed = self.seal(held, &origin);
-                facts.set(said, sealed);
-            } else if let (true, Some(held)) =
-                (node.notation == "membership", facts.get(t))
-            {
+                self.know(facts, said, sealed);
+            } else if let Some(held) = membership {
                 let parts = self.to_term(t);
                 let (a, b) = (
                     self.rpn(&parts.children()[0]),
@@ -1140,13 +1136,13 @@ impl<'a> Elaborator<'a> {
                 let law = self.b.ap("elex", &binds! {"A" => &a, "B" => &b}, &[]);
                 let made = pf!(self.b; scope, t, said, held, law, "syl");
                 let sealed = self.seal(made, &origin);
-                facts.set(said, sealed);
+                self.know(facts, said, sealed);
             } else {
                 continue;
             }
             out.insert(origin);
         }
-        out
+        Ok(out)
     }
 
     /// `term ∈ V` from the constructor at the term's head; else a decline.
@@ -1341,21 +1337,16 @@ impl<'a> Elaborator<'a> {
             };
             return Ok(Built(pf!(self.b; apart, scope, label, "a1i")));
         }
-        let denied = t!(t!(divisor, "cc0", "wceq"), "wn");
-        for want in [&apart, &denied] {
-            let mut found = facts.get(want);
-            if found.is_none() {
-                if let Some((at, held)) = self.written.get(want).cloned() {
-                    found = self.lifted_to(want, &held, &at, scope);
-                }
+        // Held however the page wrote it: either way round, as ≠ or as the
+        // denial of an equation (`held`).
+        let mut found = self.held(facts, &apart, scope)?;
+        if found.is_none() {
+            if let Some(w) = self.written_held(&apart)? {
+                found = self.lifted_to(&apart, &w.proof, &w.at, scope);
             }
-            let Some(found) = found else {
-                continue;
-            };
-            if *want == apart {
-                return Ok(Built(found));
-            }
-            return Ok(Built(pf!(self.b; scope, divisor, "cc0", found, "neqned")));
+        }
+        if let Some(found) = found {
+            return Ok(Built(found));
         }
         // A line saying the divisor is above zero, or below it, says it is
         // not zero (`gt0ne0d`, `lt0ne0d`), as a reader takes A > 0.
@@ -1363,10 +1354,10 @@ impl<'a> Elaborator<'a> {
             (t!("cc0", divisor, "clt", "wbr"), "gt0ne0d"),
             (t!(divisor, "cc0", "clt", "wbr"), "lt0ne0d"),
         ] {
-            let mut found = facts.get(&want);
+            let mut found = self.held(facts, &want, scope)?;
             if found.is_none() {
-                if let Some((at, held)) = self.written.get(&want).cloned() {
-                    found = self.lifted_to(&want, &held, &at, scope);
+                if let Some(w) = self.written_held(&want)? {
+                    found = self.lifted_to(&want, &w.proof, &w.at, scope);
                 }
             }
             if let Some(found) = found {
@@ -1383,8 +1374,10 @@ impl<'a> Elaborator<'a> {
             let Some(line) = self.lines.get(&r) else {
                 continue;
             };
-            let carried = self.carried(&r, facts, &self.lines);
-            for (said, proof) in self.stated_by(&r, facts, &self.lines.clone()) {
+            let lines = self.lines.clone();
+            let carried = self.carried(&r, facts, &lines);
+            let lines = self.lines.clone();
+            for (said, proof) in self.stated_by(&r, scope, facts, &lines)? {
                 let proof = if said == line.term {
                     Some(carried.clone())
                 } else {
@@ -1394,8 +1387,8 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 let more = self.implied(&said, &proof, scope, facts)?;
-                if let Some(p) = more.get(&apart) {
-                    return Ok(Built(p.clone()));
+                if let Some(p) = self.held(&more, &apart, scope)? {
+                    return Ok(Built(p));
                 }
             }
         }
@@ -1460,18 +1453,18 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let want = t!(said, system, "wcel");
-        let found = facts.get(&want);
+        let found = self.held(facts, &want, scope)?;
         if let Some(f) = &found {
             if from_requires(f) {
                 return Ok(Built(f.clone()));
             }
         }
-        if let Some((at, held)) = self.written.get(&want).cloned() {
-            if let Some(lifted) = self.lifted_to(&want, &held, &at, scope) {
+        if let Some(w) = self.written_held(&want)? {
+            if let Some(lifted) = self.lifted_to(&want, &w.proof, &w.at, scope) {
                 return Ok(Built(lifted));
             }
         }
-        if let Some(carried) = self.bridged(said, system, scope, facts) {
+        if let Some(carried) = self.bridged(said, system, scope, facts)? {
             return Ok(Built(carried));
         }
         let term = self.to_term(said);
@@ -1606,27 +1599,34 @@ impl<'a> Elaborator<'a> {
         self.bridges.clone().unwrap_or_default()
     }
 
-    /// What a line states, sentence by sentence, with each proof where
-    /// `facts` holds one: its own sentences, and where it obtained names,
-    /// their memberships, which the scope holds with the line as their
-    /// origin.
-    pub fn stated_by(
-        &self,
-        r: &str,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> IndexMap<String, Option<Proof>> {
+    /// What a line states, sentence by sentence: its own sentences, and
+    /// where it obtained names, their memberships, which the scope holds
+    /// with the line as their origin.
+    pub fn stated_claims(&self, r: &str, facts: &Facts, lines: &Lines) -> Vec<String> {
         let term = lines.get(r).map(|l| l.term).unwrap_or_default();
-        let mut out: IndexMap<String, Option<Proof>> = IndexMap::new();
-        for said in self.parts(&term) {
-            let held = facts.get(&said);
-            out.insert(said, held);
-        }
+        let mut out = self.parts(&term);
         for (said, proof) in facts.entries() {
-            if rests_on_only(&proof, r) {
-                out.entry(said).or_insert(Some(proof));
+            if rests_on_only(&proof, r) && !out.contains(&said) {
+                out.push(said);
             }
         }
         out
+    }
+
+    /// What a line states (`stated_claims`), with each proof under `scope`
+    /// where `facts` holds one.
+    pub fn stated_by(
+        &mut self,
+        r: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<IndexMap<String, Option<Proof>>> {
+        let mut out: IndexMap<String, Option<Proof>> = IndexMap::new();
+        for said in self.stated_claims(r, facts, lines) {
+            let held = self.held(facts, &said, scope)?;
+            out.insert(said, held);
+        }
+        Ok(out)
     }
 }

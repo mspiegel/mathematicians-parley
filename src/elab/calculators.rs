@@ -631,18 +631,16 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         said: &str,
     ) -> Checked<Option<Proof>> {
+        // Written either way round, and as ¬ said = 0 as well (`held`).
         let want = t!(said, "cc0", "wne");
-        if let Some(p) = facts.get(&want) {
+        if let Some(p) = self.held(facts, &want, scope)? {
             return Ok(Some(p));
-        }
-        let denied = t!(t!(said, "cc0", "wceq"), "wn");
-        if let Some(p) = facts.get(&denied) {
-            return Ok(Some(pf!(self.b; scope, said, "cc0", p, "neqned")));
         }
         // Or a membership written that says it: N ∈ ℕ says N ≠ 0.
         for (fact, proof) in facts.entries() {
-            if let Some(p) = self.implied(&fact, &proof, scope, facts)?.get(&want) {
-                return Ok(Some(p.clone()));
+            let more = self.implied(&fact, &proof, scope, facts)?;
+            if let Some(p) = self.held(&more, &want, scope)? {
+                return Ok(Some(p));
             }
         }
         self.apart_as_written(said, scope, facts)
@@ -668,24 +666,36 @@ impl<'a> Elaborator<'a> {
             if node.variable().is_some() {
                 continue;
             }
-            let (subject, zero, given);
-            if node.label() == Some("wn") {
+            let sides = if node.label() == Some("wn") {
                 let inner = node.children()[0].clone();
                 if inner.variable().is_some() || inner.label() != Some("wceq") {
                     continue;
                 }
-                subject = inner.children()[0].clone();
-                zero = inner.children()[1].clone();
-                given = pf!(self.b; scope, self.rpn(&subject), "cc0", proof, "neqned");
+                inner.children().to_vec()
             } else {
-                subject = node.children()[0].clone();
-                zero = node.children()[1].clone();
-                given = proof;
-            }
-            let was = self.rpn(&subject);
-            if self.rpn(&zero) != "cc0" || was == said {
+                node.children().to_vec()
+            };
+            if sides.len() != 2 {
                 continue;
             }
+            // The side that is not zero, whichever side the page wrote it on,
+            // and the fact read as that side =/= 0 (`held`).
+            let (left, right) = (self.rpn(&sides[0]), self.rpn(&sides[1]));
+            let subject = match (left == "cc0", right == "cc0") {
+                (false, true) => sides[0].clone(),
+                (true, false) => sides[1].clone(),
+                _ => continue,
+            };
+            let was = self.rpn(&subject);
+            if was == said {
+                continue;
+            }
+            let wanted = t!(was, "cc0", "wne");
+            let one = Facts::new();
+            self.know(&one, fact.clone(), proof.clone());
+            let Some(given) = self.held(&one, &wanted, scope)? else {
+                continue;
+            };
             let Built((items, same)) =
                 w.e.normalize(&mut self.ask(&w.spec), &subject, &labels)?
             else {
@@ -1575,7 +1585,7 @@ impl<'a> Elaborator<'a> {
                 ));
             };
             let proof = pf!(self.b; scope, line.term, out_rpn, held, alike, "mpbid");
-            facts_out.set(out_rpn.clone(), proof.clone());
+            self.know(&facts_out, out_rpn.clone(), proof.clone());
             lines_out.set(
                 r.clone(),
                 Line {
@@ -1626,7 +1636,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
             // The bounds only: k ≠ 0 would split every certificate.
-            for said in self.stated_by(r, facts, lines).keys() {
+            for said in &self.stated_claims(r, facts, lines) {
                 if skip.contains(said) {
                     continue;
                 }
@@ -1872,8 +1882,8 @@ impl<'a> Elaborator<'a> {
         // The side conditions the step wrote are facts here as well, read
         // as the rest are.
         let mut offered = known.entries();
-        for (said, (at, held)) in self.written.clone() {
-            if let Some(lifted) = self.lifted_to(&said, &held, &at, scope) {
+        for (said, w) in self.written.entries() {
+            if let Some(lifted) = self.lifted_to(&said, &w.proof, &w.at, scope) {
                 offered.push((said, lifted));
             }
         }
@@ -1894,14 +1904,12 @@ impl<'a> Elaborator<'a> {
             }
             let read = self.standard(&fact);
             let read_rpn = self.rpn(&read);
-            if read_rpn == said || out.has(&read_rpn) {
+            if read_rpn == said || self.holds(&out, &read_rpn) {
                 continue;
             }
             if let Built(alike) = self.same(&fact, &read, scope, known, step)? {
-                out.set(
-                    read_rpn.clone(),
-                    pf!(self.b; scope, said, read_rpn, held, alike, "mpbid"),
-                );
+                let proof = pf!(self.b; scope, said, read_rpn, held, alike, "mpbid");
+                self.know(&out, read_rpn.clone(), proof);
             }
         }
         Ok(out)
@@ -1918,11 +1926,13 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<(String, Facts)> {
         let member = t!(format!("{} cv", self.rpn(variable)), self.rpn(over), "wcel");
         let (inner, lifted) = self.widen(scope, known, &member, None);
-        let held = lifted.get(&member).expect("the membership just laid down");
+        let held = self
+            .held(&lifted, &member, &inner)?
+            .expect("the membership just laid down");
         let more = self.implied(&member, &held, &inner, &lifted)?;
         let out = lifted.copy();
-        for (k, v) in more {
-            out.set(k, v);
+        for (k, v) in more.entries() {
+            self.know(&out, k, v);
         }
         Ok((inner, out))
     }
@@ -1998,8 +2008,8 @@ impl<'a> Elaborator<'a> {
             // as a line it writes: the claim's sum ranges over it.
             let kept = me.written.clone();
             for (said, held) in lifted.entries() {
-                if !facts.has(&said) {
-                    me.written.insert(said, (inner.clone(), held));
+                if !me.holds(facts, &said) {
+                    me.write(said, inner.clone(), held);
                 }
             }
             let made = (|| -> Checked<Route<AtMember>> {
@@ -2347,9 +2357,9 @@ impl<'a> Elaborator<'a> {
         // A reciprocal atom's divisor not being zero is the page's to say, in
         // its own spelling, which `written_nonzero` reads as a polynomial.
         let known = facts.copy();
-        for (claim, (at, proof)) in self.written.clone() {
-            if let Some(lifted) = self.lifted_to(&claim, &proof, &at, scope) {
-                known.set_default(claim, lifted);
+        for (claim, w) in self.written.entries() {
+            if let Some(lifted) = self.lifted_to(&claim, &w.proof, &w.at, scope) {
+                self.know_default(&known, claim, lifted);
             }
         }
         let mut w = Work::new(Spec {
@@ -2856,7 +2866,10 @@ impl<'a> Elaborator<'a> {
         }
         let (a, b) = (self.rpn(&a), self.rpn(&b));
         let (up, down) = (t!(a, b, "cle", "wbr"), t!(b, a, "cle", "wbr"));
-        let (Some(pu), Some(pd)) = (facts.get(&up), facts.get(&down)) else {
+        let (Some(pu), Some(pd)) = (
+            self.held(facts, &up, scope)?,
+            self.held(facts, &down, scope)?,
+        ) else {
             return Ok(None);
         };
         let both = t!(up, down, "wa");
@@ -2906,7 +2919,7 @@ impl<'a> Elaborator<'a> {
             ("lenlt", "cle")
         };
         let instead = t!(b, a, rel, "wbr");
-        let held = match facts.get(&instead) {
+        let held = match self.held(facts, &instead, scope)? {
             Some(p) => p,
             None => take!(self.prove_order(refs, &instead, scope, facts, lines, skip)?),
         };
@@ -2982,12 +2995,15 @@ impl<'a> Elaborator<'a> {
             let mut sides = Vec::new();
             for bound in [&below, &above] {
                 let (inner, lifted) = me.widen(scope, facts, bound, None);
+                let proof = me
+                    .held(&lifted, bound, &inner)?
+                    .expect("the bound just laid down");
                 let held = lines.copy();
                 held.set(
                     bound.clone(),
                     Line {
                         term: bound.clone(),
-                        proof: lifted.get(bound).expect("the bound just laid down"),
+                        proof,
                         sentences: Vec::new(),
                     },
                 );
@@ -3024,7 +3040,7 @@ impl<'a> Elaborator<'a> {
         refs: &[String],
         skip: &[String],
     ) -> Checked<Route<Proof>> {
-        if let Some(p) = facts.get(term) {
+        if let Some(p) = self.held(facts, term, scope)? {
             return Ok(Built(p));
         }
         let found = self.prove_order(refs, term, scope, facts, lines, skip)?;
@@ -3050,7 +3066,7 @@ impl<'a> Elaborator<'a> {
         let _ = how;
         let (low, high) = (self.rpn(&low), self.rpn(&high));
         let denies = t!(high, low, "cle", "wbr");
-        let Some(held) = facts.get(&denies) else {
+        let Some(held) = self.held(facts, &denies, scope)? else {
             return Ok(Route::no("nothing in scope denies the bound"));
         };
         let rh = self.membership(&high, "cr", scope, facts)?;
@@ -3067,7 +3083,9 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => &denies, "ch" => t!(bound, "wn")},
             &[&held, &turn],
         );
-        let supposed = facts.get(bound).expect("the bound this scope opened");
+        let supposed = self
+            .held(facts, bound, scope)?
+            .expect("the bound this scope opened");
         Ok(Built(self.b.ap(
             "pm2.21dd",
             &binds! {"ph" => scope, "ps" => bound, "ch" => term},
@@ -3337,19 +3355,19 @@ impl<'a> Elaborator<'a> {
         }
         let known = facts.copy();
         self.unpack(&term, &held, scope, &known, 4);
-        if let Some(p) = known.get(&want) {
+        if let Some(p) = self.held(&known, &want, scope)? {
             return Ok(Built(p));
         }
         // A bound the line's membership implies, read off what the line
         // states and nothing else in scope.
-        for (s, proof) in self.stated_by(r, &known, lines) {
+        for (s, proof) in self.stated_by(r, scope, &known, lines)? {
             let proof = if s == term { Some(held.clone()) } else { proof };
             let Some(proof) = proof else {
                 continue;
             };
             let more = self.implied(&s, &proof, scope, &known)?;
-            if let Some(p) = more.get(&want) {
-                return Ok(Built(p.clone()));
+            if let Some(p) = self.held(&more, &want, scope)? {
+                return Ok(Built(p));
             }
         }
         Ok(Route::no("that line does not reach the fact"))
@@ -3546,7 +3564,7 @@ impl<'a> Elaborator<'a> {
                     given.push(one);
                 }
             }
-            for said in self.stated_by(r, facts, lines).keys() {
+            for said in &self.stated_claims(r, facts, lines) {
                 for (extra, _lemmas) in self.implied_terms(said) {
                     if let Some(one) = linear::fact(&self.to_term(&extra), &labels) {
                         if one.how != How::Ne {

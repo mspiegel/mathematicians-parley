@@ -9,5 +9,5 @@ ${
   $d j k m $.
   $d A j k m $.
   tests.elaborator.sum-letter-in-scope.sum-under-a-hypothesis-over-its-letter $p |- ( ( A e. NN /\ 0 <_ sum_ k e. ( 1 ... A ) ( 1 / k ) ) -> sum_ k e. ( 1 ... ( A + 1 ) ) ( 1 / k ) e. RR ) $=
-    ( cn wcel cc0 c1 cfz co cv cdiv csu cle wbr wa caddc vm cr fzfid 1re a1i simpr elfznn syl nnre wne nnne0 redivcld fsumrecl wb vj wceq id oveq2d cbvsumv eleq1i bitri mpbid ) ACDZEFAGHZFBIZJHZBKZLMZNZFAFOHZGHZFPIZJHZPKZQDZVFVABKZQDZVDVFVHPVDFVERVDVGVFDZNZFVGFQDVNSTVNVGCDZVGQDVNVMVOVDVMUAZVGVEUBZUCZVGUDUCVNVOVGEUEVRVGUFUCUGUHVJVLUIVDVJVFFUJIZJHZUJKZQDVLVIWAQVFVHVTPUJVGVSUKZVGVSFJWBULUMUNUOWAVKQVFVTVAUJBVSUTUKZVSUTFJWCULUMUNUOUPTUQ $.
+    ( cn wcel cc0 c1 cfz co cv cdiv csu cle wbr wa caddc vm cr fzfid 1re a1i simpr elfznn syl nnre wceq wn wne nnne0 neneqd wb df-ne bicomd mpbid redivcld fsumrecl vj id oveq2d cbvsumv eleq1i bitri ) ACDZEFAGHZFBIZJHZBKZLMZNZFAFOHZGHZFPIZJHZPKZQDZVJVEBKZQDZVHVJVLPVHFVIRVHVKVJDZNZFVKFQDVRSTVRVKCDZVKQDVRVQVSVHVQUAZVKVIUBZUCZVKUDUCVRVKEUEZUFZVKEUGZVRVKEVRVSWEWBVKUHUCUIVRWEWDWEWDUJVRVKEUKTULUMUNUOVNVPUJVHVNVJFUPIZJHZUPKZQDVPVMWHQVJVLWGPUPVKWFUEZVKWFFJWIUQURUSUTWHVOQVJWGVEUPBWFVDUEZWFVDFJWJUQURUSUTVATUM $.
 $}

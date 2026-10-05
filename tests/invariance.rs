@@ -22,22 +22,7 @@ use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::build::{elaborate_one, library};
 
 /// The breaks there are, each a gap a later change closes.
-///
-/// One kind, in the elaborator: a denied equation written the other way
-/// round, `0 ≠ k` for `k ≠ 0` or `C ≠ A` for `A ≠ C`. Its normalizer reads
-/// the two as one claim (`df-ne`, then `eqcom`), but the facts a step has
-/// are kept by their kernel terms as written, and a route that looks one up
-/// by its term finds only the way round it was written.
-const KNOWN: &[&str] = &[
-    "an equation in a requires line turned around | elaborate | proofs/angle-sum.proof:24  mun:triangle does not reach A ≠ C, which this line claims it supplies",
-    "an equation in a requires line turned around | elaborate | proofs/cauchy-schwarz.proof:145  step 5.13 follows from what it cites, and inequalities cannot write its proof: nothing says vp cv is not zero",
-    "an equation in a requires line turned around | elaborate | proofs/geometric-series.proof:50  nothing says ( ( -u 1 x. ( A ^ 1 ) ) + ( 1 x. 1 ) ) =/= 0, which this step needs to divide by it",
-    "an equation in a requires line turned around | elaborate | proofs/harmonic.proof:67  1 / k ∈ ℝ is not built from what step 6.2 cites: nothing written says 1 / k ∈ ℝ",
-    "an equation in a requires line turned around | elaborate | proofs/isosceles.proof:30  mun:triangle, from H4 does not reach C ≠ A, which this line claims it supplies",
-    "an equation in a requires line turned around | elaborate | proofs/mean-value.proof:51  the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 6, read as a step citing what it cites: (f(a) − f(b)) / (b − a) ∈ ℝ is not built from what step 6 cites: nothing written says (f(a) − f(b)) / (b − a) ∈ ℝ",
-    "an equation in a requires line turned around | elaborate | proofs/pythagoras.proof:116  mun:triangle does not reach A ≠ C, which this line claims it supplies",
-    "an equation in a requires line turned around | elaborate | proofs/triangular-reciprocals.proof:23  from K1 does not reach 0 ≠ k, which this line claims it supplies",
-];
+const KNOWN: &[&str] = &[];
 
 /// One rewriting that keeps what a line says: the line rewritten, or None
 /// where the change does not apply to it.

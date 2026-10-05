@@ -541,11 +541,15 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The page items a scope is the conjunction of.
-    pub fn scope_origin(&self, scope: &str, facts: &Facts) -> BTreeSet<String> {
+    pub fn scope_origin(
+        &mut self,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<BTreeSet<String>> {
         let mut out = BTreeSet::new();
         let mut todo = vec![scope.to_string()];
         while let Some(one) = todo.pop() {
-            if let Some(held) = facts.get(&one) {
+            if let Some(held) = self.held(facts, &one, scope)? {
                 if !held.origin.is_empty() {
                     out.extend(held.origin.iter().cloned());
                     continue;
@@ -559,7 +563,7 @@ impl<'a> Elaborator<'a> {
                 todo.extend(node.children().iter().map(|c| self.rpn(c)));
             }
         }
-        out
+        Ok(out)
     }
 
     /// The facts a step's own `requires` lines put within reach, proved once
@@ -590,12 +594,16 @@ impl<'a> Elaborator<'a> {
             // A claim the scope already holds is taken as it stands only
             // where this line's own reason made that proof.
             let mut given = known.clone();
-            if let Some(held) = known.get(&term) {
+            if let Some(held) = self.held(&known, &term, scope)? {
                 if held.origin.contains(&requirement(r.line)) {
                     continue;
                 }
                 if !self.rests_on_lines(&r.how) {
-                    given = known.filtered(|k, _| k != term);
+                    // The claim however it is spelt: each fact with its
+                    // standard form is the claim.
+                    let key = self.fact_key(&term);
+                    let same = known.under(&key);
+                    given = known.filtered(|k, _| !same.iter().any(|s| s == k));
                 }
             }
             // What the lines below it made, a pass made before this one may
@@ -610,7 +618,7 @@ impl<'a> Elaborator<'a> {
             let unbelow = |v: &Proof| !v.origin.iter().any(|o| below.contains(o));
             let given = given.filtered(|_, v| unbelow(v));
             let written = self.written.clone();
-            self.written.retain(|_, (_, held)| unbelow(held));
+            self.written = self.written.filtered(unbelow);
             self.supplying.insert(term.clone());
             let made = self.side(&want, r, scope, &given, Some(step));
             self.supplying.shift_remove(&term);
@@ -623,7 +631,7 @@ impl<'a> Elaborator<'a> {
                     self.say(&d)
                 ),
             };
-            known.set(term, made);
+            self.know(&known, term, made);
         }
         Ok(known)
     }
@@ -699,15 +707,15 @@ impl<'a> Elaborator<'a> {
             let at = self.rpn(&m.children()[0]);
             let instance = self.rpn(&self.restated(&body, &mark, &at));
             let held = Facts::new();
-            held.set(said, whole.clone());
-            held.set(member.clone(), inside);
+            self.know(&held, said, whole.clone());
+            self.know(&held, member.clone(), inside);
             let Some(p) = self.instance_of_universal(&instance, scope, &held)? else {
                 continue;
             };
             let parts = Facts::new();
-            parts.set(instance.clone(), p.clone());
+            self.know(&parts, instance.clone(), p.clone());
             self.unpack(&instance, &p, scope, &parts, 4);
-            if let Some(found) = parts.get(term) {
+            if let Some(found) = self.held(&parts, term, scope)? {
                 return Ok(Some(found));
             }
         }
@@ -735,9 +743,9 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
                 let held = Facts::new();
-                held.set(said.clone(), proof.clone());
+                self.know(&held, said.clone(), proof.clone());
                 self.unpack(&said, &proof, scope, &held, 4);
-                if let Some(p) = held.get(term) {
+                if let Some(p) = self.held(&held, term, scope)? {
                     return Ok(Built(p));
                 }
             }
@@ -759,10 +767,11 @@ impl<'a> Elaborator<'a> {
                 }
             }
             let held = Facts::new();
-            held.set(line.term.clone(), self.carried(r, facts, &self.lines));
-            let whole = held.get(&line.term).unwrap();
+            let lines = self.lines.clone();
+            let whole = self.carried(r, facts, &lines);
+            self.know(&held, line.term.clone(), whole.clone());
             self.unpack(&line.term, &whole, scope, &held, 4);
-            if let Some(p) = held.get(term) {
+            if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
             }
             // Or what a membership it states says as well: `let k ∈ ℕ` says
@@ -770,13 +779,13 @@ impl<'a> Elaborator<'a> {
             let stated = held.copy();
             for (said, proof) in facts.entries() {
                 if rests_on_only(&proof, r) {
-                    stated.set_default(said, proof);
+                    self.know_default(&stated, said, proof);
                 }
             }
             for (said, proof) in stated.entries() {
                 let more = self.implied(&said, &proof, scope, facts)?;
-                if let Some(p) = more.get(term) {
-                    return Ok(Built(p.clone()));
+                if let Some(p) = self.held(&more, term, scope)? {
+                    return Ok(Built(p));
                 }
                 if !says_it {
                     continue;
@@ -805,7 +814,7 @@ impl<'a> Elaborator<'a> {
             // What the line says beyond its recorded term: an obtain records
             // the body it obtained, and the name's domain went into the scope
             // with the line as its origin.
-            if let Some(found) = facts.get(term) {
+            if let Some(found) = self.held(facts, term, scope)? {
                 if rests_on_only(&found, r) {
                     return Ok(Built(found));
                 }
@@ -904,7 +913,7 @@ impl<'a> Elaborator<'a> {
                 )),
             };
         }
-        if let Some(p) = facts.get(&term) {
+        if let Some(p) = self.held(facts, &term, scope)? {
             return Ok(Built(p));
         }
         // A reason that is a method or an item is proved as the step it would
@@ -947,7 +956,7 @@ impl<'a> Elaborator<'a> {
         // The scope's copy of a claim is taken only where no line of the step
         // writes it.
         if !written.contains(goal) {
-            if let Some(p) = facts.get(goal) {
+            if let Some(p) = self.held(facts, goal, scope)? {
                 return Ok(p);
             }
         }

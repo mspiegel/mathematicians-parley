@@ -442,15 +442,15 @@ impl<'a> Elaborator<'a> {
         // discharged once at the end.
         let mut scope = terms.first().cloned().unwrap_or_else(|| "wtru".to_string());
         let mut facts = Facts::new();
-        facts.set(scope.clone(), pf!(self.b; scope, "id"));
+        let id = pf!(self.b; scope, "id");
+        self.know(&facts, scope.clone(), id);
         for extra in terms.iter().skip(1) {
             let wider = t!(scope, extra, "wa");
             let weaken = pf!(self.b; scope, extra, "simpl");
-            let lifted = Facts::new();
-            for (k, v) in facts.entries() {
-                lifted.set(k.clone(), pf!(self.b; wider, scope, k, weaken, v, "syl"));
-            }
-            lifted.set(extra.clone(), pf!(self.b; scope, extra, "simpr"));
+            let lifted =
+                facts.rebased(|k, v| pf!(self.b; wider, scope, k, weaken, v, "syl"));
+            let simpr = pf!(self.b; scope, extra, "simpr");
+            self.know(&lifted, extra.clone(), simpr);
             facts = lifted;
             scope = wider;
         }
@@ -458,32 +458,34 @@ impl<'a> Elaborator<'a> {
         // apart so that what it says in pieces is still what it says.
         let hypotheses = self.thm.hypotheses.clone();
         for (h, t) in hypotheses.iter().zip(&terms) {
-            if let (Some(label), Some(held)) =
-                (h.label.clone().filter(|l| !l.is_empty()), facts.get(t))
-            {
+            let Some(label) = h.label.clone().filter(|l| !l.is_empty()) else {
+                continue;
+            };
+            if let Some(held) = self.held(&facts, t, &scope)? {
                 let sealed = self.seal(held, &label);
-                facts.set(t.clone(), sealed);
+                self.know(&facts, t.clone(), sealed);
             }
         }
         // A hypothesis may say several things at once, and each of them is a
         // fact the proof may lean on without a step to take it apart.
         for extra in &terms {
-            if let Some(held) = facts.get(extra) {
+            if let Some(held) = self.held(&facts, extra, &scope)? {
                 self.unpack(extra, &held, &scope, &facts, 4);
             }
         }
-        let more = self.sethoods(&nodes, &terms, &scope, &facts);
+        let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
         self.sorts.extend(more);
 
         // Each keeps the sentence it was read from, as a block's opening
         // line does, so a step may substitute into it.
         let lines = Lines::new();
         for ((h, t), node) in hypotheses.iter().zip(&terms).zip(&nodes) {
+            let proof = self.held(&facts, t, &scope)?.expect("a hypothesis's fact");
             lines.set(
                 h.label.clone().unwrap_or_default(),
                 Line {
                     term: t.clone(),
-                    proof: facts.get(t).expect("a hypothesis's fact"),
+                    proof,
                     sentences: vec![node.clone()],
                 },
             );
@@ -670,19 +672,27 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(step.line, format!("{other} is no line in scope")));
         };
         let pair = Facts::new();
-        pair.set(held.term.clone(), held.proof.clone());
-        pair.set(there.term.clone(), self.carried(other, facts, &lines));
+        self.know(&pair, held.term.clone(), held.proof.clone());
+        let carried = self.carried(other, facts, &lines);
+        self.know(&pair, there.term.clone(), carried);
         let offered = [held.term.clone(), there.term.clone()];
-        let Some((first, second, known)) = self.opposing(&offered, &pair, scope) else {
+        let Some((first, second, known)) = self.opposing(&offered, &pair, scope)?
+        else {
             return Err(self.defect(
                 step.line,
                 format!("the step and {other} are not a formula and its negation"),
             ));
         };
+        let one = self
+            .held(&known, &first, scope)?
+            .expect("a claim `opposing` found held");
+        let two = self
+            .held(&known, &second, scope)?
+            .expect("a claim `opposing` found held");
         Ok(self.b.ap(
             "pm2.21dd",
             &binds! {"ph" => scope, "ps" => &first, "ch" => claim},
-            &[&known.get(&first).unwrap(), &known.get(&second).unwrap()],
+            &[&one, &two],
         ))
     }
 
@@ -768,7 +778,7 @@ impl<'a> Elaborator<'a> {
                 sentences: said.clone(),
             },
         );
-        facts.set(term.clone(), proof.clone());
+        self.know(facts, term.clone(), proof.clone());
         // A line saying several things says each of them, only as deep as
         // the sentences the text wrote.
         if said.len() > 1 {
@@ -798,7 +808,9 @@ impl<'a> Elaborator<'a> {
             let node = self.read(&o.fact)?;
             let above = self.term(&node)?;
             let key = requirement(o.line);
-            let sealed = facts.get(&above).filter(|p| p.origin.contains(&key));
+            let sealed = self
+                .held(facts, &above, scope)?
+                .filter(|p| p.origin.contains(&key));
             let bound = linear::fact(&self.to_term(&above), &labels)
                 .is_some_and(|f| f.how != linear::How::Ne);
             if let Some(proof) = sealed.filter(|_| bound) {
@@ -1033,8 +1045,8 @@ impl<'a> Elaborator<'a> {
             if let Some(line) = self.lines.get(r) {
                 for said in &line.sentences {
                     let term = self.term(said)?;
-                    if let Some(p) = facts.get(&term) {
-                        known.set_default(term, p);
+                    if let Some(p) = self.held(facts, &term, scope)? {
+                        self.know_default(&known, term, p);
                     }
                 }
             }
@@ -1362,8 +1374,8 @@ impl<'a> Elaborator<'a> {
         // A line may say several things at once, and the `for all` is
         // rarely the first of them. Taken apart on its own.
         let known = Facts::new();
-        known.set(held.term.clone(), self.carried(&where_, facts, lines));
-        let whole_proof = known.get(&held.term).unwrap();
+        let whole_proof = self.carried(&where_, facts, lines);
+        self.know(&known, held.term.clone(), whole_proof.clone());
         self.unpack(&held.term, &whole_proof, scope, &known, 4);
         let universals: Vec<String> = self
             .parts(&held.term)
@@ -1392,7 +1404,9 @@ impl<'a> Elaborator<'a> {
                 format!("{where_} claims nothing of every such name"),
             ));
         };
-        let mut proof = known.get(&said).unwrap();
+        let mut proof = self
+            .held(&known, &said, scope)?
+            .expect("a part of the line, taken apart above");
         let mut whole = self.to_term(&said);
         // Each value is the one written for the name the line quantifies at
         // that level, whatever its place in the list.
@@ -1532,7 +1546,7 @@ impl<'a> Elaborator<'a> {
         let (old, new) = (self.term(&left)?, self.term(&right)?);
         // Which way the equation faces in the kernel is the lemma's choice,
         // not the text's, so either is accepted and turned if it has to be.
-        let mut facing = facts.get(&t!(old, new, "wceq"));
+        let mut facing = self.held(facts, &t!(old, new, "wceq"), scope)?;
         if str::trim(&said[2]) == "arithmetic" {
             let what = format!(
                 "step {} substitutes {}",
@@ -1550,7 +1564,7 @@ impl<'a> Elaborator<'a> {
         let facing = match facing {
             Some(f) => f,
             None => {
-                let Some(held) = facts.get(&t!(new, old, "wceq")) else {
+                let Some(held) = self.held(facts, &t!(new, old, "wceq"), scope)? else {
                     return Err(self.defect(
                         step.line,
                         format!("no equation {old} = {new} in scope"),
@@ -1606,7 +1620,7 @@ impl<'a> Elaborator<'a> {
         // them, so each sentence is offered with a proof of itself.
         let held = self.carried(&where_, facts, lines);
         let known = Facts::new();
-        known.set(into.term.clone(), held.clone());
+        self.know(&known, into.term.clone(), held.clone());
         self.unpack(&into.term, &held, scope, &known, 4);
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
@@ -1624,16 +1638,16 @@ impl<'a> Elaborator<'a> {
         }
         for one in &offered {
             let start = self.term(one)?;
-            if !known.has(&start) {
-                if let Some(p) = facts.get(&start) {
-                    known.set(start, p);
+            if !self.holds(&known, &start) {
+                if let Some(p) = self.held(facts, &start, scope)? {
+                    self.know(&known, start, p);
                 }
             }
         }
         for (was, now, faces) in [(&old, &new, &facing), (&new, &old, &turned)] {
             for one in &offered {
                 let start = self.term(one)?;
-                let Some(given) = known.get(&start) else {
+                let Some(given) = self.held(&known, &start, scope)? else {
                     continue;
                 };
                 let Built((built, proof)) =
@@ -1831,14 +1845,14 @@ impl<'a> Elaborator<'a> {
                 continue;
             };
             let held = Facts::new();
-            held.set(cited.term.clone(), self.carried(r, facts, lines));
+            let whole_proof = self.carried(r, facts, lines);
+            self.know(&held, cited.term.clone(), whole_proof.clone());
             for one in &cited.sentences {
                 let said = self.term(one)?;
-                if let Some(p) = facts.get(&said) {
-                    held.set_default(said, p);
+                if let Some(p) = self.held(facts, &said, scope)? {
+                    self.know_default(&held, said, p);
                 }
             }
-            let whole_proof = held.get(&cited.term).unwrap();
             self.unpack(&cited.term, &whole_proof, scope, &held, 4);
             if let Built(found) = self.unfolds_from(
                 &reads.children()[0],
@@ -1855,9 +1869,9 @@ impl<'a> Elaborator<'a> {
         // "for all" gives, as it would a cited line saying it.
         if chosen.is_none() {
             if let Some(member) = self.member.clone() {
-                if let Some(p) = facts.get(&member) {
+                if let Some(p) = self.held(facts, &member, scope)? {
                     let held = Facts::new();
-                    held.set(member, p);
+                    self.know(&held, member, p);
                     if let Built(found) = self.unfolds_from(
                         &reads.children()[0],
                         &held,
@@ -1914,9 +1928,9 @@ impl<'a> Elaborator<'a> {
         )?);
         let proof = pf!(self.b; scope, left, right, given, made, "mpbid");
         let known = Facts::new();
-        known.set(right.clone(), proof.clone());
+        self.know(&known, right.clone(), proof.clone());
         self.unpack(&right, &proof, scope, &known, 4);
-        if let Some(p) = known.get(term) {
+        if let Some(p) = self.held(&known, term, scope)? {
             return Ok(Built(p));
         }
         // Or it is, once what the lemma says is put in the page's words.
@@ -2035,7 +2049,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        if let Some(found) = self.projected(step, term, scope, facts, lines) {
+        if let Some(found) = self.projected(step, term, scope, facts, lines)? {
             return Ok(Built(found));
         }
         for r in &step.just.refs {
@@ -2043,8 +2057,8 @@ impl<'a> Elaborator<'a> {
                 continue;
             };
             let parts = Facts::new();
-            parts.set(held.term.clone(), self.carried(r, facts, lines));
-            let whole = parts.get(&held.term).unwrap();
+            let whole = self.carried(r, facts, lines);
+            self.know(&parts, held.term.clone(), whole.clone());
             self.unpack(&held.term, &whole, scope, &parts, 4);
             for (said, proof) in parts.entries() {
                 if let Some(spelt) = self.respelt(&proof, &said, term, scope)? {
@@ -2070,24 +2084,24 @@ impl<'a> Elaborator<'a> {
     /// The claim, when a line the step cites is a conjunction stating it,
     /// taken apart on its own to the depth of a congruence's six conjuncts.
     fn projected(
-        &self,
+        &mut self,
         step: &Step,
         term: &str,
         scope: &str,
         facts: &Facts,
         lines: &Lines,
-    ) -> Option<Proof> {
+    ) -> Checked<Option<Proof>> {
         for r in &step.just.refs {
             let cited = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
             let known = Facts::new();
-            known.set(cited.term.clone(), self.carried(r, facts, lines));
-            let whole = known.get(&cited.term).unwrap();
+            let whole = self.carried(r, facts, lines);
+            self.know(&known, cited.term.clone(), whole.clone());
             self.unpack(&cited.term, &whole, scope, &known, 8);
-            if let Some(p) = known.get(term) {
-                return Some(p);
+            if let Some(p) = self.held(&known, term, scope)? {
+                return Ok(Some(p));
             }
         }
-        None
+        Ok(None)
     }
 
     /// A definition stated as an equation, one clause per `then` group: the
@@ -2312,7 +2326,7 @@ impl<'a> Elaborator<'a> {
         }
         // A line may say several things, and the link be one of them.
         let known = Facts::new();
-        known.set(line.term.clone(), proof.clone());
+        self.know(&known, line.term.clone(), proof.clone());
         self.unpack(&line.term, &proof, scope, &known, 4);
         for (said_as, held) in known.entries() {
             if said_as == wanted {
@@ -3390,11 +3404,11 @@ impl<'a> Elaborator<'a> {
         // `requires` instead, or settled as a side condition.
         let known = self.supplied(Some(step), scope, facts)?;
         for one in &wanted {
-            if known.has(one) {
+            if self.holds(&known, one) {
                 continue;
             }
             match self.settle(&self.to_term(one), scope, &known, 3, None, None)? {
-                Built(p) => known.set(one.clone(), p),
+                Built(p) => self.know(&known, one.clone(), p),
                 Declined(_) => {
                     return Err(self.defect(
                         step.line,
@@ -3408,9 +3422,17 @@ impl<'a> Elaborator<'a> {
             }
         }
         let mut pair = wanted.first().cloned();
-        let mut proof = pair.as_ref().map(|p| known.get(p).unwrap());
+        let mut proof = match &pair {
+            Some(p) => Some(
+                self.held(&known, p, scope)?
+                    .expect("a hypothesis just supplied"),
+            ),
+            None => None,
+        };
         for extra in wanted.iter().skip(1) {
-            let held = known.get(extra).unwrap();
+            let held = self
+                .held(&known, extra, scope)?
+                .expect("a hypothesis just supplied");
             let p = pair.clone().unwrap();
             proof = Some(pf!(self.b; scope, p, extra, proof.unwrap(), held, "jca"));
             pair = Some(t!(p, extra, "wa"));
@@ -3487,9 +3509,9 @@ impl<'a> Elaborator<'a> {
             }
         }
         let taken = Facts::new();
-        taken.set(whole.clone(), proof.clone());
+        self.know(&taken, whole.clone(), proof.clone());
         self.unpack(&whole, &proof, scope, &taken, 4);
-        if let Some(p) = taken.get(term) {
+        if let Some(p) = self.held(&taken, term, scope)? {
             return Ok(p);
         }
         for (one, shown) in taken.entries() {
