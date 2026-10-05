@@ -10,8 +10,8 @@ theorem sum-formula
 define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
        reads the sum of the first m natural numbers
 
-1.  S(n) = n(n + 1)/2
-    induction on n starting at 1, from H1
+1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.
+    induction on k starting at 1
 
     base
     1.1.  Σ(j = 1 to 1) j = 1
@@ -25,43 +25,43 @@ define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
                  = 1(1 + 1)/2            arithmetic
 
     step
-    1.3.  For all k ∈ ℕ, if S(k) = k(k + 1)/2
-          then S(k + 1) = (k + 1)((k + 1) + 1)/2.
-          fix
-          let k ∈ ℕ                                                   (K)
-          assume S(k) = k(k + 1)/2                                    (IH)
+    let k ∈ ℕ                                                         (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
 
-          1.3.1.  Σ(j = 1 to k + 1) j = Σ(j = 1 to k) j + (k + 1)
-                  mun:sum-extended a := 1, n := k
-                  requires 1 ∈ ℤ: arithmetic
-                  requires k ∈ ℤ: from K
-                  requires k ≥ 1: from K
+    1.3.  Σ(j = 1 to k + 1) j = Σ(j = 1 to k) j + (k + 1)
+          mun:sum-extended a := 1, n := k
+          requires 1 ∈ ℤ: arithmetic
+          requires k ∈ ℤ: from K
+          requires k ≥ 1: from K
 
-          1.3.2.  S(k + 1) = S(k) + (k + 1)
-                  calculation
-                    S(k + 1) = Σ(j = 1 to k + 1) j          D1
-                             = Σ(j = 1 to k) j + (k + 1)    1.3.1
-                             = S(k) + (k + 1)               D1
-                  requires 1 ∈ ℕ: arithmetic
-                  requires k + 1 ∈ ℕ: mun:nat-closure a := k, b := 1, from K
-                  requires k ∈ ℕ: from K
+    1.4.  S(k + 1) = S(k) + (k + 1)
+          calculation
+            S(k + 1) = Σ(j = 1 to k + 1) j          D1
+                     = Σ(j = 1 to k) j + (k + 1)    1.3
+                     = S(k) + (k + 1)               D1
+          requires 1 ∈ ℕ: arithmetic
+          requires k + 1 ∈ ℕ: mun:nat-closure a := k, b := 1, from K
+          requires k ∈ ℕ: from K
 
-          1.3.3.  S(k) + (k + 1) = k(k + 1)/2 + (k + 1)
-                  substitute S(k) = k(k + 1)/2 (IH)
+    1.5.  S(k) + (k + 1) = k(k + 1)/2 + (k + 1)
+          substitute S(k) = k(k + 1)/2 (IH)
 
-          1.3.4.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2
-                  algebra
-                  requires 2 ≠ 0: arithmetic
-                  requires k ∈ ℝ: from K
+    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2
+          algebra
+          requires 2 ≠ 0: arithmetic
+          requires k ∈ ℝ: from K
 
-          1.3.5.  S(k + 1) = (k + 1)((k + 1) + 1)/2
-                  calculation
-                    S(k + 1) = S(k) + (k + 1)               1.3.2
-                             = k(k + 1)/2 + (k + 1)         1.3.3
-                             = (k + 1)((k + 1) + 1)/2       1.3.4
+    1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2
+          calculation
+            S(k + 1) = S(k) + (k + 1)               1.4
+                     = k(k + 1)/2 + (k + 1)         1.5
+                     = (k + 1)((k + 1) + 1)/2       1.6
 
-2.  Σ(k = 1 to n) k = n(n + 1)/2
+2.  S(n) = n(n + 1)/2
+    instantiate k := n in line 1, from H1
+
+3.  Σ(k = 1 to n) k = n(n + 1)/2
     calculation
       Σ(k = 1 to n) k = S(n)              D1
-                      = n(n + 1)/2        1
+                      = n(n + 1)/2        2
     requires n ∈ ℕ: from H1

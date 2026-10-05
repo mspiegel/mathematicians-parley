@@ -261,7 +261,8 @@ one lemma:
 |---|---|
 | `obtain` | `rexlimdva`, indexed by how many names it introduces |
 | `contradiction` | `pm2.65d` |
-| `fix` | `ex`, or nothing when it is the step of an induction |
+| `fix` | `ex` |
+| `induction` | `nnindd` or `nn0indd`, then `ralrimiva` |
 | `cases` | `mpjaodan` |
 
 `cases` differs in one way: it opens a scope for each of its parts rather than
@@ -296,9 +297,8 @@ is N" binds, inside a block claiming "there is N ∈ ℕ with …", and
 apart for the discharge and renamed back afterwards, which says nothing new:
 the two are one claim with different bound letters.
 
-A standalone `fix` gives back everything it took — `ex` for what it supposed,
-then one `ralrimiva` per name it fixed, innermost first. Inside an induction
-it is one part of the induction, which takes it as it stands.
+A `fix` gives back everything it took — `ex` for what it supposed, then one
+`ralrimiva` per name it fixed, innermost first.
 
 A step said of every member (`SYNTAX.md`) is the one-step block it abbreviates,
 built without one (`by_method_written`): the member is fixed in a frame of its
@@ -317,8 +317,8 @@ disjointness condition can make a step's expansion illegal under the antecedent
 the readable proof states it under while the same step is provable one scope
 out. `fsump1` forbids its summation variable in the antecedent, and
 `sum-formula`'s induction hypothesis is an equation between sums, so it holds
-that variable; step 1.3.1 is written inside the `fix` block and cannot be
-proved there.
+that variable; step 1.3 is written in the step part, under the hypothesis,
+and cannot be proved there.
 
 `allowed` picks the innermost frame the lemma's disjointness conditions permit,
 before anything is built, and `carry` brings the result back in with `adantr`.
@@ -527,17 +527,26 @@ names its witness read either way round, as `g·e = g` does for g = g·h. A witn
 never searched for among the facts in scope, so this runs only where a step is
 there to have cited one.
 
-**`induction`** is one lemma whose two hypotheses are the two blocks the text
-writes: `base`, which stands alone, and `step`, an implication out of a `let`
-and an `assume`. `INDUCTION` chooses `nnindd` or `nn0indd` by the set the name
-runs over, which the `let` line already says.
+**`induction`** is one lemma whose two hypotheses are the two parts the text
+writes. The `base` part stands under the block's scope. The `step` part opens
+a scope of its own, as a `case` does (`enter_induction_part`): its `let`
+fixes the claim's letter as a `fix` does, and its induction hypothesis is the
+claim's statement at that letter, so its last step is proved under `((ph ∧ k
+∈ X) ∧ P(k))`, which is the antecedent `nn0indd` asks its step under, and
+nothing is turned round. `INDUCTION` chooses `nnindd` or `nn0indd` by the set
+the claim says "for all k ∈ X" of.
 
-The claim has to be abstracted over the induction variable, which the text
-never does: the lemma wants the claim general, at the base, at the variable, at
-its successor, and at what the theorem is about. The elaborator reads the claim
-with the induction variable rebound to a variable of the kernel and ties each
-instance to the general one by congruence. Every other method consumes a claim
-whole; this one takes one apart and rebuilds it.
+The claim's statement has to be abstracted over the letter, which the text
+never does: the lemma wants it general, at the base, at the step part's
+letter, at its successor, and at the claim's own letter. The elaborator reads
+the statement with the letter rebound to a variable of the kernel and ties
+each instance to the general one by congruence. It reads the statement once
+when the block opens and the block keeps the letters that reading bound, so
+the hypothesis the step part lays down and the instance the close asks for
+are one formula. The lemma is applied at the claim's own letter, which
+`nn0indd` keeps apart only from its x, and `ralrimiva` gives "for all k ∈ X"
+as the claim writes it. Every other method consumes a claim whole; this one
+takes one apart and rebuilds it.
 
 **`define`** introduces a name and the equation saying what it is, as a
 textbook's "let x₁ = min(b, c + δ/2)" does, and the steps after it are about
@@ -1036,9 +1045,9 @@ inside a step, what R1 allows it; while a requires line is proved, what R2
 allows the line. The scope holds more, and a side condition answered from a
 line the step does not cite is one R1 would refuse afterwards — so offered
 it, which route the lemma list reached first decided whether a correct page
-was reported. Step 1.2.1.8 of the subsets proof cites that T has 2^k
+was reported. Step 1.2.8 of the subsets proof cites that T has 2^k
 elements; a shallower search found T finite through the bijection of line
-1.2.1.4 instead. Filtered, it cannot: the search finds a route through what
+1.2.4 instead. Filtered, it cannot: the search finds a route through what
 the step names, or says that nothing the step names reaches the claim.
 
 That a term is a set, in set.mm's sense, is not searched for: `made_a_set`

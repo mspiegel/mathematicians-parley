@@ -525,11 +525,13 @@ impl<'a> Elaborator<'a> {
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 Self::hand_up(&done, &mut blocks);
             }
-            // A step in a case sits under the case's assumption, where the
-            // part is new.
+            // A step in a case sits under the case's assumption, and one in
+            // an induction's step part under what that part opens with, where
+            // the part is new.
+            let inducts = |b: &Block| b.owner.just.head.to_string() == "induction";
             let entering = match (blocks.last(), step.part) {
                 (Some(b), Some(part)) => {
-                    !b.assumed.is_empty() && b.entered != Some(part)
+                    (!b.assumed.is_empty() || inducts(b)) && b.entered != Some(part)
                 }
                 _ => false,
             };
@@ -537,7 +539,12 @@ impl<'a> Elaborator<'a> {
                 let mut block = blocks.pop().unwrap();
                 closers = self.settle_claimed(&mut block, closers, step.part)?;
                 closers = self.end_case(&mut block, closers)?;
-                (scope, facts) = self.enter_case(&mut block, step.part.unwrap())?;
+                let part = step.part.unwrap();
+                (scope, facts) = if inducts(&block) {
+                    self.enter_induction_part(&mut block, part)?
+                } else {
+                    self.enter_case(&mut block, part)?
+                };
                 block.case_opened_at = Some(closers.len());
                 blocks.push(block);
             }

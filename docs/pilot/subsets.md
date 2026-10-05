@@ -51,8 +51,8 @@ this pilot uses, and no table carried a row for it. The merge added one.
    `induction on n starting at 0`, in every induction; see the geometric
    series pilot. set.mm has nnind, nn0ind and the general uzind.
 2. **The induction is over a "for every" sentence.** P(n) is "for every
-   set X, if |X| = n then |𝒫X| = 2^n", so the step case is a fix inside
-   a fix, and the proof reaches numbering depth 1.2.1.11. Textbooks
+   set X, if |X| = n then |𝒫X| = 2^n", so the step part's goal is a
+   fix, and the proof reaches numbering depth 1.2.12. Textbooks
    induct on n "for a set with n elements" without saying that the
    statement being inducted on is universally quantified over sets; the
    language has to say it.
@@ -67,14 +67,14 @@ this pilot uses, and no table carried a row for it. The merge added one.
    would be new. The readable proof is short because the database is
    asked to be large. That is the trade GOALS.md anticipated, but this is
    the first pilot where the cited lemmas are the whole argument.
-5. **A bijection is a cited fact, not a named map.** Step 1.2.1.4 states
+5. **A bijection is a cited fact, not a named map.** Step 1.2.4 states
    "there is a bijection from 𝒫(X ∖ {a}) to T" by citing the theorem, and
-   1.2.1.5 uses that line. The first draft put the theorem in `from`
+   1.2.5 uses that line. The first draft put the theorem in `from`
    directly; decided against, since `from` lists lines only. The language
    has no way yet to name a function built on the spot, as `define` names
    a set; `define g := (S ↦ S ∪ {a})` would be the analogue and is not
    used here.
-6. **"X ∖ {a} is a set" is a requires line.** At 1.2.1.3 the induction
+6. **"X ∖ {a} is a set" is a requires line.** At 1.2.3 the induction
    hypothesis is instantiated at X ∖ {a}, whose `let X be a set`
    hypothesis has to be discharged. It is the first requires line whose
    fact is set-existence, which set.mm proves with difexg and READERS.md

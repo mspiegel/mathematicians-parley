@@ -147,49 +147,42 @@ theorem harmonic-unbounded
   then there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M
 
 1.  For all m ∈ ℕ₀, Σ(k = 1 to 2^m) 1/k ≥ m/2.
-    fix
-    let m ∈ ℕ₀                                                        (K1)
+    induction on m starting at 0
 
-    1.1.  Σ(k = 1 to 2^m) 1/k ≥ m/2
-          induction on m starting at 0, from K1
+    base
+    1.1.  2^0 = 1
+          mun:exponent-zero a := 2
+          requires 2 ∈ ℂ: arithmetic
 
-          base
-          1.1.1.  2^0 = 1
-                  mun:exponent-zero a := 2
-                  requires 2 ∈ ℂ: arithmetic
+    1.2.  Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k
+          substitute 2^0 = 1 (line 1.1)
 
-          1.1.2.  Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k
-                  substitute 2^0 = 1 (line 1.1.1)
+    1.3.  Σ(k = 1 to 1) 1/k = 1/1
+          mun:sum-single a := 1
+          requires 1 ∈ ℤ: arithmetic
 
-          1.1.3.  Σ(k = 1 to 1) 1/k = 1/1
-                  mun:sum-single a := 1
-                  requires 1 ∈ ℤ: arithmetic
+    1.4.  Σ(k = 1 to 2^0) 1/k = 1
+          calculation
+            Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     1.2
+                                = 1/1                   1.3
+                                = 1                     arithmetic
 
-          1.1.4.  Σ(k = 1 to 2^0) 1/k = 1
-                  calculation
-                    Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     1.1.2
-                                        = 1/1                   1.1.3
-                                        = 1                     arithmetic
+    1.5.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
+          inequalities, from 1.4
+          requires Σ(k = 1 to 2^0) 1/k ∈ ℝ: membership
 
-          1.1.5.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
-                  inequalities, from 1.1.4
-                  requires Σ(k = 1 to 2^0) 1/k ∈ ℝ: membership
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
 
-          step
-          1.1.6.  For all j ∈ ℕ₀, if Σ(k = 1 to 2^j) 1/k ≥ j/2
-                  then Σ(k = 1 to 2^(j + 1)) 1/k ≥ (j + 1)/2.
-                  fix
-                  let j ∈ ℕ₀                                          (K2)
-                  assume Σ(k = 1 to 2^j) 1/k ≥ j/2                    (IH)
+    1.6.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2
+          thm:harmonic-block j := m, from K
 
-                  1.1.6.1.  Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
-                            thm:harmonic-block j := j, from K2
-
-                  1.1.6.2.  Σ(k = 1 to 2^(j + 1)) 1/k ≥ (j + 1)/2
-                            inequalities, from 1.1.6.1, IH
-                            requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership
-                            requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership
-                            requires j ∈ ℝ: membership, from K2
+    1.7.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2
+          inequalities, from 1.6, IH
+          requires Σ(k = 1 to 2^(m + 1)) 1/k ∈ ℝ: membership
+          requires Σ(k = 1 to 2^m) 1/k ∈ ℝ: membership
+          requires m ∈ ℝ: membership, from K
 
 2.  N ∈ ℕ. N > 2M.
     obtain N: thm:archimedean-natural x := 2M

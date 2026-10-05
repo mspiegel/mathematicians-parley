@@ -111,7 +111,8 @@ files; `DATABASE.md` records what the merge decided.
    making the step a small unnamed theorem. It was rejected as less
    explicit: the claim would not be a formula, and the block would be the
    only one whose rule is not named on the line above it. The form here is
-   now in `SYNTAX.md`.
+   now in `SYNTAX.md`, where an induction's step part opens with its own
+   `let` and induction hypothesis and needs no `fix`.
 3. **Instances are literal.** The step case must conclude P(k + 1) exactly
    as P reads with k + 1 in place of n, which is (k + 1)((k + 1) + 1)/2, not
    the tidier (k + 1)(k + 2)/2. Writing the tidy form would hide an algebra

@@ -194,13 +194,16 @@ method fix
               supposition by ex before any of them.
 
 method induction
-  form        induction on n starting at m, from H
+  form        induction on k starting at m
   block       required
   parts       base, step
-  checks      the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above
-              the set's first element, n ≥ m. The base part's last step claims
-              P(m). The step part's last step claims "for all k ∈ ℤ with k ≥
-              m, if P(k) then P(k + 1)", with P read off the claim.
+  checks      the claim is "for all k ∈ X, P(k)", with X ℕ or ℕ₀ and m its first
+              element. The base part opens with nothing, and its last step
+              claims P(m). The step part opens with `let k ∈ X` and `assume step
+              N is true for k, the induction hypothesis`, N the induction's own
+              number, which assumes P(k); its last step claims P(k + 1). The
+              letter is the claim's, so the hypothesis is the claim's words
+              after the comma, and nothing is put in for anything.
   metamath    nnind, nn0ind, uzind
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need

@@ -100,6 +100,10 @@ pub struct Opener {
     /// The line says `, which is the claim`: a case whose assumption is what
     /// the block claims, and which has no steps. The words are not in `text`.
     pub is_claim: bool,
+    /// The line says `step N is true for k, the induction hypothesis`: the
+    /// step part of induction N assumes N's statement at k. `text` holds that
+    /// statement, read off N's claim "for all k ∈ X, …", and not the words.
+    pub is_hypothesis: bool,
 }
 
 /// A `define` line as written.
@@ -1105,6 +1109,16 @@ regex!(
     IS_CLAIM,
     r"^(.*?),\s*which is the claim\s+(\([A-Z]+[0-9]*\))$"
 );
+regex!(
+    INDUCTION_HYPOTHESIS,
+    r"^assume\s+step\s+(\S+)\s+is\s+true\s+for\s+(\S+),\s*the\s+induction\s+hypothesis\s+(\([A-Z]+[0-9]*\))$"
+);
+// An induction's claim: "for all k ∈ X, …", the statement after the comma.
+// The sets an induction runs over are ℕ and ℕ₀, which hold no comma.
+regex!(
+    FOR_ALL_CLAIM,
+    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+),\s*(.*?)\.?$"
+);
 
 fn label_at_end(text: &str) -> Option<String> {
     LABEL_END.captures(text).map(|c| c[1].to_string())
@@ -1213,6 +1227,12 @@ pub fn parse_proof(
                     format!("{kind} line outside any block"),
                 ));
             };
+            let hypothesis = INDUCTION_HYPOTHESIS.captures(&text);
+            let is_hypothesis = hypothesis.is_some();
+            let text = match &hypothesis {
+                Some(m) => induction_hypothesis(path, &draft.steps[owner].step, m, no)?,
+                None => text.clone(),
+            };
             draft.steps[owner].step.openers.push(Opener {
                 kind,
                 text,
@@ -1220,9 +1240,65 @@ pub fn parse_proof(
                 line: no,
                 part: current,
                 is_claim: false,
+                is_hypothesis,
             });
         }
         Ok(current)
+    }
+
+    /// What `assume step N is true for k, the induction hypothesis` assumes:
+    /// N's statement at k, read off N's claim "for all k ∈ X, …". N is the
+    /// induction the line opens the step part of, and k is the letter its
+    /// claim binds, so the statement is the claim's own words after the
+    /// comma and nothing is put in for anything.
+    fn induction_hypothesis(
+        path: &str,
+        owner: &Step,
+        m: &regex::Captures,
+        no: usize,
+    ) -> Checked<String> {
+        if !owner.just.head.is(Method::Induction) {
+            return Err(Problem::new(
+                path,
+                no,
+                "an induction hypothesis outside the step part of an induction",
+            ));
+        }
+        if m[1] != fmt(&owner.number) {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "the induction hypothesis names step {}, and the induction is step {}",
+                    &m[1],
+                    fmt(&owner.number)
+                ),
+            ));
+        }
+        let claim = owner.claim_text();
+        let Some(said) = FOR_ALL_CLAIM.captures(str::trim(&claim)) else {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "step {} is an induction whose claim does not say \"for all k ∈ X, …\"",
+                    &m[1]
+                ),
+            ));
+        };
+        if said[1] != m[2] {
+            return Err(Problem::new(
+                path,
+                no,
+                format!(
+                    "the induction hypothesis is for {}, and step {} is said for all {}",
+                    &m[2],
+                    &m[1],
+                    &said[1]
+                ),
+            ));
+        }
+        Ok(format!("assume {} {}", &said[3], &m[3]))
     }
 
     /// A define after a theorem's last step is the file's, for the theorems
@@ -1569,6 +1645,7 @@ pub fn parse_proof(
                 line: line.no,
                 part: current,
                 is_claim: true,
+                is_hypothesis: false,
             });
             continue;
         }

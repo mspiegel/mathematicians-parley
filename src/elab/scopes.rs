@@ -443,11 +443,35 @@ impl<'a> Elaborator<'a> {
                     .captures(&step.just.text)
                     .map(|m| m[1].to_string())
                     .expect("an induction says what it is on");
-                block.over = Some(over);
+                // The claim says "for all k ∈ X, …" of the letter the
+                // induction is on.
+                let claim = self.claim_node(&step.claim_text())?;
+                let letter = (claim.notation == "for-all" && claim.children.len() == 3)
+                    .then(|| claim.children[0].text.clone());
+                if letter.as_deref() != Some(over.as_str()) {
+                    return Err(self.defect(
+                        step.line,
+                        format!("the induction is on {over}, and its claim is not said for all {over}"),
+                    ));
+                }
                 let base = self.spare_var()?;
                 // The step part fixes a name of its own, and `nn0indd` wants
                 // that one apart from this.
                 self.taken.insert(base.clone());
+                // The statement after "for all k ∈ X," is read three times:
+                // here, at the step part's hypothesis, and at the close. Read
+                // once now, the letters it binds are settled, and the block
+                // keeps them, so the three readings are one formula.
+                let general = format!("{base} cv");
+                let text = step.claim_text();
+                self.names_kept(|me| -> Checked<()> {
+                    me.names.insert(over.clone(), general);
+                    let node = me.claim_node(&text)?;
+                    me.freeze(&node.children[2])?;
+                    Ok(())
+                })?;
+                block.bound = self.bound_as.clone();
+                block.over = Some(over);
                 block.base = Some(base);
             }
             _ => {
@@ -490,6 +514,90 @@ impl<'a> Elaborator<'a> {
                 label,
                 Line {
                     term: assumed,
+                    proof,
+                    sentences: vec![node],
+                },
+            );
+        }
+        Ok((block.scope.clone(), block.facts.clone()))
+    }
+
+    /// A claim of one sentence, read as a reader ends it: "For all k ∈ ℕ, P."
+    /// is read without its full stop.
+    fn claim_node(&mut self, text: &str) -> Checked<crate::formula::Node> {
+        let said = self.sentences(text);
+        match said.as_slice() {
+            [one] => self.read(one),
+            _ => self.read(text),
+        }
+    }
+
+    /// Open the scope one part of an induction runs under. The base part runs
+    /// under the block's own scope. The step part fixes the claim's letter as
+    /// a `fix` does, `let k ∈ X`, and assumes the claim's statement at it,
+    /// the induction hypothesis, each laid down with its label.
+    pub fn enter_induction_part(
+        &mut self,
+        block: &mut Block,
+        part: usize,
+    ) -> Checked<(String, Facts)> {
+        if block.entered == Some(part) {
+            return Ok((block.scope.clone(), block.facts.clone()));
+        }
+        // Each part starts from the names and bound letters the block opened
+        // with, as the block's close reads its claim with them: a letter the
+        // base part fixed is not the one the statement binds.
+        self.frames.truncate(block.frame + 1);
+        self.names = block.named.clone();
+        self.bound_as = block.bound.clone();
+        block.scope = block.outer.clone();
+        block.facts = block.outside.clone();
+        block.entered = Some(part);
+        let openers: Vec<_> = block
+            .owner
+            .openers
+            .iter()
+            .filter(|o| o.part == Some(part))
+            .cloned()
+            .collect();
+        for o in openers {
+            let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
+            let node = self.read(&body)?;
+            if o.kind == Intro::Let {
+                let name = subject_of(&node).text.clone();
+                let var = self.fixed_var(&name, &block.scope.clone())?;
+                self.names.insert(name.clone(), format!("{var} cv"));
+                block.variable = Some(var);
+                let set = self.term(&node.children[1])?;
+                self.sets.insert(name, set);
+            }
+            // The induction hypothesis is the claim's statement at the letter
+            // just fixed, read as the close reads the statement, so that the
+            // two are one formula with one choice of bound letters.
+            let node = if o.is_hypothesis {
+                let claim = self.claim_node(&block.owner.claim_text())?;
+                self.freeze(&claim.children[2])?
+            } else {
+                self.read(&body)?
+            };
+            let added = self.term(&node)?;
+            let origin = assumption(block, &o.label);
+            let (inner, lifted) = self.widen(
+                &block.scope.clone(),
+                &block.facts.clone(),
+                &added,
+                Some(&origin),
+            );
+            block.scope = inner;
+            block.facts = lifted;
+            let proof = block
+                .facts
+                .get(&added)
+                .expect("the assumption just laid down");
+            self.lines.set(
+                o.label.clone(),
+                Line {
+                    term: added,
                     proof,
                     sentences: vec![node],
                 },
@@ -567,9 +675,6 @@ impl<'a> Elaborator<'a> {
                     done.outer.clone(),
                 ),
             );
-            if done.variable.is_some() {
-                parent.variable = done.variable.clone();
-            }
         }
     }
 
@@ -612,7 +717,10 @@ impl<'a> Elaborator<'a> {
                 closers = self.end_case(block, closers)?;
                 self.close_cases(block)?
             }
-            _ => self.close_induction(block)?,
+            _ => {
+                closers = self.end_case(block, closers)?;
+                self.close_induction(block)?
+            }
         };
         let number = number_of(&step);
         let proof = self.check_step(proof, &step, &number, true)?;
@@ -891,9 +999,15 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Induction closes with the lemma for the set it runs over. It wants the
-    /// claim five ways and the text writes none of them, so the claim is
-    /// read as a function of the name and instantiated, and each instance is
-    /// tied to the general one by congruence.
+    /// claim's statement five ways and the text writes three of them, so the
+    /// statement is read as a function of the letter and instantiated, and
+    /// each instance is tied to the general one by congruence.
+    ///
+    /// The claim is "for all k ∈ X, P(k)". The base part ends on P at the
+    /// start; the step part fixes k, assumes P(k) and ends on P(k + 1), which
+    /// is the lemma's step as it asks it, `((ph ∧ k ∈ X) ∧ P(k)) → P(k + 1)`.
+    /// The lemma is applied at the step part's k, and `ralrimiva` says it of
+    /// every k.
     fn close_induction(&mut self, block: &Block) -> Checked<(String, Proof)> {
         let step = &block.owner;
         let scope = &block.outer;
@@ -903,19 +1017,23 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(step.line, "induction wants a base and a step"));
         }
         let (base_claim, base, beneath) = block.parts[&0].clone();
-        let (mut step_claim, mut stepped, mut under) = block.parts[&1].clone();
+        let (step_claim, stepped, under) = block.parts[&1].clone();
         let name = block.over.clone().unwrap_or_default();
         let general = format!("{} cv", block.base.clone().unwrap_or_default());
-        let over = self.sets.get(&name).cloned();
-        let found = over.as_deref().and_then(|o| lookup(rules::INDUCTION, o));
-        let Some((lemma, begins)) = found else {
-            let message = match &over {
-                Some(o) => format!("nothing here inducts over {}", self.render(o)),
-                None => format!("nothing says what {name} runs over"),
-            };
-            return Err(self.defect(step.line, message));
+        let Some(variable) = block.variable.clone() else {
+            return Err(self.defect(
+                step.line,
+                format!("the step part of the induction does not fix {name}"),
+            ));
         };
-        let over = over.unwrap_or_default();
+        let claim = self.claim_of(&step.claim_text())?;
+        let over = self.rpn(&self.to_term(&claim).children()[2]);
+        let Some((lemma, begins)) = lookup(rules::INDUCTION, &over) else {
+            return Err(self.defect(
+                step.line,
+                format!("nothing here inducts over {}", self.render(&over)),
+            ));
+        };
         let start = match STARTING_AT.captures(&step.just.text) {
             Some(m) => {
                 let node = self.read(&m[1])?;
@@ -934,26 +1052,27 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
-        let variable = match &block.variable {
-            Some(v) => v.clone(),
-            None => self.spare_var()?,
-        };
         let next_one = t!(format!("{variable} cv"), "c1", "caddc", "co");
         let claim_text = step.claim_text();
+        // The statement after "for all k ∈ X,", with k the general name.
         let pattern = self.names_kept(|me| -> Checked<crate::formula::Node> {
             me.names.insert(name.clone(), general.clone());
-            // Read as a sentence, so that a claim written as prose ends
-            // where a reader ends it.
-            let said = me.sentences(&claim_text);
-            let text = if said.len() == 1 {
-                said[0].clone()
-            } else {
-                claim_text.clone()
-            };
-            let node = me.read(&text)?;
-            me.freeze(&node)
+            let node = me.claim_node(&claim_text)?;
+            me.freeze(&node.children[2])
         })?;
-        let named = self.names.get(&name).cloned().unwrap_or_default();
+        // The lemma is applied at the claim's own letter, which `nn0indd`
+        // keeps apart only from its x, and `ralrimiva` then gives the claim as
+        // written. The step part's letter is the lemma's y.
+        let bound = self.rpn(&self.to_term(&claim).children()[1]);
+        if scope.split_whitespace().any(|t| t == bound) {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "the induction's letter {name} is used in what the theorem assumes"
+                ),
+            ));
+        }
+        let named = format!("{bound} cv");
         let shapes = [
             start.clone(),
             format!("{variable} cv"),
@@ -987,33 +1106,17 @@ impl<'a> Elaborator<'a> {
             instances[2].clone(),
             instances[3].clone(),
         );
-        let member = t!(
-            named,
-            self.sets.get(&name).cloned().unwrap_or_default(),
-            "wcel"
-        );
         let body = self.term(&pattern)?;
-
-        // A part gives back what it claims, and what a `fix` claims is a
-        // universal. `nn0indd` asks its step as a deduction, so the one is
-        // turned into the other here, which is where the lemma is known. The
-        // step is put into the lemma's spelling while it is still a
-        // universal.
-        let taken = self.to_term(&step_claim);
-        if taken.label() == Some("wral") && taken.children()[0].label() == Some("wi") {
-            let says = t!(held, reached, "wi");
-            let wanted = t!(says, variable, over, "wral");
-            let Some(respelt) = self.respelt(&stepped, &step_claim, &wanted, &under)?
-            else {
-                return Err(
-                    self.defect(step.line, "the step does not reach the next instance")
-                );
-            };
-            let inner = t!(under, t!(format!("{variable} cv"), over, "wcel"), "wa");
-            stepped = pf!(self.b; under, says, variable, over, respelt, "r19.21bi");
-            stepped = pf!(self.b; inner, held, reached, stepped, "imp");
-            step_claim = reached.clone();
-            under = t!(inner, held, "wa");
+        // The step part's scope is the block's with k ∈ X and the induction
+        // hypothesis conjoined, in that order, which is the antecedent the
+        // lemma asks its step under.
+        let member = t!(format!("{variable} cv"), over, "wcel");
+        let asked = t!(t!(scope, member, "wa"), held, "wa");
+        if under != asked {
+            return Err(self.defect(
+                step.line,
+                "the step part does not assume the claim's statement at its letter",
+            ));
         }
         let base = self.respelt(&base, &base_claim, &claimed, &beneath)?;
         let stepped = self.respelt(&stepped, &step_claim, &reached, &under)?;
@@ -1036,7 +1139,7 @@ impl<'a> Elaborator<'a> {
             reached,
             whole.clone(),
             block.base.clone().unwrap_or_default(),
-            variable,
+            variable.clone(),
             named,
         ];
         all.extend(pieces.iter().map(|p| crate::elab::part(p)));
@@ -1044,19 +1147,18 @@ impl<'a> Elaborator<'a> {
         all.push(crate::elab::part(&base));
         all.push(crate::elab::part(&stepped));
         all.push(crate::elab::part(lemma));
+        // `( ( scope ∧ k ∈ X ) → P(k) )`, and so P of every k in X.
         let run = self.b.proof(&all);
-        // The lemma states the membership apart from the rest of the
-        // antecedent, and the scope already holds it, so the two are
-        // conjoined back.
-        let Some(held_member) = block.outside.get(&member) else {
-            return Err(
-                self.defect(step.line, format!("nothing in scope says {member}"))
-            );
-        };
-        let both = pf!(self.b; scope, scope, member, pf!(self.b; scope, "id"), held_member, "jca");
+        let every = t!(whole, bound, over, "wral");
+        if every != claim {
+            return Err(self.defect(
+                step.line,
+                "the induction does not reach its claim over the claim's letter",
+            ));
+        }
         Ok((
-            whole.clone(),
-            pf!(self.b; scope, t!(scope, member, "wa"), whole, both, run, "syl"),
+            claim,
+            pf!(self.b; scope, whole, bound, over, run, "ralrimiva"),
         ))
     }
 

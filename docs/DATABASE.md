@@ -523,7 +523,7 @@ this table is mundane.
 | side-angle-side | `axiom` | "by SAS", isosceles step 7 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 12, 13 and 16 |
-| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.10.8 and 6.10.9 |
+| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 6.17 and 6.18 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 26 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 2.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |

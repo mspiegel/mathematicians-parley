@@ -168,17 +168,41 @@ way a textbook proof does. The parts a method has, and their order, are
 fixed by the method's definition. Induction has `base` and `step`:
 
 ```
-1.  S(n) = n(n + 1)/2
-    induction on n starting at 1, from H1
+1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.
+    induction on k starting at 1
 
     base
-    1.1.  S(1) = 1(1 + 1)/2
+    1.1.  ...
+    1.2.  S(1) = 1(1 + 1)/2
           ...
+
     step
-    1.2.  For all k ∈ ℕ, if S(k) = k(k + 1)/2 then S(k + 1) = ...
-          fix
+    let k ∈ ℕ                                                         (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  ...
+    1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2
           ...
+
+2.  S(n) = n(n + 1)/2
+    instantiate k := n in line 1, from H1
 ```
+
+**An induction proves a statement of every k, and its step part opens as a
+textbook's does.** The claim is "for all k ∈ X, …"; the `base` part ends on
+the statement at the start, and the `step` part opens with `let k ∈ X` and
+`assume step N is true for k, the induction hypothesis`, and ends on the
+statement at k + 1. The step part's letter is the claim's own, so the
+hypothesis is the claim's words after the comma, read where they stand:
+"step 1 is true for k" is S(k) = k(k + 1)/2, with nothing put in for
+anything. A theorem about its own n, `let n ∈ ℕ`, inducts on another letter
+and then instantiates, as step 2 does, since the step part cannot fix the
+letter the theorem already holds. Alternatives considered: the claim about n
+with the step part fixing k, which makes the reader put k for n in the
+hypothesis; the hypothesis written out again on the `assume` line, which
+repeats the claim word for word; and the step part as one step claiming "for
+all k, if P(k) then P(k + 1)" proved by a `fix`, which states the induction
+rule over again and nests every step a level deeper.
 
 Alternatives considered: no markers, with the parts identified by their
 order and form; the parts named on the method line, as `base 1.1, step
@@ -186,7 +210,8 @@ order and form; the parts named on the method line, as `base 1.1, step
 set.mm. Markers on their own lines were chosen because they read like a
 textbook.
 
-A part may carry an assumption. A `case` part of a `cases` block opens
+A part may carry an assumption. An induction's `step` part opens with its
+`let` and its induction hypothesis, as above. A `case` part of a `cases` block opens
 with an `assume` line, labelled like a hypothesis, stating the disjunct
 that the part handles:
 
@@ -372,7 +397,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.6`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
-| `induction on n starting at m, from H`, with parts `base` and `step` | the claim is P(n), where H gives n ∈ ℕ or n ∈ ℕ₀ and, if m is above the set's first element, n ≥ m; the `base` part's last step claims P(m); the `step` part's last step claims "for all k ∈ ℤ with k ≥ m, if P(k) then P(k + 1)", with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
+| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
 

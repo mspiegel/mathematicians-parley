@@ -275,6 +275,38 @@ impl<'a> Elaborator<'a> {
                 &[&made],
             )));
         }
+        // A sum whose range and summand both change, as Σ(k = 0 to m) C(m, k)
+        // read at m := n: the range carried as it stands, and the summand
+        // under the index's membership of the range it had (`sumeq12dv`).
+        if label == "csu" && g[2] == w[2] && g[0] != w[0] && g[1] != w[1] {
+            let kids = given.children();
+            let (runs, body, name) = (g[0].clone(), &kids[1], g[2].clone());
+            if words.contains(&name.as_str()) {
+                return self
+                    .over_spare_letter(given, want, 2, scope, facts, step, leaf);
+            }
+            let moved = take!(self.congruence(
+                &kids[0],
+                &want.children()[0],
+                scope,
+                facts,
+                step,
+                leaf
+            )?);
+            let member = t!(format!("{name} cv"), runs, "wcel");
+            let other = want.children()[1].clone();
+            let made = self.frames_kept(|me| {
+                let (inner, lifted) = me.widen(scope, facts, &member, None);
+                me.congruence(body, &other, &inner, &lifted, step, leaf)
+            })?;
+            let made = take!(made);
+            return Ok(Built(self.b.ap(
+                "sumeq12dv",
+                &binds! {"ph" => scope, "A" => &runs, "B" => &w[0], "C" => self.rpn(body),
+                "D" => self.rpn(&other), "k" => &name},
+                &[&moved, &made],
+            )));
+        }
         // A set-builder's condition is carried the same way, under its
         // letter's membership of the domain.
         if label == "crab" && g[1] == w[1] && g[2] == w[2] && g[0] != w[0] {

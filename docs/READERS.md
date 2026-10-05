@@ -44,7 +44,12 @@ uses it.
 
 - Every case of a case analysis, each with its own conclusion.
 - The induction hypothesis, stated in full, and both the base case and the
-  step as separate parts.
+  step as separate parts. The statement is written once, in the claim the
+  induction proves, "for all k ∈ ℕ₀, …"; the step part's `assume step 3 is
+  true for k, the induction hypothesis` points to it, and with the claim's
+  own letter the hypothesis is the claim's words as they stand, with nothing
+  put in for anything. The statement at k + 1, the step part's goal, is
+  written out, since the reader checks the step against it.
 - Every unfolding of a definition, marked as such.
 - Every use of an earlier result, with the statement of that result shown at
   the point of use, not only its name.

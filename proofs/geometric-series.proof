@@ -20,8 +20,8 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
     algebra, from H2
     requires a ∈ ℝ: from H1
 
-2.  G(n) = (1 − a^(n + 1))/(1 − a)
-    induction on n starting at 0, from H3
+2.  For all k ∈ ℕ₀, G(k) = (1 − a^(k + 1))/(1 − a).
+    induction on k starting at 0
 
     base
     2.1.  Σ(j = 0 to 0) a^j = a^0
@@ -64,51 +64,51 @@ define G(m) := Σ(j = 0 to m) a^j, for m ∈ ℕ₀                          (D1
                  = (1 − a^(0 + 1))/(1 − a)        2.8
 
     step
-    2.10. For all k ∈ ℕ₀, if G(k) = (1 − a^(k + 1))/(1 − a)
-          then G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a).
-          fix
-          let k ∈ ℕ₀                                                  (K)
-          assume G(k) = (1 − a^(k + 1))/(1 − a)                       (IH)
+    let k ∈ ℕ₀                                                        (K)
+    assume step 2 is true for k, the induction hypothesis             (IH)
 
-          2.10.1. k + 1 ∈ ℕ₀
-                  mun:nat0-closure, from K
+    2.10. k + 1 ∈ ℕ₀
+          mun:nat0-closure, from K
 
-          2.10.2. Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
-                  mun:sum-last n := k, from K
-                  requires a ∈ ℝ: from H1
+    2.11. Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
+          mun:sum-last n := k, from K
+          requires a ∈ ℝ: from H1
 
-          2.10.3. G(k + 1) = G(k) + a^(k + 1)
-                  calculation
-                    G(k + 1) = Σ(j = 0 to k + 1) a^j              D1
-                             = Σ(j = 0 to k) a^j + a^(k + 1)      2.10.2
-                             = G(k) + a^(k + 1)                   D1
-                  requires k + 1 ∈ ℕ₀: from 2.10.1
-                  requires k ∈ ℕ₀: from K
+    2.12. G(k + 1) = G(k) + a^(k + 1)
+          calculation
+            G(k + 1) = Σ(j = 0 to k + 1) a^j              D1
+                     = Σ(j = 0 to k) a^j + a^(k + 1)      2.11
+                     = G(k) + a^(k + 1)                   D1
+          requires k + 1 ∈ ℕ₀: from 2.10
+          requires k ∈ ℕ₀: from K
 
-          2.10.4. G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
-                  substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
+    2.13. G(k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
+          substitute G(k) = (1 − a^(k + 1))/(1 − a) (IH)
 
-          2.10.5. a^((k + 1) + 1) = a^(k + 1)·a
-                  mun:exponent-step m := k + 1, from H1, 2.10.1
+    2.14. a^((k + 1) + 1) = a^(k + 1)·a
+          mun:exponent-step m := k + 1, from H1, 2.10
 
-          2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
-                  algebra
-                  requires 1 − a ≠ 0: from 1
-                  requires a ∈ ℝ: from H1
-                  requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1, from H1, 2.10.1
+    2.15. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
+          algebra
+          requires 1 − a ≠ 0: from 1
+          requires a ∈ ℝ: from H1
+          requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1, from H1, 2.10
 
-          2.10.7. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-                  substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.10.5)
+    2.16. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
+          substitute a^((k + 1) + 1) = a^(k + 1)·a (line 2.14)
 
-          2.10.8. G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
-                  calculation
-                    G(k + 1) = G(k) + a^(k + 1)                         2.10.3
-                             = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.10.4
-                             = (1 − a^(k + 1)·a)/(1 − a)               2.10.6
-                             = (1 − a^((k + 1) + 1))/(1 − a)           2.10.7
+    2.17. G(k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
+          calculation
+            G(k + 1) = G(k) + a^(k + 1)                         2.12
+                     = (1 − a^(k + 1))/(1 − a) + a^(k + 1)      2.13
+                     = (1 − a^(k + 1)·a)/(1 − a)               2.15
+                     = (1 − a^((k + 1) + 1))/(1 − a)           2.16
 
-3.  Σ(k = 0 to n) a^k = (1 − a^(n + 1))/(1 − a)
+3.  G(n) = (1 − a^(n + 1))/(1 − a)
+    instantiate k := n in line 2, from H3
+
+4.  Σ(k = 0 to n) a^k = (1 − a^(n + 1))/(1 − a)
     calculation
       Σ(k = 0 to n) a^k = G(n)                          D1
-                        = (1 − a^(n + 1))/(1 − a)       2
+                        = (1 − a^(n + 1))/(1 − a)       3
     requires n ∈ ℕ₀: from H3

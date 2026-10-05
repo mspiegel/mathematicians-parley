@@ -175,9 +175,10 @@ step says "for all k ∈ X, P, by the item": the same proof, the second as a
 textbook writes "each a(k)² ≥ 0, since squares are not negative"
 (`SYNTAX.md`, a step said of every member). The block costs the reader a
 label, an opener and a sub-step number for nothing a reader would ask about.
-A block stays where its one step is itself a block — `contradiction` or
-`induction`, as in Cantor's step 2, Schröder–Bernstein's 4 and the harmonic
-series' first theorem — since that step cannot be written on one line.
+A block stays where its one step is itself a block — a `contradiction`, as in
+Cantor's step 2 and Schröder–Bernstein's 4 — since that step cannot be
+written on one line. An induction is never such a step: it proves its "for
+all k" claim itself (`SYNTAX.md`).
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

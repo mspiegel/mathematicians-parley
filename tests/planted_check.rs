@@ -563,9 +563,36 @@ fn cases() -> Vec<Case> {
         case(
             "a block whose method takes none",
             vec![
-                edit("proofs/sum-formula.proof", Some("                  requires k ∈ ℝ: from K\n".to_string()), "                  requires k ∈ ℝ: from K\n\n                  1.3.3.1.  k = k\n                            algebra\n".to_string()),
+                edit("proofs/sum-formula.proof", Some("          requires k ∈ ℝ: from K\n".to_string()), "          requires k ∈ ℝ: from K\n\n          1.6.1.  k = k\n                  algebra\n".to_string()),
             ],
             "takes no block",
+        ),
+        // An induction's step part assumes its own claim's statement, and
+        // names that claim by the induction's number (`SYNTAX.md`).
+        case(
+            "an induction hypothesis naming another step",
+            vec![
+                edit("proofs/sum-formula.proof", Some("assume step 1 is true for k".to_string()), "assume step 2 is true for k".to_string()),
+            ],
+            "the induction hypothesis names step 2, and the induction is step 1",
+        ),
+        // The hypothesis is the claim's words where they stand; written out
+        // again, the step part does not say it is the induction hypothesis.
+        case(
+            "a step part that writes its hypothesis out",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    assume step 1 is true for k, the induction hypothesis             (IH)".to_string()), "    assume S(k) = k(k + 1)/2                                          (IH)".to_string()),
+            ],
+            "the step part of step 1 does not open with `let k ∈ ℕ` and `assume step 1 is true for k, the induction hypothesis`",
+        ),
+        // An induction proves a statement of every k; a claim about the
+        // theorem's own n leaves the step part no letter of the claim's.
+        case(
+            "an induction whose claim is not said for all",
+            vec![
+                edit("proofs/sum-formula.proof", Some("1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.".to_string()), "1.  S(n) = n(n + 1)/2".to_string()),
+            ],
+            "step 1 is an induction whose claim does not say \"for all k ∈ X, …\"",
         ),
         case(
             "a contradiction whose block does not suppose anything",
@@ -829,7 +856,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a formula that reads two ways because nothing says what a name is",
             vec![
-                edit("proofs/subsets.proof", Some("1.2.1.5.  |T| = 2^k".to_string()), "1.2.1.5.  |W| = 2^k".to_string()),
+                edit("proofs/subsets.proof", Some("1.2.5.  |T| = 2^k".to_string()), "1.2.5.  |W| = 2^k".to_string()),
             ],
             "'|W| = 2^k' reads as absolute-value or as cardinality, and nothing says what W is",
         ),
@@ -945,7 +972,7 @@ fn cases() -> Vec<Case> {
         case(
             "apply a defined function outside its domain's sort",
             vec![
-                edit("proofs/sum-formula.proof", Some("1.  S(n) = n(n + 1)/2".to_string()), "1.  S({n}) = n(n + 1)/2".to_string()),
+                edit("proofs/sum-formula.proof", Some("2.  S(n) = n(n + 1)/2".to_string()), "2.  S({n}) = n(n + 1)/2".to_string()),
             ],
             "a set of numbers where a number is wanted",
         ),
@@ -1300,7 +1327,7 @@ fn cases() -> Vec<Case> {
         case(
             "a chain link with a letter in it naming arithmetic",
             vec![
-                edit("proofs/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       1.3.4".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
+                edit("proofs/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       1.6".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
             ],
             "names arithmetic for",
         ),
@@ -1524,21 +1551,21 @@ fn cases() -> Vec<Case> {
         case(
             "cite a step rule without saying the index is in ℕ₀",
             vec![
-                edit("proofs/euclid.proof", Some("3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1\n                                        requires j ∈ ℕ₀: from J".to_string()), "3.1.9.2.2.  b(j + 1) = 0\n                                        D1, from C1".to_string()),
+                edit("proofs/euclid.proof", Some("3.10.2.  b(k + 1) = 0\n                   D1, from C1\n                   requires k ∈ ℕ₀: from K".to_string()), "3.10.2.  b(k + 1) = 0\n                   D1, from C1".to_string()),
             ],
             "no line it cites says the index is in ℕ₀",
         ),
         case(
             "claim the value of the other case",
             vec![
-                edit("proofs/euclid.proof", Some("3.1.9.2.1.  a(j + 1) = a(j)".to_string()), "3.1.9.2.1.  a(j + 1) = b(j)".to_string()),
+                edit("proofs/euclid.proof", Some("3.10.1.  a(k + 1) = a(k)".to_string()), "3.10.1.  a(k + 1) = b(k)".to_string()),
             ],
-            "step 3.1.9.2.1 cites D1 and claims a value it does not give",
+            "step 3.10.1 cites D1 and claims a value it does not give",
         ),
         case(
             "cite a step rule by cases without saying which case",
             vec![
-                edit("proofs/euclid.proof", Some("3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1, from C2".to_string()), "3.1.9.2.13. b(j + 1) = a(j) mod b(j)\n                                        D1".to_string()),
+                edit("proofs/euclid.proof", Some("3.10.13. b(k + 1) = a(k) mod b(k)\n                   D1, from C2".to_string()), "3.10.13. b(k + 1) = a(k) mod b(k)\n                   D1".to_string()),
             ],
             "says whether a case's condition holds",
         ),
@@ -1547,7 +1574,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation for a link that substitutes it inside a term",
             vec![
-                edit("proofs/euclid.proof", Some("                    gcd(a(0), b(0)) = gcd(M, b(0))     3.1.3".to_string()), "                    gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
+                edit("proofs/euclid.proof", Some("            gcd(a(0), b(0)) = gcd(M, b(0))     3.3".to_string()), "            gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
             ],
             "cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))",
         ),

@@ -188,9 +188,9 @@ fn cases() -> Vec<Case> {
             "a requires line that does not lex",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "                  requires a ∈ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
-            "                  requires a ¿ ℝ: from H1\n                  requires a^(k + 1) ∈ ℝ",
-            "proofs/geometric-series.proof:94",
+            "          requires a ∈ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
+            "          requires a ¿ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
+            "proofs/geometric-series.proof:91",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -291,8 +291,8 @@ fn cases() -> Vec<Case> {
             "write a requires line nothing asks for",
             "proofs/sum-formula/sum-formula",
             "proofs/sum-formula.proof",
-            "                  requires 2 ≠ 0: arithmetic\n",
-            "                  requires 2 ≠ 0: arithmetic\n                  requires 2 ∈ ℝ: arithmetic\n",
+            "          requires 2 ≠ 0: arithmetic\n",
+            "          requires 2 ≠ 0: arithmetic\n          requires 2 ∈ ℝ: arithmetic\n",
             "says 2 ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // The certificate combines lines 3 and 4; line 1 says a + b ∈ ℝ, which
@@ -322,12 +322,12 @@ fn cases() -> Vec<Case> {
             "claim an algebra step the cited lines do not give",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "    2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
-            "    2.10.6. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
+            "    2.15. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
+            "    2.15. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
             "is not an identity",
         ),
         // A side condition is searched for among what the step names, not among
-        // everything in scope. Without 1.2.1.5 the step still needs T finite,
+        // everything in scope. Without 1.2.5 the step still needs T finite,
         // and the scope holds |T| = 2^k: offered it, which route the search took
         // would decide whether a correct page was reported, so it is not
         // offered at all.
@@ -335,16 +335,16 @@ fn cases() -> Vec<Case> {
             "settle a side condition from a line the step does not cite",
             "proofs/subsets/subsets-count",
             "proofs/subsets.proof",
-            "n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6",
-            "n := 2^k, from 1.2.1.3, 1.2.1.6",
-            "no clause of mun:card-disjoint-union reaches what step 1.2.1.8 claims",
+            "n := 2^k, from 1.2.3, 1.2.5, 1.2.6",
+            "n := 2^k, from 1.2.3, 1.2.6",
+            "no clause of mun:card-disjoint-union reaches what step 1.2.8 claims",
         ),
         // An item taken as stated is stated as the item says it. Stating the
         // step's claim under the item's hypotheses instead would assume whatever
         // the step claimed, and the kernel accepts whatever is assumed. No step
         // in the corpus cites an item taken as stated for a claim it could get
         // wrong, so one is made: `card-remove` loses its target and says less
-        // than step 1.2.1.2 claims of it.
+        // than step 1.2.2 claims of it.
         case(
             "claim what an item taken as stated does not state",
             "proofs/subsets/subsets-count",
@@ -432,9 +432,9 @@ fn cases() -> Vec<Case> {
             "ask arithmetic for a true fact it cannot show",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "10 − 1 = 9\n                  mun:ten-minus-one",
-            "10 − 1 = 9\n                  arithmetic",
-            "step 1.3.4 claims 10 − 1 = 9, which is true, and arithmetic cannot show it yet",
+            "10 − 1 = 9\n          mun:ten-minus-one",
+            "10 − 1 = 9\n          arithmetic",
+            "step 1.6 claims 10 − 1 = 9, which is true, and arithmetic cannot show it yet",
         ),
         // What has no exact value is refused before anything is computed or
         // stated: a division by zero, a number too large to work out, which
@@ -444,24 +444,24 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.",
-            "                  requires 10 ∈ ℝ: arithmetic\n                  requires 3/0 ∈ ℝ: arithmetic\n\n          1.3.8.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.10.",
             "which divides by zero",
         ),
         case(
             "state a numeral too large to work out",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.",
-            "                  requires 10 ∈ ℝ: arithmetic\n                  requires 9^(9^9) ∈ ℕ: arithmetic\n\n          1.3.8.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.10.",
             "which is too large to work out",
         ),
         case(
             "raise a numeral to a power that is not whole",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "                  requires 10 ∈ ℝ: arithmetic\n\n          1.3.8.",
-            "                  requires 10 ∈ ℝ: arithmetic\n                  requires 4^(1/2) ∈ ℕ: arithmetic\n\n          1.3.8.",
+            "          requires 10 ∈ ℝ: arithmetic\n\n    1.10.",
+            "          requires 10 ∈ ℝ: arithmetic\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.10.",
             "which is not a rational number",
         ),
         // Named where it is used, `arithmetic` works the fact out first, as it
@@ -593,9 +593,9 @@ fn cases() -> Vec<Case> {
             "cite a line for a link it does not say",
             "proofs/sum-formula/sum-formula",
             "proofs/sum-formula.proof",
-            "= k(k + 1)/2 + (k + 1)         1.3.3",
-            "= k(k + 1)/2 + (k + 1)         1.3.2",
-            "1.3.2 does not say",
+            "= k(k + 1)/2 + (k + 1)         1.5",
+            "= k(k + 1)/2 + (k + 1)         1.4",
+            "1.4 does not say",
         ),
         // What says f is continuous is H5, and so is what says its domain and
         // codomain lie in ℂ, which `elcncf2` asks. Without it cited the step
@@ -639,7 +639,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/counting.records",
             "  target      hashdifsnp1 with V := X, N := a, Y := k",
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
-            "no clause of mun:card-remove reaches what step 1.2.1.2 claims",
+            "no clause of mun:card-remove reaches what step 1.2.2 claims",
         ),
         // `algebra` reads a finite sum as linear where the step's sums are:
         // Σ(a(k)t + b(k))² is t²Σa(k)² + 2tΣa(k)b(k) + Σb(k)², and with
@@ -766,7 +766,7 @@ fn cases() -> Vec<Case> {
 
 fn nets() -> Vec<Case> {
     vec![
-        // Step 1.2.1.8 needs T finite and no longer cites 1.2.1.5, which says
+        // Step 1.2.8 needs T finite and no longer cites 1.2.5, which says
         // |T| = 2^k. Offered the whole scope, the search finds T finite through
         // that line, and with R1 taken away the step would elaborate and
         // verify: nothing else here objects, since the step cites an item and
@@ -775,9 +775,9 @@ fn nets() -> Vec<Case> {
             "settle a side condition from a line the step does not cite, with nothing to stop the search",
             "proofs/subsets/subsets-count",
             "proofs/subsets.proof",
-            "n := 2^k, from 1.2.1.3, 1.2.1.5, 1.2.1.6",
-            "n := 2^k, from 1.2.1.3, 1.2.1.6",
-            "step 1.2.1.8 rests on 1.2.1.5, which it does not name",
+            "n := 2^k, from 1.2.3, 1.2.5, 1.2.6",
+            "n := 2^k, from 1.2.3, 1.2.6",
+            "step 1.2.8 rests on 1.2.5, which it does not name",
         ),
         // The requires line's reason cites line 2, and `mun:int-real` asks k
         // an integer, which line 1 says. With R2 taken away the step would

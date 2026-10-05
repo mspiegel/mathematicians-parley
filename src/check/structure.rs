@@ -117,7 +117,7 @@ fn productions() -> Vec<regex::Regex> {
         format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
         r"^contradiction$".to_string(),
         r"^fix$".to_string(),
-        format!(r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+,\s*{from}$"),
+        r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
         format!(r"^cases,\s*{from}$"),
         r"^calculation$".to_string(),
         format!(r"^{LABEL}(?:,\s*{from})?$"),
@@ -289,6 +289,9 @@ pub fn check_blocks(
                 ),
             );
         }
+        if step.just.head.is(Method::Induction) {
+            check_step_part(report, thm, step);
+        }
         if method.and_then(|m| m.field("part-opens")) == Some("assume, labelled") {
             for (index, (marker, no)) in step.parts.iter().enumerate() {
                 if !step
@@ -307,6 +310,64 @@ pub fn check_blocks(
                     );
                 }
             }
+        }
+    }
+}
+
+regex!(INDUCTION_CLAIM, r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+),");
+regex!(INDUCTION_LET, r"^let\s+(\S+)\s*∈\s*(\S+)");
+
+/// An induction's step part opens as a textbook's does: `let k ∈ X`, with
+/// the letter and the set the claim "for all k ∈ X, …" binds, and `assume
+/// step N is true for k, the induction hypothesis`. Its base part opens with
+/// nothing.
+fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step) {
+    let number = fmt(&step.number);
+    let claim = step.claim_text();
+    let Some(claimed) = INDUCTION_CLAIM.captures(str::trim(&claim)) else {
+        report.say(
+            &thm.path,
+            step.line,
+            format!("step {number} is an induction whose claim does not say \"for all k ∈ X, …\""),
+        );
+        return;
+    };
+    for (index, (marker, no)) in step.parts.iter().enumerate() {
+        let opens: Vec<_> = step
+            .openers
+            .iter()
+            .filter(|o| o.part == Some(index))
+            .collect();
+        if marker == "base" {
+            if let Some(o) = opens.first() {
+                report.say(
+                    &thm.path,
+                    o.line,
+                    format!(
+                        "the base part of step {number} opens with a {} line",
+                        o.kind
+                    ),
+                );
+            }
+            continue;
+        }
+        let fixed = opens
+            .iter()
+            .filter(|o| o.kind == Intro::Let)
+            .find_map(|o| INDUCTION_LET.captures(str::trim(&o.text)));
+        let opened = opens.iter().any(|o| o.is_hypothesis)
+            && fixed
+                .as_ref()
+                .is_some_and(|f| f[1] == claimed[1] && f[2] == claimed[2]);
+        if !opened {
+            report.say(
+                &thm.path,
+                *no,
+                format!(
+                    "the step part of step {number} does not open with `let {} ∈ {}` and `assume step {number} is true for {}, the induction hypothesis`",
+                    &claimed[1], &claimed[2], &claimed[1]
+                ),
+            );
         }
     }
 }

@@ -406,8 +406,8 @@ theorem binomial
   let n ∈ ℕ₀                                                          (H3)
   then (x + y)^n = Σ(k = 0 to n) C(n, k)·x^(n − k)·y^k
 
-1.  (x + y)^n = Σ(k = 0 to n) C(n, k)·x^(n − k)·y^k
-    induction on n starting at 0, from H3
+1.  For all m ∈ ℕ₀, (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k.
+    induction on m starting at 0
 
     base
     1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^(0 − 0)·y^0
@@ -445,26 +445,26 @@ theorem binomial
                       = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k      1.1
 
     step
-    1.8.  For all m ∈ ℕ₀, if (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k
-          then (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k.
-          fix
-          let m ∈ ℕ₀                                                  (K)
-          assume (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k      (IH)
+    let m ∈ ℕ₀                                                        (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
 
-          1.8.1.  x + y ∈ ℝ
-                  mun:real-closure, from H1, H2
+    1.8.  x + y ∈ ℝ
+          mun:real-closure, from H1, H2
 
-          1.8.2.  (x + y)^(m + 1) = (x + y)^m·(x + y)
-                  mun:exponent-step a := x + y, from 1.8.1, K
+    1.9.  (x + y)^(m + 1) = (x + y)^m·(x + y)
+          mun:exponent-step a := x + y, from 1.8, K
 
-          1.8.3.  (x + y)^m·(x + y) = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)
-                  substitute (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (IH)
+    1.10. (x + y)^m·(x + y) = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)
+          substitute (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (IH)
 
-          1.8.4.  (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
-                  thm:binomial-step m := m, from H1, H2, K
+    1.11. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
+          thm:binomial-step m := m, from H1, H2, K
 
-          1.8.5.  (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
-                  calculation
-                    (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.8.2
-                                    = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.8.3
-                                    = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.8.4
+    1.12. (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
+          calculation
+            (x + y)^(m + 1) = (x + y)^m·(x + y)                                          1.9
+                            = (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y)              1.10
+                            = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k          1.11
+
+2.  (x + y)^n = Σ(k = 0 to n) C(n, k)·x^(n − k)·y^k
+    instantiate m := n in line 1, from H3

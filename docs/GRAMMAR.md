@@ -821,7 +821,7 @@ The sixteen heads and the slots each admits:
   | `join` <ref> { `,` <ref> }
   | `contradiction`
   | `fix`
-  | `induction` `on` <name> <start> `,` <from>
+  | `induction` `on` <name> <start>
   | `cases` `,` <from>
   | `calculation`
   | <label> [ `,` <from> ]                         -- a define's label
@@ -878,6 +878,10 @@ A part marker is a bare word on its own line. Which markers a block may carry,
 in which order, and whether a part opens with an assumption, are read from that
 method's record in `corpus/db/methods.records`, not hard-coded: induction declares `base,
 step`, and cases declares a repeating `case` whose parts open with `assume`.
+An induction's `step` part opens with `let k ∈ X` and `assume step N is true
+for k, the induction hypothesis (IH)`; the parser reads the second as step
+N's statement after "for all k ∈ X,", which is what the line assumes
+(`Opener::is_hypothesis`), and the words are not the opener's text.
 
 ## Calculation chains
 
