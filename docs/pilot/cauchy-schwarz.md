@@ -14,7 +14,7 @@ inequality.
 ## Theorem cauchy-schwarz
 
 The proof is `proofs/cauchy-schwarz.proof`, one theorem of 5 numbered steps,
-31 with those inside its blocks. It elaborates to
+30 with those inside its blocks. It elaborates to
 `corpus/elaboration/proofs/cauchy-schwarz/`, assumes nothing, and verifies.
 
 ---
@@ -100,8 +100,13 @@ B² ≤ AC. ∎
    denominators out then reached A⁷, and set.mm has no `7z`, so a power's
    exponent is in ℤ by `nnzi` from `7nn`. That and `function_value`
    changed six other files' proofs by one line each, and they verify.
-9. **A defined name and its sum are two atoms to `inequalities`.** A > 0
-   is not C3 written again: the page says A = Σaₖ², by D1, and cites it.
+9. **A defined name and its sum were two atoms to `inequalities`.** A > 0
+   was not C3 written again, so the page said A = Σaₖ², by D1, and cited
+   it. `inequalities` now reads a defined name as what it names in a step
+   that writes both (`METHODS.md`), and A > 0 is `inequalities, from C3`.
+   The quadratic at t = −B/A carried four `requires` lines, two sums and A
+   and B real, for the comparison of its two spellings; `settle` now builds
+   a sum's membership from its terms, and they are gone.
 10. **Five mundane items:** square-nonneg (`sqge0`), square-zero
     (`sqeq0`), multiply-le (`lemul2`), sum-nonneg (`fsumge0`) and
     sum-zero-terms (`fsum00`).

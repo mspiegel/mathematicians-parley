@@ -134,6 +134,17 @@ impl<'a> Elaborator<'a> {
         walk(self, &self.to_term(rpn), linear, atoms, terms);
     }
 
+    /// Whether a term a line says is a number is an atom a method combined:
+    /// the same term, over other bound letters or with its defined names
+    /// written out, as `inequalities` reads it.
+    fn one_atom(&self, held: &str, atom: &str) -> bool {
+        if held == atom || self.rebound(held, atom) {
+            return true;
+        }
+        let out = self.rpn(&self.defined_names_out(&self.to_term(held)));
+        out == atom || self.rebound(&out, atom)
+    }
+
     /// Everything a step names does work, or a defect names what does not.
     ///
     /// A cited line or requires line is at work where the proof rests on it,
@@ -223,7 +234,12 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let demanded = match claim.label() {
-                Some("wcel") => atoms.contains(&self.rpn(&claim.children()[0])),
+                // An atom is the same atom over other bound letters, and a
+                // defined name the atom it names.
+                Some("wcel") => {
+                    let held = self.rpn(&claim.children()[0]);
+                    atoms.iter().any(|a| self.one_atom(&held, a))
+                }
                 Some("wne") => terms.contains(&self.rpn(&claim.children()[0])),
                 Some("wn") if claim.children()[0].label() == Some("wceq") => {
                     terms.contains(&self.rpn(&claim.children()[0].children()[0]))
@@ -248,13 +264,16 @@ impl<'a> Elaborator<'a> {
         }
         for atom in &atoms {
             let mut said = written.iter().any(|c| {
-                c.label() == Some("wcel") && self.rpn(&c.children()[0]) == *atom
+                let held = self.rpn(&c.children()[0]);
+                c.label() == Some("wcel") && self.one_atom(&held, atom)
             });
             said = said
                 || cited.iter().any(|p| {
                     let node = self.to_term(p);
-                    node.label() == Some("wcel")
-                        && self.rpn(&node.children()[0]) == *atom
+                    node.label() == Some("wcel") && {
+                        let held = self.rpn(&node.children()[0]);
+                        self.one_atom(&held, atom)
+                    }
                 });
             if !said {
                 // By the name the page writes, where the atom is one.

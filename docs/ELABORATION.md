@@ -811,7 +811,14 @@ the letter a placeholder), and a step whose sums are atoms reads them as
 written, as before. A multiplier `algebra` spells from the decision is
 written over the step's letter. A binomial coefficient of a whole number and
 an integer is a whole number (`bccl`), which the membership lookup builds as
-it builds a sum.
+it builds a sum. A sum is a number by its terms wherever a membership is
+asked — the lookup, the `membership` method's parts, and `settle` (`summed`)
+— and a divisor is not zero by a line placing it above zero or below it.
+
+`inequalities` in a step that writes a defined name and what it names takes
+the claim and each cited line with defined names written out and every sum
+written over one letter nothing holds (`names_written_out`), each cited line
+carried across by `same`, and the claim carried back by it.
 
 A negated quotient, −(a/b), is `(−a) / b` by `divnegd`, and −a is negated
 as a term that divides nothing is; Cauchy–Schwarz puts t = −B/A into its
@@ -1508,7 +1515,9 @@ proved (`discharged_by`).
     and each atom combined has its membership on the page, written or cited
     (`METHODS.md`). An atom is what the method treats as a number it knows
     nothing about; sums, products, quotients, negations and numeral powers are
-    looked inside, and numerals are not atoms.
+    looked inside, and numerals are not atoms. A line saying a term is a
+    number says it of the atom that term is over other bound letters, or with
+    its defined names written out (`one_atom`), as the method reads it.
   - the checker, on a step citing an item: the item's statement says what is
     needed. Each cited line and each requires line is taken away in turn and
     the step checked again, and one whose absence changes nothing is surplus.

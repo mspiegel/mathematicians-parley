@@ -181,6 +181,15 @@ impl<'a> Elaborator<'a> {
                 if let Some(found) = self.function_value(&s, &sys, scope, &facts)? {
                     return Ok(Built(found));
                 }
+                // A finite sum is a number because its terms are, spending
+                // none of the depth (`summed`).
+                if kids[0].variable().is_none() && kids[0].label() == Some("csu") {
+                    if let Built(found) =
+                        self.summed(&kids[0], &sys, scope, &facts, None)?
+                    {
+                        return Ok(Built(found));
+                    }
+                }
             }
         }
         // A sum, difference, product, power or negation is in a number

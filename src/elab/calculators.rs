@@ -213,6 +213,14 @@ struct Part {
     times: Q,
 }
 
+/// A step's claim, facts and cited lines with defined names written out, as
+/// `inequalities` reads them.
+struct WrittenOut {
+    term: String,
+    facts: Facts,
+    lines: Lines,
+}
+
 /// What a sum read as linear is shown at a member, each under the member's
 /// scope.
 struct AtMember {
@@ -1393,21 +1401,173 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        self.decide_order(step, term, facts, lines)?;
+        // A defined name is read as what it names, as `membership` and the
+        // comparison of two spellings read it: the claim and each cited line
+        // are taken with their defined names written out.
+        let out = take!(self.names_written_out(step, term, scope, facts, lines)?);
+        let (term_out, facts_out, lines_out) = (&out.term, &out.facts, &out.lines);
+        self.decide_order(step, term_out, facts_out, lines_out)?;
         // The method wants every atom in ℝ, and a `requires` line is where
         // the step writes that; offered to the membership lookup and to
         // nothing else.
         let known = self.supplied(Some(step), scope, facts)?;
         let refs = step.just.refs.clone();
         let found = self.writing(scope, &known, false, |me| {
-            me.prove_order(&refs, term, scope, facts, lines, &[])
+            me.prove_order(&refs, term_out, scope, facts_out, lines_out, &[])
         })?;
         if found.is_declined() {
             return self
                 .assume(step, term, scope, facts, "ine", lines)
                 .map(Built);
         }
-        Ok(found)
+        if term_out == term {
+            return Ok(found);
+        }
+        // Back from the claim written out to the claim as the page writes it.
+        let proof = take!(found);
+        let (said, want) = (self.to_term(term_out), self.to_term(term));
+        let Built(back) = self.same(&said, &want, scope, facts, Some(step))? else {
+            return Ok(Route::no("the claim written out is not carried back"));
+        };
+        Ok(Built(
+            pf!(self.b; scope, term_out, term, proof, back, "mpbid"),
+        ))
+    }
+
+    /// A term with each defined name written out as what it names.
+    pub(crate) fn defined_names_out(&self, term: &Term) -> Term {
+        if term.variable().is_some() {
+            return term.clone();
+        }
+        let kids = term.children();
+        if term.label() == Some("cv") && kids.len() == 1 {
+            if let Some(body) = self.definitions.get(&self.rpn(&kids[0])) {
+                return self.defined_names_out(&self.to_term(body));
+            }
+        }
+        let parts: Vec<Term> = kids.iter().map(|k| self.defined_names_out(k)).collect();
+        Term::apply(term.label().unwrap_or(""), parts)
+    }
+
+    /// A term with each finite sum, one holding no sum of its own, written
+    /// over `letter`: a sum a define names and the same sum a line writes
+    /// are then one term, whatever letters the two were written over.
+    fn sums_over(&self, term: &Term, letter: &str) -> Term {
+        if term.variable().is_some() {
+            return term.clone();
+        }
+        let kids = term.children();
+        if term.label() == Some("csu") && kids.len() == 3 {
+            let inner = self.rpn(&kids[1]);
+            if !inner.split_whitespace().any(|t| t == "csu") {
+                let from = self.rpn(&kids[2]);
+                let summand = self.restated(
+                    &kids[1],
+                    &format!("{from} cv"),
+                    &format!("{letter} cv"),
+                );
+                return Term::apply(
+                    "csu",
+                    vec![kids[0].clone(), summand, self.var_of(letter)],
+                );
+            }
+        }
+        let parts: Vec<Term> = kids.iter().map(|k| self.sums_over(k, letter)).collect();
+        Term::apply(term.label().unwrap_or(""), parts)
+    }
+
+    /// The claim, the facts and the lines a step cites, with defined names
+    /// written out: each cited line written otherwise is laid down written
+    /// out, carried across by `same`, which reads a defined name the same way.
+    fn names_written_out(
+        &mut self,
+        step: &Step,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<WrittenOut>> {
+        let claim = self.to_term(term);
+        let cited: Vec<(String, Line)> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| lines.get(r).map(|l| (r.clone(), l)))
+            .collect();
+        // Every sum is written over one letter nothing holds, so that a sum
+        // a define names and the same sum a line writes are one term.
+        let mut seen: Vec<Term> = vec![claim.clone(), self.to_term(scope)];
+        seen.extend(cited.iter().map(|(_, l)| self.to_term(&l.term)));
+        let refs: Vec<&Term> = seen.iter().collect();
+        let as_written = WrittenOut {
+            term: term.to_string(),
+            facts: facts.clone(),
+            lines: lines.clone(),
+        };
+        let Some(letter) = self.unheld(&refs).map(|v| self.rpn(&v)) else {
+            return Ok(Built(as_written));
+        };
+        // Only a step that writes both a defined name and what it names
+        // reads its names written out; any other reads them as written.
+        let mut written: BTreeSet<String> = BTreeSet::new();
+        let mut named: BTreeSet<String> = BTreeSet::new();
+        let mut rest: Vec<Term> = vec![self.sums_over(&claim, &letter)];
+        rest.extend(
+            cited
+                .iter()
+                .map(|(_, l)| self.sums_over(&self.to_term(&l.term), &letter)),
+        );
+        while let Some(node) = rest.pop() {
+            if node.variable().is_some() {
+                continue;
+            }
+            let kids = node.children();
+            if node.label() == Some("cv") && kids.len() == 1 {
+                if let Some(body) = self.definitions.get(&self.rpn(&kids[0])) {
+                    let out = self.defined_names_out(&self.to_term(body));
+                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
+                }
+            }
+            written.insert(self.rpn(&node));
+            rest.extend(kids.iter().cloned());
+        }
+        if !named.iter().any(|body| written.contains(body)) {
+            return Ok(Built(as_written));
+        }
+        let written_out =
+            |me: &Self, t: &Term| me.sums_over(&me.defined_names_out(t), &letter);
+        let term_out = self.rpn(&written_out(self, &claim));
+        let (facts_out, lines_out) = (facts.copy(), lines.copy());
+        for (r, line) in &cited {
+            let said = self.to_term(&line.term);
+            let written = written_out(self, &said);
+            let out_rpn = self.rpn(&written);
+            if out_rpn == line.term {
+                continue;
+            }
+            let held = self.carried(r, facts, lines);
+            let Built(alike) = self.same(&said, &written, scope, facts, Some(step))?
+            else {
+                return Ok(Route::no(
+                    "a cited line is not carried to its names written out",
+                ));
+            };
+            let proof = pf!(self.b; scope, line.term, out_rpn, held, alike, "mpbid");
+            facts_out.set(out_rpn.clone(), proof.clone());
+            lines_out.set(
+                r.clone(),
+                Line {
+                    term: out_rpn,
+                    proof,
+                    sentences: line.sentences.clone(),
+                },
+            );
+        }
+        Ok(Built(WrittenOut {
+            term: term_out,
+            facts: facts_out,
+            lines: lines_out,
+        }))
     }
 
     /// An `inequalities` claim, by whichever route reaches it. `skip` names
