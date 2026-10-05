@@ -1169,7 +1169,7 @@ fn cases() -> Vec<Case> {
         ),
         // A field is read by its name, so a misspelt one is not the field: the
         // Archimedean item would have no target, and Theorem 13's citation of it
-        // would be taken as stated.
+        // would stop the build.
         case(
             "misspell a field name",
             vec![
@@ -1234,9 +1234,9 @@ fn cases() -> Vec<Case> {
             ],
             "step 8 cites H3, and axi:completeness asks for nothing it says",
         ),
-        // An item with no target is assumed as it states itself. This one said
-        // |X| = k + 1 without saying what k was, and at k = −1 and X = ∅ the
-        // axiom it became was false.
+        // An item states what its target proves of every value of its names.
+        // This one said |X| = k + 1 without saying what k was, and at k = −1
+        // and X = ∅ it is false.
         case(
             "leave open a name an item uses as a number",
             vec![

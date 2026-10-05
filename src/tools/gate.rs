@@ -24,7 +24,9 @@
 //! The fourth is there because an item's statement is written by hand beside
 //! the lemma it names, and only a citation that elaborates asks whether the
 //! two agree. The fifth is there because a step taken as stated verifies:
-//! the verifier reads it as an axiom, so the last stage cannot see one.
+//! the verifier reads it as an axiom, so the last stage cannot see one. The
+//! build writes none, so the stage guards the files from anything else that
+//! writes them.
 //!
 //! Three stages need set.mm, which belongs to metamath and is not committed:
 //! say where it is with `SET_MM`, or leave a copy or a link at the root of

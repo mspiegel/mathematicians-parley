@@ -137,11 +137,8 @@ reads the declared lemmas through an index built from their statements.
 Measured on 2026-09-25, on the Python implementation the Rust one was ported
 from line for line, every proof, the definitions and the planted cases
 between them ran 1,271 of the 1,445 executable lines of its calculators. What none runs is a route declining, a refusal no
-planted case reaches, a case of a method no proof has needed yet (`3 ≤ 3`),
-and `assume` with `stated`: no step in the corpus is taken as stated any
-longer, and the two stay, because taking a decided step as stated and
-listing it is what the methods promise where the proof cannot yet be
-written.
+planted case reaches, and a case of a method no proof has needed yet
+(`3 ≤ 3`).
 
 ### What the corpus asks of it
 
@@ -1162,53 +1159,44 @@ asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
 spends none of it; nor does going under a "for all". What a lemma asks of
 a sum's index is the one place a chain of four is allowed, as above.
 
-## What a file states rather than proves
+## Nothing a file says is assumed
 
-The head of each file says what is not expanded: a closure method, or an item
-the database gives no target for. A method step becomes an axiom claiming
-exactly what the readable line claims, under the `requires` lines that line
-carries **and** the lines it cites — both, or the axiom says more than the
-method does and the proof above it goes unused.
+A line no route builds stops the build there, with a defect naming it, and
+nothing is taken as stated in its place:
 
-`arithmetic` is the exception: it states nothing. Its claims are closed, so
-it works each one out exactly before proving it (`field.decide_closed`), and
-what it cannot prove is reported — false, dividing by zero, too large to
-work out, not rational, or true and past what it can show, which is cited
-instead. Stated, a false one was an axiom the kernel accepted, and
-`9 = 3·4` was stated so once the normaliser stopped crashing on it.
+- a method step `algebra` or `inequalities` decides and cannot write: "step 4
+  is an identity, and algebra cannot write its proof: …";
+- a requires line its method does not reach: "inequalities does not reach
+  …, which this line claims it supplies";
+- a step citing an item the database gives no target for.
 
-A definition with no target is not stated where a line the step cites already
-says the claim: as one of its conjuncts, which `def:stdlib/geometry/congruent` relies on, or
-with another letter bound, since the notation reads "b is an upper bound of S"
-as every s in S being at most b and the block that proved that fixed a
-variable of its own. Otherwise it is stated as an item is, below: the
-definition as the database says it, at the step's terms, and the claim read
-off one side. The cited line on the other side is what says which terms:
-"b is an upper bound of S" is what says the definition's u is b.
+A gap in a method is so found at the line that has it, and not later by the
+gate. Stating one in its place hid more than the gap: a requires line above
+the stated one rested on nothing the kernel used, and so looked surplus to
+the check that asks each line to do work.
+
+`arithmetic` works each closed claim out exactly before proving it
+(`field.decide_closed`), and what it cannot prove is reported — false,
+dividing by zero, too large to work out, not rational, or true and past what
+it can show, which is cited instead.
+
+A definition with no target is read off a line the step cites that already
+says the claim: as one of its conjuncts, which `def:stdlib/geometry/congruent`
+relies on, or with another letter bound, since the notation reads "b is an
+upper bound of S" as every s in S being at most b and the block that proved
+that fixed a variable of its own. Otherwise the step stops: "mun:upper-bound
+has no target, and nothing step 10 cites says …".
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
 where the readable "a or b or c" is built from the left: `lttri4` is
 trichotomy, and `df-3or` carries it across.
 
-An item becomes an axiom claiming what the item states, under its hypotheses,
-and the step owes those hypotheses like any others. What the item states and
-what the step claims must be one statement up to the letters they bind, or one
-side of it where the item states a biconditional; then the other side is what
-the step cites. `mun:stdlib/numbers/abs-difference-lt` says |x − c| < δ exactly when
-c − δ < x and x < c + δ, and step 16.15 of `intermediate-value` claims the
-first from lines saying the second. Stated with the step's claim under the
-item's hypotheses, the axiom would say that every |x − c| is below every δ,
-and the kernel accepts whatever is assumed. Anything else is a defect naming
-both statements.
-
-Stated as it says, an item is only as true as what it says, and a name it
-leaves open is read as anything at all. `mun:stdlib/counting/card-nonempty` said `assume
-|X| = k + 1` without saying what k was, and at k = −1 and X = ∅ the axiom was
-false. So `parley check` refuses a name of no known sort standing where a notation
-wants a number, in any item's assumptions and any theorem's conclusion; a
-bound name is spoken for, and so is the name a definition defines over.
-Nothing checks that an item's statement is true beyond that. The list at the
-head of each file is what to read when it changes.
+An item is only as true as what it says, and a name it leaves open is read
+as anything at all. `mun:stdlib/counting/card-nonempty` said `assume |X| = k + 1`
+without saying what k was, and at k = −1 and X = ∅ it was false. So `parley
+check` refuses a name of no known sort standing where a notation wants a
+number, in any item's assumptions and any theorem's conclusion; a bound name
+is spoken for, and so is the name a definition defines over.
 
 Every written file but one assumes nothing. What is left:
 
@@ -1325,14 +1313,15 @@ with X a set of numbers, does not think a is a set, and `READERS.md` says the
 kernel's use of it is apparatus: `run` seals a's sethood as a sort, and the
 step names nothing for it.
 
-The assumption count is the measure that says whether a method is written or
-only named.
+A method that cannot write a step stops the build at that step, so what a
+file holds is what was built.
 
 ### Steps taken as stated
 
-`GOALS.md` decision 17: what the elaborator cannot build is a defect, or it is
-recorded here, and a list in a file's header is not a record. The gate's
-"taken as stated" stage (`src/tools/assumed.rs`) reads every elaborated proof
+`GOALS.md` decision 17: what the elaborator cannot build is a defect, and
+the build stops there ("Nothing a file says is assumed", above), so it
+writes no statement for this list. The list guards the files themselves:
+the gate's "taken as stated" stage (`src/tools/assumed.rs`) reads every elaborated proof
 under `corpus/elaboration/proofs/`
 and every library test under `corpus/elaboration/tests/`, and is red for any
 statement one takes as stated that this list does not name, and for any this
@@ -1342,10 +1331,8 @@ list names that no file states any longer. A record is one entry:
       and what would build it.
 
 A theorem's label is its full name with a dot for each slash,
-`proofs.sqrt2-irrational.even-square`, and a statement taken as stated is
-labelled after it, `proofs.mean-value.mean-value.itm1`. A label depends on
-nothing but its theorem's name, so adding or renaming another theorem never
-moves it, and no set.mm label begins `proofs.` or `tests.`.
+`proofs.sqrt2-irrational.even-square`, and no set.mm label begins `proofs.`
+or `tests.`.
 
 Definitions are not steps, and the constants and definitions
 `corpus/elaboration/stdlib/definitions.mm` declares are decision 12's, not this

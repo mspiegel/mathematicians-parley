@@ -954,7 +954,7 @@ mark means.
 
 The tools read a field by its name, so a misspelt one is not that field: an
 item whose `target` is spelt `taget` has no target, and every citation of it
-would be taken as stated. `parse.FIELDS` holds the list and the checker reads
+would stop the build. `parse.FIELDS` holds the list and the checker reads
 it.
 
 A record begins at column 0; its fields are indented, one per line, and a field

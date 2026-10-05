@@ -186,8 +186,6 @@ pub struct Elaborator<'a> {
     pub names: IndexMap<String, String>,
     /// Readable name -> the set it was let into.
     pub sets: IndexMap<String, String>,
-    /// (label, statement) for each statement taken as stated.
-    pub axioms: Vec<(String, String)>,
     /// Setvars the conclusion quantifies over, and those a step said of
     /// every member was proved over: none is a letter nothing holds.
     pub reserved: IndexSet<String>,
@@ -242,8 +240,6 @@ pub struct Elaborator<'a> {
     /// Binder name -> the setvar it stands for, and back.
     pub bound_as: IndexMap<String, String>,
     pub written_as: IndexMap<String, String>,
-    /// Statement -> how it is pushed, stated once.
-    pub assumed: IndexMap<String, Proof>,
     /// How far down the `define` lines we have read.
     pub unread: usize,
     /// A defined name's setvar -> the term it names.
@@ -339,7 +335,6 @@ impl<'a> Elaborator<'a> {
             at: thm.line,
             names: IndexMap::new(),
             sets: IndexMap::new(),
-            axioms: Vec::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),
             supplying: IndexSet::new(),
@@ -364,7 +359,6 @@ impl<'a> Elaborator<'a> {
             numbers: IndexMap::new(),
             bound_as: IndexMap::new(),
             written_as: IndexMap::new(),
-            assumed: IndexMap::new(),
             unread: 0,
             definitions: IndexMap::new(),
             defined_by: IndexMap::new(),

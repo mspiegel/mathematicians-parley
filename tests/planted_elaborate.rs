@@ -352,31 +352,38 @@ fn cases() -> Vec<Case> {
             "n := 2^k, from 1.2.3, 1.2.6",
             "no clause of mun:card-disjoint-union reaches what step 1.2.8 claims",
         ),
-        // An item taken as stated is stated as the item says it. Stating the
-        // step's claim under the item's hypotheses instead would assume whatever
-        // the step claimed, and the kernel accepts whatever is assumed. No step
-        // in the corpus cites an item taken as stated for a claim it could get
-        // wrong, so one is made: `card-remove` loses its target and says less
-        // than step 1.2.2 claims of it.
+        // Nothing is taken as stated: a theorem the database gives no target
+        // for builds nothing, and a step citing it stops the build where it
+        // stands. `card-remove` loses its target.
         case(
-            "claim what an item taken as stated does not state",
+            "cite a theorem the database gives no target for",
             "proofs/subsets/subsets-count",
             "corpus/stdlib/counting.records",
             "  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n",
             "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n",
-            "mun:stdlib/counting/card-remove is taken as stated and states",
+            "step 1.2.2 cites mun:stdlib/counting/card-remove, which the database gives no target for, and nothing is taken as stated",
         ),
-        // A definition with no target is stated as the definition says it and
-        // the claim read off one side. Stating the claim under the cited lines
-        // would take whatever the step claimed, and only a later step using it
-        // could notice.
+        // A requires line its method cannot prove stops the build at that
+        // line. Without the line saying sin(∠PQR) > 0 above it, nothing gives
+        // `inequalities` an order to show sin(∠PQR) ≠ 0 from.
         case(
-            "unfold a definition taken as stated into what it does not say",
+            "a requires line its method cannot prove",
+            "proofs/pythagoras/similar-triangles",
+            "proofs/pythagoras.proof",
+            "    requires sin(∠PQR) > 0: mun:sine-positive P := P, Q := Q, R := R, from H7\n",
+            "",
+            "inequalities does not reach",
+        ),
+        // A definition with no target is read off a line the step cites that
+        // already says the claim; stating the claim instead would take whatever
+        // the step claimed, and only a later step using it could notice.
+        case(
+            "unfold a definition with no target into what it does not say",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
             "10. For all s ∈ S, s ≤ c.",
             "10. For all s ∈ S, s < c.",
-            "mun:stdlib/calculus/upper-bound is taken as stated and states",
+            "mun:stdlib/calculus/upper-bound has no target, and nothing step 10 cites says",
         ),
         // `elcncf2` is read in the page's words, which is a reading and not a
         // licence: continuity with δ where ε belongs, or with δ ≥ 0 where the

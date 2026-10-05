@@ -151,13 +151,12 @@ suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
 
 **A `target` that never fires is an error, not a shrug.** An item with no
-`target` is assumed, and the elaborated file says so at its head. An item that
-has one and whose every clause misses the claim is a different thing: the
-field says where the claim lands and it does not land there. The elaborator
-names the item, the labels it tried and the step, and stops. Without that the
-two are indistinguishable — same file, same assumption count, no message — so
-a wrong target could sit in this file for as long as nobody happened to probe
-it by hand.
+`target` builds nothing, and a step citing it stops the build, except a
+definition read off a line the step cites that already says the claim. An
+item that has one and whose every clause misses the claim is a different
+thing: the field says where the claim lands and it does not land there. The
+elaborator names the item, the labels it tried and the step, and stops, so a
+wrong target cannot sit in this file unnoticed.
 
 **Nothing compares an item's hypotheses with its target's.** A citation is
 built from the set.mm theorem the target names, with that theorem's own
@@ -165,9 +164,7 @@ hypotheses, so a record whose `let` lines say less than the theorem asks
 still builds and every proof citing it verifies: `mun:stdlib/counting/card-nonempty`
 with `let k ∈ ℤ` in place of `let k ∈ ℕ₀`, where `hashgt0elex` asks k ∈ ℕ₀,
 passes every stage of the gate. The proofs are sound and the record misstates
-the lemma. An item with no target is worse off, since it is assumed as it
-states itself and a hypothesis too weak for its conclusion is a false axiom.
-The checker reports a name the item says nothing of where a number goes
+the lemma. The checker reports a name the item says nothing of where a number goes
 (`check_unsorted`), not a name it says too little of. Closing this means
 reading each target's hypotheses from set.mm and requiring the item's to
 imply them.

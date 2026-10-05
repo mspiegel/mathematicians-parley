@@ -9,8 +9,8 @@
 //! What is here is how their answers become proof steps under the step's
 //! scope.
 //!
-//! What a method decides but cannot yet prove is taken as stated, and listed
-//! at the head of the file it writes (`assume`, `stated`).
+//! What a method decides but cannot write is a defect at its line: nothing is
+//! taken as stated in its place.
 
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -27,10 +27,8 @@ use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{fmt, Step};
-use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
-use crate::mm::{Kind, Signature};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::{pf, t, take};
@@ -266,10 +264,17 @@ impl<'a> Elaborator<'a> {
         let linear = self.sums_linear(term, Some(step), lines);
         field::reading_sums(linear, || self.decide_field(step, term, lines))?;
         let found = self.prove_field(Some(step), term, scope, facts, lines)?;
-        if found.is_declined() {
-            return self
-                .assume(step, term, scope, facts, "alg", lines)
-                .map(Built);
+        if let Declined(d) = &found {
+            // Decided but not written is a gap in the method, and nothing is
+            // taken in its place: the build stops here.
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "step {} is an identity, and algebra cannot write its proof: {}",
+                    fmt(&step.number),
+                    self.say(d)
+                ),
+            ));
         }
         Ok(found)
     }
@@ -1422,10 +1427,15 @@ impl<'a> Elaborator<'a> {
         let found = self.writing(scope, &known, false, |me| {
             me.prove_order(&refs, term_out, scope, facts_out, lines_out, &[])
         })?;
-        if found.is_declined() {
-            return self
-                .assume(step, term, scope, facts, "ine", lines)
-                .map(Built);
+        if let Declined(d) = &found {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "step {} follows from what it cites, and inequalities cannot write its proof: {}",
+                    fmt(&step.number),
+                    self.say(d)
+                ),
+            ));
         }
         if term_out == term {
             return Ok(found);
@@ -3570,98 +3580,6 @@ impl<'a> Elaborator<'a> {
             ));
         }
         Ok(())
-    }
-
-    /// State what a step claims, under everything it rests on, and take it:
-    /// the lines it cites as well as the conditions it writes. What the file
-    /// assumes is listed at its head.
-    pub fn assume(
-        &mut self,
-        step: &Step,
-        term: &str,
-        scope: &str,
-        facts: &Facts,
-        prefix: &str,
-        lines: &Lines,
-    ) -> Checked<Proof> {
-        let mut asks: Vec<(String, Proof)> = Vec::new();
-        for r in &step.just.refs {
-            let cited = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-            asks.push((cited.term.clone(), self.carried(r, facts, lines)));
-        }
-        let mut wants: Vec<Node> = Vec::new();
-        for r in &step.requires {
-            wants.push(self.read(&r.fact)?);
-        }
-        for (want, r) in wants.iter().zip(&step.requires) {
-            let here = self.term(want)?;
-            if !asks.iter().any(|(a, _)| *a == here) {
-                // Proved from its reason and checked against it, as
-                // `supplied` and `required` prove one.
-                let made = match self.side(want, &r.how, scope, facts, Some(step))? {
-                    Built(p) => self.discharged_by(p, step, &r.how, r.line)?,
-                    Declined(d) => panic!(
-                        "the requires line at {} declined where it is assumed from: {}",
-                        r.line,
-                        self.say(&d)
-                    ),
-                };
-                asks.push((here, made));
-            }
-        }
-        let mut statement = term.to_string();
-        for (one, _given) in asks.iter().rev() {
-            statement = t!(one, statement, "wi");
-        }
-        let mut proof =
-            self.stated(prefix, &format!("|- {}", self.render(&statement)))?;
-        if asks.is_empty() {
-            // Nothing to discharge, so the statement is taken at the scope
-            // the step sits in.
-            return Ok(pf!(self.b; term, scope, proof, "a1i"));
-        }
-        // The conditions nest, outermost first, so each is answered in turn.
-        for (i, (one, given)) in asks.iter().enumerate() {
-            let mut rest = term.to_string();
-            for (later, _p) in asks[i + 1..].iter().rev() {
-                rest = t!(later, rest, "wi");
-            }
-            let fold = if i == 0 { "syl" } else { "mpd" };
-            proof = pf!(self.b; scope, one, rest, given, proof, fold);
-        }
-        Ok(proof)
-    }
-
-    /// Register a statement this file takes rather than proves, pushing every
-    /// variable it mentions in the order the database declares them. The
-    /// same statement asked for twice is listed once.
-    pub fn stated(&mut self, prefix: &str, text: &str) -> Checked<Proof> {
-        if let Some(p) = self.assumed.get(text) {
-            return Ok(p.clone());
-        }
-        let label = self.fresh(prefix)?;
-        self.axioms.push((label.clone(), text.to_string()));
-        let free = self.free_floats(text);
-        let floats = free
-            .iter()
-            .map(|v| (self.typecode(&self.float_of(v)).to_string(), v.clone()))
-            .collect();
-        self.b.sigs.insert(
-            label.clone(),
-            Signature {
-                label: label.clone(),
-                kind: Kind::Axiom,
-                statement: text.split_whitespace().map(String::from).collect(),
-                floats,
-                essentials: Vec::new(),
-                disjoint: std::collections::BTreeSet::new(),
-            },
-        );
-        let mut parts: Vec<String> = free.iter().map(|v| self.float_of(v)).collect();
-        parts.push(label);
-        let proof = pf!(self.b; parts.join(" "));
-        self.assumed.insert(text.to_string(), proof.clone());
-        Ok(proof)
     }
 
     /// The variables a statement mentions, in the order the database

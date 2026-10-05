@@ -476,10 +476,10 @@ pub fn check_statements(
 
 /// A name an item treats as a number, a line of the item says what it is.
 ///
-/// An item with no target is assumed exactly as it states itself, so a name
-/// it leaves open is read as anything at all. An item that said `assume |X|
-/// = k + 1` and never what k was held its hypotheses at k = −1 and X = ∅ and
-/// not its conclusion, and the kernel accepted the axiom. A name standing
+/// An item's statement holds of every value of its names, so a name it
+/// leaves open is read as anything at all. An item that said `assume |X| =
+/// k + 1` and never what k was held its hypotheses at k = −1 and X = ∅ and
+/// not its conclusion, so no target could prove it. A name standing
 /// where the notation wants a number, which nothing says anything of, is
 /// that shape.
 ///

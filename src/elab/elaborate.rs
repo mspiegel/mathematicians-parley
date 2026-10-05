@@ -1039,191 +1039,21 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
-        self.assume_item(step, goal, scope, facts, record, cites)
-            .map(Built)
+        Err(self.untargeted(step, record))
     }
 
-    /// An item the database gives no target for, taken as it states itself,
-    /// under the hypotheses it asks for; and where the step claims one side
-    /// of what it states, the other side is what the step cites.
-    fn assume_item(
-        &mut self,
-        step: &Step,
-        goal: &str,
-        scope: &str,
-        facts: &Facts,
-        item: &'a Record,
-        cites: Option<&str>,
-    ) -> Checked<Proof> {
-        let ctx = Context::new(&self.g.notations, self.records);
-        let (asks, ends) =
-            self.names_kept(|me| -> Checked<(Vec<String>, Vec<String>)> {
-                let bound = me.item_binding(step, item, cites)?;
-                // A letter standing for a rule is that rule where the item
-                // applies it (`filled`), and is no term of its own.
-                for (name, node) in &bound {
-                    if node.notation != PROPERTY {
-                        let term = me.term(node)?;
-                        me.names.insert(name.clone(), term);
-                    }
-                }
-                me.in_its_names(
-                    Item::Record(item),
-                    |me| -> Checked<(Vec<String>, Vec<String>)> {
-                        let mut asks = Vec::new();
-                        for h in &item.hypotheses {
-                            let body = me.hypothesis_formula(h.kind.as_str(), &h.text);
-                            let node = filled(&me.read(&body)?, &bound, &ctx);
-                            asks.push(me.term(&node)?);
-                        }
-                        let mut ends = Vec::new();
-                        for (text, _line) in &item.conclusions {
-                            for sentence in me.sentences(text) {
-                                let node = filled(&me.read(&sentence)?, &bound, &ctx);
-                                ends.push(me.term(&node)?);
-                            }
-                        }
-                        Ok((asks, ends))
-                    },
-                )
-            })?;
-        // What is assumed is what the item states, and a step may claim one
-        // side of it.
-        let mut whole = ends[0].clone();
-        for extra in &ends[1..] {
-            whole = t!(whole, extra, "wa");
-        }
-        let mut other: Option<String> = None;
-        if self.rebound(&whole, goal) {
-            whole = goal.to_string();
-        }
-        if whole != goal {
-            let node = self.to_term(&whole);
-            let mut sides: Vec<String> = if node.label() == Some("wb") {
-                node.children().iter().map(|c| self.rpn(c)).collect()
-            } else {
-                Vec::new()
-            };
-            // A side binding other letters than the claim is the claim, and
-            // is stated in the claim's letters.
-            for i in 0..sides.len() {
-                if sides[i] != goal && self.rebound(&sides[i], goal) {
-                    sides[i] = goal.to_string();
-                    whole = t!(sides.join(" "), "wb");
-                }
-            }
-            let Some(at) = sides.iter().position(|s| s == goal) else {
-                return Err(self.defect(
-                    step.line,
-                    format!(
-                        "{}:{} is taken as stated and states {}, where step {} claims {}",
-                        item_kind(Item::Record(item)),
-                        item.qualified(),
-                        self.render(&whole),
-                        fmt(&step.number),
-                        self.render(goal)
-                    ),
-                ));
-            };
-            other = Some(sides[1 - at].clone());
-        }
-        let mut statement = whole.clone();
-        for one in asks.iter().rev() {
-            statement = t!(one, statement, "wi");
-        }
-        let label = self.fresh("itm")?;
-        let text = format!("|- {}", self.render(&statement));
-        self.axioms.push((label.clone(), text.clone()));
-        let free = self.free_floats(&text);
-        let floats = free
-            .iter()
-            .map(|v| (self.typecode(&self.float_of(v)).to_string(), v.clone()))
-            .collect();
-        self.b.sigs.insert(
-            label.clone(),
-            Signature {
-                label: label.clone(),
-                kind: Kind::Axiom,
-                statement: text.split_whitespace().map(String::from).collect(),
-                floats,
-                essentials: Vec::new(),
-                disjoint: BTreeSet::new(),
-            },
-        );
-        let mut parts: Vec<String> = free.iter().map(|v| self.float_of(v)).collect();
-        parts.push(label);
-        let mut proof = pf!(self.b; parts.join(" "));
-        // An item taken as stated asks for its hypotheses like any other.
-        let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, None);
-        if asks.is_empty() {
-            proof = pf!(self.b; whole, scope, proof, "a1i");
-        }
-        for (i, one) in asks.iter().enumerate() {
-            let mut rest = whole.clone();
-            for later in asks[i + 1..].iter().rev() {
-                rest = t!(later, rest, "wi");
-            }
-            let lines = self.lines.clone();
-            let found = self.settle(
-                &self.to_term(one),
-                scope,
-                &known,
-                3,
-                Some(step),
-                Some(&lines),
-            )?;
-            let found = match found {
-                Built(p) => p,
-                Declined(d) => {
-                    return Err(self.defect(
-                        step.line,
-                        format!(
-                            "{}:{} is taken as stated and asks for {}, which step {} does not supply: {}",
-                            item_kind(Item::Record(item)),
-                            item.qualified(),
-                            self.render(one),
-                            fmt(&step.number),
-                            self.say(&d)
-                        ),
-                    ));
-                }
-            };
-            let fold = if i == 0 { "syl" } else { "mpd" };
-            proof = pf!(self.b; scope, one, rest, found, proof, fold);
-        }
-        let Some(other) = other else {
-            return Ok(proof);
-        };
-        // The side the step does not claim is what it cites, a line whole or
-        // one line per conjunct.
-        let node = self.to_term(&other);
-        let pair: Vec<String> = if node.label() == Some("wa") {
-            node.children().iter().map(|c| self.rpn(c)).collect()
-        } else {
-            Vec::new()
-        };
-        let given = if let Some(g) = known.get(&other) {
-            g
-        } else if !pair.is_empty() && pair.iter().all(|p| known.has(p)) {
-            let a = known.get(&pair[0]).unwrap();
-            let b = known.get(&pair[1]).unwrap();
-            pf!(self.b; scope, pair[0], pair[1], a, b, "jca")
-        } else {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {} cites nothing that says {}",
-                    fmt(&step.number),
-                    self.render(&other)
-                ),
-            ));
-        };
-        let near = self.rpn(&self.to_term(&whole).children()[0]);
-        if goal == near {
-            return Ok(pf!(self.b; scope, goal, other, given, proof, "mpbird"));
-        }
-        Ok(pf!(self.b; scope, other, goal, given, proof, "mpbid"))
+    /// An item the database gives no target for: nothing builds what it
+    /// says, and the build takes nothing as stated, so citing it stops here.
+    fn untargeted(&self, step: &Step, item: &Record) -> Problem {
+        self.defect(
+            step.line,
+            format!(
+                "step {} cites {}:{}, which the database gives no target for, and nothing is taken as stated",
+                fmt(&step.number),
+                item_kind(Item::Record(item)),
+                item.qualified()
+            ),
+        )
     }
 
     /// A sentence of an item, read in the item's own names and then said at
@@ -2113,9 +1943,9 @@ impl<'a> Elaborator<'a> {
         Ok(Way::Unfolded)
     }
 
-    /// A definition with no target is taken as it states itself, unless a
-    /// line the step cites already says it, whole or with another letter
-    /// bound.
+    /// A definition with no target, read off a line the step cites that
+    /// already says what the step claims, whole or with another letter bound.
+    /// Nothing builds it otherwise, and nothing is taken as stated.
     fn take_definition(
         &mut self,
         step: &Step,
@@ -2144,8 +1974,16 @@ impl<'a> Elaborator<'a> {
         let Item::Record(item) = self.item_cited(&step.just.head.to_string()) else {
             panic!("a definition of the database");
         };
-        self.assume_item(step, term, scope, facts, item, None)
-            .map(Built)
+        Err(self.defect(
+            step.line,
+            format!(
+                "{}:{} has no target, and nothing step {} cites says {}",
+                item_kind(Item::Record(item)),
+                item.qualified(),
+                fmt(&step.number),
+                self.render(term)
+            ),
+        ))
     }
 
     /// The claim, when a line the step cites is a conjunction stating it,
@@ -2200,21 +2038,6 @@ impl<'a> Elaborator<'a> {
                 ),
             )),
         }
-    }
-
-    /// A label for a generated statement nothing else is using, saying which
-    /// file it belongs to, and looked for rather than taken.
-    pub fn fresh(&mut self, prefix: &str) -> Checked<String> {
-        let stem = self.own_label()?;
-        let mut number = self.axioms.len() + 1;
-        while self
-            .b
-            .sigs
-            .contains_key(&format!("{stem}.{prefix}{number}"))
-        {
-            number += 1;
-        }
-        Ok(format!("{stem}.{prefix}{number}"))
     }
 
     /// The label this theorem is written under.
@@ -3227,11 +3050,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let labels = targets::clauses(item);
         if labels.is_empty() {
-            // Nothing in the library has its shape, so the file states what
-            // it claims and lists it.
-            return self
-                .assume_item(step, term, scope, facts, item, None)
-                .map(Built);
+            return Err(self.untargeted(step, item));
         }
         let seed = self.filling(step, item, None)?;
         match self.by_clause(&labels, term, scope, facts, step, Some(&seed))? {
@@ -3830,14 +3649,8 @@ pub fn elaborate(
         crate::text::spelt_in_ascii(&thm.qualified()),
         thm.path
     ));
-    if work.axioms.is_empty() {
-        out.push_str("   Nothing here is assumed.\n");
-    } else {
-        out.push_str("   Everything is built except the statements below, which are\n");
-        out.push_str("   taken as the readable lines state them: a closure method\n");
-        out.push_str("   the elaborator does not expand, or a definition the\n");
-        out.push_str("   database gives no target for.\n");
-    }
+    // A line no route builds stops the build, so every file says this.
+    out.push_str("   Nothing here is assumed.\n");
     out.push_str(&format!(
         "   Checked against a set.mm of {} assertions, sha256\n   {}. $)\n",
         thousands(library.size),
@@ -3861,12 +3674,6 @@ pub fn elaborate(
         out.push_str(&format!("$[ {file}.mm $]\n"));
     }
     out.push('\n');
-    for (label, statement) in &work.axioms {
-        out.push_str(&format!("{label} $a {statement} $.\n"));
-    }
-    if !work.axioms.is_empty() {
-        out.push('\n');
-    }
     // Every variable the proof touches has to be disjoint from every other
     // it binds: a name it binds from everything else.
     let sigs = &work.b.sigs;

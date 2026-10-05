@@ -82,7 +82,7 @@ impl std::fmt::Display for RecordKind {
 /// The fields each kind of record may carry, as the header of each records
 /// file describes them. A field outside its kind's list is refused: the tools
 /// read fields by name, so a misspelt `target` is not a target, and the item
-/// it belongs to would be taken as stated wherever it is cited. A precedence
+/// it belongs to would stop the build wherever it is cited. A precedence
 /// record is not listed, because its fields are the levels it declares.
 pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
     FIELDS

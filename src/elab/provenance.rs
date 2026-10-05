@@ -1035,39 +1035,8 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        // Nothing generic stands here. What is left is a method saying at the
-        // head of the file that it was not expanded, or an error naming the
-        // line.
-        if closure == "inequalities" || closure == "algebra" {
-            // A side condition resting on a closure method rests on it the
-            // same way a step does, and is listed the same way: under what the
-            // line cites, and under nothing else.
-            let mut asks: Vec<(String, Proof)> = Vec::new();
-            for r in &refs {
-                if let Some(line) = self.lines.get(r) {
-                    asks.push((line.term.clone(), self.carried(r, facts, &self.lines)));
-                }
-            }
-            let mut statement = term.clone();
-            for (one, _given) in asks.iter().rev() {
-                statement = t!(one, statement, "wi");
-            }
-            let prefix = &closure[..3];
-            let mut proof =
-                self.stated(prefix, &format!("|- {}", self.render(&statement)))?;
-            if asks.is_empty() {
-                return Ok(Built(pf!(self.b; term, scope, proof, "a1i")));
-            }
-            for (i, (one, given)) in asks.iter().enumerate() {
-                let mut rest = term.clone();
-                for (later, _p) in asks[i + 1..].iter().rev() {
-                    rest = t!(later, rest, "wi");
-                }
-                let fold = if i == 0 { "syl" } else { "mpd" };
-                proof = pf!(self.b; scope, one, rest, given, proof, fold);
-            }
-            return Ok(Built(proof));
-        }
+        // What no route reaches is a defect naming the line; nothing is taken
+        // in its place.
         Err(self.defect(
             self.at,
             format!(
