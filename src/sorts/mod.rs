@@ -257,13 +257,13 @@ pub fn definitions_in_scope(thm: &Theorem, env: Env, sorts: &Sorts) -> Definitio
         let Ok(body) = parse_here(&said.body, env.g, &local) else {
             continue;
         };
-        let made = match &said.param {
-            None => Defined::Term(body),
-            Some(param) => Defined::Rule(Rule {
-                param: param.clone(),
+        let made = if said.params.is_empty() {
+            Defined::Term(body)
+        } else {
+            Defined::Rule(Rule {
+                params: said.params.clone(),
                 body,
-                domain: said.domain.clone(),
-            }),
+            })
         };
         out.insert(said.name.clone(), made);
     }
@@ -321,13 +321,13 @@ fn written_definition(
     let local = define_sorts(said, &definition_sorts(&inner));
     let body = parse_here(&said.body, env.g, &local).ok()?;
     let body = expand(&body, &inner);
-    Some(match &said.param {
-        None => Defined::Term(body),
-        Some(param) => Defined::Rule(Rule {
-            param: param.clone(),
+    Some(if said.params.is_empty() {
+        Defined::Term(body)
+    } else {
+        Defined::Rule(Rule {
+            params: said.params.clone(),
             body,
-            domain: said.domain.clone(),
-        }),
+        })
     })
 }
 
@@ -358,15 +358,14 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
     sorts.get(domain).and_then(holds).unwrap_or_default()
 }
 
-/// The sorts a define's rule is read with: `sorts`, and for a function its
-/// parameter as what the domain holds.
+/// The sorts a define's rule is read with: `sorts`, and for a function each
+/// argument as what its domain holds.
 pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
-    let Some(param) = &said.param else {
-        return sorts.clone();
-    };
     let mut out = sorts.clone();
-    let held = element_sort(said.domain.as_deref().unwrap_or(""), sorts);
-    out.insert(param.clone(), held);
+    for p in &said.params {
+        let held = element_sort(&p.domain, sorts);
+        out.insert(p.name.clone(), held);
+    }
     out
 }
 

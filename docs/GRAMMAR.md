@@ -578,7 +578,10 @@ A define with a name in brackets after its own is a function: `define S(m) :=
 that sum, as a reader writes "let S(m) = 1 + 2 + … + m". Its domain is said
 with it, after `for`, and names the same letter as the brackets; a parameter
 with no domain, or a domain with no parameter, is a defect. After it `S(n)` is
-S applied to n. The checker reads it as the rule with n for m wherever it
+S applied to n. Two names in the brackets make a function of two arguments,
+`define G(a, m) := …, for a ∈ ℝ, m ∈ ℕ₀`: the `for` clause gives each one's
+domain in the brackets' order, split at commas outside brackets so that `x ∈
+[a, b]` is one piece, and `G(a, n)` is `application-to-two`. The checker reads it as the rule with n for m wherever it
 compares two formulas, and a line whose sides agree read that way cites the
 define's label.
 

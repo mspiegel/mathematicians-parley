@@ -578,13 +578,30 @@ fn family(
     None
 }
 
-/// What a define with an argument stands for: `define S(m) := …` is a
-/// function, and S(t) is its body with t for m.
+/// What a define with arguments stands for: `define S(m) := …` is a
+/// function, and S(t) is its body with t for m; `define G(a, m) := …` is a
+/// function of two, and G(s, t) is its body with s for a and t for m.
 #[derive(Clone, Debug)]
 pub struct Rule {
-    pub param: String,
+    /// The arguments, in the order the name takes them, each with its
+    /// domain.
+    pub params: Vec<crate::corpus::Param>,
     pub body: Node,
-    pub domain: Option<String>,
+}
+
+impl Rule {
+    /// The rule with `values` put for its arguments, in order; None where
+    /// the count differs.
+    pub fn at(&self, values: &[Node]) -> Option<Node> {
+        if values.len() != self.params.len() {
+            return None;
+        }
+        let mut put = Binding::new();
+        for (p, v) in self.params.iter().zip(values) {
+            put.insert(p.name.clone(), v.clone());
+        }
+        Some(substitute(&self.body, &put))
+    }
 }
 
 /// What a defined name stands for: a term, or a function's rule.
@@ -619,27 +636,34 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
         return node.clone();
     }
     if node.is_name() {
-        if let Some(found) = definitions.get(&node.text) {
-            return match found {
-                Defined::Rule(rule) => Node::new(
+        match definitions.get(&node.text) {
+            // A function of one argument standing alone is its rule, a
+            // property with the argument as its hole. One of two has no such
+            // reading, and its name stands as written.
+            Some(Defined::Rule(rule)) if rule.params.len() == 1 => {
+                return Node::new(
                     PROPERTY,
                     crate::formula::Sort::of("property"),
                     vec![expand_to(&rule.body, definitions, depth - 1)],
-                    &rule.param,
-                ),
-                Defined::Term(t) => expand_to(t, definitions, depth - 1),
-            };
+                    &rule.params[0].name,
+                );
+            }
+            Some(Defined::Term(t)) => return expand_to(t, definitions, depth - 1),
+            _ => {}
         }
     }
-    if node.notation == "application"
-        && node.children.len() == 2
+    if matches!(node.notation.as_str(), "application" | "application-to-two")
+        && node.children.len() >= 2
         && node.children[0].is_name()
     {
         if let Some(Defined::Rule(rule)) = definitions.get(&node.children[0].text) {
-            let at = expand_to(&node.children[1], definitions, depth);
-            let mut put = Binding::new();
-            put.insert(rule.param.clone(), at);
-            return expand_to(&substitute(&rule.body, &put), definitions, depth - 1);
+            let values: Vec<Node> = node.children[1..]
+                .iter()
+                .map(|c| expand_to(c, definitions, depth))
+                .collect();
+            if let Some(at) = rule.at(&values) {
+                return expand_to(&at, definitions, depth - 1);
+            }
         }
     }
     if node.children.is_empty() {

@@ -499,6 +499,17 @@ define …; then …": Euclid's algorithm is stated of the sequences it
 defines. A function only one proof needs is defined there and nowhere else:
 it takes no letter from any other proof.
 
+**A define may name a function of two arguments**, each with its domain, in
+order: `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈ ℕ₀ (D1)` is "the
+geometric series G(a, m) = 1 + a + … + a^m". G(a, n) is G applied to both, and
+a step that needs what that is cites the define with a `requires` line for
+each argument's domain the step does not otherwise have. A define names one
+or two arguments; a function of more is not yet needed. Written above a
+theorem, it lets the statement be about the object, as the geometric series
+is stated `then G(a, n) = (1 − a^(n + 1))/(1 − a)`: the theorem is a fact about
+G, and the reader meets G before the fact. A define over the theorem's own
+`let` names, which do not exist above the theorem, takes them as arguments.
+
 **A function may be defined by cases**, one case to a line, as a textbook
 prints it inside a brace:
 

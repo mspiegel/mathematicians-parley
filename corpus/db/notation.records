@@ -569,6 +569,19 @@ notation indexed-union
               the set gathered is the index itself, ⋃(X ∈ D) X is set.mm's
               U. D, and `uniiun` says the two are one.
 
+notation map-of-two
+  pattern     the map sending _ ∈ _, _ ∈ _ to _
+  sort        α, set of α, β, set of β, γ → function from α to function from β to γ
+  level       binder
+  binds       holes 1 and 3 over hole 5
+  reads       the map sending each of the first in the second, and each of the third in the fourth, to the fifth
+  metamath    cmpo
+  target      _1 _3 _2 _4 _5 cmpo
+  note        A function of two arguments, which a define of two builds: `define
+              G(a, m) := …, for a ∈ ℝ, m ∈ ℕ₀` is this map, and G(a, m) is it
+              applied to both (`application-to-two`). Its sort takes the
+              arguments one at a time, as that notation's does.
+
 notation map
   pattern     the map sending _ ∈ _ to _
   sort        α, set of α, β → function from α to β

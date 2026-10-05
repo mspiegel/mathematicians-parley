@@ -638,17 +638,26 @@ case is entered, under its assumption, so the case owns it and the next case
 starts without it: Cauchy–Schwarz names A, B and C only in its third case,
 where Σ(k = 1 to n) a(k)² > 0.
 
-**A defined function is a map and its equation.** `define G(m) := Σ(j = 0 to
-m) a^j, for m ∈ ℕ₀` is read as the map sending each m ∈ ℕ₀ to that sum, which
+**A defined function is a map and its equation.** `define S(m) := Σ(j = 1 to
+m) j, for m ∈ ℕ` is read as the map sending each m ∈ ℕ to that sum, which
 is what set.mm has a function be, and `define` gives it a name and an equation
-as it gives any define. `a` in the rule is the theorem's own `a`, a name in
-scope like any other. `G(n)` is the map applied to n: the calculators see it
+as it gives any define. `S(n)` is the map applied to n: the calculators see it
 as one atom, and the standard form reads it as the rule at n wherever two
 things are compared (`applied_body`), proved by `fvmptd3` once the name is
 carried to its map by `fveq1d`. `fvmptd` would take the define's equation at
 once, but it forbids the map's letter in the scope, and the scope holds that
 very equation. What the rule asks, that n is in the domain, is the step's to
 supply in a `requires` line.
+
+A define of two arguments, `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈
+ℕ₀`, is the map of two, set.mm's `( x ∈ A, y ∈ B ↦ C )` (`cmpo`, the notation
+`map-of-two`), and G(a, n) is set.mm's `( a G n )`. The standard form reads
+it as the rule at a and n (`applied_body_of_two`), and `ovmpoga` proves that,
+for the same reason `fvmptd3` is used and not `fvmptd`: it asks nothing of
+the scope, which holds the define's own equation. Its tie, the rule at the
+two letters equal to the rule at the two values, is proved one letter at a
+time and joined by `sylan9eq`. A value that spells a letter the rule binds is
+not read, since it would be captured. The map is a set by `mpoexga`.
 
 A define with a parameter also says what its function is on: `define t(c) :=
 g·c, for c ∈ H` cited for `t is a function on H` is read as the map being a

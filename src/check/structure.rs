@@ -960,7 +960,7 @@ fn word_bounded(name: &str) -> fancy_regex::Regex {
 fn functions_defined(text: &str) -> Vec<String> {
     match define_parts(text) {
         Built(said) => match said.one() {
-            Some(d) if d.param.is_none() => Vec::new(),
+            Some(d) if d.params.is_empty() => Vec::new(),
             _ => said.names(),
         },
         Declined(_) => Vec::new(),

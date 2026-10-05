@@ -190,7 +190,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "          requires a ∈ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
             "          requires a ¿ ℝ: from H1\n          requires a^(k + 1) ∈ ℝ",
-            "proofs/geometric-series.proof:91",
+            "proofs/geometric-series.proof:93",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -514,6 +514,16 @@ fn cases() -> Vec<Case> {
             "requires s(x) ∈ ℕ₀: from 5",
             "requires s(x) ∈ ℕ₀: from 3",
             "does not reach",
+        ),
+        // G(a, 0) is the rule at a and 0 only where a is in G's first
+        // domain, and nothing the step names says a is real.
+        case(
+            "read a function of two at a value nothing puts in its domain",
+            "proofs/geometric-series/geometric-sum",
+            "proofs/geometric-series.proof",
+            "                    = 1                     2.2\n          requires a ∈ ℝ: from H1\n",
+            "                    = 1                     2.2\n",
+            "cannot settle A e. RR",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the

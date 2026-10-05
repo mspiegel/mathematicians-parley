@@ -524,6 +524,7 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("csn", "snex"),
     ("crn", "rnexg"),
     ("cmpt", "mptexg"),
+    ("cmpo", "mpoexga"),
     ("crab", "rabexg"),
     ("c0", "0ex"),
     ("cv", "vex"),

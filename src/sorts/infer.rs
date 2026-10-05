@@ -966,6 +966,15 @@ pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
 /// number, the index, and gives what its value at 0 is, which each rule at
 /// k + 1 must give too. Every name is in scope in every rule, since a rule
 /// may name any of the sequences at k.
+/// The sort of a function taking `taken` one at a time and giving `gives`:
+/// a function of two is a function from the first to a function from the
+/// second, as `application-to-two` reads one.
+fn curried(taken: Vec<SortTerm>, gives: SortTerm) -> SortTerm {
+    taken.into_iter().rev().fold(gives, |inner, one| {
+        SortTerm::Function(Box::new(one), Box::new(inner))
+    })
+}
+
 fn recursion_sorts(
     reader: &mut Reader,
     said: &crate::corpus::Recursion,
@@ -1024,11 +1033,15 @@ pub fn read_theorem(
     for (name, made) in file_definitions(thm, env) {
         let term = match made {
             Defined::Rule(rule) => {
-                let taken = store.var();
                 let mut local = IndexMap::new();
-                local.insert(rule.param.clone(), taken.clone());
+                let mut taken = Vec::new();
+                for p in &rule.params {
+                    let one = store.var();
+                    local.insert(p.name.clone(), one.clone());
+                    taken.push(one);
+                }
                 let gives = reader.sort_of(&rule.body, thm.line.into(), &local, store);
-                SortTerm::Function(Box::new(taken), Box::new(gives))
+                curried(taken, gives)
             }
             Defined::Term(t) => {
                 reader.sort_of(&t, thm.line.into(), &IndexMap::new(), store)
@@ -1107,38 +1120,45 @@ pub fn read_theorem(
                     DefineParts::One(d) => d,
                 };
                 let sorts = reader.sorts(store);
-                let Some(param) = &said.param else {
+                if said.params.is_empty() {
                     let Ok(tree) = parse_here(&said.body, env.g, &sorts) else {
                         continue;
                     };
                     let k = reader.sort_of(&tree, no, &IndexMap::new(), store);
                     reader.env.insert(said.name.clone(), k);
                     continue;
-                };
-                // A function: what its domain holds goes in, what its rule
-                // gives comes out, and the parameter is its rule's own name.
+                }
+                // A function: what each domain holds goes in, one argument
+                // at a time, what its rule gives comes out, and the
+                // parameters are its rule's own names.
                 let local_sorts = define_sorts(&said, &sorts);
-                let domain = said.domain.clone().unwrap_or_default();
-                let Ok(over_tree) = parse_here(&domain, env.g, &local_sorts) else {
+                let mut local = IndexMap::new();
+                let mut taken = Vec::new();
+                let mut read = true;
+                for p in &said.params {
+                    let Ok(over_tree) = parse_here(&p.domain, env.g, &local_sorts)
+                    else {
+                        read = false;
+                        break;
+                    };
+                    let over = reader.sort_of(&over_tree, no, &IndexMap::new(), store);
+                    let one = store.var();
+                    if let Declined(said_of) =
+                        store.unify(&over, &SortTerm::set(one.clone()))
+                    {
+                        reader.clash(no, p.domain.clone(), &said_of);
+                    }
+                    local.insert(p.name.clone(), one.clone());
+                    taken.push(one);
+                }
+                if !read {
                     continue;
-                };
-                let over = reader.sort_of(&over_tree, no, &IndexMap::new(), store);
-                let taken = store.var();
-                if let Declined(said_of) =
-                    store.unify(&over, &SortTerm::set(taken.clone()))
-                {
-                    reader.clash(no, domain.clone(), &said_of);
                 }
                 let Ok(body_tree) = parse_here(&said.body, env.g, &local_sorts) else {
                     continue;
                 };
-                let mut local = IndexMap::new();
-                local.insert(param.clone(), taken.clone());
                 let gives = reader.sort_of(&body_tree, no, &local, store);
-                reader.env.insert(
-                    said.name.clone(),
-                    SortTerm::Function(Box::new(taken), Box::new(gives)),
-                );
+                reader.env.insert(said.name.clone(), curried(taken, gives));
             }
             Event::Claim(step) => {
                 let obtained = if step.just.head.is(Method::Obtain) {

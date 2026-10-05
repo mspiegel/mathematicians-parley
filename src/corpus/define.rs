@@ -11,13 +11,23 @@ use crate::text::{repr, squash};
 /// A name with a parameter is a function, as a reader writes
 /// "S(m) = 1 + 2 + … + m": `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ`. Its
 /// domain is said with it, because a rule without one says what S does and
-/// not where S is defined.
+/// not where S is defined. A function of two arguments says each one's
+/// domain in order: `define G(a, m) := Σ(j = 0 to m) a^j, for a ∈ ℝ, m ∈
+/// ℕ₀`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Define {
     pub name: String,
     pub body: String,
-    pub param: Option<String>,
-    pub domain: Option<String>,
+    /// The arguments, in the order the name takes them; none for a name
+    /// that stands for a term.
+    pub params: Vec<Param>,
+}
+
+/// One argument of a defined function, and the set it runs over.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Param {
+    pub name: String,
+    pub domain: String,
 }
 
 /// What a `define` of sequences by recursion says: each name's value at 0,
@@ -77,8 +87,37 @@ impl DefineParts {
 
 regex!(
     DEFINED,
-    r"(?s)^define\s+(?P<name>[^\s(]+)(?:\((?P<param>[^\s()]+)\))?\s*:=\s*(?P<body>.+?)(?:,\s*for\s+(?P<over>\S+)\s*(?P<how>[∈⊆])\s*(?P<domain>.+))?$"
+    r"(?s)^define\s+(?P<name>[^\s(]+)(?:\((?P<params>[^()]+)\))?\s*:=\s*(?P<body>.+?)(?:,\s*for\s+(?P<fors>.+))?$"
 );
+// One argument's domain in a define's `for` clause: `m ∈ ℕ₀`, or `X ⊆ A`.
+regex!(
+    FOR_ONE,
+    r"(?s)^(?P<over>\S+)\s*(?P<how>[∈⊆])\s*(?P<domain>.+)$"
+);
+
+/// A define's `for` clause split at the commas that separate its arguments,
+/// and not at those inside a domain: `a ∈ ℝ, x ∈ [a, b]` is two pieces. An
+/// application's arguments split the same way: `G(a, f(x, y))` takes two.
+pub fn for_pieces(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut depth = 0i32;
+    let mut piece = String::new();
+    for c in text.chars() {
+        match c {
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' => depth -= 1,
+            _ => {}
+        }
+        if c == ',' && depth == 0 {
+            out.push(str::trim(&piece).to_string());
+            piece.clear();
+        } else {
+            piece.push(c);
+        }
+    }
+    out.push(str::trim(&piece).to_string());
+    out
+}
 // One line of a define by cases: a value and the condition it is taken
 // under, or the last value, taken `otherwise`.
 regex!(CASE, r"(?s)^(?P<value>.+?)\s+if\s+(?P<condition>.+)$");
@@ -242,8 +281,19 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             repr(&name)
         ));
     }
-    let param = m.name("param").map(|p| p.as_str().to_string());
-    let over = m.name("over").map(|o| o.as_str().to_string());
+    let names: Vec<String> = m
+        .name("params")
+        .map(|p| {
+            p.as_str()
+                .split(',')
+                .map(|n| str::trim(n).to_string())
+                .collect()
+        })
+        .unwrap_or_default();
+    let fors: Vec<String> = m
+        .name("fors")
+        .map(|f| for_pieces(f.as_str()))
+        .unwrap_or_default();
     let body = str::trim(&m["body"]);
     // A define over several lines is either one term wrapped by the comma
     // rule, or a function by cases, one case to a line.
@@ -256,28 +306,40 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     } else {
         pieces.join(" ")
     };
-    match (&param, &over) {
-        (Some(param), None) => {
-            return Route::no(format!(
-                "define {name}({param}) says no domain: write `, for {param} ∈ …` after its rule"
-            ))
-        }
-        (None, Some(_)) => {
-            return Route::no(format!(
-                "define {name} gives a domain and takes no argument"
-            ))
-        }
-        (Some(param), Some(over)) if over != param => {
-            return Route::no(format!(
-                "define {name}({param}) gives the domain of {over}"
-            ))
-        }
-        _ => {}
+    let said = names.join(", ");
+    if let Some(bad) = names.iter().find(|n| !is_one_name(n)) {
+        return Route::no(format!(
+            "define {name}({said}) takes {}, which is not one letter",
+            repr(bad)
+        ));
     }
-    // `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
-    let domain = param.as_ref().map(|_| {
-        let domain = squash(&m["domain"]);
-        if !domain.is_empty() && &m["how"] == "⊆" {
+    if names.is_empty() && !fors.is_empty() {
+        return Route::no(format!(
+            "define {name} gives a domain and takes no argument"
+        ));
+    }
+    if !names.is_empty() && fors.is_empty() {
+        let first = &names[0];
+        return Route::no(format!(
+            "define {name}({said}) says no domain: write `, for {first} ∈ …` after its rule"
+        ));
+    }
+    let mut params = Vec::new();
+    for (at, piece) in fors.iter().enumerate() {
+        let Some(f) = FOR_ONE.captures(piece) else {
+            return Route::no(format!(
+                "define {name}({said}) says `for {piece}`, which is not `x ∈ D`"
+            ));
+        };
+        if names.get(at) != Some(&f["over"].to_string()) {
+            return Route::no(format!(
+                "define {name}({said}) gives the domain of {}",
+                &f["over"]
+            ));
+        }
+        // `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
+        let domain = squash(&f["domain"]);
+        let domain = if &f["how"] == "⊆" {
             if domain.contains(' ') {
                 format!("𝒫({domain})")
             } else {
@@ -285,12 +347,24 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             }
         } else {
             domain
-        }
-    });
-    Built(DefineParts::One(Define {
-        name,
-        body,
-        param,
-        domain,
-    }))
+        };
+        params.push(Param {
+            name: f["over"].to_string(),
+            domain,
+        });
+    }
+    if params.len() != names.len() {
+        return Route::no(format!(
+            "define {name}({said}) says the domain of {} of its {} arguments",
+            params.len(),
+            names.len()
+        ));
+    }
+    if params.len() > 2 {
+        return Route::no(format!(
+            "define {name}({said}) takes {} arguments, and a function here takes one or two",
+            params.len()
+        ));
+    }
+    Built(DefineParts::One(Define { name, body, params }))
 }

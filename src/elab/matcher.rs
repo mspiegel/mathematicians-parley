@@ -1471,6 +1471,9 @@ impl<'a> Elaborator<'a> {
     /// spells, bound there or not; where they meet, the rule is read in its
     /// other spelling (`rule_apart`).
     fn applied_body(&mut self, term: &Term) -> Option<Term> {
+        if term.label() == Some("co") {
+            return self.applied_body_of_two(term);
+        }
         let f = self.applied_map(term)?;
         let at = term.children()[0].clone();
         let (bound, rule) = (f.children()[0].clone(), f.children()[2].clone());
@@ -1497,6 +1500,151 @@ impl<'a> Elaborator<'a> {
         }
         let was = format!("{} cv", self.rpn(&bound));
         Some(self.restated(&rule, &was, &self.rpn(&at)))
+    }
+
+    /// The map of two arguments an application `( A F B )` applies, written
+    /// as a map or as the name a define gave it; else None.
+    fn applied_map_of_two(&self, term: &Term) -> Option<Term> {
+        if term.variable().is_some()
+            || term.label() != Some("co")
+            || term.children().len() != 3
+        {
+            return None;
+        }
+        let mut f = term.children()[2].clone();
+        if let Some(named) = self.named_body(&f, &self.binding) {
+            f = named;
+        }
+        if f.variable().is_some()
+            || f.label() != Some("cmpo")
+            || f.children().len() != 5
+        {
+            return None;
+        }
+        Some(f)
+    }
+
+    /// What a map of two arguments applied to two values comes to: its rule
+    /// with the first value for its first letter and the second for its
+    /// second; else None, and None where a value spells a letter the rule
+    /// binds, which would be captured.
+    fn applied_body_of_two(&mut self, term: &Term) -> Option<Term> {
+        let f = self.applied_map_of_two(term)?;
+        let (first, second) = (term.children()[0].clone(), term.children()[1].clone());
+        let kids = f.children();
+        let (x, y, rule) = (kids[0].clone(), kids[1].clone(), kids[4].clone());
+        let spelt: BTreeSet<String> = [&first, &second]
+            .iter()
+            .flat_map(|v| {
+                self.rpn(v)
+                    .split_whitespace()
+                    .map(String::from)
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        let bound: Vec<String> = self
+            .letters_bound(&rule)
+            .iter()
+            .map(|v| self.float_of(v))
+            .chain([self.rpn(&x), self.rpn(&y)])
+            .collect();
+        if bound.iter().any(|v| spelt.contains(v)) {
+            return None;
+        }
+        let at_first =
+            self.restated(&rule, &format!("{} cv", self.rpn(&x)), &self.rpn(&first));
+        Some(self.restated(
+            &at_first,
+            &format!("{} cv", self.rpn(&y)),
+            &self.rpn(&second),
+        ))
+    }
+
+    /// ( where -> ( A F B ) = S ), S the rule of F's map of two at A and B:
+    /// `ovmpoga` at the map as written, and the define's equation carries it
+    /// to the name (`oveqd`). A decline where A or B is not shown to be in
+    /// its domain.
+    fn applied_proof_of_two(
+        &mut self,
+        cur: &Term,
+        nxt: &Term,
+        where_: &str,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let kids = cur.children();
+        let (a, b, written) =
+            (self.rpn(&kids[0]), self.rpn(&kids[1]), self.rpn(&kids[2]));
+        let map = self.applied_map_of_two(cur).expect("an applied map of two");
+        let m = map.children();
+        let (x, y, c, d, r) = (
+            self.rpn(&m[0]),
+            self.rpn(&m[1]),
+            self.rpn(&m[2]),
+            self.rpn(&m[3]),
+            self.rpn(&m[4]),
+        );
+        let s = self.rpn(nxt);
+        // The rule moves one letter at a time, the first to A and then the
+        // second to B, and `sylan9eq` joins the two moves.
+        let (x_is, y_is) = (
+            t!(format!("{x} cv"), a, "wceq"),
+            t!(format!("{y} cv"), b, "wceq"),
+        );
+        let halfway = self.rpn(&self.restated(&m[4], &format!("{x} cv"), &a));
+        let first = self.to_term(&t!(x_is, t!(r, halfway, "wceq"), "wi"));
+        let first = take!(self.prove_essential(&first, "", &Facts::new())?);
+        let second = self.to_term(&t!(y_is, t!(halfway, s, "wceq"), "wi"));
+        let second = take!(self.prove_essential(&second, "", &Facts::new())?);
+        let instance = self.b.ap(
+            "sylan9eq",
+            &binds! {"ph" => &x_is, "ps" => &y_is, "A" => &r, "B" => &halfway, "C" => &s},
+            &[&first, &second],
+        );
+        let mut members = Vec::new();
+        for want in [t!(a, c, "wcel"), t!(b, d, "wcel"), t!(s, "cvv", "wcel")] {
+            members.push(take!(self.settle(
+                &self.to_term(&want),
+                where_,
+                held,
+                3,
+                None,
+                None
+            )?));
+        }
+        let mapped = self.rpn(&map);
+        let closed = self.b.ap(
+            "ovmpoga",
+            &binds! {"x" => &x, "y" => &y, "A" => &a, "B" => &b, "C" => &c, "D" => &d,
+            "R" => &r, "S" => &s, "F" => &mapped, "H" => "cvv"},
+            &[&instance, &pf!(self.b; mapped, "eqid")],
+        );
+        let three = self.b.ap(
+            "3jca",
+            &binds! {"ph" => where_, "ps" => t!(a, c, "wcel"), "ch" => t!(b, d, "wcel"),
+            "th" => t!(s, "cvv", "wcel")},
+            &[&members[0], &members[1], &members[2]],
+        );
+        let value = t!(t!(a, b, mapped, "co"), s, "wceq");
+        let direct = pf!(self.b; where_,
+            t!(t!(a, c, "wcel"), t!(b, d, "wcel"), t!(s, "cvv", "wcel"), "w3a"),
+            value, three, closed, "syl");
+        if written == mapped {
+            return Ok(Built(direct));
+        }
+        // A defined name is carried to its map first.
+        let Some(named) = held.get(&t!(written, mapped, "wceq")) else {
+            return Ok(Route::no("the equation a define holds is not in hand"));
+        };
+        let via = self.b.ap(
+            "oveqd",
+            &binds! {"ph" => where_, "A" => &written, "B" => &mapped, "C" => &a, "D" => &b},
+            &[&named],
+        );
+        Ok(Built(self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => where_, "A" => t!(a, b, written, "co"), "B" => t!(a, b, mapped, "co"), "C" => &s},
+            &[&via, &direct],
+        )))
     }
 
     /// A map's rule with every setvar it binds, but the map's own, renamed to
@@ -1587,6 +1735,9 @@ impl<'a> Elaborator<'a> {
                 Some(p) => Built(p),
                 None => Route::no("the equation a define holds is not in hand"),
             }),
+            How::Applied if cur.label() == Some("co") => {
+                self.applied_proof_of_two(cur, nxt, where_, held)
+            }
             How::Applied => self.applied_proof(cur, nxt, where_, held),
             How::Eqcom => {
                 let (left, right) =

@@ -11,7 +11,8 @@ use super::library::{
 use super::Report;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
-    cited_item, define_parts, references, DefineParts, Method, Step, Theorem,
+    cited_item, define_parts, for_pieces, references, DefineParts, Method, Step,
+    Theorem,
 };
 use crate::formula::{walk, Node, NodeId};
 use crate::matching::{
@@ -1011,17 +1012,20 @@ impl FamilyAsks {
 fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
     let claim: Vec<char> = step.claim_text().chars().collect();
     let mut out = BTreeSet::new();
-    let mut functions: Vec<(String, String)> = Vec::new();
+    // Each function by name, with the domain of each argument in order.
+    let mut functions: Vec<(String, Vec<String>)> = Vec::new();
     for d in &thm.defines {
         match define_parts(&d.text) {
             Built(DefineParts::Recursion(r)) => {
                 for name in &r.names {
-                    functions.push((name.clone(), r.domain.clone()));
+                    functions.push((name.clone(), vec![r.domain.clone()]));
                 }
             }
-            Built(DefineParts::One(one)) if one.param.is_some() => {
-                functions
-                    .push((one.name.clone(), one.domain.clone().unwrap_or_default()));
+            Built(DefineParts::One(one)) if !one.params.is_empty() => {
+                functions.push((
+                    one.name.clone(),
+                    one.params.iter().map(|p| p.domain.clone()).collect(),
+                ));
             }
             _ => {}
         }
@@ -1033,7 +1037,7 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
         (from..=claim.len() - needle.len())
             .find(|&i| claim[i..i + needle.len()] == *needle)
     };
-    for (name, domain) in &functions {
+    for (name, domains) in &functions {
         let needle: Vec<char> = format!("{name}(").chars().collect();
         let name_len = name.chars().count();
         let mut at = 0;
@@ -1054,20 +1058,26 @@ fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
                     _ => 0,
                 };
                 if depth == 0 {
-                    let arg: String = claim[start + 1..end].iter().collect();
-                    out.insert(squash(&format!("{arg} ∈ {domain}")));
-                    // A power set's member is a part, which the page may say
-                    // with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
-                    if let Some(inner) = domain.strip_prefix('𝒫') {
-                        let inner = if inner.starts_with('(')
-                            && inner.ends_with(')')
-                            && inner.len() >= 2
-                        {
-                            &inner[1..inner.len() - 1]
-                        } else {
-                            inner
-                        };
-                        out.insert(squash(&format!("{arg} ⊆ {inner}")));
+                    let args: String = claim[start + 1..end].iter().collect();
+                    let args = for_pieces(&args);
+                    if args.len() != domains.len() {
+                        break;
+                    }
+                    for (arg, domain) in args.iter().zip(domains) {
+                        out.insert(squash(&format!("{arg} ∈ {domain}")));
+                        // A power set's member is a part, which the page may
+                        // say with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
+                        if let Some(inner) = domain.strip_prefix('𝒫') {
+                            let inner = if inner.starts_with('(')
+                                && inner.ends_with(')')
+                                && inner.len() >= 2
+                            {
+                                &inner[1..inner.len() - 1]
+                            } else {
+                                inner
+                            };
+                            out.insert(squash(&format!("{arg} ⊆ {inner}")));
+                        }
                     }
                     break;
                 }

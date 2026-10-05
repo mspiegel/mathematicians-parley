@@ -15,7 +15,7 @@ use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
 use crate::formula::{fits, parse, Node, Sort};
-use crate::matching::{substitute, Binding as NodeBinding, Defined, Definitions};
+use crate::matching::{Defined, Definitions};
 use crate::outcome::Checked;
 use crate::regex;
 use crate::rules::NUMERALS;
@@ -223,9 +223,10 @@ impl<'a> Elaborator<'a> {
         if let Some(rpn) = &node.literal {
             return Ok(rpn.to_string());
         }
-        let applies_name = node.notation == "application"
-            && node.children.len() == 2
-            && node.children[0].is_name();
+        let applies_name =
+            matches!(node.notation.as_str(), "application" | "application-to-two")
+                && node.children.len() >= 2
+                && node.children[0].is_name();
         // A step rule of a define by recursion speaks of the values at k,
         // which in set.mm are the parts of the state the step is applied to
         // (`recursion_terms`).
@@ -240,10 +241,9 @@ impl<'a> Elaborator<'a> {
             if let Some(Defined::Rule(rule)) =
                 self.from_outside.get(&node.children[0].text)
             {
-                let mut put = NodeBinding::new();
-                put.insert(rule.param.clone(), node.children[1].clone());
-                let body = substitute(&rule.body, &put);
-                return self.term(&body);
+                if let Some(body) = rule.at(&node.children[1..]) {
+                    return self.term(&body);
+                }
             }
         }
         if let Some((builds, arguments)) = self.library_application(node) {
@@ -575,15 +575,35 @@ impl<'a> Elaborator<'a> {
             }
             Defined::Rule(rule) => rule.clone(),
         };
-        let var = self.binder_var(&rule.param)?;
-        let (body, over) = self.names_kept(|me| -> Checked<(String, String)> {
-            me.names.insert(rule.param.clone(), format!("{var} cv"));
-            let body = me.term(&rule.body)?;
-            let domain = me.read(rule.domain.as_deref().unwrap_or(""))?;
-            let over = me.term(&domain)?;
-            Ok((body, over))
-        })?;
-        self.apart(&t!(var, over, body, "cmpt"))
+        let mut vars = Vec::new();
+        for p in &rule.params {
+            vars.push(self.binder_var(&p.name)?);
+        }
+        let (body, overs) =
+            self.names_kept(|me| -> Checked<(String, Vec<String>)> {
+                for (p, var) in rule.params.iter().zip(&vars) {
+                    me.names.insert(p.name.clone(), format!("{var} cv"));
+                }
+                let body = me.term(&rule.body)?;
+                let mut overs = Vec::new();
+                for p in &rule.params {
+                    let domain = me.read(&p.domain)?;
+                    overs.push(me.term(&domain)?);
+                }
+                Ok((body, overs))
+            })?;
+        // One argument is a map, `cmpt`; two are a map of two, `cmpo`.
+        let made = match (vars.as_slice(), overs.as_slice()) {
+            ([x], [a]) => t!(x, a, body, "cmpt"),
+            ([x, y], [a, b]) => t!(x, y, a, b, body, "cmpo"),
+            _ => {
+                return Err(self.defect(
+                    self.thm.line,
+                    "a define from outside takes more arguments than two",
+                ))
+            }
+        };
+        self.apart(&made)
     }
 
     /// Each name a define by recursion gives, as its set.mm term: the map

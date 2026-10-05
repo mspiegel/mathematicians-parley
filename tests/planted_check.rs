@@ -567,6 +567,15 @@ fn cases() -> Vec<Case> {
             ],
             "takes no block",
         ),
+        // A define of two arguments gives each one's domain in the order
+        // the brackets name them (`SYNTAX.md`).
+        case(
+            "a define of two whose domains are out of order",
+            vec![
+                edit("proofs/geometric-series.proof", Some("for a ∈ ℝ, m ∈ ℕ₀".to_string()), "for m ∈ ℕ₀, a ∈ ℝ".to_string()),
+            ],
+            "define G(a, m) gives the domain of m",
+        ),
         // An induction's step part assumes its own claim's statement, and
         // names that claim by the induction's number (`SYNTAX.md`).
         case(

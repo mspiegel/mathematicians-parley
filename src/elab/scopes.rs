@@ -1575,13 +1575,25 @@ impl<'a> Elaborator<'a> {
                 DefineParts::One(one) => {
                     // The rule is bracketed, since a map binds tighter than a
                     // rule by cases.
-                    let body = match &one.param {
-                        None => one.body.clone(),
-                        Some(param) => format!(
-                            "the map sending {param} ∈ {} to ({})",
-                            one.domain.clone().unwrap_or_default(),
-                            one.body
+                    let body = match one.params.as_slice() {
+                        [] => one.body.clone(),
+                        [p] => format!(
+                            "the map sending {} ∈ {} to ({})",
+                            p.name, p.domain, one.body
                         ),
+                        [p, q] => format!(
+                            "the map sending {} ∈ {}, {} ∈ {} to ({})",
+                            p.name, p.domain, q.name, q.domain, one.body
+                        ),
+                        _ => {
+                            return Err(self.defect(
+                                d.line,
+                                format!(
+                                    "define {} takes more arguments than two",
+                                    d.label
+                                ),
+                            ))
+                        }
                     };
                     let node = self.read(&body)?;
                     let term = self.term(&node)?;
