@@ -65,10 +65,10 @@ theorem ten-power-congruent
                   mun:divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
                     x := 10, y := 1, from 1.3.2, 1.3.5
                   requires 3 ∈ ℤ: arithmetic
+                  requires 1 ∈ ℤ: arithmetic
                   requires 10^m − 1 ∈ ℤ: mun:int-closure, from 1.3.1
                   requires 10 − 1 ∈ ℤ: arithmetic
                   requires 10 ∈ ℤ: arithmetic
-                  requires 1 ∈ ℤ: arithmetic
 
           1.3.7.  10^(m + 1) = 10^m·10
                   mun:exponent-step a := 10, from K

@@ -1151,6 +1151,16 @@ fn cases() -> Vec<Case> {
             ],
             "step 2 claims something that mun:set-builder does not conclude",
         ),
+        // A requires line rests on the lines above it, read top to bottom
+        // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
+        // which no line above it states.
+        case(
+            "a requires line resting on one written below it",
+            vec![
+                edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n".to_string()),
+            ],
+            "the requires line of step 6 needs something that mun:abs-integer does not conclude",
+        ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no
         // work.

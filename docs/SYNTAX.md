@@ -128,7 +128,11 @@ the 2 that is not there, and the checker reports it. A step is:
    line. The alternative, a tree of requires lines under a step, was
    allowed at first and rejected after one proof grew a tree three deep;
    the rule makes no difference to the kernel proof and only keeps the
-   text flat. The fact ends at the first colon written against the word
+   text flat. An item a requires line applies may take what the step's
+   requires lines above it state, read top to bottom as the step's lines
+   are: `requires numer(x) ∈ ℤ` written first lets `requires |numer(x)| ∈
+   ℕ₀: mun:abs-integer z := numer(x)` below it rest on it. A line below is
+   not yet established. The fact ends at the first colon written against the word
    before it, `requires b ≤ b: inequalities`; a colon inside a fact stands
    apart, as in `requires g : [a, b] → ℝ: from 11`.
 

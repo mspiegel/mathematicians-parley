@@ -519,11 +519,14 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The facts a step's own `requires` lines put within reach, proved once
-    /// and offered alongside what the scope holds.
+    /// in the order the step writes them and offered alongside what the scope
+    /// holds.
     ///
-    /// A line naming an item is that item cited, and citing it asks the step
-    /// for its own `requires` lines again. The one being proved is not among
-    /// what can prove it, so it is held out while it is.
+    /// A requires line rests on the lines written above it (`SYNTAX.md`), and
+    /// each is proved with those in hand. A line naming an item is that item
+    /// cited, and citing it asks the step for its requires lines; asked while
+    /// one is being proved, the answer is what that line was given, so no
+    /// line below it is proved first.
     pub fn supplied(
         &mut self,
         step: Option<&Step>,
@@ -534,12 +537,12 @@ impl<'a> Elaborator<'a> {
         let Some(step) = step else {
             return Ok(known);
         };
+        if !self.supplying.is_empty() {
+            return Ok(known);
+        }
         for r in &step.requires {
             let want = self.read(&r.fact)?;
             let term = self.term(&want)?;
-            if self.supplying.contains(&term) {
-                continue;
-            }
             // A claim the scope already holds is taken as it stands only
             // where this line's own reason made that proof.
             let mut given = known.clone();

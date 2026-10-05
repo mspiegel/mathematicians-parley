@@ -551,13 +551,14 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
                 supplied.extend(sentences(text));
             }
         }
-        // A requires line may not cite another, but the facts its siblings
-        // state are established for the same step and are what a dull fact
-        // its own citation asks for is written as.
+        // A requires line may not cite another, but the facts the lines above
+        // it state are established for the same step and are what a dull fact
+        // its own citation asks for is written as. A line below it is not yet
+        // established (`SYNTAX.md`).
         supplied.extend(
             step.requires
                 .iter()
-                .filter(|o| o.fact != req.fact)
+                .take_while(|o| o.line != req.line)
                 .map(|o| o.fact.clone()),
         );
         let mut read: Vec<Node> =

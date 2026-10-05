@@ -1517,9 +1517,12 @@ proved (`discharged_by`).
   assumes, and what a `join` closing it names (requirement 8). *step 3 rests
   on 1, which it does not name.*
 - **R2 — a requires line rests only on its reason**: the lines its reason
-  cites, and the step's other requires lines, which `parley check` also lets one
-  line discharge from another. *the requires line rests on 1, which it does not
-  name.*
+  cites, and the step's requires lines written above it, which `parley check`
+  also lets one line discharge from another (`SYNTAX.md`). `supplied` proves a
+  step's requires lines in the order written, each with those above it in
+  hand; asked again while one is being proved, it answers with what that line
+  was given, so a line below is never proved first. *the requires line rests
+  on 1, which it does not name.*
 - **R3 — everything a step names does work.** Divided by who can see it:
   - the elaborator, on every step but an item citation: each cited line is in
     the proof's provenance. On a method step, a requires line the proof does

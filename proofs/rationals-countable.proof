@@ -127,19 +127,10 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
           join 5.2, 5.4
 
 6.  For all x ∈ ℚ, g(x) ∈ ℕ.
-    fix
-    let x ∈ ℚ                                                         (K5)
-
-    6.1.  numer(x) ∈ ℤ. denom(x) ∈ ℕ.
-          mun:lowest-terms-parts x := x, from K5
-
-    6.2.  |numer(x)| ∈ ℕ₀
-          mun:abs-integer z := numer(x), from 6.1
-
-    6.3.  g(x) ∈ ℕ
-          membership, from D2, D3, K5
-          requires |numer(x)| ∈ ℕ₀: from 6.2
-          requires denom(x) ∈ ℕ: from 6.1
+    membership, from D2, D3
+    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x
+    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)
 
 7.  g : ℚ → ℕ
     mun:function-into, from 6
