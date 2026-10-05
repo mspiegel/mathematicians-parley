@@ -1543,15 +1543,19 @@ proved (`discharged_by`).
   on 1, which it does not name.*
 - **R2 — a requires line rests only on its reason**: the lines its reason
   cites, and the step's requires lines written above it, which `parley check`
-  also lets one line discharge from another (`SYNTAX.md`). `supplied` proves a
-  step's requires lines in the order written, each with those above it in
-  hand; asked again while one is being proved, it answers with what that line
-  was given, so a line below is never proved first. A line whose reason is a
+  also lets one line discharge from another (`SYNTAX.md`). Both tools read
+  which lines are above from one place, `Step::requires_above`. `supplied`
+  proves a step's requires lines in the order written, each with those above
+  it in hand; asked again while one is being proved, it answers with what
+  that line was given, and what the lines below made in an earlier pass is
+  kept from it, in its facts and in what is written (`written`), so a line
+  never rests on one below. A line whose reason is a
   method or an item is proved as the step it would be (`requires_as_step`,
   `as_a_step`): its fact the claim, its reason the justification, the method
   chosen and run by the route a numbered step takes. Among the lines it cites
   are the orders and equations above it, each known by the proof `supplied`
-  sealed as that line, so `requires sin(∠PQR) ≠ 0: inequalities` stands on
+  sealed as that line; two terms differing is taken only from a line the
+  requires line cites (`METHODS.md`). So `requires sin(∠PQR) ≠ 0: inequalities` stands on
   `requires sin(∠PQR) > 0` above it; `requires A > 0: inequalities, from D1,
   C3` reads the sum D1 names as a step does, and `requires 1 − a ≠ 0:
   algebra, from H2` rescales `a ≠ 1` as a step does. What that route reports

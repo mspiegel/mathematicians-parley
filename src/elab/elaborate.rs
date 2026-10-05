@@ -768,10 +768,9 @@ impl<'a> Elaborator<'a> {
     /// step it would be (`requires_as_step`): the same method, chosen the
     /// same way, by the same route a numbered step takes. The step's
     /// requires lines above it, which `supplied` has proved and put in hand,
-    /// are lines it cites (R2), offered as what `inequalities` takes from a
-    /// cited membership: orders and equations, since a line saying two terms
-    /// differ splits every certificate and one saying two points differ is
-    /// no fact about numbers.
+    /// are lines it cites (R2), offered as what `inequalities` combines from
+    /// a line above: orders and equations. Two terms differing is taken only
+    /// from a line the requires line cites (`METHODS.md`).
     pub fn as_a_step(
         &mut self,
         step: &Step,
@@ -782,7 +781,7 @@ impl<'a> Elaborator<'a> {
         let mut at = requires_as_step(step, req, &self.thm.path)?;
         let lines = self.lines.copy();
         let labels = self.b.flabel.clone();
-        for o in &step.requires {
+        for o in step.requires_above(req.line) {
             let node = self.read(&o.fact)?;
             let above = self.term(&node)?;
             let key = requirement(o.line);

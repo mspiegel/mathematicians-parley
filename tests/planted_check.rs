@@ -1739,6 +1739,15 @@ fn cases() -> Vec<Case> {
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),
+        // `inequalities` takes two terms differing only from a line it cites:
+        // r ≠ 0 written above for 0 < r to rest on is asked for by nothing.
+        case(
+            "write r ≠ 0 above an inequalities line instead of citing it",
+            vec![
+                edit("proofs/bezout.proof", Some("          requires 0 < r: inequalities, from 1, S\n".to_string()), "          requires r ≠ 0: from S\n          requires 0 < r: inequalities, from 1\n".to_string()),
+            ],
+            "the requires line of step 3.1 says r ≠ 0, and neither mun:pos-int-nat nor the step's other lines ask for it",
+        ),
         // A range is no number system, and a line putting r in one says
         // nothing past itself (`SYNTAX.md`): that r is whole is
         // `mun:range-integer`, cited.

@@ -405,8 +405,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A requires line's proof, checked against its reason and sealed: it
-    /// rests only on the lines its reason cites, the step's other requires
-    /// lines, and the sorts in scope.
+    /// rests only on the lines its reason cites, the step's requires lines
+    /// above it, and the sorts in scope.
     pub fn discharged_by(
         &mut self,
         made: Proof,
@@ -414,16 +414,24 @@ impl<'a> Elaborator<'a> {
         how: &str,
         line: usize,
     ) -> Checked<Proof> {
-        let allowed = self.reason_allows(step, how);
+        let allowed = self.reason_allows(step, how, line);
         self.rests_on_named(&made, &allowed, line, "the requires line")?;
         Ok(self.seal(made, &requirement(line)))
     }
 
-    /// What a requires line with this reason may rest on (R2).
-    pub fn reason_allows(&self, step: &Step, how: &str) -> BTreeSet<String> {
+    /// What the requires line on `line`, with this reason, may rest on (R2):
+    /// what it cites, the sorts, and the requires lines above it; and itself,
+    /// as a line already proved and found again is sealed with its own name.
+    pub fn reason_allows(
+        &self,
+        step: &Step,
+        how: &str,
+        line: usize,
+    ) -> BTreeSet<String> {
         let mut out: BTreeSet<String> = citations(how).into_iter().collect();
         out.extend(self.sorts.iter().cloned());
-        out.extend(step.requires.iter().map(|r| requirement(r.line)));
+        out.extend(step.requires_above(line).map(|r| requirement(r.line)));
+        out.insert(requirement(line));
         out
     }
 
@@ -591,9 +599,23 @@ impl<'a> Elaborator<'a> {
                     given = known.filtered(|k, _| k != term);
                 }
             }
+            // What the lines below it made, a pass made before this one may
+            // hold, and the line rests only on those above it (R2).
+            let below: BTreeSet<String> = step
+                .requires
+                .iter()
+                .skip_while(|o| o.line != r.line)
+                .skip(1)
+                .map(|o| requirement(o.line))
+                .collect();
+            let unbelow = |v: &Proof| !v.origin.iter().any(|o| below.contains(o));
+            let given = given.filtered(|_, v| unbelow(v));
+            let written = self.written.clone();
+            self.written.retain(|_, (_, held)| unbelow(held));
             self.supplying.insert(term.clone());
             let made = self.side(&want, r, scope, &given, Some(step));
             self.supplying.shift_remove(&term);
+            self.written = written;
             let made = match made? {
                 Built(p) => self.discharged_by(p, step, &r.how, r.line)?,
                 Declined(d) => panic!(
@@ -822,7 +844,7 @@ impl<'a> Elaborator<'a> {
         let how = req.how.as_str();
         let citing =
             std::mem::replace(&mut self.citing, citations(how).into_iter().collect());
-        let allowed = step.map(|s| self.reason_allows(s, how));
+        let allowed = step.map(|s| self.reason_allows(s, how, req.line));
         let out = self.resting_on(allowed, |me| {
             me.by_its_reason(want, Some(req), scope, facts, step)
         });

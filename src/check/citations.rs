@@ -557,14 +557,8 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
         }
         // A requires line may not cite another, but the facts the lines above
         // it state are established for the same step and are what a dull fact
-        // its own citation asks for is written as. A line below it is not yet
-        // established (`SYNTAX.md`).
-        supplied.extend(
-            step.requires
-                .iter()
-                .take_while(|o| o.line != req.line)
-                .map(|o| o.fact.clone()),
-        );
+        // its own citation asks for is written as.
+        supplied.extend(step.requires_above(req.line).map(|o| o.fact.clone()));
         let mut read: Vec<Node> =
             supplied.iter().filter_map(|s| known.read(s)).collect();
         // A step said of every member in one line: its requires lines speak
@@ -897,9 +891,11 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     let Some(said) = known.read(&req.fact) else {
         return false;
     };
-    // t ∈ X names t, and t ≠ u, read as not t = u, names t: a method asks
-    // them of its atoms. t < u names both sides, and only `inequalities`
-    // reads an order.
+    // t ∈ X names t: a method asks it of its atoms. t ≠ u, read as not
+    // t = u, names t, which `membership` and `algebra` ask of a divisor;
+    // `inequalities` takes two terms differing only from a line it cites,
+    // not from one above (`METHODS.md`). t < u names both sides, and only
+    // `inequalities` reads an order.
     let (held, asking): (Vec<&Node>, &[&str]) = match said.notation.as_str() {
         "membership" if said.children.len() == 2 => (vec![&said.children[0]], &ASKING),
         "logical-not"
@@ -907,7 +903,10 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 && said.children[0].notation == "equality"
                 && said.children[0].children.len() == 2 =>
         {
-            (vec![&said.children[0].children[0]], &ASKING)
+            (
+                vec![&said.children[0].children[0]],
+                &["membership", "algebra"],
+            )
         }
         "order" if said.children.len() == 2 => (
             said.children

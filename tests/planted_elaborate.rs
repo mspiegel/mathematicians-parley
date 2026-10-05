@@ -794,6 +794,16 @@ fn cases() -> Vec<Case> {
             "mun:coset u := g, from K3, 4.1",
             "proofs/lagrange.proof:81  no cited line names a witness",
         ),
+        // `inequalities` takes two terms differing only from a line it cites,
+        // and not from a requires line above: 0 ≤ r alone gives no 0 < r.
+        case(
+            "rest an inequalities line on r ≠ 0 above it instead of citing it",
+            "proofs/bezout/least-combination-divides",
+            "proofs/bezout.proof",
+            "          requires 0 < r: inequalities, from 1, S\n",
+            "          requires r ≠ 0: from S\n          requires 0 < r: inequalities, from 1\n",
+            "0 < r does not follow from what step 3.1 cites",
+        ),
         // An angle's membership left out of an `algebra` step: the search for
         // it goes only as deep as any side condition's, so the step is
         // reported at once rather than after minutes of looking.

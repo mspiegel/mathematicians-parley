@@ -480,6 +480,15 @@ impl Step {
     pub fn claim_text(&self) -> String {
         self.claim.join(" ")
     }
+
+    /// The requires lines written above the one on `line`, which it rests on
+    /// besides what it cites (`SYNTAX.md`: a requires line rests on its
+    /// reason and on the requires lines above it). A line below is not yet
+    /// established. Both tools read a requires line's ground from here; what
+    /// of it a method combines is the method's (`METHODS.md`).
+    pub fn requires_above(&self, line: usize) -> impl Iterator<Item = &Requires> {
+        self.requires.iter().take_while(move |o| o.line != line)
+    }
 }
 
 /// Which file's scope a theorem is read in.

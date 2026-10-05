@@ -236,6 +236,17 @@ The rule: a disequality whose argument runs through `<` or `≤` is
 `inequalities`; one that is a rearrangement of a cited disequality is
 `algebra`, as narrowly as the `algebra` section states.
 
+`inequalities` takes a disequality only from a line it cites, and takes it
+both ways, below and above: Bezout's 3.1 cites the supposition `r ≠ 0` and
+`0 ≤ r`, and the case below contradicts the second. From a requires line
+above the one being proved it takes orders and equations, and not two terms
+differing: a disequality written above is there for a divisor, which
+`membership` and `algebra` ask. Nor does it take one a membership only
+implies: `k ∈ ℕ` says k ≠ 0 for a divisor, and the order it says, k ≥ 1, is
+what `inequalities` takes from it. The checker and the elaborator read which
+lines are above from one place (`Step::requires_above`), and neither counts
+a disequality above as asked for by an `inequalities` line below it.
+
 ### Expansion
 
 The target families in set.mm are the transitivity and ordering lemmas below.
