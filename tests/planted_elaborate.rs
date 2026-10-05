@@ -36,6 +36,54 @@ struct Case {
     old: &'static str,
     new: &'static str,
     expect: &'static str,
+    /// Where the message points, named by the text of that line rather than
+    /// its number, so that a line added above it moves the case with it.
+    at: Option<At>,
+}
+
+/// A line of a file, by text the line holds and no other line of the file
+/// does, read after the case's edit.
+struct At {
+    file: &'static str,
+    holding: &'static str,
+}
+
+impl Case {
+    /// The case, its message pointing at the line of `file` holding
+    /// `holding`.
+    fn at(self, file: &'static str, holding: &'static str) -> Case {
+        Case {
+            at: Some(At { file, holding }),
+            ..self
+        }
+    }
+
+    /// What the message must contain: `path:line  message` where the case
+    /// names a line, its message alone where it does not; or why the line
+    /// it names cannot be found.
+    fn wanted(&self, tree: &dyn Source) -> Result<String, String> {
+        let Some(at) = &self.at else {
+            return Ok(self.expect.to_string());
+        };
+        let text = tree
+            .read_text(at.file)
+            .map_err(|e| format!("{} does not read: {e}", at.file))?;
+        let holding: Vec<usize> = text
+            .lines()
+            .enumerate()
+            .filter(|(_, line)| line.contains(at.holding))
+            .map(|(i, _)| i + 1)
+            .collect();
+        match holding.as_slice() {
+            [line] => Ok(format!("{}:{line}  {}", at.file, self.expect)),
+            _ => Err(format!(
+                "{} lines of {} hold {:?}, where one must",
+                holding.len(),
+                at.file,
+                at.holding
+            )),
+        }
+    }
 }
 
 fn case(
@@ -54,6 +102,7 @@ fn case(
         old,
         new,
         expect,
+        at: None,
     }
 }
 
@@ -139,6 +188,14 @@ fn the_elaborator_reports_every_planted_defect() {
             None => edited,
         };
         tree.write(case.file, edited.into_bytes());
+        let wanted = match case.wanted(&tree) {
+            Ok(wanted) => wanted,
+            Err(why) => {
+                said.push(format!("  SETUP FAILED  {}\n      {why}", case.name));
+                missed += 1;
+                continue;
+            }
+        };
         match run(&tree, case.theorem, &library, *net) {
             None => {
                 said.push(format!(
@@ -147,14 +204,14 @@ fn the_elaborator_reports_every_planted_defect() {
                 ));
                 missed += 1;
             }
-            Some(got) if got.contains(case.expect) => {
+            Some(got) if got.contains(&wanted) => {
                 said.push(format!("  caught        {}", case.name));
             }
             Some(got) => {
                 let got: String = got.chars().take(160).collect();
                 said.push(format!(
-                    "  NOT CAUGHT    {}\n      expected {:?}\n      got      {got:?}",
-                    case.name, case.expect
+                    "  NOT CAUGHT    {}\n      expected {wanted:?}\n      got      {got:?}",
+                    case.name
                 ));
                 missed += 1;
             }
@@ -191,7 +248,11 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "          requires a ∈ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
             "          requires a ¿ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
-            "proofs/geometric-series.proof:88",
+            "",
+        )
+        .at(
+            "proofs/geometric-series.proof",
+            "1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1)",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -223,8 +284,9 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
-        ),
+            "no clause of mun:abs gives what step 2.5 claims",
+        )
+        .at("proofs/triangle-inequality.proof", "2.5.  |x| = −x"),
         // The same report reached from the other side: the target is right and
         // the step claims something the definition does not say. It is a
         // defect, and not a route declining, which anything above would be
@@ -235,8 +297,9 @@ fn cases() -> Vec<Case> {
             "proofs/triangle-inequality.proof",
             "    2.5.  |x| = −x",
             "    2.5.  |x| = x",
-            "proofs/triangle-inequality.proof:39  no clause of mun:abs gives what step 2.5 claims",
-        ),
+            "no clause of mun:abs gives what step 2.5 claims",
+        )
+        .at("proofs/triangle-inequality.proof", "2.5.  |x| = x"),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here H5 does not say `C ≠ A`, and no line above this one
         // does; taking it from the theorem's own hypothesis and turning it
@@ -282,8 +345,9 @@ fn cases() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n",
-            "proofs/sqrt2-irrational.proof:28  nothing says k ∈ ℂ, which this step needs",
-        ),
+            "nothing says k ∈ ℂ, which this step needs",
+        )
+        .at("proofs/sqrt2-irrational.proof", "3.  (2k + 1)² = 4k² + 4k + 1"),
         // A requires line rests only on its reason. Line 2 does not say k is an
         // integer, and `mun:int-real` asks it; the scope has it from line 1,
         // which the line does not cite, so the item it names reaches nothing.
@@ -295,7 +359,11 @@ fn cases() -> Vec<Case> {
             "import mundane theorem stdlib/numbers/int-real",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: mun:int-real, from 2\n",
-            "proofs/sqrt2-irrational.proof:31  the requires line k ∈ ℝ of step 3, read as a step citing what it cites: no clause of mun:int-real reaches",
+            "the requires line k ∈ ℝ of step 3, read as a step citing what it cites: no clause of mun:int-real reaches",
+        )
+        .at(
+            "proofs/sqrt2-irrational.proof",
+            "requires k ∈ ℝ: mun:int-real, from 2",
         ),
         // Everything a step names does work. 2 is a numeral, not an atom, so
         // `algebra` asks nothing about its being real, and the kernel has it
@@ -396,8 +464,9 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "|f(x) − f(c′)| < ε for all x",
             "|f(x) − f(c′)| < δ for all x",
-            "proofs/intermediate-value.proof:89  no method owns this step: elcncf2 does not say",
-        ),
+            "no method owns this step: elcncf2 does not say",
+        )
+        .at("proofs/intermediate-value.proof", "15. For all c′ ∈ [a, b]"),
         case(
             "unfold continuity with a weaker bound than it gives",
             "proofs/intermediate-value/intermediate-value",
@@ -416,7 +485,11 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "obtain c: axi:completeness S := S, from 5, 2, 7",
             "obtain c: axi:completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:66  step 8 cites axi:stdlib/calculus/completeness, which asks for there is u ∈ ℝ with u is an upper bound of S",
+            "step 8 cites axi:stdlib/calculus/completeness, which asks for there is u ∈ ℝ with u is an upper bound of S",
+        )
+        .at(
+            "proofs/intermediate-value.proof",
+            "8.  c ∈ ℝ. c is a least upper bound of S.",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -640,8 +713,9 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "    def:continuous-on, from H5",
             "    def:continuous-on",
-            "proofs/intermediate-value.proof:89  no method owns this step: no cited line is what elcncf2 unfolds",
-        ),
+            "no method owns this step: no cited line is what elcncf2 unfolds",
+        )
+        .at("proofs/intermediate-value.proof", "15. For all c′ ∈ [a, b]"),
         // The item asks |X| = k + 1, which C2 says. Without C2 cited, the
         // equation is in scope and not in hand, and the hypothesis must go
         // unanswered rather than be answered by a line the step does not name.
@@ -651,8 +725,9 @@ fn cases() -> Vec<Case> {
             "proofs/subsets.proof",
             "obtain a: mun:card-nonempty, from K2, C2",
             "obtain a: mun:card-nonempty, from K2",
-            "proofs/subsets.proof:267  step 1.2.1 cites mun:stdlib/counting/card-nonempty, which asks for |X| = k + 1",
-        ),
+            "step 1.2.1 cites mun:stdlib/counting/card-nonempty, which asks for |X| = k + 1",
+        )
+        .at("proofs/subsets.proof", "1.2.1.  a ∈ X"),
         // `elrnmpt1s` reads its map at a term only a cited line supplies. With
         // the line gone nothing says where the map is read, and the body must
         // not be read at the lemma's own variable instead.
@@ -761,8 +836,9 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "    14.1. a ∈ G. Y = aH.\n",
             "    14.1. a ∈ G. Z = aH.\n",
-            "proofs/lagrange.proof:326  nothing step 14.1 cites says",
-        ),
+            "nothing step 14.1 cites says",
+        )
+        .at("proofs/lagrange.proof", "14.1. a ∈ G. Z = aH."),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R
         // is f[C]. K7 says only that b is in B.
@@ -792,8 +868,9 @@ fn cases() -> Vec<Case> {
             "proofs/lagrange.proof",
             "mun:coset u := g, from K3, 4.1, 4.2",
             "mun:coset u := g, from K3, 4.1",
-            "proofs/lagrange.proof:81  no cited line names a witness",
-        ),
+            "no cited line names a witness",
+        )
+        .at("proofs/lagrange.proof", "4.3.  g ∈ gH"),
         // `inequalities` takes two terms differing only from a line it cites,
         // and not from a requires line above: 0 ≤ r alone gives no 0 < r.
         case(
@@ -853,7 +930,11 @@ fn nets() -> Vec<Case> {
             "import mundane theorem stdlib/numbers/int-real",
             "    requires k ∈ ℝ: from 1\n\n4.",
             "    requires k ∈ ℝ: mun:int-real, from 2\n\n4.",
-            "proofs/sqrt2-irrational.proof:31  the requires line rests on 1, which it does not name",
+            "the requires line rests on 1, which it does not name",
+        )
+        .at(
+            "proofs/sqrt2-irrational.proof",
+            "requires k ∈ ℝ: mun:int-real, from 2",
         ),
     ]
 }
