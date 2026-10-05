@@ -14,6 +14,7 @@ mod structure;
 
 use indexmap::{IndexMap, IndexSet};
 
+use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, parse_database, parse_proof, proof_files,
     record_files, written_text, FileScope, Intro, Item, Record, RecordKind, Theorem,
@@ -26,7 +27,7 @@ use crate::sorts::{settled, Env};
 use crate::source::Source;
 use crate::text::check_encoding;
 
-pub use library::{implied_facts, Known, Library};
+pub use library::Known;
 
 /// Methods whose steps this checker accepts without examining them.
 pub const CLOSURE: [&str; 5] = [
@@ -368,7 +369,17 @@ fn prepared<T>(
         known.push(Known::new(thm, env, settled(&reader, &store)));
         clashes.push(reader.clashes);
     }
-    let library = Library::new(&records, &record_sorts, &known, env);
+    let proved = known
+        .iter()
+        .map(|k| {
+            let at = Proved {
+                thm: k.thm,
+                sorts: &k.sorts,
+            };
+            (k.thm.qualified(), at)
+        })
+        .collect();
+    let library = Library::new(&records, &record_sorts, proved, env);
 
     formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods

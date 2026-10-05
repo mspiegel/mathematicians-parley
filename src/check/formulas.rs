@@ -6,9 +6,10 @@ use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::library::{Known, Library};
+use super::library::Known;
 use super::structure::{defined_below, introduced};
 use super::{Report, RELATIONS};
+use crate::citing::Library;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
     cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,

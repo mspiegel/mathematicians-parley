@@ -9,6 +9,7 @@
 //! verifier over every proof.
 
 pub mod check;
+pub mod citing;
 pub mod corpus;
 pub mod elab;
 pub mod formula;

@@ -10,7 +10,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::check::implied_facts;
+use crate::citing::implied_facts;
 use crate::corpus::proof::requires_item;
 use crate::corpus::Step;
 use crate::outcome::Checked;
