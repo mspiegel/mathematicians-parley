@@ -1,0 +1,463 @@
+import axiom              stdlib/calculus/completeness
+import mundane definition stdlib/calculus/least-upper-bound
+import mundane definition stdlib/calculus/upper-bound
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/numbers/nat0-real
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/nat0-as-int
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+
+theorem sequence-misses-real
+  metamath    ruclem12, the form in which a sequence misses a real
+  let f : ℕ → ℝ                                                       (H1)
+  define a(0) := 0,  b(0) := 1,
+         a(k + 1) := b(k) − (b(k) − a(k))/3   if f(k + 1) < (a(k) + b(k))/2
+                     a(k)                     otherwise,
+         b(k + 1) := b(k)                     if f(k + 1) < (a(k) + b(k))/2
+                     a(k) + (b(k) − a(k))/3   otherwise,   for k ∈ ℕ₀     (D1)
+         reads the ends of the interval after k steps, each a third of the one before that misses f(k + 1)
+  then there is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x
+
+define S := {x ∈ ℝ : there is k ∈ ℕ₀ with x = a(k)}                   (D2)
+       reads the left ends of the intervals
+
+1.  a(0) = 0
+    D1
+
+2.  b(0) = 1
+    D1
+
+3.  For all k ∈ ℕ₀, a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k).
+    induction on k starting at 0
+
+    base
+    3.1.  a(0) ∈ ℝ
+          membership, from 1
+
+    3.2.  b(0) ∈ ℝ
+          membership, from 2
+
+    3.3.  a(0) < b(0)
+          inequalities, from 1, 2, 3.1, 3.2
+
+    3.4.  a(0) ∈ ℝ and b(0) ∈ ℝ and a(0) < b(0)
+          join 3.1, 3.2, 3.3
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 3 is true for k, the induction hypothesis             (IH)
+
+    3.5.  f(k + 1) < (a(k) + b(k))/2 or not (f(k + 1) < (a(k) + b(k))/2)
+          mun:excluded-middle P := f(k + 1) < (a(k) + b(k))/2
+
+    3.6.  a(k + 1) ∈ ℝ and b(k + 1) ∈ ℝ and a(k + 1) < b(k + 1)
+          cases, from 3.5
+
+          case
+          assume f(k + 1) < (a(k) + b(k))/2                           (C1)
+
+          3.6.1.  a(k + 1) = b(k) − (b(k) − a(k))/3
+                  D1, from C1
+                  requires k ∈ ℕ₀: from K
+
+          3.6.2.  b(k + 1) = b(k)
+                  D1, from C1
+                  requires k ∈ ℕ₀: from K
+
+          3.6.3.  a(k + 1) ∈ ℝ
+                  membership, from 3.6.1, IH
+
+          3.6.4.  b(k + 1) ∈ ℝ
+                  membership, from 3.6.2, IH
+
+          3.6.5.  a(k + 1) < b(k + 1)
+                  inequalities, from 3.6.1, 3.6.2, 3.6.3, 3.6.4, IH
+
+          3.6.6.  a(k + 1) ∈ ℝ and b(k + 1) ∈ ℝ and a(k + 1) < b(k + 1)
+                  join 3.6.3, 3.6.4, 3.6.5
+
+          case
+          assume not (f(k + 1) < (a(k) + b(k))/2)                     (C2)
+
+          3.6.7.  a(k + 1) = a(k)
+                  D1, from C2
+                  requires k ∈ ℕ₀: from K
+
+          3.6.8.  b(k + 1) = a(k) + (b(k) − a(k))/3
+                  D1, from C2
+                  requires k ∈ ℕ₀: from K
+
+          3.6.9.  a(k + 1) ∈ ℝ
+                  membership, from 3.6.7, IH
+
+          3.6.10. b(k + 1) ∈ ℝ
+                  membership, from 3.6.8, IH
+
+          3.6.11. a(k + 1) < b(k + 1)
+                  inequalities, from 3.6.7, 3.6.8, 3.6.9, 3.6.10, IH
+
+          3.6.12. a(k + 1) ∈ ℝ and b(k + 1) ∈ ℝ and a(k + 1) < b(k + 1)
+                  join 3.6.9, 3.6.10, 3.6.11
+
+4.  For all k ∈ ℕ₀, a(k) ≤ a(k + 1) and b(k + 1) ≤ b(k).
+    fix
+    let k ∈ ℕ₀                                                        (K1)
+
+    4.1.  a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)
+          instantiate k := k in line 3, from K1
+
+    4.2.  f(k + 1) < (a(k) + b(k))/2 or not (f(k + 1) < (a(k) + b(k))/2)
+          mun:excluded-middle P := f(k + 1) < (a(k) + b(k))/2
+
+    4.3.  a(k) ≤ a(k + 1) and b(k + 1) ≤ b(k)
+          cases, from 4.2
+
+          case
+          assume f(k + 1) < (a(k) + b(k))/2                           (C3)
+
+          4.3.1.  a(k + 1) = b(k) − (b(k) − a(k))/3
+                  D1, from C3
+                  requires k ∈ ℕ₀: from K1
+
+          4.3.2.  b(k + 1) = b(k)
+                  D1, from C3
+                  requires k ∈ ℕ₀: from K1
+
+          4.3.3.  a(k) ≤ a(k + 1)
+                  inequalities, from 4.3.1, 4.1
+                  requires a(k + 1) ∈ ℝ: membership, from 4.3.1, 4.1
+
+          4.3.4.  b(k + 1) ≤ b(k)
+                  inequalities, from 4.3.2
+                  requires b(k + 1) ∈ ℝ: membership, from 4.3.2, 4.1
+
+          4.3.5.  a(k) ≤ a(k + 1) and b(k + 1) ≤ b(k)
+                  join 4.3.3, 4.3.4
+
+          case
+          assume not (f(k + 1) < (a(k) + b(k))/2)                     (C4)
+
+          4.3.6.  a(k + 1) = a(k)
+                  D1, from C4
+                  requires k ∈ ℕ₀: from K1
+
+          4.3.7.  b(k + 1) = a(k) + (b(k) − a(k))/3
+                  D1, from C4
+                  requires k ∈ ℕ₀: from K1
+
+          4.3.8.  a(k) ≤ a(k + 1)
+                  inequalities, from 4.3.6
+                  requires a(k + 1) ∈ ℝ: membership, from 4.3.6, 4.1
+
+          4.3.9.  b(k + 1) ≤ b(k)
+                  inequalities, from 4.3.7, 4.1
+                  requires b(k + 1) ∈ ℝ: membership, from 4.3.7, 4.1
+
+          4.3.10. a(k) ≤ a(k + 1) and b(k + 1) ≤ b(k)
+                  join 4.3.8, 4.3.9
+
+5.  For all k ∈ ℕ₀, f(k + 1) < a(k + 1) or b(k + 1) < f(k + 1).
+    fix
+    let k ∈ ℕ₀                                                        (K2)
+
+    5.1.  a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)
+          instantiate k := k in line 3, from K2
+
+    5.2.  k + 1 ∈ ℕ
+          mun:pos-int-nat
+          requires k + 1 ∈ ℤ: membership, from K2
+          requires 0 < k + 1: inequalities, from K2
+
+    5.3.  f(k + 1) < (a(k) + b(k))/2 or not (f(k + 1) < (a(k) + b(k))/2)
+          mun:excluded-middle P := f(k + 1) < (a(k) + b(k))/2
+
+    5.4.  f(k + 1) < a(k + 1) or b(k + 1) < f(k + 1)
+          cases, from 5.3
+
+          case
+          assume f(k + 1) < (a(k) + b(k))/2                           (C5)
+
+          5.4.1.  a(k + 1) = b(k) − (b(k) − a(k))/3
+                  D1, from C5
+                  requires k ∈ ℕ₀: from K2
+
+          5.4.2.  f(k + 1) < a(k + 1)
+                  inequalities, from C5, 5.4.1, 5.1
+                  requires a(k + 1) ∈ ℝ: membership, from 5.4.1, 5.1
+                  requires f(k + 1) ∈ ℝ: from H1, 5.2
+
+          5.4.3.  f(k + 1) < a(k + 1) or b(k + 1) < f(k + 1)
+                  mun:or-left, from 5.4.2
+
+          case
+          assume not (f(k + 1) < (a(k) + b(k))/2)                     (C6)
+
+          5.4.4.  b(k + 1) = a(k) + (b(k) − a(k))/3
+                  D1, from C6
+                  requires k ∈ ℕ₀: from K2
+
+          5.4.5.  b(k + 1) < f(k + 1)
+                  inequalities, from C6, 5.4.4, 5.1
+                  requires b(k + 1) ∈ ℝ: membership, from 5.4.4, 5.1
+                  requires f(k + 1) ∈ ℝ: from H1, 5.2
+
+          5.4.6.  f(k + 1) < a(k + 1) or b(k + 1) < f(k + 1)
+                  mun:or-right, from 5.4.5
+
+6.  For all d ∈ ℕ₀, for all p ∈ ℕ₀, a(p) ≤ a(p + d) and b(p + d) ≤ b(p).
+    induction on d starting at 0
+
+    base
+    6.1.  For all p ∈ ℕ₀, a(p) ≤ a(p + 0) and b(p + 0) ≤ b(p).
+          fix
+          let p ∈ ℕ₀                                                  (P1)
+
+          6.1.1.  p = p + 0
+                  algebra
+                  requires p ∈ ℝ: mun:nat0-real, from P1
+
+          6.1.2.  a(p) ∈ ℝ and b(p) ∈ ℝ and a(p) < b(p)
+                  instantiate k := p in line 3, from P1
+
+          6.1.3.  a(p) ≤ a(p) and b(p) ≤ b(p)
+                  inequalities, from 6.1.2
+
+          6.1.4.  a(p) ≤ a(p + 0) and b(p + 0) ≤ b(p)
+                  substitute p = p + 0 (line 6.1.1) into line 6.1.3
+
+    step
+    let d ∈ ℕ₀                                                        (K3)
+    assume step 6 is true for d, the induction hypothesis             (IH2)
+
+    6.2.  For all p ∈ ℕ₀, a(p) ≤ a(p + (d + 1)) and b(p + (d + 1)) ≤ b(p).
+          fix
+          let p ∈ ℕ₀                                                  (P2)
+
+          6.2.1.  a(p) ≤ a(p + d) and b(p + d) ≤ b(p)
+                  instantiate p := p in IH2, from P2
+
+          6.2.2.  a(p + d) ≤ a((p + d) + 1) and b((p + d) + 1) ≤ b(p + d)
+                  instantiate k := p + d in line 4
+                  requires p + d ∈ ℕ₀: membership, from P2, K3
+
+          6.2.3.  (p + d) + 1 = p + (d + 1)
+                  algebra
+                  requires p ∈ ℝ: mun:nat0-real, from P2
+                  requires d ∈ ℝ: mun:nat0-real, from K3
+
+          6.2.4.  a(p) ∈ ℝ and b(p) ∈ ℝ and a(p) < b(p)
+                  instantiate k := p in line 3, from P2
+
+          6.2.5.  a(p + d) ∈ ℝ and b(p + d) ∈ ℝ and a(p + d) < b(p + d)
+                  instantiate k := p + d in line 3
+                  requires p + d ∈ ℕ₀: membership, from P2, K3
+
+          6.2.6.  a((p + d) + 1) ∈ ℝ and b((p + d) + 1) ∈ ℝ
+                  and a((p + d) + 1) < b((p + d) + 1)
+                  instantiate k := (p + d) + 1 in line 3
+                  requires (p + d) + 1 ∈ ℕ₀: membership, from P2, K3
+
+          6.2.7.  a(p) ≤ a((p + d) + 1) and b((p + d) + 1) ≤ b(p)
+                  inequalities, from 6.2.1, 6.2.2, 6.2.4, 6.2.5, 6.2.6
+
+          6.2.8.  a(p) ≤ a(p + (d + 1)) and b(p + (d + 1)) ≤ b(p)
+                  substitute (p + d) + 1 = p + (d + 1) (line 6.2.3) into line 6.2.7
+
+7.  For all j ∈ ℕ₀, for all k ∈ ℕ₀, a(j) < b(k).
+    fix
+    let j ∈ ℕ₀                                                        (J1)
+    let k ∈ ℕ₀                                                        (K4)
+
+    7.1.  a(j) ∈ ℝ and b(j) ∈ ℝ and a(j) < b(j)
+          instantiate k := j in line 3, from J1
+
+    7.2.  a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)
+          instantiate k := k in line 3, from K4
+
+    7.3.  j ≤ k or not (j ≤ k)
+          mun:excluded-middle P := j ≤ k
+
+    7.4.  a(j) < b(k)
+          cases, from 7.3
+
+          case
+          assume j ≤ k                                                (C7)
+
+          7.4.1.  k − j ∈ ℕ₀
+                  mun:nat0-as-int
+                  requires k − j ∈ ℤ: membership, from J1, K4
+                  requires j ∈ ℝ: mun:nat0-real, from J1
+                  requires k ∈ ℝ: mun:nat0-real, from K4
+                  requires 0 ≤ k − j: inequalities, from C7
+
+          7.4.2.  a(j) ≤ a(j + (k − j)) and b(j + (k − j)) ≤ b(j)
+                  instantiate d := k − j, p := j in line 6, from 7.4.1, J1
+
+          7.4.3.  j + (k − j) = k
+                  algebra
+                  requires j ∈ ℝ: mun:nat0-real, from J1
+                  requires k ∈ ℝ: mun:nat0-real, from K4
+
+          7.4.4.  a(j) ≤ a(k) and b(k) ≤ b(j)
+                  substitute j + (k − j) = k (line 7.4.3) into line 7.4.2
+
+          7.4.5.  a(j) < b(k)
+                  inequalities, from 7.4.4, 7.1, 7.2
+
+          case
+          assume not (j ≤ k)                                          (C8)
+
+          7.4.6.  j − k ∈ ℕ₀
+                  mun:nat0-as-int
+                  requires j − k ∈ ℤ: membership, from J1, K4
+                  requires j ∈ ℝ: mun:nat0-real, from J1
+                  requires k ∈ ℝ: mun:nat0-real, from K4
+                  requires 0 ≤ j − k: inequalities, from C8
+
+          7.4.7.  a(k) ≤ a(k + (j − k)) and b(k + (j − k)) ≤ b(k)
+                  instantiate d := j − k, p := k in line 6, from 7.4.6, K4
+
+          7.4.8.  k + (j − k) = j
+                  algebra
+                  requires j ∈ ℝ: mun:nat0-real, from J1
+                  requires k ∈ ℝ: mun:nat0-real, from K4
+
+          7.4.9.  a(k) ≤ a(j) and b(j) ≤ b(k)
+                  substitute k + (j − k) = j (line 7.4.8) into line 7.4.7
+
+          7.4.10. a(j) < b(k)
+                  inequalities, from 7.4.9, 7.1, 7.2
+
+8.  S ⊆ ℝ
+    mun:set-builder-subset, from D2
+
+9.  a(0) = a(0)
+    algebra
+    requires a(0) ∈ ℝ: membership, from 1
+
+10. a(0) ∈ S
+    mun:set-builder u := a(0), from D2, 9
+    requires a(0) ∈ ℝ: membership, from 1
+    requires 0 ∈ ℕ₀: arithmetic
+
+11. For all k ∈ ℕ₀, b(k) is an upper bound of S.
+    fix
+    let k ∈ ℕ₀                                                        (K5)
+
+    11.1. For all s ∈ S, s ≤ b(k).
+          fix
+          let s ∈ S                                                   (K6)
+
+          11.1.1. j ∈ ℕ₀. s = a(j).
+                  obtain j: mun:set-builder u := s, from D2, K6
+
+          11.1.2. a(j) ∈ ℝ and b(j) ∈ ℝ and a(j) < b(j)
+                  instantiate k := j in line 3, from 11.1.1
+
+          11.1.3. a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)
+                  instantiate k := k in line 3, from K5
+
+          11.1.4. a(j) < b(k)
+                  instantiate j := j, k := k in line 7, from 11.1.1, K5
+
+          11.1.5. s ≤ b(k)
+                  inequalities, from 11.1.1, 11.1.4, 11.1.2, 11.1.3
+                  requires s ∈ ℝ: membership, from 11.1.1, 11.1.2
+
+    11.2. b(k) is an upper bound of S
+          mun:upper-bound, from 11.1
+
+12. b(0) is an upper bound of S
+    instantiate k := 0 in line 11
+    requires 0 ∈ ℕ₀: arithmetic
+
+13. c ∈ ℝ. c is a least upper bound of S.
+    obtain c: axi:completeness S := S, from 8, 10, 12
+    requires b(0) ∈ ℝ: membership, from 2
+
+14. c is an upper bound of S.
+    For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
+    mun:least-upper-bound, from 13
+
+15. For all s ∈ S, s ≤ c.
+    mun:upper-bound, from 14
+
+16. For all k ∈ ℕ₀, a(k) ≤ c and c ≤ b(k).
+    fix
+    let k ∈ ℕ₀                                                        (K7)
+
+    16.1. a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)
+          instantiate k := k in line 3, from K7
+
+    16.2. a(k) = a(k)
+          algebra
+          requires a(k) ∈ ℝ: from 16.1
+
+    16.3. a(k) ∈ S
+          mun:set-builder u := a(k), from D2, 16.2
+          requires a(k) ∈ ℝ: from 16.1
+          requires k ∈ ℕ₀: from K7
+
+    16.4. a(k) ≤ c
+          instantiate s := a(k) in line 15, from 16.3
+
+    16.5. b(k) is an upper bound of S
+          instantiate k := k in line 11, from K7
+
+    16.6. c ≤ b(k)
+          instantiate u := b(k) in line 14, from 16.5
+          requires b(k) ∈ ℝ: from 16.1
+
+    16.7. a(k) ≤ c and c ≤ b(k)
+          join 16.4, 16.6
+
+17. For all n ∈ ℕ, f(n) ≠ c.
+    fix
+    let n ∈ ℕ                                                         (K8)
+
+    17.1. n − 1 ∈ ℕ₀
+          mun:nat-minus-one, from K8
+
+    17.2. f((n − 1) + 1) < a((n − 1) + 1) or b((n − 1) + 1) < f((n − 1) + 1)
+          instantiate k := n − 1 in line 5, from 17.1
+
+    17.3. (n − 1) + 1 = n
+          algebra
+          requires n ∈ ℝ: membership, from K8
+
+    17.4. f(n) < a(n) or b(n) < f(n)
+          substitute (n − 1) + 1 = n (line 17.3) into line 17.2
+
+    17.5. a(n) ≤ c and c ≤ b(n)
+          instantiate k := n in line 16
+          requires n ∈ ℕ₀: membership, from K8
+
+    17.6. a(n) ∈ ℝ and b(n) ∈ ℝ and a(n) < b(n)
+          instantiate k := n in line 3
+          requires n ∈ ℕ₀: membership, from K8
+
+    17.7. f(n) ≠ c
+          cases, from 17.4
+
+          case
+          assume f(n) < a(n)                                          (C9)
+
+          17.7.1. f(n) ≠ c
+                  inequalities, from C9, 17.5, 17.6
+                  requires f(n) ∈ ℝ: from H1, K8
+                  requires c ∈ ℝ: from 13
+
+          case
+          assume b(n) < f(n)                                          (C10)
+
+          17.7.2. f(n) ≠ c
+                  inequalities, from C10, 17.5, 17.6
+                  requires f(n) ∈ ℝ: from H1, K8
+                  requires c ∈ ℝ: from 13
+
+18. There is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x.
+    exhibit, from 13, 17
