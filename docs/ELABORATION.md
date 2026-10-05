@@ -1641,6 +1641,20 @@ proved (`discharged_by`).
     its notation's plain pattern and brackets a child at a pattern's edge by
     the parser's own precedence, and `tests/print.rs` reads every formula
     the corpus claims or requires, prints it and reads it again.
+    The elaborator's messages say its kernel terms the same way (`spoken`):
+    each notation's `target` read backwards gives the pattern a term came
+    from, the longest first, so ∠QPR is not read as an absolute value; a
+    name is the one the page gave the term or bound the letter under, and a
+    group's operation is read through the parts its `let` line names. A
+    reading is used only where the page reads it back as itself, which is
+    what tells |x − c| of two numbers from |PQ| of two points, and a term
+    with no reading is said in set.mm's spelling whole. "step 4 combines
+    ∠QPR, and nothing it writes or cites says it is a number" was
+    `( abs ` ( ( B - A ) ang ( C - A ) ) )`. A citation no clause of an item
+    reaches says why each clause stopped: "no clause of mun:series-sum gives
+    what step 5 claims: cannot settle 1 / T(k) ∈ ℝ". `tests/said_back.rs`
+    elaborates every theorem with each sentence its steps claim said back
+    and read again.
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items

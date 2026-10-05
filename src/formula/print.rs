@@ -65,6 +65,21 @@ impl Grammar {
         }
     }
 
+    /// The plain pattern a node of this notation and literal is written by,
+    /// where it has one: what each hole takes and what it yields.
+    pub fn written_by(&self, notation: &str, literal: &str) -> Option<&Notation> {
+        self.notations.iter().find(|n| {
+            n.name == notation
+                && n.literal == literal
+                && n.places.is_none()
+                && n.nests.is_none()
+                && n.bounds.is_none()
+                && n.joins.is_none()
+                && n.wrap.is_none()
+                && n.fill.is_none()
+        })
+    }
+
     /// The pattern a node is written by: its own notation's, with its
     /// literal, as many holes as it has children, and none of the rules a
     /// second spelling adds.

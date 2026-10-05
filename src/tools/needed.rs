@@ -112,9 +112,7 @@ fn needed(tree: &Memory, setmm: &str, share: &[&Taken]) -> Result<Vec<bool>, Str
             taken.cut.path.trim_end_matches(".proof"),
             taken.cut.theorem
         );
-        let options = Options {
-            whole_scope_offered: false,
-        };
+        let options = Options::default();
         out.push(elaborate_one(&edited, &name, &lib, options).is_err());
     }
     Ok(out)

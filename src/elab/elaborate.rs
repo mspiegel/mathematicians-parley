@@ -711,6 +711,9 @@ impl<'a> Elaborator<'a> {
         let sentences = self.sentences(&claim);
         let node = self.read(sentences.last().map(String::as_str).unwrap_or(""))?;
         let term = self.claim_of(&claim)?;
+        if self.said_back.is_some() {
+            self.say_back(&sentences, step.line)?;
+        }
         let Some(how) = self.method_for(step, &term)? else {
             return Err(
                 self.defect(step.line, format!("no expansion for {}", repr(&head)))
@@ -2125,11 +2128,12 @@ impl<'a> Elaborator<'a> {
         let seed = self.filling(step, item, None)?;
         match self.by_clause(&labels, term, scope, facts, step, Some(&seed))? {
             Built(p) => Ok(Built(p)),
-            Declined(_) => Err(self.defect(
+            Declined(d) => Err(self.defect(
                 step.line,
                 format!(
-                    "no clause of {head} gives what step {} claims",
-                    fmt(&step.number)
+                    "no clause of {head} gives what step {} claims: {}",
+                    fmt(&step.number),
+                    self.say(&d)
                 ),
             )),
         }
@@ -3150,12 +3154,13 @@ impl<'a> Elaborator<'a> {
         let seed = self.filling(step, item, None)?;
         match self.by_clause(&labels, term, scope, facts, step, Some(&seed))? {
             Built(p) => Ok(Built(p)),
-            Declined(_) => Err(self.defect(
+            Declined(d) => Err(self.defect(
                 step.line,
                 format!(
-                    "no clause of {} reaches what step {} claims",
+                    "no clause of {} reaches what step {} claims: {}",
                     step.just.head,
-                    fmt(&step.number)
+                    fmt(&step.number),
+                    self.say(&d)
                 ),
             )),
         }
@@ -3172,6 +3177,9 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         seed: Option<&Binding>,
     ) -> Checked<Route<Proof>> {
+        // Why each clause did not reach the claim, said in order, so that a
+        // message names what the clause that came closest lacked.
+        let mut why: Vec<String> = Vec::new();
         for label in labels {
             let found = self.apply_lemma(
                 label,
@@ -3182,13 +3190,14 @@ impl<'a> Elaborator<'a> {
                 true,
                 seed,
             )?;
-            if !found.is_declined() {
-                return Ok(found); // otherwise not this `then` group
+            match found {
+                Declined(d) => why.push(self.say(&d)),
+                built => return Ok(built),
             }
         }
         let node = self.to_term(term);
         if node.label() != Some("wa") {
-            return Ok(Route::no("no clause of the item reaches the claim"));
+            return Ok(Route::no(why.join("; ")));
         }
         let halves: Vec<String> = node.children().iter().map(|c| self.rpn(c)).collect();
         let mut made = Vec::new();
@@ -3681,6 +3690,11 @@ pub struct Options {
     /// that rule turns it on, to see that the rule afterwards still catches
     /// what the search would have taken.
     pub whole_scope_offered: bool,
+    /// Each sentence a step claims, said back from its kernel term as a
+    /// message would say it and read again (`spoken`), with every sentence
+    /// that comes back as another term kept in `Elaborated::said_back`.
+    /// Only the test of what messages say turns it on.
+    pub say_back: bool,
 }
 
 /// One theorem's elaborated file, and the statement it proves, which a
@@ -3688,6 +3702,9 @@ pub struct Options {
 pub struct Elaborated {
     pub text: String,
     pub statement: String,
+    /// Where `Options::say_back` is on, each sentence said back as another
+    /// term: the sentence, what it was said back as, and its line.
+    pub said_back: Vec<String>,
 }
 
 /// Elaborate one theorem of the corpus into its file.
@@ -3723,6 +3740,7 @@ pub fn elaborate(
     );
     work.b.share_syntax(syntax);
     work.whole_scope = options.whole_scope_offered;
+    work.said_back = options.say_back.then(Vec::new);
     let (goal, hypotheses, mut proof) = work.run()?;
     let mut antecedent = hypotheses.first().cloned();
     for extra in hypotheses.iter().skip(1) {
@@ -3800,8 +3818,10 @@ pub fn elaborate(
     }
     let label = work.own_label()?;
     let says = match &antecedent {
-        Some(a) => format!("( {} -> {} )", work.render(a), work.render(&goal)),
-        None => work.render(&goal),
+        Some(a) => {
+            format!("( {} -> {} )", work.kernel_text(a), work.kernel_text(&goal))
+        }
+        None => work.kernel_text(&goal),
     };
     let mut mandatory: Vec<String> = says
         .split_whitespace()
@@ -3819,6 +3839,7 @@ pub fn elaborate(
     Ok(Elaborated {
         text: out,
         statement: format!("|- {says}"),
+        said_back: work.said_back.take().unwrap_or_default(),
     })
 }
 

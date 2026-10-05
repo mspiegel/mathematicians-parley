@@ -90,6 +90,7 @@ fn run(
 ) -> Option<String> {
     let options = Options {
         whole_scope_offered: net,
+        ..Options::default()
     };
     match elaborate_one(tree, theorem, library, options) {
         Ok(_) => None,
@@ -281,7 +282,7 @@ fn cases() -> Vec<Case> {
             "proofs/sqrt2-irrational.proof",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
             "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n",
-            "proofs/sqrt2-irrational.proof:28  nothing says m e. CC, which this step needs",
+            "proofs/sqrt2-irrational.proof:28  nothing says k ∈ ℂ, which this step needs",
         ),
         // A requires line rests only on its reason. Line 2 does not say k is an
         // integer, and `mun:int-real` asks it; the scope has it from line 1,
@@ -414,7 +415,7 @@ fn cases() -> Vec<Case> {
             "proofs/intermediate-value.proof",
             "obtain c: axi:completeness S := S, from 5, 2, 7",
             "obtain c: axi:completeness S := S, from 5, 2",
-            "proofs/intermediate-value.proof:66  no cited line names a witness for E. x e. RR",
+            "proofs/intermediate-value.proof:66  no cited line names a witness for there is x ∈ ℝ with",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -545,7 +546,7 @@ fn cases() -> Vec<Case> {
             "proofs/geometric-series.proof",
             "                    = 1                     1.2\n          requires a ∈ ℝ: from H1\n",
             "                    = 1                     1.2\n",
-            "cannot settle A e. RR",
+            "cannot settle a ∈ ℝ",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the

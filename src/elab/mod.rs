@@ -25,6 +25,7 @@ pub mod normal;
 pub mod provenance;
 pub mod reading;
 pub mod scopes;
+mod spoken;
 pub mod state;
 pub mod tables;
 

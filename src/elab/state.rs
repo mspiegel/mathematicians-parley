@@ -227,6 +227,9 @@ pub struct Elaborator<'a> {
     /// item asks of every member. There a function's type gives its values
     /// as the sort it is (`function_value`).
     pub in_family: usize,
+    /// Where messages are being tested, each sentence said back as another
+    /// term (`Options::say_back`).
+    pub said_back: Option<Vec<String>>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
     /// By step line, what its method combined.
@@ -354,6 +357,7 @@ impl<'a> Elaborator<'a> {
             binding: Vars::new(),
             citing: IndexSet::new(),
             in_family: 0,
+            said_back: None,
             resting: None,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),
@@ -409,8 +413,15 @@ impl<'a> Elaborator<'a> {
         decline.render(|t| self.render(t))
     }
 
-    /// A term written the way a Metamath file writes it.
+    /// A term as a message names it: in the page's notation, or the way a
+    /// Metamath file writes it where some part has no page reading
+    /// (`spoken`).
     pub fn render(&self, rpn: &str) -> String {
+        self.spoken(rpn).unwrap_or_else(|| self.kernel_text(rpn))
+    }
+
+    /// A term the way a Metamath file writes it, for the file itself.
+    pub fn kernel_text(&self, rpn: &str) -> String {
         render(rpn, &self.b.sigs)
     }
 
