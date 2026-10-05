@@ -159,6 +159,12 @@ Findings about the vocabulary in `READERS.md`:
    cost is a step whose purpose the reader meets only at the end; it is
    placed beside its twin so that the proof reads as two facts about √2,
    the argument, then the conclusion.
+
+   *Superseded:* `READERS.md` now nests dull facts. A requires line rests
+   on its reason and on the requires lines above it on the same step
+   (`SYNTAX.md`), and a dull fact is a requires line at each use, never a
+   numbered step. The proof writes `requires √2 ∈ ℝ: mun:sqrt x := 2` on
+   the step that needs it.
 7. **A contradiction step does have a formula.** An earlier draft wrote
    line 3.17, and line 1.3 of even-square, as "lines X and Y contradict
    each other", with no claim and no pointer, and proposed an exception to

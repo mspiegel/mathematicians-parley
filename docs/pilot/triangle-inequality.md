@@ -167,6 +167,11 @@ track. `DATABASE.md` leaves that for the formula parser.
    role rule it is not a dull fact, since its use is not only to discharge
    one item's hypothesis, but it reads like one. The rule holds; the
    reading is a consequence of it.
+
+   *Superseded:* `READERS.md` now says a dull fact has no numbered line of
+   its own, however many steps it serves: each step that needs it carries
+   the requires line, word for word. The proof writes `requires a + b ∈ ℝ:
+   mun:real-closure, from H1, H2` at each of its three uses.
 9. **set.mm's absolute value is not defined by cases.** df-abs defines
    |x| on ℂ as √(x·x̄), and the two branches for reals are the theorems
    absid and absnid. So def:stdlib/numbers/abs in this language elaborates to a pair of
