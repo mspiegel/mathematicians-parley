@@ -753,7 +753,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
             for (said, proof) in stated.entries() {
-                let more = self.implied(&said, &proof, scope);
+                let more = self.implied(&said, &proof, scope, facts)?;
                 if let Some(p) = more.get(term) {
                     return Ok(Built(p.clone()));
                 }

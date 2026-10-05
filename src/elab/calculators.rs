@@ -641,7 +641,7 @@ impl<'a> Elaborator<'a> {
         }
         // Or a membership written that says it: N ∈ ℕ says N ≠ 0.
         for (fact, proof) in facts.entries() {
-            if let Some(p) = self.implied(&fact, &proof, scope).get(&want) {
+            if let Some(p) = self.implied(&fact, &proof, scope, facts)?.get(&want) {
                 return Ok(Some(p.clone()));
             }
         }
@@ -1915,16 +1915,16 @@ impl<'a> Elaborator<'a> {
         known: &Facts,
         variable: &Term,
         over: &Term,
-    ) -> (String, Facts) {
+    ) -> Checked<(String, Facts)> {
         let member = t!(format!("{} cv", self.rpn(variable)), self.rpn(over), "wcel");
         let (inner, lifted) = self.widen(scope, known, &member, None);
         let held = lifted.get(&member).expect("the membership just laid down");
-        let more = self.implied(&member, &held, &inner);
+        let more = self.implied(&member, &held, &inner, &lifted)?;
         let out = lifted.copy();
         for (k, v) in more {
             out.set(k, v);
         }
-        (inner, out)
+        Ok((inner, out))
     }
 
     /// ( scope -> said = L ) and L: a finite sum written out as linear over
@@ -1993,7 +1993,7 @@ impl<'a> Elaborator<'a> {
         // each run of them is a number.
         let variable = self.var_of(spare);
         let at_member = self.frames_kept(|me| -> Checked<Route<AtMember>> {
-            let (inner, lifted) = me.fixed(scope, facts, &variable, &range_term);
+            let (inner, lifted) = me.fixed(scope, facts, &variable, &range_term)?;
             // What the member's membership says is the step's to use there,
             // as a line it writes: the claim's sum ranges over it.
             let kept = me.written.clone();
@@ -2226,7 +2226,7 @@ impl<'a> Elaborator<'a> {
         );
         let system_term = self.to_term(system);
         let each = self.frames_kept(|me| {
-            let (inner, lifted) = me.fixed(scope, known, &index, &limits);
+            let (inner, lifted) = me.fixed(scope, known, &index, &limits)?;
             let claim = Term::apply("wcel", vec![summand.clone(), system_term.clone()]);
             me.member_of(&claim, &inner, &lifted, step)
         })?;
@@ -3347,7 +3347,7 @@ impl<'a> Elaborator<'a> {
             let Some(proof) = proof else {
                 continue;
             };
-            let more = self.implied(&s, &proof, scope);
+            let more = self.implied(&s, &proof, scope, &known)?;
             if let Some(p) = more.get(&want) {
                 return Ok(Built(p.clone()));
             }

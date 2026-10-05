@@ -72,6 +72,9 @@ pub struct Link {
     pub lemma: String,
     pub binding: Option<Binding>,
     pub reached: Term,
+    /// What the lemma asks besides the fact it carries: that a class is a
+    /// set, as `gsspw` asks of the set a part is a part of (`made_a_set`).
+    pub sets: Vec<Term>,
 }
 
 /// How a caller proves one part of a compound in a number system.
@@ -874,6 +877,13 @@ impl<'a> Elaborator<'a> {
     /// `implied_terms` with each lemma's binding and what it reaches.
     fn implied_chains(&self, said: &str) -> Vec<(String, Vec<Link>)> {
         let node = self.to_term(said);
+        // A part of a set and a member of its power set say each other
+        // (`rules::PARTS`, which the checker reads as well).
+        for (_, _, lemma) in rules::PARTS {
+            if let Some(made) = self.lemma_step(lemma, &node) {
+                return vec![(self.rpn(&made.reached), vec![made])];
+            }
+        }
         if node.variable().is_some()
             || node.label() != Some("wcel")
             || node.children().len() != 2
@@ -885,6 +895,14 @@ impl<'a> Elaborator<'a> {
         if lookup(rules::WITHIN, &system).is_none()
             && lookup(rules::IMPLIED, &system).is_none()
         {
+            // A range is no number system, and a line saying a term is in
+            // one says nothing past itself (`SYNTAX.md`): `mun:range-integer`
+            // is how a page says its member is whole. A sum's index is in
+            // its range as the sum runs over it, and is a whole number there
+            // (`elfznn0`), as a family's values are read.
+            if self.in_family == 0 {
+                return Vec::new();
+            }
             let where_ = &node.children()[1];
             if where_.variable().is_some()
                 || where_.label() != Some("co")
@@ -947,6 +965,7 @@ impl<'a> Elaborator<'a> {
                     lemma: "neneqd".to_string(),
                     binding: None,
                     reached: denied.clone(),
+                    sets: Vec::new(),
                 });
                 out.push((self.rpn(&denied), chain));
             }
@@ -955,37 +974,68 @@ impl<'a> Elaborator<'a> {
     }
 
     /// (lemma, binding, what it concludes) for a lemma `( P -> Q )` applied
-    /// to a term matching P, or None where it does not match.
+    /// to a term matching P, or None where it does not match. A lemma
+    /// `( ( X e. V /\ P ) -> Q )` is applied the same way, with V read as
+    /// the class of all sets and X ∈ V left for the caller to prove (`sets`):
+    /// `gsspw` takes a part of B to a member of 𝒫B where B is a set.
     fn lemma_step(&self, lemma: &str, fact: &Term) -> Option<Link> {
         let whole = self.statement(lemma);
-        let binding = fit(
-            &whole.children()[0],
-            fact,
-            &Binding::new(),
-            &names_of(&whole),
-        )?;
+        let premise = &whole.children()[0];
+        let sethood = premise.variable().is_none()
+            && premise.label() == Some("wa")
+            && premise.children()[0].label() == Some("wcel")
+            && premise.children()[0].children()[1].variable().is_some();
+        let carried = if sethood {
+            &premise.children()[1]
+        } else {
+            premise
+        };
+        let mut binding = fit(carried, fact, &Binding::new(), &names_of(&whole))?;
+        let mut sets = Vec::new();
+        if sethood {
+            let class = premise.children()[0].children()[1].variable()?.to_string();
+            binding.insert(class, Term::apply("cvv", Vec::new()));
+            sets.push(premise.children()[0].substitute(&binding));
+        }
         let reached = whole.children()[1].substitute(&binding);
         Some(Link {
             lemma: lemma.to_string(),
             binding: Some(binding),
             reached,
+            sets,
         })
     }
 
     /// Each thing a membership line also says, with its proof under `scope`
-    /// from the line's own `proof`.
+    /// from the line's own `proof`. A lemma that asks a class be a set has
+    /// it proved from the facts (`made_a_set`), and where it cannot be, what
+    /// that lemma would give is not said.
     pub fn implied(
-        &self,
+        &mut self,
         said: &str,
         proof: &Proof,
         scope: &str,
-    ) -> IndexMap<String, Proof> {
+        facts: &Facts,
+    ) -> Checked<IndexMap<String, Proof>> {
         let mut out = IndexMap::new();
-        for (claim, chain) in self.implied_chains(said) {
+        'claims: for (claim, chain) in self.implied_chains(said) {
             let mut held = proof.clone();
             let mut at = said.to_string();
             for link in chain {
                 let after = self.rpn(&link.reached);
+                // ( scope -> ( X e. _V /\ at ) ), for a lemma asking a set.
+                for set in &link.sets {
+                    let Built(made) = self.made_a_set(set, scope, facts)? else {
+                        continue 'claims;
+                    };
+                    let both = t!(self.rpn(set), at, "wa");
+                    held = self.b.ap(
+                        "jca",
+                        &binds! {"ph" => scope, "ps" => self.rpn(set), "ch" => &at},
+                        &[&made, &held],
+                    );
+                    at = both;
+                }
                 if link.lemma == "neneqd" {
                     let node = self.to_term(&at);
                     let (a, b) =
@@ -1005,7 +1055,7 @@ impl<'a> Elaborator<'a> {
             }
             out.insert(claim, held);
         }
-        out
+        Ok(out)
     }
 
     /// `said ∈ system`, carried in one lemma from a membership written: only
@@ -1343,7 +1393,7 @@ impl<'a> Elaborator<'a> {
                 let Some(proof) = proof else {
                     continue;
                 };
-                let more = self.implied(&said, &proof, scope);
+                let more = self.implied(&said, &proof, scope, facts)?;
                 if let Some(p) = more.get(&apart) {
                     return Ok(Built(p.clone()));
                 }

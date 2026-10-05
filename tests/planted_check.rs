@@ -1739,6 +1739,16 @@ fn cases() -> Vec<Case> {
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),
+        // A range is no number system, and a line putting r in one says
+        // nothing past itself (`SYNTAX.md`): that r is whole is
+        // `mun:range-integer`, cited.
+        case(
+            "read a member of a range as an integer without range-integer",
+            vec![
+                edit("proofs/euler.proof", Some("          requires r ∈ ℤ: mun:range-integer, from 6.1\n".to_string()), String::new()),
+            ],
+            "step 6.2 cites mun:coprime-product, which asks for x ∈ ℤ",
+        ),
         // An exhibit's lines say each part of its body at the value, a
         // numeral's facts among them, and what is missing is named.
         case(

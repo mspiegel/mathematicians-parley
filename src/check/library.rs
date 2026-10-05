@@ -617,6 +617,29 @@ pub fn readings(node: &Node, library: &Library) -> Vec<(Node, Vec<Node>)> {
     out
 }
 
+/// Whether `fact` has the form `form` writes, with its letters `x` and `S`
+/// standing for whatever is in their places, and what they stand for put in
+/// `put`.
+fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
+    if form.is_name() && (form.text == "x" || form.text == "S") {
+        return match put.get(&form.text) {
+            Some(held) => held.shape() == fact.shape(),
+            None => {
+                put.insert(form.text.clone(), fact.clone());
+                true
+            }
+        };
+    }
+    form.notation == fact.notation
+        && form.text == fact.text
+        && form.children.len() == fact.children.len()
+        && form
+            .children
+            .iter()
+            .zip(&fact.children)
+            .all(|(f, g)| fits_form(f, g, put))
+}
+
 fn template(said: &str, env: Env, sorts: &Sorts) -> Node {
     parse_here(said, env.g, sorts).unwrap_or_else(|p| {
         panic!("the notation database no longer reads {said:?}, which a membership implies: {p}")
@@ -670,39 +693,26 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
     out
 }
 
-/// What a membership fact also says, by the table in `rules`.
+/// What a membership fact also says, by the tables in `rules`, which the
+/// elaborator reads as well.
 ///
 /// `k ∈ ℕ` also says k ∈ ℤ, k ∈ ℝ and the rest, and k ≥ 1 and k ≠ 0
 /// (`SYNTAX.md`, what a membership line says). A part of a set is a member
 /// of its power set and the other way round, so `C ⊆ A` also says C ∈ 𝒫A,
-/// which is what `for all X ⊆ A` ranges over. Anything else says only
-/// itself.
+/// which is what `for all X ⊆ A` ranges over (`rules::PARTS`). Anything
+/// else says only itself: a range is no number system, and a member of one
+/// is whole by `mun:range-integer`.
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
-    let both = fact.children.len() == 2;
-    if both
-        && (fact.notation == "subset"
-            || (fact.notation == "membership"
-                && fact.children[1].notation == "powerset"))
-    {
-        let part = fact.children[0].clone();
-        let whole = if fact.notation == "membership" {
-            fact.children[1].children[0].clone()
-        } else {
-            fact.children[1].clone()
-        };
-        let mut local = sorts.clone();
-        local.insert("x".into(), Sort::of("set"));
-        local.insert("S".into(), Sort::of("set"));
-        let said = if fact.notation == "subset" {
-            "x ∈ 𝒫S"
-        } else {
-            "x ⊆ S"
-        };
+    let mut sets = sorts.clone();
+    sets.insert("x".into(), Sort::of("set"));
+    sets.insert("S".into(), Sort::of("set"));
+    for (premise, conclusion, _) in rules::PARTS {
         let mut put = Binding::new();
-        put.insert("x".into(), part);
-        put.insert("S".into(), whole);
-        return vec![substitute(&template(said, env, &local), &put)];
+        if fits_form(&template(premise, env, &sets), fact, &mut put) {
+            return vec![substitute(&template(conclusion, env, &sets), &put)];
+        }
     }
+    let both = fact.children.len() == 2;
     if fact.notation != "membership"
         || !both
         || fact.children[1].notation != "number-systems"

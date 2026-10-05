@@ -1408,7 +1408,7 @@ The orders follow five rules, and each search below is one of them applied.
    ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ, so the most precise fact is the one a membership rests
    on; `rules::STANDARD` for the standard form (rules
    that ask nothing before rules that ask something), `WITHIN`, `SYSTEM_OF`,
-   `IMPLIED` and `RANGE_WITHIN` for what a membership says. An item's
+   `IMPLIED`, `PARTS` and `RANGE_WITHIN` for what a membership says. An item's
    `target` is tried clause by clause in the order the record writes it
    (`targets::clauses`), which is the database's order to decide.
 
@@ -1659,11 +1659,17 @@ proved (`discharged_by`).
     itself. `tests/agree.rs` elaborates every theorem and asks each tool of
     every sentence a step claims or requires, comparing the answers as kernel
     terms, since k ≥ 0 and 0 ≤ k are one term written two ways; an answer
-    the page cannot say, set.mm's =/=, is not compared. The answers that
-    differ are listed in the test, and it fails on any other: the checker
-    reads a part of a set as a member of its power set and the elaborator
-    does not, and the elaborator reads a member of a range of integers as an
-    integer and the checker does not.
+    the page cannot say, set.mm's =/=, is not compared. They answer alike
+    throughout, and a difference fails the test. Both read one set of tables
+    in `rules`: what a membership in a number system says (`WITHIN`,
+    `IMPLIED`), and that a part of a set and a member of its power set say
+    each other (`PARTS`), the checker reading each row's two forms and the
+    elaborator its lemma, `gsspw` with the set proved a set (`made_a_set`).
+    A line saying a term is in a range says nothing past itself, since a
+    range is no number system (`SYNTAX.md`): `mun:range-integer` is how a
+    page says its member is whole. A sum's index is the exception, a whole
+    number as the sum runs over its range (`RANGE_WITHIN`), as a family's
+    values are read (`in_family`).
 
 What a line is *used for* is known too, though nothing reports it: a numbered
 line whose every use is by requires lines, or by the hypotheses of items

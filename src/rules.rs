@@ -456,8 +456,17 @@ pub fn implied(system: Option<&str>) -> &'static [(&'static str, &'static str)] 
     system.and_then(|s| lookup(IMPLIED, s)).unwrap_or(&[])
 }
 
+// A part of a set is a member of its power set and the other way round: what
+// a line of the first form also says, in the page's notation, and the lemma
+// that says it. `gsspw` asks that the set be a set, and the elaborator proves
+// it (`made_a_set`). The checker reads the two forms, the elaborator the
+// lemma.
+pub const PARTS: &[(&str, &str, &str)] =
+    &[("x ⊆ S", "x ∈ 𝒫S", "gsspw"), ("x ∈ 𝒫S", "x ⊆ S", "elpwi")];
+
 // A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere:
-// the system, the numeral it must start at or None, the lemma.
+// the system, the numeral it must start at or None, the lemma. The checker
+// reads what a member of a range is from it, and so does the elaborator.
 pub const RANGE_WITHIN: &[(&str, Option<&str>, &str)] = &[
     ("cn", Some("c1"), "elfznn"),
     ("cn0", Some("cc0"), "elfznn0"),
@@ -893,6 +902,9 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
         .collect();
     put("NUMERIC", &numeric);
     put("ONE_WAY", &[ONE_WAY.0, ONE_WAY.1]);
+    for (_, _, lemma) in PARTS {
+        put("PARTS", &[lemma]);
+    }
     for (system, first, lemma) in RANGE_WITHIN {
         put("RANGE_WITHIN", &[system]);
         if let Some(first) = first {

@@ -136,7 +136,7 @@ impl<'a> Elaborator<'a> {
             let (inner, lifted) = me.widen(scope, facts, &member, None);
             let lifted = if implied {
                 let held = lifted.get(&member).expect("the membership just laid down");
-                let more = me.implied(&member, &held, &inner);
+                let more = me.implied(&member, &held, &inner, &lifted)?;
                 let out = lifted.copy();
                 for (k, v) in more {
                     out.set(k, v);
