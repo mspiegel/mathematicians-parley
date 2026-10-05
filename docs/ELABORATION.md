@@ -1243,8 +1243,13 @@ the step's scope, and the lemma's hypotheses are asked under it.
 
 **What a requires line takes from the line it cites** is the fact as that
 line writes it, one of its sentences or what the line unfolds to where its
-reason is a definition the notation folds away (`unfolded_at`). Four things
+reason is a definition the notation folds away (`unfolded_at`). Five things
 count as the line writing it besides:
+
+- what a line said of every member of a set says at a member the step has,
+  taken apart as the line is (`part_at_a_member`, `rspcv`):
+  `requires s(x) ∈ ℕ₀: from 5`, where line 5 says for all x ∈ ℚ, s(x) ∈ ℕ₀
+  and more, in a step said of every x ∈ ℚ (rationals-countable, step 6);
 
 - the kernel's sethood of what a let introduces: `let x be an element` and
   `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the

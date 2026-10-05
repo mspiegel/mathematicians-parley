@@ -301,7 +301,7 @@ impl<'a> Elaborator<'a> {
     /// `instantiate` reads a line at a name the step gives. A sum lemma
     /// moved to a letter the scope does not hold asks its terms at that
     /// letter, and the line the step cites says them of every index.
-    fn instance_of_universal(
+    pub(crate) fn instance_of_universal(
         &mut self,
         wanted: &str,
         scope: &str,

@@ -504,6 +504,17 @@ fn cases() -> Vec<Case> {
             "    membership\n",
             "is not built from what step 8 cites",
         ),
+        // Line 5 says s(x) ∈ ℕ₀ of every x ∈ ℚ and is read at the step's
+        // member; line 3 says something else of every pair of naturals, and
+        // nothing read at a member of anything gives s(x) ∈ ℕ₀.
+        case(
+            "a requires line citing a line said of every member that does not say the fact",
+            "proofs/rationals-countable/rationals-countable",
+            "proofs/rationals-countable.proof",
+            "requires s(x) ∈ ℕ₀: from 5",
+            "requires s(x) ∈ ℕ₀: from 3",
+            "does not reach",
+        ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the
         // define S is only a name.

@@ -611,6 +611,51 @@ impl<'a> Elaborator<'a> {
         said.to_string()
     }
 
+    /// What a line said of every member of a set says at a member the facts
+    /// place in that set, taken apart as the line itself is: `requires s(x) ∈
+    /// ℕ₀: from 5`, where line 5 says for all x ∈ ℚ, s(x) ∈ ℕ₀ and more, at x
+    /// ∈ ℚ. None where no member gives `term`.
+    fn part_at_a_member(
+        &mut self,
+        said: &str,
+        whole: &Proof,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let line = self.to_term(said);
+        let (body, letter, domain) = (
+            line.children()[0].clone(),
+            self.rpn(&line.children()[1]),
+            self.rpn(&line.children()[2]),
+        );
+        let mark = format!("{letter} cv");
+        for (member, inside) in facts.entries() {
+            let m = self.to_term(&member);
+            if m.variable().is_some()
+                || m.label() != Some("wcel")
+                || self.rpn(&m.children()[1]) != domain
+            {
+                continue;
+            }
+            let at = self.rpn(&m.children()[0]);
+            let instance = self.rpn(&self.restated(&body, &mark, &at));
+            let held = Facts::new();
+            held.set(said, whole.clone());
+            held.set(member.clone(), inside);
+            let Some(p) = self.instance_of_universal(&instance, scope, &held)? else {
+                continue;
+            };
+            let parts = Facts::new();
+            parts.set(instance.clone(), p.clone());
+            self.unpack(&instance, &p, scope, &parts, 4);
+            if let Some(found) = parts.get(term) {
+                return Ok(Some(found));
+            }
+        }
+        Ok(None)
+    }
+
     /// What a line a `requires` line names says, taken apart: a definition
     /// the database gives no target for is one the notation folds away, so
     /// the unfolding is the line itself, and a `from H1` reason asks the same
@@ -673,6 +718,13 @@ impl<'a> Elaborator<'a> {
             if lookup(rules::BOUND, &label).is_some() {
                 if let Some(spelt) = self.respelt(&whole, &line.term, term, scope)? {
                     return Ok(Built(spelt));
+                }
+            }
+            if label == "wral" {
+                if let Some(p) =
+                    self.part_at_a_member(&line.term, &whole, term, scope, facts)?
+                {
+                    return Ok(Built(p));
                 }
             }
             // What the line says beyond its recorded term: an obtain records
