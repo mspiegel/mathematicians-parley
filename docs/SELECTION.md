@@ -18,9 +18,9 @@ statement's variables.
 
 ## State
 
-All twenty-six are written and elaborate from set.mm with nothing assumed.
-Five more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-six has its proof in `proofs/` and its design record
+All twenty-seven are written and elaborate from set.mm with nothing assumed.
+Four more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-seven has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -38,6 +38,7 @@ in `docs/pilot/`, under the same name:
 | 21 | angle-sum | 22 | pythagoras |
 | 23 | euler | 24 | harmonic |
 | 25 | factor | 26 | cauchy-schwarz |
+| 27 | reals-uncountable | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. Six informal
@@ -455,11 +456,19 @@ textbook's.
     assumed. The reader chose sums from 1 to n, the case Σaₖ² = 0
     as a case on the page, and the discriminant step on the page as well:
     the quadratic at t = −B/A, then multiplied by A > 0.
-27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ. The readable statement
-    is that no sequence of reals contains them all; the proof nests closed
-    intervals, each avoiding the next term, and takes a point in all of
-    them. It uses the recursion of 16 and the completeness of 8 together,
-    and its diagonal idea is Cantor's of 6 for a sequence.
+27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ and proves it by
+    nesting closed intervals. Written: `proofs/reals-uncountable.proof`,
+    with `docs/pilot/reals-uncountable.md`, and all seven of its theorems
+    elaborate with nothing assumed. The proof is Cantor's diagonal argument
+    in decimals instead: the n-th digit of x is the n-th digit of f(n) plus
+    one, 9 becoming 0, so no f(n) is x (`sequence-misses-real`, set.mm's
+    `ruclem12`); and so there is no bijection from ℕ to ℝ
+    (`reals-uncountable`, ¬ ℕ ≈ ℝ). Any digits make a number, as the least
+    upper bound of its truncations, the completeness of 8, built by the
+    recursion of 16. ProofWiki's diagonal argument picks the digit the same
+    way and works in [0, 1), leaving out decimals ending in endless 9s; here
+    the number made may have d(n) + 1 where 0.4999… = 0.5 does, and adding
+    one twice is not the digit either.
 28. **Pythagorean triples.** The first theorem that describes every
     solution: a² + b² = c² exactly when a, b, c are k(m² − n²), 2kmn and
     k(m² + n²). It rests on the corpus's gcd and divisibility, and on
