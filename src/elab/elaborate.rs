@@ -3626,8 +3626,11 @@ impl<'a> Elaborator<'a> {
                 let saved = me.names.clone();
                 let mut binds: IndexMap<String, String> = IndexMap::new();
                 for h in &other.hypotheses {
+                    // Parsed with the theorem's own sorts, which say what its
+                    // letters are; only its shape and name are used here.
+                    let said = me.hypothesis_formula(h.kind.as_str(), &h.text);
                     let node =
-                        me.read(&me.hypothesis_formula(h.kind.as_str(), &h.text))?;
+                        me.in_its_names(Item::Theorem(other), |me| me.read(&said))?;
                     // `let X be a set` and `let A be a point` name a class as
                     // surely as `let n ∈ ℕ` does, and the name is in the same
                     // place.
@@ -3787,6 +3790,36 @@ impl<'a> Elaborator<'a> {
                 self.b.proof(&parts)
             }
         };
+        // A theorem of this file stated over the file's own defines speaks of
+        // them by name, as the citing step does, so the step reads them as
+        // the statement does without citing them, as the checker reads it.
+        let kept = self.resting.clone();
+        let over = self.stated_over(other);
+        if let Some(allowed) = &mut self.resting {
+            allowed.extend(over);
+        }
+        // What the step writes and cites is what reading the statement over
+        // the step's own terms may ask: e(n) ∈ ℤ, to read s at e(n).
+        let read = self.with_cited(Some(step), scope, &known, None);
+        let offered = facts.with(&read);
+        let concluded = self.concluded(step, term, &whole, proof, scope, &offered);
+        self.resting = kept;
+        concluded
+    }
+
+    /// ( scope -> term ) from the cited theorem's statement `whole`, proved
+    /// by `proof`: the statement itself, over other bound letters, or one
+    /// sentence of it said in other words.
+    fn concluded(
+        &mut self,
+        step: &Step,
+        term: &str,
+        whole: &str,
+        proof: Proof,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let whole = whole.to_string();
         if term == whole {
             return Ok(proof);
         }

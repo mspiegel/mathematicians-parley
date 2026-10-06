@@ -549,6 +549,22 @@ impl<'a> Elaborator<'a> {
         visible(self.scopes, self.thm.scope, self.thm.line)
     }
 
+    /// The labels of this file's defines that a theorem of this file is
+    /// stated over: a step citing it speaks of them by name as its statement
+    /// does, so it reads them as the statement does and rests on them
+    /// without citing them (`cite_corpus`, `named`). None for a theorem of
+    /// another file, whose defines the step knows only through an import.
+    pub fn stated_over(&self, other: &crate::corpus::Theorem) -> Vec<String> {
+        if other.scope != self.thm.scope {
+            return Vec::new();
+        }
+        visible(self.scopes, other.scope, other.line)
+            .into_iter()
+            .filter(|(_, _, src)| *src == other.scope)
+            .map(|(_, d, _)| d.label)
+            .collect()
+    }
+
     /// The label a definition from outside the theorem is held under: its own
     /// where its file is this theorem's, and the label on the import where it
     /// is imported, so a step cites it as the page does. An import that gives

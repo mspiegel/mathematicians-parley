@@ -1835,7 +1835,12 @@ impl<'a> Elaborator<'a> {
             );
         }
         let term = self.rpn(claim);
-        let read = self.standard(claim);
+        // The claim with its defined names and maps read as what they stand
+        // for, and nothing else changed (`read_out`): a part is then the term
+        // the page wrote, which the facts saying it are found by, and not a
+        // respelling of it, ⌊c·10^n⌋ for ⌊10^n·c⌋, that only the parts' own
+        // memberships would carry back.
+        let read = self.read_out(claim);
         let (whole, system) = (read.children()[0].clone(), read.children()[1].clone());
         // The claim is read with its defined names written out, and so is
         // each membership the facts hold: a line saying a defined name is

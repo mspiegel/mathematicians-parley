@@ -226,7 +226,15 @@ impl Elaborator<'_> {
                 stack.push(Pattern::Hole(token[1..].parse().ok()?));
                 continue;
             }
-            let arity = self.b.sigs.get(token)?.floats.len();
+            let sig = self.b.sigs.get(token)?;
+            // A letter the target binds itself, as `s` in "u is an upper
+            // bound of S", is that letter in the term, which reads it as a
+            // variable.
+            if sig.kind == crate::mm::Kind::Float {
+                stack.push(Pattern::Fixed(token.to_string()));
+                continue;
+            }
+            let arity = sig.floats.len();
             if stack.len() < arity {
                 return None;
             }

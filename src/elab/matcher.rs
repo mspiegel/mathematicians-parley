@@ -1492,6 +1492,27 @@ impl<'a> Elaborator<'a> {
         found
     }
 
+    /// The term with each defined name, and each map applied to an argument,
+    /// read as what it stands for (`named_body`, `applied_body`), parts
+    /// first, and nothing else changed: no rule rewrites it and no pair is
+    /// put in order, so its other parts are spelt as the page spelt them.
+    pub fn read_out(&mut self, term: &Term) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
+            return term.clone();
+        }
+        let kids: Vec<Term> =
+            term.children().iter().map(|c| self.read_out(c)).collect();
+        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        let binding = self.binding.clone();
+        if let Some(body) = self.named_body(&parts, &binding) {
+            return self.read_out(&body);
+        }
+        if let Some(body) = self.applied_body(&parts) {
+            return self.read_out(&body);
+        }
+        parts
+    }
+
     /// One rewrite toward the standard form at the head of `term`; None
     /// where nothing rewrites the head.
     pub fn standard_step(&mut self, term: &Term) -> Option<(How, Term)> {

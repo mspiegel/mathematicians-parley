@@ -1115,8 +1115,14 @@ pub fn check_define_citation(
             (&parts.claims[0].children[0], &parts.claims[0].children[1]);
         let said: Vec<&str> = parts.facts.iter().map(|f| f.shape()).collect();
         let mut why: Option<&str> = None;
-        let mut gives = false;
+        // Written out, the two sides one term: the claim is the define's
+        // value as the define writes it, whatever case holds, as
+        // `e(n) = s(D(f(n), n))` is where s is by cases.
+        let mut gives = left.shape() == right.shape();
         for (one, other) in [(left, right), (right, left)] {
+            if gives {
+                break;
+            }
             match case_taken(one, &said, &parts.facts, &wrappers) {
                 Case::Unsaid(reason) => {
                     why = why.or(Some(reason));

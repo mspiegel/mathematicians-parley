@@ -697,7 +697,19 @@ introduces them at its first step, as any define above the first step is,
 and its steps are about the names; the last step's claim is carried to the
 written-out statement by `same`. A cited theorem's own lines are read in its
 own file's definitions (`in_its_names`), so its T is its file's T whatever
-the citing proof calls T.
+the citing proof calls T; an `obtain` from one parses its conclusion the same
+way, with the theorem's sorts, so a letter its `let` lines give, such as a
+function d, reads as it does there.
+
+A theorem of the same file stated over the file's own defines speaks of them
+by name, as the citing step does: the uncountability proof's `digit-step` is
+stated of s, and the step citing it claims s(D(f(n), n)) ∈ ℤ. Its statement
+is written out and the step's claim is not, so the two meet only with s read
+as its rule, and the step may read it so without citing the define, as the
+checker reads it (`stated_over`, which `cite_corpus` lets the comparison
+read and R1's `named` counts as rested on). A theorem of another file gives
+no such leave: its defines reach the step only through an import, which a
+step cites.
 
 **Sequences defined by recursion are one recursion over a state.** Euclid's
 `define a(0) := M, b(0) := N, a(k + 1) := …, b(k + 1) := …, for k ∈ ℕ₀`
@@ -835,7 +847,11 @@ a difference or a product of quotients to one numerator over one denominator
 
 **`membership`** is the membership lookup `algebra` and `inequalities`
 already make for every atom (`part`), made a step's claim. The claim is read
-in standard form, so T(k) is k(k + 1)/2; that is built from its parts by the
+with its defined names and maps read as what they stand for, so T(k) is
+k(k + 1)/2, and nothing else changed (`read_out`): its other parts are the
+terms the page wrote, which the facts saying them are found by, and not a
+standard form's respelling, ⌊c·10ⁿ⌋ for ⌊10ⁿ·c⌋, that only the parts' own
+memberships could carry back. That is built from its parts by the
 closure table, each atom's membership from a line the step cites or writes,
 carried by one lemma (`bridged`), or from a cited equation with the atom on
 one side, whose other side is placed the same way and carried across by

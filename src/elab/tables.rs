@@ -716,8 +716,17 @@ impl<'a> Elaborator<'a> {
     /// from the digits' labels and brought into the scope once.
     fn decimal_within(&mut self, goal: &Term, scope: &str) -> Checked<Route<Proof>> {
         let (said, system) = (goal.children()[0].clone(), goal.children()[1].clone());
+        // In ℕ by its digits (`numerals::nn`), as 10 is by `decnncl2`: a
+        // decimal is never zero, since its digits before the last are not.
+        if system.label() == Some("cn") {
+            let Some(value) = super::numerals::value(&said).filter(|v| *v > 0) else {
+                return Ok(Route::no("not a numeral other than zero"));
+            };
+            let closed = super::numerals::nn(&self.b, value);
+            return Ok(Built(pf!(self.b; self.rpn(goal), scope, closed, "a1i")));
+        }
         let Some(lift) = system.label().and_then(|l| lookup(rules::FROM_NN0, l)) else {
-            return Ok(Route::no("a decimal is placed in ℕ₀, ℤ, ℝ and ℂ only"));
+            return Ok(Route::no("a decimal is placed in ℕ, ℕ₀, ℤ, ℝ and ℂ only"));
         };
         fn whole(me: &Elaborator, term: &Term) -> Route<Proof> {
             if let Some(d) = term.label().and_then(rules::digit_of) {

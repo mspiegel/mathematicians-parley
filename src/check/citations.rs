@@ -684,6 +684,48 @@ struct Applied {
     label: String,
     arg: String,
     says: Vec<String>,
+    /// Where in the text the application begins, in characters.
+    start: usize,
+}
+
+/// The applications whose domains a step citing a define asks. A step whose
+/// reason is the define itself evaluates the function where an application
+/// is a whole side of its equation, as `s(s(a)) = (s(a) + 1) mod 10`
+/// evaluates s at s(a); an application elsewhere in the claim, the s(a)
+/// inside, is a term carried as it stands and asks nothing. Any other step
+/// citing the define asks of every application in its claim.
+fn evaluated(
+    step: &Step,
+    used: &[Defined],
+    known: &Known,
+    library: &Library,
+) -> Vec<Applied> {
+    let text = step.claim_text();
+    let direct = step.just.head == crate::corpus::Head::Define
+        && used
+            .iter()
+            .any(|f| step.just.defined.as_deref() == Some(f.label.as_str()));
+    let claim = known.read_as_written(&text);
+    let sides = match &claim {
+        Some(c)
+            if direct
+                && c.children.len() == 2
+                && library.ctx.equations.contains(&c.notation) =>
+        {
+            &c.children
+        }
+        _ => return applied(used, &text),
+    };
+    sides
+        .iter()
+        .flat_map(|side| {
+            let said = known.print(side);
+            applied(used, &said)
+                .into_iter()
+                .filter(|a| a.start == 0)
+                .collect::<Vec<_>>()
+        })
+        .collect()
 }
 
 /// Every application of the functions in `text`, each argument with what
@@ -759,6 +801,7 @@ fn applied(functions: &[Defined], text: &str) -> Vec<Applied> {
                             label: label.clone(),
                             arg: str::trim(arg).to_string(),
                             says,
+                            start: at,
                         });
                     }
                     break;
@@ -844,7 +887,7 @@ pub fn check_define_domains(
         }
         let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
         let mut seen: BTreeSet<String> = BTreeSet::new();
-        for asked in applied(&used, &step.claim_text()) {
+        for asked in evaluated(step, &used, known, library) {
             let holds_index = known
                 .read_as_written(&asked.arg)
                 .is_some_and(|a| !a.names().is_disjoint(&indices));

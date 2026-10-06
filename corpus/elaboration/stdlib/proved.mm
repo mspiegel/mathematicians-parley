@@ -464,11 +464,16 @@ $d y z G $.
 $}
 
 ${
-$( Numbers: a remainder is less than its divisor. $)
+$( Numbers: a remainder is less than its divisor, and a multiple of
+   the divisor added leaves it as it was. $)
 
   gzmodlt $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( cz wcel cr crp cmo co clt wbr cn zre nnrp modlt syl2an )
     ACDAEDBFDABGHBIJBKDALBMABNO $.
+
+  gmuladdmod $p |- ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod M ) ) $=
+    ( cz wcel cr cn crp cmul co caddc cmo wceq zre nnrp id muladdmod syl3an )
+    ADEAFEBGEBHECDEZSCBIJAKJBLJABLJMANBOSPABCQR $.
 
 $}
 

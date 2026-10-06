@@ -30,10 +30,12 @@ regex!(
         crate::corpus::ITEM_PREFIX
     )
 );
+// What comes before the pairs: the item cited, after the names an `obtain`
+// takes, `obtain q, r: thm:division-algorithm`, or `instantiate`.
 regex!(
     INSTANTIATION_HEAD,
     format!(
-        r"^(?:{}[^\s]+\s*|instantiate\s+)",
+        r"^(?:obtain\s[^:]*:\s*)?(?:{}[^\s]+\s*|instantiate\s+)",
         crate::corpus::ITEM_PREFIX
     )
 );

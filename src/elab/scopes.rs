@@ -1309,7 +1309,11 @@ impl<'a> Elaborator<'a> {
                             Some(&cites),
                             &Self::claimed_by(item),
                         )?,
-                        Item::Theorem(_) => me.read(&Self::claimed_by(item))?,
+                        // Parsed with the theorem's own sorts, which say what
+                        // its letters are, and made a term in the step's names.
+                        Item::Theorem(_) => me.in_its_names(item, |me| {
+                            me.read(&Self::claimed_by(item))
+                        })?,
                     };
                     // Listed in the standard order the checker lists its own
                     // answer in, since the two are compared (`check::answers`).

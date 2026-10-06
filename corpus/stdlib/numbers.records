@@ -184,6 +184,26 @@ mundane theorem integer-step
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
 
+mundane theorem floor-integer
+  let x ∈ ℝ                                                           (H1)
+  then        ⌊x⌋ ∈ ℤ
+  metamath    flcl
+  target      flcl
+
+mundane theorem floor-below
+  let x ∈ ℝ                                                           (H1)
+  then        ⌊x⌋ ≤ x
+  metamath    flle
+  target      flle
+
+mundane theorem floor-above
+  let x ∈ ℝ                                                           (H1)
+  then        x < ⌊x⌋ + 1
+  metamath    flltp1
+  target      flltp1
+  note        With floor-below, ⌊x⌋ is the whole number with x in [⌊x⌋,
+              ⌊x⌋ + 1): x is at most one more than it, and never that much.
+
 mundane theorem exponent-step
   let a ∈ ℂ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
@@ -405,6 +425,27 @@ mundane theorem multiply-le
   target      lemul2
   note        `inequalities` multiplies a line only by a number, so a step
               multiplying both sides by a positive term cites this.
+
+mundane theorem le-antisymmetric
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x = y ↔ x ≤ y and y ≤ x
+  metamath    letri3
+  target      letri3
+  note        Two numbers each at most the other are equal. `inequalities`
+              proves a bound and not an equation, so a step reaching an
+              equation from two bounds cites this.
+
+mundane theorem divide-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume x ≤ y                                                        (H4)
+  assume c > 0                                                        (H5)
+  then        x/c ≤ y/c
+  metamath    lediv1
+  target      lediv1
+  note        As multiply-le, for dividing both sides by a positive term.
 
 mundane theorem multiply-cancel
   let a ∈ ℝ                                                           (H1)

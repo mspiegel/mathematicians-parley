@@ -246,6 +246,29 @@ mundane theorem mod-less
               elaboration/stdlib/proved.mm
   target      gzmodlt
 
+mundane theorem mod-remainder
+  let a ∈ ℤ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  let r ∈ ℕ₀                                                          (H3)
+  assume r < m                                                        (H4)
+  then        a mod m = r ↔ there is q ∈ ℤ with q·m + r = a
+  metamath    modremain
+  target      modremain
+  note        The remainder is the r left over when a is a whole number of
+              m's and r: the last digit of q·10 + r is r, for a digit r.
+
+mundane theorem mod-multiple
+  let r ∈ ℤ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  let q ∈ ℤ                                                           (H3)
+  then        (q·m + r) mod m = r mod m
+  metamath    muladdmod, said of a real and a positive real, which this
+              corpus reaches from integers and a natural number in
+              elaboration/stdlib/proved.mm
+  target      gmuladdmod
+  note        A whole number of m's added changes no remainder: the last
+              digit of q·10 + r is the last digit of r.
+
 mundane theorem zero-divides
   let n ∈ ℤ                                                           (H1)
   then        0 divides n ↔ n = 0
