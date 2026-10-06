@@ -1379,13 +1379,21 @@ pub fn check_surplus(
             }
         }
         let asks = family_asks(step, known, library);
-        let in_domain = domains_asked(thm, step, scopes);
+        // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
+        let in_domain: BTreeSet<String> = domains_asked(thm, step, scopes)
+            .iter()
+            .filter_map(|s| known.read_as_written(s))
+            .map(|n| n.shape().to_string())
+            .collect();
         for (i, req) in step.requires.iter().enumerate() {
             let mut lighter = step.clone();
             lighter.requires.remove(i);
+            let domain = known
+                .read_as_written(&req.fact)
+                .is_some_and(|n| in_domain.contains(n.shape()));
             if holds(&lighter)
                 && !asks.asks(step, &req.fact, known)
-                && !in_domain.contains(&squash(&req.fact))
+                && !domain
                 && !built_on(req, step, known)
             {
                 report.say(

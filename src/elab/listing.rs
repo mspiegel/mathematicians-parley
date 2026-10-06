@@ -61,8 +61,13 @@ impl Elaborator<'_> {
             });
             match asks {
                 Ok(Built(here)) => {
+                    // With the file's defines written out, as the checker
+                    // reads the page (`Known::read_citing`), so that one fact
+                    // is printed one way: s(t) + 1 ∈ ℤ is (t + 1) mod 10 + 1 ∈ ℤ.
+                    let outside = crate::sorts::file_definitions(self.thm, self.env());
                     for fact in &here.hypotheses {
-                        out.push(format!("{at} | {}", self.g.print(fact)));
+                        let read = crate::matching::expand(fact, &outside);
+                        out.push(format!("{at} | {}", self.g.print(&read)));
                     }
                 }
                 Ok(Declined(_)) => out.push(format!("{at} | declines")),
