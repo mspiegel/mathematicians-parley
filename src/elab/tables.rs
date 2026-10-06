@@ -1212,20 +1212,25 @@ impl<'a> Elaborator<'a> {
                     &[&pa, &pb, &pn],
                 )));
             }
-            // A binomial coefficient of a whole number and an integer is a
-            // whole number (`bccl`), carried to the system asked by a bridge.
-            if op == "cbc" {
-                let pn = take!(parts(self, &left, "cn0")?);
-                let pk = take!(parts(self, &right, "cz")?);
-                let law = self
-                    .b
-                    .ap("bccl", &binds! {"N" => &left, "K" => &right}, &[]);
+            // A binomial coefficient or a remainder is a whole number when
+            // its parts are what `WHOLE` asks, carried to the system asked
+            // by a bridge.
+            if let Some(w) = rules::WHOLE.iter().find(|w| w.op == op) {
+                let (left_var, left_system) = w.left;
+                let (right_var, right_system) = w.right;
+                let pl = take!(parts(self, &left, left_system)?);
+                let pr = take!(parts(self, &right, right_system)?);
+                let law = self.b.ap(
+                    w.lemma,
+                    &binds! {left_var => &left, right_var => &right},
+                    &[],
+                );
                 let whole = t!(said, "cn0", "wcel");
                 let made = self.b.ap(
                     "syl2anc",
-                    &binds! {"ph" => scope, "ps" => t!(left, "cn0", "wcel"),
-                    "ch" => t!(right, "cz", "wcel"), "th" => &whole},
-                    &[&pn, &pk, &law],
+                    &binds! {"ph" => scope, "ps" => t!(left, left_system, "wcel"),
+                    "ch" => t!(right, right_system, "wcel"), "th" => &whole},
+                    &[&pl, &pr, &law],
                 );
                 if system == "cn0" {
                     return Ok(Built(made));

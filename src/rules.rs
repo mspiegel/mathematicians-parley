@@ -410,6 +410,37 @@ pub const NEGATED: &[(&str, &str)] =
 // so it is closed only where the caller says how that is shown.
 pub const DIVIDED: &[(&str, &str)] = &[("cc", "divcld"), ("cr", "redivcld")];
 
+/// An operation whose value is a whole number when its parts are in the
+/// systems named, whatever system its parts are asked in: the lemma says
+/// the value is in ℕ₀, and a bridge carries it to the system wanted.
+pub struct Whole {
+    /// The operation's constant, at the head of the term.
+    pub op: &'static str,
+    /// The closed lemma, `( ( A e. X /\ B e. Y ) -> ( A op B ) e. NN0 )`.
+    pub lemma: &'static str,
+    /// The lemma's variable for the left part, and the system it asks.
+    pub left: (&'static str, &'static str),
+    /// The lemma's variable for the right part, and the system it asks.
+    pub right: (&'static str, &'static str),
+}
+
+// A binomial coefficient of a whole number and an integer, and an integer
+// modulo a natural number.
+pub const WHOLE: &[Whole] = &[
+    Whole {
+        op: "cbc",
+        lemma: "bccl",
+        left: ("N", "cn0"),
+        right: ("K", "cz"),
+    },
+    Whole {
+        op: "cmo",
+        lemma: "zmodcl",
+        left: ("A", "cz"),
+        right: ("B", "cn"),
+    },
+];
+
 // Which number sets lie inside which, each with the lemma saying so of a
 // member (`SYNTAX.md`: a line said of every member of a set says it of every
 // member of a set inside that one). One table, read by the checker and the
@@ -938,6 +969,9 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
         for (a, b) in *row {
             put("WITHIN", &[a, b]);
         }
+    }
+    for w in WHOLE {
+        put("WHOLE", &[w.op, w.lemma, w.left.1, w.right.1]);
     }
     put("WRAPS", &WRAPS);
     out

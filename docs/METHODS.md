@@ -551,6 +551,10 @@ The term is walked by the operation at its head, as `algebra` walks it:
 - a quotient is in ℝ or ℂ when its parts are and its divisor is not zero,
   which a cited line says by saying it, or by saying the divisor is above
   zero or below it (`gt0ne0d`, `lt0ne0d`): −B/A ∈ ℝ from A > 0;
+- a remainder a mod b is in ℕ₀, and so in ℤ, ℝ and ℂ, when a is in ℤ and
+  b in ℕ (`zmodcl`): (t + 1) mod 10 ∈ ℤ from t ∈ ℤ, the divisor a numeral
+  asking nothing, as a binomial coefficient C(n, k) is in ℕ₀ when n is in ℕ₀
+  and k in ℤ (`bccl`);
 - a sum over a range {a, …, b} is in ℝ or ℂ when its term is, for each index
   in the range (`fsumrecl`, `fsumcl`); the index is in ℕ where the range
   starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks

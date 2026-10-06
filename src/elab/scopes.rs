@@ -2010,10 +2010,31 @@ impl<'a> Elaborator<'a> {
         let lines = self.lines.clone();
         let wanted = self.claim_of(&step.claim_text())?;
         let held = Facts::new();
+        // A line joined supplies each of its sentences, and each group of
+        // them it nests together, so that the claim may group them otherwise:
+        // `simpld` and `simprd` take a conjunction apart.
+        fn supply(
+            me: &mut Elaborator,
+            held: &Facts,
+            term: String,
+            proof: Proof,
+            scope: &str,
+        ) {
+            let node = me.to_term(&term);
+            if node.label() == Some("wa") {
+                let pair: Vec<String> =
+                    node.children().iter().map(|c| me.rpn(c)).collect();
+                let left = pf!(me.b; scope, pair[0], pair[1], proof, "simpld");
+                let right = pf!(me.b; scope, pair[0], pair[1], proof, "simprd");
+                supply(me, held, pair[0].clone(), left, scope);
+                supply(me, held, pair[1].clone(), right, scope);
+            }
+            me.know(held, term, proof);
+        }
         for r in &step.just.refs {
             let line = lines.get(r).expect("a line joined");
             let proof = self.carried(r, facts, &lines);
-            self.know(&held, line.term.clone(), proof);
+            supply(self, &held, line.term.clone(), proof, scope);
         }
         // One line joined is that line restated.
         if step.just.refs.len() == 1 {

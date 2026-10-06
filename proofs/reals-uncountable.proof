@@ -35,153 +35,124 @@ define D(r, n) := ⌊10^n·r⌋ mod 10, for r ∈ ℝ, n ∈ ℕ                
 define s(a) := (a + 1) mod 10, for a ∈ ℤ                            (D2)
        reads the digit after a: add 1 and keep the last digit, so 9 becomes 0
 
-theorem digit-step
+theorem digit-range
   let t ∈ ℤ                                                           (H1)
-  then s(t) ∈ ℤ and 0 ≤ s(t) and s(t) ≤ 9 and s(t) ≠ t
+  then 0 ≤ s(t) and s(t) ≤ 9
 
 1.  s(t) = (t + 1) mod 10
     D2
     requires t ∈ ℤ: from H1
 
-2.  (t + 1) mod 10 ∈ ℕ₀
-    mun:mod-natural a := t + 1, b := 10
-    requires t + 1 ∈ ℤ: membership, from H1
-    requires 10 ∈ ℕ: arithmetic
-
-3.  (t + 1) mod 10 < 10
+2.  (t + 1) mod 10 < 10
     mun:mod-less a := t + 1, b := 10
     requires t + 1 ∈ ℤ: membership, from H1
     requires 10 ∈ ℕ: arithmetic
 
-4.  s(t) ∈ ℕ₀
+3.  s(t) < 10
     substitute s(t) = (t + 1) mod 10 (line 1) into line 2
 
-5.  s(t) < 10
-    substitute s(t) = (t + 1) mod 10 (line 1) into line 3
+4.  s(t) ∈ ℕ₀
+    membership, from 1, H1
 
-6.  s(t) ∈ ℤ and 0 ≤ s(t)
-    mun:nat0-as-int, from 4
-
-7.  s(t) + 1 ≤ 10
-    mun:integer-step m := s(t), n := 10, from 6, 5
+5.  s(t) + 1 ≤ 10
+    mun:integer-step m := s(t), n := 10, from 4, 3
     requires 10 ∈ ℤ: arithmetic
 
-8.  s(t) ≤ 9
-    inequalities, from 7, 6
+6.  0 ≤ s(t) and s(t) ≤ 9
+    inequalities, from 5, 4
 
-9.  t + 1 ≡ (t + 1) mod 10 (mod 10)
+theorem digit-step-divides
+  let t ∈ ℤ                                                           (H1)
+  then 10 divides (t + 1) − s(t)
+
+1.  s(t) = (t + 1) mod 10
+    D2
+    requires t ∈ ℤ: from H1
+
+2.  t + 1 ≡ (t + 1) mod 10 (mod 10)
     mun:mod-congruent x := t + 1, n := 10
     requires t + 1 ∈ ℤ: membership, from H1
     requires 10 ∈ ℕ: arithmetic
 
-10. 10 divides (t + 1) − (t + 1) mod 10
-    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 9
+3.  10 divides (t + 1) − (t + 1) mod 10
+    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 2
     requires 10 ∈ ℤ: arithmetic
     requires t + 1 ∈ ℤ: membership, from H1
-    requires (t + 1) mod 10 ∈ ℤ: membership, from 2
+    requires (t + 1) mod 10 ∈ ℤ: membership, from H1
 
-11. 10 divides (t + 1) − s(t)
-    substitute s(t) = (t + 1) mod 10 (line 1) into line 10
+4.  10 divides (t + 1) − s(t)
+    substitute s(t) = (t + 1) mod 10 (line 1) into line 3
 
-12. s(t) ≠ t
+theorem digit-step
+  let t ∈ ℤ                                                           (H1)
+  then s(t) ≠ t
+
+1.  10 divides (t + 1) − s(t)
+    thm:digit-step-divides t := t, from H1
+
+2.  s(t) ≠ t
     contradiction
     suppose s(t) = t                                                  (S1)
 
-    12.1. 10 divides (t + 1) − t
-          substitute s(t) = t (S1) into line 11
+    2.1.  10 divides (t + 1) − t
+          substitute s(t) = t (S1) into line 1
 
-    12.2. (t + 1) − t = 1
+    2.2.  (t + 1) − t = 1
           algebra
           requires t ∈ ℝ: membership, from H1
 
-    12.3. 10 divides 1
-          substitute (t + 1) − t = 1 (line 12.2) into line 12.1
+    2.3.  10 divides 1
+          substitute (t + 1) − t = 1 (line 2.2) into line 2.1
 
-    12.4. 10 ≤ 1
-          mun:divides-le e := 10, m := 1, from 12.3
+    2.4.  10 ≤ 1
+          mun:divides-le e := 10, m := 1, from 2.3
           requires 10 ∈ ℕ: arithmetic
           requires 1 ∈ ℕ: arithmetic
 
-    12.5. not 10 ≤ 1
-          inequalities, contradicting 12.4
-
-13. s(t) ∈ ℤ and 0 ≤ s(t) and s(t) ≤ 9 and s(t) ≠ t
-    join 6, 8, 12
+    2.5.  not 10 ≤ 1
+          inequalities, contradicting 2.4
 
 theorem digit-step-twice
   let t ∈ ℤ                                                           (H1)
   then s(s(t)) ≠ t
 
-1.  s(t) ∈ ℤ and 0 ≤ s(t) and s(t) ≤ 9 and s(t) ≠ t
-    thm:digit-step t := t, from H1
+1.  s(t) ∈ ℤ
+    membership, from D2, H1
 
-2.  s(t) = (t + 1) mod 10
-    D2
-    requires t ∈ ℤ: from H1
+2.  10 divides (t + 1) − s(t)
+    thm:digit-step-divides t := t, from H1
 
-3.  t + 1 ≡ (t + 1) mod 10 (mod 10)
-    mun:mod-congruent x := t + 1, n := 10
-    requires t + 1 ∈ ℤ: membership, from H1
-    requires 10 ∈ ℕ: arithmetic
+3.  10 divides (s(t) + 1) − s(s(t))
+    thm:digit-step-divides t := s(t), from 1
 
-4.  10 divides (t + 1) − (t + 1) mod 10
-    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 3
-    requires t + 1 ∈ ℤ: membership, from H1
-    requires 10 ∈ ℕ: arithmetic
-    requires (t + 1) mod 10 ∈ ℕ₀: mun:mod-natural a := t + 1, b := 10
-
-5.  10 divides (t + 1) − s(t)
-    substitute s(t) = (t + 1) mod 10 (line 2) into line 4
-
-6.  (t + 1) mod 10 ∈ ℤ
-    membership, from 2, 1
-
-7.  s(s(t)) = (s(t) + 1) mod 10
-    D2
-    requires s(t) ∈ ℤ: from 1
-
-8.  s(t) + 1 ≡ (s(t) + 1) mod 10 (mod 10)
-    mun:mod-congruent x := s(t) + 1, n := 10
-    requires s(t) + 1 ∈ ℤ: membership, from 1
-    requires 10 ∈ ℕ: arithmetic
-
-9.  10 divides (s(t) + 1) − (s(t) + 1) mod 10
-    mun:congruent-mod n := 10, a := s(t) + 1, b := (s(t) + 1) mod 10, from 8
-    requires s(t) + 1 ∈ ℤ: membership, from 1
-    requires 10 ∈ ℕ: arithmetic
-    requires (s(t) + 1) mod 10 ∈ ℕ₀: mun:mod-natural a := s(t) + 1, b := 10
-
-10. 10 divides (s(t) + 1) − s(s(t))
-    substitute s(s(t)) = (s(t) + 1) mod 10 (line 7) into line 9
-
-11. s(s(t)) ≠ t
+4.  s(s(t)) ≠ t
     contradiction
     suppose s(s(t)) = t                                               (S)
 
-    11.1. 10 divides (s(t) + 1) − t
-          substitute s(s(t)) = t (S) into line 10
+    4.1.  10 divides (s(t) + 1) − t
+          substitute s(s(t)) = t (S) into line 3
 
-    11.2. 10 divides ((t + 1) − s(t)) + ((s(t) + 1) − t)
-          mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 5, 11.1
+    4.2.  10 divides ((t + 1) − s(t)) + ((s(t) + 1) − t)
+          mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 2, 4.1
           requires 10 ∈ ℤ: arithmetic
           requires (t + 1) − s(t) ∈ ℤ: membership, from H1, 1
           requires (s(t) + 1) − t ∈ ℤ: membership, from H1, 1
 
-    11.3. ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2
+    4.3.  ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2
           algebra
           requires t ∈ ℝ: membership, from H1
           requires s(t) ∈ ℝ: membership, from 1
 
-    11.4. 10 divides 2
-          substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 11.3) into line 11.2
+    4.4.  10 divides 2
+          substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 4.3) into line 4.2
 
-    11.5. 10 ≤ 2
-          mun:divides-le e := 10, m := 2, from 11.4
+    4.5.  10 ≤ 2
+          mun:divides-le e := 10, m := 2, from 4.4
           requires 10 ∈ ℕ: arithmetic
           requires 2 ∈ ℕ: arithmetic
 
-    11.6. not 10 ≤ 2
-          inequalities, contradicting 11.5
+    4.6.  not 10 ≤ 2
+          inequalities, contradicting 4.5
 
 theorem decimal-number
   let d : ℕ → ℤ                                                       (H1)
@@ -804,26 +775,29 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     2.1.  D(f(n), n) ∈ ℤ
           instantiate n := n in line 1, from K2
 
-    2.2.  s(D(f(n), n)) ∈ ℤ and 0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
-          and s(D(f(n), n)) ≠ D(f(n), n)
+    2.2.  s(D(f(n), n)) ∈ ℤ
+          membership, from D2, 2.1
+
+    2.3.  0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
+          thm:digit-range t := D(f(n), n), from 2.1
+
+    2.4.  s(D(f(n), n)) ≠ D(f(n), n)
           thm:digit-step t := D(f(n), n), from 2.1
-
-    2.3.  e(n) = s(D(f(n), n))
-          D5, from K2
-
-    2.4.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9 and e(n) ≠ D(f(n), n)
-          substitute e(n) = s(D(f(n), n)) (line 2.3) into line 2.2
 
     2.5.  s(s(D(f(n), n))) ≠ D(f(n), n)
           thm:digit-step-twice t := D(f(n), n), from 2.1
           requires s(D(f(n), n)) ∈ ℤ: from 2.2
 
-    2.6.  s(e(n)) ≠ D(f(n), n)
-          substitute e(n) = s(D(f(n), n)) (line 2.3) into line 2.5
+    2.6.  s(D(f(n), n)) ∈ ℤ and 0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
+          and s(D(f(n), n)) ≠ D(f(n), n) and s(s(D(f(n), n))) ≠ D(f(n), n)
+          join 2.2, 2.3, 2.4, 2.5
 
-    2.7.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
+    2.7.  e(n) = s(D(f(n), n))
+          D5, from K2
+
+    2.8.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          join 2.4, 2.6
+          substitute e(n) = s(D(f(n), n)) (line 2.7) into line 2.6
 
 3.  For all n ∈ ℕ, e(n) ∈ ℤ.
     fix

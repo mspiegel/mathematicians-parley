@@ -703,7 +703,7 @@ function d, reads as it does there.
 
 A theorem of the same file stated over the file's own defines speaks of them
 by name, as the citing step does: the uncountability proof's `digit-step` is
-stated of s, and the step citing it claims s(D(f(n), n)) ∈ ℤ. Its statement
+stated of s, and the step citing it claims s(D(f(n), n)) ≠ D(f(n), n). Its statement
 is written out and the step's claim is not, so the two meet only with s read
 as its rule, and the step may read it so without citing the define, as the
 checker reads it (`stated_over`, which `cite_corpus` lets the comparison
@@ -900,8 +900,9 @@ split a part at a time (`fsumadd`), each free factor taken out
 the letter a placeholder), and a step whose sums are atoms reads them as
 written, as before. A multiplier `algebra` spells from the decision is
 written over the step's letter. A binomial coefficient of a whole number and
-an integer is a whole number (`bccl`), which the membership lookup builds as
-it builds a sum. A sum is a number by its terms wherever a membership is
+an integer is a whole number (`bccl`), and so is an integer modulo a natural
+number (`zmodcl`); the membership lookup builds each as it builds a sum,
+from the table `WHOLE`, and a bridge carries it from ℕ₀ to the system asked. A sum is a number by its terms wherever a membership is
 asked — the lookup, the `membership` method's parts, and `settle` (`summed`)
 — and a divisor is not zero by a line placing it above zero or below it.
 
