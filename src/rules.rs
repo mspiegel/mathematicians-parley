@@ -825,6 +825,9 @@ pub const MEMBERSHIP: &[&str] = &[
     "intnanrt",
     // A one-to-one function is a function.
     "f1f",
+    // A function obtained from "there is f : X → Y with …" is held as a
+    // member of the functions from X to Y, and is a function from X to Y.
+    "elmapi",
     // A function on a set is a set, which an image under it asks.
     "fex",
     // A part of a set is a member of its power set, and the other way.

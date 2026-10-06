@@ -162,3 +162,15 @@ mundane definition bijection
               reaches every point pairs its domain off against its
               codomain. set.mm calls the reaching onto and the pairing a
               one-to-one correspondence, and the page says neither word.
+
+mundane theorem bijection-onto
+  assume there is a bijection from X to Y                             (H1)
+  then        there is f : X → Y with for all y ∈ Y, there is x ∈ X with y = f(x)
+  metamath    bren, f1ofo and foelrn, with encv and elmapg placing f among
+              the functions from X to Y, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gbijonto
+  note        The way back from `bijection`, as far as a proof needs it: a
+              pairing of X with Y is a function from X that reaches every
+              point of Y. That it is one-to-one as well is not said, since
+              no proof asks it.

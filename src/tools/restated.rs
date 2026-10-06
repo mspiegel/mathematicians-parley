@@ -85,14 +85,16 @@ impl<'a> Shapes<'a> {
     }
 
     /// `there is k ∈ ℤ with …`, `there are m ∈ ℤ and n ∈ ℤ with …`: each
-    /// name with the set it is in, and what is said of them, as written.
-    /// The names are the holes the notation's `binds` line says it
-    /// introduces, and each one's set the hole its `sort` says holds it.
+    /// name with the sentence saying what it is in, and what is said of
+    /// them, as written. The names are the holes the notation's `binds` line
+    /// says it introduces, and each one's set the hole its `sort` says holds
+    /// it. A name among the functions from X to Y is said to be one as `let`
+    /// says it, `f : X → Y`.
     fn witnesses(
         &self,
         sentence: &str,
         sorts: &Sorts,
-    ) -> Option<(Vec<(String, String)>, String)> {
+    ) -> Option<(Vec<Witness>, String)> {
         let (tree, built) = self.root(sentence, sorts)?;
         if built != "wrex" {
             return None;
@@ -110,10 +112,15 @@ impl<'a> Shapes<'a> {
         let mut names = Vec::new();
         for &held in &binds.held {
             let (_, set) = members.iter().find(|(element, _)| *element == held)?;
-            names.push((
-                tree.children.get(held)?.written(sentence)?,
-                tree.children.get(*set)?.written(sentence)?,
-            ));
+            let name = tree.children.get(held)?.written(sentence)?;
+            let set_node = tree.children.get(*set)?;
+            let written = set_node.written(sentence)?;
+            let membership = if set_node.notation == "functions-from" {
+                format!("{name} : {written}")
+            } else {
+                format!("{name} ∈ {written}")
+            };
+            names.push(Witness { name, membership });
         }
         let [body] = binds.body.as_slice() else {
             return None;
@@ -122,20 +129,20 @@ impl<'a> Shapes<'a> {
     }
 }
 
-/// The steps naming what `there is` says there is: its sentences, `k ∈ ℤ`
-/// for each name and then what is said of them, obtained by `how`.
-fn obtaining(
-    number: usize,
-    names: &[(String, String)],
-    said: &str,
-    how: &str,
-) -> String {
-    let mut claim: Vec<String> = names
-        .iter()
-        .map(|(x, set)| format!("{x} ∈ {set}."))
-        .collect();
+/// A name a `there is` introduces.
+struct Witness {
+    name: String,
+    /// The sentence saying what it is in: `k ∈ ℤ`, or `f : X → Y`.
+    membership: String,
+}
+
+/// The steps naming what `there is` says there is: its sentences, the
+/// membership of each name and then what is said of them, obtained by `how`.
+fn obtaining(number: usize, names: &[Witness], said: &str, how: &str) -> String {
+    let mut claim: Vec<String> =
+        names.iter().map(|w| format!("{}.", w.membership)).collect();
     claim.push(format!("{said}."));
-    let named: Vec<&str> = names.iter().map(|(x, _)| x.as_str()).collect();
+    let named: Vec<&str> = names.iter().map(|w| w.name.as_str()).collect();
     format!(
         "{number}.  {}\n    obtain {}{how}\n",
         claim.join(" "),

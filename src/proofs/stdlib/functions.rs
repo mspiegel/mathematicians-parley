@@ -14,6 +14,11 @@
 //! - a function that is one-to-one and reaches every point is a bijection:
 //!   `dffo3` reads the reaching as onto, `df-f1o` puts the two together, and
 //!   `f1oeng` gives the bijection, for `mun:stdlib/functions/bijection`;
+//! - a bijection gives a function that reaches every point: `bren` gives
+//!   one that is one-to-one and onto, `f1ofo` and `foelrn` say it reaches
+//!   each point, and `encv` with `elmapg` puts it among the functions from
+//!   A to B, which `df-rex` says is the "there is" over them, for
+//!   `mun:stdlib/functions/bijection-onto`;
 //! - a map sends its domain into a set exactly when each value lies there:
 //!   `fmpt` says it of a name for the map, and `eqid` names the map itself,
 //!   for `mun:stdlib/functions/function-into`.
@@ -23,10 +28,10 @@ use crate::mm::Builder;
 use crate::proofs::Lemma;
 
 pub const HEAD: &str =
-    "$( Functions: images, inverses, and a bijection from one-to-one and
-   onto. $)
-$d x y A $.
-$d x y B $.
+    "$( Functions: images, inverses, a bijection from one-to-one and onto,
+   and an onto function from a bijection. $)
+$d f x y A $.
+$d f x y B $.
 $d x y F $.
 $d x D $.
 $d x S $.
@@ -38,6 +43,7 @@ pub fn proofs(b: &mut Builder) -> Vec<Lemma> {
         image_member(b),
         inverse_value(b),
         onto_bijection(b),
+        bijection_onto(b),
         map_into(b),
         value_in_image(b),
     ]
@@ -113,6 +119,157 @@ fn value_in_image(b: &Builder) -> Lemma {
                     "fnfvima",
                     &binds! {"F" => b.class("F"), "A" => b.class("A"),
                     "S" => b.class("S"), "X" => b.class("D")},
+                    &[],
+                ),
+            ],
+        ),
+    )
+}
+
+/// ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+fn bijection_onto(b: &Builder) -> Lemma {
+    let paired = "A ~~ B";
+    let bijective = "f : A -1-1-onto-> B";
+    let held = format!("( {paired} /\\ {bijective} )");
+    let maps = "( B ^m A )";
+    let reaches = "E. x e. A y = ( f ` x )";
+    let reach = format!("A. y e. B {reaches}");
+    let found = format!("E. f e. {maps} {reach}");
+    let fab = binds! {"F" => b.class("f"), "A" => b.class("A"), "B" => b.class("B")};
+    let held_bijective = b.ap(
+        "simpr",
+        &binds! {"ph" => b.wff(paired), "ps" => b.wff(bijective)},
+        &[],
+    );
+    // f reaches every point of B, since it is onto.
+    let onto = b.ap(
+        "syl",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff(bijective),
+        "ch" => b.wff("f : A -onto-> B")},
+        &[&held_bijective, &b.ap("f1ofo", &fab, &[])],
+    );
+    let each = b.ap(
+        "sylan",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff("f : A -onto-> B"),
+        "ch" => b.wff("y e. B"), "th" => b.wff(reaches)},
+        &[
+            &onto,
+            &b.ap(
+                "foelrn",
+                &binds! {"F" => b.class("f"), "A" => b.class("A"), "B" => b.class("B"),
+                "C" => b.class("y"), "x" => b.float("x")},
+                &[],
+            ),
+        ],
+    );
+    let reached = b.ap(
+        "ralrimiva",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff(reaches),
+        "x" => b.float("y"), "A" => b.class("B")},
+        &[&each],
+    );
+    // f is among the functions from A to B, both being sets.
+    let function = b.ap(
+        "syl",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff(bijective),
+        "ch" => b.wff("f : A --> B")},
+        &[&held_bijective, &b.ap("f1of", &fab, &[])],
+    );
+    let sets = b.ap(
+        "syl",
+        &binds! {"ph" => b.wff(paired), "ps" => b.wff("( A e. _V /\\ B e. _V )"),
+        "ch" => b.wff("( B e. _V /\\ A e. _V )")},
+        &[
+            &b.ap(
+                "encv",
+                &binds! {"A" => b.class("A"), "B" => b.class("B")},
+                &[],
+            ),
+            &b.ap(
+                "pm3.22",
+                &binds! {"ph" => b.wff("A e. _V"), "ps" => b.wff("B e. _V")},
+                &[],
+            ),
+        ],
+    );
+    let member_is = format!("( f e. {maps} <-> f : A --> B )");
+    let unpacked = b.ap(
+        "syl",
+        &binds! {"ph" => b.wff(paired), "ps" => b.wff("( B e. _V /\\ A e. _V )"),
+        "ch" => b.wff(&member_is)},
+        &[
+            &sets,
+            &b.ap(
+                "elmapg",
+                &binds! {"A" => b.class("B"), "B" => b.class("A"),
+                "V" => b.class("_V"), "W" => b.class("_V"), "C" => b.class("f")},
+                &[],
+            ),
+        ],
+    );
+    let member = b.ap(
+        "mpbird",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff(&format!("f e. {maps}")),
+        "ch" => b.wff("f : A --> B")},
+        &[
+            &function,
+            &b.ap(
+                "adantr",
+                &binds! {"ph" => b.wff(paired), "ps" => b.wff(&member_is),
+                "ch" => b.wff(bijective)},
+                &[&unpacked],
+            ),
+        ],
+    );
+    let both = format!("( f e. {maps} /\\ {reach} )");
+    let exhibited = b.ap(
+        "jca",
+        &binds! {"ph" => b.wff(&held), "ps" => b.wff(&format!("f e. {maps}")),
+        "ch" => b.wff(&reach)},
+        &[&member, &reached],
+    );
+    // The bijection `bren` gives is carried under its own quantifier, so
+    // that nothing discharges f from a formula that mentions it.
+    let carried = b.ap(
+        "eximdv",
+        &binds! {"ph" => b.wff(paired), "ps" => b.wff(bijective),
+        "ch" => b.wff(&both), "x" => b.float("f")},
+        &[&b.ap(
+            "ex",
+            &binds! {"ph" => b.wff(paired), "ps" => b.wff(bijective),
+            "ch" => b.wff(&both)},
+            &[&exhibited],
+        )],
+    );
+    let exists = b.ap(
+        "mpd",
+        &binds! {"ph" => b.wff(paired), "ps" => b.wff(&format!("E. f {bijective}")),
+        "ch" => b.wff(&format!("E. f {both}"))},
+        &[
+            &b.ap(
+                "biimpi",
+                &binds! {"ph" => b.wff(paired), "ps" => b.wff(&format!("E. f {bijective}"))},
+                &[&b.ap(
+                    "bren",
+                    &binds! {"A" => b.class("A"), "B" => b.class("B"), "f" => b.float("f")},
+                    &[],
+                )],
+            ),
+            &carried,
+        ],
+    );
+    Lemma::new(
+        "gbijonto",
+        format!("|- ( {paired} -> {found} )"),
+        b.ap(
+            "sylibr",
+            &binds! {"ph" => b.wff(paired), "ps" => b.wff(&format!("E. f {both}")),
+            "ch" => b.wff(&found)},
+            &[
+                &exists,
+                &b.ap(
+                    "df-rex",
+                    &binds! {"x" => b.float("f"), "A" => b.class(maps), "ph" => b.wff(&reach)},
                     &[],
                 ),
             ],

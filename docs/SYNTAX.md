@@ -75,7 +75,9 @@ theorem even-square
   throughout, "p is a polynomial" and "there is a polynomial q with …",
   and each is the membership or the "there is" of set.mm's polynomials
   with complex coefficients, a set the page never writes (`GRAMMAR.md`,
-  `fills`).
+  `fills`). In the same way "there is f : X → Y with …" is the "there is"
+  of the functions from X to Y, which the page never writes either, and an
+  obtain from it states f : X → Y as the membership of f.
   `let G be a finite group with operation · and identity e` asserts that G
   is finite, and a step citing the line has that.
   A group's line names its set, its operation and its identity. G is the set

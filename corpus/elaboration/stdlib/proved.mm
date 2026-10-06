@@ -364,10 +364,10 @@ $d ph j k n x $.
 $}
 
 ${
-$( Functions: images, inverses, and a bijection from one-to-one and
-   onto. $)
-$d x y A $.
-$d x y B $.
+$( Functions: images, inverses, a bijection from one-to-one and onto,
+   and an onto function from a bijection. $)
+$d f x y A $.
+$d f x y B $.
 $d x y F $.
 $d x D $.
 $d x S $.
@@ -385,6 +385,12 @@ $d x S $.
     ( wcel wf1 cv cfv wceq wrex wral w3a wf1o cen wbr simp1 wfo simp2 wf f1f
     syl simp3 wa wb dffo3 a1i mpbir2and df-f1o f1oeng syl2anc )
     CFGZCDEHZBIZAIZEJZKZACLZBDMZNZUMCDEOZCDPQUMUNUTRVAVBUNCDESZUMUNUTTZVAVCCDEUAZUTVAUNVEVDCDEUBUCUMUNUTUDVCVEUTUEUFVAABCDEUGUHUIVBUNVCUEUFVACDEUJUHUICDFEUKUL $.
+
+  gbijonto $p |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) ) $=
+    ( cen wbr cv cmap co wcel cfv wceq wrex wral wa wex wf1o bren biimpi wf
+    simpr f1of syl wb cvv encv pm3.22 elmapg adantr mpbird wfo f1ofo foelrn
+    sylan ralrimiva jca ex eximdv mpd df-rex sylibr )
+    CDFGZEHZDCIJZKZBHZAHZVDLZMZACNZBDOZPZEQZVLEVENVCCDVDRZEQZVNVCVPCDESTVCVOVMEVCVOVMVCVOPZVFVLVQVFCDVDUAZVQVOVRVCVOUBZCDVDUCUDVCVFVRUEZVOVCDUFKZCUFKZPZVTVCWBWAPWCCDUGWBWAUHUDDCVDUFUFUIUDUJUKVQVKBDVQCDVDULZVGDKVKVQVOWDVSCDVDUMUDACDVGVDUNUOUPUQURUSUTVLEVEVAVB $.
 
   gfmpt $p |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B ) $=
     ( cmpt eqid fmpt ) ABCDABDEZHFG $.

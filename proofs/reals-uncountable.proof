@@ -26,6 +26,7 @@ import mundane definition stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/bijection-onto
 import mundane definition stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 
@@ -867,3 +868,26 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
 8.  There is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x.
     exhibit, from 6, 7
+
+theorem reals-uncountable
+  metamath    ruc, which says as well that ℕ is no larger than ℝ
+  then there is no bijection from ℕ to ℝ
+
+1.  There is no bijection from ℕ to ℝ.
+    contradiction
+    suppose there is a bijection from ℕ to ℝ                          (S)
+
+    1.1.  f : ℕ → ℝ. For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
+          obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
+
+    1.2.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
+          obtain x: thm:sequence-misses-real f := f
+
+    1.3.  There is n ∈ ℕ with x = f(n).
+          instantiate y := x in line 1.1, from 1.2
+
+    1.4.  m ∈ ℕ. x = f(m).
+          obtain m from line 1.3
+
+    1.5.  x ≠ f(m)
+          instantiate n := m in line 1.2, from 1.4, contradicting 1.4

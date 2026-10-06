@@ -1388,12 +1388,16 @@ impl<'a> Elaborator<'a> {
         let deep = sentences.len().saturating_sub(got.len() + 1);
         // A point is a point as `let A be a point` says it is: a sort, which
         // a step rests on without citing the line and the checker does not
-        // let it cite. A number obtained is cited for its membership, as a
-        // requires line from the obtain.
-        let points = got.iter().all(|name| {
-            self.sorts_now
-                .get(name)
-                .is_some_and(|s| s.name() == Some("point"))
+        // let it cite. So is a function among the functions from X to Y,
+        // f : X → Y, as `let f : X → Y` says it: the checker asks a
+        // function's type only of one the proof defines. A polynomial is a
+        // function too, and "q is a polynomial" a fact, as `let p be a
+        // polynomial` asserts one. A number obtained is cited for its
+        // membership, as a requires line from the obtain.
+        let points = got.iter().zip(layers.iter()).all(|(name, (_, over))| {
+            let sort = self.sorts_now.get(name).and_then(|s| s.name());
+            sort == Some("point")
+                || (sort == Some("function") && over.ends_with(" cmap co"))
         });
         let members = if points {
             let sort = format!("{number}∈");

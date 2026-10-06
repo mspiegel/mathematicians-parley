@@ -576,7 +576,10 @@ a mundane one. `def:` is rare: seven steps cite a named definition.
 3. **`bijection` and `series-sum` state one direction of their meaning.**
    `bijection` says a map that is one-to-one and onto gives a bijection, and
    `notation bijection` reads "there is a bijection from X to Y" as set.mm's
-   equinumerosity, with no word for "onto". A definition saying there is a
+   equinumerosity, with no word for "onto". The way back is the theorem
+   `bijection-onto`, which says only what a proof has needed of it: there is
+   f : X → Y reaching every point of Y. A definition saying there is a
    bijection from X to Y exactly when some f : X → Y is one-to-one and onto
-   needs the formula language to say "there is f : X → Y". `series-sum`
+   could now be written, since the formula language says "there is f : X →
+   Y with …", and would replace both. `series-sum`
    likewise says the partial sums' limit is the sum, and not the other way.

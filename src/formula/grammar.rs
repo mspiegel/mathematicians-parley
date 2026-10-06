@@ -401,6 +401,34 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
             out.entry(x.text.clone()).or_insert(held);
         }
     }
+    // `f : X → Y`, as "there is f : X → Y with …" binds it: f is a function
+    // from what X holds to what Y holds, or a function where they do not say.
+    for i in 0..tokens.len().saturating_sub(4) {
+        let (f, colon, from, arrow, to) = (
+            &tokens[i],
+            &tokens[i + 1],
+            &tokens[i + 2],
+            &tokens[i + 3],
+            &tokens[i + 4],
+        );
+        if f.kind != TokenKind::Name
+            || colon.text != ":"
+            || arrow.text != "→"
+            || from.kind != TokenKind::Name
+            || to.kind != TokenKind::Name
+            || !sort_of(&f.text).is_unknown()
+        {
+            continue;
+        }
+        let whole = |set: &str| holds(&sort_of(set)).and_then(|s| s.full().cloned());
+        let sort = match (whole(&from.text), whole(&to.text)) {
+            (Some(a), Some(b)) => {
+                Sort::whole(Whole::Function(Rc::new(a), Rc::new(b))).unwrap_or_default()
+            }
+            _ => Sort::of("function"),
+        };
+        out.entry(f.text.clone()).or_insert(sort);
+    }
     out.into_iter().collect()
 }
 

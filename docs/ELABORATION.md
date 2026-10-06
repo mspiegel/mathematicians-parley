@@ -456,9 +456,11 @@ is taken apart as deep as the sentences its line writes, as any line saying
 several things is, so each sentence is a fact a later step cites on its own:
 the angle sum's parallel says eight. A point obtained is a point as `let A be
 a point` says it is: what it is in is a sort, which a step rests on without
-citing the line, and the checker refuses a citation made only for it. A
-number obtained is cited for its membership in a `requires` line, from the
-obtain. So one readable step
+citing the line, and the checker refuses a citation made only for it. So is
+a function obtained, f from "there is f : X → Y with …", as `let f : X → Y`
+says it: it is held as a member of the functions from X to Y, and a step
+asking f : X → Y has it by `elmapi`. A number obtained is cited for its
+membership in a `requires` line, from the obtain. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 

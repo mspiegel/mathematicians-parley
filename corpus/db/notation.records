@@ -631,6 +631,18 @@ notation function-on
               The formula-position counterpart of `let E be a function on
               X`, as is-a-set is of `let X be a set`.
 
+notation functions-from
+  pattern     the functions from _ to _
+  sort        set of α, set of β → set of function from α to β
+  level       binder
+  reads       the functions from, to
+  metamath    cmap
+  target      _2 _1 cmap co
+  note        What "there is f : X → Y with …" runs over, which that
+              notation joins from its two sets and the page does not write.
+              set.mm's Y ↑m X, the functions from X to Y, writes the
+              codomain first.
+
 notation one-to-one
   pattern     _ : _ → _ is one-to-one
   sort        function from α to β, set of α, set of β → formula
@@ -1011,6 +1023,22 @@ notation there-is-part
   target      _3 _1 _2 cpw wrex
   note        "There is C ⊆ A with …" is "there is C ∈ 𝒫A with …", built
               as exactly that formula, as `for-all-part` is.
+
+notation there-is-function
+  pattern     there is _ : _ → _ with _
+  sort        function from α to β, set of α, set of β, formula → formula
+  level       binder
+  binds       hole 1 over hole 4
+  joins       hole 2 to hole 3 by functions-from
+  spells      there-is thereis∈with
+  reads       there is a function, from, to, with
+  metamath    wrex over the functions from one set to another
+  target      _4 _1 _3 _2 cmap co wrex
+  note        "There is f : X → Y with …" is "there is f ∈ (the functions
+              from X to Y) with …", built as exactly that formula, as
+              `there-is-part` builds its power set. An obtain from it states
+              f : X → Y, which the elaborator reads off the membership
+              (`elmapi`).
 
 notation there-exists
   pattern     there exists _ ∈ _ such that _
@@ -1481,12 +1509,13 @@ notation opposite-sides
               See mun:stdlib/geometry/same-side.
 
 notation bijection
-  pattern     there is a bijection from _ to _
+  pattern     there is a bijection from _ to _        there is no bijection from _ to _
   sort        set of α, set of β → formula
   level       predicate
-  reads       there is a bijection from, to
-  metamath    wbr with cen
-  target      _1 _2 cen wbr
+  negates     pattern 2 is logical-not of pattern 1
+  reads       there is a bijection from, to, there is no bijection from, to
+  metamath    wbr with cen, and its negation
+  target      _1 _2 cen wbr, folded
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a
               function built on the spot.
