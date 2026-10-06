@@ -1250,9 +1250,10 @@ the check that asks each line to do work.
 dividing by zero, too large to work out, not rational, or true and past what
 it can show, which is cited instead.
 
-A definition with no target is read off a line the step cites that already
-says the claim: as one of its conjuncts, which `def:stdlib/geometry/congruent`
-relies on, or with another letter bound, since the notation reads "b is an
+A definition with no target, or whose target is `biid` because its
+notations make its two sides one formula, is read off a line the step cites
+that already says the claim: as one of its conjuncts, which
+`def:stdlib/geometry/congruent` and `mun:stdlib/geometry/triangle` rely on, or with another letter bound, since the notation reads "b is an
 upper bound of S" as every s in S being at most b and the block that proved
 that fixed a variable of its own. Otherwise the step stops: "mun:upper-bound
 has no target, and nothing step 10 cites says …".

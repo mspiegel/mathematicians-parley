@@ -662,8 +662,14 @@ impl<'a> Elaborator<'a> {
         }
         let first = name.split_whitespace().next().unwrap_or("");
         let full = self.thm.names.full(first);
+        // A definition with no lemma, or whose lemma is `biid`, says one
+        // formula two ways: its notations' targets make the sides the same,
+        // so it is unfolded where a line says it.
         match self.items.get(&full) {
-            Some(Item::Record(r)) => r.kind.unfolds() && targets::clauses(r).is_empty(),
+            Some(Item::Record(r)) => {
+                let clauses = targets::clauses(r);
+                r.kind.unfolds() && (clauses.is_empty() || clauses == ["biid"])
+            }
             _ => false,
         }
     }

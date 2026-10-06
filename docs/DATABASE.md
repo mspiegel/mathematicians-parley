@@ -121,10 +121,10 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 291 |
-| `open` | it is cited but unproved and unbridged | 8 |
+| `metamath` | a set.mm label or labels supply it | 303 |
+| `open` | it is cited but unproved and unbridged | 4 |
 
-`mun:stdlib/geometry/point` carries both. A theorem this corpus proves has no
+A theorem this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
 below were caused by breaking. What a record would say beside the statement,
@@ -224,9 +224,12 @@ the derived fact that a function's values land in its codomain, and cited it
 three times for exactly that. The fact is now `mun:stdlib/functions/function-value` and those
 three citations are renamed. A function's type is now cited for its values
 (`READERS.md`), so `function-value` is cited only where the value is a step
-of the argument, Schröder–Bernstein's f(s) ∈ B. `mun:stdlib/functions/function` keeps the name for the definition,
-which is `open` because the Cantor pilot's row is truncated and no proof cites
-it.
+of the argument, Schröder–Bernstein's f(s) ∈ B. The definition is not an
+item: no proof cites it, and `f : A → B` means what its notation's target,
+`wf`, says. Written as an item it would be set.mm's `ffnfv`, f : A → B when
+f is a function on A and every f(x) lies in B, which a restatement cannot
+yet introduce f for, since `let f be an element` does not declare a
+function.
 
 **`mun:stdlib/numbers/real-closure` had two statements.** The triangle inequality pilot gave
 addition, the intermediate value pilot gave addition and subtraction. Merged to
@@ -339,18 +342,26 @@ repaired.
   not match, and a bijection that adds an element without saying it was absent.
   The last needed a new item, `mun:stdlib/sets/not-in-difference`.
 
-## Eight open items
+## Four open items
 
-`mun:stdlib/geometry/collinear`, `def:stdlib/geometry/congruent`, `mun:stdlib/functions/function`, `mun:stdlib/geometry/point`, `mun:stdlib/geometry/triangle`,
-`thm:proofs/subsets/add-element-bijection`, `thm:proofs/subsets/powerset-split`,
-`thm:proofs/subsets/powerset-split-disjoint`.
+`mun:stdlib/geometry/collinear`, `mun:stdlib/geometry/parallel`,
+`mun:stdlib/geometry/between`, `mun:stdlib/geometry/same-side`.
 
-Four of the eight are geometry, which is what the isosceles pilot predicted:
-the proof is trivial and the database is not. Three are the counting lemmas the
-subsets pilot leaned on, and one is what `mun:stdlib/functions/function` would
-have to say about a map.
+All four are geometry, which is what the isosceles pilot predicted: the proof
+is trivial and the database is not. None is cited, and a claim of any of
+them elaborates by its notation's target; what is open is the readable
+statement of the equivalence.
 
-Six more were open and are not. `thm:proofs/intermediate-value/point-right`
+`def:stdlib/geometry/congruent`, `mun:stdlib/geometry/triangle` and
+`mun:stdlib/geometry/point` are `biid`: each notation's target is the formula
+its definition's other side builds, the six equations for a congruence, the
+three inequalities and the collinearity denied for a triangle, and A ∈ ℂ for
+"A is a point", so the definition says one formula twice. A step takes a
+conjunct of one from a line that says it, as it does of a definition with
+no target (`ELABORATION.md`). The counting lemmas the subsets pilot
+leaned on are theorems of its proof file, and
+`mun:stdlib/functions/function`, which no proof cited, is not an item. Six
+more were open and are not. `thm:proofs/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
 proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `mun:stdlib/geometry/angle-symmetric`, `axi:stdlib/geometry/side-angle-side`,
 `mun:stdlib/geometry/triangle-swap` and `mun:stdlib/geometry/triangle-rotate` are proved in
@@ -373,12 +384,35 @@ is that the readable layer cannot yet *say* something, the thing to weigh is
 teaching it to say that, or teaching the elaborator to work it out, and a
 hand proof is what is left when neither is worth its price.
 
-The four that remain open in the geometry are open for a reason rather than
-for want of work. Incidence is a primitive, and `mun:stdlib/geometry/collinear` says so: in
+The four are open for a reason rather than for want of work. Incidence is a
+primitive, and `mun:stdlib/geometry/collinear` says so: in
 the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of
 collinearity elaborates; what has no readable statement is the equivalence.
+
+**Vectors would let the page state all four.** A sort `vector`, with a point
+minus a point a vector, a number times a vector a vector, and a point plus a
+vector a point, lets a reader take differences of points without points
+becoming numbers: nothing divides one vector by another or multiplies two
+points, so |CA| still cannot read as a product. Each definition is then
+the textbook's:
+
+- collinear: there is t ∈ ℝ with R − P = t·(Q − P);
+- parallel: there is t ∈ ℝ with S − R = t·(Q − P);
+- between: there is t with 0 < t < 1 and R − S = t·(T − S);
+- same side: no point X + t·(Y − X) with 0 ≤ t ≤ 1 is collinear with P and
+  Q, Hilbert's segment that does not cross the line.
+
+Each needs a bridge in `proved.mm` from its readable form to its notation's
+target, and that is not the last resort above: the reader reads the
+statement, and the Metamath proof only joins two spellings of it, as
+`gbijonto` does for a bijection. For the first three the bridge is short,
+since t is the quotient the target says is real. For the fourth it is a real
+proof: the target compares the signs of two imaginary parts, and that the
+segment between two points of opposite sign meets the line is the
+intermediate value theorem along it. None of the four is cited, so the work
+waits for the first proof that needs one.
 
 ## Record kinds
 

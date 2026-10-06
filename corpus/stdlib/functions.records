@@ -43,13 +43,6 @@ mundane theorem added-elements-are-new
               property it asks, because the language can name neither — the
               same gap `notation bijection` records.
 
-mundane definition function
-  open        The Cantor pilot's row reads "f : A → B ↔ for every x ∈ A,
-              f(x) ∈ B, and ..." and is truncated. No pilot cites it. The
-              statement has to be written before the item exists.
-  note        set.mm's df-f is the target. The Cantor proof needs f only for the
-              elaborator, since no step cites it; see that pilot's findings.
-
 mundane theorem function-value
   let f : D → E                                                       (H1)
   let x ∈ D                                                           (H2)

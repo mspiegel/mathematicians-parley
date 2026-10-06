@@ -1,4 +1,12 @@
 import mundane theorem    stdlib/geometry/angle-real as geometry-angle-real
+import mundane definition stdlib/geometry/point as geometry-point
+
+theorem point
+  let A ∈ 𝔼²                                                          (H1)
+  then A is a point
+
+1.  A is a point
+    mun:geometry-point, from H1
 
 theorem angle-real
   let P be a point                                                    (H1)
