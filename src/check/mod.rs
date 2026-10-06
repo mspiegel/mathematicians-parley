@@ -443,7 +443,7 @@ fn check_theorem(
     formulas::check_define_citation(report, thm, library, k, scopes);
     citations::check_obtained(report, thm, library, k);
     citations::check_requires(report, thm, library, k);
-    citations::check_surplus(report, thm, library, k);
+    citations::check_surplus(report, thm, library, k, scopes);
     citations::check_repeated(report, thm, library, k);
     citations::check_exhibited(report, thm, library, k);
     citations::check_instantiated(report, thm, library, k);

@@ -485,8 +485,11 @@ One exception: a step citing a theorem of its own file that is stated in
 terms of that file's defines needs not cite those defines. The theorem and the
 step speak of the same name, so nothing is expanded on the page:
 `s(D(f(n), n)) ≠ D(f(n), n)` cites `thm:digit-step`, which is stated of s,
-and not the define of s. A theorem of another file reaches the step's names
-only through an import, which the step cites.
+and not the define of s. A domain the define gives still has to be written:
+where the theorem applies s to a term the step builds, as `digit-step-twice`
+cited at D(f(n), n) applies it to s(D(f(n), n)), the step writes `requires
+s(D(f(n), n)) ∈ ℤ`. A theorem of another file reaches the step's names only
+through an import, which the step cites.
 
 **A step that does not cite a define keeps the name as a name.** `x₁ ∈ S`,
 from the define of S and lines saying x₁ ∈ [a, b] and f(x₁) < 0, uses what S

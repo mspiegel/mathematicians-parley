@@ -627,8 +627,9 @@ impl FamilyAsks {
 /// `X ∈ 𝒫A`, since M(X) is M's rule only there. The checker reads the name
 /// as its rule without asking, and the kernel does not (`SYNTAX.md`: a
 /// define may name a function).
-fn domains_asked(thm: &Theorem, step: &Step) -> BTreeSet<String> {
-    let functions = defined_functions(thm.defines.iter());
+fn domains_asked(thm: &Theorem, step: &Step, scopes: &[FileScope]) -> BTreeSet<String> {
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
     applied(&functions, &step.claim_text())
         .into_iter()
         .flat_map(|a| a.says)
@@ -1306,6 +1307,7 @@ pub fn check_surplus(
     thm: &Theorem,
     library: &Library,
     known: &Known,
+    scopes: &[FileScope],
 ) {
     let defines: BTreeSet<&str> =
         thm.defines.iter().map(|d| d.label.as_str()).collect();
@@ -1377,7 +1379,7 @@ pub fn check_surplus(
             }
         }
         let asks = family_asks(step, known, library);
-        let in_domain = domains_asked(thm, step);
+        let in_domain = domains_asked(thm, step, scopes);
         for (i, req) in step.requires.iter().enumerate() {
             let mut lighter = step.clone();
             lighter.requires.remove(i);

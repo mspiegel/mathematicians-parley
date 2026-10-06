@@ -110,72 +110,80 @@ theorem digit-step
 
 theorem digit-step-twice
   let t ∈ ℤ                                                           (H1)
-  let u ∈ ℤ                                                           (H2)
-  assume u = (t + 1) mod 10                                           (H3)
-  then s(u) ≠ t
+  then s(s(t)) ≠ t
 
-1.  t + 1 ≡ (t + 1) mod 10 (mod 10)
+1.  s(t) ∈ ℤ and 0 ≤ s(t) and s(t) ≤ 9 and s(t) ≠ t
+    thm:digit-step t := t, from H1
+
+2.  s(t) = (t + 1) mod 10
+    D2
+    requires t ∈ ℤ: from H1
+
+3.  t + 1 ≡ (t + 1) mod 10 (mod 10)
     mun:mod-congruent x := t + 1, n := 10
     requires t + 1 ∈ ℤ: membership, from H1
     requires 10 ∈ ℕ: arithmetic
 
-2.  10 divides (t + 1) − (t + 1) mod 10
-    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 1
+4.  10 divides (t + 1) − (t + 1) mod 10
+    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 3
     requires t + 1 ∈ ℤ: membership, from H1
     requires 10 ∈ ℕ: arithmetic
     requires (t + 1) mod 10 ∈ ℕ₀: mun:mod-natural a := t + 1, b := 10
 
-3.  10 divides (t + 1) − u
-    substitute u = (t + 1) mod 10 (H3) into line 2
+5.  10 divides (t + 1) − s(t)
+    substitute s(t) = (t + 1) mod 10 (line 2) into line 4
 
-4.  s(u) = (u + 1) mod 10
+6.  (t + 1) mod 10 ∈ ℤ
+    membership, from 2, 1
+
+7.  s(s(t)) = (s(t) + 1) mod 10
     D2
-    requires u ∈ ℤ: from H2
+    requires s(t) ∈ ℤ: from 1
 
-5.  u + 1 ≡ (u + 1) mod 10 (mod 10)
-    mun:mod-congruent x := u + 1, n := 10
-    requires u + 1 ∈ ℤ: membership, from H2
+8.  s(t) + 1 ≡ (s(t) + 1) mod 10 (mod 10)
+    mun:mod-congruent x := s(t) + 1, n := 10
+    requires s(t) + 1 ∈ ℤ: membership, from 1
     requires 10 ∈ ℕ: arithmetic
 
-6.  10 divides (u + 1) − (u + 1) mod 10
-    mun:congruent-mod n := 10, a := u + 1, b := (u + 1) mod 10, from 5
-    requires u + 1 ∈ ℤ: membership, from H2
+9.  10 divides (s(t) + 1) − (s(t) + 1) mod 10
+    mun:congruent-mod n := 10, a := s(t) + 1, b := (s(t) + 1) mod 10, from 8
+    requires s(t) + 1 ∈ ℤ: membership, from 1
     requires 10 ∈ ℕ: arithmetic
-    requires (u + 1) mod 10 ∈ ℕ₀: mun:mod-natural a := u + 1, b := 10
+    requires (s(t) + 1) mod 10 ∈ ℕ₀: mun:mod-natural a := s(t) + 1, b := 10
 
-7.  10 divides (u + 1) − s(u)
-    substitute s(u) = (u + 1) mod 10 (line 4) into line 6
+10. 10 divides (s(t) + 1) − s(s(t))
+    substitute s(s(t)) = (s(t) + 1) mod 10 (line 7) into line 9
 
-8.  s(u) ≠ t
+11. s(s(t)) ≠ t
     contradiction
-    suppose s(u) = t                                                  (S)
+    suppose s(s(t)) = t                                               (S)
 
-    8.1.  10 divides (u + 1) − t
-          substitute s(u) = t (S) into line 7
+    11.1. 10 divides (s(t) + 1) − t
+          substitute s(s(t)) = t (S) into line 10
 
-    8.2.  10 divides ((t + 1) − u)·1 + ((u + 1) − t)·1
-          mun:divides-combination e := 10, a := (t + 1) − u, b := (u + 1) − t,
-            x := 1, y := 1, from 3, 8.1
+    11.2. 10 divides ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1
+          mun:divides-combination e := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t,
+            x := 1, y := 1, from 5, 11.1
           requires 10 ∈ ℤ: arithmetic
-          requires (t + 1) − u ∈ ℤ: membership, from H1, H2
-          requires (u + 1) − t ∈ ℤ: membership, from H1, H2
+          requires (t + 1) − s(t) ∈ ℤ: membership, from H1, 1
+          requires (s(t) + 1) − t ∈ ℤ: membership, from H1, 1
           requires 1 ∈ ℤ: arithmetic
 
-    8.3.  ((t + 1) − u)·1 + ((u + 1) − t)·1 = 2
+    11.3. ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1 = 2
           algebra
           requires t ∈ ℝ: membership, from H1
-          requires u ∈ ℝ: membership, from H2
+          requires s(t) ∈ ℝ: membership, from 1
 
-    8.4.  10 divides 2
-          substitute ((t + 1) − u)·1 + ((u + 1) − t)·1 = 2 (line 8.3) into line 8.2
+    11.4. 10 divides 2
+          substitute ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1 = 2 (line 11.3) into line 11.2
 
-    8.5.  10 ≤ 2
-          mun:divides-le e := 10, m := 2, from 8.4
+    11.5. 10 ≤ 2
+          mun:divides-le e := 10, m := 2, from 11.4
           requires 10 ∈ ℕ: arithmetic
           requires 2 ∈ ℕ: arithmetic
 
-    8.6.  not 10 ≤ 2
-          inequalities, contradicting 8.5
+    11.6. not 10 ≤ 2
+          inequalities, contradicting 11.5
 
 theorem decimal-number
   let d : ℕ → ℤ                                                       (H1)
@@ -808,15 +816,12 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     2.4.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9 and e(n) ≠ D(f(n), n)
           substitute e(n) = s(D(f(n), n)) (line 2.3) into line 2.2
 
-    2.5.  e(n) = (D(f(n), n) + 1) mod 10
-          calculation
-            e(n) = s(D(f(n), n))           2.3
-                 = (D(f(n), n) + 1) mod 10  D2
-          requires D(f(n), n) ∈ ℤ: from 2.1
+    2.5.  s(s(D(f(n), n))) ≠ D(f(n), n)
+          thm:digit-step-twice t := D(f(n), n), from 2.1
+          requires s(D(f(n), n)) ∈ ℤ: from 2.2
 
     2.6.  s(e(n)) ≠ D(f(n), n)
-          thm:digit-step-twice t := D(f(n), n), u := e(n), from 2.1, 2.5
-          requires e(n) ∈ ℤ: from 2.4
+          substitute e(n) = s(D(f(n), n)) (line 2.3) into line 2.5
 
     2.7.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
