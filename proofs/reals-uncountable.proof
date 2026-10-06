@@ -24,7 +24,7 @@ import mundane theorem    stdlib/divisibility/mod-multiple
 import mundane theorem    stdlib/divisibility/mod-congruent
 import mundane definition stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-le
-import mundane theorem    stdlib/divisibility/divides-combination
+import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/functions/function-into
 import mundane definition stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
@@ -161,21 +161,19 @@ theorem digit-step-twice
     11.1. 10 divides (s(t) + 1) − t
           substitute s(s(t)) = t (S) into line 10
 
-    11.2. 10 divides ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1
-          mun:divides-combination e := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t,
-            x := 1, y := 1, from 5, 11.1
+    11.2. 10 divides ((t + 1) − s(t)) + ((s(t) + 1) − t)
+          mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 5, 11.1
           requires 10 ∈ ℤ: arithmetic
           requires (t + 1) − s(t) ∈ ℤ: membership, from H1, 1
           requires (s(t) + 1) − t ∈ ℤ: membership, from H1, 1
-          requires 1 ∈ ℤ: arithmetic
 
-    11.3. ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1 = 2
+    11.3. ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2
           algebra
           requires t ∈ ℝ: membership, from H1
           requires s(t) ∈ ℝ: membership, from 1
 
     11.4. 10 divides 2
-          substitute ((t + 1) − s(t))·1 + ((s(t) + 1) − t)·1 = 2 (line 11.3) into line 11.2
+          substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 11.3) into line 11.2
 
     11.5. 10 ≤ 2
           mun:divides-le e := 10, m := 2, from 11.4

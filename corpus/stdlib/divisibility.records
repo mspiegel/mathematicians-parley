@@ -135,6 +135,16 @@ theorem prime-factor
               meets the claim. The two are equivalent and the bridge is a proof
               rather than a field of this file.
 
+mundane theorem divides-sum
+  let d ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume d divides a                                                  (H4)
+  assume d divides b                                                  (H5)
+  then        d divides a + b
+  metamath    dvds2add
+  target      dvds2add
+
 mundane theorem divides-difference
   let d ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
