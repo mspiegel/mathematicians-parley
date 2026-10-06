@@ -399,6 +399,16 @@ fn cases() -> Vec<Case> {
             "          inequalities, from 4, contradicting 5.6\n",
             "step 5.7 combines p, and nothing it writes or cites says it is a number",
         ),
+        // A step said to be impossible is worked out, and one that holds is
+        // refused rather than closing the block on it.
+        case(
+            "say a true claim is impossible",
+            "proofs/reals-uncountable/digit-step",
+            "proofs/reals-uncountable.proof",
+            "    2.4.  10 ≤ 1, which is impossible\n          mun:divides-le e := 10, m := 1, from 2.3\n          requires 10 ∈ ℕ: arithmetic\n          requires 1 ∈ ℕ: arithmetic\n",
+            "    2.4.  1 ≤ 10, which is impossible\n          inequalities\n",
+            "step 2.4 says 1 ≤ 10 is impossible, which is true",
+        ),
         // `decide_field` refuses a claim that is not an identity, before
         // anything falls back to stating the step.
         case(

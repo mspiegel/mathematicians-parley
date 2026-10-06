@@ -105,13 +105,10 @@ theorem digit-step
     2.3.  10 divides 1
           substitute (t + 1) − t = 1 (line 2.2) into line 2.1
 
-    2.4.  10 ≤ 1
+    2.4.  10 ≤ 1, which is impossible
           mun:divides-le e := 10, m := 1, from 2.3
           requires 10 ∈ ℕ: arithmetic
           requires 1 ∈ ℕ: arithmetic
-
-    2.5.  not 10 ≤ 1
-          inequalities, contradicting 2.4
 
 theorem digit-step-twice
   let t ∈ ℤ                                                           (H1)
@@ -147,13 +144,10 @@ theorem digit-step-twice
     4.4.  10 divides 2
           substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 4.3) into line 4.2
 
-    4.5.  10 ≤ 2
+    4.5.  10 ≤ 2, which is impossible
           mun:divides-le e := 10, m := 2, from 4.4
           requires 10 ∈ ℕ: arithmetic
           requires 2 ∈ ℕ: arithmetic
-
-    4.6.  not 10 ≤ 2
-          inequalities, contradicting 4.5
 
 theorem decimal-number
   let d : ℕ → ℤ                                                       (H1)

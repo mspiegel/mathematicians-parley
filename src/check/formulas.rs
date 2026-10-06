@@ -305,13 +305,86 @@ pub fn check_contradiction(
         let Some(last_step) = inside.last() else {
             continue;
         };
-        if last_step.just.contradicting.is_none() {
+        if last_step.just.contradicting.is_none() && !last_step.impossible {
             report.say(
                 &thm.path,
                 last_step.line,
                 format!(
-                    "step {} ends a contradiction block and does not say which line it contradicts: write `contradicting` and the line after its reasons",
+                    "step {} ends a contradiction block and does not say which line it contradicts: write `contradicting` and the line after its reasons, or `, which is impossible` after a claim of numerals alone",
                     last_step.number
+                ),
+            );
+        }
+    }
+}
+
+/// Whether the step at `at` is the last of a contradiction block, which it
+/// closes, or of a case, which it shows cannot occur.
+fn ends_block(thm: &Theorem, at: usize) -> bool {
+    let step = &thm.steps[at];
+    // The step's block is the one its number sits directly under.
+    let depth = step.number.len();
+    let owner = thm.steps[..at].iter().rev().find(|s| {
+        s.number.len() + 1 == depth && step.number.prefix(s.number.len()) == s.number
+    });
+    let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
+    match owner.map(|o| &o.just.head) {
+        Some(h) if h.is(Method::Contradiction) => {
+            later.is_none_or(|s| s.number.len() < depth)
+        }
+        Some(h) if h.is(Method::Cases) => match later {
+            None => true,
+            Some(s) => s.number.len() < depth || s.part != step.part,
+        },
+        _ => false,
+    }
+}
+
+/// A step whose claim says `, which is impossible`: the claim is numerals
+/// alone, which `arithmetic` works out and the elaborator shows false, and
+/// the step ends a contradiction block or a case as one contradicting a
+/// line does, in place of that line.
+pub fn check_impossible(report: &mut Report, thm: &Theorem, known: &Known) {
+    for (at, step) in thm.steps.iter().enumerate() {
+        if !step.impossible {
+            continue;
+        }
+        if step.just.contradicting.is_some() {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {} says it is impossible and contradicts a line: one of the two says the block is closed",
+                    step.number
+                ),
+            );
+        }
+        if let Some(node) = known.read(step, &step.claim_text()) {
+            let named: Vec<String> = node
+                .walk()
+                .iter()
+                .filter(|n| n.is_name())
+                .map(|n| n.text.clone())
+                .collect();
+            if !named.is_empty() {
+                report.say(
+                    &thm.path,
+                    step.line,
+                    format!(
+                        "step {} says it is impossible and names {}: only a claim of numerals alone is shown false by working it out, and one naming anything contradicts a line",
+                        step.number,
+                        named.join(", ")
+                    ),
+                );
+            }
+        }
+        if !ends_block(thm, at) {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {} says it is impossible, which only the last step of a contradiction block or of a case may do",
+                    step.number
                 ),
             );
         }
@@ -365,24 +438,7 @@ pub fn check_contradicting(
                 ),
             );
         }
-        // The step's block is the one its number sits directly under.
-        let depth = step.number.len();
-        let owner = thm.steps[..at].iter().rev().find(|s| {
-            s.number.len() + 1 == depth
-                && step.number.prefix(s.number.len()) == s.number
-        });
-        let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
-        let ends = match owner.map(|o| &o.just.head) {
-            Some(h) if h.is(Method::Contradiction) => {
-                later.is_none_or(|s| s.number.len() < depth)
-            }
-            Some(h) if h.is(Method::Cases) => match later {
-                None => true,
-                Some(s) => s.number.len() < depth || s.part != step.part,
-            },
-            _ => false,
-        };
-        if !ends {
+        if !ends_block(thm, at) {
             report.say(
                 &thm.path,
                 step.just.line,
@@ -642,6 +698,64 @@ pub fn check_closed_arithmetic(
                     format!(
                         "a link of step {} names arithmetic for {claim}, which changes something with a letter in it; a link may name arithmetic where only pieces of numerals alone change, and any other cites the numbered step that states it",
                         step.number
+                    ),
+                );
+            }
+        }
+    }
+}
+
+regex!(BY_COMBINING, r"^\s*(algebra|inequalities)\b");
+
+/// A claim of numerals alone is `arithmetic`'s, whatever relation it states:
+/// `algebra` and `inequalities` combine what a step says of its letters, and
+/// a claim with none gives a reader nothing to check but working it out
+/// (`METHODS.md`, arithmetic). Asked of a step and of each requires line.
+pub fn check_closed_by_arithmetic(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) {
+    // Numerals alone: every leaf a numeral, so that no name and no constant
+    // such as i, which arithmetic cannot work out, stands in it.
+    let closed = |text: &str| -> bool {
+        match parse_here(text, env.g, &known.sorts) {
+            Ok(n) => n
+                .walk()
+                .iter()
+                .filter(|m| m.children.is_empty())
+                .all(|m| m.notation == "numeral"),
+            Err(_) => false, // `check_formulas` says it does not read
+        }
+    };
+    for step in &thm.steps {
+        let just = &step.just;
+        if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
+            && closed(&step.claim_text())
+        {
+            report.say(
+                &thm.path,
+                just.line,
+                format!(
+                    "step {} gives {} for {}, which has no letter in it; a claim of numerals alone is arithmetic's",
+                    step.number,
+                    just.head,
+                    step.claim_text()
+                ),
+            );
+        }
+        for req in &step.requires {
+            let Some(m) = BY_COMBINING.captures(&req.how) else {
+                continue;
+            };
+            if closed(&req.fact) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} gives {} for {}, which has no letter in it; a fact of numerals alone is arithmetic's",
+                        step.number, &m[1], req.fact
                     ),
                 );
             }

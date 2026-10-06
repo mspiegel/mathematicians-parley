@@ -100,13 +100,10 @@ theorem even-leg
                   requires 2 ∈ ℤ: arithmetic
                   requires r² − p² − p − q² − q ∈ ℤ: membership, from 2.2.1, 2.2.2, 2.2.9
 
-          2.2.13. 4 ≤ 2
+          2.2.13. 4 ≤ 2, which is impossible
                   mun:divides-le e := 4, m := 2, from 2.2.12
                   requires 4 ∈ ℕ: arithmetic
                   requires 2 ∈ ℕ: arithmetic
-
-          2.2.14. not 4 ≤ 2
-                  inequalities, contradicting 2.2.13
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b, from H2
@@ -242,13 +239,10 @@ theorem primitive-triple
     4.6.  2 divides 1
           substitute gcd(a, b) = 1 (H5) into line 4.5
 
-    4.7.  2 ≤ 1
+    4.7.  2 ≤ 1, which is impossible
           mun:divides-le e := 2, m := 1, from 4.6
           requires 2 ∈ ℕ: arithmetic
           requires 1 ∈ ℕ: arithmetic
-
-    4.8.  not 2 ≤ 1
-          inequalities, contradicting 4.7
 
 5.  q ∈ ℤ. b = 2q + 1.
     obtain q: mun:odd n := b, from H2, 4
@@ -287,13 +281,10 @@ theorem primitive-triple
           requires 1 ∈ ℤ: arithmetic
           requires 2r² − 2w² − 2q² − 2q ∈ ℤ: membership, from 1, 5, 8.3
 
-    8.7.  2 ≤ 1
+    8.7.  2 ≤ 1, which is impossible
           mun:divides-le e := 2, m := 1, from 8.6
           requires 2 ∈ ℕ: arithmetic
           requires 1 ∈ ℕ: arithmetic
-
-    8.8.  not 2 ≤ 1
-          inequalities, contradicting 8.7
 
 9.  r ∈ ℤ. c = 2r + 1.
     obtain r: mun:odd n := c, from H3, 8

@@ -22,6 +22,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
+use super::field::{self, Verdict};
 use super::linear;
 use super::matcher::ChainLink;
 use super::provenance::{item_clauses, requirement};
@@ -585,20 +586,59 @@ impl<'a> Elaborator<'a> {
                 let said = self.lines.get(other).map(|l| l.term).unwrap_or_default();
                 self.contradicted = Some(said);
             }
+            // A step that says its claim is impossible is its own opposite:
+            // `arithmetic` works the claim out, refuses one it does not find
+            // false, and proves its denial, which stands as the line it
+            // contradicts.
+            let denied = if step.impossible {
+                let last = self.last.clone().expect("a step's number");
+                let held = self.lines.get(&last).expect("the step's line");
+                let negated = t!(held.term, "wn");
+                let what = format!(
+                    "step {} says {} is impossible",
+                    fmt(&step.number),
+                    step.claim_text()
+                );
+                let why = match field::decide_closed(&self.to_term(&negated)) {
+                    Built(Verdict::Holds(true)) => None,
+                    Built(Verdict::Holds(false)) => Some("which is true".to_string()),
+                    Built(Verdict::Unworked(why)) => Some(format!("which {why}")),
+                    Declined(_) => {
+                        Some("which is not a fact about numerals alone that arithmetic decides".into())
+                    }
+                };
+                if let Some(why) = why {
+                    return Err(self.defect(step.line, format!("{what}, {why}")));
+                }
+                let proof = self.closed_fact(&negated, &scope, &facts, &what, None)?;
+                self.know(&facts, negated.clone(), proof.clone());
+                if self.in_contradiction {
+                    self.contradicted = Some(negated.clone());
+                }
+                Some(proof)
+            } else {
+                None
+            };
             if let (Some(part), Some(block)) = (step.part, blocks.last_mut()) {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
-                let (term, proof) = match &step.just.contradicting {
+                let (term, proof) = match (&step.just.contradicting, denied) {
                     // A case that cannot occur gives the block's claim from
                     // its line and the line it contradicts.
-                    Some(other) => {
+                    (Some(other), _) => {
                         let claim = self.claim_of(&block.owner.claim_text())?;
                         let made = self.by_opposites(
                             &step, &held, other, &claim, &scope, &facts,
                         )?;
                         (claim, made)
                     }
-                    None => (held.term, held.proof),
+                    // Or from its line and that line shown false.
+                    (None, Some(not)) => {
+                        let claim = self.claim_of(&block.owner.claim_text())?;
+                        let made = pf!(self.b; scope, held.term, claim, held.proof, not, "pm2.21dd");
+                        (claim, made)
+                    }
+                    (None, None) => (held.term, held.proof),
                 };
                 block.parts.insert(part, (term, proof, scope.clone()));
             }

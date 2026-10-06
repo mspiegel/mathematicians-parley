@@ -434,9 +434,11 @@ fn check_theorem(
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
+    formulas::check_impossible(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);
     formulas::check_cases_cited(report, thm, k);
     formulas::check_closed_arithmetic(report, thm, env, k);
+    formulas::check_closed_by_arithmetic(report, thm, env, k);
     formulas::check_membership_claims(report, thm, env, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);

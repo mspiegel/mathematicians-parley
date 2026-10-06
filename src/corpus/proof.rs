@@ -474,6 +474,9 @@ pub struct Step {
     pub note: Option<(String, usize)>,
     /// What each part of its block does, by the part's index.
     pub part_notes: IndexMap<usize, (String, usize)>,
+    /// The claim says `, which is impossible`: a closed fact `arithmetic`
+    /// shows false, which ends a contradiction block on this step.
+    pub impossible: bool,
 }
 
 impl Step {
@@ -1154,8 +1157,25 @@ pub fn requires_as_step(step: &Step, req: &Requires, path: &str) -> Checked<Step
         line: req.line,
         note: None,
         part_notes: IndexMap::new(),
+        impossible: false,
         ..step.clone()
     })
+}
+
+// `2 ≤ 1, which is impossible`: the claim, and the mark after it.
+regex!(IMPOSSIBLE, r"^(.*?),\s*which is impossible\s*$");
+
+/// The step with `, which is impossible` taken off the end of its claim and
+/// said by `impossible` instead.
+fn impossible(mut step: Step) -> Step {
+    let Some(last) = step.claim.last_mut() else {
+        return step;
+    };
+    if let Some(m) = IMPOSSIBLE.captures(last) {
+        *last = str::trim(&m[1]).to_string();
+        step.impossible = true;
+    }
+    step
 }
 
 fn placeholder_justification() -> Justification {
@@ -1363,7 +1383,11 @@ pub fn parse_proof(
             }
             scope.defines.push(d);
         }
-        draft.thm.steps = draft.steps.into_iter().map(|s| s.step).collect();
+        draft.thm.steps = draft
+            .steps
+            .into_iter()
+            .map(|s| impossible(s.step))
+            .collect();
         theorems.push(draft.thm);
     }
 
@@ -1524,6 +1548,7 @@ pub fn parse_proof(
                     part: current,
                     note: None,
                     part_notes: IndexMap::new(),
+                    impossible: false,
                 },
                 has_just: false,
             });

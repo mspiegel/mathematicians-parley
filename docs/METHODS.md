@@ -481,13 +481,20 @@ justifies one must need nothing further. `arithmetic` is where that recursion
 stops, which is why thirteen of its twenty-one uses are memberships discharging
 somebody else's hypothesis.
 
-### Boundary with algebra
+### Boundary with algebra and inequalities
 
-On a claim with no variables both would succeed, since `algebra` normalising
-`1 − 1(1 + 1)/2` to zero decides the same fact. The text uses `arithmetic`
-there, and the rule is that a claim with no atom cites `arithmetic`. A checker
-can enforce that once it can tell an atom from a numeral, which needs the
-formula grammar.
+On a claim of numerals alone `algebra` would succeed too, normalising
+`1 − 1(1 + 1)/2` to zero, and so would `inequalities` on `not 2 ≤ 1`, from
+the closed facts it takes uncited. Both combine what a step says of its
+letters, and a claim with none gives a reader nothing to check but working it
+out. So a claim whose every leaf is a numeral cites `arithmetic`, whatever
+relation it states, and the checker refuses `algebra` or `inequalities` for
+one, in a step or a requires line. A claim with no letter but a constant,
+`1 + i·0 = 1`, is not numerals alone: `arithmetic` cannot work i out, and the
+claim stays `algebra`'s.
+
+Denials of an order are `arithmetic`'s with the rest: not a ≤ b is b < a, and
+not a < b is b ≤ a, each turned by the law that says so (`ltnled`, `lenltd`).
 
 ### Expansion
 
@@ -664,7 +671,11 @@ step inside it.
 
 The block's supposition, which asserts nothing outside the block, and the
 block's last step, which reaches the opposite of an earlier line and names it,
-`contradicting 3.6`.
+`contradicting 3.6`, or reaches a fact of numerals alone that cannot hold and
+says so, `2 ≤ 1, which is impossible`. The second is how a reader ends the
+argument "so 10 divides 1, which is impossible": nothing earlier says 2 > 1,
+and writing a step to say it only so that the last step had a line to
+contradict is not a proof anyone writes.
 
 ### Fact out
 
@@ -686,7 +697,13 @@ reading is never in doubt. A folded negation counts as a negation: the
 
 Then check that the last step closes: its claim and the line it names, or one
 sentence of that line, are a formula and that formula negated, by the same
-comparison.
+comparison. A last step that says it is impossible names no line: its claim
+is worked out by `arithmetic`, and its denial, which `arithmetic` proves,
+stands in for the line. The claim must name nothing, as `arithmetic`'s must,
+and `arithmetic` must decide it false; one it finds true, cannot work out,
+or does not decide (10 divides 1, a relation it does not have) is refused,
+and the step names a line it contradicts instead. A case that cannot occur
+may end the same way.
 
 ### Refusals
 

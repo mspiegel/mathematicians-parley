@@ -1292,10 +1292,24 @@ impl<'a> Elaborator<'a> {
         }
         let (na, nb) = (n(a as u32), n(b as u32));
         if negated {
-            if how != "=" || a == b {
-                return Ok(Route::no("a denial of what holds"));
-            }
-            return Ok(Built(self.numerals_differ(scope, a, b)));
+            return Ok(match how {
+                "=" if a != b => Built(self.numerals_differ(scope, a, b)),
+                // not a ≤ b is b < a, and not a < b is b ≤ a, each turned by
+                // the law that says so (`ltnled`, `lenltd`).
+                "<=" if b < a => {
+                    let below = self.numeral_below(scope, b, a);
+                    Built(self.denied(scope, nb, na, below, "clt", "cle", "ltnled"))
+                }
+                "<" if b <= a => {
+                    let held = take!(self.prove_numeral(
+                        &t!(nb, na, "cle", "wbr"),
+                        scope,
+                        facts
+                    )?);
+                    Built(self.denied(scope, nb, na, held, "cle", "clt", "lenltd"))
+                }
+                _ => Route::no("a denial of what holds"),
+            });
         }
         if how == "=" && a == b {
             let same = self.b.ap("eqid", &binds! {"A" => na}, &[]);
@@ -1337,6 +1351,34 @@ impl<'a> Elaborator<'a> {
         Ok(Route::no(format!(
             "{a} {how} {b} is not what the numbers do"
         )))
+    }
+
+    /// ( scope -> -. y R' x ) from ( scope -> x R y ), for numerals x and y,
+    /// by `law`, which says ( x R y <-> -. y R' x ) of two reals.
+    #[allow(clippy::too_many_arguments)]
+    fn denied(
+        &self,
+        scope: &str,
+        x: &str,
+        y: &str,
+        held: Proof,
+        relation: &str,
+        other: &str,
+        law: &str,
+    ) -> Proof {
+        let real = |n: &str| {
+            let value =
+                linear::numeral(&self.to_term(n), &self.b.flabel).unwrap_or_default();
+            self.real_numeral(scope, &value)
+        };
+        let said = t!(x, y, relation, "wbr");
+        let denial = t!(t!(y, x, other, "wbr"), "wn");
+        let turned = self.b.ap(
+            law,
+            &binds! {"ph" => scope, "A" => x, "B" => y},
+            &[&real(x), &real(y)],
+        );
+        pf!(self.b; scope, said, denial, held, turned, "mpbid")
     }
 
     /// ( scope -> n e. RR ) for a whole multiplier.

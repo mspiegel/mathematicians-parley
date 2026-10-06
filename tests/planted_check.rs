@@ -1118,6 +1118,27 @@ fn cases() -> Vec<Case> {
             "says it contradicts 5.5, and neither is the other negated",
         ),
         case(
+            "give a method that combines letters for a fact of numerals alone",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("    requires 2 ≠ 0: arithmetic\n".to_string()), "    requires 2 ≠ 0: inequalities\n".to_string()),
+            ],
+            "gives inequalities for 2 ≠ 0, which has no letter in it",
+        ),
+        case(
+            "say a step is impossible and contradict a line as well",
+            vec![
+                edit("proofs/reals-uncountable.proof", Some("          mun:divides-le e := 10, m := 1, from 2.3\n".to_string()), "          mun:divides-le e := 10, m := 1, from 2.3, contradicting 2.3\n".to_string()),
+            ],
+            "says it is impossible and contradicts a line",
+        ),
+        case(
+            "say a claim with a letter in it is impossible",
+            vec![
+                edit("proofs/reals-uncountable.proof", Some("    2.4.  10 ≤ 1, which is impossible\n".to_string()), "    2.4.  10 ≤ t, which is impossible\n".to_string()),
+            ],
+            "says it is impossible and names t",
+        ),
+        case(
             "contradict a line before the end of the block",
             vec![
                 edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 3, 5.5".to_string()), "mun:divides-one d := p, from 3, 5.5, contradicting 5.5".to_string()),
