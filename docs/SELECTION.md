@@ -5,8 +5,9 @@ The theorems for the example corpus, chosen by the coverage rule in
 candidates are on Wiedijk's list of 100 theorems, all are proved in
 set.mm, and all have Mizar and Isabelle versions, so those criteria did
 not discriminate and are not shown. The informal source is Hammack's Book
-of Proof where it has the theorem and ProofWiki otherwise; entries marked
-"verify" are from memory and have not been checked against the book.
+of Proof where it has the theorem and ProofWiki otherwise. Page numbers are
+those of its edition 3.4 (2025), from the author's site; where the proof
+here follows another argument than Hammack's, the entry says which.
 
 Measurements are from set.mm as of 2026-09-17, made with a script that
 decodes each stored compressed proof and counts the steps whose result is
@@ -41,9 +42,10 @@ in `docs/pilot/`, under the same name:
 | 27 | reals-uncountable | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
-that every even perfect number has that form, is not proved. Six informal
-sources are still marked "verify": those of 3, 6, 7, 10, 14 and 20. Their
-pilots were written without that check.
+that every even perfect number has that form, is not proved. The informal
+sources of 3, 6, 7, 10, 14 and 20 were written from memory and checked
+against the book after their pilots: only 6 follows Hammack's proof, and
+14 and 20 are ProofWiki's arguments, not his.
 
 ## The ten
 
@@ -51,14 +53,14 @@ pilots were written without that check.
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | √2 is irrational | contradiction; definition unfolding; calculation chain | sqrt2irr | 99 (+69 in sqrt2irrlem, 74 in zesq) | no | none | none | 0 | Hammack ch. 6 |
 | 2 | 1 + 2 + ... + n = n(n + 1)/2 | induction | arisum | 73 | no | N | none | 1 | Hammack ch. 10 |
-| 3 | triangle inequality, real case | proof by cases | abstri | 78 | no | A, B | none | 0 | ProofWiki; Hammack exercise (verify) |
+| 3 | triangle inequality, real case | proof by cases | abstri | 78 | no | A, B | none | 0 | ProofWiki; Hammack Theorem 13.1 and (13.2), p. 245, proved by a picture of the orders of x, y, z, not by cases |
 | 4 | infinitely many primes | existence by construction | infpn, infpnlem1, infpnlem2 | 2 + 58 + 38 | no | K, M, N | none | 3 to 5 | Hammack ch. 6 |
 | 5 | Bezout's identity | existence via a least element; definition of gcd | bezout | 47 | no | A, B | none | 5 | Hammack ch. 7 |
-| 6 | Cantor's theorem | set-theoretic argument | canth | 21 | no | A, F | `A e. _V` | 0 | Hammack ch. 14 (verify); ProofWiki |
-| 7 | a set with n elements has 2ⁿ subsets | counting | hashpw | 25 | no | A | none | 0 | Hammack ch. 1 and 10 (verify) |
+| 6 | Cantor's theorem | set-theoretic argument | canth | 21 | no | A, F | `A e. _V` | 0 | Hammack Theorem 14.7, p. 281, the same set and cases; ProofWiki |
+| 7 | a set with n elements has 2ⁿ subsets | counting | hashpw | 25 | no | A | none | 0 | Hammack Fact 1.3, p. 13, by a tree that doubles at each element; chapter 10 does not prove it |
 | 8 | intermediate value theorem | quantifier alternation; completeness of ℝ | ivth, ivthle | 16 + 69 | yes | A, B, D, F, U | none | 13 | ProofWiki |
 | 9 | isosceles triangle theorem | geometry | isosctr | 40 | no | A, B, C, F | none | 7 | ProofWiki |
-| 10 | sum of a geometric series | calculation chain in deduction form; induction | geoser | 18 | yes | A, N | none | 3 | ProofWiki; Hammack ch. 10 exercise (verify) |
+| 10 | sum of a geometric series | calculation chain in deduction form; induction | geoser | 18 | yes | A, N | none | 3 | ProofWiki; Hammack states it unproved on p. 167, and proves ratios 2 and 3 by induction (chapter 10, exercises 5 and 34) |
 
 ## Notes on each choice
 
@@ -154,9 +156,8 @@ for the existence-by-construction feature.
   prime factor for the infinitude of primes. Each will be a database item
   with a pointer, and each is above what Reader A's school background
   provides, which is what the pointer rule was designed for.
-- The informal-source entries marked "verify" are to be checked against
-  the book. Their pilots were written without it; `rationals-countable.md`
-  says Hammack's account was recalled rather than reread.
+- The informal-source entries written from memory were checked against
+  the book after their pilots, and each entry says what it found.
 
 ## The next five
 
@@ -171,7 +172,7 @@ with a one-off script that is not kept.
 | 11 | divisibility by 3 rule | congruence; a sum whose terms a function gives | 3dvds | 122 | no | F, N | none | 2 | ProofWiki; Hammack defines congruence (Definition 5.1) but not the rule |
 | 12 | binomial theorem | a finite sum split and reindexed; binomial coefficients | binom | 83 | no | A, B, N | none | 3 | ProofWiki; Hammack states it as Theorem 3.1 (§3.6) and leaves the induction to exercise 10.23, with Pascal's rule as Equation (3.3) |
 | 13 | sum of the reciprocals of the triangular numbers | an infinite series: a limit of partial sums, telescoping | trirecip | 42 | no | none | none | 0 | ProofWiki |
-| 14 | Schröder–Bernstein | comparing sizes by injection; a fixed point, built as a union rather than by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | Hammack ch. 14 (verify); ProofWiki |
+| 14 | Schröder–Bernstein | comparing sizes by injection; a fixed point, built as a union rather than by recursion; a function defined piecewise | sbth | 29 | no | A, B | none | 0 | ProofWiki, proof 6, the fixed point of A ∖ g[B ∖ f[S]]; Hammack Theorem 14.10, p. 286, is the chain argument |
 | 15 | Lagrange's theorem | an algebraic structure, which set.mm encodes through `Base`, `+g` and `SubGrp` | lagsubg | 27 | no | G, X, Y | none | 0 | ProofWiki |
 
 Three of these were set aside when the ten were chosen: Schröder–Bernstein
@@ -298,7 +299,7 @@ has 13, as the table says.
 | 17 | Euclid–Euler theorem (perfect numbers) | a function defined by a sum over a set given by a condition, σ; multiplicativity | perfect (Euclid's half: perfect1) | 98 (perfect1: 75) | no | N | none | 1 | Wiedijk #70; ProofWiki |
 | 18 | De Moivre's formula | complex numbers and the trigonometric functions | demoivre | 20 | no | A, N | none | 0 | Wiedijk #17; ProofWiki |
 | 19 | mean value theorem | the derivative; a function the proof defines to cite a theorem at | mvth, citing rolle | 108 (rolle: 259) | yes | A, B, F | none | 3 | Wiedijk #75; ProofWiki |
-| 20 | ℚ is countable | countability; a proof built mostly on the corpus's own theorems | qnnen | 39 | no | none | none | 0 | Wiedijk #3; Hammack ch. 14 (verify) |
+| 20 | ℚ is countable | countability; a proof built mostly on the corpus's own theorems | qnnen | 39 | no | none | none | 0 | Wiedijk #3; ProofWiki, proof 2, an injection by lowest terms; Hammack Theorem 14.4, p. 276, lists ℚ by a grid instead |
 
 17. **Perfect numbers.** The first function a proof reads as a sum over a
     set picked out by a condition: σ(n), the sum of the divisors of n. The

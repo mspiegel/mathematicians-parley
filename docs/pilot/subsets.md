@@ -2,8 +2,9 @@
 
 Seventh pilot, first draft. Its purpose is a counting argument: what "has
 n elements" means and how a count is carried through a construction.
-Number 52 on Wiedijk's list, `hashpw` in set.mm, stated in Hammack's
-chapter on sets and proved in his chapter on induction.
+Number 52 on Wiedijk's list, `hashpw` in set.mm, Hammack's Fact 1.3
+(§1.3, p. 13 of edition 3.4), where a tree of the subsets doubles at each
+element; the induction here is that doubling, proved.
 
 Provisional forms, listed in the batch report: cardinality written |A|
 with `def:stdlib/counting/card`; induction from 0, written `induction on n starting at

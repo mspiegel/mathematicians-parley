@@ -4,12 +4,14 @@ Theorem 20 of `SELECTION.md`, set.mm's `qnnen`, Wiedijk #3:
 
   there is a bijection from ℕ to ℚ.
 
-Hammack's chapter 14 lists the fractions in a grid and walks it along its
-diagonals, skipping repeats; that is a picture of a list, not a function a
-proof can name, and was not taken as the source. The proof is the one
-`SELECTION.md` planned: inject ℕ into ℚ, inject ℚ into ℕ, and cite
-Schröder–Bernstein, which the corpus proves. Hammack's account was recalled
-rather than reread, since the source was not fetched.
+Hammack's Theorem 14.4 (§14.2, p. 276 of edition 3.4) puts the fractions in
+lowest terms in a grid, a column for each numerator, and snakes a path
+through it; that is a picture of a list, not a function a proof can name,
+and was not taken as the source. The proof is the one `SELECTION.md`
+planned: inject ℕ into ℚ, inject ℚ into ℕ, and cite Schröder–Bernstein,
+which the corpus proves. ProofWiki's second proof is the nearest: it
+injects ℚ by lowest terms into ℤ × ℕ, where this one goes on into ℕ by
+powers of primes.
 
 ---
 
