@@ -1,0 +1,117 @@
+# Functions and their images, for `proved.mm`.
+#
+# What Schröder–Bernstein asks of functions that set.mm says in two steps
+# and the page in one. Each lemma is a chain of two or three set.mm lemmas:
+#
+# - what is in an image: `fvelimab` says it of a function on A, which `ffn`
+#   reads off f : A → B, with its equation turned by `eqcom` to the page's
+#   u = f(s), for `mun:stdlib/functions/image`;
+# - a value lies in the image of a set holding its point: `fnfvima`, with
+#   `ffn` the same way, for `mun:stdlib/functions/value-in-image`;
+# - a one-to-one function's inverse undoes it: `f1f1orn` makes it a
+#   bijection onto its range, where `f1ocnvfv1` applies, for
+#   `mun:stdlib/functions/inverse-value`;
+# - a function that is one-to-one and reaches every point is a bijection:
+#   `dffo3` reads the reaching as onto, `df-f1o` puts the two together, and
+#   `f1oeng` gives the bijection, for `mun:stdlib/functions/bijection`;
+# - a bijection gives a function that reaches every point: `bren` gives
+#   one that is one-to-one and onto, `f1ofo` and `foelrn` say it reaches
+#   each point, and `encv` with `elmapg` puts it among the functions from
+#   A to B, which `df-rex` says is the "there is" over them, for
+#   `mun:stdlib/functions/bijection-onto`;
+# - a map sends its domain into a set exactly when each value lies there:
+#   `fmpt` says it of a name for the map, and `eqid` names the map itself,
+#   for `mun:stdlib/functions/function-into`.
+
+$( Functions: images, inverses, a bijection from one-to-one and onto,
+   and an onto function from a bijection. $)
+$d f x y A $.
+$d f x y B $.
+$d x y F $.
+$d x D $.
+$d x S $.
+
+# ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) )
+lemma gfvelima
+  |- ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) )
+  1 ffn |- ( F : A --> B -> F Fn A )
+  2 fvelimab |- ( ( F Fn A /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S ( F ` x ) = D ) )
+  3 sylan 1 2 |- ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S ( F ` x ) = D ) )
+  4 eqcom |- ( ( F ` x ) = D <-> D = ( F ` x ) )
+  5 rexbii 4 |- ( E. x e. S ( F ` x ) = D <-> E. x e. S D = ( F ` x ) )
+  6 bitrdi 3 5 |- ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) )
+
+# ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
+lemma gf1cnvfv1
+  |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
+  1 f1f1orn |- ( F : A -1-1-> B -> F : A -1-1-onto-> ran F )
+  2 f1ocnvfv1 |- ( ( F : A -1-1-onto-> ran F /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
+  3 sylan 1 2 |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
+
+# ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B )
+lemma gf1foen
+  |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B )
+  1 simp1 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A e. V )
+  2 simp2 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A -1-1-> B )
+  3 f1f |- ( F : A -1-1-> B -> F : A --> B )
+  4 syl 2 3 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A --> B )
+  5 simp3 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A. y e. B E. x
+      e. A y = ( F ` x ) )
+  6 dffo3 |- ( F : A -onto-> B <-> ( F : A --> B /\ A. y e. B E. x e. A y = ( F ` x ) ) )
+  7 a1i 6 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> ( F : A -onto->
+      B <-> ( F : A --> B /\ A. y e. B E. x e. A y = ( F ` x ) ) ) )
+  8 mpbir2and 4 5 7 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A
+      -onto-> B )
+  9 df-f1o |- ( F : A -1-1-onto-> B <-> ( F : A -1-1-> B /\ F : A -onto-> B ) )
+  10 a1i 9 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> ( F : A
+      -1-1-onto-> B <-> ( F : A -1-1-> B /\ F : A -onto-> B ) ) )
+  11 mpbir2and 2 8 10 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F :
+      A -1-1-onto-> B )
+  12 f1oeng |- ( ( A e. V /\ F : A -1-1-onto-> B ) -> A ~~ B )
+  13 syl2anc 1 11 12 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~
+      B )
+
+# ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+lemma gbijonto
+  |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+  1 bren |- ( A ~~ B <-> E. f f : A -1-1-onto-> B )
+  2 biimpi 1 |- ( A ~~ B -> E. f f : A -1-1-onto-> B )
+  3 simpr |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f : A -1-1-onto-> B )
+  4 f1of |- ( f : A -1-1-onto-> B -> f : A --> B )
+  5 syl 3 4 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f : A --> B )
+  6 encv |- ( A ~~ B -> ( A e. _V /\ B e. _V ) )
+  7 pm3.22 |- ( ( A e. _V /\ B e. _V ) -> ( B e. _V /\ A e. _V ) )
+  8 syl 6 7 |- ( A ~~ B -> ( B e. _V /\ A e. _V ) )
+  9 elmapg |- ( ( B e. _V /\ A e. _V ) -> ( f e. ( B ^m A ) <-> f : A --> B ) )
+  10 syl 8 9 |- ( A ~~ B -> ( f e. ( B ^m A ) <-> f : A --> B ) )
+  11 adantr 10 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> ( f e. ( B ^m A ) <-> f : A --> B ) )
+  12 mpbird 5 11 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f e. ( B ^m A ) )
+  13 f1ofo |- ( f : A -1-1-onto-> B -> f : A -onto-> B )
+  14 syl 3 13 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f : A -onto-> B )
+  15 foelrn |- ( ( f : A -onto-> B /\ y e. B ) -> E. x e. A y = ( f ` x ) )
+  16 sylan 14 15 |- ( ( ( A ~~ B /\ f : A -1-1-onto-> B ) /\ y e. B ) -> E. x e. A y = ( f ` x ) )
+  17 ralrimiva 16 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> A. y e. B E. x e. A y = ( f ` x ) )
+  18 jca 12 17 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y
+      = ( f ` x ) ) )
+  19 ex 18 |- ( A ~~ B -> ( f : A -1-1-onto-> B -> ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y = ( f
+      ` x ) ) ) )
+  20 eximdv 19 |- ( A ~~ B -> ( E. f f : A -1-1-onto-> B -> E. f ( f e. ( B ^m A ) /\ A. y e. B E. x
+      e. A y = ( f ` x ) ) ) )
+  21 mpd 2 20 |- ( A ~~ B -> E. f ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y = ( f ` x ) ) )
+  22 df-rex |- ( E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) <-> E. f ( f e. ( B ^m A ) /\
+      A. y e. B E. x e. A y = ( f ` x ) ) )
+  23 sylibr 21 22 |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+
+# ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B )
+lemma gfmpt
+  |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B )
+  1 eqid |- ( x e. A |-> C ) = ( x e. A |-> C )
+  2 fmpt 1 |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B )
+
+# ( ( F : A --> B /\ S C_ A /\ D e. S ) -> ( F ` D ) e. ( F " S ) )
+lemma gfnfvima
+  |- ( ( F : A --> B /\ S C_ A /\ D e. S ) -> ( F ` D ) e. ( F " S ) )
+  1 ffn |- ( F : A --> B -> F Fn A )
+  2 fnfvima |- ( ( F Fn A /\ S C_ A /\ D e. S ) -> ( F ` D ) e. ( F " S ) )
+  3 syl3an1 1 2 |- ( ( F : A --> B /\ S C_ A /\ D e. S ) -> ( F ` D ) e. ( F " S ) )
+

@@ -87,6 +87,11 @@
 #               polynomials) with …". The holes written stand one place
 #               further along from it, and a name the spelling binds right
 #               after its words has the sort the filled set holds.
+#   shadowed    that a name the text introduces with the same letter is read
+#               as that name and not as this notation, in the scope of the
+#               line introducing it. Marked case by case: only the imaginary
+#               unit i has it, the one constant mathematics also uses as a
+#               letter.
 #   reads       how a viewer says it in words.
 #   metamath    the set.mm syntax constructors the elaborator targets, said
 #               the way a person checking them wants to read it.
@@ -461,12 +466,14 @@ notation imaginary-unit
   pattern     i
   sort        → number
   reads       i
+  shadowed    by a name the text introduces
   metamath    ci
   target      ci
-  note        The square root of −1, mun:stdlib/numbers/i. A proof gives no
-              name of its own the letter i, so that i·i = −1 on any line means
-              the one thing. Geometry keeps ℂ off the page (GEOMETRY.md), and
-              no geometry proof writes i.
+  note        The square root of −1, mun:stdlib/numbers/i. A line that
+              introduces an i of its own, `obtain i`, `let i ∈ ℤ` or a sum's
+              index, makes i that name in its scope, as a reader takes it;
+              elsewhere i is this. Geometry keeps ℂ off the page
+              (GEOMETRY.md), and no geometry proof writes i.
 
 notation pi
   pattern     π

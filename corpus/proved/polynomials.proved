@@ -1,0 +1,231 @@
+# Polynomials, for `proved.mm`.
+#
+# The page says "p is a polynomial" and means one with complex
+# coefficients, set.mm's `Poly ` CC`, a set of functions from ℂ to ℂ. Two
+# items rest on it:
+#
+# - a polynomial's value at a complex number is complex: `plyf` gives the
+#   function's type and `ffvelcdm` its value;
+# - the remainder theorem: p(x) = (x − a)·q(x) + p(a) for every x, with q a
+#   polynomial. set.mm says it of functions (`plyrem`): p less (x − a) times
+#   the quotient `quot` is the constant function p(a). Here that is read at
+#   each x, the operations on functions taken a value at a time (`fnfvof`),
+#   x − a read as the identity less a constant (`idpfv`, `fvconst2g`), and
+#   the quotient is a polynomial because x − a is one of degree 1 and so
+#   not the zero polynomial (`plyremlem`, `dgr0`, `quotcl2`).
+
+$( Polynomials: a value of one, and division by x - a. $)
+$( The quotient is the witness of a "there is" binding q, and the remainder
+   is said of every x; both letters are apart from the polynomial, the point
+   and each other. $)
+$d q x $.  $d q F $.  $d q A $.  $d x F $.  $d x A $.
+lemma gplyval
+  |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) )
+  1 id |- ( F e. ( Poly ` CC ) -> F e. ( Poly ` CC ) )
+  2 adantr 1 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> F e. ( Poly ` CC ) )
+  3 plyf |- ( F e. ( Poly ` CC ) -> F : CC --> CC )
+  4 syl 2 3 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> F : CC --> CC )
+  5 simpr |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> A e. CC )
+  6 ffvelcdm |- ( ( F : CC --> CC /\ A e. CC ) -> ( F ` A ) e. CC )
+  7 syl2anc 4 5 6 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F ` A ) e. CC )
+  8 ex 7 |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) )
+
+lemma gplyrem
+  |- ( F e. ( Poly ` CC ) -> ( A e. CC -> E. q e. ( Poly ` CC ) A. x e. CC ( F ` x ) = ( ( ( x - A )
+      x. ( q ` x ) ) + ( F ` A ) ) ) )
+  1 id |- ( F e. ( Poly ` CC ) -> F e. ( Poly ` CC ) )
+  2 adantr 1 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> F e. ( Poly ` CC ) )
+  3 simpr |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> A e. CC )
+  4 eqid |- ( Xp oF - ( CC X. { A } ) ) = ( Xp oF - ( CC X. { A } ) )
+  5 plyremlem 4 |- ( A e. CC -> ( ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC ) /\ ( deg ` ( Xp oF -
+      ( CC X. { A } ) ) ) = 1 /\ ( `' ( Xp oF - ( CC X. { A } ) ) " { 0 } ) = { A } ) )
+  6 syl 3 5 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC )
+      /\ ( deg ` ( Xp oF - ( CC X. { A } ) ) ) = 1 /\ ( `' ( Xp oF - ( CC X. { A } ) ) " { 0 } ) = {
+      A } ) )
+  7 simp1d 6 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC )
+      )
+  8 simp2d 6 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( deg ` ( Xp oF - ( CC X. { A } ) ) ) = 1 )
+  9 ax-1ne0 |- 1 =/= 0
+  10 a1i 9 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> 1 =/= 0 )
+  11 eqnetrd 8 10 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( deg ` ( Xp oF - ( CC X. { A } ) ) )
+      =/= 0 )
+  12 fveq2 |- ( ( Xp oF - ( CC X. { A } ) ) = 0p -> ( deg ` ( Xp oF - ( CC X. { A } ) ) ) = ( deg `
+      0p ) )
+  13 dgr0 |- ( deg ` 0p ) = 0
+  14 eqtrdi 12 13 |- ( ( Xp oF - ( CC X. { A } ) ) = 0p -> ( deg ` ( Xp oF - ( CC X. { A } ) ) ) = 0
+      )
+  15 necon3i 14 |- ( ( deg ` ( Xp oF - ( CC X. { A } ) ) ) =/= 0 -> ( Xp oF - ( CC X. { A } ) ) =/=
+      0p )
+  16 syl 11 15 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( Xp oF - ( CC X. { A } ) ) =/= 0p )
+  17 quotcl2 |- ( ( F e. ( Poly ` CC ) /\ ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC ) /\ ( Xp oF -
+      ( CC X. { A } ) ) =/= 0p ) -> ( F quot ( Xp oF - ( CC X. { A } ) ) ) e. ( Poly ` CC ) )
+  18 syl3anc 2 7 16 17 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F quot ( Xp oF - ( CC X. { A } )
+      ) ) e. ( Poly ` CC ) )
+  19 plyf |- ( F e. ( Poly ` CC ) -> F : CC --> CC )
+  20 syl 2 19 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> F : CC --> CC )
+  21 ffn |- ( F : CC --> CC -> F Fn CC )
+  22 syl 20 21 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> F Fn CC )
+  23 adantr 22 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> F Fn CC )
+  24 plymulcl |- ( ( ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC ) /\ ( F quot ( Xp oF - ( CC X. { A
+      } ) ) ) e. ( Poly ` CC ) ) -> ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. {
+      A } ) ) ) ) e. ( Poly ` CC ) )
+  25 syl2anc 7 18 24 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( ( Xp oF - ( CC X. { A } ) ) oF x. (
+      F quot ( Xp oF - ( CC X. { A } ) ) ) ) e. ( Poly ` CC ) )
+  26 plyf |- ( ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) e. (
+      Poly ` CC ) -> ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) :
+      CC --> CC )
+  27 syl 25 26 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F
+      quot ( Xp oF - ( CC X. { A } ) ) ) ) : CC --> CC )
+  28 ffn |- ( ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) : CC -->
+      CC -> ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) Fn CC )
+  29 syl 27 28 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F
+      quot ( Xp oF - ( CC X. { A } ) ) ) ) Fn CC )
+  30 adantr 29 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( Xp oF - ( CC X. { A } )
+      ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) Fn CC )
+  31 jca 23 30 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F Fn CC /\ ( ( Xp oF - (
+      CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) Fn CC ) )
+  32 cnex |- CC e. _V
+  33 a1i 32 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> CC e. _V )
+  34 simpr |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> x e. CC )
+  35 jca 33 34 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( CC e. _V /\ x e. CC ) )
+  36 fnfvof |- ( ( ( F Fn CC /\ ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A }
+      ) ) ) ) Fn CC ) /\ ( CC e. _V /\ x e. CC ) ) -> ( ( F oF - ( ( Xp oF - ( CC X. { A } ) ) oF x.
+      ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) ` x ) = ( ( F ` x ) - ( ( ( Xp oF - ( CC X. { A } )
+      ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ` x ) ) )
+  37 syl2anc 31 35 36 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F oF - ( ( Xp oF
+      - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) ` x ) = ( ( F ` x ) - ( (
+      ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ` x ) ) )
+  38 plyf |- ( ( Xp oF - ( CC X. { A } ) ) e. ( Poly ` CC ) -> ( Xp oF - ( CC X. { A } ) ) : CC -->
+      CC )
+  39 syl 7 38 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( Xp oF - ( CC X. { A } ) ) : CC --> CC )
+  40 ffn |- ( ( Xp oF - ( CC X. { A } ) ) : CC --> CC -> ( Xp oF - ( CC X. { A } ) ) Fn CC )
+  41 syl 39 40 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( Xp oF - ( CC X. { A } ) ) Fn CC )
+  42 adantr 41 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( Xp oF - ( CC X. { A } ) )
+      Fn CC )
+  43 plyf |- ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) e. ( Poly ` CC ) -> ( F quot ( Xp oF - ( CC X.
+      { A } ) ) ) : CC --> CC )
+  44 syl 18 43 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F quot ( Xp oF - ( CC X. { A } ) ) ) : CC
+      --> CC )
+  45 ffn |- ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) : CC --> CC -> ( F quot ( Xp oF - ( CC X. { A }
+      ) ) ) Fn CC )
+  46 syl 44 45 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F quot ( Xp oF - ( CC X. { A } ) ) ) Fn
+      CC )
+  47 adantr 46 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F quot ( Xp oF - ( CC X. {
+      A } ) ) ) Fn CC )
+  48 jca 42 47 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( Xp oF - ( CC X. { A } )
+      ) Fn CC /\ ( F quot ( Xp oF - ( CC X. { A } ) ) ) Fn CC ) )
+  49 fnfvof |- ( ( ( ( Xp oF - ( CC X. { A } ) ) Fn CC /\ ( F quot ( Xp oF - ( CC X. { A } ) ) ) Fn
+      CC ) /\ ( CC e. _V /\ x e. CC ) ) -> ( ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF -
+      ( CC X. { A } ) ) ) ) ` x ) = ( ( ( Xp oF - ( CC X. { A } ) ) ` x ) x. ( ( F quot ( Xp oF - (
+      CC X. { A } ) ) ) ` x ) ) )
+  50 syl2anc 48 35 49 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( ( Xp oF - ( CC X.
+      { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ` x ) = ( ( ( Xp oF - ( CC X. { A } )
+      ) ` x ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) )
+  51 ssid |- CC C_ CC
+  52 ax-1cn |- 1 e. CC
+  53 plyid |- ( ( CC C_ CC /\ 1 e. CC ) -> Xp e. ( Poly ` CC ) )
+  54 mp2an 51 52 53 |- Xp e. ( Poly ` CC )
+  55 a1i 54 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> Xp e. ( Poly ` CC ) )
+  56 plyf |- ( Xp e. ( Poly ` CC ) -> Xp : CC --> CC )
+  57 syl 55 56 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> Xp : CC --> CC )
+  58 ffn |- ( Xp : CC --> CC -> Xp Fn CC )
+  59 syl 57 58 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> Xp Fn CC )
+  60 adantr 59 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> Xp Fn CC )
+  61 fnconstg |- ( A e. CC -> ( CC X. { A } ) Fn CC )
+  62 syl 3 61 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( CC X. { A } ) Fn CC )
+  63 adantr 62 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( CC X. { A } ) Fn CC )
+  64 jca 60 63 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( Xp Fn CC /\ ( CC X. { A }
+      ) Fn CC ) )
+  65 fnfvof |- ( ( ( Xp Fn CC /\ ( CC X. { A } ) Fn CC ) /\ ( CC e. _V /\ x e. CC ) ) -> ( ( Xp oF -
+      ( CC X. { A } ) ) ` x ) = ( ( Xp ` x ) - ( ( CC X. { A } ) ` x ) ) )
+  66 syl2anc 64 35 65 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( Xp oF - ( CC X. {
+      A } ) ) ` x ) = ( ( Xp ` x ) - ( ( CC X. { A } ) ` x ) ) )
+  67 idpfv |- ( x e. CC -> ( Xp ` x ) = x )
+  68 syl 34 67 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( Xp ` x ) = x )
+  69 adantr 3 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> A e. CC )
+  70 fvconst2g |- ( ( A e. CC /\ x e. CC ) -> ( ( CC X. { A } ) ` x ) = A )
+  71 syl2anc 69 34 70 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( CC X. { A } ) ` x
+      ) = A )
+  72 oveq12d 68 71 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( Xp ` x ) - ( ( CC X.
+      { A } ) ` x ) ) = ( x - A ) )
+  73 eqtrd 66 72 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( Xp oF - ( CC X. { A }
+      ) ) ` x ) = ( x - A ) )
+  74 oveq1d 73 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( ( Xp oF - ( CC X. { A }
+      ) ) ` x ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) = ( ( x - A ) x. ( ( F quot ( Xp
+      oF - ( CC X. { A } ) ) ) ` x ) ) )
+  75 eqtrd 50 74 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( ( Xp oF - ( CC X. { A
+      } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ` x ) = ( ( x - A ) x. ( ( F quot ( Xp oF
+      - ( CC X. { A } ) ) ) ` x ) ) )
+  76 oveq2d 75 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F ` x ) - ( ( ( Xp oF -
+      ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ` x ) ) = ( ( F ` x ) - ( ( x
+      - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) ) )
+  77 eqtrd 37 76 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F oF - ( ( Xp oF - (
+      CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) ` x ) = ( ( F ` x ) - ( ( x -
+      A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) ) )
+  78 eqid |- ( F oF - ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) )
+      = ( F oF - ( ( Xp oF - ( CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) )
+  79 plyrem 4 78 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F oF - ( ( Xp oF - ( CC X. { A } ) ) oF
+      x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) = ( CC X. { ( F ` A ) } ) )
+  80 adantr 79 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F oF - ( ( Xp oF - ( CC X.
+      { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) = ( CC X. { ( F ` A ) } ) )
+  81 fveq1d 80 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F oF - ( ( Xp oF - ( CC
+      X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) ` x ) = ( ( CC X. { ( F ` A ) }
+      ) ` x ) )
+  82 ffvelcdm |- ( ( F : CC --> CC /\ A e. CC ) -> ( F ` A ) e. CC )
+  83 syl2anc 20 3 82 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> ( F ` A ) e. CC )
+  84 adantr 83 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F ` A ) e. CC )
+  85 fvconst2g |- ( ( ( F ` A ) e. CC /\ x e. CC ) -> ( ( CC X. { ( F ` A ) } ) ` x ) = ( F ` A ) )
+  86 syl2anc 84 34 85 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( CC X. { ( F ` A )
+      } ) ` x ) = ( F ` A ) )
+  87 eqtrd 81 86 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F oF - ( ( Xp oF - (
+      CC X. { A } ) ) oF x. ( F quot ( Xp oF - ( CC X. { A } ) ) ) ) ) ` x ) = ( F ` A ) )
+  88 eqtr3d 77 87 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F ` x ) - ( ( x - A )
+      x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) ) = ( F ` A ) )
+  89 adantr 20 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> F : CC --> CC )
+  90 ffvelcdm |- ( ( F : CC --> CC /\ x e. CC ) -> ( F ` x ) e. CC )
+  91 syl2anc 89 34 90 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F ` x ) e. CC )
+  92 subcl |- ( ( x e. CC /\ A e. CC ) -> ( x - A ) e. CC )
+  93 syl2anc 34 69 92 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( x - A ) e. CC )
+  94 adantr 44 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F quot ( Xp oF - ( CC X. {
+      A } ) ) ) : CC --> CC )
+  95 ffvelcdm |- ( ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) : CC --> CC /\ x e. CC ) -> ( ( F quot (
+      Xp oF - ( CC X. { A } ) ) ) ` x ) e. CC )
+  96 syl2anc 94 34 95 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( F quot ( Xp oF -
+      ( CC X. { A } ) ) ) ` x ) e. CC )
+  97 mulcl |- ( ( ( x - A ) e. CC /\ ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) e. CC ) -> ( ( x
+      - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) e. CC )
+  98 syl2anc 93 96 97 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( x - A ) x. ( ( F
+      quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) e. CC )
+  99 subadd |- ( ( ( F ` x ) e. CC /\ ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x )
+      ) e. CC /\ ( F ` A ) e. CC ) -> ( ( ( F ` x ) - ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. {
+      A } ) ) ) ` x ) ) ) = ( F ` A ) <-> ( ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) )
+      ` x ) ) + ( F ` A ) ) = ( F ` x ) ) )
+  100 syl3anc 91 98 84 99 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( ( F ` x ) - (
+      ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) ) = ( F ` A ) <-> ( ( ( x - A )
+      x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) = ( F ` x ) ) )
+  101 mpbid 88 100 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( ( ( x - A ) x. ( ( F
+      quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) = ( F ` x ) )
+  102 eqcomd 101 |- ( ( ( F e. ( Poly ` CC ) /\ A e. CC ) /\ x e. CC ) -> ( F ` x ) = ( ( ( x - A )
+      x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) )
+  103 ralrimiva 102 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> A. x e. CC ( F ` x ) = ( ( ( x - A )
+      x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) )
+  104 fveq1 |- ( q = ( F quot ( Xp oF - ( CC X. { A } ) ) ) -> ( q ` x ) = ( ( F quot ( Xp oF - ( CC
+      X. { A } ) ) ) ` x ) )
+  105 oveq2d 104 |- ( q = ( F quot ( Xp oF - ( CC X. { A } ) ) ) -> ( ( x - A ) x. ( q ` x ) ) = ( (
+      x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) )
+  106 oveq1d 105 |- ( q = ( F quot ( Xp oF - ( CC X. { A } ) ) ) -> ( ( ( x - A ) x. ( q ` x ) ) + (
+      F ` A ) ) = ( ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) )
+  107 eqeq2d 106 |- ( q = ( F quot ( Xp oF - ( CC X. { A } ) ) ) -> ( ( F ` x ) = ( ( ( x - A ) x. (
+      q ` x ) ) + ( F ` A ) ) <-> ( F ` x ) = ( ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } )
+      ) ) ` x ) ) + ( F ` A ) ) ) )
+  108 ralbidv 107 |- ( q = ( F quot ( Xp oF - ( CC X. { A } ) ) ) -> ( A. x e. CC ( F ` x ) = ( ( (
+      x - A ) x. ( q ` x ) ) + ( F ` A ) ) <-> A. x e. CC ( F ` x ) = ( ( ( x - A ) x. ( ( F quot (
+      Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) ) )
+  109 rspcev 108 |- ( ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) e. ( Poly ` CC ) /\ A. x e. CC ( F `
+      x ) = ( ( ( x - A ) x. ( ( F quot ( Xp oF - ( CC X. { A } ) ) ) ` x ) ) + ( F ` A ) ) ) -> E.
+      q e. ( Poly ` CC ) A. x e. CC ( F ` x ) = ( ( ( x - A ) x. ( q ` x ) ) + ( F ` A ) ) )
+  110 syl2anc 18 103 109 |- ( ( F e. ( Poly ` CC ) /\ A e. CC ) -> E. q e. ( Poly ` CC ) A. x e. CC
+      ( F ` x ) = ( ( ( x - A ) x. ( q ` x ) ) + ( F ` A ) ) )
+  111 ex 110 |- ( F e. ( Poly ` CC ) -> ( A e. CC -> E. q e. ( Poly ` CC ) A. x e. CC ( F ` x ) = (
+      ( ( x - A ) x. ( q ` x ) ) + ( F ` A ) ) ) )
+

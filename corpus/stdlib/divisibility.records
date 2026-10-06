@@ -488,3 +488,30 @@ theorem product-congruent
   target      gfprodcong
   note        Congruences multiply: the products of two lists of terms,
               congruent term by term, are congruent.
+
+theorem coprime-square
+  let s ∈ ℕ                                                           (H1)
+  let t ∈ ℕ                                                           (H2)
+  let w ∈ ℕ                                                           (H3)
+  assume gcd(s, t) = 1                                                (H4)
+  assume w² = s·t                                                     (H5)
+  then        s = gcd(s, w)². t = gcd(t, w)².
+  metamath    coprimeprodsq and coprimeprodsq2, which ask only that s, t
+              and w share no factor all three, and gcd(1, w) = 1 (1gcd);
+              this corpus proves them together in
+              elaboration/stdlib/proved.mm
+  target      gcoprimesq, gcoprimesq2
+  note        Two numbers with no factor in common whose product is a
+              square are squares themselves, of their common factors with
+              the square root.
+
+mundane theorem divides-transitive
+  let d ∈ ℤ                                                           (H1)
+  let e ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume d divides e                                                  (H4)
+  assume e divides n                                                  (H5)
+  then        d divides n
+  metamath    dvdstr
+  target      dvdstr
+

@@ -426,6 +426,31 @@ mundane theorem multiply-le
   note        `inequalities` multiplies a line only by a number, so a step
               multiplying both sides by a positive term cites this.
 
+mundane theorem square-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  then        x² > 0
+  metamath    sqgt0
+  target      sqgt0
+
+mundane theorem square-equal
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then        x² = y² ↔ x = y
+  metamath    sq11
+  target      sq11
+
+mundane theorem square-less
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then        x < y ↔ x² < y²
+  metamath    lt2sq
+  target      lt2sq
+
 mundane theorem le-antisymmetric
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

@@ -1,0 +1,754 @@
+# Euler's φ, congruences, and products over a finite set, for `proved.mm`.
+#
+# Euler's theorem is proved by the rearrangement argument: multiplying each
+# remainder coprime to n by a, and reducing, permutes those remainders, so
+# the product of all of them is the same before and after, and a^φ(n)
+# cancels from it. set.mm proves the theorem itself (`eulerth`) by the
+# same argument over a sequence; the readable layer takes it a step at a
+# time, and the items its steps cite are set.mm's lemmas restated, each in
+# the shape its record states it:
+#
+# - φ(n) counts the remainders 0, …, n − 1 coprime to n: `dfphi2`, with
+#   `fzoval` reading 0 ..^ n as 0 ... n − 1;
+# - two numbers coprime to n have a product coprime to n: `rpmul`, which
+#   puts n first in each gcd;
+# - a number dividing a product and coprime to one factor divides the
+#   other: `coprmdvds`, with the factors the other way round;
+# - a common factor coprime to n cancels from a congruence: `subdir`
+#   writes x·c − y·c as (x − y)·c, and then the line above;
+# - equal remainders are a congruence, and a number is congruent to its
+#   remainder: `moddvds`, the second with `modabs2`;
+# - two remainders that are congruent are equal: `fzocongeq`;
+# - a remainder lies in 0 … n − 1: `elfzo0`;
+# - a product over a finite set of integers is an integer (`fprodzcl`),
+#   loses a common factor once per term (`fprodmul`, `fprodconst`), is
+#   unchanged by a one-to-one map of the set to itself (`f1finf1o`,
+#   `fprodf1o`), and is congruent to another taken term by term
+#   (`fprodmodd`);
+# - a product of numbers coprime to n is coprime to n. set.mm states this
+#   only of factors coprime to each other as well (`coprmprod`), so it is
+#   proved here by induction on the finite set (`findcard2d`), a factor at
+#   a time (`fprodsplitsn`).
+
+$( Totient: Euler's phi, congruences, and products over a finite set. $)
+$( A product binds k, and a step of the induction binds w, y and z, apart
+   from the set, the factor and the modulus; the "for all" binds x, and
+   renaming a product's letter binds n. The bound letters are held apart
+   from each other and from the classes, and the classes not from each
+   other: a lemma about A and N says nothing of A and N sharing a letter. $)
+$d k n x y z w $.
+$d k A $.  $d k C $.  $d k F $.  $d k N $.  $d k X $.
+$d n A $.  $d n C $.  $d n F $.  $d n N $.  $d n X $.
+$d x A $.  $d x C $.  $d x F $.  $d x N $.  $d x X $.
+$d y A $.  $d y C $.  $d y F $.  $d y N $.  $d y X $.
+$d z A $.  $d z C $.  $d z F $.  $d z N $.  $d z X $.
+$d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
+lemma gphival
+  |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ... ( N - 1 ) ) | ( x gcd N ) = 1 } ) )
+  1 dfphi2 |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ..^ N ) | ( x gcd N ) = 1 } ) )
+  2 nnz |- ( N e. NN -> N e. ZZ )
+  3 fzoval |- ( N e. ZZ -> ( 0 ..^ N ) = ( 0 ... ( N - 1 ) ) )
+  4 syl 2 3 |- ( N e. NN -> ( 0 ..^ N ) = ( 0 ... ( N - 1 ) ) )
+  5 rabeqdv 4 |- ( N e. NN -> { x e. ( 0 ..^ N ) | ( x gcd N ) = 1 } = { x e. ( 0 ... ( N - 1 ) ) |
+      ( x gcd N ) = 1 } )
+  6 fveq2d 5 |- ( N e. NN -> ( # ` { x e. ( 0 ..^ N ) | ( x gcd N ) = 1 } ) = ( # ` { x e. ( 0 ... (
+      N - 1 ) ) | ( x gcd N ) = 1 } ) )
+  7 eqtrd 1 6 |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ... ( N - 1 ) ) | ( x gcd N ) = 1 } ) )
+
+lemma grpmul
+  |- ( A e. ZZ -> ( B e. ZZ -> ( N e. NN -> ( ( A gcd N ) = 1 -> ( ( B gcd N ) = 1 -> ( ( A x. B )
+      gcd N ) = 1 ) ) ) ) )
+  1 id |- ( A e. ZZ -> A e. ZZ )
+  2 adantr 1 |- ( ( A e. ZZ /\ B e. ZZ ) -> A e. ZZ )
+  3 adantr 2 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> A e. ZZ )
+  4 adantr 3 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) -> A e. ZZ )
+  5 adantr 4 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) = 1
+      ) -> A e. ZZ )
+  6 simpr |- ( ( A e. ZZ /\ B e. ZZ ) -> B e. ZZ )
+  7 adantr 6 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> B e. ZZ )
+  8 adantr 7 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) -> B e. ZZ )
+  9 adantr 8 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) = 1
+      ) -> B e. ZZ )
+  10 zmulcl |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A x. B ) e. ZZ )
+  11 syl2anc 5 9 10 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N
+      ) = 1 ) -> ( A x. B ) e. ZZ )
+  12 simpr |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> N e. NN )
+  13 adantr 12 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) -> N e. NN )
+  14 adantr 13 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) =
+      1 ) -> N e. NN )
+  15 nnz |- ( N e. NN -> N e. ZZ )
+  16 syl 14 15 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) =
+      1 ) -> N e. ZZ )
+  17 gcdcom |- ( ( ( A x. B ) e. ZZ /\ N e. ZZ ) -> ( ( A x. B ) gcd N ) = ( N gcd ( A x. B ) ) )
+  18 syl2anc 11 16 17 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd
+      N ) = 1 ) -> ( ( A x. B ) gcd N ) = ( N gcd ( A x. B ) ) )
+  19 gcdcom |- ( ( A e. ZZ /\ N e. ZZ ) -> ( A gcd N ) = ( N gcd A ) )
+  20 syl2anc 5 16 19 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd
+      N ) = 1 ) -> ( A gcd N ) = ( N gcd A ) )
+  21 simpr |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) -> ( A gcd N ) = 1 )
+  22 adantr 21 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) =
+      1 ) -> ( A gcd N ) = 1 )
+  23 eqtr3d 20 22 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N )
+      = 1 ) -> ( N gcd A ) = 1 )
+  24 gcdcom |- ( ( B e. ZZ /\ N e. ZZ ) -> ( B gcd N ) = ( N gcd B ) )
+  25 syl2anc 9 16 24 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd
+      N ) = 1 ) -> ( B gcd N ) = ( N gcd B ) )
+  26 simpr |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) = 1 )
+      -> ( B gcd N ) = 1 )
+  27 eqtr3d 25 26 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N )
+      = 1 ) -> ( N gcd B ) = 1 )
+  28 jca 23 27 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) =
+      1 ) -> ( ( N gcd A ) = 1 /\ ( N gcd B ) = 1 ) )
+  29 rpmul |- ( ( N e. ZZ /\ A e. ZZ /\ B e. ZZ ) -> ( ( ( N gcd A ) = 1 /\ ( N gcd B ) = 1 ) -> ( N
+      gcd ( A x. B ) ) = 1 ) )
+  30 syl3anc 16 5 9 29 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B
+      gcd N ) = 1 ) -> ( ( ( N gcd A ) = 1 /\ ( N gcd B ) = 1 ) -> ( N gcd ( A x. B ) ) = 1 ) )
+  31 mpd 28 30 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N ) =
+      1 ) -> ( N gcd ( A x. B ) ) = 1 )
+  32 eqtrd 18 31 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) /\ ( B gcd N )
+      = 1 ) -> ( ( A x. B ) gcd N ) = 1 )
+  33 ex 32 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A gcd N ) = 1 ) -> ( ( B gcd N ) = 1 ->
+      ( ( A x. B ) gcd N ) = 1 ) )
+  34 ex 33 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> ( ( A gcd N ) = 1 -> ( ( B gcd N ) = 1 -> (
+      ( A x. B ) gcd N ) = 1 ) ) )
+  35 ex 34 |- ( ( A e. ZZ /\ B e. ZZ ) -> ( N e. NN -> ( ( A gcd N ) = 1 -> ( ( B gcd N ) = 1 -> ( (
+      A x. B ) gcd N ) = 1 ) ) ) )
+  36 ex 35 |- ( A e. ZZ -> ( B e. ZZ -> ( N e. NN -> ( ( A gcd N ) = 1 -> ( ( B gcd N ) = 1 -> ( ( A
+      x. B ) gcd N ) = 1 ) ) ) ) )
+
+lemma gelfz0m1
+  |- ( M e. NN -> ( A e. NN0 -> ( A < M -> A e. ( 0 ... ( M - 1 ) ) ) ) )
+  1 simpr |- ( ( M e. NN /\ A e. NN0 ) -> A e. NN0 )
+  2 adantr 1 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> A e. NN0 )
+  3 id |- ( M e. NN -> M e. NN )
+  4 adantr 3 |- ( ( M e. NN /\ A e. NN0 ) -> M e. NN )
+  5 adantr 4 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> M e. NN )
+  6 simpr |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> A < M )
+  7 3jca 2 5 6 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> ( A e. NN0 /\ M e. NN /\ A < M ) )
+  8 elfzo0 |- ( A e. ( 0 ..^ M ) <-> ( A e. NN0 /\ M e. NN /\ A < M ) )
+  9 sylibr 7 8 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> A e. ( 0 ..^ M ) )
+  10 nnz |- ( M e. NN -> M e. ZZ )
+  11 syl 5 10 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> M e. ZZ )
+  12 fzoval |- ( M e. ZZ -> ( 0 ..^ M ) = ( 0 ... ( M - 1 ) ) )
+  13 syl 11 12 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> ( 0 ..^ M ) = ( 0 ... ( M - 1 ) ) )
+  14 eleqtrd 9 13 |- ( ( ( M e. NN /\ A e. NN0 ) /\ A < M ) -> A e. ( 0 ... ( M - 1 ) ) )
+  15 ex 14 |- ( ( M e. NN /\ A e. NN0 ) -> ( A < M -> A e. ( 0 ... ( M - 1 ) ) ) )
+  16 ex 15 |- ( M e. NN -> ( A e. NN0 -> ( A < M -> A e. ( 0 ... ( M - 1 ) ) ) ) )
+
+lemma gmodeqdvds
+  |- ( A e. ZZ -> ( B e. ZZ -> ( N e. NN -> ( ( A mod N ) = ( B mod N ) -> N || ( A - B ) ) ) ) )
+  1 simpr |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) ) -> ( A mod N )
+      = ( B mod N ) )
+  2 simpr |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> N e. NN )
+  3 adantr 2 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) ) -> N e. NN
+      )
+  4 id |- ( A e. ZZ -> A e. ZZ )
+  5 adantr 4 |- ( ( A e. ZZ /\ B e. ZZ ) -> A e. ZZ )
+  6 adantr 5 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> A e. ZZ )
+  7 adantr 6 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) ) -> A e. ZZ
+      )
+  8 simpr |- ( ( A e. ZZ /\ B e. ZZ ) -> B e. ZZ )
+  9 adantr 8 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> B e. ZZ )
+  10 adantr 9 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) ) -> B e. ZZ
+      )
+  11 moddvds |- ( ( N e. NN /\ A e. ZZ /\ B e. ZZ ) -> ( ( A mod N ) = ( B mod N ) <-> N || ( A - B
+      ) ) )
+  12 syl3anc 3 7 10 11 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) )
+      -> ( ( A mod N ) = ( B mod N ) <-> N || ( A - B ) ) )
+  13 mpbid 1 12 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) /\ ( A mod N ) = ( B mod N ) ) -> N ||
+      ( A - B ) )
+  14 ex 13 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ N e. NN ) -> ( ( A mod N ) = ( B mod N ) -> N || ( A - B
+      ) ) )
+  15 ex 14 |- ( ( A e. ZZ /\ B e. ZZ ) -> ( N e. NN -> ( ( A mod N ) = ( B mod N ) -> N || ( A - B )
+      ) ) )
+  16 ex 15 |- ( A e. ZZ -> ( B e. ZZ -> ( N e. NN -> ( ( A mod N ) = ( B mod N ) -> N || ( A - B ) )
+      ) ) )
+
+lemma gcoprmdvds
+  |- ( A e. ZZ -> ( C e. ZZ -> ( N e. NN -> ( N || ( A x. C ) -> ( ( C gcd N ) = 1 -> N || A ) ) ) )
+      )
+  1 simpr |- ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) -> N || ( A x. C ) )
+  2 adantr 1 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) = 1
+      ) -> N || ( A x. C ) )
+  3 id |- ( A e. ZZ -> A e. ZZ )
+  4 adantr 3 |- ( ( A e. ZZ /\ C e. ZZ ) -> A e. ZZ )
+  5 adantr 4 |- ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) -> A e. ZZ )
+  6 adantr 5 |- ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) -> A e. ZZ )
+  7 adantr 6 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) = 1
+      ) -> A e. ZZ )
+  8 zcn |- ( A e. ZZ -> A e. CC )
+  9 syl 7 8 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) = 1 )
+      -> A e. CC )
+  10 simpr |- ( ( A e. ZZ /\ C e. ZZ ) -> C e. ZZ )
+  11 adantr 10 |- ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) -> C e. ZZ )
+  12 adantr 11 |- ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) -> C e. ZZ )
+  13 adantr 12 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> C e. ZZ )
+  14 zcn |- ( C e. ZZ -> C e. CC )
+  15 syl 13 14 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> C e. CC )
+  16 mulcom |- ( ( A e. CC /\ C e. CC ) -> ( A x. C ) = ( C x. A ) )
+  17 syl2anc 9 15 16 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd
+      N ) = 1 ) -> ( A x. C ) = ( C x. A ) )
+  18 breqtrd 2 17 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N )
+      = 1 ) -> N || ( C x. A ) )
+  19 simpr |- ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) -> N e. NN )
+  20 adantr 19 |- ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) -> N e. NN )
+  21 adantr 20 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> N e. NN )
+  22 nnz |- ( N e. NN -> N e. ZZ )
+  23 syl 21 22 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> N e. ZZ )
+  24 gcdcom |- ( ( N e. ZZ /\ C e. ZZ ) -> ( N gcd C ) = ( C gcd N ) )
+  25 syl2anc 23 13 24 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd
+      N ) = 1 ) -> ( N gcd C ) = ( C gcd N ) )
+  26 simpr |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) = 1 )
+      -> ( C gcd N ) = 1 )
+  27 eqtrd 25 26 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N )
+      = 1 ) -> ( N gcd C ) = 1 )
+  28 jca 18 27 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> ( N || ( C x. A ) /\ ( N gcd C ) = 1 ) )
+  29 coprmdvds |- ( ( N e. ZZ /\ C e. ZZ /\ A e. ZZ ) -> ( ( N || ( C x. A ) /\ ( N gcd C ) = 1 ) ->
+      N || A ) )
+  30 syl3anc 23 13 7 29 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C
+      gcd N ) = 1 ) -> ( ( N || ( C x. A ) /\ ( N gcd C ) = 1 ) -> N || A ) )
+  31 mpd 28 30 |- ( ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) /\ ( C gcd N ) =
+      1 ) -> N || A )
+  32 ex 31 |- ( ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) /\ N || ( A x. C ) ) -> ( ( C gcd N ) = 1 ->
+      N || A ) )
+  33 ex 32 |- ( ( ( A e. ZZ /\ C e. ZZ ) /\ N e. NN ) -> ( N || ( A x. C ) -> ( ( C gcd N ) = 1 -> N
+      || A ) ) )
+  34 ex 33 |- ( ( A e. ZZ /\ C e. ZZ ) -> ( N e. NN -> ( N || ( A x. C ) -> ( ( C gcd N ) = 1 -> N
+      || A ) ) ) )
+  35 ex 34 |- ( A e. ZZ -> ( C e. ZZ -> ( N e. NN -> ( N || ( A x. C ) -> ( ( C gcd N ) = 1 -> N ||
+      A ) ) ) ) )
+
+lemma gcongrcan
+  |- ( A e. ZZ -> ( B e. ZZ -> ( C e. ZZ -> ( N e. NN -> ( N || ( ( A x. C ) - ( B x. C ) ) -> ( ( C
+      gcd N ) = 1 -> N || ( A - B ) ) ) ) ) ) )
+  1 simpr |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - ( B x.
+      C ) ) ) -> N || ( ( A x. C ) - ( B x. C ) ) )
+  2 adantr 1 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N || ( ( A x. C ) - ( B x. C ) ) )
+  3 id |- ( A e. ZZ -> A e. ZZ )
+  4 adantr 3 |- ( ( A e. ZZ /\ B e. ZZ ) -> A e. ZZ )
+  5 adantr 4 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) -> A e. ZZ )
+  6 adantr 5 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) -> A e. ZZ )
+  7 adantr 6 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - ( B
+      x. C ) ) ) -> A e. ZZ )
+  8 adantr 7 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> A e. ZZ )
+  9 zcn |- ( A e. ZZ -> A e. CC )
+  10 syl 8 9 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> A e. CC )
+  11 simpr |- ( ( A e. ZZ /\ B e. ZZ ) -> B e. ZZ )
+  12 adantr 11 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) -> B e. ZZ )
+  13 adantr 12 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) -> B e. ZZ )
+  14 adantr 13 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) -> B e. ZZ )
+  15 adantr 14 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> B e. ZZ )
+  16 zcn |- ( B e. ZZ -> B e. CC )
+  17 syl 15 16 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> B e. CC )
+  18 simpr |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) -> C e. ZZ )
+  19 adantr 18 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) -> C e. ZZ )
+  20 adantr 19 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) -> C e. ZZ )
+  21 adantr 20 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> C e. ZZ )
+  22 zcn |- ( C e. ZZ -> C e. CC )
+  23 syl 21 22 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> C e. CC )
+  24 subdir |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( A - B ) x. C ) = ( ( A x. C ) - ( B x. C )
+      ) )
+  25 syl3anc 10 17 23 24 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A
+      x. C ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( ( A - B ) x. C ) = ( ( A x. C ) - ( B x. C )
+      ) )
+  26 breqtrrd 2 25 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C
+      ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N || ( ( A - B ) x. C ) )
+  27 zsubcl |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A - B ) e. ZZ )
+  28 syl2anc 8 15 27 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x.
+      C ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( A - B ) e. ZZ )
+  29 zcn |- ( ( A - B ) e. ZZ -> ( A - B ) e. CC )
+  30 syl 28 29 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( A - B ) e. CC )
+  31 mulcom |- ( ( ( A - B ) e. CC /\ C e. CC ) -> ( ( A - B ) x. C ) = ( C x. ( A - B ) ) )
+  32 syl2anc 30 23 31 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x.
+      C ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( ( A - B ) x. C ) = ( C x. ( A - B ) ) )
+  33 breqtrd 26 32 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C
+      ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N || ( C x. ( A - B ) ) )
+  34 simpr |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) -> N e. NN )
+  35 adantr 34 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - (
+      B x. C ) ) ) -> N e. NN )
+  36 adantr 35 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N e. NN )
+  37 nnz |- ( N e. NN -> N e. ZZ )
+  38 syl 36 37 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N e. ZZ )
+  39 gcdcom |- ( ( N e. ZZ /\ C e. ZZ ) -> ( N gcd C ) = ( C gcd N ) )
+  40 syl2anc 38 21 39 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x.
+      C ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( N gcd C ) = ( C gcd N ) )
+  41 simpr |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - ( B
+      x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( C gcd N ) = 1 )
+  42 eqtrd 40 41 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C )
+      - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( N gcd C ) = 1 )
+  43 jca 33 42 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( N || ( C x. ( A - B ) ) /\ ( N gcd C ) = 1 ) )
+  44 coprmdvds |- ( ( N e. ZZ /\ C e. ZZ /\ ( A - B ) e. ZZ ) -> ( ( N || ( C x. ( A - B ) ) /\ ( N
+      gcd C ) = 1 ) -> N || ( A - B ) ) )
+  45 syl3anc 38 21 28 44 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A
+      x. C ) - ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> ( ( N || ( C x. ( A - B ) ) /\ ( N gcd C ) = 1
+      ) -> N || ( A - B ) ) )
+  46 mpd 43 45 |- ( ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) -
+      ( B x. C ) ) ) /\ ( C gcd N ) = 1 ) -> N || ( A - B ) )
+  47 ex 46 |- ( ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) /\ N || ( ( A x. C ) - ( B x.
+      C ) ) ) -> ( ( C gcd N ) = 1 -> N || ( A - B ) ) )
+  48 ex 47 |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) /\ N e. NN ) -> ( N || ( ( A x. C ) - ( B x.
+      C ) ) -> ( ( C gcd N ) = 1 -> N || ( A - B ) ) ) )
+  49 ex 48 |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ C e. ZZ ) -> ( N e. NN -> ( N || ( ( A x. C ) - ( B x. C
+      ) ) -> ( ( C gcd N ) = 1 -> N || ( A - B ) ) ) ) )
+  50 ex 49 |- ( ( A e. ZZ /\ B e. ZZ ) -> ( C e. ZZ -> ( N e. NN -> ( N || ( ( A x. C ) - ( B x. C )
+      ) -> ( ( C gcd N ) = 1 -> N || ( A - B ) ) ) ) ) )
+  51 ex 50 |- ( A e. ZZ -> ( B e. ZZ -> ( C e. ZZ -> ( N e. NN -> ( N || ( ( A x. C ) - ( B x. C ) )
+      -> ( ( C gcd N ) = 1 -> N || ( A - B ) ) ) ) ) ) )
+
+lemma gfzocong0
+  |- ( N e. NN -> ( A e. ( 0 ... ( N - 1 ) ) -> ( B e. ( 0 ... ( N - 1 ) ) -> ( N || ( A - B ) -> A
+      = B ) ) ) )
+  1 id |- ( N e. NN -> N e. NN )
+  2 adantr 1 |- ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) -> N e. NN )
+  3 adantr 2 |- ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) -> N e. NN
+      )
+  4 adantr 3 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N ||
+      ( A - B ) ) -> N e. NN )
+  5 nncn |- ( N e. NN -> N e. CC )
+  6 syl 4 5 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N || (
+      A - B ) ) -> N e. CC )
+  7 subid1 |- ( N e. CC -> ( N - 0 ) = N )
+  8 syl 6 7 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N || (
+      A - B ) ) -> ( N - 0 ) = N )
+  9 simpr |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N || ( A
+      - B ) ) -> N || ( A - B ) )
+  10 eqbrtrd 8 9 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N
+      || ( A - B ) ) -> ( N - 0 ) || ( A - B ) )
+  11 simpr |- ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) -> A e. ( 0 ... ( N - 1 ) ) )
+  12 adantr 11 |- ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) -> A e.
+      ( 0 ... ( N - 1 ) ) )
+  13 adantr 12 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N
+      || ( A - B ) ) -> A e. ( 0 ... ( N - 1 ) ) )
+  14 nnz |- ( N e. NN -> N e. ZZ )
+  15 syl 4 14 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N ||
+      ( A - B ) ) -> N e. ZZ )
+  16 fzoval |- ( N e. ZZ -> ( 0 ..^ N ) = ( 0 ... ( N - 1 ) ) )
+  17 syl 15 16 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N
+      || ( A - B ) ) -> ( 0 ..^ N ) = ( 0 ... ( N - 1 ) ) )
+  18 eleqtrrd 13 17 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) )
+      /\ N || ( A - B ) ) -> A e. ( 0 ..^ N ) )
+  19 simpr |- ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) -> B e. ( 0
+      ... ( N - 1 ) ) )
+  20 adantr 19 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N
+      || ( A - B ) ) -> B e. ( 0 ... ( N - 1 ) ) )
+  21 eleqtrrd 20 17 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) )
+      /\ N || ( A - B ) ) -> B e. ( 0 ..^ N ) )
+  22 fzocongeq |- ( ( A e. ( 0 ..^ N ) /\ B e. ( 0 ..^ N ) ) -> ( ( N - 0 ) || ( A - B ) <-> A = B )
+      )
+  23 syl2anc 18 21 22 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) )
+      /\ N || ( A - B ) ) -> ( ( N - 0 ) || ( A - B ) <-> A = B ) )
+  24 mpbid 10 23 |- ( ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) /\ N
+      || ( A - B ) ) -> A = B )
+  25 ex 24 |- ( ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) /\ B e. ( 0 ... ( N - 1 ) ) ) -> ( N || (
+      A - B ) -> A = B ) )
+  26 ex 25 |- ( ( N e. NN /\ A e. ( 0 ... ( N - 1 ) ) ) -> ( B e. ( 0 ... ( N - 1 ) ) -> ( N || ( A
+      - B ) -> A = B ) ) )
+  27 ex 26 |- ( N e. NN -> ( A e. ( 0 ... ( N - 1 ) ) -> ( B e. ( 0 ... ( N - 1 ) ) -> ( N || ( A -
+      B ) -> A = B ) ) ) )
+
+lemma gmodcong
+  |- ( A e. ZZ -> ( N e. NN -> N || ( A - ( A mod N ) ) ) )
+  1 id |- ( A e. ZZ -> A e. ZZ )
+  2 adantr 1 |- ( ( A e. ZZ /\ N e. NN ) -> A e. ZZ )
+  3 zre |- ( A e. ZZ -> A e. RR )
+  4 syl 2 3 |- ( ( A e. ZZ /\ N e. NN ) -> A e. RR )
+  5 simpr |- ( ( A e. ZZ /\ N e. NN ) -> N e. NN )
+  6 nnrp |- ( N e. NN -> N e. RR+ )
+  7 syl 5 6 |- ( ( A e. ZZ /\ N e. NN ) -> N e. RR+ )
+  8 modabs2 |- ( ( A e. RR /\ N e. RR+ ) -> ( ( A mod N ) mod N ) = ( A mod N ) )
+  9 syl2anc 4 7 8 |- ( ( A e. ZZ /\ N e. NN ) -> ( ( A mod N ) mod N ) = ( A mod N ) )
+  10 eqcomd 9 |- ( ( A e. ZZ /\ N e. NN ) -> ( A mod N ) = ( ( A mod N ) mod N ) )
+  11 zmodcl |- ( ( A e. ZZ /\ N e. NN ) -> ( A mod N ) e. NN0 )
+  12 syl2anc 2 5 11 |- ( ( A e. ZZ /\ N e. NN ) -> ( A mod N ) e. NN0 )
+  13 nn0z |- ( ( A mod N ) e. NN0 -> ( A mod N ) e. ZZ )
+  14 syl 12 13 |- ( ( A e. ZZ /\ N e. NN ) -> ( A mod N ) e. ZZ )
+  15 moddvds |- ( ( N e. NN /\ A e. ZZ /\ ( A mod N ) e. ZZ ) -> ( ( A mod N ) = ( ( A mod N ) mod N
+      ) <-> N || ( A - ( A mod N ) ) ) )
+  16 syl3anc 5 2 14 15 |- ( ( A e. ZZ /\ N e. NN ) -> ( ( A mod N ) = ( ( A mod N ) mod N ) <-> N ||
+      ( A - ( A mod N ) ) ) )
+  17 mpbid 10 16 |- ( ( A e. ZZ /\ N e. NN ) -> N || ( A - ( A mod N ) ) )
+  18 ex 17 |- ( A e. ZZ -> ( N e. NN -> N || ( A - ( A mod N ) ) ) )
+
+lemma gfprodz
+  |- ( X e. ~P ZZ -> ( X e. Fin -> prod_ k e. X k e. ZZ ) )
+  1 simpr |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. Fin )
+  2 id |- ( X e. ~P ZZ -> X e. ~P ZZ )
+  3 adantr 2 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. ~P ZZ )
+  4 elpwi |- ( X e. ~P ZZ -> X C_ ZZ )
+  5 syl 3 4 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X C_ ZZ )
+  6 sselda 5 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ k e. X ) -> k e. ZZ )
+  7 fprodzcl 1 6 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> prod_ k e. X k e. ZZ )
+  8 ex 7 |- ( X e. ~P ZZ -> ( X e. Fin -> prod_ k e. X k e. ZZ ) )
+
+lemma gfprodmulc
+  |- ( X e. ~P ZZ -> ( X e. Fin -> ( C e. ZZ -> prod_ k e. X ( k x. C ) = ( ( C ^ ( # ` X ) ) x.
+      prod_ k e. X k ) ) ) )
+  1 simpr |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. Fin )
+  2 adantr 1 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> X e. Fin )
+  3 id |- ( X e. ~P ZZ -> X e. ~P ZZ )
+  4 adantr 3 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. ~P ZZ )
+  5 adantr 4 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> X e. ~P ZZ )
+  6 elpwi |- ( X e. ~P ZZ -> X C_ ZZ )
+  7 syl 5 6 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> X C_ ZZ )
+  8 sselda 7 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ k e. X ) -> k e. ZZ )
+  9 zcnd 8 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ k e. X ) -> k e. CC )
+  10 simpr |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> C e. ZZ )
+  11 zcnd 10 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> C e. CC )
+  12 adantr 11 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ k e. X ) -> C e. CC )
+  13 fprodmul 2 9 12 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> prod_ k e. X ( k x. C ) = (
+      prod_ k e. X k x. prod_ k e. X C ) )
+  14 fprodconst |- ( ( X e. Fin /\ C e. CC ) -> prod_ k e. X C = ( C ^ ( # ` X ) ) )
+  15 syl2anc 2 11 14 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> prod_ k e. X C = ( C ^ ( # `
+      X ) ) )
+  16 oveq2d 15 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( prod_ k e. X k x. prod_ k e. X C
+      ) = ( prod_ k e. X k x. ( C ^ ( # ` X ) ) ) )
+  17 fprodcl 2 9 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> prod_ k e. X k e. CC )
+  18 hashcl |- ( X e. Fin -> ( # ` X ) e. NN0 )
+  19 syl 2 18 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( # ` X ) e. NN0 )
+  20 expcl |- ( ( C e. CC /\ ( # ` X ) e. NN0 ) -> ( C ^ ( # ` X ) ) e. CC )
+  21 syl2anc 11 19 20 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( C ^ ( # ` X ) ) e. CC )
+  22 mulcom |- ( ( prod_ k e. X k e. CC /\ ( C ^ ( # ` X ) ) e. CC ) -> ( prod_ k e. X k x. ( C ^ (
+      # ` X ) ) ) = ( ( C ^ ( # ` X ) ) x. prod_ k e. X k ) )
+  23 syl2anc 17 21 22 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( prod_ k e. X k x. ( C ^ (
+      # ` X ) ) ) = ( ( C ^ ( # ` X ) ) x. prod_ k e. X k ) )
+  24 eqtrd 16 23 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( prod_ k e. X k x. prod_ k e. X
+      C ) = ( ( C ^ ( # ` X ) ) x. prod_ k e. X k ) )
+  25 eqtrd 13 24 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> prod_ k e. X ( k x. C ) = ( ( C ^
+      ( # ` X ) ) x. prod_ k e. X k ) )
+  26 ex 25 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> ( C e. ZZ -> prod_ k e. X ( k x. C ) = ( ( C ^ ( # ` X
+      ) ) x. prod_ k e. X k ) ) )
+  27 ex 26 |- ( X e. ~P ZZ -> ( X e. Fin -> ( C e. ZZ -> prod_ k e. X ( k x. C ) = ( ( C ^ ( # ` X )
+      ) x. prod_ k e. X k ) ) ) )
+
+lemma gfprodf1
+  |- ( X e. ~P ZZ -> ( X e. Fin -> ( ( F : X --> X /\ F : X -1-1-> X ) -> prod_ k e. X ( F ` k ) =
+      prod_ k e. X k ) ) )
+  1 id |- ( k = ( F ` n ) -> k = ( F ` n ) )
+  2 simpr |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. Fin )
+  3 adantr 2 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> X e. Fin )
+  4 simpr |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> ( F : X --> X
+      /\ F : X -1-1-> X ) )
+  5 simprd 4 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> F : X
+      -1-1-> X )
+  6 enrefg |- ( X e. Fin -> X ~~ X )
+  7 syl 3 6 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> X ~~ X )
+  8 f1finf1o |- ( ( X ~~ X /\ X e. Fin ) -> ( F : X -1-1-> X <-> F : X -1-1-onto-> X ) )
+  9 syl2anc 7 3 8 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> ( F :
+      X -1-1-> X <-> F : X -1-1-onto-> X ) )
+  10 mpbid 5 9 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> F : X
+      -1-1-onto-> X )
+  11 eqidd |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) /\ n e. X ) ->
+      ( F ` n ) = ( F ` n ) )
+  12 id |- ( X e. ~P ZZ -> X e. ~P ZZ )
+  13 adantr 12 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. ~P ZZ )
+  14 adantr 13 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> X e. ~P
+      ZZ )
+  15 elpwi |- ( X e. ~P ZZ -> X C_ ZZ )
+  16 syl 14 15 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> X C_ ZZ )
+  17 sselda 16 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) /\ k e. X
+      ) -> k e. ZZ )
+  18 zcnd 17 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) /\ k e. X )
+      -> k e. CC )
+  19 fprodf1o 1 3 10 11 18 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) )
+      -> prod_ k e. X k = prod_ n e. X ( F ` n ) )
+  20 fveq2 |- ( n = k -> ( F ` n ) = ( F ` k ) )
+  21 cbvprodv 20 |- prod_ n e. X ( F ` n ) = prod_ k e. X ( F ` k )
+  22 a1i 21 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> prod_ n e. X
+      ( F ` n ) = prod_ k e. X ( F ` k ) )
+  23 eqtrd 19 22 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> prod_ k
+      e. X k = prod_ k e. X ( F ` k ) )
+  24 eqcomd 23 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ ( F : X --> X /\ F : X -1-1-> X ) ) -> prod_ k
+      e. X ( F ` k ) = prod_ k e. X k )
+  25 ex 24 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> ( ( F : X --> X /\ F : X -1-1-> X ) -> prod_ k e. X (
+      F ` k ) = prod_ k e. X k ) )
+  26 ex 25 |- ( X e. ~P ZZ -> ( X e. Fin -> ( ( F : X --> X /\ F : X -1-1-> X ) -> prod_ k e. X ( F
+      ` k ) = prod_ k e. X k ) ) )
+
+lemma gfprodcong
+  |- ( X e. ~P ZZ -> ( X e. Fin -> ( C e. ZZ -> ( N e. NN -> ( F : X --> X -> ( A. x e. X N || ( ( x
+      x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k ) ) ) ) ) ) ) )
+  1 simpr |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. Fin )
+  2 adantr 1 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> X e. Fin )
+  3 adantr 2 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) -> X e. Fin )
+  4 adantr 3 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> X
+      e. Fin )
+  5 adantr 4 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> X e. Fin )
+  6 id |- ( X e. ~P ZZ -> X e. ~P ZZ )
+  7 adantr 6 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. ~P ZZ )
+  8 adantr 7 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> X e. ~P ZZ )
+  9 adantr 8 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) -> X e. ~P ZZ )
+  10 adantr 9 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> X
+      e. ~P ZZ )
+  11 adantr 10 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> X e. ~P ZZ )
+  12 elpwi |- ( X e. ~P ZZ -> X C_ ZZ )
+  13 syl 11 12 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> X C_ ZZ )
+  14 sselda 13 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> k e. ZZ )
+  15 simpr |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> C e. ZZ )
+  16 adantr 15 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) -> C e. ZZ )
+  17 adantr 16 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> C
+      e. ZZ )
+  18 adantr 17 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> C e. ZZ )
+  19 adantr 18 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> C e. ZZ )
+  20 zmulcl |- ( ( k e. ZZ /\ C e. ZZ ) -> ( k x. C ) e. ZZ )
+  21 syl2anc 14 19 20 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X
+      --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> ( k x. C ) e. ZZ )
+  22 adantr 13 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> X C_ ZZ )
+  23 simpr |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> F : X
+      --> X )
+  24 adantr 23 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> F : X --> X )
+  25 adantr 24 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> F : X --> X )
+  26 simpr |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> k e. X )
+  27 ffvelcdmd 25 26 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X
+      --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> ( F ` k ) e. X )
+  28 sseldd 22 27 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X
+      ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> ( F ` k ) e. ZZ )
+  29 simpr |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) -> N e. NN )
+  30 adantr 29 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> N
+      e. NN )
+  31 adantr 30 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\
+      A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> N e. NN )
+  32 oveq1 |- ( x = k -> ( x x. C ) = ( k x. C ) )
+  33 fveq2 |- ( x = k -> ( F ` x ) = ( F ` k ) )
+  34 oveq12d 32 33 |- ( x = k -> ( ( x x. C ) - ( F ` x ) ) = ( ( k x. C ) - ( F ` k ) ) )
+  35 breq2d 34 |- ( x = k -> ( N || ( ( x x. C ) - ( F ` x ) ) <-> N || ( ( k x. C ) - ( F ` k ) ) )
+      )
+  36 simpr |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) /\ A.
+      x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> A. x e. X N || ( ( x x. C ) - ( F ` x ) ) )
+  37 adantr 36 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> A. x e. X N || ( ( x x. C ) - (
+      F ` x ) ) )
+  38 rspcdva 35 37 26 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X
+      --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> N || ( ( k x. C ) - ( F
+      ` k ) ) )
+  39 adantr 31 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> N e. NN )
+  40 moddvds |- ( ( N e. NN /\ ( k x. C ) e. ZZ /\ ( F ` k ) e. ZZ ) -> ( ( ( k x. C ) mod N ) = ( (
+      F ` k ) mod N ) <-> N || ( ( k x. C ) - ( F ` k ) ) ) )
+  41 syl3anc 39 21 28 40 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F :
+      X --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> ( ( ( k x. C ) mod N )
+      = ( ( F ` k ) mod N ) <-> N || ( ( k x. C ) - ( F ` k ) ) ) )
+  42 mpbird 38 41 |- ( ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X
+      ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) /\ k e. X ) -> ( ( k x. C ) mod N ) = ( ( F `
+      k ) mod N ) )
+  43 fprodmodd 5 21 28 31 42 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F
+      : X --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> ( prod_ k e. X ( k x. C ) mod N
+      ) = ( prod_ k e. X ( F ` k ) mod N ) )
+  44 fprodzcl 5 21 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X
+      ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> prod_ k e. X ( k x. C ) e. ZZ )
+  45 fprodzcl 5 28 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X
+      ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> prod_ k e. X ( F ` k ) e. ZZ )
+  46 moddvds |- ( ( N e. NN /\ prod_ k e. X ( k x. C ) e. ZZ /\ prod_ k e. X ( F ` k ) e. ZZ ) -> (
+      ( prod_ k e. X ( k x. C ) mod N ) = ( prod_ k e. X ( F ` k ) mod N ) <-> N || ( prod_ k e. X (
+      k x. C ) - prod_ k e. X ( F ` k ) ) ) )
+  47 syl3anc 31 44 45 46 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X
+      --> X ) /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> ( ( prod_ k e. X ( k x. C ) mod N )
+      = ( prod_ k e. X ( F ` k ) mod N ) <-> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k )
+      ) ) )
+  48 mpbid 43 47 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X )
+      /\ A. x e. X N || ( ( x x. C ) - ( F ` x ) ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e.
+      X ( F ` k ) ) )
+  49 ex 48 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) /\ F : X --> X ) -> ( A.
+      x e. X N || ( ( x x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F `
+      k ) ) ) )
+  50 ex 49 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) /\ N e. NN ) -> ( F : X --> X -> ( A. x
+      e. X N || ( ( x x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k
+      ) ) ) ) )
+  51 ex 50 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ C e. ZZ ) -> ( N e. NN -> ( F : X --> X -> ( A. x e.
+      X N || ( ( x x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k ) )
+      ) ) ) )
+  52 ex 51 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> ( C e. ZZ -> ( N e. NN -> ( F : X --> X -> ( A. x e. X
+      N || ( ( x x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k ) ) )
+      ) ) ) )
+  53 ex 52 |- ( X e. ~P ZZ -> ( X e. Fin -> ( C e. ZZ -> ( N e. NN -> ( F : X --> X -> ( A. x e. X N
+      || ( ( x x. C ) - ( F ` x ) ) -> N || ( prod_ k e. X ( k x. C ) - prod_ k e. X ( F ` k ) ) ) )
+      ) ) ) )
+
+lemma gfprodrp
+  |- ( X e. ~P ZZ -> ( X e. Fin -> ( N e. NN -> ( A. x e. X ( x gcd N ) = 1 -> ( prod_ k e. X k gcd
+      N ) = 1 ) ) ) )
+  1 prodeq1 |- ( w = (/) -> prod_ k e. w k = prod_ k e. (/) k )
+  2 oveq1d 1 |- ( w = (/) -> ( prod_ k e. w k gcd N ) = ( prod_ k e. (/) k gcd N ) )
+  3 eqeq1d 2 |- ( w = (/) -> ( ( prod_ k e. w k gcd N ) = 1 <-> ( prod_ k e. (/) k gcd N ) = 1 ) )
+  4 prodeq1 |- ( w = y -> prod_ k e. w k = prod_ k e. y k )
+  5 oveq1d 4 |- ( w = y -> ( prod_ k e. w k gcd N ) = ( prod_ k e. y k gcd N ) )
+  6 eqeq1d 5 |- ( w = y -> ( ( prod_ k e. w k gcd N ) = 1 <-> ( prod_ k e. y k gcd N ) = 1 ) )
+  7 prodeq1 |- ( w = ( y u. { z } ) -> prod_ k e. w k = prod_ k e. ( y u. { z } ) k )
+  8 oveq1d 7 |- ( w = ( y u. { z } ) -> ( prod_ k e. w k gcd N ) = ( prod_ k e. ( y u. { z } ) k gcd
+      N ) )
+  9 eqeq1d 8 |- ( w = ( y u. { z } ) -> ( ( prod_ k e. w k gcd N ) = 1 <-> ( prod_ k e. ( y u. { z }
+      ) k gcd N ) = 1 ) )
+  10 prodeq1 |- ( w = X -> prod_ k e. w k = prod_ k e. X k )
+  11 oveq1d 10 |- ( w = X -> ( prod_ k e. w k gcd N ) = ( prod_ k e. X k gcd N ) )
+  12 eqeq1d 11 |- ( w = X -> ( ( prod_ k e. w k gcd N ) = 1 <-> ( prod_ k e. X k gcd N ) = 1 ) )
+  13 prod0 |- prod_ k e. (/) k = 1
+  14 a1i 13 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> prod_
+      k e. (/) k = 1 )
+  15 oveq1d 14 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> (
+      prod_ k e. (/) k gcd N ) = ( 1 gcd N ) )
+  16 simpr |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) -> N e. NN )
+  17 adantr 16 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> N
+      e. NN )
+  18 nnz |- ( N e. NN -> N e. ZZ )
+  19 syl 17 18 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> N
+      e. ZZ )
+  20 1gcd |- ( N e. ZZ -> ( 1 gcd N ) = 1 )
+  21 syl 19 20 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> (
+      1 gcd N ) = 1 )
+  22 eqtrd 15 21 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) ->
+      ( prod_ k e. (/) k gcd N ) = 1 )
+  23 nfv |- F/ k ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ ( y
+      C_ X /\ z e. ( X \ y ) ) )
+  24 nfcv |- F/_ k z
+  25 simpr |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. Fin )
+  26 adantr 25 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) -> X e. Fin )
+  27 adantr 26 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> X
+      e. Fin )
+  28 adantr 27 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> X e. Fin )
+  29 simprl |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ ( y
+      C_ X /\ z e. ( X \ y ) ) ) -> y C_ X )
+  30 ssfi |- ( ( X e. Fin /\ y C_ X ) -> y e. Fin )
+  31 syl2anc 28 29 30 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) =
+      1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> y e. Fin )
+  32 id |- ( X e. ~P ZZ -> X e. ~P ZZ )
+  33 adantr 32 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> X e. ~P ZZ )
+  34 adantr 33 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) -> X e. ~P ZZ )
+  35 adantr 34 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> X
+      e. ~P ZZ )
+  36 elpwi |- ( X e. ~P ZZ -> X C_ ZZ )
+  37 syl 35 36 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> X
+      C_ ZZ )
+  38 adantr 37 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> X C_ ZZ )
+  39 simprr |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ ( y
+      C_ X /\ z e. ( X \ y ) ) ) -> z e. ( X \ y ) )
+  40 eldifi |- ( z e. ( X \ y ) -> z e. X )
+  41 syl 39 40 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> z e. X )
+  42 sseldd 38 41 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> z e. ZZ )
+  43 eldifn |- ( z e. ( X \ y ) -> -. z e. y )
+  44 syl 39 43 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> -. z e. y )
+  45 sstrd 29 38 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> y C_ ZZ )
+  46 sselda 45 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ k e. y ) -> k e. ZZ )
+  47 zcnd 46 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) /\ k e. y ) -> k e. CC )
+  48 id |- ( k = z -> k = z )
+  49 zcnd 42 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ (
+      y C_ X /\ z e. ( X \ y ) ) ) -> z e. CC )
+  50 fprodsplitsn 23 24 31 42 44 47 48 49 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x
+      e. X ( x gcd N ) = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> prod_ k e. ( y u. { z } ) k = (
+      prod_ k e. y k x. z ) )
+  51 adantr 50 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> prod_ k e. ( y u. { z }
+      ) k = ( prod_ k e. y k x. z ) )
+  52 oveq1d 51 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( prod_ k e. ( y u. { z
+      } ) k gcd N ) = ( ( prod_ k e. y k x. z ) gcd N ) )
+  53 fprodzcl 31 46 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1
+      ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> prod_ k e. y k e. ZZ )
+  54 adantr 53 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> prod_ k e. y k e. ZZ )
+  55 adantr 42 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> z e. ZZ )
+  56 zmulcl |- ( ( prod_ k e. y k e. ZZ /\ z e. ZZ ) -> ( prod_ k e. y k x. z ) e. ZZ )
+  57 syl2anc 54 55 56 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N )
+      = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( prod_ k e. y k
+      x. z ) e. ZZ )
+  58 adantr 19 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> N e. ZZ )
+  59 adantr 58 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> N e. ZZ )
+  60 gcdcom |- ( ( ( prod_ k e. y k x. z ) e. ZZ /\ N e. ZZ ) -> ( ( prod_ k e. y k x. z ) gcd N ) =
+      ( N gcd ( prod_ k e. y k x. z ) ) )
+  61 syl2anc 57 59 60 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N )
+      = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( ( prod_ k e. y
+      k x. z ) gcd N ) = ( N gcd ( prod_ k e. y k x. z ) ) )
+  62 gcdcom |- ( ( prod_ k e. y k e. ZZ /\ N e. ZZ ) -> ( prod_ k e. y k gcd N ) = ( N gcd prod_ k
+      e. y k ) )
+  63 syl2anc 54 59 62 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N )
+      = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( prod_ k e. y k
+      gcd N ) = ( N gcd prod_ k e. y k ) )
+  64 simpr |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ (
+      y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( prod_ k e. y k gcd N ) = 1
+      )
+  65 eqtr3d 63 64 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1
+      ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( N gcd prod_ k e. y
+      k ) = 1 )
+  66 gcdcom |- ( ( z e. ZZ /\ N e. ZZ ) -> ( z gcd N ) = ( N gcd z ) )
+  67 syl2anc 55 59 66 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N )
+      = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( z gcd N ) = ( N
+      gcd z ) )
+  68 id |- ( x = z -> x = z )
+  69 oveq1d 68 |- ( x = z -> ( x gcd N ) = ( z gcd N ) )
+  70 eqeq1d 69 |- ( x = z -> ( ( x gcd N ) = 1 <-> ( z gcd N ) = 1 ) )
+  71 simpr |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) -> A. x
+      e. X ( x gcd N ) = 1 )
+  72 adantr 71 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\
+      ( y C_ X /\ z e. ( X \ y ) ) ) -> A. x e. X ( x gcd N ) = 1 )
+  73 rspcdva 70 72 41 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) =
+      1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) -> ( z gcd N ) = 1 )
+  74 adantr 73 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( z gcd N ) = 1 )
+  75 eqtr3d 67 74 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1
+      ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( N gcd z ) = 1 )
+  76 jca 65 75 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( ( N gcd prod_ k e. y
+      k ) = 1 /\ ( N gcd z ) = 1 ) )
+  77 rpmul |- ( ( N e. ZZ /\ prod_ k e. y k e. ZZ /\ z e. ZZ ) -> ( ( ( N gcd prod_ k e. y k ) = 1
+      /\ ( N gcd z ) = 1 ) -> ( N gcd ( prod_ k e. y k x. z ) ) = 1 ) )
+  78 syl3anc 59 54 55 77 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N
+      ) = 1 ) /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( ( ( N gcd
+      prod_ k e. y k ) = 1 /\ ( N gcd z ) = 1 ) -> ( N gcd ( prod_ k e. y k x. z ) ) = 1 ) )
+  79 mpd 76 78 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( N gcd ( prod_ k e. y
+      k x. z ) ) = 1 )
+  80 eqtrd 61 79 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( ( prod_ k e. y k x. z
+      ) gcd N ) = 1 )
+  81 eqtrd 52 80 |- ( ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 )
+      /\ ( y C_ X /\ z e. ( X \ y ) ) ) /\ ( prod_ k e. y k gcd N ) = 1 ) -> ( prod_ k e. ( y u. { z
+      } ) k gcd N ) = 1 )
+  82 ex 81 |- ( ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x gcd N ) = 1 ) /\ ( y
+      C_ X /\ z e. ( X \ y ) ) ) -> ( ( prod_ k e. y k gcd N ) = 1 -> ( prod_ k e. ( y u. { z } ) k
+      gcd N ) = 1 ) )
+  83 findcard2d 3 6 9 12 22 82 27 |- ( ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) /\ A. x e. X ( x
+      gcd N ) = 1 ) -> ( prod_ k e. X k gcd N ) = 1 )
+  84 ex 83 |- ( ( ( X e. ~P ZZ /\ X e. Fin ) /\ N e. NN ) -> ( A. x e. X ( x gcd N ) = 1 -> ( prod_
+      k e. X k gcd N ) = 1 ) )
+  85 ex 84 |- ( ( X e. ~P ZZ /\ X e. Fin ) -> ( N e. NN -> ( A. x e. X ( x gcd N ) = 1 -> ( prod_ k
+      e. X k gcd N ) = 1 ) ) )
+  86 ex 85 |- ( X e. ~P ZZ -> ( X e. Fin -> ( N e. NN -> ( A. x e. X ( x gcd N ) = 1 -> ( prod_ k e.
+      X k gcd N ) = 1 ) ) ) )
+

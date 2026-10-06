@@ -1,0 +1,126 @@
+# The value of a series, for `proved.mm`.
+#
+# The readable layer says a series is the limit of its partial sums: the
+# partial sums Σ(k = 1 to n) t(k) tend to L, so Σ(k = 1 to ∞) t(k) = L.
+# set.mm defines an infinite sum through a sequence of its own (`seq`), and
+# no single label says the readable form. `sersumlim` is it, from three
+# that together do: a sequence that tends to something converges
+# (`releldmi`, `climrel`); the partial sums of a convergent series tend to
+# its sum (`isumclim3`); and a sequence has one limit (`climuni`).
+#
+# It is stated as a deduction, as set.mm states its series lemmas:
+# `isumclim3` forbids the index in what the statement assumes, and the
+# partial sums bind it.
+#
+# The page defines a limit the way a textbook does: however small a
+# positive ε, there is a natural number N such that every term after the
+# N-th is within ε of the limit. set.mm's `clim2` says it over ℝ⁺, over an
+# upper integer set, and with each term complex, and it names its index
+# apart from the map's, so it cannot read a sequence written as a map.
+# `climnnre` is the page's form. `rlimclim` and `rlim2` give the limit of a
+# map over ℕ in the real sense, `ralrp` moves ε from ℝ⁺ to ℝ, and
+# `rexuzre` moves N from ℝ to ℕ.
+
+$( Series: the limit of a sequence as the page defines it, and the value
+   of a series as the limit of its partial sums. $)
+$d j k n $.
+$d A j n x $.
+$d B j x $.
+$d ph j k n x $.
+
+# `climnnre`: a real sequence on ℕ tends to a real A exactly when, for
+# every positive x, some j ∈ ℕ has every later term within x of A.
+lemma climnnre
+  hypothesis climnnre.1 |- ( ( ph /\ n e. NN ) -> B e. RR )
+  hypothesis climnnre.2 |- ( ph -> A e. RR )
+  |- ( ph -> ( ( n e. NN |-> B ) ~~> A <-> A. x e. RR ( 0 < x -> E. j e. NN A. n e. NN ( j <_ n -> (
+      abs ` ( B - A ) ) < x ) ) ) )
+  1 nnuz |- NN = ( ZZ>= ` 1 )
+  2 1z |- 1 e. ZZ
+  3 a1i 2 |- ( ph -> 1 e. ZZ )
+  4 recnd climnnre.1 |- ( ( ph /\ n e. NN ) -> B e. CC )
+  5 eqid |- ( n e. NN |-> B ) = ( n e. NN |-> B )
+  6 fmptd 4 5 |- ( ph -> ( n e. NN |-> B ) : NN --> CC )
+  7 rlimclim 1 3 6 |- ( ph -> ( ( n e. NN |-> B ) ~~>r A <-> ( n e. NN |-> B ) ~~> A ) )
+  8 ralrimiva 4 |- ( ph -> A. n e. NN B e. CC )
+  9 nnssre |- NN C_ RR
+  10 a1i 9 |- ( ph -> NN C_ RR )
+  11 recnd climnnre.2 |- ( ph -> A e. CC )
+  12 rlim2 8 10 11 |- ( ph -> ( ( n e. NN |-> B ) ~~>r A <-> A. x e. RR+ E. j e. RR A. n e. NN ( j
+      <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  13 bitr3d 7 12 |- ( ph -> ( ( n e. NN |-> B ) ~~> A <-> A. x e. RR+ E. j e. RR A. n e. NN ( j <_ n
+      -> ( abs ` ( B - A ) ) < x ) ) )
+  14 ralrp |- ( A. x e. RR+ E. j e. RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) <-> A. x e.
+      RR ( 0 < x -> E. j e. RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  15 bitrdi 13 14 |- ( ph -> ( ( n e. NN |-> B ) ~~> A <-> A. x e. RR ( 0 < x -> E. j e. RR A. n e.
+      NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) ) )
+  16 rexuzre 1 |- ( 1 e. ZZ -> ( E. j e. NN A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> E. j e.
+      RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  17 ax-mp 2 16 |- ( E. j e. NN A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> E. j e. RR A. n e.
+      NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) )
+  18 uznnssnn |- ( j e. NN -> ( ZZ>= ` j ) C_ NN )
+  19 ralss |- ( ( ZZ>= ` j ) C_ NN -> ( A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> A. n e. NN
+      ( n e. ( ZZ>= ` j ) -> ( abs ` ( B - A ) ) < x ) ) )
+  20 syl 18 19 |- ( j e. NN -> ( A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> A. n e. NN ( n e.
+      ( ZZ>= ` j ) -> ( abs ` ( B - A ) ) < x ) ) )
+  21 nnz |- ( j e. NN -> j e. ZZ )
+  22 nnz |- ( n e. NN -> n e. ZZ )
+  23 anim12i 21 22 |- ( ( j e. NN /\ n e. NN ) -> ( j e. ZZ /\ n e. ZZ ) )
+  24 eluz |- ( ( j e. ZZ /\ n e. ZZ ) -> ( n e. ( ZZ>= ` j ) <-> j <_ n ) )
+  25 syl 23 24 |- ( ( j e. NN /\ n e. NN ) -> ( n e. ( ZZ>= ` j ) <-> j <_ n ) )
+  26 imbi1d 25 |- ( ( j e. NN /\ n e. NN ) -> ( ( n e. ( ZZ>= ` j ) -> ( abs ` ( B - A ) ) < x ) <->
+      ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  27 ralbidva 26 |- ( j e. NN -> ( A. n e. NN ( n e. ( ZZ>= ` j ) -> ( abs ` ( B - A ) ) < x ) <->
+      A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  28 bitrd 20 27 |- ( j e. NN -> ( A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> A. n e. NN ( j
+      <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  29 rexbiia 28 |- ( E. j e. NN A. n e. ( ZZ>= ` j ) ( abs ` ( B - A ) ) < x <-> E. j e. NN A. n e.
+      NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) )
+  30 bitr3i 17 29 |- ( E. j e. RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) <-> E. j e. NN A.
+      n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) )
+  31 imbi2i 30 |- ( ( 0 < x -> E. j e. RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) <-> ( 0
+      < x -> E. j e. NN A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  32 ralbii 31 |- ( A. x e. RR ( 0 < x -> E. j e. RR A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x
+      ) ) <-> A. x e. RR ( 0 < x -> E. j e. NN A. n e. NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) )
+  33 bitrdi 15 32 |- ( ph -> ( ( n e. NN |-> B ) ~~> A <-> A. x e. RR ( 0 < x -> E. j e. NN A. n e.
+      NN ( j <_ n -> ( abs ` ( B - A ) ) < x ) ) ) )
+
+# `sersumlim`.
+lemma sersumlim
+  hypothesis sersumlim.1 |- ( ( ph /\ k e. NN ) -> A e. RR )
+  hypothesis sersumlim.2 |- ( ph -> ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> B )
+  |- ( ph -> sum_ k e. ( ZZ>= ` 1 ) A = B )
+  1 eqid |- ( ZZ>= ` 1 ) = ( ZZ>= ` 1 )
+  2 1z |- 1 e. ZZ
+  3 a1i 2 |- ( ph -> 1 e. ZZ )
+  4 climrel |- Rel ~~>
+  5 releldmi 4 |- ( ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> B -> ( n e. NN |-> sum_ k e. ( 1 ...
+      n ) A ) e. dom ~~> )
+  6 syl sersumlim.2 5 |- ( ph -> ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) e. dom ~~> )
+  7 simpl |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> ph )
+  8 simpr |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> k e. ( ZZ>= ` 1 ) )
+  9 nnuz |- NN = ( ZZ>= ` 1 )
+  10 eleqtrrdi 8 9 |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> k e. NN )
+  11 jca 7 10 |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> ( ph /\ k e. NN ) )
+  12 syl 11 sersumlim.1 |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> A e. RR )
+  13 recn |- ( A e. RR -> A e. CC )
+  14 syl 12 13 |- ( ( ph /\ k e. ( ZZ>= ` 1 ) ) -> A e. CC )
+  15 eqid |- ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) = ( n e. NN |-> sum_ k e. ( 1 ... n ) A )
+  16 oveq2 |- ( n = j -> ( 1 ... n ) = ( 1 ... j ) )
+  17 sumeq1 |- ( ( 1 ... n ) = ( 1 ... j ) -> sum_ k e. ( 1 ... n ) A = sum_ k e. ( 1 ... j ) A )
+  18 syl 16 17 |- ( n = j -> sum_ k e. ( 1 ... n ) A = sum_ k e. ( 1 ... j ) A )
+  19 simpr |- ( ( ph /\ j e. ( ZZ>= ` 1 ) ) -> j e. ( ZZ>= ` 1 ) )
+  20 eleqtrrdi 19 9 |- ( ( ph /\ j e. ( ZZ>= ` 1 ) ) -> j e. NN )
+  21 sumex |- sum_ k e. ( 1 ... j ) A e. _V
+  22 a1i 21 |- ( ( ph /\ j e. ( ZZ>= ` 1 ) ) -> sum_ k e. ( 1 ... j ) A e. _V )
+  23 fvmptd3 15 18 20 22 |- ( ( ph /\ j e. ( ZZ>= ` 1 ) ) -> ( ( n e. NN |-> sum_ k e. ( 1 ... n ) A
+      ) ` j ) = sum_ k e. ( 1 ... j ) A )
+  24 isumclim3 1 3 6 14 23 |- ( ph -> ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> sum_ k e. ( ZZ>= `
+      1 ) A )
+  25 jca sersumlim.2 24 |- ( ph -> ( ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> B /\ ( n e. NN |->
+      sum_ k e. ( 1 ... n ) A ) ~~> sum_ k e. ( ZZ>= ` 1 ) A ) )
+  26 climuni |- ( ( ( n e. NN |-> sum_ k e. ( 1 ... n ) A ) ~~> B /\ ( n e. NN |-> sum_ k e. ( 1 ...
+      n ) A ) ~~> sum_ k e. ( ZZ>= ` 1 ) A ) -> B = sum_ k e. ( ZZ>= ` 1 ) A )
+  27 syl 25 26 |- ( ph -> B = sum_ k e. ( ZZ>= ` 1 ) A )
+  28 eqcomd 27 |- ( ph -> sum_ k e. ( ZZ>= ` 1 ) A = B )
+

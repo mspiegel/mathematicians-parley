@@ -1,0 +1,445 @@
+# Calculus, for `proved.mm`.
+#
+# The mean value theorem asks what a textbook calls the sum rules: a sum of
+# continuous functions is continuous, a line is, and the derivative of a sum
+# is the sum of the derivatives, of a line its slope. set.mm says each of a
+# map written out, `( x e. X |-> A )`, or of functions added pointwise,
+# `( F oF + G )`, and the page says it of functions named apart from their
+# values, F with F(x) = f(x) + g(x) for every x. Each lemma here is the
+# page's form: the function is its map (`dffn5`) or the pointwise sum
+# (`offval`), and set.mm's rule is applied to that.
+#
+# The derivative rules hold on any D ⊆ ℝ. A sum is differentiable at each
+# point both its parts are (`dvaddbr`), so its rule asks nothing of the set
+# U it is said on. A line is differentiable at a point of D only where a
+# neighbourhood of it lies in D, so its rule asks U be open (`dvres`,
+# `isopn3i`), as a textbook's does.
+#
+# A function on [a, b] is differentiable on (a, b) at most, since a
+# derivative is taken only where a neighbourhood lies in the domain
+# (`dvbssntr`, `iccntr`, `gdvsub`). The page's "differentiable on (a, b)"
+# says (a, b) lies within the derivative's domain, and for a function on
+# [a, b] that makes the two equal (`gdvdmicc`), which is what set.mm's
+# `rolle` asks (`grolle`). Derivatives are into ℂ in set.mm, and a real
+# function's are real (`dvfre`).
+#
+# Continuity in set.mm is into a set named by the space, `D -cn-> CC` for
+# the rules and `D -cn-> RR` for the page; `cncfss` widens one to the other
+# and `cncfcdm` narrows a continuous function into ℝ when its values are.
+
+$( Calculus: continuity and derivatives of a sum and of a line, as the
+   page says them of functions named apart from their values. $)
+$d x ph $.
+$d x A $.
+$d x B $.
+$d x D $.
+$d x F $.
+$d x G $.
+$d x H $.
+$d x I $.
+$d x M $.
+$d x U $.
+$d x V $.
+
+lemma gdvdm
+  hypothesis gdvdm.1 |- ( ph -> D = ( x e. I |-> E ) )
+  hypothesis gdvdm.2 |- ( ( ph /\ x e. I ) -> E e. V )
+  |- ( ph -> I C_ dom D )
+  1 dmeqd gdvdm.1 |- ( ph -> dom D = dom ( x e. I |-> E ) )
+  2 ralrimiva gdvdm.2 |- ( ph -> A. x e. I E e. V )
+  3 dmmptg |- ( A. x e. I E e. V -> dom ( x e. I |-> E ) = I )
+  4 syl 2 3 |- ( ph -> dom ( x e. I |-> E ) = I )
+  5 eqtrd 1 4 |- ( ph -> dom D = I )
+  6 eqcomd 5 |- ( ph -> I = dom D )
+  7 eqimssd 6 |- ( ph -> I C_ dom D )
+
+lemma gdvval
+  hypothesis gdvval.1 |- ( ph -> D = ( x e. I |-> E ) )
+  hypothesis gdvval.2 |- ( ( ph /\ x e. I ) -> E e. V )
+  |- ( ph -> A. x e. I ( D ` x ) = E )
+  1 adantr gdvval.1 |- ( ( ph /\ x e. I ) -> D = ( x e. I |-> E ) )
+  2 fveq1d 1 |- ( ( ph /\ x e. I ) -> ( D ` x ) = ( ( x e. I |-> E ) ` x ) )
+  3 simpr |- ( ( ph /\ x e. I ) -> x e. I )
+  4 eqid |- ( x e. I |-> E ) = ( x e. I |-> E )
+  5 fvmpt2 4 |- ( ( x e. I /\ E e. V ) -> ( ( x e. I |-> E ) ` x ) = E )
+  6 syl2anc 3 gdvval.2 5 |- ( ( ph /\ x e. I ) -> ( ( x e. I |-> E ) ` x ) = E )
+  7 eqtrd 2 6 |- ( ( ph /\ x e. I ) -> ( D ` x ) = E )
+  8 ralrimiva 7 |- ( ph -> A. x e. I ( D ` x ) = E )
+
+lemma gdvsub
+  hypothesis gdvsub.1 |- ( ph -> A e. RR )
+  hypothesis gdvsub.2 |- ( ph -> B e. RR )
+  hypothesis gdvsub.3 |- ( ph -> F : ( A [,] B ) --> CC )
+  |- ( ph -> dom ( RR _D F ) C_ ( A (,) B ) )
+  1 ax-resscn |- RR C_ CC
+  2 a1i 1 |- ( ph -> RR C_ CC )
+  3 iccssre |- ( ( A e. RR /\ B e. RR ) -> ( A [,] B ) C_ RR )
+  4 syl2anc gdvsub.1 gdvsub.2 3 |- ( ph -> ( A [,] B ) C_ RR )
+  5 eqid |- ( TopOpen ` CCfld ) = ( TopOpen ` CCfld )
+  6 tgioo2 5 |- ( topGen ` ran (,) ) = ( ( TopOpen ` CCfld ) |`t RR )
+  7 dvbssntr 2 gdvsub.3 4 6 5 |- ( ph -> dom ( RR _D F ) C_ ( ( int ` ( topGen ` ran (,) ) ) ` ( A
+      [,] B ) ) )
+  8 iccntr |- ( ( A e. RR /\ B e. RR ) -> ( ( int ` ( topGen ` ran (,) ) ) ` ( A [,] B ) ) = ( A (,)
+      B ) )
+  9 syl2anc gdvsub.1 gdvsub.2 8 |- ( ph -> ( ( int ` ( topGen ` ran (,) ) ) ` ( A [,] B ) ) = ( A
+      (,) B ) )
+  10 sseqtrd 7 9 |- ( ph -> dom ( RR _D F ) C_ ( A (,) B ) )
+
+lemma gdvdmicc
+  hypothesis gdvdmicc.1 |- ( ph -> A e. RR )
+  hypothesis gdvdmicc.2 |- ( ph -> B e. RR )
+  hypothesis gdvdmicc.3 |- ( ph -> F : ( A [,] B ) --> CC )
+  hypothesis gdvdmicc.4 |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )
+  |- ( ph -> dom ( RR _D F ) = ( A (,) B ) )
+  1 gdvsub gdvdmicc.1 gdvdmicc.2 gdvdmicc.3 |- ( ph -> dom ( RR _D F ) C_ ( A (,) B ) )
+  2 eqssd 1 gdvdmicc.4 |- ( ph -> dom ( RR _D F ) = ( A (,) B ) )
+
+lemma grolle
+  hypothesis grolle.1 |- ( ph -> A e. RR )
+  hypothesis grolle.2 |- ( ph -> B e. RR )
+  hypothesis grolle.3 |- ( ph -> A < B )
+  hypothesis grolle.4 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis grolle.5 |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )
+  hypothesis grolle.6 |- ( ph -> ( F ` A ) = ( F ` B ) )
+  |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 )
+  1 cncff |- ( F e. ( ( A [,] B ) -cn-> RR ) -> F : ( A [,] B ) --> RR )
+  2 syl grolle.4 1 |- ( ph -> F : ( A [,] B ) --> RR )
+  3 ax-resscn |- RR C_ CC
+  4 a1i 3 |- ( ph -> RR C_ CC )
+  5 fssd 2 4 |- ( ph -> F : ( A [,] B ) --> CC )
+  6 gdvdmicc grolle.1 grolle.2 5 grolle.5 |- ( ph -> dom ( RR _D F ) = ( A (,) B ) )
+  7 rolle grolle.1 grolle.2 grolle.3 grolle.4 6 grolle.6 |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F
+      ) ` x ) = 0 )
+
+lemma gdvf
+  hypothesis gdvf.1 |- ( ph -> A e. RR )
+  hypothesis gdvf.2 |- ( ph -> B e. RR )
+  hypothesis gdvf.3 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gdvf.4 |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )
+  |- ( ph -> ( RR _D F ) : ( A (,) B ) --> RR )
+  1 iccssre |- ( ( A e. RR /\ B e. RR ) -> ( A [,] B ) C_ RR )
+  2 syl2anc gdvf.1 gdvf.2 1 |- ( ph -> ( A [,] B ) C_ RR )
+  3 dvfre |- ( ( F : ( A [,] B ) --> RR /\ ( A [,] B ) C_ RR ) -> ( RR _D F ) : dom ( RR _D F ) -->
+      RR )
+  4 syl2anc gdvf.3 2 3 |- ( ph -> ( RR _D F ) : dom ( RR _D F ) --> RR )
+  5 ax-resscn |- RR C_ CC
+  6 a1i 5 |- ( ph -> RR C_ CC )
+  7 fssd gdvf.3 6 |- ( ph -> F : ( A [,] B ) --> CC )
+  8 gdvdmicc gdvf.1 gdvf.2 7 gdvf.4 |- ( ph -> dom ( RR _D F ) = ( A (,) B ) )
+  9 feq2d 8 |- ( ph -> ( ( RR _D F ) : dom ( RR _D F ) --> RR <-> ( RR _D F ) : ( A (,) B ) --> RR )
+      )
+  10 mpbid 4 9 |- ( ph -> ( RR _D F ) : ( A (,) B ) --> RR )
+
+lemma gdvre
+  hypothesis gdvre.1 |- ( ph -> A e. RR )
+  hypothesis gdvre.2 |- ( ph -> B e. RR )
+  hypothesis gdvre.3 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gdvre.4 |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )
+  hypothesis gdvre.5 |- ( ph -> C e. ( A (,) B ) )
+  |- ( ph -> ( ( RR _D F ) ` C ) e. RR )
+  1 gdvf gdvre.1 gdvre.2 gdvre.3 gdvre.4 |- ( ph -> ( RR _D F ) : ( A (,) B ) --> RR )
+  2 ffvelcdmd 1 gdvre.5 |- ( ph -> ( ( RR _D F ) ` C ) e. RR )
+
+lemma gdvaddof
+  hypothesis gdvaddof.1 |- ( ph -> D C_ RR )
+  hypothesis gdvaddof.2 |- ( ph -> H : D --> RR )
+  hypothesis gdvaddof.3 |- ( ph -> F : D --> RR )
+  hypothesis gdvaddof.4 |- ( ph -> G : D --> RR )
+  hypothesis gdvaddof.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  |- ( ph -> H = ( F oF + G ) )
+  1 ffnd gdvaddof.2 |- ( ph -> H Fn D )
+  2 dffn5 |- ( H Fn D <-> H = ( x e. D |-> ( H ` x ) ) )
+  3 sylib 1 2 |- ( ph -> H = ( x e. D |-> ( H ` x ) ) )
+  4 r19.21bi gdvaddof.5 |- ( ( ph /\ x e. D ) -> ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  5 mpteq2dva 4 |- ( ph -> ( x e. D |-> ( H ` x ) ) = ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) )
+  6 eqtrd 3 5 |- ( ph -> H = ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) )
+  7 ffnd gdvaddof.3 |- ( ph -> F Fn D )
+  8 ffnd gdvaddof.4 |- ( ph -> G Fn D )
+  9 reex |- RR e. _V
+  10 a1i 9 |- ( ph -> RR e. _V )
+  11 ssexd 10 gdvaddof.1 |- ( ph -> D e. _V )
+  12 inidm |- ( D i^i D ) = D
+  13 eqidd |- ( ( ph /\ x e. D ) -> ( F ` x ) = ( F ` x ) )
+  14 eqidd |- ( ( ph /\ x e. D ) -> ( G ` x ) = ( G ` x ) )
+  15 offval 7 8 11 11 12 13 14 |- ( ph -> ( F oF + G ) = ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) )
+  16 eqtr4d 6 15 |- ( ph -> H = ( F oF + G ) )
+
+lemma gdvaddbr
+  hypothesis gdvaddbr.1 |- ( ph -> D C_ RR )
+  hypothesis gdvaddbr.2 |- ( ph -> F : D --> RR )
+  hypothesis gdvaddbr.3 |- ( ph -> G : D --> RR )
+  hypothesis gdvaddbr.4 |- ( ph -> C e. dom ( RR _D F ) )
+  hypothesis gdvaddbr.5 |- ( ph -> C e. dom ( RR _D G ) )
+  |- ( ph -> C ( RR _D ( F oF + G ) ) ( ( ( RR _D F ) ` C ) + ( ( RR _D G ) ` C ) ) )
+  1 ax-resscn |- RR C_ CC
+  2 a1i 1 |- ( ph -> RR C_ CC )
+  3 fssd gdvaddbr.2 2 |- ( ph -> F : D --> CC )
+  4 fssd gdvaddbr.3 2 |- ( ph -> G : D --> CC )
+  5 dvf |- ( RR _D F ) : dom ( RR _D F ) --> CC
+  6 ffun |- ( ( RR _D F ) : dom ( RR _D F ) --> CC -> Fun ( RR _D F ) )
+  7 ax-mp 5 6 |- Fun ( RR _D F )
+  8 funfvbrb |- ( Fun ( RR _D F ) -> ( C e. dom ( RR _D F ) <-> C ( RR _D F ) ( ( RR _D F ) ` C ) )
+      )
+  9 ax-mp 7 8 |- ( C e. dom ( RR _D F ) <-> C ( RR _D F ) ( ( RR _D F ) ` C ) )
+  10 sylib gdvaddbr.4 9 |- ( ph -> C ( RR _D F ) ( ( RR _D F ) ` C ) )
+  11 dvf |- ( RR _D G ) : dom ( RR _D G ) --> CC
+  12 ffun |- ( ( RR _D G ) : dom ( RR _D G ) --> CC -> Fun ( RR _D G ) )
+  13 ax-mp 11 12 |- Fun ( RR _D G )
+  14 funfvbrb |- ( Fun ( RR _D G ) -> ( C e. dom ( RR _D G ) <-> C ( RR _D G ) ( ( RR _D G ) ` C ) )
+      )
+  15 ax-mp 13 14 |- ( C e. dom ( RR _D G ) <-> C ( RR _D G ) ( ( RR _D G ) ` C ) )
+  16 sylib gdvaddbr.5 15 |- ( ph -> C ( RR _D G ) ( ( RR _D G ) ` C ) )
+  17 eqid |- ( TopOpen ` CCfld ) = ( TopOpen ` CCfld )
+  18 dvaddbr 3 gdvaddbr.1 4 gdvaddbr.1 2 10 16 17 |- ( ph -> C ( RR _D ( F oF + G ) ) ( ( ( RR _D F
+      ) ` C ) + ( ( RR _D G ) ` C ) ) )
+
+lemma gdvadd
+  hypothesis gdvadd.1 |- ( ph -> D C_ RR )
+  hypothesis gdvadd.2 |- ( ph -> H : D --> RR )
+  hypothesis gdvadd.3 |- ( ph -> F : D --> RR )
+  hypothesis gdvadd.4 |- ( ph -> G : D --> RR )
+  hypothesis gdvadd.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  hypothesis gdvadd.6 |- ( ph -> U C_ dom ( RR _D F ) )
+  hypothesis gdvadd.7 |- ( ph -> U C_ dom ( RR _D G ) )
+  |- ( ph -> U C_ dom ( RR _D H ) )
+  1 reldv |- Rel ( RR _D H )
+  2 a1i 1 |- ( ( ph /\ x e. U ) -> Rel ( RR _D H ) )
+  3 adantr gdvadd.1 |- ( ( ph /\ x e. U ) -> D C_ RR )
+  4 adantr gdvadd.3 |- ( ( ph /\ x e. U ) -> F : D --> RR )
+  5 adantr gdvadd.4 |- ( ( ph /\ x e. U ) -> G : D --> RR )
+  6 adantr gdvadd.6 |- ( ( ph /\ x e. U ) -> U C_ dom ( RR _D F ) )
+  7 simpr |- ( ( ph /\ x e. U ) -> x e. U )
+  8 sseldd 6 7 |- ( ( ph /\ x e. U ) -> x e. dom ( RR _D F ) )
+  9 adantr gdvadd.7 |- ( ( ph /\ x e. U ) -> U C_ dom ( RR _D G ) )
+  10 sseldd 9 7 |- ( ( ph /\ x e. U ) -> x e. dom ( RR _D G ) )
+  11 gdvaddbr 3 4 5 8 10 |- ( ( ph /\ x e. U ) -> x ( RR _D ( F oF + G ) ) ( ( ( RR _D F ) ` x ) + (
+      ( RR _D G ) ` x ) ) )
+  12 gdvaddof gdvadd.1 gdvadd.2 gdvadd.3 gdvadd.4 gdvadd.5 |- ( ph -> H = ( F oF + G ) )
+  13 adantr 12 |- ( ( ph /\ x e. U ) -> H = ( F oF + G ) )
+  14 oveq2d 13 |- ( ( ph /\ x e. U ) -> ( RR _D H ) = ( RR _D ( F oF + G ) ) )
+  15 breqd 14 |- ( ( ph /\ x e. U ) -> ( x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) )
+      <-> x ( RR _D ( F oF + G ) ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) ) )
+  16 mpbird 11 15 |- ( ( ph /\ x e. U ) -> x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x )
+      ) )
+  17 releldm |- ( ( Rel ( RR _D H ) /\ x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) )
+      -> x e. dom ( RR _D H ) )
+  18 syl2anc 2 16 17 |- ( ( ph /\ x e. U ) -> x e. dom ( RR _D H ) )
+  19 ex 18 |- ( ph -> ( x e. U -> x e. dom ( RR _D H ) ) )
+  20 ssrdv 19 |- ( ph -> U C_ dom ( RR _D H ) )
+
+lemma gdvaddv
+  hypothesis gdvaddv.1 |- ( ph -> D C_ RR )
+  hypothesis gdvaddv.2 |- ( ph -> H : D --> RR )
+  hypothesis gdvaddv.3 |- ( ph -> F : D --> RR )
+  hypothesis gdvaddv.4 |- ( ph -> G : D --> RR )
+  hypothesis gdvaddv.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  hypothesis gdvaddv.6 |- ( ph -> U C_ dom ( RR _D F ) )
+  hypothesis gdvaddv.7 |- ( ph -> U C_ dom ( RR _D G ) )
+  |- ( ph -> A. x e. U ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) )
+  1 dvf |- ( RR _D H ) : dom ( RR _D H ) --> CC
+  2 ffun |- ( ( RR _D H ) : dom ( RR _D H ) --> CC -> Fun ( RR _D H ) )
+  3 ax-mp 1 2 |- Fun ( RR _D H )
+  4 a1i 3 |- ( ( ph /\ x e. U ) -> Fun ( RR _D H ) )
+  5 adantr gdvaddv.1 |- ( ( ph /\ x e. U ) -> D C_ RR )
+  6 adantr gdvaddv.3 |- ( ( ph /\ x e. U ) -> F : D --> RR )
+  7 adantr gdvaddv.4 |- ( ( ph /\ x e. U ) -> G : D --> RR )
+  8 adantr gdvaddv.6 |- ( ( ph /\ x e. U ) -> U C_ dom ( RR _D F ) )
+  9 simpr |- ( ( ph /\ x e. U ) -> x e. U )
+  10 sseldd 8 9 |- ( ( ph /\ x e. U ) -> x e. dom ( RR _D F ) )
+  11 adantr gdvaddv.7 |- ( ( ph /\ x e. U ) -> U C_ dom ( RR _D G ) )
+  12 sseldd 11 9 |- ( ( ph /\ x e. U ) -> x e. dom ( RR _D G ) )
+  13 gdvaddbr 5 6 7 10 12 |- ( ( ph /\ x e. U ) -> x ( RR _D ( F oF + G ) ) ( ( ( RR _D F ) ` x ) +
+      ( ( RR _D G ) ` x ) ) )
+  14 gdvaddof gdvaddv.1 gdvaddv.2 gdvaddv.3 gdvaddv.4 gdvaddv.5 |- ( ph -> H = ( F oF + G ) )
+  15 adantr 14 |- ( ( ph /\ x e. U ) -> H = ( F oF + G ) )
+  16 oveq2d 15 |- ( ( ph /\ x e. U ) -> ( RR _D H ) = ( RR _D ( F oF + G ) ) )
+  17 breqd 16 |- ( ( ph /\ x e. U ) -> ( x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) )
+      <-> x ( RR _D ( F oF + G ) ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) ) )
+  18 mpbird 13 17 |- ( ( ph /\ x e. U ) -> x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x )
+      ) )
+  19 funbrfv |- ( Fun ( RR _D H ) -> ( x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) )
+      -> ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) ) )
+  20 imp 19 |- ( ( Fun ( RR _D H ) /\ x ( RR _D H ) ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) )
+      -> ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) ` x ) ) )
+  21 syl2anc 4 18 20 |- ( ( ph /\ x e. U ) -> ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR
+      _D G ) ` x ) ) )
+  22 ralrimiva 21 |- ( ph -> A. x e. U ( ( RR _D H ) ` x ) = ( ( ( RR _D F ) ` x ) + ( ( RR _D G ) `
+      x ) ) )
+
+lemma gdvlinres
+  hypothesis gdvlinres.1 |- ( ph -> D C_ RR )
+  hypothesis gdvlinres.2 |- ( ph -> U C_ D )
+  hypothesis gdvlinres.3 |- ( ph -> U e. ( topGen ` ran (,) ) )
+  hypothesis gdvlinres.4 |- ( ph -> M e. RR )
+  hypothesis gdvlinres.5 |- ( ph -> G : D --> RR )
+  hypothesis gdvlinres.6 |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) )
+  |- ( ph -> ( ( RR _D G ) |` U ) = ( x e. U |-> M ) )
+  1 ax-resscn |- RR C_ CC
+  2 a1i 1 |- ( ph -> RR C_ CC )
+  3 fssd gdvlinres.5 2 |- ( ph -> G : D --> CC )
+  4 jca 2 3 |- ( ph -> ( RR C_ CC /\ G : D --> CC ) )
+  5 sstrd gdvlinres.2 gdvlinres.1 |- ( ph -> U C_ RR )
+  6 jca gdvlinres.1 5 |- ( ph -> ( D C_ RR /\ U C_ RR ) )
+  7 jca 4 6 |- ( ph -> ( ( RR C_ CC /\ G : D --> CC ) /\ ( D C_ RR /\ U C_ RR ) ) )
+  8 eqid |- ( TopOpen ` CCfld ) = ( TopOpen ` CCfld )
+  9 tgioo2 8 |- ( topGen ` ran (,) ) = ( ( TopOpen ` CCfld ) |`t RR )
+  10 dvres 8 9 |- ( ( ( RR C_ CC /\ G : D --> CC ) /\ ( D C_ RR /\ U C_ RR ) ) -> ( RR _D ( G |` U )
+      ) = ( ( RR _D G ) |` ( ( int ` ( topGen ` ran (,) ) ) ` U ) ) )
+  11 syl 7 10 |- ( ph -> ( RR _D ( G |` U ) ) = ( ( RR _D G ) |` ( ( int ` ( topGen ` ran (,) ) ) `
+      U ) ) )
+  12 retop |- ( topGen ` ran (,) ) e. Top
+  13 a1i 12 |- ( ph -> ( topGen ` ran (,) ) e. Top )
+  14 isopn3i |- ( ( ( topGen ` ran (,) ) e. Top /\ U e. ( topGen ` ran (,) ) ) -> ( ( int ` ( topGen
+      ` ran (,) ) ) ` U ) = U )
+  15 syl2anc 13 gdvlinres.3 14 |- ( ph -> ( ( int ` ( topGen ` ran (,) ) ) ` U ) = U )
+  16 reseq2d 15 |- ( ph -> ( ( RR _D G ) |` ( ( int ` ( topGen ` ran (,) ) ) ` U ) ) = ( ( RR _D G )
+      |` U ) )
+  17 eqtrd 11 16 |- ( ph -> ( RR _D ( G |` U ) ) = ( ( RR _D G ) |` U ) )
+  18 eqcomd 17 |- ( ph -> ( ( RR _D G ) |` U ) = ( RR _D ( G |` U ) ) )
+  19 ffnd gdvlinres.5 |- ( ph -> G Fn D )
+  20 dffn5 |- ( G Fn D <-> G = ( x e. D |-> ( G ` x ) ) )
+  21 sylib 19 20 |- ( ph -> G = ( x e. D |-> ( G ` x ) ) )
+  22 r19.21bi gdvlinres.6 |- ( ( ph /\ x e. D ) -> ( G ` x ) = ( M x. x ) )
+  23 mpteq2dva 22 |- ( ph -> ( x e. D |-> ( G ` x ) ) = ( x e. D |-> ( M x. x ) ) )
+  24 eqtrd 21 23 |- ( ph -> G = ( x e. D |-> ( M x. x ) ) )
+  25 reseq1d 24 |- ( ph -> ( G |` U ) = ( ( x e. D |-> ( M x. x ) ) |` U ) )
+  26 resmpt |- ( U C_ D -> ( ( x e. D |-> ( M x. x ) ) |` U ) = ( x e. U |-> ( M x. x ) ) )
+  27 syl gdvlinres.2 26 |- ( ph -> ( ( x e. D |-> ( M x. x ) ) |` U ) = ( x e. U |-> ( M x. x ) ) )
+  28 eqtrd 25 27 |- ( ph -> ( G |` U ) = ( x e. U |-> ( M x. x ) ) )
+  29 oveq2d 28 |- ( ph -> ( RR _D ( G |` U ) ) = ( RR _D ( x e. U |-> ( M x. x ) ) ) )
+  30 eqtrd 18 29 |- ( ph -> ( ( RR _D G ) |` U ) = ( RR _D ( x e. U |-> ( M x. x ) ) ) )
+  31 reelprrecn |- RR e. { RR , CC }
+  32 a1i 31 |- ( ph -> RR e. { RR , CC } )
+  33 adantr 5 |- ( ( ph /\ x e. U ) -> U C_ RR )
+  34 simpr |- ( ( ph /\ x e. U ) -> x e. U )
+  35 sseldd 33 34 |- ( ( ph /\ x e. U ) -> x e. RR )
+  36 recnd 35 |- ( ( ph /\ x e. U ) -> x e. CC )
+  37 ax-1cn |- 1 e. CC
+  38 a1i 37 |- ( ( ph /\ x e. U ) -> 1 e. CC )
+  39 simpr |- ( ( ph /\ x e. RR ) -> x e. RR )
+  40 recnd 39 |- ( ( ph /\ x e. RR ) -> x e. CC )
+  41 a1i 37 |- ( ( ph /\ x e. RR ) -> 1 e. CC )
+  42 dvmptid 32 |- ( ph -> ( RR _D ( x e. RR |-> x ) ) = ( x e. RR |-> 1 ) )
+  43 dvmptres 32 40 41 42 5 9 8 gdvlinres.3 |- ( ph -> ( RR _D ( x e. U |-> x ) ) = ( x e. U |-> 1 )
+      )
+  44 recnd gdvlinres.4 |- ( ph -> M e. CC )
+  45 dvmptcmul 32 36 38 43 44 |- ( ph -> ( RR _D ( x e. U |-> ( M x. x ) ) ) = ( x e. U |-> ( M x. 1
+      ) ) )
+  46 eqtrd 30 45 |- ( ph -> ( ( RR _D G ) |` U ) = ( x e. U |-> ( M x. 1 ) ) )
+  47 adantr 44 |- ( ( ph /\ x e. U ) -> M e. CC )
+  48 mulridd 47 |- ( ( ph /\ x e. U ) -> ( M x. 1 ) = M )
+  49 mpteq2dva 48 |- ( ph -> ( x e. U |-> ( M x. 1 ) ) = ( x e. U |-> M ) )
+  50 eqtrd 46 49 |- ( ph -> ( ( RR _D G ) |` U ) = ( x e. U |-> M ) )
+
+lemma gdvlin
+  hypothesis gdvlin.1 |- ( ph -> D C_ RR )
+  hypothesis gdvlin.2 |- ( ph -> U C_ D )
+  hypothesis gdvlin.3 |- ( ph -> U e. ( topGen ` ran (,) ) )
+  hypothesis gdvlin.4 |- ( ph -> M e. RR )
+  hypothesis gdvlin.5 |- ( ph -> G : D --> RR )
+  hypothesis gdvlin.6 |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) )
+  |- ( ph -> U C_ dom ( RR _D G ) )
+  1 gdvlinres gdvlin.1 gdvlin.2 gdvlin.3 gdvlin.4 gdvlin.5 gdvlin.6 |- ( ph -> ( ( RR _D G ) |` U )
+      = ( x e. U |-> M ) )
+  2 adantr gdvlin.4 |- ( ( ph /\ x e. U ) -> M e. RR )
+  3 gdvdm 1 2 |- ( ph -> U C_ dom ( ( RR _D G ) |` U ) )
+  4 dmres |- dom ( ( RR _D G ) |` U ) = ( U i^i dom ( RR _D G ) )
+  5 a1i 4 |- ( ph -> dom ( ( RR _D G ) |` U ) = ( U i^i dom ( RR _D G ) ) )
+  6 inss2 |- ( U i^i dom ( RR _D G ) ) C_ dom ( RR _D G )
+  7 a1i 6 |- ( ph -> ( U i^i dom ( RR _D G ) ) C_ dom ( RR _D G ) )
+  8 eqsstrd 5 7 |- ( ph -> dom ( ( RR _D G ) |` U ) C_ dom ( RR _D G ) )
+  9 sstrd 3 8 |- ( ph -> U C_ dom ( RR _D G ) )
+
+lemma gdvlinv
+  hypothesis gdvlinv.1 |- ( ph -> D C_ RR )
+  hypothesis gdvlinv.2 |- ( ph -> U C_ D )
+  hypothesis gdvlinv.3 |- ( ph -> U e. ( topGen ` ran (,) ) )
+  hypothesis gdvlinv.4 |- ( ph -> M e. RR )
+  hypothesis gdvlinv.5 |- ( ph -> G : D --> RR )
+  hypothesis gdvlinv.6 |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) )
+  |- ( ph -> A. x e. U ( ( RR _D G ) ` x ) = M )
+  1 simpr |- ( ( ph /\ x e. U ) -> x e. U )
+  2 fvres |- ( x e. U -> ( ( ( RR _D G ) |` U ) ` x ) = ( ( RR _D G ) ` x ) )
+  3 syl 1 2 |- ( ( ph /\ x e. U ) -> ( ( ( RR _D G ) |` U ) ` x ) = ( ( RR _D G ) ` x ) )
+  4 gdvlinres gdvlinv.1 gdvlinv.2 gdvlinv.3 gdvlinv.4 gdvlinv.5 gdvlinv.6 |- ( ph -> ( ( RR _D G )
+      |` U ) = ( x e. U |-> M ) )
+  5 adantr gdvlinv.4 |- ( ( ph /\ x e. U ) -> M e. RR )
+  6 gdvval 4 5 |- ( ph -> A. x e. U ( ( ( RR _D G ) |` U ) ` x ) = M )
+  7 r19.21bi 6 |- ( ( ph /\ x e. U ) -> ( ( ( RR _D G ) |` U ) ` x ) = M )
+  8 eqtr3d 3 7 |- ( ( ph /\ x e. U ) -> ( ( RR _D G ) ` x ) = M )
+  9 ralrimiva 8 |- ( ph -> A. x e. U ( ( RR _D G ) ` x ) = M )
+
+lemma gcncflin
+  hypothesis gcncflin.1 |- ( ph -> D C_ RR )
+  hypothesis gcncflin.2 |- ( ph -> M e. RR )
+  hypothesis gcncflin.3 |- ( ph -> G : D --> RR )
+  hypothesis gcncflin.4 |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) )
+  |- ( ph -> G e. ( D -cn-> RR ) )
+  1 ffnd gcncflin.3 |- ( ph -> G Fn D )
+  2 dffn5 |- ( G Fn D <-> G = ( x e. D |-> ( G ` x ) ) )
+  3 sylib 1 2 |- ( ph -> G = ( x e. D |-> ( G ` x ) ) )
+  4 r19.21bi gcncflin.4 |- ( ( ph /\ x e. D ) -> ( G ` x ) = ( M x. x ) )
+  5 mpteq2dva 4 |- ( ph -> ( x e. D |-> ( G ` x ) ) = ( x e. D |-> ( M x. x ) ) )
+  6 eqtrd 3 5 |- ( ph -> G = ( x e. D |-> ( M x. x ) ) )
+  7 feq1d 6 |- ( ph -> ( G : D --> RR <-> ( x e. D |-> ( M x. x ) ) : D --> RR ) )
+  8 mpbid gcncflin.3 7 |- ( ph -> ( x e. D |-> ( M x. x ) ) : D --> RR )
+  9 ax-resscn |- RR C_ CC
+  10 a1i 9 |- ( ph -> RR C_ CC )
+  11 recnd gcncflin.2 |- ( ph -> M e. CC )
+  12 sstrd gcncflin.1 10 |- ( ph -> D C_ CC )
+  13 ssid |- CC C_ CC
+  14 a1i 13 |- ( ph -> CC C_ CC )
+  15 cncfmptc |- ( ( M e. CC /\ D C_ CC /\ CC C_ CC ) -> ( x e. D |-> M ) e. ( D -cn-> CC ) )
+  16 syl3anc 11 12 14 15 |- ( ph -> ( x e. D |-> M ) e. ( D -cn-> CC ) )
+  17 cncfmptid |- ( ( D C_ CC /\ CC C_ CC ) -> ( x e. D |-> x ) e. ( D -cn-> CC ) )
+  18 syl2anc 12 14 17 |- ( ph -> ( x e. D |-> x ) e. ( D -cn-> CC ) )
+  19 mulcncf 16 18 |- ( ph -> ( x e. D |-> ( M x. x ) ) e. ( D -cn-> CC ) )
+  20 cncfcdm |- ( ( RR C_ CC /\ ( x e. D |-> ( M x. x ) ) e. ( D -cn-> CC ) ) -> ( ( x e. D |-> ( M
+      x. x ) ) e. ( D -cn-> RR ) <-> ( x e. D |-> ( M x. x ) ) : D --> RR ) )
+  21 syl2anc 10 19 20 |- ( ph -> ( ( x e. D |-> ( M x. x ) ) e. ( D -cn-> RR ) <-> ( x e. D |-> ( M
+      x. x ) ) : D --> RR ) )
+  22 mpbird 8 21 |- ( ph -> ( x e. D |-> ( M x. x ) ) e. ( D -cn-> RR ) )
+  23 eqeltrd 6 22 |- ( ph -> G e. ( D -cn-> RR ) )
+
+lemma gcncfadd
+  hypothesis gcncfadd.1 |- ( ph -> D C_ RR )
+  hypothesis gcncfadd.2 |- ( ph -> H : D --> RR )
+  hypothesis gcncfadd.3 |- ( ph -> F : D --> RR )
+  hypothesis gcncfadd.4 |- ( ph -> G : D --> RR )
+  hypothesis gcncfadd.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  hypothesis gcncfadd.6 |- ( ph -> F e. ( D -cn-> RR ) )
+  hypothesis gcncfadd.7 |- ( ph -> G e. ( D -cn-> RR ) )
+  |- ( ph -> H e. ( D -cn-> RR ) )
+  1 ffnd gcncfadd.2 |- ( ph -> H Fn D )
+  2 dffn5 |- ( H Fn D <-> H = ( x e. D |-> ( H ` x ) ) )
+  3 sylib 1 2 |- ( ph -> H = ( x e. D |-> ( H ` x ) ) )
+  4 r19.21bi gcncfadd.5 |- ( ( ph /\ x e. D ) -> ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  5 mpteq2dva 4 |- ( ph -> ( x e. D |-> ( H ` x ) ) = ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) )
+  6 eqtrd 3 5 |- ( ph -> H = ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) )
+  7 feq1d 6 |- ( ph -> ( H : D --> RR <-> ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) : D --> RR ) )
+  8 mpbid gcncfadd.2 7 |- ( ph -> ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) : D --> RR )
+  9 ax-resscn |- RR C_ CC
+  10 a1i 9 |- ( ph -> RR C_ CC )
+  11 ffnd gcncfadd.3 |- ( ph -> F Fn D )
+  12 dffn5 |- ( F Fn D <-> F = ( x e. D |-> ( F ` x ) ) )
+  13 sylib 11 12 |- ( ph -> F = ( x e. D |-> ( F ` x ) ) )
+  14 ssid |- CC C_ CC
+  15 cncfss |- ( ( RR C_ CC /\ CC C_ CC ) -> ( D -cn-> RR ) C_ ( D -cn-> CC ) )
+  16 mp2an 9 14 15 |- ( D -cn-> RR ) C_ ( D -cn-> CC )
+  17 a1i 16 |- ( ph -> ( D -cn-> RR ) C_ ( D -cn-> CC ) )
+  18 sseldd 17 gcncfadd.6 |- ( ph -> F e. ( D -cn-> CC ) )
+  19 eqeltrrd 13 18 |- ( ph -> ( x e. D |-> ( F ` x ) ) e. ( D -cn-> CC ) )
+  20 ffnd gcncfadd.4 |- ( ph -> G Fn D )
+  21 dffn5 |- ( G Fn D <-> G = ( x e. D |-> ( G ` x ) ) )
+  22 sylib 20 21 |- ( ph -> G = ( x e. D |-> ( G ` x ) ) )
+  23 sseldd 17 gcncfadd.7 |- ( ph -> G e. ( D -cn-> CC ) )
+  24 eqeltrrd 22 23 |- ( ph -> ( x e. D |-> ( G ` x ) ) e. ( D -cn-> CC ) )
+  25 addcncf 19 24 |- ( ph -> ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) e. ( D -cn-> CC ) )
+  26 cncfcdm |- ( ( RR C_ CC /\ ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) e. ( D -cn-> CC ) ) -> ( (
+      x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) e. ( D -cn-> RR ) <-> ( x e. D |-> ( ( F ` x ) + ( G `
+      x ) ) ) : D --> RR ) )
+  27 syl2anc 10 25 26 |- ( ph -> ( ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) e. ( D -cn-> RR ) <-> (
+      x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) : D --> RR ) )
+  28 mpbird 8 27 |- ( ph -> ( x e. D |-> ( ( F ` x ) + ( G ` x ) ) ) e. ( D -cn-> RR ) )
+  29 eqeltrd 6 28 |- ( ph -> H e. ( D -cn-> RR ) )
+

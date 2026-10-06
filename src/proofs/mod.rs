@@ -14,6 +14,7 @@
 
 pub mod comparison;
 pub mod stdlib;
+pub mod worksheet;
 
 use crate::mm::Proof;
 

@@ -1,0 +1,46 @@
+# Groups, for `proved.mm`.
+#
+# What Lagrange's theorem asks of a group that set.mm says in several
+# steps: what is in a coset gH. set.mm's coset is the sum of the subsets
+# {g} and H (`LSSum`), and `lsmelvalx` says its members are the y·z with
+# y ∈ {g} and z ∈ H, which `rexsng` reads as the g·z with z ∈ H, for
+# `mun:stdlib/groups/coset`.
+
+$( Groups: what is in a coset. $)
+$d y z A $.
+$d y z S $.
+$d y z X $.
+$d y z G $.
+
+# ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) ->
+# ( X e. ( { A } ( LSSum ` G ) S ) <-> E. z e. S X = ( A ( +g ` G ) z ) ) )
+lemma gelcoset
+  |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( X e. ( { A } ( LSSum ` G ) S )
+      <-> E. z e. S X = ( A ( +g ` G ) z ) ) )
+  1 simp1 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> G e. Grp )
+  2 elex |- ( G e. Grp -> G e. _V )
+  3 syl 1 2 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> G e. _V )
+  4 simp3 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> A e. ( Base ` G ) )
+  5 snssi |- ( A e. ( Base ` G ) -> { A } C_ ( Base ` G ) )
+  6 syl 4 5 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> { A } C_ ( Base ` G ) )
+  7 simp2 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> S C_ ( Base ` G ) )
+  8 3jca 3 6 7 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( G e. _V /\ { A } C_
+      ( Base ` G ) /\ S C_ ( Base ` G ) ) )
+  9 eqid |- ( Base ` G ) = ( Base ` G )
+  10 eqid |- ( +g ` G ) = ( +g ` G )
+  11 eqid |- ( LSSum ` G ) = ( LSSum ` G )
+  12 lsmelvalx 9 10 11 |- ( ( G e. _V /\ { A } C_ ( Base ` G ) /\ S C_ ( Base ` G ) ) -> ( X e. ( {
+      A } ( LSSum ` G ) S ) <-> E. y e. { A } E. z e. S X = ( y ( +g ` G ) z ) ) )
+  13 syl 8 12 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( X e. ( { A } ( LSSum
+      ` G ) S ) <-> E. y e. { A } E. z e. S X = ( y ( +g ` G ) z ) ) )
+  14 oveq1 |- ( y = A -> ( y ( +g ` G ) z ) = ( A ( +g ` G ) z ) )
+  15 eqeq2d 14 |- ( y = A -> ( X = ( y ( +g ` G ) z ) <-> X = ( A ( +g ` G ) z ) ) )
+  16 rexbidv 15 |- ( y = A -> ( E. z e. S X = ( y ( +g ` G ) z ) <-> E. z e. S X = ( A ( +g ` G ) z
+      ) ) )
+  17 rexsng 16 |- ( A e. ( Base ` G ) -> ( E. y e. { A } E. z e. S X = ( y ( +g ` G ) z ) <-> E. z
+      e. S X = ( A ( +g ` G ) z ) ) )
+  18 syl 4 17 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( E. y e. { A } E. z e.
+      S X = ( y ( +g ` G ) z ) <-> E. z e. S X = ( A ( +g ` G ) z ) ) )
+  19 bitrd 13 18 |- ( ( G e. Grp /\ S C_ ( Base ` G ) /\ A e. ( Base ` G ) ) -> ( X e. ( { A } (
+      LSSum ` G ) S ) <-> E. z e. S X = ( A ( +g ` G ) z ) ) )
+

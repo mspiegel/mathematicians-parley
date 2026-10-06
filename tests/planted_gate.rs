@@ -128,6 +128,14 @@ fn cases() -> Vec<Case> {
             expect: "proofs/cantor/cantor.mm  differs from what the build makes",
         },
         Case {
+            name: "a library proof step that does not follow",
+            stage: as_built_stage,
+            file: "corpus/proved/divisors.proved",
+            old: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 1 )\n",
+            new: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 2 )\n",
+            expect: "1gcd does not prove what the step says",
+        },
+        Case {
             name: "a proof whose statement it does not prove",
             stage: verify_stage,
             file: CANTOR,

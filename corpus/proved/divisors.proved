@@ -1,0 +1,113 @@
+# Divisor sums, for `proved.mm`.
+#
+# set.mm's sigma takes a power first: A sigma n is the sum of the A-th
+# powers of the divisors of n. The page writes σ(n), the sum of the
+# divisors themselves, which is 1 sigma n, and set.mm states its value only
+# with the power left in. So each lemma here is set.mm's with the power 1
+# written away:
+#
+# - σ(n) is the sum of the divisors of n: `sgmval2` at 1, with each k^1
+#   read as k by `exp1`, for `def:stdlib/divisibility/σ`;
+# - σ of a prime's power is the sum of the powers up to it: `sgmppw` at 1,
+#   with p^c 1 read as p by `cxp1`, for
+#   `thm:stdlib/divisibility/sigma-prime-power`.
+#
+# And coprime factors of a square are squares: set.mm's `coprimeprodsq`
+# and `coprimeprodsq2` ask that the two factors and the root share no
+# factor all three, which follows from the two sharing none, since
+# gcd(1, w) = 1 (`1gcd`), for `thm:stdlib/divisibility/coprime-square`.
+
+$( Divisors: the sum of the divisors of a number, and of a prime's powers,
+   and coprime factors of a square. $)
+$d k p B $.
+$d k N $.
+$d k P $.
+
+# ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k )
+lemma g1sgmval
+  |- ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k )
+  1 1z |- 1 e. ZZ
+  2 sgmval2 |- ( ( 1 e. ZZ /\ B e. NN ) -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } ( k ^ 1 )
+      )
+  3 mpan 1 2 |- ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } ( k ^ 1 ) )
+  4 simpr |- ( ( B e. NN /\ k e. { p e. NN | p || B } ) -> k e. { p e. NN | p || B } )
+  5 elrabi |- ( k e. { p e. NN | p || B } -> k e. NN )
+  6 syl 4 5 |- ( ( B e. NN /\ k e. { p e. NN | p || B } ) -> k e. NN )
+  7 nncn |- ( k e. NN -> k e. CC )
+  8 syl 6 7 |- ( ( B e. NN /\ k e. { p e. NN | p || B } ) -> k e. CC )
+  9 exp1 |- ( k e. CC -> ( k ^ 1 ) = k )
+  10 syl 8 9 |- ( ( B e. NN /\ k e. { p e. NN | p || B } ) -> ( k ^ 1 ) = k )
+  11 sumeq2dv 10 |- ( B e. NN -> sum_ k e. { p e. NN | p || B } ( k ^ 1 ) = sum_ k e. { p e. NN | p
+      || B } k )
+  12 eqtrd 3 11 |- ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k )
+
+# ( ( P e. Prime /\ N e. NN0 ) ->
+#   ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N ) ( P ^ k ) )
+lemma g1sgmppw
+  |- ( ( P e. Prime /\ N e. NN0 ) -> ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N ) ( P ^ k ) )
+  1 ax-1cn |- 1 e. CC
+  2 sgmppw |- ( ( 1 e. CC /\ P e. Prime /\ N e. NN0 ) -> ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N
+      ) ( ( P ^c 1 ) ^ k ) )
+  3 mp3an1 1 2 |- ( ( P e. Prime /\ N e. NN0 ) -> ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N ) ( (
+      P ^c 1 ) ^ k ) )
+  4 simpl |- ( ( P e. Prime /\ N e. NN0 ) -> P e. Prime )
+  5 prmnn |- ( P e. Prime -> P e. NN )
+  6 syl 4 5 |- ( ( P e. Prime /\ N e. NN0 ) -> P e. NN )
+  7 nncn |- ( P e. NN -> P e. CC )
+  8 syl 6 7 |- ( ( P e. Prime /\ N e. NN0 ) -> P e. CC )
+  9 cxp1 |- ( P e. CC -> ( P ^c 1 ) = P )
+  10 syl 8 9 |- ( ( P e. Prime /\ N e. NN0 ) -> ( P ^c 1 ) = P )
+  11 oveq1d 10 |- ( ( P e. Prime /\ N e. NN0 ) -> ( ( P ^c 1 ) ^ k ) = ( P ^ k ) )
+  12 adantr 11 |- ( ( ( P e. Prime /\ N e. NN0 ) /\ k e. ( 0 ... N ) ) -> ( ( P ^c 1 ) ^ k ) = ( P ^
+      k ) )
+  13 sumeq2dv 12 |- ( ( P e. Prime /\ N e. NN0 ) -> sum_ k e. ( 0 ... N ) ( ( P ^c 1 ) ^ k ) = sum_
+      k e. ( 0 ... N ) ( P ^ k ) )
+  14 eqtrd 3 13 |- ( ( P e. Prime /\ N e. NN0 ) -> ( 1 sigma ( P ^ N ) ) = sum_ k e. ( 0 ... N ) ( P
+      ^ k ) )
+
+lemma gcoprimesq
+  |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A x. B ) -> A =
+      ( ( A gcd C ) ^ 2 ) ) )
+  1 simpl |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( A e. NN0 /\ B e. ZZ
+      /\ C e. NN0 ) )
+  2 simpr |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( A gcd B ) = 1 )
+  3 oveq1d 2 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A gcd B ) gcd C
+      ) = ( 1 gcd C ) )
+  4 simp3 |- ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) -> C e. NN0 )
+  5 nn0z |- ( C e. NN0 -> C e. ZZ )
+  6 syl 4 5 |- ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) -> C e. ZZ )
+  7 syl 1 6 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> C e. ZZ )
+  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 1 )
+  9 syl 7 8 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( 1 gcd C ) = 1 )
+  10 eqtrd 3 9 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A gcd B ) gcd
+      C ) = 1 )
+  11 jca 1 10 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A e. NN0 /\ B
+      e. ZZ /\ C e. NN0 ) /\ ( ( A gcd B ) gcd C ) = 1 ) )
+  12 coprimeprodsq |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( ( A gcd B ) gcd C ) = 1 ) -> ( (
+      C ^ 2 ) = ( A x. B ) -> A = ( ( A gcd C ) ^ 2 ) ) )
+  13 syl 11 12 |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A
+      x. B ) -> A = ( ( A gcd C ) ^ 2 ) ) )
+
+lemma gcoprimesq2
+  |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A x. B ) -> B =
+      ( ( B gcd C ) ^ 2 ) ) )
+  1 simpl |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( A e. ZZ /\ B e. NN0
+      /\ C e. NN0 ) )
+  2 simpr |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( A gcd B ) = 1 )
+  3 oveq1d 2 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A gcd B ) gcd C
+      ) = ( 1 gcd C ) )
+  4 simp3 |- ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) -> C e. NN0 )
+  5 nn0z |- ( C e. NN0 -> C e. ZZ )
+  6 syl 4 5 |- ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) -> C e. ZZ )
+  7 syl 1 6 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> C e. ZZ )
+  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 1 )
+  9 syl 7 8 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( 1 gcd C ) = 1 )
+  10 eqtrd 3 9 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A gcd B ) gcd
+      C ) = 1 )
+  11 jca 1 10 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( A e. ZZ /\ B e.
+      NN0 /\ C e. NN0 ) /\ ( ( A gcd B ) gcd C ) = 1 ) )
+  12 coprimeprodsq2 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( ( A gcd B ) gcd C ) = 1 ) -> ( (
+      C ^ 2 ) = ( A x. B ) -> B = ( ( B gcd C ) ^ 2 ) ) )
+  13 syl 11 12 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A
+      x. B ) -> B = ( ( B gcd C ) ^ 2 ) ) )
+

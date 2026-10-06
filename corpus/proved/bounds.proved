@@ -1,0 +1,76 @@
+# A sequence with a limit is bounded, for `proved.mm`.
+#
+# The page says it as a textbook does: if x(n) → L as n → ∞ then some B is
+# at least every term. set.mm's `climbdd` bounds the absolute values of a
+# convergent sequence over an upper integer set; ℕ is the upper integers
+# from 1 (`nnuz`), and each term is its own absolute value or less
+# (`leabs`). The sequence the page writes as a rule in n is set.mm's map
+# ( n e. NN |-> B ), and its value at m is B with m for n (`fvmptg`), which
+# the lemma asks of the caller as set.mm's own lemmas do, ( n = m -> B = C ).
+# The map's letter and the bound's are two, so a scope holding the limit,
+# whose map binds n, never meets a condition on n. It is stated as a
+# deduction, as `climnnre` is.
+
+$( Bounds: a sequence with a limit is bounded above. $)
+$( The map binds n and the bound counts by m, each kept out of what the
+   other names; the bound x is apart from all three classes and from the
+   hypotheses. $)
+$d m n x $.
+$d m B $.  $d n C $.
+$d x A $.  $d x B $.  $d x C $.
+$d m ph $.  $d x ph $.
+# `gclimbdd`: ( ph -> E. x e. RR A. m e. NN C <_ x ), from every C real, the
+# map ( n e. NN |-> B ) tending to A, and C being B at m.
+lemma gclimbdd
+  hypothesis gclimbdd.1 |- ( ( ph /\ m e. NN ) -> C e. RR )
+  hypothesis gclimbdd.2 |- ( ph -> ( n e. NN |-> B ) ~~> A )
+  hypothesis gclimbdd.3 |- ( n = m -> B = C )
+  |- ( ph -> E. x e. RR A. m e. NN C <_ x )
+  1 1z |- 1 e. ZZ
+  2 a1i 1 |- ( ph -> 1 e. ZZ )
+  3 climrel |- Rel ~~>
+  4 releldmi 3 |- ( ( n e. NN |-> B ) ~~> A -> ( n e. NN |-> B ) e. dom ~~> )
+  5 syl gclimbdd.2 4 |- ( ph -> ( n e. NN |-> B ) e. dom ~~> )
+  6 simpr |- ( ( ph /\ m e. NN ) -> m e. NN )
+  7 eqid |- ( n e. NN |-> B ) = ( n e. NN |-> B )
+  8 fvmptg gclimbdd.3 7 |- ( ( m e. NN /\ C e. RR ) -> ( ( n e. NN |-> B ) ` m ) = C )
+  9 syl2anc 6 gclimbdd.1 8 |- ( ( ph /\ m e. NN ) -> ( ( n e. NN |-> B ) ` m ) = C )
+  10 recnd gclimbdd.1 |- ( ( ph /\ m e. NN ) -> C e. CC )
+  11 eqeltrd 9 10 |- ( ( ph /\ m e. NN ) -> ( ( n e. NN |-> B ) ` m ) e. CC )
+  12 ralrimiva 11 |- ( ph -> A. m e. NN ( ( n e. NN |-> B ) ` m ) e. CC )
+  13 nnuz |- NN = ( ZZ>= ` 1 )
+  14 climbdd 13 |- ( ( 1 e. ZZ /\ ( n e. NN |-> B ) e. dom ~~> /\ A. m e. NN ( ( n e. NN |-> B ) ` m
+      ) e. CC ) -> E. x e. RR A. m e. NN ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+  15 syl3anc 2 5 12 14 |- ( ph -> E. x e. RR A. m e. NN ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+  16 adantlr gclimbdd.1 |- ( ( ( ph /\ x e. RR ) /\ m e. NN ) -> C e. RR )
+  17 adantr 16 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> C e. RR )
+  18 recnd 17 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> C e. CC )
+  19 abscld 18 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> ( abs ` C ) e. RR )
+  20 simplr |- ( ( ( ph /\ x e. RR ) /\ m e. NN ) -> x e. RR )
+  21 adantr 20 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> x e. RR )
+  22 leabs |- ( C e. RR -> C <_ ( abs ` C ) )
+  23 syl 17 22 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> C <_ ( abs ` C ) )
+  24 adantlr 9 |- ( ( ( ph /\ x e. RR ) /\ m e. NN ) -> ( ( n e. NN |-> B ) ` m ) = C )
+  25 fveq2d 24 |- ( ( ( ph /\ x e. RR ) /\ m e. NN ) -> ( abs ` ( ( n e. NN |-> B ) ` m ) ) = ( abs
+      ` C ) )
+  26 adantr 25 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+      -> ( abs ` ( ( n e. NN |-> B ) ` m ) ) = ( abs ` C ) )
+  27 simpr |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x ) ->
+      ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x )
+  28 eqbrtrrd 26 27 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m ) )
+      <_ x ) -> ( abs ` C ) <_ x )
+  29 letrd 17 19 21 23 28 |- ( ( ( ( ph /\ x e. RR ) /\ m e. NN ) /\ ( abs ` ( ( n e. NN |-> B ) ` m
+      ) ) <_ x ) -> C <_ x )
+  30 ex 29 |- ( ( ( ph /\ x e. RR ) /\ m e. NN ) -> ( ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x -> C
+      <_ x ) )
+  31 ralimdva 30 |- ( ( ph /\ x e. RR ) -> ( A. m e. NN ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x ->
+      A. m e. NN C <_ x ) )
+  32 reximdva 31 |- ( ph -> ( E. x e. RR A. m e. NN ( abs ` ( ( n e. NN |-> B ) ` m ) ) <_ x -> E. x
+      e. RR A. m e. NN C <_ x ) )
+  33 mpd 15 32 |- ( ph -> E. x e. RR A. m e. NN C <_ x )
+

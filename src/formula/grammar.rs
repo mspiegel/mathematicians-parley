@@ -600,12 +600,18 @@ impl Parser<'_> {
         // A notation may open with a literal that is also a name, as the two
         // sum functions do with S and G. Try those as well as the bare name
         // and take whichever reaches further.
+        // A notation that is `shadowed` gives way to a name the text
+        // introduces under the same letter, as a reader takes an i a line
+        // introduces for that i and not the imaginary unit.
         let g = self.g;
+        let introduced =
+            tok.kind == TokenKind::Name && self.sorts.introduces(&tok.text);
         let cands: Vec<&Notation> = g
             .notations
             .iter()
             .filter(|n| {
                 n.parts.first().and_then(Part::literal) == Some(tok.text.as_str())
+                    && !(introduced && n.shadowed)
             })
             .collect();
         if tok.kind == TokenKind::Name {

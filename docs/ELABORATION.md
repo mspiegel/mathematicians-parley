@@ -23,9 +23,13 @@ reads the theorems off the proof files, and a file's path under
 `corpus/elaboration/` is its name. `corpus/elaboration/proofs/bezout/bezout.mm` is the
 theorem `proofs/bezout/bezout`, and a file citing it includes it by that path.
 `corpus/elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
-elaborator writes, and `proved.mm`, written from `src/proofs/stdlib/`, one
-module per group of proofs (`geometry.rs`), and the only statement of what it
-proves. `src/proofs/comparison/` holds the hand elaborations kept for
+elaborator writes, and `proved.mm`, written from `corpus/proved/`, one text
+file per group of proofs (`geometry.proved`), and the only statement of what
+it proves. Each lemma there is a proof worksheet: a step a line, naming the
+lemma it applies, the steps it takes and the formula it proves, and what the
+step substitutes is read off by matching, so a step is checked as it is read
+and the proof is compressed only when `proved.mm` is written
+(`src/proofs/worksheet.rs`). `src/proofs/comparison/` holds the hand elaborations kept for
 comparison, each written to `corpus/elaboration/<name>.mm`.
 
 Two things shape the whole design. A step is elaborated in deduction form, so

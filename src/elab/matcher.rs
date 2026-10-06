@@ -2849,6 +2849,43 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
+        // A witness may spell a letter the claim binds, as the n obtained
+        // for "there are m, n ∈ ℕ with …" does, and `rspcev` keeps its
+        // letter apart from what the body says. So the claim is shown under
+        // letters nothing holds and renamed back, as `exhibit` does for one.
+        let letters: Vec<String> = layers.iter().map(|(_, v, _)| v.clone()).collect();
+        let meets = found.values().any(|w| {
+            w.split_whitespace()
+                .any(|t| letters.iter().any(|v| t == v.as_str()))
+        });
+        if meets {
+            let witnesses: Vec<Term> =
+                found.values().map(|w| self.to_term(w)).collect();
+            let mut seen: Vec<&Term> = witnesses.iter().collect();
+            seen.push(wanted);
+            let names: Vec<String> = letters
+                .iter()
+                .filter_map(|l| self.var_of(l).variable().map(String::from))
+                .collect();
+            let Some(moved) = self.unheld_for(names, &seen) else {
+                return Err(
+                    self.defect(step.line, "no letter left to exhibit the witness by")
+                );
+            };
+            let renamed = wanted.substitute(&moved);
+            let made = take!(self.witnessed(step, &renamed, scope, facts, lines)?);
+            let Some(back) = self.renaming(&renamed, wanted)? else {
+                return Err(self.defect(
+                    step.line,
+                    "the renamed claim does not read back as the claim",
+                ));
+            };
+            return Ok(Built(self.b.ap(
+                "sylib",
+                &binds! {"ph" => scope, "ps" => &self.rpn(&renamed), "ch" => &self.rpn(wanted)},
+                &[&made, &back],
+            )));
+        }
         // Where the line naming the witnesses is all the claim says of them,
         // its own proof is taken, turned where it faces the other way.
         let mut proof = whole;

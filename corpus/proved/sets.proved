@@ -1,0 +1,148 @@
+# Sets, for `proved.mm`.
+#
+# What the library says of sets that set.mm says in more than one step:
+#
+# - a part of a set is in its power set: `elpw2g` read one way by
+#   `biimpar`, closed so that a side condition's search may use it;
+# - what is in the parts of X with a property: `elrab` over the power set,
+#   and `elpw2g` reading a member of the power set as a part, for
+#   `mun:stdlib/sets/part-builder`;
+# - a finite set split into parts of one size m has (number of parts) · m
+#   elements, for `mun:stdlib/counting/partition-count`;
+# - a set of parts of a finite set is finite, for
+#   `mun:stdlib/counting/parts-finite`;
+# - a finite set and one in bijection with it have one size, for
+#   `mun:stdlib/counting/card-equal`.
+
+$( Sets: the parts of a set with a property, and a set counted by the
+   equal parts it splits into. $)
+$d x ps $.
+$d x A $.
+$d x B $.
+$d v w y z K $.
+$d v w y z X $.
+$d v w y z M $.
+$d v w y z ph $.
+$d x y z $.
+
+# ( ( B e. V /\ A C_ B ) -> A e. ~P B )
+lemma gsspw
+  |- ( ( B e. V /\ A C_ B ) -> A e. ~P B )
+  1 elpw2g |- ( B e. V -> ( A e. ~P B <-> A C_ B ) )
+  2 biimpar 1 |- ( ( B e. V /\ A C_ B ) -> A e. ~P B )
+
+# ( B e. V -> ( A e. { x e. ~P B | ph } <-> ( A C_ B /\ ps ) ) ), from
+# ( x = A -> ( ph <-> ps ) )
+lemma gelrabpw
+  hypothesis gelrabpw.1 |- ( x = A -> ( ph <-> ps ) )
+  |- ( B e. V -> ( A e. { x e. ~P B | ph } <-> ( A C_ B /\ ps ) ) )
+  1 elrab gelrabpw.1 |- ( A e. { x e. ~P B | ph } <-> ( A e. ~P B /\ ps ) )
+  2 elpw2g |- ( B e. V -> ( A e. ~P B <-> A C_ B ) )
+  3 anbi1d 2 |- ( B e. V -> ( ( A e. ~P B /\ ps ) <-> ( A C_ B /\ ps ) ) )
+  4 bitrid 1 3 |- ( B e. V -> ( A e. { x e. ~P B | ph } <-> ( A C_ B /\ ps ) ) )
+
+# ( ph -> ( # ` X ) = ( ( # ` K ) x. M ) ), from X finite, the members of K
+# making up X, two of them that meet being equal, and each of size M in
+# NN0.
+#
+# `hashiun` sums the sizes of a disjoint family of finite sets; the family
+# is finite since it is a part of the power set of X (`pwfi`, `ssfi`), each
+# member is finite as a part of X, and it is disjoint by `disjor` once "if
+# Y and Z meet they are equal" is read as "Y = Z or they do not meet".
+# `fsumconst` then counts a sum of M's.
+#
+# Each hypothesis binds letters of its own, w for the union and v for the
+# sizes, so that a proof citing it answers each from a line spelt as that
+# line is; `cbviunv` and `cbvralvw` bring them to y here.
+lemma gpartcnt
+  hypothesis gpartcnt.1 |- ( ph -> X e. Fin )
+  hypothesis gpartcnt.2 |- ( ph -> U_ w e. K w = X )
+  hypothesis gpartcnt.3 |- ( ph -> A. y e. K A. z e. K A. x e. ( y i^i z ) y = z )
+  hypothesis gpartcnt.4 |- ( ph -> A. v e. K ( # ` v ) = M )
+  hypothesis gpartcnt.5 |- ( ph -> M e. NN0 )
+  |- ( ph -> ( # ` X ) = ( ( # ` K ) x. M ) )
+  1 id |- ( w = y -> w = y )
+  2 cbviunv 1 |- U_ w e. K w = U_ y e. K y
+  3 eqtr3id 2 gpartcnt.2 |- ( ph -> U_ y e. K y = X )
+  4 fveq2d 3 |- ( ph -> ( # ` U_ y e. K y ) = ( # ` X ) )
+  5 pwfi |- ( X e. Fin <-> ~P X e. Fin )
+  6 sylib gpartcnt.1 5 |- ( ph -> ~P X e. Fin )
+  7 ssiun2 |- ( y e. K -> y C_ U_ y e. K y )
+  8 adantl 7 |- ( ( ph /\ y e. K ) -> y C_ U_ y e. K y )
+  9 adantr 3 |- ( ( ph /\ y e. K ) -> U_ y e. K y = X )
+  10 sseqtrd 8 9 |- ( ( ph /\ y e. K ) -> y C_ X )
+  11 velpw |- ( y e. ~P X <-> y C_ X )
+  12 sylibr 10 11 |- ( ( ph /\ y e. K ) -> y e. ~P X )
+  13 ex 12 |- ( ph -> ( y e. K -> y e. ~P X ) )
+  14 ssrdv 13 |- ( ph -> K C_ ~P X )
+  15 ssfi |- ( ( ~P X e. Fin /\ K C_ ~P X ) -> K e. Fin )
+  16 syl2anc 6 14 15 |- ( ph -> K e. Fin )
+  17 adantr gpartcnt.1 |- ( ( ph /\ y e. K ) -> X e. Fin )
+  18 ssfi |- ( ( X e. Fin /\ y C_ X ) -> y e. Fin )
+  19 syl2anc 17 10 18 |- ( ( ph /\ y e. K ) -> y e. Fin )
+  20 r19.3rzv |- ( ( y i^i z ) =/= (/) -> ( y = z <-> A. x e. ( y i^i z ) y = z ) )
+  21 biimprd 20 |- ( ( y i^i z ) =/= (/) -> ( A. x e. ( y i^i z ) y = z -> y = z ) )
+  22 com12 21 |- ( A. x e. ( y i^i z ) y = z -> ( ( y i^i z ) =/= (/) -> y = z ) )
+  23 df-ne |- ( ( y i^i z ) =/= (/) <-> -. ( y i^i z ) = (/) )
+  24 imbi1i 23 |- ( ( ( y i^i z ) =/= (/) -> y = z ) <-> ( -. ( y i^i z ) = (/) -> y = z ) )
+  25 pm4.64 |- ( ( -. ( y i^i z ) = (/) -> y = z ) <-> ( ( y i^i z ) = (/) \/ y = z ) )
+  26 orcom |- ( ( ( y i^i z ) = (/) \/ y = z ) <-> ( y = z \/ ( y i^i z ) = (/) ) )
+  27 3bitri 24 25 26 |- ( ( ( y i^i z ) =/= (/) -> y = z ) <-> ( y = z \/ ( y i^i z ) = (/) ) )
+  28 biimpi 27 |- ( ( ( y i^i z ) =/= (/) -> y = z ) -> ( y = z \/ ( y i^i z ) = (/) ) )
+  29 syl 22 28 |- ( A. x e. ( y i^i z ) y = z -> ( y = z \/ ( y i^i z ) = (/) ) )
+  30 ralimi 29 |- ( A. z e. K A. x e. ( y i^i z ) y = z -> A. z e. K ( y = z \/ ( y i^i z ) = (/) )
+      )
+  31 ralimi 30 |- ( A. y e. K A. z e. K A. x e. ( y i^i z ) y = z -> A. y e. K A. z e. K ( y = z \/
+      ( y i^i z ) = (/) ) )
+  32 syl gpartcnt.3 31 |- ( ph -> A. y e. K A. z e. K ( y = z \/ ( y i^i z ) = (/) ) )
+  33 id |- ( y = z -> y = z )
+  34 disjor 33 |- ( Disj_ y e. K y <-> A. y e. K A. z e. K ( y = z \/ ( y i^i z ) = (/) ) )
+  35 sylibr 32 34 |- ( ph -> Disj_ y e. K y )
+  36 hashiun 16 19 35 |- ( ph -> ( # ` U_ y e. K y ) = sum_ y e. K ( # ` y ) )
+  37 eqtr3d 4 36 |- ( ph -> ( # ` X ) = sum_ y e. K ( # ` y ) )
+  38 fveq2 |- ( v = y -> ( # ` v ) = ( # ` y ) )
+  39 eqeq1d 38 |- ( v = y -> ( ( # ` v ) = M <-> ( # ` y ) = M ) )
+  40 cbvralvw 39 |- ( A. v e. K ( # ` v ) = M <-> A. y e. K ( # ` y ) = M )
+  41 sylib gpartcnt.4 40 |- ( ph -> A. y e. K ( # ` y ) = M )
+  42 sumeq2 |- ( A. y e. K ( # ` y ) = M -> sum_ y e. K ( # ` y ) = sum_ y e. K M )
+  43 syl 41 42 |- ( ph -> sum_ y e. K ( # ` y ) = sum_ y e. K M )
+  44 eqtrd 37 43 |- ( ph -> ( # ` X ) = sum_ y e. K M )
+  45 nn0cnd gpartcnt.5 |- ( ph -> M e. CC )
+  46 fsumconst |- ( ( K e. Fin /\ M e. CC ) -> sum_ y e. K M = ( ( # ` K ) x. M ) )
+  47 syl2anc 16 45 46 |- ( ph -> sum_ y e. K M = ( ( # ` K ) x. M ) )
+  48 eqtrd 44 47 |- ( ph -> ( # ` X ) = ( ( # ` K ) x. M ) )
+
+# ( ph -> K e. Fin ), from X finite and every member of K a part of X.
+#
+# K is a part of the power set of X, which is finite (`pwfi`), so K is
+# (`ssfi`).
+lemma gpartsfin
+  hypothesis gpartsfin.1 |- ( ph -> X e. Fin )
+  hypothesis gpartsfin.2 |- ( ph -> A. y e. K y C_ X )
+  |- ( ph -> K e. Fin )
+  1 pwfi |- ( X e. Fin <-> ~P X e. Fin )
+  2 sylib gpartsfin.1 1 |- ( ph -> ~P X e. Fin )
+  3 rsp |- ( A. y e. K y C_ X -> ( y e. K -> y C_ X ) )
+  4 syl gpartsfin.2 3 |- ( ph -> ( y e. K -> y C_ X ) )
+  5 velpw |- ( y e. ~P X <-> y C_ X )
+  6 biimpri 5 |- ( y C_ X -> y e. ~P X )
+  7 syl6 4 6 |- ( ph -> ( y e. K -> y e. ~P X ) )
+  8 ssrdv 7 |- ( ph -> K C_ ~P X )
+  9 ssfi |- ( ( ~P X e. Fin /\ K C_ ~P X ) -> K e. Fin )
+  10 syl2anc 2 8 9 |- ( ph -> K e. Fin )
+
+# ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) )
+#
+# B is finite as A is (`enfi`), and two finite sets in bijection have one
+# size (`hashen`).
+lemma gcardeq
+  |- ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) )
+  1 simpr |- ( ( A e. Fin /\ A ~~ B ) -> A ~~ B )
+  2 simpl |- ( ( A e. Fin /\ A ~~ B ) -> A e. Fin )
+  3 enfi |- ( A ~~ B -> ( A e. Fin <-> B e. Fin ) )
+  4 syl 1 3 |- ( ( A e. Fin /\ A ~~ B ) -> ( A e. Fin <-> B e. Fin ) )
+  5 mpbid 2 4 |- ( ( A e. Fin /\ A ~~ B ) -> B e. Fin )
+  6 hashen |- ( ( A e. Fin /\ B e. Fin ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
+  7 syl2anc 2 5 6 |- ( ( A e. Fin /\ A ~~ B ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
+  8 mpbird 1 7 |- ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) )
+

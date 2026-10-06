@@ -111,6 +111,10 @@ pub struct Notation {
     /// set the page names in words: "there is a polynomial q with …" is
     /// "there is q ∈ (the polynomials) with …" (`fills`).
     pub fill: Option<Wrap>,
+    /// Whether a name the text introduces with the same letter is read as
+    /// that name instead (`shadowed`): i is the imaginary unit until a line
+    /// introduces an i of its own.
+    pub shadowed: bool,
 }
 
 impl Notation {
@@ -520,6 +524,7 @@ pub fn compile_notations(
                     literal: String::new(),
                     yields: String::new(),
                 }),
+                shadowed: r.field("shadowed").is_some(),
             });
         }
     }

@@ -484,7 +484,8 @@ $( Numbers: a remainder is less than its divisor, and a multiple of
 $}
 
 ${
-$( Divisors: the sum of the divisors of a number, and of a prime's powers. $)
+$( Divisors: the sum of the divisors of a number, and of a prime's powers,
+   and coprime factors of a square. $)
 $d k p B $.
 $d k N $.
 $d k P $.
@@ -498,6 +499,16 @@ $d k P $.
     ( cprime wcel cn0 wa c1 cexp co csgm cc0 cfz ccxp cv csu cc wceq ax-1cn
     sgmppw mp3an1 cn simpl prmnn syl nncn cxp1 oveq1d adantr sumeq2dv eqtrd )
     ADEZCFEZGZHACIJZKJZLCMJZAHNJZBOZIJZBPZUQAUSIJZBPHQEULUMUPVARSHABCTUAUNUQUTVBBUNUTVBRUSUQEUNURAUSIUNAQEZURARUNAUBEZVCUNULVDULUMUCAUDUEAUFUEAUGUEUHUIUJUK $.
+
+  gcoprimesq $p |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A x. B ) -> A = ( ( A gcd C ) ^ 2 ) ) ) $=
+    ( cn0 wcel cz w3a cgcd co c1 wceq wa c2 cexp cmul wi simpl simpr oveq1d
+    simp3 nn0z syl 1gcd eqtrd jca coprimeprodsq )
+    ADEZBFEZCDEZGZABHIZJKZLZUJUKCHIZJKZLCMNIABOIKAACHIMNIKPUMUJUOUJULQZUMUNJCHIZJUMUKJCHUJULRSUMCFEZUQJKUMUJURUPUJUIURUGUHUITCUAUBUBCUCUBUDUEABCUFUB $.
+
+  gcoprimesq2 $p |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A x. B ) -> B = ( ( B gcd C ) ^ 2 ) ) ) $=
+    ( cz wcel cn0 w3a cgcd co c1 wceq wa c2 cexp cmul wi simpl simpr oveq1d
+    simp3 nn0z syl 1gcd eqtrd jca coprimeprodsq2 )
+    ADEZBFEZCFEZGZABHIZJKZLZUJUKCHIZJKZLCMNIABOIKBBCHIMNIKPUMUJUOUJULQZUMUNJCHIZJUMUKJCHUJULRSUMCDEZUQJKUMUJURUPUJUIURUGUHUITCUAUBUBCUCUBUDUEABCUFUB $.
 
 $}
 

@@ -234,7 +234,11 @@ impl<'a> Maker<'a> {
                         "not built, and not in the tree",
                     )
                 })?;
-                crate::proofs::stdlib::proved(read_texts(&[&self.setmm, &definitions]))
+                let source = self.source;
+                crate::proofs::stdlib::proved(
+                    read_texts(&[&self.setmm, &definitions]),
+                    &|path| source.read_text(path).ok(),
+                )?
             }
             Recipe::Theorem => self.theorem(&artifact.name)?.text,
             Recipe::ByHand(text) => text(),

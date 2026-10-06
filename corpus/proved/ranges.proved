@@ -1,0 +1,62 @@
+# Sums over a range split in two and of a constant, for `proved.mm`.
+#
+# The page splits Σ(k = a to c) after b and counts a constant term
+# b − a + 1 times. set.mm says both of finite sets: `fsumsplit` of a set
+# that is the union of two disjoint ones, which `fzsplit2` and `fzdisj` make
+# of a range, and `fsumconst` with the size of the set, which `hashfz` gives
+# for a range. Each lemma asks what the page states, one hypothesis to a
+# fact, and is a deduction as set.mm's sum lemmas are.
+
+$( Ranges: a sum over a range split in two, and a sum of a constant. $)
+$( The sum binds k, apart from the ends of the range, the constant and the
+   hypotheses; the summand names it. $)
+$d k K $.  $d k M $.  $d k N $.  $d k B $.  $d k ph $.
+# `gfsumsplit`: Σ(k = M to N) A = Σ(k = M to K) A + Σ(k = K + 1 to N) A.
+lemma gfsumsplit
+  hypothesis gfsumsplit.1 |- ( ph -> M e. ZZ )
+  hypothesis gfsumsplit.2 |- ( ph -> K e. ZZ )
+  hypothesis gfsumsplit.3 |- ( ph -> N e. ZZ )
+  hypothesis gfsumsplit.4 |- ( ph -> M <_ ( K + 1 ) )
+  hypothesis gfsumsplit.5 |- ( ph -> K <_ N )
+  hypothesis gfsumsplit.6 |- ( ( ph /\ k e. ( M ... N ) ) -> A e. RR )
+  |- ( ph -> sum_ k e. ( M ... N ) A = ( sum_ k e. ( M ... K ) A + sum_ k e. ( ( K + 1 ) ... N ) A )
+      )
+  1 zred gfsumsplit.2 |- ( ph -> K e. RR )
+  2 ltp1d 1 |- ( ph -> K < ( K + 1 ) )
+  3 fzdisj |- ( K < ( K + 1 ) -> ( ( M ... K ) i^i ( ( K + 1 ) ... N ) ) = (/) )
+  4 syl 2 3 |- ( ph -> ( ( M ... K ) i^i ( ( K + 1 ) ... N ) ) = (/) )
+  5 peano2zd gfsumsplit.2 |- ( ph -> ( K + 1 ) e. ZZ )
+  6 3jca gfsumsplit.1 5 gfsumsplit.4 |- ( ph -> ( M e. ZZ /\ ( K + 1 ) e. ZZ /\ M <_ ( K + 1 ) ) )
+  7 eluz2 |- ( ( K + 1 ) e. ( ZZ>= ` M ) <-> ( M e. ZZ /\ ( K + 1 ) e. ZZ /\ M <_ ( K + 1 ) ) )
+  8 sylibr 6 7 |- ( ph -> ( K + 1 ) e. ( ZZ>= ` M ) )
+  9 3jca gfsumsplit.2 gfsumsplit.3 gfsumsplit.5 |- ( ph -> ( K e. ZZ /\ N e. ZZ /\ K <_ N ) )
+  10 eluz2 |- ( N e. ( ZZ>= ` K ) <-> ( K e. ZZ /\ N e. ZZ /\ K <_ N ) )
+  11 sylibr 9 10 |- ( ph -> N e. ( ZZ>= ` K ) )
+  12 fzsplit2 |- ( ( ( K + 1 ) e. ( ZZ>= ` M ) /\ N e. ( ZZ>= ` K ) ) -> ( M ... N ) = ( ( M ... K )
+      u. ( ( K + 1 ) ... N ) ) )
+  13 syl2anc 8 11 12 |- ( ph -> ( M ... N ) = ( ( M ... K ) u. ( ( K + 1 ) ... N ) ) )
+  14 fzfid |- ( ph -> ( M ... N ) e. Fin )
+  15 recnd gfsumsplit.6 |- ( ( ph /\ k e. ( M ... N ) ) -> A e. CC )
+  16 fsumsplit 4 13 14 15 |- ( ph -> sum_ k e. ( M ... N ) A = ( sum_ k e. ( M ... K ) A + sum_ k e.
+      ( ( K + 1 ) ... N ) A ) )
+
+# `gfsumconst`: Σ(k = M to N) B = ((N − M) + 1)·B.
+lemma gfsumconst
+  hypothesis gfsumconst.1 |- ( ph -> M e. ZZ )
+  hypothesis gfsumconst.2 |- ( ph -> N e. ZZ )
+  hypothesis gfsumconst.3 |- ( ph -> M <_ N )
+  hypothesis gfsumconst.4 |- ( ph -> B e. RR )
+  |- ( ph -> sum_ k e. ( M ... N ) B = ( ( ( N - M ) + 1 ) x. B ) )
+  1 fzfid |- ( ph -> ( M ... N ) e. Fin )
+  2 recnd gfsumconst.4 |- ( ph -> B e. CC )
+  3 fsumconst |- ( ( ( M ... N ) e. Fin /\ B e. CC ) -> sum_ k e. ( M ... N ) B = ( ( # ` ( M ... N
+      ) ) x. B ) )
+  4 syl2anc 1 2 3 |- ( ph -> sum_ k e. ( M ... N ) B = ( ( # ` ( M ... N ) ) x. B ) )
+  5 3jca gfsumconst.1 gfsumconst.2 gfsumconst.3 |- ( ph -> ( M e. ZZ /\ N e. ZZ /\ M <_ N ) )
+  6 eluz2 |- ( N e. ( ZZ>= ` M ) <-> ( M e. ZZ /\ N e. ZZ /\ M <_ N ) )
+  7 sylibr 5 6 |- ( ph -> N e. ( ZZ>= ` M ) )
+  8 hashfz |- ( N e. ( ZZ>= ` M ) -> ( # ` ( M ... N ) ) = ( ( N - M ) + 1 ) )
+  9 syl 7 8 |- ( ph -> ( # ` ( M ... N ) ) = ( ( N - M ) + 1 ) )
+  10 oveq1d 9 |- ( ph -> ( ( # ` ( M ... N ) ) x. B ) = ( ( ( N - M ) + 1 ) x. B ) )
+  11 eqtrd 4 10 |- ( ph -> sum_ k e. ( M ... N ) B = ( ( ( N - M ) + 1 ) x. B ) )
+

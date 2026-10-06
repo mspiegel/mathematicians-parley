@@ -1908,6 +1908,34 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // A letter the lemma binds is kept apart from every letter the
+        // values spell: `divides` binds n, and unfolding "m + n is even"
+        // under it would capture the step's own n. Where one meets, it takes
+        // a letter nothing holds, as `applied_body` moves a rule's letter.
+        let values: Vec<Term> = binding.values().cloned().collect();
+        let spelt: BTreeSet<String> = values
+            .iter()
+            .flat_map(|v| {
+                self.rpn(v)
+                    .split_whitespace()
+                    .map(String::from)
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        let meeting: Vec<String> = self
+            .letters_bound(&reads)
+            .iter()
+            .filter(|v| {
+                !binding.contains_key(&***v) && spelt.contains(&self.float_of(v))
+            })
+            .map(|v| v.to_string())
+            .collect();
+        if !meeting.is_empty() {
+            let seen: Vec<&Term> = values.iter().collect();
+            if let Some(moved) = self.unheld_for(meeting, &seen) {
+                binding.extend(moved);
+            }
+        }
         let left = self.rpn(&reads.children()[0].substitute(&binding));
         let right = self.rpn(&reads.children()[1].substitute(&binding));
         // What carries the unfolding to the claim asks from what the step
@@ -3108,13 +3136,17 @@ impl<'a> Elaborator<'a> {
             "wa"
         ));
         let asked = self.applications_read(&asked_shape);
+        // Each sentence of a cited line is read on its own, as `witnessed`
+        // reads them: a line saying two things names a witness in either.
         let mut witness = None;
-        for r in &step.just.refs {
+        'lines: for r in &step.just.refs {
             let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-            let actual = self.applications_read(&self.to_term(&line.term));
-            witness = self.witness_in(&asked, &actual, &stands);
-            if witness.is_some() {
-                break;
+            for part in self.parts(&line.term) {
+                let actual = self.applications_read(&self.to_term(&part));
+                witness = self.witness_in(&asked, &actual, &stands);
+                if witness.is_some() {
+                    break 'lines;
+                }
             }
         }
         let Some(witness) = witness else {

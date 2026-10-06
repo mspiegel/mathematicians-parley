@@ -1,0 +1,268 @@
+# Powers of 2, 3 and 5, for `proved.mm`.
+#
+# That ℚ is countable codes a rational by the product 2^a·3^b·5^c, and
+# asks that the product give back its exponents: a number has one
+# factorisation into primes. set.mm says it through how many times a
+# prime divides a number, `pCnt`. The count of p in a product is the sum
+# of its counts in the factors (`pcmul`), in p's own power it is the
+# exponent (`pcidlem`), and in another prime's power it is 0, since p does
+# not divide that prime (`pcexp`, `pceq0`, `dvdsprm`). So the count of 2 in
+# 2^a·3^b·5^c is a, and two equal products have equal counts.
+
+$( Powers: the exponents of 2, 3 and 5 in 2^a 3^b 5^c are a, b and c. $)
+
+lemma gpcoth
+  hypothesis gpcoth.1 |- ( ph -> P e. Prime )
+  hypothesis gpcoth.2 |- ( ph -> Q e. Prime )
+  hypothesis gpcoth.3 |- ( ph -> P =/= Q )
+  hypothesis gpcoth.4 |- ( ph -> N e. NN0 )
+  |- ( ph -> ( P pCnt ( Q ^ N ) ) = 0 )
+  1 prmnn |- ( Q e. Prime -> Q e. NN )
+  2 syl gpcoth.2 1 |- ( ph -> Q e. NN )
+  3 nnzd 2 |- ( ph -> Q e. ZZ )
+  4 zq |- ( Q e. ZZ -> Q e. QQ )
+  5 syl 3 4 |- ( ph -> Q e. QQ )
+  6 nnne0d 2 |- ( ph -> Q =/= 0 )
+  7 jca 5 6 |- ( ph -> ( Q e. QQ /\ Q =/= 0 ) )
+  8 nn0zd gpcoth.4 |- ( ph -> N e. ZZ )
+  9 pcexp |- ( ( P e. Prime /\ ( Q e. QQ /\ Q =/= 0 ) /\ N e. ZZ ) -> ( P pCnt ( Q ^ N ) ) = ( N x.
+      ( P pCnt Q ) ) )
+  10 syl3anc gpcoth.1 7 8 9 |- ( ph -> ( P pCnt ( Q ^ N ) ) = ( N x. ( P pCnt Q ) ) )
+  11 neneqd gpcoth.3 |- ( ph -> -. P = Q )
+  12 prmuz2 |- ( P e. Prime -> P e. ( ZZ>= ` 2 ) )
+  13 syl gpcoth.1 12 |- ( ph -> P e. ( ZZ>= ` 2 ) )
+  14 dvdsprm |- ( ( P e. ( ZZ>= ` 2 ) /\ Q e. Prime ) -> ( P || Q <-> P = Q ) )
+  15 syl2anc 13 gpcoth.2 14 |- ( ph -> ( P || Q <-> P = Q ) )
+  16 mtbird 11 15 |- ( ph -> -. P || Q )
+  17 pceq0 |- ( ( P e. Prime /\ Q e. NN ) -> ( ( P pCnt Q ) = 0 <-> -. P || Q ) )
+  18 syl2anc gpcoth.1 2 17 |- ( ph -> ( ( P pCnt Q ) = 0 <-> -. P || Q ) )
+  19 mpbird 16 18 |- ( ph -> ( P pCnt Q ) = 0 )
+  20 oveq2d 19 |- ( ph -> ( N x. ( P pCnt Q ) ) = ( N x. 0 ) )
+  21 nn0cnd gpcoth.4 |- ( ph -> N e. CC )
+  22 mul01d 21 |- ( ph -> ( N x. 0 ) = 0 )
+  23 3eqtrd 10 20 22 |- ( ph -> ( P pCnt ( Q ^ N ) ) = 0 )
+
+lemma gpcmul3
+  hypothesis gpcmul3.1 |- ( ph -> P e. Prime )
+  hypothesis gpcmul3.2 |- ( ph -> X e. NN )
+  hypothesis gpcmul3.3 |- ( ph -> Y e. NN )
+  hypothesis gpcmul3.4 |- ( ph -> Z e. NN )
+  |- ( ph -> ( P pCnt ( ( X x. Y ) x. Z ) ) = ( ( ( P pCnt X ) + ( P pCnt Y ) ) + ( P pCnt Z ) ) )
+  1 nnmulcld gpcmul3.2 gpcmul3.3 |- ( ph -> ( X x. Y ) e. NN )
+  2 nnzd 1 |- ( ph -> ( X x. Y ) e. ZZ )
+  3 nnne0d 1 |- ( ph -> ( X x. Y ) =/= 0 )
+  4 jca 2 3 |- ( ph -> ( ( X x. Y ) e. ZZ /\ ( X x. Y ) =/= 0 ) )
+  5 nnzd gpcmul3.4 |- ( ph -> Z e. ZZ )
+  6 nnne0d gpcmul3.4 |- ( ph -> Z =/= 0 )
+  7 jca 5 6 |- ( ph -> ( Z e. ZZ /\ Z =/= 0 ) )
+  8 pcmul |- ( ( P e. Prime /\ ( ( X x. Y ) e. ZZ /\ ( X x. Y ) =/= 0 ) /\ ( Z e. ZZ /\ Z =/= 0 ) )
+      -> ( P pCnt ( ( X x. Y ) x. Z ) ) = ( ( P pCnt ( X x. Y ) ) + ( P pCnt Z ) ) )
+  9 syl3anc gpcmul3.1 4 7 8 |- ( ph -> ( P pCnt ( ( X x. Y ) x. Z ) ) = ( ( P pCnt ( X x. Y ) ) + (
+      P pCnt Z ) ) )
+  10 nnzd gpcmul3.2 |- ( ph -> X e. ZZ )
+  11 nnne0d gpcmul3.2 |- ( ph -> X =/= 0 )
+  12 jca 10 11 |- ( ph -> ( X e. ZZ /\ X =/= 0 ) )
+  13 nnzd gpcmul3.3 |- ( ph -> Y e. ZZ )
+  14 nnne0d gpcmul3.3 |- ( ph -> Y =/= 0 )
+  15 jca 13 14 |- ( ph -> ( Y e. ZZ /\ Y =/= 0 ) )
+  16 pcmul |- ( ( P e. Prime /\ ( X e. ZZ /\ X =/= 0 ) /\ ( Y e. ZZ /\ Y =/= 0 ) ) -> ( P pCnt ( X
+      x. Y ) ) = ( ( P pCnt X ) + ( P pCnt Y ) ) )
+  17 syl3anc gpcmul3.1 12 15 16 |- ( ph -> ( P pCnt ( X x. Y ) ) = ( ( P pCnt X ) + ( P pCnt Y ) ) )
+  18 oveq1d 17 |- ( ph -> ( ( P pCnt ( X x. Y ) ) + ( P pCnt Z ) ) = ( ( ( P pCnt X ) + ( P pCnt Y )
+      ) + ( P pCnt Z ) ) )
+  19 eqtrd 9 18 |- ( ph -> ( P pCnt ( ( X x. Y ) x. Z ) ) = ( ( ( P pCnt X ) + ( P pCnt Y ) ) + ( P
+      pCnt Z ) ) )
+
+lemma gpc2
+  hypothesis gpc2.1 |- ( ph -> A e. NN0 )
+  hypothesis gpc2.2 |- ( ph -> B e. NN0 )
+  hypothesis gpc2.3 |- ( ph -> C e. NN0 )
+  |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = A )
+  1 2prm |- 2 e. Prime
+  2 a1i 1 |- ( ph -> 2 e. Prime )
+  3 2nn |- 2 e. NN
+  4 a1i 3 |- ( ph -> 2 e. NN )
+  5 nnexpcld 4 gpc2.1 |- ( ph -> ( 2 ^ A ) e. NN )
+  6 3nn |- 3 e. NN
+  7 a1i 6 |- ( ph -> 3 e. NN )
+  8 nnexpcld 7 gpc2.2 |- ( ph -> ( 3 ^ B ) e. NN )
+  9 5nn |- 5 e. NN
+  10 a1i 9 |- ( ph -> 5 e. NN )
+  11 nnexpcld 10 gpc2.3 |- ( ph -> ( 5 ^ C ) e. NN )
+  12 gpcmul3 2 5 8 11 |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( ( ( 2
+      pCnt ( 2 ^ A ) ) + ( 2 pCnt ( 3 ^ B ) ) ) + ( 2 pCnt ( 5 ^ C ) ) ) )
+  13 pcidlem |- ( ( 2 e. Prime /\ A e. NN0 ) -> ( 2 pCnt ( 2 ^ A ) ) = A )
+  14 syl2anc 2 gpc2.1 13 |- ( ph -> ( 2 pCnt ( 2 ^ A ) ) = A )
+  15 3prm |- 3 e. Prime
+  16 a1i 15 |- ( ph -> 3 e. Prime )
+  17 2re |- 2 e. RR
+  18 2lt3 |- 2 < 3
+  19 ltneii 17 18 |- 2 =/= 3
+  20 a1i 19 |- ( ph -> 2 =/= 3 )
+  21 gpcoth 2 16 20 gpc2.2 |- ( ph -> ( 2 pCnt ( 3 ^ B ) ) = 0 )
+  22 oveq12d 14 21 |- ( ph -> ( ( 2 pCnt ( 2 ^ A ) ) + ( 2 pCnt ( 3 ^ B ) ) ) = ( A + 0 ) )
+  23 5prm |- 5 e. Prime
+  24 a1i 23 |- ( ph -> 5 e. Prime )
+  25 2lt5 |- 2 < 5
+  26 ltneii 17 25 |- 2 =/= 5
+  27 a1i 26 |- ( ph -> 2 =/= 5 )
+  28 gpcoth 2 24 27 gpc2.3 |- ( ph -> ( 2 pCnt ( 5 ^ C ) ) = 0 )
+  29 oveq12d 22 28 |- ( ph -> ( ( ( 2 pCnt ( 2 ^ A ) ) + ( 2 pCnt ( 3 ^ B ) ) ) + ( 2 pCnt ( 5 ^ C )
+      ) ) = ( ( A + 0 ) + 0 ) )
+  30 nn0cnd gpc2.1 |- ( ph -> A e. CC )
+  31 0cn |- 0 e. CC
+  32 a1i 31 |- ( ph -> 0 e. CC )
+  33 addcld 30 32 |- ( ph -> ( A + 0 ) e. CC )
+  34 addridd 33 |- ( ph -> ( ( A + 0 ) + 0 ) = ( A + 0 ) )
+  35 addridd 30 |- ( ph -> ( A + 0 ) = A )
+  36 eqtrd 34 35 |- ( ph -> ( ( A + 0 ) + 0 ) = A )
+  37 3eqtrd 12 29 36 |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = A )
+
+lemma gpc3
+  hypothesis gpc3.1 |- ( ph -> A e. NN0 )
+  hypothesis gpc3.2 |- ( ph -> B e. NN0 )
+  hypothesis gpc3.3 |- ( ph -> C e. NN0 )
+  |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = B )
+  1 3prm |- 3 e. Prime
+  2 a1i 1 |- ( ph -> 3 e. Prime )
+  3 2nn |- 2 e. NN
+  4 a1i 3 |- ( ph -> 2 e. NN )
+  5 nnexpcld 4 gpc3.1 |- ( ph -> ( 2 ^ A ) e. NN )
+  6 3nn |- 3 e. NN
+  7 a1i 6 |- ( ph -> 3 e. NN )
+  8 nnexpcld 7 gpc3.2 |- ( ph -> ( 3 ^ B ) e. NN )
+  9 5nn |- 5 e. NN
+  10 a1i 9 |- ( ph -> 5 e. NN )
+  11 nnexpcld 10 gpc3.3 |- ( ph -> ( 5 ^ C ) e. NN )
+  12 gpcmul3 2 5 8 11 |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( ( ( 3
+      pCnt ( 2 ^ A ) ) + ( 3 pCnt ( 3 ^ B ) ) ) + ( 3 pCnt ( 5 ^ C ) ) ) )
+  13 2prm |- 2 e. Prime
+  14 a1i 13 |- ( ph -> 2 e. Prime )
+  15 2re |- 2 e. RR
+  16 2lt3 |- 2 < 3
+  17 ltneii 15 16 |- 2 =/= 3
+  18 necomi 17 |- 3 =/= 2
+  19 a1i 18 |- ( ph -> 3 =/= 2 )
+  20 gpcoth 2 14 19 gpc3.1 |- ( ph -> ( 3 pCnt ( 2 ^ A ) ) = 0 )
+  21 pcidlem |- ( ( 3 e. Prime /\ B e. NN0 ) -> ( 3 pCnt ( 3 ^ B ) ) = B )
+  22 syl2anc 2 gpc3.2 21 |- ( ph -> ( 3 pCnt ( 3 ^ B ) ) = B )
+  23 oveq12d 20 22 |- ( ph -> ( ( 3 pCnt ( 2 ^ A ) ) + ( 3 pCnt ( 3 ^ B ) ) ) = ( 0 + B ) )
+  24 5prm |- 5 e. Prime
+  25 a1i 24 |- ( ph -> 5 e. Prime )
+  26 3re |- 3 e. RR
+  27 3lt5 |- 3 < 5
+  28 ltneii 26 27 |- 3 =/= 5
+  29 a1i 28 |- ( ph -> 3 =/= 5 )
+  30 gpcoth 2 25 29 gpc3.3 |- ( ph -> ( 3 pCnt ( 5 ^ C ) ) = 0 )
+  31 oveq12d 23 30 |- ( ph -> ( ( ( 3 pCnt ( 2 ^ A ) ) + ( 3 pCnt ( 3 ^ B ) ) ) + ( 3 pCnt ( 5 ^ C )
+      ) ) = ( ( 0 + B ) + 0 ) )
+  32 0cn |- 0 e. CC
+  33 a1i 32 |- ( ph -> 0 e. CC )
+  34 nn0cnd gpc3.2 |- ( ph -> B e. CC )
+  35 addcld 33 34 |- ( ph -> ( 0 + B ) e. CC )
+  36 addridd 35 |- ( ph -> ( ( 0 + B ) + 0 ) = ( 0 + B ) )
+  37 addlidd 34 |- ( ph -> ( 0 + B ) = B )
+  38 eqtrd 36 37 |- ( ph -> ( ( 0 + B ) + 0 ) = B )
+  39 3eqtrd 12 31 38 |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = B )
+
+lemma gpc5
+  hypothesis gpc5.1 |- ( ph -> A e. NN0 )
+  hypothesis gpc5.2 |- ( ph -> B e. NN0 )
+  hypothesis gpc5.3 |- ( ph -> C e. NN0 )
+  |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = C )
+  1 5prm |- 5 e. Prime
+  2 a1i 1 |- ( ph -> 5 e. Prime )
+  3 2nn |- 2 e. NN
+  4 a1i 3 |- ( ph -> 2 e. NN )
+  5 nnexpcld 4 gpc5.1 |- ( ph -> ( 2 ^ A ) e. NN )
+  6 3nn |- 3 e. NN
+  7 a1i 6 |- ( ph -> 3 e. NN )
+  8 nnexpcld 7 gpc5.2 |- ( ph -> ( 3 ^ B ) e. NN )
+  9 5nn |- 5 e. NN
+  10 a1i 9 |- ( ph -> 5 e. NN )
+  11 nnexpcld 10 gpc5.3 |- ( ph -> ( 5 ^ C ) e. NN )
+  12 gpcmul3 2 5 8 11 |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( ( ( 5
+      pCnt ( 2 ^ A ) ) + ( 5 pCnt ( 3 ^ B ) ) ) + ( 5 pCnt ( 5 ^ C ) ) ) )
+  13 2prm |- 2 e. Prime
+  14 a1i 13 |- ( ph -> 2 e. Prime )
+  15 2re |- 2 e. RR
+  16 2lt5 |- 2 < 5
+  17 ltneii 15 16 |- 2 =/= 5
+  18 necomi 17 |- 5 =/= 2
+  19 a1i 18 |- ( ph -> 5 =/= 2 )
+  20 gpcoth 2 14 19 gpc5.1 |- ( ph -> ( 5 pCnt ( 2 ^ A ) ) = 0 )
+  21 3prm |- 3 e. Prime
+  22 a1i 21 |- ( ph -> 3 e. Prime )
+  23 3re |- 3 e. RR
+  24 3lt5 |- 3 < 5
+  25 ltneii 23 24 |- 3 =/= 5
+  26 necomi 25 |- 5 =/= 3
+  27 a1i 26 |- ( ph -> 5 =/= 3 )
+  28 gpcoth 2 22 27 gpc5.2 |- ( ph -> ( 5 pCnt ( 3 ^ B ) ) = 0 )
+  29 oveq12d 20 28 |- ( ph -> ( ( 5 pCnt ( 2 ^ A ) ) + ( 5 pCnt ( 3 ^ B ) ) ) = ( 0 + 0 ) )
+  30 pcidlem |- ( ( 5 e. Prime /\ C e. NN0 ) -> ( 5 pCnt ( 5 ^ C ) ) = C )
+  31 syl2anc 2 gpc5.3 30 |- ( ph -> ( 5 pCnt ( 5 ^ C ) ) = C )
+  32 oveq12d 29 31 |- ( ph -> ( ( ( 5 pCnt ( 2 ^ A ) ) + ( 5 pCnt ( 3 ^ B ) ) ) + ( 5 pCnt ( 5 ^ C )
+      ) ) = ( ( 0 + 0 ) + C ) )
+  33 00id |- ( 0 + 0 ) = 0
+  34 a1i 33 |- ( ph -> ( 0 + 0 ) = 0 )
+  35 oveq1d 34 |- ( ph -> ( ( 0 + 0 ) + C ) = ( 0 + C ) )
+  36 nn0cnd gpc5.3 |- ( ph -> C e. CC )
+  37 addlidd 36 |- ( ph -> ( 0 + C ) = C )
+  38 eqtrd 35 37 |- ( ph -> ( ( 0 + 0 ) + C ) = C )
+  39 3eqtrd 12 32 38 |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = C )
+
+lemma g235a
+  hypothesis g235a.1 |- ( ph -> A e. NN0 )
+  hypothesis g235a.2 |- ( ph -> B e. NN0 )
+  hypothesis g235a.3 |- ( ph -> C e. NN0 )
+  hypothesis g235a.4 |- ( ph -> D e. NN0 )
+  hypothesis g235a.5 |- ( ph -> E e. NN0 )
+  hypothesis g235a.6 |- ( ph -> F e. NN0 )
+  hypothesis g235a.7 |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^
+      E ) ) x. ( 5 ^ F ) ) )
+  |- ( ph -> A = D )
+  1 oveq2d g235a.7 |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( 2 pCnt ( (
+      ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) )
+  2 gpc2 g235a.1 g235a.2 g235a.3 |- ( ph -> ( 2 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) =
+      A )
+  3 gpc2 g235a.4 g235a.5 g235a.6 |- ( ph -> ( 2 pCnt ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) =
+      D )
+  4 3eqtr3d 1 2 3 |- ( ph -> A = D )
+
+lemma g235b
+  hypothesis g235b.1 |- ( ph -> A e. NN0 )
+  hypothesis g235b.2 |- ( ph -> B e. NN0 )
+  hypothesis g235b.3 |- ( ph -> C e. NN0 )
+  hypothesis g235b.4 |- ( ph -> D e. NN0 )
+  hypothesis g235b.5 |- ( ph -> E e. NN0 )
+  hypothesis g235b.6 |- ( ph -> F e. NN0 )
+  hypothesis g235b.7 |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^
+      E ) ) x. ( 5 ^ F ) ) )
+  |- ( ph -> B = E )
+  1 oveq2d g235b.7 |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( 3 pCnt ( (
+      ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) )
+  2 gpc3 g235b.1 g235b.2 g235b.3 |- ( ph -> ( 3 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) =
+      B )
+  3 gpc3 g235b.4 g235b.5 g235b.6 |- ( ph -> ( 3 pCnt ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) =
+      E )
+  4 3eqtr3d 1 2 3 |- ( ph -> B = E )
+
+lemma g235c
+  hypothesis g235c.1 |- ( ph -> A e. NN0 )
+  hypothesis g235c.2 |- ( ph -> B e. NN0 )
+  hypothesis g235c.3 |- ( ph -> C e. NN0 )
+  hypothesis g235c.4 |- ( ph -> D e. NN0 )
+  hypothesis g235c.5 |- ( ph -> E e. NN0 )
+  hypothesis g235c.6 |- ( ph -> F e. NN0 )
+  hypothesis g235c.7 |- ( ph -> ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) = ( ( ( 2 ^ D ) x. ( 3 ^
+      E ) ) x. ( 5 ^ F ) ) )
+  |- ( ph -> C = F )
+  1 oveq2d g235c.7 |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) = ( 5 pCnt ( (
+      ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) )
+  2 gpc5 g235c.1 g235c.2 g235c.3 |- ( ph -> ( 5 pCnt ( ( ( 2 ^ A ) x. ( 3 ^ B ) ) x. ( 5 ^ C ) ) ) =
+      C )
+  3 gpc5 g235c.4 g235c.5 g235c.6 |- ( ph -> ( 5 pCnt ( ( ( 2 ^ D ) x. ( 3 ^ E ) ) x. ( 5 ^ F ) ) ) =
+      F )
+  4 3eqtr3d 1 2 3 |- ( ph -> C = F )
+

@@ -96,8 +96,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         RecordKind::Notation,
         &[
             "pattern", "sort", "level", "assoc", "commutes", "negates", "spells",
-            "places", "nests", "bounds", "joins", "wraps", "fills", "binds", "reads",
-            "target", "metamath", "note",
+            "places", "nests", "bounds", "joins", "wraps", "fills", "shadowed",
+            "binds", "reads", "target", "metamath", "note",
         ],
     ),
     (

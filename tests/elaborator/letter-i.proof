@@ -1,0 +1,37 @@
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/numbers/int-closure
+
+theorem obtained-i
+  note        An i a line introduces is that i in its scope, and not the
+              imaginary unit: 2i + 1 below is twice an integer, plus one.
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then n² is odd
+
+1.  i ∈ ℤ. n = 2i + 1.
+    obtain i: mun:odd n := n, from H1, H2
+
+2.  n² = (2i + 1)²
+    substitute n = 2i + 1 (line 1)
+
+3.  (2i + 1)² = 2(2i² + 2i) + 1
+    algebra
+    requires i ∈ ℝ: from 1
+
+4.  n² = 2(2i² + 2i) + 1
+    calculation
+      n² = (2i + 1)²           2
+         = 2(2i² + 2i) + 1     3
+
+5.  n² is odd
+    mun:odd n := n², from 4
+    requires n² ∈ ℤ: mun:int-closure, from H1
+    requires 2 ∈ ℤ: arithmetic
+    requires 2i² + 2i ∈ ℤ: mun:int-closure, from 1
+
+theorem fixed-i
+  let i ∈ ℕ                                                           (H1)
+  then i ≥ 1
+
+1.  i ≥ 1
+    inequalities, from H1

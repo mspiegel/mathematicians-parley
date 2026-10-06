@@ -735,6 +735,14 @@ library's name for it wherever it is imported. Any other library item, and a
 proof's theorem, are written only in a justification, and the name `as` gives
 one may be any name.
 
+A constant the page writes as a letter is that constant until a line
+introduces a name with the same letter, if its notation is marked
+`shadowed`; then, in that line's scope, the letter is the name. Only the
+imaginary unit i is marked: a proof may write `obtain i` or `Σ(i = 1 to n)`
+and mean its own i, as a reader does. Which constants yield is decided one
+at a time, since a letter a reader would not reuse is one the page should
+not let them reuse.
+
 **Each of these is a defect:** an item cited or applied and not imported; an
 import that nothing cites or applies; an item imported twice; an import whose
 words are not its record's header, and a citation whose prefix is not `mun:`
@@ -942,7 +950,7 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `binds`, `reads`, `target`, `metamath`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `shadowed`, `binds`, `reads`, `target`, `metamath`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
 | `definition` | `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |

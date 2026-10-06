@@ -1,0 +1,31 @@
+# Numbers, for `proved.mm`.
+#
+# What the proofs ask of whole numbers that set.mm says only of a wider
+# system, each reached by `zre` and `nnrp`: a remainder on dividing an
+# integer by a natural number is less than the divisor (`modlt`, for
+# `mun:stdlib/divisibility/mod-less`), and adding a multiple of the divisor
+# leaves the remainder as it was (`muladdmod`, for
+# `mun:stdlib/divisibility/mod-multiple`).
+
+$( Numbers: a remainder is less than its divisor, and a multiple of
+   the divisor added leaves it as it was. $)
+
+# ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
+lemma gzmodlt
+  |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
+  1 zre |- ( A e. ZZ -> A e. RR )
+  2 nnrp |- ( B e. NN -> B e. RR+ )
+  3 modlt |- ( ( A e. RR /\ B e. RR+ ) -> ( A mod B ) < B )
+  4 syl2an 1 2 3 |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
+
+# ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod M ) )
+lemma gmuladdmod
+  |- ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod M ) )
+  1 zre |- ( A e. ZZ -> A e. RR )
+  2 nnrp |- ( M e. NN -> M e. RR+ )
+  3 id |- ( N e. ZZ -> N e. ZZ )
+  4 muladdmod |- ( ( A e. RR /\ M e. RR+ /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod M )
+      )
+  5 syl3an 1 2 3 4 |- ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod
+      M ) )
+
