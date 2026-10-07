@@ -815,13 +815,13 @@ A justification is a head and a set of optional slots. The slots are:
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
 | start | `starting at <term>` |
 
-The sixteen heads and the slots each admits:
+The seventeen heads and the slots each admits:
 
 ```
 <justification> ::=
     <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
   | `obtain` <names> <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
-  | `obtain` <name> `from` `line` <number>
+  | `obtain` <name> { `,` <name> } `from` ( `line` <number> | <label> )
   | `exhibit` `,` <from>
   | `substitute` <formula> <source> [ <destination> ]
   | `instantiate` <instantiation> <target> [ `,` <from> ]
@@ -834,6 +834,7 @@ The sixteen heads and the slots each admits:
   | `fix`
   | `induction` `on` <name> <start>
   | `cases` `,` <from>
+  | `both directions`
   | `calculation`
   | <label> [ `,` <from> ]                         -- a define's label
 <prefix> ::= `axi:` | `thm:` | `def:` | `mun:`

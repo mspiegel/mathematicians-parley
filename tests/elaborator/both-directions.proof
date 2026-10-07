@@ -1,0 +1,21 @@
+theorem one-more
+  note        An "if and only if" proved a direction at a time.
+  let n ∈ ℤ                                                           (H1)
+  then n + 1 = 3 ↔ n = 2
+
+1.  n + 1 = 3 ↔ n = 2
+    both directions
+
+    direction
+    assume n + 1 = 3                                                  (D1)
+
+    1.1.  n = 2
+          algebra, from D1
+          requires n ∈ ℝ: membership, from H1
+
+    direction
+    assume n = 2                                                      (D2)
+
+    1.2.  n + 1 = 3
+          algebra, from D2
+          requires n ∈ ℝ: membership, from H1

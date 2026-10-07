@@ -240,9 +240,11 @@ fn prepared<T>(
     }
 
     let mut methods: IndexMap<String, usize> = IndexMap::new();
+    // A method written in words, `both directions`, names its record with
+    // a hyphen between them, as every record's name is one word.
     for (i, r) in records.iter().enumerate() {
         if r.kind == RecordKind::Method {
-            methods.insert(r.name.clone(), i);
+            methods.insert(r.name.replace('-', " "), i);
         }
     }
     let mut allowed: IndexSet<char> = IndexSet::new();
@@ -435,6 +437,7 @@ fn check_theorem(
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
     formulas::check_impossible(report, thm, k);
+    formulas::check_both_directions(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);
     formulas::check_cases_cited(report, thm, k);
     formulas::check_closed_arithmetic(report, thm, env, k);

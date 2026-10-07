@@ -316,10 +316,11 @@ pub enum Method {
     Fix,
     Induction,
     Cases,
+    BothDirections,
     Calculation,
 }
 
-pub const METHODS: [Method; 14] = [
+pub const METHODS: [Method; 15] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
@@ -333,6 +334,7 @@ pub const METHODS: [Method; 14] = [
     Method::Fix,
     Method::Induction,
     Method::Cases,
+    Method::BothDirections,
     Method::Calculation,
 ];
 
@@ -352,6 +354,7 @@ impl Method {
             Method::Fix => "fix",
             Method::Induction => "induction",
             Method::Cases => "cases",
+            Method::BothDirections => "both directions",
             Method::Calculation => "calculation",
         }
     }
@@ -364,6 +367,7 @@ impl Method {
                 | Method::Fix
                 | Method::Induction
                 | Method::Cases
+                | Method::BothDirections
                 | Method::Calculation
         )
     }

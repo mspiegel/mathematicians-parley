@@ -1373,6 +1373,21 @@ impl<'a> Elaborator<'a> {
         Ok(finished(facts, claims, seed, library, &self.sorts_now))
     }
 
+    /// The values a citation gives its item's letters, `name := value`, each
+    /// read in the names as they stand before any is given: values are
+    /// simultaneous, so `a := b/k, b := a/k` swaps the two.
+    pub(crate) fn instantiated(
+        &mut self,
+        cites: &str,
+    ) -> Checked<Vec<(String, String)>> {
+        let mut out = Vec::new();
+        for (name, value) in instantiation(cites) {
+            let node = self.read(&value)?;
+            out.push((name, self.term(&node)?));
+        }
+        Ok(out)
+    }
+
     /// What the lines and labelled hypotheses `refs` name say, each sentence
     /// read.
     pub(crate) fn cited_sentences(&self, refs: &[String]) -> Checked<Vec<Node>> {
@@ -3404,9 +3419,7 @@ impl<'a> Elaborator<'a> {
         let (lemma, flipped, right) =
             self.names_kept(|me| -> Checked<(String, bool, String)> {
                 // A definition may name more than the thing it is about.
-                for (name, value) in instantiation(&step.just.text) {
-                    let node = me.read(&value)?;
-                    let term = me.term(&node)?;
+                for (name, term) in me.instantiated(&step.just.text)? {
                     me.names.insert(name, term);
                 }
                 let Item::Record(item) = me.item_cited(&head) else {
@@ -3585,9 +3598,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Binding::new());
         }
         self.names_kept(|me| -> Checked<Binding> {
-            for (name, value) in instantiation(cites.unwrap_or(&step.just.text)) {
-                let node = me.read(&value)?;
-                let term = me.term(&node)?;
+            for (name, term) in me.instantiated(cites.unwrap_or(&step.just.text))? {
                 me.names.insert(name, term);
             }
             let mut out = Binding::new();
@@ -3688,14 +3699,18 @@ impl<'a> Elaborator<'a> {
         }
         let mut spare: std::collections::VecDeque<&str> =
             CLASS_NAMES.iter().copied().collect();
-        let written: IndexMap<String, String> =
-            instantiation(cites.unwrap_or(&step.just.text))
-                .into_iter()
-                .collect();
         let claim_text = step.claim_text();
         let (binds, wanted, whole) = self.names_and_sets_kept(
             |me| -> Checked<(IndexMap<String, String>, Vec<String>, String)> {
                 let saved = me.names.clone();
+                // Every value is read in the step's own names before any
+                // letter of the theorem is given one: `a := b/k, b := a/k`
+                // swaps the two, and reading the second after the first is
+                // given would read a/k as (b/k)/k.
+                let values: IndexMap<String, String> = me
+                    .instantiated(cites.unwrap_or(&step.just.text))?
+                    .into_iter()
+                    .collect();
                 let mut binds: IndexMap<String, String> = IndexMap::new();
                 for h in &other.hypotheses {
                     // Parsed with the theorem's own sorts, which say what its
@@ -3723,10 +3738,8 @@ impl<'a> Elaborator<'a> {
                             .to_string();
                         // A hypothesis the citation does not name stands for what
                         // the citing proof calls by the same word.
-                        if let Some(value) = written.get(&name) {
-                            let v = me.read(value)?;
-                            let term = me.term(&v)?;
-                            me.names.insert(name.clone(), term);
+                        if let Some(term) = values.get(&name) {
+                            me.names.insert(name.clone(), term.clone());
                         } else if !saved.contains_key(&name) {
                             me.names.insert(name.clone(), theirs.clone());
                         }

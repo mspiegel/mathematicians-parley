@@ -19,9 +19,9 @@ statement's variables.
 
 ## State
 
-All twenty-seven are written and elaborate from set.mm with nothing assumed.
-Four more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-seven has its proof in `proofs/` and its design record
+All twenty-eight are written and elaborate from set.mm with nothing assumed.
+Three more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-eight has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -39,7 +39,7 @@ in `docs/pilot/`, under the same name:
 | 21 | angle-sum | 22 | pythagoras |
 | 23 | euler | 24 | harmonic |
 | 25 | factor | 26 | cauchy-schwarz |
-| 27 | reals-uncountable | | |
+| 27 | reals-uncountable | 28 | pythagorean-triples |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. The informal
@@ -474,7 +474,14 @@ textbook's.
     solution: a² + b² = c² exactly when a, b, c are k(m² − n²), 2kmn and
     k(m² + n²). It rests on the corpus's gcd and divisibility, and on
     coprime numbers whose product is a square being squares themselves.
-    The largest of the ten by its lemmas.
+    The largest of the ten by its lemmas. Written:
+    `proofs/pythagorean-triples.proof`, with
+    `docs/pilot/pythagorean-triples.md`, and all seven of its theorems
+    elaborate with nothing assumed. The proof is ProofWiki's: a primitive
+    triple is 2mn, m² − n², m² + n², every triple is a multiple of one, and
+    set.mm's statement joins the two directions with `both directions`, the
+    block a textbook's "if and only if" needed. Hammack does not classify
+    the triples; its exercise that a or b is even is `even-leg`.
 29. **Königsberg bridges.** The first graph. set.mm's graph is a structure
     read with `Vtx` and `iEdg`, hidden as groups are, and this one is a
     particular graph given by listing its seven edges. The argument is

@@ -119,6 +119,7 @@ fn productions() -> Vec<regex::Regex> {
         r"^fix$".to_string(),
         r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
         format!(r"^cases,\s*{from}$"),
+        r"^both directions$".to_string(),
         r"^calculation$".to_string(),
         format!(r"^{LABEL}(?:,\s*{from})?$"),
     ]

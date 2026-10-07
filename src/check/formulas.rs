@@ -490,6 +490,77 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
     }
 }
 
+/// A `both directions` block proves "A ↔ B" as a textbook proves an "if and
+/// only if": its first part assumes A and ends on B, its second assumes B
+/// and ends on A.
+pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) {
+    for owner in &thm.steps {
+        if !owner.just.head.is(Method::BothDirections) {
+            continue;
+        }
+        let say = |report: &mut Report, why: String| {
+            report.say(
+                &thm.path,
+                owner.line,
+                format!("step {} proves both directions, and {why}", owner.number),
+            );
+        };
+        let Some(claim) = known.read(owner, &owner.claim_text()) else {
+            continue; // `check_formulas` says it does not read
+        };
+        if claim.notation != "biconditional" || claim.children.len() != 2 {
+            say(report, "its claim is not \"A ↔ B\"".into());
+            continue;
+        }
+        let mut assumed: Vec<_> = owner
+            .openers
+            .iter()
+            .filter(|o| o.kind == Intro::Assume && o.part.is_some())
+            .collect();
+        assumed.sort_by_key(|o| o.part);
+        if owner.parts.len() != 2 || assumed.len() != 2 {
+            say(
+                report,
+                "it does not have two directions, each opening with `assume`".into(),
+            );
+            continue;
+        }
+        let depth = owner.number.len() + 1;
+        for (n, opener) in assumed.iter().enumerate() {
+            let (side, other) = (&claim.children[n], &claim.children[1 - n]);
+            let body = opener
+                .text
+                .strip_prefix(opener.kind.as_str())
+                .unwrap_or(&opener.text);
+            let read = known.read(owner, str::trim(&unlabel(body)));
+            if read.as_ref().is_some_and(|r| r.shape() != side.shape()) {
+                say(
+                    report,
+                    format!(
+                        "direction {} does not assume the claim's side it starts from",
+                        n + 1
+                    ),
+                );
+            }
+            let last = thm.steps.iter().rev().find(|s| {
+                s.number.len() == depth
+                    && s.number.prefix(depth - 1) == owner.number
+                    && s.part == opener.part
+            });
+            let ends = last.and_then(|s| known.read(s, &s.claim_text()));
+            if ends.as_ref().is_some_and(|e| e.shape() != other.shape()) {
+                say(
+                    report,
+                    format!(
+                        "direction {} does not end on the claim's other side",
+                        n + 1
+                    ),
+                );
+            }
+        }
+    }
+}
+
 /// A `cases` block cites one line, and that line claims the cases'
 /// assumptions joined by "or", in the order the parts take them
 /// (`SYNTAX.md`). A line with that disjunction as one part of what it says

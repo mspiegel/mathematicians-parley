@@ -1185,6 +1185,22 @@ notation there-exist-two
   places      1 3 2 3 4
   spells      there-are thereare∈and∈with
 
+notation there-are-three
+  pattern     there are _, _, _ ∈ _ with _
+  sort        α, α, α, set of α, formula → formula
+  level       binder
+  binds       holes 1 and 2 and 3 over hole 5
+  reads       there are, of each, with
+  metamath    wrex nested three times, one for each variable
+  target      _5 _3 _4 wrex _2 _4 wrex _1 _4 wrex
+  note        "There are k, m, n ∈ ℕ with …", three names over one set, as
+              the Pythagorean triples are stated. It is "there is k ∈ ℕ with
+              there is m ∈ ℕ with there is n ∈ ℕ with …" and builds exactly
+              that: `nests` makes one `there-is` node for each name, the
+              first outermost.
+  nests       1 4, 2 4, 3 4
+  spells      there-is thereis∈with
+
 notation for-all-sets
   pattern     for all sets _, _
   sort        set of α, formula → formula

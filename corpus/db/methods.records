@@ -225,6 +225,20 @@ method cases
               of an earlier line, written `contradicting` and the line; from
               the two, pm2.21dd gives the formula the other cases claim.
 
+method both-directions
+  form        both directions
+  block       required
+  parts       direction
+  parts-repeat two: the first assumes the left side, the second the right
+  part-opens  assume, labelled
+  checks      The claim is "A ↔ B". The first part assumes A, labelled, and
+              its last step claims B; the second assumes B and its last step
+              claims A. This is how a textbook proves "if and only if": each
+              direction in turn.
+  metamath    impbida
+  note        Each part is a case over its assumption, entered and left as
+              a `cases` part is, and impbida joins the two implications.
+
 method calculation
   form        calculation, then a chain
   block       required

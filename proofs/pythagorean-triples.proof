@@ -14,6 +14,9 @@ import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/not-both
+import mundane theorem    stdlib/divisibility/divides-square
+import mundane theorem    stdlib/divisibility/divides-quotient
+import mundane theorem    stdlib/divisibility/gcd-quotients-coprime
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/square-equal
@@ -617,3 +620,275 @@ theorem primitive-triple
     a = 2mn, b = m² − n², and c = m² + n².
     exhibit, from 50, 52, 64, 74, 75, 60, 62
     requires a = 2mn: algebra, from 58, H1, 50, 52
+
+theorem triple-scaled
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  assume a² + b² = c²                                                 (H4)
+  then there is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
+       and (a/k)² + (b/k)² = (c/k)²
+
+1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+    For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
+    mun:gcd a := a, b := b, from H1, H2
+
+2.  a/gcd(a, b) ∈ ℕ
+    mun:divides-quotient n := a, d := gcd(a, b), from H1, 1
+
+3.  b/gcd(a, b) ∈ ℕ
+    mun:divides-quotient n := b, d := gcd(a, b), from H2, 1
+
+4.  gcd(a, b)² divides a²
+    mun:divides-square d := gcd(a, b), n := a, from 1
+    requires a ∈ ℤ: membership, from H1
+
+5.  gcd(a, b)² divides b²
+    mun:divides-square d := gcd(a, b), n := b, from 1
+    requires b ∈ ℤ: membership, from H2
+
+6.  gcd(a, b)² divides a² + b²
+    mun:divides-sum d := gcd(a, b)², a := a², b := b², from 4, 5
+    requires gcd(a, b)² ∈ ℤ: membership, from 1
+    requires a² ∈ ℤ: membership, from H1
+    requires b² ∈ ℤ: membership, from H2
+
+7.  gcd(a, b)² divides c²
+    substitute a² + b² = c² (H4) into line 6
+
+8.  gcd(a, b) divides c
+    mun:divides-square d := gcd(a, b), n := c, from 7
+    requires gcd(a, b) ∈ ℤ: membership, from 1
+    requires c ∈ ℤ: membership, from H3
+
+9.  c/gcd(a, b) ∈ ℕ
+    mun:divides-quotient n := c, d := gcd(a, b), from H3, 1, 8
+
+10. gcd(a/gcd(a, b), b/gcd(a, b)) = 1
+    mun:gcd-quotients-coprime a := a, b := b
+    requires a ∈ ℤ: membership, from H1
+    requires b ∈ ℤ: membership, from H2
+    requires b ≠ 0: inequalities, from H2
+
+11. (a/gcd(a, b))² + (b/gcd(a, b))² = (a² + b²)/gcd(a, b)²
+    algebra
+    requires a ∈ ℝ: membership, from H1
+    requires b ∈ ℝ: membership, from H2
+    requires gcd(a, b) ∈ ℝ: membership, from 1
+    requires gcd(a, b) ≠ 0: inequalities, from 1
+
+12. (a/gcd(a, b))² + (b/gcd(a, b))² = c²/gcd(a, b)²
+    substitute a² + b² = c² (H4) into line 11
+
+13. c²/gcd(a, b)² = (c/gcd(a, b))²
+    algebra
+    requires c ∈ ℝ: membership, from H3
+    requires gcd(a, b) ∈ ℝ: membership, from 1
+    requires gcd(a, b) ≠ 0: inequalities, from 1
+
+14. (a/gcd(a, b))² + (b/gcd(a, b))² = (c/gcd(a, b))²
+    calculation
+      (a/gcd(a, b))² + (b/gcd(a, b))² = c²/gcd(a, b)²        12
+                                      = (c/gcd(a, b))²       13
+
+15. There is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
+    and (a/k)² + (b/k)² = (c/k)².
+    exhibit, from 1, 2, 3, 9, 10, 14
+
+theorem triple-from-parameters
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  let k ∈ ℕ                                                           (H4)
+  let m ∈ ℕ                                                           (H5)
+  let n ∈ ℕ                                                           (H6)
+  assume c = k(m² + n²)                                               (H7)
+  assume (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)) (H8)
+  then a² + b² = c²
+
+1.  (k(m² − n²))² + (2kmn)² = (k(m² + n²))²
+    algebra
+    requires k ∈ ℝ: membership, from H4
+    requires m ∈ ℝ: membership, from H5
+    requires n ∈ ℝ: membership, from H6
+
+2.  a² + b² = c²
+    cases, from H8
+
+    case
+    assume a = k(m² − n²) and b = 2kmn                                (C1)
+
+    2.1.  a² + b² = (k(m² − n²))² + b²
+          substitute a = k(m² − n²) (C1)
+
+    2.2.  (k(m² − n²))² + b² = (k(m² − n²))² + (2kmn)²
+          substitute b = 2kmn (C1)
+
+    2.3.  (k(m² + n²))² = c²
+          substitute c = k(m² + n²) (H7)
+
+    2.4.  a² + b² = c²
+          calculation
+            a² + b² = (k(m² − n²))² + b²            2.1
+                    = (k(m² − n²))² + (2kmn)²       2.2
+                    = (k(m² + n²))²                 1
+                    = c²                            2.3
+
+    case
+    assume a = 2kmn and b = k(m² − n²)                                (C2)
+
+    2.5.  a² + b² = (2kmn)² + b²
+          substitute a = 2kmn (C2)
+
+    2.6.  (2kmn)² + b² = (2kmn)² + (k(m² − n²))²
+          substitute b = k(m² − n²) (C2)
+
+    2.7.  (2kmn)² + (k(m² − n²))² = (k(m² + n²))²
+          algebra
+          requires k ∈ ℝ: membership, from H4
+          requires m ∈ ℝ: membership, from H5
+          requires n ∈ ℝ: membership, from H6
+
+    2.8.  (k(m² + n²))² = c²
+          substitute c = k(m² + n²) (H7)
+
+    2.9.  a² + b² = c²
+          calculation
+            a² + b² = (2kmn)² + b²                  2.5
+                    = (2kmn)² + (k(m² − n²))²       2.6
+                    = (k(m² + n²))²                 2.7
+                    = c²                            2.8
+
+theorem triple-parameters
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  assume a² + b² = c²                                                 (H4)
+  then there are k, m, n ∈ ℕ with c = k(m² + n²),
+       and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)))
+
+1.  k ∈ ℕ. a/k ∈ ℕ. b/k ∈ ℕ. c/k ∈ ℕ. gcd(a/k, b/k) = 1.
+    (a/k)² + (b/k)² = (c/k)².
+    obtain k: thm:triple-scaled a := a, b := b, c := c, from H1, H2, H3, H4
+
+2.  a/k is even or b/k is even
+    thm:even-leg a := a/k, b := b/k, c := c/k, from 1
+
+3.  There are k, m, n ∈ ℕ with c = k(m² + n²),
+    and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+    cases, from 2
+
+    case
+    assume a/k is even                                                (C1)
+
+    3.1.  m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
+          a/k = 2mn. b/k = m² − n². c/k = m² + n².
+          obtain m, n: thm:primitive-triple a := a/k, b := b/k, c := c/k, from 1, C1
+
+    3.2.  a = 2kmn
+          algebra, from 3.1
+          requires a ∈ ℝ: membership, from H1
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.3.  b = k(m² − n²)
+          algebra, from 3.1
+          requires b ∈ ℝ: membership, from H2
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.4.  c = k(m² + n²)
+          algebra, from 3.1
+          requires c ∈ ℝ: membership, from H3
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.5.  a = 2kmn and b = k(m² − n²)
+          join 3.2, 3.3
+
+    3.6.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
+          mun:or-right, from 3.5
+
+    3.7.  There are k, m, n ∈ ℕ with c = k(m² + n²),
+          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+          exhibit, from 1, 3.1, 3.4, 3.6
+
+    case
+    assume b/k is even                                                (C2)
+
+    3.8.  gcd(b/k, a/k) = gcd(a/k, b/k)
+          mun:gcd-commutes a := b/k, b := a/k
+          requires b/k ∈ ℤ: membership, from 1
+          requires a/k ∈ ℤ: membership, from 1
+
+    3.9.  gcd(b/k, a/k) = 1
+          calculation
+            gcd(b/k, a/k) = gcd(a/k, b/k)    3.8
+                          = 1                1
+
+    3.10. (b/k)² + (a/k)² = (c/k)²
+          algebra, from 1
+          requires a ∈ ℝ: membership, from H1
+          requires b ∈ ℝ: membership, from H2
+          requires c ∈ ℝ: membership, from H3
+
+    3.11. m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
+          b/k = 2mn. a/k = m² − n². c/k = m² + n².
+          obtain m, n: thm:primitive-triple a := b/k, b := a/k, c := c/k, from 1, 3.9, 3.10, C2
+
+    3.12. a = k(m² − n²)
+          algebra, from 3.11
+          requires a ∈ ℝ: membership, from H1
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.13. b = 2kmn
+          algebra, from 3.11
+          requires b ∈ ℝ: membership, from H2
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.14. c = k(m² + n²)
+          algebra, from 3.11
+          requires c ∈ ℝ: membership, from H3
+          requires k ∈ ℝ: membership, from 1
+          requires k ≠ 0: inequalities, from 1
+
+    3.15. a = k(m² − n²) and b = 2kmn
+          join 3.12, 3.13
+
+    3.16. (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
+          mun:or-left, from 3.15
+
+    3.17. There are k, m, n ∈ ℕ with c = k(m² + n²),
+          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+          exhibit, from 1, 3.11, 3.14, 3.16
+
+theorem pythagorean-triples
+  metamath    pythagtrip
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  then a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²),
+       and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)))
+
+1.  a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²),
+    and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+    both directions
+
+    direction
+    assume a² + b² = c²                                               (D1)
+
+    1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²),
+          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+          thm:triple-parameters a := a, b := b, c := c, from H1, H2, H3, D1
+
+    direction
+    assume there are k, m, n ∈ ℕ with c = k(m² + n²), and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))) (D2)
+
+    1.2.  k ∈ ℕ. m ∈ ℕ. n ∈ ℕ. c = k(m² + n²).
+          (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)).
+          obtain k, m, n from D2
+
+    1.3.  a² + b² = c²
+          thm:triple-from-parameters a := a, b := b, c := c, k := k, m := m, n := n, from H1, H2, H3, 1.2

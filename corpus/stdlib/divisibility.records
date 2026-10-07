@@ -505,6 +505,30 @@ theorem coprime-square
               square are squares themselves, of their common factors with
               the square root.
 
+mundane theorem divides-square
+  let d ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  then        d divides n ↔ d² divides n²
+  metamath    dvdssq
+  target      dvdssq
+
+mundane theorem divides-quotient
+  let n ∈ ℕ                                                           (H1)
+  let d ∈ ℕ                                                           (H2)
+  then        d divides n ↔ n/d ∈ ℕ
+  metamath    nndivdvds
+  target      nndivdvds
+
+mundane theorem gcd-quotients-coprime
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume b ≠ 0                                                        (H3)
+  then        gcd(a/gcd(a, b), b/gcd(a, b)) = 1
+  metamath    divgcdcoprm0
+  target      divgcdcoprm0
+  note        Dividing two numbers by their greatest common divisor leaves
+              two with no factor in common.
+
 mundane theorem divides-transitive
   let d ∈ ℤ                                                           (H1)
   let e ∈ ℤ                                                           (H2)

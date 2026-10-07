@@ -1050,18 +1050,27 @@ struct Exhibited {
 }
 
 fn exhibited(claim: &Node, library: &Library, known: &Known) -> Option<Exhibited> {
-    // The letters and their domains, then the body.
-    let bound: Vec<(&Node, &Node)> = match claim.notation.as_str() {
-        "there-is" if claim.children.len() == 3 => {
-            vec![(&claim.children[0], &claim.children[1])]
+    // The letters and their domains, then the body: a "there is" whose body
+    // is a "there is" again, as "there are k, m, n ∈ ℕ with …" builds, binds
+    // each letter in turn.
+    let mut bound: Vec<(&Node, &Node)> = Vec::new();
+    let mut body = claim;
+    loop {
+        match body.notation.as_str() {
+            "there-is" if body.children.len() == 3 => {
+                bound.push((&body.children[0], &body.children[1]));
+            }
+            "there-are" if body.children.len() == 5 => {
+                bound.push((&body.children[0], &body.children[1]));
+                bound.push((&body.children[2], &body.children[3]));
+            }
+            _ => break,
         }
-        "there-are" if claim.children.len() == 5 => vec![
-            (&claim.children[0], &claim.children[1]),
-            (&claim.children[2], &claim.children[3]),
-        ],
-        _ => return None,
-    };
-    let body = claim.children.last()?;
+        body = body.children.last()?;
+    }
+    if bound.is_empty() {
+        return None;
+    }
     let mut wants: Vec<Node> = bound
         .iter()
         .filter_map(|(letter, domain)| {

@@ -65,7 +65,7 @@ pub const LABEL: &str = r"[A-Z]+[0-9]*";
 pub const NUMBER: &str = r"\d+(?:\.\d+)*";
 pub const REF: &str = r"(?:\d+(?:\.\d+)*|[A-Z]+[0-9]*)";
 
-pub const PART_MARKERS: [&str; 3] = ["base", "step", "case"];
+pub const PART_MARKERS: [&str; 4] = ["base", "step", "case", "direction"];
 
 /// The module a file is: its path from the root without the extension, and
 /// without `corpus/` for a file kept there.

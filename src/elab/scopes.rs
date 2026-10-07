@@ -25,7 +25,7 @@ use crate::binds;
 use crate::corpus::{
     define_parts, fmt, item_prefix, DefineParts, Intro, Item, Step, CITED, ITEM_PREFIX,
 };
-use crate::matching::{instantiation, standard};
+use crate::matching::standard;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Signature;
@@ -424,10 +424,11 @@ impl<'a> Elaborator<'a> {
                     }
                 }
             }
-            "cases" => {
+            "cases" | "both directions" => {
                 // Every other block opens one scope for all its children. A
                 // `cases` opens one per part, so nothing is widened here and
-                // the part is entered when its first child arrives.
+                // the part is entered when its first child arrives; each
+                // direction of a `both directions` is such a part.
                 for o in &step.openers {
                     let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
                     let node = self.read(&body)?;
@@ -723,6 +724,10 @@ impl<'a> Elaborator<'a> {
                 closers = self.end_case(block, closers)?;
                 self.close_cases(block)?
             }
+            "both directions" => {
+                closers = self.end_case(block, closers)?;
+                self.close_both(block)?
+            }
             _ => {
                 closers = self.end_case(block, closers)?;
                 self.close_induction(block)?
@@ -964,6 +969,46 @@ impl<'a> Elaborator<'a> {
     /// The cases and the disjunction that says one of them holds: `jaodan`
     /// makes one case of the first two over their disjunction, and so on
     /// down, and `mpjaodan` closes on the last.
+    /// "A ↔ B" from its two directions, each a case over its assumption:
+    /// the first gives ( ( scope ∧ A ) → B ), the second ( ( scope ∧ B ) →
+    /// A ), and `impbida` joins them.
+    fn close_both(&mut self, block: &Block) -> Checked<(String, Proof)> {
+        let step = &block.owner;
+        let scope = &block.outer;
+        let both = [0usize, 1];
+        if !both
+            .iter()
+            .all(|p| block.parts.contains_key(p) && block.assumed.contains_key(p))
+        {
+            return Err(
+                self.defect(step.line, "a direction of the block proves nothing")
+            );
+        }
+        let claim = self.claim_of(&step.claim_text())?;
+        let left = self.term(&block.assumed[&0].0)?;
+        let right = self.term(&block.assumed[&1].0)?;
+        if claim != t!(left, right, "wb") {
+            return Err(self.defect(
+                step.line,
+                "the directions do not assume the two sides of the claim, in order",
+            ));
+        }
+        let (forward_end, forward, _) = block.parts[&0].clone();
+        let (backward_end, backward, _) = block.parts[&1].clone();
+        if forward_end != right || backward_end != left {
+            return Err(self.defect(
+                step.line,
+                "a direction does not end on the side it does not assume",
+            ));
+        }
+        let proof = self.b.ap(
+            "impbida",
+            &binds! {"ph" => scope, "ps" => &left, "ch" => &right},
+            &[&forward, &backward],
+        );
+        Ok((claim, proof))
+    }
+
     fn close_cases(&mut self, block: &Block) -> Checked<(String, Proof)> {
         let step = &block.owner;
         let scope = &block.outer;
@@ -1288,9 +1333,7 @@ impl<'a> Elaborator<'a> {
                 .to_string();
                 let item = self.item_cited(item_name);
                 let claimed = self.names_kept(|me| -> Checked<String> {
-                    for (name, value) in instantiation(&cites) {
-                        let node = me.read(&value)?;
-                        let term = me.term(&node)?;
+                    for (name, term) in me.instantiated(&cites)? {
                         me.names.insert(name, term);
                     }
                     // A name is a variable of the kernel whatever it is
@@ -1371,9 +1414,11 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|(v, s)| t!(format!("{v} cv"), s, "wcel"))
             .collect();
-        let mut member = memberships.join(" ");
-        if layers.len() > 1 {
-            member = t!(member, "wa");
+        // The memberships joined from the left, ((x ∈ A ∧ y ∈ B) ∧ z ∈ C),
+        // which the discharge takes apart from the right (`discharged`).
+        let mut member = memberships[0].clone();
+        for one in &memberships[1..] {
+            member = t!(member, one, "wa");
         }
         for (name, (variable, over_term)) in got.iter().zip(layers.iter()) {
             self.names.insert(name.clone(), format!("{variable} cv"));
@@ -1474,6 +1519,9 @@ impl<'a> Elaborator<'a> {
 
     fn discharged(&self, c: &ObtainCloser, proof: &Proof, goal: &str) -> Proof {
         let inner = pf!(self.b; c.outer, c.body, goal, proof, "ex");
+        if c.layers.len() > 2 {
+            return self.discharged_each(c, inner, goal);
+        }
         let mut all: Vec<crate::mm::spell::Part> = vec![
             crate::elab::part(&c.scope),
             crate::elab::part(&c.body),
@@ -1483,6 +1531,51 @@ impl<'a> Elaborator<'a> {
         all.push(crate::elab::part(&inner));
         all.push(crate::elab::part(c.discharge));
         let eliminated = self.b.proof(&all);
+        pf!(self.b; c.scope, c.ex, goal, c.p_ex, eliminated, "mpd")
+    }
+
+    /// Three names or more, which set.mm discharges with no one lemma: the
+    /// last name at a time, from ( ( scope ∧ ( M ∧ z ∈ C ) ) → ( body → goal ) ),
+    /// regrouped by `anassrs` and discharged by `rexlimdva`, until two are
+    /// left for `rexlimdvva`.
+    fn discharged_each(&self, c: &ObtainCloser, inner: Proof, goal: &str) -> Proof {
+        let member = |(v, set): &(String, String)| t!(format!("{v} cv"), set, "wcel");
+        let joined = |upto: usize| {
+            let mut out = member(&c.layers[0]);
+            for layer in &c.layers[1..upto] {
+                out = t!(out, member(layer), "wa");
+            }
+            out
+        };
+        let mut proof = inner;
+        let mut body = c.body.clone();
+        let mut k = c.layers.len();
+        while k > 2 {
+            let (var, set) = c.layers[k - 1].clone();
+            let before = joined(k - 1);
+            let last = member(&c.layers[k - 1]);
+            let then = t!(body, goal, "wi");
+            let regrouped = self.b.ap(
+                "anassrs",
+                &binds! {"ph" => &c.scope, "ps" => &before, "ch" => &last, "th" => &then},
+                &[&proof],
+            );
+            let held = t!(c.scope, before, "wa");
+            proof = self.b.ap(
+                "rexlimdva",
+                &binds! {"ph" => &held, "ps" => &body, "ch" => goal, "x" => &var, "A" => &set},
+                &[&regrouped],
+            );
+            body = t!(body, var, set, "wrex");
+            k -= 1;
+        }
+        let ((x, a), (y, b)) = (c.layers[0].clone(), c.layers[1].clone());
+        let eliminated = self.b.ap(
+            "rexlimdvva",
+            &binds! {"ph" => &c.scope, "ps" => &body, "ch" => goal,
+            "x" => &x, "A" => &a, "y" => &y, "B" => &b},
+            &[&proof],
+        );
         pf!(self.b; c.scope, c.ex, goal, c.p_ex, eliminated, "mpd")
     }
 

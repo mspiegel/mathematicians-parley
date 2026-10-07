@@ -501,24 +501,29 @@ impl<'a> Elaborator<'a> {
             let Some(held) = lines.get(r) else {
                 continue;
             };
-            let cited = self.to_term(&held.term);
-            if cited.variable().is_some()
-                || cited.label() != Some("wceq")
-                || cited.children().len() != 2
-            {
-                continue;
-            }
-            let mine = field::equation(&cited, &labels);
-            match (&want, &mine) {
-                (Some(want), Some(mine)) if mine == want => {}
-                _ => continue,
-            }
-            let Built(given) = self.cited_fact(r, &cited, scope, facts, lines)? else {
-                continue;
-            };
-            let found = self.cleared(w, &cited, left, right, given)?;
-            if !found.is_declined() {
-                return Ok(found);
+            // A line saying several things is read a sentence at a time, as
+            // any line a step cites is.
+            for part in self.parts(&held.term) {
+                let cited = self.to_term(&part);
+                if cited.variable().is_some()
+                    || cited.label() != Some("wceq")
+                    || cited.children().len() != 2
+                {
+                    continue;
+                }
+                let mine = field::equation(&cited, &labels);
+                match (&want, &mine) {
+                    (Some(want), Some(mine)) if mine == want => {}
+                    _ => continue,
+                }
+                let Built(given) = self.cited_fact(r, &cited, scope, facts, lines)?
+                else {
+                    continue;
+                };
+                let found = self.cleared(w, &cited, left, right, given)?;
+                if !found.is_declined() {
+                    return Ok(found);
+                }
             }
         }
         Ok(Route::no("no cited equation is the claim divided"))

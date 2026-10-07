@@ -268,7 +268,7 @@ does.
 
 ## Scopes
 
-All four block forms widen the antecedent by what they assume and close with
+All the block forms widen the antecedent by what they assume and close with
 one lemma:
 
 | block | closes with |
@@ -278,6 +278,12 @@ one lemma:
 | `fix` | `ex` |
 | `induction` | `nnindd` or `nn0indd`, then `ralrimiva` |
 | `cases` | `mpjaodan` |
+| `both directions` | `impbida` |
+
+`both directions` is a `cases` of two parts that close differently: each
+direction is entered and left as a case is, over its assumption, the first
+giving ( ( scope ∧ A ) → B ) and the second ( ( scope ∧ B ) → A ), and
+`impbida` joins them into A ↔ B.
 
 `cases` differs in one way: it opens a scope for each of its parts rather than
 one for all its children, so the scope changes between siblings and not only
@@ -290,7 +296,11 @@ follow the disjunction the block cites, which is built from the left:
 order.
 
 An `obtain` of two names at once is `rexlimdvva` — one lemma, not two nested
-discharges. The existential the kernel supplies carries the kernel's own bound
+discharges. set.mm has no such lemma for three, so an `obtain` of three names
+or more holds their memberships joined from the left, ((x ∈ A ∧ y ∈ B) ∧
+z ∈ C), and discharges the last name at a time, regrouped by `anassrs` and
+taken away by `rexlimdva`, until two are left for `rexlimdvva`; the page
+writes `obtain k, m, n` in one line whatever the count. The existential the kernel supplies carries the kernel's own bound
 variable, so every obtain alpha-converts it with `cbvrexv` to the name the text
 uses. Two obtains from one definition in nested scopes make that compulsory
 rather than cosmetic: the second scope's antecedent already carries the first

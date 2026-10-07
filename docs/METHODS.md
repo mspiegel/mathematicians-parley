@@ -21,8 +21,9 @@ Everything else is fixed here.
 
 Six methods are specified below: the four closure methods (`inequalities`,
 `algebra`, `arithmetic`, `membership`), `join`, and `contradiction`. The rest
-are not yet: the citation form, the block methods `fix`, `cases` and
-`induction`, and `substitute`, `instantiate`, `obtain` and `exhibit`. None is
+are not yet: the citation form, the block methods `fix`, `cases`,
+`both directions` and `induction`, and `substitute`, `instantiate`, `obtain`
+and `exhibit`. None is
 a decision procedure, so each should be shorter than the closure methods
 were. What each does is in `SYNTAX.md`, and what the elaborator builds for it
 in `ELABORATION.md`.
