@@ -155,7 +155,30 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Option<Proof>> {
         let key = self.fact_key(wanted);
         let claims = facts.under(&key);
+        // A claim held as it is wanted is taken as it stands, before one of
+        // the same standard form spelt otherwise: an equation is held both
+        // ways round (`know_turned`), and the way asked for is the one meant.
+        if claims.iter().any(|c| c == wanted) {
+            if let Some(proof) = facts.proof(wanted) {
+                return Ok(Some(proof));
+            }
+        }
         let Some(stored) = claims.last() else {
+            // An equation is held whichever way round it was proved: `m = |X|`
+            // holds `|X| = m`. The standard form keeps the sides as written,
+            // so the other way round is a fact of its own to look for.
+            if let Some((turned, flip)) = self.turned_claim(wanted) {
+                if !facts.under(&self.fact_key(&turned)).is_empty() {
+                    if let Some(p) = self.held(facts, &turned, scope)? {
+                        let sides = self.to_term(&turned);
+                        let (a, b) = (
+                            self.rpn(&sides.children()[0]),
+                            self.rpn(&sides.children()[1]),
+                        );
+                        return Ok(Some(pf!(self.b; scope, a, b, p, flip)));
+                    }
+                }
+            }
             return Ok(None);
         };
         let Some(proof) = facts.proof(stored) else {

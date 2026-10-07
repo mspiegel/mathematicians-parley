@@ -9,7 +9,9 @@ use super::structure::{labels_in_scope, Declared};
 use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
-use crate::matching::{expand, instantiation, standard, Binding, Context, Definitions};
+use crate::matching::{
+    alike, expand, instantiation, standard, Binding, Context, Definitions,
+};
 use crate::sorts::{
     cited_defines, file_definitions, said_by_line, sentences, supplied_by, Env,
 };
@@ -76,6 +78,22 @@ impl<'a> Known<'a> {
     /// The text read with its defined names kept, as a message prints it.
     pub fn read_as_written(&self, text: &str) -> Option<Node> {
         parse_here(text, self.env.g, &self.sorts).ok()
+    }
+
+    /// Whether two readings are one formula: alike but for the letters they
+    /// bind, the way round an equation is written (`matching::alike`), and
+    /// the spelling of an order, `x > 0` for `0 < x` (`matching::standard`).
+    /// The order of anything else, the two sides of an "or" among them, is
+    /// kept: a disjunction has one pattern, and nothing turns it.
+    pub fn alike(&self, a: &Node, b: &Node) -> bool {
+        let none = IndexMap::new();
+        alike(
+            &standard(a, self.ctx),
+            &standard(b, self.ctx),
+            self.ctx,
+            &none,
+            &none,
+        )
     }
 
     /// What a defined name stands for in a citation naming `refs`: a

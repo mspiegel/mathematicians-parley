@@ -265,7 +265,23 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let linear = self.sums_linear(term, Some(step), lines);
         field::reading_sums(linear, || self.decide_field(step, term, lines))?;
-        let found = self.prove_field(Some(step), term, scope, facts, lines)?;
+        let mut found = self.prove_field(Some(step), term, scope, facts, lines)?;
+        // An equation is one claim either way round, and a route that reaches
+        // `b = a` reaches the claim `a = b` turned (`turned_claim`).
+        if found.is_declined() {
+            if let Some((turned, flip)) = self.turned_claim(term) {
+                if let Built(p) =
+                    self.prove_field(Some(step), &turned, scope, facts, lines)?
+                {
+                    let sides = self.to_term(&turned);
+                    let (a, b) = (
+                        self.rpn(&sides.children()[0]),
+                        self.rpn(&sides.children()[1]),
+                    );
+                    found = Built(pf!(self.b; scope, a, b, p, flip));
+                }
+            }
+        }
         if let Declined(d) = &found {
             // Decided but not written is a gap in the method, and nothing is
             // taken in its place: the build stops here.

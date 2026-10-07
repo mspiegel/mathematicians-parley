@@ -819,6 +819,7 @@ impl<'a> Elaborator<'a> {
             },
         );
         self.know(facts, term.clone(), proof.clone());
+        self.know_turned(facts, &term, &proof, scope);
         // A line saying several things says each of them, only as deep as
         // the sentences the text wrote.
         if said.len() > 1 {
@@ -1755,27 +1756,43 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        for start in starts {
-            if start == term {
-                continue;
+        // The claim as written, and an equation's the other way round: what
+        // the substitution makes may face either way (`turned_claim`).
+        let mut aims: Vec<(String, Option<&'static str>)> =
+            vec![(term.to_string(), None)];
+        if let Some((turned, flip)) = self.turned_claim(term) {
+            aims.push((turned, Some(flip)));
+        }
+        for (aim, flip) in &aims {
+            for start in &starts {
+                if start == aim {
+                    continue;
+                }
+                let Some(given) = self.held(&known, start, scope)? else {
+                    continue;
+                };
+                let Built(alike) = self.congruence(
+                    &self.to_term(start),
+                    &self.to_term(aim),
+                    scope,
+                    &equation,
+                    Some(step),
+                    &leaf,
+                )?
+                else {
+                    continue;
+                };
+                let made = pf!(self.b; scope, start, aim, given, alike, "mpbid");
+                let Some(flip) = flip else {
+                    return Ok(Built(made));
+                };
+                let sides = self.to_term(aim);
+                let (a, b) = (
+                    self.rpn(&sides.children()[0]),
+                    self.rpn(&sides.children()[1]),
+                );
+                return Ok(Built(pf!(self.b; scope, a, b, made, *flip)));
             }
-            let Some(given) = self.held(&known, &start, scope)? else {
-                continue;
-            };
-            let Built(alike) = self.congruence(
-                &self.to_term(&start),
-                &self.to_term(term),
-                scope,
-                &equation,
-                Some(step),
-                &leaf,
-            )?
-            else {
-                continue;
-            };
-            return Ok(Built(
-                pf!(self.b; scope, start, term, given, alike, "mpbid"),
-            ));
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
     }
@@ -2266,7 +2283,14 @@ impl<'a> Elaborator<'a> {
             .map(String::from)
             .collect();
         let seed = self.filling(step, item, None)?;
-        match self.by_clause(&labels, term, scope, facts, step, Some(&seed))? {
+        match self.by_clause_either_way(
+            &labels,
+            term,
+            scope,
+            facts,
+            step,
+            Some(&seed),
+        )? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,
@@ -3255,13 +3279,19 @@ impl<'a> Elaborator<'a> {
         // Each sentence of a cited line is read on its own, as `witnessed`
         // reads them: a line saying two things names a witness in either.
         let mut witness = None;
+        // An equation names its witness whichever way round it is written,
+        // `(f(b) − f(a))/(b − a) = f′(c)` as well as `f′(c) = …`.
         'lines: for r in &step.just.refs {
             let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
             for part in self.parts(&line.term) {
-                let actual = self.applications_read(&self.to_term(&part));
-                witness = self.witness_in(&asked, &actual, &stands);
-                if witness.is_some() {
-                    break 'lines;
+                let mut ways = vec![part.clone()];
+                ways.extend(self.turned_claim(&part).map(|(t, _)| t));
+                for way in ways {
+                    let actual = self.applications_read(&self.to_term(&way));
+                    witness = self.witness_in(&asked, &actual, &stands);
+                    if witness.is_some() {
+                        break 'lines;
+                    }
                 }
             }
         }
@@ -3566,6 +3596,56 @@ impl<'a> Elaborator<'a> {
         Ok(Built(pf!(self.b; scope, term, ex, p_ex, made, "mpbird")))
     }
 
+    /// `by_clause`, with an equation one claim either way round, as the
+    /// checker reads an item's conclusion (`citing::either_way`): `b = a` is
+    /// what an item concluding `a = b` gives, turned.
+    fn by_clause_either_way(
+        &mut self,
+        labels: &[String],
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        step: &Step,
+        seed: Option<&Binding>,
+    ) -> Checked<Route<Proof>> {
+        let found = self.by_clause(labels, term, scope, facts, step, seed)?;
+        if !found.is_declined() {
+            return Ok(found);
+        }
+        let Some((turned, flip)) = self.turned_claim(term) else {
+            return Ok(found);
+        };
+        match self.by_clause(labels, &turned, scope, facts, step, seed)? {
+            Built(p) => {
+                let sides = self.to_term(&turned);
+                let (a, b) = (
+                    self.rpn(&sides.children()[0]),
+                    self.rpn(&sides.children()[1]),
+                );
+                Ok(Built(pf!(self.b; scope, a, b, p, flip)))
+            }
+            Declined(_) => Ok(found),
+        }
+    }
+
+    /// An equation or disequation with its sides the other way round, and
+    /// the lemma that turns a proof of it back: `B = A` and `eqcomd`, or
+    /// `B ≠ A` and `necomd`. None for any other claim.
+    pub(crate) fn turned_claim(&self, term: &str) -> Option<(String, &'static str)> {
+        let whole = self.to_term(term);
+        let flip = match whole.label() {
+            Some("wceq") => "eqcomd",
+            Some("wne") => "necomd",
+            _ => return None,
+        };
+        let label = whole.label()?.to_string();
+        let (a, b) = (
+            self.rpn(&whole.children()[0]),
+            self.rpn(&whole.children()[1]),
+        );
+        Some((t!(b, a, &label), flip))
+    }
+
     /// A theorem cited: either set.mm supplies it or this corpus does.
     fn cite(
         &mut self,
@@ -3600,7 +3680,14 @@ impl<'a> Elaborator<'a> {
             return Err(self.untargeted(step, item));
         }
         let seed = self.filling(step, item, None)?;
-        match self.by_clause(&labels, term, scope, facts, step, Some(&seed))? {
+        match self.by_clause_either_way(
+            &labels,
+            term,
+            scope,
+            facts,
+            step,
+            Some(&seed),
+        )? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,

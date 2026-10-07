@@ -45,7 +45,14 @@ enum Rewrite {
     Line(fn(&str) -> Option<String>),
     /// The file at once, theorem by theorem.
     File(fn(&Context, &str, &str) -> Rewritten),
+    /// Every proof file at once: a change to one theorem that every theorem
+    /// citing it must follow.
+    Corpus(EveryFile),
 }
+
+/// A rewrite of every proof file, each given and given back as `(path,
+/// text)`.
+type EveryFile = fn(&Context, &[(String, String)]) -> Vec<(String, Rewritten)>;
 
 /// One rewriting that keeps what a proof says.
 struct Change {
@@ -90,6 +97,14 @@ fn changes() -> Vec<Change> {
         Change {
             name: "a conjunction claim written as sentences",
             rewrite: Rewrite::File(rewrites::claims_split),
+        },
+        Change {
+            name: "a relation in a claim or an assumption turned around",
+            rewrite: Rewrite::File(rewrites::relations_turned),
+        },
+        Change {
+            name: "a cited theorem's letters renamed, and its citations with them",
+            rewrite: Rewrite::Corpus(rewrites::statements_renamed),
         },
     ]
 }
@@ -225,15 +240,28 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
         .map(|n| format!("proofs/{n}"))
         .collect();
     paths.sort();
-    for path in paths {
-        let text = clean.read_text(&path).expect("a proof file reads");
-        let done = match change.rewrite {
-            Rewrite::Line(line) => each_line(&text, line),
-            Rewrite::File(file) => file(context, &path, &text),
-        };
+    let texts: Vec<(String, String)> = paths
+        .into_iter()
+        .map(|p| {
+            let text = clean.read_text(&p).expect("a proof file reads");
+            (p, text)
+        })
+        .collect();
+    let rewritten: Vec<(String, Rewritten)> = match change.rewrite {
+        Rewrite::Line(line) => texts
+            .iter()
+            .map(|(p, t)| (p.clone(), each_line(t, line)))
+            .collect(),
+        Rewrite::File(file) => texts
+            .iter()
+            .map(|(p, t)| (p.clone(), file(context, p, t)))
+            .collect(),
+        Rewrite::Corpus(all) => all(context, &texts),
+    };
+    for ((path, done), (_, text)) in rewritten.into_iter().zip(&texts) {
         declined.extend(done.declined);
         theorems.extend(done.theorems);
-        if done.lines > 0 && done.text != text {
+        if done.lines > 0 && done.text != *text {
             // INVARIANCE_DUMP names a directory to hold each rewritten file,
             // under the change's name, to read a break against.
             if let Ok(dir) = std::env::var("INVARIANCE_DUMP") {

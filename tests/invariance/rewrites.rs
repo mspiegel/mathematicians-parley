@@ -796,13 +796,21 @@ fn introduced(thm: &Theorem) -> Vec<String> {
 /// elaborated statement the test does not build again. The letters such a
 /// theorem introduces among its steps are its own, and are renamed.
 fn held(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
-    let mut out = ctx.constants.clone();
+    let mut out = held_own(ctx, thm);
     if ctx.cited.contains(&thm.qualified()) {
         for h in &thm.hypotheses {
             out.extend(ctx.letters_of(&parley::sorts::said_by_line(h.kind, &h.text)));
         }
         out.extend(ctx.letters_of(&thm.conclusion));
     }
+    out
+}
+
+/// The letters of a theorem no rename may touch whoever cites it: the
+/// library's constants, and those a citation of a corpus theorem leaves to
+/// stand for the cited theorem's letter of the same name.
+fn held_own(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
+    let mut out = ctx.constants.clone();
     for step in &thm.steps {
         let mut texts = vec![step.just.text.clone()];
         texts.extend(step.requires.iter().map(|r| r.how.clone()));
@@ -917,40 +925,26 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
     }
 }
 
-/// The first two letters a theorem's `let` lines put in one set, swapped.
+/// The first two letters a theorem introduces in one alphabet and case,
+/// swapped everywhere the theorem writes them. A swap is a renaming that
+/// takes no letter from outside, so it keeps the meaning whatever the two
+/// letters are; the two need not be of one sort.
 fn swap(
     _: &Context,
     thm: &Theorem,
     _: &BTreeSet<String>,
     held: &BTreeSet<String>,
 ) -> Option<BTreeMap<String, String>> {
-    let mut by_set: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    for h in &thm.hypotheses {
-        if h.kind != Intro::Let {
-            continue;
-        }
-        let body = parley::sorts::body_of(h.text.trim(), "let");
-        let Some((letter, set)) = body.split_once(" ∈ ") else {
-            continue;
-        };
-        let letter = letter.trim();
-        if is_one_letter(letter) && !held.contains(letter) {
-            by_set
-                .entry(set.trim().to_string())
-                .or_default()
-                .push(letter.to_string());
-        }
-    }
-    let mut pairs: Vec<&Vec<String>> =
-        by_set.values().filter(|v| v.len() >= 2).collect();
-    pairs.sort_by_key(|v| {
-        thm.hypotheses
+    let free: Vec<String> = introduced(thm)
+        .into_iter()
+        .filter(|l| !held.contains(l))
+        .collect();
+    let (a, b) = free.iter().enumerate().find_map(|(i, a)| {
+        free[i + 1..]
             .iter()
-            .position(|h| h.text.contains(&format!("let {} ", v[0])))
-            .unwrap_or(usize::MAX)
-    });
-    let pair = pairs.first()?;
-    let (a, b) = (pair[0].clone(), pair[1].clone());
+            .find(|b| class(b) == class(a))
+            .map(|b| (a.clone(), b.clone()))
+    })?;
     Some(BTreeMap::from([(a.clone(), b.clone()), (b, a)]))
 }
 
@@ -1227,4 +1221,347 @@ fn conjunction_split(ctx: &Context, read: &[Node]) -> Option<String> {
 
 pub fn claims_split(ctx: &Context, path: &str, text: &str) -> Rewritten {
     claims(ctx, path, text, conjunction_split)
+}
+
+/// A sentence that is one relation and nothing else, turned around: `a = b`
+/// as `b = a`, `x ≤ y` as `y ≥ x`. None for any other sentence: one with
+/// words, a comma, or a second relation.
+fn relation_turned(sentence: &str) -> Option<String> {
+    let all = [
+        "=", "≠", "≤", "≥", "<", ">", "∈", "∉", "⊆", "≡", "→", "↔", ":", "∥", "∣",
+    ];
+    let count: usize = all.iter().map(|s| sentence.matches(s).count()).sum();
+    let worded = sentence
+        .split(|c: char| !c.is_alphabetic())
+        .any(|w| w.chars().count() > 1 && !w.chars().all(|c| c.is_uppercase()));
+    if count != 1 || worded || sentence.contains(',') {
+        return None;
+    }
+    let turns = [
+        ("=", "="),
+        ("≠", "≠"),
+        ("≤", "≥"),
+        ("≥", "≤"),
+        ("<", ">"),
+        (">", "<"),
+    ];
+    turns.iter().find_map(|(sign, turned)| {
+        let (left, right) = sentence.split_once(&format!(" {sign} "))?;
+        Some(format!("{} {turned} {}", right.trim(), left.trim()))
+    })
+}
+
+/// A formula's sentences, each that is one relation turned around, or None
+/// where none is.
+fn sentences_turned(text: &str) -> Option<String> {
+    let ends = text.trim_end().ends_with('.');
+    let mut changed = false;
+    let mut out = Vec::new();
+    for s in sentences(text) {
+        match relation_turned(&s) {
+            Some(t) => {
+                changed = true;
+                out.push(t);
+            }
+            None => out.push(s),
+        }
+    }
+    let mut joined = out.join(". ");
+    if ends {
+        joined.push('.');
+    }
+    changed.then_some(joined)
+}
+
+/// Every equation, disequation and order a claim, an assumption or a
+/// statement writes as a sentence of its own, turned around: `a = b` and
+/// `b = a` are one claim, as `x < y` and `y > x` are. A claim written over
+/// several lines, and the statement of a theorem another cites, are left as
+/// they are: the citer reads the statement the corpus elaborated, which this
+/// test does not build again.
+pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        let lay = layout(thm, &lines, end);
+        let cited = ctx.cited.contains(&thm.qualified());
+        let mut spans: Vec<Region> = Vec::new();
+        for claim in &lay.claims {
+            if claim.lines.len() == 1 && !thm.steps[claim.step].impossible {
+                if let Some(r) = lay
+                    .regions
+                    .iter()
+                    .find(|r| r.line == claim.lines[0] && r.from == claim.from)
+                {
+                    spans.push(r.clone());
+                }
+            }
+        }
+        let assumed: Vec<usize> = thm
+            .hypotheses
+            .iter()
+            .filter(|h| h.kind != Intro::Let && !cited)
+            .map(|h| h.line - 1)
+            .chain(thm.steps.iter().flat_map(|s| {
+                s.openers
+                    .iter()
+                    .filter(|o| o.kind != Intro::Let && !o.is_hypothesis && !o.is_claim)
+                    .map(|o| o.line - 1)
+            }))
+            .collect();
+        for l in assumed {
+            if let Some(r) = lay.regions.iter().find(|r| r.line == l) {
+                spans.push(r.clone());
+            }
+        }
+        if !cited {
+            for (l, line) in lines.iter().enumerate().take(end).skip(thm.line - 1) {
+                if line.trim_start().starts_with("then ")
+                    && !line.trim_end().ends_with(',')
+                {
+                    if let Some(r) = lay.regions.iter().find(|r| r.line == l) {
+                        spans.push(r.clone());
+                    }
+                }
+            }
+        }
+        spans.sort_by_key(|r| std::cmp::Reverse((r.line, r.from)));
+        let mut changed = false;
+        for r in spans {
+            let c = chars(&lines[r.line]);
+            let old: String = c[r.from..r.to].iter().collect();
+            let Some(new) = sentences_turned(&old) else {
+                continue;
+            };
+            let head: String = c[..r.from].iter().collect();
+            let tail: String = c[r.to..].iter().collect();
+            lines[r.line] = format!("{head}{new}{tail}");
+            count += 1;
+            changed = true;
+        }
+        if changed {
+            theorems.push(thm.qualified());
+        }
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined: Vec::new(),
+    }
+}
+
+/// The lines a step's citation is written on, from 0: its justification and
+/// the lines it goes on to, or a requires line and the lines it goes on to.
+struct Citation {
+    lines: Vec<usize>,
+    /// What it says, as the proof parser joined it: the justification, or a
+    /// requires line's reason.
+    said: String,
+}
+
+fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
+    let mut out = Vec::new();
+    for step in &thm.steps {
+        let j = step.just.line - 1;
+        let mut at = vec![j];
+        at.extend(continued(lines, j, end));
+        out.push(Citation {
+            lines: at,
+            said: step.just.text.clone(),
+        });
+        for r in &step.requires {
+            let l = r.line - 1;
+            let mut at = vec![l];
+            at.extend(continued(lines, l, end));
+            out.push(Citation {
+                lines: at,
+                said: r.how.clone(),
+            });
+        }
+    }
+    out
+}
+
+/// The statement letters of every theorem another cites, renamed, and every
+/// citation of it said again to match: a value given a renamed letter by
+/// name is given it under the new name, and a letter a citation left to mean
+/// the citer's own letter of that name is given that letter by name, since
+/// the names no longer agree. Each such theorem's `let` letters are renamed
+/// to letters the library binds that the theorem does not write. Its
+/// elaborated statement, which a citer reads, numbers its classes by the
+/// order of the `let` lines and so says the same either way.
+pub fn statements_renamed(
+    ctx: &Context,
+    files: &[(String, String)],
+) -> Vec<(String, Rewritten)> {
+    let mut texts: BTreeMap<String, Vec<String>> = files
+        .iter()
+        .map(|(p, t)| (p.clone(), t.lines().map(str::to_string).collect()))
+        .collect();
+    let mut declined = Vec::new();
+    // The renaming of each cited theorem, where its own lines take it.
+    let mut renamings: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+    for (path, lines) in &texts {
+        for (thm, end) in theorems_of(ctx, path, lines.len()) {
+            if !ctx.cited.contains(&thm.qualified()) {
+                continue;
+            }
+            let lay = layout(thm, lines, end);
+            let used = match letters_used(ctx, lines, &lay) {
+                Ok(used) => used,
+                Err(why) => {
+                    declined.push(Declined {
+                        theorem: thm.qualified(),
+                        why,
+                    });
+                    continue;
+                }
+            };
+            let held = held_own(ctx, thm);
+            let pool = library_pool(ctx, thm);
+            let mut map = BTreeMap::new();
+            let mut taken: BTreeSet<String> = BTreeSet::new();
+            for h in thm.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
+                let Some(letter) =
+                    let_letter(&parley::sorts::body_of(h.text.trim(), "let"))
+                else {
+                    continue;
+                };
+                if held.contains(&letter) {
+                    continue;
+                }
+                let target = pool.iter().find(|t| {
+                    class(t) == class(&letter)
+                        && !t.contains('′')
+                        && !used.iter().any(|u| u.trim_end_matches('′') == t.as_str())
+                        && !held.contains(*t)
+                        && !taken.contains(*t)
+                        && !ctx.g.functions.contains_key(*t)
+                });
+                if let Some(t) = target {
+                    taken.insert(t.clone());
+                    map.insert(letter, t.clone());
+                }
+            }
+            if map.is_empty() {
+                continue;
+            }
+            let mut attempt = lines.clone();
+            match rename(ctx, &mut attempt, &lay, &map) {
+                Ok(_) => {
+                    renamings.insert(thm.qualified(), map);
+                }
+                Err(why) => declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why,
+                }),
+            }
+        }
+    }
+    let mut changed: BTreeMap<String, BTreeSet<usize>> = BTreeMap::new();
+    let mut theorems: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    // Each citation of a renamed theorem, said again under its new names.
+    let item = re(r"\bthm:([A-Za-z0-9′-]+)");
+    for (path, lines) in texts.iter_mut() {
+        for (thm, end) in theorems_of(ctx, path, lines.len()) {
+            for citation in citations_of(thm, lines, end) {
+                let first = citation.lines[0];
+                let Some(m) = item.captures(&lines[first]) else {
+                    continue;
+                };
+                let Some(map) = renamings.get(&thm.names.full(&m[1])) else {
+                    continue;
+                };
+                let named: BTreeSet<String> = instantiation(&citation.said)
+                    .into_iter()
+                    .map(|(n, _)| n)
+                    .collect();
+                for &l in &citation.lines {
+                    let mut c = chars(&lines[l]);
+                    let mut spans = assigned_names(&c);
+                    spans.sort_by_key(|s| std::cmp::Reverse(s.0));
+                    for (from, to) in spans {
+                        let name: String = c[from..to].iter().collect();
+                        if let Some(new) = map.get(&name) {
+                            c.splice(from..to, new.chars());
+                        }
+                    }
+                    let new: String = c.into_iter().collect();
+                    if new != lines[l] {
+                        lines[l] = new;
+                        changed.entry(path.clone()).or_default().insert(l);
+                    }
+                }
+                let left: Vec<String> = map
+                    .iter()
+                    .filter(|(old, _)| !named.contains(*old))
+                    .map(|(old, new)| format!("{new} := {old}"))
+                    .collect();
+                if left.is_empty() {
+                    continue;
+                }
+                let at = item.find(&lines[first]).map(|m| m.end()).unwrap();
+                let rest = lines[first][at..].to_string();
+                let pairs = left.join(", ");
+                let joint = if rest.trim().is_empty() || rest.starts_with(',') {
+                    format!(" {pairs}")
+                } else {
+                    format!(" {pairs},")
+                };
+                lines[first] = format!("{}{joint}{rest}", &lines[first][..at]);
+                changed.entry(path.clone()).or_default().insert(first);
+            }
+        }
+    }
+    // Each renamed theorem's own letters, throughout it.
+    for (path, lines) in texts.iter_mut() {
+        for (thm, end) in theorems_of(ctx, path, lines.len()) {
+            let Some(map) = renamings.get(&thm.qualified()) else {
+                continue;
+            };
+            let lay = layout(thm, lines, end);
+            let before = lines.clone();
+            match rename(ctx, lines, &lay, map) {
+                Ok(_) => {
+                    for (l, line) in lines.iter().enumerate() {
+                        if *line != before[l] {
+                            changed.entry(path.clone()).or_default().insert(l);
+                        }
+                    }
+                    theorems
+                        .entry(path.clone())
+                        .or_default()
+                        .push(thm.qualified());
+                }
+                Err(why) => {
+                    *lines = before;
+                    declined.push(Declined {
+                        theorem: thm.qualified(),
+                        why,
+                    });
+                }
+            }
+        }
+    }
+    let mut out = Vec::new();
+    for (path, text) in files {
+        let lines = &texts[path];
+        let n = changed.get(path).map_or(0, BTreeSet::len);
+        let here: Vec<Declined> = Vec::new();
+        out.push((
+            path.clone(),
+            Rewritten {
+                text: joined(lines.clone(), text),
+                lines: n,
+                theorems: theorems.remove(path).unwrap_or_default(),
+                declined: here,
+            },
+        ));
+    }
+    if let Some((_, first)) = out.first_mut() {
+        first.declined = declined;
+    }
+    out
 }

@@ -1,7 +1,11 @@
 //! What an item a citation names asks for there.
 
+use std::collections::BTreeSet;
+
+use indexmap::IndexMap;
+
 use crate::formula::Node;
-use crate::matching::{substitute_apart, Binding, Context, PROPERTY};
+use crate::matching::{fresh_letters, substitute_apart, Binding, Context, PROPERTY};
 use crate::outcome::{Built, Declined, Route};
 
 use super::conclude::{taken, Taken};
@@ -69,6 +73,58 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
     }
     if node.children.is_empty() {
         return node.clone();
+    }
+    // Under a binder its own letters are its own, and a value that mentions
+    // one is kept apart from it, as `substitute_apart` keeps it: prime-factor's
+    // `there is p ∈ ℕ with … p divides m` at m := p! + 1 binds another letter,
+    // and never the p of p!.
+    let (held, body) = ctx.held_body(&node.notation);
+    if !held.is_empty() && held.iter().all(|&at| node.children[at].is_name()) {
+        let own: BTreeSet<String> = held
+            .iter()
+            .map(|&at| node.children[at].text.clone())
+            .collect();
+        let mut inner: Binding = bound
+            .iter()
+            .filter(|(k, _)| !own.contains(*k))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        let mut used = node.names();
+        for v in bound.values() {
+            used.extend(v.names());
+        }
+        let mut spelt: IndexMap<usize, Node> = IndexMap::new();
+        for &at in &held {
+            let var = &node.children[at];
+            if bound
+                .iter()
+                .any(|(k, v)| !own.contains(k) && v.names().contains(&var.text))
+            {
+                let letter = fresh_letters()
+                    .into_iter()
+                    .find(|c| !used.contains(c))
+                    .unwrap_or_default();
+                let fresh = Node::leaf("name", var.sort.clone(), &letter);
+                used.insert(letter);
+                spelt.insert(at, fresh.clone());
+                inner.insert(var.text.clone(), fresh);
+            }
+        }
+        let children = node
+            .children
+            .iter()
+            .enumerate()
+            .map(|(i, c)| {
+                if held.contains(&i) {
+                    spelt.get(&i).cloned().unwrap_or_else(|| c.clone())
+                } else if body.contains(&i) {
+                    filled(c, &inner, ctx)
+                } else {
+                    filled(c, bound, ctx)
+                }
+            })
+            .collect();
+        return Node::new(&node.notation, node.sort.clone(), children, &node.text);
     }
     Node::new(
         &node.notation,

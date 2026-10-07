@@ -280,6 +280,33 @@ impl<'a> Elaborator<'a> {
         Ok(Some(Built(self.b.proof(&all))))
     }
 
+    /// An equation known also the other way round: a route that looks among
+    /// the facts for `|U| = B` finds the line that wrote `2^k = |U|`. The
+    /// way written stays the one held under its own spelling.
+    pub fn know_turned(
+        &mut self,
+        facts: &Facts,
+        term: &str,
+        proof: &Proof,
+        scope: &str,
+    ) {
+        let Some((turned, flip)) = self.turned_claim(term) else {
+            return;
+        };
+        // Stored as written, not merely held under the same standard form:
+        // a route that reads the facts one by one sees only what is written
+        // there. A later proof of the equation is a later proof of it turned,
+        // as a later proof of a claim replaces an earlier one, so that a step
+        // takes the line it names and not an earlier one saying the same.
+        let whole = self.to_term(term);
+        let (a, b) = (
+            self.rpn(&whole.children()[0]),
+            self.rpn(&whole.children()[1]),
+        );
+        let made = pf!(self.b; scope, a, b, proof.clone(), flip);
+        self.know(facts, turned, made);
+    }
+
     /// Record each conjunct of a fact as a fact of its own.
     pub fn unpack(
         &mut self,
@@ -292,6 +319,7 @@ impl<'a> Elaborator<'a> {
         if depth == 0 {
             return;
         }
+        self.know_turned(facts, term, proof, scope);
         let node = self.to_term(term);
         let Some(picks) = node.label().and_then(|l| lookup(rules::SPLIT, l)) else {
             return;
@@ -632,13 +660,26 @@ impl<'a> Elaborator<'a> {
             block.case_opened_at = Some(closers.len());
             let claim = self.claim_of(&block.owner.claim_text())?;
             let assumed = self.term(&block.assumed[&part].0)?;
-            if assumed != claim {
-                return Err(self
-                    .defect(o.line, "the case's assumption is not the block's claim"));
-            }
-            let proof = self
+            let mut proof = self
                 .held(&facts, &assumed, &scope)?
                 .expect("the case just laid down");
+            if assumed != claim {
+                // The claim written another way, `b = a` for `a = b`.
+                let alike = self.same(
+                    &self.to_term(&assumed),
+                    &self.to_term(&claim),
+                    &scope,
+                    &facts,
+                    Some(&block.owner),
+                )?;
+                let Built(alike) = alike else {
+                    return Err(self.defect(
+                        o.line,
+                        "the case's assumption is not the block's claim",
+                    ));
+                };
+                proof = pf!(self.b; scope, assumed, claim, proof, alike, "mpbid");
+            }
             block.parts.insert(part, (claim, proof, scope));
         }
         Ok(closers)
@@ -836,7 +877,59 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // The two may deny one another written different ways, `a = b` and
+        // `b ≠ a`: the fact is carried to the spelling its denial has.
+        for one in &seen {
+            for other in &seen {
+                let denied = self.to_term(other);
+                if denied.label() != Some("wn") {
+                    continue;
+                }
+                let inner = self.rpn(&denied.children()[0]);
+                if inner == *one {
+                    continue;
+                }
+                let alike = self.same(
+                    &self.to_term(one),
+                    &denied.children()[0],
+                    scope,
+                    &known,
+                    None,
+                )?;
+                let Built(alike) = alike else {
+                    continue;
+                };
+                let held = self
+                    .held(&known, one, scope)?
+                    .expect("a fact just seen held");
+                let carried = pf!(self.b; scope, one, inner, held, alike, "mpbid");
+                self.know(&known, inner.clone(), carried);
+                return Ok(Some((inner, other.clone(), known)));
+            }
+        }
         Ok(None)
+    }
+
+    /// An existence over `depth` names whose body is an equation, with the
+    /// equation turned around; None where the body is no equation.
+    pub fn existence_turned(&self, ex: &str, depth: usize) -> Option<String> {
+        let whole = self.to_term(ex);
+        let mut layers: Vec<Term> = Vec::new();
+        let mut rest = whole;
+        for _ in 0..depth {
+            if rest.label() != Some("wrex") {
+                return None;
+            }
+            layers.push(rest.clone());
+            rest = rest.children()[0].clone();
+        }
+        let (turned, _) = self.turned_claim(&self.rpn(&rest))?;
+        let mut body = self.to_term(&turned);
+        for layer in layers.iter().rev() {
+            let kids = layer.children();
+            body = Term::apply("wrex", vec![body, kids[1].clone(), kids[2].clone()]);
+        }
+        Some(self.rpn(&body))
     }
 
     /// A fact and every conjunct inside it, the whole one first.
@@ -987,12 +1080,6 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim_text())?;
         let left = self.term(&block.assumed[&0].0)?;
         let right = self.term(&block.assumed[&1].0)?;
-        if claim != t!(left, right, "wb") {
-            return Err(self.defect(
-                step.line,
-                "the directions do not assume the two sides of the claim, in order",
-            ));
-        }
         let (forward_end, forward, _) = block.parts[&0].clone();
         let (backward_end, backward, _) = block.parts[&1].clone();
         if forward_end != right || backward_end != left {
@@ -1001,11 +1088,30 @@ impl<'a> Elaborator<'a> {
                 "a direction does not end on the side it does not assume",
             ));
         }
-        let proof = self.b.ap(
+        let joined = t!(left, right, "wb");
+        let mut proof = self.b.ap(
             "impbida",
             &binds! {"ph" => scope, "ps" => &left, "ch" => &right},
             &[&forward, &backward],
         );
+        if claim != joined {
+            // The sides assumed as the claim writes them, or another way,
+            // `c² = a² + b²` for `a² + b² = c²`.
+            let alike = self.same(
+                &self.to_term(&joined),
+                &self.to_term(&claim),
+                scope,
+                &block.outside,
+                Some(step),
+            )?;
+            let Built(alike) = alike else {
+                return Err(self.defect(
+                    step.line,
+                    "the directions do not assume the two sides of the claim, in order",
+                ));
+            };
+            proof = pf!(self.b; scope, joined, claim, proof, alike, "mpbid");
+        }
         Ok((claim, proof))
     }
 
@@ -1039,13 +1145,27 @@ impl<'a> Elaborator<'a> {
             which = t!(which, one, "wo");
         }
         let cited = step.just.refs[0].clone();
-        let disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
+        let mut disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
         let cited_term = self.lines.get(&cited).map(|l| l.term).unwrap_or_default();
-        if t!(which, assumed[last], "wo") != cited_term {
-            return Err(self.defect(
-                step.line,
-                "the cases are not the disjunction the block cites, taken in order",
-            ));
+        let wanted = t!(which, assumed[last], "wo");
+        if wanted != cited_term {
+            // A case may write its disjunct another way, `0 = b(k)` for
+            // `b(k) = 0`; the line is carried across to the cases' spelling.
+            let alike = self.same(
+                &self.to_term(&cited_term),
+                &self.to_term(&wanted),
+                scope,
+                &block.outside,
+                Some(step),
+            )?;
+            let Built(alike) = alike else {
+                return Err(self.defect(
+                    step.line,
+                    "the cases are not the disjunction the block cites, taken in order",
+                ));
+            };
+            disjunction =
+                pf!(self.b; scope, cited_term, wanted, disjunction, alike, "mpbid");
         }
         let proof = self.b.ap(
             "mpjaodan",
@@ -1304,7 +1424,7 @@ impl<'a> Elaborator<'a> {
                 let claimed = self.existence_claimed(step, &got)?;
                 ex = self.renamed(&claimed, got.len())?;
                 let lines = self.lines.clone();
-                p_ex = match self.trying(
+                let mut found = self.trying(
                     item,
                     step,
                     super::elaborate::Way::Unfolded,
@@ -1313,7 +1433,38 @@ impl<'a> Elaborator<'a> {
                     facts,
                     &lines,
                     None,
-                )? {
+                )?;
+                // What is obtained may be an equation written the other way
+                // round from the one the item gives, `a·x + b·y = d` for
+                // `d = a·x + b·y`: reached turned, and carried across.
+                if found.is_declined() {
+                    if let Some(turned) = self.existence_turned(&ex, got.len()) {
+                        if let Built(p) = self.trying(
+                            item,
+                            step,
+                            super::elaborate::Way::Unfolded,
+                            &turned,
+                            scope,
+                            facts,
+                            &lines,
+                            None,
+                        )? {
+                            let alike = self.same(
+                                &self.to_term(&turned),
+                                &self.to_term(&ex),
+                                scope,
+                                facts,
+                                Some(step),
+                            )?;
+                            if let Built(alike) = alike {
+                                found = Built(
+                                    pf!(self.b; scope, turned, ex, p, alike, "mpbid"),
+                                );
+                            }
+                        }
+                    }
+                }
+                p_ex = match found {
                     Built(p) => p,
                     Declined(_) => {
                         return Err(self.defect(

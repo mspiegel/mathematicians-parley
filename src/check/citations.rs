@@ -20,7 +20,8 @@ use crate::corpus::{
 };
 use crate::formula::{Node, Sort};
 use crate::matching::{
-    binding_sites, instantiation, match_tree, substitute, Binding, Context, PROPERTY,
+    alike, binding_sites, instantiation, match_tree, substitute, substitute_apart,
+    Binding, Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined};
 use crate::sorts::{sentences, supplied_by};
@@ -502,6 +503,9 @@ struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
     types: Vec<Node>,
+    /// Which notations bind, so that a value is compared up to the letters
+    /// it binds.
+    ctx: Context,
 }
 
 fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
@@ -584,6 +588,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         held,
         values,
         types,
+        ctx: library.ctx.clone(),
     }
 }
 
@@ -609,10 +614,15 @@ impl FamilyAsks {
             {
                 return false;
             }
+            // The line's letter is put into the value apart from what the
+            // value binds, and the two compared up to their bound letters:
+            // `Σ(n = 1 to k) 1/T(n)` at k is `Σ(a = 1 to k) 1/T(a)`.
+            let none = IndexMap::new();
             return self.values.iter().any(|v| {
                 let mut at = Binding::new();
                 at.insert(v.text.clone(), bound.clone());
-                substitute(&v.children[0], &at).shape() == body.children[0].shape()
+                let value = substitute_apart(&v.children[0], &at, &self.ctx);
+                alike(&value, &body.children[0], &self.ctx, &none, &none)
             });
         }
         node.notation == "membership"

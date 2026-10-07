@@ -460,7 +460,7 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
             let assumed = known.read(owner, str::trim(&unlabel(body)));
             let claim = known.read(owner, &owner.claim_text());
             let differ = match (&assumed, &claim) {
-                (Some(a), Some(c)) => a.shape() != c.shape(),
+                (Some(a), Some(c)) => !known.alike(a, c),
                 _ => false,
             };
             if differ {
@@ -564,8 +564,9 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
 /// A `cases` block cites one line, and that line claims the cases'
 /// assumptions joined by "or", in the order the parts take them
 /// (`SYNTAX.md`). A line with that disjunction as one part of what it says
-/// is not it. The two are compared as written, not in standard form, since
-/// standard form puts the two sides of an "or" in an order of its own.
+/// is not it. The two are compared as one formula (`Known::alike`): an
+/// equation or an order may be written either way round, and the cases keep
+/// the order of the "or".
 pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
     for owner in &thm.steps {
         if !owner.just.head.is(Method::Cases) {
@@ -601,7 +602,7 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
         else {
             continue;
         };
-        if want.shape() != have.shape() {
+        if !known.alike(&want, &have) {
             report.say(
                 &thm.path,
                 owner.just.line,
@@ -994,11 +995,13 @@ enum Case {
     Unsaid(&'static str),
 }
 
+/// A condition is said where a fact is it, or denies it, as one formula
+/// (`Known::alike`): `0 = b(k)` says the condition `b(k) = 0` holds.
 fn case_taken(
     node: &Node,
-    said: &[&str],
     facts: &[Node],
     wrappers: &IndexSet<String>,
+    known: &Known,
 ) -> Case {
     let mut node = node.clone();
     while node.notation == "by-cases" && node.children.len() == 3 {
@@ -1007,13 +1010,14 @@ fn case_taken(
             node.children[1].clone(),
             node.children[2].clone(),
         );
-        if said.contains(&condition.shape()) {
+        if facts.iter().any(|f| known.alike(f, &condition)) {
             return Case::Value(value);
         }
-        if facts
-            .iter()
-            .any(|f| negates(Some(f), Some(&condition), wrappers))
-        {
+        if facts.iter().any(|f| {
+            wrappers.contains(&f.notation)
+                && !f.children.is_empty()
+                && known.alike(&f.children[0], &condition)
+        }) {
             node = rest;
             continue;
         }
@@ -1036,17 +1040,17 @@ fn recursion_equation(
     facts: &[Node],
     said: &Recursion,
     env: Env,
-    sorts: &Sorts,
+    known: &Known,
     wrappers: &IndexSet<String>,
     equals: &IndexSet<String>,
 ) -> Option<String> {
+    let sorts = &known.sorts;
     if claims.len() != 1 || !equals.contains(&claims[0].notation) {
         return Some(
             "claims no one equation; a define says what its names are equal to"
                 .to_string(),
         );
     }
-    let said_shapes: Vec<&str> = facts.iter().map(|f| f.shape()).collect();
     let mut why: Option<String> = Some(format!(
         "its claim has none of {} applied on either side",
         said.names.join(", ")
@@ -1089,7 +1093,7 @@ fn recursion_equation(
                 continue;
             }
         }
-        match case_taken(&term, &said_shapes, facts, wrappers) {
+        match case_taken(&term, facts, wrappers, known) {
             Case::Unsaid(reason) => {
                 why = Some(reason.to_string());
                 continue;
@@ -1231,7 +1235,7 @@ pub fn check_define_citation(
                 &parts.facts,
                 &recursion,
                 env,
-                &known.sorts,
+                known,
                 &wrappers,
                 &library.ctx.equations,
             ) {
@@ -1298,7 +1302,6 @@ pub fn check_define_citation(
         }
         let (left, right) =
             (&parts.claims[0].children[0], &parts.claims[0].children[1]);
-        let said: Vec<&str> = parts.facts.iter().map(|f| f.shape()).collect();
         let mut why: Option<&str> = None;
         // Written out, the two sides one term: the claim is the define's
         // value as the define writes it, whatever case holds, as
@@ -1308,7 +1311,7 @@ pub fn check_define_citation(
             if gives {
                 break;
             }
-            match case_taken(one, &said, &parts.facts, &wrappers) {
+            match case_taken(one, &parts.facts, &wrappers, known) {
                 Case::Unsaid(reason) => {
                     why = why.or(Some(reason));
                     continue;
