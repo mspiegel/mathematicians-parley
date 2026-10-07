@@ -163,6 +163,19 @@ pub fn said_by_line(kind: Intro, text: &str) -> String {
     }
 }
 
+/// What a cited line supplies (`SYNTAX.md`): each of its sentences, and,
+/// where it has several, their conjunction, since "A. B" and "A and B" are
+/// one claim. The conjunction is joined from the left, as a claim of several
+/// sentences is, and each sentence is bracketed so that it stays one part.
+pub fn supplied_by(text: &str) -> Vec<String> {
+    let mut out = sentences(text);
+    if out.len() > 1 {
+        let joined: Vec<String> = out.iter().map(|s| format!("({s})")).collect();
+        out.push(joined.join(" and "));
+    }
+    out
+}
+
 /// The sentences of a line, each without its full stop.
 ///
 /// A sentence ends at a full stop followed by any space, a line break

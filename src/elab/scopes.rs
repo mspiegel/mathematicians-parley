@@ -1333,15 +1333,28 @@ impl<'a> Elaborator<'a> {
                 .to_string();
                 let item = self.item_cited(item_name);
                 let claimed = self.names_kept(|me| -> Checked<String> {
-                    for (name, term) in me.instantiated(&cites)? {
-                        me.names.insert(name, term);
-                    }
+                    // A record's sentence comes back with each of its letters
+                    // already what it stands for (`item_sentence_here`), in
+                    // the proof's names. A theorem's is read in its own
+                    // letters, which the values name, read in the proof's
+                    // names as they stand, before anything is obtained.
+                    let values = match item {
+                        Item::Theorem(_) => me.instantiated(&cites)?,
+                        Item::Record(_) => Vec::new(),
+                    };
                     // A name is a variable of the kernel whatever it is
                     // spelt with, and a spare stands for it as one does for
                     // a binder's name.
                     for name in &got {
                         let var = me.binder_var(name)?;
                         me.names.insert(name.clone(), format!("{var} cv"));
+                    }
+                    // The item's letters are what the citation gives them,
+                    // even where an obtained name is spelt as one of them:
+                    // `obtain x, n: thm:lowest-terms x := √2` gives the
+                    // item's x the value √2, and obtains another x.
+                    for (name, term) in values {
+                        me.names.insert(name, term);
                     }
                     // A library item says its existential in its own names,
                     // and the step's lines say what those stand for.
@@ -1456,11 +1469,38 @@ impl<'a> Elaborator<'a> {
         let proof = self
             .held(&lifted, &body, &inner)?
             .expect("the body just laid down");
+        // The line is what the page writes. An item states its body in its
+        // own bound letters, `for all x ∈ ℂ`, and the page may bind another,
+        // `for all n ∈ ℂ`, which a later `instantiate n := …` names; the two
+        // are one claim (`renaming`).
+        let (line_term, line_proof) = match sentences.get(got.len()..) {
+            Some([first, rest @ ..]) => {
+                let mut said = self.term(first)?;
+                for s in rest {
+                    said = t!(said, self.term(s)?, "wa");
+                }
+                match self.renaming(&self.to_term(&body), &self.to_term(&said))? {
+                    Some(same) => {
+                        let proof = self.b.ap(
+                            "sylib",
+                            &binds! {"ph" => &inner, "ps" => &body, "ch" => &said},
+                            &[&proof, &same],
+                        );
+                        // Known at this scope, so a deeper one carries it as
+                        // it carries the body.
+                        self.know(&lifted, &said, proof.clone());
+                        (said, proof)
+                    }
+                    None => (body.clone(), proof),
+                }
+            }
+            _ => (body.clone(), proof),
+        };
         self.lines.set(
             number,
             Line {
-                term: body.clone(),
-                proof,
+                term: line_term,
+                proof: line_proof,
                 sentences,
             },
         );

@@ -823,7 +823,11 @@ impl Reader {
     }
 }
 
-regex!(INTRODUCED_NAME, r"^([^\s∈∉:]+)\s*(?:∈|∉|:)");
+// The name a `let` line introduces, a name before its own line is read:
+// `let n ∈ ℕ`, `let f : A → B`, and `let p be a polynomial`, which reads
+// "p is a polynomial". A letter that is also a constant, `i`, is the name
+// throughout the line that introduces it.
+regex!(INTRODUCED_NAME, r"^([^\s∈∉:]+)(?:\s*(?:∈|∉|:)|\s+is\s)");
 
 /// What a `let` line says a name is, into the reader's sorts.
 ///

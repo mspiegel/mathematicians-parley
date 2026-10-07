@@ -49,7 +49,7 @@ use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::{
-    cited_defines, file_definitions, said_by_line, sorts_in_scope, unlabel,
+    cited_defines, file_definitions, said_by_line, sorts_in_scope, supplied_by, unlabel,
 };
 use crate::targets;
 use crate::text::repr;
@@ -1241,6 +1241,30 @@ impl<'a> Elaborator<'a> {
         cites: Option<&str>,
         text: &str,
     ) -> Checked<Node> {
+        let binding = self.matched_here(step, item, cites)?;
+        let library = self.item_library();
+        let node = self.in_its_names(Item::Record(item), |me| me.read(text))?;
+        Ok(filled(&node, &binding, &library.ctx))
+    }
+
+    /// What each letter of a record a step cites stands for at that step,
+    /// as the checker reads the citation (`citing`): the instantiation
+    /// written in `cites`, and what the step's lines, its requires lines and,
+    /// where it does not obtain, its claim fix. A letter is the record's own
+    /// whatever the proof calls its letters, so a record's `k` is what the
+    /// citation makes it and never the proof's `k`.
+    ///
+    /// A step that obtains takes the record's "there is" (`obtained`), and a
+    /// record that gives none from what the step names is a defect, which the
+    /// checker reports of the same step. Any other step concludes what it
+    /// claims (`taken`); where no clause does, the binding is what the step
+    /// writes, and the step fails further on, where it can say why.
+    pub(crate) fn matched_here(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        cites: Option<&str>,
+    ) -> Checked<NodeBinding> {
         let library = self.item_library();
         let Some(groups) = library.groups(&item.qualified()) else {
             return Err(self.defect(
@@ -1253,8 +1277,29 @@ impl<'a> Elaborator<'a> {
             facts.push(self.read(&r.fact)?);
         }
         let cites = cites.unwrap_or(&step.just.text);
+        let obtains = step.just.text.trim_start().starts_with("obtain");
+        let claims = if obtains {
+            Vec::new()
+        } else {
+            self.said(step)?
+        };
         let parts =
-            self.citation_parts(facts, Vec::new(), cites, &step.just.refs, &library)?;
+            self.citation_parts(facts, claims, cites, &step.just.refs, &library)?;
+        if !obtains {
+            return match citing::taken(
+                &groups,
+                &parts.claims,
+                &parts.facts,
+                &parts.seed,
+                &library,
+            ) {
+                Built(t) => Ok(t.binding),
+                // The citation fixes only what it writes, and the step fails
+                // where what it cites does not reach its claim, which says
+                // why more exactly than that no clause matched.
+                Declined(_) => Ok(parts.seed),
+            };
+        }
         let taken = match obtained(&groups, &parts.facts, &parts.seed, &library) {
             Built(t) => t,
             Declined(d) => {
@@ -1274,8 +1319,7 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         };
-        let node = self.in_its_names(Item::Record(item), |me| me.read(text))?;
-        Ok(filled(&node, &taken.binding, &library.ctx))
+        Ok(taken.binding)
     }
 
     /// What a requires line citing an item asks for, as terms
@@ -1395,13 +1439,23 @@ impl<'a> Elaborator<'a> {
         for r in refs {
             if let Some(line) = self.lines.get(r) {
                 given.extend(line.sentences.iter().cloned());
+                // A line of several sentences is their conjunction too
+                // (`sorts::supplied_by`), read as the checker reads it.
+                if line.sentences.len() > 1 {
+                    let parts: Vec<String> = line
+                        .sentences
+                        .iter()
+                        .map(|s| format!("({})", self.g.print(s)))
+                        .collect();
+                    given.push(self.read(&parts.join(" and "))?);
+                }
             }
         }
         // Only what the step cites: a sort line fixes nothing. A cited
         // hypothesis says what it says to the checker (`said_by_line`).
         for h in &self.thm.hypotheses {
             if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                for s in self.sentences(&said_by_line(h.kind, &h.text)) {
+                for s in supplied_by(&unlabel(&said_by_line(h.kind, &h.text))) {
                     given.push(self.read(&s)?);
                 }
             }
@@ -1666,7 +1720,9 @@ impl<'a> Elaborator<'a> {
             );
         }
         // A line may say several things and the substitution land in one of
-        // them, so each sentence is offered with a proof of itself.
+        // them, so each sentence is offered with a proof of itself; and the
+        // line as a whole is offered, which a claim of as many sentences
+        // rewrites (`SYNTAX.md`: the equation is replaced inside the line).
         let held = self.carried(&where_, facts, lines);
         let known = Facts::new();
         self.know(&known, into.term.clone(), held.clone());
@@ -1685,16 +1741,21 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        let mut starts: Vec<String> = vec![into.term.clone()];
         for one in &offered {
             let start = self.term(one)?;
-            if !self.holds(&known, &start) {
-                if let Some(p) = self.held(facts, &start, scope)? {
-                    self.know(&known, start, p);
+            if !starts.contains(&start) {
+                starts.push(start);
+            }
+        }
+        for start in &starts {
+            if !self.holds(&known, start) {
+                if let Some(p) = self.held(facts, start, scope)? {
+                    self.know(&known, start.clone(), p);
                 }
             }
         }
-        for one in &offered {
-            let start = self.term(one)?;
+        for start in starts {
             if start == term {
                 continue;
             }
@@ -3416,20 +3477,35 @@ impl<'a> Elaborator<'a> {
         let given = self.subject_given(&head, &named, step.line)?;
         let subject_node = self.read(&given)?;
         let subject = self.term(&subject_node)?;
+        let Item::Record(cited) = self.item_cited(&head) else {
+            panic!("{head} is a definition of the database");
+        };
+        // Each letter of the definition is what the citation makes it,
+        // `matched_here`: the g of `u ∈ gH` is the element the step's claim
+        // writes there, whatever the proof calls it.
+        let mut matched = Vec::new();
+        for (name, node) in self.matched_here(step, cited, None)? {
+            if node.notation != crate::matching::PROPERTY {
+                matched.push((name, self.term(&node)?));
+            }
+        }
         let (lemma, flipped, right) =
             self.names_kept(|me| -> Checked<(String, bool, String)> {
+                for (name, term) in matched {
+                    me.names.insert(name, term);
+                }
                 // A definition may name more than the thing it is about.
                 for (name, term) in me.instantiated(&step.just.text)? {
                     me.names.insert(name, term);
                 }
-                let Item::Record(item) = me.item_cited(&head) else {
-                    panic!("{head} is a definition of the database");
-                };
+                let item = cited;
                 let (lemma, flipped) = targets::unfolding(item);
                 let Some(lemma) = lemma else {
                     return Err(me.defect(me.at, format!("{head} has no target field")));
                 };
-                let node = me.read(&item.conclusions[0].0)?;
+                let node = me.in_its_names(Item::Record(item), |me| {
+                    me.read(&item.conclusions[0].0)
+                })?;
                 let (left, right) =
                     (node.children[0].clone(), node.children[1].clone());
                 me.names
@@ -3597,18 +3673,29 @@ impl<'a> Elaborator<'a> {
         if fills.is_empty() {
             return Ok(Binding::new());
         }
-        self.names_kept(|me| -> Checked<Binding> {
-            for (name, term) in me.instantiated(cites.unwrap_or(&step.just.text))? {
-                me.names.insert(name, term);
-            }
-            let mut out = Binding::new();
-            for (name, formula) in &fills {
-                let node = me.read(formula)?;
-                let term = me.term(&node)?;
-                out.insert(name.clone(), me.to_term(&term));
-            }
-            Ok(out)
-        })
+        // A fill is written in the record's letters, each replaced by what it
+        // stands for in the proof's names: a letter the step gives a value is
+        // that value as the step writes it, and any other is what the
+        // citation makes it (`matched_here`), never what the proof calls by
+        // the same letter.
+        let given = instantiation(cites.unwrap_or(&step.just.text));
+        let mut bound: NodeBinding = self
+            .matched_here(step, item, cites)?
+            .into_iter()
+            .filter(|(name, _)| !given.iter().any(|(g, _)| g == name))
+            .collect();
+        for (name, value) in &given {
+            bound.insert(name.clone(), self.read(value)?);
+        }
+        let library = self.item_library();
+        let mut out = Binding::new();
+        for (name, formula) in &fills {
+            let node = self.in_its_names(Item::Record(item), |me| me.read(formula))?;
+            let node = filled(&node, &bound, &library.ctx);
+            let term = self.term(&node)?;
+            out.insert(name.clone(), self.to_term(&term));
+        }
+        Ok(out)
     }
 
     /// The variables the file this corpus wrote for a theorem declares, read

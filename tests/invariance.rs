@@ -11,6 +11,15 @@
 //! closes. The test fails on any other break, and on a known one that is
 //! gone, so that the list says what is so. This reads set.mm, and fails if
 //! set.mm cannot be found.
+//!
+//! Some changes rewrite a theorem as a whole: its letters renamed, its
+//! claims' sentences joined or split (`invariance/rewrites.rs`). Where such a
+//! change cannot tell that it keeps a theorem's meaning, a letter written
+//! where no formula is read, it leaves the theorem alone and says so, and
+//! the test prints how many theorems each change reached. The letters a
+//! cited theorem's statement writes are left as they are: its citers name
+//! them, and its elaborated statement, which they read, is not built again
+//! here.
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -21,33 +30,66 @@ use parley::elab::elaborate::Options;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::build::{elaborate_one, library};
 
+#[path = "invariance/rewrites.rs"]
+mod rewrites;
+
+use rewrites::{Context, Declined, Rewritten};
+
 /// The breaks there are, each a gap a later change closes.
 const KNOWN: &[&str] = &[];
 
-/// One rewriting that keeps what a line says: the line rewritten, or None
-/// where the change does not apply to it.
+/// How a change rewrites a proof file.
+enum Rewrite {
+    /// Line by line: the line rewritten, or None where the change does not
+    /// apply to it.
+    Line(fn(&str) -> Option<String>),
+    /// The file at once, theorem by theorem.
+    File(fn(&Context, &str, &str) -> Rewritten),
+}
+
+/// One rewriting that keeps what a proof says.
 struct Change {
     name: &'static str,
-    line: fn(&str) -> Option<String>,
+    rewrite: Rewrite,
 }
 
 fn changes() -> Vec<Change> {
     vec![
         Change {
             name: "cited lines in the other order",
-            line: reversed_from,
+            rewrite: Rewrite::Line(reversed_from),
         },
         Change {
             name: "no spaces around operators in a requires line",
-            line: unspaced,
+            rewrite: Rewrite::Line(unspaced),
         },
         Change {
             name: "an order in a requires line turned around",
-            line: order_turned,
+            rewrite: Rewrite::Line(order_turned),
         },
         Change {
             name: "an equation in a requires line turned around",
-            line: equation_turned,
+            rewrite: Rewrite::Line(equation_turned),
+        },
+        Change {
+            name: "the values of a citation in the other order",
+            rewrite: Rewrite::Line(rewrites::values_reversed),
+        },
+        Change {
+            name: "two letters of a theorem swapped",
+            rewrite: Rewrite::File(rewrites::letters_swapped),
+        },
+        Change {
+            name: "introduced letters renamed to the library's letters",
+            rewrite: Rewrite::File(rewrites::letters_to_library),
+        },
+        Change {
+            name: "an introduced letter renamed i",
+            rewrite: Rewrite::File(rewrites::letter_to_i),
+        },
+        Change {
+            name: "a conjunction claim written as sentences",
+            rewrite: Rewrite::File(rewrites::claims_split),
         },
     ]
 }
@@ -131,16 +173,50 @@ fn equation_turned(line: &str) -> Option<String> {
     Some(format!("{head}{right} {sign} {left}{reason}"))
 }
 
-/// The corpus with one change made to every proof file: the tree, the
-/// files changed, and how many lines.
-fn changed(
-    clean: &Memory,
-    root: &Path,
-    change: &Change,
-) -> (Memory, Vec<String>, usize) {
+/// The corpus with one change made to every proof file.
+struct Changed {
+    tree: Memory,
+    /// The files it changed.
+    files: Vec<String>,
+    /// How many lines it changed.
+    lines: usize,
+    /// The theorems it changed, where it rewrites theorem by theorem.
+    theorems: Vec<String>,
+    /// The theorems it left alone, and why.
+    declined: Vec<Declined>,
+}
+
+/// A file rewritten a line at a time.
+fn each_line(text: &str, line: fn(&str) -> Option<String>) -> Rewritten {
+    let mut edited = Vec::new();
+    let mut lines = 0;
+    for l in text.lines() {
+        match line(l) {
+            Some(new) => {
+                edited.push(new);
+                lines += 1;
+            }
+            None => edited.push(l.to_string()),
+        }
+    }
+    let mut out = edited.join("\n");
+    if text.ends_with('\n') {
+        out.push('\n');
+    }
+    Rewritten {
+        text: out,
+        lines,
+        theorems: Vec::new(),
+        declined: Vec::new(),
+    }
+}
+
+fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> Changed {
     let mut tree = Overlay::new(clean);
     let mut files = Vec::new();
     let mut lines = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
     let mut paths: Vec<String> = std::fs::read_dir(root.join("proofs"))
         .expect("the proofs directory reads")
         .filter_map(|e| e.ok())
@@ -151,29 +227,35 @@ fn changed(
     paths.sort();
     for path in paths {
         let text = clean.read_text(&path).expect("a proof file reads");
-        let mut edited = Vec::new();
-        let mut here = 0;
-        for line in text.lines() {
-            match (change.line)(line) {
-                Some(new) => {
-                    edited.push(new);
-                    here += 1;
-                }
-                None => edited.push(line.to_string()),
+        let done = match change.rewrite {
+            Rewrite::Line(line) => each_line(&text, line),
+            Rewrite::File(file) => file(context, &path, &text),
+        };
+        declined.extend(done.declined);
+        theorems.extend(done.theorems);
+        if done.lines > 0 && done.text != text {
+            // INVARIANCE_DUMP names a directory to hold each rewritten file,
+            // under the change's name, to read a break against.
+            if let Ok(dir) = std::env::var("INVARIANCE_DUMP") {
+                let out = Path::new(&dir)
+                    .join(change.name.replace(' ', "-"))
+                    .join(&path);
+                std::fs::create_dir_all(out.parent().unwrap()).unwrap();
+                std::fs::write(&out, &done.text).unwrap();
             }
-        }
-        if here > 0 {
-            let mut out = edited.join("\n");
-            if text.ends_with('\n') {
-                out.push('\n');
-            }
-            tree.write(&path, out.into_bytes());
+            tree.write(&path, done.text.into_bytes());
             files.push(path);
-            lines += here;
+            lines += done.lines;
         }
     }
     let copied = Memory::copy(&tree, &["corpus", "proofs", "tests"]).unwrap();
-    (copied, files, lines)
+    Changed {
+        tree: copied,
+        files,
+        lines,
+        theorems,
+        declined,
+    }
 }
 
 #[test]
@@ -187,14 +269,27 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         base.printed
     );
     let changes = changes();
-    let trees: Vec<(Memory, Vec<String>, usize)> =
-        changes.iter().map(|c| changed(&clean, root, c)).collect();
+    let context = Context::new(corpus(&clean).expect("the corpus reads"));
+    let trees: Vec<Changed> = changes
+        .iter()
+        .map(|c| changed(&clean, root, &context, c))
+        .collect();
     let found = Mutex::new(BTreeSet::new());
     // What the checker says of each changed corpus.
-    for (change, (tree, _, lines)) in changes.iter().zip(&trees) {
-        assert!(*lines > 0, "{} changes no line", change.name);
-        println!("{}: {lines} lines", change.name);
-        let said = parley::check::run(tree).printed;
+    for (change, done) in changes.iter().zip(&trees) {
+        println!(
+            "{}: {} lines in {} files, {} theorems changed, {} left alone",
+            change.name,
+            done.lines,
+            done.files.len(),
+            done.theorems.len(),
+            done.declined.len()
+        );
+        for d in &done.declined {
+            println!("    left alone {}: {}", d.theorem, d.why);
+        }
+        assert!(done.lines > 0, "{} changes no line", change.name);
+        let said = parley::check::run(&done.tree).printed;
         for line in said.lines().filter(|l| l.contains(".proof:")) {
             found
                 .lock()
@@ -205,9 +300,12 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     // Every theorem of a changed file, elaborated, the work shared among
     // workers that each load set.mm once.
     let mut work: Vec<(usize, String)> = Vec::new();
-    for (i, (tree, files, _)) in trees.iter().enumerate() {
-        for thm in corpus(tree).expect("the changed corpus reads").theorems {
-            if files.contains(&thm.path) {
+    for (i, done) in trees.iter().enumerate() {
+        for thm in corpus(&done.tree)
+            .expect("the changed corpus reads")
+            .theorems
+        {
+            if done.files.contains(&thm.path) {
                 work.push((i, thm.qualified()));
             }
         }
@@ -226,7 +324,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
                     let Some((i, name)) = next.lock().unwrap().next() else {
                         break;
                     };
-                    if let Err(p) = elaborate_one(&trees[*i].0, name, &lib, Options::default()) {
+                    if let Err(p) = elaborate_one(&trees[*i].tree, name, &lib, Options::default()) {
                         found
                             .lock()
                             .unwrap()

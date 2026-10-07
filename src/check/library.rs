@@ -10,7 +10,9 @@ use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{expand, instantiation, standard, Binding, Context, Definitions};
-use crate::sorts::{cited_defines, file_definitions, said_by_line, sentences, Env};
+use crate::sorts::{
+    cited_defines, file_definitions, said_by_line, sentences, supplied_by, Env,
+};
 
 type PartsKey = (StepNo, Vec<String>, Vec<String>);
 
@@ -117,7 +119,7 @@ impl<'a> Known<'a> {
         let said: Vec<Node> = refs
             .iter()
             .filter_map(|r| scope.get(*r))
-            .flat_map(|text| sentences(text))
+            .flat_map(|text| supplied_by(text))
             .filter_map(|s| self.read(step, &s))
             .collect();
         with_parts(&said, library)
@@ -197,7 +199,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     let mut supplied: Vec<String> = Vec::new();
     for r in &step.just.refs {
         if let Some(text) = scope.get(r) {
-            supplied.extend(sentences(text));
+            supplied.extend(supplied_by(text));
         }
     }
     supplied.extend(step.requires.iter().map(|r| r.fact.clone()));

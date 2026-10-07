@@ -14,6 +14,7 @@ use indexmap::IndexMap;
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
+use crate::formula::grammar::Sorts;
 use crate::formula::{fits, parse, Node, Sort};
 use crate::matching::{Defined, Definitions};
 use crate::outcome::Checked;
@@ -163,7 +164,10 @@ impl<'a> Elaborator<'a> {
             ),
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
-        let mut sorts = kept.clone();
+        // Only what the item says: a letter it leaves open is not the proof's
+        // letter of that name, as the k a definition binds is not the
+        // proof's k.
+        let mut sorts = Sorts::new();
         for (k, v) in &definition_sorts(&written) {
             sorts.insert(k.clone(), v.clone());
         }
@@ -410,7 +414,10 @@ impl<'a> Elaborator<'a> {
                 self.float_of(&bound)
             }
         };
-        let node = self.read(&item.conclusions[0].0)?;
+        // The definition's sentence is read in its own sorts, which say what
+        // its letters are whatever the proof calls its own.
+        let node = self
+            .in_its_names(Item::Record(item), |me| me.read(&item.conclusions[0].0))?;
         let (left, right) = (node.children[0].clone(), node.children[1].clone());
         self.names
             .insert(subject_of(&left).text.clone(), subject.to_string());
@@ -432,7 +439,7 @@ impl<'a> Elaborator<'a> {
     /// substitution names its variable). A step that gives the subject no
     /// value is refused: the pair is not optional.
     pub fn subject_given(
-        &self,
+        &mut self,
         name: &str,
         pairs: &[(String, String)],
         line: usize,
@@ -440,7 +447,10 @@ impl<'a> Elaborator<'a> {
         let Item::Record(item) = self.item_cited(name) else {
             panic!("{name} is a definition of the database");
         };
-        let left = self.read(&item.conclusions[0].0)?.children[0].clone();
+        let left = self
+            .in_its_names(Item::Record(item), |me| me.read(&item.conclusions[0].0))?
+            .children[0]
+            .clone();
         let letter = subject_of(&left).text.clone();
         let given: IndexMap<&str, &str> = pairs
             .iter()

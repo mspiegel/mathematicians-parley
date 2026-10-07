@@ -23,7 +23,7 @@ use crate::matching::{
     binding_sites, instantiation, match_tree, substitute, Binding, Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined};
-use crate::sorts::sentences;
+use crate::sorts::{sentences, supplied_by};
 use crate::text::squash;
 
 /// The requires lines of a step whose item does not conclude them, as
@@ -84,7 +84,7 @@ fn requires_parts(
     let mut supplied: Vec<String> = Vec::new();
     for r in &refs {
         if let Some(text) = scope.get(r) {
-            supplied.extend(sentences(text));
+            supplied.extend(supplied_by(text));
         }
     }
     // A requires line may not cite another, but the facts the lines above

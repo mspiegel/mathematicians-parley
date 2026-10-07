@@ -14,6 +14,7 @@ use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Checked, Problem};
 use crate::sorts::infer::{function_sort, NotationSorts};
+use crate::sorts::NUMBER_SYSTEMS;
 use crate::text::repr;
 
 /// The sort of each name a text states one for, and the set each letter its
@@ -282,8 +283,22 @@ fn read(
     line: usize,
 ) -> Checked<Node> {
     let mut local = sorts.clone();
+    // A letter the sentence's own binder names is a name the text
+    // introduces, throughout the sentence: `for all s, i ∈ A, … f(i) …`.
+    // Any other letter that is a `shadowed` constant stays the constant, so
+    // `i ∈ ℂ` says something of the imaginary unit and gives no letter i a
+    // sort.
+    let bound = bound_here(tokens, g);
     for (k, v) in bound_sorts(tokens, g, sorts) {
+        if is_shadowed(&k, g) && !bound.contains(&k) && !sorts.introduces(&k) {
+            continue;
+        }
         local.insert(k, v);
+    }
+    for name in bound {
+        if !local.introduces(&name) {
+            local.unsettled.insert(name);
+        }
     }
     let mut p = Parser {
         t: tokens,
@@ -338,6 +353,65 @@ pub fn parse_here(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
     parse(text, g, sorts, "", 0)
 }
 
+/// Whether the letter is a constant whose notation is `shadowed`: `i`.
+fn is_shadowed(letter: &str, g: &Grammar) -> bool {
+    g.notations
+        .iter()
+        .any(|n| n.shadowed && n.parts.first().and_then(Part::literal) == Some(letter))
+}
+
+/// The letters a binder of the sentence names that are also a `shadowed`
+/// constant's letter.
+///
+/// A binding notation writes a literal on each side of a hole it binds:
+/// `for all _ ∈`, `Σ(_ =`, `{_ ∈`, and `for all _, _ ∈` gives the first name
+/// `all` and `,` and the second `,` and `∈`. A name stands in a bound hole
+/// where the tokens on its two sides are such a pair, and, where the left
+/// one is a comma, the name before the comma stands in one too: so `{i}` and
+/// `x, i ∈ S` bind nothing, and `for all s, i ∈ A` binds s and i. Only a
+/// shadowed letter is wanted, since any other letter is a name already.
+fn bound_here(tokens: &[Token], g: &Grammar) -> Vec<String> {
+    if !tokens.iter().any(|t| is_shadowed(&t.text, g)) {
+        return Vec::new();
+    }
+    let mut sides: IndexSet<(&str, &str)> = IndexSet::new();
+    for n in &g.notations {
+        let Some(binds) = &n.binds else { continue };
+        let mut seen = 0;
+        for (k, part) in n.parts.iter().enumerate() {
+            if !part.is_hole() {
+                continue;
+            }
+            if binds.held.contains(&seen) && k > 0 {
+                let left = n.parts[k - 1].literal();
+                let right = n.parts.get(k + 1).and_then(Part::literal);
+                if let (Some(left), Some(right)) = (left, right) {
+                    sides.insert((left, right));
+                }
+            }
+            seen += 1;
+        }
+    }
+    let mut bound = vec![false; tokens.len()];
+    let mut out = Vec::new();
+    for i in 1..tokens.len().saturating_sub(1) {
+        let (left, name, right) = (&tokens[i - 1], &tokens[i], &tokens[i + 1]);
+        if name.kind != TokenKind::Name
+            || !sides.contains(&(left.text.as_str(), right.text.as_str()))
+        {
+            continue;
+        }
+        if left.text == "," && !(i >= 2 && bound[i - 2]) {
+            continue;
+        }
+        bound[i] = true;
+        if is_shadowed(&name.text, g) && !out.contains(&name.text) {
+            out.push(name.text.clone());
+        }
+    }
+    out
+}
+
 /// The sort of each letter the tokens put in a set that says what it holds,
 /// `x ∈ S`, or in a coset of one, `x ∈ gH`, or that a binder filling its set
 /// names right after its words, `there is a polynomial q`. Only for letters
@@ -382,14 +456,21 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
     }
     for i in 0..tokens.len().saturating_sub(2) {
         let (x, sign, s) = (&tokens[i], &tokens[i + 1], &tokens[i + 2]);
+        // A number system holds numbers, as a `let` line in one says
+        // (`sorts::NUMBER_SYSTEMS`), and ℂ does too.
+        let numbers = NUMBER_SYSTEMS.contains(&s.text.as_str()) || s.text == "ℂ";
         if x.kind != TokenKind::Name
             || sign.text != "∈"
-            || s.kind != TokenKind::Name
+            || (s.kind != TokenKind::Name && !numbers)
             || !sort_of(&x.text).is_unknown()
         {
             continue;
         }
-        let mut held = holds(&sort_of(&s.text));
+        let mut held = if numbers {
+            Some(Sort::of("number"))
+        } else {
+            holds(&sort_of(&s.text))
+        };
         if held.is_none()
             && i + 3 < tokens.len()
             && tokens[i + 3].kind == TokenKind::Name
@@ -398,6 +479,17 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
             held = holds(&sort_of(&tokens[i + 3].text));
         }
         if let Some(held) = held {
+            // Each name of a list before the `∈` is in the set too:
+            // `there are k, m, n ∈ ℕ` makes all three numbers.
+            let mut j = i;
+            while j >= 2
+                && tokens[j - 1].text == ","
+                && tokens[j - 2].kind == TokenKind::Name
+                && sort_of(&tokens[j - 2].text).is_unknown()
+            {
+                j -= 2;
+                out.entry(tokens[j].text.clone()).or_insert(held.clone());
+            }
             out.entry(x.text.clone()).or_insert(held);
         }
     }

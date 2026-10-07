@@ -735,7 +735,12 @@ are not hidden steps:
 - Where a cited item's conclusion is several sentences, a step may claim
   any one of them.
 - Where a cited **line** claims several sentences, it supplies each of them
-  separately and the step may use any. Thirty lines in the corpus claim more
+  separately and the step may use any, and it supplies their conjunction,
+  joined from the left as a claim of several sentences is: "A. B" and
+  "A and B" are one claim, so a line written either way gives `or-right` the
+  B that is "A and B". Supplying the conjunction as well as the sentences asks
+  nothing of a method, since an extra true fact never changes whether a step
+  elaborates (`METHODS.md`). Thirty lines in the corpus claim more
   than one sentence, and 67 steps cite one; Bezout's line 1 claims five and is
   cited seven times, each time for a different part. The alternative, that a
   line names one formula and so supplies only the conjunction, was rejected:
