@@ -232,13 +232,20 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
     let mut lines = 0;
     let mut theorems = Vec::new();
     let mut declined = Vec::new();
-    let mut paths: Vec<String> = std::fs::read_dir(root.join("proofs"))
-        .expect("the proofs directory reads")
-        .filter_map(|e| e.ok())
-        .map(|e| e.file_name().to_string_lossy().to_string())
-        .filter(|n| n.ends_with(".proof"))
-        .map(|n| format!("proofs/{n}"))
-        .collect();
+    // The corpus's proofs, the elaborator's test proofs, which are where a
+    // method or notation no theorem uses yet is written first, and the
+    // library's, which prove what each item says at one instance.
+    let mut paths: Vec<String> = Vec::new();
+    for dir in ["proofs", "tests/elaborator", "tests/stdlib"] {
+        paths.extend(
+            std::fs::read_dir(root.join(dir))
+                .expect("a proof directory reads")
+                .filter_map(|e| e.ok())
+                .map(|e| e.file_name().to_string_lossy().to_string())
+                .filter(|n| n.ends_with(".proof"))
+                .map(|n| format!("{dir}/{n}")),
+        );
+    }
     paths.sort();
     let texts: Vec<(String, String)> = paths
         .into_iter()

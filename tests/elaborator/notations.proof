@@ -1,0 +1,13 @@
+import mundane theorem    stdlib/counting/card-nonempty
+
+theorem a-member-of-a-nonempty-set
+  note        "There is a ∈ X" with nothing said of a, written by a proof so
+              that the rewrites of tests/invariance.rs read it.
+  let X be a set                                                      (H1)
+  let k ∈ ℕ₀                                                          (H2)
+  assume |X| = k + 1                                                  (H3)
+  then there is a ∈ X
+
+1.  There is a ∈ X.
+    mun:card-nonempty, from H2, H3
+

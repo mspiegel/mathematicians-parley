@@ -3,8 +3,10 @@
 use std::collections::BTreeSet;
 
 use crate::formula::{walk, Node};
+use indexmap::IndexMap;
+
 use crate::matching::{
-    binding_sites, match_tree, substitute, substitute_apart, Binding, PROPERTY,
+    alike, binding_sites, match_tree, substitute, substitute_apart, Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -298,7 +300,13 @@ pub fn derives(
     if depth <= 0 {
         return false;
     }
-    if facts.iter().any(|f| f.shape() == claim.shape()) {
+    // A fact that is the claim, however either writes an equation or names
+    // what it binds (`matching::alike`).
+    let none = IndexMap::new();
+    if facts
+        .iter()
+        .any(|f| alike(f, claim, &library.ctx, &none, &none))
+    {
         return true;
     }
     for Group { wants: want, gives } in groups {

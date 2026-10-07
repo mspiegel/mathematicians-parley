@@ -600,7 +600,7 @@ impl FamilyAsks {
             return false;
         };
         if node.notation == "function-type" {
-            return self.types.iter().any(|t| t.shape() == node.shape());
+            return self.types.iter().any(|t| known.alike(t, &node));
         }
         // Or the hypothesis said whole, of every value the function takes:
         // `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
@@ -980,7 +980,7 @@ pub fn check_exhibited(
             let itself = |w: &Node| {
                 w.notation == "equality"
                     && w.children.len() == 2
-                    && w.children[0].shape() == w.children[1].shape()
+                    && known.alike(&w.children[0], &w.children[1])
             };
             let (equations, rest): (Vec<Node>, Vec<Node>) = wants
                 .iter()
@@ -999,7 +999,7 @@ pub fn check_exhibited(
             // step needs.
             let holds = |w: &Node, at: &Binding| {
                 let w = substitute(w, at);
-                itself(&w) || facts.iter().any(|f| f.shape() == w.shape())
+                itself(&w) || facts.iter().any(|f| known.alike(f, &w))
             };
             let mut best: Option<(usize, Binding)> = None;
             for w in &wants {
@@ -1158,7 +1158,7 @@ pub fn check_instantiated(
                     .unwrap_or_else(|| value.clone());
                 let domain_written = substitute(&w.domain, &outer_written);
                 outer_written.insert(w.letter.text.clone(), value_written.clone());
-                if parts.facts.iter().any(|f| f.shape() == want.shape()) {
+                if parts.facts.iter().any(|f| known.alike(f, &want)) {
                     continue;
                 }
                 let needed = bound_in(
@@ -1262,7 +1262,7 @@ pub fn check_repeated(
                 .map(|(_, o)| o.clone())
                 .collect();
             let says =
-                |parts: &Parts| parts.facts.iter().any(|f| f.shape() == said.shape());
+                |parts: &Parts| parts.facts.iter().any(|f| known.alike(f, &said));
             let mut uncited = lighter.clone();
             uncited.just.refs.clear();
             let repeated = says(&known.parts(&uncited, library))
@@ -1305,7 +1305,7 @@ fn needed_below(
             return false;
         };
         match asked(&step.just.item(&named), &parts, library) {
-            Built(asks) => asks.hypotheses.iter().any(|h| h.shape() == said.shape()),
+            Built(asks) => asks.hypotheses.iter().any(|h| known.alike(h, said)),
             Declined(_) => false,
         }
     })

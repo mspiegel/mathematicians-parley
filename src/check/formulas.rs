@@ -234,13 +234,20 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
 /// A folded negation counts, because a record declaring `negates` makes "n
 /// is not odd" the same tree as "not (n is odd)". `wrappers` is the set of
 /// notations those records name, so no notation is known here by its text.
-fn negates(a: Option<&Node>, b: Option<&Node>, wrappers: &IndexSet<String>) -> bool {
+/// Whether `a` denies `b`: a negation of the same claim, however either is
+/// written (`Known::alike`), so `b ≠ a` denies `a = b`.
+fn negates(
+    a: Option<&Node>,
+    b: Option<&Node>,
+    wrappers: &IndexSet<String>,
+    known: &Known,
+) -> bool {
     let (Some(a), Some(b)) = (a, b) else {
         return false;
     };
     !a.children.is_empty()
         && wrappers.contains(&a.notation)
-        && a.children[0].shape() == b.shape()
+        && known.alike(&a.children[0], b)
 }
 
 fn wrappers(env: Env) -> IndexSet<String> {
@@ -282,8 +289,8 @@ pub fn check_contradiction(
         // last step is checked all the same.
         let readable = supposed.is_some() && claimed.is_some();
         if readable
-            && !(negates(supposed.as_ref(), claimed.as_ref(), &wrappers)
-                || negates(claimed.as_ref(), supposed.as_ref(), &wrappers))
+            && !(negates(supposed.as_ref(), claimed.as_ref(), &wrappers, known)
+                || negates(claimed.as_ref(), supposed.as_ref(), &wrappers, known))
         {
             report.say(
                 &thm.path,
@@ -425,8 +432,8 @@ pub fn check_contradicting(
             .map(|s| known.read(step, s))
             .collect();
         let opposed = there.iter().any(|t| {
-            negates(claimed.as_ref(), t.as_ref(), &wrappers)
-                || negates(t.as_ref(), claimed.as_ref(), &wrappers)
+            negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
+                || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)
         });
         if claimed.is_some() && there.iter().all(Option::is_some) && !opposed {
             report.say(
@@ -533,7 +540,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
                 .strip_prefix(opener.kind.as_str())
                 .unwrap_or(&opener.text);
             let read = known.read(owner, str::trim(&unlabel(body)));
-            if read.as_ref().is_some_and(|r| r.shape() != side.shape()) {
+            if read.as_ref().is_some_and(|r| !known.alike(r, side)) {
                 say(
                     report,
                     format!(
@@ -548,7 +555,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
                     && s.part == opener.part
             });
             let ends = last.and_then(|s| known.read(s, &s.claim_text()));
-            if ends.as_ref().is_some_and(|e| e.shape() != other.shape()) {
+            if ends.as_ref().is_some_and(|e| !known.alike(e, other)) {
                 say(
                     report,
                     format!(
@@ -1082,7 +1089,7 @@ fn recursion_equation(
             let said_in = facts.iter().any(|f| {
                 f.notation == "membership"
                     && f.children.len() == 2
-                    && f.children[0].shape() == index.shape()
+                    && known.alike(&f.children[0], index)
                     && f.children[1].text == said.domain
             });
             if !said_in {
@@ -1099,7 +1106,7 @@ fn recursion_equation(
                 continue;
             }
             Case::Value(got) => {
-                if got.shape() == other.shape() {
+                if known.alike(&got, other) {
                     return None;
                 }
             }
@@ -1306,7 +1313,7 @@ pub fn check_define_citation(
         // Written out, the two sides one term: the claim is the define's
         // value as the define writes it, whatever case holds, as
         // `e(n) = s(D(f(n), n))` is where s is by cases.
-        let mut gives = left.shape() == right.shape();
+        let mut gives = known.alike(left, right);
         for (one, other) in [(left, right), (right, left)] {
             if gives {
                 break;
@@ -1317,7 +1324,7 @@ pub fn check_define_citation(
                     continue;
                 }
                 Case::Value(got) => {
-                    if got.shape() == other.shape() {
+                    if known.alike(&got, other) {
                         gives = true;
                         break;
                     }

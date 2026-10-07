@@ -3519,13 +3519,17 @@ impl<'a> Elaborator<'a> {
                 matched.push((name, self.term(&node)?));
             }
         }
+        // The values are read in the proof's names, before any letter of
+        // the definition is given one: `n := d, d := a` gives n the proof's
+        // d, not the definition's.
+        let values = self.instantiated(&step.just.text)?;
         let (lemma, flipped, right) =
             self.names_kept(|me| -> Checked<(String, bool, String)> {
                 for (name, term) in matched {
                     me.names.insert(name, term);
                 }
                 // A definition may name more than the thing it is about.
-                for (name, term) in me.instantiated(&step.just.text)? {
+                for (name, term) in values {
                     me.names.insert(name, term);
                 }
                 let item = cited;
