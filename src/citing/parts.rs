@@ -109,6 +109,8 @@ pub fn bound_in(
     let mut put = Binding::new();
     put.insert("x".into(), letter.clone());
     put.insert("S".into(), domain.clone());
+    // A bound is a relation of x and S that binds no letter of its own, so
+    // nothing in the values can be caught.
     Some(substitute(&said, &put))
 }
 
@@ -182,6 +184,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
             put.insert("f".into(), function.clone());
             put.insert("x".into(), point.clone());
             put.insert("S".into(), codomain.clone());
+            // `f(x) ∈ S` binds nothing.
             out.push(substitute(&said, &put));
         }
     }
@@ -204,6 +207,7 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     for (premise, conclusion, _) in rules::PARTS {
         let mut put = Binding::new();
         if fits_form(&template(premise, env, &sets), fact, &mut put) {
+            // The forms of `rules::PARTS` relate x and S and bind nothing.
             return vec![substitute(&template(conclusion, env, &sets), &put)];
         }
     }
@@ -232,6 +236,8 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     local.insert("x".into(), Sort::of("number"));
     let mut put = Binding::new();
     put.insert("x".into(), term);
+    // Each template says one thing of x, `x ∈ ℝ` or `x ≥ 0`, and binds
+    // nothing.
     templates
         .iter()
         .map(|t| substitute(&template(t, env, &local), &put))

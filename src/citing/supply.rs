@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexSet;
 
 use crate::formula::{Node, NodeId};
-use crate::matching::{match_tree, substitute, substitute_apart, Binding, PROPERTY};
+use crate::matching::{match_tree, substitute_apart, Binding, Context, PROPERTY};
 use crate::rules;
 
 use super::library::{either_way, Library};
@@ -168,7 +168,7 @@ pub fn search(
                 // A "for all" said of a set is said of every set inside it
                 // (`SYNTAX.md`).
                 if found.is_none() && is_first {
-                    if let Some(smaller) = narrowed(&first, fact, binding) {
+                    if let Some(smaller) = narrowed(&first, fact, binding, ctx) {
                         found = match_tree(form, &smaller, binding, seen, sites, ctx);
                     }
                 }
@@ -279,7 +279,12 @@ fn set_within(inner: &Node, outer: &Node) -> bool {
 
 /// A "for all" fact read over the smaller domain a pattern asks for, or
 /// None where the table does not put that domain inside the fact's.
-fn narrowed(pattern: &Node, fact: &Node, binding: &Binding) -> Option<Node> {
+fn narrowed(
+    pattern: &Node,
+    fact: &Node,
+    binding: &Binding,
+    ctx: &Context,
+) -> Option<Node> {
     if pattern.notation != "for-all"
         || fact.notation != "for-all"
         || pattern.children.len() != 3
@@ -301,7 +306,7 @@ fn narrowed(pattern: &Node, fact: &Node, binding: &Binding) -> Option<Node> {
         .filter(|(_, t)| t.notation != PROPERTY)
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
-    let asked = substitute(&pattern.children[1], &terms);
+    let asked = substitute_apart(&pattern.children[1], &terms, ctx);
     if !set_within(&asked, &fact.children[1]) {
         return None;
     }

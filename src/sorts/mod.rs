@@ -316,6 +316,7 @@ fn defines_into<'d>(
             Defined::Rule(Rule {
                 params: said.params.clone(),
                 body,
+                binders: env.g.binders(),
             })
         };
         out.insert(said.name.clone(), made);
@@ -379,6 +380,7 @@ fn written_definition(
         Defined::Rule(Rule {
             params: said.params.clone(),
             body,
+            binders: env.g.binders(),
         })
     })
 }

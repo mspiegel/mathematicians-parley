@@ -8,7 +8,8 @@ use indexmap::{IndexMap, IndexSet};
 use super::library::{library_functions, Function};
 use super::node::{describe_category, Node, Sort, Whole};
 use super::notation::{
-    binds_tighter, compile_notations, compile_precedence, Notation, Part, Tighter, Wrap,
+    binds_tighter, compile_notations, compile_precedence, Binds, Notation, Part,
+    Tighter, Wrap,
 };
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
@@ -117,6 +118,7 @@ pub struct Grammar {
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
     readings: RefCell<IndexMap<ReadingKey, Node>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
+    binders: OnceCell<Rc<IndexMap<String, Binds>>>,
 }
 
 impl Grammar {
@@ -143,7 +145,18 @@ impl Grammar {
             tokens: RefCell::new(IndexMap::new()),
             readings: RefCell::new(IndexMap::new()),
             notation_sorts: OnceCell::new(),
+            binders: OnceCell::new(),
         })
+    }
+
+    /// Which notations bind, and the places of what they bind and of what it
+    /// is bound in (`matching::binding_context`), read once: what keeps a
+    /// value put into a tree apart from the tree's own letters
+    /// (`matching::substitute_apart_by`).
+    pub fn binders(&self) -> Rc<IndexMap<String, Binds>> {
+        Rc::clone(self.binders.get_or_init(|| {
+            Rc::new(crate::matching::binding_context(&self.notations).0)
+        }))
     }
 
     /// What the notations say about sorts, read the first time a reading

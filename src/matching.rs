@@ -12,6 +12,7 @@
 //! none is read the same way.
 
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -525,7 +526,8 @@ fn bound_as(
                 if i == at {
                     theirs.clone()
                 } else if body.contains(&i) {
-                    substitute(c, &swap)
+                    // Apart from a binder inside that binds the new letter.
+                    substitute_apart(c, &swap, ctx)
                 } else {
                     c.clone()
                 }
@@ -623,7 +625,7 @@ fn property(
     ctx: &Context,
 ) -> bool {
     let name = &pattern.children[0].text;
-    let arg = read_at(&pattern.children[1], binding);
+    let arg = read_at(&pattern.children[1], binding, ctx);
     let Some(stands) = binding.get(name) else {
         if !sites.contains(&pattern.id()) || !arg.is_name() {
             return false; // only the inside occurrence decides
@@ -654,13 +656,13 @@ fn property(
 /// `t(n + 1)` asks of the step's summand at m + 1 where n is m, and its
 /// `t(k − c)` at k − 1 where c is 1. What is bound to a property is not a
 /// term, and is left alone.
-fn read_at(arg: &Node, binding: &Binding) -> Node {
+fn read_at(arg: &Node, binding: &Binding, ctx: &Context) -> Node {
     let terms: Binding = binding
         .iter()
         .filter(|(_, t)| t.notation != PROPERTY)
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
-    substitute(arg, &terms)
+    substitute_apart(arg, &terms, ctx)
 }
 
 /// t applied to something, where t is a function the pattern names.
@@ -683,7 +685,7 @@ fn family(
     ctx: &Context,
 ) -> Option<bool> {
     let name = &pattern.children[0].text;
-    let arg = read_at(&pattern.children[1], binding);
+    let arg = read_at(&pattern.children[1], binding, ctx);
     let stands = binding.get(name);
     if let Some(stands) = stands {
         if stands.notation == PROPERTY {
@@ -720,11 +722,15 @@ pub struct Rule {
     /// domain.
     pub params: Vec<crate::corpus::Param>,
     pub body: Node,
+    /// What binds, from the grammar the body was read with
+    /// (`Grammar::binders`).
+    pub binders: Rc<IndexMap<String, Binds>>,
 }
 
 impl Rule {
     /// The rule with `values` put for its arguments, in order; None where
-    /// the count differs.
+    /// the count differs. A letter the body binds is kept apart from the
+    /// values: `f(x) := Σ(k = 1 to x) 1/k` at k sums over another letter.
     pub fn at(&self, values: &[Node]) -> Option<Node> {
         if values.len() != self.params.len() {
             return None;
@@ -733,7 +739,7 @@ impl Rule {
         for (p, v) in self.params.iter().zip(values) {
             put.insert(p.name.clone(), v.clone());
         }
-        Some(substitute(&self.body, &put))
+        Some(substitute_apart_by(&self.body, &put, &self.binders))
     }
 }
 
@@ -847,20 +853,33 @@ pub fn fresh_letters() -> Vec<String> {
 /// spelt with a letter nothing there uses; one naming a letter the binding
 /// replaces keeps it, as the letter is its own inside.
 pub fn substitute_apart(node: &Node, binding: &Binding, ctx: &Context) -> Node {
+    substitute_apart_by(node, binding, &ctx.binders)
+}
+
+/// `substitute_apart` with only the table of what binds, which the grammar
+/// keeps (`Grammar::binders`), for a place that has no matching context.
+pub fn substitute_apart_by(
+    node: &Node,
+    binding: &Binding,
+    binders: &IndexMap<String, Binds>,
+) -> Node {
     if node.notation == "name" || node.notation == "numeral" {
         return binding
             .get(&node.text)
             .cloned()
             .unwrap_or_else(|| node.clone());
     }
-    let (held, body) = ctx.held_body(&node.notation);
+    let (held, body) = match binders.get(&node.notation) {
+        Some(b) => (b.held.clone(), b.body.clone()),
+        None => (Vec::new(), Vec::new()),
+    };
     if held.is_empty() || held.iter().any(|&at| !node.children[at].is_name()) {
         return Node::new(
             &node.notation,
             node.sort.clone(),
             node.children
                 .iter()
-                .map(|c| substitute_apart(c, binding, ctx))
+                .map(|c| substitute_apart_by(c, binding, binders))
                 .collect(),
             &node.text,
         );
@@ -901,9 +920,9 @@ pub fn substitute_apart(node: &Node, binding: &Binding, ctx: &Context) -> Node {
             if held.contains(&i) {
                 spelt.get(&i).cloned().unwrap_or_else(|| c.clone())
             } else if body.contains(&i) {
-                substitute_apart(c, &renamed, ctx)
+                substitute_apart_by(c, &renamed, binders)
             } else {
-                substitute_apart(c, binding, ctx)
+                substitute_apart_by(c, binding, binders)
             }
         })
         .collect();

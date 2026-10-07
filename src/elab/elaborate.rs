@@ -1412,25 +1412,38 @@ impl<'a> Elaborator<'a> {
         let facts = facts.iter().map(|n| expand(n, &defined)).collect();
         let claims = claims.iter().map(|n| expand(n, &defined)).collect();
         let mut seed = NodeBinding::new();
-        for (name, value) in instantiation(cites) {
-            seed.insert(name, expand(&self.read(&value)?, &defined));
+        for (name, value) in self.instantiated_nodes(cites)? {
+            seed.insert(name, expand(&value, &defined));
         }
         Ok(finished(facts, claims, seed, library, &self.sorts_now))
     }
 
     /// The values a citation gives its item's letters, `name := value`, each
     /// read in the names as they stand before any is given: values are
-    /// simultaneous, so `a := b/k, b := a/k` swaps the two.
+    /// simultaneous, so `a := b/k, b := a/k` swaps the two. Every reading of
+    /// a citation's values is this one or `instantiated_nodes`, so that no
+    /// route reads one value after giving another.
     pub(crate) fn instantiated(
         &mut self,
         cites: &str,
     ) -> Checked<Vec<(String, String)>> {
         let mut out = Vec::new();
-        for (name, value) in instantiation(cites) {
-            let node = self.read(&value)?;
+        for (name, node) in self.instantiated_nodes(cites)? {
             out.push((name, self.term(&node)?));
         }
         Ok(out)
+    }
+
+    /// The values a citation gives, as trees in the page's notation, read
+    /// together as `instantiated` reads them.
+    pub(crate) fn instantiated_nodes(
+        &self,
+        cites: &str,
+    ) -> Checked<Vec<(String, Node)>> {
+        instantiation(cites)
+            .into_iter()
+            .map(|(name, value)| Ok((name, self.read(&value)?)))
+            .collect()
     }
 
     /// What the lines and labelled hypotheses `refs` name say, each sentence
@@ -1493,7 +1506,7 @@ impl<'a> Elaborator<'a> {
             .filter(|p| matches!(self.to_term(p).label(), Some("wral") | Some("wal")))
             .collect();
         // The universal is the one binding the name the step instantiates.
-        let pairs = instantiation(&step.just.text);
+        let pairs = self.instantiated_nodes(&step.just.text)?;
         let bound: BTreeSet<Option<String>> = pairs
             .iter()
             .map(|(n, _)| {
@@ -1520,7 +1533,7 @@ impl<'a> Elaborator<'a> {
         let mut whole = self.to_term(&said);
         // Each value is the one written for the name the line quantifies at
         // that level, whatever its place in the list.
-        let by_name: IndexMap<String, String> = pairs.iter().cloned().collect();
+        let by_name: IndexMap<String, Node> = pairs.iter().cloned().collect();
         for _ in 0..pairs.len() {
             let label = whole.label().unwrap_or("");
             let found = rules::INSTANCES.iter().find(|(k, _)| *k == label);
@@ -1549,8 +1562,7 @@ impl<'a> Elaborator<'a> {
                 ));
             };
             let mark = format!("{letter} cv");
-            let node = self.read(&value)?;
-            let at = self.term(&node)?;
+            let at = self.term(&value)?;
             let instance = self.restated(&body, &mark, &at);
             let (ph, ps) = (self.rpn(&body), self.rpn(&instance));
             let member = t!(at, domain, "wcel");
@@ -3503,10 +3515,11 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let head = step.just.head.to_string();
-        let named = instantiation(&step.just.text);
-        let given = self.subject_given(&head, &named, step.line)?;
-        let subject_node = self.read(&given)?;
-        let subject = self.term(&subject_node)?;
+        // The values are read in the proof's names, before any letter of
+        // the definition is given one: `n := d, d := a` gives n the proof's
+        // d, not the definition's.
+        let values = self.instantiated(&step.just.text)?;
+        let subject = self.subject_given(&head, &values, step.line)?;
         let Item::Record(cited) = self.item_cited(&head) else {
             panic!("{head} is a definition of the database");
         };
@@ -3519,10 +3532,6 @@ impl<'a> Elaborator<'a> {
                 matched.push((name, self.term(&node)?));
             }
         }
-        // The values are read in the proof's names, before any letter of
-        // the definition is given one: `n := d, d := a` gives n the proof's
-        // d, not the definition's.
-        let values = self.instantiated(&step.just.text)?;
         let (lemma, flipped, right) =
             self.names_kept(|me| -> Checked<(String, bool, String)> {
                 for (name, term) in matched {
@@ -3769,14 +3778,14 @@ impl<'a> Elaborator<'a> {
         // that value as the step writes it, and any other is what the
         // citation makes it (`matched_here`), never what the proof calls by
         // the same letter.
-        let given = instantiation(cites.unwrap_or(&step.just.text));
+        let given = self.instantiated_nodes(cites.unwrap_or(&step.just.text))?;
         let mut bound: NodeBinding = self
             .matched_here(step, item, cites)?
             .into_iter()
             .filter(|(name, _)| !given.iter().any(|(g, _)| g == name))
             .collect();
-        for (name, value) in &given {
-            bound.insert(name.clone(), self.read(value)?);
+        for (name, value) in given {
+            bound.insert(name, value);
         }
         let library = self.item_library();
         let mut out = Binding::new();

@@ -20,8 +20,8 @@ use crate::corpus::{
 };
 use crate::formula::{Node, Sort};
 use crate::matching::{
-    alike, binding_sites, instantiation, match_tree, substitute, substitute_apart,
-    Binding, Context, PROPERTY,
+    alike, binding_sites, instantiation, match_tree, substitute_apart, Binding,
+    Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined};
 use crate::sorts::{sentences, supplied_by};
@@ -529,7 +529,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let types = library
         .function_types(&just.item(&cited_item(just).expect("a cited item")))
         .iter()
-        .map(|t| substitute(t, &parts.seed))
+        .map(|t| substitute_apart(t, &parts.seed, &library.ctx))
         .filter(|t| {
             let function = &t.children[0];
             function.notation == PROPERTY
@@ -989,7 +989,9 @@ pub fn check_exhibited(
             let said = stated(&wants).is_some()
                 || (!equations.is_empty()
                     && stated(&rest).is_some_and(|at| {
-                        equations.iter().all(|e| itself(&substitute(e, &at)))
+                        equations
+                            .iter()
+                            .all(|e| itself(&substitute_apart(e, &at, &library.ctx)))
                     }));
             if said {
                 continue;
@@ -998,7 +1000,7 @@ pub fn check_exhibited(
             // own line suggesting one; what is not said of it is what the
             // step needs.
             let holds = |w: &Node, at: &Binding| {
-                let w = substitute(w, at);
+                let w = substitute_apart(w, at, &library.ctx);
                 itself(&w) || facts.iter().any(|f| known.alike(f, &w))
             };
             let mut best: Option<(usize, Binding)> = None;
@@ -1044,7 +1046,7 @@ pub fn check_exhibited(
                         "step {} exhibits {}, so it needs {}, and nothing it cites or requires says it",
                         step.number,
                         values.join(", "),
-                        known.print(&substitute(show, &at))
+                        known.print(&substitute_apart(show, &at, &library.ctx))
                     ),
                 );
             }
@@ -1140,7 +1142,7 @@ pub fn check_instantiated(
                 let Some(value) = parts.seed.get(&b.letter.text) else {
                     continue;
                 };
-                let domain = substitute(&b.domain, &outer);
+                let domain = substitute_apart(&b.domain, &outer, &library.ctx);
                 outer.insert(b.letter.text.clone(), value.clone());
                 let Some(want) = bound_in(
                     b.how,
@@ -1156,7 +1158,8 @@ pub fn check_instantiated(
                     .get(&b.letter.text)
                     .and_then(|v| known.read_as_written(v))
                     .unwrap_or_else(|| value.clone());
-                let domain_written = substitute(&w.domain, &outer_written);
+                let domain_written =
+                    substitute_apart(&w.domain, &outer_written, &library.ctx);
                 outer_written.insert(w.letter.text.clone(), value_written.clone());
                 if parts.facts.iter().any(|f| known.alike(f, &want)) {
                     continue;

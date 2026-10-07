@@ -434,14 +434,14 @@ impl<'a> Elaborator<'a> {
         Ok((lemma, var, faces, body, over, said))
     }
 
-    /// What the step writes for the letter a definition is about, found by
-    /// that letter's name among its `v := t` pairs (`SYNTAX.md`: a
-    /// substitution names its variable). A step that gives the subject no
-    /// value is refused: the pair is not optional.
+    /// What the step gives the letter a definition is about, found by that
+    /// letter's name among its values as `instantiated` reads them
+    /// (`SYNTAX.md`: a substitution names its variable). A step that gives
+    /// the subject no value is refused: the pair is not optional.
     pub fn subject_given(
         &mut self,
         name: &str,
-        pairs: &[(String, String)],
+        values: &[(String, String)],
         line: usize,
     ) -> Checked<String> {
         let Item::Record(item) = self.item_cited(name) else {
@@ -452,7 +452,7 @@ impl<'a> Elaborator<'a> {
             .children[0]
             .clone();
         let letter = subject_of(&left).text.clone();
-        let given: IndexMap<&str, &str> = pairs
+        let given: IndexMap<&str, &str> = values
             .iter()
             .map(|(a, b)| (a.as_str(), b.as_str()))
             .collect();

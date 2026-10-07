@@ -6,7 +6,7 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, match_tree, substitute, substitute_apart, Binding, PROPERTY,
+    alike, binding_sites, match_tree, substitute_apart, Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -275,7 +275,7 @@ fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
             .filter(|(_, v)| v.notation != PROPERTY)
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
-        let arg = substitute(&part.children[1], &terms);
+        let arg = substitute_apart(&part.children[1], &terms, &library.ctx);
         let mut at = Binding::new();
         at.insert(stands.text.clone(), arg);
         part = substitute_apart(&stands.children[0], &at, &library.ctx);
@@ -325,7 +325,13 @@ pub fn derives(
                 continue;
             };
             if want.iter().all(|(_, t)| {
-                derives(&substitute(t, &binding), groups, facts, library, depth - 1)
+                derives(
+                    &substitute_apart(t, &binding, &library.ctx),
+                    groups,
+                    facts,
+                    library,
+                    depth - 1,
+                )
             }) {
                 return true;
             }

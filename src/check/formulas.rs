@@ -16,7 +16,7 @@ use crate::corpus::{
     Justification, Method, Recursion, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
-use crate::matching::{alike_top, instantiation, substitute, Binding};
+use crate::matching::{alike_top, instantiation, substitute_apart_by, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
@@ -990,7 +990,8 @@ fn recursion_value(
     if let Some(index) = &index {
         let mut put = Binding::new();
         put.insert(said.index.clone(), index.clone());
-        term = substitute(&term, &put);
+        // Apart from a letter the rule binds, a sum's index among them.
+        term = substitute_apart_by(&term, &put, &env.g.binders());
     }
     Ok(Some((term, index)))
 }
