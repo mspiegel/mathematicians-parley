@@ -317,7 +317,14 @@ struct Item {
 /// set.mm's syntax axioms, ready to parse with.
 pub struct Syntax {
     rules: Vec<Rule>,
-    by_yield: IndexMap<String, Vec<usize>>,
+    /// The rules yielding each typecode that can begin with each token: a
+    /// rule is predicted only where the next token can open it. set.mm has
+    /// hundreds of rules yielding `class`, nearly all of which the next
+    /// token rules out, and predicting them all is most of a parse.
+    opening: IndexMap<String, IndexMap<String, Vec<usize>>>,
+    /// The rules yielding each typecode that spell nothing, which any token
+    /// may follow.
+    bare: IndexMap<String, Vec<usize>>,
     /// Each variable's typecode, and the label of its float.
     pub typecode: IndexMap<String, String>,
     pub label: FloatLabels,
@@ -340,10 +347,6 @@ impl Syntax {
         }
         let label = FloatLabels::new(floats);
         let mut rules = Vec::new();
-        let mut by_yield: IndexMap<String, Vec<usize>> = TYPECODES
-            .iter()
-            .map(|t| (t.to_string(), Vec::new()))
-            .collect();
         for sig in signatures.values() {
             if sig.kind != Kind::Axiom
                 || !TYPECODES.contains(&sig.statement[0].as_str())
@@ -369,17 +372,61 @@ impl Syntax {
                     .map(|v| reading.iter().position(|r| r == v).unwrap_or(0))
                     .collect()
             };
-            let at = rules.len();
-            by_yield
-                .entry(sig.statement[0].clone())
-                .or_default()
-                .push(at);
             rules.push(Rule {
                 label: Rc::from(sig.label.as_str()),
                 yields: sig.statement[0].clone(),
                 symbols,
                 order,
             });
+        }
+        // The tokens that can open a term of each typecode: its variables,
+        // and what opens each rule yielding it, to a fixed point.
+        let mut first: IndexMap<String, IndexSet<String>> = IndexMap::new();
+        for (variable, kind) in &typecode {
+            first
+                .entry(kind.clone())
+                .or_default()
+                .insert(variable.clone());
+        }
+        loop {
+            let mut grew = false;
+            for rule in &rules {
+                let opens: Vec<String> = match rule.symbols.first() {
+                    None => continue,
+                    Some(Symbol::Token(token)) => vec![token.clone()],
+                    Some(Symbol::Hole(kind)) => first
+                        .get(kind)
+                        .map(|s| s.iter().cloned().collect())
+                        .unwrap_or_default(),
+                };
+                let set = first.entry(rule.yields.clone()).or_default();
+                for token in opens {
+                    grew |= set.insert(token);
+                }
+            }
+            if !grew {
+                break;
+            }
+        }
+        let mut opening: IndexMap<String, IndexMap<String, Vec<usize>>> =
+            IndexMap::new();
+        let mut bare: IndexMap<String, Vec<usize>> = IndexMap::new();
+        for (at, rule) in rules.iter().enumerate() {
+            let opens: Vec<&String> = match rule.symbols.first() {
+                None => {
+                    bare.entry(rule.yields.clone()).or_default().push(at);
+                    continue;
+                }
+                Some(Symbol::Token(token)) => vec![token],
+                Some(Symbol::Hole(kind)) => first
+                    .get(kind)
+                    .map(|s| s.iter().collect())
+                    .unwrap_or_default(),
+            };
+            let row = opening.entry(rule.yields.clone()).or_default();
+            for token in opens {
+                row.entry(token.clone()).or_default().push(at);
+            }
         }
         let mut symbols: IndexSet<String> = typecode.keys().cloned().collect();
         symbols.extend(TYPECODES.iter().map(|t| t.to_string()));
@@ -393,7 +440,8 @@ impl Syntax {
         }
         Syntax {
             rules,
-            by_yield,
+            opening,
+            bare,
             typecode,
             label,
             spelt: RefCell::new(IndexMap::new()),
@@ -405,6 +453,20 @@ impl Syntax {
     /// be.
     pub fn is_symbol(&self, token: &str) -> bool {
         self.symbols.contains(token)
+    }
+
+    /// The rules yielding `kind` worth predicting before `next`, the token
+    /// that follows, or none at the end of the statement.
+    fn predicted(
+        &self,
+        kind: &str,
+        next: Option<&str>,
+    ) -> impl Iterator<Item = usize> + '_ {
+        let opening = next
+            .and_then(|token| self.opening.get(kind)?.get(token))
+            .map_or(&[][..], Vec::as_slice);
+        let bare = self.bare.get(kind).map_or(&[][..], Vec::as_slice);
+        opening.iter().chain(bare).copied()
     }
 
     fn build(&self, rule: usize, parts: &[Term]) -> Term {
@@ -457,7 +519,7 @@ impl Syntax {
         let mut told: IndexSet<(usize, String)> = IndexSet::new();
         told.insert((0, start.to_string()));
         let empty = Rc::new(Vec::new());
-        for &rule in self.by_yield.get(start).map_or(&[][..], Vec::as_slice) {
+        for rule in self.predicted(start, tokens.first().copied()) {
             add(&mut chart[0], rule, 0, 0, empty.clone());
         }
         for i in 0..=n {
@@ -497,9 +559,7 @@ impl Syntax {
                 match &rule.symbols[item.dot] {
                     Symbol::Hole(what) => {
                         if told.insert((i, what.clone())) {
-                            for &other in
-                                self.by_yield.get(what).map_or(&[][..], Vec::as_slice)
-                            {
+                            for other in self.predicted(what, tokens.get(i).copied()) {
                                 if let Some(added) =
                                     add(&mut chart[i], other, 0, i, empty.clone())
                                 {
