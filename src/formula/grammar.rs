@@ -1392,10 +1392,16 @@ impl Parser<'_> {
         let in_run = |node: &Node| {
             !node.grouped() && node.children.len() == 2 && self.level_of(node) == level
         };
+        // The joined node was read from the sentence where the condition is
+        // written before what it joins, "for all ε > 0, A". Written after
+        // it, "A for all n ≥ N", the two are no one stretch of the sentence,
+        // and the node has no span.
         let from = condition.span().map(|s| s.0);
         let spanned = |node: Node, over: &Node| {
-            if let (Some(from), Some((_, to))) = (from, over.span()) {
-                node.set_span(from, to);
+            if let (Some(from), Some((start, to))) = (from, over.span()) {
+                if from <= start {
+                    node.set_span(from, to);
+                }
             }
             node
         };

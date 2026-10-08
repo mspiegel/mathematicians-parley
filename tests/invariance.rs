@@ -113,6 +113,18 @@ fn changes() -> Vec<Change> {
             name: "a part of a claim named by a define",
             rewrite: Rewrite::File(rewrites::parts_named),
         },
+        Change {
+            name: "a step that serves only requires lines written as one",
+            rewrite: Rewrite::File(rewrites::dull_steps_moved),
+        },
+        Change {
+            name: "the theorems of a file in another order their citations allow",
+            rewrite: Rewrite::File(rewrites::theorems_reordered),
+        },
+        Change {
+            name: "a define in a proof raised to the start of its run of steps",
+            rewrite: Rewrite::File(rewrites::defines_raised),
+        },
     ]
 }
 

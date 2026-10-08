@@ -1797,10 +1797,10 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
                 .collect();
             for node in nodes.iter().skip(1) {
                 let term = node.sort.is("number") || node.sort.is("set");
-                // Only a part the parser read from the sentence, forwards, is
-                // cut from it: a node it built without reading has no text of
-                // its own to name.
-                let read = node.span().is_some_and(|(from, to)| from < to);
+                // Only a part the parser read from the sentence is cut from
+                // it: a node it built without reading has no text of its own
+                // to name.
+                let read = node.span().is_some();
                 let binds = node
                     .walk()
                     .iter()
@@ -1995,4 +1995,533 @@ fn fresh_name(ctx: &Context, set: bool, taken: &BTreeSet<String>) -> Option<Stri
                 && !ctx.g.functions.contains_key(*l)
         })
         .cloned()
+}
+
+/// A citation's text with each step number `map` names said as the new
+/// number, where a citation names a line: in a `from` or `join` list, and
+/// after `line`, `contradicting`, `into` or `in`, as `references` and the
+/// proof reader read them. A number anywhere else belongs to a formula.
+fn renumbered_refs(text: &str, map: &BTreeMap<String, String>) -> String {
+    let swap = |r: &str| map.get(r).cloned().unwrap_or_else(|| r.to_string());
+    let lists = re(r"\b(from|join)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
+    let text = lists.replace_all(text, |c: &regex::Captures| {
+        let items: Vec<String> = c[3]
+            .split(',')
+            .map(|item| {
+                let lead = &item[..item.len() - item.trim_start().len()];
+                format!("{lead}{}", swap(item.trim()))
+            })
+            .collect();
+        format!("{}{}{}", &c[1], &c[2], items.join(","))
+    });
+    let single = re(r"\b(line|contradicting|into|in)(\s+)([0-9]+(?:\.[0-9]+)*)\b");
+    single
+        .replace_all(&text, |c: &regex::Captures| {
+            format!("{}{}{}", &c[1], &c[2], swap(&c[3]))
+        })
+        .into_owned()
+}
+
+/// A chain line with the line it cites at its right end (`chain_cited`)
+/// said as `map` says it.
+fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> String {
+    let end = line.trim_end().len();
+    let start = line[..end].rfind(char::is_whitespace).map_or(0, |i| i + 1);
+    match map.get(&line[start..end]) {
+        Some(new) => format!("{}{new}{}", &line[..start], &line[end..]),
+        None => line.to_string(),
+    }
+}
+
+/// `from 2, 17` without 17, and `membership, from 14` without 14 as
+/// `membership`; None where nothing would be left.
+fn without_ref(how: &str, gone: &str) -> Option<String> {
+    let how = how.trim();
+    let at = how.rfind("from ")?;
+    let head = how[..at].trim_end().trim_end_matches(',').trim_end();
+    let kept: Vec<&str> = how[at + "from ".len()..]
+        .split(',')
+        .map(str::trim)
+        .filter(|r| *r != gone)
+        .collect();
+    match (head.is_empty(), kept.is_empty()) {
+        (true, true) => None,
+        (false, true) => Some(head.to_string()),
+        (true, false) => Some(format!("from {}", kept.join(", "))),
+        (false, false) => Some(format!("{head}, from {}", kept.join(", "))),
+    }
+}
+
+/// The methods a requires line may name as its one citation, as a step may.
+const REQUIRES_METHODS: [Method; 4] = [
+    Method::Membership,
+    Method::Arithmetic,
+    Method::Inequalities,
+    Method::Algebra,
+];
+
+/// A step that serves only requires lines, written as a requires line of
+/// each step that rests on it: `READERS.md`'s dull fact, which konigsberg's
+/// walk-parity moved by hand and so found the checker calling a needed line
+/// surplus twice. The step's claim and justification become `requires
+/// claim: justification`, its own requires lines go with it above, as a
+/// requires line may rest on those above it (`SYNTAX.md`), each requires
+/// line that cited it cites it no more, one that only restated it goes,
+/// and the steps after it are numbered again, with every citation of them.
+///
+/// A step moves only where the move is one the syntax allows and leaves
+/// nothing to guess: its claim is one sentence on one line, its
+/// justification one citation on one line, a cited item or a method a
+/// requires line may name, it opens no block and is not the last of its
+/// run, nothing cites it but requires lines, and a step it moves into does
+/// not already state one of the facts it carries. The first such step of
+/// each theorem moves.
+pub fn dull_steps_moved(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        if let Some(changed) = dull_step_moved(thm, &mut lines, end) {
+            count += changed;
+            theorems.push(thm.qualified());
+        }
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined: Vec::new(),
+    }
+}
+
+/// The theorems of a file in another order, each still after every theorem
+/// of the file it cites: konigsberg put degree-by-walk before walk-parity
+/// by hand, and so found that a proof's files were included in the order it
+/// cited them rather than the order they rest on one another. The order is
+/// built from the bottom: the last-written theorem whose cited theorems are
+/// all placed goes next, so the order differs wherever the citations leave
+/// room. A define of the file written between its theorems must stay above
+/// what uses it, and such a file is left as it is.
+pub fn theorems_reordered(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut thms = theorems_of(ctx, path, lines.len());
+    thms.reverse();
+    let unchanged = |declined: Vec<Declined>| Rewritten {
+        text: text.to_string(),
+        lines: 0,
+        theorems: Vec::new(),
+        declined,
+    };
+    if thms.len() < 2 {
+        return unchanged(Vec::new());
+    }
+    let first = thms[0].0.line;
+    let scope = &ctx.corpus.scopes[thms[0].0.scope];
+    if scope.defines.iter().any(|d| d.line > first) {
+        return unchanged(vec![Declined {
+            theorem: thms[0].0.qualified(),
+            why: "a define of the file stands between its theorems, above what uses it"
+                .to_string(),
+        }]);
+    }
+    let names: Vec<String> = thms.iter().map(|(t, _)| t.qualified()).collect();
+    let rests: Vec<BTreeSet<usize>> = thms
+        .iter()
+        .map(|(t, _)| {
+            parley::corpus::proof::cited_items(t)
+                .iter()
+                .filter_map(|(cited, _)| names.iter().position(|n| n == cited))
+                .filter(|&i| names[i] != t.qualified())
+                .collect()
+        })
+        .collect();
+    let mut order: Vec<usize> = Vec::new();
+    let mut left: Vec<usize> = (0..thms.len()).collect();
+    while !left.is_empty() {
+        let Some(at) = left
+            .iter()
+            .rposition(|&i| rests[i].iter().all(|r| order.contains(r)))
+        else {
+            return unchanged(Vec::new());
+        };
+        order.push(left.remove(at));
+    }
+    if order.iter().enumerate().all(|(place, &i)| place == i) {
+        return unchanged(Vec::new());
+    }
+    let chunk = |i: usize| -> Vec<String> {
+        let (t, end) = thms[i];
+        let mut out: Vec<String> = lines[t.line - 1..end].to_vec();
+        while out.last().is_some_and(|l| l.trim().is_empty()) {
+            out.pop();
+        }
+        out
+    };
+    let mut out: Vec<String> = lines[..first - 1].to_vec();
+    let mut moved = 0;
+    let mut theorems = Vec::new();
+    for (place, &i) in order.iter().enumerate() {
+        if place > 0 {
+            out.push(String::new());
+        }
+        let c = chunk(i);
+        if place != i {
+            moved += c.len();
+            theorems.push(names[i].clone());
+        }
+        out.extend(c);
+    }
+    Rewritten {
+        text: joined(out, text),
+        lines: moved,
+        theorems,
+        declined: Vec::new(),
+    }
+}
+
+/// Every define in a proof raised to the start of its run of steps: above
+/// each step before it in the same run and part that introduces no letter,
+/// writes no name the define gives and is no define. Konigsberg moved its
+/// defines to where each is first used; a define written higher says the
+/// same, since nothing it reads is introduced in between and nothing in
+/// between reads what it names (`SYNTAX.md`: a definition is used only
+/// below where it is written). A define giving more than one name stays.
+pub fn defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    for (thm, _) in theorems_of(ctx, path, lines.len()) {
+        let mut defines: Vec<&parley::corpus::proof::DefineLine> = thm
+            .defines
+            .iter()
+            .filter(|d| d.line > thm.conclusion_line)
+            .collect();
+        // From the bottom, so each define's lines are where they were read.
+        defines.sort_by_key(|d| std::cmp::Reverse(d.line));
+        let mut changed = false;
+        for d in defines {
+            if let Some(n) = define_raised(thm, d, &mut lines) {
+                count += n;
+                changed = true;
+            }
+        }
+        if changed {
+            theorems.push(thm.qualified());
+        }
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined: Vec::new(),
+    }
+}
+
+/// One define of `thm` raised as `defines_raised` says; the lines it moved,
+/// or None where it stays.
+fn define_raised(
+    thm: &Theorem,
+    d: &parley::corpus::proof::DefineLine,
+    lines: &mut Vec<String>,
+) -> Option<usize> {
+    let body = d.text.trim().strip_prefix("define ")?;
+    if body.matches(":=").count() != 1 {
+        return None;
+    }
+    let name: String = body
+        .split(":=")
+        .next()?
+        .trim()
+        .chars()
+        .take_while(|c| !matches!(c, '(' | ' '))
+        .collect();
+    let reads = d.line;
+    if !lines.get(reads)?.trim_start().starts_with("reads ") {
+        return None;
+    }
+    let next = thm.steps.iter().find(|s| s.line > d.line)?;
+    let parent = next.number.parent();
+    let run: Vec<&parley::corpus::proof::Step> = thm
+        .steps
+        .iter()
+        .filter(|s| {
+            s.number.parent() == parent && s.line < d.line && s.part == next.part
+        })
+        .collect();
+    let named = |from: usize, to: usize| {
+        lines[from..to].iter().any(|l| {
+            if name.chars().count() == 1 {
+                loose_letters(l).contains(&name)
+            } else {
+                re(&format!(r"\b{}\b", regex::escape(&name))).is_match(l)
+            }
+        })
+    };
+    let mut target: Option<usize> = None;
+    let mut below = d.line - 1;
+    for s in run.iter().rev() {
+        let introduces =
+            s.just.head.is(Method::Obtain) || s.just.head.is(Method::Exhibit);
+        let define_between = thm
+            .defines
+            .iter()
+            .any(|o| o.line != d.line && o.line > s.line && o.line < below + 1);
+        if introduces || define_between || named(s.line - 1, below) {
+            break;
+        }
+        target = Some(s.line - 1);
+        below = s.line - 1;
+    }
+    let target = target?;
+    let mut taken: Vec<String> = vec![lines[d.line - 1].clone(), lines[reads].clone()];
+    let mut gone = 2;
+    if lines.get(reads + 1).is_some_and(|l| l.trim().is_empty()) {
+        gone += 1;
+    }
+    for _ in 0..gone {
+        lines.remove(d.line - 1);
+    }
+    taken.push(String::new());
+    for (i, line) in taken.into_iter().enumerate() {
+        lines.insert(target + i, line);
+    }
+    Some(3)
+}
+
+/// One edit to `lines`: what goes at a line, from 0, or a line taken out.
+enum LineEdit {
+    Insert(usize, Vec<String>),
+    Remove(usize),
+}
+
+/// The first step of `thm` that serves only requires lines, moved into them;
+/// the number of lines it changed, or None where no step can move.
+fn dull_step_moved(
+    thm: &Theorem,
+    lines: &mut Vec<String>,
+    end: usize,
+) -> Option<usize> {
+    let single = |l: usize| !lines[l - 1].trim_end().ends_with(',');
+    let numbers: BTreeSet<String> =
+        thm.steps.iter().map(|s| s.number.to_string()).collect();
+    for (n, step) in thm.steps.iter().enumerate() {
+        let no = step.number.to_string();
+        let claim = match step.claim.as_slice() {
+            [one] => one,
+            _ => continue,
+        };
+        let head_ok = match &step.just.head {
+            Head::Item { .. } => true,
+            Head::Method(m) => REQUIRES_METHODS.contains(m),
+            Head::Define => false,
+        };
+        let mut next = step.number.0.clone();
+        *next.last_mut()? += 1;
+        let next = parley::corpus::proof::StepNo(next).to_string();
+        let opens = numbers
+            .iter()
+            .any(|other| other.starts_with(&format!("{no}.")));
+        if !head_ok
+            || step.just.target.is_some()
+            || !step.just.instantiations.is_empty()
+            || !step.just.chain.is_empty()
+            || step.just.contradicting.is_some()
+            || step.just.bad_ref.is_some()
+            || !step.parts.is_empty()
+            || !step.openers.is_empty()
+            || step.note.is_some()
+            || step.impossible
+            || opens
+            || !numbers.contains(&next)
+            || claim.contains(". ")
+            || re(r"\S:").is_match(claim)
+            || !lines[step.line - 1].contains(claim.as_str())
+            || !single(step.just.line)
+            || step.requires.iter().any(|r| !single(r.line))
+        {
+            continue;
+        }
+        // Who cites it: only requires lines may.
+        let mut citers: Vec<(usize, usize)> = Vec::new();
+        let mut otherwise = false;
+        for (s, other) in thm.steps.iter().enumerate() {
+            if s == n {
+                continue;
+            }
+            otherwise |= other.just.refs.contains(&no)
+                || other.just.contradicting.as_deref() == Some(no.as_str());
+            for (k, r) in other.requires.iter().enumerate() {
+                if references(&r.how).0.contains(&no) {
+                    citers.push((s, k));
+                }
+            }
+        }
+        if otherwise || citers.is_empty() {
+            continue;
+        }
+        let carried: Vec<String> = step
+            .requires
+            .iter()
+            .map(|r| format!("requires {}: {}", r.fact, r.how))
+            .chain(std::iter::once(format!(
+                "requires {claim}: {}",
+                step.just.text
+            )))
+            .collect();
+        let carried_facts: BTreeSet<&str> = step
+            .requires
+            .iter()
+            .map(|r| r.fact.as_str())
+            .chain(std::iter::once(claim.as_str()))
+            .collect();
+        // Each citing line said again, or taken out where it only restated
+        // the step.
+        let mut said: Vec<(usize, Option<String>)> = Vec::new();
+        let mut fits = true;
+        for &(s, k) in &citers {
+            let r = &thm.steps[s].requires[k];
+            let line = &lines[r.line - 1];
+            let Some(at) = line.rfind(r.how.trim()) else {
+                fits = false;
+                break;
+            };
+            if !single(r.line) {
+                fits = false;
+                break;
+            }
+            match without_ref(&r.how, &no) {
+                Some(how) => {
+                    said.push((r.line - 1, Some(format!("{}{how}", &line[..at]))))
+                }
+                None if r.fact.trim() == claim.trim() => said.push((r.line - 1, None)),
+                None => {
+                    fits = false;
+                    break;
+                }
+            }
+        }
+        let gone: BTreeSet<usize> = said
+            .iter()
+            .filter(|(_, new)| new.is_none())
+            .map(|(l, _)| *l)
+            .collect();
+        let resting: BTreeSet<usize> = citers.iter().map(|(s, _)| *s).collect();
+        for &s in &resting {
+            let restated = thm.steps[s].requires.iter().any(|r| {
+                !gone.contains(&(r.line - 1)) && carried_facts.contains(r.fact.trim())
+            });
+            fits &= !restated;
+        }
+        if !fits {
+            continue;
+        }
+        // The steps after it, numbered again.
+        let depth = step.number.len();
+        let mut map: BTreeMap<String, String> = BTreeMap::new();
+        for other in &thm.steps {
+            let v = &other.number.0;
+            if v.len() >= depth
+                && v[..depth - 1] == step.number.0[..depth - 1]
+                && v[depth - 1] > step.number.0[depth - 1]
+            {
+                let mut w = v.clone();
+                w[depth - 1] -= 1;
+                map.insert(
+                    other.number.to_string(),
+                    parley::corpus::proof::StepNo(w).to_string(),
+                );
+            }
+        }
+        for (l, new) in &said {
+            if let Some(new) = new {
+                lines[*l] = new.clone();
+            }
+        }
+        let mut changed = said.len();
+        for (s, other) in thm.steps.iter().enumerate() {
+            if s == n {
+                continue;
+            }
+            let heading = other.line - 1;
+            if let Some(new) = map.get(&other.number.to_string()) {
+                let old = format!("{}.", other.number);
+                if let Some(at) = lines[heading].find(&old) {
+                    lines[heading]
+                        .replace_range(at..at + old.len(), &format!("{new}."));
+                    changed += 1;
+                }
+            }
+            let mut cited: Vec<usize> = vec![other.just.line - 1];
+            cited.extend(continued(lines, other.just.line - 1, end));
+            for r in &other.requires {
+                cited.push(r.line - 1);
+                cited.extend(continued(lines, r.line - 1, end));
+            }
+            for l in cited {
+                let new = renumbered_refs(&lines[l], &map);
+                if new != lines[l] {
+                    lines[l] = new;
+                    changed += 1;
+                }
+            }
+            for (_, at) in &other.just.chain {
+                let new = renumbered_link(&lines[at - 1], &map);
+                if new != lines[at - 1] {
+                    lines[at - 1] = new;
+                    changed += 1;
+                }
+            }
+        }
+        // The carried lines go above the first line of each step that cited
+        // the step, and the step's own lines go.
+        let mut edits: Vec<LineEdit> = Vec::new();
+        for &s in &resting {
+            let first = citers
+                .iter()
+                .filter(|(t, _)| *t == s)
+                .map(|&(t, k)| thm.steps[t].requires[k].line - 1)
+                .min()?;
+            let indent: String = lines[first]
+                .chars()
+                .take_while(|c| c.is_whitespace())
+                .collect();
+            edits.push(LineEdit::Insert(
+                first,
+                carried.iter().map(|c| format!("{indent}{c}")).collect(),
+            ));
+            changed += carried.len();
+        }
+        edits.extend(gone.iter().map(|&l| LineEdit::Remove(l)));
+        let last = std::iter::once(step.just.line)
+            .chain(step.requires.iter().map(|r| r.line))
+            .max()?
+            - 1;
+        let mut own: Vec<usize> = (step.line - 1..=last).collect();
+        if lines.get(last + 1).is_some_and(|l| l.trim().is_empty()) {
+            own.push(last + 1);
+        }
+        changed += own.len();
+        edits.extend(own.into_iter().map(LineEdit::Remove));
+        // From the bottom up, so that each edit's line is where it was read;
+        // at one line a removal goes before what is put there.
+        let place = |e: &LineEdit| match e {
+            LineEdit::Insert(l, _) => (*l, 0),
+            LineEdit::Remove(l) => (*l, 1),
+        };
+        edits.sort_by_key(|e| std::cmp::Reverse(place(e)));
+        for e in edits {
+            match e {
+                LineEdit::Insert(l, new) => {
+                    for (i, line) in new.into_iter().enumerate() {
+                        lines.insert(l + i, line);
+                    }
+                }
+                LineEdit::Remove(l) => {
+                    lines.remove(l);
+                }
+            }
+        }
+        return Some(changed);
+    }
+    None
 }

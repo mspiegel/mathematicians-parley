@@ -299,8 +299,15 @@ impl Node {
         self.span.get()
     }
 
-    /// Say where the parser read this node from.
+    /// Say where the parser read this node from. A span runs forwards, which
+    /// `written` relies on, so one that does not is the parser's fault and
+    /// stops it where it is made.
     pub fn set_span(&self, from: usize, to: usize) {
+        assert!(
+            from <= to,
+            "a span runs forwards, and {} was given {from}..{to}",
+            self.notation
+        );
         self.span.set(Some((from, to)));
     }
 
