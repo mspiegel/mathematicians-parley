@@ -463,8 +463,10 @@ pub fn check_requires(
 /// inequalities, from 3.1`, or `requires b − a ≠ 0` above `requires (f(a) −
 /// f(b))/(b − a) ∈ ℝ: membership`. An order between terms is what
 /// `inequalities` reasons from, so `requires sin(∠PQR) > 0` is asked for by
-/// `requires sin(∠PQR) ≠ 0: inequalities` below it. The term may reach the
-/// line below through a line it cites, as `requires deg(x) ∈ ℕ₀:
+/// `requires sin(∠PQR) ≠ 0: inequalities` below it. An equation names both
+/// its sides, so `requires deg(u) = |S|` is asked for by `requires deg(u) ∈
+/// ℤ: membership` below it. The term may reach the line below through a line
+/// it cites or another requires line above it, as `requires deg(x) ∈ ℕ₀:
 /// membership, from 2` rests on `requires |S| ∈ ℕ₀` where line 2 says deg(x)
 /// = |S|. Such a line is asked for as surely as an item's hypothesis is
 /// (`SYNTAX.md`: a requires line rests on the lines above it).
@@ -478,32 +480,47 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     // says it written either way round, 0 ≠ t as well; `inequalities` takes
     // two terms differing only from a line it cites, not from one above
     // (`METHODS.md`). t < u names both sides, and only `inequalities` reads
-    // an order.
-    let (held, asking): (Vec<&Node>, &[&str]) = match said.notation.as_str() {
-        "membership" if said.children.len() == 2 => (vec![&said.children[0]], &ASKING),
-        "logical-not"
-            if said.children.len() == 1
-                && said.children[0].notation == "equality"
-                && said.children[0].children.len() == 2 =>
-        {
-            (
-                said.children[0]
-                    .children
+    // an order. t = u names both sides too, and a line below may say of one
+    // what it says of the other, so there a term the line below holds whole
+    // is one it rests on.
+    let (held, asking, whole): (Vec<&Node>, &[&str], bool) =
+        match said.notation.as_str() {
+            "membership" if said.children.len() == 2 => {
+                (vec![&said.children[0]], &ASKING, false)
+            }
+            "logical-not"
+                if said.children.len() == 1
+                    && said.children[0].notation == "equality"
+                    && said.children[0].children.len() == 2 =>
+            {
+                (
+                    said.children[0]
+                        .children
+                        .iter()
+                        .filter(|c| c.notation != "numeral")
+                        .collect(),
+                    &["membership", "algebra"],
+                    false,
+                )
+            }
+            "order" if said.children.len() == 2 => (
+                said.children
                     .iter()
                     .filter(|c| c.notation != "numeral")
                     .collect(),
-                &["membership", "algebra"],
-            )
-        }
-        "order" if said.children.len() == 2 => (
-            said.children
-                .iter()
-                .filter(|c| c.notation != "numeral")
-                .collect(),
-            &["inequalities"],
-        ),
-        _ => return false,
-    };
+                &["inequalities"],
+                false,
+            ),
+            "equality" if said.children.len() == 2 => (
+                said.children
+                    .iter()
+                    .filter(|c| c.notation != "numeral")
+                    .collect(),
+                &ASKING,
+                true,
+            ),
+            _ => return false,
+        };
     let atoms: Vec<String> = held.iter().map(|h| h.shape().to_string()).collect();
     let holds_atom = |n: &Node| {
         atoms
@@ -529,20 +546,28 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 &n
             };
             let written = atoms.iter().any(|atom| {
-                held.shape() != *atom
+                (whole || held.shape() != *atom)
                     && held.walk().iter().any(|part| part.shape() == *atom)
             });
-            // A line the lower one cites carries the term to it: `deg(x) ∈
-            // ℕ₀: membership, from 2` rests on `|S| ∈ ℕ₀` above it where
-            // line 2 says deg(x) = |S|.
-            written
-                || references(&r.how)
-                    .0
-                    .iter()
-                    .filter_map(|c| scope.get(c))
-                    .flat_map(|text| supplied_by(text))
-                    .filter_map(|s| known.read(step, &s))
-                    .any(|line| holds_atom(&line))
+            // A line the lower one cites, or another requires line above it,
+            // carries the term to it: `deg(x) ∈ ℕ₀: membership, from 2` rests
+            // on `|S| ∈ ℕ₀` above it where line 2 says deg(x) = |S|, and so
+            // does `deg(x) ∈ ℤ: membership` under `requires deg(x) = |S|`.
+            let cited = references(&r.how)
+                .0
+                .iter()
+                .filter_map(|c| scope.get(c))
+                .flat_map(|text| supplied_by(text))
+                .filter_map(|s| known.read(step, &s))
+                .any(|line| holds_atom(&line));
+            let above = step
+                .requires
+                .iter()
+                .take_while(|o| o.line != r.line)
+                .filter(|o| o.line != req.line)
+                .filter_map(|o| known.read(step, &o.fact))
+                .any(|line| holds_atom(&line));
+            written || cited || above
         })
 }
 

@@ -600,7 +600,7 @@ the define gives (`mpbid`).
 
 ## inspection
 
-`{x ∈ E : A is an end of x} = {a, b, c, d, e}: inspection, from H1` — a
+`{x ∈ E : A is incident with x} = {a, b, c, d, e}: inspection, from H1` — a
 claim about a set listed in full, checked element by element against what
 the cited lines say. A textbook writes "by inspection" and its reader runs
 down the list; the page does the same, and the cases are not written
@@ -622,7 +622,7 @@ The lines the step cites, read for four kinds of sentence and nothing else:
 - **what a listed thing is:** an equation giving a term at a listed name,
   as "a joins A and B" says the ends of a are {A, B}, or a "for all"
   equation over a set the facts list, which gives a term at each of its
-  elements, as "for all x ∈ V, deg(x) = |{a ∈ E : x is an end of a}|"
+  elements, as "for all x ∈ V, deg(x) = |{a ∈ E : x is incident with a}|"
   gives deg(B) once V is listed;
 - **what holds of a listed thing:** a line saying the property itself at a
   listed name, or its negation, as "deg(A) is odd" says it of A.
@@ -640,7 +640,7 @@ is something the facts let the reader work out. What a term works out to:
 - a term a cited "for all" equation gives at a listed element is what the
   other side works out to there.
 
-So `{x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅}`, `|{b₁, b₂, b₆}| = 3`
+So `{x ∈ E : A is incident with x} = {b₁, b₂, b₃, b₄, b₅}`, `|{b₁, b₂, b₆}| = 3`
 and `deg(B) = 3` are one method, which works out both sides and compares
 them.
 
@@ -650,7 +650,7 @@ A membership `t ∈ {s₁, …, sₙ}` holds where t is one of the sᵢ and fail
 where the facts say t differs from each of them. A property P is settled at
 an element by a cited line that says P there or denies it, or else by
 reading P there through what the facts say that element is, until it is a
-membership of that kind: "A is an end of f" is A ∈ {B, D} once f joins B
+membership of that kind: "A is incident with f" is A ∈ {B, D} once f joins B
 and D, and that fails because A, B and D are distinct. The
 set S is replaced by its listing and P is settled at each element in turn.
 A size is the length of the list once the facts say its names are distinct.

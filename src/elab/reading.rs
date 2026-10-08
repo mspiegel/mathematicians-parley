@@ -566,7 +566,7 @@ impl<'a> Elaborator<'a> {
     /// A graph's `let` line: the graph is the structure, its vertices are
     /// set.mm's `Vtx`, its edges the names `iEdg` sends to their ends, and
     /// `@ends` and `@deg` are the parts the notations reach (`joins`,
-    /// `end-of`, `degree`). The line says the structure is an undirected
+    /// `incident`, `degree`). The line says the structure is an undirected
     /// multigraph.
     ///
     /// A graph given in full says more: each listed vertex and edge is a

@@ -4487,6 +4487,37 @@ pub struct Elaborated {
     pub answers: Vec<String>,
 }
 
+/// The theorems `cited` names, each after every other of them it rests on,
+/// directly or through theorems not cited here, and otherwise in the order
+/// given.
+fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
+    fn visit(
+        name: &str,
+        cited: &[String],
+        corpus: &Corpus,
+        seen: &mut BTreeSet<String>,
+        out: &mut Vec<String>,
+    ) {
+        if !seen.insert(name.to_string()) {
+            return;
+        }
+        if let Some(thm) = corpus.theorems.iter().find(|t| t.qualified() == name) {
+            for (other, _) in crate::corpus::proof::cited_items(thm) {
+                visit(&other, cited, corpus, seen, out);
+            }
+        }
+        if cited.iter().any(|c| c == name) {
+            out.push(name.to_string());
+        }
+    }
+    let mut seen = BTreeSet::new();
+    let mut out = Vec::new();
+    for name in cited {
+        visit(name, cited, corpus, &mut seen, &mut out);
+    }
+    out
+}
+
 /// Elaborate one theorem of the corpus into its file.
 ///
 /// `statements` gives the statement a cited theorem's file proves, where it
@@ -4552,9 +4583,15 @@ pub fn elaborate(
     ));
     out.push('\n');
     // A theorem this corpus proves is cited as one label, so the file that
-    // elaborated it is read first and the rest comes in through it.
-    for name in &work.cited {
-        out.push_str(&format!("$[ {}.mm $]\n", crate::text::spelt_in_ascii(name)));
+    // elaborated it is read first and the rest comes in through it. With a
+    // cited theorem's file included after one that rests on it, metamath-rs
+    // rejects the proof ("Step used before definition"), so each comes after
+    // the cited theorems it rests on, however it reaches them.
+    for name in rested_first(&work.cited, corpus) {
+        out.push_str(&format!(
+            "$[ {}.mm $]\n",
+            crate::text::spelt_in_ascii(&name)
+        ));
     }
     if work.cited.is_empty() {
         // proved.mm includes the definitions, so a proof that reaches one of

@@ -1630,14 +1630,16 @@ notation joins
   note        An edge's two ends, in no order: "e joins u and v" is
               "e joins v and u".
 
-notation end-of
-  pattern     _ is an end of _        _ is not an end of _
+notation incident
+  pattern     _ is incident with _        _ is not incident with _
   sort        β, α → formula
   level       predicate
   negates     pattern 2 is logical-not of pattern 1
-  reads       is an end of, is not an end of
+  reads       is incident with, is not incident with
   metamath    wcel with the ends of an edge, and its negation
   target      _1 _2 @ends cfv wcel, folded
+  note        A vertex is incident with an edge when it is one of the edge's
+              two ends (Bondy and Murty, "Graph Theory", §1.1).
 
 notation degree
   pattern     deg(_)
@@ -1645,7 +1647,7 @@ notation degree
   reads       the degree of
   metamath    VtxDeg
   target      _1 @deg cfv
-  note        The number of edges a vertex is an end of, set.mm's VtxDeg,
+  note        The number of edges a vertex is incident with, set.mm's VtxDeg,
               which in a graph without loops counts exactly those edges
               (`vtxdumgrval`).
 

@@ -2,21 +2,21 @@
 #
 # The page says an edge a joins u and w, which set.mm says as the ends
 # `iEdg` gives a being the pair: ( ( iEdg ` G ) ` A ) = { U , W }. A vertex is
-# an end of a when it is in that pair.
+# incident with a when it is in that pair.
 #
-# - each of u and w is an end of a: `prid1g` and `prid2g`, carried to the
-#   ends by the equation, for `mun:stdlib/graphs/joined-end`;
-# - a vertex that is neither is not an end: `elpri` says a member of the
-#   pair is one of the two, for `mun:stdlib/graphs/not-an-end`;
+# - each of u and w is incident with a: `prid1g` and `prid2g`, carried to
+#   the ends by the equation, for `mun:stdlib/graphs/joined-incident`;
+# - a vertex that is neither is not incident with a: `elpri` says a member
+#   of the pair is one of the two, for `mun:stdlib/graphs/not-incident`;
 # - the two ends are different: `umgrnloopv`, a multigraph having no edge
 #   from a vertex to itself, for `mun:stdlib/graphs/join-distinct`;
-# - a vertex is an end of a exactly when it is u or w: `elprg` at the pair,
-#   for `mun:stdlib/graphs/ends-of-joined`;
+# - a vertex is incident with a exactly when it is u or w: `elprg` at the
+#   pair, for `mun:stdlib/graphs/incident-of-joined`;
 # - each edge of a walk joins the vertices on either side of it: `rspcv`
 #   at its place, for `mun:stdlib/graphs/walk-step`;
 # - a walk never stays at a vertex: the edge at a place joins two different
 #   vertices, by `umgrnloopv`, for `mun:stdlib/graphs/walk-distinct`;
-# - the degree of a vertex is the number of edges it is an end of:
+# - the degree of a vertex is the number of edges it is incident with:
 #   `vtxdumgrval`, for `mun:stdlib/graphs/degree`;
 # - a multigraph is traversable exactly when there is n and a walk f of n
 #   edges, counted from 0, one-to-one and reaching every edge, with vertices
@@ -60,7 +60,7 @@ lemma gwalkstep
   8 rspcv 7 |- ( I e. ( 1 ... N ) -> ( A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } ) )
   9 sylc gwalkstep.2 gwalkstep.1 8 |- ( ph -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } )
 
-# The degree of U, the edges U is an end of counted: `vtxdumgrval` with the
+# The degree of U, the edges U is incident with counted: `vtxdumgrval` with the
 # graph's parts named by `eqid`.
 lemma gdeg
   |- ( ( G e. UMGraph /\ U e. ( Vtx ` G ) ) -> ( ( VtxDeg ` G ) ` U ) = ( # ` { x e. dom ( iEdg ` G ) | U e. ( ( iEdg ` G ) ` x ) } ) )
@@ -116,7 +116,7 @@ lemma gjoinne
   3 syl2anc gjoinne.1 gjoinne.2 2 |- ( ph -> ( ( ( iEdg ` G ) ` A ) = { U , W } -> U =/= W ) )
   4 mpd gjoinne.3 3 |- ( ph -> U =/= W )
 
-# ( ph -> X is an end of A exactly when it is U or W ), from the edge
+# ( ph -> X is incident with A exactly when it is U or W ), from the edge
 # joining U and W: the ends are the pair, and `elprg` says who is in it.
 lemma gends
   hypothesis gends.1 |- ( ph -> X e. ( Vtx ` G ) )

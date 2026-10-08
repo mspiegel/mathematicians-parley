@@ -1,7 +1,7 @@
 import definition         stdlib/graphs/euler-path
 import mundane theorem    stdlib/graphs/walk-step
 import mundane theorem    stdlib/graphs/walk-distinct
-import mundane theorem    stdlib/graphs/ends-of-joined
+import mundane theorem    stdlib/graphs/incident-of-joined
 import mundane theorem    stdlib/counting/count-same
 import mundane theorem    stdlib/counting/count-either
 import mundane theorem    stdlib/counting/count-shift
@@ -32,132 +32,6 @@ import mundane theorem    stdlib/counting/card-subset
 import mundane theorem    stdlib/counting/card-pair
 import mundane theorem    stdlib/divisibility/not-both
 
-theorem walk-parity
-  note        Euler's argument. The walk starts at v(0), crosses e(1) to
-              v(1), then e(2) to v(2), and so on: e lists the edges it
-              crosses, in order, and v the vertices it passes through. An
-              Euler path crosses every edge exactly once. Each time it
-              passes through a vertex it arrives along one edge and leaves
-              along another, so a vertex that is neither the start nor the
-              end has two edges for every time the walk passes through it.
-  let G be an undirected multigraph with vertices V and edges E      (H1)
-  let n ∈ ℕ₀                                                          (H2)
-  let e : {1, …, n} → E                                               (H3)
-  let v : {0, …, n} → V                                               (H4)
-  assume v and e form an Euler path of n edges                        (H5)
-  let x ∈ V                                                           (H6)
-  assume x ≠ v(0)                                                     (H7)
-  assume x ≠ v(n)                                                     (H8)
-  then deg(x) is even
-
-define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D1)
-       reads how many times the walk passes through x
-
-define d := |{i ∈ {1, …, n} : x = v(i − 1)}|                          (D2)
-       reads how many of the walk's edges leave x
-
-define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D3)
-       reads how many of the walk's edges arrive at x
-
-1.  v and e form a walk of n edges. e : {1, …, n} → E is one-to-one.
-    For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
-    def:euler-path, from H2, H5
-
-2.  deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
-    thm:degree-by-walk, from H2, 1, H6
-
-3.  For all i ∈ {1, …, n}, x is an end of e(i) ↔ x = v(i − 1) or x = v(i).
-    proof
-    let i ∈ {1, …, n}                                                 (K1)
-
-    3.1.  e(i) joins v(i − 1) and v(i)
-          mun:walk-step, from H2, 1, K1
-
-    3.2.  x is an end of e(i) ↔ x = v(i − 1) or x = v(i)
-          mun:ends-of-joined a := e(i), u := v(i − 1), w := v(i), from H6, 3.1
-
-4.  For all i ∈ {1, …, n}, not (x = v(i − 1) and x = v(i)).
-    proof
-    let i ∈ {1, …, n}                                                 (K2)
-
-    4.1.  v(i − 1) ≠ v(i)
-          mun:walk-distinct, from H2, 1, K2
-
-    4.2.  not (x = v(i − 1) and x = v(i))
-          contradiction
-          suppose x = v(i − 1) and x = v(i)                           (S1)
-
-          4.2.1.  x = v(i − 1)
-                  join S1
-
-          4.2.2.  x = v(i)
-                  join S1
-
-          4.2.3.  v(i − 1) = v(i)
-                  calculation
-                    v(i − 1) = x          4.2.1
-                             = v(i)       4.2.2
-
-          4.2.4.  v(i − 1) = v(i)
-                  join 4.2.3, contradicting 4.1
-
-5.  |{i ∈ {1, …, n} : x is an end of e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
-    mun:count-same, from 3
-    requires n ∈ ℤ: membership, from H2
-
-6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
-    mun:count-either, from 4, D2, D3
-    requires n ∈ ℤ: membership, from H2
-
-7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
-    mun:count-shift, from D2
-    requires n ∈ ℤ: membership, from H2
-
-8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-first-fails, from H7
-    requires n − 1 ∈ ℤ: membership, from H2
-
-9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-last-fails, from H8, D3
-    requires n ∈ ℤ: membership, from H2
-
-10. d = m
-    calculation
-      d = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
-        = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
-        = m                                   D1
-
-11. r = m
-    calculation
-      r = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
-        = m                                   D1
-
-12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
-    substitute d = m (line 10) into line 6
-
-13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
-    substitute r = m (line 11) into line 12
-
-14. m + m = 2m
-    algebra
-    requires n − 1 ∈ ℤ: membership, from H2
-    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D1
-
-15. deg(x) = 2m
-    calculation
-      deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|                 2
-             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           5
-             = m + m                                                  13
-             = 2m                                                     14
-
-16. deg(x) is even
-    mun:even n := deg(x), from 15
-    requires n − 1 ∈ ℤ: membership, from H2
-    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D1
-    requires n ∈ ℤ: membership, from H2
-    requires |{i ∈ {1, …, n} : x is an end of e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
-    requires deg(x) ∈ ℕ₀: membership, from 2
-
 theorem degree-by-walk
   note        A list of the edges that names each exactly once counts the
               edges at x as the degree does: the edges at x are listed once
@@ -168,13 +42,13 @@ theorem degree-by-walk
   assume e : {1, …, n} → E is one-to-one                              (H4)
   assume for all a ∈ E, there is i ∈ {1, …, n} with a = e(i)          (H5)
   let x ∈ V                                                           (H6)
-  then deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
+  then deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
 
-define S := {i ∈ {1, …, n} : x is an end of e(i)}                     (D1)
-       reads the places in the list whose edge has x as an end
+define S := {i ∈ {1, …, n} : x is incident with e(i)}                     (D1)
+       reads the places in the list whose edge is incident with x
 
-define T := {a ∈ E : x is an end of a}                                (D2)
-       reads the edges that have x as an end
+define T := {a ∈ E : x is incident with a}                                (D2)
+       reads the edges incident with x
 
 define g(i) := e(i), for i ∈ S                                        (D3)
        reads the list, read only at the places in S
@@ -183,7 +57,7 @@ define g(i) := e(i), for i ∈ S                                        (D3)
     proof
     let i ∈ S                                                         (K1)
 
-    1.1.  i ∈ {1, …, n}. x is an end of e(i).
+    1.1.  i ∈ {1, …, n}. x is incident with e(i).
           mun:set-builder u := i, from K1, D1
 
     1.2.  e(i) ∈ E
@@ -211,10 +85,10 @@ define g(i) := e(i), for i ∈ S                                        (D3)
     let t ∈ S                                                         (K3)
     assume g(s) = g(t)                                                (K4)
 
-    4.1.  s ∈ {1, …, n}. x is an end of e(s).
+    4.1.  s ∈ {1, …, n}. x is incident with e(s).
           mun:set-builder u := s, from K2, D1
 
-    4.2.  t ∈ {1, …, n}. x is an end of e(t).
+    4.2.  t ∈ {1, …, n}. x is incident with e(t).
           mun:set-builder u := t, from K3, D1
 
     4.3.  g(s) = e(s)
@@ -239,10 +113,10 @@ define g(i) := e(i), for i ∈ S                                        (D3)
     proof
     let a ∈ T                                                         (K5)
 
-    6.1.  a ∈ E. x is an end of a.
+    6.1.  a ∈ E. x is incident with a.
           mun:set-builder u := a, from K5, D2
 
-    6.2.  x is an end of a
+    6.2.  x is incident with a
           join 6.1
 
     6.3.  There is i ∈ {1, …, n} with a = e(i).
@@ -251,7 +125,7 @@ define g(i) := e(i), for i ∈ S                                        (D3)
     6.4.  i ∈ {1, …, n}. a = e(i).
           obtain i from line 6.3
 
-    6.5.  x is an end of e(i)
+    6.5.  x is incident with e(i)
           substitute a = e(i) (line 6.4) into line 6.2
 
     6.6.  i ∈ S
@@ -271,28 +145,148 @@ define g(i) := e(i), for i ∈ S                                        (D3)
 7.  There is a bijection from S to T.
     mun:bijection, from 5, 6, D1
 
-8.  S ⊆ {1, …, n}
-    mun:set-builder-subset, from D1
-
-9.  {1, …, n} is finite
-    mun:range-finite
+8.  |S| = |T|
+    mun:card-equal, from 7
+    requires S ⊆ {1, …, n}: mun:set-builder-subset, from D1
     requires 1 ∈ ℤ: arithmetic
     requires n ∈ ℤ: membership, from H2
+    requires {1, …, n} is finite: mun:range-finite
+    requires S is finite: mun:finite-part
 
-10. S is finite
-    mun:finite-part, from 9, 8
-
-11. |S| = |T|
-    mun:card-equal, from 10, 7
-
-12. deg(x) = |T|
+9.  deg(x) = |T|
     mun:degree, from H6, D2
 
-13. deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
+10. deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
     calculation
-      deg(x) = |T|                                     12
-             = |S|                                     11
-             = |{i ∈ {1, …, n} : x is an end of e(i)}|  D1
+      deg(x) = |T|                                     9
+             = |S|                                     8
+             = |{i ∈ {1, …, n} : x is incident with e(i)}|  D1
+
+theorem walk-parity
+  note        Euler's argument. The walk starts at v(0), crosses e(1) to
+              v(1), then e(2) to v(2), and so on: e lists the edges it
+              crosses, in order, and v the vertices it passes through. An
+              Euler path crosses every edge exactly once. Each time it
+              passes through a vertex it arrives along one edge and leaves
+              along another, so a vertex that is neither the start nor the
+              end has two edges for every time the walk passes through it.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let e : {1, …, n} → E                                               (H3)
+  let v : {0, …, n} → V                                               (H4)
+  assume v and e form an Euler path of n edges                        (H5)
+  let x ∈ V                                                           (H6)
+  assume x ≠ v(0)                                                     (H7)
+  assume x ≠ v(n)                                                     (H8)
+  then deg(x) is even
+
+1.  v and e form a walk of n edges. e : {1, …, n} → E is one-to-one.
+    For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
+    def:euler-path, from H2, H5
+
+2.  deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
+    thm:degree-by-walk, from H2, 1, H6
+
+3.  For all i ∈ {1, …, n}, x is incident with e(i) ↔ x = v(i − 1) or x = v(i).
+    proof
+    let i ∈ {1, …, n}                                                 (K1)
+
+    3.1.  e(i) joins v(i − 1) and v(i)
+          mun:walk-step, from H2, 1, K1
+
+    3.2.  x is incident with e(i) ↔ x = v(i − 1) or x = v(i)
+          mun:incident-of-joined a := e(i), u := v(i − 1), w := v(i), from H6, 3.1
+
+4.  For all i ∈ {1, …, n}, not (x = v(i − 1) and x = v(i)).
+    proof
+    let i ∈ {1, …, n}                                                 (K2)
+
+    4.1.  v(i − 1) ≠ v(i)
+          mun:walk-distinct, from H2, 1, K2
+
+    4.2.  not (x = v(i − 1) and x = v(i))
+          contradiction
+          suppose x = v(i − 1) and x = v(i)                           (S1)
+
+          4.2.1.  x = v(i − 1)
+                  join S1
+
+          4.2.2.  x = v(i)
+                  join S1
+
+          4.2.3.  v(i − 1) = v(i)
+                  calculation
+                    v(i − 1) = x          4.2.1
+                             = v(i)       4.2.2
+
+          4.2.4.  v(i − 1) = v(i)
+                  join 4.2.3, contradicting 4.1
+
+5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
+    mun:count-same, from 3
+    requires n ∈ ℤ: membership, from H2
+
+define d := |{i ∈ {1, …, n} : x = v(i − 1)}|                          (D1)
+       reads how many of the walk's edges leave x
+
+define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D2)
+       reads how many of the walk's edges arrive at x
+
+6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
+    mun:count-either, from 4, D1, D2
+    requires n ∈ ℤ: membership, from H2
+
+7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
+    mun:count-shift, from D1
+    requires n ∈ ℤ: membership, from H2
+
+8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
+    mun:count-first-fails, from H7
+    requires n − 1 ∈ ℤ: membership, from H2
+
+9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
+    mun:count-last-fails, from H8, D2
+    requires n ∈ ℤ: membership, from H2
+
+define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
+       reads how many times the walk passes through x
+
+10. d = m
+    calculation
+      d = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
+        = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
+        = m                                   D3
+
+11. r = m
+    calculation
+      r = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
+        = m                                   D3
+
+12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
+    substitute d = m (line 10) into line 6
+
+13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
+    substitute r = m (line 11) into line 12
+
+14. m + m = 2m
+    algebra
+    requires n − 1 ∈ ℤ: membership, from H2
+    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
+
+15. deg(x) = 2m
+    calculation
+      deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|                 2
+             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           5
+             = m + m                                                  13
+             = 2m                                                     14
+
+16. deg(x) is even
+    mun:even n := deg(x), from 15
+    requires n − 1 ∈ ℤ: membership, from H2
+    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
+    requires n ∈ ℤ: membership, from H2
+    requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
+    requires deg(x) ∈ ℕ₀: membership, from 2
 
 theorem odd-vertices
   note        A walk that crosses every edge once is entered and left at
@@ -317,64 +311,56 @@ theorem odd-vertices
     3.1.  u ∈ V. deg(u) is odd.
           mun:set-builder u := u, from K1
 
-    3.2.  deg(u) = |{i ∈ {1, …, n} : u is an end of e(i)}|
-          thm:degree-by-walk x := u, from 1, 2, 3.1
-
-    3.3.  u = v(0) or u ≠ v(0)
+    3.2.  u = v(0) or u ≠ v(0)
           mun:excluded-middle
 
-    3.4.  u = v(0) or u = v(n)
-          cases, from 3.3
+    3.3.  u = v(0) or u = v(n)
+          cases, from 3.2
 
           case
           assume u = v(0)                                             (C1)
 
-          3.4.1.  u = v(0) or u = v(n)
+          3.3.1.  u = v(0) or u = v(n)
                   mun:or-left, from C1
 
           case
           assume u ≠ v(0)                                             (C2)
 
-          3.4.2.  u = v(n)
+          3.3.2.  u = v(n)
                   contradiction
                   suppose u ≠ v(n)                                    (S1)
 
-                  3.4.2.1.  deg(u) is even
+                  3.3.2.1.  deg(u) is even
                             thm:walk-parity x := u, from 1, 3.1, C2, S1
 
-                  3.4.2.2.  |{i ∈ {1, …, n} : u is an end of e(i)}| ∈ ℕ₀
-                            mun:count-nat0 k := n
+                  3.3.2.2.  deg(u) is not odd
+                            mun:not-both, from 3.3.2.1, contradicting 3.1
+                            requires deg(u) = |{i ∈ {1, …, n} : u is incident with e(i)}|: thm:degree-by-walk x := u, from 1, 2, 3.1
                             requires n ∈ ℤ: membership, from 1
+                            requires |{i ∈ {1, …, n} : u is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
+                            requires deg(u) ∈ ℤ: membership
 
-                  3.4.2.3.  deg(u) is not odd
-                            mun:not-both, from 3.4.2.1, contradicting 3.1
-                            requires deg(u) ∈ ℤ: membership, from 3.2, 3.4.2.2
+          3.3.3.  u = v(0) or u = v(n)
+                  mun:or-right, from 3.3.2
 
-          3.4.3.  u = v(0) or u = v(n)
-                  mun:or-right, from 3.4.2
-
-    3.5.  u ∈ {v(0), v(n)}
-          mun:pair x := u, from 3.4
+    3.4.  u ∈ {v(0), v(n)}
+          mun:pair x := u, from 3.3
 
 4.  {x ∈ V : deg(x) is odd} ⊆ {v(0), v(n)}
     mun:subset, from 3
 
-5.  {v(0), v(n)} is finite
-    mun:pair-finite
-
-6.  {x ∈ V : deg(x) is odd} is finite
-    mun:finite-part, from 5, 4
-
-7.  |{x ∈ V : deg(x) is odd}| ≤ |{v(0), v(n)}|
+5.  |{x ∈ V : deg(x) is odd}| ≤ |{v(0), v(n)}|
     mun:card-subset, from 4
 
-8.  |{v(0), v(n)}| ≤ 2
+6.  |{v(0), v(n)}| ≤ 2
     mun:card-pair u := v(0), w := v(n)
 
-9.  |{x ∈ V : deg(x) is odd}| ≤ 2
-    inequalities, from 7, 8
-    requires |{x ∈ V : deg(x) is odd}| ∈ ℕ₀: mun:card-nat0, from 6
-    requires |{v(0), v(n)}| ∈ ℕ₀: mun:card-nat0, from 5
+7.  |{x ∈ V : deg(x) is odd}| ≤ 2
+    inequalities, from 5, 6
+    requires {v(0), v(n)} is finite: mun:pair-finite
+    requires {x ∈ V : deg(x) is odd} is finite: mun:finite-part, from 4
+    requires |{x ∈ V : deg(x) is odd}| ∈ ℕ₀: mun:card-nat0
+    requires |{v(0), v(n)}| ∈ ℕ₀: mun:card-nat0
 
 theorem konigsberg
   note        The seven bridges of Königsberg. A is the island, Kneiphof; B and
@@ -388,7 +374,7 @@ theorem konigsberg
       b₅ joins A and D, b₆ joins B and D, b₇ joins C and D                (H1)
   then G is not traversable
 
-1.  For all x ∈ V, deg(x) = |{a ∈ E : x is an end of a}|.
+1.  For all x ∈ V, deg(x) = |{a ∈ E : x is incident with a}|.
     mun:degree
 
 2.  deg(A) = 5

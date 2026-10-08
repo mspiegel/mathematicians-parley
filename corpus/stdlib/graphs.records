@@ -83,13 +83,13 @@ mundane theorem walk-step
   target      gwalkstep
   note        Each edge of a walk joins the vertices on either side of it.
 
-mundane theorem joined-end
+mundane theorem joined-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let a ∈ E                                                           (H2)
   let u ∈ V                                                           (H3)
   let w ∈ V                                                           (H4)
   assume a joins u and w                                              (H5)
-  then        u is an end of a. w is an end of a.
+  then        u is incident with a. w is incident with a.
   metamath    prid1g and prid2g, at the ends iEdg gives, which this corpus
               proves in elaboration/stdlib/proved.mm
   target      gjoinend1, gjoinend2
@@ -108,17 +108,18 @@ mundane theorem walk-distinct
   note        A walk never stays where it is: an edge of a multigraph joins
               two different vertices.
 
-mundane theorem ends-of-joined
+mundane theorem incident-of-joined
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
   assume a joins u and w                                              (H3)
-  then        x is an end of a ↔ x = u or x = w
+  then        x is incident with a ↔ x = u or x = w
   metamath    elprg, at the ends iEdg gives, which this corpus proves in
               elaboration/stdlib/proved.mm
   target      gends
-  note        The ends of an edge that joins u and w are u and w.
+  note        The vertices incident with an edge that joins u and w are u
+              and w.
 
-mundane theorem not-an-end
+mundane theorem not-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let a ∈ E                                                           (H2)
   let u ∈ V                                                           (H3)
@@ -127,7 +128,7 @@ mundane theorem not-an-end
   assume a joins u and w                                              (H6)
   assume x ≠ u                                                        (H7)
   assume x ≠ w                                                        (H8)
-  then        x is not an end of a
+  then        x is not incident with a
   metamath    elpri, at the ends iEdg gives, which this corpus proves in
               elaboration/stdlib/proved.mm
   target      gnotend
@@ -146,10 +147,10 @@ mundane theorem join-distinct
 mundane definition degree
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
-  then        deg(x) = |{a ∈ E : x is an end of a}|
+  then        deg(x) = |{a ∈ E : x is incident with a}|
   metamath    vtxdumgrval, with the graph's parts named, which this corpus
               states in elaboration/stdlib/proved.mm
   target      gdeg
-  note        The degree of a vertex is how many edges it is an end of. A
+  note        The degree of a vertex is how many edges it is incident with. A
               multigraph has no edge from a vertex to itself, so no edge counts
               twice.
