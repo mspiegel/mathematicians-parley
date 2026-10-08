@@ -11,12 +11,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use indexmap::IndexSet;
-use parley::corpus::proof::{Intro, Theorem};
+use parley::check::statements_in_scope;
+use parley::corpus::proof::{chain_cited, references, Head, Intro, Method, Theorem};
 use parley::corpus::Corpus;
 use parley::formula::grammar::{parse_here, Grammar};
 use parley::formula::node::Node;
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
-use parley::matching::{instantiation, split_commas};
+use parley::matching::{free_names, instantiation, split_commas};
 use parley::sorts::{sentences, sorts_in_scope, Env};
 use regex::Regex;
 
@@ -1564,4 +1565,419 @@ pub fn statements_renamed(
         first.declined = declined;
     }
     out
+}
+
+/// A part of a claim a define names: what it is written as, and where it is
+/// first written.
+struct Part {
+    text: String,
+    /// The step whose claim writes it first, by its index in the theorem.
+    step: usize,
+    /// Whether it is a set, which the corpus names with a capital, or a
+    /// number, which it names in lower case.
+    set: bool,
+}
+
+/// A part the rewrite names, and what naming it changes.
+struct Named {
+    part: String,
+    name: String,
+    label: String,
+    /// The line the define goes above, from 0: the first line of the step
+    /// that writes the part first.
+    at: usize,
+    /// The step number that step is written as, for the `reads` line.
+    step: String,
+    /// The last line of each citation that now cites the define, from 0,
+    /// with whether it already says `from`.
+    cite: Vec<(usize, bool)>,
+}
+
+/// Every part of a claim written out, named by a define: `define t := …`
+/// above the first step that writes it, `t` written for it from there on, and
+/// the define cited by each step that cites an item for a formula the name
+/// now stands in. A defined name is what it names (`SYNTAX.md`), so each
+/// theorem says what it said. A define's body binds letters of its own, so a
+/// cited lemma that binds one letter at two places, as `count-shift` binds i
+/// on both sides, now meets two spellings of it, and an equation inside the
+/// body is ordered with that letter bound as the page's is.
+///
+/// A part is named only where the rewrite can tell the theorem still reads
+/// the same: a number or a set that binds a letter of its own, first written
+/// in the claim of a step outside any block, whose other letters mean the
+/// same on every line from there on, and which is written only in formulas
+/// the rewrite reads and never in a requires line's fact or a define. Every
+/// step that writes it, or cites a line that does, must still follow with the
+/// name in its place: a step citing an item cites the define as well, unless
+/// it both writes the part and cites a line that does; a step that carries
+/// what its cited lines say, a substitution, an instance, a link of a
+/// calculation, writes the part exactly where what it cites does; a block's
+/// claim follows its last step, which writes the part where the claim does.
+/// A part some step needs in any other way, as an `algebra` step would look
+/// inside the name or a requires line rest on a line that names it, is left
+/// written out everywhere. Parts that contain one another are not both
+/// named.
+pub fn parts_named(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        let lay = layout(thm, &lines, end);
+        let mut taken = match letters_used(ctx, &lines, &lay) {
+            Ok(used) => used,
+            Err(why) => {
+                declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why,
+                });
+                continue;
+            }
+        };
+        let scope = &ctx.corpus.scopes[thm.scope];
+        let mut number = 1 + thm
+            .defines
+            .iter()
+            .chain(&scope.defines)
+            .filter_map(|d| d.label.strip_prefix('D')?.parse::<usize>().ok())
+            .max()
+            .unwrap_or(0);
+        for d in &scope.defines {
+            if let Some(name) = d.text.split_whitespace().next() {
+                taken.insert(name.to_string());
+            }
+        }
+        let parts = match parts_of(ctx, thm) {
+            Ok(parts) => parts,
+            Err(why) => {
+                declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why,
+                });
+                continue;
+            }
+        };
+        let mut chosen: Vec<Named> = Vec::new();
+        for part in parts {
+            if chosen
+                .iter()
+                .any(|c| c.part.contains(&part.text) || part.text.contains(&c.part))
+            {
+                continue;
+            }
+            let Some(cite) = naming_follows(ctx, thm, &lines, end, &lay, &part) else {
+                continue;
+            };
+            let Some(name) = fresh_name(ctx, part.set, &taken) else {
+                continue;
+            };
+            taken.insert(name.clone());
+            let step = &thm.steps[part.step];
+            chosen.push(Named {
+                part: part.text,
+                name,
+                label: format!("D{number}"),
+                at: step.line - 1,
+                step: step.number.to_string(),
+                cite,
+            });
+            number += 1;
+        }
+        if chosen.is_empty() {
+            continue;
+        }
+        let mut changed: BTreeSet<usize> = BTreeSet::new();
+        for c in &chosen {
+            for (l, line) in lines.iter_mut().enumerate().take(end).skip(c.at) {
+                if line.contains(&c.part) {
+                    *line = line.replace(&c.part, &c.name);
+                    changed.insert(l);
+                }
+            }
+        }
+        let mut cites: BTreeMap<usize, (bool, Vec<String>)> = BTreeMap::new();
+        for c in &chosen {
+            for &(l, from) in &c.cite {
+                cites
+                    .entry(l)
+                    .or_insert((from, Vec::new()))
+                    .1
+                    .push(c.label.clone());
+            }
+        }
+        for (l, (from, labels)) in cites {
+            let joint = if from { ", " } else { ", from " };
+            let line = lines[l].trim_end().to_string();
+            lines[l] = format!("{line}{joint}{}", labels.join(", "));
+            changed.insert(l);
+        }
+        let mut inserts: Vec<&Named> = chosen.iter().collect();
+        inserts.sort_by_key(|c| std::cmp::Reverse(c.at));
+        for c in inserts {
+            let head = format!("define {} := {}", c.name, c.part);
+            let pad = 70usize.saturating_sub(head.chars().count()).max(1);
+            let define = format!("{head}{}({})", " ".repeat(pad), c.label);
+            let reads = format!("       reads the part step {} writes out", c.step);
+            lines.splice(c.at..c.at, [define, reads, String::new()]);
+        }
+        count += changed.len() + 2 * chosen.len();
+        theorems.push(thm.qualified());
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined,
+    }
+}
+
+/// The parts a define could name, in the order the theorem first writes
+/// them: each number or set that binds a letter of its own, written in the
+/// claim of a step outside any block, whose free letters no binder of the
+/// claim holds and only the theorem's header introduces.
+fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
+    let sorts = sorts_in_scope(
+        thm,
+        Env {
+            g: &ctx.g,
+            scopes: &ctx.corpus.scopes,
+        },
+    );
+    let binders = ctx.g.binders();
+    // A letter a block or an `obtain` introduces is not in scope above the
+    // step where the define goes.
+    let header: BTreeSet<String> = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .filter_map(|h| let_letter(&parley::sorts::body_of(h.text.trim(), "let")))
+        .collect();
+    let blocked: BTreeSet<String> = introduced(thm)
+        .into_iter()
+        .filter(|l| !header.contains(l))
+        .collect();
+    let mut out: Vec<Part> = Vec::new();
+    for (index, step) in thm.steps.iter().enumerate() {
+        if step.number.0.len() != 1 || step.impossible {
+            continue;
+        }
+        for sentence in sentences(&step.claim_text()) {
+            let tree = parse_here(&sentence, &ctx.g, &sorts)
+                .map_err(|p| format!("step {} does not read: {p}", step.number))?;
+            let nodes = tree.walk();
+            // A part free in a letter some binder of the sentence holds may
+            // stand where that binder gives the letter its meaning, which a
+            // define above the step would not, so it is not named.
+            let held: BTreeSet<String> = nodes
+                .iter()
+                .filter_map(|n| binders.get(&n.notation).map(|b| (n, b)))
+                .flat_map(|(n, b)| {
+                    b.held
+                        .iter()
+                        .filter_map(|&h| n.children.get(h))
+                        .filter(|h| h.is_name())
+                        .map(|h| h.text.clone())
+                        .collect::<Vec<_>>()
+                })
+                .collect();
+            for node in nodes.iter().skip(1) {
+                let term = node.sort.is("number") || node.sort.is("set");
+                // Only a part the parser read from the sentence, forwards, is
+                // cut from it: a node it built without reading has no text of
+                // its own to name.
+                let read = node.span().is_some_and(|(from, to)| from < to);
+                let binds = node
+                    .walk()
+                    .iter()
+                    .any(|n| binders.contains_key(&n.notation));
+                if !(term && read && binds) {
+                    continue;
+                }
+                let Some(text) = node.written(&sentence) else {
+                    continue;
+                };
+                let free = free_names(node, &binders);
+                if free.iter().any(|f| held.contains(f) || blocked.contains(f)) {
+                    continue;
+                }
+                let text = text.trim().to_string();
+                if !out.iter().any(|p| p.text == text) {
+                    out.push(Part {
+                        text,
+                        step: index,
+                        set: node.sort.is("set"),
+                    });
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Where each `needle` starts in `line`, in characters.
+fn char_places(line: &str, needle: &str) -> Vec<usize> {
+    line.match_indices(needle)
+        .map(|(byte, _)| line[..byte].chars().count())
+        .collect()
+}
+
+/// The citations that cite the define where `part` is named from the step
+/// that first writes it on, as `Named::cite` holds them; None where some
+/// line would no longer follow, or the part is written where the rewrite
+/// cannot tell what it is.
+fn naming_follows(
+    ctx: &Context,
+    thm: &Theorem,
+    lines: &[String],
+    end: usize,
+    lay: &Layout,
+    part: &Part,
+) -> Option<Vec<(usize, bool)>> {
+    let first = thm.steps[part.step].line - 1;
+    if !lines[first].contains(&part.text) {
+        return None;
+    }
+    if lines[thm.line - 1..first]
+        .iter()
+        .any(|l| l.contains(&part.text))
+    {
+        return None;
+    }
+    // Written only in formulas, and never in a define or a requires line's
+    // fact, which the rewrite does not cite the define for.
+    let mut barred: BTreeSet<usize> = BTreeSet::new();
+    for d in &thm.defines {
+        let mut l = d.line - 1;
+        while l < end && !lines[l].trim_start().starts_with("reads ") {
+            barred.insert(l);
+            l += 1;
+        }
+    }
+    for step in &thm.steps {
+        for r in &step.requires {
+            barred.insert(r.line - 1);
+            barred.extend(continued(lines, r.line - 1, end));
+        }
+    }
+    let width = part.text.chars().count();
+    for (l, line) in lines.iter().enumerate().take(end).skip(first) {
+        for at in char_places(line, &part.text) {
+            let inside = lay
+                .regions
+                .iter()
+                .any(|r| r.line == l && r.from <= at && at + width <= r.to);
+            if !inside || barred.contains(&l) {
+                return None;
+            }
+        }
+    }
+    let writes = |l: &usize| lines[*l].contains(&part.text);
+    let mut cite = Vec::new();
+    for step in &thm.steps {
+        if step.line - 1 < first {
+            continue;
+        }
+        let j = step.just.line - 1;
+        let claim: Vec<usize> = (step.line - 1..j).collect();
+        let mut citation = vec![j];
+        citation.extend(continued(lines, j, end));
+        let links: Vec<usize> = step.just.chain.iter().map(|(_, no)| no - 1).collect();
+        // What each line the step may cite says, as the checker reads it: a
+        // line that writes the part will write the name in its place.
+        let scope = statements_in_scope(
+            thm,
+            step,
+            Env {
+                g: &ctx.g,
+                scopes: &ctx.corpus.scopes,
+            },
+        );
+        let says_part = |r: &str| scope.get(r).is_some_and(|t| t.contains(&part.text));
+        let cites_part = step.just.refs.iter().any(|r| says_part(r));
+        let writes_part = claim.iter().any(writes)
+            || citation.iter().any(writes)
+            || links.iter().any(writes);
+        if !writes_part && !cites_part {
+            continue;
+        }
+        // A requires line cites no define here, so one resting on a line that
+        // will write the name could not say what the name is.
+        if step
+            .requires
+            .iter()
+            .any(|r| references(&r.how).0.iter().any(|c| says_part(c)))
+        {
+            return None;
+        }
+        match &step.just.head {
+            // An item is read through the define wherever its own words or
+            // what it cites hold the name, unless a cited line and the claim
+            // both write it, which needs no define and might not use one.
+            Head::Item { .. } => {
+                if step.just.contradicting.is_some() || (writes_part && cites_part) {
+                    return None;
+                }
+                let last = *citation.last().unwrap();
+                let from = re(r"\bfrom\b").is_match(&step.just.text);
+                cite.push((last, from));
+            }
+            Head::Define => return None,
+            Head::Method(m) => match m {
+                Method::Proof
+                | Method::Contradiction
+                | Method::Induction
+                | Method::BothDirections => {}
+                // Each link carries one line: it writes the name exactly where
+                // the line it cites does.
+                Method::Calculation => {
+                    for &l in &links {
+                        let cited =
+                            chain_cited(&lines[l]).is_some_and(|r| says_part(&r));
+                        if writes(&l) != cited {
+                            return None;
+                        }
+                    }
+                }
+                Method::Substitute
+                | Method::Join
+                | Method::Instantiate
+                | Method::Exhibit
+                | Method::Obtain
+                | Method::Cases => {
+                    if writes_part != cites_part {
+                        return None;
+                    }
+                }
+                Method::Algebra
+                | Method::Arithmetic
+                | Method::Inequalities
+                | Method::Membership
+                | Method::Inspection => return None,
+            },
+        }
+    }
+    Some(cite)
+}
+
+/// A letter for the name of a part that nothing in reach writes: a capital
+/// for a set, as the corpus writes sets, and a lower-case letter for a
+/// number.
+fn fresh_name(ctx: &Context, set: bool, taken: &BTreeSet<String>) -> Option<String> {
+    let want = if set { 1 } else { 0 };
+    let alphabet: Vec<String> = ('a'..='z')
+        .chain('A'..='Z')
+        .map(|c| c.to_string())
+        .collect();
+    ctx.library_letters
+        .iter()
+        .chain(&alphabet)
+        .find(|l| {
+            class(l) == want
+                && is_one_letter(l)
+                && l.chars().count() == 1
+                && !taken.iter().any(|t| t.trim_end_matches('′') == l.as_str())
+                && !ctx.constants.contains(*l)
+                && !ctx.g.functions.contains_key(*l)
+        })
+        .cloned()
 }

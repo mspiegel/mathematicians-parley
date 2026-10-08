@@ -57,6 +57,12 @@ theorem walk-parity
 define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D1)
        reads how many times the walk passes through x
 
+define d := |{i ∈ {1, …, n} : x = v(i − 1)}|                          (D2)
+       reads how many of the walk's edges leave x
+
+define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D3)
+       reads how many of the walk's edges arrive at x
+
 1.  v and e form a walk of n edges. e : {1, …, n} → E is one-to-one.
     For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
     def:euler-path, from H2, H5
@@ -103,39 +109,38 @@ define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D1)
     mun:count-same, from 3
     requires n ∈ ℤ: membership, from H2
 
-6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
-      = |{i ∈ {1, …, n} : x = v(i − 1)}| + |{i ∈ {1, …, n} : x = v(i)}|
-    mun:count-either, from 4
+6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
+    mun:count-either, from 4, D2, D3
     requires n ∈ ℤ: membership, from H2
 
-7.  |{i ∈ {1, …, n} : x = v(i − 1)}| = |{i ∈ {0, …, n − 1} : x = v(i)}|
-    mun:count-shift
+7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
+    mun:count-shift, from D2
     requires n ∈ ℤ: membership, from H2
 
 8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
     mun:count-first-fails, from H7
     requires n − 1 ∈ ℤ: membership, from H2
 
-9.  |{i ∈ {1, …, n} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-last-fails, from H8
+9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
+    mun:count-last-fails, from H8, D3
     requires n ∈ ℤ: membership, from H2
 
-10. |{i ∈ {1, …, n} : x = v(i − 1)}| = m
+10. d = m
     calculation
-      |{i ∈ {1, …, n} : x = v(i − 1)}| = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
-                                       = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
-                                       = m                                   D1
+      d = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
+        = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
+        = m                                   D1
 
-11. |{i ∈ {1, …, n} : x = v(i)}| = m
+11. r = m
     calculation
-      |{i ∈ {1, …, n} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
-                                   = m                                   D1
+      r = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
+        = m                                   D1
 
-12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + |{i ∈ {1, …, n} : x = v(i)}|
-    substitute |{i ∈ {1, …, n} : x = v(i − 1)}| = m (line 10) into line 6
+12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
+    substitute d = m (line 10) into line 6
 
 13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
-    substitute |{i ∈ {1, …, n} : x = v(i)}| = m (line 11) into line 12
+    substitute r = m (line 11) into line 12
 
 14. m ∈ ℕ₀
     mun:count-nat0 k := n − 1, from D1

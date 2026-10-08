@@ -6,7 +6,7 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, match_tree, substitute_apart, Binding, PROPERTY,
+    alike, binding_sites, free_names, match_tree, substitute_apart, Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -79,51 +79,10 @@ impl Taken {
     fn of(group: usize, mut binding: Binding, of: &Group, library: &Library) -> Taken {
         let mut free = BTreeSet::new();
         for t in of.gives.iter().chain(of.wants.iter().map(|(_, t)| t)) {
-            free_names(t, library, &mut Vec::new(), &mut free);
+            free.extend(free_names(t, &library.ctx.binders));
         }
         binding.retain(|name, _| free.contains(name));
         Taken { group, binding }
-    }
-}
-
-/// The names free in `node`, put in `out`: those no binder around them
-/// holds, `bound` being the ones that do.
-fn free_names(
-    node: &Node,
-    library: &Library,
-    bound: &mut Vec<String>,
-    out: &mut BTreeSet<String>,
-) {
-    if node.is_name() {
-        if !bound.contains(&node.text) {
-            out.insert(node.text.clone());
-        }
-        return;
-    }
-    let binds = library.ctx.binders.get(&node.notation);
-    for (at, child) in node.children.iter().enumerate() {
-        let Some(binds) = binds else {
-            free_names(child, library, bound, out);
-            continue;
-        };
-        if binds.held.contains(&at) {
-            continue;
-        }
-        if binds.body.contains(&at) {
-            let held: Vec<String> = binds
-                .held
-                .iter()
-                .filter_map(|&h| node.children.get(h))
-                .filter(|h| h.is_name())
-                .map(|h| h.text.clone())
-                .collect();
-            let depth = bound.len();
-            bound.extend(held);
-            free_names(child, library, bound, out);
-            bound.truncate(depth);
-            continue;
-        }
-        free_names(child, library, bound, out);
     }
 }
 

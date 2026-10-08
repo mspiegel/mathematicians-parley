@@ -1447,8 +1447,13 @@ impl<'a> Elaborator<'a> {
             read = self.read_memberships(scope, facts, step)?;
             &read
         };
-        let mut letters = self.letters_bound(given);
-        letters.extend(self.letters_bound(want));
+        // The standard form reads a defined name as its body, so the letters
+        // that body binds are bound in what is compared as well: a body's
+        // letter read as a name would put an equation in a different order
+        // from the same equation over the page's letter.
+        let (given_read, want_read) = (self.read_out(given), self.read_out(want));
+        let mut letters = self.letters_bound(&given_read);
+        letters.extend(self.letters_bound(&want_read));
         let kept = std::mem::replace(&mut self.binding, letters);
         let out = self.congruence(
             given,
@@ -4279,8 +4284,8 @@ impl<'a> Elaborator<'a> {
         }
         for side in &sides {
             for sown in &seeds {
-                let pattern = self.read_through(side, false, None);
-                let Some(binding) = fit(&pattern, &theirs, sown, &variables) else {
+                let Some(binding) = self.fit_read(side, &theirs, sown, &variables)
+                else {
                     continue;
                 };
                 if side.names().iter().any(|n| !binding.contains_key(&**n)) {
@@ -4339,10 +4344,94 @@ impl<'a> Elaborator<'a> {
         if let Some(binding) = fit(pattern, term, &start, variables) {
             return Some(binding);
         }
-        let p = self.read_through(pattern, false, None);
         let t = self.read_through(term, true, None);
-        let binding = fit(&p, &t, &start, variables)?;
+        let binding = self.fit_read(pattern, &t, &start, variables)?;
         Some(self.refolded(binding, term))
+    }
+
+    /// What a lemma's variables stand for where its `pattern`, read in
+    /// standard form, is `read`, a term already read so: the two are fitted
+    /// with `read`'s bound letters spelt as the pattern binds them
+    /// (`respelt_as`). What is fitted is the lemma's instance, which says what
+    /// `read` says over other bound letters at most, and the caller carries
+    /// it to the claim by `same`.
+    fn fit_read(
+        &mut self,
+        pattern: &Term,
+        read: &Term,
+        seed: &Binding,
+        variables: &Vars,
+    ) -> Option<Binding> {
+        let p = self.read_through(pattern, false, None);
+        let t = self.respelt_as(&p, read, variables);
+        fit(&p, &t, seed, variables)
+    }
+
+    /// `term` with its bound letters respelt so that each letter `pattern`
+    /// binds is met in one spelling. A lemma may bind one letter at two
+    /// binders, as `count-shift` binds i on both sides, while the claim spells
+    /// the two apart: a define's body binds a letter of its own (`apart`), so
+    /// a claim naming it reads one set over that letter and the other over
+    /// the page's. The two spellings are one claim by a renaming, but a fit
+    /// reads the lemma's letter off the first binder and finds the second
+    /// different. Where the pattern binds one of its `variables` and has met
+    /// it before, the term's letter at that binder is renamed to the one met,
+    /// throughout the binder's part and only where that letter appears
+    /// nowhere in it, so the result says what `term` says. A binder is a
+    /// constructor other than `cv` with a set variable directly under it, as
+    /// `letters_bound` reads them.
+    fn respelt_as(&self, pattern: &Term, term: &Term, variables: &Vars) -> Term {
+        let mut met = IndexMap::new();
+        self.respelt_within(pattern, term, variables, &mut met)
+    }
+
+    /// `respelt_as` at one part, `met` holding the spelling each pattern
+    /// letter was met in so far.
+    fn respelt_within(
+        &self,
+        pattern: &Term,
+        term: &Term,
+        variables: &Vars,
+        met: &mut IndexMap<String, String>,
+    ) -> Term {
+        if pattern.variable().is_some()
+            || term.variable().is_some()
+            || pattern.label() != term.label()
+            || pattern.children().len() != term.children().len()
+        {
+            return term.clone();
+        }
+        let mut term = term.clone();
+        if pattern.label() != Some("cv") {
+            for (k, p) in pattern.children().iter().enumerate() {
+                let (Some(p), Some(w)) = (p.variable(), term.children()[k].variable())
+                else {
+                    continue;
+                };
+                if !variables.contains(p)
+                    || !self.is_setvar(&self.float_of(p))
+                    || !self.is_setvar(&self.float_of(w))
+                {
+                    continue;
+                }
+                let Some(u) = met.get(p).cloned() else {
+                    met.insert(p.to_string(), w.to_string());
+                    continue;
+                };
+                if u != w && !term.names().contains(u.as_str()) {
+                    let mut to = Binding::new();
+                    to.insert(w.to_string(), Term::var(&u));
+                    term = term.substitute(&to);
+                }
+            }
+        }
+        let kids: Vec<Term> = pattern
+            .children()
+            .iter()
+            .zip(term.children())
+            .map(|(p, t)| self.respelt_within(p, t, variables, met))
+            .collect();
+        Term::apply(term.label().unwrap_or(""), kids)
     }
 
     /// `binding` with a value the reading wrote out put back as `term`

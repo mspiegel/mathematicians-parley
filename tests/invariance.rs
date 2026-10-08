@@ -13,7 +13,8 @@
 //! set.mm cannot be found.
 //!
 //! Some changes rewrite a theorem as a whole: its letters renamed, its
-//! claims' sentences joined or split (`invariance/rewrites.rs`). Where such a
+//! claims' sentences joined or split, a part of a claim named by a define
+//! (`invariance/rewrites.rs`). Where such a
 //! change cannot tell that it keeps a theorem's meaning, a letter written
 //! where no formula is read, it leaves the theorem alone and says so, and
 //! the test prints how many theorems each change reached. The letters a
@@ -105,6 +106,10 @@ fn changes() -> Vec<Change> {
         Change {
             name: "a cited theorem's letters renamed, and its citations with them",
             rewrite: Rewrite::Corpus(rewrites::statements_renamed),
+        },
+        Change {
+            name: "a part of a claim named by a define",
+            rewrite: Rewrite::File(rewrites::parts_named),
         },
     ]
 }

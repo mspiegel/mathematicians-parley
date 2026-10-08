@@ -169,6 +169,55 @@ pub fn binding_context(
     (binders, props)
 }
 
+/// The names free in `node`: those no binder in it holds, `binders` being
+/// the binding notations as `binding_context` reads them.
+pub fn free_names(node: &Node, binders: &IndexMap<String, Binds>) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
+    free_names_under(node, binders, &mut Vec::new(), &mut out);
+    out
+}
+
+/// `free_names` of a part, `bound` holding the letters the binders around
+/// it hold.
+fn free_names_under(
+    node: &Node,
+    binders: &IndexMap<String, Binds>,
+    bound: &mut Vec<String>,
+    out: &mut BTreeSet<String>,
+) {
+    if node.is_name() {
+        if !bound.contains(&node.text) {
+            out.insert(node.text.clone());
+        }
+        return;
+    }
+    let binds = binders.get(&node.notation);
+    for (at, child) in node.children.iter().enumerate() {
+        let Some(binds) = binds else {
+            free_names_under(child, binders, bound, out);
+            continue;
+        };
+        if binds.held.contains(&at) {
+            continue;
+        }
+        if binds.body.contains(&at) {
+            let held: Vec<String> = binds
+                .held
+                .iter()
+                .filter_map(|&h| node.children.get(h))
+                .filter(|h| h.is_name())
+                .map(|h| h.text.clone())
+                .collect();
+            let depth = bound.len();
+            bound.extend(held);
+            free_names_under(child, binders, bound, out);
+            bound.truncate(depth);
+            continue;
+        }
+        free_names_under(child, binders, bound, out);
+    }
+}
+
 /// The notation's second hole takes what its first applies to: `f(x)` puts
 /// an α where f is a function from α, and `P(x)` where P is a property of
 /// α. `f is a function on X` and `f : X → Y` take a set of α there, and say

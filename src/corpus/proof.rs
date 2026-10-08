@@ -1098,18 +1098,21 @@ regex!(CHAIN_TAIL, format!(r"(\barithmetic|{})$", super::REF));
 /// A link relating numerals alone may name `arithmetic` in place of a line,
 /// and then it cites nothing: the fact is worked out where it stands.
 fn chain_citation(path: &str, line: &Line) -> Checked<Vec<String>> {
-    let Some(m) = CHAIN_TAIL.captures(&line.text) else {
+    if !CHAIN_TAIL.is_match(&line.text) {
         return Err(Problem::new(
             path,
             line.no,
             "chain line names no line or label; a chain only joins, so every line must cite a numbered step, a label, or `arithmetic` for a link of numerals alone",
         ));
-    };
-    if &m[1] == "arithmetic" {
-        Ok(Vec::new())
-    } else {
-        Ok(vec![m[1].to_string()])
     }
+    Ok(chain_cited(&line.text).into_iter().collect())
+}
+
+/// The line or label a chain line cites, read from its right end; None for
+/// a link of numerals that names `arithmetic`, or a line that names nothing.
+pub fn chain_cited(text: &str) -> Option<String> {
+    let m = CHAIN_TAIL.captures(text)?;
+    (&m[1] != "arithmetic").then(|| m[1].to_string())
 }
 
 /// A step being read, whose justification may not have arrived yet.

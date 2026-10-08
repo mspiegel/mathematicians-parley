@@ -2332,8 +2332,11 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A definition with no target, read off a line the step cites that
-    /// already says what the step claims, whole or with another letter bound.
-    /// Nothing builds it otherwise, and nothing is taken as stated.
+    /// already says what the step claims, as `same` reads two claims: whole
+    /// or as one of its conjuncts, taken apart to the depth of a congruence's
+    /// six; over other bound letters; or with a defined name it writes read as
+    /// what it names, where the step cites the define. Nothing builds it
+    /// otherwise, and nothing is taken as stated.
     fn take_definition(
         &mut self,
         step: &Step,
@@ -2342,20 +2345,28 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        if let Some(found) = self.projected(step, term, scope, facts, lines)? {
-            return Ok(Built(found));
-        }
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let held = self.with_cited(Some(step), scope, &supplied, None);
+        let want = self.to_term(term);
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
+            let Some(cited) = lines.get(r) else {
                 continue;
             };
             let parts = Facts::new();
             let whole = self.carried(r, facts, lines);
-            self.know(&parts, held.term.clone(), whole.clone());
-            self.unpack(&held.term, &whole, scope, &parts, 4);
+            self.know(&parts, cited.term.clone(), whole.clone());
+            self.unpack(&cited.term, &whole, scope, &parts, 8);
             for (said, proof) in parts.entries() {
-                if let Some(spelt) = self.respelt(&proof, &said, term, scope)? {
-                    return Ok(Built(spelt));
+                // A part that is the claim leaves `same` nothing to carry.
+                if said == term {
+                    return Ok(Built(proof));
+                }
+                let across =
+                    self.same(&self.to_term(&said), &want, scope, &held, Some(step))?;
+                if let Built(across) = across {
+                    return Ok(Built(
+                        pf!(self.b; scope, said, term, proof, across, "mpbid"),
+                    ));
                 }
             }
         }
@@ -2372,29 +2383,6 @@ impl<'a> Elaborator<'a> {
                 self.render(term)
             ),
         ))
-    }
-
-    /// The claim, when a line the step cites is a conjunction stating it,
-    /// taken apart on its own to the depth of a congruence's six conjuncts.
-    fn projected(
-        &mut self,
-        step: &Step,
-        term: &str,
-        scope: &str,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<Option<Proof>> {
-        for r in &step.just.refs {
-            let cited = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-            let known = Facts::new();
-            let whole = self.carried(r, facts, lines);
-            self.know(&known, cited.term.clone(), whole.clone());
-            self.unpack(&cited.term, &whole, scope, &known, 8);
-            if let Some(p) = self.held(&known, term, scope)? {
-                return Ok(Some(p));
-            }
-        }
-        Ok(None)
     }
 
     /// A definition stated as an equation, one clause per `then` group: the

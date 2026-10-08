@@ -176,7 +176,7 @@ impl<'a> Known<'a> {
 /// A block's label holds inside that block only, so two sibling blocks may
 /// each fix a k under the same label, and what the label says is what the
 /// block around the citing step says.
-fn statements_in_scope(
+pub fn statements_in_scope(
     thm: &Theorem,
     step: &Step,
     env: Env,

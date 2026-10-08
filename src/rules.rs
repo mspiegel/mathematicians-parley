@@ -78,6 +78,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wcel", &[1], "eleq2d"),
     ("wcel", &[0, 1], "eleq12d"),
     ("csu", &[0], "sumeq1d"),
+    ("cprod", &[0], "prodeq1d"),
     ("cpw", &[0], "pweqd"),
     ("csn", &[0], "sneqd"),
     ("cneg", &[0], "negeqd"),
@@ -207,6 +208,7 @@ pub const CLASS_BOUND: &[(&str, &str)] = &[
     ("cmpt", "cbvmptv"),
     ("crab", "cbvrabv"),
     ("csu", "cbvsumv"),
+    ("cprod", "cbvprodv"),
     ("ciun", "cbviunv"),
 ];
 
@@ -217,6 +219,7 @@ pub const CLASS_BOUND: &[(&str, &str)] = &[
 pub const CLASS_BODY: &[(&str, &str)] = &[
     ("cmpt", "mpteq2ia"),
     ("csu", "sumeq2i"),
+    ("cprod", "prodeq2i"),
     ("ciun", "iuneq2i"),
 ];
 
@@ -587,6 +590,7 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cr", "reex"),
     ("cc", "cnex"),
     ("csu", "sumex"),
+    ("cprod", "prodex"),
     ("cima", "imaexg"),
     ("cop", "opex"),
     ("cdc", "decex"),

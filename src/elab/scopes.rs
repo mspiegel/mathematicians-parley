@@ -1984,6 +1984,18 @@ impl<'a> Elaborator<'a> {
                     };
                     let node = self.read(&body)?;
                     let term = self.term(&node)?;
+                    // A define names a thing, a number, a set or a map, and a
+                    // statement is none: there is nothing for the name to be
+                    // equal to.
+                    if self.is_wff(&self.to_term(&term)) {
+                        return Err(self.defect(
+                            d.line,
+                            format!(
+                                "define {}: {} is a statement, and a define names a thing",
+                                d.label, one.body
+                            ),
+                        ));
+                    }
                     let made = self.apart(&term)?;
                     (scope, facts, closers) = self.one_define(
                         &d.label, d.line, &one.name, &made, &scope, &facts, closers,

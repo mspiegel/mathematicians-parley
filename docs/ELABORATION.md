@@ -82,14 +82,21 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
      `fvmptd3`), so a function a `define` introduced is evaluated where it
      is applied;
    - letters bound under other names are one claim by a renaming, and one
-     class by `rules.CLASS_BOUND` (`cbvmptv`, `cbvrabv`, `cbvsumv`).
+     class by `rules.CLASS_BOUND` (`cbvmptv`, `cbvrabv`, `cbvsumv`,
+     `cbvprodv`).
 
    The walk proves it at the smallest places the two differ. A lemma whose
    conclusion, or the near side of a biconditional it states, does not match
    the claim as written is read through the same rules to fix its variables,
    proved at that, and carried to the claim; so is a definition unfolded, an
    `instantiate` and a corpus theorem cited (`fits_as`). As written is always
-   tried first.
+   tried first. The lemma's letters are read off the claim up to a renaming
+   of its bound letters (`fit_read`, `respelt_as`): where the lemma binds one
+   letter at two binders, as `count-shift` binds i on both sides, and the
+   claim spells the two apart, the second is respelt as the first before the
+   fit. Only a letter that appears nowhere in the binder's part is put there,
+   so the respelt claim says what the claim says, and `same` carries the
+   instance back to it.
 4. **Rule tables.** Data, not code: which lemma lifts an equation through each
    constructor; which lemma carries a membership from one number system to
    another, or through an operation; what a closed numeral is; and the
@@ -599,6 +606,21 @@ so the matcher meets the two as it meets `k · 2` and `2 · k`: every route
 that fits a lemma matches as written and then in standard form, and `same`
 carries the lemma's instance to the line through the equation. Nothing
 rewrites a claim itself, so a calculator still sees x₁ as a name.
+
+A define's body binds letters of its own, spare ones (`apart`), so a claim
+that names it and a lemma that writes it out spell one set over two letters:
+`d := |{i ∈ {1, …, n} : x = v(i − 1)}|` is held over q. Two things make the
+two meet. The lemma's letters are read off the claim up to that renaming
+(`fit_read`, above). And `same` counts as bound every letter the two sides
+bind with their defined names written out (`read_out`), not only the letters
+they write: the standard form orders an equation with its bound letters read
+as blanks, so a body's letter read as a name would put `x = v(q − 1)` in a
+different order from the page's `x = v(i − 1)`, and the two would differ by
+more than their letters.
+
+A define names a thing: a number, a set or a map. One whose body is a
+statement is a defect where it is written, since there is nothing for the
+name to be equal to.
 
 A define is not a sort: a step that uses what it says cites it (`SYNTAX.md`),
 and R1 refuses one that rests on a define it does not cite. The standard form
@@ -1267,11 +1289,16 @@ it can show, which is cited instead.
 
 A definition with no target, or whose target is `biid` because its
 notations make its two sides one formula, is read off a line the step cites
-that already says the claim: as one of its conjuncts, which
-`def:stdlib/geometry/congruent` and `mun:stdlib/geometry/triangle` rely on, or with another letter bound, since the notation reads "b is an
-upper bound of S" as every s in S being at most b and the block that proved
-that fixed a variable of its own. Otherwise the step stops: "mun:upper-bound
-has no target, and nothing step 10 cites says …".
+that already says the claim, by one rule: the line, or one of its conjuncts,
+is the claim or is one with it as `same` reads two claims. That takes in a
+conjunct, which `def:stdlib/geometry/congruent` and
+`mun:stdlib/geometry/triangle` rely on; another letter bound, since the
+notation reads "b is an upper bound of S" as every s in S being at most b and
+the block that proved that fixed a variable of its own; and a defined name
+read as what it names where the step cites the define: `3 divides b`, with b
+defined as Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k), is the congruence of
+the two sums mod 3. Otherwise the step stops: "mun:upper-bound has no target,
+and nothing step 10 cites says …".
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
 where the readable "a or b or c" is built from the left: `lttri4` is
