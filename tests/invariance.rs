@@ -24,12 +24,11 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
-use std::sync::Mutex;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::tools::build::{elaborate_one, library};
+use parley::tools::build::{library, Loaded};
 
 #[path = "invariance/rewrites.rs"]
 mod rewrites;
@@ -314,7 +313,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         .iter()
         .map(|c| changed(&clean, root, &context, c))
         .collect();
-    let found = Mutex::new(BTreeSet::new());
+    let mut found: BTreeSet<String> = BTreeSet::new();
     // What the checker says of each changed corpus.
     for (change, done) in changes.iter().zip(&trees) {
         println!(
@@ -331,14 +330,10 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         assert!(done.lines > 0, "{} changes no line", change.name);
         let said = parley::check::run(&done.tree).printed;
         for line in said.lines().filter(|l| l.contains(".proof:")) {
-            found
-                .lock()
-                .unwrap()
-                .insert(format!("{} | check | {line}", change.name));
+            found.insert(format!("{} | check | {line}", change.name));
         }
     }
-    // Every theorem of a changed file, elaborated, the work shared among
-    // workers that each load set.mm once.
+    // Every theorem of a changed file, elaborated against set.mm loaded once.
     let mut work: Vec<(usize, String)> = Vec::new();
     for (i, done) in trees.iter().enumerate() {
         for thm in corpus(&done.tree)
@@ -350,31 +345,21 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             }
         }
     }
-    let next = Mutex::new(work.iter());
-    let workers = std::thread::available_parallelism()
-        .map_or(1, |n| n.get())
-        .clamp(1, 8);
-    std::thread::scope(|scope| {
-        for _ in 0..workers {
-            scope.spawn(|| {
-                let lib = library(root, None).expect(
-                    "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
-                );
-                loop {
-                    let Some((i, name)) = next.lock().unwrap().next() else {
-                        break;
-                    };
-                    if let Err(p) = elaborate_one(&trees[*i].tree, name, &lib, Options::default()) {
-                        found
-                            .lock()
-                            .unwrap()
-                            .insert(format!("{} | elaborate | {p}", changes[*i].name));
-                    }
-                }
-            });
+    let lib = library(root, None).expect(
+        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    );
+    for (i, done) in trees.iter().enumerate() {
+        let mut names = work.iter().filter(|(j, _)| *j == i).peekable();
+        if names.peek().is_none() {
+            continue;
         }
-    });
-    let found: BTreeSet<String> = found.into_inner().unwrap();
+        let loaded = Loaded::new(&done.tree).expect("the changed corpus reads");
+        for (_, name) in names {
+            if let Err(p) = loaded.elaborate(name, &lib, Options::default()) {
+                found.insert(format!("{} | elaborate | {p}", changes[i].name));
+            }
+        }
+    }
     let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();

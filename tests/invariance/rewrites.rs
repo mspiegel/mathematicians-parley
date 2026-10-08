@@ -8,6 +8,7 @@
 //! formula is read, a formula that does not read, declines the theorem and
 //! says why; it never guesses.
 
+use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 
 use indexmap::IndexSet;
@@ -55,8 +56,21 @@ pub struct Rewritten {
     pub declined: Vec<Declined>,
 }
 
+/// The compiled `pattern`, compiled once: the rewrites ask for the same few
+/// patterns on every line of every theorem, and compiling them each time
+/// took 8% of the test's run.
 fn re(pattern: &str) -> Regex {
-    Regex::new(pattern).expect("the pattern compiles")
+    thread_local! {
+        static COMPILED: RefCell<BTreeMap<String, Regex>> =
+            const { RefCell::new(BTreeMap::new()) };
+    }
+    COMPILED.with(|compiled| {
+        compiled
+            .borrow_mut()
+            .entry(pattern.to_string())
+            .or_insert_with(|| Regex::new(pattern).expect("the pattern compiles"))
+            .clone()
+    })
 }
 
 /// A letter as the tokeniser reads one: a letter and its marks, `x₁`, `f′`.

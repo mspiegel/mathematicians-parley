@@ -222,53 +222,21 @@ fn outcome(case: &Case, clean: &Memory, setmm: &Path) -> (String, bool) {
     )
 }
 
-/// `run` over every case, several at once, given back in the cases' order.
-fn in_parallel<T: Send>(cases: &[Case], run: impl Fn(&Case) -> T + Sync) -> Vec<T> {
-    use std::sync::atomic::{AtomicUsize, Ordering};
-    use std::sync::Mutex;
-    let next = AtomicUsize::new(0);
-    let done: Mutex<Vec<Option<T>>> = Mutex::new(cases.iter().map(|_| None).collect());
-    let workers = std::thread::available_parallelism().map_or(1, |n| n.get());
-    std::thread::scope(|scope| {
-        for _ in 0..workers.min(cases.len()) {
-            scope.spawn(|| loop {
-                let i = next.fetch_add(1, Ordering::Relaxed);
-                let Some(case) = cases.get(i) else { break };
-                let result = run(case);
-                done.lock().unwrap()[i] = Some(result);
-            });
-        }
-    });
-    done.into_inner()
-        .unwrap()
-        .into_iter()
-        .map(|r| r.expect("every case was run"))
-        .collect()
-}
-
 #[test]
 fn the_gate_catches_every_planted_defect() {
     let clean = clean();
     let setmm = set_mm();
     let cases = cases();
-    // The stages over the tree as it stands and the planted cases read the
-    // tree and write nothing to it, so all of them run at once; whether
-    // every stage was green is asked before anything a case says counts.
-    let (unplanted, results) = std::thread::scope(|scope| {
-        let stages: Vec<_> = STAGES
-            .iter()
-            .map(|(name, stage)| {
-                let (clean, setmm) = (&clean, &setmm);
-                scope.spawn(move || (*name, stage(clean, setmm)))
-            })
-            .collect();
-        let results = in_parallel(&cases, |case| outcome(case, &clean, &setmm));
-        let unplanted: Vec<(&str, Said)> = stages
-            .into_iter()
-            .map(|handle| handle.join().expect("a stage panicked"))
-            .collect();
-        (unplanted, results)
-    });
+    // Whether every stage over the tree as it stands is green is asked before
+    // anything a case says counts.
+    let unplanted: Vec<(&str, Said)> = STAGES
+        .iter()
+        .map(|(name, stage)| (*name, stage(&clean, &setmm)))
+        .collect();
+    let results: Vec<_> = cases
+        .iter()
+        .map(|case| outcome(case, &clean, &setmm))
+        .collect();
     for (name, said) in unplanted {
         assert!(
             said.green(),

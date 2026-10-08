@@ -7,7 +7,7 @@
 //! the grammar, the database, set.mm — is borrowed; what belongs to this
 //! theorem is owned, and goes when the theorem is written.
 
-use std::cell::OnceCell;
+use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -231,6 +231,11 @@ pub struct Elaborator<'a> {
     /// Claim -> the key a fact of it is stored and found by
     /// (`Elaborator::fact_key`), which depends on the claim alone.
     pub fact_keys: IndexMap<String, String>,
+    /// Reverse Polish -> the tree it builds (`to_term`), which depends on the
+    /// text and the labels' signatures alone, and a label's signature does
+    /// not change once declared. Reading the same text again was a sixth of
+    /// a run that elaborates every theorem.
+    trees: RefCell<IndexMap<String, Term>>,
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
@@ -387,6 +392,7 @@ impl<'a> Elaborator<'a> {
             lemma_heads: None,
             standards: IndexMap::new(),
             fact_keys: IndexMap::new(),
+            trees: RefCell::new(IndexMap::new()),
             reading_facts: false,
             member: None,
             sum_letter: None,
@@ -505,7 +511,14 @@ impl<'a> Elaborator<'a> {
 
     /// A term the proof holds, read back as a tree.
     pub fn to_term(&self, rpn: &str) -> Term {
-        term_of(rpn, &self.b.sigs)
+        if let Some(found) = self.trees.borrow().get(rpn) {
+            return found.clone();
+        }
+        let made = term_of(rpn, &self.b.sigs);
+        self.trees
+            .borrow_mut()
+            .insert(rpn.to_string(), made.clone());
+        made
     }
 
     /// A term as a proof spells it.

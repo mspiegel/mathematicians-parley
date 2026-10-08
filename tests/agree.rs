@@ -20,12 +20,11 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
-use std::sync::Mutex;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::source::{Disk, Memory};
-use parley::tools::build::{elaborate_one, library};
+use parley::tools::build::{library, Loaded};
 
 /// The differences there are, each a gap a later change closes.
 const KNOWN: &[&str] = &[];
@@ -44,31 +43,17 @@ fn the_tools_answer_alike() {
         list_answers: true,
         ..Options::default()
     };
-    let found = Mutex::new(BTreeSet::new());
-    let next = Mutex::new(names.iter());
-    // Each worker loads set.mm once for itself: the library is not shared
-    // between threads.
-    let workers = std::thread::available_parallelism()
-        .map_or(1, |n| n.get())
-        .clamp(1, 8);
-    std::thread::scope(|scope| {
-        for _ in 0..workers {
-            scope.spawn(|| {
-                let lib = library(root, None).expect(
-                    "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
-                );
-                loop {
-                    let Some(name) = next.lock().unwrap().next() else {
-                        break;
-                    };
-                    let done = elaborate_one(&tree, name, &lib, options)
-                        .unwrap_or_else(|p| panic!("{name} does not elaborate: {p}"));
-                    found.lock().unwrap().extend(done.answers);
-                }
-            });
-        }
-    });
-    let all: BTreeSet<String> = found.into_inner().unwrap();
+    let lib = library(root, None).expect(
+        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    );
+    let loaded = Loaded::new(&tree).expect("the corpus reads");
+    let mut all: BTreeSet<String> = BTreeSet::new();
+    for name in &names {
+        let done = loaded
+            .elaborate(name, &lib, options)
+            .unwrap_or_else(|p| panic!("{name} does not elaborate: {p}"));
+        all.extend(done.answers);
+    }
     // What a cited record asks, and what an obtain says there is: each tool
     // lists its own answer, read from the page its own way, and the two
     // lists are compared line by line. Each list is counted, so that a hook

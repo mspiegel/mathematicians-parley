@@ -428,25 +428,63 @@ pub fn library(root: &Path, setmm: Option<&str>) -> Checked<Library> {
     Library::read(&setmm, proved.as_deref())
 }
 
-/// Elaborate the theorem `name` of the corpus `source` holds.
-///
-/// A theorem it cites is read from the file already written for it in the
-/// same tree, for the order of what a citation pushes.
+/// The corpus a tree holds and its grammar, read once for elaborating as
+/// many of its theorems as are wanted. A test elaborating each theorem of a
+/// tree in turn spent a seventh of its run reading them again for each. The
+/// index, which borrows from the corpus, is a map of names and cheap to make
+/// for each theorem.
+pub struct Loaded<'s> {
+    source: &'s dyn Source,
+    found: Corpus,
+    g: Grammar,
+}
+
+impl<'s> Loaded<'s> {
+    /// The corpus `source` holds, read.
+    pub fn new(source: &'s dyn Source) -> Checked<Loaded<'s>> {
+        let found = corpus(source)?;
+        let g = Grammar::load(&found.records)?;
+        Ok(Loaded { source, found, g })
+    }
+
+    /// Elaborate the theorem `name`.
+    ///
+    /// A theorem it cites is read from the file already written for it in
+    /// the same tree, for the order of what a citation pushes.
+    pub fn elaborate(
+        &self,
+        name: &str,
+        library: &Library,
+        options: Options,
+    ) -> Checked<Elaborated> {
+        let Some(thm) = self.found.theorems.iter().find(|t| t.qualified() == name)
+        else {
+            return Err(Problem::new(name, 0, format!("no theorem {name}")));
+        };
+        let statements = |cited: &str| -> Option<String> {
+            let text = self.source.read_text(&path_of(cited)).ok()?;
+            statement_of(&text)
+        };
+        let items = index(&self.found.records, &self.found.theorems);
+        elaborate(
+            &self.found,
+            &self.g,
+            &items,
+            thm,
+            library,
+            &statements,
+            options,
+        )
+    }
+}
+
+/// Elaborate the theorem `name` of the corpus `source` holds, reading the
+/// corpus for it alone.
 pub fn elaborate_one(
     source: &dyn Source,
     name: &str,
     library: &Library,
     options: Options,
 ) -> Checked<Elaborated> {
-    let found = corpus(source)?;
-    let g = Grammar::load(&found.records)?;
-    let items = index(&found.records, &found.theorems);
-    let Some(thm) = found.theorems.iter().find(|t| t.qualified() == name) else {
-        return Err(Problem::new(name, 0, format!("no theorem {name}")));
-    };
-    let statements = |cited: &str| -> Option<String> {
-        let text = source.read_text(&path_of(cited)).ok()?;
-        statement_of(&text)
-    };
-    elaborate(&found, &g, &items, thm, library, &statements, options)
+    Loaded::new(source)?.elaborate(name, library, options)
 }

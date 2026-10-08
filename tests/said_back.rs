@@ -7,12 +7,11 @@
 //! if set.mm cannot be found.
 
 use std::path::Path;
-use std::sync::Mutex;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::source::{Disk, Memory};
-use parley::tools::build::{elaborate_one, library};
+use parley::tools::build::{library, Loaded};
 
 #[test]
 fn every_claim_is_said_back_as_itself() {
@@ -28,34 +27,17 @@ fn every_claim_is_said_back_as_itself() {
         say_back: true,
         ..Options::default()
     };
-    let differ = Mutex::new(Vec::new());
-    let next = Mutex::new(names.iter());
-    // Each worker loads set.mm once for itself: the library is not shared
-    // between threads.
-    let workers = std::thread::available_parallelism()
-        .map_or(1, |n| n.get())
-        .clamp(1, 8);
-    std::thread::scope(|scope| {
-        for _ in 0..workers {
-            scope.spawn(|| {
-                let lib = library(root, None).expect(
-                    "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
-                );
-                loop {
-                    let Some(name) = next.lock().unwrap().next() else {
-                        break;
-                    };
-                    match elaborate_one(&tree, name, &lib, options) {
-                        Ok(done) => differ.lock().unwrap().extend(done.said_back),
-                        Err(p) => {
-                            differ.lock().unwrap().push(format!("{name} fails: {p}"))
-                        }
-                    }
-                }
-            });
+    let lib = library(root, None).expect(
+        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    );
+    let loaded = Loaded::new(&tree).expect("the corpus reads");
+    let mut differ: Vec<String> = Vec::new();
+    for name in &names {
+        match loaded.elaborate(name, &lib, options) {
+            Ok(done) => differ.extend(done.said_back),
+            Err(p) => differ.push(format!("{name} fails: {p}")),
         }
-    });
-    let differ = differ.into_inner().unwrap();
+    }
     println!("{} theorems said back", names.len());
     assert!(
         differ.is_empty(),

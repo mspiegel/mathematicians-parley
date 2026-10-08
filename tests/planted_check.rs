@@ -96,35 +96,6 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
     )
 }
 
-/// `run` over every case, several at once, given back in the cases' order.
-///
-/// A case reads the clean corpus and writes only its own overlay, and the
-/// checker it runs is its own, so the cases share nothing that changes. Each
-/// thread takes the next case not yet taken, which keeps them all busy when
-/// some cases cost far more than others.
-fn in_parallel<T: Send>(cases: &[Case], run: impl Fn(&Case) -> T + Sync) -> Vec<T> {
-    use std::sync::atomic::{AtomicUsize, Ordering};
-    use std::sync::Mutex;
-    let next = AtomicUsize::new(0);
-    let done: Mutex<Vec<Option<T>>> = Mutex::new(cases.iter().map(|_| None).collect());
-    let workers = std::thread::available_parallelism().map_or(1, |n| n.get());
-    std::thread::scope(|scope| {
-        for _ in 0..workers.min(cases.len()) {
-            scope.spawn(|| loop {
-                let i = next.fetch_add(1, Ordering::Relaxed);
-                let Some(case) = cases.get(i) else { break };
-                let result = run(case);
-                done.lock().unwrap()[i] = Some(result);
-            });
-        }
-    });
-    done.into_inner()
-        .unwrap()
-        .into_iter()
-        .map(|r| r.expect("every case was run"))
-        .collect()
-}
-
 /// A file that does not import the library's C may give the letter to a
 /// function of its own: the library function is in scope only where it is
 /// imported.
@@ -199,7 +170,7 @@ fn the_checker_catches_every_planted_defect() {
         base.printed
     );
     let cases = cases();
-    let results = in_parallel(&cases, |case| outcome(case, &clean));
+    let results: Vec<_> = cases.iter().map(|case| outcome(case, &clean)).collect();
     let missed = results.iter().filter(|(_, missed)| *missed).count();
     let said: Vec<&str> = results.iter().map(|(line, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
