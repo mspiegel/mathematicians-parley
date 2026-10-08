@@ -431,26 +431,15 @@ theorem konigsberg
 13. deg(D) is odd
     substitute deg(D) = 3 (line 5) into line 9
 
-14. {x ∈ V : deg(x) is odd} = {A, B, C, D}
+14. |{x ∈ V : deg(x) is odd}| = 4
     inspection, from H1, 10, 11, 12, 13
 
-15. |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|
-    substitute {x ∈ V : deg(x) is odd} = {A, B, C, D} (line 14)
-
-16. |{A, B, C, D}| = 4
-    inspection, from H1
-
-17. |{x ∈ V : deg(x) is odd}| = 4
-    calculation
-      |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|    15
-                                = 4                16
-
-18. G is not traversable
+15. G is not traversable
     contradiction
     suppose G is traversable                                          (S1)
 
-    18.1. |{x ∈ V : deg(x) is odd}| ≤ 2
+    15.1. |{x ∈ V : deg(x) is odd}| ≤ 2
           thm:odd-vertices, from S1
 
-    18.2. 4 ≤ 2, which is impossible
-          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 17) into line 18.1
+    15.2. 4 ≤ 2, which is impossible
+          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 14) into line 15.1
