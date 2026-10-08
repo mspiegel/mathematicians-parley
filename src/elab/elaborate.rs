@@ -4434,6 +4434,12 @@ impl Library {
         }
     }
 
+    /// What this library was read from, for another thread's library to be
+    /// made on (`Library::new`).
+    pub fn shared(&self) -> Arc<ReadLibrary> {
+        Arc::clone(&self.read)
+    }
+
     /// The syntax these signatures give, built once for each set of labels
     /// the corpus adds on top of the library.
     ///

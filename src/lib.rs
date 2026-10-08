@@ -23,6 +23,7 @@ pub mod sorts;
 pub mod source;
 pub mod targets;
 pub mod text;
+pub mod threads;
 pub mod tools;
 
 pub use outcome::{Built, Checked, Decline, Declined, Problem, Route};

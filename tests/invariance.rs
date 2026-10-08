@@ -22,12 +22,15 @@
 //! them, and its elaborated statement, which they read, is not built again
 //! here.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
+use std::sync::Arc;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
+use parley::elab::Library;
 use parley::source::{Disk, Memory, Overlay, Source};
+use parley::threads::in_order;
 use parley::tools::build::{library, Loaded};
 
 #[path = "invariance/rewrites.rs"]
@@ -315,7 +318,12 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         .collect();
     let mut found: BTreeSet<String> = BTreeSet::new();
     // What the checker says of each changed corpus.
-    for (change, done) in changes.iter().zip(&trees) {
+    let checked: Vec<String> = in_order(
+        &trees,
+        || (),
+        |_, done| parley::check::run(&done.tree).printed,
+    );
+    for ((change, done), said) in changes.iter().zip(&trees).zip(&checked) {
         println!(
             "{}: {} lines in {} files, {} theorems changed, {} left alone",
             change.name,
@@ -328,12 +336,13 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             println!("    left alone {}: {}", d.theorem, d.why);
         }
         assert!(done.lines > 0, "{} changes no line", change.name);
-        let said = parley::check::run(&done.tree).printed;
         for line in said.lines().filter(|l| l.contains(".proof:")) {
             found.insert(format!("{} | check | {line}", change.name));
         }
     }
-    // Every theorem of a changed file, elaborated against set.mm loaded once.
+    // Every theorem of a changed file, elaborated against set.mm read once.
+    // A thread has a library of its own on what was read, and reads each
+    // changed corpus it is asked a theorem of once.
     let mut work: Vec<(usize, String)> = Vec::new();
     for (i, done) in trees.iter().enumerate() {
         for thm in corpus(&done.tree)
@@ -345,21 +354,24 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             }
         }
     }
-    let lib = library(root, None).expect(
-        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    let read = library(root, None)
+        .expect(
+            "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+        )
+        .shared();
+    let broken = in_order(
+        &work,
+        || (Library::new(Arc::clone(&read)), BTreeMap::new()),
+        |(lib, loaded): &mut (Library, BTreeMap<usize, Loaded>), (i, name)| {
+            let tree = loaded.entry(*i).or_insert_with(|| {
+                Loaded::new(&trees[*i].tree).expect("the changed corpus reads")
+            });
+            tree.elaborate(name, lib, Options::default())
+                .err()
+                .map(|p| format!("{} | elaborate | {p}", changes[*i].name))
+        },
     );
-    for (i, done) in trees.iter().enumerate() {
-        let mut names = work.iter().filter(|(j, _)| *j == i).peekable();
-        if names.peek().is_none() {
-            continue;
-        }
-        let loaded = Loaded::new(&done.tree).expect("the changed corpus reads");
-        for (_, name) in names {
-            if let Err(p) = loaded.elaborate(name, &lib, Options::default()) {
-                found.insert(format!("{} | elaborate | {p}", changes[i].name));
-            }
-        }
-    }
+    found.extend(broken.into_iter().flatten());
     let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();

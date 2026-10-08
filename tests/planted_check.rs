@@ -7,11 +7,14 @@
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
 //! another's edit. The clean corpus is checked whole; a case checks the
-//! theorems its edits can reach (`check::run_edited`).
+//! theorems its edits can reach (`check::run_edited`). The cases run side by
+//! side (`threads::in_order`), and are reported in the order they are
+//! written.
 
 use std::path::Path;
 
 use parley::source::{Disk, Memory, Overlay, Source};
+use parley::threads::in_order;
 
 /// A file that defines a function outside its theorems, for the cases below
 /// that import it, use it, or define its name again.
@@ -174,7 +177,7 @@ fn the_checker_catches_every_planted_defect() {
         base.printed
     );
     let cases = cases();
-    let results: Vec<_> = cases.iter().map(|case| outcome(case, &clean)).collect();
+    let results = in_order(&cases, || (), |_, case| outcome(case, &clean));
     let missed = results.iter().filter(|(_, missed)| *missed).count();
     let said: Vec<&str> = results.iter().map(|(line, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
