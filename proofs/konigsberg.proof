@@ -33,9 +33,9 @@ import mundane theorem    stdlib/counting/card-pair
 import mundane theorem    stdlib/divisibility/not-both
 
 theorem degree-by-walk
-  note        A list of the edges that names each exactly once counts the
-              edges at x as the degree does: the edges at x are listed once
-              each among them.
+  note        If function e() lists every edge exactly once, the degree of
+              vertex x is the number of places i where e(i) is incident
+              with x.
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let n ∈ ℕ₀                                                          (H2)
   let e : {1, …, n} → E                                               (H3)
