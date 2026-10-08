@@ -103,20 +103,21 @@ impl Lookup for Signatures {
 ///
 /// Elaborating a theorem adds labels (the corpus's constants, a step taken
 /// as stated, a lemma a library proof states) and never changes one it did
-/// not add. So the library is held once, behind an `Rc`, and each theorem
-/// writes only to its own small table. A copy of set.mm's 51,000 signatures
+/// not add. So the library is held once, behind an `Arc` that threads share,
+/// and each theorem writes only to its own small table. A copy of set.mm's
+/// 51,000 signatures
 /// for each theorem measured at seven of a build's seventeen seconds, most
 /// of it allocation. A label is looked up in what was added
 /// first, then in the library; and the labels are walked library first, then
 /// what was added, which is the order one table holding both would give.
 #[derive(Clone, Debug)]
 pub struct Layered {
-    base: std::rc::Rc<Signatures>,
+    base: std::sync::Arc<Signatures>,
     added: Signatures,
 }
 
 impl Layered {
-    pub fn new(base: std::rc::Rc<Signatures>) -> Layered {
+    pub fn new(base: std::sync::Arc<Signatures>) -> Layered {
         Layered {
             base,
             added: Signatures::new(),
@@ -179,7 +180,7 @@ impl Lookup for Layered {
 
 impl From<Signatures> for Layered {
     fn from(sigs: Signatures) -> Layered {
-        Layered::new(std::rc::Rc::new(sigs))
+        Layered::new(std::sync::Arc::new(sigs))
     }
 }
 
@@ -452,8 +453,8 @@ mod tests {
     fn a_layer_reads_and_walks_as_one_table_would() {
         let base =
             read_texts(&["$c wff |- $. $v ph $. wph $f wff ph $. ax $a |- ph $."]);
-        let shared = std::rc::Rc::new(base);
-        let mut one = Layered::new(std::rc::Rc::clone(&shared));
+        let shared = std::sync::Arc::new(base);
+        let mut one = Layered::new(std::sync::Arc::clone(&shared));
         one.insert("itm1".to_string(), axiom("itm1"));
         assert!(one.contains_key("ax") && one.contains_key("itm1"));
         assert_eq!(one.len(), 3);

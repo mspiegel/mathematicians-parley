@@ -11,7 +11,7 @@
 //! skipped would say green about a thing it had not looked at.
 
 use std::path::Path;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use parley::elab::numerals;
 use parley::mm::spell::Proof;
@@ -53,8 +53,8 @@ fn numerals_of_any_length_are_computed_with() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let setmm = where_set_mm(None, root)
         .expect("set.mm not found; say where it is with SET_MM, or leave a copy or a link at the root of the working tree");
-    let sigs = Rc::new(read(&[setmm.as_path()]).unwrap());
-    let b = Builder::new(Layered::new(Rc::clone(&sigs)));
+    let sigs = Arc::new(read(&[setmm.as_path()]).unwrap());
+    let b = Builder::new(Layered::new(Arc::clone(&sigs)));
 
     let mut facts: Vec<(String, Proof)> = Vec::new();
     for (m, n) in pairs() {

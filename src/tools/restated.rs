@@ -17,7 +17,6 @@
 //! an item added to the library is restated the day it is written.
 
 use std::collections::BTreeSet;
-use std::path::Path;
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -150,7 +149,7 @@ fn obtaining(number: usize, names: &[Witness], said: &str, how: &str) -> String 
     )
 }
 
-use super::build::{artifacts, Artifact, Maker, DEFINITIONS, PROVED};
+use super::build::{artifacts, Artifact, Libraries, Maker, DEFINITIONS, PROVED};
 use super::{path_of, verify};
 
 /// Where the restatements stand, as if they were proof files of the tree.
@@ -464,13 +463,13 @@ fn is_claim(text: &str) -> bool {
 }
 
 /// Build every restatement and verify what was built.
-pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
+pub fn run(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
     let fail = |message: String| Said {
         printed: String::new(),
         complained: format!("{message}\n"),
         status: 2,
     };
-    let Some(setmm) = setmm else {
+    let Some(libraries) = libraries else {
         return Said {
             printed:
                 "set.mm not found; say where it is with SET_MM, or leave a copy or a \
@@ -521,7 +520,7 @@ pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
     let mut said = Said::default();
     let mut made: Vec<(String, String)> = Vec::new();
     {
-        let mut maker = match Maker::new(source, &all, setmm) {
+        let mut maker = match Maker::new(source, &all, libraries) {
             Ok(maker) => maker,
             Err(problem) => return fail(problem.to_string()),
         };
@@ -551,7 +550,7 @@ pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
         built.write(&path, text.into_bytes());
         paths.push(path);
     }
-    let verified = verify::run(&built, &paths, Some(setmm));
+    let verified = verify::run(&built, &paths, Some(libraries));
     if !verified.green() {
         return verified;
     }

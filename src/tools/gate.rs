@@ -42,14 +42,14 @@ use crate::mm::library::where_set_mm;
 use crate::said::Said;
 use crate::source::{Disk, Source};
 
-use super::build::{artifacts, verified, waves, Artifact, Maker};
+use super::build::{artifacts, verified, waves, Artifact, Libraries, Maker};
 use super::{assumed, labels, needed, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
 const TABLES_AT: &str = "src/rules.rs";
 
 /// Every artifact made afresh and compared with its file in the tree.
-pub fn as_built(source: &dyn Source, setmm: Option<&Path>) -> Said {
+pub fn as_built(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
     let mut said = Said::default();
     let found = match corpus(source) {
         Ok(found) => found,
@@ -59,7 +59,7 @@ pub fn as_built(source: &dyn Source, setmm: Option<&Path>) -> Said {
             return said;
         }
     };
-    let Some(setmm) = setmm else {
+    let Some(libraries) = libraries else {
         said.printed =
             "set.mm not found; say where it is with SET_MM, or leave a copy or a \
                         link at the root of the working tree\n"
@@ -68,7 +68,7 @@ pub fn as_built(source: &dyn Source, setmm: Option<&Path>) -> Said {
         return said;
     };
     let every = artifacts(&found);
-    let mut maker = match Maker::new(source, &found, setmm) {
+    let mut maker = match Maker::new(source, &found, libraries) {
         Ok(maker) => maker,
         Err(problem) => {
             said.complained = format!("{problem}\n");
@@ -113,9 +113,9 @@ pub fn as_built(source: &dyn Source, setmm: Option<&Path>) -> Said {
 }
 
 /// Every artifact the tree holds, given to the verifier.
-pub fn verifies(source: &dyn Source, setmm: Option<&Path>) -> Said {
+pub fn verifies(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
     match corpus(source) {
-        Ok(found) => verify::run(source, &verified(&found), setmm),
+        Ok(found) => verify::run(source, &verified(&found), libraries),
         Err(problem) => Said {
             printed: String::new(),
             complained: format!("{problem}\n"),
@@ -129,13 +129,26 @@ pub fn run(root: &Path) -> Said {
     let source = Disk::new(root.to_path_buf());
     let setmm = where_set_mm(None, root);
     let setmm = setmm.as_deref();
+    // set.mm is read once here, and what it reads as with each `proved.mm`
+    // once, for every stage that reads it.
+    let libraries = match setmm.map(Libraries::read).transpose() {
+        Ok(libraries) => libraries,
+        Err(problem) => {
+            return Said {
+                printed: String::new(),
+                complained: format!("{problem}\n"),
+                status: 2,
+            }
+        }
+    };
+    let libraries = libraries.as_ref();
 
     type Stage<'s> = Box<dyn Fn() -> Said + Send + Sync + 's>;
     let stages: Vec<(&str, Stage)> = vec![
         ("checker", Box::new(|| crate::check::run(&source))),
         (
             "every artifact is what a fresh build makes",
-            Box::new(|| as_built(&source, setmm)),
+            Box::new(|| as_built(&source, libraries)),
         ),
         (
             "set.mm labels",
@@ -149,14 +162,17 @@ pub fn run(root: &Path) -> Said {
             "nothing is taken as stated unrecorded",
             Box::new(|| assumed::run(&source)),
         ),
-        ("the proofs verify", Box::new(|| verifies(&source, setmm))),
+        (
+            "the proofs verify",
+            Box::new(|| verifies(&source, libraries)),
+        ),
         (
             "every library item gives its target what it asks",
-            Box::new(|| restated::run(&source, setmm)),
+            Box::new(|| restated::run(&source, libraries)),
         ),
         (
             "every requires line is needed",
-            Box::new(|| needed::run(&source, setmm)),
+            Box::new(|| needed::run(&source, libraries)),
         ),
     ];
 

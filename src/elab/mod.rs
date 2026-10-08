@@ -32,7 +32,7 @@ mod spoken;
 pub mod state;
 pub mod tables;
 
-pub use elaborate::{elaborate, statement_of, Elaborated, Library};
+pub use elaborate::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
 pub use state::Elaborator;
 
 /// A table by claim that more than one holder may share and change, as the

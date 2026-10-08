@@ -17,34 +17,41 @@ use std::path::{Path, PathBuf};
 use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
+use parley::tools::build::Libraries;
 use parley::tools::gate::{as_built, verifies};
 use parley::tools::{assumed, labels, needed, restated, tested};
 
-/// One of the gate's stages, run over a tree with set.mm where it is.
-type Stage = fn(&dyn Source, &Path) -> Said;
-
-fn labels_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    labels::run(tree, Some(setmm), "src/rules.rs")
+/// set.mm, where it is and as it reads, read once for every stage and case.
+struct SetMm {
+    path: PathBuf,
+    libraries: Libraries,
 }
 
-fn tested_stage(tree: &dyn Source, _: &Path) -> Said {
+/// One of the gate's stages, run over a tree with set.mm.
+type Stage = fn(&dyn Source, &SetMm) -> Said;
+
+fn labels_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
+    labels::run(tree, Some(&setmm.path), "src/rules.rs")
+}
+
+fn tested_stage(tree: &dyn Source, _: &SetMm) -> Said {
     tested::run(tree)
 }
 
-fn assumed_stage(tree: &dyn Source, _: &Path) -> Said {
+fn assumed_stage(tree: &dyn Source, _: &SetMm) -> Said {
     assumed::run(tree)
 }
 
-fn as_built_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    as_built(tree, Some(setmm))
+fn as_built_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
+    as_built(tree, Some(&setmm.libraries))
 }
 
-fn verify_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    verifies(tree, Some(setmm))
+fn verify_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
+    verifies(tree, Some(&setmm.libraries))
 }
 
-fn restated_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    restated::run(tree, Some(setmm))
+fn restated_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
+    restated::run(tree, Some(&setmm.libraries))
 }
 
 /// The proof file the requires-line case edits.
@@ -53,8 +60,8 @@ const NEEDED_FILE: &str = "proofs/sum-formula.proof";
 /// Whether every requires line is needed, asked of the one file the case
 /// edits: a line planted there is caught there, and the gate asks it of
 /// every file.
-fn needed_stage(tree: &dyn Source, setmm: &Path) -> Said {
-    needed::run_over(tree, Some(setmm), &[NEEDED_FILE.to_string()])
+fn needed_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
+    needed::run_over(tree, Some(&setmm.libraries), &[NEEDED_FILE.to_string()])
 }
 
 const STAGES: [(&str, Stage); 7] = [
@@ -176,16 +183,18 @@ fn clean() -> Memory {
     Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests", "docs"]).unwrap()
 }
 
-fn set_mm() -> PathBuf {
+fn set_mm() -> SetMm {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    where_set_mm(None, root).expect(
+    let path = where_set_mm(None, root).expect(
         "set.mm not found; say where it is with SET_MM, or leave a copy or a link at the root of the working tree",
-    )
+    );
+    let libraries = Libraries::read(&path).expect("set.mm reads");
+    SetMm { path, libraries }
 }
 
 /// What one case says, and whether it missed: its edit could not be planted,
 /// or the stage stayed green, or said something other than it should.
-fn outcome(case: &Case, clean: &Memory, setmm: &Path) -> (String, bool) {
+fn outcome(case: &Case, clean: &Memory, setmm: &SetMm) -> (String, bool) {
     let mut tree = Overlay::new(clean);
     let text = match tree.read_text(case.file) {
         Ok(text) => text,

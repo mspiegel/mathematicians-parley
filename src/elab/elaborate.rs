@@ -19,6 +19,7 @@
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::IndexMap;
 
@@ -4327,17 +4328,54 @@ fn function_fixed(piece: &Term, binding: &Binding) -> bool {
         .is_some_and(|v| binding.contains_key(v))
 }
 
-/// set.mm and the corpus's library, as every theorem of a build reads them.
-pub struct Library {
+/// What reading set.mm and the corpus's `proved.mm` gives. Nothing here
+/// changes once read, so one is shared, between threads too, by every
+/// [`Library`] built on it, and reading set.mm takes about a second.
+pub struct ReadLibrary {
     /// set.mm and `proved.mm` together, held once and shared by every
     /// theorem, each of which adds its own labels in a [`Layered`] table.
-    pub sigs: Rc<Signatures>,
+    pub sigs: Arc<Signatures>,
     /// The labels `proved.mm` holds.
     pub provided: BTreeSet<String>,
     /// How many assertions set.mm holds, which the file header says.
     pub size: usize,
     /// set.mm's SHA-256, which the file header says.
     pub digest: String,
+}
+
+impl ReadLibrary {
+    /// What set.mm's text and, where there is one, `proved.mm`'s give.
+    pub fn from_texts(setmm: &str, proved: Option<&str>) -> ReadLibrary {
+        let digest = {
+            use sha2::{Digest, Sha256};
+            Sha256::digest(setmm.as_bytes())
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect()
+        };
+        let provided: BTreeSet<String> = match proved {
+            Some(p) => crate::mm::read_texts(&[p]).into_keys().collect(),
+            None => BTreeSet::new(),
+        };
+        let mut texts = vec![setmm];
+        texts.extend(proved);
+        let sigs = crate::mm::read_texts(&texts);
+        let size = sigs.len() - provided.len();
+        ReadLibrary {
+            sigs: Arc::new(sigs),
+            provided,
+            size,
+            digest,
+        }
+    }
+}
+
+/// set.mm and the corpus's library, as every theorem of a build reads them:
+/// what was read, shared, and the syntaxes this library has built, which are
+/// its own. A syntax holds the terms it has spelt, and a term is built to be
+/// read on one thread.
+pub struct Library {
+    read: Arc<ReadLibrary>,
     /// The syntax the library gives with the corpus's constants declared,
     /// and every statement it has read, shared by every theorem elaborated
     /// against the same constants. A theorem reads the statements of the
@@ -4351,6 +4389,14 @@ pub struct Library {
 /// The labels a corpus declares on top of the library, with their
 /// statements, in the order they are declared.
 type Constants = Vec<(String, Vec<String>)>;
+
+impl std::ops::Deref for Library {
+    type Target = ReadLibrary;
+
+    fn deref(&self) -> &ReadLibrary {
+        &self.read
+    }
+}
 
 impl Library {
     /// The library read from set.mm and, where it has been built, the
@@ -4377,26 +4423,13 @@ impl Library {
 
     /// The library from set.mm's text and, where there is one, `proved.mm`'s.
     pub fn from_texts(setmm: &str, proved: Option<&str>) -> Library {
-        let digest = {
-            use sha2::{Digest, Sha256};
-            Sha256::digest(setmm.as_bytes())
-                .iter()
-                .map(|b| format!("{b:02x}"))
-                .collect()
-        };
-        let provided: BTreeSet<String> = match proved {
-            Some(p) => crate::mm::read_texts(&[p]).into_keys().collect(),
-            None => BTreeSet::new(),
-        };
-        let mut texts = vec![setmm];
-        texts.extend(proved);
-        let sigs = crate::mm::read_texts(&texts);
-        let size = sigs.len() - provided.len();
+        Library::new(Arc::new(ReadLibrary::from_texts(setmm, proved)))
+    }
+
+    /// A library on what was read already, with syntaxes of its own.
+    pub fn new(read: Arc<ReadLibrary>) -> Library {
         Library {
-            sigs: Rc::new(sigs),
-            provided,
-            size,
-            digest,
+            read,
             syntaxes: RefCell::new(IndexMap::new()),
         }
     }
@@ -4536,7 +4569,7 @@ pub fn elaborate(
         scopes: &corpus.scopes,
     };
     let sorts_now = sorts_in_scope(thm, env);
-    let mut sigs = Layered::new(Rc::clone(&library.sigs));
+    let mut sigs = Layered::new(Arc::clone(&library.sigs));
     declare_constants(&mut sigs, &corpus.records)?;
     let syntax = library.syntax_for(&sigs);
     let mut work = Elaborator::new(

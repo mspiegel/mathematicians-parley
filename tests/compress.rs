@@ -18,7 +18,7 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use parley::mm::compress::{
     compress, compressed, expand, expand_steps, shapes, shapes_of,
@@ -73,8 +73,8 @@ fn every_compressed_proof_survives_a_round_trip() {
     paths.extend(built.iter().map(|p| root.join(p)));
     let refs: Vec<&Path> = paths.iter().map(|p| p.as_path()).collect();
     // Read once and shared: each proof layers its own hypotheses over it.
-    let sigs = Rc::new(read(&refs).unwrap());
-    let spell = Builder::new(Layered::new(Rc::clone(&sigs)));
+    let sigs = Arc::new(read(&refs).unwrap());
+    let spell = Builder::new(Layered::new(Arc::clone(&sigs)));
 
     let (mut passed, mut stepped) = (0, 0);
     let mut failed: Vec<String> = Vec::new();
@@ -100,7 +100,7 @@ fn every_compressed_proof_survives_a_round_trip() {
                 .captures_iter(block)
                 .map(|c| (c[1].to_string(), c[2].to_string()))
                 .collect();
-            let mut local = Layered::new(Rc::clone(&sigs));
+            let mut local = Layered::new(Arc::clone(&sigs));
             for (h, s) in &hyps {
                 local.insert(
                     h.clone(),

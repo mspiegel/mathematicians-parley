@@ -56,10 +56,21 @@ fn main() -> ExitCode {
         // The gate's slowest stage alone: every requires line taken away.
         "needed" => {
             let setmm = parley::mm::where_set_mm(None, root);
-            say(parley::tools::needed::run(
-                &Disk::new(root.to_path_buf()),
-                setmm.as_deref(),
-            ))
+            let libraries = setmm
+                .as_deref()
+                .map(parley::tools::build::Libraries::read)
+                .transpose();
+            match libraries {
+                Ok(libraries) => say(parley::tools::needed::run(
+                    &Disk::new(root.to_path_buf()),
+                    libraries.as_ref(),
+                )),
+                Err(problem) => say(Said {
+                    printed: String::new(),
+                    complained: format!("{problem}\n"),
+                    status: 2,
+                }),
+            }
         }
         _ => say(parley::tools::gate::run(root)),
     }

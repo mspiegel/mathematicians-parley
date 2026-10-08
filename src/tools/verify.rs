@@ -23,7 +23,6 @@
 //! the new proof unread.
 
 use std::collections::BTreeSet;
-use std::path::Path;
 use std::sync::LazyLock;
 use std::time::Instant;
 
@@ -34,6 +33,7 @@ use regex::Regex;
 
 use crate::said::Said;
 use crate::source::Source;
+use crate::tools::build::Libraries;
 
 static INCLUDE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\$\[\s*(\S+)\s*\$\]").expect("a valid pattern"));
@@ -71,11 +71,15 @@ fn roots(built: &[(String, String)]) -> Vec<String> {
     here.difference(&included).map(|s| s.to_string()).collect()
 }
 
-/// Verify the files at `built`, paths in `source`, against the library at
-/// `setmm`.
-pub fn run(source: &dyn Source, built: &[String], setmm: Option<&Path>) -> Said {
+/// Verify the files at `built`, paths in `source`, against set.mm as
+/// `libraries` read it.
+pub fn run(
+    source: &dyn Source,
+    built: &[String],
+    libraries: Option<&Libraries>,
+) -> Said {
     let mut said = Said::default();
-    let Some(library) = setmm else {
+    let Some(libraries) = libraries else {
         said.printed =
             "set.mm not found; say where it is with SET_MM, or leave a copy or \
                         a link at the root of the working tree\n"
@@ -103,14 +107,7 @@ pub fn run(source: &dyn Source, built: &[String], setmm: Option<&Path>) -> Said 
             }
         }
     }
-    let setmm = match std::fs::read(library) {
-        Ok(bytes) => bytes,
-        Err(e) => {
-            said.printed += &format!("{}: {e}\n", library.display());
-            said.status = 2;
-            return said;
-        }
-    };
+    let setmm = libraries.setmm.as_bytes().to_vec();
 
     let top = roots(&texts);
     let proved: usize = texts.iter().map(|(_, t)| PROVES.find_iter(t).count()).sum();

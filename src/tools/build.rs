@@ -22,13 +22,14 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
 
 use crate::corpus::{cited_items, corpus, in_stdlib, index, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
-use crate::elab::{elaborate, statement_of, Elaborated, Library};
+use crate::elab::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
 use crate::formula::Grammar;
 use crate::mm::library::where_set_mm;
 use crate::mm::read_texts;
@@ -169,6 +170,54 @@ pub fn waves<'a>(wanted: &[&'a Artifact]) -> Vec<Vec<&'a Artifact>> {
     out
 }
 
+/// set.mm read once, and what it reads as with each `proved.mm` asked for,
+/// kept by that text: a fresh build reads the `proved.mm` it has just made,
+/// which a planted defect may change, and what was read is reused only for
+/// the text it was read with. What is kept never changes, so the stages of a
+/// gate and the workers of a stage share one, each building its own
+/// [`Library`] on it. Reading set.mm takes about a second.
+pub struct Libraries {
+    /// set.mm's text.
+    pub setmm: String,
+    read: Mutex<IndexMap<Option<String>, Arc<ReadLibrary>>>,
+}
+
+impl Libraries {
+    /// set.mm read from `path`.
+    pub fn read(path: &Path) -> Checked<Libraries> {
+        let setmm = std::fs::read_to_string(path).map_err(|e| {
+            Problem::new(
+                path.display().to_string(),
+                0,
+                format!("cannot read set.mm: {e}"),
+            )
+        })?;
+        Ok(Libraries {
+            setmm,
+            read: Mutex::new(IndexMap::new()),
+        })
+    }
+
+    /// What set.mm and `proved` read as, read the first time it is asked
+    /// for. The lock is held while reading, so a second stage asking for the
+    /// same waits for it rather than reading it again.
+    pub fn read_library(&self, proved: Option<&str>) -> Arc<ReadLibrary> {
+        let mut read = self.read.lock().expect("no reader panicked");
+        let key = proved.map(str::to_string);
+        if let Some(found) = read.get(&key) {
+            return Arc::clone(found);
+        }
+        let made = Arc::new(ReadLibrary::from_texts(&self.setmm, proved));
+        read.insert(key, Arc::clone(&made));
+        made
+    }
+
+    /// A library on set.mm and `proved`, with syntaxes of its own.
+    pub fn library(&self, proved: Option<&str>) -> Library {
+        Library::new(self.read_library(proved))
+    }
+}
+
 /// What makes artifacts: the corpus read once, set.mm read once, and what
 /// this run has made so far.
 pub struct Maker<'a> {
@@ -176,7 +225,7 @@ pub struct Maker<'a> {
     found: &'a Corpus,
     g: Grammar,
     items: IndexMap<String, Item<'a>>,
-    setmm: String,
+    libraries: &'a Libraries,
     library: Option<Library>,
     made: IndexMap<String, String>,
 }
@@ -185,23 +234,16 @@ impl<'a> Maker<'a> {
     pub fn new(
         source: &'a dyn Source,
         found: &'a Corpus,
-        setmm: &Path,
+        libraries: &'a Libraries,
     ) -> Checked<Maker<'a>> {
         let g = Grammar::load(&found.records)?;
         let items = index(&found.records, &found.theorems);
-        let setmm = std::fs::read_to_string(setmm).map_err(|e| {
-            Problem::new(
-                setmm.display().to_string(),
-                0,
-                format!("cannot read set.mm: {e}"),
-            )
-        })?;
         Ok(Maker {
             source,
             found,
             g,
             items,
-            setmm,
+            libraries,
             library: None,
             made: IndexMap::new(),
         })
@@ -220,8 +262,9 @@ impl<'a> Maker<'a> {
     pub fn make(&mut self, artifact: &Artifact) -> Checked<String> {
         let text = match artifact.recipe {
             Recipe::Definitions => {
-                let sigs = read_texts(&[&self.setmm]);
-                write_definitions(&self.found.records, &sigs, self.setmm.as_bytes())?
+                let setmm = &self.libraries.setmm;
+                let sigs = read_texts(&[setmm]);
+                write_definitions(&self.found.records, &sigs, setmm.as_bytes())?
             }
             Recipe::Proved => {
                 // The angle is a constant this corpus introduces, so the
@@ -236,7 +279,7 @@ impl<'a> Maker<'a> {
                 })?;
                 let source = self.source;
                 crate::proofs::stdlib::proved(
-                    read_texts(&[&self.setmm, &definitions]),
+                    read_texts(&[&self.libraries.setmm, &definitions]),
                     &|path| source.read_text(path).ok(),
                 )?
             }
@@ -250,7 +293,7 @@ impl<'a> Maker<'a> {
     fn theorem(&mut self, name: &str) -> Checked<Elaborated> {
         if self.library.is_none() {
             let proved = self.text_of(PROVED);
-            self.library = Some(Library::from_texts(&self.setmm, proved.as_deref()));
+            self.library = Some(self.libraries.library(proved.as_deref()));
         }
         let Some(thm) = self.found.theorems.iter().find(|t| t.qualified() == name)
         else {
@@ -329,7 +372,15 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
         }
         None => root.join("set.mm"),
     };
-    let mut maker = match Maker::new(&source, &found, &library) {
+    let libraries = match Libraries::read(&library) {
+        Ok(libraries) => libraries,
+        Err(problem) => {
+            said.complained = format!("{problem}\n");
+            said.status = 2;
+            return said;
+        }
+    };
+    let mut maker = match Maker::new(&source, &found, &libraries) {
         Ok(maker) => maker,
         Err(problem) => {
             said.complained = format!("{problem}\n");

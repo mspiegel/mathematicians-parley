@@ -12,18 +12,20 @@
 //!
 //! So each requires line of each proof is taken away in turn, and the
 //! theorem it sits in is checked and elaborated without it. The lines are
-//! shared out among workers that run side by side; each reads the corpus
-//! once and loads set.mm once for every line it takes.
+//! shared out among workers that run side by side; set.mm is read once for
+//! all of them, and each builds its own library on it.
 
-use std::path::Path;
+use std::sync::Arc;
 
 use crate::check::{check_cuts, Cut};
 use crate::corpus::proof_files;
 use crate::elab::elaborate::Options;
+use crate::elab::Library;
 use crate::regex;
 use crate::said::Said;
 use crate::source::{Memory, Overlay, Source};
-use crate::tools::build::{elaborate_one, library};
+use crate::tools::build::{elaborate_one, Libraries, PROVED};
+use crate::tools::path_of;
 
 regex!(STEP_HEAD, r"^\s*(\d+(?:\.\d+)*)\.\s");
 
@@ -87,8 +89,7 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
 
 /// Whether each line in `share` is needed: the checker or the elaborator
 /// complains of its theorem without it.
-fn needed(tree: &Memory, setmm: &str, share: &[&Taken]) -> Result<Vec<bool>, String> {
-    let lib = library(tree.root(), Some(setmm)).map_err(|p| p.to_string())?;
+fn needed(tree: &Memory, lib: &Library, share: &[&Taken]) -> Result<Vec<bool>, String> {
     let cuts: Vec<Cut> = share
         .iter()
         .map(|t| Cut {
@@ -112,7 +113,7 @@ fn needed(tree: &Memory, setmm: &str, share: &[&Taken]) -> Result<Vec<bool>, Str
             taken.cut.theorem
         );
         let options = Options::default();
-        out.push(elaborate_one(&edited, &name, &lib, options).is_err());
+        out.push(elaborate_one(&edited, &name, lib, options).is_err());
     }
     Ok(out)
 }
@@ -127,7 +128,7 @@ fn needed(tree: &Memory, setmm: &str, share: &[&Taken]) -> Result<Vec<bool>, Str
 /// round asks the next line of every such theorem at once.
 fn together<'t>(
     tree: &Memory,
-    setmm: &str,
+    lib: &Library,
     surplus: Vec<&'t Taken>,
 ) -> Result<Vec<&'t Taken>, String> {
     let mut groups: Vec<Vec<&'t Taken>> = Vec::new();
@@ -175,7 +176,7 @@ fn together<'t>(
             ));
         }
         let share: Vec<&Taken> = asked.iter().map(|(_, t)| t).collect();
-        let needs = needed(tree, setmm, &share)?;
+        let needs = needed(tree, lib, &share)?;
         for ((i, _), need) in asked.iter().zip(needs) {
             if !need {
                 kept[*i].push(groups[*i][round]);
@@ -186,16 +187,20 @@ fn together<'t>(
 }
 
 /// Every requires line of every proof file is needed.
-pub fn run(source: &dyn Source, setmm: Option<&Path>) -> Said {
-    run_over(source, setmm, &proof_files(source))
+pub fn run(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
+    run_over(source, libraries, &proof_files(source))
 }
 
 /// Every requires line of the proof files `files` is needed: each is taken
 /// away in turn, and its theorem checked and elaborated over the corpus
 /// without it. A planted line is asked of its own file alone.
-pub fn run_over(source: &dyn Source, setmm: Option<&Path>, files: &[String]) -> Said {
+pub fn run_over(
+    source: &dyn Source,
+    libraries: Option<&Libraries>,
+    files: &[String],
+) -> Said {
     let mut said = Said::default();
-    let Some(setmm) = setmm.and_then(|p| p.to_str()) else {
+    let Some(libraries) = libraries else {
         said.printed =
             "set.mm not found; say where it is with SET_MM, or leave a copy or a \
                         link at the root of the working tree\n"
@@ -219,7 +224,21 @@ pub fn run_over(source: &dyn Source, setmm: Option<&Path>, files: &[String]) -> 
             return said;
         }
     };
-    // Each worker holds a library and a corpus of its own.
+    // The library is the one the build reads: set.mm with the `proved.mm`
+    // the tree's root holds, read once for every worker.
+    let proved = tree.root().join(path_of(PROVED));
+    let proved = match proved.exists().then(|| std::fs::read_to_string(&proved)) {
+        None => None,
+        Some(Ok(text)) => Some(text),
+        Some(Err(e)) => {
+            said.complained = format!("{}: {e}\n", proved.display());
+            said.status = 2;
+            return said;
+        }
+    };
+    let read = libraries.read_library(proved.as_deref());
+    // Each worker builds its own library on what was read, since the
+    // syntaxes a library builds are its own.
     let workers = std::thread::available_parallelism()
         .map_or(1, |n| n.get())
         .clamp(1, 8);
@@ -231,7 +250,8 @@ pub fn run_over(source: &dyn Source, setmm: Option<&Path>, files: &[String]) -> 
             .iter()
             .map(|share| {
                 let tree = &tree;
-                scope.spawn(move || needed(tree, setmm, share))
+                let read = Arc::clone(&read);
+                scope.spawn(move || needed(tree, &Library::new(read), share))
             })
             .collect();
         running
@@ -255,7 +275,7 @@ pub fn run_over(source: &dyn Source, setmm: Option<&Path>, files: &[String]) -> 
         }
     }
     surplus.sort_by(|a, b| a.cut.path.cmp(&b.cut.path).then(a.line.cmp(&b.line)));
-    let surplus = match together(&tree, setmm, surplus) {
+    let surplus = match together(&tree, &Library::new(read), surplus) {
         Ok(surplus) => surplus,
         Err(e) => {
             said.complained = format!("{e}\n");
