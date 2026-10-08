@@ -392,130 +392,69 @@ theorem konigsberg
       b₅ joins A and D, b₆ joins B and D, b₇ joins C and D                (H1)
   then G is not traversable
 
-1.  {x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅}
-    inspection, from H1
-
-2.  deg(A) = |{x ∈ E : A is an end of x}|
+1.  For all x ∈ V, deg(x) = |{a ∈ E : x is an end of a}|.
     mun:degree
-    requires A ∈ V: inspection, from H1
 
-3.  |{x ∈ E : A is an end of x}| = |{b₁, b₂, b₃, b₄, b₅}|
-    substitute {x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅} (line 1)
+2.  deg(A) = 5
+    inspection, from H1, 1
 
-4.  |{b₁, b₂, b₃, b₄, b₅}| = 5
-    inspection, from H1
+3.  deg(B) = 3
+    inspection, from H1, 1
 
-5.  deg(A) = 5
-    calculation
-      deg(A) = |{x ∈ E : A is an end of x}|      2
-             = |{b₁, b₂, b₃, b₄, b₅}|                3
-             = 5                                4
+4.  deg(C) = 3
+    inspection, from H1, 1
 
-6.  {x ∈ E : B is an end of x} = {b₁, b₂, b₆}
-    inspection, from H1
+5.  deg(D) = 3
+    inspection, from H1, 1
 
-7.  deg(B) = |{x ∈ E : B is an end of x}|
-    mun:degree
-    requires B ∈ V: inspection, from H1
-
-8.  |{x ∈ E : B is an end of x}| = |{b₁, b₂, b₆}|
-    substitute {x ∈ E : B is an end of x} = {b₁, b₂, b₆} (line 6)
-
-9.  |{b₁, b₂, b₆}| = 3
-    inspection, from H1
-
-10. deg(B) = 3
-    calculation
-      deg(B) = |{x ∈ E : B is an end of x}|      7
-             = |{b₁, b₂, b₆}|                      8
-             = 3                                9
-
-11. {x ∈ E : C is an end of x} = {b₃, b₄, b₇}
-    inspection, from H1
-
-12. deg(C) = |{x ∈ E : C is an end of x}|
-    mun:degree
-    requires C ∈ V: inspection, from H1
-
-13. |{x ∈ E : C is an end of x}| = |{b₃, b₄, b₇}|
-    substitute {x ∈ E : C is an end of x} = {b₃, b₄, b₇} (line 11)
-
-14. |{b₃, b₄, b₇}| = 3
-    inspection, from H1
-
-15. deg(C) = 3
-    calculation
-      deg(C) = |{x ∈ E : C is an end of x}|      12
-             = |{b₃, b₄, b₇}|                      13
-             = 3                                14
-
-16. {x ∈ E : D is an end of x} = {b₅, b₆, b₇}
-    inspection, from H1
-
-17. deg(D) = |{x ∈ E : D is an end of x}|
-    mun:degree
-    requires D ∈ V: inspection, from H1
-
-18. |{x ∈ E : D is an end of x}| = |{b₅, b₆, b₇}|
-    substitute {x ∈ E : D is an end of x} = {b₅, b₆, b₇} (line 16)
-
-19. |{b₅, b₆, b₇}| = 3
-    inspection, from H1
-
-20. deg(D) = 3
-    calculation
-      deg(D) = |{x ∈ E : D is an end of x}|      17
-             = |{b₅, b₆, b₇}|                      18
-             = 3                                19
-
-21. 5 = 2·2 + 1
+6.  5 = 2·2 + 1
     arithmetic
 
-22. 5 is odd
-    mun:odd n := 5, from 21
+7.  5 is odd
+    mun:odd n := 5, from 6
     requires 5 ∈ ℤ: arithmetic
     requires 2 ∈ ℤ: arithmetic
 
-23. 3 = 2·1 + 1
+8.  3 = 2·1 + 1
     arithmetic
 
-24. 3 is odd
-    mun:odd n := 3, from 23
+9.  3 is odd
+    mun:odd n := 3, from 8
     requires 3 ∈ ℤ: arithmetic
     requires 1 ∈ ℤ: arithmetic
 
-25. deg(A) is odd
-    substitute deg(A) = 5 (line 5) into line 22
+10. deg(A) is odd
+    substitute deg(A) = 5 (line 2) into line 7
 
-26. deg(B) is odd
-    substitute deg(B) = 3 (line 10) into line 24
+11. deg(B) is odd
+    substitute deg(B) = 3 (line 3) into line 9
 
-27. deg(C) is odd
-    substitute deg(C) = 3 (line 15) into line 24
+12. deg(C) is odd
+    substitute deg(C) = 3 (line 4) into line 9
 
-28. deg(D) is odd
-    substitute deg(D) = 3 (line 20) into line 24
+13. deg(D) is odd
+    substitute deg(D) = 3 (line 5) into line 9
 
-29. {x ∈ V : deg(x) is odd} = {A, B, C, D}
-    inspection, from H1, 25, 26, 27, 28
+14. {x ∈ V : deg(x) is odd} = {A, B, C, D}
+    inspection, from H1, 10, 11, 12, 13
 
-30. |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|
-    substitute {x ∈ V : deg(x) is odd} = {A, B, C, D} (line 29)
+15. |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|
+    substitute {x ∈ V : deg(x) is odd} = {A, B, C, D} (line 14)
 
-31. |{A, B, C, D}| = 4
+16. |{A, B, C, D}| = 4
     inspection, from H1
 
-32. |{x ∈ V : deg(x) is odd}| = 4
+17. |{x ∈ V : deg(x) is odd}| = 4
     calculation
-      |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|    30
-                                = 4                31
+      |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|    15
+                                = 4                16
 
-33. G is not traversable
+18. G is not traversable
     contradiction
     suppose G is traversable                                          (S1)
 
-    33.1. |{x ∈ V : deg(x) is odd}| ≤ 2
+    18.1. |{x ∈ V : deg(x) is odd}| ≤ 2
           thm:odd-vertices, from S1
 
-    33.2. 4 ≤ 2, which is impossible
-          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 32) into line 33.1
+    18.2. 4 ≤ 2, which is impossible
+          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 17) into line 18.1

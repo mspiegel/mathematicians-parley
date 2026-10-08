@@ -620,19 +620,29 @@ The lines the step cites, read for four kinds of sentence and nothing else:
 - **distinct names:** that the names of a list are pairwise different, as
   "distinct vertices A, B, C, D" says, and any `≠` between two names;
 - **what a listed thing is:** an equation giving a term at a listed name,
-  as "a joins A and B" says the ends of a are {A, B};
+  as "a joins A and B" says the ends of a are {A, B}, or a "for all"
+  equation over a set the facts list, which gives a term at each of its
+  elements, as "for all x ∈ V, deg(x) = |{a ∈ E : x is an end of a}|"
+  gives deg(B) once V is listed;
 - **what holds of a listed thing:** a line saying the property itself at a
   listed name, or its negation, as "deg(A) is odd" says it of A.
 
 ### Fact out
 
-One sentence, of one of three shapes, about sets listed in full:
+One sentence: `t ∈ S` or `t ∉ S`, or an equation `l = r`, where each side
+is something the facts let the reader work out. What a term works out to:
 
-- `t ∈ L` or `t ∉ L`, for a name t and a listed set L;
-- `{x ∈ S : P(x)} = L`, for a set S the facts list in full and a listed set
-  L: L is exactly the elements of S of which P holds;
-- `|L| = m`, for a listed set L of names the facts say are distinct and the
-  numeral m that counts them.
+- a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
+  list of its elements: those of S of which P holds;
+- the size `|S|` of such a set, once the facts say its names are distinct,
+  is the numeral that counts them;
+- a closed numeral is itself;
+- a term a cited "for all" equation gives at a listed element is what the
+  other side works out to there.
+
+So `{x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅}`, `|{b₁, b₂, b₆}| = 3`
+and `deg(B) = 3` are one method, which works out both sides and compares
+them.
 
 ### The procedure
 
@@ -642,10 +652,12 @@ an element by a cited line that says P there or denies it, or else by
 reading P there through what the facts say that element is, until it is a
 membership of that kind: "A is an end of f" is A ∈ {B, D} once f joins B
 and D, and that fails because A, B and D are distinct. The
-set S is replaced by its listing, P is settled at each element in turn, and
-the elements where it holds are compared with L, as sets, so their order is
-never asked. A size is the length of the list once the facts say its names
-are distinct.
+set S is replaced by its listing and P is settled at each element in turn.
+A size is the length of the list once the facts say its names are distinct.
+A term a "for all" line gives is read at the listed element it names, and
+what the line's other side says there is worked out the same way. Two sets
+are compared as sets, so their order is never asked, and two numbers by
+working out the sum that counts one against the other.
 
 ### Refusals
 
@@ -672,7 +684,9 @@ element is the cited equation carried in (`eleq2d` and the congruences of
 `substitute`). The set-builder over a listed set is `rabun2` and `rabsnif`
 one element at a time, each element's case decided as above. A size is
 `hashprg`, `hashtpg` or `hashunsng` repeated, each new element absent by
-its distinctness.
+its distinctness, and the empty set's is `hash0`. A "for all" line is read
+at its element by `rspcdva`. The two sides are joined by `eqtrd` and
+`eqtr4d`, two listings in different orders by `eqssd`.
 
 ## join
 

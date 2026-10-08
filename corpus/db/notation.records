@@ -521,14 +521,6 @@ notation listed-two
               its patterns; a size is declared when a proof writes it. The
               listing says no order: {u, w} and {w, u} are one set.
 
-notation listed-three
-  pattern     {_, _, _}
-  sort        α, α, α → set of α
-  reads       the set whose elements are, and
-  metamath    ctp
-  target      _1 _2 _3 ctp
-  note        A set of three listed things. See `listed-two`.
-
 notation listed-four
   pattern     {_, _, _, _}
   sort        α, α, α, α → set of α
@@ -539,22 +531,14 @@ notation listed-four
               singleton of the last, which is how set.mm builds its pair and
               triple from singletons. See `listed-two`.
 
-notation listed-five
-  pattern     {_, _, _, _, _}
-  sort        α, α, α, α, α → set of α
-  reads       the set whose elements are, and
-  metamath    the first four joined with the singleton of the last
-  target      _1 _2 _3 ctp _4 csn cun _5 csn cun
-  note        See `listed-four`.
-
 notation listed-seven
   pattern     {_, _, _, _, _, _, _}
   sort        α, α, α, α, α, α, α → set of α
   reads       the set whose elements are, and
   metamath    the first six joined with the singleton of the last
   target      _1 _2 _3 ctp _4 csn cun _5 csn cun _6 csn cun _7 csn cun
-  note        See `listed-four`. There is no record of six: a size is
-              declared when a proof writes it.
+  note        See `listed-four`. The sizes between have no records: a size
+              is declared when a proof writes it.
 
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _

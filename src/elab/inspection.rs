@@ -1,5 +1,7 @@
-//! `inspection`: a claim about a set listed in full, checked element by
-//! element against what the cited lines say (`METHODS.md`).
+//! `inspection`: a claim about sets listed in full, checked element by
+//! element against what the cited lines say (`METHODS.md`). Each side of the
+//! claim is worked out to a listing or a count (`value`), and the two are
+//! compared.
 //!
 //! A listed set is read in one standard form, the singletons of its
 //! elements joined from the left, `(({a} ∪ {b}) ∪ {c})`, which is how set.mm
@@ -38,6 +40,23 @@ struct Kept {
     proof: Proof,
 }
 
+/// What a term comes to by the cited lines (`value`).
+enum Value {
+    /// A set, as the elements it lists.
+    Set {
+        elements: Vec<Term>,
+        /// ( scope -> term = the union of the elements' singletons ), the
+        /// empty set where there are none.
+        proof: Proof,
+    },
+    /// A number, as the sum of ones that counts it, or a closed numeral.
+    Count {
+        sum: String,
+        /// ( scope -> term = sum ), or None where the term is the sum.
+        proof: Option<Proof>,
+    },
+}
+
 impl Elaborator<'_> {
     /// The step's claim, by inspection of the sets the cited lines list.
     pub fn inspection(
@@ -70,6 +89,8 @@ impl Elaborator<'_> {
         }
     }
 
+    /// The claim, a membership or an equation, with each side worked out to
+    /// what the cited lines make it (`value`) and the two compared.
     fn inspected(
         &mut self,
         claim: &Term,
@@ -80,7 +101,7 @@ impl Elaborator<'_> {
         match claim.label() {
             Some("wcel") if claim.variable().is_none() => {
                 let (element, set) = (&kids[0], &kids[1]);
-                let listing = take!(self.listing(set, scope, known)?);
+                let listing = take!(self.set_value(set, scope, known)?);
                 let Some(at) = self.position(element, &listing.elements) else {
                     return Ok(Route::no(format!(
                         "{} is not one of the things {} lists",
@@ -105,7 +126,7 @@ impl Elaborator<'_> {
             Some("wn") if kids[0].label() == Some("wcel") => {
                 let inner = kids[0].children().to_vec();
                 let (element, set) = (&inner[0], &inner[1]);
-                let listing = take!(self.listing(set, scope, known)?);
+                let listing = take!(self.set_value(set, scope, known)?);
                 let outside = take!(self.not_in_union(
                     element,
                     &listing.elements,
@@ -115,19 +136,310 @@ impl Elaborator<'_> {
                 self.carried_out(element, set, &listing, outside, scope)
                     .map(Built)
             }
-            Some("wceq") if kids[0].label() == Some("crab") => {
-                self.set_builder(&kids[0], &kids[1], scope, known)
-            }
-            Some("wceq")
-                if kids[0].label() == Some("cfv")
-                    && self.rpn(&kids[0].children()[1]) == "chash" =>
-            {
-                self.size(&kids[0].children()[0], &kids[1], scope, known)
-            }
+            Some("wceq") => self.equation(&kids[0], &kids[1], scope, known),
             _ => Ok(Route::no(
-                "inspection says what is in a listed set, which of its elements \
-                 have a property, or how many it has",
+                "inspection says what is in a listed set, or that two things it \
+                 can work out are equal",
             )),
+        }
+    }
+
+    /// What `term` comes to by what the cited lines say: a set listed, or
+    /// given by an equation with a listing; a set-builder over a listed set,
+    /// the elements its property keeps; the size of such a set, counted; a
+    /// closed numeral, itself; or a term a cited "for all" equation over a
+    /// listed set gives at one of its elements, the other side worked out.
+    fn value(
+        &mut self,
+        term: &Term,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Value>> {
+        if let Built(listing) = self.listing(term, scope, known)? {
+            return Ok(Built(Value::Set {
+                elements: listing.elements,
+                proof: listing.proof,
+            }));
+        }
+        let kids = term.children().to_vec();
+        if term.variable().is_none() && term.label() == Some("crab") {
+            let (body, letter, over) = (&kids[0], self.rpn(&kids[1]), &kids[2]);
+            let source = take!(self.listing(over, scope, known)?);
+            let kept =
+                take!(self.kept(body, &letter, &source.elements, scope, known)?);
+            let p = self.rpn(body);
+            let (s, u_source) = (self.rpn(over), self.union_of(&source.elements));
+            let moved = self.b.ap(
+                "rabeqdv",
+                &binds! {"ph" => scope, "ps" => &p, "x" => &letter, "A" => &s, "B" => &u_source},
+                &[&source.proof],
+            );
+            let over_listing = t!(p, letter, u_source, "crab");
+            let proof = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => &self.rpn(term), "B" => &over_listing,
+                "C" => &self.listed(&kept.elements)},
+                &[&moved, &kept.proof],
+            );
+            return Ok(Built(Value::Set {
+                elements: kept.elements,
+                proof,
+            }));
+        }
+        if term.variable().is_none()
+            && term.label() == Some("cfv")
+            && self.rpn(&kids[1]) == "chash"
+        {
+            let set = &kids[0];
+            let listing = take!(self.set_value(set, scope, known)?);
+            let (s, u) = (self.rpn(set), self.listed(&listing.elements));
+            let moved = self.b.ap(
+                "fveq2d",
+                &binds! {"ph" => scope, "A" => &s, "B" => &u, "F" => "chash"},
+                &[&listing.proof],
+            );
+            let (size_of_set, size_of_union) =
+                (t!(s, "chash", "cfv"), t!(u, "chash", "cfv"));
+            let (counted, sum) = if listing.elements.is_empty() {
+                let none = self.b.ap("hash0", &binds! {}, &[]);
+                let none = self.b.ap(
+                    "a1i",
+                    &binds! {"ph" => &t!(size_of_union, "cc0", "wceq"), "ps" => scope},
+                    &[&none],
+                );
+                (none, "cc0".to_string())
+            } else {
+                take!(self.counted(&listing.elements, scope, known)?)
+            };
+            let proof = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => &size_of_set, "B" => &size_of_union, "C" => &sum},
+                &[&moved, &counted],
+            );
+            return Ok(Built(Value::Count {
+                sum,
+                proof: Some(proof),
+            }));
+        }
+        if term.names().is_empty() {
+            return Ok(Built(Value::Count {
+                sum: self.rpn(term),
+                proof: None,
+            }));
+        }
+        self.through_all(term, scope, known)
+    }
+
+    /// `value` of a term that must come to a listed set.
+    fn set_value(
+        &mut self,
+        term: &Term,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Listing>> {
+        match take!(self.value(term, scope, known)?) {
+            Value::Set { elements, proof } => Ok(Built(Listing { elements, proof })),
+            Value::Count { .. } => Ok(Route::no(format!(
+                "{} is a number, and a set is wanted",
+                self.render(&self.rpn(term))
+            ))),
+        }
+    }
+
+    /// `term` as a cited line "for all x ∈ S, l(x) = r(x)" gives it, where S
+    /// is listed and `term` is l at one of its elements: the instance by
+    /// `rspcdva`, and r there worked out by `value`.
+    fn through_all(
+        &mut self,
+        term: &Term,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Value>> {
+        let said = self.rpn(term);
+        for (fact, all) in known.entries() {
+            let held = self.to_term(&fact);
+            if held.variable().is_some() || held.label() != Some("wral") {
+                continue;
+            }
+            let kids = held.children().to_vec();
+            let (body, letter, domain) = (&kids[0], self.rpn(&kids[1]), &kids[2]);
+            if body.variable().is_some() || body.label() != Some("wceq") {
+                continue;
+            }
+            let sides = body.children().to_vec();
+            let bound = format!("{letter} cv");
+            let Built(listing) = self.listing(domain, scope, known)? else {
+                continue;
+            };
+            let Some(at) = listing.elements.iter().position(|e| {
+                self.rpn(&self.restated(&sides[0], &bound, &self.rpn(e))) == said
+            }) else {
+                continue;
+            };
+            let element = listing.elements[at].clone();
+            let c = self.rpn(&element);
+            let instance = self.restated(body, &bound, &c);
+            let other = instance.children()[1].clone();
+            let inside =
+                take!(self.in_union(&element, &listing.elements, at, scope, known)?);
+            let member = self.b.ap(
+                "eleqtrrd",
+                &binds! {"ph" => scope, "A" => &c,
+                "B" => &self.union_of(&listing.elements), "C" => &self.rpn(domain)},
+                &[&inside, &listing.proof],
+            );
+            let (p, at_c) = (self.rpn(body), self.rpn(&instance));
+            let tie = self.to_term(&t!(t!(bound, c, "wceq"), t!(p, at_c, "wb"), "wi"));
+            let tie = take!(self.prove_essential(&tie, "", &Facts::new())?);
+            let given = self.b.ap(
+                "rspcdva",
+                &binds! {"x" => &letter, "ps" => &p, "ch" => &at_c, "ph" => scope,
+                "A" => &self.rpn(domain), "C" => &c},
+                &[&tie, &all, &member],
+            );
+            let worked = take!(self.value(&other, scope, known)?);
+            let r = self.rpn(&other);
+            let joined = |me: &Self, to: &str, rest: Option<Proof>| -> Proof {
+                match rest {
+                    None => given.clone(),
+                    Some(rest) => me.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => &said, "B" => &r, "C" => to},
+                        &[&given, &rest],
+                    ),
+                }
+            };
+            return Ok(Built(match worked {
+                Value::Set { elements, proof } => {
+                    let to = self.listed(&elements);
+                    Value::Set {
+                        proof: joined(self, &to, Some(proof)),
+                        elements,
+                    }
+                }
+                Value::Count { sum, proof } => Value::Count {
+                    proof: Some(joined(self, &sum, proof)),
+                    sum,
+                },
+            }));
+        }
+        Ok(Route::no(format!(
+            "nothing cited lists {} or says what it is",
+            self.render(&said)
+        )))
+    }
+
+    /// One side equal to the other: both worked out by `value`, two sets
+    /// compared as sets, so their order is never asked, and two numbers by
+    /// working out the sum that counts one against the other.
+    fn equation(
+        &mut self,
+        left: &Term,
+        right: &Term,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let one = take!(self.value(left, scope, known)?);
+        let other = take!(self.value(right, scope, known)?);
+        let (a, b) = (self.rpn(left), self.rpn(right));
+        match (one, other) {
+            (
+                Value::Set {
+                    elements: ea,
+                    proof: pa,
+                },
+                Value::Set {
+                    elements: eb,
+                    proof: pb,
+                },
+            ) => {
+                let (ua, ub) = (self.listed(&ea), self.listed(&eb));
+                let mut reached = pa;
+                if ua != ub {
+                    let forth = take!(self.listed_within(&ea, &eb, scope, known)?);
+                    let back = take!(self.listed_within(&eb, &ea, scope, known)?);
+                    let same = self.b.ap(
+                        "eqssd",
+                        &binds! {"ph" => scope, "A" => &ua, "B" => &ub},
+                        &[&forth, &back],
+                    );
+                    reached = self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => &a, "B" => &ua, "C" => &ub},
+                        &[&reached, &same],
+                    );
+                }
+                Ok(Built(self.b.ap(
+                    "eqtr4d",
+                    &binds! {"ph" => scope, "A" => &a, "B" => &ub, "C" => &b},
+                    &[&reached, &pb],
+                )))
+            }
+            (
+                Value::Count { sum: sa, proof: pa },
+                Value::Count { sum: sb, proof: pb },
+            ) => {
+                let what = format!("{} is {}", self.render(&a), self.render(&b));
+                let worked = if sa == sb {
+                    None
+                } else {
+                    Some(self.closed_fact(
+                        &t!(sa, sb, "wceq"),
+                        scope,
+                        known,
+                        &what,
+                        None,
+                    )?)
+                };
+                // a = sa, then sa = sb, then sb = b, each where it says
+                // something.
+                let mut reached: Option<(Proof, String)> = pa.map(|p| (p, sa.clone()));
+                if let Some(w) = worked {
+                    reached = Some(match reached {
+                        None => (w, sb.clone()),
+                        Some((p, _)) => (
+                            self.b.ap(
+                                "eqtrd",
+                                &binds! {"ph" => scope, "A" => &a, "B" => &sa, "C" => &sb},
+                                &[&p, &w],
+                            ),
+                            sb.clone(),
+                        ),
+                    });
+                }
+                let proof = match (reached, pb) {
+                    (Some((p, _)), None) => p,
+                    (Some((p, _)), Some(q)) => self.b.ap(
+                        "eqtr4d",
+                        &binds! {"ph" => scope, "A" => &a, "B" => &sb, "C" => &b},
+                        &[&p, &q],
+                    ),
+                    (None, Some(q)) => self.b.ap(
+                        "eqcomd",
+                        &binds! {"ph" => scope, "A" => &b, "B" => &a},
+                        &[&q],
+                    ),
+                    (None, None) => {
+                        self.b.ap("eqidd", &binds! {"ph" => scope, "A" => &a}, &[])
+                    }
+                };
+                Ok(Built(proof))
+            }
+            _ => Ok(Route::no(format!(
+                "one of {} and {} is a set and the other a number",
+                self.render(&a),
+                self.render(&b)
+            ))),
+        }
+    }
+
+    /// The union of the singletons of `elements`, or the empty set where
+    /// there are none.
+    fn listed(&self, elements: &[Term]) -> String {
+        if elements.is_empty() {
+            "c0".to_string()
+        } else {
+            self.union_of(elements)
         }
     }
 
@@ -143,7 +455,7 @@ impl Elaborator<'_> {
         let (t, s, u) = (
             self.rpn(element),
             self.rpn(set),
-            self.union_of(&listing.elements),
+            self.listed(&listing.elements),
         );
         let same = self.b.ap(
             "eleq2d",
@@ -355,6 +667,14 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let t = self.rpn(element);
+        if elements.is_empty() {
+            let none = self.b.ap("noel", &binds! {"A" => &t}, &[]);
+            return Ok(Built(self.b.ap(
+                "a1i",
+                &binds! {"ph" => &t!(t!(t, "c0", "wcel"), "wn"), "ps" => scope},
+                &[&none],
+            )));
+        }
         if elements.len() == 1 {
             let c = self.rpn(&elements[0]);
             let apart = take!(self.differs(element, &elements[0], scope, known)?);
@@ -627,75 +947,6 @@ impl Elaborator<'_> {
         Ok(Built(Kept { elements, proof }))
     }
 
-    /// {x ∈ S : P(x)} = L: S read as its listing, each element kept or not,
-    /// and what is kept compared with L.
-    fn set_builder(
-        &mut self,
-        builder: &Term,
-        listed: &Term,
-        scope: &str,
-        known: &Facts,
-    ) -> Checked<Route<Proof>> {
-        let kids = builder.children().to_vec();
-        let (body, letter, over) = (&kids[0], self.rpn(&kids[1]), &kids[2]);
-        let source = take!(self.listing(over, scope, known)?);
-        let target = take!(self.listing(listed, scope, known)?);
-        let kept = take!(self.kept(body, &letter, &source.elements, scope, known)?);
-        if kept.elements.is_empty() {
-            return Ok(Route::no(format!(
-                "no element of {} has the property, and the claim lists some",
-                self.render(&self.rpn(over))
-            )));
-        }
-        let p = self.rpn(body);
-        let (s, u_source) = (self.rpn(over), self.union_of(&source.elements));
-        let moved = self.b.ap(
-            "rabeqdv",
-            &binds! {"ph" => scope, "ps" => &p, "x" => &letter, "A" => &s, "B" => &u_source},
-            &[&source.proof],
-        );
-        let (whole, over_listing) =
-            (self.rpn(builder), t!(p, letter, u_source, "crab"));
-        let u_kept = self.union_of(&kept.elements);
-        let mut reached = self.b.ap(
-            "eqtrd",
-            &binds! {"ph" => scope, "A" => &whole, "B" => &over_listing, "C" => &u_kept},
-            &[&moved, &kept.proof],
-        );
-        // The claim may list what is kept in any order: the two listings
-        // are one set where each is inside the other.
-        let u_target = self.union_of(&target.elements);
-        if u_kept != u_target {
-            let forth = take!(self.listed_within(
-                &kept.elements,
-                &target.elements,
-                scope,
-                known
-            )?);
-            let back = take!(self.listed_within(
-                &target.elements,
-                &kept.elements,
-                scope,
-                known
-            )?);
-            let same = self.b.ap(
-                "eqssd",
-                &binds! {"ph" => scope, "A" => &u_kept, "B" => &u_target},
-                &[&forth, &back],
-            );
-            reached = self.b.ap(
-                "eqtrd",
-                &binds! {"ph" => scope, "A" => &whole, "B" => &u_kept, "C" => &u_target},
-                &[&reached, &same],
-            );
-        }
-        Ok(Built(self.b.ap(
-            "eqtr4d",
-            &binds! {"ph" => scope, "A" => &whole, "B" => &u_target, "C" => &self.rpn(listed)},
-            &[&reached, &target.proof],
-        )))
-    }
-
     /// ( scope -> the union of `from`'s singletons ⊆ the union of `into`'s
     /// ), each element of the one being an element of the other.
     fn listed_within(
@@ -705,11 +956,19 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Proof>> {
-        let whole = self.union_of(into);
+        let whole = self.listed(into);
+        if from.is_empty() {
+            let law = self.b.ap("0ss", &binds! {"A" => &whole}, &[]);
+            return Ok(Built(self.b.ap(
+                "a1i",
+                &binds! {"ph" => &t!("c0", whole, "wss"), "ps" => scope},
+                &[&law],
+            )));
+        }
         if from.len() == 1 {
             let Some(at) = self.position(&from[0], into) else {
                 return Ok(Route::no(format!(
-                    "{} is kept and the claim does not list it",
+                    "{} is on one side and not the other",
                     self.render(&self.rpn(&from[0]))
                 )));
             };
@@ -731,43 +990,9 @@ impl Elaborator<'_> {
         )))
     }
 
-    /// |L| = m: one for the first element, and one more for each element
-    /// the lines say differs from those before it.
-    fn size(
-        &mut self,
-        set: &Term,
-        count: &Term,
-        scope: &str,
-        known: &Facts,
-    ) -> Checked<Route<Proof>> {
-        let listing = take!(self.listing(set, scope, known)?);
-        let (counted, sum) = take!(self.counted(&listing.elements, scope, known)?);
-        let (s, u) = (self.rpn(set), self.union_of(&listing.elements));
-        let moved = self.b.ap(
-            "fveq2d",
-            &binds! {"ph" => scope, "A" => &s, "B" => &u, "F" => "chash"},
-            &[&listing.proof],
-        );
-        let (size_of_set, size_of_union) =
-            (t!(s, "chash", "cfv"), t!(u, "chash", "cfv"));
-        let reached = self.b.ap(
-            "eqtrd",
-            &binds! {"ph" => scope, "A" => &size_of_set, "B" => &size_of_union, "C" => &sum},
-            &[&moved, &counted],
-        );
-        let m = self.rpn(count);
-        let worked = t!(sum, m, "wceq");
-        let what = format!("{} counts {}", self.render(&m), self.render(&s));
-        let numeral = self.closed_fact(&worked, scope, known, &what, None)?;
-        Ok(Built(self.b.ap(
-            "eqtrd",
-            &binds! {"ph" => scope, "A" => &size_of_set, "B" => &sum, "C" => &m},
-            &[&reached, &numeral],
-        )))
-    }
-
     /// ( scope -> |the union of `elements`' singletons| = 1 + 1 + … ), and
-    /// that sum.
+    /// that sum: one for the first element, and one more for each element
+    /// the lines say differs from those before it.
     fn counted(
         &mut self,
         elements: &[Term],
