@@ -15,9 +15,9 @@ use crate::formula::{
 use crate::regex;
 use crate::sorts::infer;
 use crate::sorts::{
-    element_re, function_being_re, function_on_re, function_re, group_re, let_formula,
-    membership_re, not_in_re, part_re, polynomial_re, property_re, sentences,
-    set_or_point_re, settled, unlabel, Env,
+    element_re, function_being_re, function_on_re, function_re, graph_listed_re,
+    graph_re, group_re, let_formula, membership_re, not_in_re, part_re, polynomial_re,
+    property_re, sentences, set_or_point_re, settled, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -637,7 +637,7 @@ pub fn check_unsorted(
 }
 
 /// Every form a `let` line takes, with what each is called.
-fn introductions() -> [(&'static str, &'static regex::Regex); 11] {
+fn introductions() -> [(&'static str, &'static regex::Regex); 13] {
     [
         ("a membership", membership_re()),
         ("a thing not in a set", not_in_re()),
@@ -649,6 +649,8 @@ fn introductions() -> [(&'static str, &'static regex::Regex); 11] {
         ("a function with a property", function_being_re()),
         ("a part of a set", part_re()),
         ("a group", group_re()),
+        ("a graph", graph_re()),
+        ("a graph given in full", graph_listed_re()),
         ("a property", property_re()),
     ]
 }

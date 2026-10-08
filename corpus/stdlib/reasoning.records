@@ -64,3 +64,57 @@ mundane theorem or-right
   metamath    olc
   target      olc
   note        The same, from a line saying the second holds.
+
+mundane theorem modus-ponens
+  assume if P then Q                                                  (H1)
+  assume P                                                            (H2)
+  then        Q
+  metamath    mpd
+  target      mpd
+  note        An "if" used where what it asks holds: an induction over the k
+              with k ≤ n has the hypothesis "if k ≤ n then …", and its step
+              uses it at a k it has shown is at most n.
+
+mundane theorem iff-both-true
+  assume P                                                            (H1)
+  assume Q                                                            (H2)
+  then        P ↔ Q
+  metamath    2thd
+  target      2thd
+  note        Two claims that both hold are equivalent, as a count that is
+              odd at a vertex that is the walk's last.
+
+mundane theorem iff-both-false
+  assume not P                                                        (H1)
+  assume not Q                                                        (H2)
+  then        P ↔ Q
+  metamath    2falsed
+  target      2falsed
+  note        Two claims that both fail are equivalent, the other way an
+              "if and only if" is settled without proving each direction.
+
+mundane theorem iff-from-left
+  assume P ↔ Q                                                        (H1)
+  assume P                                                            (H2)
+  then        Q
+  metamath    mpbid
+  target      mpbid
+  note        Using an "if and only if" from its left side: the right holds
+              where the left does.
+
+mundane theorem iff-from-right
+  assume P ↔ Q                                                        (H1)
+  assume Q                                                            (H2)
+  then        P
+  metamath    mpbird
+  target      mpbird
+  note        Using an "if and only if" from its right side: the left holds
+              where the right does.
+
+mundane theorem iff-not-from-right
+  assume P ↔ Q                                                        (H1)
+  assume not Q                                                        (H2)
+  then        not P
+  metamath    mtbird
+  target      mtbird
+  note        The same where the right side fails: then so does the left.

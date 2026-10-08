@@ -97,24 +97,28 @@ pub fn search(
     {
         if let Some(stands) = binding.get(&first.children[0].text) {
             if stands.notation == PROPERTY {
-                let mut arg = first.children[1].clone();
-                if arg.is_name() {
-                    if let Some(bound) = binding.get(&arg.text) {
-                        arg = bound.clone();
-                    }
-                }
+                // The argument is read through the binding whole: P(k + 1)
+                // with k bound to o asks the property of o + 1.
+                let terms: Binding = binding
+                    .iter()
+                    .filter(|(_, t)| t.notation != PROPERTY)
+                    .map(|(v, t)| (v.clone(), t.clone()))
+                    .collect();
+                let arg = substitute_apart(&first.children[1], &terms, ctx);
                 let mut at = Binding::new();
                 at.insert(stands.text.clone(), arg.clone());
                 first = substitute_apart(&stands.children[0], &at, ctx);
                 // The formula a property stands for is the step's own, so a
                 // name in it is the step's, even spelt as one of the item's.
-                // Only an argument still to be matched is the item's to fill.
-                open_names =
-                    Cow::Owned(if arg.is_name() && variables.contains(&arg.text) {
-                        [arg.text.clone()].into_iter().collect()
-                    } else {
-                        BTreeSet::new()
-                    });
+                // Only a letter of the argument still to be matched is the
+                // item's to fill.
+                let unbound: BTreeSet<String> = arg
+                    .names()
+                    .iter()
+                    .map(|n| n.to_string())
+                    .filter(|n| variables.contains(n) && !binding.contains_key(n))
+                    .collect();
+                open_names = Cow::Owned(unbound);
             }
         }
     }

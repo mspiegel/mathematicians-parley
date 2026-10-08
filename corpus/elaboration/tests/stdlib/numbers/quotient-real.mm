@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.quotient-real $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( A / B ) e. RR ) $=
-    ( cr wcel wa cc0 wceq wn wne w3a cdiv co simpl id syl simpr wb df-ne a1i bicomd mpbid 3jca redivcl ) ACDZBCDZEZBFGZHZEZUDUEBFIZJABKLCDUIUDUEUJUIUFUDUFUHMZUFUDUDUDUEMUDNOOUIUFUEUKUDUEPOUIUHUJUFUHPUIUJUHUJUHQUIBFRSTUAUBABUCO $.
+    ( cr wcel wa cc0 wceq wn wne w3a cdiv co simpl id syl simpr neqcomd wb df-ne a1i eqcom bicomd notbid bitrd mpbid 3jca redivcl ) ACDZBCDZEZBFGZHZEZUHUIBFIZJABKLCDUMUHUIUNUMUJUHUJULMZUJUHUHUHUIMUHNOOUMUJUIUOUHUIPOUMFBGZHZUNUMBFUJULPQUMUNUQUMUNULUQUNULRUMBFSTUMUKUPUMUPUKUPUKRUMFBUATUBUCUDUBUEUFABUGO $.
 $}

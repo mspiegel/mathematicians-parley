@@ -107,7 +107,7 @@ theorem divisibility-by-three
   then 3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)
 
 1.  For all k ∈ ℕ₀, 3 divides d(k)·10^k − d(k).
-    fix
+    proof
     note each term differs from its digit by a multiple of 10^k − 1
     let k ∈ ℕ₀                                                        (K)
 

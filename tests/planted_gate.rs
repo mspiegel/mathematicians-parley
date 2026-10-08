@@ -155,8 +155,8 @@ fn cases() -> Vec<Case> {
             name: "an item listed as not restated that is restated",
             stage: restated_stage,
             file: "docs/ELABORATION.md",
-            old: "`stdlib/sets/set-builder-subset`.",
-            new: "`stdlib/sets/set-builder-subset`, `stdlib/sets/union-self`.",
+            old: "`stdlib/counting/count-last-fails`.",
+            new: "`stdlib/counting/count-last-fails`, `stdlib/sets/union-self`.",
             expect: "ELABORATION.md lists stdlib/sets/union-self as not restated, and it is restated",
         },
         Case {

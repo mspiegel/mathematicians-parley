@@ -15,7 +15,7 @@ theorem cauchy-schwarz
   then (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
 
 1.  For all t ∈ ℝ, t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² ≥ 0.
-    fix
+    proof
     let t ∈ ℝ                                                         (K1)
 
     1.1.  For all k ∈ {1, …, n}, (a(k)·t + b(k))² ≥ 0.
@@ -66,7 +66,7 @@ theorem cauchy-schwarz
           requires n ∈ ℤ: membership, from H1
 
     5.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
-          fix
+          proof
           let k ∈ {1, …, n}                                           (K4)
 
           5.3.1.  a(k)² = 0

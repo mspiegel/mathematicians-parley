@@ -27,7 +27,7 @@ theorem termwise-under-a-hypothesis-over-its-letter
     mun:nat-int, from H1
 
 2.  For all k ∈ {1, …, n}, k + 0 = k.
-    fix
+    proof
     let k ∈ {1, …, n}                                                 (J)
 
     2.1.  k ∈ ℤ

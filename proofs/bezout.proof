@@ -111,7 +111,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     obtain x₀, y₀: mun:set-builder u := d, from D1, 4
 
 8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
-    fix
+    proof
     let x ∈ ℤ                                                         (K1)
     let y ∈ ℤ                                                         (K2)
     assume a·x + b·y ∈ ℕ                                              (K3)

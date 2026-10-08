@@ -45,7 +45,7 @@ theorem binomial-step
     requires y ∈ ℝ: from H2
 
 3.  For all k ∈ {0, …, m}, x·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^((m + 1) − k)·y^k.
-    fix
+    proof
     note each of x and y times the sum gains a zero term, so both run from 0 to m + 1
     let k ∈ {0, …, m}                                                 (J)
 
@@ -161,7 +161,7 @@ theorem binomial-step
     requires y ∈ ℝ: from H2
 
 19. For all k ∈ {0, …, m}, y·(C(m, k)·x^(m − k)·y^k) = C(m, k)·x^(m − k)·y^(k + 1).
-    fix
+    proof
     let k ∈ {0, …, m}                                                 (J)
 
     19.1.  y^(k + 1) = y^k·y
@@ -206,7 +206,7 @@ theorem binomial-step
     substitute 0 + 1 = 1 (arithmetic)
 
 23. For all k ∈ {1, …, m + 1}, C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1) = C(m, k − 1)·x^((m + 1) − k)·y^k.
-    fix
+    proof
     let k ∈ {1, …, m + 1}                                             (J)
 
     23.1.  m − (k − 1) = (m + 1) − k
@@ -312,7 +312,7 @@ theorem binomial-step
     requires y ∈ ℝ: from H2
 
 39. For all k ∈ {0, …, m + 1}, C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k.
-    fix
+    proof
     note then the two sums add term by term, and Pascal's rule joins the coefficients
     let k ∈ {0, …, m + 1}                                             (J)
 

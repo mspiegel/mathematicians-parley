@@ -12,7 +12,7 @@ theorem factor
     obtain q: thm:remainder p := p, a := a, from H1, H2
 
 2.  For all x ∈ ℂ, p(x) = (x − a)·q(x).
-    fix
+    proof
     let x ∈ ℂ                                                         (K1)
 
     2.1.  p(x) = (x − a)·q(x) + p(a)

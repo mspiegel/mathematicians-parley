@@ -71,6 +71,81 @@ regex!(
 );
 // `H is a subgroup of G`: a set of the group's elements.
 regex!(SUBGROUP, r"^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$");
+// `let G be an undirected multigraph with vertices V and edges E`: the graph,
+// the set of its vertices, and the set of the names of its edges.
+regex!(
+    GRAPH,
+    r"^(?P<graph>\S+)\s+be\s+an\s+undirected\s+multigraph\s+with\s+vertices\s+(?P<vertices>\S+)\s+and\s+edges\s+(?P<edges>\S+)$"
+);
+// `let G be the undirected multigraph with distinct vertices V = {A, B, C, D}
+// and distinct edges E = {a, …, g}, where a joins A and B, …`: a graph given
+// in full, whose vertices and edges are listed, said to be distinct, and
+// whose every edge is said to join two of the vertices.
+regex!(
+    GRAPH_LISTED,
+    r"^(?P<graph>\S+)\s+be\s+the\s+undirected\s+multigraph\s+with\s+distinct\s+vertices\s+(?P<vertices>\S+)\s*=\s*\{(?P<vlist>[^}]*)\}\s+and\s+distinct\s+edges\s+(?P<edges>\S+)\s*=\s*\{(?P<elist>[^}]*)\},\s+where\s+(?P<joins>.+)$"
+);
+regex!(JOINED, r"^(\S+)\s+joins\s+(\S+)\s+and\s+(\S+)$");
+
+/// A graph's `let` line: the graph and the names of its two sets, and where
+/// the line gives the graph in full, its listing.
+pub struct GraphLine {
+    pub graph: String,
+    pub vertices: String,
+    pub edges: String,
+    pub listed: Option<GraphListing>,
+}
+
+/// What a graph given in full lists: its vertices and its edges, each list
+/// said to be distinct, and the two ends of every edge.
+pub struct GraphListing {
+    pub vertices: Vec<String>,
+    pub edges: Vec<String>,
+    pub joins: Vec<Joined>,
+}
+
+/// One clause "a joins A and B" of a graph given in full.
+pub struct Joined {
+    pub edge: String,
+    pub first: String,
+    pub second: String,
+}
+
+/// The graph a `let` body states, in either form; None for any other body,
+/// or a listing one of whose clauses says no join.
+pub fn graph_line(body: &str) -> Option<GraphLine> {
+    if let Some(m) = GRAPH.captures(body) {
+        return Some(GraphLine {
+            graph: m["graph"].to_string(),
+            vertices: m["vertices"].to_string(),
+            edges: m["edges"].to_string(),
+            listed: None,
+        });
+    }
+    let m = GRAPH_LISTED.captures(body)?;
+    let names = |list: &str| -> Vec<String> {
+        list.split(',').map(|n| str::trim(n).to_string()).collect()
+    };
+    let mut joins = Vec::new();
+    for clause in m["joins"].split(',') {
+        let j = JOINED.captures(str::trim(clause))?;
+        joins.push(Joined {
+            edge: j[1].to_string(),
+            first: j[2].to_string(),
+            second: j[3].to_string(),
+        });
+    }
+    Some(GraphLine {
+        graph: m["graph"].to_string(),
+        vertices: m["vertices"].to_string(),
+        edges: m["edges"].to_string(),
+        listed: Some(GraphListing {
+            vertices: names(&m["vlist"]),
+            edges: names(&m["elist"]),
+            joins,
+        }),
+    })
+}
 
 pub fn label_re() -> &'static regex::Regex {
     &LABEL
@@ -108,6 +183,12 @@ pub fn part_re() -> &'static regex::Regex {
 pub fn group_re() -> &'static regex::Regex {
     &GROUP
 }
+pub fn graph_re() -> &'static regex::Regex {
+    &GRAPH
+}
+pub fn graph_listed_re() -> &'static regex::Regex {
+    &GRAPH_LISTED
+}
 
 /// A line without its trailing label, as `LABEL.sub('', text)` leaves it.
 pub fn unlabel(text: &str) -> String {
@@ -125,6 +206,31 @@ pub fn unlabel(text: &str) -> String {
 /// is finite; the rest of it names things and asserts nothing a proof cites.
 /// Every other body is read as it is written.
 pub fn let_formula(body: &str) -> String {
+    // A graph given in full says what its two sets are, that the names in
+    // each list differ, and which vertices each edge joins.
+    if let Some(GraphLine {
+        vertices,
+        edges,
+        listed: Some(listing),
+        ..
+    }) = graph_line(body)
+    {
+        let mut said = vec![
+            format!("{vertices} = {{{}}}", listing.vertices.join(", ")),
+            format!("{edges} = {{{}}}", listing.edges.join(", ")),
+        ];
+        for list in [&listing.vertices, &listing.edges] {
+            for (i, one) in list.iter().enumerate() {
+                for other in &list[i + 1..] {
+                    said.push(format!("{one} ≠ {other}"));
+                }
+            }
+        }
+        for j in &listing.joins {
+            said.push(format!("{} joins {} and {}", j.edge, j.first, j.second));
+        }
+        return said.join(". ");
+    }
     if let Some(m) = GROUP.captures(body) {
         if m.name("finite").is_some() {
             return format!("{} is finite", &m["group"]);
@@ -232,6 +338,13 @@ fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
     if let Some(m) = SUBGROUP.captures(body) {
         return vec![(m[1].to_string(), "group-set")];
     }
+    if let Some(line) = graph_line(body) {
+        return vec![
+            (line.graph, "set"),
+            (line.vertices, "set"),
+            (line.edges, "set"),
+        ];
+    }
     if let Some(m) = SET_OR_POINT.captures(body) {
         let sort = if &m[2] == "set" { "set" } else { "point" };
         return vec![(m[1].to_string(), sort)];
@@ -333,6 +446,18 @@ fn defines_into<'d>(
 /// the names of the file that built it.
 pub fn file_definitions(thm: &Theorem, env: Env) -> Definitions {
     written_definitions(thm.scope, thm.line, env, &BTreeSet::new())
+}
+
+/// What the theorem's statement is read with: the definitions above it
+/// (`file_definitions`), and the defines in its header, between its `let`
+/// lines and `then`, which name something of the theorem's own and are read
+/// with its sorts. A define by recursion has no single rule and is left
+/// out, as it is above.
+pub fn statement_definitions(thm: &Theorem, env: Env, sorts: &Sorts) -> Definitions {
+    let mut out = file_definitions(thm, env);
+    let header = thm.defines.iter().filter(|d| d.line < thm.conclusion_line);
+    defines_into(&mut out, header, env, sorts);
+    out
 }
 
 /// `name -> tree` (a rule for a function) for every definition a line of

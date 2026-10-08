@@ -19,9 +19,10 @@ The expansion language of open question 4 in `GOALS.md` is not designed, so
 part 6 names the set.mm lemma families rather than giving the expansion.
 Everything else is fixed here.
 
-Six methods are specified below: the four closure methods (`inequalities`,
-`algebra`, `arithmetic`, `membership`), `join`, and `contradiction`. The rest
-are not yet: the citation form, the block methods `fix`, `cases`,
+Seven methods are specified below: the four closure methods (`inequalities`,
+`algebra`, `arithmetic`, `membership`), `inspection`, `join`, and
+`contradiction`. The rest
+are not yet: the citation form, the block methods `proof`, `cases`,
 `both directions` and `induction`, and `substitute`, `instantiate`, `obtain`
 and `exhibit`. None is
 a decision procedure, so each should be shorter than the closure methods
@@ -545,7 +546,7 @@ the page shows.
 ### Fact out
 
 `t ∈ S`, with S a number system; or "for all k ∈ X, t ∈ S", which is
-proved as a `fix` block would prove it: k is taken in X, what that
+proved as a `proof` block would prove it: k is taken in X, what that
 membership says is laid beside the other facts in, and t ∈ S is proved of
 it.
 
@@ -596,6 +597,82 @@ The closure lemmas the table names, `divcld` and `redivcld` for quotients,
 `mulne0d` and `divne0d` for a divisor's disequality, and where the claim
 names a define, the claim read as its rule and carried back by the equation
 the define gives (`mpbid`).
+
+## inspection
+
+`{x ∈ E : A is an end of x} = {a, b, c, d, e}: inspection, from H1` — a
+claim about a set listed in full, checked element by element against what
+the cited lines say. A textbook writes "by inspection" and its reader runs
+down the list; the page does the same, and the cases are not written
+(`READERS.md`, "What is seen by inspection").
+
+The method is named for what the reader does, not for a subject: the
+Königsberg graph is its first use, and nothing in it knows about graphs.
+
+### Facts in
+
+The lines the step cites, read for four kinds of sentence and nothing else:
+
+- **a set listed in full:** an equation `S = {s₁, …, sₙ}`, or a `let` line
+  that names a set by listing it, as "the multigraph with distinct vertices
+  V = {A, B, C, D} and distinct edges E = {a, …, g}" names its vertices
+  and its edges;
+- **distinct names:** that the names of a list are pairwise different, as
+  "distinct vertices A, B, C, D" says, and any `≠` between two names;
+- **what a listed thing is:** an equation giving a term at a listed name,
+  as "a joins A and B" says the ends of a are {A, B};
+- **what holds of a listed thing:** a line saying the property itself at a
+  listed name, or its negation, as "deg(A) is odd" says it of A.
+
+### Fact out
+
+One sentence, of one of three shapes, about sets listed in full:
+
+- `t ∈ L` or `t ∉ L`, for a name t and a listed set L;
+- `{x ∈ S : P(x)} = L`, for a set S the facts list in full and a listed set
+  L: L is exactly the elements of S of which P holds;
+- `|L| = m`, for a listed set L of names the facts say are distinct and the
+  numeral m that counts them.
+
+### The procedure
+
+A membership `t ∈ {s₁, …, sₙ}` holds where t is one of the sᵢ and fails
+where the facts say t differs from each of them. A property P is settled at
+an element by a cited line that says P there or denies it, or else by
+reading P there through what the facts say that element is, until it is a
+membership of that kind: "A is an end of f" is A ∈ {B, D} once f joins B
+and D, and that fails because A, B and D are distinct. The
+set S is replaced by its listing, P is settled at each element in turn, and
+the elements where it holds are compared with L, as sets, so their order is
+never asked. A size is the length of the list once the facts say its names
+are distinct.
+
+### Refusals
+
+- **A set not listed in full**, by a cited line, or a range or a set-builder
+  the facts do not list: `inspection` checks a finite list a reader can see,
+  and nothing it has to find.
+- **A property that does not come down to listed membership** through what
+  the cited lines say: an element whose case needs a lemma, a calculation or
+  a reason of its own is a case to write, and `cases` writes it.
+- **Two names not said to differ**, where the answer depends on it.
+- **A search.** Only the cited lines are read, never the scope.
+
+### Hypotheses
+
+None beyond its facts in. That the listed things are sets, which the kernel
+asks of a pair and a listed set, is apparatus the page never writes.
+
+### Expansion
+
+A listed set is set.mm's pair, triple or union of singletons. A membership
+is `elpr`, `eltp` or `elun` with `elsng`, and its failure the same with the
+disequalities the facts give (`pm2.65`). A property at each
+element is the cited equation carried in (`eleq2d` and the congruences of
+`substitute`). The set-builder over a listed set is `rabun2` and `rabsnif`
+one element at a time, each element's case decided as above. A size is
+`hashprg`, `hashtpg` or `hashunsng` repeated, each new element absent by
+its distinctness.
 
 ## join
 

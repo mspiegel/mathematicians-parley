@@ -1,0 +1,277 @@
+# Graphs, for `proved.mm`.
+#
+# The page says an edge a joins u and w, which set.mm says as the ends
+# `iEdg` gives a being the pair: ( ( iEdg ` G ) ` A ) = { U , W }. A vertex is
+# an end of a when it is in that pair.
+#
+# - each of u and w is an end of a: `prid1g` and `prid2g`, carried to the
+#   ends by the equation, for `mun:stdlib/graphs/joined-end`;
+# - a vertex that is neither is not an end: `elpri` says a member of the
+#   pair is one of the two, for `mun:stdlib/graphs/not-an-end`;
+# - the two ends are different: `umgrnloopv`, a multigraph having no edge
+#   from a vertex to itself, for `mun:stdlib/graphs/join-distinct`;
+# - a vertex is an end of a exactly when it is u or w: `elprg` at the pair,
+#   for `mun:stdlib/graphs/ends-of-joined`;
+# - each edge of a walk joins the vertices on either side of it: `rspcv`
+#   at its place, for `mun:stdlib/graphs/walk-step`;
+# - a walk never stays at a vertex: the edge at a place joins two different
+#   vertices, by `umgrnloopv`, for `mun:stdlib/graphs/walk-distinct`;
+# - the degree of a vertex is the number of edges it is an end of:
+#   `vtxdumgrval`, for `mun:stdlib/graphs/degree`;
+# - a multigraph is traversable exactly when there is n and a walk f of n
+#   edges, counted from 0, one-to-one and reaching every edge, with vertices
+#   v: `iseupthf1o` and `upgriswlk`, the word of edges read as a function on
+#   {0, …, n − 1} by `wrdmap` and `fzoval`, for
+#   `def:stdlib/graphs/traversable`.
+
+$( Graphs: the ends of an edge of a multigraph, the degree of a vertex, and
+   a graph that has an Euler path. $)
+$( The degree's set-builder binds x, apart from the graph and the vertex.
+   The walk's length n, its edges f, its vertices v and the letters a and k
+   the page's conditions bind are kept apart from the graph and each
+   other. $)
+$d x G $.  $d x U $.
+$d z F $.  $d z G $.  $d z I $.  $d z N $.  $d z P $.  $d z ph $.
+$d a k n f v G $.
+
+# ( ph -> the edge at place I joins the vertices on either side of it ),
+# from a walk and I among its places: `rspcv`, the instance tied by
+# `fveq2`, `oveq1` and `preq12d`.
+lemma gwalkstep
+  hypothesis gwalkstep.1 |- ( ph -> A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } )
+  hypothesis gwalkstep.2 |- ( ph -> I e. ( 1 ... N ) )
+  |- ( ph -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } )
+  1 fveq2 |- ( z = I -> ( F ` z ) = ( F ` I ) )
+  2 fveq2d 1 |- ( z = I -> ( ( iEdg ` G ) ` ( F ` z ) ) = ( ( iEdg ` G ) ` ( F ` I ) ) )
+  3 oveq1 |- ( z = I -> ( z - 1 ) = ( I - 1 ) )
+  4 fveq2d 3 |- ( z = I -> ( P ` ( z - 1 ) ) = ( P ` ( I - 1 ) ) )
+  5 fveq2 |- ( z = I -> ( P ` z ) = ( P ` I ) )
+  6 preq12d 4 5 |- ( z = I -> { ( P ` ( z - 1 ) ) , ( P ` z ) } = { ( P ` ( I - 1 ) ) , ( P ` I ) } )
+  7 eqeq12d 2 6 |- ( z = I -> ( ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } <-> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } ) )
+  8 rspcv 7 |- ( I e. ( 1 ... N ) -> ( A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } ) )
+  9 sylc gwalkstep.2 gwalkstep.1 8 |- ( ph -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } )
+
+# The degree of U, the edges U is an end of counted: `vtxdumgrval` with the
+# graph's parts named by `eqid`.
+lemma gdeg
+  |- ( ( G e. UMGraph /\ U e. ( Vtx ` G ) ) -> ( ( VtxDeg ` G ) ` U ) = ( # ` { x e. dom ( iEdg ` G ) | U e. ( ( iEdg ` G ) ` x ) } ) )
+  1 eqid |- ( Vtx ` G ) = ( Vtx ` G )
+  2 eqid |- ( iEdg ` G ) = ( iEdg ` G )
+  3 eqid |- dom ( iEdg ` G ) = dom ( iEdg ` G )
+  4 eqid |- ( VtxDeg ` G ) = ( VtxDeg ` G )
+  5 vtxdumgrval 1 2 3 4 |- ( ( G e. UMGraph /\ U e. ( Vtx ` G ) ) -> ( ( VtxDeg ` G ) ` U ) = ( # ` { x e. dom ( iEdg ` G ) | U e. ( ( iEdg ` G ) ` x ) } ) )
+
+# ( ph -> U e. ( ( iEdg ` G ) ` A ) ), from the edge joining U and W.
+lemma gjoinend1
+  hypothesis gjoinend1.1 |- ( ph -> U e. ( Vtx ` G ) )
+  hypothesis gjoinend1.2 |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } )
+  |- ( ph -> U e. ( ( iEdg ` G ) ` A ) )
+  1 prid1g |- ( U e. ( Vtx ` G ) -> U e. { U , W } )
+  2 syl gjoinend1.1 1 |- ( ph -> U e. { U , W } )
+  3 eleqtrrd 2 gjoinend1.2 |- ( ph -> U e. ( ( iEdg ` G ) ` A ) )
+
+# ( ph -> W e. ( ( iEdg ` G ) ` A ) ), from the edge joining U and W.
+lemma gjoinend2
+  hypothesis gjoinend2.1 |- ( ph -> W e. ( Vtx ` G ) )
+  hypothesis gjoinend2.2 |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } )
+  |- ( ph -> W e. ( ( iEdg ` G ) ` A ) )
+  1 prid2g |- ( W e. ( Vtx ` G ) -> W e. { U , W } )
+  2 syl gjoinend2.1 1 |- ( ph -> W e. { U , W } )
+  3 eleqtrrd 2 gjoinend2.2 |- ( ph -> W e. ( ( iEdg ` G ) ` A ) )
+
+# ( ph -> -. X e. ( ( iEdg ` G ) ` A ) ), from the edge joining U and W and
+# X being neither.
+lemma gnotend
+  hypothesis gnotend.1 |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } )
+  hypothesis gnotend.2 |- ( ph -> X =/= U )
+  hypothesis gnotend.3 |- ( ph -> X =/= W )
+  |- ( ph -> -. X e. ( ( iEdg ` G ) ` A ) )
+  1 jca gnotend.2 gnotend.3 |- ( ph -> ( X =/= U /\ X =/= W ) )
+  2 neanior |- ( ( X =/= U /\ X =/= W ) <-> -. ( X = U \/ X = W ) )
+  3 sylib 1 2 |- ( ph -> -. ( X = U \/ X = W ) )
+  4 elpri |- ( X e. { U , W } -> ( X = U \/ X = W ) )
+  5 con3i 4 |- ( -. ( X = U \/ X = W ) -> -. X e. { U , W } )
+  6 syl 3 5 |- ( ph -> -. X e. { U , W } )
+  7 eleq2d gnotend.1 |- ( ph -> ( X e. ( ( iEdg ` G ) ` A ) <-> X e. { U , W } ) )
+  8 notbid 7 |- ( ph -> ( -. X e. ( ( iEdg ` G ) ` A ) <-> -. X e. { U , W } ) )
+  9 mpbird 6 8 |- ( ph -> -. X e. ( ( iEdg ` G ) ` A ) )
+
+# ( ph -> U =/= W ), from G a multigraph and an edge joining U and W.
+lemma gjoinne
+  hypothesis gjoinne.1 |- ( ph -> G e. UMGraph )
+  hypothesis gjoinne.2 |- ( ph -> U e. ( Vtx ` G ) )
+  hypothesis gjoinne.3 |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } )
+  |- ( ph -> U =/= W )
+  1 eqid |- ( iEdg ` G ) = ( iEdg ` G )
+  2 umgrnloopv 1 |- ( ( G e. UMGraph /\ U e. ( Vtx ` G ) ) -> ( ( ( iEdg ` G ) ` A ) = { U , W } -> U =/= W ) )
+  3 syl2anc gjoinne.1 gjoinne.2 2 |- ( ph -> ( ( ( iEdg ` G ) ` A ) = { U , W } -> U =/= W ) )
+  4 mpd gjoinne.3 3 |- ( ph -> U =/= W )
+
+# ( ph -> X is an end of A exactly when it is U or W ), from the edge
+# joining U and W: the ends are the pair, and `elprg` says who is in it.
+lemma gends
+  hypothesis gends.1 |- ( ph -> X e. ( Vtx ` G ) )
+  hypothesis gends.2 |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } )
+  |- ( ph -> ( X e. ( ( iEdg ` G ) ` A ) <-> ( X = U \/ X = W ) ) )
+  1 eleq2d gends.2 |- ( ph -> ( X e. ( ( iEdg ` G ) ` A ) <-> X e. { U , W } ) )
+  2 elprg |- ( X e. ( Vtx ` G ) -> ( X e. { U , W } <-> ( X = U \/ X = W ) ) )
+  3 syl gends.1 2 |- ( ph -> ( X e. { U , W } <-> ( X = U \/ X = W ) ) )
+  4 bitrd 1 3 |- ( ph -> ( X e. ( ( iEdg ` G ) ` A ) <-> ( X = U \/ X = W ) ) )
+
+# ( ph -> the vertices on either side of place I differ ), from a walk in a
+# multigraph: the edge at I joins them (`gwalkstep`), the one before I is a
+# vertex because I − 1 is a place of v, and `gjoinne` keeps the two apart.
+lemma gwalkne
+  hypothesis gwalkne.1 |- ( ph -> G e. UMGraph )
+  hypothesis gwalkne.2 |- ( ph -> P : ( 0 ... N ) --> ( Vtx ` G ) )
+  hypothesis gwalkne.3 |- ( ph -> A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } )
+  hypothesis gwalkne.4 |- ( ph -> I e. ( 1 ... N ) )
+  |- ( ph -> ( P ` ( I - 1 ) ) =/= ( P ` I ) )
+  1 gwalkstep gwalkne.3 gwalkne.4 |- ( ph -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } )
+  2 fz1fzo0m1 |- ( I e. ( 1 ... N ) -> ( I - 1 ) e. ( 0 ..^ N ) )
+  3 syl gwalkne.4 2 |- ( ph -> ( I - 1 ) e. ( 0 ..^ N ) )
+  4 fzossfz |- ( 0 ..^ N ) C_ ( 0 ... N )
+  5 sselid 4 3 |- ( ph -> ( I - 1 ) e. ( 0 ... N ) )
+  6 ffvelcdmd gwalkne.2 5 |- ( ph -> ( P ` ( I - 1 ) ) e. ( Vtx ` G ) )
+  7 gjoinne gwalkne.1 6 1 |- ( ph -> ( P ` ( I - 1 ) ) =/= ( P ` I ) )
+
+# A one-to-one correspondence of {0, …, n − 1} with the edges is a
+# one-to-one function that reaches every edge: `df-f1o` and `dffo3`, the
+# function's type dropped since one-to-one says it.
+lemma gtravf1o
+  |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+  1 df-f1o |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ f : ( 0 ... ( n - 1 ) ) -onto-> dom ( iEdg ` G ) ) )
+  2 dffo3 |- ( f : ( 0 ... ( n - 1 ) ) -onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+  3 anbi2i 2 |- ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ f : ( 0 ... ( n - 1 ) ) -onto-> dom ( iEdg ` G ) ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  4 f1f |- ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  5 pm4.71i 4 |- ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) ) )
+  6 anbi1i 5 |- ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) <-> ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+  7 anass |- ( ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  8 bitri 6 7 |- ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  9 bitri 1 3 |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  10 bitr4i 9 8 |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+
+# ( ph -> f is an Euler path with v, said as the page says it ), where the
+# path has n edges: `iseupthf1o` and `upgriswlk`, with the word's indices
+# {0, …, #f − 1} read as {0, …, n − 1} by `fzoval`.
+lemma gtravq
+  hypothesis gtravq.1 |- ( ph -> G e. UMGraph )
+  hypothesis gtravq.2 |- ( ph -> n e. NN0 )
+  hypothesis gtravq.3 |- ( ph -> ( # ` f ) = n )
+  |- ( ph -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) )
+  1 eqid |- ( iEdg ` G ) = ( iEdg ` G )
+  2 iseupthf1o 1 |- ( f ( EulerPaths ` G ) v <-> ( f ( Walks ` G ) v /\ f : ( 0 ..^ ( # ` f ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  3 eqid |- ( Vtx ` G ) = ( Vtx ` G )
+  4 upgriswlk 3 1 |- ( G e. UPGraph -> ( f ( Walks ` G ) v <-> ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... ( # ` f ) ) --> ( Vtx ` G ) /\ A. k e. ( 0 ..^ ( # ` f ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  5 umgrupgr |- ( G e. UMGraph -> G e. UPGraph )
+  6 syl gtravq.1 5 |- ( ph -> G e. UPGraph )
+  7 syl 6 4 |- ( ph -> ( f ( Walks ` G ) v <-> ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... ( # ` f ) ) --> ( Vtx ` G ) /\ A. k e. ( 0 ..^ ( # ` f ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  8 oveq2d gtravq.3 |- ( ph -> ( 0 ..^ ( # ` f ) ) = ( 0 ..^ n ) )
+  9 nn0zd gtravq.2 |- ( ph -> n e. ZZ )
+  10 fzoval |- ( n e. ZZ -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  11 syl 9 10 |- ( ph -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  12 eqtrd 8 11 |- ( ph -> ( 0 ..^ ( # ` f ) ) = ( 0 ... ( n - 1 ) ) )
+  13 oveq2d gtravq.3 |- ( ph -> ( 0 ... ( # ` f ) ) = ( 0 ... n ) )
+  14 feq2d 13 |- ( ph -> ( v : ( 0 ... ( # ` f ) ) --> ( Vtx ` G ) <-> v : ( 0 ... n ) --> ( Vtx ` G ) ) )
+  15 raleqdv 12 |- ( ph -> ( A. k e. ( 0 ..^ ( # ` f ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  16 3anbi23d 14 15 |- ( ph -> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... ( # ` f ) ) --> ( Vtx ` G ) /\ A. k e. ( 0 ..^ ( # ` f ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  17 bitrd 7 16 |- ( ph -> ( f ( Walks ` G ) v <-> ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  18 f1oeq2 |- ( ( 0 ..^ ( # ` f ) ) = ( 0 ... ( n - 1 ) ) -> ( f : ( 0 ..^ ( # ` f ) ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  19 syl 12 18 |- ( ph -> ( f : ( 0 ..^ ( # ` f ) ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  20 gtravf1o |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+  21 bitrdi 19 20 |- ( ph -> ( f : ( 0 ..^ ( # ` f ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  22 anbi12d 17 21 |- ( ph -> ( ( f ( Walks ` G ) v /\ f : ( 0 ..^ ( # ` f ) ) -1-1-onto-> dom ( iEdg ` G ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) ) )
+  23 bitrid 2 22 |- ( ph -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) ) )
+  24 df-3an |- ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  25 anbi1i 24 |- ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  26 anass |- ( ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) ) )
+  27 ancom |- ( ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) <-> ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  28 anbi2i 27 |- ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  29 3bitri 25 26 28 |- ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  30 bitrdi 23 29 |- ( ph -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) )
+
+# At one n, f and v: f among the functions from {0, …, n − 1} to the
+# edges, v among those from {0, …, n} to the vertices, and the page's
+# conditions, exactly when f is an Euler path with v of length n.
+# `wrdmap` reads a word of length n as such a function.
+lemma gtravpt
+  |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+  1 simpr |- ( ( G e. UMGraph /\ n e. NN0 ) -> n e. NN0 )
+  2 nn0zd 1 |- ( ( G e. UMGraph /\ n e. NN0 ) -> n e. ZZ )
+  3 fzoval |- ( n e. ZZ -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  4 syl 2 3 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  5 oveq2d 4 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( dom ( iEdg ` G ) ^m ( 0 ..^ n ) ) = ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) )
+  6 eleq2d 5 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( f e. ( dom ( iEdg ` G ) ^m ( 0 ..^ n ) ) <-> f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) )
+  7 fvex |- ( iEdg ` G ) e. _V
+  8 dmexg |- ( ( iEdg ` G ) e. _V -> dom ( iEdg ` G ) e. _V )
+  9 ax-mp 7 8 |- dom ( iEdg ` G ) e. _V
+  10 wrdmap |- ( ( dom ( iEdg ` G ) e. _V /\ n e. NN0 ) -> ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) <-> f e. ( dom ( iEdg ` G ) ^m ( 0 ..^ n ) ) ) )
+  11 mpan 9 10 |- ( n e. NN0 -> ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) <-> f e. ( dom ( iEdg ` G ) ^m ( 0 ..^ n ) ) ) )
+  12 syl 1 11 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) <-> f e. ( dom ( iEdg ` G ) ^m ( 0 ..^ n ) ) ) )
+  13 bitrd 12 6 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) <-> f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) )
+  14 bicomd 13 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) <-> ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) ) )
+  15 fvex |- ( Vtx ` G ) e. _V
+  16 ovex |- ( 0 ... n ) e. _V
+  17 elmapg |- ( ( ( Vtx ` G ) e. _V /\ ( 0 ... n ) e. _V ) -> ( v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) <-> v : ( 0 ... n ) --> ( Vtx ` G ) ) )
+  18 mp2an 15 16 17 |- ( v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) <-> v : ( 0 ... n ) --> ( Vtx ` G ) )
+  19 a1i 18 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) <-> v : ( 0 ... n ) --> ( Vtx ` G ) ) )
+  20 anbi12d 14 19 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) ) )
+  21 anbi1d 20 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) )
+  22 an32 |- ( ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( # ` f ) = n ) )
+  23 anbi1i 22 |- ( ( ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( # ` f ) = n ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  24 an32 |- ( ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( # ` f ) = n ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) /\ ( # ` f ) = n ) )
+  25 bitri 23 24 |- ( ( ( ( f e. Word dom ( iEdg ` G ) /\ ( # ` f ) = n ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) /\ ( # ` f ) = n ) )
+  26 bitrdi 21 25 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) /\ ( # ` f ) = n ) ) )
+  27 simpll |- ( ( ( G e. UMGraph /\ n e. NN0 ) /\ ( # ` f ) = n ) -> G e. UMGraph )
+  28 simplr |- ( ( ( G e. UMGraph /\ n e. NN0 ) /\ ( # ` f ) = n ) -> n e. NN0 )
+  29 simpr |- ( ( ( G e. UMGraph /\ n e. NN0 ) /\ ( # ` f ) = n ) -> ( # ` f ) = n )
+  30 gtravq 27 28 29 |- ( ( ( G e. UMGraph /\ n e. NN0 ) /\ ( # ` f ) = n ) -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) )
+  31 ex 30 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( # ` f ) = n -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) ) )
+  32 pm5.32rd 31 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> ( ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) /\ ( # ` f ) = n ) ) )
+  33 bitr4d 26 32 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+
+# The Euler paths of G are a relation, which is not empty exactly when it
+# relates some f to some v: `reldm0`, then `n0` and `eldm`.
+lemma gtravne0
+  |- ( ( EulerPaths ` G ) =/= (/) <-> E. f E. v f ( EulerPaths ` G ) v )
+  1 releupth |- Rel ( EulerPaths ` G )
+  2 reldm0 |- ( Rel ( EulerPaths ` G ) -> ( ( EulerPaths ` G ) = (/) <-> dom ( EulerPaths ` G ) = (/) ) )
+  3 ax-mp 1 2 |- ( ( EulerPaths ` G ) = (/) <-> dom ( EulerPaths ` G ) = (/) )
+  4 necon3bii 3 |- ( ( EulerPaths ` G ) =/= (/) <-> dom ( EulerPaths ` G ) =/= (/) )
+  5 n0 |- ( dom ( EulerPaths ` G ) =/= (/) <-> E. f f e. dom ( EulerPaths ` G ) )
+  6 vex |- f e. _V
+  7 eldm 6 |- ( f e. dom ( EulerPaths ` G ) <-> E. v f ( EulerPaths ` G ) v )
+  8 exbii 7 |- ( E. f f e. dom ( EulerPaths ` G ) <-> E. f E. v f ( EulerPaths ` G ) v )
+  9 3bitri 4 5 8 |- ( ( EulerPaths ` G ) =/= (/) <-> E. f E. v f ( EulerPaths ` G ) v )
+
+# ( G e. UMGraph -> G is traversable <-> the page's walk from 0 ): at each
+# n by `gtravpt`, the length n then folded away, since every Euler path's
+# length is a whole number (`wlkcl`).
+lemma gtrav
+  |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  1 r2ex |- ( E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> E. f E. v ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  2 gtravpt |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+  3 2exbidv 2 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( E. f E. v ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+  4 bitrid 1 3 |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+  5 rexbidva 4 |- ( G e. UMGraph -> ( E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> E. n e. NN0 E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
+  6 rexcom4 |- ( E. n e. NN0 E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> E. f E. n e. NN0 E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) )
+  7 rexcom4 |- ( E. n e. NN0 E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> E. v E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) )
+  8 exbii 7 |- ( E. f E. n e. NN0 E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> E. f E. v E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) )
+  9 r19.42v |- ( E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> ( f ( EulerPaths ` G ) v /\ E. n e. NN0 ( # ` f ) = n ) )
+  10 eqcom |- ( ( # ` f ) = n <-> n = ( # ` f ) )
+  11 rexbii 10 |- ( E. n e. NN0 ( # ` f ) = n <-> E. n e. NN0 n = ( # ` f ) )
+  12 risset |- ( ( # ` f ) e. NN0 <-> E. n e. NN0 n = ( # ` f ) )
+  13 bitr4i 11 12 |- ( E. n e. NN0 ( # ` f ) = n <-> ( # ` f ) e. NN0 )
+  14 anbi2i 13 |- ( ( f ( EulerPaths ` G ) v /\ E. n e. NN0 ( # ` f ) = n ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) e. NN0 ) )
+  15 eupthiswlk |- ( f ( EulerPaths ` G ) v -> f ( Walks ` G ) v )
+  16 wlkcl |- ( f ( Walks ` G ) v -> ( # ` f ) e. NN0 )
+  17 syl 15 16 |- ( f ( EulerPaths ` G ) v -> ( # ` f ) e. NN0 )
+  18 pm4.71i 17 |- ( f ( EulerPaths ` G ) v <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) e. NN0 ) )
+  19 bitri 9 14 |- ( E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) e. NN0 ) )
+  20 bitr4i 19 18 |- ( E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> f ( EulerPaths ` G ) v )
+  21 2exbii 20 |- ( E. f E. v E. n e. NN0 ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> E. f E. v f ( EulerPaths ` G ) v )
+  22 3bitri 6 8 21 |- ( E. n e. NN0 E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> E. f E. v f ( EulerPaths ` G ) v )
+  23 gtravne0 |- ( ( EulerPaths ` G ) =/= (/) <-> E. f E. v f ( EulerPaths ` G ) v )
+  24 bitr4i 22 23 |- ( E. n e. NN0 E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> ( EulerPaths ` G ) =/= (/) )
+  25 bitrdi 5 24 |- ( G e. UMGraph -> ( E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> ( EulerPaths ` G ) =/= (/) ) )
+  26 bicomd 25 |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )

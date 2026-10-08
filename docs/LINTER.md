@@ -150,7 +150,7 @@ read, the existence is written with "with".
 |---|---|---|
 | `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
-| a "for all" step of one line, justified as its body would be | a `fix` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
+| a "for all" step of one line, justified as its body would be | a `proof` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
@@ -170,7 +170,7 @@ is a define's condition, which `part-builder` and `set-builder` hold inside
 a conjunction, is an item all the same: Lagrange obtains a coset's a from
 K in one line.
 
-A block of one step says "fix k, let k ∈ X, and then P", and the one-line
+A block of one step says "proof: let k ∈ X, and then P", and the one-line
 step says "for all k ∈ X, P, by the item": the same proof, the second as a
 textbook writes "each a(k)² ≥ 0, since squares are not negative"
 (`SYNTAX.md`, a step said of every member). The block costs the reader a
@@ -189,7 +189,7 @@ something a tool can see from the text.
 
 Nothing does. Most are a regular expression over the source line and would be
 cheap, the doubled negation among them, `suppose not` before a negated claim; the obtain rule is a justification head and is cheaper
-still, and so is the one-step block, a `fix` with one child whose head is
+still, and so is the one-step block, a `proof` with one child whose head is
 not a block method. The two marked judgement are not mechanical at all and are here so that
 a reader of this file knows they were considered rather than missed.
 

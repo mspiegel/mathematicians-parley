@@ -1,6 +1,75 @@
 import mundane theorem    stdlib/reasoning/double-negation as reasoning-double-negation
 import mundane theorem    stdlib/reasoning/or-left as reasoning-or-left
 import mundane theorem    stdlib/reasoning/or-right as reasoning-or-right
+import mundane theorem    stdlib/reasoning/modus-ponens as reasoning-modus-ponens
+import mundane theorem    stdlib/reasoning/iff-both-true as reasoning-iff-both-true
+import mundane theorem    stdlib/reasoning/iff-both-false as reasoning-iff-both-false
+import mundane theorem    stdlib/reasoning/iff-from-left as reasoning-iff-from-left
+import mundane theorem    stdlib/reasoning/iff-from-right as reasoning-iff-from-right
+import mundane theorem    stdlib/reasoning/iff-not-from-right as reasoning-iff-not-from-right
+
+theorem modus-ponens
+  let x ∈ ℝ                                                           (H1)
+  assume if x = 0 then x ≤ 0                                          (H2)
+  assume x = 0                                                        (H3)
+  then x ≤ 0
+
+1.  x ≤ 0
+    mun:reasoning-modus-ponens, from H2, H3
+
+theorem modus-ponens-for-all
+  let n ∈ ℕ                                                           (H1)
+  assume if n ≤ 3 then for all x ∈ ℝ with x ≠ 0, x² > 0               (H2)
+  assume n ≤ 3                                                        (H3)
+  then for all x ∈ ℝ with x ≠ 0, x² > 0
+
+1.  For all x ∈ ℝ with x ≠ 0, x² > 0.
+    mun:reasoning-modus-ponens, from H2, H3
+
+theorem iff-both-true
+  let x ∈ ℝ                                                           (H1)
+  assume x = 0                                                        (H2)
+  assume x ≤ 0                                                        (H3)
+  then x = 0 ↔ x ≤ 0
+
+1.  x = 0 ↔ x ≤ 0
+    mun:reasoning-iff-both-true, from H2, H3
+
+theorem iff-both-false
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  assume not x < 0                                                    (H3)
+  then x = 0 ↔ x < 0
+
+1.  x = 0 ↔ x < 0
+    mun:reasoning-iff-both-false, from H2, H3
+
+theorem iff-from-left
+  let x ∈ ℝ                                                           (H1)
+  assume x = 0 ↔ x² = 0                                               (H2)
+  assume x = 0                                                        (H3)
+  then x² = 0
+
+1.  x² = 0
+    mun:reasoning-iff-from-left, from H2, H3
+
+theorem iff-from-right
+  let x ∈ ℝ                                                           (H1)
+  assume x = 0 ↔ x² = 0                                               (H2)
+  assume x² = 0                                                       (H3)
+  then x = 0
+
+1.  x = 0
+    mun:reasoning-iff-from-right, from H2, H3
+
+theorem iff-not-from-right
+  let x ∈ ℝ                                                           (H1)
+  assume x = 0 ↔ x² = 0                                               (H2)
+  assume x² ≠ 0                                                       (H3)
+  then x ≠ 0
+
+1.  x ≠ 0
+    mun:reasoning-iff-not-from-right, from H2, H3
 
 theorem double-negation
   let x ∈ ℝ                                                           (H1)

@@ -10,8 +10,8 @@ use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    names_of, obtained, obtains, readings, search, supply, with_parts, Group, Library,
-    Parts, Sites, Ways,
+    names_of, obtained, obtains, readings, search, supply, taken, with_parts, Group,
+    Library, Parts, Sites, Ways,
 };
 use crate::corpus::proof::{requires_item, Requires};
 use crate::corpus::{
@@ -27,9 +27,20 @@ use crate::outcome::{Built, Declined};
 use crate::sorts::{sentences, supplied_by};
 use crate::text::squash;
 
-/// The requires lines of a step whose item does not conclude them, as
-/// (line, item) pairs.
-fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, String)> {
+/// A requires line whose cited item does not give its fact.
+struct Unconcluded {
+    /// The requires line.
+    line: usize,
+    /// The item it cites, as it names it.
+    item: String,
+    /// The item's hypotheses the line's facts do not supply, where that is
+    /// why; None where they are supplied and the item concludes something
+    /// else.
+    missing: Option<Vec<String>>,
+}
+
+/// The requires lines of a step whose item does not conclude them.
+fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<Unconcluded> {
     let mut out = Vec::new();
     for req in &step.requires {
         let Some((named, _)) = requires_item(&req.how) else {
@@ -54,7 +65,11 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<(usize, Str
         {
             continue;
         }
-        out.push((req.line, named));
+        out.push(Unconcluded {
+            line: req.line,
+            item: named,
+            missing: missing_hypotheses(&groups, &parts, library),
+        });
     }
     out
 }
@@ -192,6 +207,28 @@ fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<Strin
     // A pointer that resolves to nothing is `check_citations`'s.
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
+    missing_hypotheses(&groups, &parts, library)
+}
+
+/// The hypotheses of an item that a citation's facts do not supply, as the
+/// item writes them; None where every one is supplied, or where a group of
+/// the item asks for nothing. A step's citation and a requires line's are
+/// asked the same way.
+fn missing_hypotheses(
+    groups: &[Group],
+    parts: &Parts,
+    library: &Library,
+) -> Option<Vec<String>> {
+    // The hypotheses are supplied under the binding the claim fixes as well,
+    // where a property is fixed only by what it is said of in the claim:
+    // count-step's P(k + 1) is `a(k + 1) = 0` because the claim counts the i
+    // with a(i) = 0. A group the citation takes has them supplied.
+    if !parts.claims.is_empty()
+        && !taken(groups, &parts.claims, &parts.facts, &parts.seed, library)
+            .is_declined()
+    {
+        return None;
+    }
     let mut missing = None;
     for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {
@@ -401,15 +438,20 @@ pub fn check_requires(
     known: &Known,
 ) {
     for step in &thm.steps {
-        for (no, named) in unconcluded(step, known, library) {
-            report.say(
-                &thm.path,
-                no,
-                format!(
-                    "the requires line of step {} needs something that {named} does not conclude",
-                    step.number
+        for found in unconcluded(step, known, library) {
+            let said = match &found.missing {
+                Some(missing) => format!(
+                    "the requires line of step {} cites {}, which asks for {}, and what it cites does not supply them",
+                    step.number,
+                    found.item,
+                    missing.join("; ")
                 ),
-            );
+                None => format!(
+                    "the requires line of step {} needs something that {} does not conclude",
+                    step.number, found.item
+                ),
+            };
+            report.say(&thm.path, found.line, said);
         }
     }
 }

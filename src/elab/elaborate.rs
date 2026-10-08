@@ -1,7 +1,7 @@
 //! Turn a readable proof into a Metamath proof.
 //!
 //! `ELABORATION.md` lists what the expansion language has to have. `obtain`,
-//! `contradiction`, `fix` and `induction` open scopes; `substitute`,
+//! `contradiction`, `proof` and `induction` open scopes; `substitute`,
 //! `calculation`, `join` and `exhibit` are steps; a definition may be
 //! unfolded, read the other way, or used to conclude an existence claim; a
 //! name may be introduced by a `define`; and a theorem may be cited whether
@@ -49,7 +49,8 @@ use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::{
-    cited_defines, file_definitions, said_by_line, sorts_in_scope, supplied_by, unlabel,
+    cited_defines, graph_re, said_by_line, sorts_in_scope, statement_definitions,
+    supplied_by, unlabel,
 };
 use crate::targets;
 use crate::text::repr;
@@ -57,6 +58,14 @@ use crate::{pf, regex, t, take};
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
+
+/// The two sides of an equation, as written (`Elaborator::equation_sides`).
+pub(crate) struct Sides {
+    /// The side before `=`.
+    pub left: String,
+    /// The side after it.
+    pub right: String,
+}
 
 /// What a requires line's record asks of it (`Elaborator::asked_here`).
 pub(crate) struct AskedHere<'a> {
@@ -392,8 +401,10 @@ impl<'a> Elaborator<'a> {
     /// of the one from the other.
     pub fn run(&mut self) -> Checked<(String, Vec<String>, Proof)> {
         // The statement is read with the definitions the theorem sees from
-        // outside it written out, which is what set.mm states.
-        self.from_outside = file_definitions(self.thm, self.env());
+        // outside it, and those of its header, written out, which is what
+        // set.mm states.
+        self.from_outside =
+            statement_definitions(self.thm, self.env(), &self.sorts_now);
         let nodes = self.hypotheses()?;
         // A sort is stated once, like a declared type, and a step may rest on
         // it without naming it. A define is not one: a step that uses what it
@@ -417,7 +428,9 @@ impl<'a> Elaborator<'a> {
                     || text.contains(" be a point")
                     || text.contains(" be a polynomial")
                     || text.contains('→')
-                    || text.contains(" group with operation "))
+                    || text.contains(" group with operation ")
+                    || text.contains(" be an undirected multigraph with ")
+                    || text.contains(" be the undirected multigraph with "))
             {
                 sorts.insert(label.clone());
             }
@@ -641,6 +654,33 @@ impl<'a> Elaborator<'a> {
                     (None, None) => (held.term, held.proof),
                 };
                 block.parts.insert(part, (term, proof, scope.clone()));
+            }
+            // A `proof` block whose assumption cannot hold ends on the step that
+            // reaches the opposite of an earlier line, as a case that cannot
+            // occur does: what the block claims of the name it fixes is
+            // reached from the two, and stands as the block's last line.
+            let fixing = blocks
+                .last()
+                .filter(|b| b.owner.just.head.to_string() == "proof")
+                .map(|b| b.owner.clone());
+            if let (Some(other), Some(owner), None) =
+                (&step.just.contradicting, fixing, step.part)
+            {
+                let last = self.last.clone().expect("a step's number");
+                let held = self.lines.get(&last).expect("the step's line");
+                let claim = self.claim_of(&owner.claim_text())?;
+                let (_, body) = self.opener_layers(&owner, &claim)?;
+                let body = self.rpn(&body);
+                let made =
+                    self.by_opposites(&step, &held, other, &body, &scope, &facts)?;
+                self.lines.set(
+                    &last,
+                    Line {
+                        term: body,
+                        proof: made,
+                        sentences: held.sentences.clone(),
+                    },
+                );
             }
         }
         while let Some(mut done) = blocks.pop() {
@@ -908,6 +948,7 @@ impl<'a> Elaborator<'a> {
             "arithmetic",
             "inequalities",
             "membership",
+            "inspection",
             "substitute",
             "instantiate",
             "calculation",
@@ -1115,6 +1156,7 @@ impl<'a> Elaborator<'a> {
                 "arithmetic" => self.arithmetic(step, term, scope, facts)?,
                 "inequalities" => self.inequalities(step, term, scope, facts, lines)?,
                 "membership" => self.by_membership(step, term, scope, facts)?,
+                "inspection" => self.inspection(step, term, scope, facts)?,
                 "substitute" => {
                     self.substitute(step, node, term, scope, facts, lines)?
                 }
@@ -1477,6 +1519,47 @@ impl<'a> Elaborator<'a> {
         Ok(given)
     }
 
+    /// Whether the universal `said`, at the values written for the names it
+    /// quantifies, concludes `term`: the instance is the claim, or the claim
+    /// is what it gives once each thing it asks is supplied.
+    fn instance_concludes(
+        &mut self,
+        said: &str,
+        values: &IndexMap<String, String>,
+        term: &str,
+    ) -> bool {
+        let mut whole = self.to_term(said);
+        while rules::INSTANCES
+            .iter()
+            .any(|(k, _)| Some(*k) == whole.label())
+        {
+            let (body, variable) =
+                (whole.children()[0].clone(), whole.children()[1].clone());
+            let letter = self.rpn(&variable);
+            let named = self
+                .written_as
+                .get(&letter)
+                .cloned()
+                .unwrap_or(letter.clone());
+            let Some(at) = values.get(&named) else {
+                break;
+            };
+            let mark = format!("{letter} cv");
+            whole = self.restated(&body, &mark, at);
+        }
+        let wanted = self.fact_key(term);
+        loop {
+            let reached = self.rpn(&whole);
+            if reached == term || self.fact_key(&reached) == wanted {
+                return true;
+            }
+            if whole.label() != Some("wi") {
+                return false;
+            }
+            whole = whole.children()[1].clone();
+        }
+    }
+
     /// A universal used at one term: `instantiate s := a in line 10` takes a
     /// line claiming something of every s and claims it of one of them.
     fn instantiate(
@@ -1516,11 +1599,27 @@ impl<'a> Elaborator<'a> {
                     .or_else(|| self.b.flabel.get(n).cloned())
             })
             .collect();
-        let said = universals
+        let binding: Vec<&String> = universals
             .iter()
-            .find(|p| bound.contains(&Some(self.rpn(&self.to_term(p).children()[1]))))
-            .or(universals.first())
-            .cloned();
+            .filter(|p| bound.contains(&Some(self.rpn(&self.to_term(p).children()[1]))))
+            .collect();
+        let candidates: Vec<&String> = if binding.is_empty() {
+            universals.iter().collect()
+        } else {
+            binding
+        };
+        // A line of several universals over the same name, as an induction
+        // hypothesis of two halves is, gives the claim from the one whose
+        // instance concludes it.
+        let mut values: IndexMap<String, String> = IndexMap::new();
+        for (name, value) in &pairs {
+            values.insert(name.clone(), self.term(value)?);
+        }
+        let said = candidates
+            .iter()
+            .find(|p| self.instance_concludes(p, &values, term))
+            .or(candidates.first())
+            .map(|p| (*p).clone());
         let Some(said) = said else {
             return Err(self.defect(
                 step.line,
@@ -1563,6 +1662,33 @@ impl<'a> Elaborator<'a> {
             };
             let mark = format!("{letter} cv");
             let at = self.term(&value)?;
+            let w = self.rpn(&whole);
+            if at == mark {
+                // The value is the bound letter itself, as where a block
+                // lets x and its line says "for all x" over the same kernel
+                // letter: there is nothing to put in, and `rsp` or `sp` reads
+                // the body as it stands, where `rspcv` would ask the letter
+                // to be apart from itself.
+                let ph = self.rpn(&body);
+                proof = if label == "wral" {
+                    let member = t!(at, domain, "wcel");
+                    let read = self.b.ap(
+                        "rsp",
+                        &binds! {"ph" => &ph, "x" => &letter, "A" => &domain},
+                        &[],
+                    );
+                    let turned = pf!(self.b; w, member, ph, read, "com12");
+                    let required = self.required(step, &member, scope, facts)?;
+                    let carried = pf!(self.b; scope, member, t!(w, ph, "wi"), required, turned, "syl");
+                    pf!(self.b; scope, w, ph, proof, carried, "mpd")
+                } else {
+                    let read =
+                        self.b.ap("sp", &binds! {"ph" => &ph, "x" => &letter}, &[]);
+                    pf!(self.b; scope, w, ph, proof, read, "syl")
+                };
+                whole = body;
+                continue;
+            }
             let instance = self.restated(&body, &mark, &at);
             let (ph, ps) = (self.rpn(&body), self.rpn(&instance));
             let member = t!(at, domain, "wcel");
@@ -1583,7 +1709,6 @@ impl<'a> Elaborator<'a> {
                 binds! {"ph" => &ph, "ps" => &ps, "x" => &letter, "A" => &at};
             binds.insert(slot.to_string(), domain.clone());
             let applied = self.b.ap(lemma, &binds, &[&asked]);
-            let w = self.rpn(&whole);
             let required = self.required(step, &member, scope, facts)?;
             let carried =
                 pf!(self.b; scope, member, t!(w, ps, "wi"), required, applied, "syl");
@@ -1798,12 +1923,8 @@ impl<'a> Elaborator<'a> {
                 let Some(flip) = flip else {
                     return Ok(Built(made));
                 };
-                let sides = self.to_term(aim);
-                let (a, b) = (
-                    self.rpn(&sides.children()[0]),
-                    self.rpn(&sides.children()[1]),
-                );
-                return Ok(Built(pf!(self.b; scope, a, b, made, *flip)));
+                let Sides { left, right } = self.equation_sides(aim);
+                return Ok(Built(pf!(self.b; scope, left, right, made, *flip)));
             }
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
@@ -2484,6 +2605,18 @@ impl<'a> Elaborator<'a> {
         if defines.contains(cite) && line.term != wanted {
             let supplied = self.supplied(Some(step), scope, facts)?;
             let known = self.with_cited(Some(step), scope, &supplied, None);
+            // The link may be the define's own equation, either way round,
+            // over another bound letter: a define of a count read its index
+            // before the step's lines took theirs.
+            if let Some(p) = self.held_rebound(&known, &wanted, scope)? {
+                return Ok(p);
+            }
+            if let Some((turned, flip)) = self.turned_claim(&wanted) {
+                if let Some(p) = self.held_rebound(&known, &turned, scope)? {
+                    let Sides { left, right } = self.equation_sides(&turned);
+                    return Ok(pf!(self.b; scope, left, right, p, flip));
+                }
+            }
             let offered = facts.with(&known);
             return match self.same(
                 &claim.children()[0],
@@ -3630,33 +3763,44 @@ impl<'a> Elaborator<'a> {
         };
         match self.by_clause(labels, &turned, scope, facts, step, seed)? {
             Built(p) => {
-                let sides = self.to_term(&turned);
-                let (a, b) = (
-                    self.rpn(&sides.children()[0]),
-                    self.rpn(&sides.children()[1]),
-                );
-                Ok(Built(pf!(self.b; scope, a, b, p, flip)))
+                let Sides { left, right } = self.equation_sides(&turned);
+                Ok(Built(pf!(self.b; scope, left, right, p, flip)))
             }
             Declined(_) => Ok(found),
         }
     }
 
     /// An equation or disequation with its sides the other way round, and
-    /// the lemma that turns a proof of it back: `B = A` and `eqcomd`, or
-    /// `B ≠ A` and `necomd`. None for any other claim.
+    /// the lemma that turns a proof of it back: `B = A` and `eqcomd`, `B ≠ A`
+    /// and `necomd`, or `¬ B = A`, as the page's ≠ is read, and `neqcomd`.
+    /// None for any other claim.
     pub(crate) fn turned_claim(&self, term: &str) -> Option<(String, &'static str)> {
         let whole = self.to_term(term);
         let flip = match whole.label() {
             Some("wceq") => "eqcomd",
             Some("wne") => "necomd",
+            Some("wn") if whole.children()[0].label() == Some("wceq") => "neqcomd",
             _ => return None,
         };
-        let label = whole.label()?.to_string();
-        let (a, b) = (
-            self.rpn(&whole.children()[0]),
-            self.rpn(&whole.children()[1]),
-        );
-        Some((t!(b, a, &label), flip))
+        let Sides { left, right } = self.equation_sides(term);
+        Some(match whole.label()? {
+            "wn" => t!(t!(right, left, "wceq"), "wn"),
+            label => t!(right, left, label),
+        })
+        .map(|turned| (turned, flip))
+    }
+
+    /// The two sides of an equation or a disequation, as the lemma that
+    /// turns it takes them: of a negated equation, the equation's.
+    pub(crate) fn equation_sides(&self, claim: &str) -> Sides {
+        let mut whole = self.to_term(claim);
+        if whole.label() == Some("wn") {
+            whole = whole.children()[0].clone();
+        }
+        Sides {
+            left: self.rpn(&whole.children()[0]),
+            right: self.rpn(&whole.children()[1]),
+        }
     }
 
     /// A theorem cited: either set.mm supplies it or this corpus does.
@@ -3810,7 +3954,7 @@ impl<'a> Elaborator<'a> {
         let mut rest: Vec<Term> = said.iter().map(|s| self.to_term(s)).collect();
         while let Some(node) = rest.pop() {
             let label = node.label().unwrap_or("");
-            if matches!(label, "wral" | "wrex" | "wreu") {
+            if matches!(label, "wral" | "wrex" | "wreu" | "crab") {
                 bound.insert(self.rpn(&node.children()[1]));
             }
             if label == "cmpt" || label == "wal" {
@@ -3900,6 +4044,31 @@ impl<'a> Elaborator<'a> {
                     .collect();
                 let mut binds: IndexMap<String, String> = IndexMap::new();
                 for h in &other.hypotheses {
+                    // A graph's line introduces one class, the graph, whose
+                    // parts its vertices, edges and the notations' `@ends`
+                    // and `@deg` are; it asserts no formula to read.
+                    let body =
+                        str::trim(&unlabel(&hypothesis_body(h.kind.as_str(), &h.text)))
+                            .to_string();
+                    if let Some(graph) = h
+                        .kind
+                        .eq(&Intro::Let)
+                        .then(|| graph_re().captures(&body))
+                        .flatten()
+                    {
+                        let name = graph["graph"].to_string();
+                        let theirs = spare
+                            .pop_front()
+                            .expect("a class for each let")
+                            .to_string();
+                        if let Some(term) = values.get(&name) {
+                            me.names.insert(name.clone(), term.clone());
+                        } else if !saved.contains_key(&name) {
+                            me.names.insert(name.clone(), theirs.clone());
+                        }
+                        binds.insert(theirs, me.names[&name].clone());
+                        continue;
+                    }
                     // Parsed with the theorem's own sorts, which say what its
                     // letters are; only its shape and name are used here.
                     let said = me.hypothesis_formula(h.kind.as_str(), &h.text);
@@ -3939,6 +4108,21 @@ impl<'a> Elaborator<'a> {
                     |me| -> Checked<Vec<String>> {
                         let mut out = Vec::new();
                         for h in &other.hypotheses {
+                            // A graph's line asks that the graph be an
+                            // undirected multigraph, as it says in its own
+                            // theorem (`Elaborator::graph`).
+                            let body = str::trim(&unlabel(&hypothesis_body(
+                                h.kind.as_str(),
+                                &h.text,
+                            )))
+                            .to_string();
+                            if h.kind == Intro::Let {
+                                if let Some(graph) = graph_re().captures(&body) {
+                                    let class = me.names[&graph["graph"]].clone();
+                                    out.push(t!(class, "cumgr", "wcel"));
+                                    continue;
+                                }
+                            }
                             let node = me.read(
                                 &me.hypothesis_formula(h.kind.as_str(), &h.text),
                             )?;
@@ -3966,8 +4150,11 @@ impl<'a> Elaborator<'a> {
         )?;
         // A cited theorem asks for what it asks for, and a hypothesis a
         // reader would not think to write as a line is written as a
-        // `requires` instead, or settled as a side condition.
-        let known = self.supplied(Some(step), scope, facts)?;
+        // `requires` instead, or settled as a side condition. What the step
+        // cites is laid over the scope, as `apply_lemma` lays it: a line and
+        // a hypothesis may state one claim, and the step names the line.
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let known = self.with_cited(Some(step), scope, &supplied, None);
         for one in &wanted {
             if self.holds(&known, one) {
                 continue;

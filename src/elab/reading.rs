@@ -21,9 +21,10 @@ use crate::outcome::Checked;
 use crate::regex;
 use crate::rules::NUMERALS;
 use crate::sorts::{
-    definition_sorts, element_re, file_definitions, function_being_re, function_on_re,
+    definition_sorts, element_re, function_being_re, function_on_re, graph_line,
     group_re, let_formula, not_in_re, part_re, polynomial_re, sentences,
-    sorts_of_record, sorts_of_statement, unlabel, Env,
+    sorts_of_record, sorts_of_statement, statement_definitions, unlabel, Env,
+    GraphLine,
 };
 use crate::t;
 use crate::targets;
@@ -33,7 +34,10 @@ regex!(BE_A, r"\s+be\s+a\s+(set|point)\b");
 regex!(SUBGROUP, r"^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$");
 
 /// The class variables a theorem's `let` lines are given, in order.
-pub const CLASS_NAMES: [&str; 8] = ["cA", "cB", "cC", "cD", "cE", "cF", "cG", "cH"];
+pub const CLASS_NAMES: [&str; 26] = [
+    "cA", "cB", "cC", "cD", "cE", "cF", "cG", "cH", "cI", "cJ", "cK", "cL", "cM", "cN",
+    "cO", "cP", "cQ", "cR", "cS", "cT", "cU", "cV", "cW", "cX", "cY", "cZ",
+];
 
 /// Whether a hypothesis says a group has a subgroup: `H is a subgroup of G`.
 pub fn is_subgroup(text: &str) -> bool {
@@ -158,10 +162,10 @@ impl<'a> Elaborator<'a> {
         let kept = self.sorts_now.clone();
         let kept_written = self.from_outside.clone();
         let (written, own) = match item {
-            Item::Theorem(t) => (
-                file_definitions(t, self.env()),
-                sorts_of_statement(t, self.env()),
-            ),
+            Item::Theorem(t) => {
+                let own = sorts_of_statement(t, self.env());
+                (statement_definitions(t, self.env(), &own), own)
+            }
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
         // Only what the item says: a letter it leaves open is not the proof's
@@ -506,6 +510,12 @@ impl<'a> Elaborator<'a> {
                     nodes.push(self.group(&group, structure));
                     continue;
                 }
+                if let Some(graph) = graph_line(&rest) {
+                    let structure = spare.remove(0);
+                    let node = self.graph(&graph, structure, &rest, &mut spare)?;
+                    nodes.push(node);
+                    continue;
+                }
             }
             let node = self.read(&self.hypothesis_formula(kind, &h.text))?;
             // `assume H is a subgroup of G` introduces H as a `let` would.
@@ -551,6 +561,71 @@ impl<'a> Elaborator<'a> {
             claim = t!(claim, t!(base, "cfn", "wcel"), "wa");
         }
         literal(&claim)
+    }
+
+    /// A graph's `let` line: the graph is the structure, its vertices are
+    /// set.mm's `Vtx`, its edges the names `iEdg` sends to their ends, and
+    /// `@ends` and `@deg` are the parts the notations reach (`joins`,
+    /// `end-of`, `degree`). The line says the structure is an undirected
+    /// multigraph.
+    ///
+    /// A graph given in full says more: each listed vertex and edge is a
+    /// class of its own, and what the line says of them (`let_formula`) is
+    /// joined to the graph's being a multigraph, as one hypothesis.
+    fn graph(
+        &mut self,
+        said: &GraphLine,
+        structure: &str,
+        body: &str,
+        spare: &mut Vec<&str>,
+    ) -> Checked<Node> {
+        let part = |label: &str| t!(structure, label, "cfv");
+        self.names.insert(said.graph.clone(), structure.to_string());
+        self.names.insert(said.vertices.clone(), part("cvtx"));
+        self.names
+            .insert(said.edges.clone(), t!(part("ciedg"), "cdm"));
+        self.names.insert("@ends".to_string(), part("ciedg"));
+        self.names.insert("@deg".to_string(), part("cvtxdg"));
+        let graph = t!(structure, "cumgr", "wcel");
+        let mut hypothesis = graph.clone();
+        if let Some(listing) = &said.listed {
+            let mut listed: Option<String> = None;
+            let mut join = |part: String| {
+                listed = Some(match listed.take() {
+                    Some(so_far) => t!(so_far, part, "wa"),
+                    None => part,
+                });
+            };
+            for name in listing.vertices.iter().chain(&listing.edges) {
+                if spare.is_empty() {
+                    return Err(self.defect(
+                        self.at,
+                        "a graph given in full names more things than there are classes to name them",
+                    ));
+                }
+                self.names.insert(name.clone(), spare.remove(0).to_string());
+            }
+            let mut parts = Vec::new();
+            for sentence in sentences(&let_formula(body)) {
+                let node = self.read(&sentence)?;
+                parts.push(self.term(&node)?);
+            }
+            // Each listed thing is a set, in the kernel's sense, which the
+            // page never says: set.mm's {A, B} holds A only where A is one.
+            for name in listing.vertices.iter().chain(&listing.edges) {
+                parts.push(t!(self.names[name], "cvv", "wcel"));
+            }
+            for part in parts {
+                join(part);
+            }
+            // The graph's being a multigraph is joined last, at the top of
+            // the conjunction, where a step taking the line apart reaches
+            // it first; the listing below it is what `inspection` reads.
+            if let Some(listed) = listed {
+                hypothesis = t!(listed, graph, "wa");
+            }
+        }
+        Ok(literal(&hypothesis))
     }
 
     /// (name, define, scope) for each definition the theorem sees from

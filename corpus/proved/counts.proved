@@ -1,0 +1,287 @@
+# Counts over a range, for `proved.mm`.
+#
+# The page counts the numbers among the first k that have a property,
+# |{i ∈ {1, …, k} : P(i)}|, and steps k up by one. set.mm says it of a set
+# split in two: `fzsuc2` splits {1, …, k + 1} into {1, …, k} and {k + 1},
+# `rabun2` splits the set-builder with it, and `rabsnif` makes the part over
+# {k + 1} either {k + 1} or empty, as P(k + 1) holds or not. `hashunsng`
+# counts the one new number, which `fzp1nel` keeps out of the old range.
+#
+# The property is a wff with i free, ps, and its value at k + 1 a second
+# one, ch, tied to it by an implicit substitution, as `elrab` asks.
+#
+# - a set of two listed things has at most two elements, for
+#   `mun:stdlib/counting/card-pair`;
+# - a count is a whole number, for `mun:stdlib/counting/count-nat0`;
+# - nothing is counted in {1, …, 0}, for
+#   `mun:stdlib/counting/count-empty-range`;
+# - one more number with the property counts once more, for
+#   `mun:stdlib/counting/count-step-holds`;
+# - one more number without it adds nothing, for
+#   `mun:stdlib/counting/count-step-fails`;
+# - two properties that hold of the same numbers count the same: `rabbi`,
+#   for `mun:stdlib/counting/count-same`;
+# - properties never both true count apart: `unrab`, `inrab` and `hashun`,
+#   for `mun:stdlib/counting/count-either`;
+# - counting P(i − 1) for i from 1 to n is counting P(j) for j from 0 to
+#   n − 1: `f1oresrab` restricts the shift `mptfzshft` to the numbers
+#   counted, for `mun:stdlib/counting/count-shift`;
+# - a first number without the property adds nothing: `rabdif` takes it
+#   out and `fzdif1` says what the range is without it, for
+#   `mun:stdlib/counting/count-first-fails`;
+# - a last number without the property adds nothing: the same with
+#   `fzdif2`, for `mun:stdlib/counting/count-last-fails`.
+#
+# A second property with i free is ta, since ch is kept apart from i.
+# Shifting the range ties P(i), ps, to P(i − 1), ta, through th, the
+# property said of a second letter j.
+
+$( Counts: the numbers among the first k with a property, stepped to k + 1. $)
+$( The set-builder binds i, apart from the end of the range, the scope and
+   the property's value at k + 1. The shift's second letter j is apart from
+   i, the range, the scope, and the properties it does not read. $)
+$d i K $.  $d i ph $.  $d i ch $.
+$d i A $.  $d i B $.  $d i M $.  $d i N $.  $d i th $.
+$d i j $.  $d j N $.  $d j ph $.  $d j ps $.  $d j ta $.
+
+# ( ph -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 ), from K in ZZ. The
+# range is finite whatever its ends, so the hypothesis is the page's and the
+# proof does not use it.
+lemma gcntcl
+  hypothesis gcntcl.1 |- ( ph -> K e. ZZ )
+  |- ( ph -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 )
+  1 fzfi |- ( 1 ... K ) e. Fin
+  2 rabfi |- ( ( 1 ... K ) e. Fin -> { i e. ( 1 ... K ) | ps } e. Fin )
+  3 ax-mp 1 2 |- { i e. ( 1 ... K ) | ps } e. Fin
+  4 hashcl |- ( { i e. ( 1 ... K ) | ps } e. Fin -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 )
+  5 ax-mp 3 4 |- ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0
+  6 a1i 5 |- ( ph -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 )
+
+# ( # ` { A , B } ) <_ 2, the second part of `hashprlei`.
+lemma gcardpr
+  |- ( # ` { A , B } ) <_ 2
+  1 hashprlei |- ( { A , B } e. Fin /\ ( # ` { A , B } ) <_ 2 )
+  2 simpri 1 |- ( # ` { A , B } ) <_ 2
+
+# ( # ` { i e. ( 1 ... 0 ) | ps } ) = 0
+lemma gcnt0
+  |- ( # ` { i e. ( 1 ... 0 ) | ps } ) = 0
+  1 fz10 |- ( 1 ... 0 ) = (/)
+  2 rabeqi 1 |- { i e. ( 1 ... 0 ) | ps } = { i e. (/) | ps }
+  3 rab0 |- { i e. (/) | ps } = (/)
+  4 eqtri 2 3 |- { i e. ( 1 ... 0 ) | ps } = (/)
+  5 fveq2i 4 |- ( # ` { i e. ( 1 ... 0 ) | ps } ) = ( # ` (/) )
+  6 hash0 |- ( # ` (/) ) = 0
+  7 eqtri 5 6 |- ( # ` { i e. ( 1 ... 0 ) | ps } ) = 0
+
+# ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } split at K + 1 ), from K in NN0:
+# the range {1, …, K + 1} is {1, …, K} with K + 1 added, and the builder
+# over it the builder over each.
+lemma gcntsplit
+  hypothesis gcntsplit.1 |- ( ph -> K e. NN0 )
+  |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) )
+  1 1m1e0 |- ( 1 - 1 ) = 0
+  2 fveq2i 1 |- ( ZZ>= ` ( 1 - 1 ) ) = ( ZZ>= ` 0 )
+  3 nn0uz |- NN0 = ( ZZ>= ` 0 )
+  4 eqtr4i 3 2 |- NN0 = ( ZZ>= ` ( 1 - 1 ) )
+  5 eleqtrdi gcntsplit.1 4 |- ( ph -> K e. ( ZZ>= ` ( 1 - 1 ) ) )
+  6 1z |- 1 e. ZZ
+  7 fzsuc2 |- ( ( 1 e. ZZ /\ K e. ( ZZ>= ` ( 1 - 1 ) ) ) -> ( 1 ... ( K + 1 ) ) = ( ( 1 ... K ) u. { ( K + 1 ) } ) )
+  8 mpan 6 7 |- ( K e. ( ZZ>= ` ( 1 - 1 ) ) -> ( 1 ... ( K + 1 ) ) = ( ( 1 ... K ) u. { ( K + 1 ) } ) )
+  9 syl 5 8 |- ( ph -> ( 1 ... ( K + 1 ) ) = ( ( 1 ... K ) u. { ( K + 1 ) } ) )
+  10 rabeqdv 9 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = { i e. ( ( 1 ... K ) u. { ( K + 1 ) } ) | ps } )
+  11 rabun2 |- { i e. ( ( 1 ... K ) u. { ( K + 1 ) } ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } )
+  12 eqtrdi 10 11 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) )
+
+# ( ph -> the count to K + 1 is the count to K, plus one ), from K in NN0
+# and the property holding at K + 1.
+lemma gcntsuc
+  hypothesis gcntsuc.1 |- ( ph -> K e. NN0 )
+  hypothesis gcntsuc.2 |- ( ph -> ch )
+  hypothesis gcntsuc.3 |- ( i = ( K + 1 ) -> ( ps <-> ch ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( ( # ` { i e. ( 1 ... K ) | ps } ) + 1 ) )
+  1 gcntsplit gcntsuc.1 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) )
+  2 rabsnif gcntsuc.3 |- { i e. { ( K + 1 ) } | ps } = if ( ch , { ( K + 1 ) } , (/) )
+  3 iftrue |- ( ch -> if ( ch , { ( K + 1 ) } , (/) ) = { ( K + 1 ) } )
+  4 syl gcntsuc.2 3 |- ( ph -> if ( ch , { ( K + 1 ) } , (/) ) = { ( K + 1 ) } )
+  5 eqtrid 2 4 |- ( ph -> { i e. { ( K + 1 ) } | ps } = { ( K + 1 ) } )
+  6 uneq2d 5 |- ( ph -> ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) = ( { i e. ( 1 ... K ) | ps } u. { ( K + 1 ) } ) )
+  7 eqtrd 1 6 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { ( K + 1 ) } ) )
+  8 fveq2d 7 |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( # ` ( { i e. ( 1 ... K ) | ps } u. { ( K + 1 ) } ) ) )
+  9 fzfi |- ( 1 ... K ) e. Fin
+  10 rabfi |- ( ( 1 ... K ) e. Fin -> { i e. ( 1 ... K ) | ps } e. Fin )
+  11 ax-mp 9 10 |- { i e. ( 1 ... K ) | ps } e. Fin
+  12 fzp1nel |- -. ( K + 1 ) e. ( 1 ... K )
+  13 ssrab2 |- { i e. ( 1 ... K ) | ps } C_ ( 1 ... K )
+  14 sseli 13 |- ( ( K + 1 ) e. { i e. ( 1 ... K ) | ps } -> ( K + 1 ) e. ( 1 ... K ) )
+  15 mto 12 14 |- -. ( K + 1 ) e. { i e. ( 1 ... K ) | ps }
+  16 pm3.2i 11 15 |- ( { i e. ( 1 ... K ) | ps } e. Fin /\ -. ( K + 1 ) e. { i e. ( 1 ... K ) | ps } )
+  17 ovex |- ( K + 1 ) e. _V
+  18 hashunsng |- ( ( K + 1 ) e. _V -> ( ( { i e. ( 1 ... K ) | ps } e. Fin /\ -. ( K + 1 ) e. { i e. ( 1 ... K ) | ps } ) -> ( # ` ( { i e. ( 1 ... K ) | ps } u. { ( K + 1 ) } ) ) = ( ( # ` { i e. ( 1 ... K ) | ps } ) + 1 ) ) )
+  19 mp2 17 16 18 |- ( # ` ( { i e. ( 1 ... K ) | ps } u. { ( K + 1 ) } ) ) = ( ( # ` { i e. ( 1 ... K ) | ps } ) + 1 )
+  20 eqtrdi 8 19 |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( ( # ` { i e. ( 1 ... K ) | ps } ) + 1 ) )
+
+# ( ph -> the count to K + 1 is the count to K ), from K in NN0 and the
+# property failing at K + 1.
+lemma gcntsucn
+  hypothesis gcntsucn.1 |- ( ph -> K e. NN0 )
+  hypothesis gcntsucn.2 |- ( ph -> -. ch )
+  hypothesis gcntsucn.3 |- ( i = ( K + 1 ) -> ( ps <-> ch ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( # ` { i e. ( 1 ... K ) | ps } ) )
+  1 gcntsplit gcntsucn.1 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) )
+  2 rabsnif gcntsucn.3 |- { i e. { ( K + 1 ) } | ps } = if ( ch , { ( K + 1 ) } , (/) )
+  3 iffalse |- ( -. ch -> if ( ch , { ( K + 1 ) } , (/) ) = (/) )
+  4 syl gcntsucn.2 3 |- ( ph -> if ( ch , { ( K + 1 ) } , (/) ) = (/) )
+  5 eqtrid 2 4 |- ( ph -> { i e. { ( K + 1 ) } | ps } = (/) )
+  6 uneq2d 5 |- ( ph -> ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) = ( { i e. ( 1 ... K ) | ps } u. (/) ) )
+  7 eqtrd 1 6 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. (/) ) )
+  8 un0 |- ( { i e. ( 1 ... K ) | ps } u. (/) ) = { i e. ( 1 ... K ) | ps }
+  9 eqtrdi 7 8 |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = { i e. ( 1 ... K ) | ps } )
+  10 fveq2d 9 |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( # ` { i e. ( 1 ... K ) | ps } ) )
+
+# ( ph -> two properties that agree on {1, …, N} count the same ): `rabbi`
+# makes the two set-builders one. N in ZZ is the page's and unused.
+lemma gcntsame
+  hypothesis gcntsame.1 |- ( ph -> N e. ZZ )
+  hypothesis gcntsame.2 |- ( ph -> A. i e. ( 1 ... N ) ( ps <-> ta ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... N ) | ta } ) )
+  1 rabbi |- ( A. i e. ( 1 ... N ) ( ps <-> ta ) <-> { i e. ( 1 ... N ) | ps } = { i e. ( 1 ... N ) | ta } )
+  2 sylib gcntsame.2 1 |- ( ph -> { i e. ( 1 ... N ) | ps } = { i e. ( 1 ... N ) | ta } )
+  3 fveq2d 2 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... N ) | ta } ) )
+
+# ( ph -> the count of ps or ta is the two counts added ), where no number
+# has both: the two set-builders are finite, their meet is the builder of
+# both (`inrab`), empty by `rabeq0`, and their union the builder of either
+# (`unrab`). N in ZZ is the page's and unused.
+lemma gcnteither
+  hypothesis gcnteither.1 |- ( ph -> N e. ZZ )
+  hypothesis gcnteither.2 |- ( ph -> A. i e. ( 1 ... N ) -. ( ps /\ ta ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... N ) | ( ps \/ ta ) } ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) )
+  1 fzfi |- ( 1 ... N ) e. Fin
+  2 rabfi |- ( ( 1 ... N ) e. Fin -> { i e. ( 1 ... N ) | ps } e. Fin )
+  3 ax-mp 1 2 |- { i e. ( 1 ... N ) | ps } e. Fin
+  4 rabfi |- ( ( 1 ... N ) e. Fin -> { i e. ( 1 ... N ) | ta } e. Fin )
+  5 ax-mp 1 4 |- { i e. ( 1 ... N ) | ta } e. Fin
+  6 inrab |- ( { i e. ( 1 ... N ) | ps } i^i { i e. ( 1 ... N ) | ta } ) = { i e. ( 1 ... N ) | ( ps /\ ta ) }
+  7 rabeq0 |- ( { i e. ( 1 ... N ) | ( ps /\ ta ) } = (/) <-> A. i e. ( 1 ... N ) -. ( ps /\ ta ) )
+  8 sylibr gcnteither.2 7 |- ( ph -> { i e. ( 1 ... N ) | ( ps /\ ta ) } = (/) )
+  9 eqtrid 6 8 |- ( ph -> ( { i e. ( 1 ... N ) | ps } i^i { i e. ( 1 ... N ) | ta } ) = (/) )
+  10 hashun |- ( ( { i e. ( 1 ... N ) | ps } e. Fin /\ { i e. ( 1 ... N ) | ta } e. Fin /\ ( { i e. ( 1 ... N ) | ps } i^i { i e. ( 1 ... N ) | ta } ) = (/) ) -> ( # ` ( { i e. ( 1 ... N ) | ps } u. { i e. ( 1 ... N ) | ta } ) ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) )
+  11 mp3an12 3 5 10 |- ( ( { i e. ( 1 ... N ) | ps } i^i { i e. ( 1 ... N ) | ta } ) = (/) -> ( # ` ( { i e. ( 1 ... N ) | ps } u. { i e. ( 1 ... N ) | ta } ) ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) )
+  12 syl 9 11 |- ( ph -> ( # ` ( { i e. ( 1 ... N ) | ps } u. { i e. ( 1 ... N ) | ta } ) ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) )
+  13 unrab |- ( { i e. ( 1 ... N ) | ps } u. { i e. ( 1 ... N ) | ta } ) = { i e. ( 1 ... N ) | ( ps \/ ta ) }
+  14 fveq2i 13 |- ( # ` ( { i e. ( 1 ... N ) | ps } u. { i e. ( 1 ... N ) | ta } ) ) = ( # ` { i e. ( 1 ... N ) | ( ps \/ ta ) } )
+  15 eqtr3id 14 12 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ( ps \/ ta ) } ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) )
+
+# ( ph -> the count over {1, …, N} of ta, which is ps at i − 1, is the
+# count over {0, …, N − 1} of ps ): `mptfzshft` takes i to i − 1, one to one
+# from {0 + 1, …, (N − 1) + 1} onto {0, …, N − 1}; `f1oresrab` restricts it
+# to the numbers counted, which th, ps said of j, ties at j = i − 1; and
+# `hasheqf1od` counts both sides of it. `cbvrabv` renames j back to i.
+lemma gcntshift
+  hypothesis gcntshift.1 |- ( ph -> N e. ZZ )
+  hypothesis gcntshift.2 |- ( i = j -> ( ps <-> th ) )
+  hypothesis gcntshift.3 |- ( j = ( i - 1 ) -> ( th <-> ta ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... N ) | ta } ) = ( # ` { i e. ( 0 ... ( N - 1 ) ) | ps } ) )
+  1 1zzd |- ( ph -> 1 e. ZZ )
+  2 0zd |- ( ph -> 0 e. ZZ )
+  3 peano2zm |- ( N e. ZZ -> ( N - 1 ) e. ZZ )
+  4 syl gcntshift.1 3 |- ( ph -> ( N - 1 ) e. ZZ )
+  5 mptfzshft 1 2 4 |- ( ph -> ( i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) |-> ( i - 1 ) ) : ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) -1-1-onto-> ( 0 ... ( N - 1 ) ) )
+  6 eqid |- ( i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) |-> ( i - 1 ) ) = ( i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) |-> ( i - 1 ) )
+  7 3ad2ant3 gcntshift.3 |- ( ( ph /\ i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) /\ j = ( i - 1 ) ) -> ( th <-> ta ) )
+  8 f1oresrab 6 5 7 |- ( ph -> ( ( i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) |-> ( i - 1 ) ) |` { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } ) : { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } -1-1-onto-> { j e. ( 0 ... ( N - 1 ) ) | th } )
+  9 fzfi |- ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) e. Fin
+  10 rabfi |- ( ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) e. Fin -> { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } e. Fin )
+  11 ax-mp 9 10 |- { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } e. Fin
+  12 a1i 11 |- ( ph -> { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } e. Fin )
+  13 hasheqf1od 12 8 |- ( ph -> ( # ` { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } ) = ( # ` { j e. ( 0 ... ( N - 1 ) ) | th } ) )
+  14 0p1e1 |- ( 0 + 1 ) = 1
+  15 a1i 14 |- ( ph -> ( 0 + 1 ) = 1 )
+  16 zcnd gcntshift.1 |- ( ph -> N e. CC )
+  17 npcan1 |- ( N e. CC -> ( ( N - 1 ) + 1 ) = N )
+  18 syl 16 17 |- ( ph -> ( ( N - 1 ) + 1 ) = N )
+  19 oveq12d 15 18 |- ( ph -> ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) = ( 1 ... N ) )
+  20 rabeqdv 19 |- ( ph -> { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } = { i e. ( 1 ... N ) | ta } )
+  21 fveq2d 20 |- ( ph -> ( # ` { i e. ( ( 0 + 1 ) ... ( ( N - 1 ) + 1 ) ) | ta } ) = ( # ` { i e. ( 1 ... N ) | ta } ) )
+  22 eqtr3d 21 13 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ta } ) = ( # ` { j e. ( 0 ... ( N - 1 ) ) | th } ) )
+  23 cbvrabv gcntshift.2 |- { i e. ( 0 ... ( N - 1 ) ) | ps } = { j e. ( 0 ... ( N - 1 ) ) | th }
+  24 fveq2i 23 |- ( # ` { i e. ( 0 ... ( N - 1 ) ) | ps } ) = ( # ` { j e. ( 0 ... ( N - 1 ) ) | th } )
+  25 eqtr4di 22 24 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ta } ) = ( # ` { i e. ( 0 ... ( N - 1 ) ) | ps } ) )
+
+# ( ph -> the builder over B is the builder over B without A ), where ps
+# fails at A: A is not counted (`elrab`), so taking it out (`difsn`) leaves
+# the builder, and `rabdif` moves the difference to the range.
+lemma gcntdrop
+  hypothesis gcntdrop.1 |- ( ph -> -. ch )
+  hypothesis gcntdrop.2 |- ( i = A -> ( ps <-> ch ) )
+  |- ( ph -> { i e. B | ps } = { i e. ( B \ { A } ) | ps } )
+  1 elrab gcntdrop.2 |- ( A e. { i e. B | ps } <-> ( A e. B /\ ch ) )
+  2 simprbi 1 |- ( A e. { i e. B | ps } -> ch )
+  3 con3i 2 |- ( -. ch -> -. A e. { i e. B | ps } )
+  4 syl gcntdrop.1 3 |- ( ph -> -. A e. { i e. B | ps } )
+  5 difsn |- ( -. A e. { i e. B | ps } -> ( { i e. B | ps } \ { A } ) = { i e. B | ps } )
+  6 syl 4 5 |- ( ph -> ( { i e. B | ps } \ { A } ) = { i e. B | ps } )
+  7 rabdif |- ( { i e. B | ps } \ { A } ) = { i e. ( B \ { A } ) | ps }
+  8 eqtr3di 6 7 |- ( ph -> { i e. B | ps } = { i e. ( B \ { A } ) | ps } )
+
+# ( ph -> the count over {0, …, M} is the count over {1, …, M} ), where ps
+# fails at 0: `gcntdrop` takes 0 out, and {0, …, M} without 0 is
+# {1, …, M} for every M, by `fzdif1` where the range has a member and
+# both being empty where it has none. M in ZZ is the page's and unused.
+lemma gcntfirst
+  hypothesis gcntfirst.1 |- ( ph -> M e. ZZ )
+  hypothesis gcntfirst.2 |- ( ph -> -. ch )
+  hypothesis gcntfirst.3 |- ( i = 0 -> ( ps <-> ch ) )
+  |- ( ph -> ( # ` { i e. ( 0 ... M ) | ps } ) = ( # ` { i e. ( 1 ... M ) | ps } ) )
+  1 gcntdrop gcntfirst.2 gcntfirst.3 |- ( ph -> { i e. ( 0 ... M ) | ps } = { i e. ( ( 0 ... M ) \ { 0 } ) | ps } )
+  2 difeq1 |- ( ( 0 ... M ) = (/) -> ( ( 0 ... M ) \ { 0 } ) = ( (/) \ { 0 } ) )
+  3 0dif |- ( (/) \ { 0 } ) = (/)
+  4 eqtrdi 2 3 |- ( ( 0 ... M ) = (/) -> ( ( 0 ... M ) \ { 0 } ) = (/) )
+  5 fz1ssfz0 |- ( 1 ... M ) C_ ( 0 ... M )
+  6 sseq0 |- ( ( ( 1 ... M ) C_ ( 0 ... M ) /\ ( 0 ... M ) = (/) ) -> ( 1 ... M ) = (/) )
+  7 mpan 5 6 |- ( ( 0 ... M ) = (/) -> ( 1 ... M ) = (/) )
+  8 eqtr4d 4 7 |- ( ( 0 ... M ) = (/) -> ( ( 0 ... M ) \ { 0 } ) = ( 1 ... M ) )
+  9 fzn0 |- ( ( 0 ... M ) =/= (/) <-> M e. ( ZZ>= ` 0 ) )
+  10 fzdif1 |- ( M e. ( ZZ>= ` 0 ) -> ( ( 0 ... M ) \ { 0 } ) = ( ( 0 + 1 ) ... M ) )
+  11 sylbi 9 10 |- ( ( 0 ... M ) =/= (/) -> ( ( 0 ... M ) \ { 0 } ) = ( ( 0 + 1 ) ... M ) )
+  12 0p1e1 |- ( 0 + 1 ) = 1
+  13 oveq1i 12 |- ( ( 0 + 1 ) ... M ) = ( 1 ... M )
+  14 eqtrdi 11 13 |- ( ( 0 ... M ) =/= (/) -> ( ( 0 ... M ) \ { 0 } ) = ( 1 ... M ) )
+  15 pm2.61ine 8 14 |- ( ( 0 ... M ) \ { 0 } ) = ( 1 ... M )
+  16 rabeqi 15 |- { i e. ( ( 0 ... M ) \ { 0 } ) | ps } = { i e. ( 1 ... M ) | ps }
+  17 eqtrdi 1 16 |- ( ph -> { i e. ( 0 ... M ) | ps } = { i e. ( 1 ... M ) | ps } )
+  18 fveq2d 17 |- ( ph -> ( # ` { i e. ( 0 ... M ) | ps } ) = ( # ` { i e. ( 1 ... M ) | ps } ) )
+
+# ( ph -> the count over {1, …, N} is the count over {1, …, N − 1} ), where
+# ps fails at N: `gcntdrop` takes N out, and {1, …, N} without N is
+# {1, …, N − 1} for every integer N, by `fzdif2` where the range has a
+# member and both being empty where it has none.
+lemma gcntlast
+  hypothesis gcntlast.1 |- ( ph -> N e. ZZ )
+  hypothesis gcntlast.2 |- ( ph -> -. ch )
+  hypothesis gcntlast.3 |- ( i = N -> ( ps <-> ch ) )
+  |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... ( N - 1 ) ) | ps } ) )
+  1 gcntdrop gcntlast.2 gcntlast.3 |- ( ph -> { i e. ( 1 ... N ) | ps } = { i e. ( ( 1 ... N ) \ { N } ) | ps } )
+  2 difeq1 |- ( ( 1 ... N ) = (/) -> ( ( 1 ... N ) \ { N } ) = ( (/) \ { N } ) )
+  3 0dif |- ( (/) \ { N } ) = (/)
+  4 eqtrdi 2 3 |- ( ( 1 ... N ) = (/) -> ( ( 1 ... N ) \ { N } ) = (/) )
+  5 adantl 4 |- ( ( ph /\ ( 1 ... N ) = (/) ) -> ( ( 1 ... N ) \ { N } ) = (/) )
+  6 fzssp1 |- ( 1 ... ( N - 1 ) ) C_ ( 1 ... ( ( N - 1 ) + 1 ) )
+  7 zcnd gcntlast.1 |- ( ph -> N e. CC )
+  8 npcan1 |- ( N e. CC -> ( ( N - 1 ) + 1 ) = N )
+  9 syl 7 8 |- ( ph -> ( ( N - 1 ) + 1 ) = N )
+  10 oveq2d 9 |- ( ph -> ( 1 ... ( ( N - 1 ) + 1 ) ) = ( 1 ... N ) )
+  11 sseqtrid 6 10 |- ( ph -> ( 1 ... ( N - 1 ) ) C_ ( 1 ... N ) )
+  12 sseq0 |- ( ( ( 1 ... ( N - 1 ) ) C_ ( 1 ... N ) /\ ( 1 ... N ) = (/) ) -> ( 1 ... ( N - 1 ) ) = (/) )
+  13 sylan 11 12 |- ( ( ph /\ ( 1 ... N ) = (/) ) -> ( 1 ... ( N - 1 ) ) = (/) )
+  14 eqtr4d 5 13 |- ( ( ph /\ ( 1 ... N ) = (/) ) -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) )
+  15 ex 14 |- ( ph -> ( ( 1 ... N ) = (/) -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) ) )
+  16 fzn0 |- ( ( 1 ... N ) =/= (/) <-> N e. ( ZZ>= ` 1 ) )
+  17 fzdif2 |- ( N e. ( ZZ>= ` 1 ) -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) )
+  18 sylbi 16 17 |- ( ( 1 ... N ) =/= (/) -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) )
+  19 a1i 18 |- ( ph -> ( ( 1 ... N ) =/= (/) -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) ) )
+  20 pm2.61dne 15 19 |- ( ph -> ( ( 1 ... N ) \ { N } ) = ( 1 ... ( N - 1 ) ) )
+  21 rabeqdv 20 |- ( ph -> { i e. ( ( 1 ... N ) \ { N } ) | ps } = { i e. ( 1 ... ( N - 1 ) ) | ps } )
+  22 eqtrd 1 21 |- ( ph -> { i e. ( 1 ... N ) | ps } = { i e. ( 1 ... ( N - 1 ) ) | ps } )
+  23 fveq2d 22 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... ( N - 1 ) ) | ps } ) )

@@ -51,7 +51,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     mun:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4
 
 6.  For all s ∈ S, s ≤ b.
-    fix
+    proof
     let s ∈ S                                                         (K1)
 
     6.1.  s ∈ [a, b]
@@ -237,7 +237,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            obtain δ from line 16.22
 
     16.24. For all s ∈ S, s ≤ c − δ.
-           fix
+           proof
            let s ∈ S                                                  (K2)
 
            16.24.1.  s ∈ [a, b]

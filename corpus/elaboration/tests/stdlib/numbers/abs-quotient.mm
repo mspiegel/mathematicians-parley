@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.abs-quotient $p |- ( ( ( A e. RR /\ B e. RR ) /\ -. B = 0 ) -> ( abs ` ( A / B ) ) = ( ( abs ` A ) / ( abs ` B ) ) ) $=
-    ( cr wcel wa cc0 wceq wn cc wne w3a cdiv co cabs cfv simpl id syl recn simpr wb df-ne a1i bicomd mpbid 3jca absdiv ) ACDZBCDZEZBFGZHZEZAIDZBIDZBFJZKABLMNOANOBNOLMGUMUNUOUPUMUHUNUMUJUHUJULPZUJUHUHUHUIPUHQRRASRUMUIUOUMUJUIUQUHUITRBSRUMULUPUJULTUMUPULUPULUAUMBFUBUCUDUEUFABUGR $.
+    ( cr wcel wa cc0 wceq wn cc wne w3a cdiv co cabs cfv simpl id syl recn simpr neqcomd wb df-ne a1i eqcom bicomd notbid bitrd mpbid 3jca absdiv ) ACDZBCDZEZBFGZHZEZAIDZBIDZBFJZKABLMNOANOBNOLMGUQURUSUTUQULURUQUNULUNUPPZUNULULULUMPULQRRASRUQUMUSUQUNUMVAULUMTRBSRUQFBGZHZUTUQBFUNUPTUAUQUTVCUQUTUPVCUTUPUBUQBFUCUDUQUOVBUQVBUOVBUOUBUQFBUEUDUFUGUHUFUIUJABUKR $.
 $}

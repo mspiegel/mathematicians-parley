@@ -510,6 +510,52 @@ notation singleton
   metamath    csn
   target      _1 csn
 
+notation listed-two
+  pattern     {_, _}
+  sort        α, α → set of α
+  reads       the set whose elements are, and
+  metamath    cpr
+  target      _1 _2 cpr
+  note        A set given by listing what is in it. Each size listed is a
+              record of its own, since a record's holes are one list for all
+              its patterns; a size is declared when a proof writes it. The
+              listing says no order: {u, w} and {w, u} are one set.
+
+notation listed-three
+  pattern     {_, _, _}
+  sort        α, α, α → set of α
+  reads       the set whose elements are, and
+  metamath    ctp
+  target      _1 _2 _3 ctp
+  note        A set of three listed things. See `listed-two`.
+
+notation listed-four
+  pattern     {_, _, _, _}
+  sort        α, α, α, α → set of α
+  reads       the set whose elements are, and
+  metamath    ctp and csn joined by cun: the first three with the last
+  target      _1 _2 _3 ctp _4 csn cun
+  note        From four on, the list is the first ones joined with the
+              singleton of the last, which is how set.mm builds its pair and
+              triple from singletons. See `listed-two`.
+
+notation listed-five
+  pattern     {_, _, _, _, _}
+  sort        α, α, α, α, α → set of α
+  reads       the set whose elements are, and
+  metamath    the first four joined with the singleton of the last
+  target      _1 _2 _3 ctp _4 csn cun _5 csn cun
+  note        See `listed-four`.
+
+notation listed-seven
+  pattern     {_, _, _, _, _, _, _}
+  sort        α, α, α, α, α, α, α → set of α
+  reads       the set whose elements are, and
+  metamath    the first six joined with the singleton of the last
+  target      _1 _2 _3 ctp _4 csn cun _5 csn cun _6 csn cun _7 csn cun
+  note        See `listed-four`. There is no record of six: a size is
+              declared when a proof writes it.
+
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _
   sort        set of α, set of α → set of α
@@ -1580,3 +1626,83 @@ notation there-is-a-polynomial
   note        "There is a polynomial q with …" is "there is q ∈ (the
               polynomials) with …", so obtaining and exhibiting it work as
               for any "there is".
+
+# Graphs. A graph is a structure set.mm names and a reader does not, as a
+# group is: `let G be an undirected multigraph with vertices V and edges E`
+# gives G, the set V of its vertices and the set E of the names of its
+# edges, and the words below reach the rest through `@ends`, the function
+# sending each edge to the two vertices it joins (set.mm's `iEdg`), and
+# `@deg`, the degree of each vertex (`VtxDeg`). Two edges may join the same
+# two vertices, which is what makes the graph a multigraph; each edge has
+# its own name.
+
+notation joins
+  pattern     _ joins _ and _
+  sort        α, β, β → formula
+  level       predicate
+  reads       joins, and
+  metamath    wceq with the ends of an edge, set.mm's iEdg
+  target      _1 @ends cfv _2 _3 cpr wceq
+  note        An edge's two ends, in no order: "e joins u and v" is
+              "e joins v and u".
+
+notation end-of
+  pattern     _ is an end of _        _ is not an end of _
+  sort        β, α → formula
+  level       predicate
+  negates     pattern 2 is logical-not of pattern 1
+  reads       is an end of, is not an end of
+  metamath    wcel with the ends of an edge, and its negation
+  target      _1 _2 @ends cfv wcel, folded
+
+notation degree
+  pattern     deg(_)
+  sort        β → number
+  reads       the degree of
+  metamath    VtxDeg
+  target      _1 @deg cfv
+  note        The number of edges a vertex is an end of, set.mm's VtxDeg,
+              which in a graph without loops counts exactly those edges
+              (`vtxdumgrval`).
+
+notation traversable
+  pattern     _ is traversable        _ is not traversable
+  sort        α → formula
+  level       predicate
+  negates     pattern 2 is logical-not of pattern 1
+  reads       is traversable, is not traversable
+  metamath    wne with set.mm's EulerPaths and the empty set
+  target      _1 ceupth cfv c0 wne, folded
+  note        A graph is traversable where a walk crosses every edge exactly
+              once: an Euler path, which set.mm names and the page does not.
+              `def:stdlib/graphs/traversable` says what it is.
+
+notation walk
+  pattern     _ and _ form a walk of _ edges
+  sort        function from number to β, function from number to α, number → formula
+  level       predicate
+  reads       and, form a walk of, edges
+  metamath    the edge at each place joining the vertices on either side of it,
+              as def:stdlib/graphs/walk states it
+  target      vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
+              vz c1 _3 cfz co wral
+  note        v(0), e(1), v(1), …, e(n), v(n): the vertices the walk passes
+              through, in order, and the edges it crosses, each e(i) joining
+              v(i − 1) and v(i). The graph is the one the theorem's `let` line
+              gives, as for `deg`. `z` is the place the target runs over; it is
+              not a hole.
+
+notation euler-path
+  pattern     _ and _ form an Euler path of _ edges
+  sort        function from number to β, function from number to α, number → formula
+  level       predicate
+  reads       and, form an Euler path of, edges
+  metamath    a walk whose edges are one-to-one and reach every edge, as
+              def:stdlib/graphs/euler-path states it
+  target      vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
+              vz c1 _3 cfz co wral c1 _3 cfz co @ends cdm _2 wf1 wa
+              vy cv vz cv _2 cfv wceq vz c1 _3 cfz co wrex vy @ends cdm wral wa
+  note        A walk that crosses every edge of the graph exactly once. The
+              graph is the one the theorem's `let` line gives, its edges the
+              names `@ends` sends to their ends. `z` and `y` are the places the
+              target runs over; they are not holes.

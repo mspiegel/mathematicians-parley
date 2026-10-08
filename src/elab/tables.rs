@@ -328,9 +328,9 @@ impl<'a> Elaborator<'a> {
                 &[&made],
             )));
         }
-        // A "for all" or "there is" whose domain changes, its letter and
-        // its body kept.
-        if (label == "wral" || label == "wrex")
+        // A "for all", a "there is" or a set-builder whose domain changes,
+        // its letter and its body kept.
+        if (label == "wral" || label == "wrex" || label == "crab")
             && g[0] == w[0]
             && g[1] == w[1]
             && g[2] != w[2]
@@ -451,6 +451,30 @@ impl<'a> Elaborator<'a> {
         }
         // A function spelt as its define's name against the map it names:
         // `feq1d`, and for one-to-one `f1eq1` after the equation by `syl`.
+        // A function's type whose domain or codomain changes, the function
+        // too or not: `feq123d` and `f1eq123d` take the three equations, a
+        // part that stays the same carried by `eqidd`.
+        if (label == "wf" || label == "wf1") && slots != [2] {
+            let mut equal = Vec::new();
+            for i in [2, 0, 1] {
+                let one = if slots.contains(&i) {
+                    take!(
+                        self.congruence(&kids[i], &wants[i], scope, facts, step, leaf)?
+                    )
+                } else {
+                    self.b
+                        .ap("eqidd", &binds! {"ph" => scope, "A" => &spelt[i]}, &[])
+                };
+                equal.push(one);
+            }
+            let lemma = if label == "wf" { "feq123d" } else { "f1eq123d" };
+            return Ok(Built(self.b.ap(
+                lemma,
+                &binds! {"ph" => scope, "A" => &spelt[0], "B" => &other[0],
+                "C" => &spelt[1], "D" => &other[1], "F" => &spelt[2], "G" => &other[2]},
+                &[&equal[0], &equal[1], &equal[2]],
+            )));
+        }
         if (label == "wf" || label == "wf1") && slots == [2] {
             let moved =
                 take!(self.congruence(&kids[2], &wants[2], scope, facts, step, leaf)?);
@@ -1535,6 +1559,14 @@ impl<'a> Elaborator<'a> {
         }
         let inside = |other: &str| format!(" {other} ").contains(&format!(" {said} "));
         for (fact, proof) in facts.entries() {
+            // An equation the step names: a line it cites or one of its own
+            // requires lines. The scope holds every line above, and an
+            // equation taken from one the step does not name is a reason
+            // the page does not give.
+            let named = proof.origin.iter().all(|o| self.citing.contains(o));
+            if !named && !from_requires(&proof) {
+                continue;
+            }
             let node = self.to_term(&fact);
             if node.variable().is_some()
                 || node.label() != Some("wceq")

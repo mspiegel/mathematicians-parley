@@ -189,7 +189,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
 3.  For all k ∈ ℕ₀, N(k)/10^k ≤ N(k + 1)/10^(k + 1)
     and (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k.
-    fix
+    proof
     let k ∈ ℕ₀                                                        (K1)
 
     3.1.  N(k + 1) = 10·N(k) + d(k + 1)
@@ -270,7 +270,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
 4.  For all k ∈ ℕ₀, N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
     and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k.
-    fix
+    proof
     let k ∈ ℕ₀                                                        (K2)
 
     4.1.  N(k) ∈ ℤ
@@ -308,7 +308,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     base
     5.1.  For all p ∈ ℕ₀, N(p)/10^p ≤ N(p + 0)/10^(p + 0)
           and (N(p + 0) + 1)/10^(p + 0) ≤ (N(p) + 1)/10^p.
-          fix
+          proof
           let p ∈ ℕ₀                                                  (P1)
 
           5.1.1.  N(p) ∈ ℤ
@@ -337,7 +337,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     5.2.  For all p ∈ ℕ₀, N(p)/10^p ≤ N(p + (g + 1))/10^(p + (g + 1))
           and (N(p + (g + 1)) + 1)/10^(p + (g + 1)) ≤ (N(p) + 1)/10^p.
-          fix
+          proof
           let p ∈ ℕ₀                                                  (P2)
 
           5.2.1.  N(p)/10^p ≤ N(p + g)/10^(p + g)
@@ -380,7 +380,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                   substitute (p + g) + 1 = p + (g + 1) (line 5.2.7) into line 5.2.6
 
 6.  For all j ∈ ℕ₀, for all k ∈ ℕ₀, N(j)/10^j ≤ (N(k) + 1)/10^k.
-    fix
+    proof
     let j ∈ ℕ₀                                                        (J1)
     let k ∈ ℕ₀                                                        (K3)
 
@@ -452,7 +452,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     mun:set-builder-subset, from D4
 
 8.  For all k ∈ ℕ₀, N(k)/10^k ∈ S.
-    fix
+    proof
     let k ∈ ℕ₀                                                        (K8)
 
     8.1.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
@@ -475,11 +475,11 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     requires 0 ∈ ℕ₀: arithmetic
 
 10. For all k ∈ ℕ₀, (N(k) + 1)/10^k is an upper bound of S.
-    fix
+    proof
     let k ∈ ℕ₀                                                        (K4)
 
     10.1. For all y ∈ S, y ≤ (N(k) + 1)/10^k.
-          fix
+          proof
           let y ∈ S                                                   (Y)
 
           10.1.1. j ∈ ℕ₀. y = N(j)/10^j.
@@ -510,7 +510,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     mun:upper-bound, from 13
 
 15. For all k ∈ ℕ₀, N(k)/10^k ≤ c and c ≤ (N(k) + 1)/10^k.
-    fix
+    proof
     let k ∈ ℕ₀                                                        (K5)
 
     15.1. N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
@@ -534,7 +534,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           join 15.3, 15.5
 
 16. For all n ∈ ℕ, D(c, n) = d(n) or D(c, n) = s(d(n)).
-    fix
+    proof
     let n ∈ ℕ                                                         (K6)
 
     16.1. n − 1 ∈ ℕ₀
@@ -734,7 +734,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
        reads the diagonal changed: the n-th digit of f(n), plus one, with 9 becoming 0
 
 1.  For all n ∈ ℕ, D(f(n), n) ∈ ℤ.
-    fix
+    proof
     let n ∈ ℕ                                                         (K1)
 
     1.1.  D(f(n), n) = ⌊10^n·f(n)⌋ mod 10
@@ -764,7 +764,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
 2.  For all n ∈ ℕ, e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
     and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n).
-    fix
+    proof
     let n ∈ ℕ                                                         (K2)
 
     2.1.  D(f(n), n) ∈ ℤ
@@ -795,7 +795,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
           substitute e(n) = s(D(f(n), n)) (line 2.7) into line 2.6
 
 3.  For all n ∈ ℕ, e(n) ∈ ℤ.
-    fix
+    proof
     let n ∈ ℕ                                                         (K3)
 
     3.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
@@ -810,7 +810,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     requires e is a function on ℕ: from D5
 
 5.  For all n ∈ ℕ, 0 ≤ e(n) and e(n) ≤ 9.
-    fix
+    proof
     let n ∈ ℕ                                                         (K4)
 
     5.1.  D(f(n), n) ∈ ℤ
@@ -828,7 +828,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     requires e : ℕ → ℤ: from 4
 
 7.  For all n ∈ ℕ, f(n) ≠ x.
-    fix
+    proof
     let n ∈ ℕ                                                         (K5)
 
     7.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9

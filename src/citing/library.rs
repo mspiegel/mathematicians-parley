@@ -10,9 +10,9 @@ use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{expand, standard, Context};
 use crate::regex;
 use crate::sorts::{
-    element_re, file_definitions, function_being_re, function_on_re, function_re,
-    group_re, let_formula, part_re, polynomial_re, sentences, set_or_point_re, unlabel,
-    Env,
+    element_re, function_being_re, function_on_re, function_re, graph_re, group_re,
+    let_formula, part_re, polynomial_re, sentences, set_or_point_re,
+    sorts_of_statement, statement_definitions, unlabel, Env,
 };
 
 /// One `then` group of an item.
@@ -195,7 +195,11 @@ impl<'a> Library<'a> {
             // A theorem's statement means what it meant in its own file: a
             // definition it names is written out there, so what cites it is
             // compared with the rule and never with a name of its own.
-            let own = file_definitions(thm, self.env);
+            let own = statement_definitions(
+                thm,
+                self.env,
+                &sorts_of_statement(thm, self.env),
+            );
             let facts = self
                 .facts(&lines, k.sorts)
                 .into_iter()
@@ -264,7 +268,8 @@ impl<'a> Library<'a> {
                 && (set_or_point_re().is_match(&text)
                     || function_re().is_match(&text)
                     || element_re().is_match(&text)
-                    || group_re().is_match(&text))
+                    || group_re().is_match(&text)
+                    || graph_re().is_match(&text))
             {
                 continue;
             }

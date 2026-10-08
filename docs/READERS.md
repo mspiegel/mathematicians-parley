@@ -42,7 +42,9 @@ uses it.
 
 **Every step is written out.** In particular:
 
-- Every case of a case analysis, each with its own conclusion.
+- Every case of a case analysis, each with its own conclusion, except a
+  check of each element of a set listed in full, which is `inspection`
+  (below).
 - The induction hypothesis, stated in full, and both the base case and the
   step as separate parts. The statement is written once, in the claim the
   induction proves, "for all k ∈ ℕ₀, …"; the step part's `assume step 3 is
@@ -60,6 +62,17 @@ uses it.
 - The exact witness in an existence proof.
 - A variable condition when it matters, written in words such as "x does not
   appear in the expression", never as a Metamath disjointness clause.
+
+**What is seen by inspection is not written case by case.** A textbook says
+"by inspection, the edges at A are a, b, c, d and e" where its reader checks
+each element of a small set listed in full against what the text has just
+said of it. The cases of such a check are not an argument, and writing seven
+of them for each of four vertices would bury the one that is. `inspection`
+(`METHODS.md`) makes that check, and only that check: the set is one the
+lines it cites list in full, each element is settled by what those lines say
+of it and by their saying which names are distinct, and nothing is searched
+for. A case analysis whose cases need reasons of their own is still written
+out, each case with its conclusion.
 
 **Dull facts.** Some steps exist only to satisfy a hypothesis of a cited
 definition, theorem or method: that a divisor is not zero, that a product of

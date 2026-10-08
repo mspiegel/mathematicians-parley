@@ -45,11 +45,11 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     mun:finite-part, from H1, 1
 
 3.  For all g ∈ G, gH ⊆ G.
-    fix
+    proof
     let g ∈ G                                                         (K1)
 
     3.1.  For all u ∈ gH, u ∈ G.
-          fix
+          proof
           let u ∈ gH                                                  (K2)
 
           3.1.1.  h ∈ H. u = g·h.
@@ -69,7 +69,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:subset, from 3.1
 
 4.  For all g ∈ G, g ∈ gH.
-    fix
+    proof
     let g ∈ G                                                         (K3)
 
     4.1.  e ∈ H
@@ -83,7 +83,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           requires H ⊆ G: from 1
 
 5.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
-    fix
+    proof
     let a ∈ G                                                         (K4)
     let x ∈ aH                                                        (K5)
 
@@ -101,7 +101,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:in-subset, from 1, 5.1
 
     5.5.  For all u ∈ xH, u ∈ aH.
-          fix
+          proof
           let u ∈ xH                                                  (K6)
 
           5.5.1.  c ∈ H. u = x·c.
@@ -134,7 +134,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:subset, from 5.5
 
 6.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
-    fix
+    proof
     let a ∈ G                                                         (K7)
     let x ∈ aH                                                        (K8)
 
@@ -184,7 +184,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           requires H ⊆ G: from 1
 
 7.  For all b ∈ G, for all y ∈ bH, yH = bH.
-    fix
+    proof
     let b ∈ G                                                         (K9)
     let y ∈ bH                                                        (K10)
 
@@ -207,14 +207,14 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:subset-antisymmetric, from 7.1, 7.5
 
 8.  For all g ∈ G, |gH| = |H|.
-    fix
+    proof
     let g ∈ G                                                         (K11)
 
     define t(c) := g·c, for c ∈ H                                     (D2)
            reads g times c
 
     8.1.  For all h ∈ H, t(h) ∈ gH.
-          fix
+          proof
           let h ∈ H                                                   (K12)
 
           8.1.1.  t(h) = g·h
@@ -229,7 +229,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           requires t is a function on H: from D2
 
     8.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
-          fix
+          proof
           let s ∈ H                                                   (K13)
           let r ∈ H                                                   (K14)
           assume t(s) = t(r)                                          (A1)
@@ -259,7 +259,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:one-to-one, from 8.2, 8.3
 
     8.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
-          fix
+          proof
           let u ∈ gH                                                  (K15)
 
           8.5.1.  h ∈ H. u = g·h.
@@ -290,7 +290,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     mun:union-within, from 9
 
 11. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
-    fix
+    proof
     let g ∈ G                                                         (K17)
 
     11.1. gH ⊆ G
@@ -318,7 +318,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     mun:subset-antisymmetric, from 10, 12
 
 14. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
-    fix
+    proof
     let Y ∈ K                                                         (K18)
     let Z ∈ K                                                         (K19)
     let x ∈ Y ∩ Z                                                     (K20)
@@ -352,7 +352,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
               = Z                   14.2
 
 15. For all Y ∈ K, |Y| = |H|.
-    fix
+    proof
     let Y ∈ K                                                         (K21)
 
     15.1. a ∈ G. Y = aH.

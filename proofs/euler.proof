@@ -61,7 +61,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     mun:subset-transitive, from 3, 2
 
 6.  For all r ∈ S, f(r) ∈ S.
-    fix
+    proof
     let r ∈ S                                                         (K1)
 
     6.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
@@ -110,7 +110,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
           substitute f(r) = (r·a) mod n (line 6.8) into line 6.7
 
 7.  For all s, t ∈ S, if f(s) = f(t) then s = t.
-    fix
+    proof
     let s ∈ S                                                         (K2)
     let t ∈ S                                                         (K3)
     assume f(s) = f(t)                                                (K4)
@@ -163,7 +163,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     thm:product-reorder, from 5, 4, 9
 
 11. For all r ∈ S, r·a ≡ f(r) (mod n).
-    fix
+    proof
     let r ∈ S                                                         (K5)
 
     11.1. r ∈ {0, …, n − 1}. gcd(r, n) = 1.

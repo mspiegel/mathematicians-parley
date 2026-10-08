@@ -31,8 +31,8 @@ use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
 use crate::sorts::{
-    define_sorts, element_re, file_definitions, group_re, let_formula, property_re,
-    sentences, set_or_point_re, unlabel, Env,
+    define_sorts, element_re, file_definitions, graph_line, group_re, let_formula,
+    property_re, sentences, set_or_point_re, unlabel, Env,
 };
 use crate::text::repr;
 
@@ -845,6 +845,28 @@ pub fn introduce(
     store: &mut Store,
 ) {
     let body = str::trim(&unlabel(body)).to_string();
+    // A graph, its vertices and its edges: three sets, of things of no sort
+    // the line says. Vertices and edges are whatever names the theorem gives
+    // them; a graph given in full names each of them, of the sort its set
+    // holds.
+    if let Some(line) = graph_line(&body) {
+        let graph = store.var_said(false, &line.graph);
+        reader.env.insert(line.graph.clone(), SortTerm::set(graph));
+        reader.declared.push(line.graph.clone());
+        for (set, listed) in [
+            (&line.vertices, line.listed.as_ref().map(|l| &l.vertices)),
+            (&line.edges, line.listed.as_ref().map(|l| &l.edges)),
+        ] {
+            let held = store.var_said(false, set);
+            reader.env.insert(set.clone(), SortTerm::set(held.clone()));
+            reader.declared.push(set.clone());
+            for name in listed.into_iter().flatten() {
+                reader.env.insert(name.clone(), held.clone());
+                reader.declared.push(name.clone());
+            }
+        }
+        return;
+    }
     // A group is a set of group elements, and its identity is one of them.
     if let Some(m) = group_re().captures(&body) {
         reader

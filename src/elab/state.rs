@@ -119,7 +119,7 @@ pub struct Block {
     /// An induction's name and spare.
     pub over: Option<String>,
     pub base: Option<String>,
-    /// The setvar a fix introduced.
+    /// The setvar a `proof` block's `let` introduced.
     pub variable: Option<String>,
     /// The names in hand before it opened, and which variable each binder
     /// had; and which each had while it was open.

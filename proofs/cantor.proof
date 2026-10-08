@@ -15,7 +15,7 @@ define B := {x ∈ A : x ∉ f(x)}                                        (D1)
     mun:set-builder-subset, from D1
 
 2.  For all x ∈ A, f(x) ≠ B.
-    fix
+    proof
     let x ∈ A                                                         (K)
 
     2.1.  f(x) ≠ B

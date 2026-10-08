@@ -39,6 +39,18 @@ pub fn from_requires(proof: &Proof) -> bool {
 }
 
 /// Whether a proof rests on exactly one item, and that one.
+/// What a requires line may not rest on: what it and the lines below it
+/// made, which a pass made before this one may hold. A line rests only on
+/// those above it (R2), and its own earlier proof would hide the line it
+/// names.
+fn not_above(step: &Step, req: &Requires) -> BTreeSet<String> {
+    step.requires
+        .iter()
+        .skip_while(|o| o.line != req.line)
+        .map(|o| requirement(o.line))
+        .collect()
+}
+
 pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
     proof.origin.len() == 1
         && proof.origin.iter().next().map(String::as_str) == Some(item)
@@ -615,16 +627,8 @@ impl<'a> Elaborator<'a> {
                     given = known.filtered(|k, _| !same.iter().any(|s| s == k));
                 }
             }
-            // What the lines below it made, a pass made before this one may
-            // hold, and the line rests only on those above it (R2).
-            let below: BTreeSet<String> = step
-                .requires
-                .iter()
-                .skip_while(|o| o.line != r.line)
-                .skip(1)
-                .map(|o| requirement(o.line))
-                .collect();
-            let unbelow = |v: &Proof| !v.origin.iter().any(|o| below.contains(o));
+            let not_above = not_above(step, r);
+            let unbelow = |v: &Proof| !v.origin.iter().any(|o| not_above.contains(o));
             let given = given.filtered(|_, v| unbelow(v));
             let written = self.written.clone();
             self.written = self.written.filtered(unbelow);
@@ -997,6 +1001,13 @@ impl<'a> Elaborator<'a> {
         for r in &step.requires {
             let node = self.read(&r.fact)?;
             if self.term(&node)? == goal {
+                // The line proved once already, by its own reason, where the
+                // step's requires lines were supplied: that proof is the line.
+                if let Some(p) = self.held(facts, goal, scope)? {
+                    if p.origin.contains(&requirement(r.line)) {
+                        return Ok(p);
+                    }
+                }
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
                 return match self.side(&node, r, scope, facts, Some(step))? {

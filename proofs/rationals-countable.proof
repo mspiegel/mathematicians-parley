@@ -29,7 +29,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     requires for all n ∈ ℕ, f(n) ∈ ℚ: membership, from D1
 
 2.  For all m, n ∈ ℕ, if f(m) = f(n) then m = n.
-    fix
+    proof
     let m ∈ ℕ                                                         (K2)
     let n ∈ ℕ                                                         (K3)
     assume f(m) = f(n)                                                (A1)
@@ -50,7 +50,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     mun:one-to-one, from 1, 2
 
 4.  For all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|.
-    fix
+    proof
     let x ∈ ℚ                                                         (K4)
 
     4.1.  s(x) ∈ ℕ₀
@@ -135,7 +135,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     requires g is a function on ℚ: from D3
 
 7.  For all x, y ∈ ℚ, if g(x) = g(y) then x = y.
-    fix
+    proof
     let x ∈ ℚ                                                         (K6)
     let y ∈ ℚ                                                         (K7)
     assume g(x) = g(y)                                                (A2)

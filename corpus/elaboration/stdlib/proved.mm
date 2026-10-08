@@ -992,3 +992,237 @@ $d q x $.  $d q F $.  $d q A $.  $d x F $.  $d x A $.
 
 $}
 
+${
+$( Counts: the numbers among the first k with a property, stepped to k + 1. $)
+$( The set-builder binds i, apart from the end of the range, the scope and
+   the property's value at k + 1. The shift's second letter j is apart from
+   i, the range, the scope, and the properties it does not read. $)
+$d i K $.  $d i ph $.  $d i ch $.
+$d i A $.  $d i B $.  $d i M $.  $d i N $.  $d i th $.
+$d i j $.  $d j N $.  $d j ph $.  $d j ps $.  $d j ta $.
+
+  ${
+    gcntcl.1 $e |- ( ph -> K e. ZZ ) $.
+  gcntcl $p |- ( ph -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 ) $=
+    ( c1 cfz co crab chash cfv cn0 wcel cfn fzfi rabfi ax-mp hashcl a1i )
+    BCFDGHZIZJKZLMZAUANMZUCTNMUDFDOBCTPQUARQS $.
+  $}
+
+  gcardpr $p |- ( # ` { A , B } ) <_ 2 $=
+    ( cpr cfn wcel chash cfv c2 cle wbr hashprlei simpri ) ABCZDEMFGHIJABKL $.
+
+  gcnt0 $p |- ( # ` { i e. ( 1 ... 0 ) | ps } ) = 0 $=
+    ( c1 cc0 cfz co crab chash cfv c0 fz10 rabeqi rab0 eqtri fveq2i hash0 )
+    ABCDEFZGZHIJHIDRJHRABJGJABQJKLABMNOPN $.
+
+  ${
+    gcntsplit.1 $e |- ( ph -> K e. NN0 ) $.
+  gcntsplit $p |- ( ph -> { i e. ( 1 ... ( K + 1 ) ) | ps } = ( { i e. ( 1 ... K ) | ps } u. { i e. { ( K + 1 ) } | ps } ) ) $=
+    ( c1 caddc co cfz crab csn cun cmin cuz cfv wcel wceq cn0 cc0 nn0uz 1m1e0
+    fveq2i eqtr4i eleqtrdi cz 1z fzsuc2 mpan syl rabeqdv rabun2 eqtrdi )
+    ABCFDFGHZIHZJBCFDIHZUMKZLZJBCUOJBCUPJLABCUNUQADFFMHZNOZPZUNUQQZADRUSERSNOUSTURSNUAUBUCUDFUEPUTVAUFFDUGUHUIUJBCUOUPUKUL $.
+  $}
+
+  ${
+    gcntsuc.1 $e |- ( ph -> K e. NN0 ) $.
+    gcntsuc.2 $e |- ( ph -> ch ) $.
+    gcntsuc.3 $e |- ( i = ( K + 1 ) -> ( ps <-> ch ) ) $.
+  gcntsuc $p |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( ( # ` { i e. ( 1 ... K ) | ps } ) + 1 ) ) $=
+    ( c1 caddc co cfz crab chash cfv csn cun gcntsplit c0 cif rabsnif wceq
+    iftrue syl eqtrid uneq2d eqtrd fveq2d cvv wcel cfn wn wa ovex fzfi rabfi
+    ax-mp fzp1nel ssrab2 sseli mto pm3.2i hashunsng mp2 eqtrdi )
+    ABDIEIJKZLKZMZNOBDIELKZMZVFPZQZNOZVJNOZIJKZAVHVLNAVHVJBDVKMZQVLABDEFRAVPVKVJAVPCVKSTZVKBCDVFHUAACVQVKUBGCVKSUCUDUEUFUGUHVFUIUJVJUKUJZVFVJUJZULZUMVMVOUBEIJUNVRVTVIUKUJVRIEUOBDVIUPUQVSVFVIUJIEURVJVIVFBDVIUSUTVAVBVJVFUIVCVDVE $.
+  $}
+
+  ${
+    gcntsucn.1 $e |- ( ph -> K e. NN0 ) $.
+    gcntsucn.2 $e |- ( ph -> -. ch ) $.
+    gcntsucn.3 $e |- ( i = ( K + 1 ) -> ( ps <-> ch ) ) $.
+  gcntsucn $p |- ( ph -> ( # ` { i e. ( 1 ... ( K + 1 ) ) | ps } ) = ( # ` { i e. ( 1 ... K ) | ps } ) ) $=
+    ( c1 caddc co cfz crab chash c0 cun csn gcntsplit cif rabsnif wn wceq
+    iffalse syl eqtrid uneq2d eqtrd un0 eqtrdi fveq2d )
+    ABDIEIJKZLKZMZBDIELKZMZNAUMUOOPZUOAUMUOBDUKQZMZPUPABDEFRAUROUOAURCUQOSZOBCDUKHTACUAUSOUBGCUQOUCUDUEUFUGUOUHUIUJ $.
+  $}
+
+  ${
+    gcntsame.1 $e |- ( ph -> N e. ZZ ) $.
+    gcntsame.2 $e |- ( ph -> A. i e. ( 1 ... N ) ( ps <-> ta ) ) $.
+  gcntsame $p |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... N ) | ta } ) ) $=
+    ( c1 cfz co crab chash wb wral wceq rabbi sylib fveq2d )
+    ABDHEIJZKZCDSKZLABCMDSNTUAOGBCDSPQR $.
+  $}
+
+  ${
+    gcnteither.1 $e |- ( ph -> N e. ZZ ) $.
+    gcnteither.2 $e |- ( ph -> A. i e. ( 1 ... N ) -. ( ps /\ ta ) ) $.
+  gcnteither $p |- ( ph -> ( # ` { i e. ( 1 ... N ) | ( ps \/ ta ) } ) = ( ( # ` { i e. ( 1 ... N ) | ps } ) + ( # ` { i e. ( 1 ... N ) | ta } ) ) ) $=
+    ( wo c1 cfz co crab chash cfv cun caddc unrab fveq2i cin c0 wceq wa inrab
+    wn wral rabeq0 sylibr eqtrid cfn wcel fzfi rabfi ax-mp hashun mp3an12 syl
+    eqtr3id )
+    ABCHZDIEJKZLZMNBDUSLZCDUSLZOZMNZVAMNZVBMNZPKZVCUTMBCDUSQRAVAVBSZTUAZVDVGUAZAVHBCUBZDUSLZTBCDUSUCAVKUDDUSUEVLTUAGVKDUSUFUGUHVAUIUJZVBUIUJZVIVJUSUIUJZVMIEUKZBDUSULUMVOVNVPCDUSULUMVAVBUNUOUPUQ $.
+  $}
+
+  ${
+    gcntshift.1 $e |- ( ph -> N e. ZZ ) $.
+    gcntshift.2 $e |- ( i = j -> ( ps <-> th ) ) $.
+    gcntshift.3 $e |- ( j = ( i - 1 ) -> ( th <-> ta ) ) $.
+  gcntshift $p |- ( ph -> ( # ` { i e. ( 1 ... N ) | ta } ) = ( # ` { i e. ( 0 ... ( N - 1 ) ) | ps } ) ) $=
+    ( c1 cfz co crab chash cfv cc0 cmin caddc wceq 0p1e1 a1i cc wcel zcnd
+    npcan1 syl oveq12d rabeqdv fveq2d cfn cv cmpt cres fzfi rabfi ax-mp eqid
+    1zzd 0zd cz peano2zm mptfzshft wb 3ad2ant3 f1oresrab hasheqf1od eqtr3d
+    cbvrabv fveq2i eqtr4di )
+    ADEKGLMZNZOPZCFQGKRMZLMZNZOPZBEVPNZOPADEQKSMZVOKSMZLMZNZOPVNVRAWCVMOADEWBVLAVTKWAGLVTKTAUAUBAGUCUDWAGTAGHUEGUFUGUHUIUJAWCVQUKEWBEULZKRMZUMZWCUNWCUKUDZAWBUKUDWGVTWAUODEWBUPUQUBADCEFWBVPWEWFWFURAEKQVOAUSAUTAGVAUDVOVAUDHGVBUGVCFULWETACDVDWDWBUDJVEVFVGVHVSVQOBCEFVPIVIVJVK $.
+  $}
+
+  ${
+    gcntdrop.1 $e |- ( ph -> -. ch ) $.
+    gcntdrop.2 $e |- ( i = A -> ( ps <-> ch ) ) $.
+  gcntdrop $p |- ( ph -> { i e. B | ps } = { i e. ( B \ { A } ) | ps } ) $=
+    ( crab csn cdif wcel wn wceq elrab simprbi con3i syl difsn rabdif eqtr3di
+    ) ABFEIZDJZKZUBBFEUCKIADUBLZMZUDUBNACMUFGUECUEDELCBCFDEHOPQRDUBSRBFEUCTUA $.
+  $}
+
+  ${
+    gcntfirst.1 $e |- ( ph -> M e. ZZ ) $.
+    gcntfirst.2 $e |- ( ph -> -. ch ) $.
+    gcntfirst.3 $e |- ( i = 0 -> ( ps <-> ch ) ) $.
+  gcntfirst $p |- ( ph -> ( # ` { i e. ( 0 ... M ) | ps } ) = ( # ` { i e. ( 1 ... M ) | ps } ) ) $=
+    ( cc0 cfz co crab c1 chash csn cdif gcntdrop wceq c0 difeq1 0dif eqtrdi
+    wss fz1ssfz0 sseq0 mpan eqtr4d wne caddc cuz cfv wcel fzn0 fzdif1 sylbi
+    0p1e1 oveq1i pm2.61ine rabeqi fveq2d )
+    ABDIEJKZLZBDMEJKZLZNAVBBDVAIOZPZLVDABCIVADGHQBDVFVCVFVCRVASVASRZVFSVCVGVFSVEPSVASVETVEUAUBVCVAUCVGVCSREUDVCVAUEUFUGVASUHZVFIMUIKZEJKZVCVHEIUJUKULVFVJRIEUMIEUNUOVIMEJUPUQUBURUSUBUT $.
+  $}
+
+  ${
+    gcntlast.1 $e |- ( ph -> N e. ZZ ) $.
+    gcntlast.2 $e |- ( ph -> -. ch ) $.
+    gcntlast.3 $e |- ( i = N -> ( ps <-> ch ) ) $.
+  gcntlast $p |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... ( N - 1 ) ) | ps } ) ) $=
+    ( c1 cfz co crab cmin chash csn cdif gcntdrop wceq c0 wa difeq1 0dif
+    eqtrdi adantl wss caddc fzssp1 cc wcel zcnd npcan1 syl oveq2d sseqtrid
+    sseq0 sylan eqtr4d ex wne wi cuz cfv fzn0 fzdif2 sylbi a1i pm2.61dne
+    rabeqdv eqtrd fveq2d )
+    ABDIEJKZLZBDIEIMKZJKZLZNAVLBDVKEOZPZLVOABCEVKDGHQABDVQVNAVQVNRZVKSAVKSRZVRAVSTVQSVNVSVQSRAVSVQSVPPSVKSVPUAVPUBUCUDAVNVKUEVSVNSRAIVMIUFKZJKVNVKIVMUGAVTEIJAEUHUIVTERAEFUJEUKULUMUNVNVKUOUPUQURVKSUSZVRUTAWAEIVAVBUIVRIEVCIEVDVEVFVGVHVIVJ $.
+  $}
+
+$}
+
+${
+$( Graphs: the ends of an edge of a multigraph, the degree of a vertex, and
+   a graph that has an Euler path. $)
+$( The degree's set-builder binds x, apart from the graph and the vertex.
+   The walk's length n, its edges f, its vertices v and the letters a and k
+   the page's conditions bind are kept apart from the graph and each
+   other. $)
+$d x G $.  $d x U $.
+$d z F $.  $d z G $.  $d z I $.  $d z N $.  $d z P $.  $d z ph $.
+$d a k n f v G $.
+
+  ${
+    gwalkstep.1 $e |- ( ph -> A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } ) $.
+    gwalkstep.2 $e |- ( ph -> I e. ( 1 ... N ) ) $.
+  gwalkstep $p |- ( ph -> ( ( iEdg ` G ) ` ( F ` I ) ) = { ( P ` ( I - 1 ) ) , ( P ` I ) } ) $=
+    ( c1 cfz co wcel cv cfv ciedg cmin cpr wceq wral fveq2 fveq2d oveq1
+    preq12d eqeq12d rspcv sylc )
+    AFJGKLZMBNZDOZEPOZOZUIJQLZCOZUICOZRZSZBUHTFDOZUKOZFJQLZCOZFCOZRZSZIHUQVDBFUHUIFSZULUSUPVCVEUJURUKUIFDUAUBVEUNVAUOVBVEUMUTCUIFJQUCUBUIFCUAUDUEUFUG $.
+  $}
+
+  gdeg $p |- ( ( G e. UMGraph /\ U e. ( Vtx ` G ) ) -> ( ( VtxDeg ` G ) ` U ) = ( # ` { x e. dom ( iEdg ` G ) | U e. ( ( iEdg ` G ) ` x ) } ) ) $=
+    ( ciedg cfv cdm cvtxdg cvtx eqid vtxdumgrval )
+    ACDEZFZCGEZBCKCHEZNIKILIMIJ $.
+
+  ${
+    gjoinend1.1 $e |- ( ph -> U e. ( Vtx ` G ) ) $.
+    gjoinend1.2 $e |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } ) $.
+  gjoinend1 $p |- ( ph -> U e. ( ( iEdg ` G ) ` A ) ) $=
+    ( cpr ciedg cfv cvtx wcel prid1g syl eleqtrrd )
+    ACCEHZBDIJJACDKJZLCPLFCEQMNGO $.
+  $}
+
+  ${
+    gjoinend2.1 $e |- ( ph -> W e. ( Vtx ` G ) ) $.
+    gjoinend2.2 $e |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } ) $.
+  gjoinend2 $p |- ( ph -> W e. ( ( iEdg ` G ) ` A ) ) $=
+    ( cpr ciedg cfv cvtx wcel prid2g syl eleqtrrd )
+    AECEHZBDIJJAEDKJZLEPLFCEQMNGO $.
+  $}
+
+  ${
+    gnotend.1 $e |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } ) $.
+    gnotend.2 $e |- ( ph -> X =/= U ) $.
+    gnotend.3 $e |- ( ph -> X =/= W ) $.
+  gnotend $p |- ( ph -> -. X e. ( ( iEdg ` G ) ` A ) ) $=
+    ( ciedg cfv wcel wn cpr wceq wo wne wa jca neanior sylib elpri con3i syl
+    eleq2d notbid mpbird )
+    AFBDJKZKZLZMFCENZLZMZAFCOZFEOZPZMZUMAFCQZFEQZRUQAURUSHISFCFETUAULUPFCEUBUCUDAUJULAUIUKFGUEUFUG $.
+  $}
+
+  ${
+    gjoinne.1 $e |- ( ph -> G e. UMGraph ) $.
+    gjoinne.2 $e |- ( ph -> U e. ( Vtx ` G ) ) $.
+    gjoinne.3 $e |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } ) $.
+  gjoinne $p |- ( ph -> U =/= W ) $=
+    ( ciedg cfv cpr wceq wne cumgr wcel cvtx wi eqid umgrnloopv syl2anc mpd )
+    ABDIJZJZCEKZLZCEMZHADNOCDPJZOUEUFQFGUBDCEUGBUBRSTUA $.
+  $}
+
+  ${
+    gends.1 $e |- ( ph -> X e. ( Vtx ` G ) ) $.
+    gends.2 $e |- ( ph -> ( ( iEdg ` G ) ` A ) = { U , W } ) $.
+  gends $p |- ( ph -> ( X e. ( ( iEdg ` G ) ` A ) <-> ( X = U \/ X = W ) ) ) $=
+    ( ciedg cfv wcel cpr wceq wo eleq2d cvtx wb elprg syl bitrd )
+    AFBDIJZJZKFCELZKZFCMZFEMZNZAUBUCFHOAFDPJZKUDUGQGFCEUHRST $.
+  $}
+
+  ${
+    gwalkne.1 $e |- ( ph -> G e. UMGraph ) $.
+    gwalkne.2 $e |- ( ph -> P : ( 0 ... N ) --> ( Vtx ` G ) ) $.
+    gwalkne.3 $e |- ( ph -> A. z e. ( 1 ... N ) ( ( iEdg ` G ) ` ( F ` z ) ) = { ( P ` ( z - 1 ) ) , ( P ` z ) } ) $.
+    gwalkne.4 $e |- ( ph -> I e. ( 1 ... N ) ) $.
+  gwalkne $p |- ( ph -> ( P ` ( I - 1 ) ) =/= ( P ` I ) ) $=
+    ( cfv c1 cmin co cc0 cfz cvtx cfzo fzossfz wcel fz1fzo0m1 syl sselid
+    ffvelcdmd gwalkstep gjoinne )
+    AFDLFMNOZCLEFCLHAPGQOZERLUHCIAPGSOZUIUHPGTAFMGQOUAUHUJUAKFGUBUCUDUEABCDEFGJKUFUG $.
+  $}
+
+  gtravf1o $p |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) $=
+    ( cc0 cv c1 cmin co cfz ciedg cfv cdm wf1o wf1 wf wceq wrex wral wa wfo
+    df-f1o dffo3 anbi2i bitri f1f pm4.71i anbi1i anass bitr4i )
+    FCGZHIJZKJZDLMZNZAGZOZUNUPUQPZUNUPUQQZEGZBGZUQMZRZBUNSZEUPTZUAZUAZUSVFUAZURUSUNUPUQUBZUAVHUNUPUQUCVJVGUSBEUNUPUQUDUEUFVIUSUTUAZVFUAVHUSVKVFUSUTUNUPUQUGUHUIUSUTVFUJUFUK $.
+
+  ${
+    gtravq.1 $e |- ( ph -> G e. UMGraph ) $.
+    gtravq.2 $e |- ( ph -> n e. NN0 ) $.
+    gtravq.3 $e |- ( ph -> ( # ` f ) = n ) $.
+  gtravq $p |- ( ph -> ( f ( EulerPaths ` G ) v <-> ( ( f e. Word dom ( iEdg ` G ) /\ v : ( 0 ... n ) --> ( Vtx ` G ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) ) $=
+    ( cv ceupth cfv wbr ciedg cdm cword wcel cc0 cfz co cvtx wf c1 caddc cpr
+    wceq cmin wral w3a wf1 wrex wa cwlks chash cfzo wf1o eqid iseupthf1o
+    cupgr wb cumgr umgrupgr syl upgriswlk oveq2d feq2d cz nn0zd fzoval eqtrd
+    raleqdv 3anbi23d bitrd f1oeq2 gtravf1o bitrdi anbi12d bitrid df-3an
+    anbi1i anass ancom anbi2i 3bitri )
+    ACKZBKZFLMZNZWFFOMZPZQZRZSEKZTUAZFUBMZWGUCZDKZWFMZWJMZWRWGMZWRUDUEUAZWGMZUFZUGZDSWNUDUHUAZTUAZUIZUJZXGWKWFUKZGKZWSUGZDXGULZGWKUIZUMZUMZWMWQUMZXOXHUMZUMZWIWFWGFUNMZNZSWFUOMZUPUAZWKWFUQZUMAXPWGWFFWJWJURZUSAYAXIYDXOAYAWMSYBTUAZWPWGUCZXEDYCUIZUJZXIAFUTRZYAYIVAAFVBRYJHFVCVDWGDWFFWJWPWPURYEVEVDAYGWQYHXHWMAYFWOWPWGAYBWNSTJVFVGAXEDYCXGAYCSWNUPUAZXGAYBWNSUPJVFZAWNVHRZYKXGUGZAWNIVIZSWNVJZVDZVKZVLVMVNAYDXGWKWFUQZXOAYCXGUGYDYSVAYRYCXGWKWFVOVDCDEFGVPVQVRVSXPXQXHUMZXOUMXQXHXOUMZUMXSXIYTXOWMWQXHVTWAXQXHXOWBUUAXRXQXHXOWCWDWEVQ $.
+  $}
+
+  gtravpt $p |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) ) $=
+    ( cumgr wcel cv cn0 wa ciedg cfv cdm cc0 c1 cmin co cfz cmap cvtx wf1
+    wceq wrex wral caddc cpr cword wf chash ceupth wbr cfzo wb simpr cvv fvex
+    dmexg ax-mp wrdmap mpan syl cz nn0zd fzoval oveq2d eleq2d bitrd bicomd
+    ovex elmapg mp2an a1i anbi12d anbi1d an32 anbi1i bitri bitrdi simpll
+    simplr gtravq ex pm5.32rd bitr4d )
+    EGHZDIZJHZKZBIZELMZNZOWGPQRZSRZTRZHZAIZEUAMZOWGSRZTRZHZKZWNWLWJUBZFIZCIZWJMZUCZCWNUDZFWLUEZKZXFWKMZXEWQMZXEPUFRZWQMZUGZUCZCWNUEZKZKZWJWLUHZHZWSWRWQUIZKZXRKZWJUJMZWGUCZKZWJWQEUKMZULZYFKWIXSYAYFKZYBKZXRKZYGWIXBYKXRWIWPYJXAYBWIYJWPWIYJWJWLOWGUMRZTRZHZWPWIWHYJYOUNZWFWHUOZWLUPHZWHYPWKUPHYRELUQWKUPURUSWGWLWJUPUTVAVBWIYNWOWJWIYMWNWLTWIWGVCHYMWNUCWIWGYQVDOWGVEVBVFVGVHVIXAYBUNZWIWRUPHWSUPHYSEUAUQOWGSVJWRWSWQUPUPVKVLVMVNVOYLYCYFKZXRKYGYKYTXRYAYFYBVPVQYCYFXRVPVRVSWIYFYIYDWIYFYIYDUNWIYFKABCDEFWFWHYFVTWFWHYFWAWIYFUOWBWCWDWE $.
+
+  gtravne0 $p |- ( ( EulerPaths ` G ) =/= (/) <-> E. f E. v f ( EulerPaths ` G ) v ) $=
+    ( ceupth cfv c0 wne cdm cv wcel wex wbr wrel wceq wb releupth reldm0
+    ax-mp necon3bii n0 vex eldm exbii 3bitri )
+    CDEZFGUEHZFGBIZUFJZBKUGAIZUELZAKZBKUEFUFFUEMUEFNUFFNOCPUEQRSBUFTUHUKBAUGUEBUAUBUCUD $.
+
+  gtrav $p |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) ) $=
+    ( cumgr wcel cc0 cv c1 cmin co cfz ciedg cfv cdm wf1 wceq wrex wral wa
+    caddc cpr cvtx cmap cn0 ceupth c0 wne wbr chash wex r2ex gtravpt 2exbidv
+    bitrid rexbidva rexcom4 exbii r19.42v eqcom rexbii risset bitr4i anbi2i
+    bitri cwlks eupthiswlk wlkcl syl pm4.71i 2exbii 3bitri gtravne0 bitrdi
+    bicomd )
+    EGHZIDJZKLMZNMZEOPZQZBJZRZFJZCJZWDPZSZCWATZFWCUAZUBZWHWBPZWGAJZPZWGKUCMZWNPZUDZSZCWAUAZUBZAEUEPZIVSNMZUFMZTZBWCWAUFMZTZDUGTZEUHPZUIUJZVRXHWDWNXIUKZWDULPZVSSZUBZAUMZBUMZDUGTZXJVRXGXPDUGXGWDXFHZWNXDHZUBZXAUBZAUMBUMVRVSUGHZUBZXPXABAXFXDUNYCYAXNBAABCDEFUOUPUQURXQXKAUMZBUMZXJXQXODUGTZBUMXNDUGTZAUMZBUMYEXODBUGUSYFYHBXNDAUGUSUTYGXKBAYGXKXLUGHZUBZXKYGXKXMDUGTZUBYJXKXMDUGVAYKYIXKYKVSXLSZDUGTYIXMYLDUGXLVSVBVCDXLUGVDVEVFVGXKYIXKWDWNEVHPUKYIWNWDEVIWNWDEVJVKVLVEVMVNABEVOVEVPVQ $.
+
+$}
+

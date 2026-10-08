@@ -82,6 +82,26 @@ mundane theorem powerset-empty
   metamath    pw0
   target      pw0
 
+mundane definition pair
+  let x be an element                                                 (H1)
+  then        x ∈ {u, w} ↔ x = u or x = w
+  metamath    elprg
+  target      elprg
+  note        What is in a set of two listed things is one of the two.
+
+mundane definition singleton
+  let x be an element                                                 (H1)
+  then        x ∈ {a} ↔ x = a
+  metamath    elsng
+  target      elsng
+  note        What is in a set of one listed thing is that thing, as `pair`
+              says of two.
+
+mundane theorem pair-finite
+  then        {u, w} is finite
+  metamath    prfi
+  target      prfi
+
 mundane theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)

@@ -19,6 +19,7 @@ pub mod calculators;
 pub mod definitions;
 pub mod elaborate;
 pub mod field;
+mod inspection;
 pub mod linear;
 mod listing;
 pub mod matcher;

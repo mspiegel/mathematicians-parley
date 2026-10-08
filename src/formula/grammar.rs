@@ -508,25 +508,45 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
     }
     // `f : X → Y`, as "there is f : X → Y with …" binds it: f is a function
     // from what X holds to what Y holds, or a function where they do not say.
+    // X and Y may be written as more than a name, `{1, …, n}`: the arrow is
+    // the first outside brackets, and the type ends at a `with` or a comma
+    // outside them.
     for i in 0..tokens.len().saturating_sub(4) {
-        let (f, colon, from, arrow, to) = (
-            &tokens[i],
-            &tokens[i + 1],
-            &tokens[i + 2],
-            &tokens[i + 3],
-            &tokens[i + 4],
-        );
+        let (f, colon) = (&tokens[i], &tokens[i + 1]);
         if f.kind != TokenKind::Name
             || colon.text != ":"
-            || arrow.text != "→"
-            || from.kind != TokenKind::Name
-            || to.kind != TokenKind::Name
             || !sort_of(&f.text).is_unknown()
         {
             continue;
         }
+        let ends = |t: &Token| t.text == "with" || t.text == ",";
+        let mut depth = 0i32;
+        let mut arrow = None;
+        for (j, t) in tokens.iter().enumerate().skip(i + 2) {
+            match t.text.as_str() {
+                "(" | "{" | "[" => depth += 1,
+                ")" | "}" | "]" => depth -= 1,
+                "→" if depth == 0 => {
+                    arrow = Some(j);
+                    break;
+                }
+                _ if depth == 0 && ends(t) => break,
+                _ => {}
+            }
+        }
+        let Some(arrow) = arrow.filter(|&a| a > i + 2 && a + 1 < tokens.len()) else {
+            continue;
+        };
+        let single = |at: usize, next: Option<&Token>| {
+            (tokens[at].kind == TokenKind::Name && next.is_none_or(ends))
+                .then(|| tokens[at].text.as_str())
+        };
+        let from = (arrow == i + 3)
+            .then(|| tokens[i + 2].text.as_str())
+            .filter(|_| tokens[i + 2].kind == TokenKind::Name);
+        let to = single(arrow + 1, tokens.get(arrow + 2));
         let whole = |set: &str| holds(&sort_of(set)).and_then(|s| s.full().cloned());
-        let sort = match (whole(&from.text), whole(&to.text)) {
+        let sort = match (from.and_then(whole), to.and_then(whole)) {
             (Some(a), Some(b)) => {
                 Sort::whole(Whole::Function(Rc::new(a), Rc::new(b))).unwrap_or_default()
             }

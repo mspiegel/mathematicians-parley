@@ -85,6 +85,10 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("cun", &[0], "uneq1d"),
     ("cun", &[1], "uneq2d"),
     ("cun", &[0, 1], "uneq12d"),
+    // A pair, as the two ends of an edge.
+    ("cpr", &[0], "preq1d"),
+    ("cpr", &[1], "preq2d"),
+    ("cpr", &[0, 1], "preq12d"),
     ("cdif", &[0], "difeq1d"),
     ("cdif", &[1], "difeq2d"),
     ("cdif", &[0, 1], "difeq12d"),
@@ -129,6 +133,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wral", &[0, 2], "raleqbidv"),
     ("wrex", &[0, 2], "rexeqbidv"),
     ("crab", &[0], "rabbidva"),
+    ("crab", &[2], "rabeqdv"),
     ("cmpt", &[1], "mpteq1d"),
     ("ciun", &[1], "iuneq1d"),
     // A function against the map its define names, and a rule by cases in
@@ -562,7 +567,9 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cdif", "difexg"),
     ("cun", "unexg"),
     ("csn", "snex"),
+    ("cpr", "prex"),
     ("crn", "rnexg"),
+    ("cdm", "dmexg"),
     ("cmpt", "mptexg"),
     ("cmpo", "mpoexga"),
     ("crab", "rabexg"),

@@ -208,6 +208,17 @@ mundane theorem range-split
   metamath    fzsplit
   target      fzsplit
 
+mundane definition range-between
+  let k ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  then        k ∈ {a, …, b} ↔ a ≤ k and k ≤ b
+  metamath    elfz
+  target      elfz
+  note        A whole number is in a range when it lies between the ends,
+              whatever the ends are: {0, …, n − 1} is read so at n = 0, where
+              it is empty, as well as at every other n.
+
 mundane theorem range-bounds
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

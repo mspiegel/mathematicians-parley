@@ -203,7 +203,7 @@ letter the theorem already holds. Alternatives considered: the claim about n
 with the step part fixing k, which makes the reader put k for n in the
 hypothesis; the hypothesis written out again on the `assume` line, which
 repeats the claim word for word; and the step part as one step claiming "for
-all k, if P(k) then P(k + 1)" proved by a `fix`, which states the induction
+all k, if P(k) then P(k + 1)" proved by a `proof` block, which states the induction
 rule over again and nests every step a level deeper.
 
 Alternatives considered: no markers, with the parts identified by their
@@ -249,6 +249,25 @@ block outside any cases block, which loses the case-split narrative, and
 letting a cases step have no claim when each case ends in its own
 contradiction, which breaks collapsing and citation for that step.
 
+A `proof` block whose assumption cannot hold ends the same way. "For all x ∈ V,
+if 0 ≤ n and x = v(0) and x ≠ v(0), then …" says nothing of any x, and a
+textbook says so without supposing the opposite of what it claims:
+
+```
+          assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
+
+          1.2.1.  x = v(0)
+                  join C2
+
+          1.2.2.  x ≠ v(0)
+                  join C2, contradicting 1.2.1
+```
+
+The block's last step reaches the opposite of an earlier line and names it,
+and the block then gives what it claims of the name it fixes, as a case that
+cannot occur gives the common formula. A contradiction block would suppose
+the claim's denial and never use it.
+
 A case whose assumption already is the block's claim has nothing to show,
 and says so on its assumption line, as a textbook says "if b(N) = 0 there is
 nothing to prove":
@@ -286,7 +305,11 @@ criterion.
 
 A step whose claim is "for all x ∈ S, if A then B" is proved by a block
 that opens with the claim's own `let` and `assume` lines, labelled, and ends
-with B. The method is `fix`. The hypotheses are therefore written twice,
+with B. The method is `proof`, as a textbook writes "Proof." under a claim
+inside a larger argument: the word says only that the argument follows, and
+the `let` and `assume` lines under it say what it takes on. A claim "if A
+then B" with no "for all" opens with `assume A` alone, as "Suppose
+k + 1 ≤ n. …" does. The hypotheses are therefore written twice,
 once in the claim and once as lines, and the reader checks that they match.
 This is the same rule by which a theorem's block proves its statement; at
 theorem level no method is named because the `let` and `assume` lines are
@@ -398,8 +421,8 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `inequalities, from L` | the rules for inequalities, starting from L |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a fact of numerals alone that `arithmetic` finds false and says so after its claim, `2 ≤ 1, which is impossible`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
-| `fix`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B"; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B |
-| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
+| `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does |
+| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `both directions`, with two `direction` parts | the claim is "A ↔ B"; the first part opens with `assume A`, labelled, and its last step claims B; the second opens with `assume B` and its last step claims A. It is how a textbook proves "if and only if", a direction at a time |
 | `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
@@ -440,12 +463,12 @@ answered by H2 and K4. The domain is the one the type writes. This is the one
 place a sort is cited (`READERS.md`).
 
 **A step said of every member.** A step claiming "for all k ∈ X, P" may be
-justified as P would be, read at a member k of X, with no `fix` block:
+justified as P would be, read at a member k of X, with no `proof` block:
 
     2.  For all k ∈ {1, …, n}, a(k)² ≥ 0.
         mun:square-nonneg x := a(k), from H2
 
-is the block `fix`, `let k ∈ {1, …, n} (K)`, and one step proving a(k)² ≥ 0
+is the block `proof`, `let k ∈ {1, …, n} (K)`, and one step proving a(k)² ≥ 0
 from H2 and K. The membership k ∈ X is what the claim's own "for all" gives,
 so no line is cited for it, and a requires line speaks of the member by the
 claim's letter and has its membership as the step does:
@@ -504,14 +527,20 @@ the lines it cites back to the steps that cite the define of x₁.
 (D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
 `S(n)` is then S applied to n, and a step that needs what that is writes it
 and cites the define: `S(k + 1) = Σ(j = 1 to k + 1) j` is a link cited `D1`,
-with a `requires` line saying k + 1 is in the domain. A statement that can
-say what it means without the function writes the rule out, as the sum
-formula's `Σ(k = 1 to n) k = n(n + 1)/2` does, and the proof introduces S to
-argue with. A statement that is about the object itself carries its define
-between its `let` lines and `then`, as a textbook says "let M, N ∈ ℕ₀ and
-define …; then …": Euclid's algorithm is stated of the sequences it
-defines. A function only one proof needs is defined there and nowhere else:
-it takes no letter from any other proof.
+with a `requires` line saying k + 1 is in the domain. A define may stand
+where the proof first needs it, as the sum formula's S does, or in the
+theorem's header, between its `let` and `assume` lines and `then`, as a
+textbook says "let M, N ∈ ℕ₀ and define …; then …". A define in the header
+is in the context of the theorem and its names: it may use any name the
+`let` lines above it introduce, the statement may use it, and so may every
+step. Euclid's algorithm is stated of the sequences it defines there, and a
+walk's parity can be stated of `c(k, x)`, the count of its first k edges at
+x, which names the walk's edges e (`tests/elaborator/induction-under-a-condition.proof`).
+The statement means its define written out: the
+kernel states it so, and a theorem citing it compares its own lines with
+the rule, never with the name, which the citing proof does not have. A
+function only one proof needs is defined there and nowhere else: it takes
+no letter from any other proof.
 
 **A define may name a function of two arguments**, each with its domain, in
 order: `define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈ ℕ₀ (D1)` is "the
@@ -522,7 +551,7 @@ or two arguments; a function of more is not yet needed. Written above a
 theorem, it lets the statement be about the object, as the geometric series
 is stated `then G(a, n) = (1 − a^(n + 1))/(1 − a)`: the theorem is a fact about
 G, and the reader meets G before the fact. A define over the theorem's own
-`let` names, which do not exist above the theorem, takes them as arguments.
+`let` names, which do not exist above the theorem, goes in its header.
 
 **A function may be defined by cases**, one case to a line, as a textbook
 prints it inside a brace:

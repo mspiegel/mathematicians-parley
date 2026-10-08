@@ -1,0 +1,699 @@
+import definition         stdlib/graphs/walk
+import definition         stdlib/graphs/euler-path
+import mundane theorem    stdlib/graphs/walk-step
+import mundane theorem    stdlib/graphs/walk-distinct
+import mundane theorem    stdlib/graphs/ends-of-joined
+import mundane theorem    stdlib/counting/count-same
+import mundane theorem    stdlib/counting/count-either
+import mundane theorem    stdlib/counting/count-shift
+import mundane theorem    stdlib/counting/count-first-fails
+import mundane theorem    stdlib/counting/count-last-fails
+import mundane theorem    stdlib/counting/count-nat0
+import mundane theorem    stdlib/functions/function-value
+import mundane definition stdlib/divisibility/even
+import mundane definition stdlib/divisibility/odd
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import definition         stdlib/graphs/traversable
+import mundane definition stdlib/graphs/degree
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/bijection
+import mundane theorem    stdlib/counting/card-equal
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane theorem    stdlib/sums/range-finite
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/range-bounds
+import mundane theorem    stdlib/sums/range-integer
+import mundane definition stdlib/sets/set-builder
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/pair
+import mundane theorem    stdlib/sets/pair-finite
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-subset
+import mundane theorem    stdlib/counting/card-pair
+import mundane theorem    stdlib/divisibility/not-both
+
+theorem walk-parity
+  note        Euler's argument. The walk starts at v(0), crosses e(1) to
+              v(1), then e(2) to v(2), and so on: e lists the edges it
+              crosses, in order, and v the vertices it passes through. An
+              Euler path crosses every edge exactly once. Each time it
+              passes through a vertex it arrives along one edge and leaves
+              along another, so a vertex that is neither the start nor the
+              end has two edges for every time the walk passes through it.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let e : {1, …, n} → E                                               (H3)
+  let v : {0, …, n} → V                                               (H4)
+  assume v and e form an Euler path of n edges                        (H5)
+  let x ∈ V                                                           (H6)
+  assume x ≠ v(0)                                                     (H7)
+  assume x ≠ v(n)                                                     (H8)
+  then deg(x) is even
+
+define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D1)
+       reads how many times the walk passes through x
+
+1.  v and e form a walk of n edges. e : {1, …, n} → E is one-to-one.
+    For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
+    def:euler-path, from H2, H5
+
+2.  deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
+    thm:degree-by-walk, from H2, 1, H6
+
+3.  For all i ∈ {1, …, n}, x is an end of e(i) ↔ x = v(i − 1) or x = v(i).
+    proof
+    let i ∈ {1, …, n}                                                 (K1)
+
+    3.1.  e(i) joins v(i − 1) and v(i)
+          mun:walk-step, from H2, 1, K1
+
+    3.2.  x is an end of e(i) ↔ x = v(i − 1) or x = v(i)
+          mun:ends-of-joined a := e(i), u := v(i − 1), w := v(i), from H6, 3.1
+
+4.  For all i ∈ {1, …, n}, not (x = v(i − 1) and x = v(i)).
+    proof
+    let i ∈ {1, …, n}                                                 (K2)
+
+    4.1.  v(i − 1) ≠ v(i)
+          mun:walk-distinct, from H2, 1, K2
+
+    4.2.  not (x = v(i − 1) and x = v(i))
+          contradiction
+          suppose x = v(i − 1) and x = v(i)                           (S1)
+
+          4.2.1.  x = v(i − 1)
+                  join S1
+
+          4.2.2.  x = v(i)
+                  join S1
+
+          4.2.3.  v(i − 1) = v(i)
+                  calculation
+                    v(i − 1) = x          4.2.1
+                             = v(i)       4.2.2
+
+          4.2.4.  v(i − 1) = v(i)
+                  join 4.2.3, contradicting 4.1
+
+5.  |{i ∈ {1, …, n} : x is an end of e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
+    mun:count-same, from 3
+    requires n ∈ ℤ: membership, from H2
+
+6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
+      = |{i ∈ {1, …, n} : x = v(i − 1)}| + |{i ∈ {1, …, n} : x = v(i)}|
+    mun:count-either, from 4
+    requires n ∈ ℤ: membership, from H2
+
+7.  |{i ∈ {1, …, n} : x = v(i − 1)}| = |{i ∈ {0, …, n − 1} : x = v(i)}|
+    mun:count-shift
+    requires n ∈ ℤ: membership, from H2
+
+8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
+    mun:count-first-fails, from H7
+    requires n − 1 ∈ ℤ: membership, from H2
+
+9.  |{i ∈ {1, …, n} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
+    mun:count-last-fails, from H8
+    requires n ∈ ℤ: membership, from H2
+
+10. |{i ∈ {1, …, n} : x = v(i − 1)}| = m
+    calculation
+      |{i ∈ {1, …, n} : x = v(i − 1)}| = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
+                                       = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
+                                       = m                                   D1
+
+11. |{i ∈ {1, …, n} : x = v(i)}| = m
+    calculation
+      |{i ∈ {1, …, n} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
+                                   = m                                   D1
+
+12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + |{i ∈ {1, …, n} : x = v(i)}|
+    substitute |{i ∈ {1, …, n} : x = v(i − 1)}| = m (line 10) into line 6
+
+13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
+    substitute |{i ∈ {1, …, n} : x = v(i)}| = m (line 11) into line 12
+
+14. m ∈ ℕ₀
+    mun:count-nat0 k := n − 1, from D1
+    requires n − 1 ∈ ℤ: membership, from H2
+
+15. m + m = 2m
+    algebra
+    requires m ∈ ℝ: membership, from 14
+
+16. deg(x) = 2m
+    calculation
+      deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|                 2
+             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           5
+             = m + m                                                  13
+             = 2m                                                     15
+
+17. |{i ∈ {1, …, n} : x is an end of e(i)}| ∈ ℕ₀
+    mun:count-nat0 k := n
+    requires n ∈ ℤ: membership, from H2
+
+18. deg(x) is even
+    mun:even n := deg(x), from 16
+    requires m ∈ ℤ: membership, from 14
+    requires deg(x) ∈ ℕ₀: membership, from 2, 17
+
+theorem degree-by-walk
+  note        A list of the edges that names each exactly once counts the
+              edges at x as the degree does: the edges at x are listed once
+              each among them.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let e : {1, …, n} → E                                               (H3)
+  assume e : {1, …, n} → E is one-to-one                              (H4)
+  assume for all a ∈ E, there is i ∈ {1, …, n} with a = e(i)          (H5)
+  let x ∈ V                                                           (H6)
+  then deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
+
+define S := {i ∈ {1, …, n} : x is an end of e(i)}                     (D1)
+       reads the places in the list whose edge has x as an end
+
+define T := {a ∈ E : x is an end of a}                                (D2)
+       reads the edges that have x as an end
+
+define g(i) := e(i), for i ∈ S                                        (D3)
+       reads the list, read only at the places in S
+
+1.  For all i ∈ S, g(i) ∈ T.
+    proof
+    let i ∈ S                                                         (K1)
+
+    1.1.  i ∈ {1, …, n}. x is an end of e(i).
+          mun:set-builder u := i, from K1, D1
+
+    1.2.  e(i) ∈ E
+          mun:function-value, from 1.1
+
+    1.3.  e(i) ∈ T
+          mun:set-builder u := e(i), from 1.2, 1.1, D2
+
+    1.4.  g(i) = e(i)
+          D3, from K1
+
+    1.5.  g(i) ∈ T
+          substitute g(i) = e(i) (line 1.4) into line 1.3
+
+2.  g : S → T
+    mun:function-into, from 1
+    requires g is a function on S: from D3
+
+3.  For all s, t ∈ {1, …, n}, if e(s) = e(t) then s = t.
+    mun:one-to-one, from H4
+
+4.  For all s, t ∈ S, if g(s) = g(t) then s = t.
+    proof
+    let s ∈ S                                                         (K2)
+    let t ∈ S                                                         (K3)
+    assume g(s) = g(t)                                                (K4)
+
+    4.1.  s ∈ {1, …, n}. x is an end of e(s).
+          mun:set-builder u := s, from K2, D1
+
+    4.2.  t ∈ {1, …, n}. x is an end of e(t).
+          mun:set-builder u := t, from K3, D1
+
+    4.3.  g(s) = e(s)
+          D3, from K2
+
+    4.4.  g(t) = e(t)
+          D3, from K3
+
+    4.5.  e(s) = e(t)
+          calculation
+            e(s) = g(s)          4.3
+                 = g(t)          K4
+                 = e(t)          4.4
+
+    4.6.  s = t
+          instantiate s := s, t := t in line 3, from 4.1, 4.2, 4.5
+
+5.  g : S → T is one-to-one
+    mun:one-to-one, from 2, 4
+
+6.  For all a ∈ T, there is i ∈ S with a = g(i).
+    proof
+    let a ∈ T                                                         (K5)
+
+    6.1.  a ∈ E. x is an end of a.
+          mun:set-builder u := a, from K5, D2
+
+    6.2.  x is an end of a
+          join 6.1
+
+    6.3.  There is i ∈ {1, …, n} with a = e(i).
+          instantiate a := a in H5, from 6.1
+
+    6.4.  i ∈ {1, …, n}. a = e(i).
+          obtain i from line 6.3
+
+    6.5.  x is an end of e(i)
+          substitute a = e(i) (line 6.4) into line 6.2
+
+    6.6.  i ∈ S
+          mun:set-builder u := i, from 6.4, 6.5, D1
+
+    6.7.  g(i) = e(i)
+          D3, from 6.6
+
+    6.8.  a = g(i)
+          calculation
+            a = e(i)             6.4
+              = g(i)             6.7
+
+    6.9.  There is i ∈ S with a = g(i).
+          exhibit, from 6.6, 6.8
+
+7.  There is a bijection from S to T.
+    mun:bijection, from 5, 6, D1
+
+8.  S ⊆ {1, …, n}
+    mun:set-builder-subset, from D1
+
+9.  {1, …, n} is finite
+    mun:range-finite
+    requires 1 ∈ ℤ: arithmetic
+    requires n ∈ ℤ: membership, from H2
+
+10. S is finite
+    mun:finite-part, from 9, 8
+
+11. |S| = |T|
+    mun:card-equal, from 10, 7
+
+12. deg(x) = |T|
+    mun:degree, from H6, D2
+
+13. deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|
+    calculation
+      deg(x) = |T|                                     12
+             = |S|                                     11
+             = |{i ∈ {1, …, n} : x is an end of e(i)}|  D1
+
+theorem odd-vertices
+  note        A walk that crosses every edge once is entered and left at
+              every vertex but its two ends, so every other vertex has even
+              degree, and at most two have odd degree. The definition of
+              traversable counts the walk's edges f(0), …, f(n − 1) from 0, as
+              set.mm does; e(i) := f(i − 1) counts them from 1, so that the
+              walk is v(0), e(1), v(1), …, e(n), v(n), as walk-parity takes it.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  assume G is traversable                                             (H2)
+  then |{x ∈ V : deg(x) is odd}| ≤ 2
+
+1.  n ∈ ℕ₀. f : {0, …, n − 1} → E. v : {0, …, n} → V.
+    f : {0, …, n − 1} → E is one-to-one.
+    For all a ∈ E, there is k ∈ {0, …, n − 1} with a = f(k).
+    For all k ∈ {0, …, n − 1}, f(k) joins v(k) and v(k + 1).
+    obtain n, f, v: def:traversable, from H2
+
+define e(i) := f(i − 1), for i ∈ {1, …, n}                           (D1)
+       reads the walk's edges counted from 1
+
+2.  For all i ∈ {1, …, n}, i − 1 ∈ {0, …, n − 1}.
+    proof
+    let i ∈ {1, …, n}                                                 (K1)
+
+    2.1.  1 ≤ i. i ≤ n.
+          mun:range-bounds, from K1
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from 1
+
+    2.2.  i ∈ ℤ
+          mun:range-integer, from K1
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from 1
+
+    2.3.  0 ≤ i − 1
+          inequalities, from 2.1
+          requires i ∈ ℝ: membership, from 2.2
+
+    2.4.  i − 1 ≤ n − 1
+          inequalities, from 2.1
+          requires i ∈ ℝ: membership, from 2.2
+          requires n ∈ ℝ: membership, from 1
+
+    2.5.  i − 1 ∈ {0, …, n − 1}
+          mun:range-between k := i − 1, a := 0, b := n − 1, from 2.3, 2.4
+          requires i − 1 ∈ ℤ: membership, from 2.2
+          requires 0 ∈ ℤ: arithmetic
+          requires n − 1 ∈ ℤ: membership, from 1
+
+3.  For all i ∈ {1, …, n}, e(i) ∈ E.
+    proof
+    let i ∈ {1, …, n}                                                 (K2)
+
+    3.1.  i − 1 ∈ {0, …, n − 1}
+          instantiate i := i in line 2, from K2
+
+    3.2.  f(i − 1) ∈ E
+          mun:function-value, from 3.1
+
+    3.3.  e(i) = f(i − 1)
+          D1, from K2
+
+    3.4.  e(i) ∈ E
+          substitute e(i) = f(i − 1) (line 3.3) into line 3.2
+
+4.  e : {1, …, n} → E
+    mun:function-into, from 3
+    requires e is a function on {1, …, n}: from D1
+
+5.  For all s, t ∈ {1, …, n}, if e(s) = e(t) then s = t.
+    proof
+    let s ∈ {1, …, n}                                                 (K3)
+    let t ∈ {1, …, n}                                                 (K4)
+    assume e(s) = e(t)                                                (K5)
+
+    5.1.  For all p, q ∈ {0, …, n − 1}, if f(p) = f(q) then p = q.
+          mun:one-to-one, from 1
+
+    5.2.  s − 1 ∈ {0, …, n − 1}
+          instantiate i := s in line 2, from K3
+
+    5.3.  t − 1 ∈ {0, …, n − 1}
+          instantiate i := t in line 2, from K4
+
+    5.4.  e(s) = f(s − 1)
+          D1, from K3
+
+    5.5.  e(t) = f(t − 1)
+          D1, from K4
+
+    5.6.  f(s − 1) = f(t − 1)
+          calculation
+            f(s − 1) = e(s)          5.4
+                     = e(t)          K5
+                     = f(t − 1)      5.5
+
+    5.7.  s − 1 = t − 1
+          instantiate p := s − 1, q := t − 1 in line 5.1, from 5.2, 5.3, 5.6
+
+    5.8.  s = t
+          algebra, from 5.7
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from 1
+          requires s ∈ ℤ: mun:range-integer, from K3
+          requires t ∈ ℤ: mun:range-integer, from K4
+
+6.  e : {1, …, n} → E is one-to-one
+    mun:one-to-one, from 4, 5
+
+7.  For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
+    proof
+    let a ∈ E                                                         (K6)
+
+    7.1.  There is k ∈ {0, …, n − 1} with a = f(k).
+          instantiate a := a in line 1, from K6
+
+    7.2.  k ∈ {0, …, n − 1}. a = f(k).
+          obtain k from line 7.1
+
+    7.3.  k ∈ ℤ
+          mun:range-integer, from 7.2
+          requires 0 ∈ ℤ: arithmetic
+          requires n − 1 ∈ ℤ: membership, from 1
+
+    7.4.  0 ≤ k. k ≤ n − 1.
+          mun:range-bounds, from 7.2
+          requires 0 ∈ ℤ: arithmetic
+          requires n − 1 ∈ ℤ: membership, from 1
+
+    7.5.  1 ≤ k + 1
+          inequalities, from 7.4
+          requires k ∈ ℝ: membership, from 7.3
+
+    7.6.  k + 1 ≤ n
+          inequalities, from 7.4
+          requires k ∈ ℝ: membership, from 7.3
+          requires n ∈ ℝ: membership, from 1
+
+    7.7.  k + 1 ∈ {1, …, n}
+          mun:range-between k := k + 1, a := 1, b := n, from 7.5, 7.6
+          requires k + 1 ∈ ℤ: membership, from 7.3
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from 1
+
+    7.8.  e(k + 1) = f(k + 1 − 1)
+          D1, from 7.7
+
+    7.9.  k + 1 − 1 = k
+          algebra
+          requires k ∈ ℝ: membership, from 7.3
+
+    7.10. e(k + 1) = f(k)
+          substitute k + 1 − 1 = k (line 7.9) into line 7.8
+
+    7.11. a = e(k + 1)
+          calculation
+            a = f(k)             7.2
+              = e(k + 1)         7.10
+
+    7.12. There is i ∈ {1, …, n} with a = e(i).
+          exhibit, from 7.7, 7.11
+
+8.  For all i ∈ {1, …, n}, e(i) joins v(i − 1) and v(i).
+    proof
+    let i ∈ {1, …, n}                                                 (K7)
+
+    8.1.  i − 1 ∈ {0, …, n − 1}
+          instantiate i := i in line 2, from K7
+
+    8.2.  f(i − 1) joins v(i − 1) and v(i − 1 + 1)
+          instantiate k := i − 1 in line 1, from 8.1
+
+    8.3.  i − 1 + 1 = i
+          algebra
+          requires 1 ∈ ℤ: arithmetic
+          requires n ∈ ℤ: membership, from 1
+          requires i ∈ ℤ: mun:range-integer, from K7
+
+    8.4.  f(i − 1) joins v(i − 1) and v(i)
+          substitute i − 1 + 1 = i (line 8.3) into line 8.2
+
+    8.5.  e(i) = f(i − 1)
+          D1, from K7
+
+    8.6.  e(i) joins v(i − 1) and v(i)
+          substitute e(i) = f(i − 1) (line 8.5) into line 8.4
+
+9.  v and e form a walk of n edges
+    def:walk, from 1, 8
+
+10. v and e form an Euler path of n edges
+    def:euler-path, from 1, 9, 6, 7
+
+11. For all u ∈ {x ∈ V : deg(x) is odd}, u ∈ {v(0), v(n)}.
+    proof
+    let u ∈ {x ∈ V : deg(x) is odd}                                   (K8)
+
+    11.1. u ∈ V. deg(u) is odd.
+          mun:set-builder u := u, from K8
+
+    11.2. deg(u) = |{i ∈ {1, …, n} : u is an end of e(i)}|
+          thm:degree-by-walk x := u, from 1, 6, 7, 11.1
+          requires e : {1, …, n} → E: from 4
+
+    11.3. u = v(0) or u ≠ v(0)
+          mun:excluded-middle
+
+    11.4. u = v(0) or u = v(n)
+          cases, from 11.3
+
+          case
+          assume u = v(0)                                             (C1)
+
+          11.4.1. u = v(0) or u = v(n)
+                  mun:or-left, from C1
+
+          case
+          assume u ≠ v(0)                                             (C2)
+
+          11.4.2. u = v(n)
+                  contradiction
+                  suppose u ≠ v(n)                                    (S1)
+
+                  11.4.2.1. deg(u) is even
+                            thm:walk-parity x := u, from 1, 10, 11.1, C2, S1
+                            requires e : {1, …, n} → E: from 4
+
+                  11.4.2.2. |{i ∈ {1, …, n} : u is an end of e(i)}| ∈ ℕ₀
+                            mun:count-nat0 k := n
+                            requires n ∈ ℤ: membership, from 1
+
+                  11.4.2.3. deg(u) is not odd
+                            mun:not-both, from 11.4.2.1, contradicting 11.1
+                            requires deg(u) ∈ ℤ: membership, from 11.2, 11.4.2.2
+
+          11.4.3. u = v(0) or u = v(n)
+                  mun:or-right, from 11.4.2
+
+    11.5. u ∈ {v(0), v(n)}
+          mun:pair x := u, from 11.4
+
+12. {x ∈ V : deg(x) is odd} ⊆ {v(0), v(n)}
+    mun:subset, from 11
+
+13. {v(0), v(n)} is finite
+    mun:pair-finite
+
+14. {x ∈ V : deg(x) is odd} is finite
+    mun:finite-part, from 13, 12
+
+15. |{x ∈ V : deg(x) is odd}| ≤ |{v(0), v(n)}|
+    mun:card-subset, from 12
+
+16. |{v(0), v(n)}| ≤ 2
+    mun:card-pair u := v(0), w := v(n)
+
+17. |{x ∈ V : deg(x) is odd}| ≤ 2
+    inequalities, from 15, 16
+    requires |{x ∈ V : deg(x) is odd}| ∈ ℕ₀: mun:card-nat0, from 14
+    requires |{v(0), v(n)}| ∈ ℕ₀: mun:card-nat0, from 13
+
+theorem konigsberg
+  note        The seven bridges of Königsberg. A is the island, Kneiphof; B and
+              C are the banks of the Pregel, and D the land between its two
+              arms. b₁ and b₂ cross from the island to one bank, b₃ and b₄ to the
+              other, b₅ from the island to D, and b₆ and b₇ from each bank to
+              D. Every land mass is reached by an odd number of bridges, so no
+              walk crosses each bridge exactly once.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C, D} and distinct edges E = {b₁, b₂, b₃, b₄, b₅, b₆, b₇},
+      where b₁ joins A and B, b₂ joins A and B, b₃ joins A and C, b₄ joins A and C,
+      b₅ joins A and D, b₆ joins B and D, b₇ joins C and D                (H1)
+  then G is not traversable
+
+1.  {x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅}
+    inspection, from H1
+
+2.  deg(A) = |{x ∈ E : A is an end of x}|
+    mun:degree
+    requires A ∈ V: inspection, from H1
+
+3.  |{x ∈ E : A is an end of x}| = |{b₁, b₂, b₃, b₄, b₅}|
+    substitute {x ∈ E : A is an end of x} = {b₁, b₂, b₃, b₄, b₅} (line 1)
+
+4.  |{b₁, b₂, b₃, b₄, b₅}| = 5
+    inspection, from H1
+
+5.  deg(A) = 5
+    calculation
+      deg(A) = |{x ∈ E : A is an end of x}|      2
+             = |{b₁, b₂, b₃, b₄, b₅}|                3
+             = 5                                4
+
+6.  {x ∈ E : B is an end of x} = {b₁, b₂, b₆}
+    inspection, from H1
+
+7.  deg(B) = |{x ∈ E : B is an end of x}|
+    mun:degree
+    requires B ∈ V: inspection, from H1
+
+8.  |{x ∈ E : B is an end of x}| = |{b₁, b₂, b₆}|
+    substitute {x ∈ E : B is an end of x} = {b₁, b₂, b₆} (line 6)
+
+9.  |{b₁, b₂, b₆}| = 3
+    inspection, from H1
+
+10. deg(B) = 3
+    calculation
+      deg(B) = |{x ∈ E : B is an end of x}|      7
+             = |{b₁, b₂, b₆}|                      8
+             = 3                                9
+
+11. {x ∈ E : C is an end of x} = {b₃, b₄, b₇}
+    inspection, from H1
+
+12. deg(C) = |{x ∈ E : C is an end of x}|
+    mun:degree
+    requires C ∈ V: inspection, from H1
+
+13. |{x ∈ E : C is an end of x}| = |{b₃, b₄, b₇}|
+    substitute {x ∈ E : C is an end of x} = {b₃, b₄, b₇} (line 11)
+
+14. |{b₃, b₄, b₇}| = 3
+    inspection, from H1
+
+15. deg(C) = 3
+    calculation
+      deg(C) = |{x ∈ E : C is an end of x}|      12
+             = |{b₃, b₄, b₇}|                      13
+             = 3                                14
+
+16. {x ∈ E : D is an end of x} = {b₅, b₆, b₇}
+    inspection, from H1
+
+17. deg(D) = |{x ∈ E : D is an end of x}|
+    mun:degree
+    requires D ∈ V: inspection, from H1
+
+18. |{x ∈ E : D is an end of x}| = |{b₅, b₆, b₇}|
+    substitute {x ∈ E : D is an end of x} = {b₅, b₆, b₇} (line 16)
+
+19. |{b₅, b₆, b₇}| = 3
+    inspection, from H1
+
+20. deg(D) = 3
+    calculation
+      deg(D) = |{x ∈ E : D is an end of x}|      17
+             = |{b₅, b₆, b₇}|                      18
+             = 3                                19
+
+21. 5 = 2·2 + 1
+    arithmetic
+
+22. 5 is odd
+    mun:odd n := 5, from 21
+    requires 5 ∈ ℤ: arithmetic
+    requires 2 ∈ ℤ: arithmetic
+
+23. 3 = 2·1 + 1
+    arithmetic
+
+24. 3 is odd
+    mun:odd n := 3, from 23
+    requires 3 ∈ ℤ: arithmetic
+    requires 1 ∈ ℤ: arithmetic
+
+25. deg(A) is odd
+    substitute deg(A) = 5 (line 5) into line 22
+
+26. deg(B) is odd
+    substitute deg(B) = 3 (line 10) into line 24
+
+27. deg(C) is odd
+    substitute deg(C) = 3 (line 15) into line 24
+
+28. deg(D) is odd
+    substitute deg(D) = 3 (line 20) into line 24
+
+29. {x ∈ V : deg(x) is odd} = {A, B, C, D}
+    inspection, from H1, 25, 26, 27, 28
+
+30. |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|
+    substitute {x ∈ V : deg(x) is odd} = {A, B, C, D} (line 29)
+
+31. |{A, B, C, D}| = 4
+    inspection, from H1
+
+32. |{x ∈ V : deg(x) is odd}| = 4
+    calculation
+      |{x ∈ V : deg(x) is odd}| = |{A, B, C, D}|    30
+                                = 4                31
+
+33. G is not traversable
+    contradiction
+    suppose G is traversable                                          (S1)
+
+    33.1. |{x ∈ V : deg(x) is odd}| ≤ 2
+          thm:odd-vertices, from S1
+
+    33.2. 4 ≤ 2, which is impossible
+          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 32) into line 33.1

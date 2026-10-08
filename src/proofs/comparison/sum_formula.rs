@@ -1,7 +1,7 @@
 //! thm:proofs/sum-formula/sum-formula as a Metamath proof.
 //!
 //! It is the first proof here with an `induction` and the first with a
-//! `fix`, and the first whose definition is recursive. set.mm proves the
+//! `proof` block, and the first whose definition is recursive. set.mm proves the
 //! same statement as `arisum`; citing it would test nothing, so the proof
 //! follows the readable one and uses `nnind` with the base and step blocks
 //! the text writes.

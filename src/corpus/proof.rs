@@ -311,16 +311,17 @@ pub enum Method {
     Arithmetic,
     Inequalities,
     Membership,
+    Inspection,
     Join,
     Contradiction,
-    Fix,
+    Proof,
     Induction,
     Cases,
     BothDirections,
     Calculation,
 }
 
-pub const METHODS: [Method; 15] = [
+pub const METHODS: [Method; 16] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
@@ -329,9 +330,10 @@ pub const METHODS: [Method; 15] = [
     Method::Arithmetic,
     Method::Inequalities,
     Method::Membership,
+    Method::Inspection,
     Method::Join,
     Method::Contradiction,
-    Method::Fix,
+    Method::Proof,
     Method::Induction,
     Method::Cases,
     Method::BothDirections,
@@ -349,9 +351,10 @@ impl Method {
             Method::Arithmetic => "arithmetic",
             Method::Inequalities => "inequalities",
             Method::Membership => "membership",
+            Method::Inspection => "inspection",
             Method::Join => "join",
             Method::Contradiction => "contradiction",
-            Method::Fix => "fix",
+            Method::Proof => "proof",
             Method::Induction => "induction",
             Method::Cases => "cases",
             Method::BothDirections => "both directions",
@@ -364,7 +367,7 @@ impl Method {
         matches!(
             self,
             Method::Contradiction
-                | Method::Fix
+                | Method::Proof
                 | Method::Induction
                 | Method::Cases
                 | Method::BothDirections
@@ -617,6 +620,9 @@ pub struct Theorem {
     pub hypotheses: Vec<Hypothesis>,
     pub ranges: Vec<Range>,
     pub conclusion: String,
+    /// The line of the `then`: a define above it is the statement's, and
+    /// the statement is read with it.
+    pub conclusion_line: usize,
     pub defines: Vec<DefineLine>,
     /// A define's label, and what its `reads` line says.
     pub readings: IndexMap<String, (String, usize)>,
@@ -1129,12 +1135,39 @@ regex!(
     INDUCTION_HYPOTHESIS,
     r"^assume\s+step\s+(\S+)\s+is\s+true\s+for\s+(\S+),\s*the\s+induction\s+hypothesis\s+(\([A-Z]+[0-9]*\))$"
 );
-// An induction's claim: "for all k ∈ X, …", the statement after the comma.
-// The sets an induction runs over are ℕ and ℕ₀, which hold no comma.
+// An induction's claim: "for all k ∈ X, …" or "for all k ∈ X with C, …",
+// the letter, the set and what follows the set. The sets an induction runs
+// over are ℕ and ℕ₀, which hold no comma.
 regex!(
     FOR_ALL_CLAIM,
-    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+),\s*(.*?)\.?$"
+    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+)(.*?)\.?$"
 );
+
+/// What an induction's claim says at its letter, from what follows "for all
+/// k ∈ X": the statement after the comma, or for "with C, S" the statement
+/// "if C then S", which is the formula `for-all-with` builds. The condition
+/// ends at the first comma outside brackets, as the grammar reads it. None
+/// where the words fit neither.
+fn statement_at_letter(rest: &str) -> Option<String> {
+    if let Some(after) = rest.strip_prefix(',') {
+        return Some(str::trim(after).to_string());
+    }
+    let condition = str::trim_start(rest).strip_prefix("with ")?;
+    let mut depth: i64 = 0;
+    for (i, ch) in condition.char_indices() {
+        match ch {
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' => depth -= 1,
+            ',' if depth == 0 => {
+                let (c, s) =
+                    (str::trim(&condition[..i]), str::trim(&condition[i + 1..]));
+                return Some(format!("if {c} then {s}"));
+            }
+            _ => {}
+        }
+    }
+    None
+}
 
 fn label_at_end(text: &str) -> Option<String> {
     LABEL_END.captures(text).map(|c| c[1].to_string())
@@ -1334,7 +1367,9 @@ pub fn parse_proof(
             ));
         }
         let claim = owner.claim_text();
-        let Some(said) = FOR_ALL_CLAIM.captures(str::trim(&claim)) else {
+        let said = FOR_ALL_CLAIM.captures(str::trim(&claim));
+        let statement = said.as_ref().and_then(|s| statement_at_letter(&s[3]));
+        let (Some(said), Some(statement)) = (said, statement) else {
             return Err(Problem::new(
                 path,
                 no,
@@ -1356,7 +1391,7 @@ pub fn parse_proof(
                 ),
             ));
         }
-        Ok(format!("assume {} {}", &said[3], &m[3]))
+        Ok(format!("assume {} {}", statement, &m[3]))
     }
 
     /// A define after a theorem's last step is the file's, for the theorems
@@ -1417,6 +1452,7 @@ pub fn parse_proof(
                     hypotheses: Vec::new(),
                     ranges: Vec::new(),
                     conclusion: String::new(),
+                    conclusion_line: 0,
                     defines: Vec::new(),
                     readings: IndexMap::new(),
                     steps: Vec::new(),
@@ -1580,6 +1616,7 @@ pub fn parse_proof(
         }
         if head == "then" && step.is_none() {
             draft.thm.conclusion = str::trim(&t["then".len()..]).to_string();
+            draft.thm.conclusion_line = line.no;
             continue;
         }
         if head == "define" {

@@ -30,7 +30,7 @@ theorem derivative-on-the-line
     thm:derivative-sum D := ℝ, U := ℝ, F := F, f := f, g := g, from 1, H6, H2, 3
 
 6.  For all x ∈ ℝ, F′(x) = f′(x) + 3.
-    fix
+    proof
     let x ∈ ℝ                                                         (K1)
 
     6.1.  F′(x) = f′(x) + g′(x)

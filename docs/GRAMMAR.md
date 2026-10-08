@@ -829,9 +829,10 @@ The seventeen heads and the slots each admits:
   | `arithmetic`
   | `inequalities` [ `,` <from> ]
   | `membership` [ `,` <from> ]
+  | `inspection` `,` <from>
   | `join` <ref> { `,` <ref> }
   | `contradiction`
-  | `fix`
+  | `proof`
   | `induction` `on` <name> <start>
   | `cases` `,` <from>
   | `both directions`
@@ -874,14 +875,14 @@ those shapes occur once each. Nine of the fifteen heads never vary at all.
 
 ## Blocks
 
-`contradiction`, `fix`, `induction`, `cases` and `calculation` are justified by
+`contradiction`, `proof`, `induction`, `cases` and `calculation` are justified by
 a block. The block is the sub-steps numbered under the step, together with an
 opening line or part markers as the method requires.
 
 ```
 <block> ::= [ <opener> ] { <part> | <step> }
 <opener>::= `suppose` <formula> `(` <label> `)`          -- contradiction
-          | { <hypothesis> }                             -- fix
+          | <hypothesis> { <hypothesis> }                -- proof
 <part>  ::= <part marker> [ <note> ] [ <hypothesis> ] { <step> }
 <part marker> ::= `base` | `step` | `case`
 ```
@@ -927,7 +928,7 @@ cite `17.1`.
 
 A label is in scope inside the block that declares it and nowhere else. A
 theorem's hypothesis labels are in scope throughout its proof. So two sibling
-blocks may use one label, as `binomial-step`'s four `fix` blocks each fix k
+blocks may use one label, as `binomial-step`'s four `proof` blocks each fix k
 as `(J)`, and a citation of it means the line of the block it sits in.
 
 References cannot be found by scanning a line for digits. Claims are full of

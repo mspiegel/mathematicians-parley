@@ -124,6 +124,24 @@ method membership
               touch, stated as a step's claim, so that a membership is one
               line rather than a library item per operation.
 
+method inspection
+  form        inspection, from L
+  block       none
+  checks      the claim about a set listed in full, element by element,
+              against what L says of each element and which names L says are
+              distinct.
+  decides     membership of a name in a listed set, the elements of a set L
+              lists that have a property settled by L's equations, and the
+              size of a listed set of distinct names
+  hypotheses  none beyond its facts in
+  specified-in METHODS.md
+  metamath    elpr, eltp, elun, elsng, rabun2, rabsnif, hashprg, hashtpg,
+              hashunsng
+  note        What a textbook writes as "by inspection": the reader runs down
+              a short list the text has just given. Named for that act, not
+              for a subject; a case that needs a reason of its own is not
+              inspection, and `cases` writes it.
+
 method inequalities
   form        inequalities, from L
   block       none
@@ -176,17 +194,25 @@ method contradiction
               rewriting of B is a step inside the block. See METHODS.md.
   metamath    pm2.65, and notnotr as well where the claim is not a negation
 
-method fix
-  form        fix
+method proof
+  form        proof
   block       required
-  part-opens  let x ∈ S (K), one or more of them, and assume A (H)
+  part-opens  let x ∈ S (K), none or more of them, and assume A (H), at least
+              one line in all
   checks      the claim is "for all x ∈ S, ..., if A then B", one "for all"
-              per let line and in that order. The block opens with the claim's
-              let and assume lines, each labelled, and its last step is B.
+              per let line and in that order, or "if A then B" where the block
+              lets nothing. The block opens with the claim's let and assume
+              lines, each labelled, and its last step is B.
   metamath    ralrimiva, ex, alrimiv
   note        The same rule by which a theorem's block proves its statement. At
               theorem level no method is named because the let and assume lines
-              are the statement.
+              are the statement. The word is a textbook's "Proof." after a
+              claim inside a larger proof: what the block does is said by the
+              let and assume lines under it.
+
+              A block with no let proves an implication: an induction over
+              the k with k ≤ n proves "if k + 1 ≤ n then …" at each k by a
+              block that opens with assume k + 1 ≤ n.
 
               More than one let is Bezout's step 10, which fixes an x and a y
               and supposes their combination is a natural number. Each let is
@@ -203,7 +229,9 @@ method induction
               N is true for k, the induction hypothesis`, N the induction's own
               number, which assumes P(k); its last step claims P(k + 1). The
               letter is the claim's, so the hypothesis is the claim's words
-              after the comma, and nothing is put in for anything.
+              after the comma, and nothing is put in for anything. A claim
+              "for all k ∈ X with C, S" is the formula "for all k ∈ X, if C
+              then S", so P(k) is "if C then S" and the hypothesis says so.
   metamath    nnind, nn0ind, uzind
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need

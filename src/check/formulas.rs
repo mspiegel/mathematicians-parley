@@ -157,8 +157,8 @@ fn cited_sorts(
 /// notice, so the parser refuses it rather than choosing.
 ///
 /// This is the pass that says so, and it reaches every one of them. That is
-/// what lets the passes which merely gather — sorts, the names a `fix`
-/// binds, the trees an item states — skip a formula they cannot read and
+/// what lets the passes which merely gather — sorts, the names a `proof`
+/// block binds, the trees an item states — skip a formula they cannot read and
 /// carry on: it has been reported here, once, with the line it is on.
 pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
     let own = introduced(thm);
@@ -336,7 +336,9 @@ fn ends_block(thm: &Theorem, at: usize) -> bool {
     });
     let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
     match owner.map(|o| &o.just.head) {
-        Some(h) if h.is(Method::Contradiction) => {
+        // A `proof` block whose assumption cannot hold ends as a case that
+        // cannot occur does.
+        Some(h) if h.is(Method::Contradiction) || h.is(Method::Proof) => {
             later.is_none_or(|s| s.number.len() < depth)
         }
         Some(h) if h.is(Method::Cases) => match later {
@@ -390,7 +392,7 @@ pub fn check_impossible(report: &mut Report, thm: &Theorem, known: &Known) {
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} says it is impossible, which only the last step of a contradiction block or of a case may do",
+                    "step {} says it is impossible, which only the last step of a contradiction block, a case or a proof block may do",
                     step.number
                 ),
             );
@@ -450,7 +452,7 @@ pub fn check_contradicting(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "step {} contradicts a line, which only the last step of a contradiction block or of a case may do",
+                    "step {} contradicts a line, which only the last step of a contradiction block, a case or a proof block may do",
                     step.number
                 ),
             );

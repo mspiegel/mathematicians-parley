@@ -275,7 +275,7 @@ one lemma:
 |---|---|
 | `obtain` | `rexlimdva`, indexed by how many names it introduces |
 | `contradiction` | `pm2.65d` |
-| `fix` | `ex` |
+| `proof` | `ex` |
 | `induction` | `nnindd` or `nn0indd`, then `ralrimiva` |
 | `cases` | `mpjaodan` |
 | `both directions` | `impbida` |
@@ -322,8 +322,9 @@ N ∈ ℕ such that …", and
 apart for the discharge and renamed back afterwards, which says nothing new:
 the two are one claim with different bound letters.
 
-A `fix` gives back everything it took — `ex` for what it supposed, then one
-`ralrimiva` per name it fixed, innermost first.
+A `proof` block gives back everything it took — `ex` for what it supposed,
+then one `ralrimiva` per name it fixed, innermost first; one that lets no
+name gives back only the `ex`.
 
 A step said of every member (`SYNTAX.md`) is the one-step block it abbreviates,
 built without one (`by_method_written`): the member is fixed in a frame of its
@@ -563,7 +564,7 @@ there to have cited one.
 **`induction`** is one lemma whose two hypotheses are the two parts the text
 writes. The `base` part stands under the block's scope. The `step` part opens
 a scope of its own, as a `case` does (`enter_induction_part`): its `let`
-fixes the claim's letter as a `fix` does, and its induction hypothesis is the
+fixes the claim's letter as a `proof` block does, and its induction hypothesis is the
 claim's statement at that letter, so its last step is proved under `((ph ∧ k
 ∈ X) ∧ P(k))`, which is the antecedent `nn0indd` asks its step under, and
 nothing is turned round. `INDUCTION` chooses `nnindd` or `nn0indd` by the set
@@ -650,7 +651,7 @@ would be one variable for two things.
 
 The kernel has to see two names where the text writes one — `prime-above`
 obtains a p and concludes that there is a p. Three places choose a variable and
-all three must agree: what an `obtain` introduces, what a `fix` fixes, and what
+all three must agree: what an `obtain` introduces, what a `proof` block fixes, and what
 a claim quantifies over. A binder's name may also be one set.mm declares as a
 class, as Cantor's `B` is, and then no letter will do.
 
@@ -666,7 +667,7 @@ and gives them back where it gives back its frames — in `close_block`, and in
 `enter_case`, which resets a `cases` block between its parts. A `define` is
 read where it stands rather than all of them at the top, which is what lets
 `subsets` write `define U := 𝒫(X ∖ {a})` eighteen columns in, with `X` from a
-`fix` and `a` from an `obtain`. A define written in a case is read once the
+`proof` block and `a` from an `obtain`. A define written in a case is read once the
 case is entered, under its assumption, so the case owns it and the next case
 starts without it: Cauchy–Schwarz names A, B and C only in its third case,
 where Σ(k = 1 to n) a(k)² > 0.
@@ -1353,7 +1354,7 @@ above as asked for when a `membership` line below builds on it, as
   `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the
   page;
 - what a membership implies by one lemma: `let k ∈ ℕ` gives k ∈ ℝ and k ≠ 0;
-- the same claim over other bound letters: a `fix` elsewhere took n, so the
+- the same claim over other bound letters: a `proof` block elsewhere took n, so the
   line saying every partial sum is real binds another letter, and the
   requires line citing it writes n. The two are one claim, and `same` says
   so (the renaming rule);
@@ -1847,20 +1848,28 @@ of sorts reports a page that claims an element of a set of numbers is a set. See
 file states rather than proves* for the proof this let back into `proofs/`.
 
 **Library items no proof restates.** The last stage restates each library
-item with a target as a theorem of its own, and nine it cannot, because a
+item with a target as a theorem of its own, and twenty-three it cannot, because a
 letter in each stands for something a proof cannot introduce. Each is cited
 by a proof or tested, at a formula of that proof's own, so what it says is
 used and verified there; only the restatement is missing.
 
 - A statement: `stdlib/reasoning/excluded-middle` (P or not P),
   `stdlib/reasoning/double-negation`,
-  `stdlib/reasoning/disjunctive-syllogism`, `stdlib/reasoning/or-left` and
-  `stdlib/reasoning/or-right`. A proof introduces things and never a
-  statement, and has no `let` for one.
-- A property: `stdlib/sets/set-builder`, `stdlib/sets/part-builder` and
-  `stdlib/sets/set-builder-subset`. A library item may write `let P be a
-  property of the elements of X`, and the elaborator cites these at a
-  concrete property, as Cantor's proof does. It cannot state a theorem over
+  `stdlib/reasoning/disjunctive-syllogism`, `stdlib/reasoning/or-left`,
+  `stdlib/reasoning/or-right`, `stdlib/reasoning/modus-ponens`,
+  `stdlib/reasoning/iff-both-true`, `stdlib/reasoning/iff-both-false`,
+  `stdlib/reasoning/iff-from-left`, `stdlib/reasoning/iff-from-right` and
+  `stdlib/reasoning/iff-not-from-right`. A proof introduces things and never
+  a statement, and has no `let` for one.
+- A property: `stdlib/sets/set-builder`, `stdlib/sets/part-builder`,
+  `stdlib/sets/set-builder-subset`, `stdlib/counting/count-nat0`,
+  `stdlib/counting/count-empty-range`, `stdlib/counting/count-step-holds`,
+  `stdlib/counting/count-step-fails`, `stdlib/counting/count-same`,
+  `stdlib/counting/count-either`, `stdlib/counting/count-shift`,
+  `stdlib/counting/count-first-fails` and
+  `stdlib/counting/count-last-fails`. A library item may write `let P be
+  a property of the elements of X`, and the elaborator cites these at a
+  concrete property, as Cantor's proof and the Königsberg walk do. It cannot state a theorem over
   one: set.mm writes a property as a statement variable with its letter
   free, and each application elsewhere as a second one tied to it by an
   implicit-substitution hypothesis (`elrab.1`, `( x = A -> ( ph <-> ps ) )`),
@@ -1983,7 +1992,7 @@ would leave the gate green on the day a proof was added and not read.
 
 18. **A chain may change relation partway.**
 
-19. **A standalone `fix` is a generalisation**, and which of the two it is is
+19. **A standalone `proof` block is a generalisation**, and which of the two it is is
     settled by whether the block is a part of something.
 
 20. **The corpus and set.mm may state one fact as two formulas.** Four kinds. A

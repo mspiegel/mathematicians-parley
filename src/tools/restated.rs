@@ -377,6 +377,10 @@ fn let_names(r: &Record) -> Vec<String> {
         if let Some(m) = crate::sorts::group_re().captures(body) {
             out.push(m["group"].to_string());
             out.push(m["identity"].to_string());
+        } else if let Some(m) = crate::sorts::graph_re().captures(body) {
+            out.push(m["graph"].to_string());
+            out.push(m["vertices"].to_string());
+            out.push(m["edges"].to_string());
         } else if let Some(m) = INTRODUCES.captures(body) {
             out.push(m[1].to_string());
         }
@@ -452,6 +456,7 @@ fn is_claim(text: &str) -> bool {
         crate::sorts::set_or_point_re(),
         crate::sorts::element_re(),
         crate::sorts::group_re(),
+        crate::sorts::graph_re(),
         crate::sorts::property_re(),
     ]
     .iter()

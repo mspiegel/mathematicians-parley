@@ -13,7 +13,9 @@
 //! the kernel's spelling whole: half a translation would read as page text
 //! and mean something else.
 
-use crate::formula::{Node, Sort};
+use indexmap::IndexSet;
+
+use crate::formula::{parse, Node, Sort};
 use crate::mm::kernel::Term;
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
@@ -108,6 +110,14 @@ impl Elaborator<'_> {
     }
 
     fn page_node(&self, term: &Term) -> Option<Node> {
+        self.page_node_under(term, &IndexSet::new())
+    }
+
+    /// `page_node` of a part of a term, inside binders that introduce the
+    /// letters `bound`: a part is read back with them as names, as the page
+    /// reads it inside its binder, so the i of {i ∈ X : P(i)} is a letter and
+    /// not the imaginary unit.
+    fn page_node_under(&self, term: &Term, bound: &IndexSet<String>) -> Option<Node> {
         let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
@@ -132,7 +142,7 @@ impl Elaborator<'_> {
         let kids = term.children();
         // A letter a binder introduced, used as a class.
         if label == "cv" && kids.len() == 1 {
-            return self.page_node(&kids[0]);
+            return self.page_node_under(&kids[0], bound);
         }
         if let Some(digits) = numeral(term) {
             return Some(Node::leaf("numeral", Sort::of("number"), &digits));
@@ -180,9 +190,20 @@ impl Elaborator<'_> {
             let Some(holes) = self.matched(&r.target, term) else {
                 continue;
             };
+            // The letters this reading binds are names in its parts.
+            let mut inner = bound.clone();
+            for at in self.binders.get(&r.notation).into_iter().flatten() {
+                if let Some(letter) =
+                    holes.get(*at).and_then(|h| self.page_node_under(h, bound))
+                {
+                    if letter.is_name() {
+                        inner.insert(letter.text.clone());
+                    }
+                }
+            }
             let Some(mut children) = holes
                 .iter()
-                .map(|h| self.page_node(h))
+                .map(|h| self.page_node_under(h, &inner))
                 .collect::<Option<Vec<Node>>>()
             else {
                 continue;
@@ -194,7 +215,18 @@ impl Elaborator<'_> {
             // A reading is the page's only where the page reads it back as
             // itself: |xc| is a distance between points, and of two numbers
             // the page reads nothing, so |x − c| is the reading.
-            let back = self.read(&self.g.print(&node));
+            let printed = self.g.print(&node);
+            let back = if bound.is_empty() {
+                self.read(&printed)
+            } else {
+                let mut sorts = self.sorts_now.clone();
+                for letter in bound {
+                    if !sorts.introduces(letter) {
+                        sorts.unsettled.insert(letter.clone());
+                    }
+                }
+                parse(str::trim(&printed), self.g, &sorts, &self.thm.path, self.at)
+            };
             if back.is_ok_and(|b| b.shape() == node.shape()) {
                 return Some(node);
             }

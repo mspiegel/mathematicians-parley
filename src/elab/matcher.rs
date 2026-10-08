@@ -22,6 +22,7 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
+use super::elaborate::Sides;
 use super::provenance::item_clauses;
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
@@ -170,12 +171,8 @@ impl<'a> Elaborator<'a> {
             if let Some((turned, flip)) = self.turned_claim(wanted) {
                 if !facts.under(&self.fact_key(&turned)).is_empty() {
                     if let Some(p) = self.held(facts, &turned, scope)? {
-                        let sides = self.to_term(&turned);
-                        let (a, b) = (
-                            self.rpn(&sides.children()[0]),
-                            self.rpn(&sides.children()[1]),
-                        );
-                        return Ok(Some(pf!(self.b; scope, a, b, p, flip)));
+                        let Sides { left, right } = self.equation_sides(&turned);
+                        return Ok(Some(pf!(self.b; scope, left, right, p, flip)));
                     }
                 }
             }
@@ -205,6 +202,32 @@ impl<'a> Elaborator<'a> {
             }
             Declined(_) => None,
         })
+    }
+
+    /// `wanted` from a fact that says it over other bound letters, under any
+    /// binder and at any depth: the two are one claim, and `renaming_apart`
+    /// says so, closed, by way of letters nothing holds so that no letter is
+    /// caught on the way. A lemma given letters of its own (`letters_unheld`)
+    /// asks its facts this way, and so does a line joined, which a `proof`
+    /// block may have closed over a spare letter.
+    pub fn held_rebound(
+        &mut self,
+        facts: &Facts,
+        wanted: &str,
+        scope: &str,
+    ) -> Checked<Option<Proof>> {
+        for (said, proof) in facts.entries() {
+            if said == wanted || !self.rebound(&said, wanted) {
+                continue;
+            }
+            if let Some(across) = self.renaming_apart(&said, wanted)? {
+                let turned = pf!(self.b; t!(said, wanted, "wb"), scope, across, "a1i");
+                return Ok(Some(
+                    pf!(self.b; scope, said, wanted, proof, turned, "mpbid"),
+                ));
+            }
+        }
+        Ok(None)
     }
 
     /// `claim`, proved by `proof` under `at`, among what the step's lines
@@ -355,7 +378,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         if lookup(rules::BOUND, label).is_some() {
-            // A `define` and a `fix` may write the same letter, and one of
+            // A `define` and a `proof` block may write the same letter, and one of
             // them is renamed so that they do not collide: the same line.
             for (said, proof) in facts.entries() {
                 if let Some(spelt) = self.respelt(&proof, &said, &rpn, scope)? {
@@ -363,21 +386,8 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        // A line may say the claim over other bound letters, under any
-        // binder and at any depth: the two are one claim, and
-        // `renaming_apart` says so, closed, by way of letters nothing holds
-        // so that no letter is caught on the way. A lemma given letters of
-        // its own (`letters_unheld`) asks its facts this way.
-        for (said, proof) in facts.entries() {
-            if said == rpn || !self.rebound(&said, &rpn) {
-                continue;
-            }
-            if let Some(across) = self.renaming_apart(&said, &rpn)? {
-                let turned = pf!(self.b; t!(said, rpn, "wb"), scope, across, "a1i");
-                return Ok(Built(
-                    pf!(self.b; scope, said, rpn, proof, turned, "mpbid"),
-                ));
-            }
+        if let Some(p) = self.held_rebound(&facts, &rpn, scope)? {
+            return Ok(Built(p));
         }
         if depth > 0 {
             let joined = self.conjoined(wanted, scope, &mut |me, one| {
@@ -2818,8 +2828,6 @@ impl<'a> Elaborator<'a> {
             layers.push((kids[0].clone(), self.rpn(&kids[1]), self.rpn(&kids[2])));
             rest = kids[0].clone();
         }
-        let marks: BTreeSet<String> =
-            layers.iter().map(|(_, v, _)| format!("{v} cv")).collect();
         // A line proved before a block opened holds inside it too, and the
         // scope's own copy is what says so where the step sits.
         let mut sources: Vec<(String, Proof)> = Vec::new();
@@ -2836,30 +2844,50 @@ impl<'a> Elaborator<'a> {
                 sources.push((said, proof));
             }
         }
-        let shapes: Vec<Term> = std::iter::once(rest.clone())
-            .chain(turned_equation(&rest))
-            .collect();
-        // A body saying nothing of its one variable takes any member of the
-        // domain a line names; one that says something takes what it says.
-        let silent = layers.len() == 1
-            && !self.rpn(&rest).split_whitespace().any(|t| t == layers[0].1);
+        // The witnesses are as many as a line names, from the outermost
+        // quantifier in: a line saying "n ∈ ℕ₀ and there is f with …" names
+        // n, and the "there is f" is what the claim says of it. The deepest
+        // the cited lines reach is the one taken.
+        let quantified = layers;
+        let mut layers = Vec::new();
         let mut chosen = None;
-        'sources: for (said, proof) in &sources {
-            for part in self.parts(said) {
-                let held = self.to_term(&part);
-                for shape in &shapes {
-                    let found = self.witnesses_in(shape, &held, &marks);
-                    if let Some(found) = found.filter(|f| !f.is_empty()) {
-                        chosen =
-                            Some((part.clone(), said.clone(), proof.clone(), found));
-                        break 'sources;
+        'depths: for depth in (1..=quantified.len()).rev() {
+            let here = quantified[..depth].to_vec();
+            let rest = here[depth - 1].0.clone();
+            let marks: BTreeSet<String> =
+                here.iter().map(|(_, v, _)| format!("{v} cv")).collect();
+            let shapes: Vec<Term> = std::iter::once(rest.clone())
+                .chain(turned_equation(&rest))
+                .collect();
+            // A body saying nothing of its one variable takes any member of
+            // the domain a line names; one that says something takes what it
+            // says.
+            let silent = here.len() == 1
+                && !self.rpn(&rest).split_whitespace().any(|t| t == here[0].1);
+            for (said, proof) in &sources {
+                for part in self.parts(said) {
+                    let held = self.to_term(&part);
+                    for shape in &shapes {
+                        let found = self.witnesses_in(shape, &held, &marks);
+                        if let Some(found) = found.filter(|f| !f.is_empty()) {
+                            chosen = Some((
+                                part.clone(),
+                                said.clone(),
+                                proof.clone(),
+                                found,
+                            ));
+                            layers = here;
+                            break 'depths;
+                        }
                     }
                 }
-            }
-            if silent {
-                if let Some(found) = self.member_named(said, &layers[0]) {
-                    chosen = Some((said.clone(), said.clone(), proof.clone(), found));
-                    break;
+                if silent {
+                    if let Some(found) = self.member_named(said, &here[0]) {
+                        chosen =
+                            Some((said.clone(), said.clone(), proof.clone(), found));
+                        layers = here;
+                        break 'depths;
+                    }
                 }
             }
         }
@@ -3559,8 +3587,22 @@ impl<'a> Elaborator<'a> {
             return Ok(Declined(why));
         };
         let other = goal.substitute(&moved);
-        let proof =
-            take!(self.apply_lemma(label, &other, scope, facts, step, crossing, seed)?);
+        // What the citation fixed of the claim is fixed of it over the new
+        // letters too: a set-builder's letter the seed names moves with it.
+        let seed: Option<Binding> = seed.map(|s| {
+            s.iter()
+                .map(|(k, v)| (k.clone(), v.substitute(&moved)))
+                .collect()
+        });
+        let proof = take!(self.apply_lemma(
+            label,
+            &other,
+            scope,
+            facts,
+            step,
+            crossing,
+            seed.as_ref()
+        )?);
         let back = self.respelt(&proof, &self.rpn(&other), &self.rpn(goal), scope)?;
         Ok(match back {
             Some(p) => Built(p),
@@ -4456,6 +4498,41 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// `fit_respelt` of a hypothesis to a line, where a letter the binding
+    /// already fixes may come out as the same formula over other bound
+    /// letters. A claim made where its bound letter is a fixed name binds
+    /// another: inside a block that lets x, "for all x ∈ V, …" is spelt over a
+    /// spare letter, and the induction hypothesis it is the consequent of is
+    /// not. The line is fitted with the fixed letters left open, and each
+    /// must come out the formula it has, or that formula over other bound
+    /// letters, which `held_rebound` carries across when the hypothesis is
+    /// proved.
+    fn fit_over_bound(
+        &self,
+        pattern: &Term,
+        held: &Term,
+        binding: &Binding,
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Option<Binding> {
+        let filled = fit_respelt(pattern, held, &Binding::new(), variables, fresh)?;
+        let agrees = filled.iter().all(|(k, v)| match binding.get(k) {
+            Some(had) => {
+                let (had, v) = (self.rpn(had), self.rpn(v));
+                had == v || self.rebound(&had, &v)
+            }
+            None => true,
+        });
+        if !agrees {
+            return None;
+        }
+        let mut out = binding.clone();
+        for (k, v) in filled {
+            out.entry(k).or_insert(v);
+        }
+        Some(out)
+    }
+
     /// Apply one set.mm lemma to reach a claim, side conditions and all.
     ///
     /// What a lemma states before the claim it reaches may be an implication
@@ -4607,6 +4684,11 @@ impl<'a> Elaborator<'a> {
         // (`fit_respelt`).
         let before = binding.clone();
         binding = self.letters_unheld(&sig, binding);
+        // A substitution the lemma asks over one of those letters was worked
+        // out above in the lemma's own spelling of it: `gcntshift` asks
+        // ( i = j -> ( ps <-> th ) ), and th is ps at j. It is worked out
+        // again at the letter j now stands for.
+        binding = self.instanced(&sig, binding);
         let fresh: Binding = binding
             .iter()
             .filter(|(k, _)| !before.contains_key(*k))
@@ -4614,14 +4696,17 @@ impl<'a> Elaborator<'a> {
             .collect();
         // A deduction's hypothesis may bind letters its conclusion never
         // names, each its own: each is the letter the line the step cites for
-        // that hypothesis binds.
+        // that hypothesis binds. A hypothesis that is a bare letter under the
+        // context, as `mpbid` asks ( ph -> ps ), would fit any line, so it is
+        // fitted to none and is fixed by the hypotheses that give it a shape.
+        // A cited line of several sentences supplies each of them.
         let cited: Vec<Term> = match step {
             Some(step) => step
                 .just
                 .refs
                 .iter()
                 .filter_map(|r| self.lines.get(r))
-                .map(|l| self.to_term(&l.term))
+                .flat_map(|l| conjuncts_of(&self.to_term(&l.term)))
                 .collect(),
             None => Vec::new(),
         };
@@ -4631,13 +4716,16 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let said = said.children()[1].clone();
-            if said.names().iter().all(|n| binding.contains_key(&**n)) {
+            if said.variable().is_some()
+                || said.names().iter().all(|n| binding.contains_key(&**n))
+            {
                 continue;
             }
             let mut vars = variables.clone();
             vars.extend(said.names().iter().cloned());
             for held in &cited {
-                if let Some(filled) = fit_respelt(&said, held, &binding, &vars, &fresh)
+                if let Some(filled) =
+                    self.fit_over_bound(&said, held, &binding, &vars, &fresh)
                 {
                     binding = filled;
                     break;
@@ -4715,7 +4803,15 @@ impl<'a> Elaborator<'a> {
                         .is_some_and(|v| !binding.contains_key(v))
             })
             .collect();
-        let known_keys = known.keys();
+        // What fills an antecedent is only what the proof being built may
+        // rest on, as for `settle`: a line the step does not name cannot
+        // decide a class the lemma leaves open.
+        let known_keys = match &self.resting {
+            Some(resting) => known
+                .filtered(|_, v| v.origin.iter().all(|o| resting.contains(o)))
+                .keys(),
+            None => known.keys(),
+        };
         let mut slots: Vec<Option<&Term>> = antecedents.iter().map(Some).collect();
         slots.push(None);
         for slot in slots {
@@ -5268,7 +5364,7 @@ pub fn sethood(slot: &Term, binding: &Binding) -> Vec<String> {
     let mut out = Vec::new();
     let mut rest = vec![slot.clone()];
     while let Some(node) = rest.pop() {
-        if node.label() == Some("wa") {
+        if matches!(node.label(), Some("wa") | Some("w3a")) {
             rest.extend(node.children().iter().cloned());
             continue;
         }

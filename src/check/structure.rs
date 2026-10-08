@@ -114,9 +114,10 @@ fn productions() -> Vec<regex::Regex> {
         r"^arithmetic$".to_string(),
         format!(r"^inequalities(?:,\s*{from})?$"),
         format!(r"^membership(?:,\s*{from})?$"),
+        format!(r"^inspection,\s*{from}$"),
         format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
         r"^contradiction$".to_string(),
-        r"^fix$".to_string(),
+        r"^proof$".to_string(),
         r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
         format!(r"^cases,\s*{from}$"),
         r"^both directions$".to_string(),
@@ -275,7 +276,7 @@ pub fn check_blocks(
                 ),
             );
         }
-        if step.just.head.is(Method::Fix)
+        if step.just.head.is(Method::Proof)
             && !step
                 .openers
                 .iter()
@@ -285,7 +286,7 @@ pub fn check_blocks(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} is a fix whose block does not open with `let` or `assume`",
+                    "step {} is a proof whose block does not open with `let` or `assume`",
                     step.number
                 ),
             );
@@ -315,7 +316,10 @@ pub fn check_blocks(
     }
 }
 
-regex!(INDUCTION_CLAIM, r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+),");
+regex!(
+    INDUCTION_CLAIM,
+    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+)(?:,|\s+with\s)"
+);
 regex!(INDUCTION_LET, r"^let\s+(\S+)\s*∈\s*(\S+)");
 
 /// An induction's step part opens as a textbook's does: `let k ∈ X`, with

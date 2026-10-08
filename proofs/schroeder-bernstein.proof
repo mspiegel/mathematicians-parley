@@ -48,7 +48,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     mun:image-within f := g, from D1
 
 2.  For all X, Y ⊆ A, if X ⊆ Y then M(Y) ⊆ M(X).
-    fix
+    proof
     let X ⊆ A                                                         (K3)
     let Y ⊆ A                                                         (K4)
     assume X ⊆ Y                                                      (A1)
@@ -74,7 +74,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
     instantiate X := C in line 1, from 4
 
 6.  For all X ∈ D, M(C) ∩ X = ∅.
-    fix
+    proof
     let X ∈ D                                                         (K6)
 
     6.1.  X ⊆ A
@@ -93,7 +93,7 @@ define C := ⋃(X ∈ D) X                                               (D3)
           mun:disjoint-within, from 6.4, 6.2
 
 7.  For all a ∈ M(C), a ∈ A ∖ C.
-    fix
+    proof
     let a ∈ M(C)                                                      (K7)
 
     7.1.  a ∈ A
@@ -171,7 +171,7 @@ theorem schroeder-bernstein
            reads f on C, and the way back along g on the rest of A
 
 3.  For all t ∈ A ∖ C, h(t) ∈ B ∖ R and g(h(t)) = t.
-    fix
+    proof
     let t ∈ A ∖ C                                                     (K1)
 
     3.1.  t ∈ A. t ∉ C.
@@ -220,7 +220,7 @@ theorem schroeder-bernstein
           join 3.10, 3.12
 
 4.  For all u ∈ C, for all v ∈ A ∖ C, h(u) ≠ h(v).
-    fix
+    proof
     let u ∈ C                                                         (K2)
     let v ∈ A ∖ C                                                     (K3)
 
@@ -251,7 +251,7 @@ theorem schroeder-bernstein
                   mun:difference, from 4.1.5, contradicting 4.1.4
 
 5.  For all s ∈ A, h(s) ∈ B.
-    fix
+    proof
     let s ∈ A                                                         (K4)
 
     5.1.  s ∈ C or s ∉ C
@@ -290,7 +290,7 @@ theorem schroeder-bernstein
     requires h is a function on A: from D2
 
 7.  For all s, t ∈ A, if h(s) = h(t) then s = t.
-    fix
+    proof
     let s ∈ A                                                         (K5)
     let t ∈ A                                                         (K6)
     assume h(s) = h(t)                                                (A1)
@@ -376,7 +376,7 @@ theorem schroeder-bernstein
                                 = t            7.3.4.3
 
 8.  For all b ∈ B, there is s ∈ A with b = h(s).
-    fix
+    proof
     let b ∈ B                                                         (K7)
 
     8.1.  b ∈ R or b ∉ R

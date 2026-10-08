@@ -43,7 +43,7 @@ theorem add-element-bijection
   then there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
 
 1.  For all S, T ∈ 𝒫X, if S ∪ {a} = T ∪ {a} then S = T.
-    fix
+    proof
     note adding a can be undone by taking it away, so nothing is sent twice
     let S ∈ 𝒫X                                                        (K1)
     let T ∈ 𝒫X                                                        (K2)
@@ -98,7 +98,7 @@ theorem powerset-split-disjoint
     mun:not-in-difference
 
 2.  For all S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∉ 𝒫(X ∖ {a}).
-    fix
+    proof
     let S ∈ 𝒫(X ∖ {a})                                                (K1)
 
     2.1.  a ∈ S ∪ {a}
@@ -127,7 +127,7 @@ theorem powerset-split
   then 𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
 
 1.  For all V ∈ 𝒫X, V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}.
-    fix
+    proof
     let V ∈ 𝒫X                                                        (K1)
 
     1.1.  V ⊆ X
@@ -185,7 +185,7 @@ theorem powerset-split
     mun:powerset-monotone, from 3
 
 5.  For all S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∈ 𝒫X.
-    fix
+    proof
     let S ∈ 𝒫(X ∖ {a})                                                (K2)
 
     5.1.  S ⊆ X ∖ {a}
@@ -225,7 +225,7 @@ theorem subsets-count
 
     base
     1.1.  For all sets X, if |X| = 0 then |𝒫X| = 2^0.
-          fix
+          proof
           let X be a set                                              (K1)
           assume |X| = 0                                              (C1)
 
@@ -259,7 +259,7 @@ theorem subsets-count
     assume step 1 is true for k, the induction hypothesis             (IH)
 
     1.2.  For all sets X, if |X| = k + 1 then |𝒫X| = 2^(k + 1).
-          fix
+          proof
           note remove an element a and split the subsets of X by whether they contain it
           let X be a set                                              (K3)
           assume |X| = k + 1                                          (C2)

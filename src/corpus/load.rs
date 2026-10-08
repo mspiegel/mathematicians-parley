@@ -209,8 +209,16 @@ impl<'a> Item<'a> {
     /// answers what reading each conclusion would. A step claiming "for all
     /// k ∈ X, P" applies an item that does not at a member of X, and reads
     /// one that does as written (`SYNTAX.md`, a step said of every member).
+    ///
+    /// A conclusion that is one letter alone is a formula letter, as
+    /// `modus-ponens` concludes Q, and stands for whatever formula the
+    /// citation makes it, a "for all" among them, so it counts as one.
     pub fn says_for_all(&self) -> bool {
-        let said = |text: &str| text.to_lowercase().contains("for all");
+        let said = |text: &str| {
+            let text = str::trim(text);
+            text.to_lowercase().contains("for all")
+                || (!text.is_empty() && text.chars().all(char::is_alphabetic))
+        };
         match self {
             Item::Record(r) => r.conclusions.iter().any(|(text, _)| said(text)),
             Item::Theorem(t) => said(&t.conclusion),

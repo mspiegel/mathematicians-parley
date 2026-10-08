@@ -15,6 +15,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
+use super::elaborate::Sides;
 use super::reading::subject_of;
 use super::state::{
     fit, number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame,
@@ -39,6 +40,19 @@ regex!(OBTAIN_ITEM, format!(r"\b({ITEM_PREFIX}{CITED})"));
 regex!(INDUCTION_ON, r"induction on (\S+)");
 regex!(STARTING_AT, r"starting at ([^\s,]+)");
 regex!(MEMBER_OF, r"^(\S+)\s*∈\s*(.+)$");
+regex!(FUNCTION_OF, r"^(\S+)\s*:\s*(.+?)\s*→\s*(.+)$");
+
+/// One opener of a `proof` block, as its claim says it: a name fixed over a
+/// set, or over every set, or an assumption.
+pub(crate) struct OpenerLayer {
+    /// The lemma that gives the layer back where the block closes:
+    /// `ralrimiva`, `alrimiv` or `ex`.
+    pub how: &'static str,
+    /// The setvar fixed, or the formula assumed.
+    pub what: String,
+    /// The set a fixed name runs over, where there is one.
+    pub over: Option<String>,
+}
 
 /// What proves a claim under a widened scope, given the claim, the scope and
 /// what is known there.
@@ -298,12 +312,8 @@ impl<'a> Elaborator<'a> {
         // there. A later proof of the equation is a later proof of it turned,
         // as a later proof of a claim replaces an earlier one, so that a step
         // takes the line it names and not an earlier one saying the same.
-        let whole = self.to_term(term);
-        let (a, b) = (
-            self.rpn(&whole.children()[0]),
-            self.rpn(&whole.children()[1]),
-        );
-        let made = pf!(self.b; scope, a, b, proof.clone(), flip);
+        let Sides { left, right } = self.equation_sides(term);
+        let made = pf!(self.b; scope, left, right, proof.clone(), flip);
         self.know(facts, turned, made);
     }
 
@@ -407,7 +417,7 @@ impl<'a> Elaborator<'a> {
                 block.facts = lifted;
                 self.contradicted = None;
             }
-            "fix" => {
+            "proof" => {
                 for o in &step.openers {
                     let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
                     if o.kind == Intro::Let {
@@ -563,7 +573,7 @@ impl<'a> Elaborator<'a> {
 
     /// Open the scope one part of an induction runs under. The base part runs
     /// under the block's own scope. The step part fixes the claim's letter as
-    /// a `fix` does, `let k ∈ X`, and assumes the claim's statement at it,
+    /// a `proof` block does, `let k ∈ X`, and assumes the claim's statement at it,
     /// the induction hypothesis, each laid down with its label.
     pub fn enter_induction_part(
         &mut self,
@@ -754,10 +764,10 @@ impl<'a> Elaborator<'a> {
                 closers.truncate(block.opened_at);
                 made
             }
-            "fix" => {
+            "proof" => {
                 let last = self.last.clone().expect("a block's last step");
                 let held = self.lines.get(&last).expect("the block's last line");
-                let made = self.close_fix(block, &held, &inside)?;
+                let made = self.close_proof_block(block, &held, &inside)?;
                 closers.truncate(block.opened_at);
                 made
             }
@@ -950,7 +960,60 @@ impl<'a> Elaborator<'a> {
     /// was proved under a fixed name, `ex` for what the block assumed, read
     /// off the claim the block states, in the order the openers widened the
     /// scope, and put back innermost first.
-    fn close_fix(
+    /// What a `proof` block's claim says under each of its openers, outermost
+    /// first, and what is left once each is taken off: the body the block's
+    /// last line reaches.
+    pub(crate) fn opener_layers(
+        &mut self,
+        step: &Step,
+        claim: &str,
+    ) -> Checked<(Vec<OpenerLayer>, Term)> {
+        let mut layers: Vec<OpenerLayer> = Vec::new();
+        let mut rest = self.to_term(claim);
+        for o in &step.openers {
+            if o.kind == Intro::Let && rest.label() == Some("wral") {
+                let kids = rest.children().to_vec();
+                layers.push(OpenerLayer {
+                    how: "ralrimiva",
+                    what: self.rpn(&kids[1]),
+                    over: Some(self.rpn(&kids[2])),
+                });
+                rest = kids[0].clone();
+            } else if o.kind == Intro::Let && rest.label() == Some("wal") {
+                // `let X be a set` fixes a name over nothing, so the claim
+                // says its body of every set there is and `alrimiv` gives
+                // that back.
+                let kids = rest.children().to_vec();
+                layers.push(OpenerLayer {
+                    how: "alrimiv",
+                    what: self.rpn(&kids[1]),
+                    over: None,
+                });
+                rest = kids[0].clone();
+            } else if o.kind == Intro::Assume && rest.label() == Some("wi") {
+                let kids = rest.children().to_vec();
+                layers.push(OpenerLayer {
+                    how: "ex",
+                    what: self.rpn(&kids[0]),
+                    over: None,
+                });
+                rest = kids[1].clone();
+            } else if o.kind == Intro::Let {
+                return Err(self.defect(
+                    step.line,
+                    "a proof block that claims nothing of every such name",
+                ));
+            } else {
+                return Err(self.defect(
+                    step.line,
+                    "a proof block whose claim supposes nothing where the block assumes",
+                ));
+            }
+        }
+        Ok((layers, rest))
+    }
+
+    fn close_proof_block(
         &mut self,
         block: &Block,
         held: &Line,
@@ -962,45 +1025,12 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim_text());
         self.bound_as = kept;
         let claim = claim?;
-        let mut layers: Vec<(&'static str, String, Option<String>)> = Vec::new();
-        let mut rest = self.to_term(&claim);
-        for o in &step.openers {
-            if o.kind == Intro::Let && rest.label() == Some("wral") {
-                let kids = rest.children().to_vec();
-                layers.push((
-                    "ralrimiva",
-                    self.rpn(&kids[1]),
-                    Some(self.rpn(&kids[2])),
-                ));
-                rest = kids[0].clone();
-            } else if o.kind == Intro::Let && rest.label() == Some("wal") {
-                // `let X be a set` fixes a name over nothing, so the claim
-                // says its body of every set there is and `alrimiv` gives
-                // that back.
-                let kids = rest.children().to_vec();
-                layers.push(("alrimiv", self.rpn(&kids[1]), None));
-                rest = kids[0].clone();
-            } else if o.kind == Intro::Assume && rest.label() == Some("wi") {
-                let kids = rest.children().to_vec();
-                layers.push(("ex", self.rpn(&kids[0]), None));
-                rest = kids[1].clone();
-            } else if o.kind == Intro::Let {
-                return Err(self.defect(
-                    step.line,
-                    "a fix that claims nothing of every such name",
-                ));
-            } else {
-                return Err(self.defect(
-                    step.line,
-                    "a fix whose claim supposes nothing where the block assumes",
-                ));
-            }
-        }
+        let (layers, rest) = self.opener_layers(step, &claim)?;
         // The scope each layer was taken at, which is what it is given back
         // to.
         let mut scopes = Vec::new();
         let mut scope = block.outer.clone();
-        for (how, what, over) in &layers {
+        for OpenerLayer { how, what, over } in &layers {
             scopes.push(scope.clone());
             scope = if *how == "ex" {
                 t!(scope, what, "wa")
@@ -1033,7 +1063,9 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let mut said = want;
-        for ((how, what, over), outer) in layers.iter().zip(scopes.iter()).rev() {
+        for (OpenerLayer { how, what, over }, outer) in
+            layers.iter().zip(scopes.iter()).rev()
+        {
             match *how {
                 "ex" => {
                     proof = pf!(self.b; outer, what, said, proof, "ex");
@@ -1617,6 +1649,37 @@ impl<'a> Elaborator<'a> {
         };
         let (outer, held) = self.widen(scope, facts, &member, Some(&members));
         let (inner, lifted) = self.widen_to(&outer, &held, &body, Some(number), deep);
+        // A function obtained among the functions from X to Y has the type
+        // f : X → Y, as `let f : X → Y` gives it: `elmapi`.
+        for (variable, over_term) in &layers {
+            let over = self.to_term(over_term);
+            if over.label() != Some("co")
+                || over.children().len() != 3
+                || self.rpn(&over.children()[2]) != "cmap"
+            {
+                continue;
+            }
+            let (codomain, domain) =
+                (self.rpn(&over.children()[0]), self.rpn(&over.children()[1]));
+            let named = format!("{variable} cv");
+            let member = t!(named, over_term, "wcel");
+            let Some(is_member) = self.held(&lifted, &member, &inner)? else {
+                continue;
+            };
+            let typed = t!(domain, codomain, named, "wf");
+            let law = self.b.ap(
+                "elmapi",
+                &binds! {"A" => &named, "B" => &codomain, "C" => &domain},
+                &[],
+            );
+            let made = pf!(self.b; &inner, member, typed, is_member, law, "syl");
+            // A sort, as the type a `let` line gives is: a step rests on it
+            // without citing the obtain.
+            let sort = format!("{number}∈");
+            self.sorts.insert(sort.clone());
+            let sealed = self.seal(made, &sort);
+            self.know(&lifted, typed, sealed);
+        }
         let proof = self
             .held(&lifted, &body, &inner)?
             .expect("the body just laid down");
@@ -2084,6 +2147,18 @@ impl<'a> Elaborator<'a> {
         let mut domains: IndexMap<String, String> = IndexMap::new();
         let mut rest = Vec::new();
         for said in self.sentences(&step.claim_text()) {
+            // A function's membership is its type, `f : X → Y`, which says it
+            // is among the functions from X to Y, where "there is f : X → Y"
+            // runs.
+            if let Some(m) = FUNCTION_OF.captures(&said) {
+                if got.contains(&m[1].to_string()) && !domains.contains_key(&m[1]) {
+                    domains.insert(
+                        m[1].to_string(),
+                        format!("the functions from {} to {}", &m[2], &m[3]),
+                    );
+                    continue;
+                }
+            }
             match MEMBER_OF.captures(&said) {
                 Some(m)
                     if got.contains(&m[1].to_string())
@@ -2324,9 +2399,52 @@ impl<'a> Elaborator<'a> {
             let proof = self.carried(r, facts, &lines);
             supply(self, &held, line.term.clone(), proof, scope);
         }
+        // A line joined is the claim, or a part of it, as it stands or over
+        // other bound letters; and where the step cites a define, with the
+        // name it gives read as what it names, since the two are one
+        // formula in a step that cites it (`SYNTAX.md`).
+        let defines: Vec<String> = step
+            .just
+            .refs
+            .iter()
+            .filter(|r| self.thm.defines.iter().any(|d| &d.label == *r))
+            .cloned()
+            .collect();
+        let joined_terms: Vec<(String, Proof)> = if defines.is_empty() {
+            Vec::new()
+        } else {
+            step.just
+                .refs
+                .iter()
+                .filter(|r| !defines.contains(r))
+                .filter_map(|r| lines.get(r).map(|l| (r, l.term.clone())))
+                .map(|(r, t)| (t, self.carried(r, facts, &lines)))
+                .collect()
+        };
+        let found = |me: &mut Elaborator,
+                     held: &Facts,
+                     term: &str,
+                     scope: &str|
+         -> Checked<Option<Proof>> {
+            if let Some(p) = me.held(held, term, scope)? {
+                return Ok(Some(p));
+            }
+            if let Some(p) = me.held_rebound(held, term, scope)? {
+                return Ok(Some(p));
+            }
+            for (said, proof) in &joined_terms {
+                let (was, now) = (me.to_term(said), me.to_term(term));
+                if let Built(across) = me.same(&was, &now, scope, facts, None)? {
+                    return Ok(Some(
+                        pf!(me.b; scope, said, term, proof.clone(), across, "mpbid"),
+                    ));
+                }
+            }
+            Ok(None)
+        };
         // One line joined is that line restated.
         if step.just.refs.len() == 1 {
-            return match self.held(&held, &wanted, scope)? {
+            return match found(self, &held, &wanted, scope)? {
                 Some(p) => Ok(Some(p)),
                 None => Err(self
                     .defect(step.line, "the joined line is not what the step claims")),
@@ -2334,13 +2452,16 @@ impl<'a> Elaborator<'a> {
         }
         // Several lines joined are one conjunction, nested as the claim nests
         // it: each side is a line joined, or itself lines joined.
+        type Found<'f> =
+            dyn Fn(&mut Elaborator, &Facts, &str, &str) -> Checked<Option<Proof>> + 'f;
         fn joined(
             me: &mut Elaborator,
             held: &Facts,
             term: &str,
             scope: &str,
+            found: &Found,
         ) -> Checked<Option<Proof>> {
-            if let Some(p) = me.held(held, term, scope)? {
+            if let Some(p) = found(me, held, term, scope)? {
                 return Ok(Some(p));
             }
             let node = me.to_term(term);
@@ -2348,8 +2469,8 @@ impl<'a> Elaborator<'a> {
                 return Ok(None);
             }
             let pair: Vec<String> = node.children().iter().map(|c| me.rpn(c)).collect();
-            let first = joined(me, held, &pair[0], scope)?;
-            let second = joined(me, held, &pair[1], scope)?;
+            let first = joined(me, held, &pair[0], scope, found)?;
+            let second = joined(me, held, &pair[1], scope, found)?;
             let (Some(first), Some(second)) = (first, second) else {
                 return Ok(None);
             };
@@ -2357,7 +2478,7 @@ impl<'a> Elaborator<'a> {
                 pf!(me.b; scope, pair[0], pair[1], first, second, "jca"),
             ))
         }
-        match joined(self, &held, &wanted, scope)? {
+        match joined(self, &held, &wanted, scope, &found)? {
             Some(p) => Ok(Some(p)),
             None => {
                 Err(self

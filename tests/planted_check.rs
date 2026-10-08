@@ -618,6 +618,17 @@ fn cases() -> Vec<Case> {
             ],
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
+        // A requires line's item asks for what the lines above it supply:
+        // `count-nat0` lets k ∈ ℤ, and without `requires 0 ∈ ℤ` above it the
+        // line says what is missing rather than that the item concludes
+        // something else.
+        case(
+            "a requires line whose item's hypothesis nothing supplies",
+            vec![
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("                  mun:not-both n := c(0, y), from 1.1.6\n                  requires 0 ∈ ℤ: arithmetic\n".to_string()), "                  mun:not-both n := c(0, y), from 1.1.6\n".to_string()),
+            ],
+            "the requires line of step 1.1.7 cites mun:count-nat0, which asks for k ∈ ℤ, and what it cites does not supply them",
+        ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
         case(
@@ -871,7 +882,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
             ],
-            "none of the 11 introductions",
+            "none of the 13 introductions",
         ),
         // Renaming the isosceles points to a and n makes the distance |an| spell
         // the declared word `an`, which is what the capital-letter convention has
@@ -1143,7 +1154,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 3, 5.5".to_string()), "mun:divides-one d := p, from 3, 5.5, contradicting 5.5".to_string()),
             ],
-            "only the last step of a contradiction block or of a case may do",
+            "only the last step of a contradiction block, a case or a proof block may do",
         ),
         case(
             "say a case is the claim when it is not",
@@ -1267,7 +1278,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n".to_string()),
             ],
-            "the requires line of step 5 needs something that mun:abs-integer does not conclude",
+            "the requires line of step 5 cites mun:abs-integer, which asks for z ∈ ℤ, and what it cites does not supply them",
         ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no
@@ -1393,7 +1404,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("           requires 1 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires 0 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 23.1 needs something that mun:range-integer does not conclude",
+            "the requires line of step 23.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -1542,7 +1553,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/lagrange.proof", Some("let G be a finite group with operation · and identity e".to_string()), "let G be a finite group with operation ·".to_string()),
             ],
-            "is none of the 11 introductions",
+            "is none of the 13 introductions",
         ),
         // gH is read as the coset only of a part of the group, and the step
         // says H is one.

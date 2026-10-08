@@ -19,6 +19,7 @@ use indexmap::IndexMap;
 use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
+use super::elaborate::Sides;
 use super::field::{self, numeral as n, q, Poly, Verdict, Q};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
@@ -273,12 +274,8 @@ impl<'a> Elaborator<'a> {
                 if let Built(p) =
                     self.prove_field(Some(step), &turned, scope, facts, lines)?
                 {
-                    let sides = self.to_term(&turned);
-                    let (a, b) = (
-                        self.rpn(&sides.children()[0]),
-                        self.rpn(&sides.children()[1]),
-                    );
-                    found = Built(pf!(self.b; scope, a, b, p, flip));
+                    let Sides { left, right } = self.equation_sides(&turned);
+                    found = Built(pf!(self.b; scope, left, right, p, flip));
                 }
             }
         }

@@ -199,3 +199,112 @@ mundane theorem partition-count
   note        A finite set split into parts that each have m elements has
               (number of parts) · m of them. The parts make up A, and two
               that share a point are the same part.
+
+mundane theorem count-nat0
+  let P be a property of the elements of ℕ                            (H1)
+  let k ∈ ℤ                                                           (H2)
+  then        |{i ∈ {1, …, k} : P(i)}| ∈ ℕ₀
+  metamath    fzfi, rabfi and hashcl, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gcntcl
+  note        A count of numbers among the first k is a whole number.
+
+mundane theorem count-empty-range
+  let P be a property of the elements of ℕ                            (H1)
+  then        |{i ∈ {1, …, 0} : P(i)}| = 0
+  metamath    fz10, rab0 and hash0, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gcnt0
+  note        Nothing is counted among the numbers from 1 to 0.
+
+mundane theorem count-step-holds
+  let P be a property of the elements of ℕ                            (H1)
+  let k ∈ ℕ₀                                                          (H2)
+  assume P(k + 1)                                                     (H3)
+  then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}| + 1
+  metamath    fzsuc2, rabun2, rabsnif and hashunsng, which this corpus
+              proves together in elaboration/stdlib/proved.mm
+  target      gcntsuc
+  note        One more number, which has the property, counts once more.
+
+mundane theorem count-step-fails
+  let P be a property of the elements of ℕ                            (H1)
+  let k ∈ ℕ₀                                                          (H2)
+  assume not P(k + 1)                                                 (H3)
+  then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}|
+  metamath    fzsuc2, rabun2, rabsnif and un0, which this corpus proves
+              together in elaboration/stdlib/proved.mm
+  target      gcntsucn
+  note        One more number, which lacks the property, adds nothing.
+
+mundane theorem count-same
+  let P be a property of the elements of ℤ                            (H1)
+  let Q be a property of the elements of ℤ                            (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume for all i ∈ {1, …, n}, P(i) ↔ Q(i)                           (H4)
+  then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n} : Q(i)}|
+  metamath    rabbi, under the count, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gcntsame
+  note        Two properties that hold of the same numbers count the same.
+
+mundane theorem count-either
+  let P be a property of the elements of ℤ                            (H1)
+  let Q be a property of the elements of ℤ                            (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume for all i ∈ {1, …, n}, not (P(i) and Q(i))                   (H4)
+  then        |{i ∈ {1, …, n} : P(i) or Q(i)}| = |{i ∈ {1, …, n} : P(i)}| + |{i ∈ {1, …, n} : Q(i)}|
+  metamath    unrab, inrab and hashun, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gcnteither
+  note        The numbers with one property or the other, never both, are
+              those with the first and those with the second, counted
+              apart.
+
+mundane theorem count-shift
+  let P be a property of the elements of ℤ                            (H1)
+  let n ∈ ℤ                                                           (H2)
+  then        |{i ∈ {1, …, n} : P(i − 1)}| = |{i ∈ {0, …, n − 1} : P(i)}|
+  metamath    the shift of a range by one, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gcntshift
+  note        Counting i with P(i − 1) for i from 1 to n is counting j with
+              P(j) for j from 0 to n − 1: each i is j + 1.
+
+mundane theorem count-first-fails
+  let P be a property of the elements of ℤ                            (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume not P(0)                                                     (H3)
+  then        |{i ∈ {0, …, m} : P(i)}| = |{i ∈ {1, …, m} : P(i)}|
+  metamath    the range split at its first number, which this corpus
+              proves in elaboration/stdlib/proved.mm
+  target      gcntfirst
+  note        A first number without the property adds nothing.
+
+mundane theorem count-last-fails
+  let P be a property of the elements of ℤ                            (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume not P(n)                                                     (H3)
+  then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n − 1} : P(i)}|
+  metamath    the range split at its last number, which this corpus
+              proves in elaboration/stdlib/proved.mm
+  target      gcntlast
+  note        A last number without the property adds nothing.
+
+mundane theorem card-pair
+  let u be an element                                                 (H1)
+  let w be an element                                                 (H2)
+  then        |{u, w}| ≤ 2
+  metamath    hashprlei, its second part, which this corpus takes in
+              elaboration/stdlib/proved.mm
+  target      gcardpr
+  note        Two things listed make a set of at most two: one, where they
+              are the same.
+
+mundane theorem card-subset
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume A ⊆ B                                                        (H3)
+  then        |A| ≤ |B|
+  metamath    hashss
+  target      hashss

@@ -17,7 +17,7 @@ theorem triangular-reciprocals
   then Σ(k = 1 to ∞) 1/T(k) = 2
 
 1.  For all k ∈ ℕ, 1/T(k) = 2/k − 2/(k + 1).
-    fix
+    proof
     let k ∈ ℕ                                                         (K1)
 
     1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)
@@ -33,7 +33,7 @@ theorem triangular-reciprocals
           requires k ∈ ℕ: from K1
 
 2.  For all n ∈ ℕ, Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1).
-    fix
+    proof
     let n ∈ ℕ                                                         (K2)
 
     2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
@@ -55,7 +55,7 @@ theorem triangular-reciprocals
 
 3.  For all ε > 0, there exists N ∈ ℕ such that
     |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N.
-    fix
+    proof
     let ε ∈ ℝ                                                         (K3)
     assume ε > 0                                                      (A1)
 
@@ -66,7 +66,7 @@ theorem triangular-reciprocals
           requires ε/2 ∈ ℝ: membership, from K3
 
     3.2.  For all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε.
-          fix
+          proof
           let n ∈ ℕ                                                   (K4)
           assume n ≥ N                                                (A2)
 
