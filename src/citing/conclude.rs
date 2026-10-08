@@ -11,7 +11,7 @@ use crate::matching::{
 use crate::outcome::{Built, Route};
 
 use super::library::{conjuncts, either_way, readings, Group, Library};
-use super::supply::{names_of, supply, Sites};
+use super::supply::{names_of, search, supply, Sites, Ways};
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
 /// those readings ask for is then supplied by the facts: the binding they
@@ -19,6 +19,11 @@ use super::supply::{names_of, supply, Sites};
 ///
 /// It backtracks, because a sentence can fit a reading whose requirement
 /// the step does not meet while another reading's it does.
+///
+/// Given `ways`, it does not stop at the first way that works: every way of
+/// supplying what a reading asks first is followed, as well as the first,
+/// and each complete way is handed to `ways.found` with the facts it took,
+/// those taken first included; it gives back None having tried everything.
 #[allow(clippy::too_many_arguments)]
 fn take(
     claims: &[Node],
@@ -30,38 +35,116 @@ fn take(
     variables: &BTreeSet<String>,
     library: &Library,
     sites: &Sites,
+    mut ways: Option<&mut Ways>,
 ) -> Option<Binding> {
     let Some((claim, later)) = claims.split_first() else {
         let mut all = need.to_vec();
         all.extend(used.iter().cloned());
-        return supply(&all, given, binding, variables, library, sites, true);
+        let mut marks = vec![false; given.len()];
+        return search(
+            &all, given, &mut marks, binding, variables, library, sites, true, ways,
+        );
     };
     for (cand, first) in candidates {
         // What a property stands for is decided inside the braces, so a
         // requirement holding them is matched before the claim that uses it.
-        let mut start = binding.clone();
-        if walk(first).iter().any(|x| sites.contains(&x.id())) {
-            match supply(first, given, binding, variables, library, sites, false) {
-                Some(s) => start = s,
-                None => continue,
-            }
-        }
-        let Some(found) =
-            match_tree(cand, claim, &start, variables, sites, &library.ctx)
-        else {
-            continue;
+        let starts: Vec<Start> = if walk(first).iter().any(|x| sites.contains(&x.id()))
+        {
+            supplied_first(first, given, binding, variables, library, sites, &ways)
+        } else {
+            vec![Start {
+                path: Vec::new(),
+                binding: binding.clone(),
+            }]
         };
-        let seen: BTreeSet<&str> = used.iter().map(|u| u.shape()).collect();
-        let mut more = used.to_vec();
-        more.extend(first.iter().filter(|f| !seen.contains(f.shape())).cloned());
-        let done = take(
-            later, candidates, &found, &more, need, given, variables, library, sites,
-        );
-        if done.is_some() {
-            return done;
+        for start in starts {
+            let Some(found) =
+                match_tree(cand, claim, &start.binding, variables, sites, &library.ctx)
+            else {
+                continue;
+            };
+            let seen: BTreeSet<&str> = used.iter().map(|u| u.shape()).collect();
+            let mut more = used.to_vec();
+            more.extend(first.iter().filter(|f| !seen.contains(f.shape())).cloned());
+            let at = ways.as_deref().map_or(0, |w| w.path.len());
+            if let Some(w) = ways.as_deref_mut() {
+                w.path.extend(&start.path);
+            }
+            let done = take(
+                later,
+                candidates,
+                &found,
+                &more,
+                need,
+                given,
+                variables,
+                library,
+                sites,
+                ways.as_deref_mut(),
+            );
+            if let Some(w) = ways.as_deref_mut() {
+                w.path.truncate(at);
+            }
+            if done.is_some() {
+                return done;
+            }
         }
     }
     None
+}
+
+/// A binding to match a claim under: one way of supplying what a reading
+/// asks first, and the facts that way took.
+struct Start {
+    path: Vec<usize>,
+    binding: Binding,
+}
+
+/// The ways the facts supply what a reading asks first: the first way
+/// alone, or, where `ways` asks for every way, each of them.
+#[allow(clippy::too_many_arguments)]
+fn supplied_first(
+    first: &[Node],
+    given: &[Node],
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+    ways: &Option<&mut Ways>,
+) -> Vec<Start> {
+    if ways.is_none() {
+        return supply(first, given, binding, variables, library, sites, false)
+            .map(|binding| Start {
+                path: Vec::new(),
+                binding,
+            })
+            .into_iter()
+            .collect();
+    }
+    let mut starts: Vec<Start> = Vec::new();
+    let mut record = |path: &[usize], binding: &Binding| {
+        starts.push(Start {
+            path: path.to_vec(),
+            binding: binding.clone(),
+        });
+    };
+    let mut every = Ways {
+        path: Vec::new(),
+        found: &mut record,
+    };
+    let mut marks = vec![false; given.len()];
+    let _ = search(
+        first,
+        given,
+        &mut marks,
+        binding,
+        variables,
+        library,
+        sites,
+        false,
+        Some(&mut every),
+    );
+    starts
 }
 
 /// The group of an item a citation takes, by its place among the item's
@@ -110,7 +193,80 @@ pub fn taken(
     // A conclusion is offered conjunct by conjunct, so a claim is asked for
     // the same way: `u ∈ Y and u ∈ Z` is the two facts a reading gives.
     let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
-    for (group, Group { wants: want, gives }) in groups.iter().enumerate() {
+    for (group, of) in groups.iter().enumerate() {
+        let offer = Offer::of(of, library);
+        if let Some(binding) = take(
+            &claims,
+            &offer.candidates,
+            seed,
+            &[],
+            &offer.need,
+            facts,
+            &offer.variables,
+            library,
+            &offer.sites,
+            None,
+        ) {
+            return Built(Taken::of(group, binding, &groups[group], library));
+        }
+    }
+    Route::no("no group of the item concludes the claim from the facts named")
+}
+
+/// Every way the facts let a group of the item conclude the claim, as the
+/// facts each way takes, by index, handed to `found`.
+///
+/// This is `taken` searched to the end rather than to the first way, over
+/// every group: each reading the claim may take, each way the facts supply
+/// what that reading asks first, and each way they supply the rest.
+pub fn taken_ways(
+    groups: &[Group],
+    claims: &[Node],
+    facts: &[Node],
+    seed: &Binding,
+    library: &Library,
+    found: &mut dyn FnMut(&[usize]),
+) {
+    let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
+    let mut record = |path: &[usize], _: &Binding| found(path);
+    for of in groups {
+        let offer = Offer::of(of, library);
+        let mut ways = Ways {
+            path: Vec::new(),
+            found: &mut record,
+        };
+        let _ = take(
+            &claims,
+            &offer.candidates,
+            seed,
+            &[],
+            &offer.need,
+            facts,
+            &offer.variables,
+            library,
+            &offer.sites,
+            Some(&mut ways),
+        );
+    }
+}
+
+/// What one group of an item offers a claim, read once for every way of
+/// taking it.
+struct Offer {
+    /// Each conjunct of each reading of a conclusion, either way round, with
+    /// what that reading asks first.
+    candidates: Vec<(Node, Vec<Node>)>,
+    /// The group's hypotheses, conjunct by conjunct.
+    need: Vec<Node>,
+    /// The item's letters, which the claim and the facts bind.
+    variables: BTreeSet<String>,
+    /// Where a property or function the item binds is applied.
+    sites: Sites,
+}
+
+impl Offer {
+    fn of(group: &Group, library: &Library) -> Offer {
+        let Group { wants: want, gives } = group;
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut sites = Sites::new();
         for concl in gives {
@@ -135,21 +291,13 @@ pub fn taken(
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = names_of(&trees);
-        if let Some(binding) = take(
-            &claims,
-            &candidates,
-            seed,
-            &[],
-            &need,
-            facts,
-            &variables,
-            library,
-            &sites,
-        ) {
-            return Built(Taken::of(group, binding, &groups[group], library));
+        Offer {
+            candidates,
+            need,
+            variables,
+            sites,
         }
     }
-    Route::no("no group of the item concludes the claim from the facts named")
 }
 
 /// Whether the item gives a "there is" from what the step names.

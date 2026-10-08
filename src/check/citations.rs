@@ -1,5 +1,6 @@
 //! A citation supplies what the item asks, and claims what it concludes.
 
+use std::cell::OnceCell;
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
@@ -10,8 +11,8 @@ use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    names_of, obtained, obtains, readings, search, supply, taken, with_parts, Group,
-    Library, Parts, Sites, Ways,
+    names_of, obtained, obtains, readings, search, supply, taken, taken_ways,
+    with_parts, Group, Library, Parts, Sites, Ways,
 };
 use crate::corpus::proof::{requires_item, Requires};
 use crate::corpus::{
@@ -264,7 +265,10 @@ fn missing_hypotheses(
 /// the facts each way uses; None where that cannot be said, because the step
 /// cites nothing that has hypotheses to supply.
 ///
-/// This is `unsupplied` searched to the end rather than to the first way.
+/// This is `unsupplied` searched to the end rather than to the first way, by
+/// both of its routes: the claim taking a group of the item, and a search
+/// with nothing fixed. A way is the facts it took, each once, though a fact
+/// the binding has pinned may supply two hypotheses.
 fn ways_supplied(
     step: &Step,
     known: &Known,
@@ -274,6 +278,23 @@ fn ways_supplied(
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
     let mut out: Vec<Vec<Node>> = Vec::new();
+    let took = |path: &[usize]| -> Vec<Node> {
+        let distinct: BTreeSet<usize> = path.iter().copied().collect();
+        distinct
+            .into_iter()
+            .map(|i| parts.facts[i].clone())
+            .collect()
+    };
+    if !parts.claims.is_empty() {
+        taken_ways(
+            &groups,
+            &parts.claims,
+            &parts.facts,
+            &parts.seed,
+            library,
+            &mut |path| out.push(took(path)),
+        );
+    }
     for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {
             return None;
@@ -284,9 +305,7 @@ fn ways_supplied(
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
-        let mut record = |taken: &[usize]| {
-            out.push(taken.iter().map(|&i| parts.facts[i].clone()).collect());
-        };
+        let mut record = |path: &[usize], _: &Binding| out.push(took(path));
         let mut ways = Ways {
             path: Vec::new(),
             found: &mut record,
@@ -305,6 +324,13 @@ fn ways_supplied(
         );
     }
     Some(out)
+}
+
+/// The two lists say the same things in the same order, facts being the
+/// same when they are spelt the same.
+fn same_shapes(one: &[Node], other: &[Node]) -> bool {
+    one.len() == other.len()
+        && one.iter().zip(other).all(|(a, b)| a.shape() == b.shape())
 }
 
 /// Every fact of `some` is among `all`, as many times as it is in `some`,
@@ -1453,29 +1479,40 @@ pub fn check_surplus(
         let mut refs: IndexSet<&String> = IndexSet::new();
         refs.extend(just.refs.iter());
         // Taking a line away leaves a step whose facts are some of these, so
-        // a way that step could supply the item is one of the ways these do.
-        // Where no way these supply it fits in what is left, the step without
-        // the line is not supplied, and asking again would only say so; the
-        // one search here takes the place of a search for each line, each
-        // of which had to try everything to find nothing.
-        let ways = ways_supplied(step, known, library);
+        // a way that step could supply the item, by either route, is one of
+        // the ways these do. Where no way these supply it fits in what is
+        // left, the step without the line is not supplied, and asking again
+        // would only say so; the one search here takes the place of a search
+        // for each line, each of which had to try everything to find nothing.
+        // Found the first time a line asks, since a step whose every line is
+        // kept without a search never needs them.
+        let ways: OnceCell<Option<Vec<Vec<Node>>>> = OnceCell::new();
         let facts = known.parts(step, library);
+        let fails_without = |lighter: &Step| -> bool {
+            let Some(ways) = ways.get_or_init(|| ways_supplied(step, known, library))
+            else {
+                return false;
+            };
+            let left = known.parts(lighter, library);
+            // What the argument rests on, asked rather than assumed: the
+            // facts left are among these, and the claim and the seed are
+            // these, so the claim's route is the one the ways were found by.
+            within(&left.facts, &facts.facts)
+                && same_shapes(&left.claims, &facts.claims)
+                && same_shapes(
+                    &left.seed.values().cloned().collect::<Vec<_>>(),
+                    &facts.seed.values().cloned().collect::<Vec<_>>(),
+                )
+                && left.seed.keys().eq(facts.seed.keys())
+                && !ways.iter().any(|way| within(way, &left.facts))
+        };
         for r in refs {
             if defines.contains(r.as_str()) {
                 continue;
             }
             let mut lighter = step.clone();
             lighter.just.refs = just.refs.iter().filter(|x| *x != r).cloned().collect();
-            if let Some(ways) = &ways {
-                let left = known.parts(&lighter, library);
-                // What the argument above rests on, asked rather than assumed.
-                if within(&left.facts, &facts.facts)
-                    && !ways.iter().any(|way| within(way, &left.facts))
-                {
-                    continue;
-                }
-            }
-            if holds(&lighter) {
+            if !fails_without(&lighter) && holds(&lighter) {
                 report.say(
                     &thm.path,
                     just.line,
@@ -1499,10 +1536,12 @@ pub fn check_surplus(
             let domain = known
                 .read_as_written(&req.fact)
                 .is_some_and(|n| in_domain.contains(n.shape()));
-            if holds(&lighter)
-                && !asks.asks(step, &req.fact, known)
+            // What keeps a line without a search is asked before the search.
+            if !asks.asks(step, &req.fact, known)
                 && !domain
                 && !built_on(req, step, known)
+                && !fails_without(&lighter)
+                && holds(&lighter)
             {
                 report.say(
                     &thm.path,

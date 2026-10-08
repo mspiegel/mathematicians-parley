@@ -73,6 +73,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "an atom found among a term's parts, part by part",
     ),
     (
+        "src/check/citations.rs",
+        "one.iter().zip(other).all(|(a, b)| a.shape() == b.shape())",
+        "the surplus check skips a search only where the claim and seed are the trees its ways were found under; trees alike but spelt otherwise only cost a search",
+    ),
+    (
         "src/check/formulas.rs",
         "if a.shape() == b.shape() {",
         "two terms walked in step to find where they differ (`changed_closed`)",

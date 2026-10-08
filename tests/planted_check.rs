@@ -1261,6 +1261,17 @@ fn cases() -> Vec<Case> {
             ],
             "step 1 cites H1, and mun:distance-symmetric asks for nothing it says",
         ),
+        // A count step's claim fixes the property it is applied to, and so
+        // supplies its hypotheses with no search for them; a line named
+        // beside them still has to do work. 1.2.12.3 says c(j, y) is not
+        // odd, which count-step-holds does not ask.
+        case(
+            "cite a line a count step asks nothing of",
+            vec![
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from K2, 1.2.12.7, D1\n".to_string()), "mun:count-step-holds k := j, from K2, 1.2.12.7, 1.2.12.3, D1\n".to_string()),
+            ],
+            "step 1.2.12.8 cites 1.2.12.3, and mun:count-step-holds asks for nothing it says",
+        ),
         // An obtain names its item after the word `obtain`, and the checks that
         // read an item citation read only a step the item heads. The three
         // below went unreported.

@@ -49,10 +49,11 @@ pub fn supply(
 
 /// A search asked for every way the facts supply the hypotheses, rather
 /// than the first: the facts the attempt in hand has taken, by index, and
-/// what to do with each way once it is complete.
+/// what to do with each way once it is complete, given the facts it took
+/// and the binding it supplied them under.
 pub struct Ways<'v> {
     pub path: Vec<usize>,
-    pub found: &'v mut dyn FnMut(&[usize]),
+    pub found: &'v mut dyn FnMut(&[usize], &Binding),
 }
 
 /// `supply` over one list of facts, leaving out those `used` marks.
@@ -79,7 +80,7 @@ pub fn search(
 ) -> Option<Binding> {
     let Some((first, rest)) = patterns.split_first() else {
         if let Some(ways) = ways {
-            (ways.found)(&ways.path);
+            (ways.found)(&ways.path, binding);
             return None;
         }
         return Some(binding.clone());
