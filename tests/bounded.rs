@@ -3,11 +3,12 @@
 //! written the other.
 
 use std::path::Path;
+use std::rc::Rc;
 
 use parley::corpus::parse_database;
 use parley::formula::{parse_here, Grammar, Sorts};
 
-fn grammar() -> Grammar {
+fn grammar() -> Rc<Grammar> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
     let text = std::fs::read_to_string(&path).unwrap();
     let records = parse_database("corpus/db/notation.records", &text).unwrap();

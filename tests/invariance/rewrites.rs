@@ -10,6 +10,7 @@
 
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 use indexmap::IndexSet;
 use parley::check::statements_in_scope;
@@ -26,7 +27,7 @@ use regex::Regex;
 /// says about letters.
 pub struct Context {
     pub corpus: Corpus,
-    pub g: Grammar,
+    pub g: Rc<Grammar>,
     /// The library's function names of more than one letter, which the
     /// tokeniser reads whole.
     long_names: IndexSet<String>,

@@ -22,6 +22,7 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
@@ -223,7 +224,7 @@ impl Libraries {
 pub struct Maker<'a> {
     source: &'a dyn Source,
     found: &'a Corpus,
-    g: Grammar,
+    g: Rc<Grammar>,
     items: IndexMap<String, Item<'a>>,
     libraries: &'a Libraries,
     library: Option<Library>,
@@ -487,7 +488,7 @@ pub fn library(root: &Path, setmm: Option<&str>) -> Checked<Library> {
 pub struct Loaded<'s> {
     source: &'s dyn Source,
     found: Corpus,
-    g: Grammar,
+    g: Rc<Grammar>,
 }
 
 impl<'s> Loaded<'s> {

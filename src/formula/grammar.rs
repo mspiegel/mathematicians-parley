@@ -1,9 +1,11 @@
 //! Reading one sentence against the declared notations.
 
 use std::cell::{OnceCell, RefCell};
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
+use rustc_hash::FxBuildHasher;
 
 use super::library::{library_functions, Function};
 use super::node::{describe_category, Node, Sort, Whole};
@@ -115,14 +117,47 @@ pub struct Grammar {
     long_names: IndexSet<String>,
     /// The sort each library function's name has in a formula.
     function_sorts: IndexMap<String, Sort>,
-    tokens: RefCell<IndexMap<String, Rc<Vec<Token>>>>,
-    readings: RefCell<IndexMap<ReadingKey, Node>>,
+    /// The two caches are hashed with Fx rather than the default SipHash:
+    /// every sentence read is looked up in both, and with SipHash the looking
+    /// up took about half the time reading did.
+    tokens: RefCell<IndexMap<String, Rc<Vec<Token>>, FxBuildHasher>>,
+    readings: RefCell<IndexMap<ReadingKey, Node, FxBuildHasher>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
     binders: OnceCell<Rc<IndexMap<String, Binds>>>,
 }
 
+thread_local! {
+    /// Every grammar this thread has loaded, by a digest of the records it
+    /// was loaded from.
+    static LOADED: RefCell<BTreeMap<String, Rc<Grammar>>> =
+        const { RefCell::new(BTreeMap::new()) };
+}
+
 impl Grammar {
-    pub fn load(records: &[Record]) -> Checked<Grammar> {
+    /// The grammar the records declare, with what it has read so far.
+    ///
+    /// A grammar is the same for the same records, and what it has read
+    /// holds for as long as it does; so one is kept for the life of the
+    /// thread, and a later run over the same records reads with it. The
+    /// records are compared whole, where they are and what they say, so a
+    /// grammar is shared only where nothing it was built from differs.
+    pub fn load(records: &[Record]) -> Checked<Rc<Grammar>> {
+        let key = {
+            use sha2::{Digest, Sha256};
+            Sha256::digest(format!("{records:?}").as_bytes())
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect::<String>()
+        };
+        if let Some(found) = LOADED.with_borrow(|loaded| loaded.get(&key).cloned()) {
+            return Ok(found);
+        }
+        let made = Rc::new(Grammar::build(records)?);
+        LOADED.with_borrow_mut(|loaded| loaded.insert(key, Rc::clone(&made)));
+        Ok(made)
+    }
+
+    fn build(records: &[Record]) -> Checked<Grammar> {
         let (notations, words, symbols) = compile_notations(records)?;
         let functions = library_functions(records)?;
         let long_names = functions
@@ -142,8 +177,8 @@ impl Grammar {
             long_names,
             function_sorts,
             tighter: compile_precedence(records),
-            tokens: RefCell::new(IndexMap::new()),
-            readings: RefCell::new(IndexMap::new()),
+            tokens: RefCell::new(IndexMap::default()),
+            readings: RefCell::new(IndexMap::default()),
             notation_sorts: OnceCell::new(),
             binders: OnceCell::new(),
         })
