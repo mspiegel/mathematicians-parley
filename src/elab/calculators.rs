@@ -12,6 +12,7 @@
 //! What a method decides but cannot write is a defect at its line: nothing is
 //! taken as stated in its place.
 
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -38,12 +39,16 @@ use crate::{pf, t, take};
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being
 /// zero, and what the page says of that.
-#[derive(Clone)]
 pub struct Spec {
     pub scope: String,
     pub facts: Facts,
     pub apart: bool,
     pub written: Option<Facts>,
+    /// Each atom's membership of ℂ, once proved. The scope and the facts do
+    /// not change for as long as the spec lives, so an atom asked again is
+    /// the same question: four asks in five during a comparison of two
+    /// polynomials were one already answered.
+    pub atoms: RefCell<IndexMap<String, Proof>>,
 }
 
 /// An emitter and what it asks, which live as long as one calculation.
@@ -67,6 +72,7 @@ impl Work {
             facts: facts.clone(),
             apart: false,
             written: None,
+            atoms: RefCell::default(),
         })
     }
 }
@@ -77,12 +83,9 @@ pub struct Ask<'e, 'a> {
     spec: &'e Spec,
 }
 
-impl Oracle for Ask<'_, '_> {
-    fn b(&self) -> &Builder {
-        &self.el.b
-    }
-
-    fn atom(&mut self, said: &str) -> Checked<Proof> {
+impl Ask<'_, '_> {
+    /// ( under -> said e. CC ), proved.
+    fn atom_proved(&mut self, said: &str) -> Checked<Proof> {
         // A sum a linear reading wrote is a number because its terms are,
         // as `membership` builds any sum (`summed`).
         let key = (self.spec.scope.clone(), said.to_string());
@@ -98,6 +101,24 @@ impl Oracle for Ask<'_, '_> {
         }
         self.el
             .membership(said, "cc", &self.spec.scope, &self.spec.facts)
+    }
+}
+
+impl Oracle for Ask<'_, '_> {
+    fn b(&self) -> &Builder {
+        &self.el.b
+    }
+
+    fn atom(&mut self, said: &str) -> Checked<Proof> {
+        if let Some(p) = self.spec.atoms.borrow().get(said) {
+            return Ok(p.clone());
+        }
+        let p = self.atom_proved(said)?;
+        self.spec
+            .atoms
+            .borrow_mut()
+            .insert(said.to_string(), p.clone());
+        Ok(p)
     }
 
     fn apart(&mut self, said: &str) -> Checked<Proof> {
@@ -377,6 +398,7 @@ impl<'a> Elaborator<'a> {
             facts: facts.clone(),
             apart: true,
             written: Some(facts.clone()),
+            atoms: RefCell::default(),
         });
         if apart {
             return self.apart_from_cited(step, &goal, scope, &facts, lines, &mut w);
@@ -2431,6 +2453,7 @@ impl<'a> Elaborator<'a> {
             facts: facts.clone(),
             apart: false,
             written: Some(known),
+            atoms: RefCell::default(),
         });
         let mut terms: Vec<Against> = Vec::new();
         for Part {
