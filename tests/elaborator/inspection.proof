@@ -1,0 +1,40 @@
+theorem listed-member
+  note        `inspection` concluding that a name is in a set a line lists:
+              V is given by the let line's listing.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C, D} and distinct edges E = {b₁, b₂},
+      where b₁ joins A and B, b₂ joins A and C                         (H1)
+  then B ∈ V
+
+1.  B ∈ V
+    inspection, from H1
+
+theorem listed-nonmember
+  note        `inspection` concluding that a name is not in a listed set, by
+              the let line's saying the names are distinct.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C, D} and distinct edges E = {b₁, b₂},
+      where b₁ joins A and B, b₂ joins A and C                         (H1)
+  then D ∉ {A, C}
+
+1.  D ∉ {A, C}
+    inspection, from H1
+
+theorem listed-property
+  note        `inspection` concluding which elements of a listed set have a
+              property: the edges incident with A, each settled by what it
+              joins.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C, D} and distinct edges E = {b₁, b₂},
+      where b₁ joins A and B, b₂ joins A and C                         (H1)
+  then {x ∈ E : A is incident with x} = {b₁, b₂}
+
+1.  {x ∈ E : A is incident with x} = {b₁, b₂}
+    inspection, from H1
+
+theorem listed-property-none
+  note        `inspection` concluding that no element of a listed set has a
+              property: no edge is incident with D.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C, D} and distinct edges E = {b₁, b₂},
+      where b₁ joins A and B, b₂ joins A and C                         (H1)
+  then {x ∈ E : D is incident with x} = ∅
+
+1.  {x ∈ E : D is incident with x} = ∅
+    inspection, from H1

@@ -1,0 +1,18 @@
+$( tests/elaborator/inspection/listed-property, elaborated from tests/elaborator/inspection.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/definitions.mm $]
+
+${
+  $d A x $.
+  $d B x $.
+  $d C x $.
+  $d D x $.
+  $d E x $.
+  $d F x $.
+  $d G x $.
+  tests.elaborator.inspection.listed-property $p |- ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( Vtx ` A ) = ( { B , C , D } u. { E } ) /\ dom ( iEdg ` A ) = { F , G } ) /\ -. B = C ) /\ -. B = D ) /\ -. B = E ) /\ -. C = D ) /\ -. C = E ) /\ -. D = E ) /\ -. F = G ) /\ ( ( iEdg ` A ) ` F ) = { B , C } ) /\ ( ( iEdg ` A ) ` G ) = { B , D } ) /\ B e. _V ) /\ C e. _V ) /\ D e. _V ) /\ E e. _V ) /\ F e. _V ) /\ G e. _V ) /\ A e. UMGraph ) -> { x e. dom ( iEdg ` A ) | B e. ( ( iEdg ` A ) ` x ) } = { F , G } ) $=
+    ( cvtx cfv ctp csn cun wceq ciedg cdm cpr wa wn cvv wcel cumgr cv crab id simpl syl simpr df-pr eqtrdi rabeqdv rabun2 c0 cif fveq2d eleq2d rabsnif snidg elun1 eleqtrrd iftrue eqtrid uneq12d eqtrd a1i eqtr4d ) BIJZCDEKZFLZMZNZBOJZPZGHQZNZRZCDNZSZRZCENZSZRZCFNZSZRZDENZSZRZDFNZSZRZEFNZSZRZGHNZSZRZGVLJZCDQZNZRZHVLJZCEQZNZRZCTUAZRZDTUAZRZETUAZRZFTUAZRZGTUAZRZHTUAZRZBUBUAZRZCAUCZVLJZUAZAVMUDZGLZHLZMZVNXSYCYBAYFUDZYFXSYBAVMYFXSVMVNYFXSVPVOXSVSVPXSWBVSXSWEWBXSWHWEXSWKWHXSWNWKXSWQWNXSXAWQXSXEXAXSXGXEXSXIXGXSXKXIXSXMXKXSXOXMXSXQXOXSXSXQXSUEZXQXRUFZUGZXOXPUFZUGZXMXNUFZUGZXKXLUFZUGZXIXJUFZUGZXGXHUFZUGZXEXFUFZUGZXAXDUFZUGZWQWTUFUGWNWPUFUGWKWMUFUGWHWJUFUGWEWGUFUGWBWDUFUGVSWAUFUGVPVRUFUGVKVOUHUGGHUIZUJUKXSYGYBAYDUDZYBAYEUDZMYFYBAYDYEULXSUUFYDUUGYEXSUUFCWRUAZYDUMUNZYDYBUUHAGXTGNZYAWRCUUJXTGVLUUJUEUOUPUQXSUUHUUIYDNXSCCLZDLZMZWRXSCUUKUAZCUUMUAXSXFUUNXSXGXFYTXEXFUHZUGZCTURZUGZCUUKUULUSUGXSWRWSUUMXSXAWTUUDWQWTUHUGCDUIUJUTUUHYDUMVAUGVBXSUUGCXBUAZYEUMUNZYEYBUUSAHXTHNZYAXBCUVAXTHVLUVAUEUOUPUQXSUUSUUTYENXSCUUKELZMZXBXSUUNCUVCUAUURCUUKUVBUSUGXSXBXCUVCXSXEXDUUBXAXDUHUGCEUIUJUTUUSYEUMVAUGVBVCVBVDVNYFNXSUUEVEVF $.
+$}

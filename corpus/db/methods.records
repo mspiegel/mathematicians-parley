@@ -127,16 +127,19 @@ method membership
 method inspection
   form        inspection, from L
   block       none
-  checks      the claim about a set listed in full, element by element,
-              against what L says of each element and which names L says are
-              distinct.
-  decides     membership of a name in a listed set, the elements of a set L
-              lists that have a property settled by L's equations, and the
-              size of a listed set of distinct names
+  checks      the claim, each side worked out to a listing or a number by
+              what L says of each listed element and which names L says are
+              distinct, and the two sides compared.
+  decides     membership of a name in a listed set, and an equation of two
+              things it works out: a listed set, the empty set, the elements
+              of a listed set that have a property settled by L, the size of
+              such a set of distinct names, a numeral, or a term a "for all"
+              equation in L gives at a listed element
   hypotheses  none beyond its facts in
   specified-in METHODS.md
-  metamath    elpr, eltp, elun, elsng, rabun2, rabsnif, hashprg, hashtpg,
-              hashunsng
+  metamath    snidg, elun1, elun2, nelsn, noel, elun, ioran, rabun2,
+              rabsnif, iftrue, iffalse, hashsng, hashunsng, hash0, rspcdva,
+              eqssd
   note        What a textbook writes as "by inspection": the reader runs down
               a short list the text has just given. Named for that act, not
               for a subject; a case that needs a reason of its own is not

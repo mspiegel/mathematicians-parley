@@ -16,6 +16,7 @@ use crate::corpus::{fmt, Step};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
+use crate::rules;
 use crate::{t, take};
 
 /// A set read in the standard form: its elements in order, and a proof
@@ -145,10 +146,11 @@ impl Elaborator<'_> {
     }
 
     /// What `term` comes to by what the cited lines say: a set listed, or
-    /// given by an equation with a listing; a set-builder over a listed set,
-    /// the elements its property keeps; the size of such a set, counted; a
-    /// closed numeral, itself; or a term a cited "for all" equation over a
-    /// listed set gives at one of its elements, the other side worked out.
+    /// given by an equation with a listing; the empty set, listing nothing;
+    /// a set-builder over a listed set, the elements its property keeps; the
+    /// size of such a set, counted; a term spelt with numerals alone
+    /// (`rules::numeric`), itself; or a term a cited "for all" equation over
+    /// a listed set gives at one of its elements, the other side worked out.
     fn value(
         &mut self,
         term: &Term,
@@ -221,9 +223,19 @@ impl Elaborator<'_> {
                 proof: Some(proof),
             }));
         }
-        if term.names().is_empty() {
+        let said = self.rpn(term);
+        if said == "c0" {
+            let none = self
+                .b
+                .ap("eqidd", &binds! {"ph" => scope, "A" => "c0"}, &[]);
+            return Ok(Built(Value::Set {
+                elements: Vec::new(),
+                proof: none,
+            }));
+        }
+        if said.split_whitespace().all(rules::numeric) {
             return Ok(Built(Value::Count {
-                sum: self.rpn(term),
+                sum: said,
                 proof: None,
             }));
         }

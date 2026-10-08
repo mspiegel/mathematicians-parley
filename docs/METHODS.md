@@ -633,10 +633,10 @@ One sentence: `t ∈ S` or `t ∉ S`, or an equation `l = r`, where each side
 is something the facts let the reader work out. What a term works out to:
 
 - a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
-  list of its elements: those of S of which P holds;
+  list of its elements: those of S of which P holds, and ∅ lists none;
 - the size `|S|` of such a set, once the facts say its names are distinct,
   is the numeral that counts them;
-- a closed numeral is itself;
+- a term spelt with numerals alone is itself;
 - a term a cited "for all" equation gives at a listed element is what the
   other side works out to there.
 
